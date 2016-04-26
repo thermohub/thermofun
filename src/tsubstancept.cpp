@@ -211,15 +211,36 @@ void TSubstancePT::thermoCalc()
 //    DCthermo( 0/*q*/, 0 ); // calc thermodynamic data using the thermo correction but at std conditions
 }
 
+vector<TCorrModSubstance *> TSubstancePT::getTCorr() const
+{
+    return TCorr;
+}
+
+void TSubstancePT::setTCorr(const vector<TCorrModSubstance *> &value)
+{
+    TCorr = value;
+}
+
+TCorrModSubstance *TSubstancePT::getTCorr( int ndx ) const
+{
+    return TCorr[ndx];
+}
+
+void TSubstancePT::setTCorr(int ndx, TCorrModSubstance *value )
+{
+    TCorr[ndx] = value;
+}
+
+
 void TSubstancePT::makeGenEoS( )
 {
     TCorrModSubstance* myCORR = 0;
 
     switch( Method_genEoS )
     {
-        case MethodGenEoS_Thrift::type::CTPM_CPT:
-        {
-            EmpCpIntegr* myPT = new EmpCpIntegr( DataAtPrTr, DataAtPT );
+    case MethodGenEoS_Thrift::type::CTPM_CPT:
+    {
+        EmpCpIntegr* myPT = new EmpCpIntegr( DataAtPrTr, DataAtPT );
             myCORR = (EmpCpIntegr*)myPT;
             if(myCORR) { TCorr.push_back( myCORR ); myCORR = 0; };
             break;

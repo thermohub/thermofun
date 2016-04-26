@@ -3,3 +3,5 @@ docs/devel.txt
 docs/info.txt
 docs/unknowns.txt
 tests/unit01/tcorrpt-test.pro.user
+src/*.autosave
+tests/unit01/src/*.autosave

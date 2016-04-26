@@ -15,21 +15,21 @@ TCorrModSubstance::TCorrModSubstance(SubstanceDataPrTr *AtPrTr_, SubstanceDataPT
 }
 
 // Getter and Setter functions
-vvd TCorrModSubstance::getTCint() const
+vvd TCorrModSubstance::getTCinterval() const
 {
     return TCinterval;
 }
 
-void TCorrModSubstance::setTCint(const vvd &value)
+void TCorrModSubstance::setTCinterval(const vvd &value)
 {
     TCinterval = value;
 }
-vvd TCorrModSubstance::getCp() const
+vvd TCorrModSubstance::getCpCoeff() const
 {
     return CpCoeff;
 }
 
-void TCorrModSubstance::setCp(const vvd &value)
+void TCorrModSubstance::setCpCoeff(const vvd &value)
 {
     CpCoeff = value;
 }
@@ -46,6 +46,7 @@ EmpCpIntegr::EmpCpIntegr(SubstanceDataPrTr *AtPrTr_, SubstanceDataPT *AtPT_):
     TCorrModSubstance( AtPrTr_, AtPT_ )
 {
     Type = MethodGenEoS_Thrift::type::CTPM_CPT;
+    ModName = "EmpiricalCpIntegration";
 }
 
 ///< Implementation of the PT correction
@@ -65,15 +66,15 @@ long int EmpCpIntegr::PTparam()
     Pb = AtPT->getCurrentPb();
     TrK = AtPrTr->getReferenceTc() + C_to_K;
 
-    S = AtPT->getS0();
-    G = AtPT->getG0();
-    H = AtPT->getH0();
+    S = AtPrTr->getSS0();
+    G = AtPrTr->getSG0();
+    H = AtPrTr->getSH0();
     V = {0.0, 0.0}; // ???
     Cp = {0.0, 0.0};
 
 
     // P correction - has to be moved from here
-    if(( Subst_class_ == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
+    if(( Substance_class == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
             && Pb > 0.0 )
     { // molar volume from the ideal gas law
         V[0] = TK / Pb * R_CONSTANT;

@@ -78,6 +78,12 @@ public:
 
 //    void setThermoAtPrTr();
 
+    vector<TCorrModSubstance *> getTCorr() const;
+    void setTCorr(const vector<TCorrModSubstance *> &value);
+
+    TCorrModSubstance *getTCorr( int ndx ) const;
+    void setTCorr(int ndx, TCorrModSubstance *value );
+
 private:
 
     int Nelem;                                              ///< number of elements in the substance
