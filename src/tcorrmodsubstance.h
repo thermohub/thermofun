@@ -46,4 +46,22 @@ protected:
         EmpiricalCoeff; /// Array of empirical EOS coefficients (CG EOS: MAXCGPARAM = 13)
 };
 
+// Clases for calculation of thermodynamic parameters for a substance //
+
+/// integration of empirical heat capacity equation Cp=f(T);
+class EmpCpIntegr: public TCorrModSubstance
+{
+public:
+
+    /// Constructor
+    EmpCpIntegr (  );
+        EmpCpIntegr (SubstanceDataPrTr *AtPrTr_, SubstanceDataPT *AtPT_ );
+
+        /// Calculates P, T corrected themrodynamic parameters
+        long int PTparam();
+
+private:
+
+};
+
 #endif // TCORRMODSUBSTANCE_H

@@ -215,10 +215,16 @@ void TSubstancePT::makeGenEoS( )
 {
     TCorrModSubstance* myCORR = 0;
 
-//    switch( Method_genEoS )
-//    {
-
-//    }
+    switch( Method_genEoS )
+    {
+        case MethodGenEoS_Thrift::type::CTPM_CPT:
+        {
+            EmpCpIntegr* myPT = new EmpCpIntegr( DataAtPrTr, DataAtPT );
+            myCORR = (EmpCpIntegr*)myPT;
+            if(myCORR) { TCorr.push_back( myCORR ); myCORR = 0; };
+            break;
+        }
+    }
 
 }
 
