@@ -61,10 +61,10 @@ long int EmpCpIntegr::PTparam()
     ac.resize(16);
     ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
-    TC = AtPT->getCurrentTc();
-    TK = TC + C_to_K;
-    Pb = AtPT->getCurrentPb();
-    TrK = AtPrTr->getReferenceTc() + C_to_K;
+    TC = AtPT->getCurrentTc();              // get current T in Celsius
+    TK = TC + C_to_K;                       // curent T in Kelvin
+    Pb = AtPT->getCurrentPb();              // current P in bar
+    TrK = AtPrTr->getReferenceTc() + C_to_K;// get reference T in Kelvin
 
     S = AtPrTr->getSS0();
     G = AtPrTr->getSG0();
@@ -72,8 +72,7 @@ long int EmpCpIntegr::PTparam()
     V = {0.0, 0.0}; // ???
     Cp = {0.0, 0.0};
 
-
-    // P correction - has to be moved from here
+    // P correction - has to be moved from here!!!
     if(( Substance_class == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
             && Pb > 0.0 )
     { // molar volume from the ideal gas law
@@ -88,7 +87,6 @@ long int EmpCpIntegr::PTparam()
 //        goto NEXT;
 //    }
 
-
     // get Cp interval
     for (unsigned i=0; i<TCinterval.size(); i++)
     {
@@ -99,10 +97,16 @@ long int EmpCpIntegr::PTparam()
        }
     }
 
-    if (k < 0)
+    try
     {
-        std::cout << "Temperature interval for the Cp calculation was not specified! "<< std::endl;
-        exit(1);
+        if (k<0)
+        throw std::string("Temperature interval for the Cp calculation was not specified! ");
+        //exit(1);
+    }
+    catch (std::string &s)
+    {
+        cout << s << "Exiting..." << endl;
+        return -1;
     }
 
     T2 = TK * TK;
@@ -118,7 +122,7 @@ long int EmpCpIntegr::PTparam()
     Cp[0] = ( ac[0] + ac[1]*TK + ac[2]/T2 + ac[3]/T05 + ac[4]*T2
           + ac[5]*T3 + ac[6]*T4 + ac[7]/T3 + ac[8]/TK + ac[9]*T05 /*+ ac[10]*log(T)*/);
 
-//    // Phase transitions
+    // Phase transitions
     if (fabs(TK-TrK) > TEMPER_PREC)
     {
         for (unsigned j=0; j<=k; j++)
@@ -186,7 +190,6 @@ long int EmpCpIntegr::PTparam()
     AtPT->setH0(H);
     AtPT->setS0(S);
     AtPT->setV0(V);
-    AtPT->setIsProcessed(true);
-
-    return 1;
+//    AtPT->setIsProcessed(true);
+    return 0;
 }

@@ -26,10 +26,12 @@ int main()
 
     cout << "Hello World!" << endl;
 
-
     TCorrPT Tcorr = TCorrPT(1,2);
 
-    /// Test EmpCpIntegr ///
+// +++ Test EmpCpIntegr +++
+//#define TEST_EMPCPINTEGR
+#ifdef TEST_EMPCPINTEGR
+
     vd Interval, Coeff;
     vvd TCpInterval,
     CpCoefficients;
@@ -75,21 +77,11 @@ int main()
     TCorr->setCpCoeff(CpCoefficients);
 
     TCorr->PTparam();
-//    TCorr->
 
-
-//    TCorr[0].set
-
-
-
-//    TCorr.PTparam();
-
-    /// END test CP
-
-
+#endif
+// +++ END test CP +++
 
     cout << "Bye World!" << endl;
-
 
     return 0;
 }
