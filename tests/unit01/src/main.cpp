@@ -19,19 +19,69 @@ int main()
 
     double Tr = 298.15,                  ///< Reference temperature for standard state (usually 298.15 K)
            Pr = 1e05;                  ///< Reference pressure (usually 1 bar or 10^5 Pa, sometimes 1.013 bar = 1 atm)
-    double currentP = 698.15,                    ///< 400 C
-           currentT = 2e08;                    ///< 2000 bar
+    double currentP = 2000,                    ///<
+           currentT = 400;                    ///<
 
    /// END variables substance ///
 
     cout << "Hello World!" << endl;
 
-
     TCorrPT Tcorr = TCorrPT(1,2);
 
+// +++ Test EmpCpIntegr +++
+//#define TEST_EMPCPINTEGR
+#ifdef TEST_EMPCPINTEGR
+
+    vd Interval, Coeff;
+    vvd TCpInterval,
+    CpCoefficients;
+
+    // Corundum
+    // Reference properties
+    V0 = {2.558, 0};
+    G0 = {-1581808, 0};
+    H0 = {-1675250, 0};
+    S0 = {50.9, 0};
+    Cp0 = {79.4529, 0};
+
+    Interval = {0,2000};
+    Coeff = {139.5, 0.00589, -2.4606e6, -589.2};
+    TCpInterval.push_back(Interval);
+    CpCoefficients.push_back(Coeff);
+
+    TSubstancePT Corundum;
+
+    SubstanceDataPrTr Corr_data_atPrTr;
+    SubstanceDataPT Corr_data_atPT;
+
+    Corr_data_atPrTr.setReferencePb(1);
+    Corr_data_atPrTr.setReferenceTc(25);
+    Corr_data_atPrTr.setSV0(V0);
+    Corr_data_atPrTr.setSG0(G0);
+    Corr_data_atPrTr.setSH0(H0);
+    Corr_data_atPrTr.setSS0(S0);
+    Corr_data_atPrTr.setSCp0(Cp0);
+
+    Corr_data_atPT.setCurrentTc(currentT);
+    Corr_data_atPT.setCurrentPb(currentP);
+
+    Corundum.setDataAtPrTr(&Corr_data_atPrTr);
+    Corundum.setDataAtPT(&Corr_data_atPT);
+    Corundum.setMethod_genEoS(MethodGenEoS_Thrift::type::CTPM_CPT);
+    Corundum.setMethod_CorrT(MethodCorrT_Thrift::type::CTM_CST);
+    Corundum.setMethod_CorrP(MethodCorrP_Thrift::type::CPM_CEH);
+    Corundum.makeTCorrPT();
+
+    TCorrModSubstance * TCorr = Corundum.getTCorr(0);
+    TCorr->setTCinterval(TCpInterval);
+    TCorr->setCpCoeff(CpCoefficients);
+
+    TCorr->PTparam();
+
+#endif
+// +++ END test CP +++
 
     cout << "Bye World!" << endl;
-
 
     return 0;
 }

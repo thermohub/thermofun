@@ -15,11 +15,11 @@ public:
         return 0;
     };
 
-    vvd getTCint() const;
-    void setTCint(const vvd &value);
+    vvd getTCinterval() const;
+    void setTCinterval(const vvd &value);
 
-    vvd getCp() const;
-    void setCp(const vvd &value);
+    vvd getCpCoeff() const;
+    void setCpCoeff(const vvd &value);
 
 private:
 
@@ -29,9 +29,10 @@ protected:
     SubstanceDataPrTr *AtPrTr;
     SubstanceDataPT *AtPT;
 
-    int Type, Subst_class_;
+    int Type;
+    string ModName;
 
-    SubstanceClass::type Subst_class;
+    SubstanceClass::type Substance_class;
 
     vvd TCinterval,     /// Lower and upper T limits for Cp=f(T) equation
         PBinterval,     /// Lower and upper P limits for pressure correction
@@ -44,6 +45,24 @@ protected:
         CritParam,      /// Critical parameters (for FGL)?
         VCoeff_ODc,     /// Coeffs of V(T,P) Birch-Murnaghan 1947 Gottschalk
         EmpiricalCoeff; /// Array of empirical EOS coefficients (CG EOS: MAXCGPARAM = 13)
+};
+
+// Clases for calculation of thermodynamic parameters for a substance //
+
+/// integration of empirical heat capacity equation Cp=f(T);
+class EmpCpIntegr: public TCorrModSubstance
+{
+public:
+
+    /// Constructor
+    EmpCpIntegr (  );
+        EmpCpIntegr (SubstanceDataPrTr *AtPrTr_, SubstanceDataPT *AtPT_ );
+
+        /// Calculates P, T corrected themrodynamic parameters
+        long int PTparam();
+
+private:
+
 };
 
 #endif // TCORRMODSUBSTANCE_H
