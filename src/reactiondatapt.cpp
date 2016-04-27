@@ -6,10 +6,13 @@ ReactionDataPT::ReactionDataPT()
     CurrentTc = 0;
     K = {0,0};
     logK = {0,0};
-    dHr = {0,0};
-    dCpr = {0,0};
-    dSr = {0,0};
-    dVr = {0,0};
+    dH = {0,0};
+    dCp = {0,0};
+    dS = {0,0};
+    dV = {0,0};
+    dA = {0,0};
+    dU = {0,0};
+    dCv = {0,0};
     isProcessed = false;
 }
 
@@ -53,44 +56,44 @@ void ReactionDataPT::setLogK(const vd &value)
     logK = value;
 }
 
-vd ReactionDataPT::getDHr() const
+vd ReactionDataPT::getDH() const
 {
-    return dHr;
+    return dH;
 }
 
-void ReactionDataPT::setDHr(const vd &value)
+void ReactionDataPT::setDH(const vd &value)
 {
-    dHr = value;
+    dH = value;
 }
 
-vd ReactionDataPT::getDSr() const
+vd ReactionDataPT::getDS() const
 {
-    return dSr;
+    return dS;
 }
 
-void ReactionDataPT::setDSr(const vd &value)
+void ReactionDataPT::setDS(const vd &value)
 {
-    dSr = value;
+    dS = value;
 }
 
-vd ReactionDataPT::getDCpr() const
+vd ReactionDataPT::getDCp() const
 {
-    return dCpr;
+    return dCp;
 }
 
-void ReactionDataPT::setDCpr(const vd &value)
+void ReactionDataPT::setDCp(const vd &value)
 {
-    dCpr = value;
+    dCp = value;
 }
 
-vd ReactionDataPT::getDVr() const
+vd ReactionDataPT::getDV() const
 {
-    return dVr;
+    return dV;
 }
 
-void ReactionDataPT::setDVr(const vd &value)
+void ReactionDataPT::setDV(const vd &value)
 {
-    dVr = value;
+    dV = value;
 }
 
 bool ReactionDataPT::getIsProcessed() const

@@ -66,9 +66,9 @@ long int EmpCpIntegr::PTparam()
     Pb = AtPT->getCurrentPb();              // current P in bar
     TrK = AtPrTr->getReferenceTc() + C_to_K;// get reference T in Kelvin
 
-    S = AtPrTr->getSS0();
-    G = AtPrTr->getSG0();
-    H = AtPrTr->getSH0();
+    S = AtPrTr->getRS0();
+    G = AtPrTr->getRG0();
+    H = AtPrTr->getRH0();
     V = {0.0, 0.0}; // ???
     Cp = {0.0, 0.0};
 

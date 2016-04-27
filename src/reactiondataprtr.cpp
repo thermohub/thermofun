@@ -8,6 +8,9 @@ ReactionDataPrTr::ReactionDataPrTr()
     drS0 = {0,0};
     drCp0 = {0,0};
     drV0 = {0,0};
+    drA0 = {0,0};
+    drU0 = {0,0};
+    drCv0 = {0,0};
     ReferenceTc = 25;
     ReferencePb = 1;
     isProcessed = false;

@@ -10,6 +10,9 @@ SubstanceDataPT::SubstanceDataPT()
     H0 = {0,0};
     V0 = {0,0};
     Cp0 = {0,0};
+    A0 = {0,0};
+    U0 = {0,0};
+    Cv0 = {0,0};
     Fug = {0,0};
     dVg = {0,0};
 }

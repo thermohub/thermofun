@@ -42,10 +42,17 @@ public:
 private:
     double CurrentPb,                    ///< current pressure, bar (10^5 Pa)
            CurrentTc;                    ///< current temperature, Celsius
-        vd G0, H0, S0,         ///< partial molal gibbs energy, enthalpy, entropy at current TP; [1] ERROR
-           V0, Cp0,               ///< partial molal volume, heat capacity at current TP; [1] ERROR
-           Fug, dVg;              ///< molar fugacity at TP (reserved), dVm of gas (reserved); [1] ERROR
-    bool isProcessed;                   ///< indicator of processing the data
+        vd V0,              ///< Standard volume at Tst, Pst "V0" m3/mol; [1] ERROR
+           G0,              ///< Standard Gibbs energy at Tst, Pst  "GO" J/mol; [1] ERROR
+           H0,              ///< Standard enthalpy at Tst, Pst  "H0" J/mol; [1] ERROR
+           S0,              ///< Standard entropy of formation from elements at st.states "S0f" J/K/mol; [1] ERROR
+           aS0,             ///< Standard absolute entropy at Tst, Pst "S0" J/K/mol;[1] ERROR
+           Cp0,             ///< Standard constant-pressure heat capacity at Tst, Pst "Cp0" J/K/mol; [1] ERROR
+           A0,              ///< Standard Helmholtz energy at reference conditions J/mol
+           U0,              ///< Standard internal energy at reference conditions J/mol
+           Cv0,             ///< Standard Isochoric heat capacity at reference conditions J/(mol*K)
+           Fug, dVg;        ///< molar fugacity at TP (reserved), dVm of gas (reserved); [1] ERROR
+    bool isProcessed;       ///< indicator of processing the data
 
 };
 

@@ -5,72 +5,75 @@ SubstanceDataPrTr::SubstanceDataPrTr()
     ReferenceTc = 25;
     ReferencePb = 1;
     isProcessed = false;
-    sV0 = {0,0};
-    saS0 = {0,0};
-    sCp0 = {0,0};
-    sG0 = {0,0};
-    sH0 = {0,0};
-    sS0 = {0,0};
+    rV0 = {0,0};
+    raS0 = {0,0};
+    rCp0 = {0,0};
+    rG0 = {0,0};
+    rH0 = {0,0};
+    rS0 = {0,0};
+    rA0 = {0,0};
+    rU0 = {0,0};
+    rCv0 = {0,0};
 }
 
-vd SubstanceDataPrTr::getSV0() const
+vd SubstanceDataPrTr::getRV0() const
 {
-    return sV0;
+    return rV0;
 }
 
-void SubstanceDataPrTr::setSV0(const vd &value)
+void SubstanceDataPrTr::setRV0(const vd &value)
 {
-    sV0 = value;
+    rV0 = value;
 }
 
-vd SubstanceDataPrTr::getSG0() const
+vd SubstanceDataPrTr::getRG0() const
 {
-    return sG0;
+    return rG0;
 }
 
-void SubstanceDataPrTr::setSG0(const vd &value)
+void SubstanceDataPrTr::setRG0(const vd &value)
 {
-    sG0 = value;
+    rG0 = value;
 }
 
-vd SubstanceDataPrTr::getSH0() const
+vd SubstanceDataPrTr::getRH0() const
 {
-    return sH0;
+    return rH0;
 }
 
-void SubstanceDataPrTr::setSH0(const vd &value)
+void SubstanceDataPrTr::setRH0(const vd &value)
 {
-    sH0 = value;
+    rH0 = value;
 }
 
-vd SubstanceDataPrTr::getSS0() const
+vd SubstanceDataPrTr::getRS0() const
 {
-    return sS0;
+    return rS0;
 }
 
-void SubstanceDataPrTr::setSS0(const vd &value)
+void SubstanceDataPrTr::setRS0(const vd &value)
 {
-    sS0 = value;
+    rS0 = value;
 }
 
-vd SubstanceDataPrTr::getSaS0() const
+vd SubstanceDataPrTr::getRaS0() const
 {
-    return saS0;
+    return raS0;
 }
 
-void SubstanceDataPrTr::setSaS0(const vd &value)
+void SubstanceDataPrTr::setRaS0(const vd &value)
 {
-    saS0 = value;
+    raS0 = value;
 }
 
-vd SubstanceDataPrTr::getSCp0() const
+vd SubstanceDataPrTr::getRCp0() const
 {
-    return sCp0;
+    return rCp0;
 }
 
-void SubstanceDataPrTr::setSCp0(const vd &value)
+void SubstanceDataPrTr::setRCp0(const vd &value)
 {
-    sCp0 = value;
+    rCp0 = value;
 }
 
 double SubstanceDataPrTr::getReferenceTc() const

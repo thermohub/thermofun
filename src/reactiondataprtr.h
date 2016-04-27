@@ -45,7 +45,10 @@ private:
        drH0,                                     ///< Standard enthalpy effect per mole "drH0" J/mol; [1] ERROR
        drS0,                                     ///< Standard entropy effect of reaction "drS0" J/K/mol; [1] ERROR
        drCp0,                                    ///< Standard heat capacity effect per mole "drCp0" J/K/mol; [1] ERROR
-       drV0;                                     ///< Standard volume effect per mole "drV0" m3/mol; [1] ERROR
+       drV0,                                     ///< Standard volume effect per mole "drV0" m3/mol; [1] ERROR
+       drA0,                                     ///< Standard Helmholtz energy of reaction at reference conditions J/mol
+       drU0,                                     ///< Standard internal energy of reaction at reference conditions J/mol
+       drCv0;                                    ///< Standard Isochoric heat capacity of reaction J/(mol*K)
     double ReferenceTc,                                          ///< Reference temperature for standard state (default 25 C)
            ReferencePb;                                          ///< Reference pressure (default 1 bar)
     bool isProcessed;                                   ///< indicator of processing the data
