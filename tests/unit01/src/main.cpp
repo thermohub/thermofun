@@ -1,7 +1,12 @@
 #include <iostream>
-#include "tcorrpt.h"
+//#include "tcorrpt.h"
+#include "Database.h"
+#include "Substance.h"
+#include "ThermoModelsSubstance.h"
+#include "tcorrpt_global.h"
 
 using namespace std;
+using namespace TCorrPT;
 
 int main()
 {
@@ -26,7 +31,12 @@ int main()
 
     cout << "Hello World!" << endl;
 
-    TCorrPT Tcorr = TCorrPT(1,2);
+    Substance subst;
+
+    ThermoModelsSubstance modsubst(subst);
+
+
+//    TCorrPT Tcorr = TCorrPT(1,2);
 
 // +++ Test EmpCpIntegr +++
 //#define TEST_EMPCPINTEGR

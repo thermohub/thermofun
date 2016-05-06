@@ -13,7 +13,7 @@
 using namespace std;
 
 typedef std::vector<double> vd;
-typedef std::vector<std::vector<double>> vvd;
+typedef std::vector<std::vector<double> > vvd;
 
 static const double R_CONSTANT = 8.31451,
                     NA_CONSTANT = 6.0221367e23,
@@ -23,6 +23,7 @@ static const double R_CONSTANT = 8.31451,
 // Conversion factors
                     cal_to_J = 4.184,
                     C_to_K = 273.15,
+                    K_to_C =-273.17,
                     lg_to_ln = 2.302585093,
                     ln_to_lg = 0.434294481,
                     H2O_mol_to_kg = 55.50837344,
@@ -365,7 +366,7 @@ typedef struct {
     DCOMP = 0,            ///< Dependent component, properties calculated using a PT model for the substance
     REACDC = 1            ///< Reaction dependent component, proeprties claculated from the reaction properties
   };
-} SubstanceDataCalulationType;
+} SubstanceThermoCalculationType;
 
 
 

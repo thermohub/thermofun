@@ -9,12 +9,13 @@ class TCorrModSubstance
 {
 public:
     TCorrModSubstance(SubstanceDataPrTr *AtPrTr_, SubstanceDataPT *AtPT_ );
-
+    //@static  PTparam(int x, vec y)
     virtual long int PTparam()
     {
         return 0;
     };
 
+    // return  listOfPa
     vvd getTCinterval() const;
     void setTCinterval(const vvd &value);
 

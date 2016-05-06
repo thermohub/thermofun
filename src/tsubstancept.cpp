@@ -20,7 +20,7 @@ TSubstancePT::TSubstancePT()
     StdConcentration_scale = ConcentrationScales::C_OTHER;
     Substance_class = SubstanceClass::OTHER_SC;
     Aggregate_state = AggregateState::OTHER_AS;
-    Calculation_type = SubstanceDataCalulationType::DCOMP;
+    Calculation_type = SubstanceThermoCalculationType::DCOMP;
 }
 
 int TSubstancePT::getNelem() const
@@ -153,12 +153,12 @@ void TSubstancePT::setStandard_cscale(const ConcentrationScales::type &value)
     StdConcentration_scale = value;
 }
 
-SubstanceDataCalulationType::type TSubstancePT::getCalculation_type() const
+SubstanceThermoCalculationType::type TSubstancePT::getCalculation_type() const
 {
     return Calculation_type;
 }
 
-void TSubstancePT::setCalculation_type(const SubstanceDataCalulationType::type &value)
+void TSubstancePT::setCalculation_type(const SubstanceThermoCalculationType::type &value)
 {
     Calculation_type = value;
 }

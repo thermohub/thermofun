@@ -54,8 +54,8 @@ public:
     ConcentrationScales::type getStandard_cscale() const;
     void setStandard_cscale(const ConcentrationScales::type &value);
 
-    SubstanceDataCalulationType::type getCalculation_type() const;
-    void setCalculation_type(const SubstanceDataCalulationType::type &value);
+    SubstanceThermoCalculationType::type getCalculation_type() const;
+    void setCalculation_type(const SubstanceThermoCalculationType::type &value);
 
     SubstanceDataPT *getDataAtPT() const;
     void setDataAtPT(SubstanceDataPT *value);
@@ -108,7 +108,7 @@ private:
     AggregateState::type Aggregate_state;
     ConcentrationScales::type StdConcentration_scale;
 
-    SubstanceDataCalulationType::type Calculation_type;
+    SubstanceThermoCalculationType::type Calculation_type;
 
     void *Reaction;                      ///< The reaction which defines the properties of this substance (cast into ReactionData when used - "ReactionData *rd = reinterpret_cast<ReactionData*>(Reaction);")
 
