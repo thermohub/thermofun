@@ -67,7 +67,7 @@ auto WaterHGKProperties (double T, double &P) -> ThermoPropertiesSolvent
 //               aSta.Temp, &aSta.Pres, &aSta.Dens[0], aSpc.epseqn);
 //        aSta.Dens[0] /= 1.0e3;
 //        if ( aSpc.isat == 1 )
-//            aSta.Dens[1] /= 1.0e3;
+//            aSta.git rebase masterDens[1] /= 1.0e3;
 //    }
 //    else
 //    {
@@ -126,7 +126,7 @@ auto unit (HGK_SPECS aSpc, HGK_GEMS_PARAM &hgk_param) -> void
         tpset(hgk_param);
 }
 
-auto tpset(HGK_GEMS_PARAM hgk_param) -> void
+auto tpset(HGK_GEMS_PARAM &hgk_param) -> void
 {
     double Utr, Str, Htr, Atr, Gtr;
 

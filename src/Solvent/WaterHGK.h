@@ -86,7 +86,7 @@ auto WaterHGKProperties (double T, double &P) -> ThermoPropertiesSolvent;
 
 auto unit(HGK_SPECS aSpc, HGK_GEMS_PARAM &hgk_gems_param) -> void;
 
-auto tpset(HGK_GEMS_PARAM hgk_param) -> void;
+auto tpset(HGK_GEMS_PARAM &hgk_param) -> void;
 
 } // namespace TCorrPT
 
