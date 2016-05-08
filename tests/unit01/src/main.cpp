@@ -35,7 +35,7 @@ int main()
     Database dtb;
 
 // +++ Test EmpCpIntegr +++
-//#define TEST_EMPCPINTEGR
+#define TEST_EMPCPINTEGR
 #ifdef TEST_EMPCPINTEGR
 
     vd Interval, Coeff;

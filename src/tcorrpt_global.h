@@ -32,6 +32,27 @@ static const double R_CONSTANT = 8.31451,
                     TEMPER_PREC     = 0.5,
                     PRESSURE_PREC   = 0.1;
 
+struct STATES
+{
+    double Temp;    // C
+    double Pres;    // bar
+    double Dens[2]; // g/cm3
+    STATES()
+    {
+        Temp = -274.;
+        Pres = -1;
+        Dens[0] =Dens[1] = 0.;
+    }
+    void setdef()
+    {
+        Temp = -274.;
+        Pres = -1;
+        Dens[0] =Dens[1] = 0.;
+    }
+};
+
+
+
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and TCorrPT class
 typedef struct {
   enum type {
