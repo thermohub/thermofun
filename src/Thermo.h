@@ -3,6 +3,7 @@
 
 // TCorrPT includes
 #include "Database.h"
+#include "ThermoModelsSubstance.h"
 
 namespace TCorrPT {
 
@@ -17,7 +18,13 @@ public:
     /// Construct a Thermo instance with given Database instance
     explicit Thermo(const Database& database);
 
-//    // Substance
+    // Substance
+    /// Calculate the thermodynamic properties.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param reaction The name of the reaction
+    auto thermoProperties (double T, double P, std::string substance) -> ThermoPropertiesSubstance;
+
 //    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).
 //    /// @param T The temperature value (in units of K)
 //    /// @param P The pressure value (in units of Pa)

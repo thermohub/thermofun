@@ -39,6 +39,20 @@ public:
     /// Return all reactions in the database
     auto getReactions() -> std::vector<Reaction>;
 
+    /// Return a substance in the database
+    auto getSubstance(std::string name) const -> const Substance&;
+
+    /// Return a reactions in the database
+    auto getReaction(std::string name) const -> const Reaction&;
+
+    /// Check if the database contains a given substance
+    /// @param substance The name of the substance
+    auto containsSubstance(std::string name) const -> bool;
+
+    /// Check if the database contains a given reaction
+    /// @param substance The name of the reaction
+    auto containsReaction(std::string name) const -> bool;
+
 private:
     struct Impl;
 

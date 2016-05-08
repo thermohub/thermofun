@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+// TCorrPT includes
+#include "Common/Exception.h"
+
 namespace TCorrPT {
 
 namespace {
@@ -13,6 +16,16 @@ using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap = std::map<std::string, Reaction>;
 
 }
+
+auto errorNonExistent(std::string type, std::string name, int line) -> void
+{
+    Exception exception;
+    exception.error << "Cannot get an instance of the " << type << " `" << name << "` in the database.";
+    exception.reason << "There is no such " << type << " in the database.";
+    exception.line = line;
+    RaiseError(exception);
+}
+
 
 struct Database::Impl
 {
@@ -87,6 +100,32 @@ struct Database::Impl
         return collectValues(reactions_map);
     }
 
+    auto getSubstance(std::string name) -> Substance&
+    {
+        if(substances_map.count(name) == 0)
+            errorNonExistent("substance", name, __LINE__);
+
+        return substances_map.find(name)->second;
+    }
+
+    auto getReaction(std::string name) -> Reaction&
+    {
+        if(reactions_map.count(name) == 0)
+            errorNonExistent("reaction", name, __LINE__);
+
+        return reactions_map.at(name);
+    }
+
+    auto containsSubstance(std::string name) const -> bool
+    {
+        return substances_map.count(name) != 0;
+    }
+
+    auto containsReaction(std::string name) const -> bool
+    {
+        return reactions_map.count(name) != 0;
+    }
+
 };
 
 Database::Database()
@@ -116,6 +155,26 @@ auto Database::getSubstances() -> std::vector<Substance>
 auto Database::getReactions() -> std::vector<Reaction>
 {
     return pimpl->getReactions();
+}
+
+auto Database::getSubstance(std::string name) const -> const Substance&
+{
+    return pimpl->getSubstance(name);
+}
+
+auto Database::getReaction(std::string name) const -> const Reaction&
+{
+    return pimpl->getReaction(name);
+}
+
+auto Database::containsSubstance(std::string name) const -> bool
+{
+    return pimpl->containsSubstance(name);
+}
+
+auto Database::containsReaction(std::string name) const -> bool
+{
+    return pimpl->containsReaction(name);
 }
 
 } // namespace TCorrPT

@@ -1,5 +1,8 @@
 #include "ThermoModelsSubstance.h"
 
+// TCorrPT includes
+#include "Common/Exception.h"
+
 namespace TCorrPT {
 
 struct ThermoModelsSubstance::Impl
@@ -19,7 +22,7 @@ ThermoModelsSubstance::ThermoModelsSubstance(const Substance& substance)
 : pimpl(new Impl(substance))
 {}
 
-auto ThermoModelsSubstance::thermoProperties(double T, double P) const -> const ThermoPropertiesSubstance&
+auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
     MethodGenEoS_Thrift::type method_genEOS = pimpl->substance.methodGenEOS();
 
@@ -59,17 +62,17 @@ EmpiricalCpIntegration::EmpiricalCpIntegration(const Substance &substance)
 {}
 
 // calculation
-auto EmpiricalCpIntegration::thermoProperties(double T, double P) const -> const ThermoPropertiesSubstance&
+auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
-    ThermoPropertiesSubstance thermo_properties_PT = pimpl->substance.thermoProperties();
-    ThermoPropertiesSubstance thermo_properties_PrTr = pimpl->substance.thermoReferenceProperties();
-    SubstanceClass::type substance_class = pimpl->substance.substanceClass();
-    ThermoParametersSubstance thermo_parameters = pimpl->substance.thermoParameters();
+    ThermoPropertiesSubstance   thermo_properties_PT = pimpl->substance.thermoProperties();
+    ThermoPropertiesSubstance   thermo_properties_PrTr = pimpl->substance.thermoReferenceProperties();
+    SubstanceClass::type        substance_class = pimpl->substance.substanceClass();
+    ThermoParametersSubstance   thermo_parameters = pimpl->substance.thermoParameters();
 
     double TK, TC, TrK, T_Tst, Ts2, TT, T2, T3, T4, T05,
            Tst2, Tst3, Tst4, Tst05,
            Pb;
-    vd     S, G, H, V, Cp;
+    double    S, G, H, V, Cp;
     int k=-1;
     vector<double> ac;
     ac.resize(16);
@@ -80,17 +83,17 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) const -> const
     Pb = P;              // current P in bar
     TrK = pimpl->substance.referenceT() + C_to_K;
 
-    S[0] = thermo_properties_PrTr.entropy;
-    G[0] = thermo_properties_PrTr.gibbs_energy;
-    H[0] = thermo_properties_PrTr.enthalpy;
-    V = {0.0, 0.0}; // ???
-    Cp = {0.0, 0.0};
+    S = thermo_properties_PrTr.entropy;
+    G = thermo_properties_PrTr.gibbs_energy;
+    H = thermo_properties_PrTr.enthalpy;
+    V = 0; // ???
+    Cp = 0;
 
     // P correction - has to be moved from here!!!
     if(( substance_class == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
             && Pb > 0.0 )
     { // molar volume from the ideal gas law
-        V[0] = TK / Pb * R_CONSTANT;
+        V = TK / Pb * R_CONSTANT;
     }
 
 //    aW.twp->devG = dc[q].Gs[1];
@@ -111,17 +114,14 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) const -> const
        }
     }
 
-//    try
-//    {
-//        if (k<0)
-//        throw std::string("Temperature interval for the Cp calculation was not specified! ");
-//        //exit(1);
-//    }
-//    catch (std::string &s)
-//    {
-//        cout << s << "Exiting..." << endl;
-//        return -1;
-//    }
+    if (k<0)
+    {
+        Exception exception;
+        exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
+        exception.reason << "The temperature is not inside the specified interval for the substance "<< pimpl->substance.name() << ".";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
 
     T2 = TK * TK;
     T3 = T2 * TK;
@@ -133,7 +133,9 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) const -> const
         ac[i] = thermo_parameters.Cp_coeff[k][i];
     }
 
-    Cp[0] = ( ac[0] + ac[1]*TK + ac[2]/T2 + ac[3]/T05 + ac[4]*T2
+//    ac = thermo_parameters.Cp_coeff[k];
+
+    Cp = ( ac[0] + ac[1]*TK + ac[2]/T2 + ac[3]/T05 + ac[4]*T2
           + ac[5]*T3 + ac[6]*T4 + ac[7]/T3 + ac[8]/TK + ac[9]*T05 /*+ ac[10]*log(T)*/);
 
     // Phase transitions
@@ -164,34 +166,34 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) const -> const
             if ( j && thermo_parameters.phase_transition_prop[ft][0] <= TrK-C_to_K )
             {   // Adding parameters of phase transition
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 1 )  // dS
-                    S[0] += thermo_parameters.phase_transition_prop[ft][1];
+                    S += thermo_parameters.phase_transition_prop[ft][1];
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 2 )  // dH
-                    H[0] += thermo_parameters.phase_transition_prop[ft][2];
+                    H += thermo_parameters.phase_transition_prop[ft][2];
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 3 )  // dV
-                    V[0] += thermo_parameters.phase_transition_prop[ft][3];
+                    V += thermo_parameters.phase_transition_prop[ft][3];
                 // More to be added ?
             }
 
-            G[0] -= S[0] * T_Tst;
+            G -= S * T_Tst;
 
             for (unsigned i=0; i<thermo_parameters.Cp_coeff[j].size(); i++)
             {
                 ac[i] = thermo_parameters.Cp_coeff[j][i];
             }
 
-            S[0] += ( ac[0] * log( TT ) + ac[1] * T_Tst + ac[2] * ( 1./Tst2 - 1./T2 ) / 2.
+            S += ( ac[0] * log( TT ) + ac[1] * T_Tst + ac[2] * ( 1./Tst2 - 1./T2 ) / 2.
                  + ac[3] * 2. * ( 1./Tst05 - 1./T05 ) + ac[4] * ( T2 - Tst2 ) / 2.
                  + ac[5] * ( T3 - Tst3 ) / 3. + ac[6] * ( T4 - Tst4 ) / 4.
                  + ac[7] * ( 1./ Tst3 - 1./ T3 ) / 3. + ac[8] * (1. / TrK - 1. / TK )
                  + ac[9] * 2.* ( T05 - Tst05 ) );
 
-            G[0] -= ( ac[0] * ( TK * log( TT ) - T_Tst ) + ac[1] * Ts2 / 2. + ac[2] * Ts2 / TK / Tst2 / 2.
+            G -= ( ac[0] * ( TK * log( TT ) - T_Tst ) + ac[1] * Ts2 / 2. + ac[2] * Ts2 / TK / Tst2 / 2.
                  + ac[3] * 2. * (T05 - Tst05)*(T05 - Tst05) / Tst05 + ac[4] * ( T3 + 2.*Tst3 - 3.* TK * Tst2 ) / 6.
                  + ac[5] * ( T4 + 3.*Tst4 - 4.*TK * Tst3 ) / 12. + ac[6] * ( T4*TK + 4.*Tst4*TrK - 5.*TK*Tst4 ) / 20.
                  + ac[7] * ( Tst3 - 3.* T2 * TrK + 2.*T3 ) / 6./ T2 / Tst3 + ac[8] * ( TT - 1. - log( TT ))
                  + ac[9] * 2.* ( 2.* TK * T05 - 3.* TK * Tst05 + TrK * Tst05 ) / 3. );
 
-            H[0] += ( ac[0] * T_Tst + ac[1] * ( T2 - Tst2 ) / 2. + ac[2] * ( 1./TrK - 1./TK )
+            H += ( ac[0] * T_Tst + ac[1] * ( T2 - Tst2 ) / 2. + ac[2] * ( 1./TrK - 1./TK )
                  + ac[3] * 2. * ( T05 - Tst05 ) + ac[4] * ( T3 - Tst3 ) / 3.
                  + ac[5] * ( T4 - Tst4 ) / 4. + ac[6] * ( T4 * TK - Tst4 * TrK ) / 5
                  + ac[7] * ( 1./ Tst2 - 1./ T2 ) / 2. + ac[8] * log( TT )
@@ -199,11 +201,11 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) const -> const
         }
     }
 
-    thermo_properties_PT.heat_capacity_cp   =  Cp[0];
-    thermo_properties_PT.gibbs_energy       = G[0];
-    thermo_properties_PT.enthalpy           = H[0];
-    thermo_properties_PT.entropy            = S[0];
-    thermo_properties_PT.volume             = V[0];
+    thermo_properties_PT.heat_capacity_cp   = Cp;
+    thermo_properties_PT.gibbs_energy       = G;
+    thermo_properties_PT.enthalpy           = H;
+    thermo_properties_PT.entropy            = S;
+    thermo_properties_PT.volume             = V;
 
     return thermo_properties_PT;
 }

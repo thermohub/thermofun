@@ -13,6 +13,9 @@ struct Substance::Impl
     /// The chemical formula of the chemical Substance
     std::string formula;
 
+    /// The name of the reaction that defines the properties of this substance
+    std::string reaction;
+
     /// The molar mass of the chemical Substance (in units of kg/mol)
     double molar_mass;
 
@@ -80,6 +83,36 @@ auto Substance::setFormula(std::string formula) -> void
     pimpl->formula = formula;
 }
 
+auto Substance::setReaction(std::string reaction) -> void
+{
+    pimpl->reaction = reaction;
+}
+
+auto Substance::setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void
+{
+    pimpl->thermo_ref_prop = thermo_ref_prop;
+}
+
+auto Substance::setThermoParameters(ThermoParametersSubstance thermo_param) -> void
+{
+    pimpl->thermo_param = thermo_param;
+}
+
+auto Substance::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
+{
+    pimpl->method_genEoS = method_genEoS;
+}
+
+auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
+{
+    pimpl->substance_class = substance_class;
+}
+
+auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
+{
+    pimpl->aggregate_state = aggregate_state;
+}
+
 auto Substance::name() const -> std::string
 {
     return pimpl->name;
@@ -88,6 +121,11 @@ auto Substance::name() const -> std::string
 auto Substance::formula() const -> std::string
 {
     return pimpl->formula;
+}
+
+auto Substance::reaction() const -> std::string
+{
+    return pimpl->reaction;
 }
 
 auto Substance::molarMass() const -> double
@@ -105,27 +143,27 @@ auto Substance::referenceP() const -> double
     return pimpl->reference_P;
 }
 
-auto Substance::thermoProperties() const -> const ThermoPropertiesSubstance&
+auto Substance::thermoProperties() -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_prop;
 }
 
-auto Substance::thermoParameters() const -> const ThermoParametersSubstance&
+auto Substance::thermoParameters() -> ThermoParametersSubstance
 {
     return pimpl->thermo_param;
 }
 
-auto Substance::thermoReferenceProperties() const -> const ThermoPropertiesSubstance&
+auto Substance::thermoReferenceProperties() -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_ref_prop;
 }
 
-auto Substance::methodGenEOS() const -> const MethodGenEoS_Thrift::type&
+auto Substance::methodGenEOS() -> MethodGenEoS_Thrift::type
 {
     return pimpl->method_genEoS;
 }
 
-auto Substance::substanceClass() const -> SubstanceClass::type&
+auto Substance::substanceClass() -> SubstanceClass::type
 {
     return pimpl->substance_class;
 }

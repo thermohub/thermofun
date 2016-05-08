@@ -41,7 +41,22 @@ public:
     auto setReaction(std::string reaction) -> void;
 
     /// Set the molar mass of the chemical species (in units of kg/mol)
-    auto setMolarMass(std::string molar_mass) -> void;
+    auto setMolarMass(double molar_mass) -> void;
+
+    /// Set the reference thermodynamic data of the substance.
+    auto setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void;
+
+    /// Set the reference thermodynamic data of the substance.
+    auto setThermoParameters(ThermoParametersSubstance thermo_param) -> void;
+
+    /// Set
+    auto setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void;
+
+    /// Set
+    auto setSubstanceClass(SubstanceClass::type substance_class) -> void;
+
+    /// Set
+    auto setAggregateState(AggregateState::type aggregate_state) -> void;
     
     // Get functions
     /// Return the name of the chemical Substance
@@ -49,6 +64,9 @@ public:
 
     /// Return the formula of the chemical Substance
     auto formula() const -> std::string;
+
+    /// Return the reaction name that defines the properties of the chemical Substance
+    auto reaction() const -> std::string;
 
     /// Return the molar mass of the chemical species (in units of kg/mol)
     auto molarMass() const -> double;
@@ -60,19 +78,19 @@ public:
     auto referenceP() const -> double;
 
     /// Return the thermodynamic data of the substance.
-    auto thermoProperties() const -> const ThermoPropertiesSubstance&;
+    auto thermoProperties() -> ThermoPropertiesSubstance;
 
     /// Return the thermodynamic parameters for calculating thermodynamic properties of the substance.
-    auto thermoParameters() const -> const ThermoParametersSubstance&;
+    auto thermoParameters() -> ThermoParametersSubstance;
 
     /// Return the reference thermodynamic data of the substance.
-    auto thermoReferenceProperties() const -> const ThermoPropertiesSubstance&;
+    auto thermoReferenceProperties() -> ThermoPropertiesSubstance;
 
     /// Return the general EOS method of calculating the thermodynamic properties
-    auto methodGenEOS() const -> const MethodGenEoS_Thrift::type&;
+    auto methodGenEOS() -> MethodGenEoS_Thrift::type;
 
     /// Return the class of the substance
-    auto substanceClass() const -> SubstanceClass::type&;
+    auto substanceClass() -> SubstanceClass::type;
     
 private:
     struct Impl;

@@ -20,7 +20,7 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param reaction The name of the reaction
-    auto thermoProperties (double T, double P) const -> const ThermoPropertiesSubstance&;
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -43,7 +43,7 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param reaction The name of the reaction
-    auto thermoProperties (double T, double P) const -> const ThermoPropertiesSubstance&;
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
