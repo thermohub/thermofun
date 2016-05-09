@@ -34,7 +34,7 @@ struct Substance::Impl
     /// Method of pressure correction of thermodynamic properties
     MethodCorrP_Thrift::type  method_P;
 
-    /// Class of the substance
+    /// Class of the substance  COMPONENT, GASFLUID, AQSOLUTE, AQSOLVENT, SURFSPECIES, SITEMOIETY, OTHER_SC
     SubstanceClass::type substance_class;
 
     /// Agregate state of the substance

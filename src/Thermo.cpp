@@ -1,6 +1,19 @@
+// TCorrPT includes
+#include "Common/Exception.h"
 #include "Thermo.h"
 
 namespace TCorrPT {
+
+
+auto errorMethodNotFound(std::string type, std::string name, int line) -> void
+{
+    Exception exception;
+    exception.error << "The calculation method was not found.";
+    exception.reason << "The calculation method defined for the " << type << " " << name << " is not implemented.";
+    exception.line = line;
+    RaiseError(exception);
+}
+
 
 struct Thermo::Impl
 {
@@ -25,15 +38,34 @@ auto Thermo::thermoProperties(double T, double P, std::string substance) -> Ther
     Substance subst = pimpl->database.getSubstance(substance);
     MethodGenEoS_Thrift::type method_genEOS = subst.methodGenEOS();
 
-    switch( method_genEOS )
+    if (subst.substanceClass() != SubstanceClass::type::AQSOLVENT)
     {
-        case MethodGenEoS_Thrift::type::CTPM_CPT:
+        switch( method_genEOS )
         {
-            EmpiricalCpIntegration CpInt ( subst );
-            return CpInt.thermoProperties(T, P);
-            break;
+            case MethodGenEoS_Thrift::type::CTPM_CPT:
+            {
+                EmpiricalCpIntegration CpInt ( subst );
+                return CpInt.thermoProperties(T, P);
+                break;
+            }
         }
+
+        // Exception
+        errorMethodNotFound("substance", subst.name(), __LINE__);
     }
+
+    if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
+    {
+
+        // Exception
+        errorMethodNotFound("solvent", subst.name(), __LINE__);
+    }
+
+    // Exception
+    errorMethodNotFound("substance", subst.name(), __LINE__);
+
+   ThermoPropertiesSubstance tps;
+   return tps;
 }
 
 } // namespace TCorrPT

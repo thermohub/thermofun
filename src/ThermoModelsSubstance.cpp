@@ -35,6 +35,13 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
             break;
         }
     }
+
+    // Exception
+    Exception exception;
+    exception.error << "The calculation method was not found.";
+    exception.reason << "The calculation method defined for the substance "<< pimpl->substance.name() << " is not available.";
+    exception.line = __LINE__;
+    RaiseError(exception);
 }
 
 
