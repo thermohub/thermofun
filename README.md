@@ -1,6 +1,26 @@
-# README #
+# TCorrPT #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
+
+### Simple API example ###
+
+```
+#!c++
+int main(int argc, char const *argv[])
+{
+    Database database("database-name.json/xml/yaml");
+
+    Thermo thermo(database);
+
+    ThermoPropertiesSubstance tps;
+    ThermoPropertiesReaction tpr;
+
+    tps = thermo.thermoPropertiesSubstance("Formula/Name of Substance", P, T);
+    tpr = thermo.thermoPropertiesReaction("Formula/Name of Reaction", P, T);
+
+    return 0;
+}
+```
 
 ### What is this repository for? ###
 
