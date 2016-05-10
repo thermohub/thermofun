@@ -4,6 +4,7 @@
 // TCorrPT includes
 #include "Database.h"
 #include "ThermoModelsSubstance.h"
+#include "ThermoModelsSolvent.h"
 
 namespace TCorrPT {
 
@@ -23,7 +24,9 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param reaction The name of the reaction
-    auto thermoProperties (double T, double P, std::string substance) -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSubstance (double T, double P, std::string substance) -> ThermoPropertiesSubstance;
+
+    auto thermoPropertiesSolvent(double T, double P, std::string name) -> ThermoPropertiesSolvent;
 
 //    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).
 //    /// @param T The temperature value (in units of K)

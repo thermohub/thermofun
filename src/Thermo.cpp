@@ -33,10 +33,11 @@ Thermo::Thermo(const Database& database)
 {}
 
 
-auto Thermo::thermoProperties(double T, double P, std::string substance) -> ThermoPropertiesSubstance
+auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance) -> ThermoPropertiesSubstance
 {
     Substance subst = pimpl->database.getSubstance(substance);
     MethodGenEoS_Thrift::type method_genEOS = subst.methodGenEOS();
+    MethodCorrT_Thrift::type  method_T      = subst.method_T();
 
     if (subst.substanceClass() != SubstanceClass::type::AQSOLVENT)
     {
@@ -56,6 +57,15 @@ auto Thermo::thermoProperties(double T, double P, std::string substance) -> Ther
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
     {
+        switch(method_T)
+        {
+            case MethodCorrT_Thrift::type::CTM_WAT:
+            {
+                WaterHGK water ( subst );
+                return water.thermoPropertiesSubstance(T, P);
+                break;
+            }
+        }
 
         // Exception
         errorMethodNotFound("solvent", subst.name(), __LINE__);
@@ -65,6 +75,35 @@ auto Thermo::thermoProperties(double T, double P, std::string substance) -> Ther
     errorMethodNotFound("substance", subst.name(), __LINE__);
 
    ThermoPropertiesSubstance tps;
+   return tps;
+}
+
+auto Thermo::thermoPropertiesSolvent(double T, double P, std::string name) -> ThermoPropertiesSolvent
+{
+    Substance subst = pimpl->database.getSubstance(name);
+//    MethodGenEoS_Thrift::type method_genEOS = subst.methodGenEOS();
+    MethodCorrT_Thrift::type  method_T      = subst.method_T();
+
+    if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
+    {
+        switch(method_T)
+        {
+            case MethodCorrT_Thrift::type::CTM_WAT:
+            {
+                WaterHGK water ( subst );
+                return water.thermoPropertiesSolvent(T, P);
+                break;
+            }
+        }
+
+        // Exception
+        errorMethodNotFound("solvent", subst.name(), __LINE__);
+    }
+
+    // Exception
+    errorMethodNotFound("solvent", subst.name(), __LINE__);
+
+   ThermoPropertiesSolvent tps;
    return tps;
 }
 

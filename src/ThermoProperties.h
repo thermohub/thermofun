@@ -65,7 +65,7 @@ struct ThermoPropertiesReaction
 struct ThermoPropertiesSolvent
 {
 
-    vd Speed[2],            /// speed of sound
+    double Speed[2],            /// speed of sound
        Alpha[2],            /// constant pressure expansion (alpha)
        Beta[2],             /// constant temperature compressibility (beta)
        Diel[2],             /// dielectrical constant
@@ -83,7 +83,8 @@ struct ThermoPropertiesSolvent
        XBorn[2],            /// Born function X
        GidealGas[2],        /// ideal gas Gibbs energy
        SidealGas[2],        /// ideal gas entropy
-       CpidealGas[2];       /// ideal gas isobaric heat capacity
+       CpidealGas[2],       /// ideal gas isobaric heat capacity
+       density[2];          /// denisty in g/cm3
 };
 
 } // namespace TCorrPT

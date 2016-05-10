@@ -91,13 +91,56 @@ int main()
 
     // Test error out of the interval
 //    currentT = 2005;
-    result2 = thermo.thermoProperties(currentT, currentP, "Corundum");
+    result2 = thermo.thermoPropertiesSubstance(currentT, currentP, "Corundum");
 
     // Test error no substance
-//    result2 = thermo.thermoProperties(currentT, currentP, "alala");
+//    result2 = thermo.thermoPropertiesSubstance(currentT, currentP, "alala");
 
 #endif
 // +++ END test CP +++
+
+    // +++ Test H2O_HGK +++
+    #define TEST_H2O_HGK
+    #ifdef TEST_H2O_HGK
+
+    Substance water;
+    water.setName("water");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
+
+    ThermoPropertiesSubstance h2o_data_atPrTr;
+    ThermoPropertiesSubstance result2;
+    ThermoPropertiesSolvent result1, result3;
+
+    h2o_data_atPrTr.volume = 0;
+    h2o_data_atPrTr.gibbs_energy = 0;
+    h2o_data_atPrTr.enthalpy = 0;
+    h2o_data_atPrTr.entropy = 0;
+    h2o_data_atPrTr.heat_capacity_cp = 0;
+
+    water.setThermoReferenceProperties(h2o_data_atPrTr);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
+
+//    ThermoModelsSolvent thermo_water (water);
+//    result1 = thermo_water.thermoProperties(25, 1);
+
+    dtb.addSubstance(water);
+
+    Thermo thermo (dtb);
+    result2 = thermo.thermoPropertiesSubstance(25, 1, "water");
+
+    water.setThermoReferenceProperties(result2);
+
+    WaterHGK waterHGK(water);
+
+    result1 = waterHGK.thermoPropertiesSolvent(25, 1);
+
+    result3 = thermo.thermoPropertiesSolvent(25, 1, "water");
+
+#endif
+// +++ END test H2O_HGK +++
 
     cout << "Bye World!" << endl;
 

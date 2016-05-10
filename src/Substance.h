@@ -51,6 +51,7 @@ public:
 
     /// Set
     auto setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void;
+    auto setMethod_T(MethodCorrT_Thrift::type method_T) -> void;
 
     /// Set
     auto setSubstanceClass(SubstanceClass::type substance_class) -> void;
@@ -88,6 +89,7 @@ public:
 
     /// Return the general EOS method of calculating the thermodynamic properties
     auto methodGenEOS() -> MethodGenEoS_Thrift::type;
+    auto method_T() -> MethodCorrT_Thrift::type;
 
     /// Return the class of the substance
     auto substanceClass() -> SubstanceClass::type;
