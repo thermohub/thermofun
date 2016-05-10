@@ -49,6 +49,12 @@ typedef struct
 UNITS;
 
 typedef struct
+{ /*  abc2    */
+    double r, th;
+}
+ABC2;
+
+typedef struct
 { /*  satur   */
     int iphase;
     double Dliq, Dvap, DH2O;
@@ -91,6 +97,26 @@ typedef struct
     double dPdM, dPdTcd, rt;
 }
 ABC1;
+
+typedef struct
+{ /* param  */
+    double r1, th1;
+}
+PARAM;
+
+typedef struct
+{ /*  deri2  */
+    double dPdD, dPdT;
+}
+DERI2;
+
+typedef struct
+{ /*  deriv  */
+    double amu, s[2], sd[2], Pw, Tw, dTw,
+    dM0dT, dP0dT, d2PdM2, d2PdMT,
+    d2PdT2, p0th, p1th, xk[2];
+}
+DERIV;
 
 typedef struct
 { /*  tpoint   */
@@ -180,7 +206,7 @@ struct  HGK_GEMS_PARAM // description of thermodinamic properties of water
     // WLIQUID wl;
     WPROPS wl;
     WPROPS wr;
-//    ABC2 a2;
+    ABC2 a2;
     ABC1 a1;
     TERM_PR trp;
     UNITS un;
@@ -191,9 +217,9 @@ struct  HGK_GEMS_PARAM // description of thermodinamic properties of water
     RESF res;
     IDF id;
 //    THERM th;
-//    PARAM par;
-//    DERI2 d2;
-//    DERIV dv;
+    PARAM par;
+    DERI2 d2;
+    DERIV dv;
 //    IO_Y io;
     //
     ACONST   ac;
@@ -235,6 +261,39 @@ auto bb(double t, HGK_GEMS_PARAM &hgk_param) -> void;
 auto resid(double t, double &d, HGK_GEMS_PARAM &hgk_param) -> void;
 
 auto base(double &d, double t, HGK_GEMS_PARAM &hgk_param) -> void;
+
+auto denHGK(double &d, double &p, double dguess, double t, double &dpdd, HGK_GEMS_PARAM &hgk_param) -> void;
+
+auto ideal(double t, HGK_GEMS_PARAM &hgk_param) -> void;
+
+auto thmHGK(double &d, double t, HGK_GEMS_PARAM &hgk_param) -> void;
+
+auto dalHGK(double &d, double t, double alpha, HGK_GEMS_PARAM &hgk_param) -> double;
+
+auto viscos(double Tk, double Pbars, double Dkgm3, double betaPa) -> double;
+
+auto thcond(double Tk, double Pbars, double Dkgm3, double alph, double betaPa) -> double;
+
+auto surten(double Tsatur) -> double;
+
+auto JN91(double T, double D, double beta, double &alpha, double &daldT, double &eps, double &dedP, double &dedT, double &d2edT2) -> void;
+
+auto epsBrn(double &eps, double dedP, double dedT,double d2edT2,
+                     double &Z, double &Q, double &Y, double &X) -> void;
+
+auto Born92(double TK, double Pbars, double Dgcm3, double betab,
+                     double &alphaK, double &daldT, double &eps, double &Z,
+                     double &Q, double &Y, double &X, int epseqn) -> void;
+
+auto triple(double T, WPROPS  &wr, HGK_GEMS_PARAM &hgk_param) -> void;
+
+auto dimHGK(int isat, int itripl, double t, double &p, double &d, int epseqn, HGK_GEMS_PARAM &hgk_param) -> void;
+
+
+
+
+
+
 
 } // namespace TCorrPT
 

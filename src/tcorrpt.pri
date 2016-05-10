@@ -20,7 +20,8 @@
     $$PWD/ThermoModelsReaction.h \
     $$PWD/SubstanceSolvent.h \
     $$PWD/Common/Exception.h \
-    $$PWD/Solvent/WaterHGK.h
+#    $$PWD/Solvent/WaterHGK.h \
+    $$PWD/Solvent/WaterHGKgems.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -42,4 +43,5 @@
     $$PWD/ThermoModelsSubstance.cpp \
     $$PWD/SubstanceSolvent.cpp \
     $$PWD/Common/Exception.cpp \
-    $$PWD/Solvent/WaterHGK.cpp
+#    $$PWD/Solvent/WaterHGK.cpp \
+    $$PWD/Solvent/WaterHGKgems.cpp

@@ -819,8 +819,8 @@ auto surten(double Tsatur) -> double
 *                    beta, dedP ...... bar**(-1)
 *                    alpha, dedT ..... K**(-1)
 *                    daldT, d2edT2 ... K**(-2)                         */
-void JN91(double T, double D, double beta, double &alpha, double &daldT,
-                   double &eps, double &dedP, double &dedT, double &d2edT2)
+auto JN91(double T, double D, double beta, double &alpha, double &daldT,
+                   double &eps, double &dedP, double &dedT, double &d2edT2) -> void
 {
     int j=-1, k=0;
     double c[5], dcdT[5], dc2dTT[5];
@@ -1066,6 +1066,277 @@ auto PsHGK(double t) -> double
     return(psHGK);
 }
 
+//--------------------------------------------------------------------//
+//  ss - calc terms of the summation zat defined dPotl/dT and 1-th
+// proizvodnuyu theta (s)  square polynomial.
+auto ss(double r, double th, double *s, double *sd, HGK_GEMS_PARAM &hgk_param) -> void/*  s[2], sd[2] */
+{
+    double  sx[2];
+    double alpha, beta, alhi, beti, s00, s20, s01, s21, tt;
+    /* double besq, delta, deli, gami, p00, p01;*/
+
+    alpha= hgk_param.co.q[9];
+    beta = hgk_param.co.a[5];
+    /* besq = hgk_param.co.a[8];  */
+    /* delta= hgk_param.co.a[10];
+    deli = hgk_param.co.q[13];    */
+    alhi = hgk_param.co.q[14];
+    beti = hgk_param.co.q[15];
+    /* gami = hgk_param.co.q[16];
+    p00  = hgk_param.co.q[10];    */
+    /* p01  = hgk_param.co.q[17]; */
+    s00  = hgk_param.co.a[16];
+    s20  = hgk_param.co.a[17];
+    s01  = hgk_param.co.a[18];
+    s21  = hgk_param.co.a[19];
+
+    tt    = th * th;
+    sx[0] = s00 + s20 * tt;
+    sd[0] = 2.0 * s20 * th;
+    sx[1] = s01 + s21 * tt;
+    sd[1] = 2.0 * s21 * th;
+    s[0]  = sx[0] * hgk_param.co.a[9] * hgk_param.co.a[6] * pow(r,(1.0 - alpha));
+    s[1]  = sx[1] * hgk_param.co.a[9] * hgk_param.co.a[11] * pow(r,(1.0 - alhi));
+
+    hgk_param.a1.dPdM  = pow(r,beta) * hgk_param.co.a[6] * th + hgk_param.co.a[0] * pow(r,(1.0-alpha)) *
+               hgk_param.co.a[9] * hgk_param.co.a[6] * sx[0] + pow(r,beti) * hgk_param.co.a[11] * th +
+               hgk_param.co.a[0] * pow(r,(1.0-alhi)) * hgk_param.co.a[9] * hgk_param.co.a[11] * sx[1];
+}
+
+//--------------------------------------------------------------------//
+// conver - Transform T,D to r,theta  and scaled equations.
+auto conver(double &rho, double Tee, double rho1s, double &rhodi, double error1, HGK_GEMS_PARAM &hgk_param) -> void
+{
+    int isig=0;
+    double error2;
+    double /*sd[2]*/ beta, delta, xk1, cc, besq, p11, aa, xk0,  betai,
+    Tstar, dtstin, rhoweg, rhodit, drho, rho1co, twofaz, hold,
+    y1, den1, den2, den12, tt, rho1s2, slope;
+
+    /* double alhi, alpha, deli, p1w, p2w, p4w, s00, s20; */
+    beta  =hgk_param.co.a[5];
+    delta =hgk_param.co.a[10];
+    xk1   =hgk_param.co.a[11];
+    cc    =hgk_param.co.a[0];
+    /* alhi  =hgk_param.co.q[14];
+       alpha =hgk_param.co.q[9];      */
+    besq  =hgk_param.co.a[8];
+    p11   =hgk_param.co.q[8];
+    /* deli  =hgk_param.co.q[13];     */
+    /* p1w =hgk_param.co.q[17];
+       p2w   =hgk_param.co.q[18];
+       p4w   =hgk_param.co.q[19];     */
+    aa    =hgk_param.co.a[9];
+    xk0   =hgk_param.co.a[6];
+    /* s00 =hgk_param.co.a[16];       */
+    /* s20 =hgk_param.co.a[17];       */
+    betai =hgk_param.co.q[15];
+
+    Tstar  = Tee + 1.0;
+    dtstin = 1.0 - (1.0 / Tstar);
+    hgk_param.par.r1     = dtstin;
+    if (dtstin <= 0.0)
+    {
+        hgk_param.par.r1  = dtstin / (1.0 - besq);
+        hgk_param.par.th1 = 1.0;
+    }
+    else
+        hgk_param.par.th1 = 0.0;
+
+    ss(hgk_param.par.r1, hgk_param.par.th1, hgk_param.dv.s, hgk_param.dv.sd, hgk_param);
+
+    rhodi   = 1.0 + p11 * dtstin;
+    rhodit = rhodi  + cc * hgk_param.dv.s[0] + cc * hgk_param.dv.s[1];
+    drho   = rho - rhodit;
+    hgk_param.dv.amu    = 0.0;
+    if (dtstin <= 0.0)
+    {
+        rho1co = xk0 * pow(hgk_param.par.r1,beta) + xk1 * pow(hgk_param.par.r1,betai);
+        twofaz = rho1co;
+        if (fabs(drho) <= twofaz)
+        {
+            //rho1s   = (rho1co * drho / fabs(drho)) + cc * dv.s[0];
+            hgk_param.par.th1    = drho * fabs(drho);
+            // error1 = 1.0;
+           hgk_param.a2.r = hgk_param.par.r1;
+            hgk_param.a2.th = hgk_param.par.th1;
+            return;
+        }
+    }
+    if ( !drho )
+    {
+        hgk_param.par.th1   = 0.0;
+        hgk_param.par.r1    = dtstin;
+        //rho1s  = cc * dv.s[0];
+    }
+
+    /*   rule for first pass   */
+    y1   = dtstin;
+    den1 = rho - rhodit;
+
+///    rtheta(&par.r1, &par.th1, den1, y1);
+    tt       = hgk_param.par.th1 * hgk_param.par.th1;
+    hgk_param.dv.amu  = aa * pow(hgk_param.par.r1,(beta * delta)) * hgk_param.par.th1 * (1.0 - tt);
+    y1       = dtstin + cc * hgk_param.dv.amu;
+
+///    ss(par.r1, par.th1, dv.s, dv.sd);
+    rhoweg = xk1 * pow(hgk_param.par.r1,betai) * hgk_param.par.th1 + cc * hgk_param.dv.s[1];
+    rho1s   = den1 + cc * hgk_param.dv.s[0] + rhoweg;
+    error1 = rho - rhodi  - rho1s ;
+    hgk_param.a2.r  = hgk_param.par.r1;
+    hgk_param.a2.th = hgk_param.par.th1;
+
+    if (fabs(error1) < 1.0e-5)
+        return;
+
+    /*   rule for second pass  */
+
+    den12 = rho - rhodi  - cc * hgk_param.dv.s[1] + rhoweg;
+    if (den12 == den1)
+        den12 = den1 - 1.0e-6;
+
+///    rtheta(&par.r1,&par.th1,den12,y1);
+    tt      = hgk_param.par.th1 * hgk_param.par.th1;
+    hgk_param.dv.amu = aa * pow(hgk_param.par.r1,(beta * delta)) * hgk_param.par.th1 * (1.0 - tt);
+    y1      = dtstin + cc * hgk_param.dv.amu;
+
+///    ss(par.r1, par.th1, dv.s, dv.sd);
+    rhoweg = xk1 * pow(hgk_param.par.r1,betai) * hgk_param.par.th1 + cc * hgk_param.dv.s[1];
+    rho1s2 = den12 + cc * hgk_param.dv.s[0] + rhoweg;
+    error2 = rho - rhodi  - rho1s2;
+    if (fabs(error2) <= 1.0e-5)
+    {
+        hgk_param.a2.r  = hgk_param.par.r1;
+        hgk_param.a2.th = hgk_param.par.th1;
+        //error1 = error2;
+        // rho1s   = rho1s2;
+        return;
+    }
+
+    /*    rule for nth pass   */
+
+    den2   = den12;
+    while( ++isig <= 10 )
+    {
+        slope  = (error2 - error1) / (den2 - den1);
+        hold   = den2;
+        den2   = den1 - (error1 / slope);
+
+///        rtheta(&par.r1,&par.th1,den2,y1);
+        tt      = hgk_param.par.th1 * hgk_param.par.th1;
+        hgk_param.dv.amu = aa * pow(hgk_param.par.r1,(beta * delta)) * hgk_param.par.th1 * (1.0 - tt);
+        y1      = dtstin + cc * hgk_param.dv.amu;
+
+///        ss(par.r1, par.th1, dv.s, dv.sd);
+        rhoweg = xk1 * pow(hgk_param.par.r1,betai) * hgk_param.par.th1 + cc * hgk_param.dv.s[1];
+        rho1s   = den2 + cc * hgk_param.dv.s[0] + rhoweg;
+        error1 = error2;
+        error2 = rho - rhodi  - rho1s ;
+        hgk_param.a2.r  = hgk_param.par.r1;
+        hgk_param.a2.th = hgk_param.par.th1;
+        if (fabs(error2) < 1.0e-6)
+            return;
+        den1 = hold;
+    }
+}
+
+
+//--------------------------------------------------------------------//
+/* Pfind - Return P(T,D) if OK and -1 - if error
+*          Calculated (dP/dD)T  when  invoked by Dfind
+*          (isat=0)  and  (dP/dT)D  when  invoked  by  SUB  TsLVS
+*          (isat=1).       */
+auto Pfind(int isat, double T, double DD, HGK_GEMS_PARAM &hgk_param) -> double
+{
+    double err=0.;
+    double  /* sd[2],*/ Pw0, Pw1, Pw2, Pw3,  am1, am2, am3,
+    p00, p20, p40, p01, p21, p41, aa, xk0, xk1, pw11, alpha,
+    alhi, besq, Tee, rho, rhodi=0., rho1=0., tt1, tt2, Pwmu,
+                                         dPw0, dPw1, dPw, Pfind, Uw, dPdTcd, dPwdTw, Cvcoex=0.;
+    /*  double amc */
+
+    Pw1  = hgk_param.co.a[4];
+    Pw2  = hgk_param.co.a[3];
+    Pw3  = hgk_param.co.a[1];
+    /* amc  = hgk_param.co.a[12]; */
+    am1  = hgk_param.co.a[13];
+    am2  = hgk_param.co.a[14];
+    am3  = hgk_param.co.a[15];
+    p00  = hgk_param.co.q[10];
+    p20  = hgk_param.co.q[11];
+    p40  = hgk_param.co.q[12];
+    p01  = hgk_param.co.q[17];
+    p21  = hgk_param.co.q[18];
+    p41  = hgk_param.co.q[19];
+    aa   = hgk_param.co.a[9];
+    xk0  = hgk_param.co.a[6];
+    xk1  = hgk_param.co.a[11];
+    pw11 = hgk_param.co.q[8];
+    alpha= hgk_param.co.q[9];
+    alhi = hgk_param.co.q[14];
+    besq = hgk_param.co.a[8];
+
+    hgk_param.dv.xk[0] = xk0;
+    hgk_param.dv.xk[1] = xk1;
+
+    if (fabs(T - hgk_param.cr.Tc) < hgk_param.to.FPTOL)
+        T = hgk_param.cr.Tc;
+    Tee     = (T - hgk_param.cr.Tc) / hgk_param.cr.Tc;
+    hgk_param.dv.Tw  = - hgk_param.cr.Tc / T;
+    hgk_param.dv.dTw = 1.0 + hgk_param.dv.Tw;
+    if ( !isat )
+    {                           /* when isat == 0 */
+        rho = DD / hgk_param.cr.rhoC;
+        conver(rho, Tee, rho1, rhodi, err, hgk_param);
+    }
+    else
+    {                           /* when isat == 1 */
+        hgk_param.par.th1 = -1.0;
+        hgk_param.a2.th  = hgk_param.par.th1;
+        hgk_param.par.r1  = hgk_param.dv.dTw / (1.0 - besq);
+        hgk_param.a2.r   = hgk_param.par.r1;
+
+///        ss(par.r1, par.th1, dv.s, dv.sd);
+        rho = hgk_param.par.th1 * (xk0 * pow(hgk_param.par.r1, hgk_param.co.a[5]) +
+                         xk1 * pow(hgk_param.par.r1, hgk_param.co.q[15])) + hgk_param.co.a[0] * (hgk_param.dv.s[0] + hgk_param.dv.s[1]);
+        rho += 1.0 + pw11 * hgk_param.dv.dTw;
+        hgk_param.dv.amu = 0.0;
+        DD = rho * hgk_param.cr.rhoC;
+    }
+    tt1 = hgk_param.par.th1 * hgk_param.par.th1;
+    tt2 = tt1*tt1;
+    Pw0  = 1.0 + hgk_param.dv.dTw * (Pw1 + hgk_param.dv.dTw * (Pw2 + hgk_param.dv.dTw * Pw3));
+    if ( !isat )
+        Pwmu = hgk_param.dv.amu * rhodi;              /* when isat == 0 */
+    else
+        Pwmu = 0.0;                          /* when isat == 1 */
+    hgk_param.dv.p0th = p00 + p20 * tt1 + p40 * tt2;
+    hgk_param.dv.p1th = p01 + p21 * tt1 + p41 * tt2;
+    dPw0 = xk0 * hgk_param.dv.p0th * pow(hgk_param.par.r1,(2.0 - alpha));
+    dPw1 = xk1 * hgk_param.dv.p1th * pow(hgk_param.par.r1,(2.0 - alhi));
+    dPw  = aa * (dPw0 + dPw1);
+    hgk_param.dv.Pw   = Pw0 + Pwmu + dPw;
+    Pfind = hgk_param.dv.Pw * hgk_param.cr.Pcon * T;
+    if (fabs(hgk_param.par.th1) < 1.0)
+        hgk_param.sa.iphase = 1;
+    else
+    {
+        hgk_param.sa.iphase = 2;
+        hgk_param.dv.dP0dT = Pw1 + hgk_param.dv.dTw * (2.0 * Pw2 + 3.0 * Pw3 * hgk_param.dv.dTw);
+        hgk_param.dv.dM0dT = am1 + hgk_param.dv.dTw * (2.0 * am2 + 3.0 * am3 * hgk_param.dv.dTw);
+        Uw = hgk_param.dv.dP0dT - rho * hgk_param.dv.dM0dT + pw11 * hgk_param.dv.amu + hgk_param.dv.s[0] + hgk_param.dv.s[1];
+        dPdTcd = Uw + rho * hgk_param.dv.dM0dT;
+        dPwdTw = hgk_param.dv.Pw - hgk_param.dv.Tw * dPdTcd;
+        hgk_param.d2.dPdT   = hgk_param.cr.Pcon * dPwdTw;
+    }
+
+///    aux(par.r1, par.th1, &dv.d2PdT2, &dv.d2PdMT, &dv.d2PdM2,
+///        aa, dv.xk, dv.sd, Cvcoex);
+    if (hgk_param.sa.iphase == 1)
+        hgk_param.d2.dPdD = hgk_param.cr.dPcon * DD * T / hgk_param.dv.d2PdM2;
+    return(Pfind);
+}
+
 auto  valTD(double T, double D, HGK_GEMS_PARAM &hgk_param, HGK_SPECS &aSpc, int epseqn) -> int
 {
     int istemp;
@@ -1100,7 +1371,7 @@ auto  valTD(double T, double D, HGK_GEMS_PARAM &hgk_param, HGK_SPECS &aSpc, int 
                 {
                     istemp = 1;
                     hgk_param.sa.DH2O = 0.0e0;
-//                    trp.P    = Pfind(istemp, Tk, sa.DH2O);
+                    hgk_param.trp.P    = Pfind(istemp, Tk, hgk_param.sa.DH2O, hgk_param);
 //                    denLVS(istemp, Tk, trp.P);
                     hgk_param.trp.Dv = hgk_param.sa.Dvap / 1.0e3;
                     hgk_param.trp.Dl = hgk_param.sa.Dliq / 1.0e3;
