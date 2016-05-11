@@ -111,7 +111,7 @@ int main()
 
     ThermoPropertiesSubstance h2o_data_atPrTr;
     ThermoPropertiesSubstance result2;
-    ThermoPropertiesSolvent result1, result3;
+    PropertiesSolvent result1, result3;
 
     h2o_data_atPrTr.volume = 0;
     h2o_data_atPrTr.gibbs_energy = 0;
@@ -135,9 +135,9 @@ int main()
 
     WaterHGK waterHGK(water);
 
-    result1 = waterHGK.thermoPropertiesSolvent(25, 1);
+    result1 = waterHGK.propertiesSolvent(25, 1);
 
-    result3 = thermo.thermoPropertiesSolvent(25, 1, "water");
+    result3 = thermo.propertiesSolvent(25, 1, "water");
 
 #endif
 // +++ END test H2O_HGK +++

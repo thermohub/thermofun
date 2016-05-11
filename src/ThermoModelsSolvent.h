@@ -30,7 +30,7 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param reaction The name of the reaction
-    auto thermoPropertiesSolvent (double T, double P) -> ThermoPropertiesSolvent;
+    auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
 
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 

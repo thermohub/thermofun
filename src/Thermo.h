@@ -26,7 +26,7 @@ public:
     /// @param reaction The name of the reaction
     auto thermoPropertiesSubstance (double T, double P, std::string substance) -> ThermoPropertiesSubstance;
 
-    auto thermoPropertiesSolvent(double T, double P, std::string name) -> ThermoPropertiesSolvent;
+    auto propertiesSolvent(double T, double P, std::string name) -> PropertiesSolvent;
 
 //    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).
 //    /// @param T The temperature value (in units of K)

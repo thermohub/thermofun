@@ -1,5 +1,5 @@
     HEADERS	 += $$TCORRPT_H/tcorrpt_global.h \
-#    $$TCORRPT_H/Common/ThermoScalar.hpp \
+    $$TCORRPT_H/Common/ThermoScalar.hpp \
 #    $$PWD/tsubstancept.h \
 #    $$PWD/treactionpt.h \
 #    $$PWD/reactiondataprtr.h \
@@ -25,7 +25,7 @@
 
 
     SOURCES	 += $$PWD/Database.cpp \
-#    $$TCORRPT_H/Common/ThermoScalar.hpp \
+    $$TCORRPT_H/Common/ThermoScalar.hpp \
 #    $$PWD/tsubstancept.cpp \
 #    $$PWD/treactionpt.cpp \
 #    $$PWD/substancedataprtr.cpp \

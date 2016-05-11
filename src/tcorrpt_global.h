@@ -28,9 +28,13 @@ static const double R_CONSTANT = 8.31451,
                     ln_to_lg = 0.434294481,
                     H2O_mol_to_kg = 55.50837344,
                     Min_phys_amount = 1.66e-24,
+                    cm3_mol_to_J_bar = 0.1,
 
                     TEMPER_PREC     = 0.5,
                     PRESSURE_PREC   = 0.1;
+
+/// The molar mass of water in units of g/mol
+static const double waterMolarMass = 18.015268;
 
 struct STATES
 {

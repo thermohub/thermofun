@@ -7,8 +7,9 @@
 namespace TCorrPT {
 
 // Forward declarations
-struct ThermoPropertiesSolvent;
+struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
+struct ThermoPropertiesSolvent;
 
 typedef struct
 { //work structure  t/d properties of water-solution
@@ -291,130 +292,81 @@ private:
     COEFS    *co;
 
     auto unit(int it, int id, int ip, int ih, int itripl) -> void;
-
     auto tpset( ) -> void;
-
     auto valid(int it, int id, int ip, int ih, int itripl, int isat,
                int iopt, int useLVS, int epseqn, double Temp, double *Pres,
                double *Dens0, int *eR) -> void;
-
     auto valspc(int it, int id, int ip, int ih, int itripl,
                 int isat, int iopt, int useLVS, int epseqn) -> int;
-
-//    auto TdegK(int it, double t) -> double;
-
     auto valTD(double T, double D, int isat, int epseqn) -> int;
-
     auto pcorr(int itripl, double t, double *p, double *dL,double *dV, int epseqn) -> void;
-
     auto PsHGK(double t) -> double;
-
     auto corr(int itripl, double t, double *p, double *dL,
               double *dV, double *delg, int epseqn) -> void;
-
     auto bb(double t) -> void;
-
     auto resid(double t, double *d) -> void;
-
     auto base(double *d, double t) -> void;
-
     auto denHGK(double *d, double *p, double dguess, double t, double *dpdd) -> void;
-
     auto ideal(double t) -> void;
-
     auto thmHGK(double *d, double t) -> void;
-
     auto dalHGK(double *d, double t, double alpha) -> double;
-
     auto viscos(double Tk, double Pbars, double Dkgm3, double betaPa) -> double;
-
     auto thcond(double Tk, double Pbars, double Dkgm3, double alph, double betaPa) -> double;
-
     auto surten(double Tsatur) -> double;
-
     auto JN91(double T, double D, double beta, double *alpha, double *daldT, double *eps, double *dedP, double *dedT, double *d2edT2) -> void;
-
     auto epsBrn(double *eps, double dedP, double dedT,double d2edT2,
                          double *Z, double *Q, double *Y, double *X) -> void;
-
     auto Born92(double TK, double Pbars, double Dgcm3, double betab,
                          double *alphaK, double *daldT, double *eps, double *Z,
                          double *Q, double *Y, double *X, int epseqn) -> void;
-
     auto triple(double T, WPROPS  *wr) -> void;
-
     auto dimHGK(int isat,int itripl, double t, double *p, double *d, int epseqn) -> void;
-
     auto crtreg(int isat, int iopt, int it, double *T, double *P,
                 double *D, int *eR) -> void;
-
     auto LVSeqn(int isat, int iopt, int itripl, double TC,
                 double *P, double *Dens0, int epseqn) -> void;
-
     auto HGKeqn(int isat, int iopt, int itripl, double Temp,
                 double *Pres, double *Dens0, int epseqn) ->void;
-
     auto valTP(double T, double P) -> int;
-
     auto Pfind(int isat, double T, double DD) -> double;
-
     auto conver(double *rho,
                           double Tee, double rho1s, double *rhodi, double error1) -> void;
-
     auto ss(double r, double th, double *s, double *sd) -> void;
-
     auto rtheta(double *r, double *theta, double rho, double Tee) -> void;
-
     auto aux(double r1, double th1, double *d2PdT2, double *d2PdMT,
                        double *d2PdM2, double aa, double *xk, double *sd, double Cvcoex) -> void;
-
     auto denLVS(int isat, double T, double P) -> void;
-
     auto Psublm(double Temp) -> double;
-
     auto TsLVS(int isat, double Pres) -> double;
-
     auto LVSsat(int iopt, int isat, double *T, double *P, double *D)  -> void;
-
     auto thmLVS(int isat, double T, double r1, double th1)  -> void;
-
     auto dalLVS(double D, double T, double P, double alpha) -> double;
-
     auto dimLVS(int isat, int itripl, double theta, double T, double *Pbars,
                          double *dL, double *dV, WPROPS *www, int epseqn) -> void;
-
     auto cpswap() -> void;
-
     auto HGKsat(int& isat, int iopt, int itripl, double Temp,
                          double *Pres, double *Dens, int epseqn) -> void;
-
     auto calcv3(int iopt, int itripl, double Temp, double *Pres,
                          double *Dens, int epseqn) -> void;
-
     auto TdegUS(int it, double t) -> double;
-
     auto tcorr(int itripl, double *t, double *p, double *dL, double *dV,
                         int epseqn) -> void;
-
     auto TdPsdT(double t_) -> double;
-
     auto TsHGK(double Ps_) -> double;
-
     auto TdegK(int it, double t) -> double;
-
     auto errorHKFH2OValidity(std::string type, double P, double T, std::string name, int line) -> void;
-
     auto backup( struct STORE &sto ) -> void;
-
     auto restor( struct STORE sto ) -> void;
 
 public:
 
     auto waterHGK (double T, double P) -> void;
 
-    auto propertiesSolvent() -> ThermoPropertiesSolvent;
+    auto propertiesSolvent() -> PropertiesSolvent;
 
-    auto propertiesSubstance() -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSolvent() -> ThermoPropertiesSolvent;
+
+    auto thermoPropertiesSubstance() -> ThermoPropertiesSubstance;
 
 };
 
