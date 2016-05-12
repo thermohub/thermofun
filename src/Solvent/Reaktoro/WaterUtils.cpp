@@ -69,6 +69,7 @@ auto waterDensity(Temperature T, Pressure P, const HelmholtsModel& model) -> The
     exception.error << "Unable to calculate the density of water.";
     exception.reason << "The calculations did not converge at temperature "
         << T.val << " K and pressure " << P.val << "Pa.";
+    exception.line = __LINE__;
     RaiseError(exception);
 
     return {};

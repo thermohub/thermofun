@@ -40,6 +40,55 @@ namespace TCorrPT {
 //    return tps;
 //}
 
+auto saturatedWaterVaporPressureHGK(double t) -> double
+{
+    double  pl, psHGK, v, w, b, q, z;
+    int i=-1;
+    double a[8] ={ -.78889166e1,  .25514255e1, -.6716169e1,  .33239495e2,
+                   -.10538479e3,  .17435319e3, -.14839348e3, .48631602e2};
+    if (t <= 314.0e0)
+    {
+        pl    = 6.3573118e0 - 8858.843e0 / t + 607.56335e0 * pow(t,-0.6e0);
+        psHGK = 0.1e0 * exp(pl);
+    }
+    else
+    {
+        v = t / 647.25e0;
+        w = fabs(1.0e0 - v);
+        b = 0.0e0;
+        while (++i <= 7)
+        {
+            z  = i + 1;
+            b += a[i] * pow(w,((z + 1.0e0) / 2.0e0));
+        }
+        q = b / v;
+        psHGK = 22.093e0 * exp(q);
+    }
+    return(psHGK*1e1);
+}
+
+auto waterSaturatedPressureWagnerPruss(Reaktoro::Temperature T) -> Reaktoro::ThermoScalar
+{
+    const double a1 = -7.85951783;
+    const double a2 =  1.84408259;
+    const double a3 = -11.7866497;
+    const double a4 =  22.6807411;
+    const double a5 = -15.9618719;
+    const double a6 =  1.80122502;
+
+    const double Tcr = 647.096;
+    const double Pcr = 22.064e+06;
+
+    const auto t   = 1 - T/Tcr;
+    const auto t15 = pow(t, 1.5);
+    const auto t30 = t15 * t15;
+    const auto t35 = t15 * t * t;
+    const auto t40 = t30 * t;
+    const auto t75 = t35 * t40;
+
+    return Pcr * exp(Tcr/T * (a1*t + a2*t15 + a3*t30 + a4*t35 + a5*t40 + a6*t75));
+}
+
 
 auto thermoPropertiesWaterHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance
 {
@@ -61,7 +110,7 @@ auto thermoPropertiesWaterHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, con
     const auto U  = Uw + Utr;
     const auto G  = Hw - T * (Sw + Str) + Ttr * Str + Gtr;
     const auto A  = Uw - T * (Sw + Str) + Ttr * Str + Atr;
-    const auto V  = wt.volume * Reaktoro::waterMolarMass;
+    const auto V  = wt.volume * Reaktoro::waterMolarMass * 100000; // unit J/bar
     const auto Cp = wt.cp * Reaktoro::waterMolarMass;
     const auto Cv = wt.cv * Reaktoro::waterMolarMass;
 
