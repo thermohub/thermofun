@@ -285,7 +285,7 @@ auto WaterHGKgems::waterHGK (double T, double P) -> void
 auto WaterHGKgems::propertiesSolvent (  ) -> PropertiesSolvent
 {
     PropertiesSolvent wp;
-    double eps, xborn, yborn, zborn, qborn;
+    double eps, xborn, yborn, /*zborn,*/ qborn;
 
     wp.epsilon     = wr.Dielw;
     wp.bornZ    = wr.ZBorn;
@@ -310,7 +310,7 @@ auto WaterHGKgems::propertiesSolvent (  ) -> PropertiesSolvent
     eps = wr.Dielw;
     xborn = wr.XBorn;
     yborn = wr.YBorn;
-    zborn = wr.ZBorn;
+//    zborn = wr.ZBorn;
     qborn = wr.QBorn;
 
     wp.epsilonT = yborn * pow(eps,2.);
@@ -332,7 +332,7 @@ auto WaterHGKgems::thermoPropertiesSubstance (  ) -> ThermoPropertiesSubstance
     wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
 
     // Rho in g/cm3, waterMolarMass in g/mol
-    wp.volume                   = 1/aSta.Dens[aSpc.isat] * waterMolarMass * cm3_mol_to_J_bar;
+    wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
 
 return wp;
 }

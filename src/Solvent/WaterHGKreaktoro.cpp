@@ -1,5 +1,6 @@
 //#include "ThermoProperties.h"
 #include "WaterHGKreaktoro.h"
+#include "Reaktoro/WaterConstants.hpp"
 
 namespace TCorrPT {
 
@@ -46,13 +47,13 @@ auto thermoPropertiesWaterHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, con
     const auto Ttr =  273.16;                   // unit: K
     const auto Str =  15.1320 * cal_to_J; // unit: J/(mol*K)
     const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
-    const auto Htr = -15971.0 * cal_to_J; // unit: J/mol
-    const auto Utr = -15766.0 * cal_to_J; // unit: J/mol
+    const auto Htr = -68767.0 * cal_to_J; // unit: J/mol
+    const auto Utr = -67887.0 * cal_to_J; // unit: J/mol
     const auto Atr = -55415.0 * cal_to_J; // unit: J/mol
 
-    const auto Sw = waterMolarMass * wt.entropy;         // unit: J/(mol*K)
-    const auto Hw = waterMolarMass * wt.enthalpy;        // unit: J/mol
-    const auto Uw = waterMolarMass * wt.internal_energy; // unit: J/mol
+    const auto Sw = Reaktoro::waterMolarMass * wt.entropy;         // unit: J/(mol*K)
+    const auto Hw = Reaktoro::waterMolarMass * wt.enthalpy;        // unit: J/mol
+    const auto Uw = Reaktoro::waterMolarMass * wt.internal_energy; // unit: J/mol
 
     // Calculate the standard molal thermodynamic properties of the aqueous species
     const auto S  = Sw + Str;
@@ -60,9 +61,9 @@ auto thermoPropertiesWaterHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, con
     const auto U  = Uw + Utr;
     const auto G  = Hw - T * (Sw + Str) + Ttr * Str + Gtr;
     const auto A  = Uw - T * (Sw + Str) + Ttr * Str + Atr;
-    const auto V  = wt.volume * waterMolarMass;
-    const auto Cp = wt.cp * waterMolarMass;
-    const auto Cv = wt.cv * waterMolarMass;
+    const auto V  = wt.volume * Reaktoro::waterMolarMass;
+    const auto Cp = wt.cp * Reaktoro::waterMolarMass;
+    const auto Cv = wt.cv * Reaktoro::waterMolarMass;
 
     ThermoPropertiesSubstance state;
     state.entropy          = S;

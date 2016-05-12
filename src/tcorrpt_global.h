@@ -29,12 +29,13 @@ static const double R_CONSTANT = 8.31451,
                     H2O_mol_to_kg = 55.50837344,
                     Min_phys_amount = 1.66e-24,
                     cm3_mol_to_J_bar = 0.1,
+                    bar_to_Pa = 1e05,
 
                     TEMPER_PREC     = 0.5,
                     PRESSURE_PREC   = 0.1;
 
 /// The molar mass of water in units of g/mol
-static const double waterMolarMass = 18.015268;
+static const double H2OMolarMass = 18.015268;
 
 struct STATES
 {
@@ -99,25 +100,25 @@ static const int MethodGenEoS_ndxThrift[] = {
   MethodGenEoS_Thrift::CEM_NP
 };
 /// Codes for species-dependent EoS subroutines in GEMS
-static const char* MethodGenEoS_GEMS[] = {
-  "C",          ///< CTPM_CPT integration of empirical heat capacity equation Cp=f(T); DComp and ReacDC
-  "H",          ///< CTPM_HKF Helgeson-Kirkham-Flowers (HKF) equation of state for aqueous species
-  "K",          ///< CTPM_REA calculation of logK of reactions as they depend functionally on T and P; ReacDC ####
-  "S",          ///< CTPM_EOS calculations via general equations of state (reserved)
-  "I",          ///< CTPM_ISO calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC ####
-  "X",          ///< CTPM_SOR calculations via adsorption or ion exchange constants, using LFER correlations; ReacDC (reserved) ####
-  "N",          ///< CEM_OFF no fluid model routine
-  "G",          ///< CEM_GAS generic fluid model routine
-  "V",          ///< CEM_H2O subroutine for H2O fluid
-  "C",          ///< CEM_CO2 subroutine for CO2 fluid
-  "M",          ///< CEM_CH4 subroutine for CH4 fluid
-  "T",          ///< CEM_N2 subroutine for N2 fluid
-  "H",          ///< CEM_H2 subroutine for H2 fluid
-  "O",          ///< CEM_O2 subroutine for O2 fluid
-  "A",          ///< CEM_AR subroutine for Ar fluid
-  "P",          ///< CEM_PO subroutine for polar fluids
-  "Q"           ///< CEM_NP subroutine for nonpolar fluids
-};
+//static const char* MethodGenEoS_GEMS[] = {
+//  "C",          ///< CTPM_CPT integration of empirical heat capacity equation Cp=f(T); DComp and ReacDC
+//  "H",          ///< CTPM_HKF Helgeson-Kirkham-Flowers (HKF) equation of state for aqueous species
+//  "K",          ///< CTPM_REA calculation of logK of reactions as they depend functionally on T and P; ReacDC ####
+//  "S",          ///< CTPM_EOS calculations via general equations of state (reserved)
+//  "I",          ///< CTPM_ISO calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC ####
+//  "X",          ///< CTPM_SOR calculations via adsorption or ion exchange constants, using LFER correlations; ReacDC (reserved) ####
+//  "N",          ///< CEM_OFF no fluid model routine
+//  "G",          ///< CEM_GAS generic fluid model routine
+//  "V",          ///< CEM_H2O subroutine for H2O fluid
+//  "C",          ///< CEM_CO2 subroutine for CO2 fluid
+//  "M",          ///< CEM_CH4 subroutine for CH4 fluid
+//  "T",          ///< CEM_N2 subroutine for N2 fluid
+//  "H",          ///< CEM_H2 subroutine for H2 fluid
+//  "O",          ///< CEM_O2 subroutine for O2 fluid
+//  "A",          ///< CEM_AR subroutine for Ar fluid
+//  "P",          ///< CEM_PO subroutine for polar fluids
+//  "Q"           ///< CEM_NP subroutine for nonpolar fluids
+//};
 
 /// Indexes for temperature correction methods used in thrift DOM and TCorrPT class
 typedef struct {
@@ -171,30 +172,30 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_WAR
 };
 /// Codes for temperature correction methods used in GEMS
-static const char* MethodCorrT_GEMS[] = {
-  "S",            ///< CTM_CST calculation of ordinary integral using 11-term Cp=f(T) equations (up to 3 phase transitions)
-  "H",            ///< CTM_CHP modifications for Landau phase transitions (Holland and Powell, 1998)
-  "B",            ///< CTM_BER modifications for Landau phase transitions (Berman, 1988) (reserved)
-  "F",            ///< CTM_FEI Cp=f(T) equation by Fei and Saxena (1986) (reserved)
-  "X",            ///< CTM_LGX calculation of reaction properties from empirical from 5-term Cp(T); ReacDC
-  "K",            ///< CTM_HKF calculation with HKF EOS (for aqueous species) as in SUPCRT92
-  "W",            ///< CTM_WAT calculation of H2O water(steam) properties from HGK and LVS equations of state
-  "V",            ///< CTM_WAS calculation of H2O water (steam) properties from IAPWS-95 equation of state (reserved)
-  "L",            ///< CTM_LGK calculation from empirical function logK=f(T) (Nordstrom and Munoz, 1988); ReacDC only
-  "0",            ///< CTM_EK0 one-term extrapolation assuming dHr=0 and logK=const; ReacDC
-  "1",            ///< CTM_EK1 one-term extrapolation assuming dGr=const (Gu et al., 1994); ReacDC
-  "2",            ///< CTM_EK2 two-term extrapolation; ReacDC only
-  "3",            ///< CTM_EK3 three-term extrapolation assuming dCpr=const; ReacDC
-  "Z",            ///< CTM_IKZ Lagrange polynomial interpolation over logK(TP) array; ReacDC
-  "R",            ///< CTM_DKR calculation of logK=f(T,P) from density equation (Marshall and Franck, 1978); ReacDC
-  "E",            ///< CTM_PPE prediction of properties of aqueous hydroxides using Pronsprep-OH (Shock et al. 1997)
-  "Y",            ///< CTM_MRB calculation of logK=f(T,P) with modified Ryzhenko-Bryzgalin model
-  "C",            ///< CTM_CPG reserved (FGL)
-  "G",            ///< CTM_IFG calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC
-  "K",            ///< CTM_KAS reserved
-  "D",            ///< CTM_DAS reserved
-  "T"             ///< CTM_WAR calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
-};
+//static const char* MethodCorrT_GEMS[] = {
+//  "S",            ///< CTM_CST calculation of ordinary integral using 11-term Cp=f(T) equations (up to 3 phase transitions)
+//  "H",            ///< CTM_CHP modifications for Landau phase transitions (Holland and Powell, 1998)
+//  "B",            ///< CTM_BER modifications for Landau phase transitions (Berman, 1988) (reserved)
+//  "F",            ///< CTM_FEI Cp=f(T) equation by Fei and Saxena (1986) (reserved)
+//  "X",            ///< CTM_LGX calculation of reaction properties from empirical from 5-term Cp(T); ReacDC
+//  "K",            ///< CTM_HKF calculation with HKF EOS (for aqueous species) as in SUPCRT92
+//  "W",            ///< CTM_WAT calculation of H2O water(steam) properties from HGK and LVS equations of state
+//  "V",            ///< CTM_WAS calculation of H2O water (steam) properties from IAPWS-95 equation of state (reserved)
+//  "L",            ///< CTM_LGK calculation from empirical function logK=f(T) (Nordstrom and Munoz, 1988); ReacDC only
+//  "0",            ///< CTM_EK0 one-term extrapolation assuming dHr=0 and logK=const; ReacDC
+//  "1",            ///< CTM_EK1 one-term extrapolation assuming dGr=const (Gu et al., 1994); ReacDC
+//  "2",            ///< CTM_EK2 two-term extrapolation; ReacDC only
+//  "3",            ///< CTM_EK3 three-term extrapolation assuming dCpr=const; ReacDC
+//  "Z",            ///< CTM_IKZ Lagrange polynomial interpolation over logK(TP) array; ReacDC
+//  "R",            ///< CTM_DKR calculation of logK=f(T,P) from density equation (Marshall and Franck, 1978); ReacDC
+//  "E",            ///< CTM_PPE prediction of properties of aqueous hydroxides using Pronsprep-OH (Shock et al. 1997)
+//  "Y",            ///< CTM_MRB calculation of logK=f(T,P) with modified Ryzhenko-Bryzgalin model
+//  "C",            ///< CTM_CPG reserved (FGL)
+//  "G",            ///< CTM_IFG calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC
+//  "K",            ///< CTM_KAS reserved
+//  "D",            ///< CTM_DAS reserved
+//  "T"             ///< CTM_WAR calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
+//};
 
 /// Indexes for pressure correction methods used in thrift DOM and TCorrPT class
 typedef struct {
@@ -250,31 +251,31 @@ static const int MethodCorrP_ndxThrift[] = {
   MethodCorrP_Thrift::CPM_INK
 };
 /// Codes for pressure correction methods used in GEMS
-static const char* MethodCorrP_GEMS[] = {
-  "N",            ///< CPM_OFF no account for pressure dependence
-  "0",            ///< CPM_NUL account for pressure dependence is already specified as inherent to a method
-  "1",            ///< CPM_ONE V0
-  "2",            ///< CPM_TWO
-  "3",            ///< CPM_TRI
-  "C",            ///< CPM_CON molar volume of DC or dVr are assumed independent of P and T
-  "K",            ///< CPM_VKE molar volume from empirical V=f(T,P) equation (Dorogokupets et al., 1988)
-  "V",            ///< CPM_VBE molar volume from empirical  V=f(T,P) equation (Berman, 1988)
-  "B",            ///< CPM_VBM molar volume from Birch-Murnaghan EoS (Gottschalk, 1997)
-  "E",            ///< CPM_CEH molar volume V(T,P) from Murnaghan EoS (Holland and Powell, 1998)
-  "H",            ///< CPM_VTA molar volume V(T,P) from Tait EoS (Holland and Powell, 2011)
-  "G",            ///< CPM_GAS calculation of fugacities of gases from their critical parameters (reserved)
-  "R",            ///< CPM_PRSV Peng-Robinson-Stryjek-Vera (PRSV) EoS for fluids (nonelectrolytes)
-  "S",            ///< CPM_EMP Churakov-Gottschalk (CG) EoS for fluids (nonelectrolytes
-  "T",            ///< CPM_SRK Soave-Redlich-Kwong (SRK) EoS for fluids (nonelectrolytes)
-  "6",            ///< CPM_STP Sterner-Pitzer (SP) EoS for fluids (nonelectrolytes) (reserved)
-  "7",            ///< CPM_PR78 Peng-Robinson (PR78) EoS for fluids (nonelectrolytes)
-  "8",            ///< CPM_CORK Compensated Redlich-Kwong (CORK) EoS for fluids (nonelectrolytes)
-  "9",            ///< CPM_REFL reference EoS model for fluids (nonelectrolytes) (reserved)
-  "F",            ///< CPM_HKF account for pressure up to 5 kbar by HKF (Tanger and Helgeson, 1988)
-  "A",            ///< CPM_AKI partial molal volumes of aqueous nonelectrolyte species (Akinfiev and Diamond, 2003)
-  "P",            ///< CPM_PCR PARCOR estimation of HKF EoS parameters
-  "Z"             ///< CPM_INK Lagrange polynomial interpolation over logK(TP) array; ReacDC
-};
+//static const char* MethodCorrP_GEMS[] = {
+//  "N",            ///< CPM_OFF no account for pressure dependence
+//  "0",            ///< CPM_NUL account for pressure dependence is already specified as inherent to a method
+//  "1",            ///< CPM_ONE V0
+//  "2",            ///< CPM_TWO
+//  "3",            ///< CPM_TRI
+//  "C",            ///< CPM_CON molar volume of DC or dVr are assumed independent of P and T
+//  "K",            ///< CPM_VKE molar volume from empirical V=f(T,P) equation (Dorogokupets et al., 1988)
+//  "V",            ///< CPM_VBE molar volume from empirical  V=f(T,P) equation (Berman, 1988)
+//  "B",            ///< CPM_VBM molar volume from Birch-Murnaghan EoS (Gottschalk, 1997)
+//  "E",            ///< CPM_CEH molar volume V(T,P) from Murnaghan EoS (Holland and Powell, 1998)
+//  "H",            ///< CPM_VTA molar volume V(T,P) from Tait EoS (Holland and Powell, 2011)
+//  "G",            ///< CPM_GAS calculation of fugacities of gases from their critical parameters (reserved)
+//  "R",            ///< CPM_PRSV Peng-Robinson-Stryjek-Vera (PRSV) EoS for fluids (nonelectrolytes)
+//  "S",            ///< CPM_EMP Churakov-Gottschalk (CG) EoS for fluids (nonelectrolytes
+//  "T",            ///< CPM_SRK Soave-Redlich-Kwong (SRK) EoS for fluids (nonelectrolytes)
+//  "6",            ///< CPM_STP Sterner-Pitzer (SP) EoS for fluids (nonelectrolytes) (reserved)
+//  "7",            ///< CPM_PR78 Peng-Robinson (PR78) EoS for fluids (nonelectrolytes)
+//  "8",            ///< CPM_CORK Compensated Redlich-Kwong (CORK) EoS for fluids (nonelectrolytes)
+//  "9",            ///< CPM_REFL reference EoS model for fluids (nonelectrolytes) (reserved)
+//  "F",            ///< CPM_HKF account for pressure up to 5 kbar by HKF (Tanger and Helgeson, 1988)
+//  "A",            ///< CPM_AKI partial molal volumes of aqueous nonelectrolyte species (Akinfiev and Diamond, 2003)
+//  "P",            ///< CPM_PCR PARCOR estimation of HKF EoS parameters
+//  "Z"             ///< CPM_INK Lagrange polynomial interpolation over logK(TP) array; ReacDC
+//};
 
 typedef struct {
   enum type {

@@ -65,6 +65,12 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                 return water.thermoPropertiesSubstance(T, P);
                 break;
             }
+            case MethodCorrT_Thrift::type::CTM_WAR:
+            {
+                WaterHGKreaktoro water ( subst );
+                return water.thermoPropertiesSubstance(T, P);
+                break;
+            }
         }
 
         // Exception
