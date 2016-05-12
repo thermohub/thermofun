@@ -19,7 +19,7 @@
 
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Common/ScalarTypes.hpp>
-#include <ThermoProperties.h>
+#include <Substance.h>
 
 namespace Reaktoro {
 

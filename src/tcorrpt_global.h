@@ -142,7 +142,8 @@ typedef struct {
     CTM_CPG = 217,
     CTM_IFG = 218,
     CTM_KAS = 219,
-    CTM_DAS = 220
+    CTM_DAS = 220,
+    CTM_WAR = 221
   };
 } MethodCorrT_Thrift;
 static const int MethodCorrT_ndxThrift[] = {
@@ -166,7 +167,8 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_CPG,
   MethodCorrT_Thrift::CTM_IFG,
   MethodCorrT_Thrift::CTM_KAS,
-  MethodCorrT_Thrift::CTM_DAS
+  MethodCorrT_Thrift::CTM_DAS,
+  MethodCorrT_Thrift::CTM_WAR
 };
 /// Codes for temperature correction methods used in GEMS
 static const char* MethodCorrT_GEMS[] = {
@@ -190,7 +192,8 @@ static const char* MethodCorrT_GEMS[] = {
   "C",            ///< CTM_CPG reserved (FGL)
   "G",            ///< CTM_IFG calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC
   "K",            ///< CTM_KAS reserved
-  "D"             ///< CTM_DAS reserved
+  "D",            ///< CTM_DAS reserved
+  "T"             ///< CTM_WAR calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
 };
 
 /// Indexes for pressure correction methods used in thrift DOM and TCorrPT class

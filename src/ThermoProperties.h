@@ -190,49 +190,44 @@ struct PropertiesSolvent
 
 };
 
-} // namespace TCorrPT
-
-namespace Reaktoro {
-
-
-struct WaterElectroState
+struct ElectroPropertiesSolvent
 {
     /// The dielectric constant of water
-    ThermoScalar epsilon;
+    Reaktoro::ThermoScalar epsilon;
 
     /// The first-order partial derivative of the dielectric constant with respect to temperature
-    ThermoScalar epsilonT;
+    Reaktoro::ThermoScalar epsilonT;
 
     /// The first-order partial derivative of the dielectric constant with respect to pressure
-    ThermoScalar epsilonP;
+    Reaktoro::ThermoScalar epsilonP;
 
     /// The second-order partial derivative of the dielectric constant with respect to temperature
-    ThermoScalar epsilonTT;
+    Reaktoro::ThermoScalar epsilonTT;
 
     /// The second-order partial derivative of the dielectric constant with respect to temperature and pressure
-    ThermoScalar epsilonTP;
+    Reaktoro::ThermoScalar epsilonTP;
 
     /// The second-order partial derivative of the dielectric constant with respect to pressure
-    ThermoScalar epsilonPP;
+    Reaktoro::ThermoScalar epsilonPP;
 
     /// The Born function \f$ Z\equiv-\frac{1}{\epsilon} \f$ (see Helgeson and Kirkham, 1974)
-    ThermoScalar bornZ;
+    Reaktoro::ThermoScalar bornZ;
 
     /// The Born function \f$ Y\equiv\left[\frac{\partial Z}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    ThermoScalar bornY;
+    Reaktoro::ThermoScalar bornY;
 
     /// The Born function \f$ Q\equiv\left[\frac{\partial Z}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
-    ThermoScalar bornQ;
+    Reaktoro::ThermoScalar bornQ;
 
     /// The Born function \f$ N\equiv\left[\frac{\partial Q}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
-    ThermoScalar bornN;
+    Reaktoro::ThermoScalar bornN;
 
     /// The Born function \f$ U\equiv\left[\frac{\partial Q}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    ThermoScalar bornU;
+    Reaktoro::ThermoScalar bornU;
 
     /// The Born function \f$ X\equiv\left[\frac{\partial Y}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    ThermoScalar bornX;
+    Reaktoro::ThermoScalar bornX;
 };
 
+} // namespace TCorrPT
 
-} // namespace Reaktoro
