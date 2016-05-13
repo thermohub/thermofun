@@ -17,8 +17,8 @@
 
 #pragma once
 
-// Reaktoro includes
-#include<Reaktoro/Common/ThermoScalar.hpp>
+// Reaktoro includes (modified DM 11.05.2016)
+#include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
 namespace Reaktoro {
 

@@ -199,9 +199,11 @@ int main()
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 25;
-    P = 0;
-    ThermoPropertiesSubstance resG, resR;
+    T = 375;
+    P = 450;
+    ThermoPropertiesSubstance resSubstG, resSubstR;
+
+    ElectroPropertiesSolvent resSolvG, resSolvR;
 
     ofstream myfile;
     myfile.open ("H2Oprop.csv");
@@ -211,17 +213,20 @@ int main()
     do
     {
         myfile << T << ","<<P<<",";
-        resG = H2OHGKgems.thermoPropertiesSubstance(T, P);
-        resR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
+        resSubstG = H2OHGKgems.thermoPropertiesSubstance(T, P);
+        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
 
-        myfile << resG.gibbs_energy <<","<<resR.gibbs_energy<<",";
-        myfile << resG.enthalpy <<","<<resR.enthalpy<<",";
-        myfile << resG.entropy <<","<<resR.entropy<<",";
-        myfile << resG.helmholtz_energy <<","<<resR.helmholtz_energy<<",";
-        myfile << resG.internal_energy <<","<<resR.internal_energy<<",";
-        myfile << resG.volume <<","<<resR.volume<<",";
-        myfile << resG.heat_capacity_cp <<","<<resR.heat_capacity_cp<<",";
-        myfile << resG.heat_capacity_cv <<","<<resR.heat_capacity_cv<<"\n";
+        resSolvG = H2OHGKgems.electroPropertiesSolvent(T,P);
+        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
+
+        myfile << resSubstG.gibbs_energy <<","<<resSubstR.gibbs_energy<<",";
+        myfile << resSubstG.enthalpy <<","<<resSubstR.enthalpy<<",";
+        myfile << resSubstG.entropy <<","<<resSubstR.entropy<<",";
+        myfile << resSubstG.helmholtz_energy <<","<<resSubstR.helmholtz_energy<<",";
+        myfile << resSubstG.internal_energy <<","<<resSubstR.internal_energy<<",";
+        myfile << resSubstG.volume <<","<<resSubstR.volume<<",";
+        myfile << resSubstG.heat_capacity_cp <<","<<resSubstR.heat_capacity_cp<<",";
+        myfile << resSubstG.heat_capacity_cv <<","<<resSubstR.heat_capacity_cv<<"\n";
 
         T +=10;
 

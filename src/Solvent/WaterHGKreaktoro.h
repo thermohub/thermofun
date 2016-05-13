@@ -3,6 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 #include "Solvent/Reaktoro/WaterThermoState.hpp"
+#include "Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
 namespace TCorrPT {
 
@@ -21,9 +22,11 @@ struct ThermoPropertiesSolvent;
 
 auto saturatedWaterVaporPressureHGK(double t) -> double;
 
-auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance;
+auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, /*Reaktoro::Pressure P,*/ const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance;
 
-auto propertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent;
+auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent;
+
+auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent;
 
 }
 

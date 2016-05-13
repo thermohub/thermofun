@@ -84,6 +84,41 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
    return tps;
 }
 
+
+auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance) -> ElectroPropertiesSolvent
+{
+    Substance subst = pimpl->database.getSubstance(substance);
+    MethodCorrT_Thrift::type  method_T      = subst.method_T();
+
+    if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
+    {
+        switch(method_T)
+        {
+            case MethodCorrT_Thrift::type::CTM_WAT:
+            {
+                WaterHGK water ( subst );
+                return water.electroPropertiesSolvent(T, P);
+                break;
+            }
+            case MethodCorrT_Thrift::type::CTM_WAR:
+            {
+                WaterHGKreaktoro water ( subst );
+                return water.electroPropertiesSolvent(T, P);
+                break;
+            }
+        }
+
+        // Exception
+        errorMethodNotFound("substance", subst.name(), __LINE__);
+    }
+
+    // Exception
+    errorMethodNotFound("substance", subst.name(), __LINE__);
+
+   ElectroPropertiesSolvent tps;
+   return tps;
+}
+
 auto Thermo::propertiesSolvent(double T, double P, std::string name) -> PropertiesSolvent
 {
     Substance subst = pimpl->database.getSubstance(name);

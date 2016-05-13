@@ -43,7 +43,7 @@ auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
     wp.gibbsIdealGas    = id.gi;
     wp.entropyIdealGas  = id.si;
     wp.cpIdealGas       = id.cpi;
-    wp.density          = aSta.Dens[aSpc.isat] * 1000; // in g/cm3
+    wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
 
     rho = aSta.Dens[aSpc.isat] * 1000;
     alp = wr.Alphaw;

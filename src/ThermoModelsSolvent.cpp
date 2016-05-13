@@ -94,9 +94,9 @@ auto WaterHGKreaktoro::propertiesSolvent(double T, double P) -> PropertiesSolven
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t,p);
+    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t, p);
 
-    return propertiesWaterHGKreaktoro(t, p, wt);
+    return propertiesWaterHGKreaktoro(wt);
 }
 
 auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance
@@ -106,9 +106,22 @@ auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double P) -> ThermoPr
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t,p);
+    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t, p);
 
-    return thermoPropertiesWaterHGKreaktoro(t, p, wt);
+    return thermoPropertiesWaterHGKreaktoro(t, wt);
+}
+
+auto WaterHGKreaktoro::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
+{
+    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
+
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    Reaktoro::WaterThermoState  wts = Reaktoro::waterThermoStateHGK(t, p);
+    Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, p, wts);
+
+    return electroPropertiesWaterJNreaktoro(wes);
 }
 
 } // namespace TCorrPT

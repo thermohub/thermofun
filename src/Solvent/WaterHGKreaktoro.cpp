@@ -4,7 +4,7 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance
+auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
     const auto Ttr =  273.16;                   // unit: K
@@ -41,7 +41,28 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressur
     return state;
 }
 
-auto propertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent
+auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent
+{
+    ElectroPropertiesSolvent eps;
+
+    eps.bornN = wts.bornN;
+    eps.bornQ = wts.bornQ;
+    eps.bornU = wts.bornU;
+    eps.bornX = wts.bornX;
+    eps.bornY = wts.bornY;
+    eps.bornZ = wts.bornZ;
+
+    eps.epsilon   = wts.epsilon;
+    eps.epsilonP  = wts.epsilonP;
+    eps.epsilonPP = wts.epsilonPP;
+    eps.epsilonT  = wts.epsilonT;
+    eps.epsilonTP = wts.epsilonTP;
+    eps.epsilonTT = wts.epsilonTT;
+
+    return eps;
+}
+
+auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent
 {
     PropertiesSolvent state;
 

@@ -4,11 +4,12 @@
     $$PWD/Solvent/Reaktoro/WaterConstants.hpp \
     $$PWD/Solvent/Reaktoro/WaterHelmholtzState.hpp \
     $$PWD/Solvent/Reaktoro/WaterThermoState.hpp \
-#    $$PWD/Solvent/Reaktoro/WaterElectroState.hpp \
+    $$PWD/Solvent/Reaktoro/WaterElectroState.hpp \
     $$PWD/Solvent/Reaktoro/WaterHelmholtzStateHGK.hpp \
     $$PWD/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp \
     $$PWD/Solvent/Reaktoro/WaterThermoStateUtils.hpp \
     $$PWD/Solvent/Reaktoro/WaterUtils.hpp \
+    $$PWD/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp \
 #    $$PWD/tsubstancept.h \
 #    $$PWD/treactionpt.h \
 #    $$PWD/reactiondataprtr.h \
@@ -40,6 +41,7 @@
     $$PWD/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \
     $$PWD/Solvent/Reaktoro/WaterThermoStateUtils.cpp \
     $$PWD/Solvent/Reaktoro/WaterUtils.cpp \
+    $$PWD/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.cpp \
 #    $$PWD/tsubstancept.cpp \
 #    $$PWD/treactionpt.cpp \
 #    $$PWD/substancedataprtr.cpp \

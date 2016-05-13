@@ -18,9 +18,8 @@
 #include "WaterElectroStateJohnsonNorton.hpp"
 
 // Reaktoro includes
-#include <Reaktoro/Common/ThermoScalar.hpp>
-#include <Reaktoro/Thermodynamics/Water/WaterElectroState.hpp>
-#include <Reaktoro/Thermodynamics/Water/WaterThermoState.hpp>
+#include <Solvent/Reaktoro/WaterElectroState.hpp>
+#include <Solvent/Reaktoro/WaterThermoState.hpp>
 
 namespace Reaktoro {
 namespace {

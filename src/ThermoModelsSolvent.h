@@ -64,6 +64,8 @@ public:
 
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 
+    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+
 private:
     struct Impl;
 
