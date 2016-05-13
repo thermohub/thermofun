@@ -61,34 +61,20 @@ struct ThermoPropertiesReaction
     Reaktoro::ThermoScalar reaction_heat_capacity_cv;
 };
 
-struct ThermoPropertiesSolvent
+/// Describes the thermodynamic properties specific to a solvent
+struct PropertiesSolvent
 {
-    /// The temperature of solvent (in units of K)
-    Reaktoro::ThermoScalar temperature;
-
-    /// The specific volume of solvent (in units of m3/kg)
-    Reaktoro::ThermoScalar volume;
-
-    /// The specific entropy of solvent (in units of J/(kg*K))
-    Reaktoro::ThermoScalar entropy;
-
-    /// The specific Helmholtz free energy of solvent (in units of J/kg)
-    Reaktoro::ThermoScalar helmholtz;
-
-    /// The specific internal energy of solvent (in units of J/kg)
-    Reaktoro::ThermoScalar internal_energy;
-
-    /// The specific enthalpy of solvent (in units of J/kg)
-    Reaktoro::ThermoScalar enthalpy;
-
-    /// The specific Gibbs free energy of solvent (in units of J/kg)
-    Reaktoro::ThermoScalar gibbs;
-
-    /// The specific isochoric heat capacity of solvent (in units of J/(kg*K))
-    Reaktoro::ThermoScalar cv;
-
-    /// The specific isobaric heat capacity of solvent (in units of J/(kg*K))
-    Reaktoro::ThermoScalar cp;
+    double Speed,        /// speed of sound
+       Alpha,            /// constant pressure expansion (alpha)
+       Beta,             /// constant temperature compressibility (beta)
+       Visc,             /// dynamic viscosity
+       Tcond,            /// thermal conductivity
+       Surten,           /// surface tension
+       Tdiff,            /// not clear (currently not used)
+       Prndtl,           /// Prandtl number (currently not used)
+       Visck,            /// kinetic viscosity (currently not used)
+       Albe,             /// alpha/beta ratio
+       dAldT;            /// T derivative of isobaric expansion
 
     /// ideal gas Gibbs energy
     Reaktoro::ThermoScalar gibbsIdealGas;
@@ -134,59 +120,6 @@ struct ThermoPropertiesSolvent
 
     /// The second-order partial derivative of pressure with respect to density (in units of Pa/((kg/m3)*(kg/m3)))
     Reaktoro::ThermoScalar pressureDD;
-};
-
-/// Describes the thermodynamic properties specific to a solvent
-struct PropertiesSolvent
-{
-    double Speed,        /// speed of sound
-       Alpha,            /// constant pressure expansion (alpha)
-       Beta,             /// constant temperature compressibility (beta)
-       Visc,             /// dynamic viscosity
-       Tcond,            /// thermal conductivity
-       Surten,           /// surface tension
-       Tdiff,            /// not clear (currently not used)
-       Prndtl,           /// Prandtl number (currently not used)
-       Visck,            /// kinetic viscosity (currently not used)
-       Albe,             /// alpha/beta ratio
-       dAldT;            /// T derivative of isobaric expansion
-
-    /// The dielectric constant
-    Reaktoro::ThermoScalar epsilon;
-
-    /// The first-order partial derivative of the dielectric constant with respect to temperature
-    Reaktoro::ThermoScalar epsilonT;
-
-    /// The first-order partial derivative of the dielectric constant with respect to pressure
-    Reaktoro::ThermoScalar epsilonP;
-
-    /// The second-order partial derivative of the dielectric constant with respect to temperature
-    Reaktoro::ThermoScalar epsilonTT;
-
-    /// The second-order partial derivative of the dielectric constant with respect to temperature and pressure
-    Reaktoro::ThermoScalar epsilonTP;
-
-    /// The second-order partial derivative of the dielectric constant with respect to pressure
-    Reaktoro::ThermoScalar epsilonPP;
-
-    /// The Born function \f$ Z\equiv-\frac{1}{\epsilon} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornZ;
-
-    /// The Born function \f$ Y\equiv\left[\frac{\partial Z}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornY;
-
-    /// The Born function \f$ Q\equiv\left[\frac{\partial Z}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornQ;
-
-    /// The Born function \f$ N\equiv\left[\frac{\partial Q}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornN;
-
-    /// The Born function \f$ U\equiv\left[\frac{\partial Q}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornU;
-
-    /// The Born function \f$ X\equiv\left[\frac{\partial Y}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornX;
-
 
 };
 

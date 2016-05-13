@@ -13,15 +13,14 @@ namespace TCorrPT {
 struct Substance;
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
+struct ElectroPropertiesSolvent;
 
-class ThermoModelsSolvent
-{
-public:
-    ThermoModelsSolvent();
+//class ThermoModelsSolvent
+//{
+//public:
+//    ThermoModelsSolvent();
 
-
-};
-
+//};
 
 class WaterHGK
 {
@@ -39,6 +38,8 @@ public:
     auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
 
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
+
+    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;

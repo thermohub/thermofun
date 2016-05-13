@@ -5,7 +5,7 @@ namespace TCorrPT {
 struct SubstanceSolvent::Impl
 {
     /// The thermodynamic data specific to the solvent.
-    ThermoPropertiesSolvent thermo;
+//    ThermoPropertiesSolvent thermo;
 };
 
 
@@ -31,10 +31,10 @@ auto SubstanceSolvent::operator=(SubstanceSolvent other) -> SubstanceSolvent&
     return *this;
 }
 
-auto SubstanceSolvent::setThermoPropertiesSolvent(const ThermoPropertiesSolvent& thermo) -> void
-{
-    pimpl->thermo = thermo;
-}
+//auto SubstanceSolvent::setThermoPropertiesSolvent(const ThermoPropertiesSolvent& thermo) -> void
+//{
+//    pimpl->thermo = thermo;
+//}
 
 } // namespace TCorrPT
 

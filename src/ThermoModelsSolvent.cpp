@@ -6,10 +6,10 @@
 
 namespace TCorrPT {
 
-ThermoModelsSolvent::ThermoModelsSolvent()
-{
+//ThermoModelsSolvent::ThermoModelsSolvent()
+//{
 
-}
+//}
 
 //=======================================================================================================
 // Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state
@@ -37,22 +37,29 @@ WaterHGK::WaterHGK(const Substance &substance)
 // calculation
 auto WaterHGK::propertiesSolvent(double T, double P) -> PropertiesSolvent
 {
-//    STATES state;
     WaterHGKgems water_hgk;
-    water_hgk.waterHGK (T, P);
-    PropertiesSolvent properties_solvent_PT = water_hgk.propertiesSolvent();
 
-    return properties_solvent_PT;
+    water_hgk.calculateWaterHGKgems(T, P);
+
+    return water_hgk.propertiesWaterHGKgems();
 }
 
 auto WaterHGK::thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance
 {
-//    STATES state;
     WaterHGKgems water_hgk;
-    water_hgk.waterHGK (T, P);
-    ThermoPropertiesSubstance thermo_properties_substance_PT = water_hgk.thermoPropertiesSubstance();
 
-    return thermo_properties_substance_PT;
+    water_hgk.calculateWaterHGKgems(T, P);
+
+    return  water_hgk.thermoPropertiesWaterHGKgems();
+}
+
+auto WaterHGK::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
+{
+    WaterHGKgems water_hgk;
+
+    water_hgk.calculateWaterHGKgems(T, P);
+
+    return  water_hgk.electroPropertiesWaterHGKgems();
 }
 
 //=======================================================================================================
@@ -82,27 +89,26 @@ WaterHGKreaktoro::WaterHGKreaktoro(const Substance &substance)
 // calculation
 auto WaterHGKreaktoro::propertiesSolvent(double T, double P) -> PropertiesSolvent
 {
-////    STATES state;
-//    WaterHGKgems water_hgk;
-//    water_hgk.waterHGK (T, P);
-//    PropertiesSolvent properties_solvent_PT = water_hgk.propertiesSolvent();
+    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-//    return properties_solvent_PT;
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t,p);
+
+    return propertiesWaterHGKreaktoro(t, p, wt);
 }
 
 auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance
 {
     if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    ThermoPropertiesSubstance tps;
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
     Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t,p);
 
-    tps = thermoPropertiesWaterHKF(t, p, wt);
-
-    return tps;
+    return thermoPropertiesWaterHGKreaktoro(t, p, wt);
 }
 
 } // namespace TCorrPT

@@ -17,11 +17,13 @@ struct ThermoPropertiesSolvent;
 
 //auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 
-auto waterSaturatedPressureWagnerPruss(Reaktoro::Temperature T) -> Reaktoro::ThermoScalar;
+//auto waterSaturatedPressureWagnerPruss(Reaktoro::Temperature T) -> Reaktoro::ThermoScalar;
 
 auto saturatedWaterVaporPressureHGK(double t) -> double;
 
-auto thermoPropertiesWaterHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance;
+auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance;
+
+auto propertiesWaterHGKreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent;
 
 }
 

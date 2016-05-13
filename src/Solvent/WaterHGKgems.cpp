@@ -5,6 +5,81 @@
 
 namespace TCorrPT {
 
+
+auto WaterHGKgems::thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance
+{
+    ThermoPropertiesSubstance wp;
+    wp.helmholtz_energy         = wr.Aw * cal_to_J;
+    wp.gibbs_energy             = wr.Gw * cal_to_J;
+    wp.entropy                  = wr.Sw * cal_to_J;
+    wp.internal_energy          = wr.Uw * cal_to_J;
+    wp.enthalpy                 = wr.Hw * cal_to_J;
+    wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
+    wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
+
+    // Rho in g/cm3, waterMolarMass in g/mol
+    wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+
+return wp;
+}
+
+auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
+{
+    PropertiesSolvent wp;
+    double rho, alp, dal, bet;
+
+    wp.Surten   = wr.Surtenw;
+    wp.Alpha    = wr.Alphaw;
+    wp.Beta     = wr.Betaw;
+    wp.Tcond    = wr.Tcondw;
+    wp.Tdiff    = wr.Tdiffw;
+    wp.Prndtl   = wr.Prndtlw;
+    wp.dAldT    = wr.dAldT;
+    wp.Albe     = wr.Albew;
+    wp.Speed    = wr.Speedw;
+    wp.Visc     = wr.Viscw;
+    wp.Visck    = wr.Visckw;
+
+    wp.gibbsIdealGas    = id.gi;
+    wp.entropyIdealGas  = id.si;
+    wp.cpIdealGas       = id.cpi;
+    wp.density          = aSta.Dens[aSpc.isat] * 1000; // in g/cm3
+
+    rho = aSta.Dens[aSpc.isat] * 1000;
+    alp = wr.Alphaw;
+    dal = wr.dAldT;
+    bet = wr.Betaw;
+
+    wp.densityT = - alp * rho;
+    wp.densityTT = rho * ( pow(alp,2.) - dal );
+    wp.densityP = bet * rho;
+
+return wp;
+}
+
+auto WaterHGKgems::electroPropertiesWaterHGKgems() -> ElectroPropertiesSolvent
+{
+    ElectroPropertiesSolvent wp;
+    double eps, xborn, yborn, qborn;
+
+    wp.epsilon  = wr.Dielw;
+    wp.bornZ    = wr.ZBorn;
+    wp.bornY    = wr.YBorn;
+    wp.bornQ    = wr.QBorn;
+
+    eps   = wr.Dielw;
+    xborn = wr.XBorn;
+    yborn = wr.YBorn;
+    qborn = wr.QBorn;
+
+    wp.epsilonT  = yborn * pow(eps,2.);
+    wp.epsilonTT = (xborn + 2.*eps*pow(yborn,2.)) * pow(eps,2.);
+    wp.epsilonP  = qborn * pow(eps,2.);
+
+return wp;
+}
+
+
 /* HGKcon - Constant parameters for the H2O equation of state given by
 *           Haar,  Gallagher, & Kell (1984):  bp, bq = b(j), B(j) from
 *           Table A.1, p.272; g1, g2, gf = alpha, beta, gamma  from eq
@@ -172,7 +247,7 @@ WaterHGKgems::WaterHGKgems()
     co = &co_;
 }
 
-auto WaterHGKgems::waterHGK (double T, double P) -> void
+auto WaterHGKgems::calculateWaterHGKgems(double T, double P) -> void
 {
     int eR;
     double tempy;
@@ -279,92 +354,6 @@ auto WaterHGKgems::waterHGK (double T, double P) -> void
     P = aSta.Pres;
 //    aWp.init = true;
 
-}
-
-
-auto WaterHGKgems::propertiesSolvent (  ) -> PropertiesSolvent
-{
-    PropertiesSolvent wp;
-    double eps, xborn, yborn, /*zborn,*/ qborn;
-
-    wp.epsilon     = wr.Dielw;
-    wp.bornZ    = wr.ZBorn;
-    wp.bornY    = wr.YBorn;
-    wp.bornQ    = wr.QBorn;
-    wp.bornX    = wr.XBorn;
-//    wp.bornU    = ??
-//    wp.bornN    = ??
-
-    wp.Surten   = wr.Surtenw;
-    wp.Alpha    = wr.Alphaw;
-    wp.Beta     = wr.Betaw;
-    wp.Tcond    = wr.Tcondw;
-    wp.Tdiff    = wr.Tdiffw;
-    wp.Prndtl   = wr.Prndtlw;
-    wp.dAldT    = wr.dAldT;
-    wp.Albe     = wr.Albew;
-    wp.Speed    = wr.Speedw;
-    wp.Visc     = wr.Viscw;
-    wp.Visck    = wr.Visckw;
-
-    eps = wr.Dielw;
-    xborn = wr.XBorn;
-    yborn = wr.YBorn;
-//    zborn = wr.ZBorn;
-    qborn = wr.QBorn;
-
-    wp.epsilonT = yborn * pow(eps,2.);
-    wp.epsilonTT = (xborn + 2.*eps*pow(yborn,2.)) * pow(eps,2.);
-    wp.epsilonP = qborn * pow(eps,2.);
-
-return wp;
-}
-
-auto WaterHGKgems::thermoPropertiesSubstance (  ) -> ThermoPropertiesSubstance
-{
-    ThermoPropertiesSubstance wp;
-    wp.helmholtz_energy         = wr.Aw * cal_to_J;
-    wp.gibbs_energy             = wr.Gw * cal_to_J;
-    wp.entropy                  = wr.Sw * cal_to_J;
-    wp.internal_energy          = wr.Uw * cal_to_J;
-    wp.enthalpy                 = wr.Hw * cal_to_J;
-    wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
-    wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
-
-    // Rho in g/cm3, waterMolarMass in g/mol
-    wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
-
-return wp;
-}
-
-auto WaterHGKgems::thermoPropertiesSolvent (  ) -> ThermoPropertiesSolvent
-{
-    ThermoPropertiesSolvent wp;
-    double rho, alp, dal, bet;
-
-    wp.helmholtz        = wr.Aw * cal_to_J;
-    wp.gibbs            = wr.Gw * cal_to_J;
-    wp.entropy          = wr.Sw * cal_to_J;
-    wp.internal_energy  = wr.Uw * cal_to_J;
-    wp.enthalpy         = wr.Hw * cal_to_J;
-    wp.cv               = wr.Cvw * cal_to_J;
-    wp.cp               = wr.Cpw * cal_to_J;
-    wp.volume           = 0.0;
-    wp.gibbsIdealGas    = id.gi;
-    wp.entropyIdealGas  = id.si;
-    wp.cpIdealGas       = id.cpi;
-    wp.density          = aSta.Dens[aSpc.isat] * 1000;
-
-    rho = aSta.Dens[aSpc.isat] * 1000;
-    alp = wr.Alphaw;
-    dal = wr.dAldT;
-    bet = wr.Betaw;
-
-    wp.densityT = - alp * rho;
-    wp.densityTT = rho * ( pow(alp,2.) - dal );
-    wp.densityP = bet * rho;
-
-return wp;
 }
 
 auto WaterHGKgems::unit(int it, int id, int ip, int ih, int itripl) ->void

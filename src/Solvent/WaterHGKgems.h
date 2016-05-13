@@ -10,6 +10,7 @@ namespace TCorrPT {
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesSolvent;
+struct ElectroPropertiesSolvent;
 
 typedef struct
 { //work structure  t/d properties of water-solution
@@ -360,13 +361,13 @@ private:
 
 public:
 
-    auto waterHGK (double T, double P) -> void;
+    auto calculateWaterHGKgems(double T, double P) -> void;
 
-    auto propertiesSolvent() -> PropertiesSolvent;
+    auto propertiesWaterHGKgems() -> PropertiesSolvent;
 
-    auto thermoPropertiesSolvent() -> ThermoPropertiesSolvent;
+    auto thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance;
 
-    auto thermoPropertiesSubstance() -> ThermoPropertiesSubstance;
+    auto electroPropertiesWaterHGKgems() -> ElectroPropertiesSolvent;
 
 };
 

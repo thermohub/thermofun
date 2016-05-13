@@ -74,7 +74,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
         }
 
         // Exception
-        errorMethodNotFound("solvent", subst.name(), __LINE__);
+        errorMethodNotFound("substance", subst.name(), __LINE__);
     }
 
     // Exception
@@ -87,7 +87,6 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
 auto Thermo::propertiesSolvent(double T, double P, std::string name) -> PropertiesSolvent
 {
     Substance subst = pimpl->database.getSubstance(name);
-//    MethodGenEoS_Thrift::type method_genEOS = subst.methodGenEOS();
     MethodCorrT_Thrift::type  method_T      = subst.method_T();
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
@@ -99,6 +98,12 @@ auto Thermo::propertiesSolvent(double T, double P, std::string name) -> Properti
                 WaterHGK water ( subst );
                 return water.propertiesSolvent(T, P);
                 break;
+            }
+            case MethodCorrT_Thrift::type::CTM_WAR:
+            {
+//                WaterHGKreaktoro water ( subst );
+//                return water.propertiesSolvent(T, P);
+//                break;
             }
         }
 
