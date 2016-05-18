@@ -3,12 +3,8 @@
 
 // TCorrPT includes
 #include "Substance.h"
-//#include "ThermoProperties.h"
 
 namespace TCorrPT {
-
-// Forward declarations
-//class Database;
 
 class ThermoModelsSubstance
 {
@@ -16,10 +12,9 @@ public:
     /// Construct a ThermoModelsSubstance instance with given Sunstance instance
     explicit ThermoModelsSubstance(const Substance& substance);
 
-    /// Calculate the thermodynamic properties.
+    /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param reaction The name of the reaction
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
@@ -39,10 +34,9 @@ public:
     /// Construct an AqueousSpecies instance from a Species instance
     explicit EmpiricalCpIntegration(const Substance& substance);
 
-    /// Calculate the thermodynamic properties.
+    /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param reaction The name of the reaction
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
@@ -50,8 +44,6 @@ private:
 
     std::shared_ptr<Impl> pimpl;
 };
-
-
 
 } // namespace TCorrPT
 

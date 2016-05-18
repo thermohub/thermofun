@@ -3,10 +3,6 @@
 
 #include <memory>
 
-// TCorrPT includes
-//#include "Substance.h"
-//#include "ThermoProperties.h"
-
 namespace TCorrPT {
 
 // forward declarations
@@ -14,13 +10,6 @@ struct Substance;
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
 struct ElectroPropertiesSolvent;
-
-//class ThermoModelsSolvent
-//{
-//public:
-//    ThermoModelsSolvent();
-
-//};
 
 class WaterHGK
 {
@@ -31,14 +20,19 @@ public:
     /// Construct an AqueousSpecies instance from a Species instance
     explicit WaterHGK(const Substance& substance);
 
-    /// Calculate the thermodynamic properties of the solvent.
+    /// Return the physical properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param reaction The name of the reaction
     auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
 
+    /// Return the themrodynamic properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 
+    /// Return the electro-chemical properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
     auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
 
 private:
@@ -56,14 +50,19 @@ public:
     /// Construct an AqueousSpecies instance from a Species instance
     explicit WaterHGKreaktoro(const Substance& substance);
 
-    /// Calculate the thermodynamic properties of the solvent.
+    /// Return the physical properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param reaction The name of the reaction
     auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
 
+    /// Return the themrodynamic properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 
+    /// Return the electro-chemical properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
     auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
 
 private:

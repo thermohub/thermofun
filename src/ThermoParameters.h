@@ -52,14 +52,12 @@ struct ThermoParametersReaction
 {
 
 
-
 };
 
 /// Describes the thermodynamic parameters of a solvent used in specific models to calculate
 /// its thermodynamic properties at a given temperature and pressure
 struct ThermoParametersSolvent
 {
-
 
 
 };

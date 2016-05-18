@@ -8,7 +8,6 @@ class ThermoModelsReaction
 public:
     ThermoModelsReaction();
 
-
 };
 
 } // namespace TCorrPT

@@ -49,14 +49,16 @@ public:
     /// Set the reference thermodynamic data of the substance.
     auto setThermoParameters(ThermoParametersSubstance thermo_param) -> void;
 
-    /// Set
+    /// Set the code for general EOS calculation method
     auto setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void;
+
+    /// Set the code for the temperature correction method
     auto setMethod_T(MethodCorrT_Thrift::type method_T) -> void;
 
-    /// Set
+    /// Set the code for the substance class
     auto setSubstanceClass(SubstanceClass::type substance_class) -> void;
 
-    /// Set
+    /// Set the code for the aggregate state of the substance
     auto setAggregateState(AggregateState::type aggregate_state) -> void;
     
     // Get functions
@@ -87,11 +89,13 @@ public:
     /// Return the reference thermodynamic data of the substance.
     auto thermoReferenceProperties() -> ThermoPropertiesSubstance;
 
-    /// Return the general EOS method of calculating the thermodynamic properties
+    /// Return the general EOS method code
     auto methodGenEOS() -> MethodGenEoS_Thrift::type;
+
+    /// Return the temperature correction method code
     auto method_T() -> MethodCorrT_Thrift::type;
 
-    /// Return the class of the substance
+    /// Return the class type of the substance
     auto substanceClass() -> SubstanceClass::type;
     
 private:
@@ -99,7 +103,6 @@ private:
 
     std::unique_ptr<Impl> pimpl;
 };
-
 
 } // namespace TCorrPT
 

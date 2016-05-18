@@ -119,9 +119,9 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
    return tps;
 }
 
-auto Thermo::propertiesSolvent(double T, double P, std::string name) -> PropertiesSolvent
+auto Thermo::propertiesSolvent(double T, double P, std::string solvent) -> PropertiesSolvent
 {
-    Substance subst = pimpl->database.getSubstance(name);
+    Substance subst = pimpl->database.getSubstance(solvent);
     MethodCorrT_Thrift::type  method_T      = subst.method_T();
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
