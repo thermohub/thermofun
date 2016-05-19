@@ -35,6 +35,13 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
             break;
         }
     }
+
+    // Exception
+    Exception exception;
+    exception.error << "The calculation method was not found.";
+    exception.reason << "The calculation method defined for the substance "<< pimpl->substance.name() << " is not available.";
+    exception.line = __LINE__;
+    RaiseError(exception);
 }
 
 
@@ -83,9 +90,9 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     Pb = P;              // current P in bar
     TrK = pimpl->substance.referenceT() + C_to_K;
 
-    S = thermo_properties_PrTr.entropy;
-    G = thermo_properties_PrTr.gibbs_energy;
-    H = thermo_properties_PrTr.enthalpy;
+    S = thermo_properties_PrTr.entropy.val;
+    G = thermo_properties_PrTr.gibbs_energy.val;
+    H = thermo_properties_PrTr.enthalpy.val;
     V = 0; // ???
     Cp = 0;
 

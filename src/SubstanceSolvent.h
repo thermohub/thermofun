@@ -28,7 +28,7 @@ public:
     auto operator=(SubstanceSolvent other) -> SubstanceSolvent&;
 
     /// Set the thermodynamic data of the aqueous species.
-    auto setThermoPropertiesSolvent(const ThermoPropertiesSolvent& thermo) -> void;
+//    auto setThermoPropertiesSolvent(const ThermoPropertiesSolvent& thermo) -> void;
 
 private:
     struct Impl;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 //#include "tcorrpt.h"
 #include "Database.h"
 #include "Substance.h"
@@ -91,13 +92,152 @@ int main()
 
     // Test error out of the interval
 //    currentT = 2005;
-    result2 = thermo.thermoProperties(currentT, currentP, "Corundum");
+    result2 = thermo.thermoPropertiesSubstance(currentT, currentP, "Corundum");
 
     // Test error no substance
-//    result2 = thermo.thermoProperties(currentT, currentP, "alala");
+//    result2 = thermo.thermoPropertiesSubstance(currentT, currentP, "alala");
 
 #endif
 // +++ END test CP +++
+
+    // +++ Test H2O_HGK +++
+//    #define TEST_H2O_HGK
+    #ifdef TEST_H2O_HGK
+
+    Substance water;
+    water.setName("water");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
+
+    ThermoPropertiesSubstance h2o_data_atPrTr;
+    ThermoPropertiesSubstance result2;
+    PropertiesSolvent result1, result3;
+
+    h2o_data_atPrTr.volume = 0;
+    h2o_data_atPrTr.gibbs_energy = 0;
+    h2o_data_atPrTr.enthalpy = 0;
+    h2o_data_atPrTr.entropy = 0;
+    h2o_data_atPrTr.heat_capacity_cp = 0;
+
+    water.setThermoReferenceProperties(h2o_data_atPrTr);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
+
+//    ThermoModelsSolvent thermo_water (water);
+//    result1 = thermo_water.thermoProperties(25, 1);
+
+    dtb.addSubstance(water);
+
+    Thermo thermo (dtb);
+    result2 = thermo.thermoPropertiesSubstance(25, 1, "water");
+
+    water.setThermoReferenceProperties(result2);
+
+    WaterHGK waterHGK(water);
+
+    result1 = waterHGK.propertiesSolvent(25, 1);
+
+    result3 = thermo.propertiesSolvent(25, 1, "water");
+
+#endif
+// +++ END test H2O_HGK +++
+
+    // +++ Test H2O_HGKreaktoro +++
+//    #define TEST_H2O_HGKreaktoro
+    #ifdef TEST_H2O_HGKreaktoro
+
+    Substance water;
+    water.setName("water");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
+
+    ThermoPropertiesSubstance h2o_data_atPrTr;
+    ThermoPropertiesSubstance result2;
+//    PropertiesSolvent result1, result3;
+
+    h2o_data_atPrTr.volume = 0;
+    h2o_data_atPrTr.gibbs_energy = 0;
+    h2o_data_atPrTr.enthalpy = 0;
+    h2o_data_atPrTr.entropy = 0;
+    h2o_data_atPrTr.heat_capacity_cp = 0;
+
+    water.setThermoReferenceProperties(h2o_data_atPrTr);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAR);
+
+//    ThermoModelsSolvent thermo_water (water);
+//    result1 = thermo_water.thermoProperties(25, 1);
+
+    dtb.addSubstance(water);
+
+    Thermo thermo (dtb);
+    result2 = thermo.thermoPropertiesSubstance(25, 1, "water");
+
+    water.setThermoReferenceProperties(result2);
+
+#endif
+// +++ END test H2O_HGKreaktoro +++
+
+    // +++ Test H2O_HGKgems Vs H2O_HGKreaktoro +++
+    #define TEST_H2O_VS
+    #ifdef TEST_H2O_VS
+
+    Substance water;
+    water.setName("water");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
+
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
+    WaterHGK H2OHGKgems ( water );
+
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAR);
+    WaterHGKreaktoro H2OHGKreaktoro ( water );
+
+    double T, P;
+    T = 375;
+    P = 450;
+    ThermoPropertiesSubstance resSubstG, resSubstR;
+
+    ElectroPropertiesSolvent resSolvG, resSolvR;
+
+    ofstream myfile;
+    myfile.open ("H2Oprop.csv");
+
+    myfile <<"T,P,G0g,G0r,H0g,H0r,S0g,S0r,A0g,A0r,U0g,U0r,V0g,V0r,Cp0g,Cp0r,Cv0g,Cv0r\n";
+
+    do
+    {
+        myfile << T << ","<<P<<",";
+        resSubstG = H2OHGKgems.thermoPropertiesSubstance(T, P);
+        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
+
+        resSolvG = H2OHGKgems.electroPropertiesSolvent(T,P);
+        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
+
+        myfile << resSubstG.gibbs_energy <<","<<resSubstR.gibbs_energy<<",";
+        myfile << resSubstG.enthalpy <<","<<resSubstR.enthalpy<<",";
+        myfile << resSubstG.entropy <<","<<resSubstR.entropy<<",";
+        myfile << resSubstG.helmholtz_energy <<","<<resSubstR.helmholtz_energy<<",";
+        myfile << resSubstG.internal_energy <<","<<resSubstR.internal_energy<<",";
+        myfile << resSubstG.volume <<","<<resSubstR.volume<<",";
+        myfile << resSubstG.heat_capacity_cp <<","<<resSubstR.heat_capacity_cp<<",";
+        myfile << resSubstG.heat_capacity_cv <<","<<resSubstR.heat_capacity_cv<<"\n";
+
+        T +=10;
+
+    } while (T<=300);
+
+    myfile.close();
+
+
+#endif
+// +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
+
 
     cout << "Bye World!" << endl;
 

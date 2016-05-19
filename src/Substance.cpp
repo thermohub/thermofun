@@ -34,7 +34,7 @@ struct Substance::Impl
     /// Method of pressure correction of thermodynamic properties
     MethodCorrP_Thrift::type  method_P;
 
-    /// Class of the substance
+    /// Class of the substance  COMPONENT, GASFLUID, AQSOLUTE, AQSOLVENT, SURFSPECIES, SITEMOIETY, OTHER_SC
     SubstanceClass::type substance_class;
 
     /// Agregate state of the substance
@@ -103,6 +103,11 @@ auto Substance::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
     pimpl->method_genEoS = method_genEoS;
 }
 
+auto Substance::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
+{
+    pimpl->method_T = method_T;
+}
+
 auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
 {
     pimpl->substance_class = substance_class;
@@ -161,6 +166,11 @@ auto Substance::thermoReferenceProperties() -> ThermoPropertiesSubstance
 auto Substance::methodGenEOS() -> MethodGenEoS_Thrift::type
 {
     return pimpl->method_genEoS;
+}
+
+auto Substance::method_T() -> MethodCorrT_Thrift::type
+{
+    return pimpl->method_T;
 }
 
 auto Substance::substanceClass() -> SubstanceClass::type

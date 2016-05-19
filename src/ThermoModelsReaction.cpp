@@ -7,4 +7,4 @@ ThermoModelsReaction::ThermoModelsReaction()
 
 }
 
-} // namespace TCorrPT
+} // namespace TCorrPTs
