@@ -199,8 +199,8 @@ int main()
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 375;
-    P = 450;
+    T = 20;
+    P = 15;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
     ElectroPropertiesSolvent resSolvG, resSolvR;
@@ -216,8 +216,8 @@ int main()
         resSubstG = H2OHGKgems.thermoPropertiesSubstance(T, P);
         resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
 
-        resSolvG = H2OHGKgems.electroPropertiesSolvent(T,P);
-        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
+//        resSolvG = H2OHGKgems.electroPropertiesSolvent(T,P);
+//        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
 
         myfile << resSubstG.gibbs_energy <<","<<resSubstR.gibbs_energy<<",";
         myfile << resSubstG.enthalpy <<","<<resSubstR.enthalpy<<",";
@@ -230,7 +230,7 @@ int main()
 
         T +=10;
 
-    } while (T<=300);
+    } while (T<=360);
 
     myfile.close();
 

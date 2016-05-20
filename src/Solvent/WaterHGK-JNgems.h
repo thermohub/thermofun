@@ -367,7 +367,7 @@ public:
 
     auto thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance;
 
-    auto electroPropertiesWaterHGKgems() -> ElectroPropertiesSolvent;
+    auto electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent;
 
 };
 

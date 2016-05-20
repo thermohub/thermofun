@@ -4,10 +4,13 @@
 #include "Solvent/Reaktoro/WaterUtils.hpp"
 #include "Solvent/Reaktoro/WaterThermoState.hpp"
 
+#include "Solvent/WaterHGK-JNgems.h"
+
 namespace TCorrPT {
 
 //=======================================================================================================
-// Calculate the electro-chemical of water using the Jhonson and Norton (1991)
+// Calculate the electro-chemical of water using the Jhonson and Norton (1991) model as implemented in
+// Reaktoro
 // References: Critical phenomena in hydrothermal systems; state, thermodynamic, electrostatic, and
 // transport properties of H2O in the critical region. Am J Sci, 1991 291:541-648;
 // Added: DM 20.05.2016
@@ -50,6 +53,41 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, p, wts);
 
     return electroPropertiesWaterJNreaktoro(wes);
+}
+
+//=======================================================================================================
+// Calculate the electro-chemical of water using the Jhonson and Norton (1991) model as implemented in
+// GEMS
+// References: Critical phenomena in hydrothermal systems; state, thermodynamic, electrostatic, and
+// transport properties of H2O in the critical region. Am J Sci, 1991 291:541-648;
+// Added: DM 20.05.2016
+//=======================================================================================================
+
+struct WaterJNgems::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+WaterJNgems::WaterJNgems(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto WaterJNgems::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
+{
+    WaterHGKgems water_hgk;
+
+    water_hgk.calculateWaterHGKgems(T, P);
+
+    return water_hgk.electroPropertiesWaterJNgems();
 }
 
 } // End namespace TCorrPT

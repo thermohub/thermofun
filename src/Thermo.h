@@ -5,6 +5,7 @@
 #include "Database.h"
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
+#include "ElectroModelsSolvent.h"
 
 namespace TCorrPT {
 

@@ -29,11 +29,6 @@ public:
     /// @param P The pressure value (in units of bar)
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 
-//    /// Return the electro-chemical properties of the solvent.
-//    /// @param T The temperature value (in units of C)
-//    /// @param P The pressure value (in units of bar)
-//    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
-
 private:
     struct Impl;
 
@@ -59,11 +54,6 @@ public:
     /// @param P The pressure value (in units of bar)
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
 
-//    /// Return the electro-chemical properties of the solvent.
-//    /// @param T The temperature value (in units of C)
-//    /// @param P The pressure value (in units of bar)
-//    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
-
 private:
     struct Impl;
 
@@ -88,11 +78,6 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
-
-//    /// Return the electro-chemical properties of the solvent.
-//    /// @param T The temperature value (in units of C)
-//    /// @param P The pressure value (in units of bar)
-//    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;

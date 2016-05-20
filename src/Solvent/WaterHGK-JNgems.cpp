@@ -1,6 +1,6 @@
 // TCorrPT includes
 #include "Common/Exception.h"
-#include "WaterHGKgems.h"
+#include "WaterHGK-JNgems.h"
 #include "ThermoProperties.h"
 
 namespace TCorrPT {
@@ -57,7 +57,7 @@ auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
 return wp;
 }
 
-auto WaterHGKgems::electroPropertiesWaterHGKgems() -> ElectroPropertiesSolvent
+auto WaterHGKgems::electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent wp;
     double eps, xborn, yborn, qborn;

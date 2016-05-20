@@ -29,6 +29,26 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class WaterJNgems
+{
+public:
+    /// Construct a default class object instance
+    WaterJNgems();
+
+    /// Construct an class object instance from a Species instance
+    explicit WaterJNgems(const Substance& substance);
+
+    /// Return the electro-chemical properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 
 
 } // namespace TCorrPT

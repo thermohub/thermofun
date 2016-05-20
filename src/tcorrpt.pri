@@ -31,11 +31,11 @@
 #    $$PWD/SubstanceSolvent.h \
     $$PWD/Common/Exception.h \
 #    $$PWD/Solvent/WaterHGK.h \
-    $$PWD/Solvent/WaterHGKgems.h \
     $$PWD/Solvent/WaterHGKreaktoro.h \
     $$PWD/Solvent/WaterWP95reaktoro.h \
     $$PWD/ElectroModelsSolvent.h \
-    $$PWD/Solvent/WaterJN91reaktoro.h
+    $$PWD/Solvent/WaterJN91reaktoro.h \
+    $$PWD/Solvent/WaterHGK-JNgems.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -63,8 +63,8 @@
 #    $$PWD/SubstanceSolvent.cpp \
     $$PWD/Common/Exception.cpp \
 #    $$PWD/Solvent/WaterHGK.cpp \
-    $$PWD/Solvent/WaterHGKgems.cpp \
     $$PWD/Solvent/WaterHGKreaktoro.cpp \
     $$PWD/Solvent/WaterWP95reaktoro.cpp \
     $$PWD/ElectroModelsSolvent.cpp \
-    $$PWD/Solvent/WaterJN91reaktoro.cpp
+    $$PWD/Solvent/WaterJN91reaktoro.cpp \
+    $$PWD/Solvent/WaterHGK-JNgems.cpp
