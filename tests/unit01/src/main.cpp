@@ -258,7 +258,7 @@ int main()
 
     double T, P;
     T = 25;
-    P = 1;
+    P = 0;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
 //    ElectroPropertiesSolvent resSolvG, resSolvR;
@@ -266,8 +266,10 @@ int main()
     ofstream myfile;
     myfile.open ("H2Oprop.csv");
 
-    myfile <<"T,P,G0g,G0r,H0g,H0r,S0g,S0r,A0g,A0r,U0g,U0r,V0g,V0r,Cp0g,Cp0r,Cv0g,Cv0r\n";
+    myfile <<"T,P,G0wp95,G0hgkR,H0wp95,H0hgkR,S0wp95,S0hgkR,A0wp95,A0hgkR,U0wp95,U0hgkR,V0wp95,V0hgkR,Cp0wp95,Cp0hgkR,Cv0wp95,Cv0hgkR\n";
 
+    do
+    {
     do
     {
         myfile << T << ","<<P<<",";
@@ -288,7 +290,10 @@ int main()
 
         T +=10;
 
-    } while (T<=300);
+    } while (T<=350);
+        T = 25;
+        P +=500;
+    } while (P<=10000);
 
     myfile.close();
 
