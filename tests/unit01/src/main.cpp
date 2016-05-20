@@ -181,7 +181,7 @@ int main()
 // +++ END test H2O_HGKreaktoro +++
 
     // +++ Test H2O_HGKgems Vs H2O_HGKreaktoro +++
-    #define TEST_H2O_VS
+//    #define TEST_H2O_VS
     #ifdef TEST_H2O_VS
 
     Substance water;
@@ -237,6 +237,64 @@ int main()
 
 #endif
 // +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
+
+    // +++ Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
+    #define TEST_H2O_HGK_VS_H2O_WP95
+    #ifdef TEST_H2O_HGK_VS_H2O_WP95
+
+    Substance water;
+    water.setName("water");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
+
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP);
+    WaterWP95reaktoro H2OWP95reaktoro ( water );
+
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAR);
+    WaterHGKreaktoro H2OHGKreaktoro ( water );
+
+    double T, P;
+    T = 25;
+    P = 1;
+    ThermoPropertiesSubstance resSubstG, resSubstR;
+
+//    ElectroPropertiesSolvent resSolvG, resSolvR;
+
+    ofstream myfile;
+    myfile.open ("H2Oprop.csv");
+
+    myfile <<"T,P,G0g,G0r,H0g,H0r,S0g,S0r,A0g,A0r,U0g,U0r,V0g,V0r,Cp0g,Cp0r,Cv0g,Cv0r\n";
+
+    do
+    {
+        myfile << T << ","<<P<<",";
+        resSubstG = H2OWP95reaktoro.thermoPropertiesSubstance(T, P);
+        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
+
+//        resSolvG = H2OWP95reaktoro.electroPropertiesSolvent(T,P);
+//        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
+
+        myfile << resSubstG.gibbs_energy <<","<<resSubstR.gibbs_energy<<",";
+        myfile << resSubstG.enthalpy <<","<<resSubstR.enthalpy<<",";
+        myfile << resSubstG.entropy <<","<<resSubstR.entropy<<",";
+        myfile << resSubstG.helmholtz_energy <<","<<resSubstR.helmholtz_energy<<",";
+        myfile << resSubstG.internal_energy <<","<<resSubstR.internal_energy<<",";
+        myfile << resSubstG.volume <<","<<resSubstR.volume<<",";
+        myfile << resSubstG.heat_capacity_cp <<","<<resSubstR.heat_capacity_cp<<",";
+        myfile << resSubstG.heat_capacity_cv <<","<<resSubstR.heat_capacity_cv<<"\n";
+
+        T +=10;
+
+    } while (T<=300);
+
+    myfile.close();
+
+
+#endif
+// +++ END Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
 
 
     cout << "Bye World!" << endl;

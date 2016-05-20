@@ -11,7 +11,6 @@ namespace TCorrPT {
 //// Forward declarations
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
-struct ThermoPropertiesSolvent;
 
 //auto propertiesSolvent(double T, double P) -> PropertiesSolvent;
 

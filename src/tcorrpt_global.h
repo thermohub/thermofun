@@ -144,7 +144,8 @@ typedef struct {
     CTM_IFG = 218,
     CTM_KAS = 219,
     CTM_DAS = 220,
-    CTM_WAR = 221
+    CTM_WAR = 221,
+    CTM_WWP = 222,
   };
 } MethodCorrT_Thrift;
 static const int MethodCorrT_ndxThrift[] = {
@@ -169,7 +170,8 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_IFG,
   MethodCorrT_Thrift::CTM_KAS,
   MethodCorrT_Thrift::CTM_DAS,
-  MethodCorrT_Thrift::CTM_WAR
+  MethodCorrT_Thrift::CTM_WAR,
+  MethodCorrT_Thrift::CTM_WWP       /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
 };
 /// Codes for temperature correction methods used in GEMS
 //static const char* MethodCorrT_GEMS[] = {

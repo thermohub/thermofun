@@ -32,7 +32,8 @@
     $$PWD/Common/Exception.h \
 #    $$PWD/Solvent/WaterHGK.h \
     $$PWD/Solvent/WaterHGKgems.h \
-    $$PWD/Solvent/WaterHGKreaktoro.h
+    $$PWD/Solvent/WaterHGKreaktoro.h \
+    $$PWD/Solvent/WaterWP95reaktoro.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -61,4 +62,5 @@
     $$PWD/Common/Exception.cpp \
 #    $$PWD/Solvent/WaterHGK.cpp \
     $$PWD/Solvent/WaterHGKgems.cpp \
-    $$PWD/Solvent/WaterHGKreaktoro.cpp
+    $$PWD/Solvent/WaterHGKreaktoro.cpp \
+    $$PWD/Solvent/WaterWP95reaktoro.cpp

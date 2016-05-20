@@ -3,6 +3,8 @@
 //#include "Substance.h"
 #include "Solvent/WaterHGKgems.h"
 #include "Solvent/WaterHGKreaktoro.h"
+#include "Solvent/WaterWP95reaktoro.h"
+#include "Solvent/Reaktoro/WaterUtils.hpp"
 
 namespace TCorrPT {
 
@@ -122,6 +124,57 @@ auto WaterHGKreaktoro::electroPropertiesSolvent(double T, double P) -> ElectroPr
     Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, p, wts);
 
     return electroPropertiesWaterJNreaktoro(wes);
+}
+
+//=======================================================================================================
+// Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state as
+// implemented in Reaktoro
+// References:
+// Added: DM 12.05.2016
+//=======================================================================================================
+
+struct WaterWP95reaktoro::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+WaterWP95reaktoro::WaterWP95reaktoro(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto WaterWP95reaktoro::propertiesSolvent(double T, double P) -> PropertiesSolvent
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    if (P == 0) {auto p2 = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
+                      p  = p2;}
+
+    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateWagnerPruss(t, p);
+
+    return propertiesWaterWP95reaktoro(wt);
+}
+
+auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    if (P == 0) {auto p2 = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
+                      p  = p2;}
+
+    Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateWagnerPruss(t, p);
+
+    return thermoPropertiesWaterWP95reaktoro(t, wt);
 }
 
 } // namespace TCorrPT

@@ -71,6 +71,12 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                 return water.thermoPropertiesSubstance(T, P);
                 break;
             }
+            case MethodCorrT_Thrift::type::CTM_WWP:
+            {
+                WaterWP95reaktoro water ( subst );
+                return water.thermoPropertiesSubstance(T, P);
+                break;
+            }
         }
 
         // Exception
@@ -109,11 +115,11 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
         }
 
         // Exception
-        errorMethodNotFound("substance", subst.name(), __LINE__);
+        errorMethodNotFound("solvent", subst.name(), __LINE__);
     }
 
     // Exception
-    errorMethodNotFound("substance", subst.name(), __LINE__);
+    errorMethodNotFound("solvent", subst.name(), __LINE__);
 
    ElectroPropertiesSolvent tps;
    return tps;
@@ -136,9 +142,15 @@ auto Thermo::propertiesSolvent(double T, double P, std::string solvent) -> Prope
             }
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
-//                WaterHGKreaktoro water ( subst );
-//                return water.propertiesSolvent(T, P);
-//                break;
+                WaterHGKreaktoro water ( subst );
+                return water.propertiesSolvent(T, P);
+                break;
+            }
+            case MethodCorrT_Thrift::type::CTM_WWP:
+            {
+                WaterWP95reaktoro water ( subst );
+                return water.propertiesSolvent(T, P);
+                break;
             }
         }
 
