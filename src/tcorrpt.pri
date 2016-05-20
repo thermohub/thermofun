@@ -33,7 +33,9 @@
 #    $$PWD/Solvent/WaterHGK.h \
     $$PWD/Solvent/WaterHGKgems.h \
     $$PWD/Solvent/WaterHGKreaktoro.h \
-    $$PWD/Solvent/WaterWP95reaktoro.h
+    $$PWD/Solvent/WaterWP95reaktoro.h \
+    $$PWD/ElectroModelsSolvent.h \
+    $$PWD/Solvent/WaterJN91reaktoro.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -63,4 +65,6 @@
 #    $$PWD/Solvent/WaterHGK.cpp \
     $$PWD/Solvent/WaterHGKgems.cpp \
     $$PWD/Solvent/WaterHGKreaktoro.cpp \
-    $$PWD/Solvent/WaterWP95reaktoro.cpp
+    $$PWD/Solvent/WaterWP95reaktoro.cpp \
+    $$PWD/ElectroModelsSolvent.cpp \
+    $$PWD/Solvent/WaterJN91reaktoro.cpp

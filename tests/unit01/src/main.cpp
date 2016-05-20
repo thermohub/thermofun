@@ -239,7 +239,7 @@ int main()
 // +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
 
     // +++ Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
-    #define TEST_H2O_HGK_VS_H2O_WP95
+//    #define TEST_H2O_HGK_VS_H2O_WP95
     #ifdef TEST_H2O_HGK_VS_H2O_WP95
 
     Substance water;

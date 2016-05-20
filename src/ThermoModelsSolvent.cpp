@@ -55,14 +55,14 @@ auto WaterHGK::thermoPropertiesSubstance(double T, double P) -> ThermoProperties
     return  water_hgk.thermoPropertiesWaterHGKgems();
 }
 
-auto WaterHGK::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
-{
-    WaterHGKgems water_hgk;
+//auto WaterHGK::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
+//{
+//    WaterHGKgems water_hgk;
 
-    water_hgk.calculateWaterHGKgems(T, P);
+//    water_hgk.calculateWaterHGKgems(T, P);
 
-    return  water_hgk.electroPropertiesWaterHGKgems();
-}
+//    return  water_hgk.electroPropertiesWaterHGKgems();
+//}
 
 //=======================================================================================================
 // Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state as
@@ -113,18 +113,18 @@ auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double P) -> ThermoPr
     return thermoPropertiesWaterHGKreaktoro(t, wt);
 }
 
-auto WaterHGKreaktoro::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
-{
-    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
+//auto WaterHGKreaktoro::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
+//{
+//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+//    auto t = Reaktoro::Temperature(T + C_to_K);
+//    auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    Reaktoro::WaterThermoState  wts = Reaktoro::waterThermoStateHGK(t, p);
-    Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, p, wts);
+//    Reaktoro::WaterThermoState  wts = Reaktoro::waterThermoStateHGK(t, p);
+//    Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, p, wts);
 
-    return electroPropertiesWaterJNreaktoro(wes);
-}
+//    return electroPropertiesWaterJNreaktoro(wes);
+//}
 
 //=======================================================================================================
 // Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state as

@@ -102,14 +102,14 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
         {
             case MethodCorrT_Thrift::type::CTM_WAT:
             {
-                WaterHGK water ( subst );
-                return water.electroPropertiesSolvent(T, P);
+//                WaterHGK water ( subst );
+//                return water.electroPropertiesSolvent(T, P);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
-                WaterHGKreaktoro water ( subst );
-                return water.electroPropertiesSolvent(T, P);
+//                WaterHGKreaktoro water ( subst );
+//                return water.electroPropertiesSolvent(T, P);
                 break;
             }
         }

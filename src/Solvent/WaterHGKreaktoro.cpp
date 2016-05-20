@@ -41,26 +41,26 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, const Reaktoro::W
     return state;
 }
 
-auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent
-{
-    ElectroPropertiesSolvent eps;
+//auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent
+//{
+//    ElectroPropertiesSolvent eps;
 
-    eps.bornN = wts.bornN;
-    eps.bornQ = wts.bornQ;
-    eps.bornU = wts.bornU;
-    eps.bornX = wts.bornX;
-    eps.bornY = wts.bornY;
-    eps.bornZ = wts.bornZ;
+//    eps.bornN = wts.bornN;
+//    eps.bornQ = wts.bornQ;
+//    eps.bornU = wts.bornU;
+//    eps.bornX = wts.bornX;
+//    eps.bornY = wts.bornY;
+//    eps.bornZ = wts.bornZ;
 
-    eps.epsilon   = wts.epsilon;
-    eps.epsilonP  = wts.epsilonP;
-    eps.epsilonPP = wts.epsilonPP;
-    eps.epsilonT  = wts.epsilonT;
-    eps.epsilonTP = wts.epsilonTP;
-    eps.epsilonTT = wts.epsilonTT;
+//    eps.epsilon   = wts.epsilon;
+//    eps.epsilonP  = wts.epsilonP;
+//    eps.epsilonPP = wts.epsilonPP;
+//    eps.epsilonT  = wts.epsilonT;
+//    eps.epsilonTP = wts.epsilonTP;
+//    eps.epsilonTT = wts.epsilonTT;
 
-    return eps;
-}
+//    return eps;
+//}
 
 auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent
 {

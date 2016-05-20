@@ -20,12 +20,12 @@
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Common/ScalarTypes.hpp>
 #include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
-#include <Solvent/Reaktoro/WaterElectroState.hpp>
+
 
 namespace Reaktoro {
 
 // Forward declarations
-//struct WaterElectroState;
+struct WaterElectroState;
 struct WaterThermoState;
 
 // Calculate the electrostatic state of water using the model of Johnson and Norton (1991)

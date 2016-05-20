@@ -4,7 +4,7 @@
 // Reacktoro includes
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 #include "Solvent/Reaktoro/WaterThermoState.hpp"
-#include "Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
+//#include "Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
 namespace TCorrPT {
 
@@ -33,10 +33,9 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, /*Reaktoro::Press
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water
 auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent;
 
-/// Return the electro-chemical properties of water
-/// @param wts instance of the strcuture holding the calculated electro-chemical properties of water
-auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent;
-
+///// Return the electro-chemical properties of water
+///// @param wts instance of the strcuture holding the calculated electro-chemical properties of water
+//auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent;
 }
 
 #endif // WATERHGKREAKTORO
