@@ -32,14 +32,14 @@ struct WaterHelmholtzState;
 /// @param P The pressure of water (in units of Pa)
 /// @return The thermodynamic state of water
 /// @see WaterThermoState
-auto waterThermoStateHGK(Temperature T, Pressure P) -> WaterThermoState;
+auto waterThermoStateHGK(Temperature T, Pressure P, int state) -> WaterThermoState;
 
 /// Calculate the thermodynamic state of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The thermodynamic state of water
 /// @see WaterThermoState
-auto waterThermoStateWagnerPruss(Temperature T, Pressure P) -> WaterThermoState;
+auto waterThermoStateWagnerPruss(Temperature T, Pressure P, int state) -> WaterThermoState;
 
 /// Calculate the thermodynamic state of water.
 /// This is a general method that uses the Helmholtz free energy state

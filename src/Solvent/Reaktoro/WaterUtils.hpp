@@ -27,13 +27,13 @@ namespace Reaktoro {
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The density of water (in units of kg/m3)
-auto waterDensityHGK(Temperature T, Pressure P) -> ThermoScalar;
+auto waterDensityHGK(Temperature T, Pressure P, int state) -> ThermoScalar;
 
 /// Calculate the density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The density of water (in units of kg/m3)
-auto waterDensityWagnerPruss(Temperature T, Pressure P) -> ThermoScalar;
+auto waterDensityWagnerPruss(Temperature T, Pressure P, int state) -> ThermoScalar;
 
 /// Calculate the pressure of water using the Haar-Gallagher-Kell (1984) equation of state
 /// @param T The temperature of water (in units of K)

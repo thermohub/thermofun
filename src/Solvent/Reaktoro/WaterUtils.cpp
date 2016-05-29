@@ -27,7 +27,7 @@
 namespace Reaktoro {
 
 template<typename HelmholtsModel>
-auto waterDensity(Temperature T, Pressure P, const HelmholtsModel& model) -> ThermoScalar
+auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsModel& model) -> ThermoScalar
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
@@ -37,7 +37,11 @@ auto waterDensity(Temperature T, Pressure P, const HelmholtsModel& model) -> The
     int state;
 
     if(T.val <= waterCriticalTemperature)
-        state = (P < waterSaturatedPressureWagnerPruss(T)) ? 1 : 0; // changed from P <= DM 29.05.2016
+    {
+        auto p = waterSaturatedPressureWagnerPruss(T);
+        state = (P < p) ? 1 : 0; // changed fro P <= DM 29.05.2016
+        if ((p == P) && (solvent_state == 1)) state = 1;
+    }
     else
         state = 2;
 
@@ -75,14 +79,14 @@ auto waterDensity(Temperature T, Pressure P, const HelmholtsModel& model) -> The
     return {};
 }
 
-auto waterDensityHGK(Temperature T, Pressure P) -> ThermoScalar
+auto waterDensityHGK(Temperature T, Pressure P, int state) -> ThermoScalar
 {
-    return waterDensity(T, P, waterHelmholtzStateHGK);
+    return waterDensity(T, P, state, waterHelmholtzStateHGK);
 }
 
-auto waterDensityWagnerPruss(Temperature T, Pressure P) -> ThermoScalar
+auto waterDensityWagnerPruss(Temperature T, Pressure P, int state) -> ThermoScalar
 {
-    return waterDensity(T, P, waterHelmholtzStateWagnerPruss);
+    return waterDensity(T, P, state, waterHelmholtzStateWagnerPruss);
 }
 
 template<typename HelmholtzModel>

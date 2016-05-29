@@ -70,13 +70,13 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
                 WaterHGKreaktoro water ( subst );
-                return water.thermoPropertiesSubstance(T, P);
+                return water.thermoPropertiesSubstance(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WWP:
             {
                 WaterWP95reaktoro water ( subst );
-                return water.thermoPropertiesSubstance(T, P);
+                return water.thermoPropertiesSubstance(T, P, solvent_state);
                 break;
             }
         }
@@ -114,13 +114,13 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
                 WaterHGKreaktoro water ( subst );
-                ps =  water.propertiesSolvent(T, P);
+                ps =  water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WWP:
             {
                 WaterWP95reaktoro water ( subst );
-                ps =  water.propertiesSolvent(T, P);
+                ps =  water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
             // Exception
@@ -175,13 +175,13 @@ auto Thermo::propertiesSolvent(double T, double P, std::string solvent) -> Prope
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
                 WaterHGKreaktoro water ( subst );
-                return water.propertiesSolvent(T, P);
+                return water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WWP:
             {
                 WaterWP95reaktoro water ( subst );
-                return water.propertiesSolvent(T, P);
+                return water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
         }
