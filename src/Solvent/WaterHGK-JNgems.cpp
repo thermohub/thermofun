@@ -9,17 +9,31 @@ namespace TCorrPT {
 auto WaterHGKgems::thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance wp;
-    wp.helmholtz_energy         = wr.Aw * cal_to_J;
-    wp.gibbs_energy             = wr.Gw * cal_to_J;
-    wp.entropy                  = wr.Sw * cal_to_J;
-    wp.internal_energy          = wr.Uw * cal_to_J;
-    wp.enthalpy                 = wr.Hw * cal_to_J;
-    wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
-    wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
+    if (aSpc.isat)
+    {
+        wp.helmholtz_energy         = wl.Aw * cal_to_J;
+        wp.gibbs_energy             = wl.Gw * cal_to_J;
+        wp.entropy                  = wl.Sw * cal_to_J;
+        wp.internal_energy          = wl.Uw * cal_to_J;
+        wp.enthalpy                 = wl.Hw * cal_to_J;
+        wp.heat_capacity_cv         = wl.Cvw * cal_to_J;
+        wp.heat_capacity_cp         = wl.Cpw * cal_to_J;
 
-    // Rho in g/cm3, waterMolarMass in g/mol
-    wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+        // Rho in g/cm3, waterMolarMass in g/mol
+        wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+    } else
+    {
+        wp.helmholtz_energy         = wr.Aw * cal_to_J;
+        wp.gibbs_energy             = wr.Gw * cal_to_J;
+        wp.entropy                  = wr.Sw * cal_to_J;
+        wp.internal_energy          = wr.Uw * cal_to_J;
+        wp.enthalpy                 = wr.Hw * cal_to_J;
+        wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
+        wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
 
+        // Rho in g/cm3, waterMolarMass in g/mol
+        wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+    }
 return wp;
 }
 
