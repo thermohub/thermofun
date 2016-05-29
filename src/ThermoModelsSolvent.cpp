@@ -77,11 +77,12 @@ WaterHGKreaktoro::WaterHGKreaktoro(const Substance &substance)
 // calculation
 auto WaterHGKreaktoro::propertiesSolvent(double T, double P) -> PropertiesSolvent
 {
-    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
+//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
+    if (P==0) p = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
     Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateHGK(t, p);
 
     return propertiesWaterHGKreaktoro(wt);
@@ -130,8 +131,7 @@ auto WaterWP95reaktoro::propertiesSolvent(double T, double P) -> PropertiesSolve
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    if (P == 0) {auto p2 = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
-                      p  = p2;}
+    if (P==0) p = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
 
     Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateWagnerPruss(t, p);
 
@@ -143,8 +143,7 @@ auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double P) -> ThermoP
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    if (P == 0) {auto p2 = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
-                      p  = p2;}
+    if (P==0) p = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
 
     Reaktoro::WaterThermoState wt = Reaktoro::waterThermoStateWagnerPruss(t, p);
 
