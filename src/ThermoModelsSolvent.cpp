@@ -32,22 +32,22 @@ WaterHGK::WaterHGK(const Substance &substance)
 {}
 
 // calculation
-auto WaterHGK::propertiesSolvent(double T, double P) -> PropertiesSolvent
+auto WaterHGK::propertiesSolvent(double T, double P, int state) -> PropertiesSolvent
 {
     WaterHGKgems water_hgk;
 
     water_hgk.calculateWaterHGKgems(T, P);
 
-    return water_hgk.propertiesWaterHGKgems();
+    return water_hgk.propertiesWaterHGKgems(state);
 }
 
-auto WaterHGK::thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance
+auto WaterHGK::thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance
 {
     WaterHGKgems water_hgk;
 
     water_hgk.calculateWaterHGKgems(T, P);
 
-    return  water_hgk.thermoPropertiesWaterHGKgems();
+    return  water_hgk.thermoPropertiesWaterHGKgems(state);
 }
 
 //=======================================================================================================

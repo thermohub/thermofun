@@ -6,10 +6,10 @@
 namespace TCorrPT {
 
 
-auto WaterHGKgems::thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance
+auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance wp;
-    if (aSpc.isat)
+    if (aSpc.isat && (state == 0))
     {
         wp.helmholtz_energy         = wl.Aw * cal_to_J;
         wp.gibbs_energy             = wl.Gw * cal_to_J;
@@ -37,22 +37,46 @@ auto WaterHGKgems::thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance
 return wp;
 }
 
-auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
+auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 {
     PropertiesSolvent wp;
     double rho, alp, dal, bet;
 
-    wp.Surten   = wr.Surtenw;
-    wp.Alpha    = wr.Alphaw;
-    wp.Beta     = wr.Betaw;
-    wp.Tcond    = wr.Tcondw;
-    wp.Tdiff    = wr.Tdiffw;
-    wp.Prndtl   = wr.Prndtlw;
-    wp.dAldT    = wr.dAldT;
-    wp.Albe     = wr.Albew;
-    wp.Speed    = wr.Speedw;
-    wp.Visc     = wr.Viscw;
-    wp.Visck    = wr.Visckw;
+    if (aSpc.isat && (state == 0))
+    {
+        wp.Surten   = wl.Surtenw;
+        wp.Alpha    = wl.Alphaw;
+        wp.Beta     = wl.Betaw;
+        wp.Tcond    = wl.Tcondw;
+        wp.Tdiff    = wl.Tdiffw;
+        wp.Prndtl   = wl.Prndtlw;
+        wp.dAldT    = wl.dAldT;
+        wp.Albe     = wl.Albew;
+        wp.Speed    = wl.Speedw;
+        wp.Visc     = wl.Viscw;
+        wp.Visck    = wl.Visckw;
+
+        alp = wl.Alphaw;
+        dal = wl.dAldT;
+        bet = wl.Betaw;
+    } else
+    {
+        wp.Surten   = wr.Surtenw;
+        wp.Alpha    = wr.Alphaw;
+        wp.Beta     = wr.Betaw;
+        wp.Tcond    = wr.Tcondw;
+        wp.Tdiff    = wr.Tdiffw;
+        wp.Prndtl   = wr.Prndtlw;
+        wp.dAldT    = wr.dAldT;
+        wp.Albe     = wr.Albew;
+        wp.Speed    = wr.Speedw;
+        wp.Visc     = wr.Viscw;
+        wp.Visck    = wr.Visckw;
+
+        alp = wr.Alphaw;
+        dal = wr.dAldT;
+        bet = wr.Betaw;
+    }
 
     wp.gibbsIdealGas    = id.gi;
     wp.entropyIdealGas  = id.si;
@@ -60,9 +84,6 @@ auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
     wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
 
     rho = aSta.Dens[aSpc.isat] * 1000;
-    alp = wr.Alphaw;
-    dal = wr.dAldT;
-    bet = wr.Betaw;
 
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );

@@ -55,6 +55,9 @@ public:
     /// Set the code for the temperature correction method
     auto setMethod_T(MethodCorrT_Thrift::type method_T) -> void;
 
+    /// Set the code for the pressure correction method
+    auto setMethod_P(MethodCorrP_Thrift::type method_P) -> void;
+
     /// Set the code for the substance class
     auto setSubstanceClass(SubstanceClass::type substance_class) -> void;
 
@@ -94,6 +97,9 @@ public:
 
     /// Return the temperature correction method code
     auto method_T() -> MethodCorrT_Thrift::type;
+
+    /// Return the pressure correction method code
+    auto method_P() -> MethodCorrP_Thrift::type;
 
     /// Return the class type of the substance
     auto substanceClass() -> SubstanceClass::type;
