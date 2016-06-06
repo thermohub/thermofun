@@ -1,5 +1,6 @@
 #include "WaterWP95reaktoro.h"
 #include "Reaktoro/WaterConstants.hpp"
+#include "Common/OutputWaterSteamConventionProp.h"
 
 namespace TCorrPT {
 
@@ -36,6 +37,8 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro::Temperature T, const Reaktoro::
     state.volume           = V;
     state.heat_capacity_cp = Cp;
     state.heat_capacity_cv = Cv;
+
+    OutputSteamConventionH2OProp("H2OWP95reaktoro.csv", wt);
 
     return state;
 }
