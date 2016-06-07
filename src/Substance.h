@@ -24,7 +24,7 @@ public:
     /// Construct a copy of an Substance instance
     Substance(const Substance& other);
     
-    /// Assign an Substance instance to this instance
+    /// Assign a Substance instance to this instance
     auto operator=(Substance other) -> Substance&;
 
     /// Destroy this instance
@@ -63,6 +63,9 @@ public:
 
     /// Set the code for the aggregate state of the substance
     auto setAggregateState(AggregateState::type aggregate_state) -> void;
+
+    /// Set
+    auto setWaterSolvent(Substance waterSolvent) -> void;
     
     // Get functions
     /// Return the name of the chemical Substance
@@ -103,6 +106,9 @@ public:
 
     /// Return the class type of the substance
     auto substanceClass() -> SubstanceClass::type;
+
+    /// Return
+    auto WaterSolvent() -> Substance;
     
 private:
     struct Impl;
