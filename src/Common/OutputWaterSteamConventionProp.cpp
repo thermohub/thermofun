@@ -20,8 +20,6 @@ auto OutputSteamConventionH2OProp (std::string filename, const Reaktoro::WaterTh
     myfile << wt.temperature << c << wt.pressure << c << wt.cp << c << wt.cv << c << wt.density << c <<
               wt.enthalpy << c << wt.entropy << c << wt.gibbs << c << wt.helmholtz << c <<
               wt.internal_energy << c << wt.volume << endl;
-
-
     myfile.close();
 
 }

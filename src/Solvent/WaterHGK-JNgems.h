@@ -34,6 +34,7 @@ struct HGK_SPECS
     int useLVS;
     int epseqn;
     int icrit;
+    int metastable;
 };
 
 struct HGK_STATES
@@ -348,6 +349,8 @@ private:
     auto HGKsat(int& isat, int iopt, int itripl, double Temp,
                          double *Pres, double *Dens, int epseqn) -> void;
     auto calcv3(int iopt, int itripl, double Temp, double *Pres,
+                         double *Dens, int epseqn) -> void;
+    auto calcv2(int iopt, int itripl, double Temp, double *Pres,
                          double *Dens, int epseqn) -> void;
     auto TdegUS(int it, double t) -> double;
     auto tcorr(int itripl, double *t, double *p, double *dL, double *dV,

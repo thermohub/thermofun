@@ -257,8 +257,8 @@ int main(int argc, char *argv[])
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 5;
-    P = 0;
+    T = 200;
+    P = 5;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
 //    ElectroPropertiesSolvent resSolvG, resSolvR;
@@ -280,8 +280,8 @@ int main(int argc, char *argv[])
     do
     {
         myfile << T << ","<<P<<",";
-        resSubstG = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 0);
-        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P, 0);
+        resSubstG = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
+        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P, 1);
 
 //        resSolvG = H2OWP95reaktoro.electroPropertiesSolvent(T,P);
 //        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);

@@ -303,17 +303,24 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double P) -> void
     { // set only T
         aSpc.isat=1;
         aSpc.iopt=1;
+        aSpc.metastable = 0;
     }
     else
     { //set T and P
         aSpc.isat = 0;
         aSpc.iopt = 2;
+        aSpc.metastable = 1;
     }
     aSpc.useLVS=1;
     aSpc.epseqn=4;
     aSta.Dens[1] = aSta.Dens[0] = 0.0;
     aSta.Pres = P;
     aSta.Temp = T;
+
+
+    //
+//    aSpc.isat = 1;
+//    aSpc.iopt = 1;
 
     memset( &wl, 0, sizeof(WPROPS));
     memset( &wr, 0, sizeof(WPROPS));
@@ -1538,6 +1545,42 @@ auto WaterHGKgems::calcv3(int iopt, int itripl, double Temp, double *Pres,
 }
 
 //--------------------------------------------------------------------//
+// Calc dependent state values
+auto WaterHGKgems::calcv2(int iopt, int itripl, double Temp, double *Pres,
+                     double *Dens, int epseqn) -> void
+{
+    double ps=0., dll=0., dvv=0., dguess;
+
+    if (iopt == 1)
+    {
+        resid(Temp, Dens);
+        base(Dens, Temp);
+        ideal(Temp);
+        *Pres  = a1.rt * *Dens * ac->zb + qq.q0;
+    }
+    else
+    {
+        if (Temp < ac->tz)
+        {
+            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
+        }
+        else
+        {
+            ps   = 2.0e4;
+            dll  = 0.0e0;
+        }
+//        if (*Pres >  ps)
+            dguess = dll;
+//        else
+//        {
+//            dguess = *Pres / Temp / 0.4e0;
+//        }
+        denHGK(&aSta.Dens[1], Pres, dguess, Temp, &fct.dpdd);   /* Dens ???*/
+        ideal(Temp);
+    }
+}
+
+//--------------------------------------------------------------------//
 // Calculation thermodinamic and transport H2O fitches for equation of
 // state Haar, Gallagher, & Kell (1984).
 auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, double Temp,
@@ -1545,17 +1588,35 @@ auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, double Temp,
 {
     a1.rt = ac->gascon * Temp;
     HGKsat(isat, iopt, itripl, Temp, Pres, Dens0, epseqn);
-    if (isat == 0)
+    if (!aSpc.metastable)
+    {
+        if (isat == 0)
+        {
+            bb(Temp);
+            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
+            thmHGK(Dens0, Temp);
+            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
+        }
+        else
+        {
+            memcpy(&wl, &wr, sizeof(WPROPS));
+            dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+        }
+    } else
     {
         bb(Temp);
+        calcv2(iopt, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+        thmHGK(&aSta.Dens[1], Temp);
+        dimHGK(isat, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+
+        memcpy(&wl, &wr, sizeof(WPROPS));
+
         calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
         thmHGK(Dens0, Temp);
         dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-    }
-    else
-    {
-        memcpy(&wl, &wr, sizeof(WPROPS));             /* ���஦�� !!!!! */
-        dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+
+//        dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+
     }
 }
 
