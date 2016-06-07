@@ -65,6 +65,9 @@ public:
     auto setAggregateState(AggregateState::type aggregate_state) -> void;
 
     /// Set
+    auto setCharge(int charge) -> void;
+
+    /// Set
     auto setSolventName(string name) -> void;
     
     // Get functions
@@ -106,6 +109,9 @@ public:
 
     /// Return the class type of the substance
     auto substanceClass() -> SubstanceClass::type;
+
+    /// Return
+    auto charge() -> int;
 
     /// Return
     auto SolventName() -> string;

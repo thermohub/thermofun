@@ -3,6 +3,41 @@ typedef std::vector<std::vector<double> > vvd;
 
 namespace TCorrPT {
 
+/// A type for storing the parameters of the HKF equation of state for a aqueous species
+struct ParamsHKF
+{
+    /// The apparent standard molal Gibbs free energy of formation of the species from its elements (in units of cal/mol)
+    double Gf;
+
+    /// The apparent standard molal enthalpy of formation of the species from its elements (in units of cal/mol)
+    double Hf;
+
+    /// The standard molal entropy of the species at reference temperature and pressure (in units of cal/(mol*K))
+    double Sr;
+
+    /// The coefficient a1 of the HKF equation of state of the aqueous species (in units of cal/(mol*bar))
+    double a1;
+
+    /// The coefficient a2 of the HKF equation of state of the aqueous species (in units of cal/mol)
+    double a2;
+
+    /// The coefficient a3 of the HKF equation of state of the aqueous species (in units of (cal*K)/(mol*bar))
+    double a3;
+
+    /// The coefficient a4 of the HKF equation of state of the aqueous species (in units of (cal*K)/mol)
+    double a4;
+
+    /// The coefficient c1 of the HKF equation of state of the aqueous species (in units of cal/(mol*K))
+    double c1;
+
+    /// The coefficient c2 of the HKF equation of state of the aqueous species (in units of (cal*K)/mol)
+    double c2;
+
+    /// The conventional Born coefficient of the aqueous species at reference temperature 298.15 K and pressure 1 bar (in units of cal/mol)
+    double wref;
+};
+
+
 /// Describes the thermodynamic parameters of a substance used in specific models to calculate
 /// its thermodynamic properties at a given temperature and pressure
 struct ThermoParametersSubstance
@@ -31,7 +66,7 @@ struct ThermoParametersSubstance
     vvd phase_transition_prop_Berman;
 
     /// Empirical coefficients of HKF EOS (a1, a2, a3, a4, c1, c2, w0)
-    vd HKF_parameters;
+    ParamsHKF HKF_parameters;
 
     /// Coefficients of mV=f(T,P)
     vd volume_coeff;

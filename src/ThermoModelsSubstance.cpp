@@ -1,4 +1,5 @@
 #include "ThermoModelsSubstance.h"
+#include "Solute/SoluteHKFreaktoro.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -44,6 +45,44 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     RaiseError(exception);
 }
 
+//=======================================================================================================
+// HKF equation of state (as implmeneted in reaktoro;
+// References:
+// Added: DM 07.06.2016
+//=======================================================================================================
+
+struct SoluteHKFreaktoro::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+SoluteHKFreaktoro::SoluteHKFreaktoro(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+
+    FunctionG g = functionG(t, p, wp);
+
+    ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, pimpl->substance);
+
+    return speciesThermoStateSoluteHKF(T, P, pimpl->substance, aes, wes);
+
+
+}
 
 //=======================================================================================================
 // Integration of empirical heat capacity equation Cp=f(T);
