@@ -35,6 +35,8 @@ struct ParamsHKF
 
     /// The conventional Born coefficient of the aqueous species at reference temperature 298.15 K and pressure 1 bar (in units of cal/mol)
     double wref;
+
+    double Tmax, Pmax;
 };
 
 

@@ -43,6 +43,8 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
 
 auto speciesThermoStateSoluteHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance;
 
+auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void;
+
 }
 
 #endif // SOLUTEHKFREAKTORO
