@@ -162,5 +162,32 @@ struct ElectroPropertiesSolvent
     Reaktoro::ThermoScalar bornX;
 };
 
+struct ElectroPropertiesSubstance
+{
+    /// The effective electrostatic radius of the solute species at referente temperature 298.15 K and pressure 1 bar
+    Reaktoro::ThermoScalar reref;
+
+    /// The effective electrostatic radius of the solute species
+    Reaktoro::ThermoScalar re;
+
+    /// The Born coefficient of the solute species
+    Reaktoro::ThermoScalar w;
+
+    /// The first-order partial derivative of the Born coefficient of the solute species with respect to temperature
+    Reaktoro::ThermoScalar wT;
+
+    /// The first-order partial derivative of the Born coefficient of the solute species with respect to pressure
+    Reaktoro::ThermoScalar wP;
+
+    /// The second-order partial derivative of the Born coefficient of the solute species with respect to temperature
+    Reaktoro::ThermoScalar wTT;
+
+    /// The second-order partial derivative of the Born coefficient of the solute species with respect to temperature and pressure
+    Reaktoro::ThermoScalar wTP;
+
+    /// The second-order partial derivative of the Born coefficient of the solute species with respect to pressure
+    Reaktoro::ThermoScalar wPP;
+};
+
 } // namespace TCorrPT
 
