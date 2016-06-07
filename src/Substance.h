@@ -65,7 +65,7 @@ public:
     auto setAggregateState(AggregateState::type aggregate_state) -> void;
 
     /// Set
-    auto setWaterSolvent(Substance waterSolvent) -> void;
+    auto setSolventName(string name) -> void;
     
     // Get functions
     /// Return the name of the chemical Substance
@@ -108,7 +108,7 @@ public:
     auto substanceClass() -> SubstanceClass::type;
 
     /// Return
-    auto WaterSolvent() -> Substance;
+    auto SolventName() -> string;
     
 private:
     struct Impl;
