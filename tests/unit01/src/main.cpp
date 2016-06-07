@@ -10,7 +10,7 @@
 using namespace std;
 using namespace TCorrPT;
 
-int main()
+int main(int argc, char *argv[])
 {
     /// thermo properties substance ///
     double sV0,              ///< Standard volume at Tst, Pst "V0" m3/mol; [1] ERROR
@@ -199,8 +199,8 @@ int main()
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 250;
-    P = 39;
+    T = 350;
+    P = 170;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
     ElectroPropertiesSolvent resSolvG, resSolvR;
@@ -239,7 +239,7 @@ int main()
 // +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
 
     // +++ Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
-//    #define TEST_H2O_HGK_VS_H2O_WP95
+    #define TEST_H2O_HGK_VS_H2O_WP95
     #ifdef TEST_H2O_HGK_VS_H2O_WP95
 
     Substance water;
@@ -257,7 +257,7 @@ int main()
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 250;
+    T = 5;
     P = 0;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
@@ -266,10 +266,17 @@ int main()
     ofstream myfile;
     myfile.open ("H2Oprop.csv");
 
+//    string path = argv[0];
+//    string cut  = "unit01/";
+
+//    path = path.substr(0, path.size() - cut.size());
+//    path = "exec rm -r " + path + output_path +"*";
+////    system(path.c_str());
+
     myfile <<"T,P,G0wp95,G0hgkR,H0wp95,H0hgkR,S0wp95,S0hgkR,A0wp95,A0hgkR,U0wp95,U0hgkR,V0wp95,V0hgkR,Cp0wp95,Cp0hgkR,Cv0wp95,Cv0hgkR\n";
 
-    do
-    {
+//    do
+//    {
     do
     {
         myfile << T << ","<<P<<",";
@@ -288,12 +295,12 @@ int main()
         myfile << resSubstG.heat_capacity_cp <<","<<resSubstR.heat_capacity_cp<<",";
         myfile << resSubstG.heat_capacity_cv <<","<<resSubstR.heat_capacity_cv<<"\n";
 
-        T +=10;
+        T +=5;
 
-    } while (T<=250);
-        T = 25;
-        P +=500;
-    } while (P<=0);
+    } while (T<=370);
+//        T = 25;
+//        P +=500;
+//    } while (P<=0);
 
     myfile.close();
 

@@ -10,6 +10,8 @@
 #pragma GCC diagnostic ignored "-Wswitch"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
+#define OUTPUT_STEAM_CONVENTION
+
 using namespace std;
 
 typedef std::vector<double> vd;

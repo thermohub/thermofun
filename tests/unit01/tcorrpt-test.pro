@@ -25,6 +25,7 @@ INCLUDEPATH  += $$TCORRPT_H
 QMAKE_LFLAGS +=
 OBJECTS_DIR = obj
 
+
 include($$TCORRPT_TEST_CPP/tcorrpt-test.pri)
 include($$TCORRPT_CPP/tcorrpt.pri)
 

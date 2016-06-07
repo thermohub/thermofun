@@ -8,7 +8,7 @@ namespace TCorrPT {
 auto OutputSteamConventionH2OProp (std::string filename, const Reaktoro::WaterThermoState wt) -> void
 {
     std::ofstream myfile;
-    filename = output_path + filename;
+//    filename = output_path + filename;
     myfile.open (filename, std::ios::app);
     string c=",";
 
