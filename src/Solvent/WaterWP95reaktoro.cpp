@@ -62,9 +62,9 @@ auto propertiesWaterWP95reaktoro(const Reaktoro::WaterThermoState& wt) -> Proper
     state.pressureTD = wt.pressureTD;
     state.pressureTT = wt.pressureTT;
 
-    state.Alpha      = -wt.densityT/wt.density;
-    state.Beta       =  wt.densityP/wt.density;
-    state.dAldT       = -wt.densityTT/wt.density + alpha*alpha;
+    state.Alpha      = (-wt.densityT/wt.density).val;
+    state.Beta       = (wt.densityP/wt.density).val;
+    state.dAldT      = (-wt.densityTT/wt.density).val + state.Alpha*state.Alpha;
 //    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
 //    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
 

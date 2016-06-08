@@ -189,5 +189,27 @@ struct ElectroPropertiesSubstance
     Reaktoro::ThermoScalar wPP;
 };
 
+/// A type used to describe the function g of the HKF model and its partial temperature and pressure derivatives
+struct FunctionG
+{
+    /// The function g at temperature T and pressure P
+    Reaktoro::ThermoScalar g;
+
+    /// The first-order partial derivative of function g with respect to temperature
+    Reaktoro::ThermoScalar gT;
+
+    /// The first-order partial derivative of function g with respect to pressure
+    Reaktoro::ThermoScalar gP;
+
+    /// The second-order partial derivative of function g with respect to temperature
+    Reaktoro::ThermoScalar gTT;
+
+    /// The second-order partial derivative of function g with respect to temperature and pressure
+    Reaktoro::ThermoScalar gTP;
+
+    /// The second-order partial derivative of function g with respect to pressure
+    Reaktoro::ThermoScalar gPP;
+};
+
 } // namespace TCorrPT
 

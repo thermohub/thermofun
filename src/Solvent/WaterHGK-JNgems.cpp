@@ -88,6 +88,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
     wp.densityP = bet * rho;
+//    wp.densityPP =
 
 return wp;
 }

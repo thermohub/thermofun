@@ -1,5 +1,6 @@
 #include "ThermoModelsSubstance.h"
 #include "Solute/SoluteHKFreaktoro.h"
+#include "Solute/SoluteHKFgems.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -45,8 +46,47 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     RaiseError(exception);
 }
 
+
 //=======================================================================================================
-// HKF equation of state (as implmeneted in reaktoro;
+// HKF equation of state (as implmeneted in GEMS);
+// References:
+// Added: DM 07.06.2016
+//=======================================================================================================
+
+struct SoluteHKFgems::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+SoluteHKFgems::SoluteHKFgems(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+//    checkTemperatureValidityHKF(t, p, pimpl->substance);
+
+    FunctionG g = gShok2(t, p, wp);
+
+    ElectroPropertiesSubstance aes = omeg92(g, pimpl->substance);
+
+    return thermoPropertiesAqSoluteHKFgems(T, P, pimpl->substance, aes, wes);
+}
+
+//=======================================================================================================
+// HKF equation of state (as implmeneted in reaktoro);
 // References:
 // Added: DM 07.06.2016
 //=======================================================================================================
