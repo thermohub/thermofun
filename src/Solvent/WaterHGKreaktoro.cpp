@@ -63,6 +63,12 @@ auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> Propert
     state.pressureTD = wt.pressureTD;
     state.pressureTT = wt.pressureTT;
 
+    state.Alpha      = -wt.densityT/wt.density;
+    state.Beta       =  wt.densityP/wt.density;
+    state.dAldT       = -wt.densityTT/wt.density + alpha*alpha;
+//    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
+//    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
+
     return state;
 }
 

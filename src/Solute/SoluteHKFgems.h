@@ -1,0 +1,5 @@
+#ifndef SOLUTEHKFGEMS
+#define SOLUTEHKFGEMS
+
+#endif // SOLUTEHKFGEMS
+
