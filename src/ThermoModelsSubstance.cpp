@@ -114,13 +114,13 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    checkTemperatureValidityHKF(t, p, pimpl->substance);
+//    checkTemperatureValidityHKF(t, p, pimpl->substance);
 
     FunctionG g = functionG(t, p, wp);
 
     ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, pimpl->substance);
 
-    return speciesThermoStateSoluteHKF(T, P, pimpl->substance, aes, wes);
+    return speciesThermoStateSoluteHKF(t, p, pimpl->substance, aes, wes);
 }
 
 //=======================================================================================================

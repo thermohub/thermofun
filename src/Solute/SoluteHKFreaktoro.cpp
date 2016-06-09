@@ -99,7 +99,7 @@ auto speciesThermoStateSoluteHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, 
     auto A = U - T*S;
 
     // Convert the thermodynamic properties of the gas to the standard units
-    V  *= cal_to_J/bar_to_Pa;
+    V  *= 0.4184004e2*10/**cal_to_J/bar_to_Pa*/;
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
