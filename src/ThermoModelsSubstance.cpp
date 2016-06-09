@@ -82,7 +82,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
 
     ElectroPropertiesSubstance aes = omeg92(g, pimpl->substance);
 
-    return thermoPropertiesAqSoluteHKFgems(T, P, pimpl->substance, aes, wes);
+    return thermoPropertiesAqSoluteHKFgems(t, p, pimpl->substance, aes, wes);
 }
 
 //=======================================================================================================

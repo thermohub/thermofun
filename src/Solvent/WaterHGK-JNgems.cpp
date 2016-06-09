@@ -102,6 +102,7 @@ auto WaterHGKgems::electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent
     wp.bornZ    = wr.ZBorn;
     wp.bornY    = wr.YBorn;
     wp.bornQ    = wr.QBorn;
+    wp.bornX    = wr.XBorn;
 
     eps   = wr.Dielw;
     xborn = wr.XBorn;

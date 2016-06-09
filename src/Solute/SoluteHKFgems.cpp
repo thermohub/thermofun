@@ -23,6 +23,8 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
 
+    P.val = P.val / 1e05; // Pa to bar
+
     ///////////////////////////////////////////// P in bar T in Kelvin
 
     // Auxiliary variables
@@ -95,7 +97,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     auto A = U - T*S;
 
     // Convert the thermodynamic properties of the gas to the standard units
-    V  *= cal_to_J/bar_to_Pa;
+    V  *= 1e-01/*cal_to_J/bar_to_Pa*/;
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
@@ -127,6 +129,9 @@ auto gShok2( Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolv
     Reaktoro::ThermoScalar a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
                 f, dfdP, dfdT, d2fdT2, tempy;
+
+    T.val = T.val -273.15; // K to C
+    P.val = P.val /100000; // Pa in bar
 
     double C[6]  = {-0.2037662e+01,  0.5747000e-02, -0.6557892e-05,
                     0.6107361e+01, -0.1074377e-01,  0.1268348e-04 };
