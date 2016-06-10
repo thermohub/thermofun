@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
 #endif
 
-#define TEST_HKF_ALL
+//#define TEST_HKF_ALL
 #ifdef TEST_HKF_ALL
 
     WaterHGK H2OHGKgems ( water );
@@ -208,6 +208,82 @@ int main(int argc, char *argv[])
 
     SoluteHKFgems al3HKFgems (al3);
     SoluteHKFreaktoro al3HKFreaktoro (al3);
+
+    ThermoPropertiesSubstance resultG00, resultG01, resultG02, resultG10, resultG11, resultG12, resultG20, resultG21, resultG22,
+            resultR11, resultR12, resultR22, resultR21;
+
+    resultG00  = al3HKFgems.thermoProperties(T, P, wp0, wes0);
+    resultG01  = al3HKFgems.thermoProperties(T, P, wp0, wes1);
+    resultG02  = al3HKFgems.thermoProperties(T, P, wp0, wes2);
+    resultG10  = al3HKFgems.thermoProperties(T, P, wp1, wes0);
+    resultG11  = al3HKFgems.thermoProperties(T, P, wp1, wes1);
+    resultG12  = al3HKFgems.thermoProperties(T, P, wp1, wes2);
+    resultG20  = al3HKFgems.thermoProperties(T, P, wp2, wes0);
+    resultG21  = al3HKFgems.thermoProperties(T, P, wp2, wes1);
+    resultG22  = al3HKFgems.thermoProperties(T, P, wp2, wes2);
+    resultR11  = al3HKFreaktoro.thermoProperties(T, P, wp1, wes1);
+    resultR12  = al3HKFreaktoro.thermoProperties(T, P, wp1, wes2);
+    resultR22  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes2);
+    resultR21  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes1);
+
+#endif
+
+#define TEST_HKF_neutral
+#ifdef TEST_HKF_neutral
+
+    WaterHGK H2OHGKgems ( water );
+
+    WaterHGKreaktoro H2OHGKreaktoro ( water );
+
+    WaterWP95reaktoro H2OWP95reaktoro ( water );
+
+    Substance aloh3;
+    aloh3.setName("Al(OH)3");
+    aloh3.setFormula("Al(OH)3@");
+    aloh3.setCharge(0);
+    aloh3.setSolventName("water");
+
+    aloh3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
+    aloh3.setAggregateState(AggregateState::type::AQUEOUS);
+
+    aloh3.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+    aloh3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
+    aloh3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
+
+    ParamsHKF hkf;
+
+    hkf.Gf = -263321;
+    hkf.Hf = -297004;
+    hkf.Sr = 14.185;
+    hkf.a1 = 0.54624;
+    hkf.a2 = 555.6;
+    hkf.a3 = 3.5662;
+    hkf.a4 = -30087;
+    hkf.c1 = 20.027;
+    hkf.c2 = 17829;
+    hkf.wref = 0.0;
+
+    ThermoParametersSubstance prs;
+    prs.HKF_parameters = hkf;
+    aloh3.setThermoParameters(prs);
+
+    double T, P;
+    T = 25;
+    P = 1;
+
+    PropertiesSolvent wp0 = H2OHGKgems.propertiesSolvent(T, P, 0);
+    PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
+    PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
+
+    WaterJNreaktoro H2OJNreaktoro ( water );
+    WaterJNgems     H2OJNgems ( water );
+
+    ElectroPropertiesSolvent wes0 = H2OJNgems.electroPropertiesSolvent(T, P);
+    ElectroPropertiesSolvent wes1 = H2OJNreaktoro.electroPropertiesSolvent(T, P, wp1);
+    ElectroPropertiesSolvent wes2 = H2OJNreaktoro.electroPropertiesSolvent(T, P, wp2);
+
+    SoluteHKFgems al3HKFgems (aloh3);
+    SoluteHKFreaktoro al3HKFreaktoro (aloh3);
 
     ThermoPropertiesSubstance resultG00, resultG01, resultG02, resultG10, resultG11, resultG12, resultG20, resultG21, resultG22,
             resultR11, resultR12, resultR22, resultR21;
