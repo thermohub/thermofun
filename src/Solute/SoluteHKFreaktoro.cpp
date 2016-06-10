@@ -62,11 +62,11 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     const auto wr   = hkf.wref;
     const auto w    = aes.w;
     const auto wT   = aes.wT;
-    const auto wP   = aes.wP/**1e05*/;
+    const auto wP   = aes.wP*1e05; // from 1/Pa to 1/bar
     const auto wTT  = aes.wTT;
     const auto Z    = wes.bornZ;
     const auto Y    = wes.bornY;
-    const auto Q    = wes.bornQ/**1e05*/;
+    const auto Q    = wes.bornQ*1e05; // from 1/Pa to 1/bar
     const auto X    = wes.bornX;
 
     // Calculate the standard molal thermodynamic properties of the aqueous species

@@ -43,11 +43,11 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     const auto wr   = hkf.wref;
     const auto W    = aes.w;
     const auto dwdT   = aes.wT;
-    const auto dwdP   = aes.wP;
+    const auto dwdP   = aes.wP*1e05; // from 1/Pa to 1/bar
     const auto d2wdT2  = aes.wTT;
     const auto Z    = wes.bornZ;
     const auto Y    = wes.bornY;
-    const auto Q    = wes.bornQ;
+    const auto Q    = wes.bornQ*1e05; // from 1/Pa to 1/bar
     const auto X    = wes.bornX;
 
     auto VQterm = 0.4184004e2 * (-W * Q + (-Z - 1.0) * dwdP);
@@ -131,6 +131,11 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
     auto TdegC = T -273.15; // K to C
     auto Pbar = P * 1e-05; // Pa in bar
 
+//    // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
+//    // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
+//    if(ps.density > 1000.0 || ps.density < 350.0)
+//        return funcG;
+
     double C[6]  = {-0.2037662e+01,  0.5747000e-02, -0.6557892e-05,
                     0.6107361e+01, -0.1074377e-01,  0.1268348e-04 };
     double cC[3] = { 0.3666666e+02, -0.1504956e-09,  0.5017997e-13 };
@@ -142,11 +147,15 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
 
     FunctionG g;
 
-    // subroutine gShok2(T,P,D,beta,alpha,daldT,g,dgdP,dgdT,d2gdT2)
-    //Sveta 19/02/2000 1-D < 0 pri D>1 => pow(-number, b) = -NaN0000 error
-
-    //// add error here
-//    ErrorIf( D >= 1.3, GetName(), "gShok2: water density higher than 1.3 g cm-3" );
+//    if (D.val >= 1.3)
+//    {
+//        TCorrPT::Exception exception;
+//        exception.error << "gShock2: ";
+//        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+//            << D.val << "g*cm-3.";
+//        exception.line = __LINE__;
+//        RaiseError(exception);
+//    }
 
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 

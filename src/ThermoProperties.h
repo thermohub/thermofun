@@ -65,16 +65,27 @@ struct ThermoPropertiesReaction
 struct PropertiesSolvent
 {
     double Speed,        /// speed of sound
-       Alpha,            /// constant pressure expansion (alpha)
-       Beta,             /// constant temperature compressibility (beta)
+//       Alpha,            /// constant pressure expansion (alpha)
+//       Beta,             /// constant temperature compressibility (beta)
        Visc,             /// dynamic viscosity
        Tcond,            /// thermal conductivity
        Surten,           /// surface tension
        Tdiff,            /// not clear (currently not used)
        Prndtl,           /// Prandtl number (currently not used)
-       Visck,            /// kinetic viscosity (currently not used)
-       Albe,             /// alpha/beta ratio
-       dAldT;            /// T derivative of isobaric expansion
+       Visck;            /// kinetic viscosity (currently not used)
+//       Albe,             /// alpha/beta ratio
+//       dAldT;            /// T derivative of isobaric expansion
+    /// constant pressure expansion (alpha) (in units of 1/K)
+    Reaktoro::ThermoScalar Alpha;
+
+    /// first order derivative of alpha with T
+    Reaktoro::ThermoScalar dAldT;
+
+    /// constant temperature compressibility (beta) (in units of (1/bar)
+    Reaktoro::ThermoScalar Beta;
+
+    /// alpha/beta ratio (in units of K/bar)
+    Reaktoro::ThermoScalar Albe;
 
     /// ideal gas Gibbs energy
     Reaktoro::ThermoScalar gibbsIdealGas;
@@ -146,19 +157,19 @@ struct ElectroPropertiesSolvent
     /// The Born function \f$ Z\equiv-\frac{1}{\epsilon} \f$ (see Helgeson and Kirkham, 1974)
     Reaktoro::ThermoScalar bornZ;
 
-    /// The Born function \f$ Y\equiv\left[\frac{\partial Z}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
+    /// The Born function \f$ Y\equiv\left[\frac{\partial Z}{\partial T}\right]_{P} \f$ in units of 1/K (see Helgeson and Kirkham, 1974)
     Reaktoro::ThermoScalar bornY;
 
-    /// The Born function \f$ Q\equiv\left[\frac{\partial Z}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
+    /// The Born function \f$ Q\equiv\left[\frac{\partial Z}{\partial P}\right]_{T} \f$ in units of 1/Pa (see Helgeson and Kirkham, 1974)
     Reaktoro::ThermoScalar bornQ;
 
-    /// The Born function \f$ N\equiv\left[\frac{\partial Q}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
+    /// The Born function \f$ N\equiv\left[\frac{\partial Q}{\partial P}\right]_{T} \f$ in units of 1/Pa*Pa (see Helgeson and Kirkham, 1974)
     Reaktoro::ThermoScalar bornN;
 
-    /// The Born function \f$ U\equiv\left[\frac{\partial Q}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
+    /// The Born function \f$ U\equiv\left[\frac{\partial Q}{\partial T}\right]_{P} \f$ in units of 1/Pa*K (see Helgeson and Kirkham, 1974)
     Reaktoro::ThermoScalar bornU;
 
-    /// The Born function \f$ X\equiv\left[\frac{\partial Y}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
+    /// The Born function \f$ X\equiv\left[\frac{\partial Y}{\partial T}\right]_{P} \f$ in units of 1/K*K (see Helgeson and Kirkham, 1974)
     Reaktoro::ThermoScalar bornX;
 };
 
