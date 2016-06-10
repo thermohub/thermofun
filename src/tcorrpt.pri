@@ -36,7 +36,9 @@
     $$PWD/ElectroModelsSolvent.h \
     $$PWD/Solvent/WaterJN91reaktoro.h \
     $$PWD/Solvent/WaterHGK-JNgems.h \
-    $$PWD/Common/OutputWaterSteamConventionProp.h
+    $$PWD/Common/OutputWaterSteamConventionProp.h \
+    $$PWD/Solute/SoluteHKFreaktoro.h \
+    $$PWD/Solute/SoluteHKFgems.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -69,4 +71,6 @@
     $$PWD/ElectroModelsSolvent.cpp \
     $$PWD/Solvent/WaterJN91reaktoro.cpp \
     $$PWD/Solvent/WaterHGK-JNgems.cpp \
-    $$PWD/Common/OutputWaterSteamConventionProp.cpp
+    $$PWD/Common/OutputWaterSteamConventionProp.cpp \
+    $$PWD/Solute/SoluteHKFreaktoro.cpp \
+    $$PWD/Solute/SoluteHKFgems.cpp

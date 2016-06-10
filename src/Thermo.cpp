@@ -51,6 +51,21 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                 return CpInt.thermoProperties(T, P);
                 break;
             }
+            case MethodGenEoS_Thrift::type::CTPM_HKF:
+            {
+                string waterSolventName = subst.SolventName();
+                if (!waterSolventName.empty())
+                {
+                   ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventName);
+                   PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventName);
+                   SoluteHKFreaktoro aq( subst );
+                   return aq.thermoProperties(T, P, wp, wes);
+                } else
+                {
+                    // error
+                }
+                break;
+            }
         }
         // Exception
         errorMethodNotFound("substance", subst.name(), __LINE__);

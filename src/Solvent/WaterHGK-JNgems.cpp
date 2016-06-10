@@ -46,7 +46,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     {
         wp.Surten   = wl.Surtenw;
         wp.Alpha    = wl.Alphaw;
-        wp.Beta     = wl.Betaw;
+        wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
         wp.Tcond    = wl.Tcondw;
         wp.Tdiff    = wl.Tdiffw;
         wp.Prndtl   = wl.Prndtlw;
@@ -58,12 +58,12 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 
         alp = wl.Alphaw;
         dal = wl.dAldT;
-        bet = wl.Betaw;
+        bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
     } else
     {
         wp.Surten   = wr.Surtenw;
         wp.Alpha    = wr.Alphaw;
-        wp.Beta     = wr.Betaw;
+        wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
         wp.Tcond    = wr.Tcondw;
         wp.Tdiff    = wr.Tdiffw;
         wp.Prndtl   = wr.Prndtlw;
@@ -75,7 +75,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 
         alp = wr.Alphaw;
         dal = wr.dAldT;
-        bet = wr.Betaw;
+        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
     }
 
     wp.gibbsIdealGas    = id.gi;
@@ -88,6 +88,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
     wp.densityP = bet * rho;
+//    wp.densityPP =
 
 return wp;
 }
@@ -100,7 +101,8 @@ auto WaterHGKgems::electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent
     wp.epsilon  = wr.Dielw;
     wp.bornZ    = wr.ZBorn;
     wp.bornY    = wr.YBorn;
-    wp.bornQ    = wr.QBorn;
+    wp.bornQ    = wr.QBorn / 1e05; // from bar-1 to Pa-1
+    wp.bornX    = wr.XBorn;
 
     eps   = wr.Dielw;
     xborn = wr.XBorn;

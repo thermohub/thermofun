@@ -47,7 +47,7 @@ auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsM
     // Determine an adequate initial guess for (dimensionless) density based on the physical state of water
     ThermoScalar D;
 
-    if (solvent_state >=0)
+    if ((solvent_state >=0) && (T.val <= waterCriticalTemperature))
     state = solvent_state;
 
     switch(state)
