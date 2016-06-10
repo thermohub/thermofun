@@ -39,7 +39,7 @@ const double theta = 228;
 /// The constant characteristics \Psi of the solvent (in units of bar)
 const double psi = 2600;
 
-auto speciesThermoStateSoluteHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
@@ -62,16 +62,16 @@ auto speciesThermoStateSoluteHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, 
     const auto wr   = hkf.wref;
     const auto w    = aes.w;
     const auto wT   = aes.wT;
-    const auto wP   = aes.wP;
+    const auto wP   = aes.wP/**1e05*/;
     const auto wTT  = aes.wTT;
     const auto Z    = wes.bornZ;
     const auto Y    = wes.bornY;
-    const auto Q    = wes.bornQ;
+    const auto Q    = wes.bornQ/**1e05*/;
     const auto X    = wes.bornX;
 
     // Calculate the standard molal thermodynamic properties of the aqueous species
-    auto V = a1 + a2/(psi + Pbar) +
-        (a3 + a4/(psi + Pbar))/(T - theta) - w*Q - (Z + 1)*wP;
+    auto V = 0.4184004e2 * (a1 + a2/(psi + Pbar) +
+        (a3 + a4/(psi + Pbar))/(T - theta) - w*Q - (Z + 1)*wP);
 
     auto G = Gf - Sr*(T - Tr) - c1*(T*log(T/Tr) - T + Tr)
         + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
@@ -99,7 +99,7 @@ auto speciesThermoStateSoluteHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, 
     auto A = U - T*S;
 
     // Convert the thermodynamic properties of the gas to the standard units
-    V  *= 0.4184004e2*10/**cal_to_J/bar_to_Pa*/;
+    V  *= 1e-01/**cal_to_J/bar_to_Pa*/;
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
@@ -164,7 +164,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
 }
 
 
-auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent& wts) -> FunctionG
+auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent& ps) -> FunctionG
 {
     // The function G
     FunctionG funcG;
@@ -175,7 +175,7 @@ auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSo
 
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
     // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
-    if(wts.density > 1000.0 || wts.density < 350.0)
+    if(ps.density > 1000.0 || ps.density < 350.0)
         return funcG;
 
     // Auxiliary references
@@ -204,13 +204,13 @@ auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSo
     const auto agTT = 2*ag3;
     const auto bgTT = 2*bg3;
 
-    const auto r =  wts.density/1000.0;
+    const auto r =  ps.density/1000.0;
 
-    const auto alpha  = -wts.densityT/wts.density;
-    const auto beta   =  wts.densityP/wts.density;
-    const auto alphaT = -wts.densityTT/wts.density + alpha*alpha;
-    const auto alphaP = -wts.densityTP/wts.density - alpha*beta;
-    const auto betaP  =  wts.densityPP/wts.density - beta*beta;
+    const auto alpha  = -ps.densityT/ps.density;
+    const auto beta   =  ps.densityP/ps.density;
+    const auto alphaT = -ps.densityTT/ps.density + alpha*alpha;
+    const auto alphaP = -ps.densityTP/ps.density - alpha*beta;
+    const auto betaP  =  ps.densityPP/ps.density - beta*beta;
 
     g   =  ag * pow(1 - r, bg);
     gT  =   g * (agT/ag + bgT*log(1 - r) + r*alpha*bg/(1 - r));

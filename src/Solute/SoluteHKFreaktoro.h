@@ -6,23 +6,30 @@
 namespace TCorrPT {
 
 // Forward declarations
-//class AqueousSpecies;
 struct ElectroPropertiesSubstance;
-//struct WaterThermoState;
 
-/// Calculate the function g of the HKF model.
-auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent &wts) -> FunctionG;
+/// Returns the G function and its derivatives
+/// @ref Shock et al. (1991)
+/// @param T temparature (K)
+/// @param P pressure (Pa)
+/// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
+auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent &ps) -> FunctionG;
 
 /// Calculate the electrostatic state of the aqueous species using the g-function state.
+/// @param g structure holding the g function values and its derivatives
+/// @param species instance of the species
 auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPropertiesSubstance;
 
-/// Calculate the electrostatic state of the aqueous species using the HKF model.
-//auto speciesElectroStateHKF(Reaktoro::Temperature T, Reaktoro::Pressure P/*, const AqueousSpecies& species*/) -> ElectroPropertiesSubstance;
+/// Returns the thermodynamic properties of a substance using the HKF EOS
+/// @ref Tanger and Helgeson (1988)
+/// @param T temparature (K)
+/// @param P pressure (Pa)
+/// @param species aqueous species instance
+/// @param aes electro-chemical properties of the substance
+/// @param wes electro-chemical properties of the solvent
+auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance;
 
-auto speciesThermoStateSoluteHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance;
-
-auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void;
-
+//auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void;
 }
 
 #endif // SOLUTEHKFREAKTORO

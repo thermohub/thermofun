@@ -23,9 +23,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
 
-    P.val = P.val / 1e05; // Pa to bar
-
-    ///////////////////////////////////////////// P in bar T in Kelvin
+    auto Pbar = P * 1e-05; // Pa to bar
 
     // Auxiliary variables
 //    const auto Pbar = P * 1.0e-05;
@@ -56,48 +54,48 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
 
     // the leading constant converts cal/(mol*bar) -> cm3/mol
 
-    auto V   = 0.4184004e2 * (a1 + a2 / (psi + P) + a3 /
-                            ( T - theta) + a4 / (psi + P) / (T - theta)) + VQterm;
+    auto V   = 0.4184004e2 * (a1 + a2 / (psi + Pbar) + a3 /
+                            ( T - theta) + a4 / (psi + Pbar) / (T - theta)) + VQterm;
 
     auto SYterm = W * Y - (-Z - 1.0) * dwdT - wr * YPrTr;
     auto S = Sr + c1 * log(T / Tref) - c2 / theta
                 * (1.0 / (T - theta) - 1.0 / (Tref - theta) + (1.0 / theta)
                 * log(Tref * (T - theta) / T / (Tref - theta))) + (a3
-                * (P - Pref) + a4 * log((psi + P) / (psi+Pref)))
+                * (Pbar - Pref) + a4 * log((psi + Pbar) / (psi+Pref)))
                 * pow((1.0 / (T-theta)),2.) + SYterm;
 
     auto CpXtrm = W * T * X + 2.0 * T * Y * dwdT + T * (Z + 1.0) * d2wdT2;
     auto Cp = c1 + c2 / pow((T - theta),2.) - (2.0 * T
-                / pow((T-theta),3.)) * (a3 * (P - Pref) + a4
-                * log((psi + P) / (psi + Pref))) + CpXtrm;
+                / pow((T-theta),3.)) * (a3 * (Pbar - Pref) + a4
+                * log((psi + Pbar) / (psi + Pref))) + CpXtrm;
 
     auto HYterm = W * (-Z - 1.0) + W * T * Y - T * (-Z - 1.0) *dwdT
                 - wr * (-ZPrTr - 1.0) - wr * Tref * YPrTr;
     auto H = Hf + c1 * (T - Tref) - c2 * (1.0
-                / (T - theta) - 1.0 / (Tref - theta)) + a1 * (P
-                - Pref) + a2 * log((psi + P) / (psi + Pref))
-                + (a3 * (P - Pref) + a4 * log((psi + P)
+                / (T - theta) - 1.0 / (Tref - theta)) + a1 * (Pbar
+                - Pref) + a2 * log((psi + Pbar) / (psi + Pref))
+                + (a3 * (Pbar - Pref) + a4 * log((psi + Pbar)
                 / (psi + Pref))) * ((2.0 * T - theta) / pow((T - theta),2.))
                 + HYterm;
 
     auto GZterm = W * (-Z - 1.0e0) - wr * (-ZPrTr - 1.0e0) + wr
                  * YPrTr * (T - Tref);
     auto G = Gf - Sr * (T - Tref) - c1 * (T * log(T
-                / Tref) - T + Tref) + a1 * (P - Pref) + a2
-                * log((psi + P) / (psi + Pref)) - c2 * ((1.0 / (T - theta)
+                / Tref) - T + Tref) + a1 * (Pbar - Pref) + a2
+                * log((psi + Pbar) / (psi + Pref)) - c2 * ((1.0 / (T - theta)
                 - 1.0 / (Tref - theta)) * ((theta - T) / theta) - T / pow(theta,2.)
                 * log((Tref * (T - theta)) / (T * (Tref - theta)))) + (1.0
-                / (T - theta)) * (a3 * (P - Pref) + a4 * log((psi + P)
+                / (T - theta)) * (a3 * (Pbar - Pref) + a4 * log((psi + Pbar)
                 / (psi + Pref))) + GZterm;
     // GZterm = W * (-Z - 1.0e0);
 
 
-    auto U = H - P*V;
+    auto U = H - Pbar*V;
 
     auto A = U - T*S;
 
     // Convert the thermodynamic properties of the gas to the standard units
-    V  *= 1e-01/*cal_to_J/bar_to_Pa*/;
+    V  *= 1e-01; // J/bar
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
@@ -124,23 +122,23 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2( Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent &wts ) -> FunctionG
+auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent &ps ) -> FunctionG
 {
     Reaktoro::ThermoScalar a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
                 f, dfdP, dfdT, d2fdT2, tempy;
 
-    T.val = T.val -273.15; // K to C
-    P.val = P.val /100000; // Pa in bar
+    auto TdegC = T -273.15; // K to C
+    auto Pbar = P * 1e-05; // Pa in bar
 
     double C[6]  = {-0.2037662e+01,  0.5747000e-02, -0.6557892e-05,
                     0.6107361e+01, -0.1074377e-01,  0.1268348e-04 };
     double cC[3] = { 0.3666666e+02, -0.1504956e-09,  0.5017997e-13 };
 
-    const auto D        = wts.density / 1000; // in g/cm3
-    const auto beta     = wts.Beta;
-    const auto alpha    = wts.Alpha;
-    const auto daldT    = wts.dAldT;
+    const auto D        = ps.density / 1000; // in g/cm3
+    const auto beta     = ps.Beta;
+    const auto alpha    = ps.Alpha;
+    const auto daldT    = ps.dAldT;
 
     FunctionG g;
 
@@ -152,16 +150,16 @@ auto gShok2( Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolv
 
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 
-    a = C[0] + C[1]*T + C[2]*pow(T,2.);
-    b = C[3] + C[4]*T + C[5]*pow(T,2.);
+    a = C[0] + C[1]*TdegC + C[2]*pow(TdegC,2.);
+    b = C[3] + C[4]*TdegC + C[5]*pow(TdegC,2.);
     g.g = a * pow(pw, b.val);
 
     dgdD = - a*b*pow(pw,(b.val - 1.0e0));
     // dgdD2 = a * b * (b - 1.0e0) * pow((1.0e0 - D),(b - 2.0e0));
 
-    dadT = C[1] + 2.0*C[2]*T;
+    dadT = C[1] + 2.0*C[2]*TdegC;
     dadTT = 2.0*C[2];
-    dbdT = C[4] + 2.0*C[5]*T;
+    dbdT = C[4] + 2.0*C[5]*TdegC;
     dbdTT = 2.0*C[5];
 
     dDdT = - D * alpha;
@@ -183,16 +181,16 @@ auto gShok2( Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolv
     g.gT = a * dDbdT + Db * dadT;
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
-    if((T < 155.0) || (P > 1000.0) || (T > 355.0))
+    if((TdegC < 155.0) || (Pbar > 1000.0) || (TdegC > 355.0))
         return g;
 
-    tempy = ((T - 155.0) / 300.0);
+    tempy = ((TdegC - 155.0) / 300.0);
     ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);
     dftdT = 4.8e0 / 300.0 * pow(tempy,3.8) + 16.0 / 300.0 * cC[0] * pow(tempy,15.);
     dftdTT = 3.8 * 4.8 / (300.0 * 300.0) * pow(tempy,2.8)
              + 15.0 * 16.0 / (300.0 * 300.0) * cC[0] * pow(tempy,14.);
-    fp = cC[1] * pow((1000.0 - P),3.) + cC[2] * pow((1000.0 - P),4.);
-    dfpdP  = -3.0 * cC[1] * pow((1000.0 - P),2.) - 4.0 * cC[2] * pow((1000.0 - P),3.);
+    fp = cC[1] * pow((1000.0 - Pbar),3.) + cC[2] * pow((1000.0 - Pbar),4.);
+    dfpdP  = -3.0 * cC[1] * pow((1000.0 - Pbar),2.) - 4.0 * cC[2] * pow((1000.0 - Pbar),3.);
 
     f = ft * fp;
     dfdP = ft * dfpdP;
