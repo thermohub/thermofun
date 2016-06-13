@@ -274,6 +274,7 @@ int main(int argc, char *argv[])
     PropertiesSolvent wp0 = H2OHGKgems.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
+//    ThermoPropertiesSubstance wp3 = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
 
     WaterJNreaktoro H2OJNreaktoro ( water );
     WaterJNgems     H2OJNgems ( water );
