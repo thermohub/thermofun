@@ -23,6 +23,26 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class WaterIdealGasWoolley
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    WaterIdealGasWoolley();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit WaterIdealGasWoolley(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 class SoluteHKFgems
 {
 public:

@@ -1,6 +1,7 @@
 #include "ThermoModelsSubstance.h"
 #include "Solute/SoluteHKFreaktoro.h"
 #include "Solute/SoluteHKFgems.h"
+#include "Solvent/WaterIdealGasWolley.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -44,6 +45,38 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     exception.reason << "The calculation method defined for the substance "<< pimpl->substance.name() << " is not available.";
     exception.line = __LINE__;
     RaiseError(exception);
+}
+
+//=======================================================================================================
+// Calculates the ideal gas properties of pure H2O
+// References: Woolley (1979)
+// Added: DM 13.06.2016
+//=======================================================================================================
+
+struct WaterIdealGasWoolley::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+WaterIdealGasWoolley::WaterIdealGasWoolley(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto WaterIdealGasWoolley::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return waterIdealGas(t, p);
 }
 
 

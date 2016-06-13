@@ -302,6 +302,10 @@ int main(int argc, char *argv[])
     resultR22  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes2);
     resultR21  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes1);
 
+    WaterIdealGasWoolley wig ( water );
+
+    ThermoPropertiesSubstance wigp = wig.thermoProperties(T, P);
+
 #endif
 
 
