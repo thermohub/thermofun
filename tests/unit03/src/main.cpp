@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
     CpCoefficients;
 
     Interval = {0,1500};
-    Coeff = {0.22821, 0.0217563, -365734, 464.476, -4.74975e-06};
-    ADparam = {-0.28, 11-642, -7.4244};
+    Coeff = {0.28821, 0.0217563, -365734, 464.476, -4.74975e-06};
+    ADparam = {-0.28, 11.642, -7.4244};
 
     TCpInterval.push_back(Interval);
     CpCoefficients.push_back(Coeff);
@@ -57,15 +57,44 @@ int main(int argc, char *argv[])
     ThermoParametersSubstance prs;
     prs.Cp_coeff = CpCoefficients;
     prs.temperature_intervals = TCpInterval;
+    prs.Cp_nonElectrolyte_coeff = ADparam;
     hcl.setThermoParameters(prs);
 
     double T, P;
-    T = 25;
+    T = 35;
     P = 1;
+
+    ThermoPropertiesSubstance rHCl, TrPrHCl;
+
+    TrPrHCl.gibbs_energy = -126045;
+    TrPrHCl.volume = 2.06286;
+    TrPrHCl.enthalpy = -165244;
+    TrPrHCl.entropy = 45.408;
+    TrPrHCl.heat_capacity_cp = 46.944;
+
+    hcl.setThermoReferenceProperties(TrPrHCl);
+    hcl.setReferenceT(25);
+    hcl.setReferenceP(1);
+
+    EmpiricalCpIntegration CpHCl (hcl);
+    rHCl = CpHCl.thermoProperties(T, P);
+
+    WaterIdealGasWoolley wig ( water );
+
+    ThermoPropertiesSubstance wigp = wig.thermoProperties(T, P);
 
     PropertiesSolvent wp0 = H2OHGKgems.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
+
+    ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0);
+
+    AkinfievDiamondEOS hcl_AD (hcl);
+
+    ThermoPropertiesSubstance result;
+
+    result = hcl_AD.thermoProperties(T, P, rHCl, wtp, wigp, wp0);
+
 //    ThermoPropertiesSubstance wp3 = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
 
 //    WaterJNreaktoro H2OJNreaktoro ( water );

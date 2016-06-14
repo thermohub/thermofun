@@ -2,6 +2,7 @@
 #include "Solute/SoluteHKFreaktoro.h"
 #include "Solute/SoluteHKFgems.h"
 #include "Solvent/WaterIdealGasWolley.h"
+#include "Solute/SoluteADgems.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -45,6 +46,39 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     exception.reason << "The calculation method defined for the substance "<< pimpl->substance.name() << " is not available.";
     exception.line = __LINE__;
     RaiseError(exception);
+}
+
+
+//=======================================================================================================
+// Akinfiev & Diamond EOS for neutral species
+// References: Akinfiev & Diamond (2003)
+// Added: DM 13.06.2016
+//=======================================================================================================
+
+struct AkinfievDiamondEOS::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+AkinfievDiamondEOS::AkinfievDiamondEOS(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto AkinfievDiamondEOS::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp, wigp, wp);
 }
 
 //=======================================================================================================
@@ -246,7 +280,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     T4 = T3 * TK;
     T05 = std::sqrt( TK );
 
-    for (unsigned i=0; i<thermo_parameters.Cp_coeff.size(); i++)
+    for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
         ac[i] = thermo_parameters.Cp_coeff[k][i];
     }

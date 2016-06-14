@@ -2,7 +2,7 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {
 //    Reaktoro::ThermoScalar CaltoJ(cal_to_J);
     // calculate infinite dilution properties of aqueous species at T and P of interest
@@ -18,7 +18,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     Reaktoro::Pressure Pbar (P.val/1e05);
     Reaktoro::Pressure Pr (1.0);
 
-    ThermoPropertiesSubstance state;
+    ThermoPropertiesSubstance state = tps;
 
     const auto ADparam = species.thermoParameters().Cp_nonElectrolyte_coeff;
 
@@ -59,7 +59,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     Sw = wtp.entropy; //aWp.Sw[aSpc.isat]*CaltoJ;
     CPw = wtp.heat_capacity_cp; //aWp.Cpw[aSpc.isat]*CaltoJ;
     /// units????
-    rho = wp.density; // aSta.Dens[aSpc.isat];
+    rho = wp.density / 1000; // aSta.Dens[aSpc.isat];
     alp = wp.Alpha; // aWp.Alphaw[aSpc.isat];
     bet = wp.Beta*1e05; // aWp.Betaw[aSpc.isat];
     dalpT = wp.dAldT; // aWp.dAldT[aSpc.isat];
