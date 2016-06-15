@@ -44,6 +44,15 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
 
+    if (hkf.Gf == 0.0 || hkf.a1 == 0.0 || hkf.c1 == 0.0)
+    {
+        Exception exception;
+        exception.error << "Error in HKFreaktoro EOS";
+        exception.reason << "The HKF paramteres for "<< species.name() << " were not are not defined or were not correclty initialized.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+
     // Auxiliary variables
     const auto Pbar = P * 1.0e-05;
     const auto Tr   = referenceTemperature;
@@ -172,6 +181,16 @@ auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSo
     // The temperature in units of celsius and pressure in units of bar
     const auto TdegC = T - 273.15;
     const auto Pbar  = P * 1.0e-5;
+
+    if (ps.density >= 1300)
+    {
+        Exception exception;
+        exception.error << "Error in functionG";
+        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+            << ps.density / 1000 << "g*cm-3.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
 
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
     // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.

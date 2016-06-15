@@ -9,6 +9,32 @@
 
 namespace TCorrPT {
 
+
+auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double Pmax, /*double Pmin,*/ Substance species, string model) -> void
+{
+    // Check if given temperature is within the allowed range
+    if(T < 0 /*Tmin*/ || T > Tmax)
+    {
+        Exception exception;
+        exception.error << "Out of T bound in model "
+              << model << " for substance " << species.name();
+        exception.reason << "The provided temperature, " << T << " K,"  << "is either negative "
+              "or greater than the maximum allowed, " << Tmax << " K.";
+        RaiseError(exception);
+    }
+
+    // Check if given pressure is within the allowed range
+    if(P < 0/*Pmin*/ || P > Pmax)
+    {
+        Exception exception;
+        exception.error << "Out of P bound in model "
+              << model << " for substance " << species.name();
+        exception.reason << "The provided pressure, " << P << " Pa,"  << "is either negative "
+              "or greater than the maximum allowed, " << Pmax << " Pa.";
+        RaiseError(exception);
+    }
+}
+
 struct ThermoModelsSubstance::Impl
 {
     /// The substance instance
@@ -143,7 +169,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-//    checkTemperatureValidityHKF(t, p, pimpl->substance);
+    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFgems");
 
     FunctionG g = gShok2(t, p, wp);
 
@@ -181,7 +207,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-//    checkTemperatureValidityHKF(t, p, pimpl->substance);
+    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
     FunctionG g = functionG(t, p, wp);
 

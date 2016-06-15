@@ -1,4 +1,5 @@
 #include "Solute/SoluteHKFgems.h"
+#include "Common/Exception.h"
 
 
 namespace TCorrPT {
@@ -22,6 +23,15 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
+
+    if (hkf.Gf == 0.0 || hkf.a1 == 0.0 || hkf.c1 == 0.0)
+    {
+        Exception exception;
+        exception.error << "Error in HKFgems EOS";
+        exception.reason << "The HKF paramteres for "<< species.name() << " were not are not defined or were not correclty initialized.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
 
     auto Pbar = P * 1e-05; // Pa to bar
 
@@ -147,15 +157,15 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
 
     FunctionG g;
 
-//    if (D.val >= 1.3)
-//    {
-//        TCorrPT::Exception exception;
-//        exception.error << "gShock2: ";
-//        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
-//            << D.val << "g*cm-3.";
-//        exception.line = __LINE__;
-//        RaiseError(exception);
-//    }
+    if (D.val >= 1.3)
+    {
+        Exception exception;
+        exception.error << "Error in gShock2";
+        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+            << D.val << "g*cm-3.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
 
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 

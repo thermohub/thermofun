@@ -1,4 +1,5 @@
 #include "Solute/SoluteADgems.h"
+#include "Common/Exception.h"
 
 namespace TCorrPT {
 
@@ -21,6 +22,15 @@ auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, S
     ThermoPropertiesSubstance state = tps;
 
     const auto ADparam = species.thermoParameters().Cp_nonElectrolyte_coeff;
+
+    if (ADparam.size() == 0)
+    {
+        Exception exception;
+        exception.error << "Error in Akinfiev Diamond EOS";
+        exception.reason << "There are no model parameters given for "<<species.name() << ".";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
 
     dH0k = (-182161.88);  // enthapy of ideal gas water at 0 K
 
