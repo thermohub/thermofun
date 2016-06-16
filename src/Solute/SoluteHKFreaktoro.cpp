@@ -48,7 +48,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     {
         Exception exception;
         exception.error << "Error in HKFreaktoro EOS";
-        exception.reason << "The HKF paramteres for "<< species.name() << " were not are not defined or were not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -272,33 +272,5 @@ auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSo
 
     return funcG;
 }
-
-//auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void
-//{
-//    // Get the HKF thermodynamic data of the species
-//    auto hkf = species.thermoParameters().HKF_parameters;
-
-//    // Check if given temperature is within the allowed range
-//    if(T < 0 || T > hkf.Tmax)
-//    {
-//        Exception exception;
-//        exception.error << "Unable to calculate the thermodynamic properties of species "
-//              << species.name() << " using the revised HKF equations of state.";
-//        exception.reason << "The provided temperature, " << T.val << " K,"  << "is either negative "
-//              "or greater than the maximum allowed, " << hkf.Tmax << " K.";
-//        RaiseError(exception);
-//    }
-
-//    // Check if given pressure is within the allowed range
-//    if(P < 0 || P > hkf.Pmax)
-//    {
-//        Exception exception;
-//        exception.error << "Unable to calculate the thermodynamic properties of species "
-//              << species.name() << " using the revised HKF equations of state.";
-//        exception.reason << "The provided pressure, " << P.val << " K,"  << "is either negative "
-//              "or greater than the maximum allowed, " << hkf.Pmax << " K.";
-//        RaiseError(exception);
-//    }
-//}
 
 }

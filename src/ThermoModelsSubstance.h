@@ -23,14 +23,14 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-class AkinfievDiamondEOS
+class SoluteAkinfievDiamondEOS
 {
 public:
     /// Construct a default AqueousSpecies instance
-    AkinfievDiamondEOS();
+    SoluteAkinfievDiamondEOS();
 
     /// Construct an AqueousSpecies instance from a Species instance
-    explicit AkinfievDiamondEOS(const Substance& substance);
+    explicit SoluteAkinfievDiamondEOS(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)

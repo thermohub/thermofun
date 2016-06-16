@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
     ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0);
 
-    AkinfievDiamondEOS hcl_AD (hcl);
+    SoluteAkinfievDiamondEOS hcl_AD (hcl);
 
     ThermoPropertiesSubstance result;
 

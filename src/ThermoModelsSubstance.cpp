@@ -81,7 +81,7 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
 // Added: DM 13.06.2016
 //=======================================================================================================
 
-struct AkinfievDiamondEOS::Impl
+struct SoluteAkinfievDiamondEOS::Impl
 {
     /// the substance instance
    Substance substance;
@@ -94,12 +94,12 @@ struct AkinfievDiamondEOS::Impl
    {}
 };
 
-AkinfievDiamondEOS::AkinfievDiamondEOS(const Substance &substance)
+SoluteAkinfievDiamondEOS::SoluteAkinfievDiamondEOS(const Substance &substance)
 : pimpl(new Impl(substance))
 {}
 
 
-auto AkinfievDiamondEOS::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
