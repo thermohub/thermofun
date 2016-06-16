@@ -132,6 +132,16 @@ auto Substance::setCharge(int charge) -> void
     pimpl->charge = charge;
 }
 
+auto Substance::setReferenceT(double T) -> void
+{
+    pimpl->reference_T = T;
+}
+
+auto Substance::setReferenceP(double P) -> void
+{
+    pimpl->reference_P = P;
+}
+
 auto Substance::setSolventName(string name) -> void
 {
     pimpl->solventName = name;

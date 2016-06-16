@@ -1,11 +1,39 @@
 #include "ThermoModelsSubstance.h"
 #include "Solute/SoluteHKFreaktoro.h"
 #include "Solute/SoluteHKFgems.h"
+#include "Solvent/WaterIdealGasWolley.h"
+#include "Solute/SoluteADgems.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
 
 namespace TCorrPT {
+
+
+auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double Pmax, /*double Pmin,*/ Substance species, string model) -> void
+{
+    // Check if given temperature is within the allowed range
+    if(T < 0 /*Tmin*/ || T > Tmax)
+    {
+        Exception exception;
+        exception.error << "Out of T bound in model "
+              << model << " for substance " << species.name();
+        exception.reason << "The provided temperature, " << T << " K,"  << "is either negative "
+              "or greater than the maximum allowed, " << Tmax << " K.";
+        RaiseError(exception);
+    }
+
+    // Check if given pressure is within the allowed range
+    if(P < 0/*Pmin*/ || P > Pmax)
+    {
+        Exception exception;
+        exception.error << "Out of P bound in model "
+              << model << " for substance " << species.name();
+        exception.reason << "The provided pressure, " << P << " Pa,"  << "is either negative "
+              "or greater than the maximum allowed, " << Pmax << " Pa.";
+        RaiseError(exception);
+    }
+}
 
 struct ThermoModelsSubstance::Impl
 {
@@ -48,6 +76,71 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
 
 
 //=======================================================================================================
+// Akinfiev & Diamond EOS for neutral species
+// References: Akinfiev & Diamond (2003)
+// Added: DM 13.06.2016
+//=======================================================================================================
+
+struct SoluteAkinfievDiamondEOS::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+SoluteAkinfievDiamondEOS::SoluteAkinfievDiamondEOS(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp, wigp, wp);
+}
+
+//=======================================================================================================
+// Calculates the ideal gas properties of pure H2O
+// References: Woolley (1979)
+// Added: DM 13.06.2016
+//=======================================================================================================
+
+struct WaterIdealGasWoolley::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+WaterIdealGasWoolley::WaterIdealGasWoolley(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto WaterIdealGasWoolley::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return waterIdealGas(t, p);
+}
+
+
+//=======================================================================================================
 // HKF equation of state (as implmeneted in GEMS);
 // References:
 // Added: DM 07.06.2016
@@ -76,7 +169,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-//    checkTemperatureValidityHKF(t, p, pimpl->substance);
+    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFgems");
 
     FunctionG g = gShok2(t, p, wp);
 
@@ -114,7 +207,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-//    checkTemperatureValidityHKF(t, p, pimpl->substance);
+    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
     FunctionG g = functionG(t, p, wp);
 
@@ -213,7 +306,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     T4 = T3 * TK;
     T05 = std::sqrt( TK );
 
-    for (unsigned i=0; i<thermo_parameters.Cp_coeff.size(); i++)
+    for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
         ac[i] = thermo_parameters.Cp_coeff[k][i];
     }

@@ -268,12 +268,14 @@ int main(int argc, char *argv[])
     aloh3.setThermoParameters(prs);
 
     double T, P;
-    T = 25;
-    P = 1;
+    T = 350;
+    P = 100;
 
     PropertiesSolvent wp0 = H2OHGKgems.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
+
+    PropertiesSolvent wp3 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
 
     WaterJNreaktoro H2OJNreaktoro ( water );
     WaterJNgems     H2OJNgems ( water );
@@ -286,7 +288,7 @@ int main(int argc, char *argv[])
     SoluteHKFreaktoro al3HKFreaktoro (aloh3);
 
     ThermoPropertiesSubstance resultG00, resultG01, resultG02, resultG10, resultG11, resultG12, resultG20, resultG21, resultG22,
-            resultR11, resultR12, resultR22, resultR21;
+            resultR11, resultR12, resultR22, resultR21, resultT;
 
     resultG00  = al3HKFgems.thermoProperties(T, P, wp0, wes0);
     resultG01  = al3HKFgems.thermoProperties(T, P, wp0, wes1);
@@ -301,6 +303,12 @@ int main(int argc, char *argv[])
     resultR12  = al3HKFreaktoro.thermoProperties(T, P, wp1, wes2);
     resultR22  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes2);
     resultR21  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes1);
+
+    resultT = al3HKFreaktoro.thermoProperties(T, P, wp3, wes1);
+
+    WaterIdealGasWoolley wig ( water );
+
+    ThermoPropertiesSubstance wigp = wig.thermoProperties(T, P);
 
 #endif
 

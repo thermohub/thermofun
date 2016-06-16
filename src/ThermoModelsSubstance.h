@@ -23,6 +23,50 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class SoluteAkinfievDiamondEOS
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    SoluteAkinfievDiamondEOS();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit SoluteAkinfievDiamondEOS(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param tps thermodynamic properties of the substance previosuly corrected with the EmpiricalCpIntegration
+    /// @param wtp thermodynamic properties of liquid H2O
+    /// @param wigp themrodynamic properties of water in ideal gas state
+    /// @param wp water solvent proeoprties (e.g. density, alpha, beta, etc.)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance &wtp, const ThermoPropertiesSubstance &wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+class WaterIdealGasWoolley
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    WaterIdealGasWoolley();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit WaterIdealGasWoolley(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 class SoluteHKFgems
 {
 public:
