@@ -9,6 +9,12 @@
 // TCorrPT includes
 #include "Common/Exception.h"
 
+// bsonio includes
+#include "bsonio/json2cfg.h"
+#include "bsonio/thrift_node.h"
+//#include "bsonio/v_json.h"
+
+
 namespace TCorrPT {
 
 namespace {
@@ -40,6 +46,83 @@ struct Database::Impl
 
     Impl(std::string filename)
     {
+
+        bson InputBson;
+        bson bso;
+        bso.data = 0;
+        bsonio::FJson file (filename);
+        file.LoadBson( &InputBson );
+        string key = InputBson.data;
+
+
+        string kbuf;
+
+        vector<string> values;
+        string field = "properties.eos_hkf_coeffs.values.0";
+
+//        bsonio::bson_to_key( InputBson.data, field.c_str(), kbuf );
+
+//        bsonio::strip( kbuf );
+
+        std::string className = "VertexSubstance";
+
+        const char *bsondata = 0;
+
+        SchemaNode* data;
+
+        ThriftSchema schema;
+
+        data->_schema = &schema;
+
+        data->_schema->addSchemaFile("substance.schema.json");
+        data->_schema->addSchemaFile("graphdb.schema.json");
+        data->_schema->addSchemaFile("prop.schema.json");
+
+        SchemaNode* data2 = data->newSchemaStruct( className, bso.data );
+
+
+        char b;
+
+        // Reading work structure from json text file
+        fstream f(filename, ios::in);
+        bsonio::bsonioErrIf( !f.good() , filename, "Fileread error...");
+
+        bsonio::ParserJson parserJson;
+        string objStr;
+        string value;
+
+        while( !f.eof() )
+           {
+              f.get(b);
+              if( b == bsonio::jsBeginObject )
+              {
+                b= ' ';
+                objStr =  parserJson.readObjectText(f);
+                //std::cout << objStr.c_str() << endl;
+                bson_init(&bso);
+                parserJson.parseObject( &bso );
+                bson_finish(&bso);
+
+                bsonio::bson_to_key( bso.data, field.c_str(), kbuf );
+                data2->setStruct(bso.data);
+
+                data2->field("properties.eos_hkf_coeffs.values.0")->getValue( value  );
+
+                int size = data2->field("properties.eos_hkf_coeffs.values")->getSizeArray();
+                vector<string> vvalue(size);
+
+                data2->field("properties.eos_hkf_coeffs.values")->getArray( vvalue  );
+
+                cout << value << endl;
+
+
+               }
+            }
+
+
+        cout << "here" <<endl;
+
+
 //        // Create the XML document
 //        xml_document doc;
 
