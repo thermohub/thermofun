@@ -428,17 +428,17 @@ static const char * substRefG0              = "properties.sm_gibbs_energy.values
 static const char * substRefS0              = "properties.sm_entropy_f.values.0";
 static const char * substRefH0              = "properties.sm_enthalpy.values.0";
 static const char * substRefV0              = "properties.sm_volume.values.0";
-static const char * substRefCp0             = "properties.properties.sm_heat_capacity_p.values.0";
+static const char * substRefCp0             = "properties.sm_heat_capacity_p.values.0";
 
 static const char * substExpans             = "properties.m_expansivity.values.0";
 static const char * substCompres            = "properties.m_compressibility.values.0";
 
 /// Model parameters
-static const char * substEOShkf             = "properties.eos_hkf_coeffs";
-static const char * substEOSad              = "properties.eos_ad_coeffs";
-static const char * substEOSbm              = "properties.eos_bm_coeffs";
-static const char * substEOScg              = "properties.eos_cg_coeffs";
-static const char * substEOSgasCrit         = "properties.eos_gas_crit_props";
+static const char * substEOShkf             = "properties.eos_hkf_coeffs.values";
+static const char * substEOSad              = "properties.eos_ad_coeffs.values";
+static const char * substEOSbm              = "properties.eos_bm_coeffs.values";
+static const char * substEOScg              = "properties.eos_cg_coeffs.values";
+static const char * substEOSgasCrit         = "properties.eos_gas_crit_props.values";
 
 //typedef std::vector<struct SubstanceData*>  Substances;
 

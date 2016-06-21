@@ -56,28 +56,28 @@ auto thermoParam (bson bso) -> ThermoParametersSubstance
     ThermoParametersSubstance ps;
 
     bsonio::bson_to_key(bso.data, substExpans, kbuf);
-    ps.isobaric_expansivity = std::stod(kbuf.c_str());
+    if (kbuf != "*") ps.isobaric_expansivity = std::stod(kbuf.c_str());
 
     bsonio::bson_to_key(bso.data, substCompres, kbuf);
-    ps.isothermal_compresibility = std::stod(kbuf.c_str());
+    if (kbuf != "*") ps.isothermal_compresibility = std::stod(kbuf.c_str());
 
-    bsonio::bson_read_array(bso.data, substEOSad, vkbuf);
+    bsonio::bson_to_array(bso.data, substEOSad, vkbuf); ps.Cp_nonElectrolyte_coeff.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_nonElectrolyte_coeff.begin(), [](const std::string& val)
     { return std::stod(val); });
 
-    bsonio::bson_read_array(bso.data, substEOSbm, vkbuf);
+    bsonio::bson_to_array(bso.data, substEOSbm, vkbuf); ps.volume_BirchM_coeff.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.volume_BirchM_coeff.begin(), [](const std::string& val)
     { return std::stod(val); });
 
-    bsonio::bson_read_array(bso.data, substEOScg, vkbuf);
+    bsonio::bson_to_array(bso.data, substEOScg, vkbuf);/* ps.critical_parameters.resize(vkbuf.size());*/
 //    std::transform(kbuf.begin(), kbuf.end(), tps..begin(), [](const std::string& val)
 //    { return std::stod(val); });
 
-    bsonio::bson_read_array(bso.data, substEOSgasCrit, vkbuf);
+    bsonio::bson_to_array(bso.data, substEOSgasCrit, vkbuf); ps.critical_parameters.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.critical_parameters.begin(), [](const std::string& val)
     { return std::stod(val); });
 
-    bsonio::bson_read_array(bso.data, substEOShkf, vkbuf);
+    bsonio::bson_to_array(bso.data, substEOShkf, vkbuf); ps.HKF_parameters.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.HKF_parameters.begin(), [](const std::string& val)
     { return std::stod(val); });
 
