@@ -42,12 +42,21 @@ const double psi = 2600;
 auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
-    auto hkf = species.thermoParameters().HKF_param;
+    auto hkf = species.thermoParameters().HKF_parameters;
+    auto refProp = species.thermoReferenceProperties();
 
-    if (hkf.Gf == 0.0 || hkf.a1 == 0.0 || hkf.c1 == 0.0)
+    if (hkf.size() == 0)
     {
         Exception exception;
-        exception.error << "Error in HKFreaktoro EOS";
+        exception.error << "Error in HKFrektoro EOS";
+        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
+    {
+        Exception exception;
+        exception.error << "Error in HKFrektoro EOS";
         exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
@@ -59,16 +68,16 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     const auto Pr   = referencePressure;
     const auto Zr   = referenceBornZ;
     const auto Yr   = referenceBornY;
-    const auto Gf   = hkf.Gf;
-    const auto Hf   = hkf.Hf;
-    const auto Sr   = hkf.Sr;
-    const auto a1   = hkf.a1;
-    const auto a2   = hkf.a2;
-    const auto a3   = hkf.a3;
-    const auto a4   = hkf.a4;
-    const auto c1   = hkf.c1;
-    const auto c2   = hkf.c2;
-    const auto wr   = hkf.wref;
+    const auto Gf   = refProp.gibbs_energy;
+    const auto Hf   = refProp.enthalpy;
+    const auto Sr   = refProp.entropy;
+    const auto a1   = hkf[0];
+    const auto a2   = hkf[1];
+    const auto a3   = hkf[2];
+    const auto a4   = hkf[3];
+    const auto c1   = hkf[4];
+    const auto c2   = hkf[5];
+    const auto wr   = hkf[6];
     const auto w    = aes.w;
     const auto wT   = aes.wT;
     const auto wP   = aes.wP*1e05; // from 1/Pa to 1/bar
@@ -133,7 +142,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
 auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPropertiesSubstance
 {
     // Get the HKF thermodynamic parameters of the aqueous species
-    auto hkf = species.thermoParameters().HKF_param;
+    auto hkf = species.thermoParameters().HKF_parameters;
 
     // The species electro instance to be calculated
     ElectroPropertiesSubstance se;
@@ -141,7 +150,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
     // Check if the aqueous species is neutral or H+, and set its electrostatic data accordingly
     if(species.charge() == 0.0 || (species.name() == "H+"))
     {
-        se.w   = hkf.wref;
+        se.w   = hkf[6] /*hkf.wref*/;
         se.wT  = 0.0;
         se.wP  = 0.0;
         se.wTT = 0.0;
@@ -151,7 +160,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
     else
     {
         const auto z = species.charge();
-        const auto wref = hkf.wref;
+        const auto wref = hkf[6] /*hkf.wref*/;
 
         const auto reref = z*z/(wref/eta + z/3.082);
         const auto re    = reref + std::abs(z) * g.g;
