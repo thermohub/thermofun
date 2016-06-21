@@ -40,7 +40,8 @@
     $$PWD/Solute/SoluteHKFreaktoro.h \
     $$PWD/Solute/SoluteHKFgems.h \
     $$PWD/Solute/SoluteADgems.h \
-    $$PWD/Solvent/WaterIdealGasWolley.h
+    $$PWD/Solvent/WaterIdealGasWolley.h \
+    $$PWD/ReadFiles.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -77,4 +78,5 @@
     $$PWD/Solute/SoluteHKFreaktoro.cpp \
     $$PWD/Solute/SoluteHKFgems.cpp \
     $$PWD/Solute/SoluteADgems.cpp \
-    $$PWD/Solvent/WaterIdealGasWolley.cpp
+    $$PWD/Solvent/WaterIdealGasWolley.cpp \
+    $$PWD/ReadFiles.cpp

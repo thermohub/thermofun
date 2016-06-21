@@ -22,7 +22,7 @@ ZPrTr = -0.1278034682e-1,
 auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
-    auto hkf = species.thermoParameters().HKF_parameters;
+    auto hkf = species.thermoParameters().HKF_param;
 
     if (hkf.Gf == 0.0 || hkf.a1 == 0.0 || hkf.c1 == 0.0)
     {
@@ -229,7 +229,7 @@ auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance
     Reaktoro::ThermoScalar reref, re, Z3, Z4;
     const auto chg = species.charge();
 
-    auto hkf = species.thermoParameters().HKF_parameters;
+    auto hkf = species.thermoParameters().HKF_param;
     const auto wref = hkf.wref;
 
     ElectroPropertiesSubstance eps;

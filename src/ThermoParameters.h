@@ -69,7 +69,9 @@ struct ThermoParametersSubstance
     vvd phase_transition_prop_Berman;
 
     /// Empirical coefficients of HKF EOS (a1, a2, a3, a4, c1, c2, w0)
-    ParamsHKF HKF_parameters;
+    ParamsHKF HKF_param;
+
+    vd HKF_parameters;
 
     /// Coefficients of mV=f(T,P)
     vd volume_coeff;

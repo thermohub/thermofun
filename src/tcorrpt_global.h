@@ -9,6 +9,7 @@
 
 #pragma GCC diagnostic ignored "-Wswitch"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 
 #define OUTPUT_STEAM_CONVENTION
 
@@ -406,6 +407,38 @@ typedef struct {
 } SubstanceThermoCalculationType;
 
 
+/// Key for reading substance / reaction data from input files
+static const char * label                   = "_label";
+
+static const char * substName               = "properties.substance_name";
+static const char * substFormula            = "properties.formula";
+static const char * substCharge             = "properties.formula_charge";
+static const char * substMolarMass          = "properties.mass_per_mole";
+static const char * substClass              = "properties.substance_class";
+static const char * substAggState           = "properties.aggregate_state";
+static const char * substSolventNname       = "";
+static const char * substMethodEOS          = "properties.method_genEoS";
+static const char * substMethodT            = "properties.method_corrT";
+static const char * substMethodP            = "properties.method_corrP";
+static const char * substRefT               = "properties.Tst";
+static const char * substRefP               = "properties.Pst";
+
+/// Reference properties
+static const char * substRefG0              = "properties.sm_gibbs_energy.values.0";
+static const char * substRefS0              = "properties.sm_entropy_f.values.0";
+static const char * substRefH0              = "properties.sm_enthalpy.values.0";
+static const char * substRefV0              = "properties.sm_volume.values.0";
+static const char * substRefCp0             = "properties.properties.sm_heat_capacity_p.values.0";
+
+static const char * substExpans             = "properties.m_expansivity.values.0";
+static const char * substCompres            = "properties.m_compressibility.values.0";
+
+/// Model parameters
+static const char * substEOShkf             = "properties.eos_hkf_coeffs";
+static const char * substEOSad              = "properties.eos_ad_coeffs";
+static const char * substEOSbm              = "properties.eos_bm_coeffs";
+static const char * substEOScg              = "properties.eos_cg_coeffs";
+static const char * substEOSgasCrit         = "properties.eos_gas_crit_props";
 
 //typedef std::vector<struct SubstanceData*>  Substances;
 
