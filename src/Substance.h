@@ -32,7 +32,10 @@ public:
 
     // Set functions
     /// Set the name of the Substance.
-    auto setName(std::string name) -> void;
+    auto setName(std::string symbol) -> void;
+
+    /// Set the symbol of the Substance.
+    auto setSymbol(std::string symbol) -> void;
 
     /// Set the formula of the Substance.
     auto setFormula(std::string formula) -> void;
@@ -68,7 +71,7 @@ public:
     auto setCharge(int charge) -> void;
 
     /// Set
-    auto setSolventName(string name) -> void;
+    auto setSolventSymbol(string symbol) -> void;
 
     /// Set
     auto setReferenceT(double T) -> void;
@@ -79,6 +82,9 @@ public:
     // Get functions
     /// Return the name of the chemical Substance
     auto name() const -> std::string;
+
+    /// Return the symbol of the chemical Substance
+    auto symbol() const -> std::string;
 
     /// Return the formula of the chemical Substance
     auto formula() const -> std::string;
@@ -120,7 +126,7 @@ public:
     auto charge() -> int;
 
     /// Return
-    auto SolventName() -> string;
+    auto SolventSymbol() -> string;
     
 private:
     struct Impl;

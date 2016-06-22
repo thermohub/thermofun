@@ -11,11 +11,17 @@ auto parseSubstance (bson bso) -> Substance
     bsonio::bson_to_key( bso.data, substName, kbuf );
     s.setName(kbuf);
 
+    bsonio::bson_to_key( bso.data, substSymbol, kbuf );
+    s.setSymbol(kbuf);
+
     bsonio::bson_to_key( bso.data, substFormula, kbuf );
     s.setFormula(kbuf);
 
     bsonio::bson_to_key( bso.data, substCharge, kbuf );
     s.setCharge(atoi(kbuf.c_str()));
+
+    bsonio::bson_to_key( bso.data, substMolarMass, kbuf );
+    s.setMolarMass(atof(kbuf.c_str()));
 
     bsonio::bson_to_key( bso.data, substAggState, kbuf );
     s.setAggregateState(AggregateState::type(std::stoi(kbuf.c_str())));
@@ -24,7 +30,7 @@ auto parseSubstance (bson bso) -> Substance
     s.setSubstanceClass(SubstanceClass::type(std::stoi(kbuf.c_str())));
 
     bsonio::bson_to_key( bso.data, substSolventNname, kbuf );
-    s.setSolventName(kbuf);
+    s.setSolventSymbol(kbuf);
 
     bsonio::bson_to_key( bso.data, substMethodEOS, kbuf );
     s.setMethodGenEoS(MethodGenEoS_Thrift::type(std::stoi(kbuf.c_str())));
@@ -39,11 +45,11 @@ auto parseSubstance (bson bso) -> Substance
     s.setReferenceT(std::stod(kbuf.c_str()));
 
     bsonio::bson_to_key( bso.data, substRefP, kbuf );
-    s.setReferenceT(std::stod(kbuf.c_str()));
+    s.setReferenceP(std::stod(kbuf.c_str()));
 
-    /// get thermodynamic parameters
+    // get thermodynamic parameters
     s.setThermoParameters(thermoParam (bso));
-    /// get reference thermodynamic properties
+    // get reference thermodynamic properties
     s.setThermoReferenceProperties(thermoRefProp (bso));
 
     return s;
@@ -79,6 +85,13 @@ auto thermoParam (bson bso) -> ThermoParametersSubstance
 
     bsonio::bson_to_array(bso.data, substEOShkf, vkbuf); ps.HKF_parameters.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.HKF_parameters.begin(), [](const std::string& val)
+    { return std::stod(val); });
+
+    // temporary fix - need to think how to handle more thna 1 TP interval
+    ps.temperature_intervals.push_back({273.15, 2273.15});
+
+    bsonio::bson_to_array(bso.data, substCpParam, vkbuf); ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
+    std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_coeff[0].begin(), [](const std::string& val)
     { return std::stod(val); });
 
     return ps;

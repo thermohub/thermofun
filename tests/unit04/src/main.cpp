@@ -18,122 +18,97 @@ int main(int argc, char *argv[])
     string file = argv[1];
 
     Database tdb(file);
+    Database tdb2;
 
-//    Substance water;
-//    water.setName("water");
-//    water.setFormula("H2O");
-//    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
-//    water.setAggregateState(AggregateState::type::AQUEOUS);
+    double T = 500;
+    double P = 1500;
 
-//#define TEST_AD_neutral
-//#ifdef TEST_AD_neutral
+    Substance water;
+    water.setName("water");
+    water.setSymbol("H2O@");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
 
-//    WaterHGK H2OHGKgems ( water );
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNG);
 
-//    WaterHGKreaktoro H2OHGKreaktoro ( water );
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
 
-//    WaterWP95reaktoro H2OWP95reaktoro ( water );
+    tdb.addSubstance(water);
 
-//    Substance hcl;
-//    hcl.setName("HCl");
-//    hcl.setFormula("HCl@");
-//    hcl.setCharge(0);
-//    hcl.setSolventName("water");
+    vector<Substance> vSubst = tdb.getSubstances();
 
-//    hcl.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
-//    hcl.setAggregateState(AggregateState::type::AQUEOUS);
+    for (int i = 0; i < vSubst.size(); i++)
+    {
+        if (vSubst[i].substanceClass() == SubstanceClass::type::AQSOLUTE)
+        vSubst[i].setSolventSymbol(water.symbol());
 
-//    hcl.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_CPT);
-//    hcl.setMethod_P(MethodCorrP_Thrift::type::CPM_AKI);
-//    hcl.setMethod_T(MethodCorrT_Thrift::type::CTM_CST);
+        tdb2.addSubstance(vSubst[i]);
+    }
 
-//    vd Interval, Coeff, ADparam;
-//    vvd TCpInterval,
-//    CpCoefficients;
+    ThermoPropertiesSubstance result;
 
-//    Interval = {0,1500};
-//    Coeff = {0.28821, 0.0217563, -365734, 464.476, -4.74975e-06};
-//    ADparam = {-0.28, 11.642, -7.4244};
+    Thermo thermo (tdb2);
 
-//    TCpInterval.push_back(Interval);
-//    CpCoefficients.push_back(Coeff);
+    result = thermo.thermoPropertiesSubstance(T, P, "Al+3");
 
-//    ThermoParametersSubstance prs;
-//    prs.Cp_coeff = CpCoefficients;
-//    prs.temperature_intervals = TCpInterval;
-//    prs.Cp_nonElectrolyte_coeff = ADparam;
-//    hcl.setThermoParameters(prs);
+    cout << "\n Al+3 " << "T:" << T << " C, P:"<< P << " bar"<< endl;
+    cout << "G0: "  << result.gibbs_energy << endl;
+    cout << "H0: "  << result.enthalpy << endl;
+    cout << "S0: "  << result.entropy << endl;
+    cout << "Cp0: " << result.heat_capacity_cp << endl;
+    cout << "Cv0: " << result.heat_capacity_cv << endl;
+    cout << "V0: " << result.volume << endl;
+    cout << "A0: " << result.helmholtz_energy << endl;
+    cout << "U0: " << result.internal_energy << endl;
 
-//    double T, P;
-//    T = 35;
-//    P = 1;
+    result = thermo.thermoPropertiesSubstance(T, P, "CO2@AD");
 
-//    ThermoPropertiesSubstance rHCl, TrPrHCl;
+    cout << "\n CO2@AD "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
+    cout << "G0: "  << result.gibbs_energy << endl;
+    cout << "H0: "  << result.enthalpy << endl;
+    cout << "S0: "  << result.entropy << endl;
+    cout << "Cp0: " << result.heat_capacity_cp << endl;
+    cout << "Cv0: " << result.heat_capacity_cv << endl;
+    cout << "V0: " << result.volume << endl;
+    cout << "A0: " << result.helmholtz_energy << endl;
+    cout << "U0: " << result.internal_energy << endl;
 
-//    TrPrHCl.gibbs_energy = -126045;
-//    TrPrHCl.volume = 2.06286;
-//    TrPrHCl.enthalpy = -165244;
-//    TrPrHCl.entropy = 45.408;
-//    TrPrHCl.heat_capacity_cp = 46.944;
+    result = thermo.thermoPropertiesSubstance(T, P, "Gibbsite");
 
-//    hcl.setThermoReferenceProperties(TrPrHCl);
-//    hcl.setReferenceT(25);
-//    hcl.setReferenceP(1);
+    cout << "\n Gibbsite "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
+    cout << "G0: "  << result.gibbs_energy << endl;
+    cout << "H0: "  << result.enthalpy << endl;
+    cout << "S0: "  << result.entropy << endl;
+    cout << "Cp0: " << result.heat_capacity_cp << endl;
+    cout << "Cv0: " << result.heat_capacity_cv << endl;
+    cout << "V0: " << result.volume << endl;
+    cout << "A0: " << result.helmholtz_energy << endl;
+    cout << "U0: " << result.internal_energy << endl;
 
-//    EmpiricalCpIntegration CpHCl (hcl);
-//    rHCl = CpHCl.thermoProperties(T, P);
+    result = thermo.thermoPropertiesSubstance(T, P, "H2O@");
 
-//    WaterIdealGasWoolley wig ( water );
+    cout << "\n H2O@ "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
+    cout << "G0: "  << result.gibbs_energy << endl;
+    cout << "H0: "  << result.enthalpy << endl;
+    cout << "S0: "  << result.entropy << endl;
+    cout << "Cp0: " << result.heat_capacity_cp << endl;
+    cout << "Cv0: " << result.heat_capacity_cv << endl;
+    cout << "V0: " << result.volume << endl;
+    cout << "A0: " << result.helmholtz_energy << endl;
+    cout << "U0: " << result.internal_energy << endl;
 
-//    ThermoPropertiesSubstance wigp = wig.thermoProperties(T, P);
+    result = thermo.thermoPropertiesSubstance(T, P, "K+");
 
-//    PropertiesSolvent wp0 = H2OHGKgems.propertiesSolvent(T, P, 0);
-//    PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
-//    PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
-
-//    ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0);
-
-//    SoluteAkinfievDiamondEOS hcl_AD (hcl);
-
-//    ThermoPropertiesSubstance result;
-
-//    result = hcl_AD.thermoProperties(T, P, rHCl, wtp, wigp, wp0);
-
-//    ThermoPropertiesSubstance wp3 = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
-
-//    WaterJNreaktoro H2OJNreaktoro ( water );
-//    WaterJNgems     H2OJNgems ( water );
-
-//    ElectroPropertiesSolvent wes0 = H2OJNgems.electroPropertiesSolvent(T, P);
-//    ElectroPropertiesSolvent wes1 = H2OJNreaktoro.electroPropertiesSolvent(T, P, wp1);
-//    ElectroPropertiesSolvent wes2 = H2OJNreaktoro.electroPropertiesSolvent(T, P, wp2);
-
-//    SoluteHKFgems al3HKFgems (hcl);
-//    SoluteHKFreaktoro al3HKFreaktoro (hcl);
-
-//    ThermoPropertiesSubstance resultG00, resultG01, resultG02, resultG10, resultG11, resultG12, resultG20, resultG21, resultG22,
-//            resultR11, resultR12, resultR22, resultR21;
-
-//    resultG00  = al3HKFgems.thermoProperties(T, P, wp0, wes0);
-//    resultG01  = al3HKFgems.thermoProperties(T, P, wp0, wes1);
-//    resultG02  = al3HKFgems.thermoProperties(T, P, wp0, wes2);
-//    resultG10  = al3HKFgems.thermoProperties(T, P, wp1, wes0);
-//    resultG11  = al3HKFgems.thermoProperties(T, P, wp1, wes1);
-//    resultG12  = al3HKFgems.thermoProperties(T, P, wp1, wes2);
-//    resultG20  = al3HKFgems.thermoProperties(T, P, wp2, wes0);
-//    resultG21  = al3HKFgems.thermoProperties(T, P, wp2, wes1);
-//    resultG22  = al3HKFgems.thermoProperties(T, P, wp2, wes2);
-//    resultR11  = al3HKFreaktoro.thermoProperties(T, P, wp1, wes1);
-//    resultR12  = al3HKFreaktoro.thermoProperties(T, P, wp1, wes2);
-//    resultR22  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes2);
-//    resultR21  = al3HKFreaktoro.thermoProperties(T, P, wp2, wes1);
-
-//    WaterIdealGasWoolley wig ( water );
-
-//    ThermoPropertiesSubstance wigp = wig.thermoProperties(T, P);
-
-//#endif
-
+    cout << "\n K+ "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
+    cout << "G0: "  << result.gibbs_energy << endl;
+    cout << "H0: "  << result.enthalpy << endl;
+    cout << "S0: "  << result.entropy << endl;
+    cout << "Cp0: " << result.heat_capacity_cp << endl;
+    cout << "Cv0: " << result.heat_capacity_cv << endl;
+    cout << "V0: " << result.volume << endl;
+    cout << "A0: " << result.helmholtz_energy << endl;
+    cout << "U0: " << result.internal_energy << endl;
 
     cout << "Bye World!" << endl;
 

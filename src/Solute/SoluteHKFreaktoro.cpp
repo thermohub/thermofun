@@ -49,7 +49,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     {
         Exception exception;
         exception.error << "Error in HKFrektoro EOS";
-        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -57,7 +57,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     {
         Exception exception;
         exception.error << "Error in HKFrektoro EOS";
-        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -148,7 +148,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
     ElectroPropertiesSubstance se;
 
     // Check if the aqueous species is neutral or H+, and set its electrostatic data accordingly
-    if(species.charge() == 0.0 || (species.name() == "H+"))
+    if(species.charge() == 0.0 || (species.symbol() == "H+"))
     {
         se.w   = hkf[6] /*hkf.wref*/;
         se.wT  = 0.0;

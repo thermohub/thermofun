@@ -149,7 +149,7 @@ struct Database::Impl
 
     auto addSubstance(const Substance& substance) -> void
     {
-        substances_map.insert({substance.name(), substance});
+        substances_map.insert({substance.symbol(), substance});
     }
 
     auto addReaction(const Reaction& reaction) -> void
@@ -165,6 +165,16 @@ struct Database::Impl
     auto getReactions() -> std::vector<Reaction>
     {
         return collectValues(reactions_map);
+    }
+
+    auto numberOfSubstances() -> int
+    {
+        return collectValues(substances_map).size();
+    }
+
+    auto numberOfReactions() -> int
+    {
+        return collectValues(reactions_map).size();
     }
 
     auto getSubstance(std::string name) -> Substance&
@@ -193,6 +203,8 @@ struct Database::Impl
         return reactions_map.count(name) != 0;
     }
 
+    /// Parses the JSON file and puts the data into the internal data structure
+    /// @param filename name of the file (in the working directory)
     auto parseJson(std::string filename) -> void
     {
         string kbuf, objStr; bsonio::ParserJson parserJson;
@@ -200,37 +212,59 @@ struct Database::Impl
         bso.data = 0;
         // Reading work structure from json text file
         fstream f(filename, ios::in);
-        bsonio::bsonioErrIf( !f.good() , filename, "Fileread error...");
 
-        while( !f.eof() )
+        if (!f.good())
         {
-              f.get(b);
-              if( b == bsonio::jsBeginObject )
-              {
-                  b= ' ';
-                  objStr =  parserJson.readObjectText(f);
-                  bson_init(&bso);
-                  parserJson.parseObject( &bso );
-                  bson_finish(&bso);
+            Exception exception;
+            exception.error << "File read error " << filename << " ";
+            exception.reason << "The file could not be read. ";
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
 
-                  bsonio::bson_to_key( bso.data, label, kbuf );
+        try
+        {
+            while( !f.eof() )
+            {
+                f.get(b);
+                if( b == bsonio::jsBeginObject )
+                {
+                    b= ' ';
+                    objStr =  parserJson.readObjectText(f);
+                    bson_init(&bso);
+                    parserJson.parseObject( &bso );
+                    bson_finish(&bso);
 
-                  if (kbuf == "substance")
-                  {
-                      Substance substance = parseSubstance(bso);
-                      substances_map[substance.name()] = substance;
-                  }
-                  if (kbuf == "reaction")
-                  {
-//                      Reaction reaction = parseReaction(bso);
-//                      reactions_map[reaction.name()] = reaction;
-                  }
+                    bsonio::bson_to_key( bso.data, label, kbuf );
 
-                  /// error
-                  /// neither substance nor reaction
-
-              }
-         }
+                    if (kbuf == "substance")
+                    {
+                        Substance substance = parseSubstance(bso);
+                        substances_map[substance.symbol()] = substance;
+                    } else
+                    if (kbuf == "reaction")
+                    {
+    //                      Reaction reaction = parseReaction(bso);
+    //                      reactions_map[reaction.name()] = reaction;
+                    } else
+                    {
+                        Exception exception;
+                        exception.error << "Unknown JSON type " << kbuf << " ";
+                        exception.reason << "The JSON object needs to be a substance, file " << filename << ".";
+                        exception.line = __LINE__;
+                        RaiseError(exception);
+                    }
+                }
+            }
+        }
+        catch (bsonio::bsonio_exeption e)
+        {
+            Exception exception;
+            exception.error << e.title_;
+            exception.reason << e.mess_;
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
     }
 };
 
@@ -253,6 +287,16 @@ auto Database::addReaction(const Reaction& reaction) -> void
     pimpl->addReaction(reaction);
 }
 
+auto Database::getSubstance(std::string symbol) const -> const Substance&
+{
+    return pimpl->getSubstance(symbol);
+}
+
+auto Database::getReaction(std::string symbol) const -> const Reaction&
+{
+    return pimpl->getReaction(symbol);
+}
+
 auto Database::getSubstances() -> std::vector<Substance>
 {
     return pimpl->getSubstances();
@@ -263,24 +307,23 @@ auto Database::getReactions() -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
-auto Database::getSubstance(std::string name) const -> const Substance&
+auto Database::numberOfSubstances() -> int
 {
-    return pimpl->getSubstance(name);
+    return pimpl->numberOfSubstances();
 }
 
-auto Database::getReaction(std::string name) const -> const Reaction&
+auto Database::numberOfReactions() -> int
 {
-    return pimpl->getReaction(name);
+    return pimpl->numberOfReactions();
+}
+auto Database::containsSubstance(std::string symbol) const -> bool
+{
+    return pimpl->containsSubstance(symbol);
 }
 
-auto Database::containsSubstance(std::string name) const -> bool
+auto Database::containsReaction(std::string symbol) const -> bool
 {
-    return pimpl->containsSubstance(name);
-}
-
-auto Database::containsReaction(std::string name) const -> bool
-{
-    return pimpl->containsReaction(name);
+    return pimpl->containsReaction(symbol);
 }
 
 } // namespace TCorrPT

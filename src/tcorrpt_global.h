@@ -84,7 +84,8 @@ typedef struct {
     CEM_PO = 115,
     CEM_NP = 116,
     CEM_WJNR = 117, /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in Reaktoro
-    CEM_WJNG = 118  /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in GEMS
+    CEM_WJNG = 118,  /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in GEMS
+    CTPM_HKFR = 119 /// HKFreaktoro
   };
 }  MethodGenEoS_Thrift;
 static const int MethodGenEoS_ndxThrift[] = {
@@ -411,6 +412,7 @@ typedef struct {
 static const char * label                   = "_label";
 
 static const char * substName               = "properties.substance_name";
+static const char * substSymbol             = "properties.substance_symbol";
 static const char * substFormula            = "properties.formula";
 static const char * substCharge             = "properties.formula_charge";
 static const char * substMolarMass          = "properties.mass_per_mole";
@@ -439,6 +441,7 @@ static const char * substEOSad              = "properties.eos_ad_coeffs.values";
 static const char * substEOSbm              = "properties.eos_bm_coeffs.values";
 static const char * substEOScg              = "properties.eos_cg_coeffs.values";
 static const char * substEOSgasCrit         = "properties.eos_gas_crit_props.values";
+static const char * substCpParam            = "properties.m_heat_capacity_p_t_coeffs.values";
 
 //typedef std::vector<struct SubstanceData*>  Substances;
 
