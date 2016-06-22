@@ -8,7 +8,10 @@ auto parseSubstance (bson bso) -> Substance
     Substance s;
     string kbuf;
 
-    bsonio::bson_to_key( bso.data, substName, kbuf );
+//    bsonio::bson_to_key( bso.data, substName, kbuf );
+//    s.setName(kbuf);
+
+    bsonio::bson_to_key( bso.data, substSymbol, kbuf );
     s.setName(kbuf);
 
     bsonio::bson_to_key( bso.data, substFormula, kbuf );

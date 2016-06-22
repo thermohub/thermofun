@@ -411,6 +411,7 @@ typedef struct {
 static const char * label                   = "_label";
 
 static const char * substName               = "properties.substance_name";
+static const char * substSymbol             = "properties.substance_symbol";
 static const char * substFormula            = "properties.formula";
 static const char * substCharge             = "properties.formula_charge";
 static const char * substMolarMass          = "properties.mass_per_mole";
