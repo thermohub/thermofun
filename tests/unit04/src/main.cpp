@@ -18,6 +18,47 @@ int main(int argc, char *argv[])
     string file = argv[1];
 
     Database tdb(file);
+    Database tdb2;
+    Substance temp;
+
+
+    Substance water;
+    water.setName("water");
+    water.setSymbol("H2O@");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
+
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNG);
+
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
+
+    tdb.addSubstance(water);
+
+    vector<Substance> vSubst = tdb.getSubstances();
+
+    for (int i = 0; i < vSubst.size(); i++)
+    {
+        if (vSubst[i].substanceClass() == SubstanceClass::type::AQSOLUTE)
+        vSubst[i].setSolventSymbol(water.symbol());
+
+        tdb2.addSubstance(vSubst[i]);
+    }
+
+    ThermoPropertiesSubstance result;
+
+    Thermo thermo (tdb2);
+
+    result = thermo.thermoPropertiesSubstance(25, 1, "Al+3");
+
+    result = thermo.thermoPropertiesSubstance(25, 1, "CO2@AD");
+
+    result = thermo.thermoPropertiesSubstance(25, 1, "Gibbsite");
+
+    result = thermo.thermoPropertiesSubstance(25, 1, "H2O@");
+
+    result = thermo.thermoPropertiesSubstance(25, 1, "K+");
+
 
 //    Substance water;
 //    water.setName("water");
