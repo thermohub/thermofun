@@ -149,7 +149,7 @@ struct Database::Impl
 
     auto addSubstance(const Substance& substance) -> void
     {
-        substances_map.insert({substance.name(), substance});
+        substances_map.insert({substance.symbol(), substance});
     }
 
     auto addReaction(const Reaction& reaction) -> void
@@ -230,7 +230,7 @@ struct Database::Impl
                     if (kbuf == "substance")
                     {
                         Substance substance = parseSubstance(bso);
-                        substances_map[substance.name()] = substance;
+                        substances_map[substance.symbol()] = substance;
                     } else
                     if (kbuf == "reaction")
                     {

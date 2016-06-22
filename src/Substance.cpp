@@ -10,6 +10,9 @@ struct Substance::Impl
     /// The name of the chemical Substance
     std::string name;
 
+    /// The name of the chemical Substance
+    std::string symbol;
+
     /// The chemical formula of the chemical Substance
     std::string formula;
 
@@ -52,7 +55,7 @@ struct Substance::Impl
     /// temperature and pressure using a certain calculation model
     ThermoParametersSubstance thermo_param;
 
-    string solventName;
+    string solventSymbol;
 
     int charge;
 
@@ -80,6 +83,11 @@ auto Substance::operator=(Substance other) -> Substance&
 auto Substance::setName(std::string name) -> void
 {
     pimpl->name = name;
+}
+
+auto Substance::setSymbol(std::string symbol) -> void
+{
+    pimpl->symbol = symbol;
 }
 
 auto Substance::setFormula(std::string formula) -> void
@@ -142,14 +150,19 @@ auto Substance::setReferenceP(double P) -> void
     pimpl->reference_P = P;
 }
 
-auto Substance::setSolventName(string name) -> void
+auto Substance::setSolventSymbol(string symbol) -> void
 {
-    pimpl->solventName = name;
+    pimpl->solventSymbol = symbol;
 }
 
 auto Substance::name() const -> std::string
 {
     return pimpl->name;
+}
+
+auto Substance::symbol() const -> std::string
+{
+    return pimpl->symbol;
 }
 
 auto Substance::formula() const -> std::string
@@ -217,9 +230,9 @@ auto Substance::charge() -> int
     return pimpl->charge;
 }
 
-auto Substance::SolventName() -> string
+auto Substance::SolventSymbol() -> string
 {
-    return pimpl->solventName;
+    return pimpl->solventSymbol;
 }
 
 } // namespace TCorrPT

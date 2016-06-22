@@ -17,7 +17,7 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
     {
         Exception exception;
         exception.error << "Out of T bound in model "
-              << model << " for substance " << species.name();
+              << model << " for substance " << species.symbol();
         exception.reason << "The provided temperature, " << T << " K,"  << "is either negative "
               "or greater than the maximum allowed, " << Tmax << " K.";
         RaiseError(exception);
@@ -28,7 +28,7 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
     {
         Exception exception;
         exception.error << "Out of P bound in model "
-              << model << " for substance " << species.name();
+              << model << " for substance " << species.symbol();
         exception.reason << "The provided pressure, " << P << " Pa,"  << "is either negative "
               "or greater than the maximum allowed, " << Pmax << " Pa.";
         RaiseError(exception);
@@ -69,7 +69,7 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     // Exception
     Exception exception;
     exception.error << "The calculation method was not found.";
-    exception.reason << "The calculation method defined for the substance "<< pimpl->substance.name() << " is not available.";
+    exception.reason << "The calculation method defined for the substance "<< pimpl->substance.symbol() << " is not available.";
     exception.line = __LINE__;
     RaiseError(exception);
 }
@@ -296,7 +296,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     {
         Exception exception;
         exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
-        exception.reason << "The temperature is not inside the specified interval for the substance "<< pimpl->substance.name() << ".";
+        exception.reason << "The temperature is not inside the specified interval for the substance "<< pimpl->substance.symbol() << ".";
         exception.line = __LINE__;
         RaiseError(exception);
     }

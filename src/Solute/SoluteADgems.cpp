@@ -27,7 +27,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, S
     {
         Exception exception;
         exception.error << "Error in Akinfiev Diamond EOS";
-        exception.reason << "There are no model parameters given for "<<species.name() << ".";
+        exception.reason << "There are no model parameters given for "<<species.symbol() << ".";
         exception.line = __LINE__;
         RaiseError(exception);
     }

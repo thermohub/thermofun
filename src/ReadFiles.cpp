@@ -8,11 +8,11 @@ auto parseSubstance (bson bso) -> Substance
     Substance s;
     string kbuf;
 
-//    bsonio::bson_to_key( bso.data, substName, kbuf );
-//    s.setName(kbuf);
+    bsonio::bson_to_key( bso.data, substName, kbuf );
+    s.setName(kbuf);
 
     bsonio::bson_to_key( bso.data, substSymbol, kbuf );
-    s.setName(kbuf);
+    s.setSymbol(kbuf);
 
     bsonio::bson_to_key( bso.data, substFormula, kbuf );
     s.setFormula(kbuf);
@@ -27,7 +27,7 @@ auto parseSubstance (bson bso) -> Substance
     s.setSubstanceClass(SubstanceClass::type(std::stoi(kbuf.c_str())));
 
     bsonio::bson_to_key( bso.data, substSolventNname, kbuf );
-    s.setSolventName(kbuf);
+    s.setSolventSymbol(kbuf);
 
     bsonio::bson_to_key( bso.data, substMethodEOS, kbuf );
     s.setMethodGenEoS(MethodGenEoS_Thrift::type(std::stoi(kbuf.c_str())));

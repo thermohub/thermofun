@@ -57,11 +57,11 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
             case MethodGenEoS_Thrift::type::CTPM_HKF:
             {
                 SoluteHKFreaktoro aqHKF( subst );
-                string waterSolventName = subst.SolventName();
-                if (!waterSolventName.empty())
+                string waterSolventSymbol = subst.SolventSymbol();
+                if (!waterSolventSymbol.empty())
                 {
-                   ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventName);
-                   PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventName);
+                   ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
+                   PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
 //                   return aqHKF.thermoProperties(T, P, wp, wes);
                    tps = aqHKF.thermoProperties(T, P, wp, wes);
                 } else
@@ -78,12 +78,12 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
             case MethodCorrP_Thrift::type::CPM_AKI:
             {
                 SoluteAkinfievDiamondEOS aqAD (subst);
-                string waterSolventName = subst.SolventName();
-                if (!waterSolventName.empty())
+                string waterSolventSymbol = subst.SolventSymbol();
+                if (!waterSolventSymbol.empty())
                 {
-                    PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventName);
-                    ThermoPropertiesSubstance wtp = thermoPropertiesSubstance(T, P, waterSolventName);
-                    WaterIdealGasWoolley H2Oig (pimpl->database.getSubstance(waterSolventName));
+                    PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
+                    ThermoPropertiesSubstance wtp = thermoPropertiesSubstance(T, P, waterSolventSymbol);
+                    WaterIdealGasWoolley H2Oig (pimpl->database.getSubstance(waterSolventSymbol));
                     ThermoPropertiesSubstance wig = H2Oig.thermoProperties(T, P);
                     tps = aqAD.thermoProperties(T, P, tps, wtp, wig, wp);
                 } else
@@ -95,7 +95,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
         }
 
         // Exception
-        errorMethodNotFound("substance", subst.name(), __LINE__);
+        errorMethodNotFound("substance", subst.symbol(), __LINE__);
     }
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
@@ -126,10 +126,10 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
             }
         }
         // Exception
-        errorMethodNotFound("substance", subst.name(), __LINE__);
+        errorMethodNotFound("substance", subst.symbol(), __LINE__);
     }
     // Exception
-    errorMethodNotFound("substance", subst.name(), __LINE__);
+    errorMethodNotFound("substance", subst.symbol(), __LINE__);
 
    return tps;
 }
@@ -178,7 +178,7 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
             {
                 WaterJNreaktoro water (subst);
 //                return water.electroPropertiesSolvent(T, P, ps);
-                ps = propertiesSolvent(T, P, subst.name());
+                ps = propertiesSolvent(T, P, subst.symbol());
                 eps = water.electroPropertiesSolvent(T, P, ps);;
                 break;
             }
@@ -186,18 +186,18 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
             {
                 WaterJNgems water (subst);
 //                return water.electroPropertiesSolvent(T, P);
-                ps = propertiesSolvent(T, P, subst.name());
+                ps = propertiesSolvent(T, P, subst.symbol());
                 eps = water.electroPropertiesSolvent(T, P);
                 break;
             }
             // Exception
-            errorMethodNotFound("solvent", subst.name(), __LINE__);
+            errorMethodNotFound("solvent", subst.symbol(), __LINE__);
         }
         // Exception
-        errorMethodNotFound("solvent", subst.name(), __LINE__);
+        errorMethodNotFound("solvent", subst.symbol(), __LINE__);
     }
     // Exception
-    errorMethodNotFound("solvent", subst.name(), __LINE__);
+    errorMethodNotFound("solvent", subst.symbol(), __LINE__);
 
    return eps;
 }
@@ -238,10 +238,10 @@ auto Thermo::propertiesSolvent(double T, double P, std::string solvent) -> Prope
             }
         }
         // Exception
-        errorMethodNotFound("solvent", subst.name(), __LINE__);
+        errorMethodNotFound("solvent", subst.symbol(), __LINE__);
     }
     // Exception
-    errorMethodNotFound("solvent", subst.name(), __LINE__);
+    errorMethodNotFound("solvent", subst.symbol(), __LINE__);
 
    return ps;
 }

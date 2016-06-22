@@ -29,7 +29,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     {
         Exception exception;
         exception.error << "Error in HKFgems EOS";
-        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -37,7 +37,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     {
         Exception exception;
         exception.error << "Error in HKFgems EOS";
-        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
