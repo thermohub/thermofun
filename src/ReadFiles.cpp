@@ -20,6 +20,9 @@ auto parseSubstance (bson bso) -> Substance
     bsonio::bson_to_key( bso.data, substCharge, kbuf );
     s.setCharge(atoi(kbuf.c_str()));
 
+    bsonio::bson_to_key( bso.data, substMolarMass, kbuf );
+    s.setMolarMass(atof(kbuf.c_str()));
+
     bsonio::bson_to_key( bso.data, substAggState, kbuf );
     s.setAggregateState(AggregateState::type(std::stoi(kbuf.c_str())));
 

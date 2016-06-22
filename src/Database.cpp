@@ -167,6 +167,16 @@ struct Database::Impl
         return collectValues(reactions_map);
     }
 
+    auto numberOfSubstances() -> int
+    {
+        return collectValues(substances_map).size();
+    }
+
+    auto numberOfReactions() -> int
+    {
+        return collectValues(reactions_map).size();
+    }
+
     auto getSubstance(std::string name) -> Substance&
     {
         if(substances_map.count(name) == 0)
@@ -287,24 +297,34 @@ auto Database::getReactions() -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
-auto Database::getSubstance(std::string name) const -> const Substance&
+auto Database::numberOfSubstances() -> int
 {
-    return pimpl->getSubstance(name);
+    return pimpl->numberOfSubstances();
 }
 
-auto Database::getReaction(std::string name) const -> const Reaction&
+auto Database::numberOfReactions() -> int
 {
-    return pimpl->getReaction(name);
+    return pimpl->numberOfReactions();
 }
 
-auto Database::containsSubstance(std::string name) const -> bool
+auto Database::getSubstance(std::string symbol) const -> const Substance&
 {
-    return pimpl->containsSubstance(name);
+    return pimpl->getSubstance(symbol);
 }
 
-auto Database::containsReaction(std::string name) const -> bool
+auto Database::getReaction(std::string symbol) const -> const Reaction&
 {
-    return pimpl->containsReaction(name);
+    return pimpl->getReaction(symbol);
+}
+
+auto Database::containsSubstance(std::string symbol) const -> bool
+{
+    return pimpl->containsSubstance(symbol);
+}
+
+auto Database::containsReaction(std::string symbol) const -> bool
+{
+    return pimpl->containsReaction(symbol);
 }
 
 } // namespace TCorrPT

@@ -155,6 +155,11 @@ auto Substance::setSolventSymbol(string symbol) -> void
     pimpl->solventSymbol = symbol;
 }
 
+auto Substance::setMolarMass(double molar_mass) -> void
+{
+    pimpl->molar_mass = molar_mass;
+}
+
 auto Substance::name() const -> std::string
 {
     return pimpl->name;
