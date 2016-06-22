@@ -41,9 +41,9 @@ auto parseSubstance (bson bso) -> Substance
     bsonio::bson_to_key( bso.data, substRefP, kbuf );
     s.setReferenceT(std::stod(kbuf.c_str()));
 
-    /// get thermodynamic parameters
+    // get thermodynamic parameters
     s.setThermoParameters(thermoParam (bso));
-    /// get reference thermodynamic properties
+    // get reference thermodynamic properties
     s.setThermoReferenceProperties(thermoRefProp (bso));
 
     return s;

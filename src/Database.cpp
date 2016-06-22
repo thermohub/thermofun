@@ -193,6 +193,8 @@ struct Database::Impl
         return reactions_map.count(name) != 0;
     }
 
+    /// Parses the JSON file and puts the data into the internal data structure
+    /// @param filename name of the file (in the working directory)
     auto parseJson(std::string filename) -> void
     {
         string kbuf, objStr; bsonio::ParserJson parserJson;
@@ -200,37 +202,59 @@ struct Database::Impl
         bso.data = 0;
         // Reading work structure from json text file
         fstream f(filename, ios::in);
-        bsonio::bsonioErrIf( !f.good() , filename, "Fileread error...");
 
-        while( !f.eof() )
+        if (!f.good())
         {
-              f.get(b);
-              if( b == bsonio::jsBeginObject )
-              {
-                  b= ' ';
-                  objStr =  parserJson.readObjectText(f);
-                  bson_init(&bso);
-                  parserJson.parseObject( &bso );
-                  bson_finish(&bso);
+            Exception exception;
+            exception.error << "File read error " << filename << " ";
+            exception.reason << "The file could not be read. ";
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
 
-                  bsonio::bson_to_key( bso.data, label, kbuf );
+        try
+        {
+            while( !f.eof() )
+            {
+                f.get(b);
+                if( b == bsonio::jsBeginObject )
+                {
+                    b= ' ';
+                    objStr =  parserJson.readObjectText(f);
+                    bson_init(&bso);
+                    parserJson.parseObject( &bso );
+                    bson_finish(&bso);
 
-                  if (kbuf == "substance")
-                  {
-                      Substance substance = parseSubstance(bso);
-                      substances_map[substance.name()] = substance;
-                  }
-                  if (kbuf == "reaction")
-                  {
-//                      Reaction reaction = parseReaction(bso);
-//                      reactions_map[reaction.name()] = reaction;
-                  }
+                    bsonio::bson_to_key( bso.data, label, kbuf );
 
-                  /// error
-                  /// neither substance nor reaction
-
-              }
-         }
+                    if (kbuf == "substance")
+                    {
+                        Substance substance = parseSubstance(bso);
+                        substances_map[substance.name()] = substance;
+                    } else
+                    if (kbuf == "reaction")
+                    {
+    //                      Reaction reaction = parseReaction(bso);
+    //                      reactions_map[reaction.name()] = reaction;
+                    } else
+                    {
+                        Exception exception;
+                        exception.error << "Unknown JSON type " << kbuf << " ";
+                        exception.reason << "The JSON object needs to be a substance, file " << filename << ".";
+                        exception.line = __LINE__;
+                        RaiseError(exception);
+                    }
+                }
+            }
+        }
+        catch (bsonio::bsonio_exeption e)
+        {
+            Exception exception;
+            exception.error << e.title_;
+            exception.reason << e.mess_;
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
     }
 };
 
