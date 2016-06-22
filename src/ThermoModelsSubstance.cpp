@@ -259,7 +259,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     TC = T;              // get current T in Celsius
     TK = TC + C_to_K;                       // curent T in Kelvin
     Pb = P;              // current P in bar
-    TrK = pimpl->substance.referenceT() + C_to_K;
+    TrK = pimpl->substance.referenceT()/* + C_to_K*/;
 
     S = thermo_properties_PrTr.entropy.val;
     G = thermo_properties_PrTr.gibbs_energy.val;
@@ -285,7 +285,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     // get Cp interval
     for (unsigned i=0; i<thermo_parameters.temperature_intervals.size(); i++)
     {
-       if ((thermo_parameters.temperature_intervals[i][0] <= TC) && (thermo_parameters.temperature_intervals[i][1] > TC))
+       if ((thermo_parameters.temperature_intervals[i][0] <= TK) && (thermo_parameters.temperature_intervals[i][1] > TK))
        {
            k = i;
            break;

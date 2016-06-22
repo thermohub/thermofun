@@ -47,29 +47,53 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
         // metohd EOS
         switch( method_genEOS )
         {
-            case MethodGenEoS_Thrift::type::CTPM_CPT:
-            {
-                EmpiricalCpIntegration CpInt ( subst );
+        case MethodGenEoS_Thrift::type::CTPM_CPT:
+        {
+            EmpiricalCpIntegration CpInt ( subst );
 //                return CpInt.thermoProperties(T, P);
-                tps = CpInt.thermoProperties(T, P);
-                break;
-            }
-            case MethodGenEoS_Thrift::type::CTPM_HKF:
+            tps = CpInt.thermoProperties(T, P);
+            break;
+        }
+        case MethodGenEoS_Thrift::type::CTPM_HKF:
+        {
+            SoluteHKFgems aqHKF( subst );
+            string waterSolventSymbol = subst.SolventSymbol();
+            if (!waterSolventSymbol.empty())
             {
-                SoluteHKFreaktoro aqHKF( subst );
-                string waterSolventSymbol = subst.SolventSymbol();
-                if (!waterSolventSymbol.empty())
-                {
-                   ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
-                   PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
+               ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
+               PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
 //                   return aqHKF.thermoProperties(T, P, wp, wes);
-                   tps = aqHKF.thermoProperties(T, P, wp, wes);
-                } else
-                {
-                    // error
-                }
-                break;
+               tps = aqHKF.thermoProperties(T, P, wp, wes);
+            } else
+            {
+                Exception exception;
+                exception.error << "Solvent symbol not defiend";
+                exception.reason << "The solvent symbol for " << subst.name() <<  " was not defined.";
+                exception.line = __LINE__;
+                RaiseError(exception);
             }
+            break;
+        }
+        case MethodGenEoS_Thrift::type::CTPM_HKFR:
+        {
+            SoluteHKFreaktoro aqHKF( subst );
+            string waterSolventSymbol = subst.SolventSymbol();
+            if (!waterSolventSymbol.empty())
+            {
+               ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
+               PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
+//                   return aqHKF.thermoProperties(T, P, wp, wes);
+               tps = aqHKF.thermoProperties(T, P, wp, wes);
+            } else
+            {
+                Exception exception;
+                exception.error << "Solvent symbol not defiend";
+                exception.reason << "The solvent symbol for " << subst.name() <<  " was not defined.";
+                exception.line = __LINE__;
+                RaiseError(exception);
+            }
+            break;
+        }
         }
 
         // method P
@@ -92,10 +116,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                 }
                 break;
             }
+            // Exception
+            errorMethodNotFound("substance", subst.symbol(), __LINE__);
         }
-
-        // Exception
-        errorMethodNotFound("substance", subst.symbol(), __LINE__);
     }
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
@@ -124,12 +147,10 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                 tps = water.thermoPropertiesSubstance(T, P, solvent_state);
                 break;
             }
+            // Exception
+            errorMethodNotFound("substance", subst.symbol(), __LINE__);
         }
-        // Exception
-        errorMethodNotFound("substance", subst.symbol(), __LINE__);
     }
-    // Exception
-    errorMethodNotFound("substance", subst.symbol(), __LINE__);
 
    return tps;
 }
@@ -193,11 +214,7 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
             // Exception
             errorMethodNotFound("solvent", subst.symbol(), __LINE__);
         }
-        // Exception
-        errorMethodNotFound("solvent", subst.symbol(), __LINE__);
     }
-    // Exception
-    errorMethodNotFound("solvent", subst.symbol(), __LINE__);
 
    return eps;
 }
@@ -236,12 +253,10 @@ auto Thermo::propertiesSolvent(double T, double P, std::string solvent) -> Prope
                 ps = water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
+            // Exception
+            errorMethodNotFound("solvent", subst.symbol(), __LINE__);
         }
-        // Exception
-        errorMethodNotFound("solvent", subst.symbol(), __LINE__);
     }
-    // Exception
-    errorMethodNotFound("solvent", subst.symbol(), __LINE__);
 
    return ps;
 }

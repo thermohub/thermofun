@@ -287,6 +287,16 @@ auto Database::addReaction(const Reaction& reaction) -> void
     pimpl->addReaction(reaction);
 }
 
+auto Database::getSubstance(std::string symbol) const -> const Substance&
+{
+    return pimpl->getSubstance(symbol);
+}
+
+auto Database::getReaction(std::string symbol) const -> const Reaction&
+{
+    return pimpl->getReaction(symbol);
+}
+
 auto Database::getSubstances() -> std::vector<Substance>
 {
     return pimpl->getSubstances();
@@ -306,17 +316,6 @@ auto Database::numberOfReactions() -> int
 {
     return pimpl->numberOfReactions();
 }
-
-auto Database::getSubstance(std::string symbol) const -> const Substance&
-{
-    return pimpl->getSubstance(symbol);
-}
-
-auto Database::getReaction(std::string symbol) const -> const Reaction&
-{
-    return pimpl->getReaction(symbol);
-}
-
 auto Database::containsSubstance(std::string symbol) const -> bool
 {
     return pimpl->containsSubstance(symbol);
