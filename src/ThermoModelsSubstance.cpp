@@ -323,14 +323,14 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
         {
             if ( j == k )
                 TK = T + C_to_K;     // current T is the end T for phase transition Cp calculations
-            else TK = thermo_parameters.temperature_intervals[j][1] + C_to_K;        // takes the upper bound from the j-th Tinterval
+            else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
             T2 = TK * TK;
             T3 = T2 * TK;
             T4 = T3 * TK;
             T05 = sqrt( TK );
             if( !j )
-                TrK = pimpl->substance.referenceT() + C_to_K;            // if j=0 the first interval should contain the reference T (Tcr)
-            else  TrK = thermo_parameters.temperature_intervals[j][0] + C_to_K;    // if j>0 then we are in a different Tinterval and the reference T becomes the lower bound of the interval
+                TrK = pimpl->substance.referenceT() /*+ C_to_K*/;            // if j=0 the first interval should contain the reference T (Tcr)
+            else  TrK = thermo_parameters.temperature_intervals[j][0] /*+ C_to_K*/;    // if j>0 then we are in a different Tinterval and the reference T becomes the lower bound of the interval
             Tst2 = TrK * TrK;
             Tst3 = Tst2 * TrK;
             Tst4 = Tst3 * TrK;

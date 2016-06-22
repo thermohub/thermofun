@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
     Database tdb(file);
     Database tdb2;
 
-    double T = 25;
-    double P = 1;
+    double T = 500;
+    double P = 1500;
 
     Substance water;
     water.setName("water");
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     cout << "A0: " << result.helmholtz_energy << endl;
     cout << "U0: " << result.internal_energy << endl;
 
-    result = thermo.thermoPropertiesSubstance(25, 1, "CO2@AD");
+    result = thermo.thermoPropertiesSubstance(T, P, "CO2@AD");
 
     cout << "\n CO2@AD "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
     cout << "G0: "  << result.gibbs_energy << endl;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     cout << "A0: " << result.helmholtz_energy << endl;
     cout << "U0: " << result.internal_energy << endl;
 
-    result = thermo.thermoPropertiesSubstance(25, 1, "Gibbsite");
+    result = thermo.thermoPropertiesSubstance(T, P, "Gibbsite");
 
     cout << "\n Gibbsite "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
     cout << "G0: "  << result.gibbs_energy << endl;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     cout << "A0: " << result.helmholtz_energy << endl;
     cout << "U0: " << result.internal_energy << endl;
 
-    result = thermo.thermoPropertiesSubstance(25, 1, "H2O@");
+    result = thermo.thermoPropertiesSubstance(T, P, "H2O@");
 
     cout << "\n H2O@ "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
     cout << "G0: "  << result.gibbs_energy << endl;
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     cout << "A0: " << result.helmholtz_energy << endl;
     cout << "U0: " << result.internal_energy << endl;
 
-    result = thermo.thermoPropertiesSubstance(25, 1, "K+");
+    result = thermo.thermoPropertiesSubstance(T, P, "K+");
 
     cout << "\n K+ "  << "T:" << T << " C, P:"<< P << " bar"<< endl;
     cout << "G0: "  << result.gibbs_energy << endl;
