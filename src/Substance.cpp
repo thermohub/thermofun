@@ -19,13 +19,13 @@ struct Substance::Impl
     /// The name of the reaction that defines the properties of this substance
     std::string reaction;
 
-    /// The molar mass of the chemical Substance (in units of kg/mol)
+    /// The molar mass of the chemical Substance (in units of g/mol)
     double molar_mass;
 
-    /// Reference temperature (usually 25 C)
+    /// Reference temperature (in K)
     double reference_T;
 
-    /// Reference pressure (usually 1 bar)
+    /// Reference pressure (in Pa)
     double reference_P;
 
     /// General method (or equation of state for both T and P correction)
