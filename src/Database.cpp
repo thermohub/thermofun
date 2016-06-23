@@ -126,15 +126,17 @@ struct Database::Impl
                 data2->field("properties.eos_hkf_coeffs.values.0")->getValue( value  );
 
                 int size = data2->field("properties.eos_hkf_coeffs.values")->getSizeArray();
-                vector<string> vvalue(size);
+                vector<string> vvalue;
 
                 data2->field("properties.eos_hkf_coeffs.values")->getArray( vvalue  );
 
-                cout << value << endl;
+//                cout << value << endl;
 
                }
             }
+
 */
+
     }
 
     template<typename Key, typename Value>
