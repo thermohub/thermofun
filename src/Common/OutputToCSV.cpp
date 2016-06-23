@@ -59,6 +59,22 @@ OutputToCSV::~OutputToCSV()
     if (fElectroPropertiesSolvent.is_open()) fElectroPropertiesSolvent.close();
 }
 
+
+auto OutputToCSV::closeThermoPropertiesSubstanceFile ( ) ->void
+{
+    if (fThermoPropertiesSubstance.is_open()) fThermoPropertiesSubstance.close();
+}
+
+auto OutputToCSV::closePropertiesSolventFile ( ) ->void
+{
+    if (fPropertiesSolvent.is_open()) fPropertiesSolvent.close();
+}
+
+auto OutputToCSV::closeElectroPropertiesSolventFile ( ) ->void
+{
+    if (fElectroPropertiesSolvent.is_open()) fElectroPropertiesSolvent.close();
+}
+
 auto OutputToCSV::openThermoPropertiesSubstanceFile (std::string fileName) ->void
 {
     fileThermoPropertiesSubstance = fileName;

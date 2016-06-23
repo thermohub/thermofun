@@ -53,6 +53,10 @@ public:
     auto openPropertiesSolventFile (std::string fileName) ->void;
     auto openElectroPropertiesSolventFile (std::string fileName) ->void;
 
+    auto closeThermoPropertiesSubstanceFile () -> void;
+    auto closePropertiesSolventFile () ->void;
+    auto closeElectroPropertiesSolventFile () ->void;
+
     auto writeThermoPropertiesSubstance (std::string symbol, double T, double P, ThermoPropertiesSubstance tps ) -> void;
     auto writePropertiesSolvent (std::string symbol, double T, double P, PropertiesSolvent ps ) -> void;
     auto writeElectroPropertiesSolvent (std::string symbol, double T, double P, ElectroPropertiesSolvent eps ) -> void;

@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
     al3.setThermoReferenceProperties(ref);
 
     double T, P;
-    T = 135;
-    P = 0;
+    T = 175;
+    P = 500;
 
     PropertiesSolvent wp = H2OHGKgems.propertiesSolvent(T, P, 0);
 

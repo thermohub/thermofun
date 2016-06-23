@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     Thermo thermo (tdb2);
 
     OutputToCSV out (argv[0]);
-    out.openThermoPropertiesSubstanceFile("ThermoPropSubst.csv");
+    out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT.csv");
 
     do {
 
@@ -64,6 +64,28 @@ int main(int argc, char *argv[])
         T +=5;
     } while (T <= 370);
 
+    out.closeThermoPropertiesSubstanceFile();
+
+    OutputToCSV out2 (argv[0]);
+    out2.openThermoPropertiesSubstanceFile("ThermoPropSubstSUPCRT.csv");
+
+
+    for (int i = 0; i < vSubst.size(); i++)
+    {
+        P= 500;
+        do
+        {
+            T= 5;
+            do {
+               out2.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol()) );
+               T +=5;
+            } while (T <= 350);
+            P +=500;
+        } while (P <=5000);
+    }
+
+
+    out2.closeThermoPropertiesSubstanceFile();
     cout << "Bye World!" << endl;
 
     return 0;
