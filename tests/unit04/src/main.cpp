@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb(file);
     Database tdb2;
 
-    double T = 500;
-    double P = 1500;
+    double T = 25;
+    double P = 0;
 
     Substance water;
     water.setName("water");

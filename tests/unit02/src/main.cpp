@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
     // +++ Test HKFgems +++
-//    #define TEST_HKFgems
+    #define TEST_HKFgems
     #ifdef TEST_HKFgems
 
     water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
@@ -47,13 +47,13 @@ int main(int argc, char *argv[])
     al3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
     al3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
-    vector<double> hkf = {-0.33984, -1607.89, 12.0699, -21143, 14.4295, -88523, 274030 };
+    vector<double> hkf = {-0.33980000019073486, -1607.8900146484375, 12.069899559020996, -21143, 14.429499626159668, -88523, 274030 };
 
     ThermoPropertiesSubstance ref;
 
-    ref.gibbs_energy = -116510.03824091777*cal_to_J;
-    ref.enthalpy = -128769.03423328472*cal_to_J;
-    ref.entropy = -81.202913652642508*cal_to_J;
+    ref.gibbs_energy = -116270.55449330783*cal_to_J;
+    ref.enthalpy = -128528.68068833651*cal_to_J;
+    ref.entropy = -81.199806461370699*cal_to_J;
 
 
     ThermoParametersSubstance prs;
@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
     al3.setThermoReferenceProperties(ref);
 
     double T, P;
-    T = 25;
-    P = 1;
+    T = 135;
+    P = 0;
 
     PropertiesSolvent wp = H2OHGKgems.propertiesSolvent(T, P, 0);
 
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 
 #endif
 
-#define TEST_HKF_neutral
+//#define TEST_HKF_neutral
 #ifdef TEST_HKF_neutral
 
     WaterHGK H2OHGKgems ( water );
