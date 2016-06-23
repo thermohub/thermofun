@@ -63,7 +63,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
     const auto W    = aes.w;
     const auto dwdT   = aes.wT;
     const auto dwdP   = aes.wP*1e05; // from 1/Pa to 1/bar
-    const auto d2wdT2  = aes.wTT;
+    const auto d2wdT2 = aes.wTT;
     const auto Z    = wes.bornZ;
     const auto Y    = wes.bornY;
     const auto Q    = wes.bornQ*1e05; // from 1/Pa to 1/bar
@@ -226,7 +226,7 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
     d2fdT2 = fp * dftdTT;
 
     g.g -= f;
-    g.gP -= dfdP;
+    g.gP -= dfdP/1e05; // form bar to Pa
     g.gT -= dfdT;
     g.gTT -= d2fdT2;
 
