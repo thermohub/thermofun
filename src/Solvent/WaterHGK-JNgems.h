@@ -370,7 +370,7 @@ public:
 
     auto thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance;
 
-    auto electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent;
+    auto electroPropertiesWaterJNgems(int state) -> ElectroPropertiesSolvent;
 
 };
 

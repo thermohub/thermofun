@@ -93,21 +93,36 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 return wp;
 }
 
-auto WaterHGKgems::electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent
+auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent wp;
     double eps, xborn, yborn, qborn;
 
-    wp.epsilon  = wr.Dielw;
-    wp.bornZ    = wr.ZBorn;
-    wp.bornY    = wr.YBorn;
-    wp.bornQ    = wr.QBorn / 1e05; // from bar-1 to Pa-1
-    wp.bornX    = wr.XBorn;
+    if (aSpc.isat && (state == 0))
+    {
+        wp.epsilon  = wl.Dielw;
+        wp.bornZ    = wl.ZBorn;
+        wp.bornY    = wl.YBorn;
+        wp.bornQ    = wl.QBorn / 1e05; // from bar-1 to Pa-1
+        wp.bornX    = wl.XBorn;
 
-    eps   = wr.Dielw;
-    xborn = wr.XBorn;
-    yborn = wr.YBorn;
-    qborn = wr.QBorn;
+        eps   = wl.Dielw;
+        xborn = wl.XBorn;
+        yborn = wl.YBorn;
+        qborn = wl.QBorn;
+    } else
+    {
+        wp.epsilon  = wr.Dielw;
+        wp.bornZ    = wr.ZBorn;
+        wp.bornY    = wr.YBorn;
+        wp.bornQ    = wr.QBorn / 1e05; // from bar-1 to Pa-1
+        wp.bornX    = wr.XBorn;
+
+        eps   = wr.Dielw;
+        xborn = wr.XBorn;
+        yborn = wr.YBorn;
+        qborn = wr.QBorn;
+    }
 
     wp.epsilonT  = yborn * pow(eps,2.);
     wp.epsilonTT = (xborn + 2.*eps*pow(yborn,2.)) * pow(eps,2.);
