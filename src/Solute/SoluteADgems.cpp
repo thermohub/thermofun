@@ -85,6 +85,8 @@ auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, S
     state.entropy          = Sids + Seos;
     state.heat_capacity_cp = CPids + CPeos;
     state.enthalpy         = Hids + Heos;
+    state.internal_energy  = state.enthalpy - Pbar*state.volume;
+    state.helmholtz_energy = state.internal_energy - Tk*state.entropy;
 
     return state;
 }
