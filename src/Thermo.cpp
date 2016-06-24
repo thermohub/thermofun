@@ -4,17 +4,6 @@
 
 namespace TCorrPT {
 
-
-auto errorMethodNotFound(std::string type, std::string name, int line) -> void
-{
-    Exception exception;
-    exception.error << "The calculation method was not found.";
-    exception.reason << "The calculation method defined for the " << type << " " << name << " is not implemented.";
-    exception.line = line;
-    RaiseError(exception);
-}
-
-
 struct Thermo::Impl
 {
     /// The database instance
@@ -50,7 +39,6 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         case MethodGenEoS_Thrift::type::CTPM_CPT:
         {
             EmpiricalCpIntegration CpInt ( subst );
-//                return CpInt.thermoProperties(T, P);
             tps = CpInt.thermoProperties(T, P);
             break;
         }
@@ -62,15 +50,10 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             {
                ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
                PropertiesSolvent        wp = propertiesSolvent(T, P, waterSolventSymbol);
-//                   return aqHKF.thermoProperties(T, P, wp, wes);
                                         tps = aqHKF.thermoProperties(T, P, wp, wes);
             } else
             {
-                Exception exception;
-                exception.error << "Solvent symbol not defiend";
-                exception.reason << "The solvent symbol for " << subst.name() <<  " was not defined.";
-                exception.line = __LINE__;
-                RaiseError(exception);
+                errorSolventNotDefined("solvent", subst.symbol(), __LINE__);
             }
             break;
         }
@@ -82,15 +65,10 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             {
                ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
                PropertiesSolvent        wp = propertiesSolvent(T, P, waterSolventSymbol);
-//                   return aqHKF.thermoProperties(T, P, wp, wes);
                                         tps = aqHKF.thermoProperties(T, P, wp, wes);
             } else
             {
-                Exception exception;
-                exception.error << "Solvent symbol not defiend";
-                exception.reason << "The solvent symbol for " << subst.name() <<  " was not defined.";
-                exception.line = __LINE__;
-                RaiseError(exception);
+                errorSolventNotDefined("solvent", subst.symbol(), __LINE__);
             }
             break;
         }
@@ -112,11 +90,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
                                                 tps     = aqAD.thermoProperties(T, P, tps, wtp, wig, wp);
                 } else
                 {
-                    Exception exception;
-                    exception.error << "Solvent symbol not defiend";
-                    exception.reason << "The solvent symbol for " << subst.name() <<  " was not defined.";
-                    exception.line = __LINE__;
-                    RaiseError(exception);
+                    errorSolventNotDefined("solvent", subst.symbol(), __LINE__);
                 }
                 break;
             }
@@ -133,21 +107,18 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             case MethodCorrT_Thrift::type::CTM_WAT:
             {
                 WaterHGK water ( subst );
-//                return water.thermoPropertiesSubstance(T, P, solvent_state);
                 tps = water.thermoPropertiesSubstance(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
                 WaterHGKreaktoro water ( subst );
-//                return water.thermoPropertiesSubstance(T, P, solvent_state);
                 tps = water.thermoPropertiesSubstance(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WWP:
             {
                 WaterWP95reaktoro water ( subst );
-//                return water.thermoPropertiesSubstance(T, P, solvent_state);
                 tps = water.thermoPropertiesSubstance(T, P, solvent_state);
                 break;
             }
@@ -155,7 +126,6 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             errorMethodNotFound("substance", subst.symbol(), __LINE__);
         }
     }
-
    return tps;
 }
 
@@ -172,37 +142,11 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
     {
-//        if (method_P == MethodCorrP_Thrift::type::CPM_GAS) solvent_state = 1;
-//        switch(method_T)
-//        {
-//            case MethodCorrT_Thrift::type::CTM_WAT:
-//            {
-//                WaterHGK water ( subst );
-//                ps =  water.propertiesSolvent(T, P, solvent_state);
-//                break;
-//            }
-//            case MethodCorrT_Thrift::type::CTM_WAR:
-//            {
-//                WaterHGKreaktoro water ( subst );
-//                ps =  water.propertiesSolvent(T, P, solvent_state);
-//                break;
-//            }
-//            case MethodCorrT_Thrift::type::CTM_WWP:
-//            {
-//                WaterWP95reaktoro water ( subst );
-//                ps =  water.propertiesSolvent(T, P, solvent_state);
-//                break;
-//            }
-//            // Exception
-//            errorMethodNotFound("solvent", subst.name(), __LINE__);
-//        }
-
         switch(method_genEOS)
         {
             case MethodGenEoS_Thrift::type::CEM_WJNR:
             {
                 WaterJNreaktoro water (subst);
-//                return water.electroPropertiesSolvent(T, P, ps);
                 ps = propertiesSolvent(T, P, subst.symbol());
                 eps = water.electroPropertiesSolvent(T, P, ps);;
                 break;
@@ -210,7 +154,6 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
             case MethodGenEoS_Thrift::type::CEM_WJNG:
             {
                 WaterJNgems water (subst);
-//                return water.electroPropertiesSolvent(T, P);
                 ps = propertiesSolvent(T, P, subst.symbol());
                 eps = water.electroPropertiesSolvent(T, P);
                 break;
@@ -239,21 +182,18 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
             case MethodCorrT_Thrift::type::CTM_WAT:
             {
                 WaterHGK water ( subst );
-//                return water.propertiesSolvent(T, P, solvent_state);
                 ps = water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
                 WaterHGKreaktoro water ( subst );
-//                return water.propertiesSolvent(T, P, solvent_state);
                 ps = water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WWP:
             {
                 WaterWP95reaktoro water ( subst );
-//                return water.propertiesSolvent(T, P, solvent_state);
                 ps = water.propertiesSolvent(T, P, solvent_state);
                 break;
             }
@@ -261,7 +201,6 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
             errorMethodNotFound("solvent", subst.symbol(), __LINE__);
         }
     }
-
    return ps;
 }
 
