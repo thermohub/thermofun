@@ -3,6 +3,9 @@
 #include "Solute/SoluteHKFgems.h"
 #include "Solvent/WaterIdealGasWolley.h"
 #include "Solute/SoluteADgems.h"
+#include "Solids/SolidMurnaghanHP98.h"
+#include "Solids/SolidBerman88.h"
+#include "Solids/SolidBMGottschalk.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -73,7 +76,6 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     exception.line = __LINE__;
     RaiseError(exception);
 }
-
 
 //=======================================================================================================
 // Akinfiev & Diamond EOS for neutral species
@@ -214,6 +216,102 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
     ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, pimpl->substance);
 
     return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wes);
+}
+
+//=======================================================================================================
+// .....
+// References: .....
+// Added: DM 24.06.2016
+//=======================================================================================================
+
+struct MinMurnaghanEOSHP98::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+MinMurnaghanEOSHP98::MinMurnaghanEOSHP98(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return thermoPropertiesMinMurnaghanEOSHP98(t, p, tps);
+}
+
+//=======================================================================================================
+// .....
+// References: .....
+// Added: DM 24.06.2016
+//=======================================================================================================
+
+struct MinBerman88::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+MinBerman88::MinBerman88(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return thermoPropertiesMinBerman88(t, p, tps);
+}
+
+//=======================================================================================================
+// .....
+// References: .....
+// Added: DM 24.06.2016
+//=======================================================================================================
+
+struct MinBMGottschalk::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+MinBMGottschalk::MinBMGottschalk(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+
+    return thermoPropertiesMinBMGottschalk(t, p, tps);
 }
 
 //=======================================================================================================
