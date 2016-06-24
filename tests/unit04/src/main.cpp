@@ -6,6 +6,7 @@
 #include "ThermoModelsSubstance.h"
 #include "tcorrpt_global.h"
 #include "Thermo.h"
+#include "Common/OutputToCSV.h"
 
 using namespace std;
 using namespace TCorrPT;
@@ -20,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb(file);
     Database tdb2;
 
-    double T = 500;
-    double P = 1500;
+    double T = 25;
+    double P = 0;
 
     Substance water;
     water.setName("water");
@@ -61,6 +62,10 @@ int main(int argc, char *argv[])
     cout << "V0: " << result.volume << endl;
     cout << "A0: " << result.helmholtz_energy << endl;
     cout << "U0: " << result.internal_energy << endl;
+
+    OutputToCSV out (argv[0]);
+    out.openThermoPropertiesSubstanceFile("ThermoPropSubst.csv");
+    out.writeThermoPropertiesSubstance("Al+3", T, P, result);
 
     result = thermo.thermoPropertiesSubstance(T, P, "CO2@AD");
 

@@ -67,30 +67,30 @@ auto thermoParam (bson bso) -> ThermoParametersSubstance
     bsonio::bson_to_key(bso.data, substCompres, kbuf);
     if (kbuf != "*") ps.isothermal_compresibility = std::stod(kbuf.c_str());
 
-    bsonio::bson_to_array(bso.data, substEOSad, vkbuf); ps.Cp_nonElectrolyte_coeff.resize(vkbuf.size());
+    bsonio::bson_read_array_path(bso.data, substEOSad, vkbuf); ps.Cp_nonElectrolyte_coeff.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_nonElectrolyte_coeff.begin(), [](const std::string& val)
     { return std::stod(val); });
 
-    bsonio::bson_to_array(bso.data, substEOSbm, vkbuf); ps.volume_BirchM_coeff.resize(vkbuf.size());
+    bsonio::bson_read_array_path(bso.data, substEOSbm, vkbuf); ps.volume_BirchM_coeff.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.volume_BirchM_coeff.begin(), [](const std::string& val)
     { return std::stod(val); });
 
-    bsonio::bson_to_array(bso.data, substEOScg, vkbuf);/* ps.critical_parameters.resize(vkbuf.size());*/
+    bsonio::bson_read_array_path(bso.data, substEOScg, vkbuf);/* ps.critical_parameters.resize(vkbuf.size());*/
 //    std::transform(kbuf.begin(), kbuf.end(), tps..begin(), [](const std::string& val)
 //    { return std::stod(val); });
 
-    bsonio::bson_to_array(bso.data, substEOSgasCrit, vkbuf); ps.critical_parameters.resize(vkbuf.size());
+    bsonio::bson_read_array_path(bso.data, substEOSgasCrit, vkbuf); ps.critical_parameters.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.critical_parameters.begin(), [](const std::string& val)
     { return std::stod(val); });
 
-    bsonio::bson_to_array(bso.data, substEOShkf, vkbuf); ps.HKF_parameters.resize(vkbuf.size());
+    bsonio::bson_read_array_path(bso.data, substEOShkf, vkbuf); ps.HKF_parameters.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.HKF_parameters.begin(), [](const std::string& val)
     { return std::stod(val); });
 
     // temporary fix - need to think how to handle more thna 1 TP interval
     ps.temperature_intervals.push_back({273.15, 2273.15});
 
-    bsonio::bson_to_array(bso.data, substCpParam, vkbuf); ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
+    bsonio::bson_read_array_path(bso.data, substCpParam, vkbuf); ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_coeff[0].begin(), [](const std::string& val)
     { return std::stod(val); });
 

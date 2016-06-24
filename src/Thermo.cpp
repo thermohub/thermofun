@@ -61,9 +61,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
             if (!waterSolventSymbol.empty())
             {
                ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
-               PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
+               PropertiesSolvent        wp = propertiesSolvent(T, P, waterSolventSymbol);
 //                   return aqHKF.thermoProperties(T, P, wp, wes);
-               tps = aqHKF.thermoProperties(T, P, wp, wes);
+                                        tps = aqHKF.thermoProperties(T, P, wp, wes);
             } else
             {
                 Exception exception;
@@ -81,9 +81,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
             if (!waterSolventSymbol.empty())
             {
                ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, waterSolventSymbol);
-               PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
+               PropertiesSolvent        wp = propertiesSolvent(T, P, waterSolventSymbol);
 //                   return aqHKF.thermoProperties(T, P, wp, wes);
-               tps = aqHKF.thermoProperties(T, P, wp, wes);
+                                        tps = aqHKF.thermoProperties(T, P, wp, wes);
             } else
             {
                 Exception exception;
@@ -105,11 +105,11 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                 string waterSolventSymbol = subst.SolventSymbol();
                 if (!waterSolventSymbol.empty())
                 {
-                    PropertiesSolvent wp = propertiesSolvent(T, P, waterSolventSymbol);
-                    ThermoPropertiesSubstance wtp = thermoPropertiesSubstance(T, P, waterSolventSymbol);
-                    WaterIdealGasWoolley H2Oig (pimpl->database.getSubstance(waterSolventSymbol));
-                    ThermoPropertiesSubstance wig = H2Oig.thermoProperties(T, P);
-                    tps = aqAD.thermoProperties(T, P, tps, wtp, wig, wp);
+                    PropertiesSolvent           wp      = propertiesSolvent(T, P, waterSolventSymbol);
+                    ThermoPropertiesSubstance   wtp     = thermoPropertiesSubstance(T, P, waterSolventSymbol);
+                    WaterIdealGasWoolley        H2Oig   (pimpl->database.getSubstance(waterSolventSymbol));
+                    ThermoPropertiesSubstance   wig     = H2Oig.thermoProperties(T, P);
+                                                tps     = aqAD.thermoProperties(T, P, tps, wtp, wig, wp);
                 } else
                 {
                     // error
