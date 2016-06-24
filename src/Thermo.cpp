@@ -33,7 +33,7 @@ Thermo::Thermo(const Database& database)
 {}
 
 
-auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance) -> ThermoPropertiesSubstance
+auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
 {
     Substance subst = pimpl->database.getSubstance(substance);
     MethodGenEoS_Thrift::type method_genEOS = subst.methodGenEOS();
@@ -112,7 +112,11 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
                                                 tps     = aqAD.thermoProperties(T, P, tps, wtp, wig, wp);
                 } else
                 {
-                    // error
+                    Exception exception;
+                    exception.error << "Solvent symbol not defiend";
+                    exception.reason << "The solvent symbol for " << subst.name() <<  " was not defined.";
+                    exception.line = __LINE__;
+                    RaiseError(exception);
                 }
                 break;
             }
@@ -156,7 +160,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double P, std::string substance
 }
 
 
-auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance) -> ElectroPropertiesSolvent
+auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent
 {
     Substance subst = pimpl->database.getSubstance(substance);
 //    MethodCorrT_Thrift::type  method_T      = subst.method_T();
@@ -219,7 +223,7 @@ auto Thermo::electroPropertiesSolvent(double T, double P, std::string substance)
    return eps;
 }
 
-auto Thermo::propertiesSolvent(double T, double P, std::string solvent) -> PropertiesSolvent
+auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent
 {
     Substance subst = pimpl->database.getSubstance(solvent);
     MethodCorrT_Thrift::type  method_T      = subst.method_T();

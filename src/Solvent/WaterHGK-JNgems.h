@@ -41,6 +41,7 @@ struct HGK_STATES
 {
     double Temp;    // C
     double Pres;    // bar
+    double Psat;   // bar
     double Dens[2]; // g/cm3
 //    STATES()
 //    {
@@ -364,7 +365,7 @@ private:
 
 public:
 
-    auto calculateWaterHGKgems(double T, double P) -> void;
+    auto calculateWaterHGKgems(double T, double &P) -> void;
 
     auto propertiesWaterHGKgems(int state) -> PropertiesSolvent;
 
