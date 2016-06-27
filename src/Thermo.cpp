@@ -117,8 +117,8 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             ThermoPropertiesSubstance rtps = subst.thermoReferenceProperties();
 
             tps.volume           = rtps.volume;
-            tps.gibbs_energy    += rtps.volume * subst.referenceP() / bar_to_Pa;
-            tps.enthalpy        += rtps.volume * subst.referenceP() / bar_to_Pa;
+            tps.gibbs_energy    += rtps.volume * (P - (subst.referenceP() / bar_to_Pa));
+            tps.enthalpy        += rtps.volume * (P - (subst.referenceP() / bar_to_Pa));
             tps.internal_energy  = tps.enthalpy - P*tps.volume;
             tps.helmholtz_energy = tps.internal_energy - (T+273.15)*tps.entropy;
 

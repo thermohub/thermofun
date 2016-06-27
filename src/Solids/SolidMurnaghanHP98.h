@@ -5,7 +5,7 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro::Temperature t, Reaktoro::Pressure p, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro::Temperature t, Reaktoro::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 }
 

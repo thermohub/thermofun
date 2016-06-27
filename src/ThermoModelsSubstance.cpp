@@ -247,7 +247,7 @@ auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesS
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    return thermoPropertiesMinMurnaghanEOSHP98(t, p, tps);
+    return thermoPropertiesMinMurnaghanEOSHP98(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -279,7 +279,7 @@ auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    return thermoPropertiesMinBerman88(t, p, tps);
+    return thermoPropertiesMinBerman88(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================

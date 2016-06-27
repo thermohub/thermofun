@@ -63,9 +63,11 @@ auto thermoParam (bson bso) -> ThermoParametersSubstance
 
     bsonio::bson_to_key(bso.data, substExpans, kbuf);
     if (kbuf != "*") ps.isobaric_expansivity = std::stod(kbuf.c_str());
+    else ps.isobaric_expansivity = 0.0;
 
     bsonio::bson_to_key(bso.data, substCompres, kbuf);
     if (kbuf != "*") ps.isothermal_compresibility = std::stod(kbuf.c_str());
+    else ps.isobaric_expansivity = 0.0;
 
     bsonio::bson_read_array_path(bso.data, substEOSad, vkbuf); ps.Cp_nonElectrolyte_coeff.resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_nonElectrolyte_coeff.begin(), [](const std::string& val)
