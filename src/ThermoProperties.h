@@ -81,10 +81,10 @@ struct PropertiesSolvent
     /// first order derivative of alpha with T
     Reaktoro::ThermoScalar dAldT;
 
-    /// constant temperature compressibility (beta) (in units of (1/bar)
+    /// constant temperature compressibility (beta) (in units of (1/Pa)
     Reaktoro::ThermoScalar Beta;
 
-    /// alpha/beta ratio (in units of K/bar)
+    /// alpha/beta ratio (in units of K/Pa)
     Reaktoro::ThermoScalar Albe;
 
     /// ideal gas Gibbs energy

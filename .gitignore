@@ -6,5 +6,6 @@ tests/unit01/tcorrpt-test.pro.user
 tests/unit02/HKF-test.pro.user
 tests/unit03/AD-test.pro.user
 tests/unit04/IO-test.pro.user
+tests/unit05/IO-autoOutput-test.pro.user
 src/*.autosave
 tests/unit01/src/*.autosave

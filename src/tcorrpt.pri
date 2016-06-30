@@ -41,7 +41,8 @@
     $$PWD/Solute/SoluteHKFgems.h \
     $$PWD/Solute/SoluteADgems.h \
     $$PWD/Solvent/WaterIdealGasWolley.h \
-    $$PWD/ReadFiles.h
+    $$PWD/ReadFiles.h \
+    $$PWD/Common/OutputToCSV.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -79,4 +80,5 @@
     $$PWD/Solute/SoluteHKFgems.cpp \
     $$PWD/Solute/SoluteADgems.cpp \
     $$PWD/Solvent/WaterIdealGasWolley.cpp \
-    $$PWD/ReadFiles.cpp
+    $$PWD/ReadFiles.cpp \
+    $$PWD/Common/OutputToCSV.cpp

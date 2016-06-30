@@ -15,8 +15,8 @@ int main(int argc, char const *argv[])
     ThermoPropertiesSubstance tps;
     ThermoPropertiesReaction tpr;
 
-    tps = thermo.thermoPropertiesSubstance("Formula/Name of Substance", P, T);
-    tpr = thermo.thermoPropertiesReaction("Formula/Name of Reaction", P, T);
+    tps = thermo.thermoPropertiesSubstance("Substance Symbol", P, T);
+    tpr = thermo.thermoPropertiesReaction("Reaction Symbol", P, T);
 
     return 0;
 }

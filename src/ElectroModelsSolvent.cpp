@@ -89,7 +89,7 @@ auto WaterJNgems::electroPropertiesSolvent(double T, double P) -> ElectroPropert
 
     water_hgk.calculateWaterHGKgems(T, P);
 
-    return water_hgk.electroPropertiesWaterJNgems();
+    return water_hgk.electroPropertiesWaterJNgems(0); // state 0 = liquid
 }
 
 } // End namespace TCorrPT
