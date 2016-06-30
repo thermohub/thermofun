@@ -8,7 +8,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 #CONFIG += -std=c++11
 
-TARGET = unit01
+TARGET = HKF-test
 
 TCORRPT_TEST_CPP = ./src
 TCORRPT_CPP   =  ../../../tcorrpt/src

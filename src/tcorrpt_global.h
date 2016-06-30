@@ -10,6 +10,8 @@
 #pragma GCC diagnostic ignored "-Wswitch"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
+#define OUTPUT_STEAM_CONVENTION
+
 using namespace std;
 
 typedef std::vector<double> vd;
@@ -36,6 +38,8 @@ static const double R_CONSTANT = 8.31451,
 
 /// The molar mass of water in units of g/mol
 static const double H2OMolarMass = 18.015268;
+
+static const std::string output_path = "/Output/";
 
 struct STATES
 {

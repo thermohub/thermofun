@@ -52,7 +52,7 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     wts.densityTP = ps.densityTP;
     wts.densityPP = ps.densityPP;
 
-    Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, p, wts);
+    Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, /*p,*/ wts);
 
     return electroPropertiesWaterJNreaktoro(wes);
 }

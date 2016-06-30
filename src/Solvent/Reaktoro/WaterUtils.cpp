@@ -40,13 +40,15 @@ auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsM
     {
         auto p = waterSaturatedPressureWagnerPruss(T);
         state = (P < p) ? 1 : 0; // changed fro P <= DM 29.05.2016
-        if ((p == P) && (solvent_state == 1)) state = 1;
     }
     else
         state = 2;
 
     // Determine an adequate initial guess for (dimensionless) density based on the physical state of water
     ThermoScalar D;
+
+    if ((solvent_state >=0) && (T.val <= waterCriticalTemperature))
+    state = solvent_state;
 
     switch(state)
     {

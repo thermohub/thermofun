@@ -1,13 +1,14 @@
 //#include "ThermoProperties.h"
 #include "WaterHGKreaktoro.h"
 #include "Reaktoro/WaterConstants.hpp"
+#include "Common/OutputWaterSteamConventionProp.h"
 
 namespace TCorrPT {
 
 auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-    const auto Ttr =  273.16;                   // unit: K
+    const auto Ttr =  273.16;             // unit: K
     const auto Str =  15.1320 * cal_to_J; // unit: J/(mol*K)
     const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
     const auto Htr = -68767.0 * cal_to_J; // unit: J/mol
@@ -38,6 +39,10 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, const Reaktoro::W
     state.heat_capacity_cp = Cp;
     state.heat_capacity_cv = Cv;
 
+#ifdef OUTPUT_STEAM_CONVENTION
+    OutputSteamConventionH2OProp("H2OHGKreaktoro.csv", wt);
+#endif
+
     return state;
 }
 
@@ -57,6 +62,12 @@ auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> Propert
     state.pressureT  = wt.pressureT;
     state.pressureTD = wt.pressureTD;
     state.pressureTT = wt.pressureTT;
+
+    state.Alpha      = (-wt.densityT/wt.density).val;
+    state.Beta       = (wt.densityP/wt.density).val;
+    state.dAldT      = (-wt.densityTT/wt.density).val + state.Alpha*state.Alpha;
+//    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
+//    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
 
     return state;
 }

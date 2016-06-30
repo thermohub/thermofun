@@ -52,6 +52,10 @@ struct Substance::Impl
     /// temperature and pressure using a certain calculation model
     ThermoParametersSubstance thermo_param;
 
+    string solventName;
+
+    int charge;
+
 //    /// Concentration scale used in defining the properties of the substance
 //    ConcentrationScales::type StdConcentration_scale;
 };
@@ -123,6 +127,16 @@ auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
     pimpl->aggregate_state = aggregate_state;
 }
 
+auto Substance::setCharge(int charge) -> void
+{
+    pimpl->charge = charge;
+}
+
+auto Substance::setSolventName(string name) -> void
+{
+    pimpl->solventName = name;
+}
+
 auto Substance::name() const -> std::string
 {
     return pimpl->name;
@@ -186,6 +200,16 @@ auto Substance::method_P() -> MethodCorrP_Thrift::type
 auto Substance::substanceClass() -> SubstanceClass::type
 {
     return pimpl->substance_class;
+}
+
+auto Substance::charge() -> int
+{
+    return pimpl->charge;
+}
+
+auto Substance::SolventName() -> string
+{
+    return pimpl->solventName;
 }
 
 } // namespace TCorrPT

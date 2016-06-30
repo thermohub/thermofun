@@ -23,6 +23,47 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class SoluteHKFgems
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    SoluteHKFgems();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit SoluteHKFgems(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+
+class SoluteHKFreaktoro
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    SoluteHKFreaktoro();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit SoluteHKFreaktoro(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 
 /// integration of empirical heat capacity equation Cp=f(T);
 class EmpiricalCpIntegration
