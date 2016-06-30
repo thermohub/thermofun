@@ -69,6 +69,12 @@ public:
 
     /// Set
     auto setSolventName(string name) -> void;
+
+    /// Set
+    auto setReferenceT(double T) -> void;
+
+    /// Set
+    auto setReferenceP(double P) -> void;
     
     // Get functions
     /// Return the name of the chemical Substance

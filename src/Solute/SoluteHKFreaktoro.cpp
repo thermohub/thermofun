@@ -44,6 +44,15 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
 
+    if (hkf.Gf == 0.0 || hkf.a1 == 0.0 || hkf.c1 == 0.0)
+    {
+        Exception exception;
+        exception.error << "Error in HKFreaktoro EOS";
+        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+
     // Auxiliary variables
     const auto Pbar = P * 1.0e-05;
     const auto Tr   = referenceTemperature;
@@ -173,6 +182,16 @@ auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSo
     const auto TdegC = T - 273.15;
     const auto Pbar  = P * 1.0e-5;
 
+    if (ps.density >= 1300)
+    {
+        Exception exception;
+        exception.error << "Error in functionG";
+        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+            << ps.density / 1000 << "g*cm-3.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
     // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
     if(ps.density > 1000.0 || ps.density < 350.0)
@@ -253,33 +272,5 @@ auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSo
 
     return funcG;
 }
-
-//auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void
-//{
-//    // Get the HKF thermodynamic data of the species
-//    auto hkf = species.thermoParameters().HKF_parameters;
-
-//    // Check if given temperature is within the allowed range
-//    if(T < 0 || T > hkf.Tmax)
-//    {
-//        Exception exception;
-//        exception.error << "Unable to calculate the thermodynamic properties of species "
-//              << species.name() << " using the revised HKF equations of state.";
-//        exception.reason << "The provided temperature, " << T.val << " K,"  << "is either negative "
-//              "or greater than the maximum allowed, " << hkf.Tmax << " K.";
-//        RaiseError(exception);
-//    }
-
-//    // Check if given pressure is within the allowed range
-//    if(P < 0 || P > hkf.Pmax)
-//    {
-//        Exception exception;
-//        exception.error << "Unable to calculate the thermodynamic properties of species "
-//              << species.name() << " using the revised HKF equations of state.";
-//        exception.reason << "The provided pressure, " << P.val << " K,"  << "is either negative "
-//              "or greater than the maximum allowed, " << hkf.Pmax << " K.";
-//        RaiseError(exception);
-//    }
-//}
 
 }

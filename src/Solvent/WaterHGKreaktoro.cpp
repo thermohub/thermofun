@@ -3,6 +3,8 @@
 #include "Reaktoro/WaterConstants.hpp"
 #include "Common/OutputWaterSteamConventionProp.h"
 
+//#include "Solvent/Reaktoro/WaterUtils.hpp"
+
 namespace TCorrPT {
 
 auto thermoPropertiesWaterHGKreaktoro(Reaktoro::Temperature T, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance
@@ -68,6 +70,9 @@ auto propertiesWaterHGKreaktoro(const Reaktoro::WaterThermoState& wt) -> Propert
     state.dAldT      = (-wt.densityTT/wt.density).val + state.Alpha*state.Alpha;
 //    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
 //    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
+
+//    auto t = Reaktoro::Temperature( wt.temperature.val );
+//    waterIdealGas(t, state);
 
     return state;
 }

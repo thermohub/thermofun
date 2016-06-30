@@ -1,6 +1,7 @@
 #include "WaterWP95reaktoro.h"
 #include "Reaktoro/WaterConstants.hpp"
 #include "Common/OutputWaterSteamConventionProp.h"
+//#include "Solvent/Reaktoro/WaterUtils.hpp"
 
 namespace TCorrPT {
 
@@ -67,6 +68,9 @@ auto propertiesWaterWP95reaktoro(const Reaktoro::WaterThermoState& wt) -> Proper
     state.dAldT      = (-wt.densityTT/wt.density).val + state.Alpha*state.Alpha;
 //    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
 //    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
+
+//    auto t = Reaktoro::Temperature( wt.temperature.val );
+//    waterIdealGas(t, state);
 
     return state;
 }

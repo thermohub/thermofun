@@ -46,6 +46,7 @@ struct ThermoParametersSubstance
 {
     /// Isothermal compressibility (for condensed substances)
     double isothermal_compresibility;
+
     /// Isobaric expansivity (for condensed substances)
     double isobaric_expansivity;
 
@@ -59,7 +60,7 @@ struct ThermoParametersSubstance
     vvd Cp_coeff;
 
     /// Empirical coefficients for nonelectrolyte aqueous solutes in Akinfiev etc.
-    vvd Cp_nonElectrolyte_coeff;
+    vd Cp_nonElectrolyte_coeff; // vvd Cp_nonElectrolyte_coeff;
 
     /// Column: TCf- at Pr; DltS,DltH,DltV; dT/dP of phase transitions
     vvd phase_transition_prop;

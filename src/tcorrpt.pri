@@ -38,7 +38,9 @@
     $$PWD/Solvent/WaterHGK-JNgems.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
     $$PWD/Solute/SoluteHKFreaktoro.h \
-    $$PWD/Solute/SoluteHKFgems.h
+    $$PWD/Solute/SoluteHKFgems.h \
+    $$PWD/Solute/SoluteADgems.h \
+    $$PWD/Solvent/WaterIdealGasWolley.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -73,4 +75,6 @@
     $$PWD/Solvent/WaterHGK-JNgems.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Solute/SoluteHKFreaktoro.cpp \
-    $$PWD/Solute/SoluteHKFgems.cpp
+    $$PWD/Solute/SoluteHKFgems.cpp \
+    $$PWD/Solute/SoluteADgems.cpp \
+    $$PWD/Solvent/WaterIdealGasWolley.cpp
