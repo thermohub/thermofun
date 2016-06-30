@@ -9,7 +9,6 @@ namespace TCorrPT {
 struct Substance;
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
-struct ElectroPropertiesSolvent;
 
 class WaterHGK
 {
@@ -23,17 +22,12 @@ public:
     /// Return the physical properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
+    auto propertiesSolvent (double T, double P, int state) -> PropertiesSolvent;
 
     /// Return the themrodynamic properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
-
-    /// Return the electro-chemical properties of the solvent.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+    auto thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -53,17 +47,12 @@ public:
     /// Return the physical properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
+    auto propertiesSolvent (double T, double P, int state) -> PropertiesSolvent;
 
     /// Return the themrodynamic properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
-
-    /// Return the electro-chemical properties of the solvent.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+    auto thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -83,17 +72,12 @@ public:
     /// Return the physical properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto propertiesSolvent (double T, double P) -> PropertiesSolvent;
+    auto propertiesSolvent (double T, double P, int state) -> PropertiesSolvent;
 
     /// Return the themrodynamic properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto thermoPropertiesSubstance(double T, double P) -> ThermoPropertiesSubstance;
-
-    /// Return the electro-chemical properties of the solvent.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+    auto thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;

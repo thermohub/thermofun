@@ -108,6 +108,11 @@ auto Substance::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
     pimpl->method_T = method_T;
 }
 
+auto Substance::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
+{
+    pimpl->method_P = method_P;
+}
+
 auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
 {
     pimpl->substance_class = substance_class;
@@ -171,6 +176,11 @@ auto Substance::methodGenEOS() -> MethodGenEoS_Thrift::type
 auto Substance::method_T() -> MethodCorrT_Thrift::type
 {
     return pimpl->method_T;
+}
+
+auto Substance::method_P() -> MethodCorrP_Thrift::type
+{
+    return pimpl->method_P;
 }
 
 auto Substance::substanceClass() -> SubstanceClass::type

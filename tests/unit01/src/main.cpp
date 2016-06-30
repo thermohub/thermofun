@@ -199,8 +199,8 @@ int main()
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 375;
-    P = 450;
+    T = 250;
+    P = 39;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
     ElectroPropertiesSolvent resSolvG, resSolvR;
@@ -213,11 +213,11 @@ int main()
     do
     {
         myfile << T << ","<<P<<",";
-        resSubstG = H2OHGKgems.thermoPropertiesSubstance(T, P);
-        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
+        resSubstG = H2OHGKgems.thermoPropertiesSubstance(T, P, 1);
+        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P, 1);
 
-        resSolvG = H2OHGKgems.electroPropertiesSolvent(T,P);
-        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
+//        resSolvG = H2OHGKgems.electroPropertiesSolvent(T,P);
+//        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
 
         myfile << resSubstG.gibbs_energy <<","<<resSubstR.gibbs_energy<<",";
         myfile << resSubstG.enthalpy <<","<<resSubstR.enthalpy<<",";
@@ -230,7 +230,7 @@ int main()
 
         T +=10;
 
-    } while (T<=300);
+    } while (T<=250);
 
     myfile.close();
 
@@ -239,7 +239,7 @@ int main()
 // +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
 
     // +++ Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
-    #define TEST_H2O_HGK_VS_H2O_WP95
+//    #define TEST_H2O_HGK_VS_H2O_WP95
     #ifdef TEST_H2O_HGK_VS_H2O_WP95
 
     Substance water;
@@ -257,7 +257,7 @@ int main()
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 25;
+    T = 250;
     P = 0;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
@@ -273,8 +273,8 @@ int main()
     do
     {
         myfile << T << ","<<P<<",";
-        resSubstG = H2OWP95reaktoro.thermoPropertiesSubstance(T, P);
-        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P);
+        resSubstG = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 0);
+        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P, 0);
 
 //        resSolvG = H2OWP95reaktoro.electroPropertiesSolvent(T,P);
 //        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
@@ -290,10 +290,10 @@ int main()
 
         T +=10;
 
-    } while (T<=350);
+    } while (T<=250);
         T = 25;
         P +=500;
-    } while (P<=10000);
+    } while (P<=0);
 
     myfile.close();
 

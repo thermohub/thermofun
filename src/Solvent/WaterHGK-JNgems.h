@@ -363,11 +363,11 @@ public:
 
     auto calculateWaterHGKgems(double T, double P) -> void;
 
-    auto propertiesWaterHGKgems() -> PropertiesSolvent;
+    auto propertiesWaterHGKgems(int state) -> PropertiesSolvent;
 
-    auto thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance;
+    auto thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance;
 
-    auto electroPropertiesWaterHGKgems() -> ElectroPropertiesSolvent;
+    auto electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent;
 
 };
 

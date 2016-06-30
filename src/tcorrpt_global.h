@@ -77,7 +77,9 @@ typedef struct {
     CEM_O2 = 113,
     CEM_AR = 114,
     CEM_PO = 115,
-    CEM_NP = 116
+    CEM_NP = 116,
+    CEM_WJNR = 117, /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in Reaktoro
+    CEM_WJNG = 118  /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in GEMS
   };
 }  MethodGenEoS_Thrift;
 static const int MethodGenEoS_ndxThrift[] = {
@@ -170,7 +172,7 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_IFG,
   MethodCorrT_Thrift::CTM_KAS,
   MethodCorrT_Thrift::CTM_DAS,
-  MethodCorrT_Thrift::CTM_WAR,
+  MethodCorrT_Thrift::CTM_WAR,      /// calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
   MethodCorrT_Thrift::CTM_WWP       /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
 };
 /// Codes for temperature correction methods used in GEMS
@@ -224,7 +226,7 @@ typedef struct {
     CPM_HKF = 319,
     CPM_AKI = 320,
     CPM_PCR = 321,
-    CPM_INK = 322
+    CPM_INK = 322,
   };
 } MethodCorrP_Thrift;
 static const int MethodCorrP_ndxThrift[] = {

@@ -1,44 +1,82 @@
 // TCorrPT includes
 #include "Common/Exception.h"
-#include "WaterHGKgems.h"
+#include "WaterHGK-JNgems.h"
 #include "ThermoProperties.h"
 
 namespace TCorrPT {
 
 
-auto WaterHGKgems::thermoPropertiesWaterHGKgems() -> ThermoPropertiesSubstance
+auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance wp;
-    wp.helmholtz_energy         = wr.Aw * cal_to_J;
-    wp.gibbs_energy             = wr.Gw * cal_to_J;
-    wp.entropy                  = wr.Sw * cal_to_J;
-    wp.internal_energy          = wr.Uw * cal_to_J;
-    wp.enthalpy                 = wr.Hw * cal_to_J;
-    wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
-    wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
+    if (aSpc.isat && (state == 0))
+    {
+        wp.helmholtz_energy         = wl.Aw * cal_to_J;
+        wp.gibbs_energy             = wl.Gw * cal_to_J;
+        wp.entropy                  = wl.Sw * cal_to_J;
+        wp.internal_energy          = wl.Uw * cal_to_J;
+        wp.enthalpy                 = wl.Hw * cal_to_J;
+        wp.heat_capacity_cv         = wl.Cvw * cal_to_J;
+        wp.heat_capacity_cp         = wl.Cpw * cal_to_J;
 
-    // Rho in g/cm3, waterMolarMass in g/mol
-    wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+        // Rho in g/cm3, waterMolarMass in g/mol
+        wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+    } else
+    {
+        wp.helmholtz_energy         = wr.Aw * cal_to_J;
+        wp.gibbs_energy             = wr.Gw * cal_to_J;
+        wp.entropy                  = wr.Sw * cal_to_J;
+        wp.internal_energy          = wr.Uw * cal_to_J;
+        wp.enthalpy                 = wr.Hw * cal_to_J;
+        wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
+        wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
 
+        // Rho in g/cm3, waterMolarMass in g/mol
+        wp.volume                   = 1/aSta.Dens[0] * H2OMolarMass * cm3_mol_to_J_bar;
+    }
 return wp;
 }
 
-auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
+auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 {
     PropertiesSolvent wp;
     double rho, alp, dal, bet;
 
-    wp.Surten   = wr.Surtenw;
-    wp.Alpha    = wr.Alphaw;
-    wp.Beta     = wr.Betaw;
-    wp.Tcond    = wr.Tcondw;
-    wp.Tdiff    = wr.Tdiffw;
-    wp.Prndtl   = wr.Prndtlw;
-    wp.dAldT    = wr.dAldT;
-    wp.Albe     = wr.Albew;
-    wp.Speed    = wr.Speedw;
-    wp.Visc     = wr.Viscw;
-    wp.Visck    = wr.Visckw;
+    if (aSpc.isat && (state == 0))
+    {
+        wp.Surten   = wl.Surtenw;
+        wp.Alpha    = wl.Alphaw;
+        wp.Beta     = wl.Betaw;
+        wp.Tcond    = wl.Tcondw;
+        wp.Tdiff    = wl.Tdiffw;
+        wp.Prndtl   = wl.Prndtlw;
+        wp.dAldT    = wl.dAldT;
+        wp.Albe     = wl.Albew;
+        wp.Speed    = wl.Speedw;
+        wp.Visc     = wl.Viscw;
+        wp.Visck    = wl.Visckw;
+
+        alp = wl.Alphaw;
+        dal = wl.dAldT;
+        bet = wl.Betaw;
+    } else
+    {
+        wp.Surten   = wr.Surtenw;
+        wp.Alpha    = wr.Alphaw;
+        wp.Beta     = wr.Betaw;
+        wp.Tcond    = wr.Tcondw;
+        wp.Tdiff    = wr.Tdiffw;
+        wp.Prndtl   = wr.Prndtlw;
+        wp.dAldT    = wr.dAldT;
+        wp.Albe     = wr.Albew;
+        wp.Speed    = wr.Speedw;
+        wp.Visc     = wr.Viscw;
+        wp.Visck    = wr.Visckw;
+
+        alp = wr.Alphaw;
+        dal = wr.dAldT;
+        bet = wr.Betaw;
+    }
 
     wp.gibbsIdealGas    = id.gi;
     wp.entropyIdealGas  = id.si;
@@ -46,9 +84,6 @@ auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
     wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
 
     rho = aSta.Dens[aSpc.isat] * 1000;
-    alp = wr.Alphaw;
-    dal = wr.dAldT;
-    bet = wr.Betaw;
 
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
@@ -57,7 +92,7 @@ auto WaterHGKgems::propertiesWaterHGKgems() -> PropertiesSolvent
 return wp;
 }
 
-auto WaterHGKgems::electroPropertiesWaterHGKgems() -> ElectroPropertiesSolvent
+auto WaterHGKgems::electroPropertiesWaterJNgems() -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent wp;
     double eps, xborn, yborn, qborn;
