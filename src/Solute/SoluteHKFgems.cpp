@@ -23,12 +23,21 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
+    auto refProp = species.thermoReferenceProperties();
 
-    if (hkf.Gf == 0.0 || hkf.a1 == 0.0 || hkf.c1 == 0.0)
+    if (hkf.size() == 0)
     {
         Exception exception;
         exception.error << "Error in HKFgems EOS";
-        exception.reason << "The HKF paramteres for "<< species.name() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
+    {
+        Exception exception;
+        exception.error << "Error in HKFgems EOS";
+        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -41,16 +50,16 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
 //    const auto Pr   = referencePressure;
 //    const auto Zr   = referenceBornZ;
 //    const auto Yr   = referenceBornY;
-    const auto Gf   = hkf.Gf;
-    const auto Hf   = hkf.Hf;
-    const auto Sr   = hkf.Sr;
-    const auto a1   = hkf.a1;
-    const auto a2   = hkf.a2;
-    const auto a3   = hkf.a3;
-    const auto a4   = hkf.a4;
-    const auto c1   = hkf.c1;
-    const auto c2   = hkf.c2;
-    const auto wr   = hkf.wref;
+    const auto Gf   = refProp.gibbs_energy / cal_to_J;
+    const auto Hf   = refProp.enthalpy / cal_to_J;
+    const auto Sr   = refProp.entropy / cal_to_J;
+    const auto a1   = hkf[0];
+    const auto a2   = hkf[1];
+    const auto a3   = hkf[2];
+    const auto a4   = hkf[3];
+    const auto c1   = hkf[4];
+    const auto c2   = hkf[5];
+    const auto wr   = hkf[6];
     const auto W    = aes.w;
     const auto dwdT   = aes.wT;
     const auto dwdP   = aes.wP*1e05; // from 1/Pa to 1/bar
@@ -230,7 +239,7 @@ auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance
     const auto chg = species.charge();
 
     auto hkf = species.thermoParameters().HKF_parameters;
-    const auto wref = hkf.wref;
+    const auto wref = hkf[6] /*hkf.wref*/;
 
     ElectroPropertiesSubstance eps;
 

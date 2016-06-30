@@ -8,6 +8,10 @@
 
 // TCorrPT includes
 #include "Common/Exception.h"
+#include "ReadFiles.h"
+
+//#include "bsonio/v_json.h"
+
 
 namespace TCorrPT {
 
@@ -35,39 +39,102 @@ struct Database::Impl
     /// The set of all gaseous species in the database
     ReactionsMap reactions_map;
 
+    char type_ = bsonio::FileTypes::Undef_;
+
     Impl()
     {}
 
     Impl(std::string filename)
     {
-//        // Create the XML document
-//        xml_document doc;
+        bsonio::FJson file (filename);
+        type_ = file.Type();
 
-//        // Load the xml database file
-//        auto result = doc.load_file(filename.c_str());
+        switch( type_ )
+        {
+          case bsonio::FileTypes::Json_:
+              parseJson( filename );
+               break;
+          case bsonio::FileTypes::Yaml_:
+//               loadYaml( bobj );
+               break;
+          case bsonio::FileTypes::XML_:
+//               loadXml( bobj );
+               break;
+        }
 
-//        // Check if result is not ok, and then try a built-in database with same name
-//        if(!result)
-//        {
-//            // Search for a built-in database
-//            std::string builtin = database(filename);
+/*
+        bson InputBson;
+        bson bso;
+        bso.data = 0;
 
-//            // If not empty, use the built-in database to create the xml doc
-//            if(!builtin.empty()) result = doc.load(builtin.c_str());
-//        }
+        file.LoadBson( &InputBson );
+        string key = InputBson.data;
 
-//        // Ensure either a database file path was correctly given, or a built-in database
-//        if(!result)
-//        {
-//            std::string names;
-//            for(auto const& s : databases()) names += s + " ";
-//            RuntimeError("Could not initialize the Database instance with given database name `" + filename + "`.",
-//                "This name either points to a non-existent database file, or it is not one of the "
-//                "built-in database files in Reaktoro. The built-in databases are: " + names + ".");
-//        }
 
-//        // Parse the xml document
-//        parse(doc, filename);
+        string kbuf;
+
+        vector<string> values;
+        string field = "properties.eos_hkf_coeffs.values.0";
+
+        bsonio::bson_to_key( InputBson.data, field.c_str(), kbuf );
+
+        bsonio::strip( kbuf );
+
+        std::string className = "VertexSubstance";
+
+        SchemaNode* data;
+
+        ThriftSchema schema;
+
+        data->_schema = &schema;
+
+        data->_schema->addSchemaFile("substance.schema.json");
+        data->_schema->addSchemaFile("graphdb.schema.json");
+        data->_schema->addSchemaFile("prop.schema.json");
+
+        SchemaNode* data2 = data->newSchemaStruct( className, bso.data );
+
+        char b;
+
+        // Reading work structure from json text file
+        fstream f(filename, ios::in);
+        bsonio::bsonioErrIf( !f.good() , filename, "Fileread error...");
+
+        bsonio::ParserJson parserJson;
+        string objStr;
+        string value;
+
+//        impex::FormatStructDataFile fformatdata;
+
+//        readDataFromBsonSchema(data->_schema, &InputBson, "VertexSubstance",  &fformatdata );
+
+        while( !f.eof() )
+           {
+              f.get(b);
+              if( b == bsonio::jsBeginObject )
+              {
+                b= ' ';
+                objStr =  parserJson.readObjectText(f);
+                //std::cout << objStr.c_str() << endl;
+                bson_init(&bso);
+                parserJson.parseObject( &bso );
+                bson_finish(&bso);
+
+                bsonio::bson_to_key( bso.data, field.c_str(), kbuf );
+                data2->setStruct(bso.data);
+
+                data2->field("properties.eos_hkf_coeffs.values.0")->getValue( value  );
+
+                int size = data2->field("properties.eos_hkf_coeffs.values")->getSizeArray();
+                vector<string> vvalue(size);
+
+                data2->field("properties.eos_hkf_coeffs.values")->getArray( vvalue  );
+
+                cout << value << endl;
+
+               }
+            }
+*/
     }
 
     template<typename Key, typename Value>
@@ -82,7 +149,7 @@ struct Database::Impl
 
     auto addSubstance(const Substance& substance) -> void
     {
-        substances_map.insert({substance.name(), substance});
+        substances_map.insert({substance.symbol(), substance});
     }
 
     auto addReaction(const Reaction& reaction) -> void
@@ -98,6 +165,16 @@ struct Database::Impl
     auto getReactions() -> std::vector<Reaction>
     {
         return collectValues(reactions_map);
+    }
+
+    auto numberOfSubstances() -> int
+    {
+        return collectValues(substances_map).size();
+    }
+
+    auto numberOfReactions() -> int
+    {
+        return collectValues(reactions_map).size();
     }
 
     auto getSubstance(std::string name) -> Substance&
@@ -126,6 +203,69 @@ struct Database::Impl
         return reactions_map.count(name) != 0;
     }
 
+    /// Parses the JSON file and puts the data into the internal data structure
+    /// @param filename name of the file (in the working directory)
+    auto parseJson(std::string filename) -> void
+    {
+        string kbuf, objStr; bsonio::ParserJson parserJson;
+        bson bso; char b;
+        bso.data = 0;
+        // Reading work structure from json text file
+        fstream f(filename, ios::in);
+
+        if (!f.good())
+        {
+            Exception exception;
+            exception.error << "File read error " << filename << " ";
+            exception.reason << "The file could not be read. ";
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
+
+        try
+        {
+            while( !f.eof() )
+            {
+                f.get(b);
+                if( b == bsonio::jsBeginObject )
+                {
+                    b= ' ';
+                    objStr =  parserJson.readObjectText(f);
+                    bson_init(&bso);
+                    parserJson.parseObject( &bso );
+                    bson_finish(&bso);
+
+                    bsonio::bson_to_key( bso.data, label, kbuf );
+
+                    if (kbuf == "substance")
+                    {
+                        Substance substance = parseSubstance(bso);
+                        substances_map[substance.symbol()] = substance;
+                    } else
+                    if (kbuf == "reaction")
+                    {
+    //                      Reaction reaction = parseReaction(bso);
+    //                      reactions_map[reaction.name()] = reaction;
+                    } else
+                    {
+                        Exception exception;
+                        exception.error << "Unknown JSON type " << kbuf << " ";
+                        exception.reason << "The JSON object needs to be a substance, file " << filename << ".";
+                        exception.line = __LINE__;
+                        RaiseError(exception);
+                    }
+                }
+            }
+        }
+        catch (bsonio::bsonio_exeption e)
+        {
+            Exception exception;
+            exception.error << e.title_;
+            exception.reason << e.mess_;
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
+    }
 };
 
 Database::Database()
@@ -147,6 +287,16 @@ auto Database::addReaction(const Reaction& reaction) -> void
     pimpl->addReaction(reaction);
 }
 
+auto Database::getSubstance(std::string symbol) const -> const Substance&
+{
+    return pimpl->getSubstance(symbol);
+}
+
+auto Database::getReaction(std::string symbol) const -> const Reaction&
+{
+    return pimpl->getReaction(symbol);
+}
+
 auto Database::getSubstances() -> std::vector<Substance>
 {
     return pimpl->getSubstances();
@@ -157,24 +307,23 @@ auto Database::getReactions() -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
-auto Database::getSubstance(std::string name) const -> const Substance&
+auto Database::numberOfSubstances() -> int
 {
-    return pimpl->getSubstance(name);
+    return pimpl->numberOfSubstances();
 }
 
-auto Database::getReaction(std::string name) const -> const Reaction&
+auto Database::numberOfReactions() -> int
 {
-    return pimpl->getReaction(name);
+    return pimpl->numberOfReactions();
+}
+auto Database::containsSubstance(std::string symbol) const -> bool
+{
+    return pimpl->containsSubstance(symbol);
 }
 
-auto Database::containsSubstance(std::string name) const -> bool
+auto Database::containsReaction(std::string symbol) const -> bool
 {
-    return pimpl->containsSubstance(name);
-}
-
-auto Database::containsReaction(std::string name) const -> bool
-{
-    return pimpl->containsReaction(name);
+    return pimpl->containsReaction(symbol);
 }
 
 } // namespace TCorrPT

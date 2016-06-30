@@ -30,26 +30,26 @@ int main(int argc, char *argv[])
 
     WaterWP95reaktoro H2OWP95reaktoro ( water );
 
-    Substance hcl;
-    hcl.setName("HCl");
-    hcl.setFormula("HCl@");
-    hcl.setCharge(0);
-    hcl.setSolventName("water");
+    Substance co2;
+    co2.setName("CO2");
+    co2.setFormula("CO2@");
+    co2.setCharge(0);
+    co2.setSolventSymbol("CO2@");
 
-    hcl.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
-    hcl.setAggregateState(AggregateState::type::AQUEOUS);
+    co2.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
+    co2.setAggregateState(AggregateState::type::AQUEOUS);
 
-    hcl.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_CPT);
-    hcl.setMethod_P(MethodCorrP_Thrift::type::CPM_AKI);
-    hcl.setMethod_T(MethodCorrT_Thrift::type::CTM_CST);
+    co2.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_CPT);
+    co2.setMethod_P(MethodCorrP_Thrift::type::CPM_AKI);
+    co2.setMethod_T(MethodCorrT_Thrift::type::CTM_CST);
 
     vd Interval, Coeff, ADparam;
     vvd TCpInterval,
     CpCoefficients;
 
     Interval = {0,1500};
-    Coeff = {0.28821, 0.0217563, -365734, 464.476, -4.74975e-06};
-    ADparam = {-0.28, 11.642, -7.4244};
+    Coeff = {65.6823, 0.0111973, 280403, -599.129, -3.91572e-06};
+    ADparam = {-0.085, -8.8321, 11.2684};
 
     TCpInterval.push_back(Interval);
     CpCoefficients.push_back(Coeff);
@@ -58,26 +58,26 @@ int main(int argc, char *argv[])
     prs.Cp_coeff = CpCoefficients;
     prs.temperature_intervals = TCpInterval;
     prs.Cp_nonElectrolyte_coeff = ADparam;
-    hcl.setThermoParameters(prs);
+    co2.setThermoParameters(prs);
 
     double T, P;
-    T = 35;
+    T = 25;
     P = 1;
 
-    ThermoPropertiesSubstance rHCl, TrPrHCl;
+    ThermoPropertiesSubstance rCO2, TrPrCO2;
 
-    TrPrHCl.gibbs_energy = -126045;
-    TrPrHCl.volume = 2.06286;
-    TrPrHCl.enthalpy = -165244;
-    TrPrHCl.entropy = 45.408;
-    TrPrHCl.heat_capacity_cp = 46.944;
+    TrPrCO2.gibbs_energy = -386030;
+    TrPrCO2.volume = 3.27028;
+    TrPrCO2.enthalpy = -413337;
+    TrPrCO2.entropy = 119.29;
+    TrPrCO2.heat_capacity_cp = 209.749;
 
-    hcl.setThermoReferenceProperties(TrPrHCl);
-    hcl.setReferenceT(25);
-    hcl.setReferenceP(1);
+    co2.setThermoReferenceProperties(TrPrCO2);
+    co2.setReferenceT(25);
+    co2.setReferenceP(1);
 
-    EmpiricalCpIntegration CpHCl (hcl);
-    rHCl = CpHCl.thermoProperties(T, P);
+    EmpiricalCpIntegration CpCO2 (co2);
+    rCO2 = CpCO2.thermoProperties(T, P);
 
     WaterIdealGasWoolley wig ( water );
 
@@ -89,11 +89,11 @@ int main(int argc, char *argv[])
 
     ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0);
 
-    SoluteAkinfievDiamondEOS hcl_AD (hcl);
+    SoluteAkinfievDiamondEOS CO2_AD (co2);
 
     ThermoPropertiesSubstance result;
 
-    result = hcl_AD.thermoProperties(T, P, rHCl, wtp, wigp, wp0);
+    result = CO2_AD.thermoProperties(T, P, rCO2, wtp, wigp, wp0);
 
 //    ThermoPropertiesSubstance wp3 = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
 
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
 //    ElectroPropertiesSolvent wes1 = H2OJNreaktoro.electroPropertiesSolvent(T, P, wp1);
 //    ElectroPropertiesSolvent wes2 = H2OJNreaktoro.electroPropertiesSolvent(T, P, wp2);
 
-//    SoluteHKFgems al3HKFgems (hcl);
-//    SoluteHKFreaktoro al3HKFreaktoro (hcl);
+//    SoluteHKFgems al3HKFgems (CO2);
+//    SoluteHKFreaktoro al3HKFreaktoro (CO2);
 
 //    ThermoPropertiesSubstance resultG00, resultG01, resultG02, resultG10, resultG11, resultG12, resultG20, resultG21, resultG22,
 //            resultR11, resultR12, resultR22, resultR21;

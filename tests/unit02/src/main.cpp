@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     al3.setName("Al+3");
     al3.setFormula("Al+3");
     al3.setCharge(3);
-    al3.setSolventName("water");
+    al3.setSolventSymbol("H2O@");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -47,24 +47,19 @@ int main(int argc, char *argv[])
     al3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
     al3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
-    ThermoPropertiesSubstance al3_PrTr;
+    vector<double> hkf = {-0.33984, -1607.89, 12.0699, -21143, 14.4295, -88523, 274030 };
 
-    ParamsHKF hkf;
+    ThermoPropertiesSubstance ref;
 
-    hkf.Gf = -116510.03824091777;
-    hkf.Hf = -128769.03423328472;
-    hkf.Sr = -81.202913652642508;
-    hkf.a1 = -0.33984;
-    hkf.a2 = -1607.89;
-    hkf.a3 = 12.0699;
-    hkf.a4 = -21143;
-    hkf.c1 = 14.4295;
-    hkf.c2 = -88523;
-    hkf.wref = 274030;
+    ref.gibbs_energy = -116510.03824091777*cal_to_J;
+    ref.enthalpy = -128769.03423328472*cal_to_J;
+    ref.entropy = -81.202913652642508*cal_to_J;
+
 
     ThermoParametersSubstance prs;
     prs.HKF_parameters = hkf;
     al3.setThermoParameters(prs);
+    al3.setThermoReferenceProperties(ref);
 
     double T, P;
     T = 25;
@@ -104,7 +99,7 @@ int main(int argc, char *argv[])
     al3.setName("Al+3");
     al3.setFormula("Al+3");
     al3.setCharge(3);
-    al3.setSolventName("water");
+    al3.setSolventSymbol("H2O@");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -113,24 +108,19 @@ int main(int argc, char *argv[])
     al3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
     al3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
-    ThermoPropertiesSubstance al3_PrTr;
+    vector<double> hkf = {-0.33984, -1607.89, 12.0699, -21143, 14.4295, -88523, 274030 };
 
-    ParamsHKF hkf;
+    ThermoPropertiesSubstance ref;
 
-    hkf.Gf = -116510.03824091777;
-    hkf.Hf = -128769.03423328472;
-    hkf.Sr = -81.202913652642508;
-    hkf.a1 = -0.33984;
-    hkf.a2 = -1607.89;
-    hkf.a3 = 12.0699;
-    hkf.a4 = -21143;
-    hkf.c1 = 14.4295;
-    hkf.c2 = -88523;
-    hkf.wref = 274030;
+    ref.gibbs_energy = -116510.03824091777*cal_to_J;
+    ref.enthalpy = -128769.03423328472*cal_to_J;
+    ref.entropy = -81.202913652642508*cal_to_J;
+
 
     ThermoParametersSubstance prs;
     prs.HKF_parameters = hkf;
     al3.setThermoParameters(prs);
+    al3.setThermoReferenceProperties(ref);
 
     double T, P;
     T = 25;
@@ -165,7 +155,7 @@ int main(int argc, char *argv[])
     al3.setName("Al+3");
     al3.setFormula("Al+3");
     al3.setCharge(3);
-    al3.setSolventName("water");
+    al3.setSymbol("H2O@");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -174,22 +164,19 @@ int main(int argc, char *argv[])
     al3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
     al3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
-    ParamsHKF hkf;
+    vector<double> hkf = {-0.33984, -1607.89, 12.0699, -21143, 14.4295, -88523, 274030 };
 
-    hkf.Gf = -116510.03824091777;
-    hkf.Hf = -128769.03423328472;
-    hkf.Sr = -81.202913652642508;
-    hkf.a1 = -0.33984;
-    hkf.a2 = -1607.89;
-    hkf.a3 = 12.0699;
-    hkf.a4 = -21143;
-    hkf.c1 = 14.4295;
-    hkf.c2 = -88523;
-    hkf.wref = 274030;
+    ThermoPropertiesSubstance ref;
+
+    ref.gibbs_energy = -116510.03824091777*cal_to_J;
+    ref.enthalpy = -128769.03423328472*cal_to_J;
+    ref.entropy = -81.202913652642508*cal_to_J;
+
 
     ThermoParametersSubstance prs;
     prs.HKF_parameters = hkf;
     al3.setThermoParameters(prs);
+    al3.setThermoReferenceProperties(ref);
 
     double T, P;
     T = 25;
@@ -241,7 +228,7 @@ int main(int argc, char *argv[])
     aloh3.setName("Al(OH)3");
     aloh3.setFormula("Al(OH)3@");
     aloh3.setCharge(0);
-    aloh3.setSolventName("water");
+    aloh3.setSolventSymbol("H2O@");
 
     aloh3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     aloh3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -250,22 +237,19 @@ int main(int argc, char *argv[])
     aloh3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
     aloh3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
-    ParamsHKF hkf;
+    vector<double> hkf = {0.54624, 555.6, 3.5662, -30087, 20.027, 17829, 0.0 };
 
-    hkf.Gf = -263321;
-    hkf.Hf = -297004;
-    hkf.Sr = 14.185;
-    hkf.a1 = 0.54624;
-    hkf.a2 = 555.6;
-    hkf.a3 = 3.5662;
-    hkf.a4 = -30087;
-    hkf.c1 = 20.027;
-    hkf.c2 = 17829;
-    hkf.wref = 0.0;
+    ThermoPropertiesSubstance ref;
+
+    ref.gibbs_energy = -263321*cal_to_J;
+    ref.enthalpy = -297004*cal_to_J;
+    ref.entropy = 14.185*cal_to_J;
+
 
     ThermoParametersSubstance prs;
     prs.HKF_parameters = hkf;
     aloh3.setThermoParameters(prs);
+    aloh3.setThermoReferenceProperties(ref);
 
     double T, P;
     T = 350;

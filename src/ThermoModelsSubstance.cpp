@@ -17,7 +17,7 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
     {
         Exception exception;
         exception.error << "Out of T bound in model "
-              << model << " for substance " << species.name();
+              << model << " for substance " << species.symbol();
         exception.reason << "The provided temperature, " << T << " K,"  << "is either negative "
               "or greater than the maximum allowed, " << Tmax << " K.";
         RaiseError(exception);
@@ -28,7 +28,7 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
     {
         Exception exception;
         exception.error << "Out of P bound in model "
-              << model << " for substance " << species.name();
+              << model << " for substance " << species.symbol();
         exception.reason << "The provided pressure, " << P << " Pa,"  << "is either negative "
               "or greater than the maximum allowed, " << Pmax << " Pa.";
         RaiseError(exception);
@@ -69,7 +69,7 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
     // Exception
     Exception exception;
     exception.error << "The calculation method was not found.";
-    exception.reason << "The calculation method defined for the substance "<< pimpl->substance.name() << " is not available.";
+    exception.reason << "The calculation method defined for the substance "<< pimpl->substance.symbol() << " is not available.";
     exception.line = __LINE__;
     RaiseError(exception);
 }
@@ -259,7 +259,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     TC = T;              // get current T in Celsius
     TK = TC + C_to_K;                       // curent T in Kelvin
     Pb = P;              // current P in bar
-    TrK = pimpl->substance.referenceT() + C_to_K;
+    TrK = pimpl->substance.referenceT()/* + C_to_K*/;
 
     S = thermo_properties_PrTr.entropy.val;
     G = thermo_properties_PrTr.gibbs_energy.val;
@@ -285,7 +285,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     // get Cp interval
     for (unsigned i=0; i<thermo_parameters.temperature_intervals.size(); i++)
     {
-       if ((thermo_parameters.temperature_intervals[i][0] <= TC) && (thermo_parameters.temperature_intervals[i][1] > TC))
+       if ((thermo_parameters.temperature_intervals[i][0] <= TK) && (thermo_parameters.temperature_intervals[i][1] > TK))
        {
            k = i;
            break;
@@ -296,7 +296,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     {
         Exception exception;
         exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
-        exception.reason << "The temperature is not inside the specified interval for the substance "<< pimpl->substance.name() << ".";
+        exception.reason << "The temperature is not inside the specified interval for the substance "<< pimpl->substance.symbol() << ".";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -323,14 +323,14 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
         {
             if ( j == k )
                 TK = T + C_to_K;     // current T is the end T for phase transition Cp calculations
-            else TK = thermo_parameters.temperature_intervals[j][1] + C_to_K;        // takes the upper bound from the j-th Tinterval
+            else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
             T2 = TK * TK;
             T3 = T2 * TK;
             T4 = T3 * TK;
             T05 = sqrt( TK );
             if( !j )
-                TrK = pimpl->substance.referenceT() + C_to_K;            // if j=0 the first interval should contain the reference T (Tcr)
-            else  TrK = thermo_parameters.temperature_intervals[j][0] + C_to_K;    // if j>0 then we are in a different Tinterval and the reference T becomes the lower bound of the interval
+                TrK = pimpl->substance.referenceT() /*+ C_to_K*/;            // if j=0 the first interval should contain the reference T (Tcr)
+            else  TrK = thermo_parameters.temperature_intervals[j][0] /*+ C_to_K*/;    // if j>0 then we are in a different Tinterval and the reference T becomes the lower bound of the interval
             Tst2 = TrK * TrK;
             Tst3 = Tst2 * TrK;
             Tst4 = Tst3 * TrK;

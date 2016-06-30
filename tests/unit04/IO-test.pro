@@ -8,7 +8,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 #CONFIG += -std=c++11
 
-TARGET = unit01
+TARGET = IO-test
 
 TCORRPT_TEST_CPP = ./src
 TCORRPT_CPP   =  ../../../tcorrpt/src
@@ -47,7 +47,6 @@ LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR2
 LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 LIBS += -lthrift
-
 
 include($$TCORRPT_TEST_CPP/tcorrpt-test.pri)
 include($$TCORRPT_CPP/tcorrpt.pri)
