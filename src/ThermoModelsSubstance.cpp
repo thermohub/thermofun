@@ -353,7 +353,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     ac.resize(16);
     ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
-    auto TC = Reaktoro::Temperature(T);
+//    auto TC = Reaktoro::Temperature(T);
     auto TK = Reaktoro::Temperature(T + C_to_K);
     auto Pb = Reaktoro::Pressure(P);
 
@@ -402,10 +402,10 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
         RaiseError(exception);
     }
 
-    auto T2 = Reaktoro::Temperature(TK.val * TK.val);
-    auto T3 = Reaktoro::Temperature(T2.val * TK.val);
-    auto T4 = Reaktoro::Temperature(T3.val * TK.val);
-    auto T05 = Reaktoro::Temperature(std::sqrt( TK.val ));
+//    auto T2 = Reaktoro::Temperature(TK.val * TK.val);
+//    auto T3 = Reaktoro::Temperature(T2.val * TK.val);
+//    auto T4 = Reaktoro::Temperature(T3.val * TK.val);
+//    auto T05 = Reaktoro::Temperature(std::sqrt( TK.val ));
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
@@ -425,20 +425,20 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
             if ( j == k )
                 TK = T + C_to_K;     // current T is the end T for phase transition Cp calculations
             else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
-            T2 = Reaktoro::Temperature(TK.val * TK.val);
-            T3 = Reaktoro::Temperature(T2.val * TK.val);
-            T4 = Reaktoro::Temperature(T3.val * TK.val);
-            T05 = Reaktoro::Temperature(std::sqrt( TK.val ));
+//            T2 = Reaktoro::Temperature(TK.val * TK.val);
+//            T3 = Reaktoro::Temperature(T2.val * TK.val);
+//            T4 = Reaktoro::Temperature(T3.val * TK.val);
+//            T05 = Reaktoro::Temperature(std::sqrt( TK.val ));
             if( !j )
                 TrK = pimpl->substance.referenceT() /*+ C_to_K*/;            // if j=0 the first interval should contain the reference T (Tcr)
             else  TrK = thermo_parameters.temperature_intervals[j][0] /*+ C_to_K*/;    // if j>0 then we are in a different Tinterval and the reference T becomes the lower bound of the interval
-            auto Tst2 = Reaktoro::Temperature(TrK.val * TrK.val);
-            auto Tst3 = Reaktoro::Temperature(Tst2.val * TrK.val);
-            auto Tst4 = Reaktoro::Temperature(Tst3.val * TrK.val);
-            auto Tst05 = Reaktoro::Temperature(std::sqrt( TrK.val ));
-            auto T_Tst = Reaktoro::Temperature(TK.val - TrK.val);
-            auto Ts2 = Reaktoro::Temperature(T_Tst.val * T_Tst.val);
-            auto TT = Reaktoro::Temperature(TK.val / TrK.val);
+            auto Tst2 = TrK * TrK;
+            auto Tst3 = Tst2 * TrK;
+            auto Tst4 = Tst3 * TrK;
+            auto Tst05 = std::sqrt( TrK.val );
+//            auto T_Tst = TK - TrK;
+//            auto Ts2 = T_Tst * T_Tst;
+//            auto TT = Reaktoro::Temperature(TK.val / TrK.val);
 
             // going trough the phase transitions parameters in FtP
             for (unsigned ft = 0; ft < thermo_parameters.phase_transition_prop.size(); ft++)
@@ -453,30 +453,30 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
                 // More to be added ?
             }
 
-            G -= S * T_Tst;
+            G -= S * (TK - TrK);
 
             for (unsigned i=0; i<thermo_parameters.Cp_coeff[j].size(); i++)
             {
                 ac[i] = thermo_parameters.Cp_coeff[j][i];
             }
 
-            S += ( ac[0] * log( TT ) + ac[1] * T_Tst + ac[2] * ( 1./Tst2 - 1./T2 ) / 2.
-                 + ac[3] * 2. * ( 1./Tst05 - 1./T05 ) + ac[4] * ( T2 - Tst2 ) / 2.
-                 + ac[5] * ( T3 - Tst3 ) / 3. + ac[6] * ( T4 - Tst4 ) / 4.
-                 + ac[7] * ( 1./ Tst3 - 1./ T3 ) / 3. + ac[8] * (1. / TrK - 1. / TK )
-                 + ac[9] * 2.* ( T05 - Tst05 ) );
+            S += ( ac[0] * log( (TK/TrK) ) + ac[1] * (TK - TrK) + ac[2] * ( 1./Tst2 - 1./(TK*TK) ) / 2.
+                 + ac[3] * 2. * ( 1./Tst05 - 1./(pow(TK,(1/2))) ) + ac[4] * ( (TK*TK) - Tst2 ) / 2.
+                 + ac[5] * ( (TK*TK*TK) - Tst3 ) / 3. + ac[6] * ( (TK*TK*TK*TK) - Tst4 ) / 4.
+                 + ac[7] * ( 1./ Tst3 - 1./ (TK*TK) ) / 3. + ac[8] * (1. / TrK - 1. / TK )
+                 + ac[9] * 2.* ( (pow(TK,(1/2))) - Tst05 ) );
 
-            G -= ( ac[0] * ( TK * log( TT ) - T_Tst ) + ac[1] * Ts2 / 2. + ac[2] * Ts2 / TK / Tst2 / 2.
-                 + ac[3] * 2. * (T05 - Tst05)*(T05 - Tst05) / Tst05 + ac[4] * ( T3 + 2.*Tst3 - 3.* TK * Tst2 ) / 6.
-                 + ac[5] * ( T4 + 3.*Tst4 - 4.*TK * Tst3 ) / 12. + ac[6] * ( T4*TK + 4.*Tst4*TrK - 5.*TK*Tst4 ) / 20.
-                 + ac[7] * ( Tst3 - 3.* T2 * TrK + 2.*T3 ) / 6./ T2 / Tst3 + ac[8] * ( TT - 1. - log( TT ))
-                 + ac[9] * 2.* ( 2.* TK * T05 - 3.* TK * Tst05 + TrK * Tst05 ) / 3. );
+            G -= ( ac[0] * ( TK * log( (TK/TrK) ) - (TK - TrK) ) + ac[1] * ((TK-TrK)*(TK-TrK)) / 2. + ac[2] * ((TK-TrK)*(TK-TrK)) / TK / Tst2 / 2.
+                 + ac[3] * 2. * ((pow(TK,(1/2))) - Tst05)*((pow(TK,(1/2))) - Tst05) / Tst05 + ac[4] * ( (TK*TK*TK) + 2.*Tst3 - 3.* TK * Tst2 ) / 6.
+                 + ac[5] * ( (TK*TK*TK*TK) + 3.*Tst4 - 4.*TK * Tst3 ) / 12. + ac[6] * ( (TK*TK*TK*TK)*TK + 4.*Tst4*TrK - 5.*TK*Tst4 ) / 20.
+                 + ac[7] * ( Tst3 - 3.* (TK*TK) * TrK + 2.*(TK*TK*TK) ) / 6./ (TK*TK) / Tst3 + ac[8] * ( (TK/TrK) - 1. - log( (TK/TrK) ))
+                 + ac[9] * 2.* ( 2.* TK * (pow(TK,(1/2))) - 3.* TK * Tst05 + TrK * Tst05 ) / 3. );
 
-            H += ( ac[0] * T_Tst + ac[1] * ( T2 - Tst2 ) / 2. + ac[2] * ( 1./TrK - 1./TK )
-                 + ac[3] * 2. * ( T05 - Tst05 ) + ac[4] * ( T3 - Tst3 ) / 3.
-                 + ac[5] * ( T4 - Tst4 ) / 4. + ac[6] * ( T4 * TK - Tst4 * TrK ) / 5
-                 + ac[7] * ( 1./ Tst2 - 1./ T2 ) / 2. + ac[8] * log( TT )
-                 + ac[9] * 2.* ( TK * T05 - TrK * Tst05 ) / 3. );
+            H += ( ac[0] * (TK - TrK) + ac[1] * ( (TK*TK) - Tst2 ) / 2. + ac[2] * ( 1./TrK - 1./TK )
+                 + ac[3] * 2. * ( (pow(TK,(1/2))) - Tst05 ) + ac[4] * ( (TK*TK*TK) - Tst3 ) / 3.
+                 + ac[5] * ( (TK*TK*TK*TK) - Tst4 ) / 4. + ac[6] * ( (TK*TK*TK*TK) * TK - Tst4 * TrK ) / 5
+                 + ac[7] * ( 1./ Tst2 - 1./ (TK*TK) ) / 2. + ac[8] * log( (TK/TrK) )
+                 + ac[9] * 2.* ( TK * (pow(TK,(1/2))) - TrK * Tst05 ) / 3. );
         }
     }
 

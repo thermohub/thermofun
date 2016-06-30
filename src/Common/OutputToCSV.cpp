@@ -44,7 +44,7 @@ void OutputToCSV::setFileElectroPropertiesSolvent(const std::string &value)
     fileElectroPropertiesSolvent = value;
 }
 
-OutputToCSV::OutputToCSV(std::__cxx11::string path)
+OutputToCSV::OutputToCSV(std::string path)
 {
     std::size_t found = path.find_last_of("/\\");
     path = path.substr(0,found);
