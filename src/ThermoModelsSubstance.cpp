@@ -345,25 +345,28 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     SubstanceClass::type        substance_class = pimpl->substance.substanceClass();
     ThermoParametersSubstance   thermo_parameters = pimpl->substance.thermoParameters();
 
-    double TK, TC, TrK, T_Tst, Ts2, TT, T2, T3, T4, T05,
-           Tst2, Tst3, Tst4, Tst05,
-           Pb;
-    double    S, G, H, V, Cp;
+//    double  T_Tst, Ts2, TT,
+//           Tst2, Tst3, Tst4, Tst05;
+    Reaktoro::ThermoScalar V;
     int k=-1;
     vector<double> ac;
     ac.resize(16);
     ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
-    TC = T;              // get current T in Celsius
-    TK = TC + C_to_K;                       // curent T in Kelvin
-    Pb = P;              // current P in bar
-    TrK = pimpl->substance.referenceT()/* + C_to_K*/;
+    auto TC = Reaktoro::Temperature(T);
+    auto TK = Reaktoro::Temperature(T + C_to_K);
+    auto Pb = Reaktoro::Pressure(P);
 
-    S = thermo_properties_PrTr.entropy.val;
-    G = thermo_properties_PrTr.gibbs_energy.val;
-    H = thermo_properties_PrTr.enthalpy.val;
-    V = 0; // ???
-    Cp = 0;
+//    TC = T;              // get current T in Celsius
+//    TK = TC + C_to_K;                       // curent T in Kelvin
+//    Pb = P;              // current P in bar
+    auto TrK = Reaktoro::Temperature(pimpl->substance.referenceT())/* + C_to_K*/;
+
+    auto S = thermo_properties_PrTr.entropy;
+    auto G = thermo_properties_PrTr.gibbs_energy;
+    auto H = thermo_properties_PrTr.enthalpy;
+//    autoV = 0; // ???
+//    Cp = 0;
 
     // P correction - has to be moved from here!!!
     if(( substance_class == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
@@ -399,10 +402,10 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
         RaiseError(exception);
     }
 
-    T2 = TK * TK;
-    T3 = T2 * TK;
-    T4 = T3 * TK;
-    T05 = std::sqrt( TK );
+    auto T2 = Reaktoro::Temperature(TK.val * TK.val);
+    auto T3 = Reaktoro::Temperature(T2.val * TK.val);
+    auto T4 = Reaktoro::Temperature(T3.val * TK.val);
+    auto T05 = Reaktoro::Temperature(std::sqrt( TK.val ));
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
@@ -411,31 +414,31 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
 
 //    ac = thermo_parameters.Cp_coeff[k];
 
-    Cp = ( ac[0] + ac[1]*TK + ac[2]/T2 + ac[3]/T05 + ac[4]*T2
-          + ac[5]*T3 + ac[6]*T4 + ac[7]/T3 + ac[8]/TK + ac[9]*T05 /*+ ac[10]*log(T)*/);
+    auto Cp = ( ac[0] + ac[1]*TK + ac[2]/(TK*TK) + ac[3]/(pow(TK,0.5)) + ac[4]*(TK*TK)
+          + ac[5]*(TK*TK*TK) + ac[6]*(TK*TK*TK*TK) + ac[7]/(TK*TK*TK) + ac[8]/TK + ac[9]*(pow(TK,(1/2))) /*+ ac[10]*log(T)*/);
 
     // Phase transitions
-    if (fabs(TK-TrK) > TEMPER_PREC)
+    if (fabs(TK.val-TrK.val) > TEMPER_PREC)
     {
         for (unsigned j=0; j<=k; j++)
         {
             if ( j == k )
                 TK = T + C_to_K;     // current T is the end T for phase transition Cp calculations
             else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
-            T2 = TK * TK;
-            T3 = T2 * TK;
-            T4 = T3 * TK;
-            T05 = sqrt( TK );
+            T2 = Reaktoro::Temperature(TK.val * TK.val);
+            T3 = Reaktoro::Temperature(T2.val * TK.val);
+            T4 = Reaktoro::Temperature(T3.val * TK.val);
+            T05 = Reaktoro::Temperature(std::sqrt( TK.val ));
             if( !j )
                 TrK = pimpl->substance.referenceT() /*+ C_to_K*/;            // if j=0 the first interval should contain the reference T (Tcr)
             else  TrK = thermo_parameters.temperature_intervals[j][0] /*+ C_to_K*/;    // if j>0 then we are in a different Tinterval and the reference T becomes the lower bound of the interval
-            Tst2 = TrK * TrK;
-            Tst3 = Tst2 * TrK;
-            Tst4 = Tst3 * TrK;
-            Tst05 = sqrt( TrK );
-            T_Tst = TK - TrK;
-            Ts2 = T_Tst * T_Tst;
-            TT = TK / TrK;
+            auto Tst2 = Reaktoro::Temperature(TrK.val * TrK.val);
+            auto Tst3 = Reaktoro::Temperature(Tst2.val * TrK.val);
+            auto Tst4 = Reaktoro::Temperature(Tst3.val * TrK.val);
+            auto Tst05 = Reaktoro::Temperature(std::sqrt( TrK.val ));
+            auto T_Tst = Reaktoro::Temperature(TK.val - TrK.val);
+            auto Ts2 = Reaktoro::Temperature(T_Tst.val * T_Tst.val);
+            auto TT = Reaktoro::Temperature(TK.val / TrK.val);
 
             // going trough the phase transitions parameters in FtP
             for (unsigned ft = 0; ft < thermo_parameters.phase_transition_prop.size(); ft++)
