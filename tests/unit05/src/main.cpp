@@ -54,6 +54,9 @@ int main(int argc, char *argv[])
     OutputToCSV out (argv[0]);
     out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT.csv");
 
+    P = 2000;
+    result = thermo.thermoPropertiesSubstance(577, P, "Quartz");
+
     do {
 
         for (int i = 0; i < vSubst.size(); i++)

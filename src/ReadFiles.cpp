@@ -92,9 +92,18 @@ auto thermoParam (bson bso) -> ThermoParametersSubstance
     // temporary fix - need to think how to handle more thna 1 TP interval
     ps.temperature_intervals.push_back({273.15, 2273.15});
 
-    bsonio::bson_read_array_path(bso.data, substCpParam, vkbuf); ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
+    bsonio::bson_read_array_path(bso.data, substCpParam, vkbuf);
+    ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
     std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_coeff[0].begin(), [](const std::string& val)
     { return std::stod(val); });
+
+    bsonio::bson_read_array_path(bso.data, substTransProp, vkbuf); ps.phase_transition_prop.resize(1); ps.phase_transition_prop[0].resize(vkbuf.size());
+    std::transform(vkbuf.begin(), vkbuf.end(), ps.phase_transition_prop[0].begin(), [](const std::string& val)
+    { return std::stod(val); });
+
+//    bsonio::bson_read_array_path(bso.data, substTransProp, vkbuf); ps.phase_transition_prop_Berman.resize(1); ps.phase_transition_prop_Berman[0].resize(vkbuf.size());
+//    std::transform(vkbuf.begin(), vkbuf.end(), ps.phase_transition_prop_Berman[0].begin(), [](const std::string& val)
+//    { return std::stod(val); });
 
     return ps;
 }

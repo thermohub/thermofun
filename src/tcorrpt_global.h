@@ -442,6 +442,8 @@ static const char * substEOSbm              = "properties.eos_bm_coeffs.values";
 static const char * substEOScg              = "properties.eos_cg_coeffs.values";
 static const char * substEOSgasCrit         = "properties.eos_gas_crit_props.values";
 static const char * substCpParam            = "properties.m_heat_capacity_p_t_coeffs.values";
+static const char * substTransProp          = "properties.m_phase_trans_props.values";
+//static const char * substTransPropBm        = "properties.phase_transition_prop_Berman.values";
 
 //typedef std::vector<struct SubstanceData*>  Substances;
 
