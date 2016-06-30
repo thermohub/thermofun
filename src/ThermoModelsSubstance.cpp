@@ -311,7 +311,7 @@ auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubst
     auto t = Reaktoro::Temperature(T + C_to_K);
     auto p = Reaktoro::Pressure(P * bar_to_Pa);
 
-    return thermoPropertiesMinBMGottschalk(t, p, tps);
+    return thermoPropertiesMinBMGottschalk(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
