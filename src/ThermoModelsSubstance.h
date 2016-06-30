@@ -108,15 +108,78 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class MinMurnaghanEOSHP98
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    MinMurnaghanEOSHP98();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit MinMurnaghanEOSHP98(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param tps thermodynamic properties of the substance previosuly corrected with the EmpiricalCpIntegration
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+class MinBerman88
+{
+public:
+    /// Construct a default MinBerman88 instance
+    MinBerman88();
+
+    /// Construct an MinBerman88 instance from a Substance instance
+    explicit MinBerman88(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param tps thermodynamic properties of the substance previosuly corrected with the MinBerman88
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+class MinBMGottschalk
+{
+public:
+    /// Construct a default MinBMGottschalk instance
+    MinBMGottschalk();
+
+    /// Construct an MinBMGottschalk instance from a Substance instance
+    explicit MinBMGottschalk(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param tps thermodynamic properties of the substance previosuly corrected with the MinBMGottschalk
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 
 /// integration of empirical heat capacity equation Cp=f(T);
 class EmpiricalCpIntegration
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default EmpiricalCpIntegration instance
     EmpiricalCpIntegration();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct an EmpiricalCpIntegration instance from a Substance instance
     explicit EmpiricalCpIntegration(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.

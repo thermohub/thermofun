@@ -59,6 +59,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
         alp = wl.Alphaw;
         dal = wl.dAldT;
         bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
+
     } else
     {
         wp.Surten   = wr.Surtenw;
@@ -89,6 +90,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     wp.densityTT = rho * ( pow(alp,2.) - dal );
     wp.densityP = bet * rho;
 //    wp.densityPP =
+//    wp.pressure = P;
 
 return wp;
 }
@@ -299,10 +301,11 @@ WaterHGKgems::WaterHGKgems()
     co = &co_;
 }
 
-auto WaterHGKgems::calculateWaterHGKgems(double T, double P) -> void
+auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
 {
     int eR;
     double tempy;
+    double Tk = T + 273.15;
 
     if( T < 0.01 && T >= 0.0 ) // Deg. C!
         T = 0.01;
@@ -316,11 +319,18 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double P) -> void
     aSpc.ip=1;
     aSpc.ih=4;
     aSpc.itripl=1;
-    if( fabs( P ) == 0 )
+
+    if (Tk <= 647.067e0)
+        aSta.Psat = PsHGK(Tk)*10;
+    else
+        aSta.Psat = 0;
+
+    if( (fabs( P ) == 0) || (P == aSta.Psat) )
     { // set only T
         aSpc.isat=1;
         aSpc.iopt=1;
         aSpc.metastable = 0;
+        P = PsHGK(Tk)*10;
     }
     else
     { //set T and P
@@ -410,7 +420,7 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double P) -> void
 
     if (aSpc.isat == 1)
         aSta.Dens[1] /= un.fd;
-    P = aSta.Pres;
+//    P = aSta.Pres;
 //    aWp.init = true;
 
 }

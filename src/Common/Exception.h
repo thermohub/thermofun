@@ -63,6 +63,10 @@ std::string message(const Exception& exception, const std::string& file, int lin
         } \
     }
 
+auto errorMethodNotFound(std::string type, std::string name, int line) -> void;
+
+auto errorSolventNotDefined(std::string type, std::string name, int line) -> void;
+
 } // namespace TCorrPT
 
 #endif // EXCEPTION_H

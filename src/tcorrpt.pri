@@ -42,7 +42,10 @@
     $$PWD/Solute/SoluteADgems.h \
     $$PWD/Solvent/WaterIdealGasWolley.h \
     $$PWD/ReadFiles.h \
-    $$PWD/Common/OutputToCSV.h
+    $$PWD/Common/OutputToCSV.h \
+    $$PWD/Solids/SolidMurnaghanHP98.h \
+    $$PWD/Solids/SolidBerman88.h \
+    $$PWD/Solids/SolidBMGottschalk.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -81,4 +84,7 @@
     $$PWD/Solute/SoluteADgems.cpp \
     $$PWD/Solvent/WaterIdealGasWolley.cpp \
     $$PWD/ReadFiles.cpp \
-    $$PWD/Common/OutputToCSV.cpp
+    $$PWD/Common/OutputToCSV.cpp \
+    $$PWD/Solids/SolidMurnaghanHP98.cpp \
+    $$PWD/Solids/SolidBMGottschalk.cpp \
+    $$PWD/Solids/SolidBerman88.cpp

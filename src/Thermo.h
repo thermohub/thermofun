@@ -20,19 +20,19 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param substance The name of the substance
-    auto thermoPropertiesSubstance (double T, double P, std::string substance) -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSubstance (double T, double &P, std::string substance) -> ThermoPropertiesSubstance;
 
     /// Calculate the electro-chemical properties of a substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param substance The name of the substance
-    auto electroPropertiesSolvent(double T, double P, std::string substance) -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param substance The name of the substance
-    auto propertiesSolvent(double T, double P, std::string solvent) -> PropertiesSolvent;
+    auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
 
 //    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).
 //    /// @param T The temperature value (in units of K)

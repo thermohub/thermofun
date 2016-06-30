@@ -39,4 +39,24 @@ std::string message(const Exception& exception, const std::string& file, int lin
     return message.str();
 }
 }
+
+auto errorMethodNotFound(std::string type, std::string name, int line) -> void
+{
+    Exception exception;
+    exception.error << "The calculation method was not found.";
+    exception.reason << "The calculation method defined for the " << type << " " << name << " is not implemented.";
+    exception.line = line;
+    RaiseError(exception);
+}
+
+auto errorSolventNotDefined(std::string type, std::string name, int line) -> void
+{
+    Exception exception;
+    exception.error << "Solvent symbol not defiend";
+    exception.reason << "The solvent symbol for " << name <<  " was not defined.";
+    exception.line = line;
+    RaiseError(exception);
+}
+
+
 } // namespace TCorrPT

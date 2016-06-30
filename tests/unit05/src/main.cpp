@@ -54,11 +54,16 @@ int main(int argc, char *argv[])
     OutputToCSV out (argv[0]);
     out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT.csv");
 
+    P = 2000;
+    result = thermo.thermoPropertiesSubstance(577, P, "Quartz");
+
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
         {
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol()) );
+            result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            P = 0;
         }
 
         T +=5;
