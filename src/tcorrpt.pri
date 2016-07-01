@@ -45,7 +45,8 @@
     $$PWD/Common/OutputToCSV.h \
     $$PWD/Solids/SolidMurnaghanHP98.h \
     $$PWD/Solids/SolidBerman88.h \
-    $$PWD/Solids/SolidBMGottschalk.h
+    $$PWD/Solids/SolidBMGottschalk.h \
+    $$PWD/Common/EmpiricalCpIntegration.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -87,4 +88,5 @@
     $$PWD/Common/OutputToCSV.cpp \
     $$PWD/Solids/SolidMurnaghanHP98.cpp \
     $$PWD/Solids/SolidBMGottschalk.cpp \
-    $$PWD/Solids/SolidBerman88.cpp
+    $$PWD/Solids/SolidBerman88.cpp \
+    $$PWD/Common/EmpiricalCpIntegration.cpp
