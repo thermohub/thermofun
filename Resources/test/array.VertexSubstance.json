@@ -600,5 +600,319 @@
           }
      },
      "_id" :   "5763de3c40df3b3d0000000e"
+},
+{
+     "_type" :   "vertex",
+     "_label" :   "substance",
+     "properties" :   {
+          "substance_symbol" :   "Coesite",
+          "sourcetdb" :   0,
+          "formula" :   "SiO2",
+          "substance_name" :   "Coesite (coe)",
+          "substance_class" :   0,
+          "aggregate_state" :   3,
+          "standard_cscale" :   0,
+          "Tst" :   298.15,
+          "Pst" :   100000,
+          "formula_charge" :   0,
+          "mass_per_mole" :   60.084300994873,
+          "s_density" :   {
+               "name" :   "sDens"
+          },
+          "sm_volume" :   {
+               "name" :   "sV0",
+               "values" :   [
+                    2.06399989128113
+               ],
+               "errors" :   [
+                    0
+               ]
+          },
+          "sm_gibbs_energy" :   {
+               "name" :   "sG0",
+               "values" :   [
+                    -850864
+               ]
+          },
+          "sm_enthalpy" :   {
+               "name" :   "sH0",
+               "values" :   [
+                    -905470
+               ]
+          },
+          "sm_entropy_f" :   {
+               "name" :   "sSf",
+               "values" :   [
+                    40.7999992370605
+               ]
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0"
+          },
+          "sm_heat_capacity_p" :   {
+               "name" :   "sCp0",
+               "values" :   [
+                    45.0973701477051
+               ],
+               "errors" :   [
+                    0
+               ]
+          },
+          "m_compressibility" :   {
+               "name" :   "betaT",
+               "values" :   [
+                    1000
+               ]
+          },
+          "m_expansivity" :   {
+               "name" :   "alphaP",
+               "values" :   [
+                    1.80000006366754e-05
+               ]
+          },
+          "method_genEoS" :   100,
+          "method_corrT" :   200,
+          "method_corrP" :   309,
+          "limitsTP" :   {
+               "lowerT" :   273.15,
+               "upperT" :   2273.15,
+               "lowerP" :   1,
+               "upperP" :   1000000
+          },
+          "m_heat_capacity_p_t_coeffs" :   {
+               "name" :   "CpTc",
+               "values" :   [
+                    96.5,
+                    -0.000577000027988106,
+                    -444800,
+                    -798.200012207031,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+               ]
+          },
+          "m_volume_pt_coeffs" :   {
+               "name" :   "VpTc"
+          },
+          "eos_hkf_coeffs" :   {
+               "name" :   "HKFc"
+          },
+          "eos_ad_coeffs" :   {
+               "name" :   "ADmc"
+          },
+          "eos_bm_coeffs" :   {
+               "name" :   "BMmc"
+          },
+          "eos_cg_coeffs" :   {
+               "name" :   "Empmc"
+          },
+          "eos_gas_crit_props" :   {
+               "name" :   "gcrp"
+          },
+          "m_phase_trans_props" :   {
+               "name" :   "Phtrp"
+          },
+          "m_lambda_trans_props" :   {
+               "name" :   "Lamtrp",
+               "values" :   [
+                    0,
+                    0
+               ]
+          },
+          "m_gibbs_energy_polynom" :   {
+               "name" :   "G0Tc"
+          },
+          "g0_pt_values" :   {
+               "name" :   "G0pT"
+          },
+          "surface_density" :   {
+               "name" :   "surfd"
+          },
+          "aq_edh_props" :   {
+               "name" :   "EDHp",
+               "values" :   [
+                    0,
+                    0
+               ]
+          },
+          "comment" :   "---",
+          "datasources" :   [
+               "Holland and Powell (2002)"
+          ],
+          "time_stamp" :   {
+               "year" :   2016,
+               "month" :   6,
+               "day" :   17,
+               "hour" :   13,
+               "minute" :   43,
+               "second" :   27
+          }
+     },
+     "_id" :   "5763de3c40df3b3d0000000c"
+}
+,
+{
+     "_type" :   "vertex",
+     "_label" :   "substance",
+     "properties" :   {
+          "substance_symbol" :   "Quartz",
+          "sourcetdb" :   0,
+          "formula" :   "SiO2",
+          "substance_name" :   "Quartz (q)",
+          "substance_class" :   0,
+          "aggregate_state" :   3,
+          "standard_cscale" :   0,
+          "Tst" :   298.15,
+          "Pst" :   100000,
+          "formula_charge" :   0,
+          "mass_per_mole" :   60.084300994873,
+          "s_density" :   {
+               "name" :   "sDens"
+          },
+          "sm_volume" :   {
+               "name" :   "sV0",
+               "values" :   [
+                    2.2688000202179
+               ],
+               "errors" :   [
+                    0
+               ]
+          },
+          "sm_gibbs_energy" :   {
+               "name" :   "sG0",
+               "values" :   [
+                    -856433
+               ]
+          },
+          "sm_enthalpy" :   {
+               "name" :   "sH0",
+               "values" :   [
+                    -910830
+               ]
+          },
+          "sm_entropy_f" :   {
+               "name" :   "sSf",
+               "values" :   [
+                    41.5
+               ]
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0"
+          },
+          "sm_heat_capacity_p" :   {
+               "name" :   "sCp0",
+               "values" :   [
+                    44.8909187316895
+               ],
+               "errors" :   [
+                    0
+               ]
+          },
+          "m_compressibility" :   {
+               "name" :   "betaT",
+               "values" :   [
+                    750
+               ]
+          },
+          "m_expansivity" :   {
+               "name" :   "alphaP",
+               "values" :   [
+                    6.49999992674566e-06
+               ]
+          },
+          "method_genEoS" :   100,
+          "method_corrT" :   201,
+          "method_corrP" :   309,
+          "limitsTP" :   {
+               "lowerT" :   273.15,
+               "upperT" :   2273.15,
+               "lowerP" :   1,
+               "upperP" :   1000000
+          },
+          "m_heat_capacity_p_t_coeffs" :   {
+               "name" :   "CpTc",
+               "values" :   [
+                    110.699996948242,
+                    -0.00518900016322732,
+                    0,
+                    -1128.30004882812,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+               ]
+          },
+          "m_volume_pt_coeffs" :   {
+               "name" :   "VpTc"
+          },
+          "eos_hkf_coeffs" :   {
+               "name" :   "HKFc"
+          },
+          "eos_ad_coeffs" :   {
+               "name" :   "ADmc"
+          },
+          "eos_bm_coeffs" :   {
+               "name" :   "BMmc"
+          },
+          "eos_cg_coeffs" :   {
+               "name" :   "Empmc"
+          },
+          "eos_gas_crit_props" :   {
+               "name" :   "gcrp"
+          },
+          "m_phase_trans_props" :   {
+               "name" :   "Phtrp",
+               "values" :   [
+                    573.849975585938,
+                    4.94999980926514,
+                    0.11879999935627
+               ]
+          },
+          "m_lambda_trans_props" :   {
+               "name" :   "Lamtrp",
+               "values" :   [
+                    0,
+                    0
+               ]
+          },
+          "m_gibbs_energy_polynom" :   {
+               "name" :   "G0Tc"
+          },
+          "g0_pt_values" :   {
+               "name" :   "G0pT"
+          },
+          "surface_density" :   {
+               "name" :   "surfd"
+          },
+          "aq_edh_props" :   {
+               "name" :   "EDHp",
+               "values" :   [
+                    0,
+                    0
+               ]
+          },
+          "comment" :   "---",
+          "datasources" :   [
+               "Holland and Powell (2002)"
+          ],
+          "time_stamp" :   {
+               "year" :   2016,
+               "month" :   6,
+               "day" :   17,
+               "hour" :   13,
+               "minute" :   43,
+               "second" :   27
+          }
+     },
+     "_id" :   "5763de3c40df3b3d0000000d"
 }
 ]
