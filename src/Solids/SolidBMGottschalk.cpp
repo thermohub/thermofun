@@ -24,7 +24,7 @@ auto BM_IntVol(Reaktoro::Pressure P, Reaktoro::Pressure Pref, Reaktoro::ThermoSc
 
 //-----------------------------------------------------------------------
 // calculate the volume at P and T
-auto BM_Volume( Reaktoro::ThermoScalar P, Reaktoro::ThermoScalar vt, Reaktoro::ThermoScalar kt0, Reaktoro::ThermoScalar kp,
+auto BM_Volume( Reaktoro::Pressure P, Reaktoro::ThermoScalar vt, Reaktoro::ThermoScalar kt0, Reaktoro::ThermoScalar kp,
                 Reaktoro::ThermoScalar kpp, Reaktoro::ThermoScalar vstart) -> Reaktoro::ThermoScalar
 {
 //      double  veq, vv, vvnew, vvold, vt23, dveq;
@@ -58,12 +58,12 @@ auto BM_Volume( Reaktoro::ThermoScalar P, Reaktoro::ThermoScalar vt, Reaktoro::T
 //------------------------------------------------------------------------
 // calculate the integral vdP using the Birch-Murnaghan EOS
 // this function will be incorporated into GEM-Selektor v.2.1.0 code
-auto BirchMurnaghan( Reaktoro::Pressure Pref, Reaktoro::Pressure P, Reaktoro::Temperature Tref, Reaktoro::Temperature T, Reaktoro::ThermoScalar v0,
+auto BirchMurnaghan( double Pref, Reaktoro::Pressure P, Reaktoro::Temperature Tref, Reaktoro::Temperature T, Reaktoro::ThermoScalar v0,
           vector<double> BMConst, Reaktoro::ThermoScalar &vv, Reaktoro::ThermoScalar &alpha, Reaktoro::ThermoScalar &beta,
           Reaktoro::ThermoScalar &dG, Reaktoro::ThermoScalar &dH, Reaktoro::ThermoScalar &dS ) -> void
 {
    Reaktoro::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
-          /*Volume, IntVol, */ Pincr, Tincr, Pplus, Pminus, Tplus, Tminus,
+          /*Volume, IntVol, */ Pincr, Tincr, /*Pplus, Pminus,*/ Tplus, Tminus,
           vPplus, vPminus, vTplus, vTminus, kt0Tplus, kt0Tminus, kppTplus, kppTminus,
           vtTplus, vtTminus, dGTplus, dGTminus;
 
@@ -80,8 +80,8 @@ auto BirchMurnaghan( Reaktoro::Pressure Pref, Reaktoro::Pressure P, Reaktoro::Te
     kp = BMConst[7];
     kpp = BMConst[8];
 
-    Pplus = P + Pincr;
-    Pminus = P - Pincr;
+    auto Pplus = Reaktoro::Pressure(P.val + Pincr.val);
+    auto Pminus = Reaktoro::Pressure(P.val - Pincr.val);
     Tplus = T + Tincr;
     Tminus = T - Tincr;
 
@@ -141,8 +141,8 @@ auto BirchMurnaghan( Reaktoro::Pressure Pref, Reaktoro::Pressure P, Reaktoro::Te
 auto thermoPropertiesMinBMGottschalk (Reaktoro::Temperature t, Reaktoro::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
 
-    Reaktoro::Pressure Pst (0.1*subst.referenceP() / bar_to_Pa); // in bar
-    Reaktoro::Temperature Tst (subst.referenceT()); // in K
+    auto Pst = 0.1*subst.referenceP() / bar_to_Pa; // in bar
+    auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
     Reaktoro::Temperature T ( t.val );
     Reaktoro::Pressure P (0.1*p.val / bar_to_Pa); // in bar
