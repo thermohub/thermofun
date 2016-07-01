@@ -35,7 +35,7 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param tps thermodynamic properties of the substance previosuly corrected with the EmpiricalCpIntegration
+    /// @param tps thermodynamic properties of the substance previosuly corrected with the AD EOS
     /// @param wtp thermodynamic properties of liquid H2O
     /// @param wigp themrodynamic properties of water in ideal gas state
     /// @param wp water solvent proeoprties (e.g. density, alpha, beta, etc.)
@@ -120,7 +120,7 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param tps thermodynamic properties of the substance previosuly corrected with the EmpiricalCpIntegration
+    /// @param tps thermodynamic properties of the substance previosuly corrected with the Murnaghan EOS
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -186,6 +186,27 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class HPLandau
+{
+public:
+    /// Construct a default HPLandau instance
+    HPLandau();
+
+    /// Construct an HPLandau instance from a Substance instance
+    explicit HPLandau(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;

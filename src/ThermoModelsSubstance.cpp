@@ -7,6 +7,7 @@
 #include "Solids/SolidMurnaghanHP98.h"
 #include "Solids/SolidBerman88.h"
 #include "Solids/SolidBMGottschalk.h"
+#include "Solids/SolidHPLandau.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -246,7 +247,7 @@ MinMurnaghanEOSHP98::MinMurnaghanEOSHP98(const Substance &substance)
 auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+    auto p = Reaktoro::Pressure(P /* * bar_to_Pa*/);
 
     return thermoPropertiesMinMurnaghanEOSHP98(t, p, pimpl->substance, tps);
 }
@@ -345,6 +346,38 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     auto p = Reaktoro::Pressure(P /* * bar_to_Pa*/);
 
     return thermoPropertiesEmpCpIntegration(t, p, pimpl->substance);
+}
+
+//=======================================================================================================
+// Holland-Powell phases with Landau transition
+// References:
+// Added: DM 01.07.2016
+//=======================================================================================================
+
+struct HPLandau::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+HPLandau::HPLandau(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro::Temperature(T + C_to_K);
+    auto p = Reaktoro::Pressure(P);
+
+    return thermoPropertiesHPLandau(t, p, pimpl->substance, tps);
 }
 
 

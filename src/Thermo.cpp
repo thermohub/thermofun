@@ -72,6 +72,21 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             }
             break;
         }
+            // Exception
+            errorMethodNotFound("substance", subst.symbol(), __LINE__);
+        }
+
+        // method T
+        switch ( method_T )
+        {
+        case MethodCorrT_Thrift::type::CTM_CHP:
+        {
+            HPLandau hpLandau ( subst );
+            tps = hpLandau.thermoProperties(T, P, tps);
+            break;
+        }
+            // Exception
+            errorMethodNotFound("substance", subst.symbol(), __LINE__);
         }
 
         // method P

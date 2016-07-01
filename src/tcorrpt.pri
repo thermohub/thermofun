@@ -46,7 +46,8 @@
     $$PWD/Solids/SolidMurnaghanHP98.h \
     $$PWD/Solids/SolidBerman88.h \
     $$PWD/Solids/SolidBMGottschalk.h \
-    $$PWD/Common/EmpiricalCpIntegration.h
+    $$PWD/Common/EmpiricalCpIntegration.h \
+    $$PWD/Solids/SolidHPLandau.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -89,4 +90,5 @@
     $$PWD/Solids/SolidMurnaghanHP98.cpp \
     $$PWD/Solids/SolidBMGottschalk.cpp \
     $$PWD/Solids/SolidBerman88.cpp \
-    $$PWD/Common/EmpiricalCpIntegration.cpp
+    $$PWD/Common/EmpiricalCpIntegration.cpp \
+    $$PWD/Solids/SolidHPLandau.cpp
