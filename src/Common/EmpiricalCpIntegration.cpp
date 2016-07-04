@@ -26,6 +26,11 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro::Temperature T, Reaktoro::Pressur
     auto G = thermo_properties_PrTr.gibbs_energy;
     auto H = thermo_properties_PrTr.enthalpy;
 
+    if (thermo_parameters.Cp_coeff.size() == 0)
+    {
+        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__);
+    }
+
     // P correction - has to be moved from here!!!
     if(( substance_class == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
             && Pb > 0.0 )

@@ -1,4 +1,5 @@
 #include "SolidBMGottschalk.h"
+#include "Common/Exception.h"
 
 namespace TCorrPT {
 
@@ -150,6 +151,10 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro::Temperature t, Reaktoro::Pressur
     auto T_Tst = T -Tst;
 
     auto BMc = subst.thermoParameters().volume_BirchM_coeff;
+    if (BMc.size() < 8)
+    {
+        errorModelParameters("Birch M.", "BMGottschalk", __LINE__);
+    }
 
     if( (P_Pst != 0.0 || T_Tst != 0.) && BMc.size() >= 8 )
     {

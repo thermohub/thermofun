@@ -12,7 +12,7 @@ auto thermoPropertiesHPLandau(Reaktoro::Temperature T, Reaktoro::Pressure P, Sub
 
     if (transProp.size() < 3)
     {
-        // error
+        errorModelParameters("transition properties", "HP Landau", __LINE__);
     }
 
     // Parameters of lambda-transition

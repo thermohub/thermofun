@@ -1,4 +1,5 @@
 #include "SolidBerman88.h"
+#include "Common/Exception.h"
 
 namespace TCorrPT {
 
@@ -15,7 +16,7 @@ auto thermoPropertiesMinBerman88(Reaktoro::Temperature t, Reaktoro::Pressure p, 
 
     if (vc.size() != 5)
     {
-        // error
+        errorModelParameters("five volume coefficients", "dVdP Berman88", __LINE__);
     }
 
     // expansion/compressibility

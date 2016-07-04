@@ -58,5 +58,14 @@ auto errorSolventNotDefined(std::string type, std::string name, int line) -> voi
     RaiseError(exception);
 }
 
+auto errorModelParameters(std::string type, std::string name, int line) -> void
+{
+    Exception exception;
+    exception.error << "The parameters of the model are not correctly defiend";
+    exception.reason << "The " << type <<  " parameters for " << name << " were not correctly defined. ";
+    exception.line = line;
+    RaiseError(exception);
+}
+
 
 } // namespace TCorrPT
