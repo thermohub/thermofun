@@ -8,7 +8,7 @@ auto thermoPropertiesMinBerman88(Reaktoro::Temperature t, Reaktoro::Pressure p, 
     auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
     auto T   = Reaktoro::Temperature (t.val);
-    auto P   = Reaktoro::Pressure (p.val / bar_to_Pa); // in bar
+    auto P   = Reaktoro::Pressure (p.val); // in bar
     auto Ts2   = Tst*Tst;
 
     auto vc = subst.thermoParameters().volume_coeff;
@@ -27,7 +27,7 @@ auto thermoPropertiesMinBerman88(Reaktoro::Temperature t, Reaktoro::Pressure p, 
     if( (P-Pst) != 0.0 ||  (T-Tst) != 0.0 )
     {  // can be calculated
         Reaktoro::ThermoScalar VP = Vst * (P - Pst);
-        Reaktoro::ThermoScalar VT = Vst * (T-Tst);
+        Reaktoro::ThermoScalar VT = Vst * (T - Tst);
         tps.gibbs_energy += ( VP );
         tps.enthalpy     += ( VP );
         tps.volume       += ( vc[0]*VT + vc[1]*VT*(T-Tst) + vc[2]*VT*Ts2 + vc[3]*VP + vc[4]*VP*(P-Pst) );

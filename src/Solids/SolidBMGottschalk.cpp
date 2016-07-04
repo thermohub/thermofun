@@ -145,7 +145,7 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro::Temperature t, Reaktoro::Pressur
     auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
     Reaktoro::Temperature T ( t.val );
-    Reaktoro::Pressure P (0.1*p.val / bar_to_Pa); // in bar
+    Reaktoro::Pressure P (0.1*p.val); // in bar
     auto P_Pst = P - Pst;
     auto T_Tst = T -Tst;
 

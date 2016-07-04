@@ -19,7 +19,7 @@ class OutputToCSV
     std::string fileElectroPropertiesSolvent;
 
     bool isHeaderThermoPropSubst = false;
-    bool isHeaderPropSolv = false;
+    bool isHeaderPropSolv        = false;
     bool isHeaderElectroPropSolv = false;
 
     const std::string headerThermoPropSubst  = "Substance,T(C),P(bar),G0(J/mol),H0(J/mol),S0(J/molK),Cp0(J/molK),Cv0(J/molK),V0(J/bar),"

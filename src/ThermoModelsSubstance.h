@@ -79,6 +79,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
+    /// @param wp structure holding the water solvent porperties
+    /// @param wes structure holding the water solvent electro-chemical properties
     auto thermoProperties (double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance;
 
 private:
@@ -100,6 +102,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
+    /// @param wp structure holding the water solvent porperties
+    /// @param wes structure holding the water solvent electro-chemical properties
     auto thermoProperties (double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance;
 
 private:
