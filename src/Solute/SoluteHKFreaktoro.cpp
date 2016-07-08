@@ -68,9 +68,9 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pres
     const auto Pr   = referencePressure;
     const auto Zr   = referenceBornZ;
     const auto Yr   = referenceBornY;
-    const auto Gf   = refProp.gibbs_energy;
-    const auto Hf   = refProp.enthalpy;
-    const auto Sr   = refProp.entropy;
+    const auto Gf   = refProp.gibbs_energy / cal_to_J;
+    const auto Hf   = refProp.enthalpy / cal_to_J;
+    const auto Sr   = refProp.entropy / cal_to_J;
     const auto a1   = hkf[0];
     const auto a2   = hkf[1];
     const auto a3   = hkf[2];

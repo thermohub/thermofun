@@ -19,11 +19,13 @@ ZPrTr = -0.1278034682e-1,
                                                   gref = 0.0e0;
 
 
-auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature TC, Reaktoro::Pressure Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
     auto refProp = species.thermoReferenceProperties();
+
+    auto T = Reaktoro::Temperature (TC.val+C_to_K);
 
     if (hkf.size() == 0)
     {
@@ -42,7 +44,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature T, Reaktoro::Pressure
         RaiseError(exception);
     }
 
-    auto Pbar = P * 1e-05; // Pa to bar
+//    auto Pbar = P * 1e-05; // Pa to bar
 
     // Auxiliary variables
 //    const auto Pbar = P * 1.0e-05;
@@ -147,8 +149,8 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
                 f, dfdP, dfdT, d2fdT2, tempy;
 
-    auto TdegC = T -273.15; // K to C
-    auto Pbar = P * 1e-05; // Pa in bar
+//    auto TdegC = T -273.15; // K to C
+//    auto Pbar = P * 1e-05; // Pa in bar
 
 //    // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
 //    // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
@@ -178,16 +180,16 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
 
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 
-    a = C[0] + C[1]*TdegC + C[2]*pow(TdegC,2.);
-    b = C[3] + C[4]*TdegC + C[5]*pow(TdegC,2.);
+    a = C[0] + C[1]*T + C[2]*pow(T,2.);
+    b = C[3] + C[4]*T + C[5]*pow(T,2.);
     g.g = a * pow(pw, b.val);
 
     dgdD = - a*b*pow(pw,(b.val - 1.0e0));
     // dgdD2 = a * b * (b - 1.0e0) * pow((1.0e0 - D),(b - 2.0e0));
 
-    dadT = C[1] + 2.0*C[2]*TdegC;
+    dadT = C[1] + 2.0*C[2]*T;
     dadTT = 2.0*C[2];
-    dbdT = C[4] + 2.0*C[5]*TdegC;
+    dbdT = C[4] + 2.0*C[5]*T;
     dbdTT = 2.0*C[5];
 
     dDdT = - D * alpha;
@@ -209,16 +211,16 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
     g.gT = a * dDbdT + Db * dadT;
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
-    if((TdegC < 155.0) || (Pbar > 1000.0) || (TdegC > 355.0))
+    if((T < 155.0) || (P > 1000.0) || (T > 355.0))
         return g;
 
-    tempy = ((TdegC - 155.0) / 300.0);
+    tempy = ((T - 155.0) / 300.0);
     ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);
     dftdT = 4.8e0 / 300.0 * pow(tempy,3.8) + 16.0 / 300.0 * cC[0] * pow(tempy,15.);
     dftdTT = 3.8 * 4.8 / (300.0 * 300.0) * pow(tempy,2.8)
              + 15.0 * 16.0 / (300.0 * 300.0) * cC[0] * pow(tempy,14.);
-    fp = cC[1] * pow((1000.0 - Pbar),3.) + cC[2] * pow((1000.0 - Pbar),4.);
-    dfpdP  = -3.0 * cC[1] * pow((1000.0 - Pbar),2.) - 4.0 * cC[2] * pow((1000.0 - Pbar),3.);
+    fp = cC[1] * pow((1000.0 - P),3.) + cC[2] * pow((1000.0 - P),4.);
+    dfpdP  = -3.0 * cC[1] * pow((1000.0 - P),2.) - 4.0 * cC[2] * pow((1000.0 - P),3.);
 
     f = ft * fp;
     dfdP = ft * dfpdP;
