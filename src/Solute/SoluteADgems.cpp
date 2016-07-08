@@ -15,9 +15,9 @@ auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, S
     Reaktoro::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
 
     Reaktoro::Temperature Tk (T.val);
-    Reaktoro::Temperature Tr (298.15);
+    auto Tr = 298.15;
     Reaktoro::Pressure Pbar (P.val/1e05);
-    Reaktoro::Pressure Pr (1.0);
+    auto Pr = 1.0;
 
     ThermoPropertiesSubstance state = tps;
 

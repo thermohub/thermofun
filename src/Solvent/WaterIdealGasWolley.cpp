@@ -18,15 +18,15 @@ auto waterIdealGas (Reaktoro::Temperature t, Reaktoro::Pressure p) -> ThermoProp
     Reaktoro::ThermoScalar dH0k;  // enthapy of ideal gas water at 0 K (kJ)
     dH0k += (-182161.88);
 
-    tt  = t / 1.0e2;
-    tl  = log(tt);
-    Gig  = - (c[0] / tt + c[1]) * tl;
-    Hig  = (c[1] + c[0] * (1.0e0 - tl) / tt);
-    Cpig = c[1] - c[0] / tt;
+//    tt  = t / 1.0e2;
+//    tl  = log(tt);
+    Gig  = - (c[0] / (t / 1.0e2) + c[1]) * log(t / 1.0e2);
+    Hig  = (c[1] + c[0] * (1.0e0 - log(t / 1.0e2)) / (t / 1.0e2));
+    Cpig = c[1] - c[0] / (t / 1.0e2);
 
     while ( ++i <= 17 )
     {
-        emult = pow(tt,((double)i - 5.));
+        emult = pow((t / 1.0e2),((double)i - 5.));
         Gig  -= c[i] * emult;
         Hig  += c[i] * (i-5) * emult;
         Cpig += c[i] * (i-5) * (i-4) * emult;
