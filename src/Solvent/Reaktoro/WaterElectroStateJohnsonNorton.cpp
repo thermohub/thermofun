@@ -21,7 +21,7 @@
 #include <Solvent/Reaktoro/WaterElectroState.hpp>
 #include <Solvent/Reaktoro/WaterThermoState.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 namespace {
 
 //------------------------------------------------------------------------------------------

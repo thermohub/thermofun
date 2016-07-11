@@ -24,7 +24,7 @@
 #include <Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
 #include <Solvent/Reaktoro/WaterHelmholtzState.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 template<typename HelmholtsModel>
 auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsModel& model) -> ThermoScalar
@@ -183,10 +183,10 @@ namespace TCorrPT {
 
 //--------------------------------------------------------------------//
 // calc t/d properties H2O as ideal gas: equat see Woolley (1979).
-auto waterIdealGas (Reaktoro::Temperature t, PropertiesSolvent &wp) -> void
+auto waterIdealGas (Reaktoro_::Temperature t, PropertiesSolvent &wp) -> void
 {
     int i=1;
-    Reaktoro::ThermoScalar  tt, tl, emult, enthalpyIdealGas, helmholtzIdealGas, internalEnergyIdealGas, cvIdealGas;
+    Reaktoro_::ThermoScalar  tt, tl, emult, enthalpyIdealGas, helmholtzIdealGas, internalEnergyIdealGas, cvIdealGas;
     double c[18]={ .19730271018e2,    .209662681977e2,  -.483429455355e0,
                    .605743189245e1,   .2256023885e2,    -.987532442e1,
                    -.43135538513e1,    .458155781e0,     -.47754901883e-1,

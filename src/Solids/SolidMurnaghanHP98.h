@@ -12,7 +12,7 @@ namespace TCorrPT {
 /// @param p pressure (bar)
 /// @param subst substance instance
 /// @param tps structure holding the thermodynamicp porperties of the substance (previously) corrected with other models
-auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro::Temperature t, Reaktoro::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 }
 

@@ -2,7 +2,7 @@
 
 namespace TCorrPT {
 
-auto electroPropertiesWaterJNreaktoro(const Reaktoro::WaterElectroState& wts) -> ElectroPropertiesSolvent
+auto electroPropertiesWaterJNreaktoro(const Reaktoro_::WaterElectroState& wts) -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent eps;
 

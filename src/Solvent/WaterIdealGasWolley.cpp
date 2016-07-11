@@ -3,11 +3,11 @@
 
 namespace TCorrPT {
 
-auto waterIdealGas (Reaktoro::Temperature t, Reaktoro::Pressure p) -> ThermoPropertiesSubstance
+auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tp;
     int i=1;
-    Reaktoro::ThermoScalar  tt, tl, emult, Gig, Hig, Cpig, Cvig, Sig, Aig, Uig;
+    Reaktoro_::ThermoScalar  tt, tl, emult, Gig, Hig, Cpig, Cvig, Sig, Aig, Uig;
     double c[18]={ .19730271018e2,    .209662681977e2,  -.483429455355e0,
                    .605743189245e1,   .2256023885e2,    -.987532442e1,
                    -.43135538513e1,    .458155781e0,     -.47754901883e-1,
@@ -15,7 +15,7 @@ auto waterIdealGas (Reaktoro::Temperature t, Reaktoro::Pressure p) -> ThermoProp
                    -.56473658748e-6,   .16200446e-7,     -.3303822796e-9,
                    .451916067368e-11,-.370734122708e-13, .137546068238e-15 };
 
-    Reaktoro::ThermoScalar dH0k;  // enthapy of ideal gas water at 0 K (kJ)
+    Reaktoro_::ThermoScalar dH0k;  // enthapy of ideal gas water at 0 K (kJ)
     dH0k += (-182161.88);
 
 //    tt  = t / 1.0e2;

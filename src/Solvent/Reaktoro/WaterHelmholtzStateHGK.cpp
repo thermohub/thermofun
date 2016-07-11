@@ -18,7 +18,7 @@
 #include "WaterHelmholtzStateHGK.hpp"
 #include "WaterHelmholtzState.hpp"
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 namespace {
 
 // Reference temperature of water in units of K

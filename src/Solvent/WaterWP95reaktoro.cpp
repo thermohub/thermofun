@@ -5,7 +5,7 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesWaterWP95reaktoro(Reaktoro::Temperature T, const Reaktoro::WaterThermoState& wt) -> ThermoPropertiesSubstance
+auto thermoPropertiesWaterWP95reaktoro(Reaktoro_::Temperature T, const Reaktoro_::WaterThermoState& wt) -> ThermoPropertiesSubstance
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
     const auto Ttr =  273.16;                   // unit: K
@@ -15,9 +15,9 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro::Temperature T, const Reaktoro::
     const auto Utr = -67887.0 * cal_to_J; // unit: J/mol
     const auto Atr = -55415.0 * cal_to_J; // unit: J/mol
 
-    const auto Sw = Reaktoro::waterMolarMass * wt.entropy;         // unit: J/(mol*K)
-    const auto Hw = Reaktoro::waterMolarMass * wt.enthalpy;        // unit: J/mol
-    const auto Uw = Reaktoro::waterMolarMass * wt.internal_energy; // unit: J/mol
+    const auto Sw = Reaktoro_::waterMolarMass * wt.entropy;         // unit: J/(mol*K)
+    const auto Hw = Reaktoro_::waterMolarMass * wt.enthalpy;        // unit: J/mol
+    const auto Uw = Reaktoro_::waterMolarMass * wt.internal_energy; // unit: J/mol
 
     // Calculate the standard molal thermodynamic properties of the aqueous species
     const auto S  = Sw + Str;
@@ -25,9 +25,9 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro::Temperature T, const Reaktoro::
     const auto U  = Uw + Utr;
     const auto G  = Hw - T * (Sw + Str) + Ttr * Str + Gtr;
     const auto A  = Uw - T * (Sw + Str) + Ttr * Str + Atr;
-    const auto V  = wt.volume * Reaktoro::waterMolarMass * 100000; // unit J/bar
-    const auto Cp = wt.cp * Reaktoro::waterMolarMass;
-    const auto Cv = wt.cv * Reaktoro::waterMolarMass;
+    const auto V  = wt.volume * Reaktoro_::waterMolarMass * 100000; // unit J/bar
+    const auto Cp = wt.cp * Reaktoro_::waterMolarMass;
+    const auto Cv = wt.cv * Reaktoro_::waterMolarMass;
 
     ThermoPropertiesSubstance state;
     state.entropy          = S;
@@ -46,7 +46,7 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro::Temperature T, const Reaktoro::
     return state;
 }
 
-auto propertiesWaterWP95reaktoro(const Reaktoro::WaterThermoState& wt) -> PropertiesSolvent
+auto propertiesWaterWP95reaktoro(const Reaktoro_::WaterThermoState& wt) -> PropertiesSolvent
 {
     PropertiesSolvent state;
 

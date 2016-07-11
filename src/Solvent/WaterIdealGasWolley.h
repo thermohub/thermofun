@@ -8,7 +8,7 @@ namespace TCorrPT {
 // Forward declarations
 struct PropertiesSolvent;
 
-auto waterIdealGas (Reaktoro::Temperature t, Reaktoro::Pressure p) -> ThermoPropertiesSubstance;
+auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPropertiesSubstance;
 
 }
 

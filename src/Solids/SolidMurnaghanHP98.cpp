@@ -2,7 +2,7 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     auto Pst = subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K

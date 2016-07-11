@@ -39,7 +39,7 @@ const double theta = 228;
 /// The constant characteristics \Psi of the solvent (in units of bar)
 const double psi = 2600;
 
-auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
@@ -182,7 +182,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
 }
 
 
-auto functionG(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent& ps) -> FunctionG
+auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSolvent& ps) -> FunctionG
 {
     // The function G
     FunctionG funcG;

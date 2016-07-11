@@ -21,7 +21,7 @@
 #include <Common/ScalarTypes.hpp>
 #include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 // Forward declarations
 struct WaterHelmholtzState;

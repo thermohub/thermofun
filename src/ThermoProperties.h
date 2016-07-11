@@ -8,28 +8,28 @@ namespace TCorrPT {
 struct ThermoPropertiesSubstance
 {
     /// The apparent standard molar Gibbs free energy @f$\Delta G_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar gibbs_energy;
+    Reaktoro_::ThermoScalar gibbs_energy;
 
     /// The apparent standard molar Helmholtz free energy @f$\Delta A_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar helmholtz_energy;
+    Reaktoro_::ThermoScalar helmholtz_energy;
 
     /// The apparent standard molar internal energy @f$\Delta U_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar internal_energy;
+    Reaktoro_::ThermoScalar internal_energy;
 
     /// The apparent standard molar enthalpy @f$\Delta H_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar enthalpy;
+    Reaktoro_::ThermoScalar enthalpy;
 
     /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/K)
-    Reaktoro::ThermoScalar entropy;
+    Reaktoro_::ThermoScalar entropy;
 
     /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of J/bar)
-    Reaktoro::ThermoScalar volume;
+    Reaktoro_::ThermoScalar volume;
 
     /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol K))
-    Reaktoro::ThermoScalar heat_capacity_cp;
+    Reaktoro_::ThermoScalar heat_capacity_cp;
 
     /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol K))
-    Reaktoro::ThermoScalar heat_capacity_cv;
+    Reaktoro_::ThermoScalar heat_capacity_cv;
 };
 
 
@@ -37,28 +37,28 @@ struct ThermoPropertiesSubstance
 struct ThermoPropertiesReaction
 {
     /// The apparent standard molar Gibbs free energy @f$\Delta G_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar reaction_gibbs_energy;
+    Reaktoro_::ThermoScalar reaction_gibbs_energy;
 
     /// The apparent standard molar Helmholtz free energy @f$\Delta A_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar reaction_helmholtz_energy;
+    Reaktoro_::ThermoScalar reaction_helmholtz_energy;
 
     /// The apparent standard molar internal energy @f$\Delta U_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar reaction_internal_energy;
+    Reaktoro_::ThermoScalar reaction_internal_energy;
 
     /// The apparent standard molar enthalpy @f$\Delta H_{f}^{\circ}@f$ of the species (in units of J/mol)
-    Reaktoro::ThermoScalar reaction_enthalpy;
+    Reaktoro_::ThermoScalar reaction_enthalpy;
 
     /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/K)
-    Reaktoro::ThermoScalar reaction_entropy;
+    Reaktoro_::ThermoScalar reaction_entropy;
 
     /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of J/bar)
-    Reaktoro::ThermoScalar reaction_volume;
+    Reaktoro_::ThermoScalar reaction_volume;
 
     /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol K))
-    Reaktoro::ThermoScalar reaction_heat_capacity_cp;
+    Reaktoro_::ThermoScalar reaction_heat_capacity_cp;
 
     /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol K))
-    Reaktoro::ThermoScalar reaction_heat_capacity_cv;
+    Reaktoro_::ThermoScalar reaction_heat_capacity_cv;
 };
 
 /// Describes the thermodynamic properties specific to a solvent
@@ -76,150 +76,150 @@ struct PropertiesSolvent
 //       Albe,             /// alpha/beta ratio
 //       dAldT;            /// T derivative of isobaric expansion
     /// constant pressure expansion (alpha) (in units of 1/K)
-    Reaktoro::ThermoScalar Alpha;
+    Reaktoro_::ThermoScalar Alpha;
 
     /// first order derivative of alpha with T
-    Reaktoro::ThermoScalar dAldT;
+    Reaktoro_::ThermoScalar dAldT;
 
     /// constant temperature compressibility (beta) (in units of (1/Pa)
-    Reaktoro::ThermoScalar Beta;
+    Reaktoro_::ThermoScalar Beta;
 
     /// alpha/beta ratio (in units of K/Pa)
-    Reaktoro::ThermoScalar Albe;
+    Reaktoro_::ThermoScalar Albe;
 
     /// ideal gas Gibbs energy
-    Reaktoro::ThermoScalar gibbsIdealGas;
+    Reaktoro_::ThermoScalar gibbsIdealGas;
 
     /// ideal gas entropy
-    Reaktoro::ThermoScalar entropyIdealGas;
+    Reaktoro_::ThermoScalar entropyIdealGas;
 
     /// ideal gas isobaric heat capacity
-    Reaktoro::ThermoScalar cpIdealGas;
+    Reaktoro_::ThermoScalar cpIdealGas;
 
     /// The specific density of solvent (in units of kg/m3)
-    Reaktoro::ThermoScalar density;
+    Reaktoro_::ThermoScalar density;
 
     /// The first-order partial derivative of density with respect to temperature (in units of (kg/m3)/K)
-    Reaktoro::ThermoScalar densityT;
+    Reaktoro_::ThermoScalar densityT;
 
     /// The first-order partial derivative of density with respect to pressure (in units of (kg/m3)/Pa)
-    Reaktoro::ThermoScalar densityP;
+    Reaktoro_::ThermoScalar densityP;
 
     /// The second-order partial derivative of density with respect to temperature (in units of (kg/m3)/(K*K))
-    Reaktoro::ThermoScalar densityTT;
+    Reaktoro_::ThermoScalar densityTT;
 
     /// The second-order partial derivative of density with respect to temperature and pressure (in units of (kg/m3)/(K*Pa))
-    Reaktoro::ThermoScalar densityTP;
+    Reaktoro_::ThermoScalar densityTP;
 
     /// The second-order partial derivative of density with respect to pressure (in units of (kg/m3)/(Pa*Pa))
-    Reaktoro::ThermoScalar densityPP;
+    Reaktoro_::ThermoScalar densityPP;
 
     /// The pressure of solvent (in units of Pa)
-    Reaktoro::ThermoScalar pressure;
+    Reaktoro_::ThermoScalar pressure;
 
     /// The first-order partial derivative of pressure with respect to temperature (in units of Pa/K)
-    Reaktoro::ThermoScalar pressureT;
+    Reaktoro_::ThermoScalar pressureT;
 
     /// The first-order partial derivative of pressure with respect to density (in units of Pa/(kg/m3))
-    Reaktoro::ThermoScalar pressureD;
+    Reaktoro_::ThermoScalar pressureD;
 
     /// The second-order partial derivative of pressure with respect to temperature (in units of Pa/(K*K))
-    Reaktoro::ThermoScalar pressureTT;
+    Reaktoro_::ThermoScalar pressureTT;
 
     /// The second-order partial derivative of pressure with respect to temperature and density (in units of Pa/(K*kg/m3))
-    Reaktoro::ThermoScalar pressureTD;
+    Reaktoro_::ThermoScalar pressureTD;
 
     /// The second-order partial derivative of pressure with respect to density (in units of Pa/((kg/m3)*(kg/m3)))
-    Reaktoro::ThermoScalar pressureDD;
+    Reaktoro_::ThermoScalar pressureDD;
 
 };
 
 struct ElectroPropertiesSolvent
 {
     /// The dielectric constant of water
-    Reaktoro::ThermoScalar epsilon;
+    Reaktoro_::ThermoScalar epsilon;
 
     /// The first-order partial derivative of the dielectric constant with respect to temperature
-    Reaktoro::ThermoScalar epsilonT;
+    Reaktoro_::ThermoScalar epsilonT;
 
     /// The first-order partial derivative of the dielectric constant with respect to pressure
-    Reaktoro::ThermoScalar epsilonP;
+    Reaktoro_::ThermoScalar epsilonP;
 
     /// The second-order partial derivative of the dielectric constant with respect to temperature
-    Reaktoro::ThermoScalar epsilonTT;
+    Reaktoro_::ThermoScalar epsilonTT;
 
     /// The second-order partial derivative of the dielectric constant with respect to temperature and pressure
-    Reaktoro::ThermoScalar epsilonTP;
+    Reaktoro_::ThermoScalar epsilonTP;
 
     /// The second-order partial derivative of the dielectric constant with respect to pressure
-    Reaktoro::ThermoScalar epsilonPP;
+    Reaktoro_::ThermoScalar epsilonPP;
 
     /// The Born function \f$ Z\equiv-\frac{1}{\epsilon} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornZ;
+    Reaktoro_::ThermoScalar bornZ;
 
     /// The Born function \f$ Y\equiv\left[\frac{\partial Z}{\partial T}\right]_{P} \f$ in units of 1/K (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornY;
+    Reaktoro_::ThermoScalar bornY;
 
     /// The Born function \f$ Q\equiv\left[\frac{\partial Z}{\partial P}\right]_{T} \f$ in units of 1/Pa (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornQ;
+    Reaktoro_::ThermoScalar bornQ;
 
     /// The Born function \f$ N\equiv\left[\frac{\partial Q}{\partial P}\right]_{T} \f$ in units of 1/Pa*Pa (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornN;
+    Reaktoro_::ThermoScalar bornN;
 
     /// The Born function \f$ U\equiv\left[\frac{\partial Q}{\partial T}\right]_{P} \f$ in units of 1/Pa*K (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornU;
+    Reaktoro_::ThermoScalar bornU;
 
     /// The Born function \f$ X\equiv\left[\frac{\partial Y}{\partial T}\right]_{P} \f$ in units of 1/K*K (see Helgeson and Kirkham, 1974)
-    Reaktoro::ThermoScalar bornX;
+    Reaktoro_::ThermoScalar bornX;
 };
 
 struct ElectroPropertiesSubstance
 {
     /// The effective electrostatic radius of the solute species at referente temperature 298.15 K and pressure 1 bar
-    Reaktoro::ThermoScalar reref;
+    Reaktoro_::ThermoScalar reref;
 
     /// The effective electrostatic radius of the solute species
-    Reaktoro::ThermoScalar re;
+    Reaktoro_::ThermoScalar re;
 
     /// The Born coefficient of the solute species
-    Reaktoro::ThermoScalar w;
+    Reaktoro_::ThermoScalar w;
 
     /// The first-order partial derivative of the Born coefficient of the solute species with respect to temperature
-    Reaktoro::ThermoScalar wT;
+    Reaktoro_::ThermoScalar wT;
 
     /// The first-order partial derivative of the Born coefficient of the solute species with respect to pressure
-    Reaktoro::ThermoScalar wP;
+    Reaktoro_::ThermoScalar wP;
 
     /// The second-order partial derivative of the Born coefficient of the solute species with respect to temperature
-    Reaktoro::ThermoScalar wTT;
+    Reaktoro_::ThermoScalar wTT;
 
     /// The second-order partial derivative of the Born coefficient of the solute species with respect to temperature and pressure
-    Reaktoro::ThermoScalar wTP;
+    Reaktoro_::ThermoScalar wTP;
 
     /// The second-order partial derivative of the Born coefficient of the solute species with respect to pressure
-    Reaktoro::ThermoScalar wPP;
+    Reaktoro_::ThermoScalar wPP;
 };
 
 /// A type used to describe the function g of the HKF model and its partial temperature and pressure derivatives
 struct FunctionG
 {
     /// The function g at temperature T and pressure P
-    Reaktoro::ThermoScalar g;
+    Reaktoro_::ThermoScalar g;
 
     /// The first-order partial derivative of function g with respect to temperature
-    Reaktoro::ThermoScalar gT;
+    Reaktoro_::ThermoScalar gT;
 
     /// The first-order partial derivative of function g with respect to pressure
-    Reaktoro::ThermoScalar gP;
+    Reaktoro_::ThermoScalar gP;
 
     /// The second-order partial derivative of function g with respect to temperature
-    Reaktoro::ThermoScalar gTT;
+    Reaktoro_::ThermoScalar gTT;
 
     /// The second-order partial derivative of function g with respect to temperature and pressure
-    Reaktoro::ThermoScalar gTP;
+    Reaktoro_::ThermoScalar gTP;
 
     /// The second-order partial derivative of function g with respect to pressure
-    Reaktoro::ThermoScalar gPP;
+    Reaktoro_::ThermoScalar gPP;
 };
 
 } // namespace TCorrPT

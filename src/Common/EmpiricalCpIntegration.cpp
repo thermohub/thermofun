@@ -3,22 +3,22 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesEmpCpIntegration(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance substance) -> ThermoPropertiesSubstance
+auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance   thermo_properties_PT   = substance.thermoProperties();
     ThermoPropertiesSubstance   thermo_properties_PrTr = substance.thermoReferenceProperties();
     SubstanceClass::type        substance_class        = substance.substanceClass();
     ThermoParametersSubstance   thermo_parameters      = substance.thermoParameters();
 
-    Reaktoro::ThermoScalar V;
+    Reaktoro_::ThermoScalar V;
     int k=-1;
     vector<double> ac;
     ac.resize(16);
     ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
 
-    auto TK = Reaktoro::Temperature(T.val /*+ C_to_K*/);
-    auto Pb = Reaktoro::Pressure(P);
+    auto TK = Reaktoro_::Temperature(T.val /*+ C_to_K*/);
+    auto Pb = Reaktoro_::Pressure(P);
 
     auto TrK = substance.referenceT()/* + C_to_K*/;
 

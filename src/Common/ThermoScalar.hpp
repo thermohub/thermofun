@@ -20,7 +20,7 @@
 #include <cmath>
 #include <iostream>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 /// A template base class to represent a thermodynamic scalar and its partial derivatives.
 /// A *thermodynamic property* is a quantity that depends on temperature and pressure.

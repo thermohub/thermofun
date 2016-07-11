@@ -38,12 +38,12 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
-    if (P==0) p = Reaktoro::Pressure(Reaktoro::waterSaturatedPressureWagnerPruss(t).val);
+    if (P==0) p = Reaktoro_::Pressure(Reaktoro_::waterSaturatedPressureWagnerPruss(t).val);
 
-    Reaktoro::WaterThermoState wts;
+    Reaktoro_::WaterThermoState wts;
 
     wts.density   = ps.density;
     wts.densityT  = ps.densityT;
@@ -52,7 +52,7 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     wts.densityTP = ps.densityTP;
     wts.densityPP = ps.densityPP;
 
-    Reaktoro::WaterElectroState wes = Reaktoro::waterElectroStateJohnsonNorton(t, /*p,*/ wts);
+    Reaktoro_::WaterElectroState wes = Reaktoro_::waterElectroStateJohnsonNorton(t, /*p,*/ wts);
 
     return electroPropertiesWaterJNreaktoro(wes);
 }

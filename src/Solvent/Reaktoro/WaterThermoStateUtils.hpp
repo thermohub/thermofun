@@ -21,7 +21,7 @@
 #include <Common/ScalarTypes.hpp>
 #include <Substance.h>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 // Forward declarations
 struct WaterThermoState;

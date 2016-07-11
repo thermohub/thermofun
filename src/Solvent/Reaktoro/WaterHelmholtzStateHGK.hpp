@@ -21,7 +21,7 @@
 #include <Common/ScalarTypes.hpp>
 #include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 // Forward declarations
 struct WaterHelmholtzState;
@@ -31,6 +31,6 @@ struct WaterHelmholtzState;
 /// @param D The density of water (in units of kg/m3)
 /// @return The Helmholtz free energy state of water
 /// @see WaterHelmholtzState
-auto waterHelmholtzStateHGK(Temperature T, Reaktoro::ThermoScalar D) -> WaterHelmholtzState;
+auto waterHelmholtzStateHGK(Temperature T, Reaktoro_::ThermoScalar D) -> WaterHelmholtzState;
 
 } // namespace Reaktoro

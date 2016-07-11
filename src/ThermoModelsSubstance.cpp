@@ -105,8 +105,8 @@ SoluteAkinfievDiamondEOS::SoluteAkinfievDiamondEOS(const Substance &substance)
 
 auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
     return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp, wigp, wp);
 }
@@ -137,8 +137,8 @@ WaterIdealGasWoolley::WaterIdealGasWoolley(const Substance &substance)
 
 auto WaterIdealGasWoolley::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
     return waterIdealGas(t, p);
 }
@@ -170,8 +170,8 @@ SoluteHKFgems::SoluteHKFgems(const Substance &substance)
 
 auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T/* + C_to_K*/);
-    auto p = Reaktoro::Pressure(P /* * bar_to_Pa*/);
+    auto t = Reaktoro_::Temperature(T/* + C_to_K*/);
+    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
     checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
 
@@ -208,8 +208,8 @@ SoluteHKFreaktoro::SoluteHKFreaktoro(const Substance &substance)
 
 auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
     checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
@@ -246,8 +246,8 @@ MinMurnaghanEOSHP98::MinMurnaghanEOSHP98(const Substance &substance)
 
 auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P /* * bar_to_Pa*/);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
     return thermoPropertiesMinMurnaghanEOSHP98(t, p, pimpl->substance, tps);
 }
@@ -278,8 +278,8 @@ MinBerman88::MinBerman88(const Substance &substance)
 
 auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P /* * bar_to_Pa*/);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
     return thermoPropertiesMinBerman88(t, p, pimpl->substance, tps);
 }
@@ -310,8 +310,8 @@ MinBMGottschalk::MinBMGottschalk(const Substance &substance)
 
 auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesMinBMGottschalk(t, p, pimpl->substance, tps);
 }
@@ -342,8 +342,8 @@ EmpiricalCpIntegration::EmpiricalCpIntegration(const Substance &substance)
 // calculation
 auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesEmpCpIntegration(t, p, pimpl->substance);
 }
@@ -374,8 +374,8 @@ HPLandau::HPLandau(const Substance &substance)
 // calculation
 auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro::Temperature(T + C_to_K);
-    auto p = Reaktoro::Pressure(P);
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesHPLandau(t, p, pimpl->substance, tps);
 }
