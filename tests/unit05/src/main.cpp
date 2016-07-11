@@ -31,9 +31,9 @@ int main(int argc, char *argv[])
     water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNG);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR);
 
-    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAR);
 
     tdb.addSubstance(water);
 

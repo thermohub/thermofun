@@ -62,7 +62,7 @@
           "m_expansivity" :   {
                "name" :   "alphaP"
           },
-          "method_genEoS" :   101,
+          "method_genEoS" :   119,
           "method_corrT" :   205,
           "method_corrP" :   319,
           "limitsTP" :   {
