@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
 
     Database tdb;
 
-
     vector<Substance> vSubst = temp.getSubstances();
 
     for (int i = 0; i < vSubst.size(); i++)
@@ -39,8 +38,8 @@ int main(int argc, char *argv[])
         tdb.addSubstance(vSubst[i]);
     }
 
-//    double T = 5;
-//    double P = 0;
+    double T;
+    double P;
 
 //    Substance water;
 //    water.setName("water");
@@ -65,27 +64,37 @@ int main(int argc, char *argv[])
 //        tdb2.addSubstance(vSubst[i]);
 //    }
 
-//    ThermoPropertiesSubstance result;
+    ThermoPropertiesSubstance result;
 
-//    Thermo thermo (tdb2);
+    Thermo thermo (tdb);
 
-//    OutputToCSV out (argv[0]);
-//    out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT.csv");
+    OutputToCSV out (argv[0]);
+    out.openThermoPropertiesSubstanceFile("CompareP0_T5_370.csv");
+    ThermoPropertiesSubstance tps;
+    int xCH;
 
-//    P = 2000;
-//    result = thermo.thermoPropertiesSubstance(577, P, "Quartz");
+    P = 0; T = 5;
+    result = thermo.thermoPropertiesSubstance(5, P, "HCl@");
 
-//    do {
+    do {
 
-//        for (int i = 0; i < vSubst.size(); i++)
-//        {
-//            result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-//            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
-//            P = 0;
-//        }
+        for (int i = 0; i < vSubst.size(); i++)
+        {
+            result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
 
-//        T +=5;
-//    } while (T <= 370);
+            xCH = node->DC_name_to_xCH(vSubst[i].formula().c_str());
+            tps.gibbs_energy     = node->DC_G0(xCH, P, T+273.15, false);
+            tps.enthalpy         = node->DC_H0(xCH, P, T+273.15);
+            tps.entropy          = node->DC_S0(xCH, P, T+273.15);
+            tps.heat_capacity_cp = node->DC_Cp0(xCH, P, T+273.15);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_G", T, P, tps);
+
+            P = 0;
+        }
+
+        T +=5;
+    } while (T <= 370);
 
 //    out.closeThermoPropertiesSubstanceFile();
 
