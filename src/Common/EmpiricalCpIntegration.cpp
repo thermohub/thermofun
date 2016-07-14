@@ -81,7 +81,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
         for (unsigned j=0; j<=k; j++)
         {
             if ( j == k )
-                TK = T.val + C_to_K;     // current T is the end T for phase transition Cp calculations
+                TK = T.val/* + C_to_K*/;     // current T is the end T for phase transition Cp calculations
             else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
 
             if( !j )
