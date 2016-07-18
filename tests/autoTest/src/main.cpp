@@ -73,9 +73,10 @@ int main(int argc, char *argv[])
     ThermoPropertiesSubstance tps;
     int xCH;
 
-    P = 0; T = 5;
-    result = thermo.thermoPropertiesSubstance(5, P, "HCl@");
+    P=1;
+    result = thermo.thermoPropertiesSubstance(195, P, "Al+3");
 
+    P = 0; T = 5;
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
@@ -83,20 +84,77 @@ int main(int argc, char *argv[])
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
             out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
 
-            xCH = node->DC_name_to_xCH(vSubst[i].formula().c_str());
-            tps.gibbs_energy     = node->DC_G0(xCH, P, T+273.15, false);
-            tps.enthalpy         = node->DC_H0(xCH, P, T+273.15);
-            tps.entropy          = node->DC_S0(xCH, P, T+273.15);
+            xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
+            tps.gibbs_energy     = node->DC_G0 (xCH, P, T+273.15, false);
+            tps.enthalpy         = node->DC_H0 (xCH, P, T+273.15);
+            tps.entropy          = node->DC_S0 (xCH, P, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, P, T+273.15);
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_G", T, P, tps);
+            tps.volume           = node->DC_V0 (xCH, P, T+273.15);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             P = 0;
         }
 
         T +=5;
     } while (T <= 370);
+    out.closeThermoPropertiesSubstanceFile();
 
-//    out.closeThermoPropertiesSubstanceFile();
+    result = thermo.thermoPropertiesSubstance(150, P, "Al+3");
+
+    P = 1; T = 5;
+    out.openThermoPropertiesSubstanceFile("CompareP1_T5_200.csv");
+    do {
+
+        for (int i = 0; i < vSubst.size(); i++)
+        {
+            result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+
+            xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
+            tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
+            tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
+            tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
+            tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
+
+            P = 1;
+        }
+
+        T +=5;
+    } while (T <= 200);
+    out.closeThermoPropertiesSubstanceFile();
+
+//    xCH = node->DC_name_to_xCH("Al+3");
+//    tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, 195+273.15, false);
+
+    P = 500; T = 25;
+
+//   result = thermo.thermoPropertiesSubstance(150, P, "Al+3");
+
+    out.openThermoPropertiesSubstanceFile("CompareP500_T25_800.csv");
+    do {
+
+        for (int i = 0; i < vSubst.size(); i++)
+        {
+            result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+
+            xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
+            tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
+            tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
+            tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
+            tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
+
+            P = 500;
+        }
+
+        T +=25;
+    } while (T <= 800);
+
+    out.closeThermoPropertiesSubstanceFile();
 
 //    OutputToCSV out2 (argv[0]);
 //    out2.openThermoPropertiesSubstanceFile("ThermoPropSubstSUPCRT.csv");

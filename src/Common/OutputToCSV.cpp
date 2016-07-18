@@ -62,17 +62,20 @@ OutputToCSV::~OutputToCSV()
 
 auto OutputToCSV::closeThermoPropertiesSubstanceFile ( ) ->void
 {
-    if (fThermoPropertiesSubstance.is_open()) fThermoPropertiesSubstance.close();
+    if (fThermoPropertiesSubstance.is_open()) { fThermoPropertiesSubstance.close();
+        isHeaderThermoPropSubst = false; }
 }
 
 auto OutputToCSV::closePropertiesSolventFile ( ) ->void
 {
-    if (fPropertiesSolvent.is_open()) fPropertiesSolvent.close();
+    if (fPropertiesSolvent.is_open()) { fPropertiesSolvent.close();
+        isHeaderPropSolv = false; }
 }
 
 auto OutputToCSV::closeElectroPropertiesSolventFile ( ) ->void
 {
-    if (fElectroPropertiesSolvent.is_open()) fElectroPropertiesSolvent.close();
+    if (fElectroPropertiesSolvent.is_open()) { fElectroPropertiesSolvent.close();
+        isHeaderElectroPropSolv = false; }
 }
 
 auto OutputToCSV::openThermoPropertiesSubstanceFile (std::string fileName) ->void
