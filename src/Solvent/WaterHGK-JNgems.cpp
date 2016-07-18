@@ -9,7 +9,7 @@ namespace TCorrPT {
 auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance wp;
-    if (aSpc.isat && (state == 0))
+    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
     {
         wp.helmholtz_energy         = wl.Aw * cal_to_J;
         wp.gibbs_energy             = wl.Gw * cal_to_J;
@@ -42,7 +42,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     PropertiesSolvent wp;
     double rho, alp, dal, bet;
 
-    if (aSpc.isat && (state == 0))
+    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
     {
         wp.Surten   = wl.Surtenw;
         wp.Alpha    = wl.Alphaw;
@@ -82,9 +82,16 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     wp.gibbsIdealGas    = id.gi;
     wp.entropyIdealGas  = id.si;
     wp.cpIdealGas       = id.cpi;
-    wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
 
-    rho = aSta.Dens[aSpc.isat] * 1000;
+    if (aSpc.metastable && !aSpc.isat)
+    {
+        wp.density          = aSta.Dens[!aSpc.isat] * 1000; // in kg/m3
+        rho = aSta.Dens[!aSpc.isat] * 1000;
+    } else
+    {
+        wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
+        rho = aSta.Dens[aSpc.isat] * 1000;
+    }
 
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
@@ -100,7 +107,7 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesS
     ElectroPropertiesSolvent wp;
     double eps, xborn, yborn, qborn;
 
-    if (aSpc.isat && (state == 0))
+    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
     {
         wp.epsilon  = wl.Dielw;
         wp.bornZ    = wl.ZBorn;
@@ -112,7 +119,8 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesS
         xborn = wl.XBorn;
         yborn = wl.YBorn;
         qborn = wl.QBorn;
-    } else
+    }
+    else
     {
         wp.epsilon  = wr.Dielw;
         wp.bornZ    = wr.ZBorn;
