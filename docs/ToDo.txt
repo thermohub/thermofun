@@ -1,0 +1,10 @@
+/// Issues ///
+
+-In the AD model the derivatives with T and P (RHO)? of the thermodynamic porperties are not correctly clauclated inside the ThermoScalar
+probably because of the implementation 
+
+-aqueous speices porperties using supcrt implementation does not calculate correct implicit derivatives of the themro prop with T and P?
+
+-Psat or P = 0 in the case of minerals remains 0 since we need the function from the water proeprties to calculate the Psat.
+
+-for minerals A and U are not calculated

@@ -20,7 +20,7 @@
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 struct WaterThermoState
 {

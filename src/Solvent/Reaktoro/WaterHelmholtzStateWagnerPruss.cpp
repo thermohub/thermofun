@@ -23,7 +23,7 @@
 #include <Solvent/Reaktoro/WaterConstants.hpp>
 #include <Solvent/Reaktoro/WaterHelmholtzState.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 namespace {
 
 const double no[] =

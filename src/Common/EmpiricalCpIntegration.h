@@ -10,7 +10,7 @@ namespace TCorrPT {
 /// @param T temparature (K)
 /// @param P pressure (bar)
 /// @param substance substance instance
-auto thermoPropertiesEmpCpIntegration(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance substance) -> ThermoPropertiesSubstance;
+auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ThermoPropertiesSubstance;
 
 }
 

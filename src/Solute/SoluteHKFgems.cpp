@@ -19,13 +19,13 @@ ZPrTr = -0.1278034682e-1,
                                                   gref = 0.0e0;
 
 
-auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature TC, Reaktoro::Pressure Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = species.thermoParameters().HKF_parameters;
     auto refProp = species.thermoReferenceProperties();
 
-    auto T = Reaktoro::Temperature (TC.val+C_to_K);
+    auto T = Reaktoro_::Temperature (TC.val+C_to_K);
 
     if (hkf.size() == 0)
     {
@@ -143,9 +143,9 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro::Temperature TC, Reaktoro::Pressur
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolvent &ps ) -> FunctionG
+auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSolvent &ps ) -> FunctionG
 {
-    Reaktoro::ThermoScalar a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
+    Reaktoro_::ThermoScalar a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
                 f, dfdP, dfdT, d2fdT2, tempy;
 
@@ -237,7 +237,7 @@ auto gShok2(Reaktoro::Temperature T, Reaktoro::Pressure P, const PropertiesSolve
 
 auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance
 {
-    Reaktoro::ThermoScalar reref, re, Z3, Z4;
+    Reaktoro_::ThermoScalar reref, re, Z3, Z4;
     const auto chg = species.charge();
 
     auto hkf = species.thermoParameters().HKF_parameters;

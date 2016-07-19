@@ -21,7 +21,7 @@
 #include <Common/ScalarTypes.hpp>
 #include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 /// Calculate the density of water using the Haar-Gallagher-Kell (1984) equation of state
 /// @param T The temperature of water (in units of K)
@@ -69,6 +69,6 @@ namespace TCorrPT
 // Forward declarations
 struct PropertiesSolvent;
 
-auto waterIdealGas (Reaktoro::Temperature t, TCorrPT::PropertiesSolvent &wp) -> void;
+auto waterIdealGas (Reaktoro_::Temperature t, TCorrPT::PropertiesSolvent &wp) -> void;
 
 }

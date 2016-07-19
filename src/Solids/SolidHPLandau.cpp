@@ -3,9 +3,9 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesHPLandau(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesHPLandau(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    Reaktoro::ThermoScalar Tcr, Qq, dQq;
+    Reaktoro_::ThermoScalar Tcr, Qq, dQq;
     vector<double> transProp= subst.thermoParameters().phase_transition_prop[0];
 //    auto (P/1000) = Reaktoro::Pressure (p.val /1000);  // in kbar
     auto TrK = subst.referenceT();

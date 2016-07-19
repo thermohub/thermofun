@@ -3,20 +3,20 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {
 //    Reaktoro::ThermoScalar CaltoJ(cal_to_J);
     // calculate infinite dilution properties of aqueous species at T and P of interest
-    Reaktoro::ThermoScalar rho, alp, bet, dalpT, dH0k;
+    Reaktoro_::ThermoScalar rho, alp, bet, dalpT, dH0k;
 //    Reaktoro::ThermoScalar R_CONST (R_CONSTANT);
-    Reaktoro::ThermoScalar Gig, Sig, CPig, Gw, Sw, CPw;
-    Reaktoro::ThermoScalar Geos, Veos, Seos, CPeos, Heos;
-    Reaktoro::ThermoScalar Gids, /*Vids,*/ Sids, CPids, Hids;
-    Reaktoro::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
+    Reaktoro_::ThermoScalar Gig, Sig, CPig, Gw, Sw, CPw;
+    Reaktoro_::ThermoScalar Geos, Veos, Seos, CPeos, Heos;
+    Reaktoro_::ThermoScalar Gids, /*Vids,*/ Sids, CPids, Hids;
+    Reaktoro_::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
 
-    Reaktoro::Temperature Tk (T.val);
+    Reaktoro_::Temperature Tk (T.val);
     auto Tr = 298.15;
-    Reaktoro::Pressure Pbar (P.val/1e05);
+    Reaktoro_::Pressure Pbar (P.val/1e05);
     auto Pr = 1.0;
 
     ThermoPropertiesSubstance state = tps;
@@ -91,16 +91,16 @@ auto thermoPropertiesAqSoluteAD(Reaktoro::Temperature T, Reaktoro::Pressure P, S
     return state;
 }
 
-void Akinfiev_EOS_increments(Reaktoro::Temperature Tk, Reaktoro::Pressure P, Reaktoro::ThermoScalar Gig, Reaktoro::ThermoScalar Sig, Reaktoro::ThermoScalar CPig,
-        Reaktoro::ThermoScalar Gw, Reaktoro::ThermoScalar Sw, Reaktoro::ThermoScalar CPw, Reaktoro::ThermoScalar rho, Reaktoro::ThermoScalar alp, Reaktoro::ThermoScalar bet, Reaktoro::ThermoScalar dalpT, vd ADparam,
-        Reaktoro::ThermoScalar &Geos, Reaktoro::ThermoScalar &Veos, Reaktoro::ThermoScalar &Seos, Reaktoro::ThermoScalar &CPeos, Reaktoro::ThermoScalar &Heos )
+void Akinfiev_EOS_increments(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Gig, Reaktoro_::ThermoScalar Sig, Reaktoro_::ThermoScalar CPig,
+        Reaktoro_::ThermoScalar Gw, Reaktoro_::ThermoScalar Sw, Reaktoro_::ThermoScalar CPw, Reaktoro_::ThermoScalar rho, Reaktoro_::ThermoScalar alp, Reaktoro_::ThermoScalar bet, Reaktoro_::ThermoScalar dalpT, vd ADparam,
+        Reaktoro_::ThermoScalar &Geos, Reaktoro_::ThermoScalar &Veos, Reaktoro_::ThermoScalar &Seos, Reaktoro_::ThermoScalar &CPeos, Reaktoro_::ThermoScalar &Heos )
 {
 
-    Reaktoro::ThermoScalar derP, derT, der2T;
-    Reaktoro::ThermoScalar deltaB, lnKH, Nw, xi, aa, bb, RT;
-    Reaktoro::ThermoScalar fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
-    const Reaktoro::ThermoScalar RR (83.1451); const Reaktoro::ThermoScalar R_CONST (R_CONSTANT);
-    const Reaktoro::ThermoScalar MW (18.01528);
+    Reaktoro_::ThermoScalar derP, derT, der2T;
+    Reaktoro_::ThermoScalar deltaB, lnKH, Nw, xi, aa, bb, RT;
+    Reaktoro_::ThermoScalar fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
+    const Reaktoro_::ThermoScalar RR (83.1451); const Reaktoro_::ThermoScalar R_CONST (R_CONSTANT);
+    const Reaktoro_::ThermoScalar MW (18.01528);
 
     RT = Tk*R_CONST;
     // EOS coefficients

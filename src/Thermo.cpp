@@ -31,6 +31,11 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
     ThermoPropertiesSubstance tps;
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
 
+    if (subst.name() == "H+")
+    {
+        return tps;
+    }
+
     if (subst.substanceClass() != SubstanceClass::type::AQSOLVENT)
     {
         // metohd EOS

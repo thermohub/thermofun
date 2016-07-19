@@ -21,7 +21,7 @@
 
 //#include <vector>
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 class Temperature;
 class Pressure;

@@ -22,7 +22,7 @@
 #include <Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
 
-namespace Reaktoro {
+namespace Reaktoro_ {
 
 // Forward declarations
 struct WaterElectroState;
