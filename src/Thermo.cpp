@@ -132,6 +132,42 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             tps = minBMG.thermoProperties(T, P, tps);
             break;
         }
+        case MethodCorrP_Thrift::type::CPM_CORK:
+        {
+            GasCORK gasCORK (subst);
+            tps = gasCORK.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_PRSV:
+        {
+            GasPRSV gasPRSV (subst);
+            tps = gasPRSV.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_EMP:
+        {
+            GasCGF gasCGF (subst);
+            tps = gasCGF.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_SRK:
+        {
+            GasSRK gasSRK (subst);
+            tps = gasSRK.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_PR78:
+        {
+            GasPR78 gasPR78 (subst);
+            tps = gasPR78.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_STP:
+        {
+            GasSTP gasSTP (subst);
+            tps = gasSTP.thermoProperties(T, P, tps);
+            break;
+        }
         case MethodCorrP_Thrift::type::CPM_CON: // Molar volume assumed independent of T and P
         {
             ThermoPropertiesSubstance rtps = subst.thermoReferenceProperties();

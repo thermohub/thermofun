@@ -9,6 +9,8 @@
 #include "Solids/SolidBMGottschalk.h"
 #include "Solids/SolidHPLandau.h"
 
+#include "Gases/GasCORK.h"
+
 // TCorrPT includes
 #include "Common/Exception.h"
 
@@ -378,6 +380,198 @@ auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tp
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesHPLandau(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// CORK
+// References:
+// Added: DM 19.07.2016
+//=======================================================================================================
+
+struct GasCORK::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+GasCORK::GasCORK(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto GasCORK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+    return thermoPropertiesGasCORK(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// PRSV
+// References:
+// Added: DM --.07.2016
+//=======================================================================================================
+
+struct GasPRSV::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+GasPRSV::GasPRSV(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto GasPRSV::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+//    return thermoPropertiesGasPRSV(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// CGF
+// References:
+// Added: DM --.07.2016
+//=======================================================================================================
+
+struct GasCGF::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+GasCGF::GasCGF(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+//    return thermoPropertiesGasCGF(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// SRK
+// References:
+// Added: DM --.07.2016
+//=======================================================================================================
+
+struct GasSRK::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+GasSRK::GasSRK(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+//    return thermoPropertiesGasSRK(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// PR78
+// References:
+// Added: DM --.07.2016
+//=======================================================================================================
+
+struct GasPR78::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+GasPR78::GasPR78(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+//    return thermoPropertiesGasPR78(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// STP
+// References:
+// Added: DM --.07.2016
+//=======================================================================================================
+
+struct GasSTP::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+GasSTP::GasSTP(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+//    return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
 }
 
 

@@ -47,7 +47,9 @@
     $$PWD/Solids/SolidBerman88.h \
     $$PWD/Solids/SolidBMGottschalk.h \
     $$PWD/Common/EmpiricalCpIntegration.h \
-    $$PWD/Solids/SolidHPLandau.h
+    $$PWD/Solids/SolidHPLandau.h \
+    $$PWD/Gases/GasCORK.h \
+    $$PWD/Gases/s_solmod_.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -91,4 +93,7 @@
     $$PWD/Solids/SolidBMGottschalk.cpp \
     $$PWD/Solids/SolidBerman88.cpp \
     $$PWD/Common/EmpiricalCpIntegration.cpp \
-    $$PWD/Solids/SolidHPLandau.cpp
+    $$PWD/Solids/SolidHPLandau.cpp \
+    $$PWD/Gases/GasCORK.cpp \
+    $$PWD/Gases/s_solmod2_.cpp \
+    $$PWD/Gases/s_solmod_.cpp

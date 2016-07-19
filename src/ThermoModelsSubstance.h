@@ -218,6 +218,132 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+///
+class GasCORK
+{
+public:
+    /// Construct a default GasCORK instance
+    GasCORK();
+
+    /// Construct an GasCORK instance from a Substance instance
+    explicit GasCORK(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class GasPRSV
+{
+public:
+    /// Construct a default GasPRSV instance
+    GasPRSV();
+
+    /// Construct an GasPRSV instance from a Substance instance
+    explicit GasPRSV(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class GasCGF
+{
+public:
+    /// Construct a default GasCGF instance
+    GasCGF();
+
+    /// Construct an GasCGF instance from a Substance instance
+    explicit GasCGF(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class GasSRK
+{
+public:
+    /// Construct a default GasSRK instance
+    GasSRK();
+
+    /// Construct an GasSRK instance from a Substance instance
+    explicit GasSRK(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class GasPR78
+{
+public:
+    /// Construct a default GasPR78 instance
+    GasPR78();
+
+    /// Construct an GasPR78 instance from a Substance instance
+    explicit GasPR78(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class GasSTP
+{
+public:
+    /// Construct a default GasSTP instance
+    GasSTP();
+
+    /// Construct an GasSTP instance from a Substance instance
+    explicit GasSTP(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 } // namespace TCorrPT
 
 #endif // THERMOMODELSUBSTANCE_H
