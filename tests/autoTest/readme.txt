@@ -1,0 +1,4 @@
+-$ ./install-thirdparty.sh
+-build autoTest from QtCreator
+-Copy the Resources folder into the build folder
+-Run autoTest with argument "Resources/test_multi.VertexSubstance.json" - list of substances exproted from Pmatch

@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     string file = argv[1];
 
-    char config_json_file_path[256] = "GEMS4/TestMulti";
+    char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
 
     TNode* node = new TNode();
 
