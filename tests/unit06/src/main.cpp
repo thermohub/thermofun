@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb(file);
     Database tdb2;
 
-    double T = 5;
-    double P = 0;
+    double T = 150;
+    double P = 2000;
 
     Substance water;
     water.setName("water");
@@ -36,6 +36,12 @@ int main(int argc, char *argv[])
     water.setMethod_T(MethodCorrT_Thrift::type::CTM_WZD);
 
     tdb.addSubstance(water);
+
+    ThermoPropertiesSubstance result;
+
+    Thermo thermo (tdb);
+
+    result = thermo.thermoPropertiesSubstance(T, P, "H2O@");
 
 //    vector<Substance> vSubst = tdb.getSubstances();
 

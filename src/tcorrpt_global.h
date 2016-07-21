@@ -154,6 +154,7 @@ typedef struct {
     CTM_DAS = 220,
     CTM_WAR = 221,
     CTM_WWP = 222,
+    CTM_WZD = 223,
   };
 } MethodCorrT_Thrift;
 static const int MethodCorrT_ndxThrift[] = {
@@ -179,7 +180,8 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_KAS,
   MethodCorrT_Thrift::CTM_DAS,
   MethodCorrT_Thrift::CTM_WAR,      /// calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
-  MethodCorrT_Thrift::CTM_WWP       /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
+  MethodCorrT_Thrift::CTM_WWP,      /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
+  MethodCorrT_Thrift::CTM_WZD       /// calculation of water proeprties using the Zhang and Duan (2005) EOS
 };
 /// Codes for temperature correction methods used in GEMS
 //static const char* MethodCorrT_GEMS[] = {
