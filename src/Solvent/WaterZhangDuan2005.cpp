@@ -36,6 +36,7 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
     const double tolerance = 1.0e-08;
     const auto Tc = waterCriticalTemperature;
     const auto Pc = waterCriticalPressure;
+    const auto Vc = waterCriticalVolume;
     const auto B = a[1] + a[2]/pow((T/Tc),2) + a[3]/pow((T/Tc),3);
     const auto C = a[4] + a[5]/pow((T/Tc),2) + a[6]/pow((T/Tc),3);
     const auto D = a[7] + a[8]/pow((T/Tc),2) + a[9]/pow((T/Tc),3);
@@ -47,11 +48,11 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
     for(int i = 1; i <= max_iters; ++i)
     {
         const auto f  = ( 1 + B/Vn + C/pow(Vn,2) + D/pow(Vn,4) + E/pow(Vn,5) +
-                          (F/pow(Vn,2) + G/pow(Vn,4))*exp(-gamma/pow(Vn,2))) *
-                        ((T/Tc)/(P/Pc)) - Vn;
+                          (F/pow(Vn,2) + G/pow(Vn,4))*exp(-gamma/pow(Vn,2)))* RConstant
+                        * T/P - Vn*Vc;
         const auto df = ( -B/pow(Vn,2) - 2*C/pow(Vn,3) - 4*D/pow(Vn,5) - 5*E/pow(Vn,6) -
-                          (2*exp(-gamma/pow(Vn,2))*(-F*gamma*pow(Vn,2) + F*pow(Vn,4) - gamma*G + 2*G*pow(Vn,2)))/pow(Vn,7))*
-                        ((T/Tc)/(P/Pc)) - 1;
+                          (2*exp(-gamma/pow(Vn,2))*(-F*gamma*pow(Vn,2) + F*pow(Vn,4) - gamma*G + 2*G*pow(Vn,2)))/pow(Vn,7)) * RConstant
+                        * T/P - Vc;
         const auto Vn_plus_1 = Vn - f/df;
 
         if (std::abs(Vn_plus_1.val - Vn.val) < tolerance)
@@ -79,8 +80,11 @@ auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pre
 
     Reaktoro_::ThermoScalar V0 (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
 
+    V0 = 0.3;
 
     V0 = waterMolarVolume(T, P, V0);
+
+    const auto V = V0 * waterCriticalVolume;
 
 
     return tps;

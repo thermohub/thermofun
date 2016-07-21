@@ -200,7 +200,7 @@ auto WaterZhangDuan2005::propertiesSolvent(double T, double &P, int state) -> Pr
 auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto p = Reaktoro_::Pressure(P /*/ 10 *//* * bar_to_Pa*/); // MPa
 
 //    if (P==0) p = Reaktoro_::Pressure(Reaktoro_::waterSaturatedPressureWagnerPruss(t).val);
 
