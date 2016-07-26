@@ -253,6 +253,12 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
             ps = water.propertiesSolvent(T, P, solvent_state);
             break;
         }
+        case MethodCorrT_Thrift::type::CTM_WZD:
+        {
+            WaterZhangDuan2005 water ( subst );
+            ps = water.propertiesSolvent(T, P, solvent_state);
+            break;
+        }
             // Exception
             errorMethodNotFound("solvent", subst.symbol(), __LINE__);
         }

@@ -57,11 +57,14 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
 
         if (std::abs(Vn_plus_1.val - Vn.val) < tolerance)
         {
+            const auto Z = 1 + B/Vn + C/pow(Vn,2) + D/pow(Vn,4) + E/pow(Vn,5) +
+                           (F/pow(Vn,2) + G/pow(Vn,4))*exp(-gamma/pow(Vn,2));
             return Vn_plus_1;
         }
 
         Vn = Vn_plus_1;
     }
+
 
     TCorrPT::Exception exception;
     exception.error << "Unable to calculate the molar volume of water, Zhang and Duan (2005) EOS.";
@@ -73,21 +76,61 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
     return {};
 }
 
+auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Vr, Reaktoro_::ThermoScalar V) -> Reaktoro_::ThermoScalar
+{
+    Reaktoro_::ThermoScalar lnFugCoef;
+
+    const auto Tc = waterCriticalTemperature;
+    const auto B = a[1] + a[2]/pow((T/Tc),2) + a[3]/pow((T/Tc),3);
+    const auto C = a[4] + a[5]/pow((T/Tc),2) + a[6]/pow((T/Tc),3);
+    const auto D = a[7] + a[8]/pow((T/Tc),2) + a[9]/pow((T/Tc),3);
+    const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
+    const auto F = a[13]/(T/Tc);
+    const auto G = a[14]*(T/Tc);
+    const auto expf = exp(-gamma/pow(Vr,2));
+    const auto Z = (P*V)/(RConstant*T);
+
+    const auto H = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/pow(Vr,2);
+
+    lnFugCoef = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + H;
+
+    return lnFugCoef;
+}
+
 
 auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
 
-    Reaktoro_::ThermoScalar V0 (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
+    Reaktoro_::ThermoScalar Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
+    Reaktoro_::ThermoScalar FugCoef;
 
-    V0 = 0.3;
+    Vr = 0.3;
 
-    V0 = waterMolarVolume(T, P, V0);
+    Vr = waterMolarVolume(T, P, Vr);
 
-    const auto V = V0 * waterCriticalVolume;
-
+    const auto V = Vr * waterCriticalVolume;
+    FugCoef = exp(waterFugacityCoeff(T, P, Vr, V));
 
     return tps;
+}
+
+auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> PropertiesSolvent
+{
+    PropertiesSolvent ps;
+
+    Reaktoro_::ThermoScalar Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
+
+    Vr = 0.3;
+
+    Vr = waterMolarVolume(T, P, Vr);
+
+    const auto V = Vr * waterCriticalVolume;
+    const auto D = H2OMolarMass/V;
+
+    ps.density = D;
+
+    return ps;
 }
 
 }

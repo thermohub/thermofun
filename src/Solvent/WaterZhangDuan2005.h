@@ -17,7 +17,7 @@ auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pre
 
 /// Return the physical properties of water
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water
-//auto propertiesWaterZhangDuan2005(const Reaktoro_::WaterThermoState& wt) -> PropertiesSolvent;
+auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> PropertiesSolvent;
 
 }
 
