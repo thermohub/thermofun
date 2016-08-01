@@ -214,6 +214,13 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
             eps = water.electroPropertiesSolvent(T, P);
             break;
         }
+        case MethodGenEoS_Thrift::type::CEM_WSV14:
+        {
+            WaterElectroSverjensky2014 water (subst);
+            ps = propertiesSolvent(T, P, subst.symbol());
+            eps = water.electroPropertiesSolvent(T, P, ps);
+            break;
+        }
             // Exception
             errorMethodNotFound("solvent", subst.symbol(), __LINE__);
         }

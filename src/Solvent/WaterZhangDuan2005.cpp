@@ -43,26 +43,26 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
     const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
     const auto F = a[13]/(T/Tc);
     const auto G = a[14]*(T/Tc);
-    auto Vn = V0;
+    auto Vr = V0;
 
     for(int i = 1; i <= max_iters; ++i)
     {
-        const auto f  = ( 1 + B/Vn + C/pow(Vn,2) + D/pow(Vn,4) + E/pow(Vn,5) +
-                          (F/pow(Vn,2) + G/pow(Vn,4))*exp(-gamma/pow(Vn,2)))* RConstant
-                        * T/P - Vn*Vc;
-        const auto df = ( -B/pow(Vn,2) - 2*C/pow(Vn,3) - 4*D/pow(Vn,5) - 5*E/pow(Vn,6) -
-                          (2*exp(-gamma/pow(Vn,2))*(-F*gamma*pow(Vn,2) + F*pow(Vn,4) - gamma*G + 2*G*pow(Vn,2)))/pow(Vn,7)) * RConstant
+        const auto f  = ( 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
+                          (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2)))* RConstant
+                        * T/P - Vr*Vc;
+        const auto df = ( -B/pow(Vr,2) - 2*C/pow(Vr,3) - 4*D/pow(Vr,5) - 5*E/pow(Vr,6) -
+                          (2*exp(-gamma/pow(Vr,2))*(-F*gamma*pow(Vr,2) + F*pow(Vr,4) - gamma*G + 2*G*pow(Vr,2)))/pow(Vr,7)) * RConstant
                         * T/P - Vc;
-        const auto Vn_plus_1 = Vn - f/df;
+        const auto Vr_plus_1 = Vr - f/df;
 
-        if (std::abs(Vn_plus_1.val - Vn.val) < tolerance)
+        if (std::abs(Vr_plus_1.val - Vr.val) < tolerance)
         {
-            const auto Z = 1 + B/Vn + C/pow(Vn,2) + D/pow(Vn,4) + E/pow(Vn,5) +
-                           (F/pow(Vn,2) + G/pow(Vn,4))*exp(-gamma/pow(Vn,2));
-            return Vn_plus_1;
+            const auto Z = 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
+                           (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2));
+            return Vr_plus_1;
         }
 
-        Vn = Vn_plus_1;
+        Vr = Vr_plus_1;
     }
 
 
@@ -78,21 +78,27 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
 
 auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Vr, Reaktoro_::ThermoScalar V) -> Reaktoro_::ThermoScalar
 {
-    Reaktoro_::ThermoScalar lnFugCoef;
+    Reaktoro_::ThermoScalar lnFugCoef, lnFugCoef2;
 
     const auto Tc = waterCriticalTemperature;
-    const auto B = a[1] + a[2]/pow((T/Tc),2) + a[3]/pow((T/Tc),3);
-    const auto C = a[4] + a[5]/pow((T/Tc),2) + a[6]/pow((T/Tc),3);
-    const auto D = a[7] + a[8]/pow((T/Tc),2) + a[9]/pow((T/Tc),3);
+    const auto B = a[1]  + a[2]/pow((T/Tc),2)  + a[3]/pow((T/Tc),3);
+    const auto C = a[4]  + a[5]/pow((T/Tc),2)  + a[6]/pow((T/Tc),3);
+    const auto D = a[7]  + a[8]/pow((T/Tc),2)  + a[9]/pow((T/Tc),3);
     const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
     const auto F = a[13]/(T/Tc);
     const auto G = a[14]*(T/Tc);
     const auto expf = exp(-gamma/pow(Vr,2));
     const auto Z = (P*V)/(RConstant*T);
 
-    const auto H = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/pow(Vr,2);
+//    const auto H = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/pow(Vr,2);
 
-    lnFugCoef = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + H;
+    const auto H2 = G/(2*pow(gamma,2)) * (F*gamma/G + 1 - (F*gamma/G+1+gamma/pow(Vr,2)) * exp(-gamma/pow(Vr,2)));
+
+    const auto H = (1/(2*gamma))*(F + G/pow(Vr,2) + G/gamma)*exp(-gamma/pow(Vr,2)) - F/(2*gamma) - G/(2*pow(gamma,2));
+
+    lnFugCoef = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) - H;
+
+    lnFugCoef2 = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + H2;
 
     return lnFugCoef;
 }
@@ -112,6 +118,8 @@ auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pre
     const auto V = Vr * waterCriticalVolume;
     FugCoef = exp(waterFugacityCoeff(T, P, Vr, V));
 
+    tps.volume = V / 10;
+
     return tps;
 }
 
@@ -125,10 +133,36 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
 
     Vr = waterMolarVolume(T, P, Vr);
 
-    const auto V = Vr * waterCriticalVolume;
-    const auto D = H2OMolarMass/V;
+    const auto V = Vr * waterCriticalVolume /10;
+    const auto D = H2OMolarMass/V*100;
 
-    ps.density = D;
+    ps.density  = D /* * 1000*/;
+    ps.densityT = ps.density.ddt;
+    ps.densityP = ps.density.ddp;
+    ps.Alpha    = -ps.densityT/ps.density;
+    ps.Beta     = ps.densityP/ps.density/1e+05; // from 1/bar to 1/Pa
+
+    // finite difference
+    Reaktoro_::ThermoScalar Vr_plus;
+    Reaktoro_::Temperature T_plus (T.val+T.val*0.001);
+    Vr_plus = waterMolarVolume(T_plus, P, Vr);
+    const auto V_plus = Vr_plus * waterCriticalVolume/10;
+    const auto D_plus = H2OMolarMass/V_plus *100;
+
+    Reaktoro_::ThermoScalar Vr_minus;
+    Reaktoro_::Temperature T_minus (T.val-T.val*0.001);
+    Vr_minus = waterMolarVolume(T_minus, P, Vr);
+    const auto V_minus = Vr_minus * waterCriticalVolume/10;
+    const auto D_minus = H2OMolarMass/V_minus * 100;
+
+    const auto VdT = (V_plus - V_minus) / ((T_plus-T_minus));
+    const auto DdT = (D_plus - D_minus) / ((T_plus-T_minus));
+
+    const auto Dd2T = (D_plus + D_minus - 2*D)/pow(((T_plus-T_minus)*0.5),2);
+    const auto Vd2T = (V_plus + V_minus - 2*V)/pow(((T_plus-T_minus)*0.5),2);
+
+    ps.densityTT = Dd2T;
+    ps.dAldT     = (-ps.densityTT/ps.density).val + ps.Alpha*ps.Alpha;
 
     return ps;
 }
