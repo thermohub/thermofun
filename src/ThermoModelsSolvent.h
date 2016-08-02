@@ -85,6 +85,31 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class WaterZhangDuan2005
+{
+public:
+    /// Construct a default class object instance
+    WaterZhangDuan2005();
+
+    /// Construct an class object instance from a Species instance
+    explicit WaterZhangDuan2005(const Substance& substance);
+
+    /// Return the physical properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto propertiesSolvent (double T, double &P, int state) -> PropertiesSolvent;
+
+    /// Return the themrodynamic properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 } // namespace TCorrPT
 
 #endif // THERMOMODELSSOLVENT_H

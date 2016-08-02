@@ -47,7 +47,9 @@
     $$PWD/Solids/SolidBerman88.h \
     $$PWD/Solids/SolidBMGottschalk.h \
     $$PWD/Common/EmpiricalCpIntegration.h \
-    $$PWD/Solids/SolidHPLandau.h
+    $$PWD/Solids/SolidHPLandau.h \
+    $$PWD/Solvent/WaterZhangDuan2005.h \
+    $$PWD/Solvent/WaterElectroSverjensky2014.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -91,4 +93,6 @@
     $$PWD/Solids/SolidBMGottschalk.cpp \
     $$PWD/Solids/SolidBerman88.cpp \
     $$PWD/Common/EmpiricalCpIntegration.cpp \
-    $$PWD/Solids/SolidHPLandau.cpp
+    $$PWD/Solids/SolidHPLandau.cpp \
+    $$PWD/Solvent/WaterZhangDuan2005.cpp \
+    $$PWD/Solvent/WaterElectroSverjensky2014.cpp

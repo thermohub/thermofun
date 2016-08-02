@@ -92,5 +92,40 @@ auto WaterJNgems::electroPropertiesSolvent(double T, double P) -> ElectroPropert
     return water_hgk.electroPropertiesWaterJNgems(0); // state 0 = liquid
 }
 
+//=======================================================================================================
+// Calculate the electro-chemical of water using the ----------- model as implemented in
+// Reaktoro
+// References:
+// Added: DM 26.07.2016
+//=======================================================================================================
+
+struct WaterElectroSverjensky2014::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+WaterElectroSverjensky2014::WaterElectroSverjensky2014(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent
+{
+//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
+
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
+
+//    return electroPropertiesWaterSverjensky2014(ps);
+}
+
 } // End namespace TCorrPT
 
