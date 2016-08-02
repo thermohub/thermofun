@@ -123,6 +123,19 @@ auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pre
     return tps;
 }
 
+auto waterDensityZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> Reaktoro_::ThermoScalar
+{
+    Reaktoro_::ThermoScalar Vr;
+
+    Vr = 0.3;
+    Vr = waterMolarVolume(T, P, Vr);
+
+    const auto V = Vr * waterCriticalVolume /10;
+    const auto D = H2OMolarMass/V*100;
+
+    return D;
+}
+
 auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> PropertiesSolvent
 {
     PropertiesSolvent ps;

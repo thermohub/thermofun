@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb/*(file)*/;
     Database tdb2;
 
-    double T = 500;
-    double P = 5000;
+    double T = 400;
+    double P = 3000;
 
     Substance water, water2;
     water.setName("water");
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WSV14);
 
     water.setMethod_T(MethodCorrT_Thrift::type::CTM_WZD);
 
@@ -51,12 +51,16 @@ int main(int argc, char *argv[])
 
     ThermoPropertiesSubstance result, result2;
     PropertiesSolvent ps, ps2;
+    ElectroPropertiesSolvent eps, eps2;
 
     Thermo thermo (tdb);
 
     result = thermo.thermoPropertiesSubstance(T, P, "H2O@");
 
     ps = thermo.propertiesSolvent(T, P, "H2O@");
+
+    eps = thermo.electroPropertiesSolvent(T, P, "H2O@");
+    eps2 = thermo.electroPropertiesSolvent(T, P, "H2O@2");
 
     ps2 = thermo.propertiesSolvent(T, P, "H2O@2");
 
