@@ -27,40 +27,52 @@ auto epsilon(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar RHO) -> Reaktoro_
 
 auto electroPropertiesWaterSverjensky2014(PropertiesSolvent ps, Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ElectroPropertiesSolvent
 {
-    ElectroPropertiesSolvent eps;
+    ElectroPropertiesSolvent wep;
 
     const auto RHO = ps.density /1000;
+    const auto eps = epsilon(T, RHO);
+    const auto epsilon2 = eps * eps;
 
-    eps.epsilon = epsilon(T, RHO);
-
-    const auto epsilon2 = eps.epsilon * eps.epsilon;
-
-    eps.bornZ = -1.0/eps.epsilon;
-    eps.bornY = eps.epsilon.ddt/epsilon2;
-    eps.bornQ = eps.epsilon.ddp/epsilon2*1e-05; // from 1/bar to 1/Pa
-//	we.bornU = we.epsilonTP/epsilon2 - 2.0*we.bornY*we.bornQ*we.epsilon;
-//	we.bornN = we.epsilonPP/epsilon2 - 2.0*we.bornQ*we.bornQ*we.epsilon;
-
-    // numerical approximation of epsilonT
+    // numerical approximation of epsilonT and epsilonTT
     Reaktoro_::Temperature T_plus (T.val+T.val*0.001);
     Reaktoro_::Temperature T_plusK (T_plus.val + 273.15);
-    const auto RHO_plus = waterDensityZhangDuan2005(T_plusK, P) / 1000;
-    const auto eps_plus = epsilon(T_plus, RHO_plus);
+    auto RHO_plus = waterDensityZhangDuan2005(T_plusK, P) / 1000;
+    auto eps_plus = epsilon(T_plus, RHO_plus);
 
     Reaktoro_::Temperature T_minus (T.val-T.val*0.001);
     Reaktoro_::Temperature T_minusK (T_minus.val + 273.15);
-    const auto RHO_minus = waterDensityZhangDuan2005(T_minusK, P) / 1000;
-    const auto eps_minus = epsilon(T_minus, RHO_minus);
+    auto RHO_minus = waterDensityZhangDuan2005(T_minusK, P) / 1000;
+    auto eps_minus = epsilon(T_minus, RHO_minus);
 
-    const auto epsilonT = (eps_plus - eps_minus) / ((T_plus-T_minus));
+    const auto epsilonT  = (eps_plus - eps_minus) / ((T_plus-T_minus));
+    const auto epsilonTT = (eps_plus + eps_minus - 2*eps)/pow(((T_plus-T_minus)*0.5),2);
 
-    eps.bornX = epsilonT.ddt/epsilon2 - 2.0*eps.bornY*eps.bornY*eps.epsilon;
+    // numerical approximation of epsilonP and epsilonPP
+    Reaktoro_::Pressure P_plus (P.val+P.val*0.001);
+    Reaktoro_::Temperature TK (T.val+273.15);
+    RHO_plus = waterDensityZhangDuan2005(TK, P_plus) / 1000;
+    eps_plus = epsilon(T, RHO_plus);
 
-    eps.epsilonT = epsilonT;
-    eps.epsilonP = eps.epsilon.ddp * 1e-05; // from bar to Pa
-    eps.epsilonTT= epsilonT.ddt;
+    Reaktoro_::Pressure P_minus (P.val-P.val*0.001);
+    RHO_minus = waterDensityZhangDuan2005(TK, P_minus) / 1000;
+    eps_minus = epsilon(T, RHO_minus);
 
-    return eps;
+    const auto epsilonP  = (eps_plus - eps_minus) / ((P_plus-P_minus));
+    const auto epsilonPP = (eps_plus + eps_minus - 2*eps)/pow(((P_plus-P_minus)*0.5),2);
+
+    wep.epsilon   = eps;
+    wep.epsilonP  = epsilonP;
+    wep.epsilonPP = epsilonPP;
+    wep.epsilonT  = epsilonT;
+    wep.epsilonTT = epsilonTT;
+    wep.bornZ = -1.0/wep.epsilon;
+    wep.bornY = wep.epsilonT/epsilon2;
+    wep.bornQ = wep.epsilonP/epsilon2*1e-05; // from 1/bar to 1/Pa
+//	we.bornU = we.epsilonTP/epsilon2 - 2.0*we.bornY*we.bornQ*we.epsilon;
+//	we.bornN = we.epsilonPP/epsilon2 - 2.0*we.bornQ*we.bornQ*we.epsilon;
+    wep.bornX = wep.epsilonTT/epsilon2 - 2.0*wep.bornY*wep.bornY*wep.epsilon;
+
+    return wep;
 }
 
 }

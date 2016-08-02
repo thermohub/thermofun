@@ -149,24 +149,18 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     const auto V = Vr * waterCriticalVolume /10;
     const auto D = H2OMolarMass/V*100;
 
-    ps.density  = D /* * 1000*/;
-    ps.densityT = ps.density.ddt;
-    ps.densityP = ps.density.ddp;
-    ps.Alpha    = -ps.densityT/ps.density;
-    ps.Beta     = ps.densityP/ps.density/1e+05; // from 1/bar to 1/Pa
-
-    // finite difference
+    // finite difference T
     Reaktoro_::ThermoScalar Vr_plus;
     Reaktoro_::Temperature T_plus (T.val+T.val*0.001);
     Vr_plus = waterMolarVolume(T_plus, P, Vr);
-    const auto V_plus = Vr_plus * waterCriticalVolume/10;
-    const auto D_plus = H2OMolarMass/V_plus *100;
+    auto V_plus = Vr_plus * waterCriticalVolume/10;
+    auto D_plus = H2OMolarMass/V_plus *100;
 
     Reaktoro_::ThermoScalar Vr_minus;
     Reaktoro_::Temperature T_minus (T.val-T.val*0.001);
     Vr_minus = waterMolarVolume(T_minus, P, Vr);
-    const auto V_minus = Vr_minus * waterCriticalVolume/10;
-    const auto D_minus = H2OMolarMass/V_minus * 100;
+    auto V_minus = Vr_minus * waterCriticalVolume/10;
+    auto D_minus = H2OMolarMass/V_minus * 100;
 
     const auto VdT = (V_plus - V_minus) / ((T_plus-T_minus));
     const auto DdT = (D_plus - D_minus) / ((T_plus-T_minus));
@@ -174,7 +168,30 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     const auto Dd2T = (D_plus + D_minus - 2*D)/pow(((T_plus-T_minus)*0.5),2);
     const auto Vd2T = (V_plus + V_minus - 2*V)/pow(((T_plus-T_minus)*0.5),2);
 
+    // finite difference P
+    Reaktoro_::Pressure P_plus (P.val + P.val*0.001);
+    Vr_plus = waterMolarVolume(T, P_plus, Vr);
+    V_plus = Vr_plus * waterCriticalVolume/10;
+    D_plus = H2OMolarMass/V_plus *100;
+
+    Reaktoro_::Pressure P_minus (P.val - P.val*0.001);
+    Vr_minus = waterMolarVolume(T, P_minus, Vr);
+    V_minus = Vr_minus * waterCriticalVolume/10;
+    D_minus = H2OMolarMass/V_minus *100;
+
+    const auto VdP = (V_plus - V_minus) / ((P_plus-P_minus));
+    const auto DdP = (D_plus - D_minus) / ((P_plus-P_minus));
+
+    const auto Dd2P = (D_plus + D_minus - 2*D)/pow(((P_plus-P_minus)*0.5),2);
+    const auto Vd2P = (V_plus + V_minus - 2*V)/pow(((P_plus-P_minus)*0.5),2);
+
+    ps.density   = D /* * 1000*/;
+    ps.densityT  = DdT;
+    ps.densityP  = DdP;
     ps.densityTT = Dd2T;
+    ps.densityPP = Dd2P;
+    ps.Alpha     = -ps.densityT/ps.density;
+    ps.Beta      = ps.densityP/ps.density/1e+05; // from 1/bar to 1/Pa
     ps.dAldT     = (-ps.densityTT/ps.density).val + ps.Alpha*ps.Alpha;
 
     return ps;

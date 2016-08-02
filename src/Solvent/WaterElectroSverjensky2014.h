@@ -5,9 +5,6 @@
 
 namespace TCorrPT {
 
-// Forward declarations
-//struct PropertiesSolvent;
-
 auto electroPropertiesWaterSverjensky2014(PropertiesSolvent ps, Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ElectroPropertiesSolvent;
 
 }

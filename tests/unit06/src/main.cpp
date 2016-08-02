@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb/*(file)*/;
     Database tdb2;
 
-    double T = 400;
-    double P = 3000;
+    double T = 1000;
+    double P = 60000;
 
     Substance water, water2;
     water.setName("water");
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
     tdb.addSubstance(water2);
 
-    ThermoPropertiesSubstance result, result2;
+    ThermoPropertiesSubstance result, result2, result3;
     PropertiesSolvent ps, ps2;
     ElectroPropertiesSolvent eps, eps2;
 
@@ -66,60 +66,39 @@ int main(int argc, char *argv[])
 
     result2 = thermo.thermoPropertiesSubstance(T, P, "H2O@2");
 
-//    vector<Substance> vSubst = tdb.getSubstances();
 
-//    for (int i = 0; i < vSubst.size(); i++)
-//    {
-//        if (vSubst[i].substanceClass() == SubstanceClass::type::AQSOLUTE)
-//        vSubst[i].setSolventSymbol(water.symbol());
+    Substance al3;
+    al3.setName("Al+3");
+    al3.setFormula("Al+3");
+    al3.setSymbol("Al+3");
+    al3.setCharge(3);
+    al3.setSolventSymbol("H2O@2");
 
-//        tdb2.addSubstance(vSubst[i]);
-//    }
+    al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
+    al3.setAggregateState(AggregateState::type::AQUEOUS);
 
-//    ThermoPropertiesSubstance result;
+    al3.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+    al3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
+    al3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
-//    Thermo thermo (tdb2);
+    vector<double> hkf = {-0.33802, -1700.71, 14.5185, -20758, 10.7, -80600, 275300 };
 
-//    OutputToCSV out (argv[0]);
-//    out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT.csv");
+    ThermoPropertiesSubstance ref;
 
-//    P = 2000;
-//    result = thermo.thermoPropertiesSubstance(577, P, "Quartz");
-
-//    do {
-
-//        for (int i = 0; i < vSubst.size(); i++)
-//        {
-//            result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-//            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
-//            P = 0;
-//        }
-
-//        T +=5;
-//    } while (T <= 370);
-
-//    out.closeThermoPropertiesSubstanceFile();
-
-//    OutputToCSV out2 (argv[0]);
-//    out2.openThermoPropertiesSubstanceFile("ThermoPropSubstSUPCRT.csv");
+    ref.gibbs_energy = -115609*cal_to_J;
+    ref.enthalpy = -126834*cal_to_J;
+    ref.entropy = -77.7*cal_to_J;
 
 
-//    for (int i = 0; i < vSubst.size(); i++)
-//    {
-//        P= 500;
-//        do
-//        {
-//            T= 5;
-//            do {
-//               out2.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol()) );
-//               T +=5;
-//            } while (T <= 350);
-//            P +=500;
-//        } while (P <=5000);
-//    }
+    ThermoParametersSubstance prs;
+    prs.HKF_parameters = hkf;
+    al3.setThermoParameters(prs);
+    al3.setThermoReferenceProperties(ref);
 
+    tdb.addSubstance(al3);
 
-//    out2.closeThermoPropertiesSubstanceFile();
+    result3 = thermo.thermoPropertiesSubstance(T, P, "Al+3");
+
     cout << "Bye World!" << endl;
 
     return 0;

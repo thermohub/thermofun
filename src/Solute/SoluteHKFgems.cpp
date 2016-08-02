@@ -168,11 +168,11 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
 
     FunctionG g;
 
-    if (D.val >= 1.3)
+    if (D.val >= 1.4)
     {
         Exception exception;
         exception.error << "Error in gShock2";
-        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
             << D.val << "g*cm-3.";
         exception.line = __LINE__;
         RaiseError(exception);
@@ -228,7 +228,7 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
     d2fdT2 = fp * dftdTT;
 
     g.g -= f;
-    g.gP -= dfdP/1e05; // form bar to Pa
+    g.gP -= dfdP/1e05; // from bar to Pa
     g.gT -= dfdT;
     g.gTT -= d2fdT2;
 
