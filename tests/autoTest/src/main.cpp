@@ -134,14 +134,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < vSubst.size(); i++)
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
             tps.gibbs_energy     = node->DC_G0 (xCH, 0, T+273.15, false);
             tps.enthalpy         = node->DC_H0 (xCH, 0, T+273.15);
             tps.entropy          = node->DC_S0 (xCH, 0, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, 0, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, 0, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, 0, T+273.15)*1e05;
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
@@ -163,14 +163,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < vSubst.size(); i++)
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
             tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
             tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
             tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
@@ -192,14 +192,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < vSubst.size(); i++)
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
             tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
             tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
             tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
@@ -218,14 +218,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < vSubst.size(); i++)
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
             tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
             tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
             tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
@@ -244,14 +244,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < vSubst.size(); i++)
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
             tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
             tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
             tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
@@ -270,14 +270,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < vSubst.size(); i++)
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
             tps.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
             tps.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
             tps.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
             tps.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15);
+            tps.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);

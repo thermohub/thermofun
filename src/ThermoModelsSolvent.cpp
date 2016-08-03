@@ -7,6 +7,8 @@
 #include "Solvent/WaterZhangDuan2005.h"
 #include "Solvent/Reaktoro/WaterUtils.hpp"
 
+#include "Common/Exception.h"
+
 namespace TCorrPT {
 
 //=======================================================================================================
@@ -14,6 +16,39 @@ namespace TCorrPT {
 // References:
 // Added: DM 08.05.2016
 //=======================================================================================================
+
+auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pmax, double Pmin, string model) -> void
+{
+    // Check if given temperature is within the allowed range
+    if(T < 0 /*Tmin*/ || T > Tmax)
+    {
+        Exception exception;
+        exception.error << "Out of T bound in model " << model;
+        exception.reason << "The provided temperature, " << T << " C,"  << "is either negative "
+              "or greater than the maximum allowed, " << Tmax << " C.";
+        RaiseError(exception);
+    }
+
+    // Check if given pressure is within the allowed range
+    if( P > Pmax)
+    {
+        Exception exception;
+        exception.error << "Out of P bound in model " << model;
+        exception.reason << "The provided pressure, " << P << " bar,"  << "is greater than the maximum allowed, " << Pmin << " bar.";
+        RaiseError(exception);
+    }
+
+    // Check if given pressure is within the allowed range
+    if( P < Pmax)
+    {
+        Exception exception;
+        exception.error << "Out of P bound in model " << model;
+        exception.reason << "The provided pressure, " << P << " bar,"  << "is lower than the minimum allowed, " << Pmax << " bar.";
+        RaiseError(exception);
+    }
+}
+
+
 
 struct WaterHGK::Impl
 {
@@ -187,6 +222,8 @@ auto WaterZhangDuan2005::propertiesSolvent(double T, double &P, int state) -> Pr
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
+
+    checkModelValidity(T, P, 2000, 0, 300000, 1000, "Zhang and Duan (2005) H2O model.");
 
 //    if (P==0) p = Reaktoro_::Pressure(Reaktoro_::waterSaturatedPressureWagnerPruss(t).val);
 

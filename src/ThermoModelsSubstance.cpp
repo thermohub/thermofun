@@ -173,7 +173,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
     auto t = Reaktoro_::Temperature(T/* + C_to_K*/);
     auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
-    checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
+//    checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
 
     FunctionG g = gShok2(t, p, wp);
 
@@ -211,7 +211,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
-    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
+//    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
     FunctionG g = functionG(t, p, wp);
 
