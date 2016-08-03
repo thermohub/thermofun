@@ -178,6 +178,11 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
         RaiseError(exception);
     }
 
+    // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
+    // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
+    if(ps.density > 1000.0 || ps.density < 350.0)
+        return g;
+
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 
     a = C[0] + C[1]*T + C[2]*pow(T,2.);

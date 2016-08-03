@@ -72,12 +72,12 @@ int main(int argc, char *argv[])
     al3.setFormula("Al+3");
     al3.setSymbol("Al+3");
     al3.setCharge(3);
-    al3.setSolventSymbol("H2O@2");
+    al3.setSolventSymbol("H2O@");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
 
-    al3.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKF);
+    al3.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_HKFR);
     al3.setMethod_P(MethodCorrP_Thrift::type::CPM_HKF);
     al3.setMethod_T(MethodCorrT_Thrift::type::CTM_HKF);
 
