@@ -187,11 +187,11 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
 
     ps.density   = D /* * 1000*/;
     ps.densityT  = DdT;
-    ps.densityP  = DdP;
+    ps.densityP  = DdP*1e-05;
     ps.densityTT = Dd2T;
-    ps.densityPP = Dd2P;
+    ps.densityPP = Dd2P*1e-05*1e-05;
     ps.Alpha     = -ps.densityT/ps.density;
-    ps.Beta      = ps.densityP/ps.density/1e+05; // from 1/bar to 1/Pa
+    ps.Beta      = ps.densityP/ps.density/*/1e+05*/; // from 1/bar to 1/Pa
     ps.dAldT     = (-ps.densityTT/ps.density).val + ps.Alpha*ps.Alpha;
 
     return ps;

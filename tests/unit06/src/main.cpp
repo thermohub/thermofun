@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb/*(file)*/;
     Database tdb2;
 
-    double T = 1000;
-    double P = 60000;
+    double T = 10000;
+    double P = 6000;
 
     Substance water, water2;
     water.setName("water");
@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
     ref.enthalpy = -126834*cal_to_J;
     ref.entropy = -77.7*cal_to_J;
 
-
     ThermoParametersSubstance prs;
     prs.HKF_parameters = hkf;
     al3.setThermoParameters(prs);
@@ -97,6 +96,8 @@ int main(int argc, char *argv[])
 
     tdb.addSubstance(al3);
 
+//    T = 200;
+//    P = 0;
     result3 = thermo.thermoPropertiesSubstance(T, P, "Al+3");
 
     cout << "Bye World!" << endl;
