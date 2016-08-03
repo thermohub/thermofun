@@ -8,6 +8,7 @@
 #include "Thermo.h"
 #include "Common/OutputToCSV.h"
 #include "node.h"
+#include <sys/time.h>
 
 using namespace std;
 using namespace TCorrPT;
@@ -66,19 +67,18 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
 
 int main(int argc, char *argv[])
 {
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
 
     cout << "Hello World!" << endl;
 
     string file = argv[1];
-
     char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
 
     TNode* node = new TNode();
-
     node->GEM_init(config_json_file_path);
 
     Database temp(file);
-
     Database tdb;
 
     vector<Substance> vSubst = temp.getSubstances();
@@ -92,6 +92,8 @@ int main(int argc, char *argv[])
 
     double T;
     double P;
+
+    int c = 0;
 
 //    Substance water;
 //    water.setName("water");
@@ -146,6 +148,7 @@ int main(int argc, char *argv[])
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
 
+            c++;
 //            P = 0;
         }
         P = 0;
@@ -175,6 +178,7 @@ int main(int argc, char *argv[])
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
 
+            c++;
             P = 1;
         }
 
@@ -204,6 +208,7 @@ int main(int argc, char *argv[])
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
 
+            c++;
             P = 500;
         }
 
@@ -230,6 +235,7 @@ int main(int argc, char *argv[])
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
 
+            c++;
             P = 1000;
         }
 
@@ -256,6 +262,7 @@ int main(int argc, char *argv[])
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
 
+            c++;
             P = 2000;
         }
 
@@ -282,6 +289,7 @@ int main(int argc, char *argv[])
 
             compare(tps, result, vSubst[i].symbol().c_str(), T, P);
 
+            c++;
             P = 5000;
         }
 
@@ -289,6 +297,11 @@ int main(int argc, char *argv[])
     } while (T <= 800);
     out.closeThermoPropertiesSubstanceFile();
 
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
+             end.tv_usec - start.tv_usec) / 1.e6;
+
+    cout << c << " T-P calculations in "<< delta << " seconds! " << endl << endl;
     cout << "Bye World!" << endl;
 
     return 0;
