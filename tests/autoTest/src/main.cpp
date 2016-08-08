@@ -67,7 +67,7 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
 
 int main(int argc, char *argv[])
 {
-    struct timeval start, end;
+    struct timeval start, middle, end;
     gettimeofday(&start, NULL);
 
     cout << "Hello World!" << endl;
@@ -128,7 +128,11 @@ int main(int argc, char *argv[])
     int xCH;
 
     P=1;
-    result = thermo.thermoPropertiesSubstance(195, P, "Al+3");
+//    result = thermo.thermoPropertiesSubstance(195, P, "Al+3");
+
+    gettimeofday(&middle, NULL);
+    double delta = ((middle.tv_sec  - start.tv_sec) * 1000000u +
+             middle.tv_usec - start.tv_usec) / 1.e6;
 
     P = 0; T = 5;
     do {
@@ -298,11 +302,14 @@ int main(int argc, char *argv[])
     out.closeThermoPropertiesSubstanceFile();
 
     gettimeofday(&end, NULL);
-    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-             end.tv_usec - start.tv_usec) / 1.e6;
-
-    cout << c << " T-P calculations in "<< delta << " seconds! " << endl << endl;
-    cout << "Bye World!" << endl;
+    double delta_calc = ((end.tv_sec  - middle.tv_sec) * 1000000u +
+             end.tv_usec - middle.tv_usec) / 1.e6;
+    cout << "==================================================================" << endl;
+    cout << "+ Time for GEMS4R and TCorrPT initialization: " << delta << "s "<< endl;
+    cout << "+ Time for "<< c << " T-P calculations: "<< delta_calc << "s " << endl;
+    cout << "+ Total time: " << delta + delta_calc << "s "<< endl;
+    cout << "+ Bye World!" << endl;
+    cout << "==================================================================" << endl;
 
     return 0;
 }
