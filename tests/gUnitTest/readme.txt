@@ -1,0 +1,4 @@
+-$ ./install-thirdparty.sh
+-build gUnitTest from QtCreator in build-gunit-test/
+-Copy the Resources folder into the build folder
+-Run autoTest with argument "Resources/test_multi.VertexSubstance.json" - list of substances exproted from Pmatch
