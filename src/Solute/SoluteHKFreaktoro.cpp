@@ -191,11 +191,11 @@ auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const Properties
     const auto TdegC = T - 273.15;
     const auto Pbar  = P * 1.0e-5;
 
-    if (ps.density >= 1300)
+    if (ps.density >= 1400)
     {
         Exception exception;
         exception.error << "Error in functionG";
-        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
             << ps.density / 1000 << "g*cm-3.";
         exception.line = __LINE__;
         RaiseError(exception);

@@ -208,6 +208,12 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             tps = water.thermoPropertiesSubstance(T, P, solvent_state);
             break;
         }
+        case MethodCorrT_Thrift::type::CTM_WZD:
+        {
+            WaterZhangDuan2005 water ( subst );
+            tps = water.thermoPropertiesSubstance(T, P, solvent_state);
+            break;
+        }
             // Exception
             errorMethodNotFound("substance", subst.symbol(), __LINE__);
         }
@@ -242,6 +248,13 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
             WaterJNgems water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
             eps = water.electroPropertiesSolvent(T, P);
+            break;
+        }
+        case MethodGenEoS_Thrift::type::CEM_WSV14:
+        {
+            WaterElectroSverjensky2014 water (subst);
+            ps = propertiesSolvent(T, P, subst.symbol());
+            eps = water.electroPropertiesSolvent(T, P, ps);
             break;
         }
             // Exception
@@ -280,6 +293,12 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
         case MethodCorrT_Thrift::type::CTM_WWP:
         {
             WaterWP95reaktoro water ( subst );
+            ps = water.propertiesSolvent(T, P, solvent_state);
+            break;
+        }
+        case MethodCorrT_Thrift::type::CTM_WZD:
+        {
+            WaterZhangDuan2005 water ( subst );
             ps = water.propertiesSolvent(T, P, solvent_state);
             break;
         }

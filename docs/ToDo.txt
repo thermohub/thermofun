@@ -8,3 +8,9 @@ probably because of the implementation
 -Psat or P = 0 in the case of minerals remains 0 since we need the function from the water proeprties to calculate the Psat.
 
 -for minerals A and U are not calculated
+
+-------
+
+- the calculation of the derivatives with T and P for the ThermoScalar types is not correclty implemented inside the Gfuntion of 
+  HKFgems model
+- if(ps.density > 1000.0 || ps.density < 350.0) g = 0, not used in HKFgems implementation

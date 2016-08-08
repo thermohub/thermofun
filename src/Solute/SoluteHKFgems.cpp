@@ -168,15 +168,20 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
 
     FunctionG g;
 
-    if (D.val >= 1.3)
+    if (D.val >= 1.4)
     {
         Exception exception;
         exception.error << "Error in gShock2";
-        exception.reason << "water density higher than 1.3 g*cm-3, Dw = "
+        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
             << D.val << "g*cm-3.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
+
+    // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
+    // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
+//    if(ps.density > 1000.0 || ps.density < 350.0)
+//        return g;
 
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 
@@ -207,7 +212,7 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
                 - pow(pw,b.val) * dbdT * dDdT / (1.0 - D)
                 + log(pw) * dbdT * dDbdT;
 
-    g.gP = dgdD * dDdP;
+    g.gP = dgdD * dDdP; // from bar to Pa not necessary!!
     g.gT = a * dDbdT + Db * dadT;
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
@@ -228,7 +233,7 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
     d2fdT2 = fp * dftdTT;
 
     g.g -= f;
-    g.gP -= dfdP/1e05; // form bar to Pa
+    g.gP -= dfdP/1e05; // from bar to Pa
     g.gT -= dfdT;
     g.gTT -= d2fdT2;
 

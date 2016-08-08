@@ -49,7 +49,25 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+class WaterElectroSverjensky2014
+{
+public:
+    /// Construct a default class object instance
+    WaterElectroSverjensky2014();
 
+    /// Construct an class object instance from a Species instance
+    explicit WaterElectroSverjensky2014(const Substance& substance);
+
+    /// Return the electro-chemical properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
 
 } // namespace TCorrPT
 
