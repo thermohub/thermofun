@@ -16,13 +16,10 @@ int main(int argc, char *argv[])
 
     cout << "Hello World!" << endl;
 
-    string file = argv[1];
+    Database tdb;
 
-    Database tdb/*(file)*/;
-    Database tdb2;
-
-    double T = 10000;
-    double P = 6000;
+    double T = 1000;
+    double P = 60000;
 
     Substance water, water2;
     water.setName("water");
@@ -31,10 +28,11 @@ int main(int argc, char *argv[])
     water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WSV14);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WSV14); // dielectric propertie Svernjensy et al. (2014)
 
-    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WZD);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WZD); // water PVT properties Zhang and Duan (2003)
 
+    // Water as in Sverjensky et al. (2014)
     tdb.addSubstance(water);
 
     water2.setName("water2");
@@ -43,10 +41,11 @@ int main(int argc, char *argv[])
     water2.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water2.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water2.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR);
+    water2.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR); // Johnson and Norton (1991)
 
-    water2.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP);
+    water2.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP); // Wagner and Pruss (1995)
 
+    // Water Wagner and Puss IAPWS95, dielectrip properties Johnson and Norton (1991)
     tdb.addSubstance(water2);
 
     ThermoPropertiesSubstance result, result2, result3;
@@ -56,16 +55,13 @@ int main(int argc, char *argv[])
     Thermo thermo (tdb);
 
     result = thermo.thermoPropertiesSubstance(T, P, "H2O@");
+    result2 = thermo.thermoPropertiesSubstance(T, P, "H2O@2");
 
     ps = thermo.propertiesSolvent(T, P, "H2O@");
+    ps2 = thermo.propertiesSolvent(T, P, "H2O@2");
 
     eps = thermo.electroPropertiesSolvent(T, P, "H2O@");
     eps2 = thermo.electroPropertiesSolvent(T, P, "H2O@2");
-
-    ps2 = thermo.propertiesSolvent(T, P, "H2O@2");
-
-    result2 = thermo.thermoPropertiesSubstance(T, P, "H2O@2");
-
 
     Substance al3;
     al3.setName("Al+3");
@@ -96,9 +92,9 @@ int main(int argc, char *argv[])
 
     tdb.addSubstance(al3);
 
-//    T = 200;
-//    P = 0;
     result3 = thermo.thermoPropertiesSubstance(T, P, "Al+3");
+
+    const double al3_sv14_T1000_P6000 = (-75494) * 4.184;
 
     cout << "Bye World!" << endl;
 

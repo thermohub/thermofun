@@ -14,3 +14,6 @@ probably because of the implementation
 - the calculation of the derivatives with T and P for the ThermoScalar types is not correclty implemented inside the Gfuntion of 
   HKFgems model
 - if(ps.density > 1000.0 || ps.density < 350.0) g = 0, not used in HKFgems implementation
+
+- what to do when T-P exeeds the model/parameter limits
+- what do do when a given substance is not in the internal data structure 

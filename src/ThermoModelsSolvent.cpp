@@ -34,16 +34,16 @@ auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pma
     {
         Exception exception;
         exception.error << "Out of P bound in model " << model;
-        exception.reason << "The provided pressure, " << P << " bar,"  << "is greater than the maximum allowed, " << Pmin << " bar.";
+        exception.reason << "The provided pressure, " << P << " bar,"  << "is greater than the maximum allowed, " << Pmax << " bar.";
         RaiseError(exception);
     }
 
     // Check if given pressure is within the allowed range
-    if( P < Pmax)
+    if( P < Pmin)
     {
         Exception exception;
         exception.error << "Out of P bound in model " << model;
-        exception.reason << "The provided pressure, " << P << " bar,"  << "is lower than the minimum allowed, " << Pmax << " bar.";
+        exception.reason << "The provided pressure, " << P << " bar,"  << "is lower than the minimum allowed, " << Pmin << " bar.";
         RaiseError(exception);
     }
 }
