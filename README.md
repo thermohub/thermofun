@@ -53,7 +53,7 @@ $ ./install-thirdparty.sh /home/your_user/Qt5/5.5/gcc64
 
 This step will download, configure, build, and install all third-party libraries (bsonio, bsonui, EJDB, YAML-CPP, and pugixml) in build/{debug,release}/thirdparty.
 
-After this, headers and libraries of the third-party libraries can be found in build/{debug,release}/thirdparty/{include,lib}. The .pro file of master project has already been adjusted to find these dependencies.
+After this, headers and libraries of the third-party libraries can be found in build-auto-test/{debug,release}/thirdparty/{include,lib}. The .pro file of master project has already been adjusted to find these dependencies.
 
 * Copy the Resources into the debug and release build folders 
 ~~~
@@ -66,7 +66,7 @@ After this, headers and libraries of the third-party libraries can be found in b
 ~/gitTCorrPT/build-auto-test/release
 ~~~
 
-* Now in QtCreator, build the *.pro project and then run PMATCH++ code.
+* Now in QtCreator, build the *.pro project and then run autoTest code.
 
 #### INPUT in the Test
 
