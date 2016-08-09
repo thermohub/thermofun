@@ -68,15 +68,14 @@ After this, headers and libraries of the third-party libraries can be found in b
 
 * Now in QtCreator, build the *.pro project and then run PMATCH++ code.
 
-#### Test INPUT
+#### INPUT in the Test
 
 * Resources/test_multi.VertexSubstance.json - list of substances exported from PMATCH++
 * Resources/TestMulti - GEMS4R exported files containing the same sbustances as in the above list
-
 * The test reads the list of substances exported from PMATCH++ and loads them in the TCorrPT internal data structure (Database)
 * A GEMS node is initialized using the exported GEMS4R system files
 
-#### Test OUTPUT
+#### OUTPUT from the Test
 
 * writes warning messages in the terminal, if there is a relative difference between GEMS and TCorrPT calculated properties larger than tolerance = 1e-05
 * writes calculation results in *.csv files. GEMS4 and TCorrPT calculated properties at different T and P  
