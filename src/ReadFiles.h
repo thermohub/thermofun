@@ -9,6 +9,9 @@
 #include "bsonio/thrift_node.h"
 #include "bsonio/impex_types.h"
 
+#include "bsonio/dbbase.h"
+#include "bsonio/nejdb.h"
+
 namespace TCorrPT {
 
 struct Substance;

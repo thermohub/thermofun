@@ -11,7 +11,7 @@
 #include "ReadFiles.h"
 
 //#include "bsonio/v_json.h"
-
+#include "bsonio/nejdb.h"
 
 namespace TCorrPT {
 
@@ -136,7 +136,6 @@ struct Database::Impl
             }
 
 */
-
     }
 
     template<typename Key, typename Value>
