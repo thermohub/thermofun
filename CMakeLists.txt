@@ -16,6 +16,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Install the third-party libraries first
+include(InstallThirdPartyLibs)
+
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
 
@@ -32,9 +35,6 @@ set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)
 # Set the include and library directories where the third party libraries were installed
 set(THIRDPARTY_INCLUDE_DIR ${THIRDPARTY_DIR}/include)
 set(THIRDPARTY_LIBRARY_DIR ${THIRDPARTY_DIR}/lib)
-
-# Install the third-party libraries first
-include(InstallThirdPartyLibs)
 
 # Set the include directories
 include_directories(${TCORRPT_SOURCE_DIR})
