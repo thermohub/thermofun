@@ -1,6 +1,5 @@
 # Recursively collect all header files from the current directory
 file(GLOB_RECURSE HEADER_FILES  *.h )
-file(GLOB_RECURSE HEADER_FILES  *.hpp )
 
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES  *.cpp )
@@ -34,7 +33,7 @@ if(BUILD_SHARED_LIBS)
     add_library(TCORRPT_SHARED SHARED $<TARGET_OBJECTS:TCORRPT_OBJECTS>)
     target_link_libraries(TCORRPT_SHARED ${THIRDPARTY_LIBS} )
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    target_link_libraries(TCORRPT_SHARED thrift lua bsonio)
+    target_link_libraries(TCORRPT_SHARED thrift lua)
 endif()
     set_target_properties(TCORRPT_SHARED PROPERTIES OUTPUT_NAME tcorrpt)
     install(TARGETS TCORRPT_SHARED DESTINATION lib)
