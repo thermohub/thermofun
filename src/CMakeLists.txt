@@ -1,6 +1,6 @@
 # Recursively collect all header files from the current directory
 file(GLOB_RECURSE HEADER_FILES  *.hpp )
-#file(GLOB_RECURSE HEADER_FILES  *.hpp )
+file(GLOB_RECURSE HEADER_FILES  *.h )
 
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES  *.cpp )
