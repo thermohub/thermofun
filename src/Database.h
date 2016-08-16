@@ -10,11 +10,14 @@
 #include "Substance.h"
 #include "Reaction.h"
 
+//#include "ReadFiles.h"
+
 namespace TCorrPT {
 
 // Forward declarations
 class Substance;
 class Reaction;
+//class bson;
 
 class Database
 {
@@ -26,6 +29,8 @@ public:
     /// containg the exported substances and reactions
     // bsonio library should be used here
     explicit Database(std::string filename);
+
+//    Database(vector<void> *bsonSubstances);
 
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;

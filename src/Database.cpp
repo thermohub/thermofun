@@ -11,7 +11,7 @@
 #include "ReadFiles.h"
 
 //#include "bsonio/v_json.h"
-#include "bsonio/nejdb.h"
+//#include "bsonio/nejdb.h"
 
 namespace TCorrPT {
 
@@ -138,6 +138,22 @@ struct Database::Impl
 */
     }
 
+//    Impl(vector<void> *bsonSubstance)
+//    {
+//        bson bso;
+
+//        vector<bson> *bsoV = reinterpret_cast<vector<bson>*>(bsonSubstance);
+
+//        for (int i=0; i<bsonSubstance->size(); i++)
+//        {
+//            bso = bsoV[i];
+//            cout << bso->data << endl;
+//            Substance substance = parseSubstance(bso);
+//            substances_map[substance.symbol()] = substance;
+//        }
+//        delete bso;
+//    }
+
     template<typename Key, typename Value>
     auto collectValues(const std::map<Key, Value>& map) -> std::vector<Value>
     {
@@ -240,7 +256,7 @@ struct Database::Impl
 
                     if (kbuf == "substance")
                     {
-                        Substance substance = parseSubstance(bso);
+                        Substance substance = parseSubstance(bso.data);
                         substances_map[substance.symbol()] = substance;
                     } else
                     if (kbuf == "reaction")
@@ -276,6 +292,10 @@ Database::Database()
 Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
+
+//Database::Database(vector<void> *bsonSubstances)
+//: pimpl(new Impl(bsonSubstances))
+//{}
 
 auto Database::addSubstance(const Substance& substance) -> void
 {
