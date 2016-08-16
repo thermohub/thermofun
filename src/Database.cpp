@@ -138,21 +138,14 @@ struct Database::Impl
 */
     }
 
-//    Impl(vector<void> *bsonSubstance)
-//    {
-//        bson bso;
-
-//        vector<bson> *bsoV = reinterpret_cast<vector<bson>*>(bsonSubstance);
-
-//        for (int i=0; i<bsonSubstance->size(); i++)
-//        {
-//            bso = bsoV[i];
-//            cout << bso->data << endl;
-//            Substance substance = parseSubstance(bso);
-//            substances_map[substance.symbol()] = substance;
-//        }
-//        delete bso;
-//    }
+    Impl(vector<bson> bsonSubstances)
+    {
+        for (int i=0; i<bsonSubstances.size(); i++)
+        {
+            Substance substance = parseSubstance(bsonSubstances[i].data);
+            substances_map[substance.symbol()] = substance;
+        }
+    }
 
     template<typename Key, typename Value>
     auto collectValues(const std::map<Key, Value>& map) -> std::vector<Value>
@@ -293,13 +286,28 @@ Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
 
-//Database::Database(vector<void> *bsonSubstances)
-//: pimpl(new Impl(bsonSubstances))
-//{}
+Database::Database(vector<bson> bsonSubstances)
+: pimpl(new Impl(bsonSubstances))
+{}
+
+auto Database::setAqSubstanceSolventSymbol(std::string substance_symbol, std::string solvent_symbol) -> void
+{
+    pimpl->substances_map.at(substance_symbol).setSolventSymbol(solvent_symbol);
+}
+
+auto Database::setAllAqSubstanceSolventSymbol(std::string solvent_symbol) -> void
+{
+    typedef SubstancesMap::iterator it_type;
+    for(it_type it = pimpl->substances_map.begin(); it != pimpl->substances_map.end(); it++) {
+        if (it->second.substanceClass() == SubstanceClass::type::AQSOLUTE)
+        {
+            it->second.setSolventSymbol(solvent_symbol);
+        }
+    }
+}
 
 auto Database::addSubstance(const Substance& substance) -> void
 {
-    Substance subst;
     pimpl->addSubstance(substance);
 }
 
