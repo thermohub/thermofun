@@ -10,11 +10,17 @@
 #include "Substance.h"
 #include "Reaction.h"
 
+//#include "ReadFiles.h"
+//#include "bson.h"
+//#include "bsonio/v_json.h"
+#include "ejdb/bson.h"
+
 namespace TCorrPT {
 
 // Forward declarations
 class Substance;
 class Reaction;
+//struct bson;
 
 class Database
 {
@@ -26,6 +32,8 @@ public:
     /// containg the exported substances and reactions
     // bsonio library should be used here
     explicit Database(std::string filename);
+
+    Database(vector<bson> bsonSubstances);
 
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;
@@ -58,6 +66,10 @@ public:
     /// Check if the database contains a given reaction
     /// @param substance The name of the reaction
     auto containsReaction(std::string symbol) const -> bool;
+
+    auto setAqSubstanceSolventSymbol(std::string substance_symbol, std::string solvent_symbol) -> void;
+
+    auto setAllAqSubstanceSolventSymbol(std::string solvent_symbol) -> void;
 
 private:
     struct Impl;
