@@ -10,7 +10,7 @@ struct OutputOptions
 
     bool scientific = false;
 
-    unsigned precision = 6;
+    unsigned precision = 8;
 
     unsigned width = 15;
 
@@ -62,8 +62,9 @@ private:
     auto setTP_pairs (double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> void;
     /// Set the titles of the chemical quantities using a formatted string.
     auto setHeader(std::vector<string> substanceSymbols, map<int, string> thermoProperties, map<string, string> units ) -> void;
-
-
+    auto calculate( ) -> std::vector<std::vector<double>>;
+    auto selectedPropResults ( ThermoPropertiesSubstance tps ) -> std::vector<double>;
+    auto outResults( ) -> void;
 
 };
 
