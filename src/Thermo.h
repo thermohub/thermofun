@@ -9,6 +9,11 @@
 
 namespace TCorrPT {
 
+/**
+ * @brief The Thermo class mainly calculates the themrodynamic properties of the substances
+ * from the internal database. It also calculates the electro-chemical and other phisico-chemical
+ * properites of the solvent
+ */
 class Thermo
 {
 public:
@@ -31,7 +36,7 @@ public:
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param substance The name of the substance
+    /// @param solvent The name of the solvent
     auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
 
 //    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).

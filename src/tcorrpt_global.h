@@ -15,6 +15,10 @@
 
 using namespace std;
 
+///@cond INTERNAL
+
+namespace TCorrPT {
+
 typedef std::vector<double> vd;
 typedef std::vector<std::vector<double> > vvd;
 
@@ -41,26 +45,6 @@ static const double R_CONSTANT = 8.31451,
 static const double H2OMolarMass = 18.015268;
 
 static const std::string output_path = "/Output/";
-
-struct STATES
-{
-    double Temp;    // C
-    double Pres;    // bar
-    double Dens[2]; // g/cm3
-    STATES()
-    {
-        Temp = -274.;
-        Pres = -1;
-        Dens[0] =Dens[1] = 0.;
-    }
-    void setdef()
-    {
-        Temp = -274.;
-        Pres = -1;
-        Dens[0] =Dens[1] = 0.;
-    }
-};
-
 
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and TCorrPT class
@@ -454,5 +438,7 @@ static const char * substTransProp          = "properties.m_phase_trans_props.va
 
 //typedef std::vector<struct ReactionData>  Reactions;
 
+}
+///@endcond
 
 #endif // TCORRPT_GLOBAL_H

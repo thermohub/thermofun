@@ -1,12 +1,6 @@
 #include <iostream>
 #include <fstream>
-//#include "tcorrpt.h"
-#include "Database.h"
-#include "Substance.h"
-#include "ThermoModelsSubstance.h"
-#include "tcorrpt_global.h"
-#include "Thermo.h"
-#include "Common/OutputToCSV.h"
+#include "TPcalculationsAPI.h"
 #include "node.h"
 #include <sys/time.h>
 #include "gtest/gtest.h"
@@ -14,57 +8,57 @@
 using namespace std;
 using namespace TCorrPT;
 
-auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance result_tcorrpt, string symbol, double T, double P ) -> int
-{
-    int i = 1; double d;
-    double tolerance = 1e-05;
+//auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance result_tcorrpt, string symbol, double T, double P ) -> int
+//{
+//    int i = 1; double d;
+//    double tolerance = 1e-05;
 
-    d = (fabs(result_gems.gibbs_energy.val - result_tcorrpt.gibbs_energy.val) / fabs(result_gems.gibbs_energy.val));
-    if ( d > tolerance)
-    {
-        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
-                "For substance " << symbol << " the Gibbs energy calculated in GEMS (" << result_gems.gibbs_energy << ")\n"
-                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.gibbs_energy << ")\n"
-                "d% = " << d*100 << endl << endl;
+//    d = (fabs(result_gems.gibbs_energy.val - result_tcorrpt.gibbs_energy.val) / fabs(result_gems.gibbs_energy.val));
+//    if ( d > tolerance)
+//    {
+//        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
+//                "For substance " << symbol << " the Gibbs energy calculated in GEMS (" << result_gems.gibbs_energy << ")\n"
+//                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.gibbs_energy << ")\n"
+//                "d% = " << d*100 << endl << endl;
 
-        i = -1;
-    }
+//        i = -1;
+//    }
 
-    d = (fabs(result_gems.entropy.val - result_tcorrpt.entropy.val) / fabs(result_gems.entropy.val));
-    if ( d > tolerance)
-    {
-        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
-                "For substance " << symbol << " the entropy calculated in GEMS (" << result_gems.entropy << ")\n"
-                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.entropy << ")\n"
-                "d% = " << d*100 << endl << endl;
+//    d = (fabs(result_gems.entropy.val - result_tcorrpt.entropy.val) / fabs(result_gems.entropy.val));
+//    if ( d > tolerance)
+//    {
+//        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
+//                "For substance " << symbol << " the entropy calculated in GEMS (" << result_gems.entropy << ")\n"
+//                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.entropy << ")\n"
+//                "d% = " << d*100 << endl << endl;
 
-        i = -1;
-    }
+//        i = -1;
+//    }
 
-    d = (fabs(result_gems.enthalpy.val - result_tcorrpt.enthalpy.val) / fabs(result_gems.enthalpy.val));
-    if ( d > tolerance)
-    {
-        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
-                "For substance " << symbol << " the enthalpy calculated in GEMS (" << result_gems.enthalpy << ")\n"
-                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.enthalpy << ")\n"
-                "d% = " << d*100 << endl << endl;
+//    d = (fabs(result_gems.enthalpy.val - result_tcorrpt.enthalpy.val) / fabs(result_gems.enthalpy.val));
+//    if ( d > tolerance)
+//    {
+//        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
+//                "For substance " << symbol << " the enthalpy calculated in GEMS (" << result_gems.enthalpy << ")\n"
+//                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.enthalpy << ")\n"
+//                "d% = " << d*100 << endl << endl;
 
-        i = -1;
-    }
+//        i = -1;
+//    }
 
-    d = (fabs(result_gems.heat_capacity_cp.val - result_tcorrpt.heat_capacity_cp.val) / fabs(result_gems.heat_capacity_cp.val));
-    if ( d > tolerance)
-    {
-        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
-                "For substance " << symbol << " the heat capacity (Cp) calculated in GEMS (" << result_gems.heat_capacity_cp << ")\n"
-                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.heat_capacity_cp << ")\n"
-                "d% = " << d*100 << endl << endl;
+//    d = (fabs(result_gems.heat_capacity_cp.val - result_tcorrpt.heat_capacity_cp.val) / fabs(result_gems.heat_capacity_cp.val));
+//    if ( d > tolerance)
+//    {
+//        cout << "At T:"<< T << " C and P:" << P << " bar" << endl <<
+//                "For substance " << symbol << " the heat capacity (Cp) calculated in GEMS (" << result_gems.heat_capacity_cp << ")\n"
+//                "is not the same as claulcated with the TCorrPT library (" << result_tcorrpt.heat_capacity_cp << ")\n"
+//                "d% = " << d*100 << endl << endl;
 
-        i = -1;
-    }
+//        i = -1;
+//    }
 
-    return i;
-}
+//    return i;
+//}
 
 struct DatabaseTest : testing::Test
 {
@@ -94,64 +88,97 @@ struct DatabaseTest : testing::Test
   }
 };
 
-TEST(GEM_init, Correct_gem4r_initialization)
+struct TPcalculationAPITest : DatabaseTest
 {
-    char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
-    TNode* node = new TNode();
-    node->GEM_init(config_json_file_path);
-}
+    TPcalcualationsAPI* tpcalc;
+
+    TPcalculationAPITest()
+    {
+        tpcalc = new TPcalcualationsAPI (*th);
+    }
+};
 
 TEST_F(DatabaseTest, correct_internal_data_initialization)
 {
-  EXPECT_EQ(28, tdb->numberOfSubstances());
-  EXPECT_TRUE(tdb->containsSubstance("Al+3"));
-  EXPECT_TRUE(tdb->containsSubstance("Gbs"));
-  EXPECT_TRUE(tdb->containsSubstance("HCl@"));
-  EXPECT_TRUE(tdb->containsSubstance("H2Ohp"));
-  EXPECT_TRUE(tdb->containsSubstance("H2O@"));
+    EXPECT_EQ(28, tdb->numberOfSubstances());
+    EXPECT_TRUE(tdb->containsSubstance("Al+3"));
+    EXPECT_TRUE(tdb->containsSubstance("Gbs"));
+    EXPECT_TRUE(tdb->containsSubstance("HCl@"));
+    EXPECT_TRUE(tdb->containsSubstance("H2Ohp"));
+    EXPECT_TRUE(tdb->containsSubstance("H2O@"));
 }
 
-
-TEST_F(DatabaseTest, correct_thermo_calculations)
+TEST_F(TPcalculationAPITest, correct_initialization)
 {
-    ThermoPropertiesSubstance tps, result;
-    int xCH; double T,  P;
+    EXPECT_EQ(0, tpcalc->thermoPropSubstNames().at("sm_gibbs_energy"));
 
-    char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
-    TNode* node = new TNode();
-    node->GEM_init(config_json_file_path);
-
-    P = 0; T = 5;
-    do {
-
-        for (int i = 0; i < vSubst.size(); i++)
-        {
-            result = th->thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-//            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
-
-            xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
-            tps.gibbs_energy     = node->DC_G0 (xCH, 0, T+273.15, false);
-            tps.enthalpy         = node->DC_H0 (xCH, 0, T+273.15);
-            tps.entropy          = node->DC_S0 (xCH, 0, T+273.15);
-            tps.heat_capacity_cp = node->DC_Cp0(xCH, 0, T+273.15);
-            tps.volume           = node->DC_V0 (xCH, 0, T+273.15)*1e05;
-
-            EXPECT_NEAR(tps.gibbs_energy.val, result.gibbs_energy.val, 1);
-            EXPECT_NEAR(tps.enthalpy.val, result.enthalpy.val, 1);
-//            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
-
-//            compare(tps, result, vSubst[i].symbol().c_str(), T, P);
-
-//            c++;
-//            P = 0;
-        }
-        P = 0;
-
-        T +=5;
-    } while (T <= 370);
-//    out.closeThermoPropertiesSubstanceFile();
-
+    EXPECT_STREQ("(J/mol)", tpcalc->thermoPropSubstUnits().at("sm_gibbs_energy").c_str());
+    EXPECT_STREQ("(bar)", tpcalc->thermoPropSubstUnits().at("pressure").c_str());
+    EXPECT_STREQ("(J/mol*K)", tpcalc->thermoPropSubstUnits().at("sm_heat_capacity_p").c_str());
 }
+
+TEST_F(TPcalculationAPITest, correct_set_Thermo_subst_prop_names)
+{
+    tpcalc->calculateThermoProperties({"Al3+","SiO2@","AlO+"}, {"sm_heat_capacity_v","sm_enthalpy","sm_gibbs_energy"}, 25, 1);
+
+    EXPECT_EQ(1, tpcalc->thermoPropSubstNames().at("sm_heat_capacity_v"));
+    EXPECT_EQ(2, tpcalc->thermoPropSubstNames().at("sm_enthalpy"));
+    EXPECT_EQ(3, tpcalc->thermoPropSubstNames().at("sm_gibbs_energy"));
+}
+
+TEST_F(TPcalculationAPITest, correct_set_header)
+{
+    tpcalc->calculateThermoProperties({"Al3+","SiO2@","AlO+"}, {"sm_heat_capacity_v","sm_enthalpy","sm_gibbs_energy"}, 25, 1);
+}
+
+//TEST(GEM_init, Correct_gem4r_initialization)
+//{
+//    char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
+//    TNode* node = new TNode();
+//    node->GEM_init(config_json_file_path);
+//}
+
+
+//TEST_F(DatabaseTest, correct_thermo_calculations)
+//{
+//    ThermoPropertiesSubstance tps, result;
+//    int xCH; double T,  P;
+
+//    char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
+//    TNode* node = new TNode();
+//    node->GEM_init(config_json_file_path);
+
+//    P = 0; T = 5;
+//    do {
+
+//        for (int i = 0; i < vSubst.size(); i++)
+//        {
+//            result = th->thermoPropertiesSubstance(T,P,vSubst[i].symbol());
+////            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result);
+
+//            xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
+//            tps.gibbs_energy     = node->DC_G0 (xCH, 0, T+273.15, false);
+//            tps.enthalpy         = node->DC_H0 (xCH, 0, T+273.15);
+//            tps.entropy          = node->DC_S0 (xCH, 0, T+273.15);
+//            tps.heat_capacity_cp = node->DC_Cp0(xCH, 0, T+273.15);
+//            tps.volume           = node->DC_V0 (xCH, 0, T+273.15)*1e05;
+
+//            EXPECT_NEAR(tps.gibbs_energy.val, result.gibbs_energy.val, 1);
+//            EXPECT_NEAR(tps.enthalpy.val, result.enthalpy.val, 1);
+////            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps);
+
+////            compare(tps, result, vSubst[i].symbol().c_str(), T, P);
+
+////            c++;
+////            P = 0;
+//        }
+//        P = 0;
+
+//        T +=5;
+//    } while (T <= 370);
+////    out.closeThermoPropertiesSubstanceFile();
+
+//}
 
 
 int main(int argc, char *argv[])
@@ -159,6 +186,9 @@ int main(int argc, char *argv[])
 
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
+
+
+
 
 //    struct timeval start, end;
 //    gettimeofday(&start, NULL);
