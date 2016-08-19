@@ -94,9 +94,13 @@ auto WaterJNgems::electroPropertiesSolvent(double T, double P) -> ElectroPropert
 }
 
 //=======================================================================================================
-// Calculate the electro-chemical of water using the ----------- model as implemented in
-// Reaktoro
-// References:
+// Calculate the electro-chemical of water using the electro-chemical properties of water solvent
+// using the Sverjensky et al. (2014) dielectric constant model together with the Zhang and Duan (2002) water
+// PVT model
+// References: Sverjensky et al. Water in the deep Earth: The dielectric constant and the solubilities
+// of quartz and corundum to 60 kb and 1200 °C. GCA, 2014 129:125-145
+// Zhang and Duan Prediction of the PVT properties of water over wide range of temperatures and pressures
+// from molecular dynamics simulation. PEPI, 2002 149:335-354
 // Added: DM 26.07.2016
 //=======================================================================================================
 

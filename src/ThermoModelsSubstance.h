@@ -6,6 +6,9 @@
 
 namespace TCorrPT {
 
+/**
+ * @brief The ThermoModelsSubstance class
+ */
 class ThermoModelsSubstance
 {
 public:
@@ -23,6 +26,11 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+/**
+ * @brief The SoluteAkinfievDiamondEOS class is the implementation of the Akinfiev & Diamond EOS for neutral species
+ * References: Akinfiev N.N. and Diamond L.W. Thermodynamic description of aqueous nonelectrolytes at infinite
+ * dilution over a wide range of state parameters. GCA, 2003 67:613-629.
+ */
 class SoluteAkinfievDiamondEOS
 {
 public:
@@ -47,6 +55,11 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+/**
+ * @brief The WaterIdealGasWoolley class calculates the ideal gas properties of pure H2O
+ * References: Woolley, H. W. Thermodynamic Properties for H2O in the Ideal Gas State; Straub, J. and K. Scheffler,
+ * eds.,1980 p. 166, Pergamon: Oxford.
+ */
 class WaterIdealGasWoolley
 {
 public:
@@ -67,6 +80,16 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+/**
+ * @brief The SoluteHKFgems class calculates the thermodynamic properties of aqueous species using the revised
+ * Helgeson-Kirkham-Flowers EOS, as was implemented in GEM-Selektor
+ * References: Tanger J.C. and Helgeson H.C. Calculation of the thermodynamic and transport properties of
+ * aqueous species at high pressures and temperatures; revised equations of state for the standard partial
+ * molal properties of ions and electrolytes. Am. J. Sci., 1988 288:19-98.
+ * Johnson J.W., Oelkers E.H. and Helgeson H.C. SUPCRT92: A software package for calculating the standard
+ * molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar
+ * and 0 to 1000°C. Comp. Geosci., 1992 18:899-947.
+ */
 class SoluteHKFgems
 {
 public:
@@ -89,7 +112,16 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-
+/**
+ * @brief The SoluteHKFreaktoro class calculates the thermodynamic properties of aqueous species using the revised
+ * Helgeson-Kirkham-Flowers EOS, as was implemented in Reaktoro
+ * References: Tanger J.C. and Helgeson H.C. Calculation of the thermodynamic and transport properties of
+ * aqueous species at high pressures and temperatures; revised equations of state for the standard partial
+ * molal properties of ions and electrolytes. Am. J. Sci., 1988 288:19-98.
+ * Johnson J.W., Oelkers E.H. and Helgeson H.C. SUPCRT92: A software package for calculating the standard
+ * molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar
+ * and 0 to 1000°C. Comp. Geosci., 1992 18:899-947.
+ */
 class SoluteHKFreaktoro
 {
 public:
@@ -112,6 +144,9 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+/**
+ * @brief The MinMurnaghanEOSHP98 class
+ */
 class MinMurnaghanEOSHP98
 {
 public:
@@ -124,7 +159,7 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param tps thermodynamic properties of the substance previosuly corrected with the Murnaghan EOS
+    /// @param tps thermodynamic properties of the substance previosuly corrected
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -133,6 +168,11 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+/**
+ * @brief The MinBerman88 class
+ * References: Berman RG (1988) Internally consistent thermodynamic data for minerals in the system
+ * na2o-k2o-cao-mgo-feo-fe2o-sio2-tio2-h2o-co2. Journal of Petrology 29:445-552
+ */
 class MinBerman88
 {
 public:
@@ -145,7 +185,7 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    /// @param tps thermodynamic properties of the substance previosuly corrected with the MinBerman88
+    /// @param tps thermodynamic properties of the substance previosuly corrected
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -154,6 +194,9 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+/**
+ * @brief The MinBMGottschalk class
+ */
 class MinBMGottschalk
 {
 public:
@@ -176,7 +219,10 @@ private:
 };
 
 
-/// integration of empirical heat capacity equation Cp=f(T);
+/**
+ * @brief The EmpiricalCpIntegration class calculates the head capacity using an empirical
+ * heat capacity equation Cp=f(T);
+ */
 class EmpiricalCpIntegration
 {
 public:
@@ -197,7 +243,12 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-///
+/**
+ * @brief The HPLandau class does T and P corrections on the themrodynamic porperties for
+ * phases with Landau transition
+ * References: Holland T.J.B. and Powell R. (1998) An internally consistent thermodynamic data set for phases of
+ * petrological interest. J. Metamorph. Geol. 16, 309-343.
+ */
 class HPLandau
 {
 public:
@@ -210,6 +261,7 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
+    /// @param tps thermodynamic properties of the substance previosuly corrected
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:

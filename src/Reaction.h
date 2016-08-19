@@ -9,6 +9,9 @@
 
 namespace TCorrPT {
 
+/**
+ * @brief The Reaction class is a type used to describe a reaction
+ */
 class Reaction
 {
 public:

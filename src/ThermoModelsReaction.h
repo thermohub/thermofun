@@ -3,6 +3,9 @@
 
 namespace TCorrPT {
 
+/**
+ * @brief The ThermoModelsReaction class
+ */
 class ThermoModelsReaction
 {
 public:

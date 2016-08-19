@@ -11,12 +11,6 @@
 
 namespace TCorrPT {
 
-//=======================================================================================================
-// Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state
-// References:
-// Added: DM 08.05.2016
-//=======================================================================================================
-
 auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pmax, double Pmin, string model) -> void
 {
     // Check if given temperature is within the allowed range
@@ -48,8 +42,12 @@ auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pma
     }
 }
 
-
-
+//=======================================================================================================
+// Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state
+// References: HAAR L., GALLAGHER J. S., and KELL G. S. Steam Tables, Thermodynamic and Transport Properties
+// and Computer Programs for Vapor and Liquid States of Wafer in SI Unites. 1984, Hemisphere Publishing Co.
+// Added: DM 08.05.2016
+//=======================================================================================================
 struct WaterHGK::Impl
 {
     /// the substance instance
@@ -144,7 +142,8 @@ auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state)
 //=======================================================================================================
 // Calculate the properties of water using the Wagner and Pruss (1995) equation of state as
 // implemented in Reaktoro
-// References:
+// References: Wagner, W., Prub, A. The IAPWS formulation 1995 for the thermodynamic properties of ordinary
+// water substance for general and scientific use. J. Phys. Chem. Ref. Data, 2002 31(2):387–535.
 // Added: DM 12.05.2016
 //=======================================================================================================
 

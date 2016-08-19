@@ -56,6 +56,11 @@ public:
 //    void setThermoPropSubstNames(const map<std::string, int> &value);
 };
 
+auto TPcalcualationsAPI::results() -> std::vector<std::vector<double>>
+{
+    return pimpl->results;
+}
+
 auto TPcalcualationsAPI::thermoPropSubstNames() -> map<std::string, int>
 {
     return pimpl->thermoPropSubstNames;
