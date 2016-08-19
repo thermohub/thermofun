@@ -33,8 +33,8 @@ class TPcalcualationsAPI
 {
 
 public:
-    /// Construct a TPcalcualationsAPI instance with given Thermo instance
-    explicit TPcalcualationsAPI(const Thermo& thermo);
+    /// Construct a TPcalcualationsAPI instance with given Database instance
+    explicit TPcalcualationsAPI(const Database& database);
 
     /**
      * @brief calculateThermoProperties calculates the selected thermodynamic properties for selected substances at T and P
@@ -67,7 +67,7 @@ public:
      * @param tp_pairs list of temperatures in C and pressures in bar
      */
     auto calculateThermoProperties (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                                    vector<double> tp_pairs[2]) -> void;
+                                    std::vector<std::vector<double> > tp_pairs) -> void;
 
     /**
      * @brief thermoPropSubstNames

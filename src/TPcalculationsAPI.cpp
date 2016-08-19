@@ -9,7 +9,6 @@ struct TPcalcualationsAPI::Impl
 {
     /// The thermo instance
     Thermo thermo;
-
     OutputOptions outputOptions;
 
     map<std::string, int> thermoPropSubstNames =  { {"sm_gibbs_energy", 0},
@@ -33,22 +32,15 @@ struct TPcalcualationsAPI::Impl
                                               {"sm_internal_energy", "(J/mol)"}
                                             };
 
-     map<int, std::string> propNamesToExport;
-    // map for properties solvent
+    map<int, std::string>               propNamesToExport;
+    std::vector<std::vector<double>>    TP_pairs;
+    std::vector<string>                 substanceSymbols;
+    std::string                         header = "";
+    std::vector<std::vector<double>>    results;
+    std::ofstream                       fThermoPropertiesSubstance;
 
-    std::vector<std::vector<double>> TP_pairs;
-    std::vector<string> substanceSymbols;
-    std::string header = "";
-    std::vector<std::vector<double>> results;
-
-    std::ofstream fThermoPropertiesSubstance;
-
-
-//    Impl()
-//    {}
-
-    Impl(const Thermo& thermo)
-    : thermo(thermo)
+    Impl(const Database& database)
+    : thermo(Thermo(database))
     {}
 
 public:
@@ -82,8 +74,8 @@ auto TPcalcualationsAPI::setThermoPropSubstUnits(const map<std::string, std::str
 }
 
 
-TPcalcualationsAPI::TPcalcualationsAPI(const Thermo& thermo)
-    : pimpl(new Impl(thermo))
+TPcalcualationsAPI::TPcalcualationsAPI(const Database &database)
+    : pimpl(new Impl(database))
 {}
 
 auto TPcalcualationsAPI::setThermoPropSubstNames(std::vector<string> thermoPropertiesNames) -> void
@@ -211,6 +203,17 @@ auto TPcalcualationsAPI::calculateThermoProperties (std::vector<string> substanc
     pimpl->substanceSymbols = substanceSymbols;
     setThermoPropSubstNames(thermoProperties);
     setTP_pairs(T, P);
+    setHeader( pimpl->substanceSymbols, pimpl->propNamesToExport, pimpl->thermoPropSubstUnits );
+    pimpl->results = calculate();
+    outResults();
+}
+
+auto  TPcalcualationsAPI::calculateThermoProperties (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+                                std::vector<std::vector<double>> tp_pairs) -> void
+{
+    pimpl->substanceSymbols = substanceSymbols;
+    setThermoPropSubstNames(thermoProperties);
+    pimpl->TP_pairs = tp_pairs;
     setHeader( pimpl->substanceSymbols, pimpl->propNamesToExport, pimpl->thermoPropSubstUnits );
     pimpl->results = calculate();
     outResults();
