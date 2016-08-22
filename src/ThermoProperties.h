@@ -64,15 +64,22 @@ struct ThermoPropertiesReaction
 /// Describes the thermodynamic properties specific to a solvent
 struct PropertiesSolvent
 {
-    double Speed,        /// speed of sound
+    /// speed of sound
+    double Speed,
 //       Alpha,            /// constant pressure expansion (alpha)
 //       Beta,             /// constant temperature compressibility (beta)
-       Visc,             /// dynamic viscosity
-       Tcond,            /// thermal conductivity
-       Surten,           /// surface tension
-       Tdiff,            /// not clear (currently not used)
-       Prndtl,           /// Prandtl number (currently not used)
-       Visck;            /// kinetic viscosity (currently not used)
+    /// dynamic viscosity
+       Visc,
+    /// thermal conductivity
+       Tcond,
+    /// surface tension
+       Surten,
+    /// not clear (currently not used)
+       Tdiff,
+    /// Prandtl number (currently not used)
+       Prndtl,
+    /// kinetic viscosity (currently not used)
+       Visck;
 //       Albe,             /// alpha/beta ratio
 //       dAldT;            /// T derivative of isobaric expansion
     /// constant pressure expansion (alpha) (in units of 1/K)
@@ -134,6 +141,9 @@ struct PropertiesSolvent
 
 };
 
+/**
+ * @brief The ElectroPropertiesSolvent struct holds the electro-chemical properties of a solvent
+ */
 struct ElectroPropertiesSolvent
 {
     /// The dielectric constant of water
@@ -173,6 +183,9 @@ struct ElectroPropertiesSolvent
     Reaktoro_::ThermoScalar bornX;
 };
 
+/**
+ * @brief The ElectroPropertiesSubstance struct holds the electro-chemical properties of an solute
+ */
 struct ElectroPropertiesSubstance
 {
     /// The effective electrostatic radius of the solute species at referente temperature 298.15 K and pressure 1 bar

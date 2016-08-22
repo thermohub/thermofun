@@ -67,16 +67,28 @@ public:
     /// Set the code for the aggregate state of the substance
     auto setAggregateState(AggregateState::type aggregate_state) -> void;
 
-    /// Set
+    /**
+     * @brief setCharge
+     * @param charge substance charge
+     */
     auto setCharge(int charge) -> void;
 
-    /// Set
+    /**
+     * @brief setSolventSymbol
+     * @param symbol
+     */
     auto setSolventSymbol(string symbol) -> void;
 
-    /// Set
+    /**
+     * @brief setReferenceT
+     * @param T temperature in K
+     */
     auto setReferenceT(double T) -> void;
 
-    /// Set
+    /**
+     * @brief setReferenceP
+     * @param P pressure in Pa
+     */
     auto setReferenceP(double P) -> void;
     
     // Get functions
@@ -122,10 +134,16 @@ public:
     /// Return the class type of the substance
     auto substanceClass() -> SubstanceClass::type;
 
-    /// Return
+    /**
+     * @brief charge
+     * @return substance charge
+     */
     auto charge() -> int;
 
-    /// Return
+    /**
+     * @brief SolventSymbol
+     * @return solvent symol used to calcul the properties of the solute
+     */
     auto SolventSymbol() -> string;
     
 private:
