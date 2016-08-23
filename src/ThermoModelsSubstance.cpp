@@ -10,6 +10,7 @@
 #include "Solids/SolidHPLandau.h"
 
 #include "Gases/GasCORK.h"
+#include "Gases/GasPRSV.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -440,10 +441,10 @@ GasPRSV::GasPRSV(const Substance &substance)
 // calculation
 auto GasPRSV::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesGasPRSV(t, p, pimpl->substance, tps);
+    return thermoPropertiesGasPRSV(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================

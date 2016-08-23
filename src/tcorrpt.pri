@@ -52,7 +52,8 @@
     $$PWD/Gases/s_solmod_.h \
     $$PWD/Solvent/WaterZhangDuan2005.h \
     $$PWD/Solvent/WaterElectroSverjensky2014.h \
-    $$PWD/TPcalculationsAPI.h
+    $$PWD/TPcalculationsAPI.h \
+    $$PWD/Gases/GasPRSV.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -102,4 +103,5 @@
     $$PWD/Gases/s_solmod_.cpp \
     $$PWD/Solvent/WaterZhangDuan2005.cpp \
     $$PWD/Solvent/WaterElectroSverjensky2014.cpp \
-    $$PWD/TPcalculationsAPI.cpp
+    $$PWD/TPcalculationsAPI.cpp \
+    $$PWD/Gases/GasPRSV.cpp

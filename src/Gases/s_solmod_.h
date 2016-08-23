@@ -616,7 +616,7 @@ class TPRSVcalc: public TSolMod
 		long int IdealProp( double *Zid );
 
         /// Calculates pure species properties (called from DCthermo)
-		long int PRSVCalcFugPure( double Tmin, float *Cpg, double *FugProps );
+        long int PRSVCalcFugPure( double Tmin, double *Cpg, double *FugProps );
 
 };
 
