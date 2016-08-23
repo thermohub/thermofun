@@ -53,7 +53,10 @@
     $$PWD/Solvent/WaterZhangDuan2005.h \
     $$PWD/Solvent/WaterElectroSverjensky2014.h \
     $$PWD/TPcalculationsAPI.h \
-    $$PWD/Gases/GasPRSV.h
+    $$PWD/Gases/GasPRSV.h \
+    $$PWD/Gases/GasCGF.h \
+    $$PWD/Gases/GasSRK.h \
+    $$PWD/Gases/GasPR78.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -104,4 +107,7 @@
     $$PWD/Solvent/WaterZhangDuan2005.cpp \
     $$PWD/Solvent/WaterElectroSverjensky2014.cpp \
     $$PWD/TPcalculationsAPI.cpp \
-    $$PWD/Gases/GasPRSV.cpp
+    $$PWD/Gases/GasPRSV.cpp \
+    $$PWD/Gases/GasCGF.cpp \
+    $$PWD/Gases/GasSRK.cpp \
+    $$PWD/Gases/GasPR78.cpp
