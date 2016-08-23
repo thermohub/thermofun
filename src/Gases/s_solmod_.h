@@ -937,7 +937,7 @@ class TSTPcalc: public TSolMod
                 long int IdealProp( double *Zid );
 
                 /// Calculates pure species properties (called from DCthermo)
-                long int STPCalcFugPure( double Tmin, float *Cpg, double *FugProps );
+                long int STPCalcFugPure( double Tmin, double *Cpg, double *FugProps );
 
 };
 

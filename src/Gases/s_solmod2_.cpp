@@ -6250,7 +6250,7 @@ long int TSTPcalc::PsatCO2( long int j )
 #ifndef IPMGEMPLUGIN_
 
 /// Calculates pure species properties (called from DCthermo)
-long int TSTPcalc::STPCalcFugPure( double Tmin, float *Cpg, double *FugProps )
+long int TSTPcalc::STPCalcFugPure(double Tmin, double *Cpg, double *FugProps )
 {
     long int iErr = 0;
      double Coeff[7];

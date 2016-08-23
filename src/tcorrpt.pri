@@ -56,7 +56,8 @@
     $$PWD/Gases/GasPRSV.h \
     $$PWD/Gases/GasCGF.h \
     $$PWD/Gases/GasSRK.h \
-    $$PWD/Gases/GasPR78.h
+    $$PWD/Gases/GasPR78.h \
+    $$PWD/Gases/GasSTP.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -110,4 +111,5 @@
     $$PWD/Gases/GasPRSV.cpp \
     $$PWD/Gases/GasCGF.cpp \
     $$PWD/Gases/GasSRK.cpp \
-    $$PWD/Gases/GasPR78.cpp
+    $$PWD/Gases/GasPR78.cpp \
+    $$PWD/Gases/GasSTP.cpp
