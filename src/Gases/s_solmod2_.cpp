@@ -2264,7 +2264,7 @@ double TCGFcalc::ROTOTALMIX( double P,double TT,EOSPARAM* param )
 
 
 /// calculates properties of pure fluids when called from DCthermo
-long int TCGFcalc::CGcalcFugPure( double Tmin, float *Cemp, double *FugProps )
+long int TCGFcalc::CGcalcFugPure(double Tmin, double *Cemp, double *FugProps )
 {
 	long int retCode = 0;
 	double T, P, Fugacity = 0.1, Volume = 0.0;
