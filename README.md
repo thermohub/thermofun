@@ -29,16 +29,23 @@ sudo apt-get install lua5.2 lua5.2-dev
 
 Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 
-* Let’s call gitTCorrPT the directory where TCorrPT  repository were cloned:
+* Let’s call gitTCorrPT and GEMS4R the directories where TCorrPT and gems4r repositories were cloned:
 ~~~
 ~/gitTCorrPT
     /tcorrpt
+    /gems4r
 ~~~
 
 * In a terminal, run the following commands to clone the TCorrPT library:
 ~~~
 $ cd ~/gitTCorrPT/tcorrpt
 $ git clone https://bitbucket.org/gems4/tcorrpt.git .
+~~~
+
+* In a terminal, run the following commands to clone the GEMS4R library:
+~~~
+$ cd ~/gitTCorrPT/gems4r
+$ git clone https://bitbucket.org/gems4/gems4r.git .
 ~~~
 
 * In a linux terminal, cd inside ~/gitTCorrPT/tcorrpt/tests/autoTest and type
