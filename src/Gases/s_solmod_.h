@@ -690,7 +690,7 @@ class TSRKcalc: public TSolMod
 		long int IdealProp( double *Zid );
 
         /// Calculates pure species properties (called from DCthermo)
-		long int SRKCalcFugPure( double Tmin, float *Cpg, double *FugProps );
+        long int SRKCalcFugPure( double Tmin, double *Cpg, double *FugProps );
 
 };
 
