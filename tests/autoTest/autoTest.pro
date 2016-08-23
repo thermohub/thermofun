@@ -34,7 +34,7 @@ BUILD_DIR = $$OUT_PWD/..
 THRIFT_DIR    = ./thrift
 
 # Define the directory where GEMS4R source code is located
-GEMS4R_DIR = $$PWD/../../../standalone/GEMS4R
+GEMS4R_DIR = $$PWD/../../../gems4r/GEMS4R
 
 # Define the directory where the third-party libraries have been installed
 #THIRDPARTY_DIR = $$BUILD_DIR/thirdparty/debug
