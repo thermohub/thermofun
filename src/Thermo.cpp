@@ -29,6 +29,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
     MethodCorrT_Thrift::type  method_T      = subst.method_T();
     MethodCorrP_Thrift::type  method_P      = subst.method_P();
     ThermoPropertiesSubstance tps;
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
 
     if (subst.name() == "H+")
@@ -173,11 +176,19 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             ThermoPropertiesSubstance rtps = subst.thermoReferenceProperties();
 
             tps.volume           = rtps.volume;
-            tps.gibbs_energy    += rtps.volume * (P - (subst.referenceP() / bar_to_Pa));
-            tps.enthalpy        += rtps.volume * (P - (subst.referenceP() / bar_to_Pa));
-            tps.internal_energy  = tps.enthalpy - P*tps.volume;
-            tps.helmholtz_energy = tps.internal_energy - (T+273.15)*tps.entropy;
+            tps.gibbs_energy    += rtps.volume * (p - (subst.referenceP() / bar_to_Pa));
+            tps.enthalpy        += rtps.volume * (p - (subst.referenceP() / bar_to_Pa));
+            tps.internal_energy  = tps.enthalpy - p*tps.volume;
+            tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
 
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_OFF:
+        {
+            if(( subst.substanceClass() == SubstanceClass::type::GASFLUID ) && P > 0.0 )
+            { // molar volume from the ideal gas law
+                tps.volume = (t) / p * R_CONSTANT;
+            }
             break;
         }
             // Exception
