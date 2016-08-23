@@ -15,7 +15,6 @@ auto thermoPropertiesGasPRSV(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Su
     }
 
     myPRSV.PRSVCalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
-    // myPRSV.~TPRSVcalc();
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (t+273.15) * log( FugProps[0] );

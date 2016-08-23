@@ -15,7 +15,6 @@ auto thermoPropertiesGasCGF(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Sub
     }
 
     myCGF.CGcalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
-    // myCGF.~TCGFcalc();
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (t+273.15) * log( FugProps[0] );

@@ -11,6 +11,9 @@
 
 #include "Gases/GasCORK.h"
 #include "Gases/GasPRSV.h"
+#include "Gases/GasCGF.h"
+#include "Gases/GasSRK.h"
+#include "Gases/GasPR78.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -476,7 +479,7 @@ auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps)
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesGasCGF(t, p, pimpl->substance, tps);
+    return thermoPropertiesGasCGF(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -508,7 +511,7 @@ auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps)
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesGasSRK(t, p, pimpl->substance, tps);
+    return thermoPropertiesGasSRK(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -540,7 +543,7 @@ auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesGasPR78(t, p, pimpl->substance, tps);
+    return thermoPropertiesGasPR78(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
