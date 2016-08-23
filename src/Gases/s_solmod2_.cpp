@@ -4033,7 +4033,7 @@ long int TPR78calc::ResidualFunct( double *fugpure )
 #ifndef IPMGEMPLUGIN_
 
 /// Calculates properties of pure fluids when called from DCthermo
-long int TPR78calc::PR78CalcFugPure( double Tmin, float *Cpg, double *FugProps )
+long int TPR78calc::PR78CalcFugPure( double Tmin, double *Cpg, double *FugProps )
 {
 	long int retCode = 0;
 	double Coeff[7];
