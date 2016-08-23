@@ -412,7 +412,7 @@ GasCORK::GasCORK(const Substance &substance)
 // calculation
 auto GasCORK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesGasCORK(t, p, pimpl->substance, tps);
@@ -476,7 +476,7 @@ GasCGF::GasCGF(const Substance &substance)
 // calculation
 auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesGasCGF(t, p, pimpl->substance, tps);
@@ -508,7 +508,7 @@ GasSRK::GasSRK(const Substance &substance)
 // calculation
 auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesGasSRK(t, p, pimpl->substance, tps);
@@ -540,7 +540,7 @@ GasPR78::GasPR78(const Substance &substance)
 // calculation
 auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesGasPR78(t, p, pimpl->substance, tps);
@@ -572,7 +572,7 @@ GasSTP::GasSTP(const Substance &substance)
 // calculation
 auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
 //    return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
