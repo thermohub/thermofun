@@ -5,7 +5,7 @@ probably because of the implementation
 
 -aqueous speices porperties using supcrt implementation does not calculate correct implicit derivatives of the themro prop with T and P?
 
--Psat or P = 0 in the case of minerals remains 0 since we need the function from the water proeprties to calculate the Psat.
+-For Psat or P = 0 in the case of minerals and other substances for which the calculaitons are independent of H2Oaq, P remains 0 since we need the function from the water proeprties to calculate the Psat.
 
 -for minerals A and U are not calculated
 
@@ -17,3 +17,8 @@ probably because of the implementation
 
 - what to do when T-P exeeds the model/parameter limits
 - what do do when a given substance is not in the internal data structure 
+
+------
+
+- In GEMS RTparam G0 in not backcorrected for the fluid mixtures models. The correction is made when calculating equilibirum and when exporting GEMS files.
+- fluids subroutines in GEMS and TCorrPT only implemented for CO2 and H2O (TCorrPT checks the formula)

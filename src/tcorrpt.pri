@@ -48,9 +48,16 @@
     $$PWD/Solids/SolidBMGottschalk.h \
     $$PWD/Common/EmpiricalCpIntegration.h \
     $$PWD/Solids/SolidHPLandau.h \
+    $$PWD/Gases/GasCORK.h \
+    $$PWD/Gases/s_solmod_.h \
     $$PWD/Solvent/WaterZhangDuan2005.h \
     $$PWD/Solvent/WaterElectroSverjensky2014.h \
-    $$PWD/TPcalculationsAPI.h
+    $$PWD/TPcalculationsAPI.h \
+    $$PWD/Gases/GasPRSV.h \
+    $$PWD/Gases/GasCGF.h \
+    $$PWD/Gases/GasSRK.h \
+    $$PWD/Gases/GasPR78.h \
+    $$PWD/Gases/GasSTP.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -95,6 +102,14 @@
     $$PWD/Solids/SolidBerman88.cpp \
     $$PWD/Common/EmpiricalCpIntegration.cpp \
     $$PWD/Solids/SolidHPLandau.cpp \
+    $$PWD/Gases/GasCORK.cpp \
+    $$PWD/Gases/s_solmod2_.cpp \
+    $$PWD/Gases/s_solmod_.cpp \
     $$PWD/Solvent/WaterZhangDuan2005.cpp \
     $$PWD/Solvent/WaterElectroSverjensky2014.cpp \
-    $$PWD/TPcalculationsAPI.cpp
+    $$PWD/TPcalculationsAPI.cpp \
+    $$PWD/Gases/GasPRSV.cpp \
+    $$PWD/Gases/GasCGF.cpp \
+    $$PWD/Gases/GasSRK.cpp \
+    $$PWD/Gases/GasPR78.cpp \
+    $$PWD/Gases/GasSTP.cpp

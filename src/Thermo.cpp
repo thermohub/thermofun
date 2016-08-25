@@ -29,6 +29,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
     MethodCorrT_Thrift::type  method_T      = subst.method_T();
     MethodCorrP_Thrift::type  method_P      = subst.method_P();
     ThermoPropertiesSubstance tps;
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
 
     if (subst.name() == "H+")
@@ -132,16 +135,60 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             tps = minBMG.thermoProperties(T, P, tps);
             break;
         }
+        case MethodCorrP_Thrift::type::CPM_CORK:
+        {
+            GasCORK gasCORK (subst);
+            tps = gasCORK.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_PRSV:
+        {
+            GasPRSV gasPRSV (subst);
+            tps = gasPRSV.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_EMP:
+        {
+            GasCGF gasCGF (subst);
+            tps = gasCGF.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_SRK:
+        {
+            GasSRK gasSRK (subst);
+            tps = gasSRK.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_PR78:
+        {
+            GasPR78 gasPR78 (subst);
+            tps = gasPR78.thermoProperties(T, P, tps);
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_STP:
+        {
+            GasSTP gasSTP (subst);
+            tps = gasSTP.thermoProperties(T, P, tps);
+            break;
+        }
         case MethodCorrP_Thrift::type::CPM_CON: // Molar volume assumed independent of T and P
         {
             ThermoPropertiesSubstance rtps = subst.thermoReferenceProperties();
 
             tps.volume           = rtps.volume;
-            tps.gibbs_energy    += rtps.volume * (P - (subst.referenceP() / bar_to_Pa));
-            tps.enthalpy        += rtps.volume * (P - (subst.referenceP() / bar_to_Pa));
-            tps.internal_energy  = tps.enthalpy - P*tps.volume;
-            tps.helmholtz_energy = tps.internal_energy - (T+273.15)*tps.entropy;
+            tps.gibbs_energy    += rtps.volume * (p - (subst.referenceP() / bar_to_Pa));
+            tps.enthalpy        += rtps.volume * (p - (subst.referenceP() / bar_to_Pa));
+            tps.internal_energy  = tps.enthalpy - p*tps.volume;
+            tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
 
+            break;
+        }
+        case MethodCorrP_Thrift::type::CPM_OFF:
+        {
+            if(( subst.substanceClass() == SubstanceClass::type::GASFLUID ) && P > 0.0 )
+            { // molar volume from the ideal gas law
+                tps.volume = (t) / p * R_CONSTANT;
+            }
             break;
         }
             // Exception
@@ -200,21 +247,21 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
     {
         switch(method_genEOS)
         {
-        case MethodGenEoS_Thrift::type::CEM_WJNR:
+        case MethodGenEoS_Thrift::type::CTPM_WJNR:
         {
             WaterJNreaktoro water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
             eps = water.electroPropertiesSolvent(T, P, ps);;
             break;
         }
-        case MethodGenEoS_Thrift::type::CEM_WJNG:
+        case MethodGenEoS_Thrift::type::CTPM_WJNG:
         {
             WaterJNgems water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
             eps = water.electroPropertiesSolvent(T, P);
             break;
         }
-        case MethodGenEoS_Thrift::type::CEM_WSV14:
+        case MethodGenEoS_Thrift::type::CTPM_WSV14:
         {
             WaterElectroSverjensky2014 water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
@@ -235,6 +282,7 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
     MethodCorrT_Thrift::type  method_T      = subst.method_T();
     MethodCorrP_Thrift::type  method_P      = subst.method_P();
     PropertiesSolvent ps;
+
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)

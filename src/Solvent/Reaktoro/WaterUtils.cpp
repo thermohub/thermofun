@@ -39,7 +39,7 @@ auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsM
     if(T.val <= waterCriticalTemperature)
     {
         auto p = waterSaturatedPressureWagnerPruss(T);
-        state = (P < p) ? 1 : 0; // changed fro P <= DM 29.05.2016
+        state = (P < p) ? 1 : 0; // changed from P <= DM 29.05.2016
     }
     else
         state = 2;
