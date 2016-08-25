@@ -198,7 +198,8 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
     {
-        if (method_P == MethodCorrP_Thrift::type::CPM_GAS) solvent_state = 1;
+//        if (method_P == MethodCorrP_Thrift::type::CPM_GAS) solvent_state = 1;
+        if (subst.aggregateState() == AggregateState::type::GAS) solvent_state = 1;
         switch(method_T)
         {
         case MethodCorrT_Thrift::type::CTM_WAT:
@@ -241,10 +242,11 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
 //    MethodCorrP_Thrift::type  method_P      = subst.method_P();
     PropertiesSolvent ps;
     ElectroPropertiesSolvent eps;
-//    int solvent_state = 0; // default liquid (0), gas/vapor (1)
+    int solvent_state = 0; // default liquid (0), gas/vapor (1)
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
     {
+        if (subst.aggregateState() == AggregateState::type::GAS) solvent_state = 1;
         switch(method_genEOS)
         {
         case MethodGenEoS_Thrift::type::CTPM_WJNR:
@@ -258,7 +260,7 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
         {
             WaterJNgems water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
-            eps = water.electroPropertiesSolvent(T, P);
+            eps = water.electroPropertiesSolvent(T, P/*, ps*/ );
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WSV14:
@@ -279,15 +281,15 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
 auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent
 {
     Substance subst = pimpl->database.getSubstance(solvent);
-    MethodCorrT_Thrift::type  method_T      = subst.method_T();
-    MethodCorrP_Thrift::type  method_P      = subst.method_P();
+    MethodCorrT_Thrift::type  method_T = subst.method_T();
     PropertiesSolvent ps;
 
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
+    if (subst.aggregateState() == AggregateState::type::GAS) solvent_state = 1;
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
     {
-        if (method_P == MethodCorrP_Thrift::type::CPM_GAS) solvent_state = 1;
+//        if (method_P == MethodCorrP_Thrift::type::CPM_GAS) solvent_state = 1;
         switch(method_T)
         {
         case MethodCorrT_Thrift::type::CTM_WAT:
