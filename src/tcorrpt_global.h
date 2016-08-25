@@ -67,10 +67,10 @@ typedef struct {
     CEM_AR = 114,
     CEM_PO = 115,
     CEM_NP = 116,
-    CEM_WJNR = 117, /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in Reaktoro
-    CEM_WJNG = 118,  /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in GEMS
+    CTPM_WJNR = 117, /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in Reaktoro
+    CTPM_WJNG = 118,  /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in GEMS
     CTPM_HKFR = 119, /// HKFreaktoro
-    CEM_WSV14 = 120 /// calculation of dielectric constant using the model of Sverjensky (2014)
+    CTPM_WSV14 = 120 /// calculation of dielectric constant using the model of Sverjensky (2014)
   };
 }  MethodGenEoS_Thrift;
 static const int MethodGenEoS_ndxThrift[] = {

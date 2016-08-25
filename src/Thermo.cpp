@@ -247,21 +247,21 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
     {
         switch(method_genEOS)
         {
-        case MethodGenEoS_Thrift::type::CEM_WJNR:
+        case MethodGenEoS_Thrift::type::CTPM_WJNR:
         {
             WaterJNreaktoro water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
             eps = water.electroPropertiesSolvent(T, P, ps);;
             break;
         }
-        case MethodGenEoS_Thrift::type::CEM_WJNG:
+        case MethodGenEoS_Thrift::type::CTPM_WJNG:
         {
             WaterJNgems water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
             eps = water.electroPropertiesSolvent(T, P);
             break;
         }
-        case MethodGenEoS_Thrift::type::CEM_WSV14:
+        case MethodGenEoS_Thrift::type::CTPM_WSV14:
         {
             WaterElectroSverjensky2014 water (subst);
             ps = propertiesSolvent(T, P, subst.symbol());
@@ -282,6 +282,7 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
     MethodCorrT_Thrift::type  method_T      = subst.method_T();
     MethodCorrP_Thrift::type  method_P      = subst.method_P();
     PropertiesSolvent ps;
+
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
 
     if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)

@@ -14,7 +14,7 @@ using namespace TCorrPT;
 auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance result_tcorrpt, string symbol, double T, double P ) -> int
 {
     int i = 1; double d;
-    double tolerance = 1e-05;
+    double tolerance = 1e-03;
 
     d = (fabs(result_gems.gibbs_energy.val - result_tcorrpt.gibbs_energy.val) / fabs(result_gems.gibbs_energy.val));
     if ( d > tolerance)
@@ -134,7 +134,13 @@ int main(int argc, char *argv[])
     double delta = ((middle.tv_sec  - start.tv_sec) * 1000000u +
              middle.tv_usec - start.tv_usec) / 1.e6;
 
+//    P = 4000; T = 400;
+//    // test PRSV
+//    result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,"CO2hp");
+
+
     P = 0; T = 5;
+//
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
@@ -153,6 +159,7 @@ int main(int argc, char *argv[])
             compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
 
             c++;
+//            i = vSubst.size();
         }
         P = 0;
         T +=5;
@@ -209,6 +216,7 @@ int main(int argc, char *argv[])
         }
         T +=25;
     } while (T <= 800);
+//
     out.closeThermoPropertiesSubstanceFile();
 
     P = 1000; T = 25;
@@ -237,7 +245,7 @@ int main(int argc, char *argv[])
     } while (T <= 800);
     out.closeThermoPropertiesSubstanceFile();
 
-    P = 1000; T = 25;
+    P = 2000; T = 25;
     out.openThermoPropertiesSubstanceFile("CompareP2000_T25_800.csv");
     do {
 
