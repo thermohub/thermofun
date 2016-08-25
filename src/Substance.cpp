@@ -230,6 +230,11 @@ auto Substance::substanceClass() -> SubstanceClass::type
     return pimpl->substance_class;
 }
 
+auto Substance::aggregateState() -> AggregateState::type
+{
+    return pimpl->aggregate_state;
+}
+
 auto Substance::charge() -> int
 {
     return pimpl->charge;

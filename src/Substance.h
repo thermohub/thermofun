@@ -135,6 +135,12 @@ public:
     auto substanceClass() -> SubstanceClass::type;
 
     /**
+     * @brief aggregateState
+     * @return substance aggregate state
+     */
+    auto aggregateState() -> AggregateState::type;
+
+    /**
      * @brief charge
      * @return substance charge
      */
