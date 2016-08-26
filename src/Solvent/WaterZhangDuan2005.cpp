@@ -34,8 +34,9 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
     const double tolerance = 1.0e-08;
+
     const auto Tc = waterCriticalTemperature;
-    const auto Pc = waterCriticalPressure;
+//    const auto Pc = waterCriticalPressure;
     const auto Vc = waterCriticalVolume;
     const auto B = a[1] + a[2]/pow((T/Tc),2) + a[3]/pow((T/Tc),3);
     const auto C = a[4] + a[5]/pow((T/Tc),2) + a[6]/pow((T/Tc),3);
@@ -57,8 +58,8 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
 
         if (std::abs(Vr_plus_1.val - Vr.val) < tolerance)
         {
-            const auto Z = 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
-                           (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2));
+//            const auto Z = 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
+//                           (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2));
             return Vr_plus_1;
         }
 
@@ -87,7 +88,7 @@ auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reakto
     const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
     const auto F = a[13]/(T/Tc);
     const auto G = a[14]*(T/Tc);
-    const auto expf = exp(-gamma/pow(Vr,2));
+//    const auto expf = exp(-gamma/pow(Vr,2));
     const auto Z = (P*V)/(RConstant*T);
 
 //    const auto H = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/pow(Vr,2);
@@ -162,11 +163,11 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     auto V_minus = Vr_minus * waterCriticalVolume/10;
     auto D_minus = H2OMolarMass/V_minus * 100;
 
-    const auto VdT = (V_plus - V_minus) / ((T_plus-T_minus));
+//    const auto VdT = (V_plus - V_minus) / ((T_plus-T_minus));
     const auto DdT = (D_plus - D_minus) / ((T_plus-T_minus));
 
     const auto Dd2T = (D_plus + D_minus - 2*D)/pow(((T_plus-T_minus)*0.5),2);
-    const auto Vd2T = (V_plus + V_minus - 2*V)/pow(((T_plus-T_minus)*0.5),2);
+//    const auto Vd2T = (V_plus + V_minus - 2*V)/pow(((T_plus-T_minus)*0.5),2);
 
     // finite difference P
     Reaktoro_::Pressure P_plus (P.val + P.val*0.001);
@@ -179,11 +180,11 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     V_minus = Vr_minus * waterCriticalVolume/10;
     D_minus = H2OMolarMass/V_minus *100;
 
-    const auto VdP = (V_plus - V_minus) / ((P_plus-P_minus));
+//    const auto VdP = (V_plus - V_minus) / ((P_plus-P_minus));
     const auto DdP = (D_plus - D_minus) / ((P_plus-P_minus));
 
     const auto Dd2P = (D_plus + D_minus - 2*D)/pow(((P_plus-P_minus)*0.5),2);
-    const auto Vd2P = (V_plus + V_minus - 2*V)/pow(((P_plus-P_minus)*0.5),2);
+//    const auto Vd2P = (V_plus + V_minus - 2*V)/pow(((P_plus-P_minus)*0.5),2);
 
     ps.density   = D /* * 1000*/;
     ps.densityT  = DdT;

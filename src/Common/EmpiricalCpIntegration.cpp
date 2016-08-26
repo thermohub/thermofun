@@ -18,7 +18,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
 
 
     auto TK = Reaktoro_::Temperature(T.val /*+ C_to_K*/);
-    auto Pb = Reaktoro_::Pressure(P);
+//    auto Pb = Reaktoro_::Pressure(P);
 
     auto TrK = substance.referenceT()/* + C_to_K*/;
 
@@ -30,16 +30,6 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     {
         errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__);
     }
-
-    // P correction - has to be moved from here!!!
-
-
-//    if(( substance_class == SubstanceClass::type::GASFLUID /*|| dc[q].pstate[0] == CP_GASI*/ )
-//            && Pb > 0.0 )
-//    { // molar volume from the ideal gas law
-//        V = TK / Pb * R_CONSTANT;
-//    }
-
 
 //    aW.twp->devG = dc[q].Gs[1];
 //    ??????????????????????????????????????'
