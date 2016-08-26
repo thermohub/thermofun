@@ -14,6 +14,7 @@
 #include "Gases/GasCGF.h"
 #include "Gases/GasSRK.h"
 #include "Gases/GasPR78.h"
+#include "Gases/GasSTP.h"
 
 // TCorrPT includes
 #include "Common/Exception.h"
@@ -575,7 +576,7 @@ auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps)
     auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
     auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
+    return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
 }
 
 

@@ -9,7 +9,8 @@ namespace TCorrPT {
 auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance wp;
-    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
+
+    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
     {
         wp.helmholtz_energy         = wl.Aw * cal_to_J;
         wp.gibbs_energy             = wl.Gw * cal_to_J;
@@ -20,8 +21,9 @@ auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSu
         wp.heat_capacity_cp         = wl.Cpw * cal_to_J;
 
         // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[aSpc.isat] * H2OMolarMass * cm3_mol_to_J_bar;
+        wp.volume                   = 1/aSta.Dens[1] * H2OMolarMass * cm3_mol_to_J_bar;
     } else
+    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) ) // liquid properties at Psat or vapor properties not at Psat, also supercritical fluid
     {
         wp.helmholtz_energy         = wr.Aw * cal_to_J;
         wp.gibbs_energy             = wr.Gw * cal_to_J;
@@ -34,6 +36,7 @@ auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSu
         // Rho in g/cm3, waterMolarMass in g/mol
         wp.volume                   = 1/aSta.Dens[0] * H2OMolarMass * cm3_mol_to_J_bar;
     }
+
 return wp;
 }
 
@@ -42,7 +45,7 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     PropertiesSolvent wp;
     double rho, alp, dal, bet;
 
-    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
+    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
     {
         wp.Surten   = wl.Surtenw;
         wp.Alpha    = wl.Alphaw;
@@ -60,7 +63,10 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
         dal = wl.dAldT;
         bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
 
+        wp.density          = aSta.Dens[1] * 1000; // in kg/m3
+        rho = aSta.Dens[1] * 1000;
     } else
+    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) )
     {
         wp.Surten   = wr.Surtenw;
         wp.Alpha    = wr.Alphaw;
@@ -77,21 +83,61 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
         alp = wr.Alphaw;
         dal = wr.dAldT;
         bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
+
+        wp.density          = aSta.Dens[0] * 1000; // in kg/m3
+        rho = aSta.Dens[0] * 1000;
     }
+
+//    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
+//    {
+//        wp.Surten   = wl.Surtenw;
+//        wp.Alpha    = wl.Alphaw;
+//        wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
+//        wp.Tcond    = wl.Tcondw;
+//        wp.Tdiff    = wl.Tdiffw;
+//        wp.Prndtl   = wl.Prndtlw;
+//        wp.dAldT    = wl.dAldT;
+//        wp.Albe     = wl.Albew;
+//        wp.Speed    = wl.Speedw;
+//        wp.Visc     = wl.Viscw;
+//        wp.Visck    = wl.Visckw;
+
+//        alp = wl.Alphaw;
+//        dal = wl.dAldT;
+//        bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
+
+//    } else
+//    {
+//        wp.Surten   = wr.Surtenw;
+//        wp.Alpha    = wr.Alphaw;
+//        wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
+//        wp.Tcond    = wr.Tcondw;
+//        wp.Tdiff    = wr.Tdiffw;
+//        wp.Prndtl   = wr.Prndtlw;
+//        wp.dAldT    = wr.dAldT;
+//        wp.Albe     = wr.Albew;
+//        wp.Speed    = wr.Speedw;
+//        wp.Visc     = wr.Viscw;
+//        wp.Visck    = wr.Visckw;
+
+//        alp = wr.Alphaw;
+//        dal = wr.dAldT;
+//        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
+//    }
 
     wp.gibbsIdealGas    = id.gi;
     wp.entropyIdealGas  = id.si;
     wp.cpIdealGas       = id.cpi;
 
-    if (aSpc.metastable && !aSpc.isat)
-    {
-        wp.density          = aSta.Dens[!aSpc.isat] * 1000; // in kg/m3
-        rho = aSta.Dens[!aSpc.isat] * 1000;
-    } else
-    {
-        wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
-        rho = aSta.Dens[aSpc.isat] * 1000;
-    }
+//    if (aSpc.metastable && !aSpc.isat)
+//    {
+//        wp.density          = aSta.Dens[!aSpc.isat] * 1000; // in kg/m3
+//        rho = aSta.Dens[!aSpc.isat] * 1000;
+//    } else
+//    {
+//        wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
+//        rho = aSta.Dens[aSpc.isat] * 1000;
+//    }
 
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
@@ -107,7 +153,7 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesS
     ElectroPropertiesSolvent wp;
     double eps, xborn, yborn, qborn;
 
-    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
+    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
     {
         wp.epsilon  = wl.Dielw;
         wp.bornZ    = wl.ZBorn;
@@ -119,8 +165,8 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesS
         xborn = wl.XBorn;
         yborn = wl.YBorn;
         qborn = wl.QBorn;
-    }
-    else
+    } else
+    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) )
     {
         wp.epsilon  = wr.Dielw;
         wp.bornZ    = wr.ZBorn;
@@ -133,6 +179,33 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesS
         yborn = wr.YBorn;
         qborn = wr.QBorn;
     }
+
+//    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
+//    {
+//        wp.epsilon  = wl.Dielw;
+//        wp.bornZ    = wl.ZBorn;
+//        wp.bornY    = wl.YBorn;
+//        wp.bornQ    = wl.QBorn / 1e05; // from bar-1 to Pa-1
+//        wp.bornX    = wl.XBorn;
+
+//        eps   = wl.Dielw;
+//        xborn = wl.XBorn;
+//        yborn = wl.YBorn;
+//        qborn = wl.QBorn;
+//    }
+//    else
+//    {
+//        wp.epsilon  = wr.Dielw;
+//        wp.bornZ    = wr.ZBorn;
+//        wp.bornY    = wr.YBorn;
+//        wp.bornQ    = wr.QBorn / 1e05; // from bar-1 to Pa-1
+//        wp.bornX    = wr.XBorn;
+
+//        eps   = wr.Dielw;
+//        xborn = wr.XBorn;
+//        yborn = wr.YBorn;
+//        qborn = wr.QBorn;
+//    }
 
     wp.epsilonT  = yborn * pow(eps,2.);
     wp.epsilonTT = (xborn + 2.*eps*pow(yborn,2.)) * pow(eps,2.);
@@ -405,6 +478,15 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
         aSta.Dens[0] /= 1.0e3;
         if ( aSpc.isat == 1 )
             aSta.Dens[1] /= 1.0e3;
+
+        WPROPS tw = wl;
+        memcpy(&wl, &wr, sizeof(WPROPS));
+        memcpy(&wr, &tw, sizeof(WPROPS));
+
+//        double temp = aSta.Dens[0];
+//        aSta.Dens[0] = aSta.Dens[1];
+//        aSta.Dens[1] = temp;
+
     }
     else
     {
@@ -414,20 +496,23 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
     }
 
 //    prop_solvent = load(0);
-    if (aSpc.isat == 1)
-    {
-        tempy = aSta.Dens[0];
-        aSta.Dens[0] = aSta.Dens[1];
-        aSta.Dens[1] = tempy;
-//        prop_solvent = load(1);
-    }
+//    if (aSpc.isat == 1)
+//    {
+//        tempy = aSta.Dens[0];
+//        aSta.Dens[0] = aSta.Dens[1];
+//        aSta.Dens[1] = tempy;
+//        //        prop_solvent = load(1);
+//    }
     // translate T - to users units
     aSta.Temp   = TdegUS(aSpc.it, aSta.Temp);
     aSta.Pres  *= un.fp;
     aSta.Dens[0] /= un.fd;
 
     if (aSpc.isat == 1)
+    {
+        aSta.Dens[0] /= un.fd;
         aSta.Dens[1] /= un.fd;
+    }
 //    P = aSta.Pres;
 //    aWp.init = true;
 
@@ -1604,6 +1689,12 @@ auto WaterHGKgems::calcv2(int iopt, int itripl, double Temp, double *Pres,
             ps   = 2.0e4;
             dll  = 0.0e0;
         }
+
+        if (iopt == 3)
+        {
+            ps   = 2.0e4;
+            dll  = 0.0e0;
+        }
 //        if (*Pres >  ps)
             dguess = dll;
 //        else
@@ -1623,21 +1714,21 @@ auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, double Temp,
 {
     a1.rt = ac->gascon * Temp;
     HGKsat(isat, iopt, itripl, Temp, Pres, Dens0, epseqn);
-    if (!aSpc.metastable)
-    {
-        if (isat == 0)
-        {
-            bb(Temp);
-            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-            thmHGK(Dens0, Temp);
-            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-        }
-        else
-        {
-            memcpy(&wl, &wr, sizeof(WPROPS));
-            dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-        }
-    } else
+//    if (!aSpc.metastable)
+//    {
+//        if (isat == 0)
+//        {
+//            bb(Temp);
+//            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
+//            thmHGK(Dens0, Temp);
+//            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
+//        }
+//        else
+//        {
+//            memcpy(&wl, &wr, sizeof(WPROPS));
+//            dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+//        }
+//    } else
     {
         bb(Temp);
         calcv2(iopt, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
@@ -1650,7 +1741,21 @@ auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, double Temp,
         thmHGK(Dens0, Temp);
         dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
 
-//        dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
+        if ((aSta.Pres*10 > aSta.Psat) && (Temp < 0.647126e3) && (!aSpc.isat))
+        {
+            calcv2(3, itripl, Temp, Pres, &aSta.Dens[0], epseqn);
+            thmHGK(&aSta.Dens[0], Temp);
+            dimHGK(1, itripl, Temp, Pres, &aSta.Dens[0], epseqn);
+
+            double temp = aSta.Dens[0];
+            aSta.Dens[0] = aSta.Dens[1];
+            aSta.Dens[1] = temp;
+
+//            memcpy(&wl, &wr, sizeof(WPROPS));
+//            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
+//            thmHGK(Dens0, Temp);
+//            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
+        }
 
     }
 }
