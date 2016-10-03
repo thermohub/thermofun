@@ -60,7 +60,130 @@ struct TCorrPTData
 
     vector<string> properties;    ///< Properties names list
     vector<string> propertyUnits; ///< Units of property
+
+    TCorrPTData();
 };
+
+/// Class for double T P vector container
+class TPVectorContainer : public TAbstractDataContainer
+{
+    string  _key;
+    vector<double>& _fields;
+
+ public:
+
+   TPVectorContainer( const char * aname, const string& akey, vector<double>& afields ):
+      TAbstractDataContainer(aname),
+      _key(akey),_fields( afields ) {}
+
+   virtual ~TPVectorContainer() {}
+
+   int rowCount() const
+   { return _fields.size();  }
+
+   int columnCount() const
+   { return 1; }
+
+   QVariant data( int line, int column ) const
+   {
+       if(column == 0)
+          return _fields[line];
+       else
+          return "";
+   }
+
+   bool setData( int line, int column, const QVariant &value )
+   {
+       if(column == 0)
+           _fields[line] = value.toDouble();
+       return true;
+   }
+
+   virtual QString headerData ( int /*section*/ ) const
+   {
+       return _key.c_str();
+   }
+
+   virtual bool  IsEditable( int /*line*/, int /*column*/ ) const
+   { return true; }
+
+   virtual int getType( int /*line*/, int /*column*/ ) const
+   { return ftDouble; }
+
+   virtual QString getToolTip( int /*line*/, int /*column*/ ) const
+   {
+       return _key.c_str();
+   }
+
+   void resetData()
+   { }
+};
+
+
+/// Class for double T P vector container
+class TPropertyContainer : public TAbstractDataContainer
+{
+    vector<string>& _properties;    ///< Properties names list
+    vector<string>& _propertyUnits; ///< Units of property
+
+ public:
+
+   TPropertyContainer( const char * aname, vector<string>& aProperties, vector<string>& aPUnits ):
+      TAbstractDataContainer(aname),
+      _properties(aProperties),_propertyUnits( aPUnits ) {}
+
+   virtual ~TPropertyContainer() {}
+
+   int rowCount() const
+   { return _properties.size();  }
+
+   int columnCount() const
+   { return 2; }
+
+   QVariant data( int line, int column ) const
+   {
+       if(column == 0)
+          return _properties[line].c_str();
+       else
+          return _propertyUnits[line].c_str();
+   }
+
+   bool setData( int line, int column, const QVariant &value )
+   {
+       string val = value.toString().toUtf8().data();
+       if(column == 0)
+          _properties[line] = val;
+       else
+          _propertyUnits[line] = val;
+       return true;
+   }
+
+   virtual QString headerData ( int section ) const
+   {
+       if(section == 0)
+           return "Property";
+       else
+           return "Unit";
+   }
+
+   virtual bool  IsEditable( int /*line*/, int /*column*/ ) const
+   { return true; }
+
+   virtual int getType( int /*line*/, int /*column*/ ) const
+   { return ftString; }
+
+   virtual QString getToolTip( int /*line*/, int column ) const
+   {
+       if(column == 0)
+           return "Property";
+       else
+           return "Unit";
+   }
+
+   void resetData()
+   { }
+};
+
 
 
 /// Widget to work with bson or internal DOM based on our JSON schemas data
@@ -113,13 +236,13 @@ class TCorrPTWidget : public BSONUIBase
 protected slots:
 
     void typeChanged(const QString & text);
-    void TChanged(const QString & text)
+    void TChanged(double val)
     {
-      _data.T = text.toDouble();
+      _data.T = val;
     }
-    void PChanged(const QString & text)
+    void PChanged(double val)
     {
-      _data.P = text.toDouble();
+      _data.P = val;
     }
     void TUnitsChanged(const QString & text)
     {
@@ -205,6 +328,19 @@ private:
     TMatrixModel* tableModel;
     QueryWidget* queryWindow;
     TableEditWidget* queryResultWindow;
+
+    //TCorrPT data to edit;
+    TPVectorContainer* _TContainer;
+    TMatrixTable*  _TlistTable;
+    TMatrixModel*  _TlistModel;
+
+    TPVectorContainer* _PContainer;
+    TMatrixTable*  _PlistTable;
+    TMatrixModel*  _PlistModel;
+
+    TPropertyContainer* _PropertyContainer;
+    TMatrixTable*  _PropertyTable;
+    TMatrixModel*  _PropertyModel;
 
 };
 

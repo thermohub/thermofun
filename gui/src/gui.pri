@@ -6,6 +6,7 @@
     $$PWD/TCorrPTMenu.cpp
 
 FORMS += \
-    $$PWD/TCorrPTWidget.ui
+    $$PWD/TCorrPTWidget.ui \
+    $$PWD/form.ui
 
 

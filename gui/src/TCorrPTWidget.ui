@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1201</width>
+    <width>796</width>
     <height>783</height>
    </rect>
   </property>
@@ -102,64 +102,114 @@
            <enum>Qt::Vertical</enum>
           </property>
           <widget class="QWidget" name="inWidget" native="true">
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <property name="spacing">
-             <number>5</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>5</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="labelOut">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>Outgoing Vertex - double-click to select its Id into Edge _OutV field</string>
+               <string/>
               </property>
              </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Task Name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>T</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" colspan="2">
+             <widget class="QDoubleSpinBox" name="pTVal">
+              <property name="minimum">
+               <double>-500.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>500.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>25.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Units</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="4">
+             <widget class="QLineEdit" name="pTunits">
+              <property name="text">
+               <string>C</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>P</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" colspan="2">
+             <widget class="QDoubleSpinBox" name="pPVal">
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Units</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="4">
+             <widget class="QLineEdit" name="pPunits">
+              <property name="text">
+               <string>bar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Properties table</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="5">
+             <widget class="QLineEdit" name="pComment"/>
+            </item>
+            <item row="1" column="2" colspan="3">
+             <widget class="QLineEdit" name="pName"/>
             </item>
            </layout>
           </widget>
           <widget class="QWidget" name="outWidget" native="true">
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <property name="spacing">
-             <number>5</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>5</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="labelIn">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Incoming Vertex - double-click to select its Id into Edge _InV field</string>
+               <string>T points</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>P points</string>
               </property>
              </widget>
             </item>
@@ -178,7 +228,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1201</width>
+     <width>796</width>
      <height>30</height>
     </rect>
    </property>
@@ -319,7 +369,7 @@
   </action>
   <action name="action_Help_About">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/QuestionMessageIcon24.png</normaloff>:/menu/Icons/QuestionMessageIcon24.png</iconset>
    </property>
    <property name="text">
@@ -362,7 +412,7 @@
   </action>
   <action name="actionSearch">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/SelectDisplayRecordIcon24.png</normaloff>:/menu/Icons/SelectDisplayRecordIcon24.png</iconset>
    </property>
    <property name="text">
@@ -410,7 +460,7 @@
   </action>
   <action name="actionNext_Record">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/DisplayNextRecordIcon24.png</normaloff>:/menu/Icons/DisplayNextRecordIcon24.png</iconset>
    </property>
    <property name="text">
@@ -422,7 +472,7 @@
   </action>
   <action name="actionPrevious_Record">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/DisplayPrevRecordIcon24.png</normaloff>:/menu/Icons/DisplayPrevRecordIcon24.png</iconset>
    </property>
    <property name="text">
@@ -441,7 +491,7 @@
   </action>
   <action name="actionCalculate_Properties">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</iconset>
    </property>
    <property name="text">
@@ -450,55 +500,55 @@
   </action>
   <action name="actionCalculate_TP">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/RTparmModuleIcon24.png</normaloff>:/menu/Icons/RTparmModuleIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Calculate TP</string>
+    <string>&amp;Calculate TP</string>
    </property>
   </action>
   <action name="actionShow_Results">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Show Results</string>
+    <string>&amp;Show Results</string>
    </property>
   </action>
   <action name="actionChange_Property_list">
    <property name="icon">
-    <iconset resource="tcorrpt.qrc">
+    <iconset resource="../tcorrpt.qrc">
      <normaloff>:/menu/Icons/DocumentsPileIcon24.png</normaloff>:/menu/Icons/DocumentsPileIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Change Property list</string>
+    <string>&amp;Change Property list</string>
    </property>
   </action>
   <action name="actionRealloc_T">
    <property name="text">
-    <string>Realloc T</string>
+    <string>&amp;Realloc T</string>
    </property>
   </action>
   <action name="actionReset_T">
    <property name="text">
-    <string>Reset T</string>
+    <string>R&amp;eset T</string>
    </property>
   </action>
   <action name="actionRealloc_P">
    <property name="text">
-    <string>Realloc P</string>
+    <string>Rea&amp;lloc P</string>
    </property>
   </action>
   <action name="actionReset_P">
    <property name="text">
-    <string>Reset P</string>
+    <string>Re&amp;set P</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="tcorrpt.qrc"/>
+  <include location="../tcorrpt.qrc"/>
  </resources>
  <connections/>
 </ui>

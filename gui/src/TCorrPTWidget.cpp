@@ -40,6 +40,25 @@
 #include "bsonui/QueryWidget.h"
 using namespace bsonio;
 using namespace boost;
+
+
+TCorrPTData::TCorrPTData()
+{
+  name = "TCorrPTTask1";
+  comment = "TCorrPT Task1";
+  schemaName = "VertexSubstance";
+  query = "";
+  T =25;
+  pointsT.push_back(25);
+  unitsT = "C";
+  P =1;
+  pointsP.push_back(1);
+  unitsP = "bar";
+  properties.push_back("tttt");
+  propertyUnits.push_back("undef");
+}
+
+
 //----------------------------------------------------------------------
 
 void TCorrPTWidget::closeEvent(QCloseEvent* e)
@@ -104,6 +123,43 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
    defKeysTables();
    resetDBClient( curSchemaName );
 
+   // define tcorrpt data
+   // define table
+   ui->pName->setText(_data.name.c_str());
+   ui->pComment->setText(_data.comment.c_str());
+   ui->pTVal->setValue(_data.T);
+   ui->pPVal->setValue(_data.P);
+   ui->pTunits->setText(_data.unitsT.c_str());
+   ui->pPunits->setText(_data.unitsP.c_str());
+
+   _TContainer = new TPVectorContainer( "T", "T", _data.pointsT );
+   _TlistTable  = new TMatrixTable( ui->outWidget );
+   TMatrixDelegate* deleg = new TMatrixDelegate();
+   _TlistTable->setItemDelegate(deleg);
+   _TlistModel = new TMatrixModel( _TContainer, this );
+   _TlistTable->setModel(_TlistModel);
+   //_TlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
+   ui->gridLayout_3->addWidget(_TlistTable, 1, 0, 1, 1);
+
+   _PContainer = new TPVectorContainer( "P", "P", _data.pointsP );
+   _PlistTable  = new TMatrixTable( ui->outWidget );
+    deleg = new TMatrixDelegate();
+   _PlistTable->setItemDelegate(deleg);
+   _PlistModel = new TMatrixModel( _PContainer, this );
+   _PlistTable->setModel(_PlistModel);
+   //_PlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
+    ui->gridLayout_3->addWidget(_PlistTable, 1, 1, 1, 1);
+
+   _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits );
+   _PropertyTable  = new TMatrixTable( ui->inWidget );
+    deleg = new TMatrixDelegate();
+   _PropertyTable->setItemDelegate(deleg);
+   _PropertyModel = new TMatrixModel( _PropertyContainer, this );
+   _PropertyTable->setModel(_PropertyModel);
+   //_PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
+   ui->gridLayout_2->addWidget(_PropertyTable, 6, 0, 1, 5);
+
+
    // define menu
    setActions();
    ui->keySplitter->setStretchFactor(0, 1);
@@ -137,6 +193,13 @@ TCorrPTWidget::~TCorrPTWidget()
       delete dataTable;
     if( pTable )
       delete pTable;
+
+    delete _TlistTable;
+    delete _TContainer;
+    delete _PlistTable;
+    delete _PContainer;
+    delete _PropertyTable;
+    delete _PropertyContainer;
 
     delete ui;
     cout << "~TCorrPTWidget" << endl;

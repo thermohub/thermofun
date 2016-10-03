@@ -76,6 +76,15 @@ void TCorrPTWidget::setActions()
     connect( ui->actionPrevious_Record, SIGNAL( triggered()), pTable, SLOT(CmPrevious()));
     connect( ui->actionSearch_Results, SIGNAL( triggered()), this, SLOT(CmDisplaySearchResult()));
 
+    //TCorpt data
+    connect( ui->pName, SIGNAL( textEdited(const QString&)), this, SLOT(nameChanged(const QString&)));
+    connect( ui->pComment, SIGNAL( textEdited(const QString&)), this, SLOT(commentChanged(const QString&)));
+    connect( ui->pTVal, SIGNAL( valueChanged(double)), this, SLOT(TChanged(double)));
+    connect( ui->pTunits, SIGNAL( textEdited(const QString&)), this, SLOT(TUnitsChanged(const QString&)));
+    connect( ui->pPVal, SIGNAL( valueChanged(double)), this, SLOT(PChanged(double)));
+    connect( ui->pPunits, SIGNAL( textEdited(const QString&)), this, SLOT(PUnitsChanged(const QString&)));
+
+
     QLineEdit* pLineTask = new QLineEdit( ui->nameToolBar );
     pLineTask->setEnabled( true );
     pLineTask->setFocusPolicy( Qt::ClickFocus );
