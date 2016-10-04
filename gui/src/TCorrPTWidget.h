@@ -33,6 +33,8 @@
 #ifndef TCORRPTWIDGET_H
 #define TCORRPTWIDGET_H
 
+#include <QJsonDocument>
+#include <QJsonArray>
 #include "bsonui/BSONUIBase.h"
 #include "bsonui/model_node.h"
 class TableEditWidget;
@@ -216,10 +218,7 @@ class TCorrPTWidget : public BSONUIBase
     /// Reset keys table model
     void resetKeysTable(TKeyTable* table_, TKeyListTableNew*& table_data,
                         TMatrixModel*& model_ , bsonio::TGraphAbstract* dbClient );
-    /// Set query to dbClient
-    void setOneQuery( QueryWidget* queryW,
-           bsonio::TGraphAbstract* dbClient, TMatrixModel* model_ );
-    /// Read record and find Schema name from _label
+     /// Read record and find Schema name from _label
     string getSchemaFromKey(  bsonio::TGraphAbstract* dbClient, const string& inV  );
     void resetTypeBox( const QString& text );
 
@@ -290,11 +289,11 @@ public slots:
     void CmImportCFG();
 
     //Edit
-    void CmResetT(){}
-    void CmReallocT(){}
-    void CmResetP(){}
-    void CmReallocP(){}
-    void CmResetProperty(){}
+    void CmResetT();
+    void CmReallocT();
+    void CmResetP();
+    void CmReallocP();
+    void CmResetProperty();
 
     // Calc
     void CmCalcMTPARM(){}
@@ -343,6 +342,19 @@ private:
     TMatrixModel*  _PropertyModel;
 
 };
+
+
+template<class T>
+QJsonDocument convert2Qt( const vector<T> lst)
+{
+  QJsonArray outlst;
+  for(uint ii=0; ii<lst.size(); ii++)
+    outlst.append(lst[ii]);
+  return QJsonDocument(outlst);
+}
+
+template<>
+QJsonDocument convert2Qt( const vector<string> lst);
 
 
 #endif // TCORRPTWINDOW_H

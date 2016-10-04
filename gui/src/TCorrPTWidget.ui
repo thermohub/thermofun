@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>796</width>
-    <height>783</height>
+    <height>575</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,13 +103,6 @@
           </property>
           <widget class="QWidget" name="inWidget" native="true">
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0" colspan="2">
              <widget class="QLabel" name="label_8">
               <property name="text">
@@ -117,10 +110,47 @@
               </property>
              </widget>
             </item>
+            <item row="1" column="2" colspan="5">
+             <widget class="QLineEdit" name="pName"/>
+            </item>
+            <item row="4" column="1" colspan="2">
+             <widget class="QDoubleSpinBox" name="pPVal">
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
                <string>T</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>P</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="7">
+             <widget class="QLineEdit" name="pComment"/>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Properties table</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Units</string>
               </property>
              </widget>
             </item>
@@ -137,34 +167,10 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="3">
-             <widget class="QLabel" name="label_5">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>Units</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="4">
-             <widget class="QLineEdit" name="pTunits">
-              <property name="text">
-               <string>C</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>P</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" colspan="2">
-             <widget class="QDoubleSpinBox" name="pPVal">
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
+               <string/>
               </property>
              </widget>
             </item>
@@ -175,25 +181,48 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="4">
-             <widget class="QLineEdit" name="pPunits">
-              <property name="text">
-               <string>bar</string>
-              </property>
+            <item row="3" column="4" colspan="3">
+             <widget class="QComboBox" name="pTunit">
+              <item>
+               <property name="text">
+                <string>C Celsium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>K Kelvin</string>
+               </property>
+              </item>
              </widget>
             </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Properties table</string>
-              </property>
+            <item row="4" column="4" colspan="3">
+             <widget class="QComboBox" name="pPunit">
+              <item>
+               <property name="text">
+                <string>b bar</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>B kbar</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>p Pa</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>P MPa</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>A atm</string>
+               </property>
+              </item>
              </widget>
-            </item>
-            <item row="2" column="0" colspan="5">
-             <widget class="QLineEdit" name="pComment"/>
-            </item>
-            <item row="1" column="2" colspan="3">
-             <widget class="QLineEdit" name="pName"/>
             </item>
            </layout>
           </widget>
