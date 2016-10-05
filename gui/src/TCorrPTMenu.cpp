@@ -39,6 +39,7 @@
 #include "bsonui/SelectDialog.h"
 #include "bsonui/TableEditWindow.h"
 #include "bsonui/QueryWidget.h"
+#include "bsonio/json2cfg.h"
 using namespace bsonio;
 
 
@@ -166,10 +167,8 @@ void TCorrPTWidget::CmSearchQuery()
       // define new dialog
       if(!queryWindow)
       {
-          vector<string> schemalst;
-          schemalst.push_back(curSchemaName);
           queryWindow = new QueryWidget( "BSONUI Query Widget",
-              schema, schemalst, oldkeys, oldquery, this, this );
+              schema, _shemaNames, oldkeys, oldquery, this, this );
       }
       else
       {
@@ -367,8 +366,13 @@ void TCorrPTWidget::CmImportCFG()
   try{
         string fileName;
         if(  ChooseFileOpen( this, fileName,
-                     "Please, select Structured Data file", "*.cfg"  ))
-        { _data.readfromCFG(fileName);
+                     "Please, select Structured Data file", "*.json"  ))
+        { //_data.readfromCFG(fileName);
+          FJson file( fileName);
+          bson obj;
+          file.LoadBson( &obj );
+          _data.fromBson(obj.data);
+          bson_destroy(&obj);
           resetTCorrPTData();
         }
     }
@@ -387,10 +391,19 @@ void TCorrPTWidget::CmImportCFG()
 void TCorrPTWidget::CmExportCFG()
 {
    try {
-         string fileName = _data.name+".cfg";
+         string fileName = _data.name+".json";
          if(  ChooseFileSave( this, fileName,
-                     "Please, select file to write the data", "*.cfg", fileName  ))
-          _data.savetoCFG(fileName);
+                     "Please, select file to write the data", "*.json", fileName  ))
+         {
+             //_data.savetoCFG(fileName);
+             FJson file( fileName);
+             bson obj;
+             bson_init(&obj);
+             _data.toBson(&obj);
+             bson_finish(&obj);
+             file.SaveBson( obj.data );
+             bson_destroy(&obj);
+         }
     }
    catch(bsonio_exeption& e)
    {

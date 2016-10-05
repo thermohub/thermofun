@@ -58,6 +58,79 @@ TCorrPTData::TCorrPTData()
   propertyUnits.push_back("undef");
 }
 
+
+void TCorrPTData::toBson( bson *obj ) const
+{
+    bson_append_string( obj, "Name", name.c_str() );
+    bson_append_string( obj, "Description", comment.c_str() );
+    bson_append_string( obj, "SchemaName", schemaName.c_str() );
+    bson whilebson;
+    jsonToBson( &whilebson, query );
+    bson_append_bson( obj, "Query", &whilebson  );
+    bson_destroy(&whilebson);
+
+    bson_append_double( obj,"Temperature", T );
+    bson_append_string( obj,"TemperatureUnits", unitsT.c_str() );
+    bson_append_start_array(obj, "TemperaturePoints");
+    for(uint ii=0; ii<pointsT.size(); ii++)
+       bson_append_double( obj, to_string(ii).c_str(), pointsT[ii]);
+    bson_append_finish_array(obj);
+
+    bson_append_double( obj,"Pressure", P );
+    bson_append_string( obj,"PressureUnits", unitsP.c_str() );
+    bson_append_start_array(obj, "PressurePoints");
+    for(uint ii=0; ii<pointsP.size(); ii++)
+       bson_append_double( obj, to_string(ii).c_str(), pointsP[ii] );
+    bson_append_finish_array(obj);
+
+    bson_append_start_array(obj, "PropertiesList");
+    for(uint ii=0; ii<properties.size(); ii++)
+       bson_append_string( obj, to_string(ii).c_str(), properties[ii].c_str() );
+    bson_append_finish_array(obj);
+    bson_append_start_array(obj, "PropertyUnits");
+    for(uint ii=0; ii<propertyUnits.size(); ii++)
+       bson_append_string( obj, to_string(ii).c_str(), propertyUnits[ii].c_str() );
+    bson_append_finish_array(obj);
+}
+
+void TCorrPTData::fromBson( const char* bsobj )
+{
+    TCorrPTData deflt;
+
+    if(!bson_find_string( bsobj, "Name", name ) )
+        name=deflt.name;
+    if(!bson_find_string( bsobj, "Description", comment ) )
+        comment=deflt.comment;
+    if(!bson_find_string( bsobj, "SchemaName", schemaName ) )
+        schemaName=deflt.schemaName;
+    if(!bson_to_string( bsobj, "Query", query ) )
+        query=deflt.query;
+
+    if(!bson_find_value( bsobj, "Temperature", T ) )
+        T=deflt.T;
+    if(!bson_find_string( bsobj, "TemperatureUnits", unitsT ) )
+        unitsT=deflt.unitsT;
+    bson_read_array( bsobj, "TemperaturePoints", pointsT );
+    if( pointsT.empty() )
+        pointsT =deflt.pointsT;
+
+    if(!bson_find_value( bsobj, "Pressure", P ) )
+        P=deflt.P;
+    if(!bson_find_string( bsobj, "PressureUnits", unitsP ) )
+        unitsP=deflt.unitsP;
+    bson_read_array( bsobj, "PressurePoints", pointsP );
+    if( pointsP.empty() )
+        pointsP =deflt.pointsP;
+
+    bson_read_array( bsobj, "PropertiesList", properties );
+    if( properties.empty() )
+        properties =deflt.properties;
+    bson_read_array( bsobj, "PropertyUnits", propertyUnits );
+    if( properties.empty() )
+        properties =deflt.properties;
+    }
+
+
 // Write current task to configuration file fileName
 void TCorrPTData::savetoCFG( const string& fileName )
 {
