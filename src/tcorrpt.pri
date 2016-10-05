@@ -57,7 +57,8 @@
     $$PWD/Gases/GasCGF.h \
     $$PWD/Gases/GasSRK.h \
     $$PWD/Gases/GasPR78.h \
-    $$PWD/Gases/GasSTP.h
+    $$PWD/Gases/GasSTP.h \
+    $$PWD/Gases/verror.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
