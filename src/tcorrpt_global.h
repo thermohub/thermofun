@@ -398,8 +398,8 @@ typedef struct {
 /// Key for reading substance / reaction data from input files
 static const char * label                   = "_label";
 
-static const char * substName               = "properties.substance_name";
-static const char * substSymbol             = "properties.substance_symbol";
+static const char * substName               = "properties.name";
+static const char * substSymbol             = "properties.symbol";
 static const char * substFormula            = "properties.formula";
 static const char * substCharge             = "properties.formula_charge";
 static const char * substMolarMass          = "properties.mass_per_mole";
@@ -414,7 +414,7 @@ static const char * substRefP               = "properties.Pst";
 
 /// Reference properties
 static const char * substRefG0              = "properties.sm_gibbs_energy.values.0";
-static const char * substRefS0              = "properties.sm_entropy_f.values.0";
+static const char * substRefS0              = "properties.sm_entropy_abs.values.0";
 static const char * substRefH0              = "properties.sm_enthalpy.values.0";
 static const char * substRefV0              = "properties.sm_volume.values.0";
 static const char * substRefCp0             = "properties.sm_heat_capacity_p.values.0";
