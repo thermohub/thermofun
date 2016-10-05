@@ -28,6 +28,21 @@ ExternalProject_Add(BSONUI
                -DBUILD_SHARED_LIBS=ON
 )
 
+# Download and install the TCorrPT library
+ExternalProject_Add(TCORRPT
+    PREFIX thirdparty
+    GIT_REPOSITORY https://dmiron@bitbucket.org/gems4/tcorrpt.git
+    GIT_TAG feat-gui
+    UPDATE_COMMAND ""
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
+               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+               -DCMAKE_CXX_FLAGS=${CXXFLAGS}
+               -DCMAKE_INSTALL_INCLUDEDIR=include
+               -DCMAKE_INSTALL_LIBDIR=lib
+               -DCMAKE_INSTALL_BINDIR=bin
+               -DBUILD_SHARED_LIBS=ON
+)
+
 # Create the install target for the third-party libraries
 install(DIRECTORY ${THIRDPARTY_DIR}/lib 
     DESTINATION .)

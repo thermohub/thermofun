@@ -40,6 +40,9 @@
 #include "bsonui/TableEditWindow.h"
 #include "bsonui/QueryWidget.h"
 #include "bsonio/json2cfg.h"
+// TCorrPT include
+#include "tcorrpt/TPcalculationsAPI.h"
+
 using namespace bsonio;
 
 
@@ -422,10 +425,12 @@ void TCorrPTWidget::CmCalcMTPARM()
    vector<bson> selectedList;
 
    try {
-          // Select keys to send TCorrPT
+          // Select keys to send to TCorrPT
+          bool isSolvent = false;
           vector<string> aKeyList;
           vector<vector<string>> aValList;
           vector<int> selNdx;
+          vector<string> substancesSymbols, substancesClass;
           dbgraph->GetKeyValueList( aKeyList, aValList );
 
          if( aKeyList.empty() )
@@ -435,13 +440,49 @@ void TCorrPTWidget::CmCalcMTPARM()
          if( !selDlg.exec() )
             return;
           selNdx =  selDlg.allSelected();
+          TCorrPT::Database tdb;
+readData:
+          selectedList.resize(selNdx.size());
+          substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
 
          for( uint ii=0; ii<selNdx.size(); ii++ )
          {
            string key = aKeyList[selNdx[ii]];
+//           dbgraph->GetRecord( key.c_str() );
+//           selectedList.push_back(curRecord);
            dbgraph->GetRecord( key.c_str() );
-           selectedList.push_back(curRecord);
+           string valDB = dbgraph->GetJson();
+           jsonToBson( &selectedList[ii], valDB );
+
+           bsonio::bson_to_key( selectedList[ii].data, TCorrPT::substSymbol, substancesSymbols[ii]);
+           bsonio::bson_to_key( selectedList[ii].data, TCorrPT::substClass, substancesClass[ii]);
          }
+
+         tdb = TCorrPT::Database (selectedList);
+
+         for (uint ii=0; ii<substancesClass.size(); ii++)
+         {
+             if (stoi(substancesClass[ii]) == TCorrPT::SubstanceClass::type::AQSOLVENT)
+             {
+                 tdb.setAllAqSubstanceSolventSymbol(substancesSymbols[ii]);
+                 isSolvent = true;
+             }
+         }
+
+         if (!isSolvent)
+         {
+ //            selNdx.clear();
+             SelectDialog selDlg2( this, "Please, select the solvent (e.g. H2O@) ", aValList, selNdx );
+             if( !selDlg2.exec() )
+                 return;
+             selNdx = selDlg2.allSelected();
+             goto readData;
+         }
+
+         TCorrPT::TPcalcualationsAPI tpCalc(tdb);
+         tpCalc.calculateThermoProperties(substancesSymbols, {"sm_gibbs_energy"}, 25, 1);
+
+         cout << "Finished TCorrPT calculation!" << endl;
 
     }
    catch(bsonio_exeption& e)

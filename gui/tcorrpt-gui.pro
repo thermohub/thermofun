@@ -65,6 +65,7 @@ INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 
 LIBS += -lbsonui -lbsonio -lyaml-cpp -lejdb -lpugixml -lqwt
 LIBS += -lthrift -lboost_regex
+LIBS += -ltcorrpt
 !macx-clang:LIBS += -llua5.2
 
 MOC_DIR = tmp
