@@ -30,6 +30,8 @@
 // Qwtplot (http://qwt.sourceforge.net).
 
 #include <iostream>
+#include <QSettings>
+#include <QByteArray>
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
@@ -56,6 +58,107 @@ TCorrPTData::TCorrPTData()
   propertyUnits.push_back("undef");
 }
 
+// Write current task to configuration file fileName
+void TCorrPTData::savetoCFG( const string& fileName )
+{
+   QSettings settings(fileName.c_str(), QSettings::IniFormat);
+
+   settings.setValue("Name", name.c_str() );
+   settings.setValue("Description", comment.c_str() );
+   settings.setValue("SchemaName", schemaName.c_str() );
+   settings.setValue("Query", query.c_str() );
+
+   settings.setValue("Temperature", T );
+   settings.setValue("TemperatureUnits", unitsT.c_str() );
+   //QList<double> tplst = QList<double>::fromVector(QVector<double>::fromStdVector(pointsT));
+   //settings.setValue("TemperaturePoints", QVariant::fromValue(tplst) );
+   settings.setValue("TemperaturePoints", convert2Qt( pointsT).toJson() );
+
+   settings.setValue("Pressure", P );
+   settings.setValue("PressureUnits", unitsP.c_str() );
+   settings.setValue("PressurePoints", convert2Qt( pointsP).toJson() );
+
+   settings.setValue("PropertiesList", convert2Qt( properties ).toJson() );
+   settings.setValue("PropertyUnits", convert2Qt( propertyUnits ).toJson() );
+   settings.sync();
+}
+
+// Read current task from configuration file fileName
+void TCorrPTData::readfromCFG( const string& fileName )
+{
+    QSettings settings(fileName.c_str(), QSettings::IniFormat);
+    TCorrPTData deflt;
+
+    name = settings.value("Name", deflt.name.c_str() ).toString().toUtf8().data();
+    comment = settings.value("Description", deflt.comment.c_str() ).toString().toUtf8().data();
+    schemaName = settings.value("SchemaName", deflt.schemaName.c_str() ).toString().toUtf8().data();
+    query = settings.value("Query", deflt.query.c_str() ).toString().toUtf8().data();
+
+    T = settings.value("Temperature", deflt.T ).toDouble();
+    unitsT = settings.value("TemperatureUnits", deflt.unitsT.c_str() ).toString().toUtf8().data();
+    QByteArray  btarr = settings.value("TemperaturePoints", "").toByteArray();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(btarr);
+    QJsonArray jsonArr = jsonDoc.array();
+    if(jsonArr.empty() )
+      pointsT = deflt.pointsT;
+    else
+       convertFromQt( jsonArr, pointsT);
+
+    P = settings.value("Pressure", deflt.P ).toDouble();
+    unitsP = settings.value("PressureUnits", deflt.unitsP.c_str() ).toString().toUtf8().data();
+    btarr = settings.value("PressurePoints", "").toByteArray();
+    jsonDoc = QJsonDocument::fromJson(btarr);
+    jsonArr = jsonDoc.array();
+    if(jsonArr.empty() )
+      pointsP = deflt.pointsP;
+    else
+       convertFromQt( jsonArr, pointsP);
+
+    btarr = settings.value("PropertiesList", "").toByteArray();
+    jsonDoc = QJsonDocument::fromJson(btarr);
+    jsonArr = jsonDoc.array();
+    if(jsonArr.empty() )
+      properties = deflt.properties;
+    else
+       convertFromQt( jsonArr, properties);
+    btarr = settings.value("PropertyUnits", "").toByteArray();
+    jsonDoc = QJsonDocument::fromJson(btarr);
+    jsonArr = jsonDoc.array();
+    if(jsonArr.empty() )
+      propertyUnits = deflt.propertyUnits;
+    else
+       convertFromQt( jsonArr, propertyUnits);
+
+}
+
+template<>
+QJsonDocument convert2Qt( const vector<string> lst)
+{
+  QJsonArray outlst;
+  for(uint ii=0; ii<lst.size(); ii++)
+    outlst.append(lst[ii].c_str());
+  return QJsonDocument(outlst);
+}
+
+void convertFromQt( const QJsonArray& inlst, vector<string>& lst)
+{
+  lst.clear();
+  for(int ii=0; ii<inlst.size(); ii++)
+  {
+    string vl = inlst[ii].toString().toUtf8().data();
+    lst.push_back(vl);
+  }
+}
+
+void convertFromQt( const QJsonArray& inlst, vector<double>& lst)
+{
+  lst.clear();
+  for(int ii=0; ii<inlst.size(); ii++)
+  {
+    double vl = inlst[ii].toDouble();
+    lst.push_back(vl);
+  }
+}
 
 //----------------------------------------------------------------------
 
@@ -77,24 +180,26 @@ void TCorrPTWidget::closeEvent(QCloseEvent* e)
 TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
          const string& fileCfgName, QWidget *parent) :
     BSONUIBase(amainSettings, aschema, parent),
-    curSchemaName(""),  defaultQuery(""),
-    ui(new Ui::TCorrPTWidget),
+    curSchemaName(""), ui(new Ui::TCorrPTWidget),
     dataTable(0), pTable(0), tableModel(0), queryWindow(0), queryResultWindow(0)
 {
-
     _shemaNames.push_back("VertexSubstance");
     _shemaNames.push_back("VertexReaction");
     _shemaNames.push_back("VertexReactionSet");
+    curSchemaName = _shemaNames[0];
 
     // set up default data
-    if( curSchemaName.empty())
-      curSchemaName = _shemaNames[0];
-
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose); // automatically delete itself when window is closed
-
     QString title = qApp->applicationName()+" Structured Data Editor and Database Browser";
     setWindowTitle(title);
+
+    if( !fileCfgName.empty() )
+    {
+      _data.readfromCFG( fileCfgName );
+      curSchemaName = _data.schemaName;
+      isDefaultQuery = !_data.query.empty();
+    }
 
     //set up main parameters
     bson_init(&curRecord);
@@ -125,13 +230,6 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
    resetDBClient( curSchemaName );
 
    // define tcorrpt data
-   ui->pName->setText(_data.name.c_str());
-   ui->pComment->setText(_data.comment.c_str());
-   ui->pTVal->setValue(_data.T);
-   ui->pPVal->setValue(_data.P);
-   ui->pTunit->setCurrentText( _data.unitsT.c_str());
-   ui->pPunit->setCurrentText(_data.unitsP.c_str());
-
    _TContainer = new TPVectorContainer( "T", "T", _data.pointsT );
    _TlistTable  = new TMatrixTable( ui->outWidget );
    TMatrixDelegate* deleg = new TMatrixDelegate();
@@ -158,6 +256,12 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
    _PropertyTable->setModel(_PropertyModel);
    _PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
    ui->gridLayout_2->addWidget(_PropertyTable, 6, 0, 1, 7);
+   ui->pName->setText(_data.name.c_str());
+   ui->pComment->setText(_data.comment.c_str());
+   ui->pTVal->setValue(_data.T);
+   ui->pPVal->setValue(_data.P);
+   ui->pTunit->setCurrentText( _data.unitsT.c_str());
+   ui->pPunit->setCurrentText(_data.unitsP.c_str());
 
    // define menu
    setActions();
@@ -221,7 +325,12 @@ void TCorrPTWidget::resetTypeBox( const QString & text )
 void TCorrPTWidget::typeChanged(const QString & text)
 {
   try {
-        curSchemaName = text.toUtf8().data();
+        string newname = text.toUtf8().data();
+        if(newname == curSchemaName)
+          return;
+
+        curSchemaName = newname;
+        _data.schemaName = curSchemaName;
 
         bson_destroy( &curRecord );
         bson_init( &curRecord );
@@ -234,7 +343,7 @@ void TCorrPTWidget::typeChanged(const QString & text)
            if(  pTable->model()->rowCount() > 0 )
               openRecordKey( pTable->model()->index(0,0), true );
         }
-       else
+        else
          dbgraph->resetSchema( curSchemaName, false );
     }
    catch(bsonio_exeption& e)
@@ -249,6 +358,9 @@ void TCorrPTWidget::typeChanged(const QString & text)
 
 void TCorrPTWidget::resetDBClient(const string& schemaName_ )
 {
+  string defaultQuery="";
+  if( isDefaultQuery)
+    defaultQuery = _data.query;
   TGraphAbstract* newClient = newDBClient( schemaName_, defaultQuery );
     // no schema
   if( newClient == nullptr )
@@ -271,8 +383,7 @@ void TCorrPTWidget::resetDBClient(const string& schemaName_ )
      {
         QMessageBox::critical( this, "std::exception", e.what() );
      }
-    //resetKeysTable();
-    resetKeysTable(pTable, dataTable, tableModel , dbgraph.get() );
+    resetKeysTable();
     dbgraph->setKey( "*" );
 }
 
@@ -296,19 +407,17 @@ void TCorrPTWidget::defKeysTables()
     connect( pTable, SIGNAL( clicked(const QModelIndex& ) ), this, SLOT(openRecordKey( const QModelIndex& )));
 }
 
-void TCorrPTWidget::resetKeysTable(TKeyTable* table_, TKeyListTableNew*& table_data,
-     TMatrixModel*& model_ , TGraphAbstract* dbClient )
+void TCorrPTWidget::resetKeysTable()
   {
-    if( table_data )
-      delete table_data;
-    table_data = new TKeyListTableNew("select", dbClient);
-    model_ = new TMatrixModel( table_data, this );
+    if( dataTable )
+      delete dataTable;
+    dataTable = new TKeyListTableNew("select", dbgraph.get());
+    tableModel = new TMatrixModel( dataTable, this );
     QSortFilterProxyModel *proxyModel;
     proxyModel = new QSortFilterProxyModel();
-    proxyModel->setSourceModel( model_ );
-    table_->setModel(proxyModel);
-    if( table_== pTable )
-     table_->hideColumn(0);
+    proxyModel->setSourceModel( tableModel );
+    pTable->setModel(proxyModel);
+    pTable->hideColumn(0);
 }
 
 bool TCorrPTWidget::resetBson(const string& schemaName )
@@ -331,17 +440,6 @@ void TCorrPTWidget::openRecordKey(  const QModelIndex& rowindex , bool resetInOu
 
     // Read Record
     openRecordKey(  key, resetInOutQuery  );
-}
-
-
-string TCorrPTWidget::getSchemaFromKey(  bsonio::TGraphAbstract* dbClient, const string& _inV  )
-{
-    dbClient->GetRecord( (_inV+":").c_str() );
-    string label, schemaName = "";
-    dbClient->getValue("_label", label);
-    if( !( label.empty() || label == S_EMPTY ) )
-       schemaName = schema->getVertexName(label);
-    return schemaName;
 }
 
 
@@ -385,27 +483,58 @@ void TCorrPTWidget::openRecordKey(  const string& reckey, bool  )
 
 }
 
-void TCorrPTWidget::changeKeyList(TKeyTable* table_, TMatrixModel* model_, const string& key)
+void TCorrPTWidget::changeKeyList()
 {
     // reset model data
-    model_->resetMatrixData();
+    tableModel->resetMatrixData();
 
+    string key = dbgraph->getKeyFromBson( curRecord.data );
     // undefined current record
     if( key.empty() ||  key.find_first_of("*?") != std::string::npos )
       return;
 
-    if( table_ == pTable )
-      table_->setColumnHidden(0, false);
+    pTable->setColumnHidden(0, false);
     // search `item` text in model
-    QModelIndexList Items =  table_->model()->match(  table_->model()->index(0, 0),
+    QModelIndexList Items =  pTable->model()->match(  pTable->model()->index(0, 0),
        Qt::DisplayRole, QString(key.c_str()));
     if (!Items.isEmpty())
     {
-        table_->selectionModel()->select(Items.first(), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-        table_->scrollTo(Items.first(), QAbstractItemView::EnsureVisible);
+        pTable->selectionModel()->select(Items.first(), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        pTable->scrollTo(Items.first(), QAbstractItemView::EnsureVisible);
     }
-    if( table_ == pTable )
-      table_->setColumnHidden(0, true);
+    pTable->setColumnHidden(0, true);
+}
+
+/// Reset new TCorrPT data
+void TCorrPTWidget::resetTCorrPTData()
+{
+   _TlistModel->resetMatrixData();
+   _PlistModel->resetMatrixData();
+   _PropertyModel->resetMatrixData();
+
+    ui->pName->setText(_data.name.c_str());
+    ui->pComment->setText(_data.comment.c_str());
+    ui->pTVal->setValue(_data.T);
+    ui->pPVal->setValue(_data.P);
+    ui->pTunit->setCurrentText( _data.unitsT.c_str());
+    ui->pPunit->setCurrentText(_data.unitsP.c_str());
+
+    isDefaultQuery = false;
+    resetTypeBox( _data.schemaName.c_str() );
+    typeChanged(_data.schemaName.c_str());
+    // set new query
+    isDefaultQuery = !_data.query.empty();
+    if( dbgraph.get() != 0 )
+    {
+        dbgraph->SetQueryJson(_data.query);
+        dbgraph->runQuery();
+        ui->edgeQuery->setText(_data.query.c_str());
+
+        // update search tables
+        tableModel->resetMatrixData();
+        if( queryResultWindow )
+         queryResultWindow->updateTable();
+    }
 }
 
 //-------------------------------------------------------------

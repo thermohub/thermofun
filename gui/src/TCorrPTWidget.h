@@ -63,7 +63,14 @@ struct TCorrPTData
     vector<string> properties;    ///< Properties names list
     vector<string> propertyUnits; ///< Units of property
 
+    /// Default values to task
     TCorrPTData();
+
+    /// Write current task to configuration file fileName
+    void savetoCFG( const string& fileName );
+    /// Read current task from configuration file fileName
+    void readfromCFG( const string& fileName );
+
 };
 
 /// Class for double T P vector container
@@ -187,8 +194,7 @@ class TPropertyContainer : public TAbstractDataContainer
 };
 
 
-
-/// Widget to work with bson or internal DOM based on our JSON schemas data
+/// Widget to work with CorrPT data
 class TCorrPTWidget : public BSONUIBase
 {
     Q_OBJECT
@@ -200,7 +206,6 @@ class TCorrPTWidget : public BSONUIBase
     TCorrPTData _data;
 
     // work params
-    string defaultQuery;
     bson curRecord;
     bool contentsChanged = false;
     bool isDefaultQuery = false;
@@ -216,10 +221,7 @@ class TCorrPTWidget : public BSONUIBase
     /// Set up edges, incoming vertexes and outgoing vertexes keys tables
     void defKeysTables();
     /// Reset keys table model
-    void resetKeysTable(TKeyTable* table_, TKeyListTableNew*& table_data,
-                        TMatrixModel*& model_ , bsonio::TGraphAbstract* dbClient );
-     /// Read record and find Schema name from _label
-    string getSchemaFromKey(  bsonio::TGraphAbstract* dbClient, const string& inV  );
+    void resetKeysTable();
     void resetTypeBox( const QString& text );
 
     void closeEvent(QCloseEvent* e);
@@ -230,7 +232,8 @@ class TCorrPTWidget : public BSONUIBase
     virtual void updtTable();
     virtual void updtDB();
 
-    void changeKeyList( TKeyTable* table_, TMatrixModel* model_, const string& key );
+    /// Reset new TCorrPT data
+    void resetTCorrPTData();
 
 protected slots:
 
@@ -265,11 +268,7 @@ public slots:
     // internal slots
     void openRecordKey(  const string& key, bool resetInOutQuery = false  );
     void openRecordKey(  const QModelIndex& index, bool resetInOutQuery = false );
-    void changeKeyList()
-    {
-      changeKeyList( pTable, tableModel,dbgraph->getKeyFromBson( curRecord.data ) );
-    }
-
+    void changeKeyList();
     void objectChanged()
        { contentsChanged = true; }
 
@@ -296,11 +295,11 @@ public slots:
     void CmResetProperty();
 
     // Calc
-    void CmCalcMTPARM(){}
-    void CmCalcRTParm(){}
+    void CmCalcMTPARM();
+    void CmCalcRTParm();
 
     //Result
-    void CmShowResult(){}
+    void CmShowResult();
 
 
 public:
@@ -355,6 +354,8 @@ QJsonDocument convert2Qt( const vector<T> lst)
 
 template<>
 QJsonDocument convert2Qt( const vector<string> lst);
+void convertFromQt( const QJsonArray& inlst, vector<string>& lst);
+void convertFromQt( const QJsonArray& inlst, vector<double>& lst);
 
 
 #endif // TCORRPTWINDOW_H

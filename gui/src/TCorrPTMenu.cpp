@@ -36,11 +36,9 @@
 #include "ui_TCorrPTWidget.h"
 #include "MinMaxDialog.h"
 #include "bsonui/SchemaSelectDialog.h"
-
 #include "bsonui/SelectDialog.h"
 #include "bsonui/TableEditWindow.h"
 #include "bsonui/QueryWidget.h"
-#include "bsonio/json2cfg.h"
 using namespace bsonio;
 
 
@@ -81,6 +79,7 @@ void TCorrPTWidget::setActions()
     connect( ui->actionNext_Record, SIGNAL( triggered()), pTable, SLOT(CmNext()));
     connect( ui->actionPrevious_Record, SIGNAL( triggered()), pTable, SLOT(CmPrevious()));
     connect( ui->actionSearch_Results, SIGNAL( triggered()), this, SLOT(CmDisplaySearchResult()));
+    connect( ui->actionSearch, SIGNAL( triggered()), this, SLOT(CmSearchQuery()));
 
     //TCorpt data
     connect( ui->pName, SIGNAL( textEdited(const QString&)), this, SLOT(nameChanged(const QString&)));
@@ -89,6 +88,11 @@ void TCorrPTWidget::setActions()
     connect( ui->pTunit, SIGNAL( currentIndexChanged(const QString&)), this, SLOT(TUnitsChanged(const QString&)));
     connect( ui->pPVal, SIGNAL( valueChanged(double)), this, SLOT(PChanged(double)));
     connect( ui->pPunit, SIGNAL( currentIndexChanged(const QString&)), this, SLOT(PUnitsChanged(const QString&)));
+
+    //Calc
+    connect( ui->actionCalculate_Properties, SIGNAL( triggered()), this, SLOT(CmCalcMTPARM()));
+    connect( ui->actionCalculate_TP, SIGNAL( triggered()), this, SLOT(CmCalcRTParm()));
+    connect( ui->actionShow_Results, SIGNAL( triggered()), this, SLOT(CmShowResult()));
 
 
     QLineEdit* pLineTask = new QLineEdit( ui->nameToolBar );
@@ -195,6 +199,12 @@ void TCorrPTWidget::setQuery( QueryWidget* queryW  )
       vector<string> lst = queryW->getQueryFields();
       string qrJson = queryW->getQueryJson();
 
+      if( qrJson != oldquery )
+      {
+        isDefaultQuery = true;
+        _data.query = qrJson;
+
+      }
       // reset internal query data
       dbgraph->SetQueryFields(lst);
       dbgraph->SetQueryJson(qrJson);
@@ -214,7 +224,7 @@ void TCorrPTWidget::setQuery( QueryWidget* queryW  )
   }
 }
 
-// new commands
+// new commands -------------------------------------------------------------------
 
 void TCorrPTWidget::CmReallocT()
 {
@@ -358,29 +368,8 @@ void TCorrPTWidget::CmImportCFG()
         string fileName;
         if(  ChooseFileOpen( this, fileName,
                      "Please, select Structured Data file", "*.cfg"  ))
-        {
-            QSettings settings(fileName.c_str(), QSettings::IniFormat);
-
-            TCorrPTData deflt;
-
-            _data.name = settings.value("Name", deflt.name.c_str() ).toString().toUtf8().data();
-/*            settings.setValue("Description", _data.comment.c_str() );
-            settings.setValue("SchemaName", _data.schemaName.c_str() );
-            settings.setValue("Query", _data.query.c_str() );
-            settings.setValue("Temperature", _data.T );
-            settings.setValue("TemperatureUnits", _data.unitsT.c_str() );
-            //QList<double> tplst = QList<double>::fromVector(QVector<double>::fromStdVector(_data.pointsT));
-            //settings.setValue("TemperaturePoints", QVariant::fromValue(tplst) );
-            settings.setValue("TemperaturePoints", convert2Qt( _data.pointsT).toJson() );
-            settings.setValue("Pressure", _data.P );
-            settings.setValue("PressureUnits", _data.unitsP.c_str() );
-            settings.setValue("PressurePoints", convert2Qt( _data.pointsP).toJson() );
-
-           settings.setValue("PropertiesList", convert2Qt( _data.properties).toJson() );
-           settings.setValue("PropertyUnits", convert2Qt( _data.propertyUnits).toJson() );
-*/
-
-
+        { _data.readfromCFG(fileName);
+          resetTCorrPTData();
         }
     }
    catch(bsonio_exeption& e)
@@ -393,15 +382,6 @@ void TCorrPTWidget::CmImportCFG()
     }
 }
 
-template<>
-QJsonDocument convert2Qt( const vector<string> lst)
-{
-  QJsonArray outlst;
-  for(uint ii=0; ii<lst.size(); ii++)
-    outlst.append(lst[ii].c_str());
-  return QJsonDocument(outlst);
-}
-
 
 /// Write current task to configuration file file
 void TCorrPTWidget::CmExportCFG()
@@ -410,25 +390,79 @@ void TCorrPTWidget::CmExportCFG()
          string fileName = _data.name+".cfg";
          if(  ChooseFileSave( this, fileName,
                      "Please, select file to write the data", "*.cfg", fileName  ))
-         {
-            QSettings settings(fileName.c_str(), QSettings::IniFormat);
+          _data.savetoCFG(fileName);
+    }
+   catch(bsonio_exeption& e)
+   {
+       QMessageBox::critical( this, e.title(), e.what() );
+   }
+   catch(std::exception& e)
+    {
+       QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
 
-            settings.setValue("Name", _data.name.c_str() );
-            settings.setValue("Description", _data.comment.c_str() );
-            settings.setValue("SchemaName", _data.schemaName.c_str() );
-            settings.setValue("Query", _data.query.c_str() );
-            settings.setValue("Temperature", _data.T );
-            settings.setValue("TemperatureUnits", _data.unitsT.c_str() );
-            //QList<double> tplst = QList<double>::fromVector(QVector<double>::fromStdVector(_data.pointsT));
-            //settings.setValue("TemperaturePoints", QVariant::fromValue(tplst) );
-            settings.setValue("TemperaturePoints", convert2Qt( _data.pointsT).toJson() );
-            settings.setValue("Pressure", _data.P );
-            settings.setValue("PressureUnits", _data.unitsP.c_str() );
-            settings.setValue("PressurePoints", convert2Qt( _data.pointsP).toJson() );
-            settings.setValue("PropertiesList", convert2Qt( _data.properties).toJson() );
-            settings.setValue("PropertyUnits", convert2Qt( _data.propertyUnits).toJson() );
-            settings.sync();
+void TCorrPTWidget::CmCalcMTPARM()
+{
+    if( dbgraph.get() == 0 )
+          return;
+   vector<bson> selectedList;
+
+   try {
+          // Select keys to send TCorrPT
+          vector<string> aKeyList;
+          vector<vector<string>> aValList;
+          vector<int> selNdx;
+          dbgraph->GetKeyValueList( aKeyList, aValList );
+
+         if( aKeyList.empty() )
+             return;
+
+         SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
+         if( !selDlg.exec() )
+            return;
+          selNdx =  selDlg.allSelected();
+
+         for( uint ii=0; ii<selNdx.size(); ii++ )
+         {
+           string key = aKeyList[selNdx[ii]];
+           dbgraph->GetRecord( key.c_str() );
+           selectedList.push_back(curRecord);
          }
+
+    }
+   catch(bsonio_exeption& e)
+   {
+       QMessageBox::critical( this, e.title(), e.what() );
+   }
+   catch(std::exception& e)
+    {
+       QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+void TCorrPTWidget::CmCalcRTParm()
+{
+   try {
+        cout << "CmCalcRTParm" << endl;
+
+    }
+   catch(bsonio_exeption& e)
+   {
+       QMessageBox::critical( this, e.title(), e.what() );
+   }
+   catch(std::exception& e)
+    {
+       QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+
+//Result
+void TCorrPTWidget::CmShowResult()
+{
+   try {
+         cout << "CmShowResult" << endl;
     }
    catch(bsonio_exeption& e)
    {
@@ -442,4 +476,4 @@ void TCorrPTWidget::CmExportCFG()
 
 
 
-// end of EdgesMenu.cpp
+// end of TCorrPTMenu.cpp
