@@ -13,7 +13,7 @@ struct TPcalcualationsAPI::Impl
 
     map<std::string, int> thermoPropSubstNames =  { {"sm_gibbs_energy", 0},
                                               {"sm_enthalpy", 0},
-                                              {"sm_entropy_f", 0},
+                                              {"sm_entropy_abs", 0},
                                               {"sm_heat_capacity_p", 0},
                                               {"sm_heat_capacity_v", 0},
                                               {"sm_volume", 0},
@@ -24,7 +24,7 @@ struct TPcalcualationsAPI::Impl
                                               {"pressure", "(bar)"},
                                               {"sm_gibbs_energy", "(J/mol)"},
                                               {"sm_enthalpy", "(J/mol)"},
-                                              {"sm_entropy_f", "(J/mol)"},
+                                              {"sm_entropy_abs", "(J/mol)"},
                                               {"sm_heat_capacity_p", "(J/mol*K)"},
                                               {"sm_heat_capacity_v", "(J/mol*K)"},
                                               {"sm_volume", "(J/bar)"},
@@ -146,7 +146,7 @@ auto TPcalcualationsAPI::selectedPropResults ( ThermoPropertiesSubstance tps ) -
     {
         if (it->second == "sm_gibbs_energy")    properties.push_back(tps.gibbs_energy.val);
         if (it->second == "sm_enthalpy")        properties.push_back(tps.enthalpy.val);
-        if (it->second == "sm_entropy_f")       properties.push_back(tps.entropy.val);
+        if (it->second == "sm_entropy_abs")     properties.push_back(tps.entropy.val);
         if (it->second == "sm_heat_capacity_p") properties.push_back(tps.heat_capacity_cp.val);
         if (it->second == "sm_heat_capacity_v") properties.push_back(tps.heat_capacity_cv.val);
         if (it->second == "sm_volume")          properties.push_back(tps.volume.val);
@@ -158,13 +158,14 @@ auto TPcalcualationsAPI::selectedPropResults ( ThermoPropertiesSubstance tps ) -
 
 auto TPcalcualationsAPI::calculate( ) -> std::vector<std::vector<double>>
 {
-    std::vector<std::vector<double>> results;
-    results.resize(pimpl->substanceSymbols.size());
+    std::vector<std::vector<double>> results; unsigned int c = 0;
+    results.resize(pimpl->substanceSymbols.size() * pimpl->TP_pairs.size());
     for (unsigned i=0; i<pimpl->substanceSymbols.size(); i++)
     {
         for (unsigned j=0; j<pimpl->TP_pairs.size(); j++)
         {
-            results[i] = selectedPropResults(pimpl->thermo.thermoPropertiesSubstance(pimpl->TP_pairs[j][0], pimpl->TP_pairs[j][1], pimpl->substanceSymbols[i]));
+            results[c] = selectedPropResults(pimpl->thermo.thermoPropertiesSubstance(pimpl->TP_pairs[j][0], pimpl->TP_pairs[j][1], pimpl->substanceSymbols[i]));
+            c++;
         }
     }
     return results;
@@ -172,7 +173,7 @@ auto TPcalcualationsAPI::calculate( ) -> std::vector<std::vector<double>>
 
 auto TPcalcualationsAPI::outResults( ) -> void
 {
-    std::string s = pimpl->outputOptions.separator;
+    std::string s = pimpl->outputOptions.separator; unsigned int c = 0;
     pimpl->fThermoPropertiesSubstance.open( pimpl->outputOptions.fileName, ios::trunc );
     pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->outputOptions.precision);
 
@@ -188,8 +189,9 @@ auto TPcalcualationsAPI::outResults( ) -> void
             pimpl->fThermoPropertiesSubstance << pimpl->substanceSymbols[i] << s << pimpl->TP_pairs[j][0] << s << pimpl->TP_pairs[j][1];
             for (unsigned k=0; k<pimpl->results[i].size(); k++)
             {
-                pimpl->fThermoPropertiesSubstance << s << pimpl->results[i][k];
+                pimpl->fThermoPropertiesSubstance << s << pimpl->results[c][k];
             }
+            c++;
             pimpl->fThermoPropertiesSubstance << endl;
         }
     }

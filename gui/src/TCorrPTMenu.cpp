@@ -480,7 +480,17 @@ readData:
          }
 
          TCorrPT::TPcalcualationsAPI tpCalc(tdb);
-         tpCalc.calculateThermoProperties(substancesSymbols, {"sm_gibbs_energy"}, 25, 1);
+//         tpCalc.calculateThermoProperties(substancesSymbols, {"sm_gibbs_energy"}, 25, 1);
+         std::vector<std::vector<double>> TPpairs;
+         for (uint jj=0; jj<_data.pointsT.size(); jj++)
+         {
+             TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
+         }
+
+         // for testing
+//         _data.properties.push_back("sm_enthalpy");
+         //
+         tpCalc.calculateThermoProperties(substancesSymbols, _data.properties, TPpairs);
 
          cout << "Finished TCorrPT calculation!" << endl;
 
