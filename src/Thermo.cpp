@@ -31,15 +31,19 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
     ThermoPropertiesSubstance tps;
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P);
-
+    auto isH2Ovapor = false;
     int solvent_state = 0; // default liquid (0), gas/vapor (1)
+
+    // Check for water gas/vapor
+    if (method_genEOS == MethodGenEoS_Thrift::type::CTPM_HKF && method_P == MethodCorrP_Thrift::type::CPM_GAS)
+        isH2Ovapor = true;
 
     if (subst.name() == "H+")
     {
         return tps;
     }
 
-    if (subst.substanceClass() != SubstanceClass::type::AQSOLVENT)
+    if (subst.substanceClass() != SubstanceClass::type::AQSOLVENT && !isH2Ovapor)
     {
         // metohd EOS
         switch( method_genEOS )
@@ -196,7 +200,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         }
     }
 
-    if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT)
+    if (subst.substanceClass() == SubstanceClass::type::AQSOLVENT || isH2Ovapor)
     {
 //        if (method_P == MethodCorrP_Thrift::type::CPM_GAS) solvent_state = 1;
         if (subst.aggregateState() == AggregateState::type::GAS) solvent_state = 1;
