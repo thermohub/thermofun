@@ -143,7 +143,7 @@ void TCorrPTWidget::CmDisplaySearchResult()
      if(!queryResultWindow)
      {
          queryResultWindow = new TableEditWidget("Query Result window",
-                         dataTable, tbShow );
+                         dataTable, TMatrixTable::tbShow );
      }
      else
      {
@@ -526,7 +526,19 @@ void TCorrPTWidget::CmCalcRTParm()
 void TCorrPTWidget::CmShowResult()
 {
    try {
-         cout << "CmShowResult" << endl;
+        // define new dialog
+        string fileName = "tpresults.csv";
+        if(!_csvWin)
+        {
+            _csvWin = new TableEditWidget("CSV editor ", fileName,
+              TMatrixTable::tbEdit|TMatrixTable::tbGraph/*|TMatrixTable::tbSort*/ );
+        }
+        else
+        {
+           _csvWin->openNewCSV(fileName);
+           _csvWin->raise();
+        }
+        _csvWin->show();
     }
    catch(bsonio_exeption& e)
    {

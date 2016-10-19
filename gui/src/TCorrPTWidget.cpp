@@ -64,11 +64,13 @@ void TCorrPTData::toBson( bson *obj ) const
     bson_append_string( obj, "Name", name.c_str() );
     bson_append_string( obj, "Description", comment.c_str() );
     bson_append_string( obj, "SchemaName", schemaName.c_str() );
-    bson whilebson;
-    jsonToBson( &whilebson, query );
-    bson_append_bson( obj, "Query", &whilebson  );
-    bson_destroy(&whilebson);
-
+    if(!query.empty())
+    {
+        bson whilebson;
+        jsonToBson( &whilebson, query );
+        bson_append_bson( obj, "Query", &whilebson  );
+        bson_destroy(&whilebson);
+    }
     bson_append_double( obj,"Temperature", T );
     bson_append_string( obj,"TemperatureUnits", unitsT.c_str() );
     bson_append_start_array(obj, "TemperaturePoints");
@@ -243,6 +245,9 @@ void TCorrPTWidget::closeEvent(QCloseEvent* e)
     if( queryWindow )
      queryWindow->close();
 
+    if( _csvWin )
+     _csvWin->close();
+
     if( !onCloseEvent(this) )
            e->ignore();
        else
@@ -366,6 +371,10 @@ TCorrPTWidget::~TCorrPTWidget()
        queryWindow->close();
        delete queryWindow;
     }
+
+    if( _csvWin )
+     delete _csvWin;
+
     if( dataTable )
       delete dataTable;
     if( pTable )
@@ -599,9 +608,11 @@ void TCorrPTWidget::resetTCorrPTData()
     isDefaultQuery = !_data.query.empty();
     if( dbgraph.get() != 0 )
     {
-        dbgraph->SetQueryJson(_data.query);
-        dbgraph->runQuery();
-        ui->edgeQuery->setText(_data.query.c_str());
+        if(!_data.query.empty() )
+        { dbgraph->SetQueryJson(_data.query);
+          dbgraph->runQuery();
+          ui->edgeQuery->setText(_data.query.c_str());
+        }
 
         // update search tables
         tableModel->resetMatrixData();

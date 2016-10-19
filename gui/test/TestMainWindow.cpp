@@ -303,3 +303,4 @@ void TestMainWindow::closeAll()
 
     // bsonuiWindows.clear();
 }
+
