@@ -343,6 +343,7 @@ private:
     TMatrixTable*  _PropertyTable;
     TMatrixModel*  _PropertyModel;
 
+    TableEditWidget* _csvWin = 0;
 };
 
 
