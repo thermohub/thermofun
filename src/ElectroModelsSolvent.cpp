@@ -6,6 +6,7 @@
 #include "Solvent/WaterHGK-JNgems.h"
 #include "Solvent/WaterJN91reaktoro.h"
 #include "Solvent/WaterElectroSverjensky2014.h"
+#include "Solvent/WaterElectroFernandez1997.h"
 
 namespace TCorrPT {
 
@@ -122,14 +123,51 @@ WaterElectroSverjensky2014::WaterElectroSverjensky2014(const Substance &substanc
 {}
 
 // calculation
-auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent
+auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/) -> ElectroPropertiesSolvent
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
     auto t = Reaktoro_::Temperature(T/* + C_to_K*/);
     auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
-    return electroPropertiesWaterSverjensky2014(ps, t, p);
+    return electroPropertiesWaterSverjensky2014(/*ps,*/ t, p, pimpl->substance);
+}
+
+//=======================================================================================================
+// Calculate the electro-chemical of water using the electro-chemical properties of water solvent
+// using the Fernandez et al. (1997) dielectric constant model
+// References: D.P. Fernandez, A.R.H. Goodwin, E.W. Lemmon, J.M.H.L.Sengers, and R.C. Williams, 1997, A
+// Formulation for the Static Permittivity of Water and Steam at Temperatures from 238 K to 873 K at Pressures
+// up to 1200 MPa, Including Derivatives and Debye–Hückel Coefficients, J. Phys. Chem. Ref. Data 26, 1125.
+// Added: DM 19.10.2016
+//=======================================================================================================
+
+struct WaterElectroFernandez1997::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+WaterElectroFernandez1997::WaterElectroFernandez1997(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/) -> ElectroPropertiesSolvent
+{
+//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
+
+    auto t = Reaktoro_::Temperature(T /*+ C_to_K*/);
+    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
+
+    return electroPropertiesWaterFernandez1997(/*ps,*/ t, p, pimpl->substance); // t (celsius), p (bar)
 }
 
 } // End namespace TCorrPT

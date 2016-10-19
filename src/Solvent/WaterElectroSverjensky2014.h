@@ -5,7 +5,7 @@
 
 namespace TCorrPT {
 
-auto electroPropertiesWaterSverjensky2014(PropertiesSolvent ps, Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ElectroPropertiesSolvent;
+auto electroPropertiesWaterSverjensky2014(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ElectroPropertiesSolvent;
 
 }
 
