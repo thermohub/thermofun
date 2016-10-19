@@ -64,8 +64,8 @@ private:
 
 /**
  * @brief The WaterElectroSverjensky2014 class calculates the electro-chemical properties of water solvent
- * using the Sverjensky et al. (2014) dielectric constant model together with the Zhang and Duan (2002) water
- * PVT model
+ * using the Sverjensky et al. (2014) dielectric constant model should be used together with the
+ * Zhang and Duan (2002) water PVT model
  * References: Sverjensky et al. Water in the deep Earth: The dielectric constant and the solubilities
  * of quartz and corundum to 60 kb and 1200 °C. GCA, 2014 129:125-145
  * Zhang and Duan Prediction of the PVT properties of water over wide range of temperatures and pressures
@@ -79,6 +79,34 @@ public:
 
     /// Construct an class object instance from a Species instance
     explicit WaterElectroSverjensky2014(const Substance& substance);
+
+    /// Return the electro-chemical properties of the solvent.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param ps structure holding the solvent properties
+    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
+ * @brief The WaterElectroFernandez1997 class calculates the electro-chemical properties of water solvent
+ * using the Fernandez et al. (1997) dielectric constant model
+ * References: D.P. Fernandez, A.R.H. Goodwin, E.W. Lemmon, J.M.H.L.Sengers, and R.C. Williams, 1997,
+ * A Formulation for the Static Permittivity of Water and Steam at Temperatures from 238 K to 873 K at Pressures
+ * up to 1200 MPa, Including Derivatives and Debye–Hückel Coefficients, J. Phys. Chem. Ref. Data 26, 1125.
+ */
+class WaterElectroFernandez1997
+{
+public:
+    /// Construct a default class object instance
+    WaterElectroFernandez1997();
+
+    /// Construct an class object instance from a Species instance
+    explicit WaterElectroFernandez1997(const Substance& substance);
 
     /// Return the electro-chemical properties of the solvent.
     /// @param T The temperature value (in units of C)

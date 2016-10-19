@@ -257,6 +257,13 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
                                        eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
+        case MethodGenEoS_Thrift::type::CTPM_WF97:
+        {
+            WaterElectroFernandez1997 water (pref.workSubstance);
+//                                       ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
+                                       eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
+            break;
+        }
             // Exception
             errorMethodNotFound("solvent", pref.workSubstance.symbol(), __LINE__);
         }
