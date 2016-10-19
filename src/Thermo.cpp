@@ -240,21 +240,21 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
         {
             WaterJNreaktoro water (pref.workSubstance);
                             ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
-                            eps   = water.electroPropertiesSolvent(T, P, ps);;
+                            eps   = water.electroPropertiesSolvent(T, P, ps);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WJNG:
         {
             WaterJNgems water (pref.workSubstance);
-                        ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
+//                        ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
                         eps   = water.electroPropertiesSolvent(T, P/*, ps*/ );
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WSV14:
         {
             WaterElectroSverjensky2014 water (pref.workSubstance);
-                                       ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
-                                       eps   = water.electroPropertiesSolvent(T, P, ps);
+//                                       ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
+                                       eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
             // Exception

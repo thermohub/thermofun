@@ -1,5 +1,6 @@
 #include "WaterElectroSverjensky2014.h"
-#include "WaterZhangDuan2005.h"
+//#include "WaterZhangDuan2005.h"
+#include "Thermo.h"
 //#include "ThermoProperties.h"
 
 namespace TCorrPT {
@@ -25,23 +26,30 @@ auto epsilon(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar RHO) -> Reaktoro_
    return exp(b[1]*T + b[2]*pow(T,0.5) + b[3])*pow(RHO,(a[1]*T + a[2]*pow(T,0.5) + a[3]));
 }
 
-auto electroPropertiesWaterSverjensky2014(PropertiesSolvent ps, Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ElectroPropertiesSolvent
+auto electroPropertiesWaterSverjensky2014(/*PropertiesSolvent ps,*/ Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent wep;
 
-    const auto RHO = ps.density /1000;
+    Database db; db.addSubstance(substance);
+    Thermo   th(db);
+
+    auto psol = th.propertiesSolvent(T.val, P.val, substance.symbol());
+
+    const auto RHO = psol.density /1000;
     const auto eps = epsilon(T, RHO);
     const auto epsilon2 = eps * eps;
 
     // numerical approximation of epsilonT and epsilonTT
     Reaktoro_::Temperature T_plus (T.val+T.val*0.001);
-    Reaktoro_::Temperature T_plusK (T_plus.val + 273.15);
-    auto RHO_plus = waterDensityZhangDuan2005(T_plusK, P) / 1000;
+//    Reaktoro_::Temperature T_plusK (T_plus.val + 273.15);
+    auto RHO_plus = th.propertiesSolvent(T_plus.val, P.val, substance.symbol()).density / 1000;
+//    auto RHO_plusx = waterDensityZhangDuan2005(T_plusK, P) / 1000;
     auto eps_plus = epsilon(T_plus, RHO_plus);
 
     Reaktoro_::Temperature T_minus (T.val-T.val*0.001);
-    Reaktoro_::Temperature T_minusK (T_minus.val + 273.15);
-    auto RHO_minus = waterDensityZhangDuan2005(T_minusK, P) / 1000;
+//    Reaktoro_::Temperature T_minusK (T_minus.val + 273.15);
+    auto RHO_minus  = th.propertiesSolvent(T_minus.val, P.val, substance.symbol()).density / 1000;
+//    auto RHO_minusx = waterDensityZhangDuan2005(T_minusK, P) / 1000;
     auto eps_minus = epsilon(T_minus, RHO_minus);
 
     const auto epsilonT  = (eps_plus - eps_minus) / ((T_plus-T_minus));
@@ -49,12 +57,14 @@ auto electroPropertiesWaterSverjensky2014(PropertiesSolvent ps, Reaktoro_::Tempe
 
     // numerical approximation of epsilonP and epsilonPP
     Reaktoro_::Pressure P_plus (P.val+P.val*0.001);
-    Reaktoro_::Temperature TK (T.val+273.15);
-    RHO_plus = waterDensityZhangDuan2005(TK, P_plus) / 1000;
+//    Reaktoro_::Temperature TK (T.val+273.15);
+    RHO_plus = th.propertiesSolvent(T.val, P_plus.val, substance.symbol()).density / 1000;
+//    RHO_plusx = waterDensityZhangDuan2005(TK, P_plus) / 1000;
     eps_plus = epsilon(T, RHO_plus);
 
     Reaktoro_::Pressure P_minus (P.val-P.val*0.001);
-    RHO_minus = waterDensityZhangDuan2005(TK, P_minus) / 1000;
+    RHO_minus = th.propertiesSolvent(T.val, P_minus.val, substance.symbol()).density / 1000;
+//    RHO_minusx = waterDensityZhangDuan2005(TK, P_minus) / 1000;
     eps_minus = epsilon(T, RHO_minus);
 
     const auto epsilonP  = (eps_plus - eps_minus) / ((P_plus-P_minus));

@@ -122,14 +122,14 @@ WaterElectroSverjensky2014::WaterElectroSverjensky2014(const Substance &substanc
 {}
 
 // calculation
-auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent
+auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/) -> ElectroPropertiesSolvent
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
     auto t = Reaktoro_::Temperature(T/* + C_to_K*/);
     auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
-    return electroPropertiesWaterSverjensky2014(ps, t, p);
+    return electroPropertiesWaterSverjensky2014(/*ps,*/ t, p, pimpl->substance);
 }
 
 } // End namespace TCorrPT

@@ -84,7 +84,7 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param ps structure holding the solvent properties
-    auto electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;
