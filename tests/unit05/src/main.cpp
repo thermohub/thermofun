@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     Database tdb(file);
     Database tdb2;
 
-    double T = 5;
-    double P = 0;
+    double T = 100;
+    double P = 5000;
 
     Substance water;
     water.setName("water");
@@ -31,9 +31,9 @@ int main(int argc, char *argv[])
     water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNG);
 
-    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAR);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
 
     tdb.addSubstance(water);
 
@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
     Thermo thermo (tdb2);
 
     OutputToCSV out (argv[0]);
-    out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT.csv");
+    out.openThermoPropertiesSubstanceFile("ThermoPropSubstSUBCRT_JNG_WAT.csv");
 
-    P = 2000;
-    result = thermo.thermoPropertiesSubstance(577, P, "Quartz");
+    P = 5000;
+    result = thermo.thermoPropertiesSubstance(577, P, "Al+3");
 
     do {
 
@@ -63,33 +63,32 @@ int main(int argc, char *argv[])
         {
             result = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
             out.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, result);
-            P = 0;
         }
 
         T +=5;
-    } while (T <= 370);
+    } while (T <= 800);
 
     out.closeThermoPropertiesSubstanceFile();
 
-    OutputToCSV out2 (argv[0]);
-    out2.openThermoPropertiesSubstanceFile("ThermoPropSubstSUPCRT.csv");
+//    OutputToCSV out2 (argv[0]);
+//    out2.openThermoPropertiesSubstanceFile("ThermoPropSubstSUPCRT.csv");
 
 
-    for (int i = 0; i < vSubst.size(); i++)
-    {
-        P= 500;
-        do
-        {
-            T= 5;
-            do {
-               out2.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol()) );
-               T +=5;
-            } while (T <= 350);
-            P +=500;
-        } while (P <=5000);
-    }
+//    for (int i = 0; i < vSubst.size(); i++)
+//    {
+//        P= 500;
+//        do
+//        {
+//            T= 5;
+//            do {
+//               out2.writeThermoPropertiesSubstance( vSubst[i].symbol(), T, P, thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol()) );
+//               T +=5;
+//            } while (T <= 350);
+//            P +=500;
+//        } while (P <=5000);
+//    }
 
-    out2.closeThermoPropertiesSubstanceFile();
+//    out2.closeThermoPropertiesSubstanceFile();
     cout << "Bye World!" << endl;
 
     return 0;
