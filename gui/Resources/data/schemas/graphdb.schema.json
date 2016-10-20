@@ -1,0 +1,1046 @@
+{
+  "name": "graph",
+  "doc": "Apache Thrift IDL definition for GraphSON and TitanDB graph database interface\n",
+  "namespaces": {
+    "*": "graph"
+  },
+  "includes": [
+"prop",
+"datasource",
+"element",
+"substance",
+"reaction",
+"reactionset"
+  ],
+  "enums": [
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "VertexDataSource",
+      "doc": "Datasource vertex document\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "3", "4.1", "4.3.0", "4.2" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "Database ID (0 if not known)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "This field must contain \"vertex\"\n",
+          "required": "required",
+          "default": "vertex"
+        },
+        {
+          "key": 3,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label should be the same for all datasources\n",
+          "required": "required",
+          "default": "datasource"
+        },
+        {
+          "key": 4,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "datasource.DataSource"
+          },
+          "doc": "properties of datasource as embedded object\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "VertexElement",
+      "doc": "Element vertex document\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "3", "4.1", "4.2", "4.3" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "Database ID (0 if not known)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "This field must contain \"vertex\"\n",
+          "required": "required",
+          "default": "vertex"
+        },
+        {
+          "key": 3,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label should be the same for all elements\n",
+          "required": "required",
+          "default": "element"
+        },
+        {
+          "key": 4,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "element.Element"
+          },
+          "doc": "properties of element as embedded object\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "VertexSubstance",
+      "doc": "Substance vertex document\n",
+      "isException": false,
+      "isUnion": false,
+       "to_select": [ "3", "4.1", "4.2", "4.5", "4.3" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "Database ID (0 if not known)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "This field must contain \"vertex\"\n",
+          "required": "required",
+          "default": "vertex"
+        },
+        {
+          "key": 3,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label should be the same for all substances\n",
+          "required": "required",
+          "default": "substance"
+        },
+        {
+          "key": 4,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "substance.Substance"
+          },
+          "doc": "properties of substance as embedded object\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "VertexReaction",
+      "doc": "Reaction vertex document\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "3", "4.1", "4.2", "4.4", "4.3", "4.11.3.0" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "Database ID (0 if not known)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "This field must contain \"vertex\"\n",
+          "required": "required",
+          "default": "vertex"
+        },
+        {
+          "key": 3,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label should be the same for all reactions\n",
+          "required": "required",
+          "default": "reaction"
+        },
+        {
+          "key": 4,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "reaction.Reaction"
+          },
+          "doc": "properties of reaction as embedded object\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "VertexReactionSet",
+      "doc": "Reactionset vertex document\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "3", "4.1", "4.2", "4.3", "4.4", "4.8" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "Database ID (0 if not known)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "This field must contain \"vertex\"\n",
+          "required": "required",
+          "default": "vertex"
+        },
+        {
+          "key": 3,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label should be the same for all reactionsets\n",
+          "required": "required",
+          "default": "reactionset"
+        },
+        {
+          "key": 4,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "reactionset.ReactionSet"
+          },
+          "doc": "properties of reaction as embedded object\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Citing",
+      "doc": "Edge: citing (properties for citing edges)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "for_field",
+          "typeId": "string",
+          "doc": "Data field path connected to DS e.g. { \"for_field\": \"properties.entropy.values.0\" }\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeCiting",
+      "doc": "Edge of type \"citing\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing vertex of any type\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming datasource vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"citing\"\n",
+          "required": "required",
+          "default": "citing"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Citing"
+          },
+          "doc": "Properties of citing edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Inherits",
+      "doc": "Edge inherits (properties for inherits edges)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "for_property",
+          "typeId": "string",
+          "doc": "Fieldpath or short name for property, e.g. \"for_property\" \"sG0\"\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "asop",
+          "typeId": "string",
+          "doc": "This string identifies the relation: { \"asop\": \"equal\" } | ...\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeInherits",
+      "doc": "Edge of type \"inherits\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1", "6.2" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing vertex from which the property is inherited\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming vertex which inherits the property\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"inherits\"\n",
+          "required": "required",
+          "default": "inherits"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Inherits"
+          },
+          "doc": "Properties of inherits edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Sstate",
+      "doc": "Edge sstate: connecting a substance representing a standard state of an element to the corresponding element\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "stoi_coeff",
+          "typeId": "double",
+          "doc": "Stoichiometry coefficient of element in substance, e.g. 1 for C; 2 for O2\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeSstate",
+      "doc": "Edge of type \"sstate\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing element vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming substance vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"sstate\"\n",
+          "required": "required",
+          "default": "sstate"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Sstate"
+          },
+          "doc": "Properties of sstate edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Takes",
+      "doc": "Edge: takes (properties for \"takes\" edges)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "stoi_coeff",
+          "typeId": "double",
+          "doc": "Stoichiometry coefficient: negative for reactants, positive for products { \"SC\": -0.5 }\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "rct",
+          "typeId": "i32",
+          "doc": "Reaction component type: enum validated with class ReactionComponentType\n",
+          "class": "ReactionComponentType",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "level",
+          "typeId": "i32",
+          "doc": "Level (color) of this reaction 0 | 1 | 2 | 3 | 4 | ...\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeTakes",
+      "doc": "Edge of type \"takes\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1", "6.2", "6.3" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing reaction vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming substance vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"takes\"\n",
+          "required": "required",
+          "default": "takes"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Takes"
+          },
+          "doc": "Properties of takes edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Defines",
+      "doc": "Edge defines (properties for defines edges) for product substance defined via reaction\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "for_prop",
+          "typeId": "string",
+          "doc": "This string contains one of the keywords for substance properties, e.g. \"for_prop\" \"whole\"\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "asop",
+          "typeId": "string",
+          "doc": "This string identifies the relation: { \"asop\": \"retrieved\" } | ...\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeDefines",
+      "doc": "Edge of type \"defines\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1", "6.2" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing reaction vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming species vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"defines\"\n",
+          "required": "required",
+          "default": "defines"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Defines"
+          },
+          "doc": "Properties of defines edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Master",
+      "doc": "Edge master (properties for master edges) for master species in reactionset\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "ms_type",
+          "typeId": "i32",
+          "doc": "Type of master species - validated by enum class SpeciesTypeRS\n",
+          "class": "SpeciesTypeRS",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeMaster",
+      "doc": "Edge of type \"defines\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing reactionset vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming species vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"master\"\n",
+          "required": "required",
+          "default": "master"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Master"
+          },
+          "doc": "Properties of master edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "doc": "Edge product (properties for product edges) for product species in reactionset\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "ps_type",
+          "typeId": "i32",
+          "doc": "Type of master species - validated by enum class SpeciesTypeRS\n",
+          "class": "SpeciesTypeRS",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeProduct",
+      "doc": "Edge of type \"defines\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing reactionset vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming species vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"product\"\n",
+          "required": "required",
+          "default": "product"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Product"
+          },
+          "doc": "Properties of product edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Prodreac",
+      "doc": "Edge: Prodreac (properties for \"prodreac\" edges) defining reactions for product species in reactionset\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "for_ps",
+          "typeId": "string",
+          "doc": "This string contains sybmol of substance - one of the product species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "level",
+          "typeId": "i32",
+          "doc": "Level (of alternative or generated reaction)\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeProdreac",
+      "doc": "Edge of type \"prodreac\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "1", "2", "3", "4", "5", "6.1", "6.2" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing reactionset vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming reaction vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"prodreac\"\n",
+          "required": "required",
+          "default": "prodreac"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Prodreac"
+          },
+          "doc": "Properties of prodreac edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Vertex",
+      "doc": "Generalized vertex\n",
+      "isException": false,
+      "isUnion": true,
+      "fields": [
+        {
+          "key": 1,
+          "name": "v_datasource",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "VertexDataSource"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "v_element",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "VertexElement"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "v_substance",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "VertexSubstance"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "v_reaction",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "VertexReaction"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "v_reactionset",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "VertexReactionSet"
+          },
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Edge",
+      "doc": "Generalized edge\n",
+      "isException": false,
+      "isUnion": true,
+      "fields": [
+        {
+          "key": 1,
+          "name": "e_citing",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeCiting"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "e_inherits",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeInherits"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "e_sstate",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeSstate"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "e_takes",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeTakes"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "e_defines",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeDefines"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "e_master",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeMaster"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "e_product",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeProduct"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "e_prodreac",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "EdgeProdreac"
+          },
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "GraphData",
+      "doc": "Generalized graph data (file)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "mode",
+          "typeId": "string",
+          "doc": "Mode of rendering  NORMAL [ | EXTENDED | COMPACT ]\n",
+          "required": "req_out",
+          "default": "NORMAL"
+        },
+        {
+          "key": 2,
+          "name": "vertices",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "union",
+            "elemType": {
+              "typeId": "union",
+              "class": "Vertex"
+            }
+          },
+          "doc": "List of vertices (documents), can be empty (followed by only graph edges)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "edges",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "union",
+            "elemType": {
+              "typeId": "union",
+              "class": "Edge"
+            }
+          },
+          "doc": "list of edges (graph links), can be empty for a non-graph data (with only documents)\n",
+          "required": "req_out"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

@@ -47,6 +47,7 @@ LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR2
 LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 LIBS += -lthrift
+LIBS += -llua5.2
 
 
 include($$TCORRPT_TEST_CPP/tcorrpt-test.pri)

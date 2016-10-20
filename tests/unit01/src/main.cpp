@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 // +++ END test H2O_HGKreaktoro +++
 
     // +++ Test H2O_HGKgems Vs H2O_HGKreaktoro +++
-//    #define TEST_H2O_VS
+    #define TEST_H2O_VS
     #ifdef TEST_H2O_VS
 
     Substance water;
@@ -199,14 +199,14 @@ int main(int argc, char *argv[])
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 350;
-    P = 170;
+    T = 100;
+    P = 5000;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
     ElectroPropertiesSolvent resSolvG, resSolvR;
 
     ofstream myfile;
-    myfile.open ("H2Oprop.csv");
+    myfile.open ("H2Oprop_HGKg_vs_HGKr.csv");
 
     myfile <<"T,P,G0g,G0r,H0g,H0r,S0g,S0r,A0g,A0r,U0g,U0r,V0g,V0r,Cp0g,Cp0r,Cv0g,Cv0r\n";
 
@@ -228,9 +228,9 @@ int main(int argc, char *argv[])
         myfile << resSubstG.heat_capacity_cp <<","<<resSubstR.heat_capacity_cp<<",";
         myfile << resSubstG.heat_capacity_cv <<","<<resSubstR.heat_capacity_cv<<"\n";
 
-        T +=10;
+        T +=25;
 
-    } while (T<=250);
+    } while (T<=800);
 
     myfile.close();
 
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 // +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
 
     // +++ Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
-    #define TEST_H2O_HGK_VS_H2O_WP95
+//    #define TEST_H2O_HGK_VS_H2O_WP95
     #ifdef TEST_H2O_HGK_VS_H2O_WP95
 
     Substance water;
@@ -257,14 +257,14 @@ int main(int argc, char *argv[])
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 200;
-    P = 5;
-    ThermoPropertiesSubstance resSubstG, resSubstR;
+    T = 100;
+    P = 5000;
+    ThermoPropertiesSubstance resWP95, resHGKreak;
 
 //    ElectroPropertiesSolvent resSolvG, resSolvR;
 
     ofstream myfile;
-    myfile.open ("H2Oprop.csv");
+    myfile.open ("H2Oprop_new.csv");
 
 //    string path = argv[0];
 //    string cut  = "unit01/";
@@ -280,24 +280,24 @@ int main(int argc, char *argv[])
     do
     {
         myfile << T << ","<<P<<",";
-        resSubstG = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
-        resSubstR = H2OHGKreaktoro.thermoPropertiesSubstance(T, P, 1);
+        resWP95 = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
+        resHGKreak = H2OHGKreaktoro.thermoPropertiesSubstance(T, P, 1);
 
 //        resSolvG = H2OWP95reaktoro.electroPropertiesSolvent(T,P);
 //        resSolvR = H2OHGKreaktoro.electroPropertiesSolvent(T,P);
 
-        myfile << resSubstG.gibbs_energy <<","<<resSubstR.gibbs_energy<<",";
-        myfile << resSubstG.enthalpy <<","<<resSubstR.enthalpy<<",";
-        myfile << resSubstG.entropy <<","<<resSubstR.entropy<<",";
-        myfile << resSubstG.helmholtz_energy <<","<<resSubstR.helmholtz_energy<<",";
-        myfile << resSubstG.internal_energy <<","<<resSubstR.internal_energy<<",";
-        myfile << resSubstG.volume <<","<<resSubstR.volume<<",";
-        myfile << resSubstG.heat_capacity_cp <<","<<resSubstR.heat_capacity_cp<<",";
-        myfile << resSubstG.heat_capacity_cv <<","<<resSubstR.heat_capacity_cv<<"\n";
+        myfile << resWP95.gibbs_energy <<","<<resHGKreak.gibbs_energy<<",";
+        myfile << resWP95.enthalpy <<","<<resHGKreak.enthalpy<<",";
+        myfile << resWP95.entropy <<","<<resHGKreak.entropy<<",";
+        myfile << resWP95.helmholtz_energy <<","<<resHGKreak.helmholtz_energy<<",";
+        myfile << resWP95.internal_energy <<","<<resHGKreak.internal_energy<<",";
+        myfile << resWP95.volume <<","<<resHGKreak.volume<<",";
+        myfile << resWP95.heat_capacity_cp <<","<<resHGKreak.heat_capacity_cp<<",";
+        myfile << resWP95.heat_capacity_cv <<","<<resHGKreak.heat_capacity_cv<<"\n";
 
-        T +=5;
+        T +=25;
 
-    } while (T<=370);
+    } while (T<=800);
 //        T = 25;
 //        P +=500;
 //    } while (P<=0);

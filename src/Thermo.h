@@ -9,6 +9,40 @@
 
 namespace TCorrPT {
 
+///
+/// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
+///
+struct ThermoPreferences
+{
+    Substance workSubstance;
+    MethodGenEoS_Thrift::type method_genEOS;
+    MethodCorrT_Thrift::type  method_T;
+    MethodCorrP_Thrift::type  method_P;
+
+    unsigned solventState = 0;
+
+    bool isHydrogen = false;
+    bool isH2Ovapor = false;
+    bool isH2OSolvent = false;
+
+    string solventSymbol;
+};
+
+///
+/// \brief The Solvent struct hold the solvent proeprties at T and P
+///
+struct Solvent
+{
+    PropertiesSolvent         properties;
+    ThermoPropertiesSubstance thermoProperties;
+    ElectroPropertiesSolvent  electroProperties;
+    ThermoPropertiesSubstance thermoIdealGasProperties;
+
+    string solventSymbol;
+
+    double T, P;
+};
+
 /**
  * @brief The Thermo class mainly calculates the themrodynamic properties of the substances
  * from the internal database. It also calculates the electro-chemical and other phisico-chemical
@@ -152,6 +186,9 @@ private:
     struct Impl;
 
     std::shared_ptr<Impl> pimpl;
+
+    auto getThermoPreferences(std::string substance) -> ThermoPreferences;
+    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
 
 };
 

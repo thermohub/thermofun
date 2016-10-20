@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     cout << "Hello World!" << endl;
 
-    string file = "Resources/test_multi.VertexSubstance.json";
+    string file = "Resources/test_multi_new.VertexSubstance.json";
     char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
 
     TNode* node = new TNode();
@@ -101,15 +101,16 @@ int main(int argc, char *argv[])
     int c = 0;
 
     /// Used to test different waters solvent models
+//    Substance water;
 //    water.setName("water");
-//    water.setSymbol("H2O@");
+//    water.setSymbol("H2O@_");
 //    water.setFormula("H2O");
 //    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
 //    water.setAggregateState(AggregateState::type::AQUEOUS);
 
-//    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR);
+//    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR);
 
-//    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAR);
+//    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP);
 
 //    tdb.addSubstance(water);
 

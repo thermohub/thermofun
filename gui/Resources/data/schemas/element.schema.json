@@ -1,0 +1,474 @@
+{
+  "name": "element",
+  "doc": "Apache Thrift IDL definition for the element service interface\n",
+  "namespaces": {
+    "*": "element"
+  },
+  "includes": [
+"prop"
+  ],
+  "enums": [
+    {
+      "name": "ElementClass",
+      "doc": "Classes (types) of elements (independent components)\n",
+      "members": [
+        {
+          "name": "ELEMENT",
+          "value": 0,
+          "doc": "Chemical element\n"
+        },
+        {
+          "name": "ISOTOPE",
+          "value": 1,
+          "doc": "Isotope of chemical element\n"
+        },
+        {
+          "name": "LIGAND",
+          "value": 2,
+          "doc": "Ligand such as Oxa (oxalate)\n"
+        },
+        {
+          "name": "SURFSITE",
+          "value": 3,
+          "doc": "Surface site in adsorption models\n"
+        },
+        {
+          "name": "CHARGE",
+          "value": 4,
+          "doc": "Electrical charge\n"
+        },
+        {
+          "name": "OTHER_EC",
+          "value": 5,
+          "doc": "Other type of independent component\n"
+        }
+      ]
+    },
+    {
+      "name": "DecayType",
+      "doc": "Types of radioactive decay\n",
+      "members": [
+        {
+          "name": "STABLE",
+          "value": 0,
+          "doc": "Stable isotope (no decay)\n"
+        },
+        {
+          "name": "ALPHA",
+          "value": 1,
+          "doc": "Alpha decay\n"
+        },
+        {
+          "name": "BETA",
+          "value": 2,
+          "doc": "Beta decay\n"
+        },
+        {
+          "name": "GAMMA",
+          "value": 3,
+          "doc": "Gamma decay\n"
+        },
+        {
+          "name": "POSITRON",
+          "value": 4,
+          "doc": "Positron decay\n"
+        },
+        {
+          "name": "NEUTRON",
+          "value": 5,
+          "doc": "Neutron decay\n"
+        },
+        {
+          "name": "PROTON",
+          "value": 6,
+          "doc": "Proton decay\n"
+        },
+        {
+          "name": "OTHER_DT",
+          "value": 7,
+          "doc": "Other type of decay\n"
+        },
+        {
+          "name": "FISSION",
+          "value": 8,
+          "doc": "Fission\n"
+        },
+        {
+          "name": "TRANSMUTATION",
+          "value": 9,
+          "doc": "Transmutation\n"
+        }
+      ]
+    },
+    {
+      "name": "SourceTDB",
+      "doc": "Codes of source thermodynamic data sets for substances and reactions\n",
+      "members": [
+        {
+          "name": "CODATA",
+          "value": 0,
+          "doc": "CODATA 1989\n"
+        },
+        {
+          "name": "NIST",
+          "value": 1,
+          "doc": "NIST Wagman et al. 1989\n"
+        },
+        {
+          "name": "SUPCRT",
+          "value": 2,
+          "doc": "SUPCRT slop98.dat\n"
+        },
+        {
+          "name": "HOLLAND_POWELL",
+          "value": 3,
+          "doc": "Holland and Powell 2001\n"
+        },
+        {
+          "name": "BERMAN_BROWN",
+          "value": 4,
+          "doc": "Berman and Brown 1998\n"
+        },
+        {
+          "name": "ROBIE_HEMINGWAY",
+          "value": 5,
+          "doc": "Robie and Hemingway 1995\n"
+        },
+        {
+          "name": "GOTTSCHALK",
+          "value": 6,
+          "doc": "Gottschalk 1999\n"
+        },
+        {
+          "name": "BABUSHKIN",
+          "value": 7,
+          "doc": "Babushkin et al. 1986\n"
+        },
+        {
+          "name": "KUBASCHEWSKI",
+          "value": 8,
+          "doc": "Kubaschewski er al. 1993\n"
+        },
+        {
+          "name": "KONINGS",
+          "value": 9,
+          "doc": "Konings et al. 1998\n"
+        },
+        {
+          "name": "REID_GL",
+          "value": 10,
+          "doc": "Reid et al. 1987 (gases and liquids)\n"
+        },
+        {
+          "name": "NEA",
+          "value": 11,
+          "doc": "NEA TDB Project\n"
+        },
+        {
+          "name": "THEREDA",
+          "value": 12,
+          "doc": "THEREDA Project\n"
+        },
+        {
+          "name": "THERMODDEM",
+          "value": 13,
+          "doc": "TERMODDEM Project\n"
+        },
+        {
+          "name": "SMITH_MARTELL",
+          "value": 14,
+          "doc": "Smith and Martell 1978\n"
+        },
+        {
+          "name": "PSI_NAGRA",
+          "value": 15,
+          "doc": "PSI-Nagra TDB 12\/07\n"
+        },
+        {
+          "name": "OTHER",
+          "value": 16,
+          "doc": "Other data sources\n"
+        },
+        {
+          "name": "MOIETY",
+          "value": 17,
+          "doc": "Moiety in multi-site phase models (no TDB source)\n"
+        },
+        {
+          "name": "HKF_DEW",
+          "value": 18,
+          "doc": "Sverjensky et al. 2014\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+    {
+      "name": "Elements",
+      "typeId": "list",
+      "type": {
+        "typeId": "list",
+        "elemTypeId": "struct",
+        "elemType": {
+          "typeId": "struct",
+          "class": "Element"
+        }
+      },
+      "doc": "Definition of elements (element array) type\n"
+    }
+  ],
+  "structs": [
+    {
+      "name": "Radioactivity",
+      "doc": "Radioactivity properties of an isotope\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "decay_type",
+          "typeId": "i32",
+          "doc": "Decay type: enum validated with class DecayType\n",
+          "class": "DecayType",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "half_life_lambda",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Time of decay of half amount in s; 0 if unknown\n",
+          "required": "req_out",
+          "default": {
+            "name": "lambda"
+          }
+        },
+        {
+          "key": 4,
+          "name": "daughters",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Symbols of daugther (product) isotopes\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "isotope_masses",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "doc": "Mass of daughter isotopes (at. units)\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Element",
+      "doc": "description of element (independent component)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Element symbol max 6 characters, 1st uppercase, other lowercase letters\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "isotope_mass",
+          "typeId": "i32",
+          "doc": "Isotope mass or 0 if natural mixture of isotopes\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "name",
+          "typeId": "string",
+          "doc": "Element name e.g. Oxygen\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "atomic_mass",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Atomic mass of this element, relative to mass of 1\/12 mol of 12C isotope\n",
+          "required": "req_out",
+          "default": {
+            "name": "Mar"
+          }
+        },
+        {
+          "key": 5,
+          "name": "class",
+          "typeId": "i32",
+          "doc": "Class of element: enum validated with class ElementClass\n",
+          "class": "ElementClass",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "aggregate_state",
+          "typeId": "i32",
+          "doc": "(Standard) state of this element: enum validated with class AggregateState\n",
+          "class": "AggregateState",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "isotope_abundance",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Isotope abundance fraction, default 1.0\n",
+          "required": "req_out",
+          "default": {
+            "name": "iNA"
+          }
+        },
+        {
+          "key": 9,
+          "name": "entropy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard absolute entropy J\/K\/mol per atom per mole\n",
+          "required": "req_out",
+          "default": {
+            "name": "S0a"
+          }
+        },
+        {
+          "key": 10,
+          "name": "volume",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard volume cm3 per atom per mole\n",
+          "required": "req_out",
+          "default": {
+            "name": "V0a"
+          }
+        },
+        {
+          "key": 11,
+          "name": "heat_capacity",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard heat capacity J\/K\/mol\n",
+          "required": "req_out",
+          "default": {
+            "name": "Cp0a"
+          }
+        },
+        {
+          "key": 12,
+          "name": "valences",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "doc": "Possible valences for this element - at least one value\n",
+          "required": "optional"
+        },
+        {
+          "key": 13,
+          "name": "number",
+          "typeId": "i16",
+          "doc": "Number in periodic table; 0 if not a true chemical element\n",
+          "required": "optional"
+        },
+        {
+          "key": 14,
+          "name": "sourcetdb",
+          "typeId": "i32",
+          "doc": "Source DB: enum validated with class SourceDB\n",
+  	  "class": "SourceTDB",
+          "required": "optional"
+        },
+        {
+          "key": 15,
+          "name": "formula",
+          "typeId": "string",
+          "doc": "Standard state substance formula, in elements only e.g. Fe for iron; H2 for hydrogen\n",
+          "required": "optional"
+        },
+        {
+          "key": 16,
+          "name": "substance",
+          "typeId": "string",
+          "doc": "Symbol of pure substance which is standard state for this element (in substances database)\n",
+          "required": "optional"
+        },
+        {
+          "key": 17,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "E.g. who entered\/modified, ...\n",
+          "required": "optional",
+          "default": "comment (element)"
+        },
+        {
+          "key": 18,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Short names of datasource database objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 19,
+          "name": "radioactivity",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Radioactivity"
+          },
+          "doc": "Radioactivity properties\n",
+          "required": "optional"
+        },
+        {
+          "key": 20,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Time stamp when the record was created or  modified\n",
+          "required": "optional"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

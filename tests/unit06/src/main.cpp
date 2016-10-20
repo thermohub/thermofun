@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WSV14); // dielectric propertie Svernjensy et al. (2014)
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WSV14); // dielectric propertie Svernjensy et al. (2014)
 
     water.setMethod_T(MethodCorrT_Thrift::type::CTM_WZD); // water PVT properties Zhang and Duan (2003)
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     water2.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water2.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water2.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNR); // Johnson and Norton (1991)
+    water2.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR); // Johnson and Norton (1991)
 
     water2.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP); // Wagner and Pruss (1995)
 
@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
     result3 = thermo.thermoPropertiesSubstance(T, P, "Al+3");
 
     const double al3_sv14_T1000_P6000 = (-75494) * 4.184;
+    const double al3_sv14_T1000_P6000_fernandez = (-81043) * 4.184;
 
     cout << "Bye World!" << endl;
 

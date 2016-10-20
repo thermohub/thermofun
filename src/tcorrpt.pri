@@ -57,7 +57,9 @@
     $$PWD/Gases/GasCGF.h \
     $$PWD/Gases/GasSRK.h \
     $$PWD/Gases/GasPR78.h \
-    $$PWD/Gases/GasSTP.h
+    $$PWD/Gases/GasSTP.h \
+    $$PWD/Gases/verror.h \
+    $$PWD/Solvent/WaterElectroFernandez1997.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -112,4 +114,5 @@
     $$PWD/Gases/GasCGF.cpp \
     $$PWD/Gases/GasSRK.cpp \
     $$PWD/Gases/GasPR78.cpp \
-    $$PWD/Gases/GasSTP.cpp
+    $$PWD/Gases/GasSTP.cpp \
+    $$PWD/Solvent/WaterElectroFernandez1997.cpp
