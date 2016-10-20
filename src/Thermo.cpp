@@ -9,6 +9,8 @@ struct Thermo::Impl
     /// The database instance
     Database database;
 
+    Solvent solvent;
+
     Impl()
     {}
 
@@ -25,6 +27,8 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
 {
     ThermoPreferences         pref = getThermoPreferences(substance);
     ThermoPropertiesSubstance tps;
+
+    calculateSolvent(pref.solventSymbol, T, P, pimpl->solvent);
 
     if (pref.isHydrogen)
     {
@@ -44,30 +48,22 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         }
         case MethodGenEoS_Thrift::type::CTPM_HKF:
         {
-            SoluteHKFgems aqHKF( pref.workSubstance );
-            if (!pref.H2OSolventSymbol.empty())
-            {
-               ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, pref.H2OSolventSymbol);
-               PropertiesSolvent        wp  = propertiesSolvent(T, P, pref.H2OSolventSymbol);
-                                        tps = aqHKF.thermoProperties(T, P, wp, wes);
-            } else
+            if (pref.solventSymbol.empty() || pref.solventSymbol == "*")
             {
                 errorSolventNotDefined("solvent", pref.workSubstance.symbol(), __LINE__);
             }
+            SoluteHKFgems aqHKF( pref.workSubstance );
+                          tps = aqHKF.thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_HKFR:
         {
-            SoluteHKFreaktoro aqHKF( pref.workSubstance );
-            if (!pref.H2OSolventSymbol.empty())
-            {
-               ElectroPropertiesSolvent wes = electroPropertiesSolvent(T, P, pref.H2OSolventSymbol);
-               PropertiesSolvent        wp  = propertiesSolvent(T, P, pref.H2OSolventSymbol);
-                                        tps = aqHKF.thermoProperties(T, P, wp, wes);
-            } else
+            if (pref.solventSymbol.empty() || pref.solventSymbol == "*")
             {
                 errorSolventNotDefined("solvent", pref.workSubstance.symbol(), __LINE__);
             }
+            SoluteHKFreaktoro aqHKF( pref.workSubstance );
+                              tps = aqHKF.thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
             break;
         }
             // Exception
@@ -92,18 +88,13 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         {
         case MethodCorrP_Thrift::type::CPM_AKI:
         {
-            if (!pref.H2OSolventSymbol.empty())
-            {
-                SoluteAkinfievDiamondEOS  aqAD  (pref.workSubstance);
-                WaterIdealGasWoolley      H2Oig (pimpl->database.getSubstance(pref.H2OSolventSymbol));
-                PropertiesSolvent         wp    = propertiesSolvent(T, P, pref.H2OSolventSymbol);
-                ThermoPropertiesSubstance wtp   = thermoPropertiesSubstance(T, P, pref.H2OSolventSymbol);
-                ThermoPropertiesSubstance wig   = H2Oig.thermoProperties(T, P);
-                                          tps   = aqAD.thermoProperties(T, P, tps, wtp, wig, wp);
-            } else
+            if (pref.solventSymbol.empty() || pref.solventSymbol == "*")
             {
                 errorSolventNotDefined("solvent", pref.workSubstance.symbol(), __LINE__);
             }
+            SoluteAkinfievDiamondEOS  aqAD  (pref.workSubstance);
+                                      tps   = aqAD.thermoProperties(T, P, tps, pimpl->solvent.thermoProperties,
+                                              pimpl->solvent.thermoIdealGasProperties, pimpl->solvent.properties);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_CEH:
@@ -246,21 +237,18 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
         case MethodGenEoS_Thrift::type::CTPM_WJNG:
         {
             WaterJNgems water (pref.workSubstance);
-//                        ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
                         eps   = water.electroPropertiesSolvent(T, P/*, ps*/ );
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WSV14:
         {
             WaterElectroSverjensky2014 water (pref.workSubstance);
-//                                       ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
                                        eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WF97:
         {
             WaterElectroFernandez1997 water (pref.workSubstance);
-//                                       ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
                                        eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
@@ -317,7 +305,7 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
     ThermoPreferences preferences;
 
     preferences.workSubstance    = pimpl->database.getSubstance(substance);
-    preferences.H2OSolventSymbol = preferences.workSubstance.SolventSymbol();
+    preferences.solventSymbol = preferences.workSubstance.SolventSymbol();
     preferences.method_genEOS    = preferences.workSubstance.methodGenEOS();
     preferences.method_T         = preferences.workSubstance.method_T();
     preferences.method_P         = preferences.workSubstance.method_P();
@@ -352,6 +340,23 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
         preferences.solventState = 0;  // liquid
 
     return preferences;
+}
+
+auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void
+{
+    if ((solvent.T != T || solvent.P != P || solvent.solventSymbol != solventSymbol) &&  (solventSymbol != "*") && (!solventSymbol.empty()))
+    {
+        solvent.solventSymbol = solventSymbol;
+        solvent.T = T;
+        solvent.P = P;
+
+        solvent.electroProperties = electroPropertiesSolvent(T, P, solventSymbol);
+        solvent.properties        = propertiesSolvent(T, P, solventSymbol);
+        solvent.thermoProperties  = thermoPropertiesSubstance(T, P, solventSymbol);
+
+        WaterIdealGasWoolley      H2Oig (pimpl->database.getSubstance(solventSymbol));
+        solvent.thermoIdealGasProperties = H2Oig.thermoProperties(T, P);
+    }
 }
 
 } // namespace TCorrPT

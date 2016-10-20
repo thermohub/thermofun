@@ -9,6 +9,9 @@
 
 namespace TCorrPT {
 
+///
+/// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
+///
 struct ThermoPreferences
 {
     Substance workSubstance;
@@ -23,7 +26,22 @@ struct ThermoPreferences
     bool isH2OSolvent = false;
     bool isGasFluid = false;
 
-    string H2OSolventSymbol;
+    string solventSymbol;
+};
+
+///
+/// \brief The Solvent struct hold the solvent proeprties at T and P
+///
+struct Solvent
+{
+    PropertiesSolvent         properties;
+    ThermoPropertiesSubstance thermoProperties;
+    ElectroPropertiesSolvent  electroProperties;
+    ThermoPropertiesSubstance thermoIdealGasProperties;
+
+    string solventSymbol;
+
+    double T, P;
 };
 
 /**
@@ -171,6 +189,7 @@ private:
     std::shared_ptr<Impl> pimpl;
 
     auto getThermoPreferences(std::string substance) -> ThermoPreferences;
+    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
 
 };
 
