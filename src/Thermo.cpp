@@ -42,28 +42,17 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         {
         case MethodGenEoS_Thrift::type::CTPM_CPT:
         {
-            EmpiricalCpIntegration CpInt ( pref.workSubstance );
-                                   tps = CpInt.thermoProperties(T, P);
+            tps = EmpiricalCpIntegration(pref.workSubstance).thermoProperties(T, P);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_HKF:
         {
-            if (pref.solventSymbol.empty() || pref.solventSymbol == "*")
-            {
-                errorSolventNotDefined("solvent", pref.workSubstance.symbol(), __LINE__);
-            }
-            SoluteHKFgems aqHKF( pref.workSubstance );
-                          tps = aqHKF.thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
+            tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_HKFR:
         {
-            if (pref.solventSymbol.empty() || pref.solventSymbol == "*")
-            {
-                errorSolventNotDefined("solvent", pref.workSubstance.symbol(), __LINE__);
-            }
-            SoluteHKFreaktoro aqHKF( pref.workSubstance );
-                              tps = aqHKF.thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
+            tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
             break;
         }
             // Exception
@@ -75,8 +64,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         {
         case MethodCorrT_Thrift::type::CTM_CHP:
         {
-            HPLandau hpLandau ( pref.workSubstance );
-                     tps =    hpLandau.thermoProperties(T, P, tps);
+            tps = HPLandau(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
             // Exception
@@ -88,92 +76,63 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         {
         case MethodCorrP_Thrift::type::CPM_AKI:
         {
-            if (pref.solventSymbol.empty() || pref.solventSymbol == "*")
-            {
-                errorSolventNotDefined("solvent", pref.workSubstance.symbol(), __LINE__);
-            }
-            SoluteAkinfievDiamondEOS  aqAD  (pref.workSubstance);
-                                      tps   = aqAD.thermoProperties(T, P, tps, pimpl->solvent.thermoProperties,
-                                              pimpl->solvent.thermoIdealGasProperties, pimpl->solvent.properties);
+            tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, pimpl->solvent.thermoProperties,
+                                           pimpl->solvent.thermoIdealGasProperties, pimpl->solvent.properties);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_CEH:
         {
-            MinMurnaghanEOSHP98 minHP (pref.workSubstance);
-                                tps = minHP.thermoProperties(T, P, tps);
+            tps = MinMurnaghanEOSHP98(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_VBE:
         {
-            MinBerman88 minBM (pref.workSubstance);
-                        tps   = minBM.thermoProperties(T, P, tps);
+            tps = MinBerman88(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_VBM:
         {
-            MinBMGottschalk minBMG (pref.workSubstance);
-                            tps    = minBMG.thermoProperties(T, P, tps);
+            tps = MinBMGottschalk(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_CORK:
         {
-            GasCORK gasCORK (pref.workSubstance);
-                    tps     = gasCORK.thermoProperties(T, P, tps);
+            tps = GasCORK(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_PRSV:
         {
-            GasPRSV gasPRSV (pref.workSubstance);
-                    tps     = gasPRSV.thermoProperties(T, P, tps);
+            tps = GasPRSV(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_EMP:
         {
-            GasCGF gasCGF (pref.workSubstance);
-                   tps    = gasCGF.thermoProperties(T, P, tps);
+            tps = GasCGF(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_SRK:
         {
-            GasSRK gasSRK (pref.workSubstance);
-                   tps    = gasSRK.thermoProperties(T, P, tps);
+            tps = GasSRK(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_PR78:
         {
-            GasPR78 gasPR78 (pref.workSubstance);
-                    tps     = gasPR78.thermoProperties(T, P, tps);
+            tps = GasPR78(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_STP:
         {
-            GasSTP gasSTP (pref.workSubstance);
-                   tps    = gasSTP.thermoProperties(T, P, tps);
+            tps = GasSTP(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_CON: // Molar volume assumed independent of T and P
         {
-            ThermoPropertiesSubstance rtps = pref.workSubstance.thermoReferenceProperties();
-            auto                      t    = Reaktoro_::Temperature(T + C_to_K);
-            auto                      p    = Reaktoro_::Pressure(P);
-
-            tps.volume           = rtps.volume;
-            tps.gibbs_energy    += rtps.volume * (p - (pref.workSubstance.referenceP() / bar_to_Pa));
-            tps.enthalpy        += rtps.volume * (p - (pref.workSubstance.referenceP() / bar_to_Pa));
-            tps.internal_energy  = tps.enthalpy - p*tps.volume;
-            tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
-
+            tps = ConMolVol(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
         case MethodCorrP_Thrift::type::CPM_OFF:
         {
-            auto t = Reaktoro_::Temperature(T + C_to_K);
-            auto p = Reaktoro_::Pressure(P);
-
-            if( pref.isGasFluid && P > 0.0 )
-            { // molar volume from the ideal gas law
-                tps.volume = (t) / p * R_CONSTANT;
-            }
+            tps = IdealGasLawVol(pref.workSubstance).thermoProperties(T, P, tps);
             break;
         }
             // Exception
@@ -187,26 +146,22 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
         {
         case MethodCorrT_Thrift::type::CTM_WAT:
         {
-            WaterHGK water ( pref.workSubstance );
-                     tps   = water.thermoPropertiesSubstance(T, P, pref.solventState);
+            tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
             break;
         }
         case MethodCorrT_Thrift::type::CTM_WAR:
         {
-            WaterHGKreaktoro water ( pref.workSubstance );
-                             tps   = water.thermoPropertiesSubstance(T, P, pref.solventState);
+            tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
             break;
         }
         case MethodCorrT_Thrift::type::CTM_WWP:
         {
-            WaterWP95reaktoro water ( pref.workSubstance );
-                              tps   = water.thermoPropertiesSubstance(T, P, pref.solventState);
+            tps = WaterWP95reaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
             break;
         }
         case MethodCorrT_Thrift::type::CTM_WZD:
         {
-            WaterZhangDuan2005 water ( pref.workSubstance );
-                               tps   = water.thermoPropertiesSubstance(T, P, pref.solventState);
+            tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
             break;
         }
             // Exception
@@ -229,27 +184,22 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
         {
         case MethodGenEoS_Thrift::type::CTPM_WJNR:
         {
-            WaterJNreaktoro water (pref.workSubstance);
-                            ps    = propertiesSolvent(T, P, pref.workSubstance.symbol());
-                            eps   = water.electroPropertiesSolvent(T, P, ps);
+            eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, pimpl->solvent.properties);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WJNG:
         {
-            WaterJNgems water (pref.workSubstance);
-                        eps   = water.electroPropertiesSolvent(T, P/*, ps*/ );
+            eps = WaterJNgems(pref.workSubstance).electroPropertiesSolvent(T, P/*, ps*/ );
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WSV14:
         {
-            WaterElectroSverjensky2014 water (pref.workSubstance);
-                                       eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
+            eps = WaterElectroSverjensky2014(pref.workSubstance).electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WF97:
         {
-            WaterElectroFernandez1997 water (pref.workSubstance);
-                                       eps   = water.electroPropertiesSolvent(T, P/*, ps*/);
+            eps = WaterElectroFernandez1997(pref.workSubstance).electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
             // Exception
@@ -271,26 +221,22 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
         {
         case MethodCorrT_Thrift::type::CTM_WAT:
         {
-            WaterHGK water ( pref.workSubstance );
-                     ps    = water.propertiesSolvent(T, P, pref.solventState);
+            ps = WaterHGK(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
             break;
         }
         case MethodCorrT_Thrift::type::CTM_WAR:
         {
-            WaterHGKreaktoro water ( pref.workSubstance );
-                             ps    = water.propertiesSolvent(T, P, pref.solventState);
+            ps = WaterHGKreaktoro(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
             break;
         }
         case MethodCorrT_Thrift::type::CTM_WWP:
         {
-            WaterWP95reaktoro water ( pref.workSubstance );
-                              ps    = water.propertiesSolvent(T, P, pref.solventState);
+            ps = WaterWP95reaktoro(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
             break;
         }
         case MethodCorrT_Thrift::type::CTM_WZD:
         {
-            WaterZhangDuan2005 water ( pref.workSubstance );
-                               ps    = water.propertiesSolvent(T, P, pref.solventState);
+            ps = WaterZhangDuan2005(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
             break;
         }
             // Exception
@@ -305,7 +251,7 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
     ThermoPreferences preferences;
 
     preferences.workSubstance    = pimpl->database.getSubstance(substance);
-    preferences.solventSymbol = preferences.workSubstance.SolventSymbol();
+    preferences.solventSymbol    = preferences.workSubstance.SolventSymbol();
     preferences.method_genEOS    = preferences.workSubstance.methodGenEOS();
     preferences.method_T         = preferences.workSubstance.method_T();
     preferences.method_P         = preferences.workSubstance.method_P();
@@ -328,12 +274,7 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
     else
         preferences.isH2OSolvent = false;
 
-    // check if substance is gas fluid
-    if (preferences.workSubstance.substanceClass() == SubstanceClass::type::GASFLUID )
-        preferences.isGasFluid = true;
-    else
-        preferences.isGasFluid = false;
-
+    // set solvent state
     if (preferences.workSubstance.aggregateState() == AggregateState::type::GAS)
         preferences.solventState = 1;  // vapor
     else
@@ -346,16 +287,13 @@ auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, So
 {
     if ((solvent.T != T || solvent.P != P || solvent.solventSymbol != solventSymbol) &&  (solventSymbol != "*") && (!solventSymbol.empty()))
     {
-        solvent.solventSymbol = solventSymbol;
-        solvent.T = T;
-        solvent.P = P;
-
-        solvent.electroProperties = electroPropertiesSolvent(T, P, solventSymbol);
-        solvent.properties        = propertiesSolvent(T, P, solventSymbol);
-        solvent.thermoProperties  = thermoPropertiesSubstance(T, P, solventSymbol);
-
-        WaterIdealGasWoolley      H2Oig (pimpl->database.getSubstance(solventSymbol));
-        solvent.thermoIdealGasProperties = H2Oig.thermoProperties(T, P);
+        solvent.solventSymbol            = solventSymbol;
+        solvent.T                        = T;
+        solvent.P                        = P;
+        solvent.properties               = propertiesSolvent(T, P, solventSymbol);
+        solvent.electroProperties        = electroPropertiesSolvent(T, P, solventSymbol);
+        solvent.thermoProperties         = thermoPropertiesSubstance(T, P, solventSymbol);
+        solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(solventSymbol)).thermoProperties(T, P);
     }
 }
 

@@ -47,6 +47,14 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
     }
 }
 
+auto checkSolvent(Substance substance)->void
+{
+    if ((substance.SolventSymbol()).empty() || (substance.SolventSymbol()) == "*")
+    {
+        errorSolventNotDefined("solvent", substance.symbol(), __LINE__);
+    }
+}
+
 struct ThermoModelsSubstance::Impl
 {
     /// The substance instance
@@ -115,6 +123,8 @@ auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoProper
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
+    checkSolvent(pimpl->substance);
+
     return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp, wigp, wp);
 }
 
@@ -180,6 +190,8 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
     auto t = Reaktoro_::Temperature(T/* + C_to_K*/);
     auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
+    checkSolvent(pimpl->substance);
+
 //    checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
 
     FunctionG g = gShok2(t, p, wp);
@@ -217,6 +229,8 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+
+    checkSolvent(pimpl->substance);
 
 //    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
@@ -577,6 +591,83 @@ auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps)
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
+}
+
+//=======================================================================================================
+// CON
+// References:
+// Added: DM 20.10.2016
+//=======================================================================================================
+
+struct ConMolVol::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+ConMolVol::ConMolVol(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto ConMolVol::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+    ThermoPropertiesSubstance rtps = pimpl->substance.thermoReferenceProperties();
+
+    tps.volume           = rtps.volume;
+    tps.gibbs_energy    += rtps.volume * (p - (pimpl->substance.referenceP() / bar_to_Pa));
+    tps.enthalpy        += rtps.volume * (p - (pimpl->substance.referenceP() / bar_to_Pa));
+    tps.internal_energy  = tps.enthalpy - p*tps.volume;
+    tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
+
+    return tps;
+}
+
+//=======================================================================================================
+// OFF
+// References:
+// Added: DM 20.10.2016
+//=======================================================================================================
+
+struct IdealGasLawVol::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+IdealGasLawVol::IdealGasLawVol(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto p = Reaktoro_::Pressure(P);
+
+    if(( pimpl->substance.substanceClass() == SubstanceClass::type::GASFLUID ) && P > 0.0 )
+    { // molar volume from the ideal gas law
+        tps.volume = (t) / p * R_CONSTANT;
+    }
+
+    return tps;
 }
 
 

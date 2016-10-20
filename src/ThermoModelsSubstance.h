@@ -396,6 +396,48 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
+///
+class ConMolVol
+{
+public:
+    /// Construct a default ConMolVol instance
+    ConMolVol();
+
+    /// Construct an ConMolVol instance from a Substance instance
+    explicit ConMolVol(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+///
+class IdealGasLawVol
+{
+public:
+    /// Construct a default IdealGasLawVol instance
+    IdealGasLawVol();
+
+    /// Construct an IdealGasLawVol instance from a Substance instance
+    explicit IdealGasLawVol(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
 } // namespace TCorrPT
 
 #endif // THERMOMODELSUBSTANCE_H
