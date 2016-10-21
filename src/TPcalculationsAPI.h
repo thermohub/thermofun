@@ -4,6 +4,18 @@
 
 namespace TCorrPT {
 
+map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "C"},
+                                          {"pressure", "bar"},
+                                          {"gibbs_energy", "J/mol"},
+                                          {"enthalpy", "J/mol"},
+                                          {"entropy", "J/mol"},
+                                          {"heat_capacity_cp", "J/mol*K"},
+                                          {"heat_capacity_cv", "J/mol*K"},
+                                          {"volume", "J/bar"},
+                                          {"helmholtz_energy", "J/mol"},
+                                          {"internal_energy", "J/mol"}
+                                        };
+
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results
  */

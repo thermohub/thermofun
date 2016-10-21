@@ -183,6 +183,9 @@
             </item>
             <item row="3" column="4" colspan="3">
              <widget class="QComboBox" name="pTunit">
+              <property name="currentText">
+               <string>C Celsium</string>
+              </property>
               <item>
                <property name="text">
                 <string>C Celsium</string>
@@ -258,7 +261,7 @@
      <x>0</x>
      <y>0</y>
      <width>796</width>
-     <height>30</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDataBase">

@@ -20,16 +20,16 @@ struct TPcalcualationsAPI::Impl
                                               {"helmholtz_energy", 0},
                                               {"internal_energy", 0}
                                             };
-    map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "(C)"},
-                                              {"pressure", "(bar)"},
-                                              {"gibbs_energy", "(J/mol)"},
-                                              {"enthalpy", "(J/mol)"},
-                                              {"entropy", "(J/mol)"},
-                                              {"heat_capacity_cp", "(J/mol*K)"},
-                                              {"heat_capacity_cv", "(J/mol*K)"},
-                                              {"volume", "(J/bar)"},
-                                              {"helmholtz_energy", "(J/mol)"},
-                                              {"internal_energy", "(J/mol)"}
+    map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "C"},
+                                              {"pressure", "bar"},
+                                              {"gibbs_energy", "J/mol"},
+                                              {"enthalpy", "J/mol"},
+                                              {"entropy", "J/mol"},
+                                              {"heat_capacity_cp", "J/mol*K"},
+                                              {"heat_capacity_cv", "J/mol*K"},
+                                              {"volume", "J/bar"},
+                                              {"helmholtz_energy", "J/mol"},
+                                              {"internal_energy", "J/mol"}
                                             };
 
     map<int, std::string>               propNamesToExport;
@@ -123,14 +123,14 @@ auto TPcalcualationsAPI::setHeader(std::vector<string> substanceSymbols, map<int
 
     if (substanceSymbols.size() > 1)
     {
-        header = header + "Substance" + s + "T" + units.at("temperature") + s + "P" + units.at("pressure") /*+ s*/;
+        header = header + "Substance" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
         for(it_t it = PropertiesNames.begin(); it != PropertiesNames.end(); it++)
-        {   header = header + s + it->second + units.at(it->second); }
+        {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
     } else
     {
-        header = header + "T" + units.at("temperature") + s + "P" + units.at("pressure")/* + s*/;
+        header = header + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")"/* + s*/;
         for(it_t it = PropertiesNames.begin(); it != PropertiesNames.end(); it++)
-        {   header = header + s + it->second + units.at(it->second); }
+        {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
 
     }
 

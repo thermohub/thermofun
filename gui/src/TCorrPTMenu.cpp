@@ -45,7 +45,6 @@
 
 using namespace bsonio;
 
-
 //  Connect all actions
 void TCorrPTWidget::setActions()
 {
@@ -351,6 +350,10 @@ void TCorrPTWidget::CmResetProperty()
 
     _data.properties = dlg.allSelected();
     _data.propertyUnits.resize(_data.properties.size());
+    for (unsigned i = 0; i<_data.properties.size(); i++)
+    {
+        _data.propertyUnits[i] = TCorrPT::thermoPropSubstUnits.find(_data.properties[i])->second;
+    }
      _PropertyModel->resetMatrixData();
   }
    catch(bsonio_exeption& e)

@@ -45,16 +45,16 @@ using namespace bsonio;
 TCorrPTData::TCorrPTData()
 {
   name = "TCorrPTTask1";
-  comment = "TCorrPT Task1";
+  comment = "write comment here...";
   schemaName = "VertexSubstance";
   query = "";
   T =25;
   pointsT.push_back(25);
-  unitsT = "C Celsium";
+  unitsT = "Celsius";
   P =1;
   pointsP.push_back(1);
-  unitsP = "b bar";
-  properties.push_back("tttt");
+  unitsP = "bar";
+  properties.push_back("gibbs_energy");
   propertyUnits.push_back("undef");
 }
 
