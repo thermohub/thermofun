@@ -490,7 +490,7 @@ readData:
          }
 
          // for testing
-         _data.properties = {"sm_gibbs_energy","sm_enthalpy","sm_entropy_abs", "sm_heat_capacity_p","sm_volume"};
+//         _data.properties = {"sm_gibbs_energy","sm_enthalpy","sm_entropy_abs", "sm_heat_capacity_p","sm_volume"};
 //         _data.properties.push_back("sm_enthalpy");
          //
          tpCalc.calculateThermoProperties(substancesSymbols, _data.properties, TPpairs);

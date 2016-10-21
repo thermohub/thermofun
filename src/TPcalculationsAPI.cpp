@@ -17,7 +17,7 @@ struct TPcalcualationsAPI::Impl
                                               {"heat_capacity_cp", 0},
                                               {"heat_capacity_cv", 0},
                                               {"volume", 0},
-                                              {"helmoltz_energy", 0},
+                                              {"helmholtz_energy", 0},
                                               {"internal_energy", 0}
                                             };
     map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "(C)"},
@@ -28,7 +28,7 @@ struct TPcalcualationsAPI::Impl
                                               {"heat_capacity_cp", "(J/mol*K)"},
                                               {"heat_capacity_cv", "(J/mol*K)"},
                                               {"volume", "(J/bar)"},
-                                              {"helmoltz_energy", "(J/mol)"},
+                                              {"helmholtz_energy", "(J/mol)"},
                                               {"internal_energy", "(J/mol)"}
                                             };
 
@@ -145,7 +145,7 @@ auto TPcalcualationsAPI::selectedPropResults ( ThermoPropertiesSubstance tps ) -
     for(it = pimpl->propNamesToExport.begin(); it != pimpl->propNamesToExport.end(); it++)
     {
         if (it->second == "gibbs_energy")    properties.push_back(tps.gibbs_energy.val);
-        if (it->second == "helmoltz_energy") properties.push_back(tps.helmholtz_energy.val);
+        if (it->second == "helmholtz_energy") properties.push_back(tps.helmholtz_energy.val);
         if (it->second == "internal_energy") properties.push_back(tps.internal_energy.val);
         if (it->second == "enthalpy")        properties.push_back(tps.enthalpy.val);
         if (it->second == "entropy")     properties.push_back(tps.entropy.val);
