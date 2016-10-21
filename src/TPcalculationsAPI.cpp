@@ -11,25 +11,25 @@ struct TPcalcualationsAPI::Impl
     Thermo thermo;
     OutputOptions outputOptions;
 
-    map<std::string, int> thermoPropSubstNames =  { {"sm_gibbs_energy", 0},
-                                              {"sm_enthalpy", 0},
-                                              {"sm_entropy_abs", 0},
-                                              {"sm_heat_capacity_p", 0},
-                                              {"sm_heat_capacity_v", 0},
-                                              {"sm_volume", 0},
-                                              {"sm_helmoltz_energy", 0},
-                                              {"sm_internal_energy", 0}
+    map<std::string, int> thermoPropSubstNames = {{"gibbs_energy", 0},
+                                              {"enthalpy", 0},
+                                              {"entropy", 0},
+                                              {"heat_capacity_cp", 0},
+                                              {"heat_capacity_cv", 0},
+                                              {"volume", 0},
+                                              {"helmoltz_energy", 0},
+                                              {"internal_energy", 0}
                                             };
-    map<std::string,std::string> thermoPropSubstUnits =  { {"temperature", "(C)"},
+    map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "(C)"},
                                               {"pressure", "(bar)"},
-                                              {"sm_gibbs_energy", "(J/mol)"},
-                                              {"sm_enthalpy", "(J/mol)"},
-                                              {"sm_entropy_abs", "(J/mol)"},
-                                              {"sm_heat_capacity_p", "(J/mol*K)"},
-                                              {"sm_heat_capacity_v", "(J/mol*K)"},
-                                              {"sm_volume", "(J/bar)"},
-                                              {"sm_helmoltz_energy", "(J/mol)"},
-                                              {"sm_internal_energy", "(J/mol)"}
+                                              {"gibbs_energy", "(J/mol)"},
+                                              {"enthalpy", "(J/mol)"},
+                                              {"entropy", "(J/mol)"},
+                                              {"heat_capacity_cp", "(J/mol*K)"},
+                                              {"heat_capacity_cv", "(J/mol*K)"},
+                                              {"volume", "(J/bar)"},
+                                              {"helmoltz_energy", "(J/mol)"},
+                                              {"internal_energy", "(J/mol)"}
                                             };
 
     map<int, std::string>               propNamesToExport;
