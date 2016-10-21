@@ -32,7 +32,7 @@ ExternalProject_Add(BSONUI
 ExternalProject_Add(TCORRPT
     PREFIX thirdparty
     GIT_REPOSITORY https://svetadmitrieva@bitbucket.org/gems4/tcorrpt.git
-    GIT_TAG feat-gui
+#    GIT_TAG feat-gui
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

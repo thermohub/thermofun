@@ -443,7 +443,7 @@ void TCorrPTWidget::resetDBClient(const string& schemaName_ )
   string defaultQuery="";
   if( isDefaultQuery)
     defaultQuery = _data.query;
-  TGraphAbstract* newClient = newDBClient( schemaName_, defaultQuery );
+  TDBGraph* newClient = newDBClient( schemaName_, defaultQuery );
     // no schema
   if( newClient == nullptr )
   {
