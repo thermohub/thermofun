@@ -324,7 +324,7 @@ private:
     TBsonView* fieldTable;
 
     // keys list data
-    boost::shared_ptr<bsonio::TGraphAbstract> dbgraph;
+    boost::shared_ptr<bsonio::TDBGraph> dbgraph;
     TKeyListTableNew* dataTable;
     TKeyTable* pTable;
     TMatrixModel* tableModel;

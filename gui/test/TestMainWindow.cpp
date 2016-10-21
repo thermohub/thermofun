@@ -10,7 +10,7 @@
 #include "bsonui/SelectDialog.h"
 #include "bsonui/PreferencesBSONUI.h"
 #include "TCorrPTWidget.h"
-#include "bsonio/nejdb.h"
+#include "bsonio/dbdriverejdb.h"
 using namespace bsonio;
 
 
