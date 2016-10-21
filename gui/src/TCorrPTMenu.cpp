@@ -341,9 +341,11 @@ void TCorrPTWidget::CmResetP()
 void TCorrPTWidget::CmResetProperty()
 {
  try
-  {
+  {   
+    std::size_t pos = std::string("Vertex").length();
+    std::string schemaName = "ThermoProperties" + curSchemaName.substr (pos);
     SchemaSelectDialog dlg(this, "Please, mark property fields",
-        schema, curSchemaName, _data.properties, _data.properties);
+        schema, schemaName, _data.properties, _data.properties);
     if( !dlg.exec() )
        return;
 

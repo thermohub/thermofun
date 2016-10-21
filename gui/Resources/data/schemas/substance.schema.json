@@ -1078,6 +1078,70 @@
           "required": "optional"
         }
       ]
+    },
+    {
+      "name": "ThermoPropertiesSubstance",
+      "doc": "Structure keeping the thermodynamic properites which can be calculated for a substance\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "gibbs_energy",
+          "typeId": "double",
+          "doc": "The apparent standard molar Gibbs free energy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "helmholtz_energy",
+          "typeId": "double",
+          "doc": "The apparent standard molar Helmholtz free energy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "internal_energy",
+          "typeId": "double",
+          "doc": "The apparent standard molar internal energy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "enthalpy",
+          "typeId": "double",
+          "doc": "The apparent standard molar enthalpy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "entropy",
+          "typeId": "double",
+          "doc": "The standard molar entropy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "volume",
+          "typeId": "double",
+          "doc": "The standard molar volume of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "heat_capacity_cp",
+          "typeId": "double",
+          "doc": "The standard molar isobaric heat capacity of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "heat_capacity_cv",
+          "typeId": "double",
+          "doc": "The standard molar isochoric heat capacity of the species\n",
+          "required": "req_out"
+        }
+      ]
     }
   ],
   "constants": [

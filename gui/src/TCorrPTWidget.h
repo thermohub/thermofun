@@ -135,8 +135,9 @@ class TPVectorContainer : public TAbstractDataContainer
 /// Class for double T P vector container
 class TPropertyContainer : public TAbstractDataContainer
 {
-    vector<string>& _properties;    ///< Properties names list
-    vector<string>& _propertyUnits; ///< Units of property
+    vector<string>& _properties;      ///< Properties names list
+    vector<string>& _propertyUnits;   ///< Units of property
+//    vector<string>& _propertyFormats; ///< Output formats of property
 
  public:
 
