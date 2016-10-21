@@ -144,14 +144,14 @@ auto TPcalcualationsAPI::selectedPropResults ( ThermoPropertiesSubstance tps ) -
 
     for(it = pimpl->propNamesToExport.begin(); it != pimpl->propNamesToExport.end(); it++)
     {
-        if (it->second == "sm_gibbs_energy")    properties.push_back(tps.gibbs_energy.val);
-        if (it->second == "sm_enthalpy")        properties.push_back(tps.enthalpy.val);
-        if (it->second == "sm_entropy_abs")     properties.push_back(tps.entropy.val);
-        if (it->second == "sm_heat_capacity_p") properties.push_back(tps.heat_capacity_cp.val);
-        if (it->second == "sm_heat_capacity_v") properties.push_back(tps.heat_capacity_cv.val);
-        if (it->second == "sm_volume")          properties.push_back(tps.volume.val);
-        if (it->second == "sm_helmoltz_energy") properties.push_back(tps.helmholtz_energy.val);
-        if (it->second == "sm_internal_energy") properties.push_back(tps.internal_energy.val);
+        if (it->second == "gibbs_energy")    properties.push_back(tps.gibbs_energy.val);
+        if (it->second == "helmoltz_energy") properties.push_back(tps.helmholtz_energy.val);
+        if (it->second == "internal_energy") properties.push_back(tps.internal_energy.val);
+        if (it->second == "enthalpy")        properties.push_back(tps.enthalpy.val);
+        if (it->second == "entropy")     properties.push_back(tps.entropy.val);
+        if (it->second == "volume")          properties.push_back(tps.volume.val);
+        if (it->second == "heat_capacity_cp") properties.push_back(tps.heat_capacity_cp.val);
+        if (it->second == "heat_capacity_cv") properties.push_back(tps.heat_capacity_cv.val);
     }
     return properties;
 }
