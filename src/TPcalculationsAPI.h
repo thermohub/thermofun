@@ -4,7 +4,7 @@
 
 namespace TCorrPT {
 
-map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "C"},
+map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
                                           {"pressure", "bar"},
                                           {"gibbs_energy", "J/mol"},
                                           {"enthalpy", "J/mol"},

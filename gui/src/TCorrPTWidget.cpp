@@ -55,7 +55,7 @@ TCorrPTData::TCorrPTData()
   pointsP.push_back(1);
   unitsP = "bar";
   properties.push_back("gibbs_energy");
-  propertyUnits.push_back("undef");
+  propertyUnits.push_back("J/mol");
 }
 
 

@@ -352,7 +352,7 @@ void TCorrPTWidget::CmResetProperty()
     _data.propertyUnits.resize(_data.properties.size());
     for (unsigned i = 0; i<_data.properties.size(); i++)
     {
-        _data.propertyUnits[i] = TCorrPT::thermoPropSubstUnits.find(_data.properties[i])->second;
+        _data.propertyUnits[i] = TCorrPT::thermoPropDefaultUnits.find(_data.properties[i])->second;
     }
      _PropertyModel->resetMatrixData();
   }
