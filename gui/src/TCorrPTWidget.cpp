@@ -600,6 +600,7 @@ void TCorrPTWidget::resetTCorrPTData()
     ui->pPVal->setValue(_data.P);
     ui->pTunit->setCurrentText( _data.unitsT.c_str());
     ui->pPunit->setCurrentText(_data.unitsP.c_str());
+//    ui->FormatBox->setChecked(_data.isFixedFormat);
 
     isDefaultQuery = false;
     resetTypeBox( _data.schemaName.c_str() );

@@ -441,6 +441,8 @@ void TCorrPTWidget::CmCalcMTPARM()
          if( aKeyList.empty() )
              return;
 
+         TCorrPT::OutputOptions op;
+
          SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
          if( !selDlg.exec() )
             return;
@@ -486,6 +488,13 @@ readData:
 
          TCorrPT::TPcalcualationsAPI tpCalc(tdb);
 //         tpCalc.calculateThermoProperties(substancesSymbols, {"sm_gibbs_energy"}, 25, 1);
+         op = tpCalc.outputOptions();
+         if (ui->FormatBox->isChecked())
+         {
+             op.fixed = true;
+             tpCalc.setOutputOptions(op);
+         }
+
          std::vector<std::vector<double>> TPpairs;
          for (uint jj=0; jj<_data.pointsT.size(); jj++)
          {

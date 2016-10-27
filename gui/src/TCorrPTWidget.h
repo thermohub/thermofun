@@ -267,6 +267,7 @@ protected slots:
       _data.comment = text.toUtf8().data();
     }
 
+
 public slots:
 
     // internal slots

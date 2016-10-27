@@ -140,7 +140,7 @@
             <item row="2" column="0" colspan="7">
              <widget class="QLineEdit" name="pComment"/>
             </item>
-            <item row="5" column="0" colspan="2">
+            <item row="6" column="0" colspan="2">
              <widget class="QLabel" name="label_9">
               <property name="text">
                <string>Properties table</string>
@@ -174,30 +174,6 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="3">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Units</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="4" colspan="3">
-             <widget class="QComboBox" name="pTunit">
-              <property name="currentText">
-               <string>C Celsium</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>C Celsium</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>K Kelvin</string>
-               </property>
-              </item>
-             </widget>
-            </item>
             <item row="4" column="4" colspan="3">
              <widget class="QComboBox" name="pPunit">
               <item>
@@ -225,6 +201,40 @@
                 <string>A atm</string>
                </property>
               </item>
+             </widget>
+            </item>
+            <item row="4" column="3">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Units</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="4" colspan="3">
+             <widget class="QComboBox" name="pTunit">
+              <property name="currentText">
+               <string>C Celsium</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>C Celsium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>K Kelvin</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QCheckBox" name="FormatBox">
+              <property name="text">
+               <string>Fixed Format</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
