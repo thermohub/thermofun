@@ -16,6 +16,18 @@ map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
                                           {"internal_energy", "J/mol"}
                                         };
 
+map<std::string, int> thermoPropDefaultPrecision = {{"temperature", 0 },
+                                          {"pressure", 0 },
+                                          {"gibbs_energy", 0},
+                                          {"enthalpy", 0},
+                                          {"entropy", 0},
+                                          {"heat_capacity_cp", 0 },
+                                          {"heat_capacity_cv", 0 },
+                                          {"volume", 0 },
+                                          {"helmholtz_energy", 0 },
+                                          {"internal_energy", 0 }
+                                        };
+
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results
  */
@@ -28,7 +40,7 @@ struct OutputOptions
     bool scientific = false;
 
     /// the maximum number of digits to be written
-    unsigned precision = 8;
+    unsigned precision = 0;
 
     /// csv file separator
     std::string separator = ",";
@@ -98,6 +110,15 @@ public:
      * @return a vector of results [[substances*TP-pairs]*properties]
      */
     auto results () -> std::vector<std::vector<double>>;
+
+    auto outputOptions() -> OutputOptions;
+
+    auto setOutputOptions(const OutputOptions &value) -> void;
+
+    auto thermoPrecision() -> map<std::string, int>;
+
+    auto setThermoPrecision(const map<std::string, int> &value) -> void;
+
 
 private:
     struct Impl;

@@ -32,6 +32,18 @@ struct TPcalcualationsAPI::Impl
                                               {"internal_energy", "J/mol"}
                                             };
 
+    map<std::string, int> thermoPropPrecision = {{"temperature", 0 },
+                                              {"pressure", 0 },
+                                              {"gibbs_energy", 0},
+                                              {"enthalpy", 0},
+                                              {"entropy", 0},
+                                              {"heat_capacity_cp", 0 },
+                                              {"heat_capacity_cv", 0 },
+                                              {"volume", 0 },
+                                              {"helmholtz_energy", 0 },
+                                              {"internal_energy", 0 }
+                                            };
+
     map<int, std::string>               propNamesToExport;
     std::vector<std::vector<double>>    TP_pairs;
     std::vector<string>                 substanceSymbols;
@@ -63,6 +75,16 @@ auto TPcalcualationsAPI::setThermoPropSubstNames(const map<std::string, int> &va
     pimpl->thermoPropSubstNames = value;
 }
 
+auto TPcalcualationsAPI::thermoPrecision() -> map<std::string, int>
+{
+    return pimpl->thermoPropPrecision;
+}
+
+auto TPcalcualationsAPI::setThermoPrecision(const map<std::string, int> &value) -> void
+{
+    pimpl->thermoPropPrecision = value;
+}
+
 auto TPcalcualationsAPI::thermoPropSubstUnits() -> map<std::string, std::string>
 {
     return pimpl->thermoPropSubstUnits;
@@ -72,6 +94,17 @@ auto TPcalcualationsAPI::setThermoPropSubstUnits(const map<std::string, std::str
 {
     pimpl->thermoPropSubstUnits = value;
 }
+
+auto TPcalcualationsAPI::outputOptions() -> OutputOptions
+{
+    return pimpl->outputOptions;
+}
+
+auto TPcalcualationsAPI::setOutputOptions(const OutputOptions &value) -> void
+{
+    pimpl->outputOptions = value;
+}
+
 
 
 TPcalcualationsAPI::TPcalcualationsAPI(const Database &database)
