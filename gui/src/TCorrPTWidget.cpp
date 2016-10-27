@@ -56,6 +56,7 @@ TCorrPTData::TCorrPTData()
   unitsP = "bar";
   properties.push_back("gibbs_energy");
   propertyUnits.push_back("J/mol");
+  propertyPrecision.push_back(0);
 }
 
 
@@ -92,6 +93,10 @@ void TCorrPTData::toBson( bson *obj ) const
     bson_append_start_array(obj, "PropertyUnits");
     for(uint ii=0; ii<propertyUnits.size(); ii++)
        bson_append_string( obj, to_string(ii).c_str(), propertyUnits[ii].c_str() );
+    bson_append_finish_array(obj);
+    bson_append_start_array(obj, "PropertyPrecision");
+    for(uint ii=0; ii<propertyPrecision.size(); ii++)
+       bson_append_int( obj, to_string(ii).c_str(), propertyPrecision[ii] );
     bson_append_finish_array(obj);
 }
 
@@ -130,6 +135,9 @@ void TCorrPTData::fromBson( const char* bsobj )
     bson_read_array( bsobj, "PropertyUnits", propertyUnits );
     if( properties.empty() )
         properties =deflt.properties;
+    bson_read_array( bsobj, "PropertyPrecision", propertyPrecision );
+    if( properties.empty() )
+        properties =deflt.properties;
     }
 
 
@@ -155,6 +163,7 @@ void TCorrPTData::savetoCFG( const string& fileName )
 
    settings.setValue("PropertiesList", convert2Qt( properties ).toJson() );
    settings.setValue("PropertyUnits", convert2Qt( propertyUnits ).toJson() );
+   settings.setValue("PropertyPrecision", convert2Qt( propertyPrecision ).toJson() );
    settings.sync();
 }
 
@@ -196,6 +205,7 @@ void TCorrPTData::readfromCFG( const string& fileName )
       properties = deflt.properties;
     else
        convertFromQt( jsonArr, properties);
+
     btarr = settings.value("PropertyUnits", "").toByteArray();
     jsonDoc = QJsonDocument::fromJson(btarr);
     jsonArr = jsonDoc.array();
@@ -203,6 +213,14 @@ void TCorrPTData::readfromCFG( const string& fileName )
       propertyUnits = deflt.propertyUnits;
     else
        convertFromQt( jsonArr, propertyUnits);
+
+    btarr = settings.value("PropertyPrecision", "").toByteArray();
+    jsonDoc = QJsonDocument::fromJson(btarr);
+    jsonArr = jsonDoc.array();
+    if(jsonArr.empty() )
+      propertyPrecision = deflt.propertyPrecision;
+    else
+       convertFromQt( jsonArr, propertyPrecision);
 
 }
 
@@ -231,6 +249,16 @@ void convertFromQt( const QJsonArray& inlst, vector<double>& lst)
   for(int ii=0; ii<inlst.size(); ii++)
   {
     double vl = inlst[ii].toDouble();
+    lst.push_back(vl);
+  }
+}
+
+void convertFromQt( const QJsonArray& inlst, vector<int>& lst)
+{
+  lst.clear();
+  for(int ii=0; ii<inlst.size(); ii++)
+  {
+    double vl = inlst[ii].toInt();
     lst.push_back(vl);
   }
 }
@@ -326,7 +354,7 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
    _PlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
     ui->gridLayout_3->addWidget(_PlistTable, 1, 1, 1, 1);
 
-   _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits );
+   _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
    _PropertyTable  = new TMatrixTable( ui->inWidget );
     deleg = new TMatrixDelegate();
    _PropertyTable->setItemDelegate(deleg);

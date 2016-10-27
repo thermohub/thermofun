@@ -63,6 +63,7 @@ struct TCorrPTData
 
     vector<string> properties;    ///< Properties names list
     vector<string> propertyUnits; ///< Units of property
+    vector<int>    propertyPrecision; ///< Units of property
 
     /// Default values to task
     TCorrPTData();
@@ -137,13 +138,13 @@ class TPropertyContainer : public TAbstractDataContainer
 {
     vector<string>& _properties;      ///< Properties names list
     vector<string>& _propertyUnits;   ///< Units of property
-//    vector<string>& _propertyFormats; ///< Output formats of property
+    vector<int>& _propertyPrecision; ///< Output formats of property
 
  public:
 
-   TPropertyContainer( const char * aname, vector<string>& aProperties, vector<string>& aPUnits ):
+   TPropertyContainer( const char * aname, vector<string>& aProperties, vector<string>& aPUnits, vector<int>& aPPrecision ):
       TAbstractDataContainer(aname),
-      _properties(aProperties),_propertyUnits( aPUnits ) {}
+      _properties(aProperties),_propertyUnits( aPUnits ), _propertyPrecision( aPPrecision ) {}
 
    virtual ~TPropertyContainer() {}
 
@@ -151,23 +152,30 @@ class TPropertyContainer : public TAbstractDataContainer
    { return _properties.size();  }
 
    int columnCount() const
-   { return 2; }
+   { return 3; }
 
    QVariant data( int line, int column ) const
    {
        if(column == 0)
           return _properties[line].c_str();
        else
+       if(column == 1)
           return _propertyUnits[line].c_str();
+       else
+          return _propertyPrecision[line];
    }
 
    bool setData( int line, int column, const QVariant &value )
    {
        string val = value.toString().toUtf8().data();
+       int    vali= value.toInt();
        if(column == 0)
           _properties[line] = val;
        else
+       if(column == 1)
           _propertyUnits[line] = val;
+       else
+          _propertyPrecision[line] = vali;
        return true;
    }
 
@@ -176,7 +184,10 @@ class TPropertyContainer : public TAbstractDataContainer
        if(section == 0)
            return "Property";
        else
+       if(section == 1)
            return "Unit";
+       else
+           return "Precision";
    }
 
    virtual bool  IsEditable( int /*line*/, int /*column*/ ) const
@@ -190,7 +201,10 @@ class TPropertyContainer : public TAbstractDataContainer
        if(column == 0)
            return "Property";
        else
+       if(column == 1)
            return "Unit";
+       else
+           return "Precision / digits after decimal point (in Fixed Format)";
    }
 
    void resetData()
@@ -362,6 +376,7 @@ template<>
 QJsonDocument convert2Qt( const vector<string> lst);
 void convertFromQt( const QJsonArray& inlst, vector<string>& lst);
 void convertFromQt( const QJsonArray& inlst, vector<double>& lst);
+void convertFromQt( const QJsonArray& inlst, vector<int>& lst);
 
 //template<class T>
 //void bson_read_array( const char *obj, const char *name, vector<T>& lst )

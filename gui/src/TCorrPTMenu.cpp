@@ -350,9 +350,11 @@ void TCorrPTWidget::CmResetProperty()
 
     _data.properties = dlg.allSelected();
     _data.propertyUnits.resize(_data.properties.size());
+    _data.propertyPrecision.resize(_data.properties.size());
     for (unsigned i = 0; i<_data.properties.size(); i++)
     {
         _data.propertyUnits[i] = TCorrPT::thermoPropDefaultUnits.find(_data.properties[i])->second;
+        _data.propertyPrecision[i] = TCorrPT::thermoPropDefaultPrecision.find(_data.properties[i])->second;
     }
      _PropertyModel->resetMatrixData();
   }
@@ -494,6 +496,14 @@ readData:
              op.fixed = true;
              tpCalc.setOutputOptions(op);
          }
+
+         std::map<std::string, int> precision = TCorrPT::thermoPropDefaultPrecision;
+         for (uint jj = 0; jj <_data.properties.size(); jj++)
+         {
+             precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
+         }
+
+         tpCalc.setThermoPrecision(precision);
 
          std::vector<std::vector<double>> TPpairs;
          for (uint jj=0; jj<_data.pointsT.size(); jj++)

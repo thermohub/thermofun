@@ -208,10 +208,6 @@ auto TPcalcualationsAPI::outResults( ) -> void
 {
     std::string s = pimpl->outputOptions.separator; unsigned int c = 0;
     pimpl->fThermoPropertiesSubstance.open( pimpl->outputOptions.fileName, ios::trunc );
-    pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->outputOptions.precision);
-
-    if (pimpl->outputOptions.fixed) pimpl->fThermoPropertiesSubstance << std::fixed;
-    if (pimpl->outputOptions.scientific) pimpl->fThermoPropertiesSubstance << std::scientific;
 
     pimpl->fThermoPropertiesSubstance << pimpl->header << endl;
 
@@ -219,9 +215,13 @@ auto TPcalcualationsAPI::outResults( ) -> void
     {
         for (unsigned j=0; j<pimpl->TP_pairs.size(); j++)
         {
+            pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->outputOptions.precision) << std::fixed;
             pimpl->fThermoPropertiesSubstance << pimpl->substanceSymbols[i] << s << pimpl->TP_pairs[j][0] << s << pimpl->TP_pairs[j][1];
+
+            if (!pimpl->outputOptions.fixed) pimpl->fThermoPropertiesSubstance << std::defaultfloat;
             for (unsigned k=0; k<pimpl->results[i].size(); k++)
             {
+                pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at(pimpl->propNamesToExport.at(k+1)));
                 pimpl->fThermoPropertiesSubstance << s << pimpl->results[c][k];
             }
             c++;
