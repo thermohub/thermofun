@@ -49,9 +49,11 @@ TCorrPTData::TCorrPTData()
   schemaName = "VertexSubstance";
   query = "";
   T =25;
+  tPrecision = 0;
   pointsT.push_back(25);
   unitsT = "Celsius";
   P =1;
+  pPrecision = 0;
   pointsP.push_back(1);
   unitsP = "bar";
   properties.push_back("gibbs_energy");
@@ -73,6 +75,7 @@ void TCorrPTData::toBson( bson *obj ) const
         bson_destroy(&whilebson);
     }
     bson_append_double( obj,"Temperature", T );
+    bson_append_double( obj,"TemperaturePrecision", tPrecision );
     bson_append_string( obj,"TemperatureUnits", unitsT.c_str() );
     bson_append_start_array(obj, "TemperaturePoints");
     for(uint ii=0; ii<pointsT.size(); ii++)
@@ -80,6 +83,7 @@ void TCorrPTData::toBson( bson *obj ) const
     bson_append_finish_array(obj);
 
     bson_append_double( obj,"Pressure", P );
+    bson_append_double( obj,"PressurePrecision", pPrecision );
     bson_append_string( obj,"PressureUnits", unitsP.c_str() );
     bson_append_start_array(obj, "PressurePoints");
     for(uint ii=0; ii<pointsP.size(); ii++)
@@ -115,6 +119,8 @@ void TCorrPTData::fromBson( const char* bsobj )
 
     if(!bson_find_value( bsobj, "Temperature", T ) )
         T=deflt.T;
+    if(!bson_find_value( bsobj, "TemperaturePrecision", tPrecision ) )
+        tPrecision=deflt.tPrecision;
     if(!bson_find_string( bsobj, "TemperatureUnits", unitsT ) )
         unitsT=deflt.unitsT;
     bson_read_array( bsobj, "TemperaturePoints", pointsT );
@@ -123,6 +129,8 @@ void TCorrPTData::fromBson( const char* bsobj )
 
     if(!bson_find_value( bsobj, "Pressure", P ) )
         P=deflt.P;
+    if(!bson_find_value( bsobj, "PressurePrecision", pPrecision ) )
+        pPrecision=deflt.pPrecision;
     if(!bson_find_string( bsobj, "PressureUnits", unitsP ) )
         unitsP=deflt.unitsP;
     bson_read_array( bsobj, "PressurePoints", pointsP );
@@ -152,12 +160,14 @@ void TCorrPTData::savetoCFG( const string& fileName )
    settings.setValue("Query", query.c_str() );
 
    settings.setValue("Temperature", T );
+   settings.setValue("TemperaturePrecision", tPrecision );
    settings.setValue("TemperatureUnits", unitsT.c_str() );
    //QList<double> tplst = QList<double>::fromVector(QVector<double>::fromStdVector(pointsT));
    //settings.setValue("TemperaturePoints", QVariant::fromValue(tplst) );
    settings.setValue("TemperaturePoints", convert2Qt( pointsT).toJson() );
 
    settings.setValue("Pressure", P );
+   settings.setValue("PressurePrecision", pPrecision );
    settings.setValue("PressureUnits", unitsP.c_str() );
    settings.setValue("PressurePoints", convert2Qt( pointsP).toJson() );
 
@@ -179,6 +189,7 @@ void TCorrPTData::readfromCFG( const string& fileName )
     query = settings.value("Query", deflt.query.c_str() ).toString().toUtf8().data();
 
     T = settings.value("Temperature", deflt.T ).toDouble();
+    tPrecision = settings.value("TemperaturePrecision", deflt.tPrecision ).toDouble();
     unitsT = settings.value("TemperatureUnits", deflt.unitsT.c_str() ).toString().toUtf8().data();
     QByteArray  btarr = settings.value("TemperaturePoints", "").toByteArray();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(btarr);
@@ -189,6 +200,7 @@ void TCorrPTData::readfromCFG( const string& fileName )
        convertFromQt( jsonArr, pointsT);
 
     P = settings.value("Pressure", deflt.P ).toDouble();
+    pPrecision = settings.value("PressurePrecision", deflt.pPrecision ).toDouble();
     unitsP = settings.value("PressureUnits", deflt.unitsP.c_str() ).toString().toUtf8().data();
     btarr = settings.value("PressurePoints", "").toByteArray();
     jsonDoc = QJsonDocument::fromJson(btarr);
@@ -368,6 +380,8 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
    ui->pPVal->setValue(_data.P);
    ui->pTunit->setCurrentText( _data.unitsT.c_str());
    ui->pPunit->setCurrentText(_data.unitsP.c_str());
+   ui->pPrecision->setValue(_data.pPrecision);
+   ui->tPrecision->setValue(_data.tPrecision);
 
    // define menu
    setActions();
@@ -625,7 +639,9 @@ void TCorrPTWidget::resetTCorrPTData()
     ui->pName->setText(_data.name.c_str());
     ui->pComment->setText(_data.comment.c_str());
     ui->pTVal->setValue(_data.T);
+    ui->tPrecision->setValue(_data.tPrecision);
     ui->pPVal->setValue(_data.P);
+    ui->pPrecision->setValue(_data.pPrecision);
     ui->pTunit->setCurrentText( _data.unitsT.c_str());
     ui->pPunit->setCurrentText(_data.unitsP.c_str());
 //    ui->FormatBox->setChecked(_data.isFixedFormat);

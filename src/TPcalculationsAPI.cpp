@@ -211,14 +211,17 @@ auto TPcalcualationsAPI::outResults( ) -> void
 
     pimpl->fThermoPropertiesSubstance << pimpl->header << endl;
 
+    if (pimpl->outputOptions.fixed) pimpl->fThermoPropertiesSubstance << std::fixed;
+
     for (unsigned i=0; i<pimpl->substanceSymbols.size(); i++)
     {
         for (unsigned j=0; j<pimpl->TP_pairs.size(); j++)
         {
-            pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->outputOptions.precision) << std::fixed;
-            pimpl->fThermoPropertiesSubstance << pimpl->substanceSymbols[i] << s << pimpl->TP_pairs[j][0] << s << pimpl->TP_pairs[j][1];
+            pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at("temperature"));
+            pimpl->fThermoPropertiesSubstance << pimpl->substanceSymbols[i] << s << pimpl->TP_pairs[j][0];
+            pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at("pressure"));
+            pimpl->fThermoPropertiesSubstance << s << pimpl->TP_pairs[j][1];
 
-            if (!pimpl->outputOptions.fixed) pimpl->fThermoPropertiesSubstance << std::defaultfloat;
             for (unsigned k=0; k<pimpl->results[i].size(); k++)
             {
                 pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at(pimpl->propNamesToExport.at(k+1)));

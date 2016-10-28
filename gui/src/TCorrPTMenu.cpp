@@ -91,6 +91,8 @@ void TCorrPTWidget::setActions()
     connect( ui->pTunit, SIGNAL( currentIndexChanged(const QString&)), this, SLOT(TUnitsChanged(const QString&)));
     connect( ui->pPVal, SIGNAL( valueChanged(double)), this, SLOT(PChanged(double)));
     connect( ui->pPunit, SIGNAL( currentIndexChanged(const QString&)), this, SLOT(PUnitsChanged(const QString&)));
+    connect( ui->pPrecision, SIGNAL( valueChanged(int)), this, SLOT(pPChanged(int)));
+    connect( ui->tPrecision, SIGNAL( valueChanged(int)), this, SLOT(tPChanged(int)));
 
     //Calc
     connect( ui->actionCalculate_Properties, SIGNAL( triggered()), this, SLOT(CmCalcMTPARM()));
@@ -502,6 +504,9 @@ readData:
          {
              precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
          }
+
+         precision.at("temperature") = _data.tPrecision;
+         precision.at("pressure") = _data.pPrecision;
 
          tpCalc.setThermoPrecision(precision);
 

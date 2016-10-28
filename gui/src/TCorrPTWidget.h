@@ -65,6 +65,8 @@ struct TCorrPTData
     vector<string> propertyUnits; ///< Units of property
     vector<int>    propertyPrecision; ///< Units of property
 
+    int pPrecision, tPrecision;
+
     /// Default values to task
     TCorrPTData();
 
@@ -204,7 +206,7 @@ class TPropertyContainer : public TAbstractDataContainer
        if(column == 1)
            return "Unit";
        else
-           return "Precision / digits after decimal point (in Fixed Format)";
+           return "Output precision / digits after decimal point (in Fixed Format)";
    }
 
    void resetData()
@@ -263,6 +265,14 @@ protected slots:
     void PChanged(double val)
     {
       _data.P = val;
+    }
+    void pPChanged(int val)
+    {
+      _data.pPrecision = val;
+    }
+    void tPChanged(int val)
+    {
+      _data.tPrecision = val;
     }
     void TUnitsChanged(const QString & text)
     {

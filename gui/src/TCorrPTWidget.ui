@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>796</width>
+    <width>848</width>
     <height>575</height>
    </rect>
   </property>
@@ -103,74 +103,13 @@
           </property>
           <widget class="QWidget" name="inWidget" native="true">
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="0" colspan="2">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Task Name</string>
+            <item row="3" column="8">
+             <widget class="QSpinBox" name="tPrecision">
+              <property name="toolTip">
+               <string extracomment="Output precision / digits after decimal point (in Fixed Format)"/>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="2" colspan="5">
-             <widget class="QLineEdit" name="pName"/>
-            </item>
-            <item row="4" column="1" colspan="2">
-             <widget class="QDoubleSpinBox" name="pPVal">
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>T</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>P</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" colspan="7">
-             <widget class="QLineEdit" name="pComment"/>
-            </item>
-            <item row="6" column="0" colspan="2">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Properties table</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="3">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Units</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" colspan="2">
-             <widget class="QDoubleSpinBox" name="pTVal">
-              <property name="minimum">
-               <double>-500.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>500.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>25.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string/>
+              <property name="toolTipDuration">
+               <number>5</number>
               </property>
              </widget>
             </item>
@@ -203,10 +142,57 @@
               </item>
              </widget>
             </item>
+            <item row="4" column="7">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Precision</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="8">
+             <widget class="QSpinBox" name="pPrecision">
+              <property name="toolTip">
+               <string extracomment="Output precision / digits after decimal point (in Fixed Format)"/>
+              </property>
+              <property name="toolTipDuration">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="9">
+             <widget class="QLineEdit" name="pComment"/>
+            </item>
+            <item row="1" column="2" colspan="7">
+             <widget class="QLineEdit" name="pName"/>
+            </item>
+            <item row="5" column="0">
+             <widget class="QCheckBox" name="FormatBox">
+              <property name="text">
+               <string>Fixed Format</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Units</string>
+              </property>
+             </widget>
+            </item>
             <item row="4" column="3">
              <widget class="QLabel" name="label_6">
               <property name="text">
                <string>Units</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>T</string>
               </property>
              </widget>
             </item>
@@ -227,13 +213,76 @@
               </item>
              </widget>
             </item>
-            <item row="5" column="0">
-             <widget class="QCheckBox" name="FormatBox">
-              <property name="text">
-               <string>Fixed Format</string>
-              </property>
-              <property name="checked">
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="enabled">
                <bool>true</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>120</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>P</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" colspan="2">
+             <widget class="QDoubleSpinBox" name="pTVal">
+              <property name="minimum">
+               <double>-500.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>500.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>25.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" colspan="2">
+             <widget class="QDoubleSpinBox" name="pPVal">
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="7">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Precision</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Task Name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="4">
+             <widget class="QLabel" name="label_9">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Properties table</string>
               </property>
              </widget>
             </item>
@@ -270,7 +319,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>796</width>
+     <width>848</width>
      <height>25</height>
     </rect>
    </property>
