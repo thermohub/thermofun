@@ -490,7 +490,7 @@ readData:
              goto readData;
          }
 
-         TCorrPT::TPcalcualationsAPI tpCalc(tdb);
+         TCorrPT::TPcalcualationsAPI tpCalc(selectedList/*tdb*/);
 //         tpCalc.calculateThermoProperties(substancesSymbols, {"sm_gibbs_energy"}, 25, 1);
          op = tpCalc.outputOptions();
          if (ui->FormatBox->isChecked())

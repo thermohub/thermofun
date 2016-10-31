@@ -1,7 +1,7 @@
 #include "InterfaceGui.h"
 
-InterfaceGUI::InterfaceGUI()
-{
+//InterfaceGUI::InterfaceGUI()
+//{
 
-}
+//}
 

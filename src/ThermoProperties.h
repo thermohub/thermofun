@@ -74,15 +74,15 @@ struct ThermoPropertiesReaction
 struct PropertiesSolvent
 {
     /// speed of sound
-    double Speed,
+    double speed_of_sound,
 //       Alpha,            /// constant pressure expansion (alpha)
 //       Beta,             /// constant temperature compressibility (beta)
     /// dynamic viscosity
-       Visc,
+       dynamic_viscosity,
     /// thermal conductivity
-       Tcond,
+       thermal_conductivity,
     /// surface tension
-       Surten,
+       surface_tension,
     /// not clear (currently not used)
        Tdiff,
     /// Prandtl number (currently not used)

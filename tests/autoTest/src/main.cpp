@@ -7,6 +7,7 @@
 #include "node.h"
 // TCorrPT output include
 #include "Common/OutputToCSV.h"
+#include "ThermoPropertiesUnits.h"
 
 using namespace std;
 using namespace TCorrPT;
@@ -99,6 +100,8 @@ int main(int argc, char *argv[])
     double P;
 
     int c = 0;
+
+//    propertiesUnits["tmeperature"] = "K";
 
     /// Used to test different waters solvent models
 //    Substance water;
@@ -306,6 +309,8 @@ int main(int argc, char *argv[])
     cout << "+ Time for "<< c << " T-P calculations: "<< delta_calc << "s " << endl;
     cout << "+ Total time: " << delta + delta_calc << "s "<< endl;
     cout << "==================================================================" << endl<< endl;
+
+
 
     return 0;
 }

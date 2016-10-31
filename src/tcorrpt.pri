@@ -61,7 +61,9 @@
     $$PWD/Gases/verror.h \
     $$PWD/Solvent/WaterElectroFernandez1997.h \
     $$PWD/Interfaces/Interface.h \
-    $$PWD/Interfaces/InterfaceGui.h
+    $$PWD/Interfaces/InterfaceGui.h \
+    $$PWD/ThermoPropertiesUnits.h \
+    $$PWD/Interfaces/Output.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -119,4 +121,5 @@
     $$PWD/Gases/GasSTP.cpp \
     $$PWD/Solvent/WaterElectroFernandez1997.cpp \
     $$PWD/Interfaces/Interface.cpp \
-    $$PWD/Interfaces/InterfaceGui.cpp
+    $$PWD/Interfaces/InterfaceGui.cpp \
+    $$PWD/Interfaces/Output.cpp

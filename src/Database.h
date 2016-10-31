@@ -34,7 +34,6 @@ public:
 
     /// Construct a database instance by parsing a "json", "yam", "xml" file
     /// containg the exported substances and reactions
-    // bsonio library should be used here
     explicit Database(std::string filename);
 
     /**

@@ -58,7 +58,7 @@ class TPcalcualationsAPI
 
 public:
     /// Construct a TPcalcualationsAPI instance with given Database instance
-    explicit TPcalcualationsAPI(const Database& database);
+    /*explicit*/ TPcalcualationsAPI(const Database& database);
 
     /**
      * @brief calculateThermoProperties calculates the selected thermodynamic properties for selected substances at T and P

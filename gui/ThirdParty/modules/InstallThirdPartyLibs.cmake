@@ -31,7 +31,7 @@ ExternalProject_Add(BSONUI
 # Download and install the TCorrPT library
 ExternalProject_Add(TCORRPT
     PREFIX thirdparty
-    GIT_REPOSITORY https://svetadmitrieva@bitbucket.org/gems4/tcorrpt.git
+#    GIT_REPOSITORY https://dmiron@bitbucket.org/gems4/tcorrpt.git
 #    GIT_TAG feat-gui
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
