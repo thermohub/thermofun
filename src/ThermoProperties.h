@@ -4,6 +4,15 @@
 
 namespace TCorrPT {
 
+struct ThermoVariables
+{
+    /// the temperature T (in units of C)
+    Reaktoro_::Temperature temperature;
+
+    /// the pressure P (in units of bar)
+    Reaktoro_::Pressure pressure;
+};
+
 /// Describe the thermodynamic state of a substance
 struct ThermoPropertiesSubstance
 {
