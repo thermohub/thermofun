@@ -12,5 +12,6 @@ tests/autoTest/autoTest.pro.user
 tests/boostTest/boostTest.pro.user
 tests/unit06/H2OZD2005-test.pro.user
 tests/gUnitTest/gUnitTest.pro.user
+tests/interfaceTest/interfaceTest.pro.user
 src/*.autosave
 tests/unit01/src/*.autosave
