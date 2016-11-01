@@ -62,7 +62,6 @@
     $$PWD/Solvent/WaterElectroFernandez1997.h \
     $$PWD/Interfaces/Interface.h \
     $$PWD/Interfaces/InterfaceGui.h \
-    $$PWD/ThermoPropertiesUnits.h \
     $$PWD/Interfaces/Output.h
 
 

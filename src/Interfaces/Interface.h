@@ -6,52 +6,13 @@
 
 namespace TCorrPT {
 
-class Interface
-{
-public:
-    ///
-    /// \brief Interface constructor
-    /// \param database
-    ///
-    Interface(const Database &database);
-
-    auto setSubstanceNames (const std::vector<string> &substNames) -> void;
-    auto setSubstanceName  (const std::string &substName) -> void;
-    //    auto setPropertyNames (const map<std::string, std::string> &propNames) -> void;
-    auto setPropertyNames (const std::vector<string> &propNames) -> void;
-    auto setPropertyName  (const std::string &propName) -> void;
-    auto setPropertyUnits (const std::map<const std::string, std::string> &propUnits)-> void;
-    auto setPropertyNamesUnits (const std::vector<string> &propNames, const std::vector<string> &propUnits)-> void;
-    auto setPropertyDigits (const std::map<const std::string, int> &propDigits)-> void;
-    auto setPropertyNamesDigits (const std::vector<string> &propNames, const std::vector<int> &propDigits)-> void;
-    auto setPropertyNameUnit (const std::string &propName, const std::string &propUnit)-> void;
-    auto setPropertyNameDigit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
-    auto setPropertyNameUnitDigit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
-
-    auto setTP_pairs (const double &T, const double &P) -> void;
-    auto setTP_pairs (const double &Tmin, const double &Tmax, const double &Tstep,
-                      const double &Pmin, const double &Pmax, const double &Pstep) -> void;
-    auto setTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -> void;
-
-    // claculate functions
-    auto thermoCalculate( ) -> Output;
-
-private:
-    struct Impl;
-    std::shared_ptr<Impl> pimpl;
-
-    auto setHeader(std::vector<string> substanceSymbols, map<int, string> thermoProperties, map<string, string> units ) -> void;
-
-
-};
-
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results
  */
-struct OutputOptions
+struct OutputSettings
 {
     /// using fixed-point notation: the value is represented with exactly as many digits in the decimal part as specified by the precision field
-    bool isFixed = false;
+    bool isFixed = true;
 
     /// write values in scientific notation.
     bool isScientific = false;
@@ -61,6 +22,64 @@ struct OutputOptions
 
     /// file name/path
     std::string fileName = "tpresults.csv";
+};
+
+class Interface
+{
+    friend class Output;
+public:
+    ///
+    /// \brief Interface constructor
+    /// \param database
+    ///
+    Interface(const Database &database);
+
+    auto addSubstanceSymbols      (const std::vector<string> &substSymbols) -> void;
+    auto addSubstanceSymbol       (const std::string &substSymbol) -> void;
+    auto addPropertyNames         (const std::vector<string> &propNames) -> void;
+    auto addPropertyName          (const std::string &propName) -> void;
+    auto addPropertyUnits         (const std::map<const std::string, std::string> &propUnits)-> void;
+    auto addPropertyNamesUnits    (const std::vector<string> &propNames, const std::vector<string> &propUnits)-> void;
+    auto addPropertyDigits        (const std::map<const std::string, int> &propDigits)-> void;
+    auto addPropertyNamesDigits   (const std::vector<string> &propNames, const std::vector<int> &propDigits)-> void;
+    auto addPropertyNameUnit      (const std::string &propName, const std::string &propUnit)-> void;
+    auto addPropertyNameDigit     (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
+    auto addPropertyNameUnitDigit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
+
+    auto addTP_pairs (const double &T, const double &P) -> void;
+    auto addTP_pairs (const double &Tmin, const double &Tmax, const double &Tstep,
+                      const double &Pmin, const double &Pmax, const double &Pstep) -> void;
+    auto addTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -> void;
+
+    auto setFoutputSettings(const OutputSettings &value) -> void;
+
+    // claculate functions
+    auto thermoCalculate() -> Output;
+    auto thermoCalculate(const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
+    auto thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+                                    double T, double P) -> Output;
+    auto thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+                         double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
+    auto thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+                         std::vector<std::vector<double> > tp_pairs) -> Output;
+
+private:
+    struct Impl;
+    std::shared_ptr<Impl> pimpl;
+
+    auto calculateResults() -> void;
+
+    auto selectResults(ThermoPropertiesSubstance tps) -> std::vector<double>;
+
+    auto substanceSymbols() -> const std::vector<string>;
+    auto TP_pairs()         -> const std::vector<std::vector<double>>;
+    auto propNames()        -> const map<int, std::string>;
+    auto propUnits()        -> const std::map<const std::string, std::string>;
+    auto propDigits()       -> const std::map<const std::string, int>;
+    auto results()          -> const std::vector<std::vector<double>>;
+
+    auto foutputSettings()  -> const OutputSettings;
+
 };
 
 const std::map<const std::string, const std::string> defaultPropertyNames =

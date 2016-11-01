@@ -46,7 +46,7 @@ struct OutputOptions
     std::string separator = ",";
 
     /// file name/path
-    std::string fileName = "tpresults.csv";
+    std::string fileName = "xtpresults.csv";
 };
 
 /**
