@@ -91,7 +91,15 @@ auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vecto
 auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                      std::vector<std::vector<double> > tp_pairs) -> Output
 {
-   return Output (*this);
+    addSubstances(substanceSymbols);
+
+    addProperties(thermoProperties);
+
+    addTP_pairs(tp_pairs);
+
+    calculateResultsSubst();
+
+    return Output (*this);
 }
 
 auto Interface::selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vector<Reaktoro_::ThermoScalar>
@@ -191,6 +199,11 @@ auto Interface::addTP_pairs (const double &Tmin, const double &Tmax, const doubl
 auto Interface::addTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -> void
 {
     pimpl->tp_pairs = TP_pairs;
+}
+
+auto Interface::addDigits (const std::map<const std::string, int> &propDigits)-> void
+{
+    pimpl->propDigits = propDigits;
 }
 
 // set functions

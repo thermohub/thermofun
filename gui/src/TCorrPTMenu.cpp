@@ -41,7 +41,8 @@
 #include "bsonui/QueryWidget.h"
 #include "bsonio/json2cfg.h"
 // TCorrPT include
-#include "tcorrpt/TPcalculationsAPI.h"
+//#include "tcorrpt/TPcalculationsAPI.h"
+#include "tcorrpt/Interfaces/Interface.h"
 
 using namespace bsonio;
 
@@ -355,8 +356,8 @@ void TCorrPTWidget::CmResetProperty()
     _data.propertyPrecision.resize(_data.properties.size());
     for (unsigned i = 0; i<_data.properties.size(); i++)
     {
-        _data.propertyUnits[i] = TCorrPT::thermoPropDefaultUnits.find(_data.properties[i])->second;
-        _data.propertyPrecision[i] = TCorrPT::thermoPropDefaultPrecision.find(_data.properties[i])->second;
+        _data.propertyUnits[i] = TCorrPT::defaultPropertyUnits.find(_data.properties[i])->second;
+        _data.propertyPrecision[i] = TCorrPT::defaultPropertyDigits.find(_data.properties[i])->second;
     }
      _PropertyModel->resetMatrixData();
   }
@@ -445,8 +446,6 @@ void TCorrPTWidget::CmCalcMTPARM()
          if( aKeyList.empty() )
              return;
 
-         TCorrPT::OutputOptions op;
-
          SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
          if( !selDlg.exec() )
             return;
@@ -490,16 +489,16 @@ readData:
              goto readData;
          }
 
-         TCorrPT::TPcalcualationsAPI tpCalc(selectedList/*tdb*/);
-//         tpCalc.calculateThermoProperties(substancesSymbols, {"sm_gibbs_energy"}, 25, 1);
-         op = tpCalc.outputOptions();
+         TCorrPT::Interface tpCalc(tdb);
+         TCorrPT::OutputSettings op;
+
          if (ui->FormatBox->isChecked())
          {
-             op.fixed = true;
-             tpCalc.setOutputOptions(op);
+             op.isFixed = true;
+             tpCalc.setOutputSettings(op);
          }
 
-         std::map<std::string, int> precision = TCorrPT::thermoPropDefaultPrecision;
+         std::map<const std::string, int> precision = TCorrPT::defaultPropertyDigits;
          for (uint jj = 0; jj <_data.properties.size(); jj++)
          {
              precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
@@ -508,7 +507,7 @@ readData:
          precision.at("temperature") = _data.tPrecision;
          precision.at("pressure") = _data.pPrecision;
 
-         tpCalc.setThermoPrecision(precision);
+         tpCalc.addDigits(precision);
 
          std::vector<std::vector<double>> TPpairs;
          for (uint jj=0; jj<_data.pointsT.size(); jj++)
@@ -516,11 +515,7 @@ readData:
              TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
          }
 
-         // for testing
-//         _data.properties = {"sm_gibbs_energy","sm_enthalpy","sm_entropy_abs", "sm_heat_capacity_p","sm_volume"};
-//         _data.properties.push_back("sm_enthalpy");
-         //
-         tpCalc.calculateThermoProperties(substancesSymbols, _data.properties, TPpairs);
+         tpCalc.thermoCalculate(substancesSymbols, _data.properties, TPpairs).toCSV();
 
          cout << "Finished TCorrPT calculation!" << endl;
 
@@ -557,7 +552,8 @@ void TCorrPTWidget::CmShowResult()
 {
    try {
         // define new dialog
-        string fileName = "tpresults.csv";
+        TCorrPT::OutputSettings op;
+        string fileName = op.fileNameSubst;
         if(!_csvWin)
         {
             _csvWin = new TableEditWidget("CSV editor ", fileName,

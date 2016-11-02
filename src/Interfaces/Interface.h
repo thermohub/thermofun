@@ -1,7 +1,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include "Thermo.h"
+#include "../Thermo.h"
 #include "Output.h"
 
 namespace TCorrPT {
