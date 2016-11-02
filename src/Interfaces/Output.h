@@ -11,6 +11,7 @@ namespace TCorrPT {
 class Interface;
 class ThermoScalar;
 
+
 class Output
 {
 public:
@@ -20,20 +21,17 @@ public:
     ///
     Output(const Interface & interface);
 
-    auto toCSV()            -> void;
-    auto toDouble()         -> double;
-    auto toThermoScalar()   -> ThermoScalar;
-    auto to2DVectorDouble() -> std::vector<std::vector<double>>;
-
+    auto toCSV              () -> void;
+    auto toDouble           () -> double;
+    auto toThermoScalar     () -> ThermoScalar;
+    auto to2DVectorDouble   () -> std::vector<std::vector<double>>;
 
 private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
 
-    auto CSVHeader()-> std::string;
-    auto foutResults()-> void;
-
-
+    auto CSVHeader          ()-> std::string;
+    auto foutResultsSubst   ()-> void;
 };
 
 }

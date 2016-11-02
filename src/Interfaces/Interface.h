@@ -21,9 +21,25 @@ struct OutputSettings
     std::string separator = ",";
 
     /// file name/path
-    std::string fileName = "tpresults.csv";
+    std::string fileNameSubst = "tpresults_subst.csv";
 };
 
+///
+/// \brief The Interface class provides an interface to C++ codes coupled to ThermoFunk library for performing
+/// calculations related to the standard state properties of substances and reactions at different temperatures
+/// and pressures, and retriveve the results as CSV output file, 2D vector (of double or ThrmoScalar types), or
+/// single value (of double or ThermoScalar types) for one property-substance-T-P calculation.
+///
+/// The class provides several functions for adding the symbol of the substance or reaction (or lists of symblos)
+/// for which the calculations will be performed.
+///
+/// The class provides several functions for adding the temperature and pressure points at which the calculations
+/// will be performed.
+///
+/// The class provides several functions for setting the unist in which the results are dysplayed and the
+/// siginifincat digits (or precision) in which the values will be written in the output CSV file.
+///
+///
 class Interface
 {
     friend class Output;
@@ -34,52 +50,48 @@ public:
     ///
     Interface(const Database &database);
 
-    auto addSubstanceSymbols      (const std::vector<string> &substSymbols) -> void;
-    auto addSubstanceSymbol       (const std::string &substSymbol) -> void;
-    auto addPropertyNames         (const std::vector<string> &propNames) -> void;
-    auto addPropertyName          (const std::string &propName) -> void;
-    auto addPropertyUnits         (const std::map<const std::string, std::string> &propUnits)-> void;
-    auto addPropertyNamesUnits    (const std::vector<string> &propNames, const std::vector<string> &propUnits)-> void;
-    auto addPropertyDigits        (const std::map<const std::string, int> &propDigits)-> void;
-    auto addPropertyNamesDigits   (const std::vector<string> &propNames, const std::vector<int> &propDigits)-> void;
-    auto addPropertyNameUnit      (const std::string &propName, const std::string &propUnit)-> void;
-    auto addPropertyNameDigit     (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
-    auto addPropertyNameUnitDigit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
+    auto addSubstances                  (const std::vector<string> &substSymbols) -> void;
+    auto addSubstance                   (const std::string &substSymbol) -> void;
+    auto addProperties                  (const std::vector<string> &propNames) -> void;
+    auto addProperty                    (const std::string &propName) -> void;
+    auto addUnits                       (const std::map<const std::string, std::string> &propUnits)-> void;
+    auto addDigits                      (const std::map<const std::string, int> &propDigits)-> void;
+    auto addProperties_and_Units        (const std::vector<string> &propNames, const std::vector<string> &propUnits)-> void;
+    auto addProperties_and_Digits       (const std::vector<string> &propNames, const std::vector<int> &propDigits)-> void;
+    auto addProperty_and_Unit           (const std::string &propName, const std::string &propUnit)-> void;
+    auto addProperty_and_Digit          (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
+    auto addProperty_and_Unit_and_Digit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
 
-    auto addTP_pairs (const double &T, const double &P) -> void;
-    auto addTP_pairs (const double &Tmin, const double &Tmax, const double &Tstep,
-                      const double &Pmin, const double &Pmax, const double &Pstep) -> void;
-    auto addTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -> void;
+    auto addTP_pairs                    (const double &T, const double &P) -> void;
+    auto addTP_pairs                    (const double &Tmin, const double &Tmax, const double &Tstep,
+                                         const double &Pmin, const double &Pmax, const double &Pstep) -> void;
+    auto addTP_pairs                    (const std::vector<std::vector<double>> &TP_pairs) -> void;
 
-    auto setFoutputSettings(const OutputSettings &value) -> void;
+    auto setOutputSettings(const OutputSettings &value) -> void;
 
     // claculate functions
-    auto thermoCalculate() -> Output;
-    auto thermoCalculate(const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
-    auto thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto thermoCalculate    () -> Output;
+    auto thermoCalculate    (const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
+    auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                                     double T, double P) -> Output;
-    auto thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                         double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
-    auto thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                         std::vector<std::vector<double> > tp_pairs) -> Output;
+    auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+                             double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
+    auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+                             std::vector<std::vector<double> > tp_pairs) -> Output;
 
 private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
 
-    auto calculateResults() -> void;
-
-    auto selectResults(ThermoPropertiesSubstance tps) -> std::vector<double>;
-
-    auto substanceSymbols() -> const std::vector<string>;
-    auto TP_pairs()         -> const std::vector<std::vector<double>>;
-    auto propNames()        -> const map<int, std::string>;
-    auto propUnits()        -> const std::map<const std::string, std::string>;
-    auto propDigits()       -> const std::map<const std::string, int>;
-    auto results()          -> const std::vector<std::vector<double>>;
-
-    auto foutputSettings()  -> const OutputSettings;
-
+    auto selectResultsSubst     (ThermoPropertiesSubstance tps) -> std::vector<Reaktoro_::ThermoScalar>;
+    auto calculateResultsSubst  () -> void;
+    auto substanceSymbols       () -> const std::vector<string>;
+    auto TP_pairs               () -> const std::vector<std::vector<double>>;
+    auto propNames              () -> const map<int, std::string>;
+    auto propUnits              () -> const std::map<const std::string, std::string>;
+    auto propDigits             () -> const std::map<const std::string, int>;
+    auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+    auto outputSettings         () -> const OutputSettings;
 };
 
 const std::map<const std::string, const std::string> defaultPropertyNames =
@@ -92,7 +104,16 @@ const std::map<const std::string, const std::string> defaultPropertyNames =
     {"heat_capacity_cv",               "substance"     },
     {"volume",                         "substance"     },
     {"helmholtz_energy",               "substance"     },
-    {"internal_energy",                "substance"     }
+    {"internal_energy",                "substance"     },
+
+    {"reaction_gibbs_energy",          "reaction"      },
+    {"reaction_helmholtz_energy",      "reaction"      },
+    {"reaction_internal_energy",       "reaction"      },
+    {"reaction_enthalpy",              "reaction"      },
+    {"reaction_entropy",               "reaction"      },
+    {"reaction_volume",                "reaction"      },
+    {"reaction_heat_capacity_cp",      "reaction"      },
+    {"reaction_heat_capacity_cv",      "reaction"      }
 
 };
 

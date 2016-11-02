@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
 
 //    double S = API.thermoCalculate("H2O@", T, P, "entropy").toDouble();
     API.addTP_pairs(25, 1);
-    API.addSubstanceSymbols(substanceSymbols);
-    API.addPropertyName("gibbs_energy");
+    API.addSubstances(substanceSymbols);
+    API.addProperties({"gibbs_energy","entropy"});
 
     API.thermoCalculate().toCSV();
 
