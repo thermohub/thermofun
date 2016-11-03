@@ -123,7 +123,6 @@ auto Output::foutResultsSubst()-> void
             pimpl->fThermoPropertiesSubstance << endl;
         }
     }
-
 }
 
 }

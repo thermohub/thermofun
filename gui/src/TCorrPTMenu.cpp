@@ -451,7 +451,6 @@ void TCorrPTWidget::CmCalcMTPARM()
          if( !selDlg.exec() )
             return;
           selNdx =  selDlg.allSelected();
-//          TCorrPT::Database tdb;
 readData:
           selectedList.resize(selNdx.size());
           substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
@@ -469,14 +468,12 @@ readData:
            bsonio::bson_to_key( selectedList[ii].data, TCorrPT::substClass, substancesClass[ii]);
          }
 
-//         tdb = TCorrPT::Database (selectedList);
          TCorrPT::Interface tpCalc(selectedList);
 
          for (uint ii=0; ii<substancesClass.size(); ii++)
          {
              if (stoi(substancesClass[ii]) == TCorrPT::SubstanceClass::type::AQSOLVENT)
              {
-//                 tdb.setAllAqSubstanceSolventSymbol(substancesSymbols[ii]);
                  tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
                  isSolvent = true;
 
@@ -493,9 +490,7 @@ readData:
              goto readData;
          }
 
-//         TCorrPT::Interface tpCalc(tdb);
          TCorrPT::OutputSettings op;
-
          if (ui->FormatBox->isChecked())
          {
              op.isFixed = true;
@@ -522,7 +517,7 @@ readData:
          struct timeval start, end;
          gettimeofday(&start, NULL);
 
-         tpCalc.thermoCalculate(substancesSymbols, _data.properties, TPpairs)/*.toCSV()*/;
+         tpCalc.thermoCalculate(substancesSymbols, _data.properties, TPpairs).toCSV();
 
          gettimeofday(&end, NULL);
          double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +

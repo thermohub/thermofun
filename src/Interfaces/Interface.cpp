@@ -29,6 +29,8 @@ struct Interface::Impl
 
     std::vector<std::vector<Reaktoro_::ThermoScalar>>   reacResults;
 
+    unsigned int                                        count = 0;
+
     Impl(const Database& database)
     : thermo(Thermo(database))
     {}
@@ -123,14 +125,13 @@ auto Interface::selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vec
 
 auto Interface::calculateResultsSubst( ) -> void
 {
-    pimpl->substResults.empty(); unsigned int c = 0;
+    pimpl->substResults.empty(); unsigned tp = pimpl->tp_pairs.size();
     pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tp_pairs.size());
-    for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
+    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
     {
-        for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+        for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
         {
-            pimpl->substResults[c] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tp_pairs[j][0], pimpl->tp_pairs[j][1], pimpl->substSymbols[i]));
-            c++;
+            pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tp_pairs[j][0], pimpl->tp_pairs[j][1], pimpl->substSymbols[i]));
         }
     }
 }
