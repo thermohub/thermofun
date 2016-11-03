@@ -7,7 +7,6 @@
 #include "node.h"
 // TCorrPT output include
 #include "Common/OutputToCSV.h"
-#include "ThermoPropertiesUnits.h"
 
 using namespace std;
 using namespace TCorrPT;

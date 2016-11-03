@@ -297,4 +297,9 @@ auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, So
     }
 }
 
+auto Thermo::setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void
+{
+    pimpl->database.setAllAqSubstanceSolventSymbol(solvent_symbol);
+}
+
 } // namespace TCorrPT

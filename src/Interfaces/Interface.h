@@ -67,7 +67,8 @@ public:
                                          const double &Pmin, const double &Pmax, const double &Pstep) -> void;
     auto addTP_pairs                    (const std::vector<std::vector<double>> &TP_pairs) -> void;
 
-    auto setOutputSettings(const OutputSettings &value) -> void;
+    auto setOutputSettings              (const OutputSettings &value) -> void;
+    auto setSolventSymbolForAqSubst     (const std::string solvent_symbol) ->void;
 
     // claculate functions
     auto thermoCalculate    () -> Output;

@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QInputDialog>
+#include <sys/time.h>
 #include "TCorrPTWidget.h"
 #include "ui_TCorrPTWidget.h"
 #include "MinMaxDialog.h"
@@ -450,7 +451,7 @@ void TCorrPTWidget::CmCalcMTPARM()
          if( !selDlg.exec() )
             return;
           selNdx =  selDlg.allSelected();
-          TCorrPT::Database tdb;
+//          TCorrPT::Database tdb;
 readData:
           selectedList.resize(selNdx.size());
           substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
@@ -468,14 +469,17 @@ readData:
            bsonio::bson_to_key( selectedList[ii].data, TCorrPT::substClass, substancesClass[ii]);
          }
 
-         tdb = TCorrPT::Database (selectedList);
+//         tdb = TCorrPT::Database (selectedList);
+         TCorrPT::Interface tpCalc(selectedList);
 
          for (uint ii=0; ii<substancesClass.size(); ii++)
          {
              if (stoi(substancesClass[ii]) == TCorrPT::SubstanceClass::type::AQSOLVENT)
              {
-                 tdb.setAllAqSubstanceSolventSymbol(substancesSymbols[ii]);
+//                 tdb.setAllAqSubstanceSolventSymbol(substancesSymbols[ii]);
+                 tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
                  isSolvent = true;
+
              }
          }
 
@@ -489,7 +493,7 @@ readData:
              goto readData;
          }
 
-         TCorrPT::Interface tpCalc(tdb);
+//         TCorrPT::Interface tpCalc(tdb);
          TCorrPT::OutputSettings op;
 
          if (ui->FormatBox->isChecked())
@@ -515,9 +519,16 @@ readData:
              TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
          }
 
-         tpCalc.thermoCalculate(substancesSymbols, _data.properties, TPpairs).toCSV();
+         struct timeval start, end;
+         gettimeofday(&start, NULL);
 
-         cout << "Finished TCorrPT calculation!" << endl;
+         tpCalc.thermoCalculate(substancesSymbols, _data.properties, TPpairs)/*.toCSV()*/;
+
+         gettimeofday(&end, NULL);
+         double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
+                  end.tv_usec - start.tv_usec) / 1.e6;
+
+         cout << "Finished TCorrPT calculation in "<< delta_calc << "s!" << endl;
 
     }
    catch(bsonio_exeption& e)

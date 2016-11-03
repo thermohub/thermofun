@@ -212,6 +212,11 @@ auto Interface::setOutputSettings(const OutputSettings &value) -> void
     pimpl->outSettings = value;
 }
 
+auto Interface::setSolventSymbolForAqSubst(const std::string solvent_symbol) -> void
+{
+    pimpl->thermo.setSolventSymbolForAllAqSubst(solvent_symbol);
+}
+
 // get functions
 auto Interface::substanceSymbols() -> const std::vector<string>
 {

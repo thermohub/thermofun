@@ -50,6 +50,7 @@ struct Solvent
  */
 class Thermo
 {
+    friend class Interface;
 public:
     /// Construct a Thermo instance with given Database instance
     explicit Thermo(const Database& database);
@@ -189,6 +190,7 @@ private:
 
     auto getThermoPreferences(std::string substance) -> ThermoPreferences;
     auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
+    auto setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void;
 
 };
 
