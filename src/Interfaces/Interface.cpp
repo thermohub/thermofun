@@ -54,7 +54,7 @@ auto Interface::thermoCalculate(const std::string substSymbol, const double T, c
 {
     addSubstance(substSymbol);
 
-    addTP_pairs(T,P);
+    addTP_pair(T,P);
 
     addProperty(propName);
 
@@ -70,7 +70,7 @@ auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vecto
 
     addProperties(thermoProperties);
 
-    addTP_pairs(T, P);
+    addTP_pair(T, P);
 
     calculateResultsSubst();
 
@@ -146,7 +146,10 @@ auto Interface::addSubstance (const std::string &substSymbol) -> void
 
 auto Interface::addSubstances (const std::vector<string> &substSymbols) -> void
 {
-    pimpl->substSymbols = substSymbols;
+    for (unsigned i = 0; i < substSymbols.size(); i++)
+    {
+        addSubstance(substSymbols[i]);
+    }
 }
 
 auto Interface::addProperty (const std::string &propName) -> void
@@ -175,7 +178,7 @@ auto Interface::addProperties (const std::vector<string> &propNames) -> void
     }
 }
 
-auto Interface::addTP_pairs (const double &T, const double &P) -> void
+auto Interface::addTP_pair (const double &T, const double &P) -> void
 {
     std::vector<double> one_pair = {T, P};
     pimpl->tp_pairs.push_back(one_pair);
@@ -190,7 +193,7 @@ auto Interface::addTP_pairs (const double &Tmin, const double &Tmax, const doubl
     {
        do
         {
-            addTP_pairs(t,p);
+            addTP_pair(t,p);
             p = p + Pstep;
         } while (p <= Pmax);
        t = t + Tstep;
@@ -199,12 +202,30 @@ auto Interface::addTP_pairs (const double &Tmin, const double &Tmax, const doubl
 
 auto Interface::addTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -> void
 {
+    for (unsigned i=0; i <TP_pairs.size(); i++)
+    {
+        addTP_pair(TP_pairs[i][0], TP_pairs[i][1]);
+    }
     pimpl->tp_pairs = TP_pairs;
 }
 
 auto Interface::addDigits (const std::map<const std::string, int> &propDigits)-> void
 {
     pimpl->propDigits = propDigits;
+}
+
+// clear functions
+auto Interface::clearSubstances () -> void
+{
+    pimpl->substSymbols.clear();
+}
+auto Interface::clearProperties () -> void
+{
+    pimpl->propNames.clear();
+}
+auto Interface::clearTP_pairs () -> void
+{
+    pimpl->tp_pairs.clear();
 }
 
 // set functions

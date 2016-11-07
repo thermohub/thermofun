@@ -45,6 +45,9 @@ struct ThermoPropertiesSubstance
 /// Describes the thermodynamic state of a reaction
 struct ThermoPropertiesReaction
 {
+    /// The natural logarithm of the equilibirum constant of the reaction
+    Reaktoro_::ThermoScalar ln_equilibrium_constant;
+
     /// The apparent standard molar Gibbs free energy @f$\Delta G_{f}^{\circ}@f$ of the species (in units of J/mol)
     Reaktoro_::ThermoScalar reaction_gibbs_energy;
 

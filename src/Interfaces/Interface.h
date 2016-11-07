@@ -62,7 +62,7 @@ public:
     auto addProperty_and_Digit          (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
     auto addProperty_and_Unit_and_Digit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
 
-    auto addTP_pairs                    (const double &T, const double &P) -> void;
+    auto addTP_pair                     (const double &T, const double &P) -> void;
     auto addTP_pairs                    (const double &Tmin, const double &Tmax, const double &Tstep,
                                          const double &Pmin, const double &Pmax, const double &Pstep) -> void;
     auto addTP_pairs                    (const std::vector<std::vector<double>> &TP_pairs) -> void;
@@ -79,6 +79,10 @@ public:
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
     auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                              std::vector<std::vector<double> > tp_pairs) -> Output;
+
+    auto clearSubstances    () -> void;
+    auto clearProperties    () -> void;
+    auto clearTP_pairs      () -> void;
 
 private:
     struct Impl;
