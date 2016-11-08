@@ -34,10 +34,10 @@ private:
 class SoluteAkinfievDiamondEOS
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default SoluteAkinfievDiamondEOS instance
     SoluteAkinfievDiamondEOS();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct a SoluteAkinfievDiamondEOS instance from a Species instance
     explicit SoluteAkinfievDiamondEOS(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.

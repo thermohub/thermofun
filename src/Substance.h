@@ -41,7 +41,7 @@ public:
     auto setFormula(std::string formula) -> void;
 
     /// Set the name of the reaction that defines the substance properties.
-    auto setReaction(std::string reaction) -> void;
+    auto setReactionSymbol(std::string reactionSymbol) -> void;
 
     /// Set the molar mass of the chemical species (in units of kg/mol)
     auto setMolarMass(double molar_mass) -> void;
@@ -66,6 +66,9 @@ public:
 
     /// Set the code for the aggregate state of the substance
     auto setAggregateState(AggregateState::type aggregate_state) -> void;
+
+    /// Set the code for the substance calculation type
+    auto setThermoCalculationType(SubstanceThermoCalculationType::type calculation_type) -> void;
 
     /**
      * @brief setCharge
@@ -102,7 +105,7 @@ public:
     auto formula() const -> std::string;
 
     /// Return the reaction name that defines the properties of the chemical Substance
-    auto reaction() const -> std::string;
+    auto reactionSymbol() const -> std::string;
 
     /// Return the molar mass of the chemical species (in units of kg/mol)
     auto molarMass() const -> double;
@@ -133,6 +136,9 @@ public:
 
     /// Return the class type of the substance
     auto substanceClass() -> SubstanceClass::type;
+
+    /// Return the code of the substance proeprties calculation type
+    auto thermoCalculationType() -> SubstanceThermoCalculationType::type;
 
     /**
      * @brief aggregateState

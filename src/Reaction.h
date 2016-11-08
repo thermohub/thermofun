@@ -31,6 +31,8 @@ public:
     /// Set the name of the Reaction.
     auto setName(std::string name) -> void;
 
+    auto setReactants(std::map<std::string, int> reactants) -> void;
+
 //    /// Set the formula of the Reaction.
 //    auto setFormula(std::string formula) -> void;
 
@@ -40,6 +42,8 @@ public:
     // Get functions
     /// Return the name of the chemical Reaction
     auto name() const -> std::string;
+
+    auto reactants() -> std::map<std::string, int>;
 
 //    /// Return the formula of the chemical Reaction
 //    auto formula() const -> std::string;

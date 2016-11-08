@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
+
 namespace TCorrPT {
 
 //namespace {
@@ -21,7 +24,11 @@ struct Reaction::Impl
     /// The chemical formula of the chemical Reaction
     std::string formula;
 
-//  std::map<std::string, double>  substances_in_reaction_map
+    std::map<std::string, int> reactants;
+
+    ThermoPropertiesReaction thermo_ref_prop;
+
+    ThermoParametersReaction thermo_parameters;
 
 };
 
@@ -47,6 +54,11 @@ auto Reaction::setName(std::string name) -> void
     pimpl->name = name;
 }
 
+auto Reaction::setReactants(std::map<std::string, int> reactants) -> void
+{
+    pimpl->reactants = reactants;
+}
+
 //auto Reaction::setFormula(std::string formula) -> void
 //{
 //    pimpl->formula = formula;
@@ -55,6 +67,11 @@ auto Reaction::setName(std::string name) -> void
 auto Reaction::name() const -> std::string
 {
     return pimpl->name;
+}
+
+auto Reaction::reactants() -> std::map<std::string, int>
+{
+    return pimpl->reactants;
 }
 
 //auto Reaction::formula() const -> std::string
