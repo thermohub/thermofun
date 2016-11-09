@@ -43,6 +43,8 @@ auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature T, Reaktoro_::Pr
         tps.enthalpy         += dh;
         tps.volume           += dv;
         tps.heat_capacity_cp += dcp;
+        tps.internal_energy  = tps.enthalpy - P*tps.volume;
+        tps.helmholtz_energy = tps.internal_energy - (T+273.15)*tps.entropy;
 
     } else // Molar volume assumed independent of T and P
     {

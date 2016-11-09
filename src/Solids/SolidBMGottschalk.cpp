@@ -139,14 +139,14 @@ auto BirchMurnaghan( double Pref, Reaktoro_::Pressure P, Reaktoro_::Temperature 
 
 
 
-auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
 
     auto Pst = 0.1*subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
-    Reaktoro_::Temperature T ( t.val );
-    Reaktoro_::Pressure P (0.1*p.val); // in bar
+    Reaktoro_::Temperature T ( TK.val );
+    Reaktoro_::Pressure P (0.1*Pbar.val); // in bar
     auto P_Pst = P - Pst;
     auto T_Tst = T -Tst;
 
@@ -168,6 +168,9 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature t, Reaktoro_::Press
        tps.entropy      += SS0;
        tps.gibbs_energy += GG0;
        tps.enthalpy     += HH0;
+
+       tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+       tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
 //       aW.twp->Alp = aC;
 //       aW.twp->Bet = aE;
     }
