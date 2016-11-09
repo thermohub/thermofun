@@ -4,7 +4,6 @@
 #include "Common/ThermoScalar.hpp"
 #include "Reaction.h"
 #include "ThermoProperties.h"
-#include "tcorrpt_global.h"
 
 namespace TCorrPT {
 

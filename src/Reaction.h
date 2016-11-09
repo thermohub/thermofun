@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "tcorrpt_global.h"
 
 namespace TCorrPT {
 
@@ -65,9 +66,14 @@ public:
 
 
 private:
+
+    auto convert_CpfT_to_logKfT() -> void;
+    auto convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void;
+
     struct Impl;
 
     std::unique_ptr<Impl> pimpl;
+
 };
 
 } // namespace TCorrPT

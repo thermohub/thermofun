@@ -97,7 +97,7 @@ struct ThermoParametersReaction
     vvd pressure_intervals;
 
     /// Reaction logK as a function of T coefficients
-    vd logK_fT_coeff;
+    vd reaction_logK_fT_coeff;
 
     /// Reaction logK at T and P points for interpolation
     vd logK_TP_array;
