@@ -61,7 +61,8 @@
     $$PWD/Gases/verror.h \
     $$PWD/Solvent/WaterElectroFernandez1997.h \
     $$PWD/Interfaces/Interface.h \
-    $$PWD/Interfaces/Output.h
+    $$PWD/Interfaces/Output.h \
+    $$PWD/Reactions/FrantzMarshall.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -119,4 +120,5 @@
     $$PWD/Gases/GasSTP.cpp \
     $$PWD/Solvent/WaterElectroFernandez1997.cpp \
     $$PWD/Interfaces/Interface.cpp \
-    $$PWD/Interfaces/Output.cpp
+    $$PWD/Interfaces/Output.cpp \
+    $$PWD/Reactions/FrantzMarshall.cpp

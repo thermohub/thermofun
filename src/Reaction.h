@@ -9,6 +9,9 @@
 
 namespace TCorrPT {
 
+class ThermoPropertiesReaction;
+class ThermoParametersReaction;
+
 /**
  * @brief The Reaction class is a type used to describe a reaction
  */
@@ -44,6 +47,10 @@ public:
     auto name() const -> std::string;
 
     auto reactants() -> std::map<std::string, int>;
+
+    auto thermo_ref_prop() -> ThermoPropertiesReaction;
+
+    auto thermo_parameters() -> ThermoParametersReaction;
 
 //    /// Return the formula of the chemical Reaction
 //    auto formula() const -> std::string;

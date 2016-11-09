@@ -74,6 +74,16 @@ auto Reaction::reactants() -> std::map<std::string, int>
     return pimpl->reactants;
 }
 
+auto Reaction::thermo_ref_prop() -> ThermoPropertiesReaction
+{
+    return pimpl->thermo_ref_prop;
+}
+
+auto Reaction::thermo_parameters() -> ThermoParametersReaction
+{
+    return pimpl->thermo_parameters;
+}
+
 //auto Reaction::formula() const -> std::string
 //{
 //    return pimpl->formula;
