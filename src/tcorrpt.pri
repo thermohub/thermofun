@@ -62,7 +62,8 @@
     $$PWD/Solvent/WaterElectroFernandez1997.h \
     $$PWD/Interfaces/Interface.h \
     $$PWD/Interfaces/Output.h \
-    $$PWD/Reactions/FrantzMarshall.h
+    $$PWD/Reactions/FrantzMarshall.h \
+    $$PWD/Reactions/RyzhenkoBryzgalyn.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -121,4 +122,5 @@
     $$PWD/Solvent/WaterElectroFernandez1997.cpp \
     $$PWD/Interfaces/Interface.cpp \
     $$PWD/Interfaces/Output.cpp \
-    $$PWD/Reactions/FrantzMarshall.cpp
+    $$PWD/Reactions/FrantzMarshall.cpp \
+    $$PWD/Reactions/RyzhenkoBryzgalyn.cpp

@@ -4,11 +4,10 @@
 #include "Common/ThermoScalar.hpp"
 #include "Reaction.h"
 #include "ThermoProperties.h"
-#include "ThermoParameters.h"
 
 namespace TCorrPT {
 
-auto thermoPropertiesFrantzMarshall(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction;
+auto thermoPropertiesFrantzMarshall(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction;
 
 }
 

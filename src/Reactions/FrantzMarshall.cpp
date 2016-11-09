@@ -1,4 +1,5 @@
-#include "Reactions/FrantzMarshall.h"
+#include "FrantzMarshall.h"
+#include "ThermoParameters.h"
 
 namespace TCorrPT {
 

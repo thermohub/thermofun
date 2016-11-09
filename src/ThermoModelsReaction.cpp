@@ -1,4 +1,7 @@
+#include "ThermoProperties.h"
 #include "ThermoModelsReaction.h"
+#include "Reactions/FrantzMarshall.h"
+#include "Reactions/RyzhenkoBryzgalyn.h"
 
 namespace TCorrPT {
 
@@ -25,12 +28,12 @@ ReactionFrantzMarshall::ReactionFrantzMarshall(const Reaction &reaction)
 {}
 
 
-auto ReactionFrantzMarshall::thermoProperties(double T, double P) -> ThermoPropertiesReaction
+auto ReactionFrantzMarshall::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesFrantzMarshall(t, p, pimpl->reaction);
+    return thermoPropertiesFrantzMarshall(t, p, pimpl->reaction, wp);
 }
 
 //=======================================================================================================
@@ -56,12 +59,12 @@ ReactionRyzhenkoBryzgalin::ReactionRyzhenkoBryzgalin(const Reaction &reaction)
 {}
 
 
-auto ReactionRyzhenkoBryzgalin::thermoProperties(double T, double P) -> ThermoPropertiesReaction
+auto ReactionRyzhenkoBryzgalin::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto Pbar = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesRyzhenkoBryzgalin(t, p, pimpl->reaction);
+    return thermoPropertiesRyzhenkoBryzgalin(TK, Pbar, pimpl->reaction, wp);
 }
 
 //=======================================================================================================
