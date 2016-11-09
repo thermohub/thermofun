@@ -63,7 +63,8 @@
     $$PWD/Interfaces/Interface.h \
     $$PWD/Interfaces/Output.h \
     $$PWD/Reactions/FrantzMarshall.h \
-    $$PWD/Reactions/RyzhenkoBryzgalyn.h
+    $$PWD/Reactions/RyzhenkoBryzgalyn.h \
+    $$PWD/Reactions/LogK_function_of_T.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -123,4 +124,5 @@
     $$PWD/Interfaces/Interface.cpp \
     $$PWD/Interfaces/Output.cpp \
     $$PWD/Reactions/FrantzMarshall.cpp \
-    $$PWD/Reactions/RyzhenkoBryzgalyn.cpp
+    $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
+    $$PWD/Reactions/LogK_function_of_T.cpp

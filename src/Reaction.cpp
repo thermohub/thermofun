@@ -30,6 +30,12 @@ struct Reaction::Impl
 
     ThermoParametersReaction thermo_parameters;
 
+    /// Reference temperature (in K)
+    double reference_T;
+
+    /// Reference pressure (in ___)
+    double reference_P;
+
 };
 
 Reaction::Reaction()
@@ -59,6 +65,16 @@ auto Reaction::setReactants(std::map<std::string, int> reactants) -> void
     pimpl->reactants = reactants;
 }
 
+auto Reaction::setReferenceT(double T) -> void
+{
+    pimpl->reference_T = T;
+}
+
+auto Reaction::setReferenceP(double P) -> void
+{
+    pimpl->reference_P = P;
+}
+
 //auto Reaction::setFormula(std::string formula) -> void
 //{
 //    pimpl->formula = formula;
@@ -82,6 +98,16 @@ auto Reaction::thermo_ref_prop() -> ThermoPropertiesReaction
 auto Reaction::thermo_parameters() -> ThermoParametersReaction
 {
     return pimpl->thermo_parameters;
+}
+
+auto Reaction::referenceT() const -> double
+{
+    return pimpl->reference_T;
+}
+
+auto Reaction::referenceP() const -> double
+{
+    return pimpl->reference_P;
 }
 
 //auto Reaction::formula() const -> std::string

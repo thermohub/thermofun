@@ -3,6 +3,7 @@
 
 // TCorrPT includes
 #include "Reaction.h"
+#include "tcorrpt_global.h"
 #include <memory>
 
 namespace TCorrPT {
@@ -74,7 +75,7 @@ public:
     /// Returns the thermodynamic properties of the reaction.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto thermoProperties (double T, double P) -> ThermoPropertiesReaction;
+    auto thermoProperties (double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction;
 
 private:
     struct Impl;

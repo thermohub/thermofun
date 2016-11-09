@@ -2,6 +2,7 @@
 #include "ThermoModelsReaction.h"
 #include "Reactions/FrantzMarshall.h"
 #include "Reactions/RyzhenkoBryzgalyn.h"
+#include "Reactions/LogK_function_of_T.h"
 
 namespace TCorrPT {
 
@@ -90,12 +91,12 @@ Reaction_LogK_fT::Reaction_LogK_fT(const Reaction &reaction)
 {}
 
 
-auto Reaction_LogK_fT::thermoProperties(double T, double P) -> ThermoPropertiesReaction
+auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
-//    return thermoPropertiesReaction_LogK_fT(t, p, pimpl->reaction);
+    return thermoPropertiesReaction_LogK_fT(t, p, pimpl->reaction, methodT);
 }
 
 //=======================================================================================================

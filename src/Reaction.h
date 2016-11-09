@@ -36,6 +36,10 @@ public:
 
     auto setReactants(std::map<std::string, int> reactants) -> void;
 
+    auto setReferenceT(double T) -> void;
+
+    auto setReferenceP(double P) -> void;
+
 //    /// Set the formula of the Reaction.
 //    auto setFormula(std::string formula) -> void;
 
@@ -51,6 +55,10 @@ public:
     auto thermo_ref_prop() -> ThermoPropertiesReaction;
 
     auto thermo_parameters() -> ThermoParametersReaction;
+
+    auto referenceT() const -> double;
+
+    auto referenceP() const -> double;
 
 //    /// Return the formula of the chemical Reaction
 //    auto formula() const -> std::string;
