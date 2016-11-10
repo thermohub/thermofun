@@ -118,9 +118,9 @@ auto Reaction::referenceP() const -> double
 auto Reaction::convert_CpfT_to_logKfT() -> void
 {
     auto Rln10 = R_CONSTANT * lg_to_ln;
-    auto T     = pimpl->reference_T;
+    auto T     = Reaktoro_::Temperature(pimpl->reference_T);
     auto Cp    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
-    auto A     = pimpl->thermo_parameters.reaction_logK_fT_coeff; A.resize(6);
+    auto A     = pimpl->thermo_parameters.reaction_logK_fT_coeff; A.resize(7);
     auto ref_prop = pimpl->thermo_ref_prop;
 
     auto Sr = ref_prop.reaction_entropy;
@@ -146,6 +146,100 @@ auto Reaction::convert_CpfT_to_logKfT() -> void
 }
 auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
 {
+
+    auto Rln10 = R_CONSTANT * lg_to_ln;
+    auto T     = Reaktoro_::Temperature(pimpl->reference_T);
+    auto Cp    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
+    auto A     = pimpl->thermo_parameters.reaction_logK_fT_coeff;
+    auto ref_prop = pimpl->thermo_ref_prop;
+
+    auto Sr = ref_prop.reaction_entropy;
+//    auto Gr = ref_prop.reaction_gibbs_energy;
+    auto Hr = ref_prop.reaction_enthalpy;
+    auto Cpr = ref_prop.reaction_heat_capacity_cp;
+    auto lgKr = ref_prop.ln_equilibrium_constant / lg_to_ln;
+
+    switch( methodT )
+    { // calculation 2- and 3-term�param approximation
+    case MethodCorrT_Thrift::type::CTM_DKR: // 3-term extrap. from Franck-Marshall density model
+    case MethodCorrT_Thrift::type::CTM_MRB: // 3-term extrap. from MRB at 25 C (provisional DK 06.08.07)
+    case MethodCorrT_Thrift::type::CTM_LGK:  // Here, all logK-f(T) coeffs are given
+    case MethodCorrT_Thrift::type::CTM_LGX:  // uncommented, 19.06.2008
+        break;
+    case MethodCorrT_Thrift::type::CTM_IKZ:  // Isotopic forms
+        return;
+    case MethodCorrT_Thrift::type::CTM_EK0: // Generating 1-term extrapolation at logK = const
+        A[0]=(Sr/Rln10).val;
+        A[1]=0.0;
+        A[2]=0.0;
+        A[3]=0.0;
+        A[4]=0.0;
+        A[5]=0.0;
+        A[6]=0.0;
+        break;
+    case MethodCorrT_Thrift::type::CTM_EK1: // Generating 1-term extrapolation at dGr = const
+        A[0]=0.0;
+        A[1]=0.0;
+        A[2]=(-Hr/Rln10).val;
+        A[3]=0.0;
+        A[4]=0.0;
+        A[5]=0.0;
+        A[6]=0.0;
+        break;
+    case MethodCorrT_Thrift::type::CTM_EK2: // Generating 2-term (Vant Hoff) extrapolation
+        A[0]=(Sr/Rln10).val;
+        A[1]=0.0;
+        A[2]=(-Hr/Rln10).val;
+        A[3]=0.0;
+        A[4]=0.0;
+        A[5]=0.0;
+        A[6]=0.0;
+        break;
+    case MethodCorrT_Thrift::type::CTM_PPE:
+    case MethodCorrT_Thrift::type::CTM_EK3: // Generating 3-term extrapolation at constant dCpr
+//        if( Cp )
+//        {
+        Cp[1] = Cp[2] = Cp[3] = Cp[4] = 0.0;
+//        ref_prop.reaction_heat_capacity_cp = Cp[0];
+//        }
+
+        A[0]=(( Sr - Cpr*(1.+log(T)) ) / Rln10).val;
+        A[1]=0.0;
+        A[2]=(( Cpr*T - Hr ) / Rln10).val;
+        A[3]=(Cpr / Rln10).val;
+        A[4]=0.0;
+        A[5]=0.0;
+        A[6]=0.0;
+        break;
+    default:
+        cout << "error";
+//        Error( GetName(),"E23RErun: Invalid method code in Convert_KT_to_Cp()");
+    }
+
+    switch( methodT )
+    {
+    case MethodCorrT_Thrift::type::CTM_LGK:
+       /* Calc lgK, Hr and Sr */
+       lgKr = A[0] + A[1]*T + A[2]/T + A[3]*log(T) + A[4]/T*T +
+             A[5]*T*T + A[6]/pow(T,0.5);
+       Hr = Rln10 * ( A[1]*T*T - A[2] + A[3]*T -
+                         2.0*A[4]/T + 2.0*A[5]*T*T*T - 0.5*A[6]*pow(T,0.5) );
+       Sr = Rln10 * ( A[0] + 2.0*A[1]*T + A[3]*(1.0 + log(T))
+                   - A[4]/T*T + 3.0*A[5]*T*T + 0.5*A[6]/pow(T,0.5) );
+
+       Cp[0] = Rln10 * A[3];
+       Cp[1] = Rln10 * 2.0 * A[1];
+       Cp[2] = Rln10 * 2.0 * A[4];
+       Cp[3] = -Rln10 * 0.25 * A[6];
+       Cp[4] = Rln10 * 6.0 * A[5];
+       Cpr   = Cp[0] + Cp[1]*T + Cp[2]/T*T + Cp[4]*T*T + Cp[3]/pow(T,0.5);
+
+       ref_prop.reaction_entropy = Sr;  // In this case, everything will be inserted
+       ref_prop.reaction_enthalpy = Hr;
+       ref_prop.reaction_heat_capacity_cp = Cpr;
+       ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
+       ref_prop.reaction_gibbs_energy = -Rln10*T*lgKr;
+    }
 
 }
 
