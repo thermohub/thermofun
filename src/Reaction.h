@@ -41,6 +41,15 @@ public:
 
     auto setReferenceP(double P) -> void;
 
+    /// Set the code for general EOS calculation method
+    auto setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void;
+
+    /// Set the code for the temperature correction method
+    auto setMethod_T(MethodCorrT_Thrift::type method_T) -> void;
+
+    /// Set the code for the pressure correction method
+    auto setMethod_P(MethodCorrP_Thrift::type method_P) -> void;
+
 //    /// Set the formula of the Reaction.
 //    auto setFormula(std::string formula) -> void;
 
@@ -60,6 +69,15 @@ public:
     auto referenceT() const -> double;
 
     auto referenceP() const -> double;
+
+    /// Return the general EOS method code
+    auto methodGenEOS() -> MethodGenEoS_Thrift::type;
+
+    /// Return the temperature correction method code
+    auto method_T() -> MethodCorrT_Thrift::type;
+
+    /// Return the pressure correction method code
+    auto method_P() -> MethodCorrP_Thrift::type;
 
 //    /// Return the formula of the chemical Reaction
 //    auto formula() const -> std::string;

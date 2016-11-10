@@ -6,6 +6,7 @@
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
 #include "ElectroModelsSolvent.h"
+#include "ThermoModelsReaction.h"
 
 namespace TCorrPT {
 

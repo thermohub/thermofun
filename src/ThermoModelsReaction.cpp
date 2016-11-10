@@ -94,7 +94,7 @@ Reaction_LogK_fT::Reaction_LogK_fT(const Reaction &reaction)
 auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesReaction_LogK_fT(t, p, pimpl->reaction, methodT);
 }
@@ -125,7 +125,7 @@ ReactionFromReactantsProperties::ReactionFromReactantsProperties(const Reaction 
 auto ReactionFromReactantsProperties::thermoProperties(double T, double P) -> ThermoPropertiesReaction
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto p = Reaktoro_::Pressure(P);
 
 //    return thermoPropertiesFromReactantsProperties(t, p, pimpl->reaction);
 }
@@ -156,9 +156,9 @@ Reaction_Vol_fT::Reaction_Vol_fT(const Reaction &reaction)
 auto Reaction_Vol_fT::thermoProperties(double T, double P) -> ThermoPropertiesReaction
 {
     auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto p = Reaktoro_::Pressure(P);
 
-//    return thermoPropertiesFrantzMarshall(t, p, pimpl->reaction);
+//    return thermoPropertiesReaction_Vol_fT(t, p, pimpl->reaction);
 }
 
 

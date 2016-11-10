@@ -256,6 +256,71 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
 auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
+    auto reac = pimpl->database.getReaction(reaction);
+    auto methodT = reac.method_T();
+    auto methodP = reac.method_P();
+
+    switch (methodT)
+    {
+    case MethodCorrT_Thrift::type::CTM_LGX:
+    case MethodCorrT_Thrift::type::CTM_LGK:
+    case MethodCorrT_Thrift::type::CTM_EK0:
+    case MethodCorrT_Thrift::type::CTM_EK1:
+    case MethodCorrT_Thrift::type::CTM_EK3:
+    case MethodCorrT_Thrift::type::CTM_EK2:
+    {
+        tpr = Reaction_LogK_fT(reac).thermoProperties(T, P, methodT);
+        break;
+    }
+    case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
+    {
+//        tpr = ReactionFrantzMarshall(reac).thermoProperties(T, P, wp );
+        break;
+    }
+    case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
+    {
+//        return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, wp);
+        break;
+    }
+        // Exception
+        errorMethodNotFound("solvent", reac.name(), __LINE__);
+    }
+
+
+    switch (methodP)
+    {
+
+    case MethodCorrP_Thrift::type::CPM_VKE:
+    case MethodCorrP_Thrift::type::CPM_VBE:
+
+    {
+        tpr = Reaction_Vol_fT(reac).thermoProperties(T, P);
+        break;
+    }
+    case MethodCorrP_Thrift::type::CPM_NUL:
+    case MethodCorrP_Thrift::type::CPM_CON:
+    {
+        //    if( CV == CPM_CON || CV == CPM_NUL )
+        //    {
+        //            P_Pst = aW.twp->P - Pst;
+        //            VP = Vst * P_Pst;
+        //				// VT = Vst * T_Tst;
+        //            aW.twp->dG += VP;
+        //            aW.twp->dH += VP;
+        //    }
+        //    // Calculating pressure correction to logK
+        //    aW.twp->lgK -= aW.twp->dV * (aW.twp->P - aW.twp->Pst) / aW.twp->RT / lg_to_ln;
+    }
+    }
+
+// make a new method P ???
+// line 1571 m_reac2.cpp
+//    if(( rc[q].pstate[0] == CP_GAS || rc[q].pstate[0] == CP_GASI ) && aW.twp->P > 0.0 )
+//    { // molar volume from the ideal gas law
+//        aW.twp->dV = T / aW.twp->P * R_CONSTANT;
+//    }
+    //     // Calculating pressure correction to logK
+//    aW.twp->lgK -= aW.twp->dV * (aW.twp->P - aW.twp->Pst) / aW.twp->RT / lg_to_ln;
 
     return tpr;
 }
@@ -316,7 +381,7 @@ auto Thermo::reacDCthermoProperties(double T, double &P, Substance subst) -> The
 
     } else
     {
-        // exception
+        errorReactionNotDefined(subst.symbol(), __LINE__);
     }
 
 

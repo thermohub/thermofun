@@ -8,6 +8,7 @@
 
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
+#include "Common/Exception.h"
 
 namespace TCorrPT {
 
@@ -29,6 +30,15 @@ struct Reaction::Impl
     ThermoPropertiesReaction thermo_ref_prop;
 
     ThermoParametersReaction thermo_parameters;
+
+    /// General method (or equation of state for both T and P correction)
+    MethodGenEoS_Thrift::type method_genEoS;
+
+    /// Method of temperature correction of thermodynamic properties
+    MethodCorrT_Thrift::type  method_T;
+
+    /// Method of pressure correction of thermodynamic properties
+    MethodCorrP_Thrift::type  method_P;
 
     /// Reference temperature (in K)
     double reference_T;
@@ -75,6 +85,21 @@ auto Reaction::setReferenceP(double P) -> void
     pimpl->reference_P = P;
 }
 
+auto Reaction::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
+{
+    pimpl->method_genEoS = method_genEoS;
+}
+
+auto Reaction::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
+{
+    pimpl->method_T = method_T;
+}
+
+auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
+{
+    pimpl->method_P = method_P;
+}
+
 //auto Reaction::setFormula(std::string formula) -> void
 //{
 //    pimpl->formula = formula;
@@ -110,6 +135,21 @@ auto Reaction::referenceP() const -> double
     return pimpl->reference_P;
 }
 
+auto Reaction::methodGenEOS() -> MethodGenEoS_Thrift::type
+{
+    return pimpl->method_genEoS;
+}
+
+auto Reaction::method_T() -> MethodCorrT_Thrift::type
+{
+    return pimpl->method_T;
+}
+
+auto Reaction::method_P() -> MethodCorrP_Thrift::type
+{
+    return pimpl->method_P;
+}
+
 //auto Reaction::formula() const -> std::string
 //{
 //    return pimpl->formula;
@@ -125,6 +165,11 @@ auto Reaction::convert_CpfT_to_logKfT() -> void
 
     auto Sr = ref_prop.reaction_entropy;
     auto Hr = ref_prop.reaction_enthalpy;
+
+    if (Cp.size() < 5)
+    {
+        errorModelParameters("CpfT", "convert CpfT to logKfT", __LINE__);
+    }
 
     // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
     A[0] = (( Sr - Cp[0] - Cp[0]*log(T) - Cp[1]*T + Cp[2]/(2.0*T*T)
@@ -149,9 +194,14 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
 
     auto Rln10 = R_CONSTANT * lg_to_ln;
     auto T     = Reaktoro_::Temperature(pimpl->reference_T);
-    auto Cp    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
+    auto Cp    = pimpl->thermo_parameters.reaction_Cp_fT_coeff; Cp.resize(5);
     auto A     = pimpl->thermo_parameters.reaction_logK_fT_coeff;
     auto ref_prop = pimpl->thermo_ref_prop;
+
+    if (A.size() < 7)
+    {
+        errorModelParameters("LogKfT", "convert logKfT to CpfT", __LINE__);
+    }
 
     auto Sr = ref_prop.reaction_entropy;
 //    auto Gr = ref_prop.reaction_gibbs_energy;
@@ -160,7 +210,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
     auto lgKr = ref_prop.ln_equilibrium_constant / lg_to_ln;
 
     switch( methodT )
-    { // calculation 2- and 3-term�param approximation
+    { // calculation 2- and 3-term param approximation
     case MethodCorrT_Thrift::type::CTM_DKR: // 3-term extrap. from Franck-Marshall density model
     case MethodCorrT_Thrift::type::CTM_MRB: // 3-term extrap. from MRB at 25 C (provisional DK 06.08.07)
     case MethodCorrT_Thrift::type::CTM_LGK:  // Here, all logK-f(T) coeffs are given
@@ -197,12 +247,6 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
         break;
     case MethodCorrT_Thrift::type::CTM_PPE:
     case MethodCorrT_Thrift::type::CTM_EK3: // Generating 3-term extrapolation at constant dCpr
-//        if( Cp )
-//        {
-        Cp[1] = Cp[2] = Cp[3] = Cp[4] = 0.0;
-//        ref_prop.reaction_heat_capacity_cp = Cp[0];
-//        }
-
         A[0]=(( Sr - Cpr*(1.+log(T)) ) / Rln10).val;
         A[1]=0.0;
         A[2]=(( Cpr*T - Hr ) / Rln10).val;
@@ -212,8 +256,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
         A[6]=0.0;
         break;
     default:
-        cout << "error";
-//        Error( GetName(),"E23RErun: Invalid method code in Convert_KT_to_Cp()");
+        errorMethodNotFound("convert","logKfT to CpfT", __LINE__);
     }
 
     switch( methodT )
@@ -240,7 +283,6 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
        ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
        ref_prop.reaction_gibbs_energy = -Rln10*T*lgKr;
     }
-
 }
 
 } // namespace TCorrPT
