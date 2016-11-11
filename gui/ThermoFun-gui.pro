@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-TARGET = ThermoFun-gui
+TARGET = thermofun-gui
 TEMPLATE = app
 
 CONFIG += thread
