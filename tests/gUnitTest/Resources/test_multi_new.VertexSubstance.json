@@ -1,13 +1,14 @@
 [
 {
+     "_id" :   "57f4ede2fd64453d00000087",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Al+3",
-          "sourcetdb" :   0,
+          "symbol" :   "Al+3",
+          "sourcetdb" :   16,
           "formula" :   "Al+3",
-          "substance_name" :   "Al+3",
-          "substance_class" :   2,
+          "name" :   "Al+3",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -39,13 +40,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     -325.096984863281
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -134,25 +135,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000000"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000088",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "AlO+",
-          "sourcetdb" :   0,
+          "symbol" :   "AlO+",
+          "sourcetdb" :   16,
           "formula" :   "AlO+",
-          "substance_name" :   "AlO+  ( + H2O = Al(OH)2+ )",
-          "substance_class" :   2,
+          "name" :   "AlO+  ( + H2O = Al(OH)2+ )",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -184,13 +185,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     -112.968002319336
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -280,25 +281,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000001"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000089",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "AlO2-",
-          "sourcetdb" :   0,
+          "symbol" :   "AlO2-",
+          "sourcetdb" :   16,
           "formula" :   "AlO2-",
-          "substance_name" :   "AlO2-  ( + 2 H2O = Al(OH)4- )",
-          "substance_class" :   2,
+          "name" :   "AlO2-  ( + 2 H2O = Al(OH)4- )",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -330,13 +331,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     -30.2089996337891
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -426,25 +427,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000002"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000008a",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "AlO2H@",
-          "sourcetdb" :   0,
+          "symbol" :   "AlO2H@",
+          "sourcetdb" :   16,
           "formula" :   "AlO2H@",
-          "substance_name" :   "AlO2H  aq ( + 2H2O = Al(OH)3  aq )",
-          "substance_class" :   2,
+          "name" :   "AlO2H  aq ( + 2H2O = Al(OH)3  aq )",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -476,13 +477,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     20.9200000762939
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -572,25 +573,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000003"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000008b",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "AlOH+2",
-          "sourcetdb" :   0,
+          "symbol" :   "AlOH+2",
+          "sourcetdb" :   16,
           "formula" :   "Al(OH)+2",
-          "substance_name" :   "AlOH+2",
-          "substance_class" :   2,
+          "name" :   "AlOH+2",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -622,13 +623,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     -184.932998657227
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -718,25 +719,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000004"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000008c",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "HSiO3-",
-          "sourcetdb" :   0,
+          "symbol" :   "HSiO3-",
+          "sourcetdb" :   16,
           "formula" :   "HSiO3-",
-          "substance_name" :   "HSiO3-  ( + H2O = SiO(OH)3- )",
-          "substance_class" :   2,
+          "name" :   "HSiO3-  ( + H2O = SiO(OH)3- )",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -768,13 +769,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     20.9200000762939
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -864,25 +865,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000005"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000008d",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "SiO2@",
-          "sourcetdb" :   0,
+          "symbol" :   "SiO2@",
+          "sourcetdb" :   16,
           "formula" :   "SiO2@",
-          "substance_name" :   "SiO2  aq ( + 2 H2O = Si(OH)4  aq )",
-          "substance_class" :   2,
+          "name" :   "SiO2  aq ( + 2 H2O = Si(OH)4  aq )",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -914,13 +915,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     75.3119964599609
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1009,25 +1010,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000006"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000008e",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "CO2@",
-          "sourcetdb" :   0,
+          "symbol" :   "CO2@",
+          "sourcetdb" :   16,
           "formula" :   "CO2@",
-          "substance_name" :   "CO2  aq",
-          "substance_class" :   2,
+          "name" :   "CO2  aq",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1059,13 +1060,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     117.57039642334
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1155,25 +1156,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000007"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000008f",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "CO3-2",
-          "sourcetdb" :   0,
+          "symbol" :   "CO3-2",
+          "sourcetdb" :   16,
           "formula" :   "CO3-2",
-          "substance_name" :   "CO3-2",
-          "substance_class" :   2,
+          "name" :   "CO3-2",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1205,13 +1206,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     -49.9990005493164
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1301,25 +1302,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000008"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000090",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "HCO3-",
-          "sourcetdb" :   0,
+          "symbol" :   "HCO3-",
+          "sourcetdb" :   16,
           "formula" :   "HCO3-",
-          "substance_name" :   "HCO3-",
-          "substance_class" :   2,
+          "name" :   "HCO3-",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1351,13 +1352,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     98.4499969482422
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1446,25 +1447,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000009"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000091",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "CH4@",
-          "sourcetdb" :   0,
+          "symbol" :   "CH4@",
+          "sourcetdb" :   16,
           "formula" :   "C|-4|H4@",
-          "substance_name" :   "CH4  aq",
-          "substance_class" :   2,
+          "name" :   "CH4  aq",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1496,13 +1497,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     87.8219985961914
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1592,25 +1593,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000000a"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000092",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Cl-",
-          "sourcetdb" :   0,
+          "symbol" :   "Cl-",
+          "sourcetdb" :   16,
           "formula" :   "Cl-",
-          "substance_name" :   "Cl-",
-          "substance_class" :   2,
+          "name" :   "Cl-",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1642,13 +1643,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     56.7350387573242
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1737,25 +1738,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000000b"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000093",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "HCl@",
-          "sourcetdb" :   0,
+          "symbol" :   "HCl@",
+          "sourcetdb" :   16,
           "formula" :   "HCl@",
-          "substance_name" :   "HCl (aq)",
-          "substance_class" :   2,
+          "name" :   "HCl (aq)",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1787,13 +1788,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     45.4080009460449
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -1889,31 +1890,31 @@
                     0
                ]
           },
-          "comment" :   "---",
+          "comment" :   "",
           "datasources" :   [
                "Akinfiev and Diamond (2003)"
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000000c"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000094",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "H2@",
-          "sourcetdb" :   0,
+          "symbol" :   "H2@",
+          "sourcetdb" :   16,
           "formula" :   "H|0|2@",
-          "substance_name" :   "H2  aq",
-          "substance_class" :   2,
+          "name" :   "H2  aq",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -1945,13 +1946,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     57.7389984130859
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2041,25 +2042,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000000d"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000095",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "O2@",
-          "sourcetdb" :   0,
+          "symbol" :   "O2@",
+          "sourcetdb" :   16,
           "formula" :   "O|0|2@",
-          "substance_name" :   "O2  aq",
-          "substance_class" :   2,
+          "name" :   "O2  aq",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -2091,13 +2092,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     108.951400756836
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2187,25 +2188,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000000e"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000096",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "OH-",
-          "sourcetdb" :   0,
+          "symbol" :   "OH-",
+          "sourcetdb" :   16,
           "formula" :   "OH-",
-          "substance_name" :   "OH-",
-          "substance_class" :   2,
+          "name" :   "OH-",
+          "class" :   2,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -2237,13 +2238,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     -10.7110395431519
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2333,25 +2334,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000000f"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000097",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "H+",
-          "sourcetdb" :   0,
+          "symbol" :   "H+",
+          "sourcetdb" :   16,
           "formula" :   "H+",
-          "substance_name" :   "H+",
-          "substance_class" :   0,
+          "name" :   "H+",
+          "class" :   0,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -2390,15 +2391,15 @@
           },
           "sm_entropy_f" :   {
                "name" :   "sSf",
-               "values" :   [
-                    0
-               ],
                "errors" :   [
                     0
                ]
           },
           "sm_entropy_abs" :   {
-               "name" :   "sS0"
+               "name" :   "sS0",
+               "values" :   [
+                    0
+               ]
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2487,25 +2488,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000010"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000098",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "H2O@",
-          "sourcetdb" :   0,
+          "symbol" :   "H2O@",
+          "sourcetdb" :   16,
           "formula" :   "H2O@",
-          "substance_name" :   "H2O  l",
-          "substance_class" :   3,
+          "name" :   "H2O  l",
+          "class" :   3,
           "aggregate_state" :   4,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -2537,13 +2538,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     69.9229965209961
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2632,25 +2633,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000011"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d00000099",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "CO2hp",
-          "sourcetdb" :   0,
+          "symbol" :   "CO2hp",
+          "sourcetdb" :   16,
           "formula" :   "CO2",
-          "substance_name" :   "Carbon dioxide (CO2)",
-          "substance_class" :   1,
+          "name" :   "Carbon dioxide (CO2)",
+          "class" :   1,
           "aggregate_state" :   0,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -2682,13 +2683,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     213.699996948242
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2812,32 +2813,32 @@
                     0
                ]
           },
-          "comment" :   "---",
+          "comment" :   "",
           "datasources" :   [
                "Holland and Powell (2002)",
                "Holland and Powell (1991)"
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000012"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000009a",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "CO2pr",
-          "sourcetdb" :   0,
+          "symbol" :   "CO2pr",
+          "sourcetdb" :   16,
           "formula" :   "CO2",
-          "substance_name" :   "CO2, carbon dioxide",
-          "substance_class" :   1,
+          "name" :   "CO2, carbon dioxide",
+          "class" :   1,
           "aggregate_state" :   0,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -2869,13 +2870,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     213.789993286133
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -2993,32 +2994,32 @@
                     0
                ]
           },
-          "comment" :   "---",
+          "comment" :   "",
           "datasources" :   [
                "Frenkel et al. (1994)",
                "Stryjek and Vera (1986)"
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000013"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000009b",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "H2Ohp",
-          "sourcetdb" :   0,
+          "symbol" :   "H2Ohp",
+          "sourcetdb" :   16,
           "formula" :   "H2O",
-          "substance_name" :   "Water (H2O)",
-          "substance_class" :   1,
+          "name" :   "Water (H2O)",
+          "class" :   1,
           "aggregate_state" :   0,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -3050,13 +3051,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     188.800003051758
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -3180,32 +3181,32 @@
                     0
                ]
           },
-          "comment" :   "---",
+          "comment" :   "",
           "datasources" :   [
                "Holland and Powell (2002)",
                "Holland and Powell (1991)"
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000014"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000009c",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "H2Opr",
-          "sourcetdb" :   0,
+          "symbol" :   "H2Opr",
+          "sourcetdb" :   16,
           "formula" :   "H2O",
-          "substance_name" :   "H2O, water",
-          "substance_class" :   1,
+          "name" :   "H2O, water",
+          "class" :   1,
           "aggregate_state" :   0,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -3237,13 +3238,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     188.729995727539
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -3361,32 +3362,32 @@
                     0
                ]
           },
-          "comment" :   "---",
+          "comment" :   "",
           "datasources" :   [
                "Frenkel et al. (1994)",
                "Stryjek and Vera (1986)"
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000015"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000009d",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "CO2",
-          "sourcetdb" :   0,
+          "symbol" :   "CO2",
+          "sourcetdb" :   16,
           "formula" :   "CO2",
-          "substance_name" :   "CO2  g",
-          "substance_class" :   1,
+          "name" :   "CO2  g",
+          "class" :   1,
           "aggregate_state" :   0,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -3418,13 +3419,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     213.740005493164
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -3518,25 +3519,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000016"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d0000009f",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Gbs",
-          "sourcetdb" :   0,
+          "symbol" :   "Gbs",
+          "sourcetdb" :   16,
           "formula" :   "Al(OH)3",
-          "substance_name" :   "Gibbsite",
-          "substance_class" :   0,
+          "name" :   "Gibbsite",
+          "class" :   0,
           "aggregate_state" :   3,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -3568,13 +3569,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     70.0820007324219
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -3668,25 +3669,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000018"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d000000a0",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Kln",
-          "sourcetdb" :   0,
+          "symbol" :   "Kln",
+          "sourcetdb" :   16,
           "formula" :   "Al2Si2O5(OH)4",
-          "substance_name" :   "Kaolinite",
-          "substance_class" :   0,
+          "name" :   "Kaolinite",
+          "class" :   0,
           "aggregate_state" :   3,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -3718,13 +3719,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     203.049514770508
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -3818,25 +3819,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd5500000019"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d000000a1",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Gr",
-          "sourcetdb" :   0,
+          "symbol" :   "Gr",
+          "sourcetdb" :   16,
           "formula" :   "C|0|",
-          "substance_name" :   "Graphite",
-          "substance_class" :   0,
+          "name" :   "Graphite",
+          "class" :   0,
           "aggregate_state" :   3,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -3868,13 +3869,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     5.74044799804688
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -3967,25 +3968,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000001a"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d000000a2",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Amor-Sl",
-          "sourcetdb" :   0,
+          "symbol" :   "Amor-Sl",
+          "sourcetdb" :   16,
           "formula" :   "SiO2",
-          "substance_name" :   "SiO2(am)  amorphous",
-          "substance_class" :   0,
+          "name" :   "SiO2(am)  amorphous",
+          "class" :   0,
           "aggregate_state" :   3,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -4017,13 +4018,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     59.9986000061035
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -4117,25 +4118,25 @@
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000001b"
+     }
 }
 ,
 {
+     "_id" :   "57f4ede2fd64453d000000a3",
      "_type" :   "vertex",
      "_label" :   "substance",
      "properties" :   {
-          "substance_symbol" :   "Quartz",
-          "sourcetdb" :   0,
+          "symbol" :   "Quartz",
+          "sourcetdb" :   16,
           "formula" :   "SiO2",
-          "substance_name" :   "Quartz (q)",
-          "substance_class" :   0,
+          "name" :   "Quartz (q)",
+          "class" :   0,
           "aggregate_state" :   3,
           "standard_cscale" :   0,
           "Tst" :   298.15,
@@ -4167,13 +4168,13 @@
                ]
           },
           "sm_entropy_f" :   {
-               "name" :   "sSf",
+               "name" :   "sSf"
+          },
+          "sm_entropy_abs" :   {
+               "name" :   "sS0",
                "values" :   [
                     41.5
                ]
-          },
-          "sm_entropy_abs" :   {
-               "name" :   "sS0"
           },
           "sm_heat_capacity_p" :   {
                "name" :   "sCp0",
@@ -4271,19 +4272,18 @@
                     0
                ]
           },
-          "comment" :   "---",
+          "comment" :   "",
           "datasources" :   [
                "Holland and Powell (2002)"
           ],
           "time_stamp" :   {
                "year" :   2016,
-               "month" :   7,
-               "day" :   11,
-               "hour" :   17,
-               "minute" :   0,
-               "second" :   29
+               "month" :   10,
+               "day" :   5,
+               "hour" :   14,
+               "minute" :   11,
+               "second" :   14
           }
-     },
-     "_id" :   "5783b48dfe43bd550000001c"
+     }
 }
 ]

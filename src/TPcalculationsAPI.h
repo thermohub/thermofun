@@ -4,29 +4,29 @@
 
 namespace ThermoFun {
 
-map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
-                                          {"pressure", "bar"},
-                                          {"gibbs_energy", "J/mol"},
-                                          {"enthalpy", "J/mol"},
-                                          {"entropy", "J/mol"},
-                                          {"heat_capacity_cp", "J/mol*K"},
-                                          {"heat_capacity_cv", "J/mol*K"},
-                                          {"volume", "J/bar"},
-                                          {"helmholtz_energy", "J/mol"},
-                                          {"internal_energy", "J/mol"}
-                                        };
+//map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
+//                                          {"pressure", "bar"},
+//                                          {"gibbs_energy", "J/mol"},
+//                                          {"enthalpy", "J/mol"},
+//                                          {"entropy", "J/mol"},
+//                                          {"heat_capacity_cp", "J/mol*K"},
+//                                          {"heat_capacity_cv", "J/mol*K"},
+//                                          {"volume", "J/bar"},
+//                                          {"helmholtz_energy", "J/mol"},
+//                                          {"internal_energy", "J/mol"}
+//                                        };
 
-map<std::string, int> thermoPropDefaultPrecision = {{"temperature", 0 },
-                                          {"pressure", 0 },
-                                          {"gibbs_energy", 0},
-                                          {"enthalpy", 0},
-                                          {"entropy", 0},
-                                          {"heat_capacity_cp", 0 },
-                                          {"heat_capacity_cv", 0 },
-                                          {"volume", 0 },
-                                          {"helmholtz_energy", 0 },
-                                          {"internal_energy", 0 }
-                                        };
+//map<std::string, int> thermoPropDefaultPrecision = {{"temperature", 0 },
+//                                          {"pressure", 0 },
+//                                          {"gibbs_energy", 0},
+//                                          {"enthalpy", 0},
+//                                          {"entropy", 0},
+//                                          {"heat_capacity_cp", 0 },
+//                                          {"heat_capacity_cv", 0 },
+//                                          {"volume", 0 },
+//                                          {"helmholtz_energy", 0 },
+//                                          {"internal_energy", 0 }
+//                                        };
 
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results
