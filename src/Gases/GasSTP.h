@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesGasSTP(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 

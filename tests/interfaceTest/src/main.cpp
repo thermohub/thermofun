@@ -1,7 +1,7 @@
 #include "Interfaces/Interface.h"
 
 using namespace std;
-using namespace TCorrPT;
+using namespace ThermoFun;
 
 int main(int argc, char *argv[])
 {

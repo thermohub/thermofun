@@ -1,6 +1,6 @@
-    HEADERS	 += $$TCORRPT_H/tcorrpt_global.h \
-    $$TCORRPT_H/Common/ThermoScalar.hpp \
-    $$TCORRPT_H/Common/ScalarTypes.hpp \
+    HEADERS	 += $$ThermoFun_H/ThermoFun_global.h \
+    $$ThermoFun_H/Common/ThermoScalar.hpp \
+    $$ThermoFun_H/Common/ScalarTypes.hpp \
     $$PWD/Solvent/Reaktoro/WaterConstants.hpp \
     $$PWD/Solvent/Reaktoro/WaterHelmholtzState.hpp \
     $$PWD/Solvent/Reaktoro/WaterThermoState.hpp \
@@ -18,7 +18,7 @@
 #    $$PWD/substancedatapt.h \
 #    $$PWD/tcorrmodsubstance.h \
 #    $$PWD/tcorrmodreaction.h \
-#$$TCORRPT_H/tcorrpt.h  \
+#$$ThermoFun_H/ThermoFun.h  \
     $$PWD/Database.h \
     $$PWD/Substance.h \
     $$PWD/Reaction.h \
@@ -69,7 +69,7 @@
 
 
     SOURCES	 += $$PWD/Database.cpp \
-    $$TCORRPT_H/Common/ThermoScalar.hpp \
+    $$ThermoFun_H/Common/ThermoScalar.hpp \
     $$PWD/Solvent/Reaktoro/WaterHelmholtzStateHGK.cpp \
     $$PWD/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \
     $$PWD/Solvent/Reaktoro/WaterThermoStateUtils.cpp \
@@ -83,7 +83,7 @@
 #    $$PWD/substancedatapt.cpp \
 #    $$PWD/tcorrmodsubstance.cpp \
 #    $$PWD/tcorrmodreaction.cpp \
-#$$TCORRPT_CPP/tcorrpt.cpp \
+#$$ThermoFun_CPP/ThermoFun.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
     $$PWD/Thermo.cpp \

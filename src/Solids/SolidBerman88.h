@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Berman crrection model
 /// @ref Berman R.G. (1988) Internally consistent thermodynamic data for minerals in the system Na2O-K2O-

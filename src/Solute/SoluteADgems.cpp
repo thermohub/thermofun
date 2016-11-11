@@ -1,7 +1,7 @@
 #include "Solute/SoluteADgems.h"
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {

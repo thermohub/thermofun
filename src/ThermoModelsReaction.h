@@ -1,12 +1,12 @@
 #ifndef THERMOMODELREACTION_H
 #define THERMOMODELREACTION_H
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Reaction.h"
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 #include <memory>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 class PropertiesSolvent;
 
@@ -125,6 +125,6 @@ private:
 
 
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // THERMOMODELREACTION_H

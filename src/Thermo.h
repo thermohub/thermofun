@@ -1,14 +1,14 @@
 #ifndef THERMO_H
 #define THERMO_H
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Database.h"
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
 #include "ElectroModelsSolvent.h"
 #include "ThermoModelsReaction.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 ///
 /// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
@@ -202,6 +202,6 @@ private:
 
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // THERMO_H

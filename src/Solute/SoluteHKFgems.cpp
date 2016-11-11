@@ -2,7 +2,7 @@
 #include "Common/Exception.h"
 
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //void TDComp::calc_thkf( AQSREF& arf, double P, double T, double Dw, double betaw,
 //                        double alphaw, double daldTw, double Z, double Q,

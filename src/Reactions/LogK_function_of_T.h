@@ -5,7 +5,7 @@
 #include "Reaction.h"
 #include "ThermoProperties.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReaction;
 

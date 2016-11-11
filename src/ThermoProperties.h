@@ -2,10 +2,10 @@
 #define THERMOPROPERTIES_H
 
 // TCorPT includes
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 #include "Common/ThermoScalar.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct ThermoVariables
 {
@@ -250,7 +250,7 @@ struct FunctionG
     Reaktoro_::ThermoScalar gPP;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // THERMOPROPERTIES_H
 

@@ -12,7 +12,7 @@
 //#include "bsonio/dbbase.h"
 //#include "bsonio/nejdb.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct Substance;
 struct ThermoParametersSubstance;

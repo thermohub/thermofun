@@ -1,7 +1,7 @@
 #include "WaterElectroFernandez1997.h"
 #include "Thermo.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 const double I[] = {1, 1, 1, 2, 3, 3, 4, 5, 6, 7, 10};
 const double J[] = {0.25, 1, 2.5, 1.5, 1.5, 2.5, 2, 2, 5, 0.5, 10};

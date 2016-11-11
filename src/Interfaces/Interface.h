@@ -4,7 +4,7 @@
 #include "../Thermo.h"
 #include "Output.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results

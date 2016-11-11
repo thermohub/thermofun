@@ -16,10 +16,10 @@
 #include "Gases/GasPR78.h"
 #include "Gases/GasSTP.h"
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 
 auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double Pmax, /*double Pmin,*/ Substance species, string model) -> void
@@ -671,4 +671,4 @@ auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubsta
 }
 
 
-} // namespace TCorrPT
+} // namespace ThermoFun

@@ -1,6 +1,6 @@
 #include "Solvent/WaterJN91reaktoro.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto electroPropertiesWaterJNreaktoro(const Reaktoro_::WaterElectroState& wts) -> ElectroPropertiesSolvent
 {

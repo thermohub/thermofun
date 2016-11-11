@@ -1,9 +1,9 @@
 #include "Substance.h"
 
-// TCorrPT includes
+// ThermoFun includes
 //#include "ThermoProperties.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct Substance::Impl
 {
@@ -255,5 +255,5 @@ auto Substance::SolventSymbol() -> string
     return pimpl->solventSymbol;
 }
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 

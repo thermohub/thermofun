@@ -1,14 +1,14 @@
         HEADERS += \
-    $$PWD/TCorrPTWidget.h \
+    $$PWD/ThermoFunWidget.h \
     $$PWD/MinMaxDialog.h
 
          SOURCES += \
-    $$PWD/TCorrPTWidget.cpp \
-    $$PWD/TCorrPTMenu.cpp \
+    $$PWD/ThermoFunWidget.cpp \
+    $$PWD/ThermoFunMenu.cpp \
     $$PWD/MinMaxDialog.cpp
 
 FORMS += \
-    $$PWD/TCorrPTWidget.ui \
+    $$PWD/ThermoFunWidget.ui \
     $$PWD/MinMaxDialog.ui
 
 

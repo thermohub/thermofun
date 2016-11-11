@@ -6,9 +6,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 class ThermoPropertiesReaction;
 class ThermoParametersReaction;
@@ -94,6 +94,6 @@ private:
 
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // REACTION_H

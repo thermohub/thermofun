@@ -1,9 +1,9 @@
-tcorrpt_lib/tcorrpt.pro.user
+ThermoFun_lib/ThermoFun.pro.user
 docs/devel.txt
 docs/info.txt
 docs/unknowns.txt
-gui/tcorrpt-gui.pro.user
-tests/unit01/tcorrpt-test.pro.user
+gui/ThermoFun-gui.pro.user
+tests/unit01/ThermoFun-test.pro.user
 tests/unit02/HKF-test.pro.user
 tests/unit03/AD-test.pro.user
 tests/unit04/IO-test.pro.user

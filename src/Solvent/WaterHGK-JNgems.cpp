@@ -1,9 +1,9 @@
-// TCorrPT includes
+// ThermoFun includes
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
 #include "ThermoProperties.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 
 auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance

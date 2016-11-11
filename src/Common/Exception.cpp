@@ -4,16 +4,16 @@
 #include <algorithm>
 #include <sstream>
 
-namespace TCorrPT {
+namespace ThermoFun {
 namespace internal {
 /// Creates the location string from the file name and line number.
-/// The result of this function on the file `/home/user/gitTCorrPT/tcorrpt/src/Substance.cpp`
-/// will be `tcorrpt/src/Substance.cpp`.
+/// The result of this function on the file `/home/user/gitThermoFun/ThermoFun/src/Substance.cpp`
+/// will be `ThermoFun/src/Substance.cpp`.
 /// @param file The full path to the file
 /// @param line The line number
 std::string location(const std::string& file, int line)
 {
-    std::string str = "tcorrpt/";
+    std::string str = "ThermoFun/";
     auto pos = std::find_end(file.begin(), file.end(), str.begin(), str.end()) - file.begin();
     std::stringstream ss;
     ss << file.substr(pos, file.size() - pos) << ":" << line;
@@ -77,4 +77,4 @@ auto errorModelParameters(std::string type, std::string name, int line) -> void
 }
 
 
-} // namespace TCorrPT
+} // namespace ThermoFun

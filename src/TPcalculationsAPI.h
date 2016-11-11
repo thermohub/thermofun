@@ -2,31 +2,31 @@
 #define TPCALCULATIONSAPI
 #include "Thermo.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
-map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
-                                          {"pressure", "bar"},
-                                          {"gibbs_energy", "J/mol"},
-                                          {"enthalpy", "J/mol"},
-                                          {"entropy", "J/mol"},
-                                          {"heat_capacity_cp", "J/mol*K"},
-                                          {"heat_capacity_cv", "J/mol*K"},
-                                          {"volume", "J/bar"},
-                                          {"helmholtz_energy", "J/mol"},
-                                          {"internal_energy", "J/mol"}
-                                        };
+//map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
+//                                          {"pressure", "bar"},
+//                                          {"gibbs_energy", "J/mol"},
+//                                          {"enthalpy", "J/mol"},
+//                                          {"entropy", "J/mol"},
+//                                          {"heat_capacity_cp", "J/mol*K"},
+//                                          {"heat_capacity_cv", "J/mol*K"},
+//                                          {"volume", "J/bar"},
+//                                          {"helmholtz_energy", "J/mol"},
+//                                          {"internal_energy", "J/mol"}
+//                                        };
 
-map<std::string, int> thermoPropDefaultPrecision = {{"temperature", 0 },
-                                          {"pressure", 0 },
-                                          {"gibbs_energy", 0},
-                                          {"enthalpy", 0},
-                                          {"entropy", 0},
-                                          {"heat_capacity_cp", 0 },
-                                          {"heat_capacity_cv", 0 },
-                                          {"volume", 0 },
-                                          {"helmholtz_energy", 0 },
-                                          {"internal_energy", 0 }
-                                        };
+//map<std::string, int> thermoPropDefaultPrecision = {{"temperature", 0 },
+//                                          {"pressure", 0 },
+//                                          {"gibbs_energy", 0},
+//                                          {"enthalpy", 0},
+//                                          {"entropy", 0},
+//                                          {"heat_capacity_cp", 0 },
+//                                          {"heat_capacity_cv", 0 },
+//                                          {"volume", 0 },
+//                                          {"helmholtz_energy", 0 },
+//                                          {"internal_energy", 0 }
+//                                        };
 
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results
@@ -50,7 +50,7 @@ struct OutputOptions
 };
 
 /**
- * @brief The TPcalcualationsAPI class handels the interface between the TCorrPT library and coupled code for calculating the thermodynamic porperties
+ * @brief The TPcalcualationsAPI class handels the interface between the ThermoFun library and coupled code for calculating the thermodynamic porperties
  * of substances at various T and P and exporting them in a csv file or having dirrect acces to a vector of results
  */
 class TPcalcualationsAPI

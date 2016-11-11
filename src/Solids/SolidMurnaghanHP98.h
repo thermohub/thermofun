@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Murnaghan EoS (Holland and Powell, 1998)
 /// @ref Holland T.J.B., Powell R. (1998) An internally consistent thermodynamic data set for phases of

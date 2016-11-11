@@ -1,7 +1,7 @@
 #include "Gases/GasSRK.h"
 #include "Gases/s_solmod_.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesGasSRK(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {

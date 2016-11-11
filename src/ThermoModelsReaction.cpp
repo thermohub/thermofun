@@ -4,7 +4,7 @@
 #include "Reactions/RyzhenkoBryzgalyn.h"
 #include "Reactions/LogK_function_of_T.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //=======================================================================================================
 //
@@ -163,4 +163,4 @@ auto Reaction_Vol_fT::thermoProperties(double T, double P) -> ThermoPropertiesRe
 
 
 
-} // namespace TCorrPTs
+} // namespace ThermoFuns

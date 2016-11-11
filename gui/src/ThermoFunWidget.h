@@ -1,7 +1,7 @@
-//  This is TCorrPT library+API (https://bitbucket.org/gems4/tcorrpt)
+//  This is ThermoFun library+API (https://bitbucket.org/gems4/ThermoFun)
 //
-/// \file TCorrPTWidget.h
-/// TCorrPTWidget - Widget to work with TCorrPT data
+/// \file ThermoFunWidget.h
+/// ThermoFunWidget - Widget to work with ThermoFun data
 //
 // BSONUI is a C++ Qt5-based widget library and API aimed at implementing
 // the GUI for editing/viewing the structured data kept in a NoSQL database,
@@ -30,8 +30,8 @@
 // Qwtplot (http://qwt.sourceforge.net).
 //
 
-#ifndef TCORRPTWIDGET_H
-#define TCORRPTWIDGET_H
+#ifndef ThermoFunWIDGET_H
+#define ThermoFunWIDGET_H
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -41,11 +41,11 @@
 class TableEditWidget;
 
 namespace Ui {
-class TCorrPTWidget;
+class ThermoFunWidget;
 }
 
-/// TCorrPT data to calculation
-struct TCorrPTData
+/// ThermoFun data to calculation
+struct ThermoFunData
 {
     string name;    ///< Task (file) name
     string comment; ///< Task description
@@ -68,7 +68,7 @@ struct TCorrPTData
     int pPrecision, tPrecision;
 
     /// Default values to task
-    TCorrPTData();
+    ThermoFunData();
 
     /// Write current task to configuration file fileName
     void savetoCFG( const string& fileName );
@@ -215,7 +215,7 @@ class TPropertyContainer : public TAbstractDataContainer
 
 
 /// Widget to work with CorrPT data
-class TCorrPTWidget : public BSONUIBase
+class ThermoFunWidget : public BSONUIBase
 {
     Q_OBJECT
 
@@ -223,7 +223,7 @@ class TCorrPTWidget : public BSONUIBase
     string curSchemaName = "";
     vector<string> _shemaNames;
 
-    TCorrPTData _data;
+    ThermoFunData _data;
 
     // work params
     bson curRecord;
@@ -252,8 +252,8 @@ class TCorrPTWidget : public BSONUIBase
     virtual void updtTable();
     virtual void updtDB();
 
-    /// Reset new TCorrPT data
-    void resetTCorrPTData();
+    /// Reset new ThermoFun data
+    void resetThermoFunData();
 
 protected slots:
 
@@ -332,15 +332,15 @@ public slots:
 
 
 public:
-    explicit TCorrPTWidget( QSettings *amainSettings, ThriftSchema *aschema,
+    explicit ThermoFunWidget( QSettings *amainSettings, ThriftSchema *aschema,
          const string& fileCfgName="", QWidget *parent = 0);
-    ~TCorrPTWidget();
+    ~ThermoFunWidget();
 
     void setQuery( QueryWidget* queryW  );
 
 private:
 
-    Ui::TCorrPTWidget *ui;
+    Ui::ThermoFunWidget *ui;
 
     // edit record view
     QStringList aHeaderData;
@@ -356,7 +356,7 @@ private:
     QueryWidget* queryWindow;
     TableEditWidget* queryResultWindow;
 
-    //TCorrPT data to edit;
+    //ThermoFun data to edit;
     TPVectorContainer* _TContainer;
     TMatrixTable*  _TlistTable;
     TMatrixModel*  _TlistModel;
@@ -415,4 +415,4 @@ void convertFromQt( const QJsonArray& inlst, vector<int>& lst);
 //    }
 // }
 
-#endif // TCORRPTWINDOW_H
+#endif // ThermoFunWINDOW_H

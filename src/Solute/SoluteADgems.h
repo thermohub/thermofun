@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 void Akinfiev_EOS_increments(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Gig, Reaktoro_::ThermoScalar Sig, Reaktoro_::ThermoScalar CPig,
         Reaktoro_::ThermoScalar Gw, Reaktoro_::ThermoScalar Sw, Reaktoro_::ThermoScalar CPw, Reaktoro_::ThermoScalar rho, Reaktoro_::ThermoScalar alp, Reaktoro_::ThermoScalar bet, Reaktoro_::ThermoScalar dalpT, vd ADparam,

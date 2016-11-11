@@ -5,7 +5,7 @@
 
 //#include "Solvent/Reaktoro/WaterUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, const Reaktoro_::WaterThermoState& wt) -> ThermoPropertiesSubstance
 {
@@ -104,4 +104,4 @@ auto saturatedWaterVaporPressureHGK(double t) -> double
     return(psHGK*1e1);
 }
 
-} // end namespace TCorrPT
+} // end namespace ThermoFun
