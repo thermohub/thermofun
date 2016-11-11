@@ -1,7 +1,7 @@
-//  This is TCorrPT library+API (https://bitbucket.org/gems4/tcorrpt)
+//  This is ThermoFun library+API (https://bitbucket.org/gems4/ThermoFun)
 //
-/// \file TCorrPTWidget.cpp
-/// TCorrPTWidget - Widget to work with TCorrPT data
+/// \file ThermoFunWidget.cpp
+/// ThermoFunWidget - Widget to work with ThermoFun data
 //
 // BSONUI is a C++ Qt5-based widget library and API aimed at implementing
 // the GUI for editing/viewing the structured data kept in a NoSQL database,
@@ -35,16 +35,16 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
-#include "TCorrPTWidget.h"
-#include "ui_TCorrPTWidget.h"
+#include "ThermoFunWidget.h"
+#include "ui_ThermoFunWidget.h"
 #include "bsonui/TableEditWindow.h"
 #include "bsonui/QueryWidget.h"
 using namespace bsonio;
 
 
-TCorrPTData::TCorrPTData()
+ThermoFunData::ThermoFunData()
 {
-  name = "TCorrPTTask1";
+  name = "ThermoFunTask1";
   comment = "write comment here...";
   schemaName = "VertexSubstance";
   query = "";
@@ -62,7 +62,7 @@ TCorrPTData::TCorrPTData()
 }
 
 
-void TCorrPTData::toBson( bson *obj ) const
+void ThermoFunData::toBson( bson *obj ) const
 {
     bson_append_string( obj, "Name", name.c_str() );
     bson_append_string( obj, "Description", comment.c_str() );
@@ -104,9 +104,9 @@ void TCorrPTData::toBson( bson *obj ) const
     bson_append_finish_array(obj);
 }
 
-void TCorrPTData::fromBson( const char* bsobj )
+void ThermoFunData::fromBson( const char* bsobj )
 {
-    TCorrPTData deflt;
+    ThermoFunData deflt;
 
     if(!bson_find_string( bsobj, "Name", name ) )
         name=deflt.name;
@@ -150,7 +150,7 @@ void TCorrPTData::fromBson( const char* bsobj )
 
 
 // Write current task to configuration file fileName
-void TCorrPTData::savetoCFG( const string& fileName )
+void ThermoFunData::savetoCFG( const string& fileName )
 {
    QSettings settings(fileName.c_str(), QSettings::IniFormat);
 
@@ -178,10 +178,10 @@ void TCorrPTData::savetoCFG( const string& fileName )
 }
 
 // Read current task from configuration file fileName
-void TCorrPTData::readfromCFG( const string& fileName )
+void ThermoFunData::readfromCFG( const string& fileName )
 {
     QSettings settings(fileName.c_str(), QSettings::IniFormat);
-    TCorrPTData deflt;
+    ThermoFunData deflt;
 
     name = settings.value("Name", deflt.name.c_str() ).toString().toUtf8().data();
     comment = settings.value("Description", deflt.comment.c_str() ).toString().toUtf8().data();
@@ -277,7 +277,7 @@ void convertFromQt( const QJsonArray& inlst, vector<int>& lst)
 
 //----------------------------------------------------------------------
 
-void TCorrPTWidget::closeEvent(QCloseEvent* e)
+void ThermoFunWidget::closeEvent(QCloseEvent* e)
 {
     if( queryResultWindow )
      queryResultWindow->close();
@@ -295,10 +295,10 @@ void TCorrPTWidget::closeEvent(QCloseEvent* e)
 }
 
 
-TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
+ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
          const string& fileCfgName, QWidget *parent) :
     BSONUIBase(amainSettings, aschema, parent),
-    curSchemaName(""), ui(new Ui::TCorrPTWidget),
+    curSchemaName(""), ui(new Ui::ThermoFunWidget),
     dataTable(0), pTable(0), tableModel(0), queryWindow(0), queryResultWindow(0)
 {
     _shemaNames.push_back("VertexSubstance");
@@ -347,7 +347,7 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
    defKeysTables();
    resetDBClient( curSchemaName );
 
-   // define tcorrpt data
+   // define ThermoFun data
    _TContainer = new TPVectorContainer( "T", "T", _data.pointsT );
    _TlistTable  = new TMatrixTable( ui->outWidget );
    TMatrixDelegate* deleg = new TMatrixDelegate();
@@ -400,7 +400,7 @@ TCorrPTWidget::TCorrPTWidget(QSettings *amainSettings,ThriftSchema *aschema,
      CmNew();
 }
 
-TCorrPTWidget::~TCorrPTWidget()
+ThermoFunWidget::~ThermoFunWidget()
 {
     // free keys query data
     if(queryResultWindow)
@@ -430,13 +430,13 @@ TCorrPTWidget::~TCorrPTWidget()
     delete _PropertyContainer;
 
     delete ui;
-    cout << "~TCorrPTWidget" << endl;
+    cout << "~ThermoFunWidget" << endl;
 }
 
 //-----------------------------------------------------
 
 //
-void TCorrPTWidget::resetTypeBox( const QString & text )
+void ThermoFunWidget::resetTypeBox( const QString & text )
 {
     disconnect( ui->typeBox, SIGNAL(currentIndexChanged(const QString&)),
              this, SLOT(typeChanged(const QString&)));
@@ -446,7 +446,7 @@ void TCorrPTWidget::resetTypeBox( const QString & text )
 }
 
 /// Change current Edge
-void TCorrPTWidget::typeChanged(const QString & text)
+void ThermoFunWidget::typeChanged(const QString & text)
 {
   try {
         string newname = text.toUtf8().data();
@@ -480,7 +480,7 @@ void TCorrPTWidget::typeChanged(const QString & text)
     }
 }
 
-void TCorrPTWidget::resetDBClient(const string& schemaName_ )
+void ThermoFunWidget::resetDBClient(const string& schemaName_ )
 {
   string defaultQuery="";
   if( isDefaultQuery)
@@ -512,7 +512,7 @@ void TCorrPTWidget::resetDBClient(const string& schemaName_ )
 }
 
 
-void TCorrPTWidget::defKeysTables()
+void ThermoFunWidget::defKeysTables()
 {
     // define table of keys
     pTable = new TKeyTable(ui->keySplitter,
@@ -531,7 +531,7 @@ void TCorrPTWidget::defKeysTables()
     connect( pTable, SIGNAL( clicked(const QModelIndex& ) ), this, SLOT(openRecordKey( const QModelIndex& )));
 }
 
-void TCorrPTWidget::resetKeysTable()
+void ThermoFunWidget::resetKeysTable()
   {
     if( dataTable )
       delete dataTable;
@@ -544,7 +544,7 @@ void TCorrPTWidget::resetKeysTable()
     pTable->hideColumn(0);
 }
 
-bool TCorrPTWidget::resetBson(const string& schemaName )
+bool ThermoFunWidget::resetBson(const string& schemaName )
 {
    // test legal schema name
    if( !curSchemaName.empty() &&
@@ -555,7 +555,7 @@ bool TCorrPTWidget::resetBson(const string& schemaName )
    return true;
 }
 
-void TCorrPTWidget::openRecordKey(  const QModelIndex& rowindex , bool resetInOutQuery  )
+void ThermoFunWidget::openRecordKey(  const QModelIndex& rowindex , bool resetInOutQuery  )
 {
     // find key
     int row = rowindex.row();
@@ -567,7 +567,7 @@ void TCorrPTWidget::openRecordKey(  const QModelIndex& rowindex , bool resetInOu
 }
 
 
-void TCorrPTWidget::openRecordKey(  const string& reckey, bool  )
+void ThermoFunWidget::openRecordKey(  const string& reckey, bool  )
 {
    try{
         if( isDefaultQuery )
@@ -607,7 +607,7 @@ void TCorrPTWidget::openRecordKey(  const string& reckey, bool  )
 
 }
 
-void TCorrPTWidget::changeKeyList()
+void ThermoFunWidget::changeKeyList()
 {
     // reset model data
     tableModel->resetMatrixData();
@@ -629,8 +629,8 @@ void TCorrPTWidget::changeKeyList()
     pTable->setColumnHidden(0, true);
 }
 
-/// Reset new TCorrPT data
-void TCorrPTWidget::resetTCorrPTData()
+/// Reset new ThermoFun data
+void ThermoFunWidget::resetThermoFunData()
 {
    _TlistModel->resetMatrixData();
    _PlistModel->resetMatrixData();
@@ -669,7 +669,7 @@ void TCorrPTWidget::resetTCorrPTData()
 //-------------------------------------------------------------
 
 /// Change current View menu selections
-void TCorrPTWidget::updtViewMenu()
+void ThermoFunWidget::updtViewMenu()
 {
     ui->action_Show_comments->setChecked( TSchemaNodeModel::showComments );
     ui->action_Display_enums->setChecked(TSchemaNodeModel::useEnumNames);
@@ -678,7 +678,7 @@ void TCorrPTWidget::updtViewMenu()
 }
 
 /// Change model ( show/hide comments)
-void TCorrPTWidget::updtModel()
+void ThermoFunWidget::updtModel()
 {
    model_schema->updateModelData();
    fieldTable->header()->resizeSection(0, 150);
@@ -687,14 +687,14 @@ void TCorrPTWidget::updtModel()
 }
 
 /// Change table (Show Enum Names Instead of Values)
-void TCorrPTWidget::updtTable()
+void ThermoFunWidget::updtTable()
 {
     fieldTable->hide();
     fieldTable->show();
 }
 
 /// Update after change DB locations
-void TCorrPTWidget::updtDB()
+void ThermoFunWidget::updtDB()
 {
     // set up new dbclient
     resetDBClient( curSchemaName );
@@ -703,25 +703,25 @@ void TCorrPTWidget::updtDB()
 }
 
 /// Change flag "Display Comments to Data Fields"
-void TCorrPTWidget::CmShowComments()
+void ThermoFunWidget::CmShowComments()
 {
    showComments( ui->action_Show_comments->isChecked() );
 }
 
 /// Change flag "Show Enum Names Instead of Values"
-void TCorrPTWidget::CmDisplayEnums()
+void ThermoFunWidget::CmDisplayEnums()
 {
     displayEnums(ui->action_Display_enums->isChecked());
 }
 
 /// Change flag "Edit _id of DB Documents (Records) "
-void TCorrPTWidget::CmEditID()
+void ThermoFunWidget::CmEditID()
 {
   editID( ui->action_Edit_id->isChecked());
 }
 
 /// Change flag "Keep data fields expanded"
-void TCorrPTWidget::CmEditExpanded()
+void ThermoFunWidget::CmEditExpanded()
 {
   editExpanded( ui->actionKeep_Data_Fields_Expanded->isChecked() );
 }

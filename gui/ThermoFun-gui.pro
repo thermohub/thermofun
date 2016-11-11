@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-TARGET = tcorrpt-gui
+TARGET = ThermoFun-gui
 TEMPLATE = app
 
 CONFIG += thread
@@ -51,9 +51,9 @@ LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 
 # Define the directory where source code is located
 GUI_CPP   =    ./src
-TCORRPT_CPP =  ../src
+ThermoFun_CPP =  ../src
 GUI_H     =  $$GUI_CPP
-TCORRPT_H   =  $$TCORRPT_CPP
+ThermoFun_H   =  $$ThermoFun_CPP
 
 DEPENDPATH   += $$GUI_H
 DEPENDPATH   += $$CORPT_H
@@ -65,7 +65,7 @@ INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 
 LIBS += -lbsonui -lbsonio -lyaml-cpp -lejdb -lpugixml -lqwt
 LIBS += -lthrift -lboost_regex
-LIBS += -ltcorrpt
+LIBS += -lthermofun
 !macx-clang:LIBS += -llua5.2
 
 MOC_DIR = tmp
@@ -75,10 +75,10 @@ UI_HEADERDIR  = $$MOC_DIR
 OBJECTS_DIR   = obj
 
 include($$GUI_H/gui.pri)
-#include($$TCORRPT_H/tcorrpt.pri)
+#include($$ThermoFun_H/ThermoFun.pri)
 
 RESOURCES += \
-    tcorrpt.qrc
+    ThermoFun.qrc
 
 SOURCES += \
     test/main.cpp \

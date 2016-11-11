@@ -17,46 +17,46 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "C
 endif()
 
 
-# Set some necessary definitions to compile TCORRPT
+# Set some necessary definitions to compile THERMOFUN
 # add_definitions(-D_MYNOZLIB)
 
 # Set the list of names of the third-party targets and libraries
 set(THIRDPARTY_TARGETS BSONIO)
 set(THIRDPARTY_LIBS bsonio)
-set(TCORRPT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
+set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
 
 # Create the shared library using the collected source files
-add_library(TCORRPT_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES})
+add_library(THERMOFUN_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 
-# Specify the dependencies of TCORRPT to ensure proper build sequence
-add_dependencies(TCORRPT_OBJECTS ${THIRDPARTY_TARGETS})
+# Specify the dependencies of THERMOFUN to ensure proper build sequence
+add_dependencies(THERMOFUN_OBJECTS ${THIRDPARTY_TARGETS})
 
 # Check if a shared library is to be built
 if(BUILD_SHARED_LIBS)
-    add_library(TCORRPT_SHARED SHARED $<TARGET_OBJECTS:TCORRPT_OBJECTS>)
-    target_link_libraries(TCORRPT_SHARED ${THIRDPARTY_LIBS} )
+    add_library(THERMOFUN_SHARED SHARED $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
+    target_link_libraries(THERMOFUN_SHARED ${THIRDPARTY_LIBS} )
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    target_link_libraries(TCORRPT_SHARED thrift lua bsonio)
+    target_link_libraries(THERMOFUN_SHARED thrift lua bsonio)
 endif()
-    set_target_properties(TCORRPT_SHARED PROPERTIES OUTPUT_NAME tcorrpt)
-    install(TARGETS TCORRPT_SHARED DESTINATION lib)
+    set_target_properties(THERMOFUN_SHARED PROPERTIES OUTPUT_NAME thermofun)
+    install(TARGETS THERMOFUN_SHARED DESTINATION lib)
 endif()
 
 # Check if a static library is to be built
 if(BUILD_STATIC_LIBS)
-    add_library(TCORRPT_STATIC STATIC $<TARGET_OBJECTS:TCORRPT_OBJECTS>)
-    target_link_libraries(TCORRPT_STATIC ${THIRDPARTY_LIBS} )
-    set_target_properties(TCORRPT_STATIC PROPERTIES OUTPUT_NAME tcorrpt)
-    install(TARGETS TCORRPT_STATIC DESTINATION lib)
+    add_library(THERMOFUN_STATIC STATIC $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
+    target_link_libraries(THERMOFUN_STATIC ${THIRDPARTY_LIBS} )
+    set_target_properties(THERMOFUN_STATIC PROPERTIES OUTPUT_NAME thermofun)
+    install(TARGETS THERMOFUN_STATIC DESTINATION lib)
 endif()
 
 # Install the header files preserving the directory hierarchy
-install(DIRECTORY ${TCORRPT_SOURCE_DIR}
-    DESTINATION include/tcorrpt
+install(DIRECTORY ${THERMOFUN_SOURCE_DIR}
+    DESTINATION include/thermofun
     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h")
 
 #install(FILES ${HEADER_FILES}
-#        DESTINATION include/tcorrpt )
+#        DESTINATION include/thermofun )
 #install(DIRECTORY ${CMAKE_SOURCE_DIR} 
 #    DESTINATION include/tocrrpt
 #    FILES_MATCHING PATTERN "*.h")

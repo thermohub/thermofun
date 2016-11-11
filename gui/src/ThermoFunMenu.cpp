@@ -1,7 +1,7 @@
-//  This is TCorrPT library+API (https://bitbucket.org/gems4/tcorrpt)
+//  This is ThermoFun library+API (https://bitbucket.org/gems4/ThermoFun)
 //
-/// \file TCorrPTMenu.cpp
-/// TCorrPTWidget - Widget to work with TCorrPT data
+/// \file ThermoFunMenu.cpp
+/// ThermoFunWidget - Widget to work with ThermoFun data
 //
 // BSONUI is a C++ Qt5-based widget library and API aimed at implementing
 // the GUI for editing/viewing the structured data kept in a NoSQL database,
@@ -33,22 +33,22 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <sys/time.h>
-#include "TCorrPTWidget.h"
-#include "ui_TCorrPTWidget.h"
+#include "ThermoFunWidget.h"
+#include "ui_ThermoFunWidget.h"
 #include "MinMaxDialog.h"
 #include "bsonui/SchemaSelectDialog.h"
 #include "bsonui/SelectDialog.h"
 #include "bsonui/TableEditWindow.h"
 #include "bsonui/QueryWidget.h"
 #include "bsonio/json2cfg.h"
-// TCorrPT include
-//#include "tcorrpt/TPcalculationsAPI.h"
-#include "tcorrpt/Interfaces/Interface.h"
+// ThermoFun include
+//#include "thermofun/TPcalculationsAPI.h"
+#include "thermofun/Interfaces/Interface.h"
 
 using namespace bsonio;
 
 //  Connect all actions
-void TCorrPTWidget::setActions()
+void ThermoFunWidget::setActions()
 {
     connect( ui->typeBox, SIGNAL(currentIndexChanged(const QString&)),
              this, SLOT(typeChanged(const QString&)));
@@ -117,7 +117,7 @@ void TCorrPTWidget::setActions()
 // Menu commands -----------------------------------------------------------
 
 /// Set default bson record
-void TCorrPTWidget::CmNew()
+void ThermoFunWidget::CmNew()
 {
   try{
           bson_destroy( &curRecord );
@@ -136,7 +136,7 @@ void TCorrPTWidget::CmNew()
 }
 
 
-void TCorrPTWidget::CmDisplaySearchResult()
+void ThermoFunWidget::CmDisplaySearchResult()
 {
   if( dbgraph.get() == 0 )
        return;
@@ -161,7 +161,7 @@ void TCorrPTWidget::CmDisplaySearchResult()
   }
 }
 
-void TCorrPTWidget::CmSearchQuery()
+void ThermoFunWidget::CmSearchQuery()
 {
   if( dbgraph.get() == 0 )
        return;
@@ -192,7 +192,7 @@ void TCorrPTWidget::CmSearchQuery()
   }
 }
 
-void TCorrPTWidget::setQuery( QueryWidget* queryW  )
+void ThermoFunWidget::setQuery( QueryWidget* queryW  )
 {
   if( dbgraph.get() == 0 )
        return;
@@ -231,7 +231,7 @@ void TCorrPTWidget::setQuery( QueryWidget* queryW  )
 
 // new commands -------------------------------------------------------------------
 
-void TCorrPTWidget::CmReallocT()
+void ThermoFunWidget::CmReallocT()
 {
   try{
         bool ok = 0;
@@ -254,7 +254,7 @@ void TCorrPTWidget::CmReallocT()
 }
 
 
-void TCorrPTWidget::CmResetT()
+void ThermoFunWidget::CmResetT()
 {
   try{
         // define new preferences
@@ -286,7 +286,7 @@ void TCorrPTWidget::CmResetT()
     }
 }
 
-void TCorrPTWidget::CmReallocP()
+void ThermoFunWidget::CmReallocP()
 {
   try{
         bool ok = 0;
@@ -309,7 +309,7 @@ void TCorrPTWidget::CmReallocP()
 }
 
 
-void TCorrPTWidget::CmResetP()
+void ThermoFunWidget::CmResetP()
 {
   try{
         // define new preferences
@@ -341,7 +341,7 @@ void TCorrPTWidget::CmResetP()
     }
 }
 
-void TCorrPTWidget::CmResetProperty()
+void ThermoFunWidget::CmResetProperty()
 {
  try
   {   
@@ -357,8 +357,8 @@ void TCorrPTWidget::CmResetProperty()
     _data.propertyPrecision.resize(_data.properties.size());
     for (unsigned i = 0; i<_data.properties.size(); i++)
     {
-        _data.propertyUnits[i] = TCorrPT::defaultPropertyUnits.find(_data.properties[i])->second;
-        _data.propertyPrecision[i] = TCorrPT::defaultPropertyDigits.find(_data.properties[i])->second;
+        _data.propertyUnits[i] = ThermoFun::defaultPropertyUnits.find(_data.properties[i])->second;
+        _data.propertyPrecision[i] = ThermoFun::defaultPropertyDigits.find(_data.properties[i])->second;
     }
      _PropertyModel->resetMatrixData();
   }
@@ -375,7 +375,7 @@ void TCorrPTWidget::CmResetProperty()
 
 
 /// Read bson record from json file fileName
-void TCorrPTWidget::CmImportCFG()
+void ThermoFunWidget::CmImportCFG()
 {
   try{
         string fileName;
@@ -387,7 +387,7 @@ void TCorrPTWidget::CmImportCFG()
           file.LoadBson( &obj );
           _data.fromBson(obj.data);
           bson_destroy(&obj);
-          resetTCorrPTData();
+          resetThermoFunData();
         }
     }
    catch(bsonio_exeption& e)
@@ -402,7 +402,7 @@ void TCorrPTWidget::CmImportCFG()
 
 
 /// Write current task to configuration file file
-void TCorrPTWidget::CmExportCFG()
+void ThermoFunWidget::CmExportCFG()
 {
    try {
          string fileName = _data.name+".json";
@@ -429,14 +429,14 @@ void TCorrPTWidget::CmExportCFG()
     }
 }
 
-void TCorrPTWidget::CmCalcMTPARM()
+void ThermoFunWidget::CmCalcMTPARM()
 {
     if( dbgraph.get() == 0 )
           return;
    vector<bson> selectedList;
 
    try {
-          // Select keys to send to TCorrPT
+          // Select keys to send to ThermoFun
           bool isSolvent = false;
           vector<string> aKeyList;
           vector<vector<string>> aValList;
@@ -464,15 +464,15 @@ readData:
            string valDB = dbgraph->GetJson();
            jsonToBson( &selectedList[ii], valDB );
 
-           bsonio::bson_to_key( selectedList[ii].data, TCorrPT::substSymbol, substancesSymbols[ii]);
-           bsonio::bson_to_key( selectedList[ii].data, TCorrPT::substClass, substancesClass[ii]);
+           bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substSymbol, substancesSymbols[ii]);
+           bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
          }
 
-         TCorrPT::Interface tpCalc(selectedList);
+         ThermoFun::Interface tpCalc(selectedList);
 
          for (uint ii=0; ii<substancesClass.size(); ii++)
          {
-             if (stoi(substancesClass[ii]) == TCorrPT::SubstanceClass::type::AQSOLVENT)
+             if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
              {
                  tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
                  isSolvent = true;
@@ -490,14 +490,14 @@ readData:
              goto readData;
          }
 
-         TCorrPT::OutputSettings op;
+         ThermoFun::OutputSettings op;
          if (ui->FormatBox->isChecked())
          {
              op.isFixed = true;
              tpCalc.setOutputSettings(op);
          }
 
-         std::map<const std::string, int> precision = TCorrPT::defaultPropertyDigits;
+         std::map<const std::string, int> precision = ThermoFun::defaultPropertyDigits;
          for (uint jj = 0; jj <_data.properties.size(); jj++)
          {
              precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
@@ -523,7 +523,7 @@ readData:
          double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
                   end.tv_usec - start.tv_usec) / 1.e6;
 
-         cout << "Finished TCorrPT calculation in "<< delta_calc << "s!" << endl;
+         cout << "Finished ThermoFun calculation in "<< delta_calc << "s!" << endl;
 
     }
    catch(bsonio_exeption& e)
@@ -536,7 +536,7 @@ readData:
     }
 }
 
-void TCorrPTWidget::CmCalcRTParm()
+void ThermoFunWidget::CmCalcRTParm()
 {
    try {
         cout << "CmCalcRTParm" << endl;
@@ -554,11 +554,11 @@ void TCorrPTWidget::CmCalcRTParm()
 
 
 //Result
-void TCorrPTWidget::CmShowResult()
+void ThermoFunWidget::CmShowResult()
 {
    try {
         // define new dialog
-        TCorrPT::OutputSettings op;
+        ThermoFun::OutputSettings op;
         string fileName = op.fileNameSubst;
         if(!_csvWin)
         {
@@ -584,4 +584,4 @@ void TCorrPTWidget::CmShowResult()
 
 
 
-// end of TCorrPTMenu.cpp
+// end of ThermoFunMenu.cpp

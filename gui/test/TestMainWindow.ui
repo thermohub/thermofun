@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>TCorrPT Test Main Window</string>
+   <string>ThermoFun Test Main Window</string>
   </property>
   <widget class="QWidget" name="centralWidget_">
    <layout class="QGridLayout" name="gridLayout">
@@ -45,7 +45,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="actionNew_TCorrPT_Window"/>
+    <addaction name="actionNew_ThermoFun_Window"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -100,7 +100,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionPreferences"/>
-   <addaction name="actionNew_TCorrPT_Window"/>
+   <addaction name="actionNew_ThermoFun_Window"/>
    <addaction name="separator"/>
    <addaction name="action_Help_About"/>
    <addaction name="separator"/>
@@ -112,7 +112,7 @@
   </action>
   <action name="actionPreferences">
    <property name="icon">
-    <iconset resource="../tcorrpt.qrc">
+    <iconset resource="../ThermoFun.qrc">
      <normaloff>:/menu/Icons/SetKeyTemplateIcon24.png</normaloff>:/menu/Icons/SetKeyTemplateIcon24.png</iconset>
    </property>
    <property name="text">
@@ -124,7 +124,7 @@
   </action>
   <action name="action_Help_About">
    <property name="icon">
-    <iconset resource="../tcorrpt.qrc">
+    <iconset resource="../ThermoFun.qrc">
      <normaloff>:/menu/Icons/QuestionMessageIcon24.png</normaloff>:/menu/Icons/QuestionMessageIcon24.png</iconset>
    </property>
    <property name="text">
@@ -175,7 +175,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../tcorrpt.qrc">
+    <iconset resource="../ThermoFun.qrc">
      <normaloff>:/menu/Icons/CancelIcon24.png</normaloff>:/menu/Icons/CancelIcon24.png</iconset>
    </property>
    <property name="text">
@@ -190,22 +190,22 @@
     <string>&amp;Keep Data Fields Expanded</string>
    </property>
   </action>
-  <action name="actionNew_TCorrPT_Window">
+  <action name="actionNew_ThermoFun_Window">
    <property name="icon">
-    <iconset resource="../tcorrpt.qrc">
+    <iconset resource="../ThermoFun.qrc">
      <normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;New TCorrPT Window ...</string>
+    <string>&amp;New ThermoFun Window ...</string>
    </property>
    <property name="toolTip">
-    <string>New TCorrPT Data Editor Window</string>
+    <string>New ThermoFun Data Editor Window</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../tcorrpt.qrc"/>
+  <include location="../ThermoFun.qrc"/>
  </resources>
  <connections/>
 </ui>

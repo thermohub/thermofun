@@ -9,7 +9,7 @@
 #include "bsonio/json2cfg.h"
 #include "bsonui/SelectDialog.h"
 #include "bsonui/PreferencesBSONUI.h"
-#include "TCorrPTWidget.h"
+#include "ThermoFunWidget.h"
 #include "bsonio/dbdriverejdb.h"
 using namespace bsonio;
 
@@ -17,7 +17,7 @@ using namespace bsonio;
 void TestMainWindow::setDefValues()
 {
    // load main programm settingth
-   mainSettings = new QSettings("tcorrpt.ini", QSettings::IniFormat);
+   mainSettings = new QSettings("ThermoFun.ini", QSettings::IniFormat);
    getDataFromPreferences();
 }
 
@@ -95,7 +95,7 @@ TestMainWindow::~TestMainWindow()
 void TestMainWindow::setActions()
 {
      // File
-    connect( ui->actionNew_TCorrPT_Window , SIGNAL( triggered()), this, SLOT(CmNewTCorPT()));
+    connect( ui->actionNew_ThermoFun_Window , SIGNAL( triggered()), this, SLOT(CmNewTCorPT()));
     //    connect( ui->actionE_xit, SIGNAL( triggered()), this, SLOT(close()));
     connect( ui->actionE_xit, SIGNAL( triggered()), qApp, SLOT(quit()));
 
@@ -209,7 +209,7 @@ void TestMainWindow::CmNewTCorPT()
 {
   try{
         BSONUIBase* testWidget;
-        testWidget = new TCorrPTWidget( mainSettings, &schema, ""/*cfg file name, this*/ );
+        testWidget = new ThermoFunWidget( mainSettings, &schema, ""/*cfg file name, this*/ );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
         testWidget->setShowWidgetFunction(showWidget);
