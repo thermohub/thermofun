@@ -3,13 +3,13 @@
 
 namespace TCorrPT {
 
-auto thermoPropertiesMinBerman88(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     auto Pst = subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
-    auto T   = Reaktoro_::Temperature (t.val);
-    auto P   = Reaktoro_::Pressure (p.val); // in bar
+    auto T   = Reaktoro_::Temperature (TK.val);
+    auto P   = Reaktoro_::Pressure (Pbar.val); // in bar
     auto Ts2   = Tst*Tst;
 
     auto vc = subst.thermoParameters().volume_coeff;
@@ -37,7 +37,10 @@ auto thermoPropertiesMinBerman88(Reaktoro_::Temperature t, Reaktoro_::Pressure p
                             + vc[4]*VP*((P-Pst)*(P-Pst)) / 3. );
         tps.enthalpy     += ( - vc[0]*Tst*VP - vc[1]*VP*(T + Tst)* (T-Tst) + vc[2]*VP*Ts2*(2.*T + Tst)
                             + vc[3]*VP*(P-Pst) / 2. + vc[4]*VP*((P-Pst)*(P-Pst)) / 3. );
+        tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+        tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
     }
+
 
     // maybe this should be added back?
 //    aW.twp->Alp = aC;

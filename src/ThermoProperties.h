@@ -1,3 +1,6 @@
+#ifndef THERMOPROPERTIES_H
+#define THERMOPROPERTIES_H
+
 // TCorPT includes
 #include "tcorrpt_global.h"
 #include "Common/ThermoScalar.hpp"
@@ -248,4 +251,6 @@ struct FunctionG
 };
 
 } // namespace TCorrPT
+
+#endif // THERMOPROPERTIES_H
 

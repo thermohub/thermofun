@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef THERMOSCALAR_H
+#define THERMOSCALAR_H
+
 
 // C++ includes
 #include <cmath>
@@ -481,3 +484,5 @@ inline auto operator<<(std::ostream& out, const ThermoScalarBase<V>& scalar) -> 
 }
 
 } // namespace Reaktoro
+
+#endif // THERMOSCALAR_H

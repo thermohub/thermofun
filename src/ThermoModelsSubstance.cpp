@@ -299,10 +299,10 @@ MinBerman88::MinBerman88(const Substance &substance)
 
 auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
+    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto Pbar = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
-    return thermoPropertiesMinBerman88(t, p, pimpl->substance, tps);
+    return thermoPropertiesMinBerman88(TK, Pbar, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -331,10 +331,10 @@ MinBMGottschalk::MinBMGottschalk(const Substance &substance)
 
 auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P);
+    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto Pbar = Reaktoro_::Pressure(P);
 
-    return thermoPropertiesMinBMGottschalk(t, p, pimpl->substance, tps);
+    return thermoPropertiesMinBMGottschalk(TK, Pbar, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -395,10 +395,10 @@ HPLandau::HPLandau(const Substance &substance)
 // calculation
 auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P);
+    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto Pbar = Reaktoro_::Pressure(P);
 
-    return thermoPropertiesHPLandau(t, p, pimpl->substance, tps);
+    return thermoPropertiesHPLandau(TK, Pbar, pimpl->substance, tps);
 }
 
 //=======================================================================================================

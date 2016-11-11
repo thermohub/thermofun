@@ -18,8 +18,8 @@
 namespace TCorrPT {
 
 // Forward declarations
-class Substance;
-class Reaction;
+//class Substance;
+//class Reaction;
 //struct bson;
 
 /**

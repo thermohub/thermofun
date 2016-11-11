@@ -49,6 +49,15 @@ auto errorMethodNotFound(std::string type, std::string name, int line) -> void
     RaiseError(exception);
 }
 
+auto errorReactionNotDefined(std::string name, int line) -> void
+{
+    Exception exception;
+    exception.error << "The reaction for the dependent substance is not defined.";
+    exception.reason << "The reaction symbol for the dependent substance " << name << " is not defined.";
+    exception.line = line;
+    RaiseError(exception);
+}
+
 auto errorSolventNotDefined(std::string type, std::string name, int line) -> void
 {
     Exception exception;

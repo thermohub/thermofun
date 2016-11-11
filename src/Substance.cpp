@@ -16,8 +16,8 @@ struct Substance::Impl
     /// The chemical formula of the chemical Substance
     std::string formula;
 
-    /// The name of the reaction that defines the properties of this substance
-    std::string reaction;
+    /// The symbol of the reaction that defines the properties of this substance
+    std::string reactionSymbol;
 
     /// The molar mass of the chemical Substance (in units of g/mol)
     double molar_mass;
@@ -95,9 +95,9 @@ auto Substance::setFormula(std::string formula) -> void
     pimpl->formula = formula;
 }
 
-auto Substance::setReaction(std::string reaction) -> void
+auto Substance::setReactionSymbol(std::string reaction) -> void
 {
-    pimpl->reaction = reaction;
+    pimpl->reactionSymbol = reaction;
 }
 
 auto Substance::setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void
@@ -133,6 +133,11 @@ auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
 auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
 {
     pimpl->aggregate_state = aggregate_state;
+}
+
+auto Substance::setThermoCalculationType(SubstanceThermoCalculationType::type calculation_type) -> void
+{
+    pimpl->thermo_calculation_type = calculation_type;
 }
 
 auto Substance::setCharge(int charge) -> void
@@ -175,9 +180,9 @@ auto Substance::formula() const -> std::string
     return pimpl->formula;
 }
 
-auto Substance::reaction() const -> std::string
+auto Substance::reactionSymbol() const -> std::string
 {
-    return pimpl->reaction;
+    return pimpl->reactionSymbol;
 }
 
 auto Substance::molarMass() const -> double
@@ -228,6 +233,11 @@ auto Substance::method_P() -> MethodCorrP_Thrift::type
 auto Substance::substanceClass() -> SubstanceClass::type
 {
     return pimpl->substance_class;
+}
+
+auto Substance::thermoCalculationType() -> SubstanceThermoCalculationType::type
+{
+    return pimpl->thermo_calculation_type;
 }
 
 auto Substance::aggregateState() -> AggregateState::type

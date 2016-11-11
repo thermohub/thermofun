@@ -61,7 +61,11 @@
     $$PWD/Gases/verror.h \
     $$PWD/Solvent/WaterElectroFernandez1997.h \
     $$PWD/Interfaces/Interface.h \
-    $$PWD/Interfaces/Output.h
+    $$PWD/Interfaces/Output.h \
+    $$PWD/Reactions/FrantzMarshall.h \
+    $$PWD/Reactions/RyzhenkoBryzgalyn.h \
+    $$PWD/Reactions/LogK_function_of_T.h \
+    $$PWD/Reactions/Volume_function_of_T.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -119,4 +123,8 @@
     $$PWD/Gases/GasSTP.cpp \
     $$PWD/Solvent/WaterElectroFernandez1997.cpp \
     $$PWD/Interfaces/Interface.cpp \
-    $$PWD/Interfaces/Output.cpp
+    $$PWD/Interfaces/Output.cpp \
+    $$PWD/Reactions/FrantzMarshall.cpp \
+    $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
+    $$PWD/Reactions/LogK_function_of_T.cpp \
+    $$PWD/Reactions/Volume_function_of_T.cpp
