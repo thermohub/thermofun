@@ -4,12 +4,12 @@
 #include "Database.h"
 #include "Substance.h"
 #include "ThermoModelsSubstance.h"
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 #include "Thermo.h"
 #include "Common/OutputToCSV.h"
 
 using namespace std;
-using namespace TCorrPT;
+using namespace ThermoFun;
 
 int main(int argc, char *argv[])
 {
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
     water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNG);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNG);
 
     water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
 

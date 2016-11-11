@@ -10,17 +10,17 @@ QMAKE_CXXFLAGS += -std=c++11
 
 TARGET = IO-test
 
-TCORRPT_TEST_CPP = ./src
-TCORRPT_CPP   =  ../../../tcorrpt/src
+ThermoFun_TEST_CPP = ./src
+ThermoFun_CPP   =  ../../../ThermoFun/src
 
-TCORRPT_TEST_H   = $$TCORRPT_TEST_CPP
-TCORRPT_H     =   $$TCORRPT_CPP
+ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
+ThermoFun_H     =   $$ThermoFun_CPP
 
-DEPENDPATH   += $$TCORRPT_TEST_H
-DEPENDPATH   += $$TCORRPT_H
+DEPENDPATH   += $$ThermoFun_TEST_H
+DEPENDPATH   += $$ThermoFun_H
 
-INCLUDEPATH  += $$TCORRPT_TEST_H
-INCLUDEPATH  += $$TCORRPT_H
+INCLUDEPATH  += $$ThermoFun_TEST_H
+INCLUDEPATH  += $$ThermoFun_H
 
 QMAKE_LFLAGS +=
 OBJECTS_DIR = obj
@@ -49,7 +49,7 @@ LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 LIBS += -lthrift
 LIBS += -llua5.2
 
-include($$TCORRPT_TEST_CPP/tcorrpt-test.pri)
-include($$TCORRPT_CPP/tcorrpt.pri)
+include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
+include($$ThermoFun_CPP/ThermoFun.pri)
 
 
