@@ -1,4 +1,4 @@
-# TCorrPT #
+# ThermoFun #
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
@@ -23,32 +23,32 @@ sudo apt-get install thrift
 sudo apt-get install lua5.2 lua5.2-dev
 ~~~
 
-### Automatic Test for comparing GEMS4 and TCorrPT calculations ###
+### Automatic Test for comparing GEMS4 and ThermoFun calculations ###
 
 #### Build autoTest
 
 Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 
-* Let’s call gitTCorrPT and GEMS4R the directories where TCorrPT and gems4r repositories were cloned:
+* Let’s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
 ~~~
 ~/gitTCorrPT
-    /tcorrpt
+    /thermofun
     /gems4r
 ~~~
 
-* In a terminal, run the following commands to clone the TCorrPT library:
+* In a terminal, run the following commands to clone the ThermoFun library:
 ~~~
-$ cd ~/gitTCorrPT/tcorrpt
+$ cd ~/gitThermoFun/thermofun
 $ git clone https://bitbucket.org/gems4/tcorrpt.git .
 ~~~
 
 * In a terminal, run the following commands to clone the GEMS4R library:
 ~~~
-$ cd ~/gitTCorrPT/gems4r
+$ cd ~/gitThermoFun/gems4r
 $ git clone https://bitbucket.org/gems4/gems4r.git .
 ~~~
 
-* In a linux terminal, cd inside ~/gitTCorrPT/tcorrpt/tests/autoTest and type
+* In a linux terminal, cd inside ~/gitThermoFun/thermofun/tests/autoTest and type
 ~~~
 $ ./install-thirdparty.sh
 ~~~
@@ -64,13 +64,13 @@ After this, headers and libraries of the third-party libraries can be found in b
 
 * Copy the Resources into the debug and release build folders 
 ~~~
-~/gitTCorrPT/tcorrpt/tests/autoTest/Resources
+~/gitTCorrPT/thermofun/tests/autoTest/Resources
 ~~~
 
-* Start QtCreator and configure autoTest (from: ~/gitTCorrPT/tcorrpt/tests/autoTest/autoTest.pro) to build debug and release binaries respectively into
+* Start QtCreator and configure autoTest (from: ~/gitThermoFun/thermofun/tests/autoTest/autoTest.pro) to build debug and release binaries respectively into
 ~~~
-~/gitTCorrPT/build-auto-test/debug
-~/gitTCorrPT/build-auto-test/release
+~/gitThermoFun/build-auto-test/debug
+~/gitThermoFun/build-auto-test/release
 ~~~
 
 * Now in QtCreator, build the *.pro project and then run autoTest code.
