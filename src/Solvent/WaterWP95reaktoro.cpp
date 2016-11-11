@@ -3,7 +3,7 @@
 #include "Common/OutputWaterSteamConventionProp.h"
 //#include "Solvent/Reaktoro/WaterUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesWaterWP95reaktoro(Reaktoro_::Temperature T, const Reaktoro_::WaterThermoState& wt) -> ThermoPropertiesSubstance
 {

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <iomanip>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct Output::Impl
 {

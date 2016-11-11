@@ -1,9 +1,9 @@
 #include "Common/OutputWaterSteamConventionProp.h"
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 #include <iostream>
 #include <fstream>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto OutputSteamConventionH2OProp (std::string filename, const Reaktoro_::WaterThermoState wt) -> void
 {

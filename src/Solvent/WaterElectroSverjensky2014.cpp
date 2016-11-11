@@ -3,7 +3,7 @@
 #include "Thermo.h"
 //#include "ThermoProperties.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 const double a[] =
 {

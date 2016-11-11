@@ -10,7 +10,7 @@
 #include "ThermoParameters.h"
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //namespace {
 //using SubstancesMap = std::map<std::string, Substance>;
@@ -285,5 +285,5 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
     }
 }
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 

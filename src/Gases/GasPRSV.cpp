@@ -1,7 +1,7 @@
 #include "Gases/GasPRSV.h"
 #include "Gases/s_solmod_.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesGasPRSV(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {

@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Substance.h"
 #include "Reaction.h"
 
@@ -15,7 +15,7 @@
 //#include "bsonio/v_json.h"
 #include "ejdb/bson.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 // Forward declarations
 //class Substance;
@@ -94,6 +94,6 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // DATABASE_H

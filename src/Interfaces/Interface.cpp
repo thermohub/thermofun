@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <algorithm>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct Interface::Impl
 {

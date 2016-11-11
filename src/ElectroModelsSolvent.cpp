@@ -8,7 +8,7 @@
 #include "Solvent/WaterElectroSverjensky2014.h"
 #include "Solvent/WaterElectroFernandez1997.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //=======================================================================================================
 // Calculate the electro-chemical of water using the Jhonson and Norton (1991) model as implemented in
@@ -170,5 +170,5 @@ auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, P
     return electroPropertiesWaterFernandez1997(/*ps,*/ t, p, pimpl->substance); // t (celsius), p (bar)
 }
 
-} // End namespace TCorrPT
+} // End namespace ThermoFun
 

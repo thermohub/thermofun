@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct Substance;
 struct ElectroPropertiesSolvent;
@@ -120,6 +120,6 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // ELECTROMODELSSOLVENT_H

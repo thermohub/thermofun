@@ -1,7 +1,7 @@
 #include "EmpiricalCpIntegration.h"
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ThermoPropertiesSubstance
 {

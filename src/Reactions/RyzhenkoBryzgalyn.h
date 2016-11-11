@@ -6,7 +6,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesRyzhenkoBryzgalin(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction;
 

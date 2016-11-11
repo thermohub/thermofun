@@ -1,8 +1,8 @@
-// TCorrPT includes
+// ThermoFun includes
 #include "Common/Exception.h"
 #include "Thermo.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct Thermo::Impl
 {
@@ -450,4 +450,4 @@ auto Thermo::setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->v
     pimpl->database.setAllAqSubstanceSolventSymbol(solvent_symbol);
 }
 
-} // namespace TCorrPT
+} // namespace ThermoFun

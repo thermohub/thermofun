@@ -1,15 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <sys/time.h>
-// TCorrPT include
+// ThermoFun include
 #include "Thermo.h"
 // GEMS4R include
 #include "node.h"
-// TCorrPT output include
+// ThermoFun output include
 #include "Common/OutputToCSV.h"
 
 using namespace std;
-using namespace TCorrPT;
+using namespace ThermoFun;
 
 auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance result_tcorrpt, string symbol, double T, double P ) -> int
 {

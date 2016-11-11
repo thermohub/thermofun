@@ -6,14 +6,14 @@
 #include <string>
 #include <vector>
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Common/Exception.h"
 #include "ReadFiles.h"
 
 //#include "bsonio/v_json.h"
 //#include "bsonio/nejdb.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 namespace {
 using SubstancesMap = std::map<std::string, Substance>;
@@ -355,5 +355,5 @@ auto Database::containsReaction(std::string symbol) const -> bool
     return pimpl->containsReaction(symbol);
 }
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 

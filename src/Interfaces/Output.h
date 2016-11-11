@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 class Interface;
 class ThermoScalar;

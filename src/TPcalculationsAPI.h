@@ -2,7 +2,7 @@
 #define TPCALCULATIONSAPI
 #include "Thermo.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
                                           {"pressure", "bar"},
@@ -50,7 +50,7 @@ struct OutputOptions
 };
 
 /**
- * @brief The TPcalcualationsAPI class handels the interface between the TCorrPT library and coupled code for calculating the thermodynamic porperties
+ * @brief The TPcalcualationsAPI class handels the interface between the ThermoFun library and coupled code for calculating the thermodynamic porperties
  * of substances at various T and P and exporting them in a csv file or having dirrect acces to a vector of results
  */
 class TPcalcualationsAPI

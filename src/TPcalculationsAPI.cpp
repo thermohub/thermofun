@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct TPcalcualationsAPI::Impl
 {

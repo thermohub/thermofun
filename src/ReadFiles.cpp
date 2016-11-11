@@ -1,7 +1,7 @@
 #include "ReadFiles.h"
 #include "Substance.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto parseSubstance (const char * data) -> Substance
 {

@@ -1,7 +1,7 @@
 #include "Solute/SoluteHKFreaktoro.h"
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// The reference temperature assumed in the HKF equations of state (in units of K)
 const double referenceTemperature = 298.15;

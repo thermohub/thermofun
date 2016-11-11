@@ -7,12 +7,12 @@
 #include <string>
 #include <vector>
 
-// TCorrPT includes
-#include "tcorrpt_global.h"
+// ThermoFun includes
+#include "ThermoFun_global.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// A type used to describe a chemical substance (species, dependent components) 
 class Substance
@@ -164,6 +164,6 @@ private:
     std::unique_ptr<Impl> pimpl;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // SUBSTANCE_H

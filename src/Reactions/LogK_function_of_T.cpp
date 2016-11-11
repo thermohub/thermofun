@@ -1,7 +1,7 @@
 #include "LogK_function_of_T.h"
 #include "ThermoParameters.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReaction
 {

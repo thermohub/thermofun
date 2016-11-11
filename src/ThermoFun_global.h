@@ -1,5 +1,5 @@
-#ifndef TCORRPT_GLOBAL_H
-#define TCORRPT_GLOBAL_H
+#ifndef ThermoFun_GLOBAL_H
+#define ThermoFun_GLOBAL_H
 
 #include <map>
 #include <string>
@@ -17,7 +17,7 @@ using namespace std;
 
 ///@cond INTERNAL
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 typedef std::vector<double> vd;
 typedef std::vector<std::vector<double> > vvd;
@@ -47,7 +47,7 @@ static const double H2OMolarMass = 18.015268;
 static const std::string output_path = "/Output/";
 
 
-/// Indexes for species-dependent EoS subroutines used in thrift DOM and TCorrPT class
+/// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
     CTPM_CPT = 100,
@@ -114,7 +114,7 @@ static const int MethodGenEoS_ndxThrift[] = {
 //  "Q"           ///< CEM_NP subroutine for nonpolar fluids
 //};
 
-/// Indexes for temperature correction methods used in thrift DOM and TCorrPT class
+/// Indexes for temperature correction methods used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
     CTM_CST = 200,
@@ -195,7 +195,7 @@ static const int MethodCorrT_ndxThrift[] = {
 //  "T"             ///< CTM_WAR calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
 //};
 
-/// Indexes for pressure correction methods used in thrift DOM and TCorrPT class
+/// Indexes for pressure correction methods used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
     CPM_OFF = 300,
@@ -442,4 +442,4 @@ static const char * substTransProp          = "properties.m_phase_trans_props.va
 }
 ///@endcond
 
-#endif // TCORRPT_GLOBAL_H
+#endif // ThermoFun_GLOBAL_H

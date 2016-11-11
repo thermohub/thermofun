@@ -1,6 +1,6 @@
 #include "SolidMurnaghanHP98.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {

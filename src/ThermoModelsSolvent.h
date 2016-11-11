@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 // forward declarations
 struct Substance;
@@ -140,6 +140,6 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // THERMOMODELSSOLVENT_H

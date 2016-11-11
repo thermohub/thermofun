@@ -1,7 +1,7 @@
 #include "SolidBMGottschalk.h"
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //---------------------------------------------------------------------------
 // Calculations related to Burch-Murnaghan (1947) equation (12 coeffs)

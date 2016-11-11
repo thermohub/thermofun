@@ -1,7 +1,7 @@
 #include "FrantzMarshall.h"
 #include "ThermoParameters.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto thermoPropertiesFrantzMarshall(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {

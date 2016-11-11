@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Returns the thermodynamic properties of a substance using the HKF EOS
 /// @ref Tanger and Helgeson (1988)

@@ -1,7 +1,7 @@
 typedef std::vector<double> vd;
 typedef std::vector<std::vector<double> > vvd;
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// A type for storing the parameters of the HKF equation of state for a aqueous species
 //struct ParamsHKF
@@ -124,4 +124,4 @@ struct ThermoParametersSolvent
 };
 
 
-} // namespace TCorrPT
+} // namespace ThermoFun
