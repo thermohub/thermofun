@@ -31,7 +31,7 @@ Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 
 * Let’s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
 ~~~
-~/gitTCorrPT
+~/gitThermoFun
     /thermofun
     /gems4r
 ~~~
@@ -39,13 +39,13 @@ Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 * In a terminal, run the following commands to clone the ThermoFun library:
 ~~~
 $ cd ~/gitThermoFun/thermofun
-$ git clone https://bitbucket.org/gems4/tcorrpt.git .
+$ git clone https://<your_user>@bitbucket.org/gems4/thermofun.git .
 ~~~
 
 * In a terminal, run the following commands to clone the GEMS4R library:
 ~~~
 $ cd ~/gitThermoFun/gems4r
-$ git clone https://bitbucket.org/gems4/gems4r.git .
+$ git clone https://<your_user>@bitbucket.org/gems4/gems4r.git .
 ~~~
 
 * In a linux terminal, cd inside ~/gitThermoFun/thermofun/tests/autoTest and type
@@ -53,7 +53,7 @@ $ git clone https://bitbucket.org/gems4/gems4r.git .
 $ ./install-thirdparty.sh
 ~~~
 
-* If Qt5 libraries are installed locally (for instance in /home/your_user/Qt5/5.5/gcc64) then use path, as shown below:
+* If Qt5 libraries are installed locally (for instance in /home/your_user/Qt5/5.5/gcc64) then use the path to Qt libraries, as shown below:
 ~~~
 $ ./install-thirdparty.sh /home/your_user/Qt5/5.5/gcc64
 ~~~
@@ -64,7 +64,7 @@ After this, headers and libraries of the third-party libraries can be found in b
 
 * Copy the Resources into the debug and release build folders 
 ~~~
-~/gitTCorrPT/thermofun/tests/autoTest/Resources
+~/gitThermoFun/thermofun/tests/autoTest/Resources
 ~~~
 
 * Start QtCreator and configure autoTest (from: ~/gitThermoFun/thermofun/tests/autoTest/autoTest.pro) to build debug and release binaries respectively into
