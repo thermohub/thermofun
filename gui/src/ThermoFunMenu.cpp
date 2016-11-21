@@ -33,6 +33,7 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <sys/time.h>
+#include <algorithm>
 #include "ThermoFunWidget.h"
 #include "ui_ThermoFunWidget.h"
 #include "MinMaxDialog.h"
@@ -434,6 +435,7 @@ void ThermoFunWidget::CmCalcMTPARM()
     if( dbgraph.get() == 0 )
           return;
    vector<bson> selectedList;
+   int number_selected_solvent = 0;
 
    try {
           // Select keys to send to ThermoFun
@@ -443,6 +445,8 @@ void ThermoFunWidget::CmCalcMTPARM()
           vector<int> selNdx;
           vector<string> substancesSymbols, substancesClass;
           dbgraph->GetKeyValueList( aKeyList, aValList );
+          ThermoFun::Database tdb;
+          string solventSymbol;
 
          if( aKeyList.empty() )
              return;
@@ -468,27 +472,124 @@ readData:
            bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
          }
 
-         ThermoFun::Interface tpCalc(selectedList);
+//         ThermoFun::Interface tpCalc(selectedList);
 
          for (uint ii=0; ii<substancesClass.size(); ii++)
          {
              if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
              {
-                 tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
+//                 tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
                  isSolvent = true;
-
+                 number_selected_solvent++;
+                 solventSymbol = substancesSymbols[ii];
              }
          }
 
-         if (!isSolvent)
+         if (!isSolvent || number_selected_solvent>1)
          {
- //            selNdx.clear();
-             SelectDialog selDlg2( this, "Please, select the solvent (e.g. H2O@) ", aValList, selNdx );
+            // query the solvent
+             vector<string> oldkeys = dbgraph->GetQueryFields();
+             string oldquery = "";
+             try
+             {
+                 vector<string> lst = oldkeys;
+                 string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class\" : 3}]}";
+                 if( qrJson != oldquery )
+                 {
+                   isDefaultQuery = true;
+                   _data.query = qrJson;
+
+                 }
+                 // reset internal query data
+                 dbgraph->SetQueryFields(lst);
+                 dbgraph->SetQueryJson(qrJson);
+                 dbgraph->runQuery();
+                 ui->edgeQuery->setText(qrJson.c_str());
+
+                 // update search tables
+                 tableModel->resetMatrixData();
+                 if( queryResultWindow )
+                  queryResultWindow->updateTable();
+
+                 dbgraph->GetKeyValueList( aKeyList, aValList );
+              }
+             catch(std::exception& e)
+             {
+                 dbgraph->SetQueryFields( oldkeys );
+                 dbgraph->SetQueryJson( oldquery );
+                 QMessageBox::critical( this, "CmSearchQuery", e.what() );
+             }
+
+oneSolvent:
+             SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation", aValList, selNdx );
              if( !selDlg2.exec() )
                  return;
              selNdx = selDlg2.allSelected();
-             goto readData;
+
+             if (selNdx.size() != 1)
+                 goto oneSolvent;
+             bson solvent; string symbol, class_;
+
+             string key = aKeyList[selNdx[0]];
+             dbgraph->GetRecord( key.c_str() );
+             string valDB = dbgraph->GetJson();
+             jsonToBson( &solvent, valDB );
+
+             bsonio::bson_to_key( solvent.data, ThermoFun::substClass, class_);
+             bsonio::bson_to_key( solvent.data, ThermoFun::substSymbol, symbol);
+
+             bool wasSelected = false;
+
+             std::vector<string>::iterator it = std::find(substancesSymbols.begin(), substancesSymbols.end(), symbol);
+
+             if (it != substancesSymbols.end())
+                 wasSelected = true;
+             else
+                 wasSelected = false;
+
+             if (!wasSelected)
+             {
+//                 substancesSymbols.push_back(symbol);
+//                 substancesClass.push_back(class_);
+                 selectedList.push_back(solvent);
+             }
+
+             solventSymbol = symbol;
+
+             // reset to the old list of substances
+             try
+             {
+                 vector<string> lst = oldkeys;
+                 string qrJson = "{ \"_label\" : \"substance\"}";
+                 if( qrJson != oldquery )
+                 {
+                   isDefaultQuery = true;
+                   _data.query = qrJson;
+
+                 }
+                 // reset internal query data
+                 dbgraph->SetQueryFields(lst);
+                 dbgraph->SetQueryJson(qrJson);
+                 dbgraph->runQuery();
+                 ui->edgeQuery->setText(qrJson.c_str());
+
+                 // update search tables
+                 tableModel->resetMatrixData();
+                 if( queryResultWindow )
+                  queryResultWindow->updateTable();
+              }
+             catch(std::exception& e)
+             {
+                 dbgraph->SetQueryFields( oldkeys );
+                 dbgraph->SetQueryJson( oldquery );
+                 QMessageBox::critical( this, "CmSearchQuery", e.what() );
+             }
+
+//             goto readData;
          }
+
+         ThermoFun::Interface tpCalc (selectedList);
+         tpCalc.setSolventSymbolForAqSubst(solventSymbol);
 
          ThermoFun::OutputSettings op;
          if (ui->FormatBox->isChecked())
