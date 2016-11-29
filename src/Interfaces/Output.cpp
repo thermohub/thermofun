@@ -24,9 +24,9 @@ Output::Output(const Interface& interface)
 : pimpl(new Impl(interface))
 {}
 
-auto Output::toCSV( ) -> void
+auto Output::toCSV(std::__cxx11::string filename) -> void
 {
-    pimpl->fThermoPropertiesSubstance.open( pimpl->api.outputSettings().fileNameSubst, ios::trunc );
+    pimpl->fThermoPropertiesSubstance.open( filename, ios::trunc );
 
     pimpl->fThermoPropertiesSubstance << CSVHeader() << endl;
 

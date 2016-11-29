@@ -43,14 +43,14 @@ Interface::Interface(const Database& database)
     : pimpl(new Impl(database))
 {}
 
-auto Interface::thermoCalculate() -> Output
+auto Interface::calculateProperties() -> Output
 {
     calculateResultsSubst();
 
     return Output (*this);
 }
 
-auto Interface::thermoCalculate(const std::string substSymbol, const double T, const double P, const std::string propName) -> Output
+auto Interface::calculateProperties(const std::string substSymbol, const double T, const double P, const std::string propName) -> Output
 {
     addSubstance(substSymbol);
 
@@ -63,7 +63,7 @@ auto Interface::thermoCalculate(const std::string substSymbol, const double T, c
     return Output (*this);
 }
 
-auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                                 double T, double P) -> Output
 {
     addSubstances(substanceSymbols);
@@ -77,7 +77,7 @@ auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vecto
     return Output (*this);
 }
 
-auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                      double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output
 {
     addSubstances(substanceSymbols);
@@ -90,7 +90,7 @@ auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vecto
 
     return Output (*this);
 }
-auto Interface::thermoCalculate(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                      std::vector<std::vector<double> > tp_pairs) -> Output
 {
     addSubstances(substanceSymbols);

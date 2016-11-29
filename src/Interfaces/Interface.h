@@ -71,13 +71,13 @@ public:
     auto setSolventSymbolForAqSubst     (const std::string solvent_symbol) ->void;
 
     // claculate functions
-    auto thermoCalculate    () -> Output;
-    auto thermoCalculate    (const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
-    auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto calculateProperties    () -> Output;
+    auto calculateProperties    (const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
+    auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                                     double T, double P) -> Output;
-    auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
-    auto thermoCalculate    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                              std::vector<std::vector<double> > tp_pairs) -> Output;
 
     auto clearSubstances    () -> void;

@@ -7,30 +7,17 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-    string file = "Resources/test_multi_new.VertexSubstance.json";
+    string databaseFile = "Resources/test_multi_new.VertexSubstance.json";
 
-    Database tdb(file);
+    Interface thermo(databaseFile);
+    thermo.setSolventSymbolForAqSubst("H2O@");
 
-    double T = 250;
-    double P = 1000;
+    double T = 100;
+    double P = 50;
 
-    Interface API (tdb);
+    double S = thermo.calculateProperties("H2O@", 25, 1, "entropy").toDouble();
 
-//    API.addProperties();
-
-    API.setSolventSymbolForAqSubst("H2O_WP");
-
-    API.addSubstances({"","",});
-
-//    API.addTP_pair(50, 500);
-
-    API.thermoCalculate().to2DVectorDouble();
-
-    Thermo thermo(tdb);
-
-//    thermo.thermoPropertiesSubstance();
-
-    double S = API.thermoCalculate("H2O@", T, P, "entropy").toDouble();
+    thermo.calculateProperties({"Al+3", "OH-", "SiO2@"}, {"gibbs_energy","entropy", "volume"}, T, P).toCSV("results.csv");
 
 //    API.addTP_pairs(25, 1);
 //    API.addSubstances(substanceSymbols);

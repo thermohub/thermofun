@@ -21,7 +21,7 @@ public:
     ///
     Output(const Interface & interface);
 
-    auto toCSV              () -> void;
+    auto toCSV              (std::string filename) -> void;
     auto toDouble           () -> double;
     auto toThermoScalar     () -> ThermoScalar;
     auto to2DVectorDouble   () -> std::vector<std::vector<double>>;

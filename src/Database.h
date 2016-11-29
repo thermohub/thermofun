@@ -34,7 +34,7 @@ public:
 
     /// Construct a database instance by parsing a "json", "yam", "xml" file
     /// containg the exported substances and reactions
-    explicit Database(std::string filename);
+    /*explicit*/ Database(std::string filename);
 
     /**
      * @brief Database constructs a database instace from a vector of substances in bson format
