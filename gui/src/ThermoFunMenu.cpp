@@ -618,7 +618,7 @@ oneSolvent:
          struct timeval start, end;
          gettimeofday(&start, NULL);
 
-         tpCalc.thermoCalculate(substancesSymbols, _data.properties, TPpairs).toCSV();
+         tpCalc.calculateProperties(substancesSymbols, _data.properties, TPpairs).toCSV();
 
          gettimeofday(&end, NULL);
          double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
