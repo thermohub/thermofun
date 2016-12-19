@@ -167,19 +167,18 @@ void ThermoFunWidget::CmSearchQuery()
   if( dbgraph.get() == 0 )
        return;
 
-  vector<string> oldkeys = dbgraph->GetQueryFields();
-  string oldquery = dbgraph->GetLastQuery();
   try
   {
       // define new dialog
       if(!queryWindow)
       {
           queryWindow = new QueryWidget( "BSONUI Query Widget",
-              schema, _shemaNames, oldkeys, oldquery, this, this );
+              schema, _shemaNames, dbgraph->getQuery(), this, this );
+
       }
       else
       {
-         queryWindow->Update( oldkeys, oldquery);
+         queryWindow->Update( dbgraph->getQuery() );
          queryWindow->raise();
       }
       queryWindow->show();
@@ -198,24 +197,19 @@ void ThermoFunWidget::setQuery( QueryWidget* queryW  )
   if( dbgraph.get() == 0 )
        return;
 
-  vector<string> oldkeys = dbgraph->GetQueryFields();
-  string oldquery = dbgraph->GetLastQuery();
+  DBQueryDef oldquery = dbgraph->getQuery();
   try
   {
-      vector<string> lst = queryW->getQueryFields();
-      string qrJson = queryW->getQueryJson();
-
-      if( qrJson != oldquery )
+      DBQueryDef query = queryW->getQueryDef();
+      // reset internal query data
+      if( query.getEJDBQuery() != oldquery.getEJDBQuery() )
       {
         isDefaultQuery = true;
-        _data.query = qrJson;
+        _data.query = query.getEJDBQuery();
 
       }
-      // reset internal query data
-      dbgraph->SetQueryFields(lst);
-      dbgraph->SetQueryJson(qrJson);
-      dbgraph->runQuery();
-      ui->edgeQuery->setText(qrJson.c_str());
+      dbgraph->runQuery(query);
+      ui->edgeQuery->setText(query.getEJDBQuery().c_str());
 
       // update search tables
       tableModel->resetMatrixData();
@@ -224,8 +218,7 @@ void ThermoFunWidget::setQuery( QueryWidget* queryW  )
    }
   catch(std::exception& e)
   {
-      dbgraph->SetQueryFields( oldkeys );
-      dbgraph->SetQueryJson( oldquery );
+      dbgraph->runQuery(oldquery);
       QMessageBox::critical( this, "CmSearchQuery", e.what() );
   }
 }

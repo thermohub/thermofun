@@ -21,8 +21,8 @@ class TestMainWindow : public QMainWindow
     QSettings *mainSettings;        ///< Properties for program
 
     QString SchemDir;               ///< Path to schemas directory
-    QString LocalDBDir;             ///< Path to Local EJDB
-    bool useLocalDB;                ///< Flag for using local DB (no server )
+    //QString LocalDBDir;             ///< Path to Local EJDB
+    //bool useLocalDB;                ///< Flag for using local DB (no server )
 
     // Internal data
     ThriftSchema schema;

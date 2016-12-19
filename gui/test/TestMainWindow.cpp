@@ -42,20 +42,26 @@ void TestMainWindow::getDataFromPreferences()
   ui->action_Keep_Data_Fields_Expanded->setChecked(TBsonView::expandedFields);
 
   //LocalDBDir = mainSettings->value("LocalDBPath", "./EJDB/localejdb").toString();
-  useLocalDB = mainSettings->value("UseLocalDB", false).toBool();
-  LocalDBDir = mainSettings->value("LocalDBDirectory", "./EJDB").toString();
+  //useLocalDB = mainSettings->value("UseLocalDB", false).toBool();
+  QString LocalDBDir = mainSettings->value("LocalDBDirectory", "./EJDB").toString();
   QString LocalDBName = mainSettings->value("LocalDBName", "localdb").toString();
   QFileInfo file(LocalDBDir, LocalDBName);
-  LocalDBDir = file.filePath();
-  if( /*useLocalDB &&*/ !LocalDBDir.isEmpty() )
-    flEJ.reOpen(file.filePath().toUtf8().data());
 
+  TEJDBDriveOne::flEJPath = file.filePath().toUtf8().data();
+
+  // server db defaults
+  // The host that the socket is connected to
+  TDBClientOne::theHost =  mainSettings->value("DBSocketHost",
+                TDBClientOne::theHost.c_str()).toString().toUtf8().data();
+  // The port that the socket is connected to
+  TDBClientOne::thePort = mainSettings->value("DBSocketPort",
+               TDBClientOne::thePort ).toInt();
 }
 
 
 
 TestMainWindow::TestMainWindow(QWidget *parent) :
-    QMainWindow(parent), useLocalDB(false),
+    QMainWindow(parent),
     ui(new Ui::TestMainWindow)
 {
    ui->setupUi(this);
@@ -118,40 +124,29 @@ void TestMainWindow::CmSettingth()
   try
   {
      QString oldSchemaDir = SchemDir;
-     QString oldLocalDBDir = LocalDBDir;
-     bool oldUseLoacaDB = useLocalDB;
 
      // define new preferences
      PreferencesBSONUI dlg(mainSettings);
-      if( !dlg.exec() )
+     // signal to reset database
+     QObject::connect( &dlg, SIGNAL(dbdriveChanged()), this, SLOT(closeAll()/*updateDB()*/));
+
+     if( !dlg.exec() )
           return;
+
      //get data from settings
-      SchemDir =  mainSettings->value("SchemasDirectory", "").toString();
-      QString LocalDBDir_ = mainSettings->value("LocalDBDirectory", "./EJDB").toString();
-      QString LocalDBName_ = mainSettings->value("LocalDBName", "localdb").toString();
-      QFileInfo file(LocalDBDir_, LocalDBName_);
-      LocalDBDir = file.filePath();
-      useLocalDB = mainSettings->value("UseLocalDB", false).toBool();
+     SchemDir =  mainSettings->value("SchemasDirectory", "").toString();
+     // close all windows and read new schema
+     if( oldSchemaDir != SchemDir )
+     {
+       // close all opened windows
+         closeAll();
+         readSchemaDir( SchemDir );
+         return;
+     }
 
-    // close all windows and read new schema
-    if( oldSchemaDir != SchemDir )
-    {
-      // close all opened windows
-      closeAll();
-      readSchemaDir( SchemDir );
-      return;
-    }
-
-    // connect to new DB, rereaded keys
-    if( oldUseLoacaDB != useLocalDB ||
-      ( useLocalDB && oldLocalDBDir != LocalDBDir))
-    { // for all opened windows
-       updateDB();
-    }
-
-    // for all opened windows
-    updateViewMenu();
-    updateModel();
+     // for all opened windows
+     updateViewMenu();
+     updateModel();
 
   }
   catch(std::exception& e)
