@@ -11,6 +11,7 @@
 #include "bsonui/PreferencesBSONUI.h"
 #include "ThermoFunWidget.h"
 #include "bsonio/dbdriverejdb.h"
+#include "bsonio/dbclient.h"
 using namespace bsonio;
 
 
