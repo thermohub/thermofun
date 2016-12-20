@@ -254,6 +254,7 @@ class ThermoFunWidget : public BSONUIBase
 
     /// Reset new ThermoFun data
     void resetThermoFunData();
+    void updateQuery( const bsonio::DBQueryDef& query  );
 
 protected slots:
 
@@ -388,31 +389,5 @@ void convertFromQt( const QJsonArray& inlst, vector<string>& lst);
 void convertFromQt( const QJsonArray& inlst, vector<double>& lst);
 void convertFromQt( const QJsonArray& inlst, vector<int>& lst);
 
-//template<class T>
-//void bson_read_array( const char *obj, const char *name, vector<T>& lst )
-//{
-//    lst.clear();
-
-//    bson_iterator it;
-//    bson_type type;
-//    type =  bson_find_from_buffer(&it, obj, name );
-//    if( type == BSON_NULL || type ==BSON_EOO )
-//      return;
-//    bsonio::bsonioErrIf( type != BSON_ARRAY,
-//                 "E015BSon: ", string("Must be array ")+name );
-
-//    T value;
-//    bson_iterator i;
-//    bson_iterator_from_buffer(&i, bson_iterator_value(&it));
-//    while (bson_iterator_next(&i))
-//    {
-//        //bson_type t = bson_iterator_type(&i);
-//        const char* key = bson_iterator_key(&i);
-//        //const char* data = bson_iterator_value(&i);
-//        if( !bsonio::bson_find_value( bson_iterator_value(&it), key, value ) )
-//          value = 0;
-//        lst.push_back(value);
-//    }
-// }
 
 #endif // ThermoFunWINDOW_H

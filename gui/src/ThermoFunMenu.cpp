@@ -208,20 +208,28 @@ void ThermoFunWidget::setQuery( QueryWidget* queryW  )
         _data.query = query.getEJDBQuery();
 
       }
-      dbgraph->runQuery(query);
-      ui->edgeQuery->setText(query.getEJDBQuery().c_str());
-
-      // update search tables
-      tableModel->resetMatrixData();
-      if( queryResultWindow )
-       queryResultWindow->updateTable();
-   }
+      updateQuery( query  );
+  }
   catch(std::exception& e)
   {
       dbgraph->runQuery(oldquery);
       QMessageBox::critical( this, "CmSearchQuery", e.what() );
   }
 }
+
+void ThermoFunWidget::updateQuery( const DBQueryDef& query  )
+{
+  if( dbgraph.get() == 0 )
+       return;
+  dbgraph->runQuery(query);
+  // update search tables
+  ui->edgeQuery->setText(query.getEJDBQuery().c_str());
+  tableModel->resetMatrixData();
+  if( queryResultWindow )
+    queryResultWindow->updateTable();
+}
+
+
 
 // new commands -------------------------------------------------------------------
 
@@ -430,6 +438,8 @@ void ThermoFunWidget::CmCalcMTPARM()
    vector<bson> selectedList;
    int number_selected_solvent = 0;
 
+   DBQueryDef oldquery( dbgraph->getQuery());
+
    try {
           // Select keys to send to ThermoFun
           bool isSolvent = false;
@@ -481,40 +491,15 @@ readData:
          if (!isSolvent || number_selected_solvent>1)
          {
             // query the solvent
-             vector<string> oldkeys = dbgraph->GetQueryFields();
-             string oldquery = "";
-             try
-             {
-                 vector<string> lst = oldkeys;
                  string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class\" : 3}]}";
-                 if( qrJson != oldquery )
-                 {
-                   isDefaultQuery = true;
-                   _data.query = qrJson;
-
-                 }
-                 // reset internal query data
-                 dbgraph->SetQueryFields(lst);
-                 dbgraph->SetQueryJson(qrJson);
-                 dbgraph->runQuery();
-                 ui->edgeQuery->setText(qrJson.c_str());
-
-                 // update search tables
-                 tableModel->resetMatrixData();
-                 if( queryResultWindow )
-                  queryResultWindow->updateTable();
+                 DBQueryDef newquery = dbgraph->getQuery();
+                 newquery.setEJDBQuery(qrJson);
+                 updateQuery( newquery  );
 
                  dbgraph->GetKeyValueList( aKeyList, aValList );
-              }
-             catch(std::exception& e)
-             {
-                 dbgraph->SetQueryFields( oldkeys );
-                 dbgraph->SetQueryJson( oldquery );
-                 QMessageBox::critical( this, "CmSearchQuery", e.what() );
-             }
-
 oneSolvent:
-             SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation", aValList, selNdx );
+             SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
+                                   aValList, selNdx );
              if( !selDlg2.exec() )
                  return;
              selNdx = selDlg2.allSelected();
@@ -550,35 +535,8 @@ oneSolvent:
              solventSymbol = symbol;
 
              // reset to the old list of substances
-             try
-             {
-                 vector<string> lst = oldkeys;
-                 string qrJson = "{ \"_label\" : \"substance\"}";
-                 if( qrJson != oldquery )
-                 {
-                   isDefaultQuery = true;
-                   _data.query = qrJson;
-
-                 }
-                 // reset internal query data
-                 dbgraph->SetQueryFields(lst);
-                 dbgraph->SetQueryJson(qrJson);
-                 dbgraph->runQuery();
-                 ui->edgeQuery->setText(qrJson.c_str());
-
-                 // update search tables
-                 tableModel->resetMatrixData();
-                 if( queryResultWindow )
-                  queryResultWindow->updateTable();
-              }
-             catch(std::exception& e)
-             {
-                 dbgraph->SetQueryFields( oldkeys );
-                 dbgraph->SetQueryJson( oldquery );
-                 QMessageBox::critical( this, "CmSearchQuery", e.what() );
-             }
-
-//             goto readData;
+              updateQuery( oldquery  );
+            //             goto readData;
          }
 
          ThermoFun::Interface tpCalc (selectedList);
@@ -628,6 +586,7 @@ oneSolvent:
     {
        QMessageBox::critical( this, "std::exception", e.what() );
     }
+
 }
 
 void ThermoFunWidget::CmCalcRTParm()
