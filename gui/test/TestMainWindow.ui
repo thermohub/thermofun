@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>463</width>
-     <height>30</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -128,10 +128,13 @@
      <normaloff>:/menu/Icons/QuestionMessageIcon24.png</normaloff>:/menu/Icons/QuestionMessageIcon24.png</iconset>
    </property>
    <property name="text">
-    <string> Help &amp;About</string>
+    <string>Open &amp;Help Viewer ...</string>
+   </property>
+   <property name="iconText">
+    <string>Open Help Viewer ...</string>
    </property>
    <property name="toolTip">
-    <string>Show Help VIewer ...</string>
+    <string>Open Help Viewer ...</string>
    </property>
   </action>
   <action name="actionAuthors">
