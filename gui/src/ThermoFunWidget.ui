@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>TMainWindow</string>
+   <string>ThermoFun Tabulation Widget</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -75,6 +75,9 @@
           <property name="text">
            <string>Schema</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
          </widget>
         </item>
        </layout>
@@ -110,6 +113,9 @@
               </property>
               <property name="toolTipDuration">
                <number>5</number>
+              </property>
+              <property name="value">
+               <number>2</number>
               </property>
              </widget>
             </item>
@@ -147,6 +153,9 @@
               <property name="text">
                <string>Precision</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
             <item row="4" column="8">
@@ -156,6 +165,9 @@
               </property>
               <property name="toolTipDuration">
                <number>5</number>
+              </property>
+              <property name="value">
+               <number>2</number>
               </property>
              </widget>
             </item>
@@ -180,6 +192,9 @@
               <property name="text">
                <string>Units</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
             <item row="4" column="3">
@@ -187,12 +202,18 @@
               <property name="text">
                <string>Units</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
                <string>T</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -226,6 +247,9 @@
               </property>
               <property name="text">
                <string>P</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -264,12 +288,18 @@
               <property name="text">
                <string>Precision</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
             <item row="1" column="0" colspan="2">
              <widget class="QLabel" name="label_8">
               <property name="text">
                <string>Task Name</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -293,14 +323,14 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>T points</string>
+               <string>Temperature T points</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
              <widget class="QLabel" name="label_11">
               <property name="text">
-               <string>P points</string>
+               <string>Pressure P points</string>
               </property>
              </widget>
             </item>
@@ -320,13 +350,14 @@
      <x>0</x>
      <y>0</y>
      <width>848</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDataBase">
     <property name="title">
      <string>&amp;Database</string>
     </property>
+    <addaction name="actionSelect_Substances_for_this_Task"/>
     <addaction name="actionSearch"/>
     <addaction name="actionSearch_Results"/>
     <addaction name="separator"/>
@@ -336,11 +367,12 @@
      <string>&amp;File</string>
     </property>
     <addaction name="separator"/>
-    <addaction name="actionImport_CfgFile"/>
+    <addaction name="actionNew_Reset_Task_Definition"/>
+    <addaction name="separator"/>
     <addaction name="actionExport_CfgFile"/>
+    <addaction name="actionImport_CfgFile"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -373,23 +405,16 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="action_Show_Table_with_Results_in_CSV_Widget"/>
+    <addaction name="separator"/>
     <addaction name="actionKeep_Data_Fields_Expanded"/>
     <addaction name="action_Show_comments"/>
     <addaction name="action_Display_enums"/>
     <addaction name="action_Edit_id"/>
-    <addaction name="separator"/>
-   </widget>
-   <widget class="QMenu" name="menuApplication">
-    <property name="title">
-     <string>Applicatio&amp;n</string>
-    </property>
-    <addaction name="actionAction_1"/>
-    <addaction name="separator"/>
-    <addaction name="actionAction_2"/>
    </widget>
    <widget class="QMenu" name="menu_Calc">
     <property name="title">
-     <string>&amp;Calc</string>
+     <string>&amp;Calculate</string>
     </property>
     <addaction name="actionCalculate_Properties"/>
     <addaction name="actionCalculate_TP"/>
@@ -407,7 +432,6 @@
    <addaction name="menuResults"/>
    <addaction name="menu_View"/>
    <addaction name="menuHelp"/>
-   <addaction name="menuApplication"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="mainToolBar">
@@ -449,13 +473,33 @@
    </property>
   </action>
   <action name="actionImport_CfgFile">
+   <property name="icon">
+    <iconset resource="../ThermoFun.qrc">
+     <normaloff>:/menu/Icons/ShowFilesIcon24.png</normaloff>:/menu/Icons/ShowFilesIcon24.png</iconset>
+   </property>
    <property name="text">
-    <string>&amp;Read Config Data from  File...</string>
+    <string>&amp;Open Task Definition from File ...</string>
+   </property>
+   <property name="iconText">
+    <string>Read Task Definition from File ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Read Task Definition from File ...</string>
    </property>
   </action>
   <action name="actionExport_CfgFile">
+   <property name="icon">
+    <iconset resource="../ThermoFun.qrc">
+     <normaloff>:/menu/Icons/SaveCurrentRecordIcon24.png</normaloff>:/menu/Icons/SaveCurrentRecordIcon24.png</iconset>
+   </property>
    <property name="text">
-    <string>&amp;Write Config Data to  File ...</string>
+    <string>&amp;Save Task Definition to File ...</string>
+   </property>
+   <property name="iconText">
+    <string>Save Task Definition to File ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save Task Definition to File...</string>
    </property>
   </action>
   <action name="action_Help_About">
@@ -507,12 +551,12 @@
      <normaloff>:/menu/Icons/SelectDisplayRecordIcon24.png</normaloff>:/menu/Icons/SelectDisplayRecordIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Search: Create New &amp;Query ...</string>
+    <string>Create a &amp;Query to FInd Substances ...</string>
    </property>
   </action>
   <action name="actionSearch_Results">
    <property name="text">
-    <string>E&amp;xplore Search Results Table ...</string>
+    <string>E&amp;xplore this Query Results Table ...</string>
    </property>
    <property name="shortcut">
     <string>F3</string>
@@ -586,7 +630,7 @@
      <normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Calculate &amp;Properties</string>
+    <string>Select Substances and Tabulate their &amp;Properties</string>
    </property>
   </action>
   <action name="actionCalculate_TP">
@@ -595,7 +639,7 @@
      <normaloff>:/menu/Icons/RTparmModuleIcon24.png</normaloff>:/menu/Icons/RTparmModuleIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Calculate TP</string>
+    <string>&amp;Tabulate properties of substance(s) as f(T,P)</string>
    </property>
   </action>
   <action name="actionShow_Results">
@@ -604,7 +648,7 @@
      <normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Show Results</string>
+    <string>&amp;Show Table with Results in CSV Widget ...</string>
    </property>
   </action>
   <action name="actionChange_Property_list">
@@ -613,7 +657,7 @@
      <normaloff>:/menu/Icons/DocumentsPileIcon24.png</normaloff>:/menu/Icons/DocumentsPileIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Change Property list</string>
+    <string>&amp;Change Property List ...</string>
    </property>
   </action>
   <action name="actionRealloc_T">
@@ -634,6 +678,35 @@
   <action name="actionReset_P">
    <property name="text">
     <string>Re&amp;set P</string>
+   </property>
+  </action>
+  <action name="actionNew_Reset_Task_Definition">
+   <property name="icon">
+    <iconset resource="../ThermoFun.qrc">
+     <normaloff>:/menu/Icons/NewCreateRecordIcon24.png</normaloff>:/menu/Icons/NewCreateRecordIcon24.png</iconset>
+   </property>
+   <property name="text">
+    <string>New/Reset Task Definition</string>
+   </property>
+  </action>
+  <action name="actionSelect_Substances_for_this_Task">
+   <property name="text">
+    <string>Select Substances for this Task ...</string>
+   </property>
+   <property name="iconText">
+    <string>Select Substances for this Task ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Select Substances for this Task ...</string>
+   </property>
+  </action>
+  <action name="action_Show_Table_with_Results_in_CSV_Widget">
+   <property name="icon">
+    <iconset resource="../ThermoFun.qrc">
+     <normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Show Table with Results in CSV Widget ...</string>
    </property>
   </action>
  </widget>
