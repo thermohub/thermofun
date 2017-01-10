@@ -172,7 +172,7 @@
         {
           "name": "THERMODDEM",
           "value": 13,
-          "doc": "TERMODDEM Project\n"
+          "doc": "THERMODDEM Project\n"
         },
         {
           "name": "SMITH_MARTELL",
@@ -182,7 +182,7 @@
         {
           "name": "PSI_NAGRA",
           "value": 15,
-          "doc": "PSI-Nagra TDB 12\/07\n"
+          "doc": "PSI-Nagra TDB 12\/07, Thoenen et al., 2014\n"
         },
         {
           "name": "OTHER",
@@ -197,7 +197,12 @@
         {
           "name": "HKF_DEW",
           "value": 18,
-          "doc": "Sverjensky et al. 2014\n"
+          "doc": "Sverjensky et al., 2014\n"
+        },
+        {
+          "name": "MINES",
+          "value": 19,
+          "doc": "Mines16 TDB, Gysi, 2016\n"
         }
       ]
     }
@@ -313,7 +318,7 @@
         },
         {
           "key": 5,
-          "name": "class",
+          "name": "class_",
           "typeId": "i32",
           "doc": "Class of element: enum validated with class ElementClass\n",
           "class": "ElementClass",

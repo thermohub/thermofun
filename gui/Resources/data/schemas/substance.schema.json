@@ -456,7 +456,7 @@
         },
         {
           "key": 6,
-          "name": "class",
+          "name": "class_",
           "typeId": "i32",
           "doc": "Class of substance: enum validated with class SubstanceClass\n",
           "class": "SubstanceClass",
