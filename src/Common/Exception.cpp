@@ -76,5 +76,4 @@ auto errorModelParameters(std::string type, std::string name, int line) -> void
     RaiseError(exception);
 }
 
-
 } // namespace ThermoFun

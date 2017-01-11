@@ -140,8 +140,9 @@ struct Database::Impl
 
     Impl(vector<bson> bsonSubstances)
     {
+        flog.open(parsinglogfile, ios::trunc); flog.close();
         for (int i=0; i<bsonSubstances.size(); i++)
-        {
+        {    
             Substance substance = parseSubstance(bsonSubstances[i].data);
             substances_map[substance.symbol()] = substance;
         }
@@ -222,6 +223,7 @@ struct Database::Impl
         bso.data = 0;
         // Reading work structure from json text file
         fstream f(filename, ios::in);
+        flog.open(parsinglogfile, ios::trunc); flog.close();
 
         if (!f.good())
         {
@@ -234,6 +236,7 @@ struct Database::Impl
 
         try
         {
+
             while( !f.eof() )
             {
                 f.get(b);

@@ -24,11 +24,11 @@ auto parseSubstance (const char *data) -> Substance;
 
 /// Parses a bson object and loads the parameters into the internal sturcture
 /// @param bso bson object
-auto thermoParam (const char *data) -> ThermoParametersSubstance;
+auto thermoParam (const char *data, string name) -> ThermoParametersSubstance;
 
 /// Parses a bson object and loads reference thermodynamic properties into the internal sturcture
 /// @param bso bson object
-auto thermoRefProp (const char * data) -> ThermoPropertiesSubstance;
+auto thermoRefProp (const char * data, string name) -> ThermoPropertiesSubstance;
 }
 
 

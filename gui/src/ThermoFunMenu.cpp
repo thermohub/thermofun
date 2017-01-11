@@ -486,7 +486,7 @@ readData:
              try
              {
                  vector<string> lst = oldkeys;
-                 string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class\" : 3}]}";
+                 string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
                  if( qrJson != oldquery )
                  {
                    isDefaultQuery = true;

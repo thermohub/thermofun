@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 #pragma GCC diagnostic ignored "-Wswitch"
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -45,6 +46,10 @@ static const double R_CONSTANT = 8.31451,
 static const double H2OMolarMass = 18.015268;
 
 static const std::string output_path = "/Output/";
+
+static const std::string parsinglogfile = "logfile.txt";
+
+static std::ofstream flog;
 
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
