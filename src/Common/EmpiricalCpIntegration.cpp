@@ -14,7 +14,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     int k=-1;
     vector<double> ac;
     ac.resize(16);
-    ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+    ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
 
     auto TK = Reaktoro_::Temperature(T.val /*+ C_to_K*/);
@@ -132,6 +132,9 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     thermo_properties_PT.enthalpy           = H;
     thermo_properties_PT.entropy            = S;
     thermo_properties_PT.volume             = V;
+
+    ac.clear();
+    ac.~vector();
 
     return thermo_properties_PT;
 }
