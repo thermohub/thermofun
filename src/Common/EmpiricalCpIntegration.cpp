@@ -13,8 +13,10 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     Reaktoro_::ThermoScalar V;
     int k=-1;
     vector<double> ac;
-    ac.resize(16);
-    ac = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+    for (unsigned i = 0; i <16; i++)
+    {
+        ac.push_back(0.0);
+    }
 
 
     auto TK = Reaktoro_::Temperature(T.val /*+ C_to_K*/);
@@ -39,7 +41,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
 //        goto NEXT;
 //    }
 
-    // get Cp interval
+    // get Cp interval -> this has to go!!!!
     for (unsigned i=0; i<thermo_parameters.temperature_intervals.size(); i++)
     {
        if ((thermo_parameters.temperature_intervals[i][0] <= TK) && (thermo_parameters.temperature_intervals[i][1] > TK))
@@ -60,6 +62,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
+        if (i== 16) break;
         ac[i] = thermo_parameters.Cp_coeff[k][i];
     }
 

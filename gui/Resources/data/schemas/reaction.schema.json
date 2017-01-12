@@ -325,7 +325,7 @@
         },
         {
           "key": 24,
-          "name": "dr_heat_aapacity_p_t_coeffs",
+          "name": "dr_heat_capacity_p_t_coeffs",
           "typeId": "struct",
           "type": {
             "typeId": "struct",

@@ -491,7 +491,7 @@ readData:
          if (!isSolvent || number_selected_solvent>1)
          {
             // query the solvent
-                 string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class\" : 3}]}";
+                 string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
                  DBQueryDef newquery = dbgraph->getQuery();
                  newquery.setEJDBQuery(qrJson);
                  updateQuery( newquery  );
