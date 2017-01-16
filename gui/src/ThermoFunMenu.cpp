@@ -42,9 +42,6 @@
 #include "bsonui/TableEditWindow.h"
 #include "bsonui/QueryWidget.h"
 #include "bsonio/json2cfg.h"
-// ThermoFun include
-//#include "thermofun/TPcalculationsAPI.h"
-#include "thermofun/Interfaces/Interface.h"
 
 using namespace bsonio;
 
@@ -354,13 +351,20 @@ void ThermoFunWidget::CmResetProperty()
     if( !dlg.exec() )
        return;
 
+    // store previous settings
+    for (unsigned i = 0; i<_data.properties.size(); i++)
+    {
+        _data.mapUnits[_data.properties[i]] = _data.propertyUnits[i];
+        _data.mapPrecision[_data.properties[i]] = _data.propertyPrecision[i];
+    }
+
     _data.properties = dlg.allSelected();
     _data.propertyUnits.resize(_data.properties.size());
     _data.propertyPrecision.resize(_data.properties.size());
     for (unsigned i = 0; i<_data.properties.size(); i++)
     {
-        _data.propertyUnits[i] = ThermoFun::defaultPropertyUnits.find(_data.properties[i])->second;
-        _data.propertyPrecision[i] = ThermoFun::defaultPropertyDigits.find(_data.properties[i])->second;
+        _data.propertyUnits[i] = _data.mapUnits[_data.properties[i]];
+        _data.propertyPrecision[i] = _data.mapPrecision[_data.properties[i]];
     }
      _PropertyModel->resetMatrixData();
   }

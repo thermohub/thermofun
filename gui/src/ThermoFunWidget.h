@@ -38,6 +38,12 @@
 #include "bsonui/BSONUIBase.h"
 #include "bsonui/model_node.h"
 #include "bsonio/nservice.h"
+
+// ThermoFun include
+//#include "thermofun/TPcalculationsAPI.h"
+#include "thermofun/Interfaces/Interface.h"
+
+
 class TableEditWidget;
 
 namespace Ui {
@@ -64,6 +70,9 @@ struct ThermoFunData
     vector<string> properties;    ///< Properties names list
     vector<string> propertyUnits; ///< Units of property
     vector<int>    propertyPrecision; ///< Units of property
+
+    map<const string,string> mapUnits = ThermoFun::defaultPropertyUnits;
+    map<const string, int>   mapPrecision = ThermoFun::defaultPropertyDigits;
 
     int pPrecision, tPrecision;
 
