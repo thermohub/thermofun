@@ -350,7 +350,7 @@
      <x>0</x>
      <y>0</y>
      <width>848</width>
-     <height>24</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDataBase">
@@ -444,14 +444,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionSearch"/>
-   <addaction name="actionPrevious_Record"/>
-   <addaction name="actionNext_Record"/>
-   <addaction name="separator"/>
+   <addaction name="actionSelectSubstances"/>
    <addaction name="actionChange_Property_list"/>
-   <addaction name="separator"/>
-   <addaction name="actionCalculate_Properties"/>
    <addaction name="actionCalculate_TP"/>
+   <addaction name="actionCalculate_Properties"/>
+   <addaction name="separator"/>
    <addaction name="actionShow_Results"/>
   </widget>
   <widget class="QToolBar" name="nameToolBar">
@@ -464,6 +461,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSearch"/>
+   <addaction name="actionPrevious_Record"/>
+   <addaction name="actionNext_Record"/>
+   <addaction name="separator"/>
    <addaction name="action_Help_About"/>
    <addaction name="separator"/>
   </widget>
@@ -627,10 +628,10 @@
   <action name="actionCalculate_Properties">
    <property name="icon">
     <iconset resource="../ThermoFun.qrc">
-     <normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</normaloff>:/menu/Icons/DatabaseFunctionIcon24.png</iconset>
+     <normaloff>:/menu/Icons/CalculateRecordDataIcon24.png</normaloff>:/menu/Icons/CalculateRecordDataIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Select Substances and Tabulate their &amp;Properties</string>
+    <string>Calculate &amp;Properties</string>
    </property>
   </action>
   <action name="actionCalculate_TP">
@@ -639,7 +640,7 @@
      <normaloff>:/menu/Icons/RTparmModuleIcon24.png</normaloff>:/menu/Icons/RTparmModuleIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Tabulate properties of substance(s) as f(T,P)</string>
+    <string>&amp;Tabulate the temperature and pressure points</string>
    </property>
   </action>
   <action name="actionShow_Results">
@@ -707,6 +708,18 @@
    </property>
    <property name="text">
     <string>&amp;Show Table with Results in CSV Widget ...</string>
+   </property>
+  </action>
+  <action name="actionSelectSubstances">
+   <property name="icon">
+    <iconset resource="../ThermoFun.qrc">
+     <normaloff>:/menu/Icons/ComposModuleIcon24.png</normaloff>:/menu/Icons/ComposModuleIcon24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Select Substances</string>
+   </property>
+   <property name="toolTip">
+    <string>Select substances from the database</string>
    </property>
   </action>
  </widget>
