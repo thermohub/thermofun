@@ -9,7 +9,9 @@ int main(int argc, char *argv[])
 
     string databaseFile = "Resources/TestReactionsPSI.VertexReaction.json";
 
-//    Interface thermo(databaseFile);
+    Database thermoDB(databaseFile);
+
+    cout << "here" << endl;
 //    thermo.setSolventSymbolForAqSubst("H2O@");
 
 //    double T = 100;

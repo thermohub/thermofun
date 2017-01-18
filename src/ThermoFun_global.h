@@ -438,6 +438,34 @@ static const char * substCpParam            = "properties.m_heat_capacity_p_t_co
 static const char * substTransProp          = "properties.m_phase_trans_props.values";
 //static const char * substTransPropBm        = "properties.phase_transition_prop_Berman.values";
 
+/// Key for reading reaction data from input files
+
+static const char * reacName               = "properties.name";
+static const char * reacSymbol             = "properties.symbol";
+
+static const char * reacMethodEOS          = "properties.method_genEoS";
+static const char * reacMethodT            = "properties.method_corrT";
+static const char * reacMethodP            = "properties.method_corrP";
+static const char * reacRefT               = "properties.Tst";
+static const char * reacRefP               = "properties.Pst";
+
+/// Reference properties
+static const char * reacRefLogK0           = "properties.logKr.values.0";
+static const char * reacRefG0              = "properties.drsm_gibbs_energy.values.0";
+static const char * reacRefS0              = "properties.drsm_entropy.values.0";
+static const char * reacRefH0              = "properties.drsm_enthalpy.values.0";
+static const char * reacRefV0              = "properties.drsm_volume.values.0";
+static const char * reacRefCp0             = "properties.drsm_heat_capacity_p.values.0";
+
+/// Model parameters
+static const char * reacLogKfT             = "properties.logk_ft_coeffs.values";
+static const char * reacLogKPT             = "properties.logk_pt_values.pptv";
+static const char * reacDrCpfT             = "properties.dr_heat_capacity_p_t_coeffs.values";
+static const char * reacDrVfT              = "properties.dr_volume_pt_coeffs.values";
+static const char * reacRBcoeff            = "properties.dr_sm_rb_coeffs.values";
+static const char * reacFMcoeff            = "properties.dr_dm_fm_coeffs.values";
+
+
 //typedef std::vector<struct SubstanceData*>  Substances;
 
 

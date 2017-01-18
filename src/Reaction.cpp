@@ -25,6 +25,9 @@ struct Reaction::Impl
     /// The chemical formula of the chemical Reaction
     std::string formula;
 
+    /// The symbol of the chemical reaction
+    std::string symbol;
+
     std::map<std::string, int> reactants;
 
     ThermoPropertiesReaction thermo_ref_prop;
@@ -70,6 +73,11 @@ auto Reaction::setName(std::string name) -> void
     pimpl->name = name;
 }
 
+auto Reaction::setSymbol(std::string symbol) -> void
+{
+    pimpl->symbol = symbol;
+}
+
 auto Reaction::setReactants(std::map<std::string, int> reactants) -> void
 {
     pimpl->reactants = reactants;
@@ -98,6 +106,16 @@ auto Reaction::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
     pimpl->method_P = method_P;
+}
+
+auto Reaction::setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void
+{
+    pimpl->thermo_ref_prop = refprop;
+}
+
+auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
+{
+    pimpl->thermo_parameters = param;
 }
 
 //auto Reaction::setFormula(std::string formula) -> void

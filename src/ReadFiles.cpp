@@ -1,11 +1,12 @@
 #include "ReadFiles.h"
 #include "Substance.h"
+#include "Reaction.h"
 
 namespace ThermoFun {
 
 auto parseIssues(std::string data, string name, string prop) -> bool
 {
-    if (data == "*")
+    if ((data == "*") || (data == ""))
     {
         flog.open(parsinglogfile, ios::app);
         flog << "Could not parse " << prop << " for "<< name << ", using default value! " << endl;
@@ -62,14 +63,14 @@ auto parseSubstance (const char * data) -> Substance
     if (!parseIssues(kbuf, name, substRefP)) s.setReferenceP(std::stod(kbuf.c_str()));
 
     // get thermodynamic parameters
-    s.setThermoParameters(thermoParam (data, name));
+    s.setThermoParameters(thermoParamSubst (data, name));
     // get reference thermodynamic properties
-    s.setThermoReferenceProperties(thermoRefProp (data, name));
+    s.setThermoReferenceProperties(thermoRefPropSubst (data, name));
 
     return s;
 }
 
-auto thermoParam (const char * data, std::string name) -> ThermoParametersSubstance
+auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersSubstance
 {
     vector<string> vkbuf;
     string kbuf;
@@ -145,7 +146,7 @@ auto thermoParam (const char * data, std::string name) -> ThermoParametersSubsta
     return ps;
 }
 
-auto thermoRefProp (const char *data, string name) -> ThermoPropertiesSubstance
+auto thermoRefPropSubst (const char *data, string name) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
     string kbuf;
@@ -166,6 +167,129 @@ auto thermoRefProp (const char *data, string name) -> ThermoPropertiesSubstance
     if (!parseIssues(kbuf, name, substRefV0)) tps.volume = (std::stod(kbuf.c_str()));
 
     return tps;
+}
+
+
+auto parseReaction (const char *data) -> Reaction
+{
+    Reaction r;
+    string kbuf;
+    string name;
+
+    bsonio::bson_to_key( data, reacName, kbuf );
+    if (!parseIssues(kbuf, name, reacName)) { r.setName(kbuf); name = kbuf;}
+
+    bsonio::bson_to_key( data, reacSymbol, kbuf );
+    if (!parseIssues(kbuf, name, reacSymbol)) r.setSymbol(kbuf);
+
+    bsonio::bson_to_key( data, reacMethodEOS, kbuf );
+    if (!parseIssues(kbuf, name, reacMethodEOS)) r.setMethodGenEoS(MethodGenEoS_Thrift::type(std::stoi(kbuf.c_str())));
+
+    bsonio::bson_to_key( data, reacMethodT, kbuf );
+    if (!parseIssues(kbuf, name, reacMethodT)) r.setMethod_T(MethodCorrT_Thrift::type(std::stoi(kbuf.c_str())));
+
+    bsonio::bson_to_key( data, reacMethodP, kbuf );
+    if (!parseIssues(kbuf, name, reacMethodP)) r.setMethod_P(MethodCorrP_Thrift::type(std::stoi(kbuf.c_str())));
+
+    bsonio::bson_to_key( data, reacRefT, kbuf );
+    if (!parseIssues(kbuf, name, reacRefT)) r.setReferenceT(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, reacRefP, kbuf );
+    if (!parseIssues(kbuf, name, reacRefP)) r.setReferenceP(std::stod(kbuf.c_str()));
+
+
+    // get thermodynamic parameters
+    r.setThermoParameters(thermoParamReac (data, name));
+    // get reference thermodynamic properties
+    r.setThermoReferenceProperties(thermoRefPropReac (data, name));
+
+    return r;
+}
+
+auto thermoParamReac (const char * data, std::string name) -> ThermoParametersReaction
+{
+    vector<string> vkbuf;
+    string kbuf;
+    ThermoParametersReaction pr;
+
+    bsonio::bson_read_array_path(data, reacLogKfT, vkbuf);
+    if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacLogKfT))
+    {
+        pr.reaction_logK_fT_coeff.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), pr.reaction_logK_fT_coeff.begin(), [](const std::string& val)
+        { return std::stod(val); });
+    }
+
+    bsonio::bson_read_array_path(data, reacLogKPT, vkbuf);
+    if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacLogKPT))
+    {
+        pr.logK_TP_array.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), pr.logK_TP_array.begin(), [](const std::string& val)
+        { return std::stod(val); });
+    }
+
+    bsonio::bson_read_array_path(data, reacDrCpfT, vkbuf);
+    if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacDrCpfT))
+    {
+        pr.reaction_Cp_fT_coeff.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), pr.reaction_Cp_fT_coeff.begin(), [](const std::string& val)
+        { return std::stod(val); });
+    }
+
+    bsonio::bson_read_array_path(data, reacDrVfT, vkbuf);
+    if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacDrVfT))
+    {
+        pr.reaction_V_fT_coeff.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), pr.reaction_V_fT_coeff.begin(), [](const std::string& val)
+        { return std::stod(val); });
+    }
+
+    // temporary fix - need to think how to handle more thna 1 TP interval
+    pr.temperature_intervals.push_back({273.15, 2273.15});
+
+    bsonio::bson_read_array_path(data, reacRBcoeff, vkbuf);
+    if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacRBcoeff))
+    {
+        pr.reaction_RB_coeff.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), pr.reaction_RB_coeff.begin(), [](const std::string& val)
+        { return std::stod(val); });
+    }
+
+    bsonio::bson_read_array_path(data, reacFMcoeff, vkbuf);
+    if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacFMcoeff))
+    {
+        pr.reaction_FM_coeff.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), pr.reaction_FM_coeff.begin(), [](const std::string& val)
+        { return std::stod(val); });
+    }
+
+    return pr;
+}
+
+auto thermoRefPropReac (const char *data, string name) -> ThermoPropertiesReaction
+{
+    ThermoPropertiesReaction tpr;
+    string kbuf;
+
+    bsonio::bson_to_key( data, reacRefLogK0, kbuf );
+    if (!parseIssues(kbuf, name, reacRefLogK0)) tpr.log_equilibrium_constant = (std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, reacRefCp0, kbuf );
+    if (!parseIssues(kbuf, name, reacRefCp0)) tpr.reaction_heat_capacity_cp = (std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, reacRefG0, kbuf );
+    if (!parseIssues(kbuf, name, reacRefG0)) tpr.reaction_gibbs_energy = (std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, reacRefH0, kbuf );
+    if (!parseIssues(kbuf, name, reacRefH0)) tpr.reaction_enthalpy = (std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, reacRefS0, kbuf );
+    if (!parseIssues(kbuf, name, reacRefS0)) tpr.reaction_entropy = (std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, reacRefV0, kbuf );
+    if (!parseIssues(kbuf, name, reacRefV0)) tpr.reaction_volume = (std::stod(kbuf.c_str()));
+
+    return tpr;
 }
 
 }
