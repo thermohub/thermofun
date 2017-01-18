@@ -11,6 +11,17 @@ int main(int argc, char *argv[])
 
     Database thermoDB(databaseFile);
 
+    Thermo thermo(thermoDB);
+
+    ThermoPropertiesReaction tpr;
+
+    double T = 25;
+    double P = 1;
+
+    tpr = thermo.thermoPropertiesReaction(T, P, "CaSiO3  aq ( + H2O = CaSiO2(OH)2  aq )");
+
+
+
     cout << "here" << endl;
 //    thermo.setSolventSymbolForAqSubst("H2O@");
 

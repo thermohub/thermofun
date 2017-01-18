@@ -1,5 +1,6 @@
 #include "LogK_function_of_T.h"
 #include "ThermoParameters.h"
+#include "Reaction.h"
 
 namespace ThermoFun {
 
@@ -18,6 +19,12 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto dCpr    = ref_tpr.reaction_heat_capacity_cp;
     auto lgK     = ref_tpr.ln_equilibrium_constant*lg_to_ln;
     auto Tr      = reaction.referenceT();
+
+    /// deal with Cp and A parameters conversion
+//    if (A.size() == 0 && Cp.size() > 4)
+
+//    if (Cp.size() == 0 && A.size() > 6)
+//        convert
 
     switch (CE)
     {
@@ -68,11 +75,17 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     }
     // Calculation of dGr
     auto dGr  = -R_T * lgK * lg_to_ln;
-    auto dUr  = dHr - Pbar*dVr;
-    auto dAr  = dUr - TK*dSr;
+//    if (dHr.val == 0) dHr = dGr + dSr * TK;
+    Reaktoro_::ThermoScalar dUr, dAr;
+    if (dHr.val != 0)
+    {
+        dUr  = dHr - Pbar*dVr;
+        dAr  = dUr - TK*dSr;
+    }
 
     // Loading output data
-    tpr.ln_equilibrium_constant = lgK*lg_to_ln;
+    tpr.log_equilibrium_constant   = lgK;
+    tpr.ln_equilibrium_constant    = lgK*lg_to_ln;
     tpr.reaction_gibbs_energy      = dGr;
     tpr.reaction_enthalpy          = dHr;
     tpr.reaction_entropy           = dSr;

@@ -205,7 +205,8 @@ auto Reaction::convert_CpfT_to_logKfT() -> void
     auto lgKr = A[0] + A[1]*T + A[2]/T + A[3]*log(T) + A[4]/T*T +
                 A[5]*T*T + A[6]/pow(T,0.5);
     ref_prop.reaction_heat_capacity_cp = Cpr;
-    ref_prop.ln_equilibrium_constant = lgKr*lg_to_ln;
+    ref_prop.ln_equilibrium_constant   = lgKr*lg_to_ln;
+    ref_prop.log_equilibrium_constant  = lgKr;
 }
 auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
 {
@@ -299,6 +300,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
        ref_prop.reaction_enthalpy = Hr;
        ref_prop.reaction_heat_capacity_cp = Cpr;
        ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
+       ref_prop.log_equilibrium_constant = lgKr;
        ref_prop.reaction_gibbs_energy = -Rln10*T*lgKr;
     }
 }

@@ -438,6 +438,11 @@ static const char * substCpParam            = "properties.m_heat_capacity_p_t_co
 static const char * substTransProp          = "properties.m_phase_trans_props.values";
 //static const char * substTransPropBm        = "properties.phase_transition_prop_Berman.values";
 
+static const char * lowerT                  = "properties.limitsTP.lowerT";
+static const char * upperT                  = "properties.limitsTP.upperT";
+static const char * lowerP                  = "properties.limitsTP.lowerP";
+static const char * upperP                  = "properties.limitsTP.upperP";
+
 /// Key for reading reaction data from input files
 
 static const char * reacName               = "properties.name";

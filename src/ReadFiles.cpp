@@ -244,8 +244,12 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
         { return std::stod(val); });
     }
 
-    // temporary fix - need to think how to handle more thna 1 TP interval
-    pr.temperature_intervals.push_back({273.15, 2273.15});
+    double lT = 273.15; double uT = 2273.15;
+    bsonio::bson_to_key( data, lowerT, kbuf );
+    if (!parseIssues(kbuf, name, lowerT)) lT = std::stod(kbuf.c_str());
+    bsonio::bson_to_key( data, upperT, kbuf );
+    if (!parseIssues(kbuf, name, upperT)) uT = std::stod(kbuf.c_str());
+    pr.temperature_intervals.push_back({lT, uT});
 
     bsonio::bson_read_array_path(data, reacRBcoeff, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacRBcoeff))
