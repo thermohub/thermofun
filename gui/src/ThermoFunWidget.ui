@@ -444,6 +444,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionNew_Reset_Task_Definition"/>
+   <addaction name="actionExport_CfgFile"/>
+   <addaction name="actionImport_CfgFile"/>
+   <addaction name="separator"/>
    <addaction name="actionSelectSubstances"/>
    <addaction name="actionChange_Property_list"/>
    <addaction name="actionCalculate_TP"/>
@@ -711,9 +715,12 @@
    </property>
   </action>
   <action name="actionSelectSubstances">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../ThermoFun.qrc">
-     <normaloff>:/menu/Icons/ComposModuleIcon24.png</normaloff>:/menu/Icons/ComposModuleIcon24.png</iconset>
+     <normaloff>:/menu/Icons/DetailedCSDIcon24.png</normaloff>:/menu/Icons/DetailedCSDIcon24.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Select Substances</string>
