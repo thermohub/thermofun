@@ -260,6 +260,7 @@ void ThermoFunWidget::CmResetTP()
              return;
 
          ui->pTunit->setCurrentText(dlg.getTUnits());
+         cout << dlg.getPUnits().toUtf8().data() << endl;
          ui->pPunit->setCurrentText(dlg.getPUnits());
          //_data.unitsT = dlg.getTUnits();
          //_data.unitsP = dlg.getPUnits();

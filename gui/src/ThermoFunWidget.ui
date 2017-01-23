@@ -234,35 +234,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="3">
-             <widget class="QComboBox" name="pPunit">
-              <item>
-               <property name="text">
-                <string>b bar</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>B kbar</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>p Pa</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>P MPa</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>A atm</string>
-               </property>
-              </item>
-             </widget>
-            </item>
             <item row="3" column="4">
              <widget class="QLabel" name="label_12">
               <property name="text">
@@ -307,6 +278,35 @@
               <property name="text">
                <string>Properties table</string>
               </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QComboBox" name="pPunit">
+              <item>
+               <property name="text">
+                <string>b bar</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>B kbar</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>p Pa</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>P MPa</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>A atm</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>

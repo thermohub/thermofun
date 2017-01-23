@@ -216,27 +216,27 @@
            </property>
            <item>
             <property name="text">
-             <string>b  bar</string>
+             <string>b bar</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>B  kbar</string>
+             <string>B kbar</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>p  Pa</string>
+             <string>p Pa</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>P  MPa</string>
+             <string>P MPa</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>A  atm</string>
+             <string>A atm</string>
             </property>
            </item>
           </widget>
