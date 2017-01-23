@@ -36,7 +36,7 @@
 #include <algorithm>
 #include "ThermoFunWidget.h"
 #include "ui_ThermoFunWidget.h"
-#include "MinMaxDialog.h"
+#include "TPSetDialog.h"
 #include "bsonui/SchemaSelectDialog.h"
 #include "bsonui/SelectDialog.h"
 #include "bsonui/TableEditWindow.h"
@@ -59,10 +59,8 @@ void ThermoFunWidget::setActions()
     // Edit
     connect(ui->actionCopy_Field_Path, SIGNAL(triggered()), fieldTable, SLOT(CopyFieldPath()));
     connect(ui->actionCopy_Field, SIGNAL(triggered()), fieldTable, SLOT(CopyField()));
-    connect(ui->actionRealloc_T, SIGNAL(triggered()), this, SLOT(CmReallocT()));
-    connect(ui->actionReset_T, SIGNAL(triggered()), this, SLOT(CmResetT()));
-    connect(ui->actionRealloc_P, SIGNAL(triggered()), this, SLOT(CmReallocP()));
-    connect(ui->actionReset_P, SIGNAL(triggered()), this, SLOT(CmResetP()));
+    connect(ui->actionRealloc_TP, SIGNAL(triggered()), this, SLOT(CmReallocTP()));
+    connect(ui->actionReset_TP, SIGNAL(triggered()), this, SLOT(CmResetTP()));
     connect(ui->actionChange_Property_list, SIGNAL(triggered()), this, SLOT(CmResetProperty()));
 
     // Help
@@ -230,17 +228,17 @@ void ThermoFunWidget::updateQuery( const DBQueryDef& query  )
 
 // new commands -------------------------------------------------------------------
 
-void ThermoFunWidget::CmReallocT()
+void ThermoFunWidget::CmReallocTP()
 {
   try{
         bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new T array size",
-                 "Array size ", _data.pointsT.size(), 0, 999, 1, &ok );
+        uint size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
+                 "Array size ", _data.tppairs.size(), 0, 999, 1, &ok );
         if(!ok) // cancel command
             return;
 
-        _data.pointsT.resize(size);
-        _TlistModel->resetMatrixData();
+        _data.tppairs.resize(size);
+        _TPlistModel->resetMatrixData();
     }
    catch(bsonio_exeption& e)
    {
@@ -253,27 +251,20 @@ void ThermoFunWidget::CmReallocT()
 }
 
 
-void ThermoFunWidget::CmResetT()
+void ThermoFunWidget::CmResetTP()
 {
   try{
         // define new preferences
-        MinMaxDialog dlg("Please, insert T interval", this);
+        TPSetDialog dlg( this);
          if( !dlg.exec() )
              return;
-        int crt = dlg.getMin();
-        int Tmax = dlg.getMax();
-        int step = dlg.getStep();
 
-        _data.pointsT.clear();
-        if(!step)
-            _data.pointsT.push_back(crt);
-        else
-           do{
-               _data.pointsT.push_back(crt);
-                crt += step;
-              }while( (step>0 && crt<=Tmax) || (step<0 && crt>=Tmax));
-
-        _TlistModel->resetMatrixData();
+         ui->pTunit->setCurrentText(dlg.getTUnits());
+         ui->pPunit->setCurrentText(dlg.getPUnits());
+         //_data.unitsT = dlg.getTUnits();
+         //_data.unitsP = dlg.getPUnits();
+        _data.tppairs = dlg.getTPpairs();
+        _TPlistModel->resetMatrixData();
     }
    catch(bsonio_exeption& e)
    {
@@ -285,60 +276,6 @@ void ThermoFunWidget::CmResetT()
     }
 }
 
-void ThermoFunWidget::CmReallocP()
-{
-  try{
-        bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new P array size",
-                 "Array size ", _data.pointsP.size(), 0, 999, 1, &ok );
-        if(!ok) // cancel command
-            return;
-
-        _data.pointsP.resize(size);
-        _PlistModel->resetMatrixData();
-    }
-   catch(bsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
-
-
-void ThermoFunWidget::CmResetP()
-{
-  try{
-        // define new preferences
-        MinMaxDialog dlg("Please, insert P interval", this);
-         if( !dlg.exec() )
-             return;
-        int crt = dlg.getMin();
-        int max = dlg.getMax();
-        int step = dlg.getStep();
-
-        _data.pointsP.clear();
-        if(!step)
-            _data.pointsP.push_back(crt);
-        else
-           do{
-               _data.pointsP.push_back(crt);
-                crt += step;
-              }while( (step>0 && crt<=max) || (step<0 && crt>=max));
-
-        _PlistModel->resetMatrixData();
-    }
-   catch(bsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
 
 void ThermoFunWidget::CmResetProperty()
 {
@@ -462,7 +399,7 @@ void ThermoFunWidget::CmCalcMTPARM()
          if( !selDlg.exec() )
             return;
           selNdx =  selDlg.allSelected();
-readData:
+//readData:
           selectedList.resize(selNdx.size());
           substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
 
@@ -564,16 +501,16 @@ oneSolvent:
 
          tpCalc.addDigits(precision);
 
-         std::vector<std::vector<double>> TPpairs;
-         for (uint jj=0; jj<_data.pointsT.size(); jj++)
-         {
-             TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
-         }
+         //std::vector<std::vector<double>> TPpairs;
+         //for (uint jj=0; jj<_data.pointsT.size(); jj++)
+         //{
+         //    TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
+         //}
 
          struct timeval start, end;
          gettimeofday(&start, NULL);
 
-         tpCalc.calculateProperties(substancesSymbols, _data.properties, TPpairs).toCSV(op.fileNameSubst);
+         tpCalc.calculateProperties(substancesSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
 
          gettimeofday(&end, NULL);
          double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +

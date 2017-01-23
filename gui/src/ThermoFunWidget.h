@@ -60,12 +60,14 @@ struct ThermoFunData
     string query;      ///< Current schema
 
     double T;               ///< T to MTPARM calculations
-    vector<double> pointsT; ///< T points to RTparam calculation
+    //vector<double> pointsT; ///< T points to RTparam calculation
     string unitsT;          ///< Current units of T
 
     double P;               ///< P to MTPARM calculations
-    vector<double> pointsP; ///< P points to RTparam calculation
+    //vector<double> pointsP; ///< P points to RTparam calculation
     string unitsP;          ///< Current units of P
+
+    std::vector<std::vector<double>> tppairs;
 
     vector<string> properties;    ///< Properties names list
     vector<string> propertyUnits; ///< Units of property
@@ -80,52 +82,50 @@ struct ThermoFunData
     ThermoFunData();
 
     /// Write current task to configuration file fileName
-    void savetoCFG( const string& fileName );
-    /// Read current task from configuration file fileName
-    void readfromCFG( const string& fileName );
-
     void toBson( bson *obj ) const;
+    /// Read current task from configuration file fileName
     void fromBson( const char* bsobj );
 };
 
 /// Class for double T P vector container
-class TPVectorContainer : public TAbstractDataContainer
+class TPContainer : public TAbstractDataContainer
 {
-    string  _key;
-    vector<double>& _fields;
+    vector<string>  _keys;
+    vector<vector<double>>& _fields;
 
  public:
 
-   TPVectorContainer( const char * aname, const string& akey, vector<double>& afields ):
+   TPContainer( const char * aname, const vector<string>& akeys, vector<vector<double>>& afields ):
       TAbstractDataContainer(aname),
-      _key(akey),_fields( afields ) {}
+      _keys(akeys),_fields( afields ) {}
 
-   virtual ~TPVectorContainer() {}
+   virtual ~TPContainer() {}
 
    int rowCount() const
    { return _fields.size();  }
 
    int columnCount() const
-   { return 1; }
+   {
+      if(_fields.size()>0 )
+       return _fields[0].size();
+      else
+       return 2;
+   }
 
    QVariant data( int line, int column ) const
    {
-       if(column == 0)
-          return _fields[line];
-       else
-          return "";
+      return _fields[line][column];
    }
 
    bool setData( int line, int column, const QVariant &value )
    {
-       if(column == 0)
-           _fields[line] = value.toDouble();
+       _fields[line][column] = value.toDouble();
        return true;
    }
 
-   virtual QString headerData ( int /*section*/ ) const
+   virtual QString headerData ( int section ) const
    {
-       return _key.c_str();
+       return _keys[section].c_str();
    }
 
    virtual bool  IsEditable( int /*line*/, int /*column*/ ) const
@@ -134,9 +134,9 @@ class TPVectorContainer : public TAbstractDataContainer
    virtual int getType( int /*line*/, int /*column*/ ) const
    { return ftDouble; }
 
-   virtual QString getToolTip( int /*line*/, int /*column*/ ) const
+   virtual QString getToolTip( int line, int column ) const
    {
-       return _key.c_str();
+       return (_keys[column]+" "+to_string(line)).c_str();
    }
 
    void resetData()
@@ -327,10 +327,8 @@ public slots:
     void CmImportCFG();
 
     //Edit
-    void CmResetT();
-    void CmReallocT();
-    void CmResetP();
-    void CmReallocP();
+    void CmResetTP();
+    void CmReallocTP();
     void CmResetProperty();
 
     // Calc
@@ -342,8 +340,7 @@ public slots:
 
 
 public:
-    explicit ThermoFunWidget( QSettings *amainSettings, ThriftSchema *aschema,
-         const string& fileCfgName="", QWidget *parent = 0);
+    explicit ThermoFunWidget( QSettings *amainSettings, ThriftSchema *aschema, QWidget *parent = 0);
     ~ThermoFunWidget();
 
     void setQuery( QueryWidget* queryW  );
@@ -367,13 +364,9 @@ private:
     TableEditWidget* queryResultWindow;
 
     //ThermoFun data to edit;
-    TPVectorContainer* _TContainer;
-    TMatrixTable*  _TlistTable;
-    TMatrixModel*  _TlistModel;
-
-    TPVectorContainer* _PContainer;
-    TMatrixTable*  _PlistTable;
-    TMatrixModel*  _PlistModel;
+    TPContainer* _TPContainer;
+    TMatrixTable*  _TPlistTable;
+    TMatrixModel*  _TPlistModel;
 
     TPropertyContainer* _PropertyContainer;
     TMatrixTable*  _PropertyTable;
@@ -381,22 +374,6 @@ private:
 
     TableEditWidget* _csvWin = 0;
 };
-
-
-template<class T>
-QJsonDocument convert2Qt( const vector<T> lst)
-{
-  QJsonArray outlst;
-  for(uint ii=0; ii<lst.size(); ii++)
-    outlst.append(lst[ii]);
-  return QJsonDocument(outlst);
-}
-
-template<>
-QJsonDocument convert2Qt( const vector<string> lst);
-void convertFromQt( const QJsonArray& inlst, vector<string>& lst);
-void convertFromQt( const QJsonArray& inlst, vector<double>& lst);
-void convertFromQt( const QJsonArray& inlst, vector<int>& lst);
 
 
 #endif // ThermoFunWINDOW_H

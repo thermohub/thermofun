@@ -50,12 +50,11 @@ ThermoFunData::ThermoFunData()
   query = "";
   T =25;
   tPrecision = 0;
-  pointsT.push_back(25);
-  unitsT = "Celsius";
+  unitsT = "C Celsius";
   P =1;
   pPrecision = 0;
-  pointsP.push_back(1);
-  unitsP = "bar";
+  tppairs.push_back({25.,1.});
+  unitsP = "b bar";
   properties.push_back("gibbs_energy");
   propertyUnits.push_back("J/mol");
   propertyPrecision.push_back(0);
@@ -78,16 +77,16 @@ void ThermoFunData::toBson( bson *obj ) const
     bson_append_double( obj,"TemperaturePrecision", tPrecision );
     bson_append_string( obj,"TemperatureUnits", unitsT.c_str() );
     bson_append_start_array(obj, "TemperaturePoints");
-    for(uint ii=0; ii<pointsT.size(); ii++)
-       bson_append_double( obj, to_string(ii).c_str(), pointsT[ii]);
+    for(uint ii=0; ii<tppairs.size(); ii++)
+       bson_append_double( obj, to_string(ii).c_str(), tppairs[ii][0]);
     bson_append_finish_array(obj);
 
     bson_append_double( obj,"Pressure", P );
     bson_append_double( obj,"PressurePrecision", pPrecision );
     bson_append_string( obj,"PressureUnits", unitsP.c_str() );
     bson_append_start_array(obj, "PressurePoints");
-    for(uint ii=0; ii<pointsP.size(); ii++)
-       bson_append_double( obj, to_string(ii).c_str(), pointsP[ii] );
+    for(uint ii=0; ii<tppairs.size(); ii++)
+       bson_append_double( obj, to_string(ii).c_str(), tppairs[ii][1] );
     bson_append_finish_array(obj);
 
     bson_append_start_array(obj, "PropertiesList");
@@ -107,6 +106,7 @@ void ThermoFunData::toBson( bson *obj ) const
 void ThermoFunData::fromBson( const char* bsobj )
 {
     ThermoFunData deflt;
+    vector<double> pointsT, pointsP;
 
     if(!bson_find_string( bsobj, "Name", name ) )
         name=deflt.name;
@@ -124,8 +124,6 @@ void ThermoFunData::fromBson( const char* bsobj )
     if(!bson_find_string( bsobj, "TemperatureUnits", unitsT ) )
         unitsT=deflt.unitsT;
     bson_read_array( bsobj, "TemperaturePoints", pointsT );
-    if( pointsT.empty() )
-        pointsT =deflt.pointsT;
 
     if(!bson_find_value( bsobj, "Pressure", P ) )
         P=deflt.P;
@@ -134,8 +132,15 @@ void ThermoFunData::fromBson( const char* bsobj )
     if(!bson_find_string( bsobj, "PressureUnits", unitsP ) )
         unitsP=deflt.unitsP;
     bson_read_array( bsobj, "PressurePoints", pointsP );
-    if( pointsP.empty() )
-        pointsP =deflt.pointsP;
+    if( pointsP.empty() || pointsT.empty() )
+        tppairs =deflt.tppairs;
+    else
+      {
+        tppairs.clear();
+        uint tpsize = min( pointsT.size(), pointsP.size() );
+        for(uint ii=0; ii<tpsize; ii++)
+            tppairs.push_back({pointsT[ii], pointsP[ii]});
+      }
 
     bson_read_array( bsobj, "PropertiesList", properties );
     if( properties.empty() )
@@ -148,132 +153,6 @@ void ThermoFunData::fromBson( const char* bsobj )
         properties =deflt.properties;
     }
 
-
-// Write current task to configuration file fileName
-void ThermoFunData::savetoCFG( const string& fileName )
-{
-   QSettings settings(fileName.c_str(), QSettings::IniFormat);
-
-   settings.setValue("Name", name.c_str() );
-   settings.setValue("Description", comment.c_str() );
-   settings.setValue("SchemaName", schemaName.c_str() );
-   settings.setValue("Query", query.c_str() );
-
-   settings.setValue("Temperature", T );
-   settings.setValue("TemperaturePrecision", tPrecision );
-   settings.setValue("TemperatureUnits", unitsT.c_str() );
-   //QList<double> tplst = QList<double>::fromVector(QVector<double>::fromStdVector(pointsT));
-   //settings.setValue("TemperaturePoints", QVariant::fromValue(tplst) );
-   settings.setValue("TemperaturePoints", convert2Qt( pointsT).toJson() );
-
-   settings.setValue("Pressure", P );
-   settings.setValue("PressurePrecision", pPrecision );
-   settings.setValue("PressureUnits", unitsP.c_str() );
-   settings.setValue("PressurePoints", convert2Qt( pointsP).toJson() );
-
-   settings.setValue("PropertiesList", convert2Qt( properties ).toJson() );
-   settings.setValue("PropertyUnits", convert2Qt( propertyUnits ).toJson() );
-   settings.setValue("PropertyPrecision", convert2Qt( propertyPrecision ).toJson() );
-   settings.sync();
-}
-
-// Read current task from configuration file fileName
-void ThermoFunData::readfromCFG( const string& fileName )
-{
-    QSettings settings(fileName.c_str(), QSettings::IniFormat);
-    ThermoFunData deflt;
-
-    name = settings.value("Name", deflt.name.c_str() ).toString().toUtf8().data();
-    comment = settings.value("Description", deflt.comment.c_str() ).toString().toUtf8().data();
-    schemaName = settings.value("SchemaName", deflt.schemaName.c_str() ).toString().toUtf8().data();
-    query = settings.value("Query", deflt.query.c_str() ).toString().toUtf8().data();
-
-    T = settings.value("Temperature", deflt.T ).toDouble();
-    tPrecision = settings.value("TemperaturePrecision", deflt.tPrecision ).toDouble();
-    unitsT = settings.value("TemperatureUnits", deflt.unitsT.c_str() ).toString().toUtf8().data();
-    QByteArray  btarr = settings.value("TemperaturePoints", "").toByteArray();
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(btarr);
-    QJsonArray jsonArr = jsonDoc.array();
-    if(jsonArr.empty() )
-      pointsT = deflt.pointsT;
-    else
-       convertFromQt( jsonArr, pointsT);
-
-    P = settings.value("Pressure", deflt.P ).toDouble();
-    pPrecision = settings.value("PressurePrecision", deflt.pPrecision ).toDouble();
-    unitsP = settings.value("PressureUnits", deflt.unitsP.c_str() ).toString().toUtf8().data();
-    btarr = settings.value("PressurePoints", "").toByteArray();
-    jsonDoc = QJsonDocument::fromJson(btarr);
-    jsonArr = jsonDoc.array();
-    if(jsonArr.empty() )
-      pointsP = deflt.pointsP;
-    else
-       convertFromQt( jsonArr, pointsP);
-
-    btarr = settings.value("PropertiesList", "").toByteArray();
-    jsonDoc = QJsonDocument::fromJson(btarr);
-    jsonArr = jsonDoc.array();
-    if(jsonArr.empty() )
-      properties = deflt.properties;
-    else
-       convertFromQt( jsonArr, properties);
-
-    btarr = settings.value("PropertyUnits", "").toByteArray();
-    jsonDoc = QJsonDocument::fromJson(btarr);
-    jsonArr = jsonDoc.array();
-    if(jsonArr.empty() )
-      propertyUnits = deflt.propertyUnits;
-    else
-       convertFromQt( jsonArr, propertyUnits);
-
-    btarr = settings.value("PropertyPrecision", "").toByteArray();
-    jsonDoc = QJsonDocument::fromJson(btarr);
-    jsonArr = jsonDoc.array();
-    if(jsonArr.empty() )
-      propertyPrecision = deflt.propertyPrecision;
-    else
-       convertFromQt( jsonArr, propertyPrecision);
-
-}
-
-template<>
-QJsonDocument convert2Qt( const vector<string> lst)
-{
-  QJsonArray outlst;
-  for(uint ii=0; ii<lst.size(); ii++)
-    outlst.append(lst[ii].c_str());
-  return QJsonDocument(outlst);
-}
-
-void convertFromQt( const QJsonArray& inlst, vector<string>& lst)
-{
-  lst.clear();
-  for(int ii=0; ii<inlst.size(); ii++)
-  {
-    string vl = inlst[ii].toString().toUtf8().data();
-    lst.push_back(vl);
-  }
-}
-
-void convertFromQt( const QJsonArray& inlst, vector<double>& lst)
-{
-  lst.clear();
-  for(int ii=0; ii<inlst.size(); ii++)
-  {
-    double vl = inlst[ii].toDouble();
-    lst.push_back(vl);
-  }
-}
-
-void convertFromQt( const QJsonArray& inlst, vector<int>& lst)
-{
-  lst.clear();
-  for(int ii=0; ii<inlst.size(); ii++)
-  {
-    double vl = inlst[ii].toInt();
-    lst.push_back(vl);
-  }
-}
 
 //----------------------------------------------------------------------
 
@@ -295,8 +174,7 @@ void ThermoFunWidget::closeEvent(QCloseEvent* e)
 }
 
 
-ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
-         const string& fileCfgName, QWidget *parent) :
+ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema, QWidget *parent) :
     BSONUIBase(amainSettings, aschema, parent),
     curSchemaName(""), ui(new Ui::ThermoFunWidget),
     dataTable(0), pTable(0), tableModel(0), queryWindow(0), queryResultWindow(0)
@@ -311,13 +189,6 @@ ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
     setAttribute(Qt::WA_DeleteOnClose); // automatically delete itself when window is closed
     QString title = qApp->applicationName()+" Structured Data Editor and Database Browser";
     setWindowTitle(title);
-
-    if( !fileCfgName.empty() )
-    {
-      _data.readfromCFG( fileCfgName );
-      curSchemaName = _data.schemaName;
-      isDefaultQuery = !_data.query.empty();
-    }
 
     //set up main parameters
     bson_init(&curRecord);
@@ -348,23 +219,14 @@ ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
    resetDBClient( curSchemaName );
 
    // define ThermoFun data
-   _TContainer = new TPVectorContainer( "T", "T", _data.pointsT );
-   _TlistTable  = new TMatrixTable( ui->outWidget );
+   _TPContainer = new TPContainer( "T", { "T", "P" }, _data.tppairs );
+   _TPlistTable  = new TMatrixTable( ui->outWidget );
    TMatrixDelegate* deleg = new TMatrixDelegate();
-   _TlistTable->setItemDelegate(deleg);
-   _TlistModel = new TMatrixModel( _TContainer, this );
-   _TlistTable->setModel(_TlistModel);
-   _TlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
-   ui->gridLayout_3->addWidget(_TlistTable, 1, 0, 1, 1);
-
-   _PContainer = new TPVectorContainer( "P", "P", _data.pointsP );
-   _PlistTable  = new TMatrixTable( ui->outWidget );
-    deleg = new TMatrixDelegate();
-   _PlistTable->setItemDelegate(deleg);
-   _PlistModel = new TMatrixModel( _PContainer, this );
-   _PlistTable->setModel(_PlistModel);
-   _PlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
-    ui->gridLayout_3->addWidget(_PlistTable, 1, 1, 1, 1);
+   _TPlistTable->setItemDelegate(deleg);
+   _TPlistModel = new TMatrixModel( _TPContainer, this );
+   _TPlistTable->setModel(_TPlistModel);
+   _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
+   ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
 
    _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
    _PropertyTable  = new TMatrixTable( ui->inWidget );
@@ -422,10 +284,8 @@ ThermoFunWidget::~ThermoFunWidget()
     if( pTable )
       delete pTable;
 
-    delete _TlistTable;
-    delete _TContainer;
-    delete _PlistTable;
-    delete _PContainer;
+    delete _TPlistTable;
+    delete _TPContainer;
     delete _PropertyTable;
     delete _PropertyContainer;
 
@@ -632,8 +492,7 @@ void ThermoFunWidget::changeKeyList()
 /// Reset new ThermoFun data
 void ThermoFunWidget::resetThermoFunData()
 {
-   _TlistModel->resetMatrixData();
-   _PlistModel->resetMatrixData();
+   _TPlistModel->resetMatrixData();
    _PropertyModel->resetMatrixData();
 
     ui->pName->setText(_data.name.c_str());

@@ -13,8 +13,15 @@ class TPSetDialog : public QDialog
 {
     Q_OBJECT
 
-    int calcSize( int mode, int NT, int NP);
-    void initTPvectors( std::vector<double>& Tvec, std::vector<double>& Pvec);
+    long int calcSize( long int mode, long int NT, long int NP);
+    /// Calculate number of points from iterators
+    long int calcNpoints( double Tai[4] );
+
+protected slots:
+
+    void PChange();
+    void TChange();
+    void PairwiseChecked();
 
 public:
     explicit TPSetDialog(QWidget *parent = 0);
@@ -22,7 +29,7 @@ public:
 
     QString getTUnits();
     QString getPUnits();
-    std::vector< std::vector<double> > getTP();
+    std::vector<std::vector<double>> getTPpairs();
 
 private:
 

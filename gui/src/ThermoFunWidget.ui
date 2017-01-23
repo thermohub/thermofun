@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>848</width>
-    <height>575</height>
+    <width>808</width>
+    <height>532</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ThermoFun Tabulation Widget</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QSplitter" name="mainSplitter">
       <property name="orientation">
@@ -106,7 +106,83 @@
           </property>
           <widget class="QWidget" name="inWidget" native="true">
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="3" column="8">
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Task Name</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" colspan="3">
+             <widget class="QLineEdit" name="pName"/>
+            </item>
+            <item row="1" column="0" colspan="6">
+             <widget class="QLineEdit" name="pComment"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>T</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="pTVal">
+              <property name="minimum">
+               <double>-500.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>500.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>25.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Units</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QComboBox" name="pTunit">
+              <property name="currentText">
+               <string>C Celsius</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>C Celsius</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>K Kelvin</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="4">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Precision</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="5">
              <widget class="QSpinBox" name="tPrecision">
               <property name="toolTip">
                <string extracomment="Output precision / digits after decimal point (in Fixed Format)"/>
@@ -119,7 +195,46 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="4" colspan="3">
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>120</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>P</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="pPVal">
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Units</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
              <widget class="QComboBox" name="pPunit">
               <item>
                <property name="text">
@@ -148,7 +263,7 @@
               </item>
              </widget>
             </item>
-            <item row="4" column="7">
+            <item row="3" column="4">
              <widget class="QLabel" name="label_12">
               <property name="text">
                <string>Precision</string>
@@ -158,7 +273,7 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="8">
+            <item row="3" column="5">
              <widget class="QSpinBox" name="pPrecision">
               <property name="toolTip">
                <string extracomment="Output precision / digits after decimal point (in Fixed Format)"/>
@@ -171,13 +286,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="9">
-             <widget class="QLineEdit" name="pComment"/>
-            </item>
-            <item row="1" column="2" colspan="7">
-             <widget class="QLineEdit" name="pName"/>
-            </item>
-            <item row="5" column="0">
+            <item row="4" column="0" colspan="2">
              <widget class="QCheckBox" name="FormatBox">
               <property name="text">
                <string>Fixed Format</string>
@@ -187,123 +296,7 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="3">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Units</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="3">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Units</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>T</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="4" colspan="3">
-             <widget class="QComboBox" name="pTunit">
-              <property name="currentText">
-               <string>C Celsium</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>C Celsium</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>K Kelvin</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>120</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>P</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" colspan="2">
-             <widget class="QDoubleSpinBox" name="pTVal">
-              <property name="minimum">
-               <double>-500.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>500.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>25.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" colspan="2">
-             <widget class="QDoubleSpinBox" name="pPVal">
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="7">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Precision</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Task Name</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0" colspan="4">
+            <item row="5" column="0" colspan="2">
              <widget class="QLabel" name="label_9">
               <property name="maximumSize">
                <size>
@@ -327,13 +320,6 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Pressure P points</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </widget>
@@ -349,8 +335,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>848</width>
-     <height>24</height>
+     <width>808</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDataBase">
@@ -392,11 +378,8 @@
     </property>
     <addaction name="actionChange_Property_list"/>
     <addaction name="separator"/>
-    <addaction name="actionRealloc_T"/>
-    <addaction name="actionReset_T"/>
-    <addaction name="separator"/>
-    <addaction name="actionRealloc_P"/>
-    <addaction name="actionReset_P"/>
+    <addaction name="actionRealloc_TP"/>
+    <addaction name="actionReset_TP"/>
     <addaction name="separator"/>
     <addaction name="actionCopy_Field_Path"/>
     <addaction name="actionCopy_Field"/>
@@ -542,7 +525,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Show Enum Names Instead of Values</string>
+    <string>Show Enum &amp;Names Instead of Values</string>
    </property>
   </action>
   <action name="actionSearch">
@@ -660,24 +643,20 @@
     <string>&amp;Change Property List ...</string>
    </property>
   </action>
-  <action name="actionRealloc_T">
+  <action name="actionRealloc_TP">
    <property name="text">
-    <string>&amp;Realloc T</string>
+    <string>&amp;Realloc TP list ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Realloc TP pairs list</string>
    </property>
   </action>
-  <action name="actionReset_T">
+  <action name="actionReset_TP">
    <property name="text">
-    <string>R&amp;eset T</string>
+    <string>R&amp;eset TP list ...</string>
    </property>
-  </action>
-  <action name="actionRealloc_P">
-   <property name="text">
-    <string>Rea&amp;lloc P</string>
-   </property>
-  </action>
-  <action name="actionReset_P">
-   <property name="text">
-    <string>Re&amp;set P</string>
+   <property name="toolTip">
+    <string>Reset TP list</string>
    </property>
   </action>
   <action name="actionNew_Reset_Task_Definition">
@@ -686,12 +665,12 @@
      <normaloff>:/menu/Icons/NewCreateRecordIcon24.png</normaloff>:/menu/Icons/NewCreateRecordIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>New/Reset Task Definition</string>
+    <string>&amp;New/Reset Task Definition</string>
    </property>
   </action>
   <action name="actionSelect_Substances_for_this_Task">
    <property name="text">
-    <string>Select Substances for this Task ...</string>
+    <string>&amp;Select Substances for this Task ...</string>
    </property>
    <property name="iconText">
     <string>Select Substances for this Task ...</string>
