@@ -6,6 +6,8 @@ TEMPLATE = app
 #QMAKE_CXXFLAGS += -std=c++1y
 QMAKE_CXXFLAGS += -std=c++11
 
+QT += widgets
+
 #CONFIG += -std=c++11
 
 TARGET = dbclientTest
@@ -57,7 +59,7 @@ INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR2
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml 
+LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex
 LIBS += -llua5.2
