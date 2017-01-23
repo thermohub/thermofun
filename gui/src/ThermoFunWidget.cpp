@@ -76,17 +76,18 @@ void ThermoFunData::toBson( bson *obj ) const
     bson_append_double( obj,"Temperature", T );
     bson_append_double( obj,"TemperaturePrecision", tPrecision );
     bson_append_string( obj,"TemperatureUnits", unitsT.c_str() );
-    bson_append_start_array(obj, "TemperaturePoints");
-    for(uint ii=0; ii<tppairs.size(); ii++)
-       bson_append_double( obj, to_string(ii).c_str(), tppairs[ii][0]);
-    bson_append_finish_array(obj);
-
     bson_append_double( obj,"Pressure", P );
     bson_append_double( obj,"PressurePrecision", pPrecision );
     bson_append_string( obj,"PressureUnits", unitsP.c_str() );
-    bson_append_start_array(obj, "PressurePoints");
+
+    bson_append_start_array(obj, "TemperaturePressurePoints");
     for(uint ii=0; ii<tppairs.size(); ii++)
-       bson_append_double( obj, to_string(ii).c_str(), tppairs[ii][1] );
+    {
+        bson_append_start_object( obj, to_string(ii).c_str() );
+        bson_append_double( obj, "T", tppairs[ii][0] );
+        bson_append_double( obj, "P", tppairs[ii][1] );
+       bson_append_finish_object(obj);
+    }
     bson_append_finish_array(obj);
 
     bson_append_start_array(obj, "PropertiesList");
@@ -123,7 +124,6 @@ void ThermoFunData::fromBson( const char* bsobj )
         tPrecision=deflt.tPrecision;
     if(!bson_find_string( bsobj, "TemperatureUnits", unitsT ) )
         unitsT=deflt.unitsT;
-    bson_read_array( bsobj, "TemperaturePoints", pointsT );
 
     if(!bson_find_value( bsobj, "Pressure", P ) )
         P=deflt.P;
@@ -131,16 +131,28 @@ void ThermoFunData::fromBson( const char* bsobj )
         pPrecision=deflt.pPrecision;
     if(!bson_find_string( bsobj, "PressureUnits", unitsP ) )
         unitsP=deflt.unitsP;
-    bson_read_array( bsobj, "PressurePoints", pointsP );
-    if( pointsP.empty() || pointsT.empty() )
-        tppairs =deflt.tppairs;
+
+    // read tp pairs
+    tppairs.clear();
+    bson_iterator it;
+    bson_type type;
+    type =  bson_find_from_buffer(&it, bsobj, "TemperaturePressurePoints" );
+    if( type != BSON_ARRAY )
+      tppairs =deflt.tppairs;
     else
-      {
-        tppairs.clear();
-        uint tpsize = min( pointsT.size(), pointsP.size() );
-        for(uint ii=0; ii<tpsize; ii++)
-            tppairs.push_back({pointsT[ii], pointsP[ii]});
-      }
+    {
+       double Ti, Pi;
+       bson_iterator i;
+       bson_iterator_from_buffer(&i, bson_iterator_value(&it));
+       while (bson_iterator_next(&i))
+       {
+         if(!bson_find_value( bson_iterator_value(&i), "T", Ti ) )
+            Ti=100.;
+         if(!bson_find_value( bson_iterator_value(&i), "P", Pi ) )
+            Pi = 5.;
+         tppairs.push_back({Ti, Pi});
+       }
+    }
 
     bson_read_array( bsobj, "PropertiesList", properties );
     if( properties.empty() )
