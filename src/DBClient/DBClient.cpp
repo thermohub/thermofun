@@ -152,7 +152,7 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     // get reactions
     qrJson = "{ \"_label\" : \"reaction\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
 
-    resetDBClinet(_shemaNames[0], qrJson);
+    resetDBClinet(_shemaNames[1], qrJson);
     dbgraph->GetKeyValueList( aKeyList, aValList );
     for( uint ii=0; ii<aKeyList.size(); ii++ )
     {
@@ -161,15 +161,15 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
         string valDB = dbgraph->GetJson();
         jsonToBson( &record, valDB );
 
-//        Reaction reaction = parseReaction(record.data);
+        Reaction reaction = parseReaction(record.data);
 
-//        if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
-//             reactions_map[reaction.symbol()] = reaction;
-//        } else {
-//          // ERROR reaction with the same symbol found!
-//        }
+        if ( reactions_map.find(reaction.name()) == reactions_map.end() ) {
+             reactions_map[reaction.name()] = reaction;
+        } else {
+          // ERROR reaction with the same symbol found!
+        }
 
-//        reactionss_map[reaction.symbol()] = reaction;
+        reactions_map[reaction.name()] = reaction;
     }
 
     // work with the edges
