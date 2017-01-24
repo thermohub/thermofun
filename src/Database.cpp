@@ -16,8 +16,6 @@
 namespace ThermoFun {
 
 namespace {
-using SubstancesMap = std::map<std::string, Substance>;
-using ReactionsMap = std::map<std::string, Reaction>;
 
 }
 
@@ -183,9 +181,19 @@ struct Database::Impl
         substances_map.insert({substance.symbol(), substance});
     }
 
+    auto addMapSubstances(const SubstancesMap& substances) -> void
+    {
+        substances_map = substances;
+    }
+
     auto addReaction(const Reaction& reaction) -> void
     {
         reactions_map.insert({reaction.name(), reaction});
+    }
+
+    auto addMapReactions(const ReactionsMap& reactions) -> void
+    {
+        reactions_map = reactions;
     }
 
     auto getSubstances() -> std::vector<Substance>
@@ -334,9 +342,19 @@ auto Database::addSubstance(const Substance& substance) -> void
     pimpl->addSubstance(substance);
 }
 
+auto Database::addMapSubstances(const SubstancesMap& substances) -> void
+{
+    pimpl->addMapSubstances(substances);
+}
+
 auto Database::addReaction(const Reaction& reaction) -> void
 {
     pimpl->addReaction(reaction);
+}
+
+auto Database::addMapReactions(const ReactionsMap& reactions) -> void
+{
+    pimpl->addMapReactions(reactions);
 }
 
 auto Database::getSubstance(std::string symbol) const -> const Substance&
