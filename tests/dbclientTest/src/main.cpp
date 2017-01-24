@@ -10,6 +10,10 @@ int main(int argc, char *argv[])
 
     DBClient dbc("./Resources/ThermoFun.ini");
 
+    Database db = dbc.getDatabase(15);
+
+    Thermo th(DBClient("./Resources/ThermoFun.ini").getDatabase(15));
+
     cout << "Bye World!" << endl;
 
     return 0;

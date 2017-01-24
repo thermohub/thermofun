@@ -11,6 +11,8 @@
 
 namespace ThermoFun {
 
+struct Database;
+
 struct DBSettings
 {
     QSettings *QtSettings;
@@ -46,6 +48,8 @@ class DBClient
 public:
     explicit DBClient(std::string settingsFile);
     ~DBClient();
+
+    auto getDatabase(uint sourceTDB) -> Database;
 
 
 };
