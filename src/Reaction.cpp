@@ -128,6 +128,11 @@ auto Reaction::name() const -> std::string
     return pimpl->name;
 }
 
+auto Reaction::symbol() const -> std::string
+{
+    return pimpl->symbol;
+}
+
 auto Reaction::reactants() -> std::map<std::string, int>
 {
     return pimpl->reactants;

@@ -67,6 +67,8 @@ public:
     /// Return the name of the chemical Reaction
     auto name() const -> std::string;
 
+    auto symbol() const -> std::string;
+
     auto reactants() -> std::map<std::string, int>;
 
     auto thermo_ref_prop() -> ThermoPropertiesReaction;
