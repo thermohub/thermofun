@@ -140,11 +140,31 @@ struct Database::Impl
 
     Impl(vector<bson> bsonSubstances)
     {
+        string kbuf;
         flog.open(parsinglogfile, ios::trunc); flog.close();
+
         for (int i=0; i<bsonSubstances.size(); i++)
-        {    
-            Substance substance = parseSubstance(bsonSubstances[i].data);
-            substances_map[substance.symbol()] = substance;
+        {
+
+            bsonio::bson_to_key( bsonSubstances[i].data, label, kbuf );
+
+            if (kbuf == "substance")
+            {
+                Substance substance = parseSubstance(bsonSubstances[i].data);
+                substances_map[substance.symbol()] = substance;
+            } else
+            if (kbuf == "reaction")
+            {
+                    //                      Reaction reaction = parseReaction(bso);
+                    //                      reactions_map[reaction.name()] = reaction;
+            } else
+            {
+                Exception exception;
+                exception.error << "Unknown JSON type " << kbuf << " ";
+                exception.reason << "The JSON object needs to be a substance or reaction.";
+                exception.line = __LINE__;
+                RaiseError(exception);
+            }
         }
     }
 
@@ -263,7 +283,7 @@ struct Database::Impl
                     {
                         Exception exception;
                         exception.error << "Unknown JSON type " << kbuf << " ";
-                        exception.reason << "The JSON object needs to be a substance, file " << filename << ".";
+                        exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
                         exception.line = __LINE__;
                         RaiseError(exception);
                     }
