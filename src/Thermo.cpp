@@ -282,6 +282,11 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
 //        return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, wp);
         break;
     }
+    case MethodCorrT_Thrift::type::CTM_IKZ:
+    {
+        // calc_r_interp( q, p, CE, CV );
+        break;
+    }
         // Exception
         errorMethodNotFound("solvent", reac.name(), __LINE__);
     }
