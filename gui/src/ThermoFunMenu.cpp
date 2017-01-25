@@ -237,8 +237,8 @@ void ThermoFunWidget::CmReallocTP()
         if(!ok) // cancel command
             return;
 
-        _data.tppairs[0] = {0,0};
-        for (uint i = 1; i<size; i++ )
+        _data.tppairs.clear();
+        for (uint i = 0; i<size; i++ )
         {
             _data.tppairs.push_back({0,0});
         }
