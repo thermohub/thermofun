@@ -1,14 +1,13 @@
 #include <iostream>
 #include <fstream>
-//#include "tcorrpt.h"
 #include "Database.h"
 #include "Substance.h"
 #include "ThermoModelsSubstance.h"
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 #include "Thermo.h"
 
 using namespace std;
-using namespace TCorrPT;
+using namespace ThermoFun;
 
 int main(int argc, char *argv[])
 {

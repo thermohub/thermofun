@@ -6,7 +6,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoState.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Outputs water proeprties in the steam convention
 /// @ref --

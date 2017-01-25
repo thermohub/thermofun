@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Substance.h"
 #include "Reaction.h"
 
@@ -15,11 +15,11 @@
 //#include "bsonio/v_json.h"
 #include "ejdb/bson.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 // Forward declarations
-class Substance;
-class Reaction;
+//class Substance;
+//class Reaction;
 //struct bson;
 
 /**
@@ -34,8 +34,7 @@ public:
 
     /// Construct a database instance by parsing a "json", "yam", "xml" file
     /// containg the exported substances and reactions
-    // bsonio library should be used here
-    explicit Database(std::string filename);
+    /*explicit*/ Database(std::string filename);
 
     /**
      * @brief Database constructs a database instace from a vector of substances in bson format
@@ -95,6 +94,6 @@ private:
     std::shared_ptr<Impl> pimpl;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // DATABASE_H

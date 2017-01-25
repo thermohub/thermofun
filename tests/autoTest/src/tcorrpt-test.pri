@@ -1,3 +1,0 @@
-HEADERS +=
-
-SOURCES += $$TCORRPT_TEST_CPP/main.cpp \

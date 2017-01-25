@@ -6,14 +6,14 @@
 #include <string>
 #include <vector>
 
-// TCorrPT includes
+// ThermoFun includes
 #include "Common/Exception.h"
 #include "ReadFiles.h"
 
 //#include "bsonio/v_json.h"
 //#include "bsonio/nejdb.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 namespace {
 using SubstancesMap = std::map<std::string, Substance>;
@@ -140,8 +140,9 @@ struct Database::Impl
 
     Impl(vector<bson> bsonSubstances)
     {
+        flog.open(parsinglogfile, ios::trunc); flog.close();
         for (int i=0; i<bsonSubstances.size(); i++)
-        {
+        {    
             Substance substance = parseSubstance(bsonSubstances[i].data);
             substances_map[substance.symbol()] = substance;
         }
@@ -222,6 +223,7 @@ struct Database::Impl
         bso.data = 0;
         // Reading work structure from json text file
         fstream f(filename, ios::in);
+        flog.open(parsinglogfile, ios::trunc); flog.close();
 
         if (!f.good())
         {
@@ -234,6 +236,7 @@ struct Database::Impl
 
         try
         {
+
             while( !f.eof() )
             {
                 f.get(b);
@@ -254,8 +257,8 @@ struct Database::Impl
                     } else
                     if (kbuf == "reaction")
                     {
-    //                      Reaction reaction = parseReaction(bso);
-    //                      reactions_map[reaction.name()] = reaction;
+                          Reaction reaction = parseReaction(bso.data);
+                          reactions_map[reaction.name()] = reaction;
                     } else
                     {
                         Exception exception;
@@ -355,5 +358,5 @@ auto Database::containsReaction(std::string symbol) const -> bool
     return pimpl->containsReaction(symbol);
 }
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 

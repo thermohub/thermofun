@@ -9,15 +9,17 @@
 #include "bsonio/json2cfg.h"
 #include "bsonui/SelectDialog.h"
 #include "bsonui/PreferencesBSONUI.h"
-#include "TCorrPTWidget.h"
+#include "ThermoFunWidget.h"
 #include "bsonio/dbdriverejdb.h"
+#include "bsonio/dbclient.h"
+
 using namespace bsonio;
 
 
 void TestMainWindow::setDefValues()
 {
    // load main programm settingth
-   mainSettings = new QSettings("tcorrpt.ini", QSettings::IniFormat);
+   mainSettings = new QSettings("ThermoFun.ini", QSettings::IniFormat);
    getDataFromPreferences();
 }
 
@@ -42,20 +44,26 @@ void TestMainWindow::getDataFromPreferences()
   ui->action_Keep_Data_Fields_Expanded->setChecked(TBsonView::expandedFields);
 
   //LocalDBDir = mainSettings->value("LocalDBPath", "./EJDB/localejdb").toString();
-  useLocalDB = mainSettings->value("UseLocalDB", false).toBool();
-  LocalDBDir = mainSettings->value("LocalDBDirectory", "./EJDB").toString();
+  //useLocalDB = mainSettings->value("UseLocalDB", false).toBool();
+  QString LocalDBDir = mainSettings->value("LocalDBDirectory", "./EJDB").toString();
   QString LocalDBName = mainSettings->value("LocalDBName", "localdb").toString();
   QFileInfo file(LocalDBDir, LocalDBName);
-  LocalDBDir = file.filePath();
-  if( /*useLocalDB &&*/ !LocalDBDir.isEmpty() )
-    flEJ.reOpen(file.filePath().toUtf8().data());
 
+  TEJDBDriveOne::flEJPath = file.filePath().toUtf8().data();
+
+  // server db defaults
+  // The host that the socket is connected to
+  TDBClientOne::theHost =  mainSettings->value("DBSocketHost",
+                TDBClientOne::theHost.c_str()).toString().toUtf8().data();
+  // The port that the socket is connected to
+  TDBClientOne::thePort = mainSettings->value("DBSocketPort",
+               TDBClientOne::thePort ).toInt();
 }
 
 
 
 TestMainWindow::TestMainWindow(QWidget *parent) :
-    QMainWindow(parent), useLocalDB(false),
+    QMainWindow(parent),
     ui(new Ui::TestMainWindow)
 {
    ui->setupUi(this);
@@ -95,7 +103,7 @@ TestMainWindow::~TestMainWindow()
 void TestMainWindow::setActions()
 {
      // File
-    connect( ui->actionNew_TCorrPT_Window , SIGNAL( triggered()), this, SLOT(CmNewTCorPT()));
+    connect( ui->actionNew_ThermoFun_Window , SIGNAL( triggered()), this, SLOT(CmNewTCorPT()));
     //    connect( ui->actionE_xit, SIGNAL( triggered()), this, SLOT(close()));
     connect( ui->actionE_xit, SIGNAL( triggered()), qApp, SLOT(quit()));
 
@@ -118,40 +126,29 @@ void TestMainWindow::CmSettingth()
   try
   {
      QString oldSchemaDir = SchemDir;
-     QString oldLocalDBDir = LocalDBDir;
-     bool oldUseLoacaDB = useLocalDB;
 
      // define new preferences
      PreferencesBSONUI dlg(mainSettings);
-      if( !dlg.exec() )
+     // signal to reset database
+     QObject::connect( &dlg, SIGNAL(dbdriveChanged()), this, SLOT(closeAll()/*updateDB()*/));
+
+     if( !dlg.exec() )
           return;
+
      //get data from settings
-      SchemDir =  mainSettings->value("SchemasDirectory", "").toString();
-      QString LocalDBDir_ = mainSettings->value("LocalDBDirectory", "./EJDB").toString();
-      QString LocalDBName_ = mainSettings->value("LocalDBName", "localdb").toString();
-      QFileInfo file(LocalDBDir_, LocalDBName_);
-      LocalDBDir = file.filePath();
-      useLocalDB = mainSettings->value("UseLocalDB", false).toBool();
+     SchemDir =  mainSettings->value("SchemasDirectory", "").toString();
+     // close all windows and read new schema
+     if( oldSchemaDir != SchemDir )
+     {
+       // close all opened windows
+         closeAll();
+         readSchemaDir( SchemDir );
+         return;
+     }
 
-    // close all windows and read new schema
-    if( oldSchemaDir != SchemDir )
-    {
-      // close all opened windows
-      closeAll();
-      readSchemaDir( SchemDir );
-      return;
-    }
-
-    // connect to new DB, rereaded keys
-    if( oldUseLoacaDB != useLocalDB ||
-      ( useLocalDB && oldLocalDBDir != LocalDBDir))
-    { // for all opened windows
-       updateDB();
-    }
-
-    // for all opened windows
-    updateViewMenu();
-    updateModel();
+     // for all opened windows
+     updateViewMenu();
+     updateModel();
 
   }
   catch(std::exception& e)
@@ -209,7 +206,7 @@ void TestMainWindow::CmNewTCorPT()
 {
   try{
         BSONUIBase* testWidget;
-        testWidget = new TCorrPTWidget( mainSettings, &schema, ""/*cfg file name, this*/ );
+        testWidget = new ThermoFunWidget( mainSettings, &schema /*,this*/ );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
         testWidget->setShowWidgetFunction(showWidget);

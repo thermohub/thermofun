@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct ThermoPropertiesSubstance;
 struct PropertiesSolvent;

@@ -20,9 +20,9 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../../build-tcorrpt-gui/{debug,release}/thirdparty
+mkdir -p ../../build-ThermoFun-gui/{debug,release}/thirdparty
 
-cd ../../build-tcorrpt-gui/debug/thirdparty
+cd ../../build-ThermoFun-gui/debug/thirdparty
 
 cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=.
 

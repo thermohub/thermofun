@@ -2,7 +2,31 @@
 #define TPCALCULATIONSAPI
 #include "Thermo.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
+
+//map<std::string,std::string> thermoPropDefaultUnits = {{"temperature", "C"},
+//                                          {"pressure", "bar"},
+//                                          {"gibbs_energy", "J/mol"},
+//                                          {"enthalpy", "J/mol"},
+//                                          {"entropy", "J/mol"},
+//                                          {"heat_capacity_cp", "J/mol*K"},
+//                                          {"heat_capacity_cv", "J/mol*K"},
+//                                          {"volume", "J/bar"},
+//                                          {"helmholtz_energy", "J/mol"},
+//                                          {"internal_energy", "J/mol"}
+//                                        };
+
+//map<std::string, int> thermoPropDefaultPrecision = {{"temperature", 0 },
+//                                          {"pressure", 0 },
+//                                          {"gibbs_energy", 0},
+//                                          {"enthalpy", 0},
+//                                          {"entropy", 0},
+//                                          {"heat_capacity_cp", 0 },
+//                                          {"heat_capacity_cv", 0 },
+//                                          {"volume", 0 },
+//                                          {"helmholtz_energy", 0 },
+//                                          {"internal_energy", 0 }
+//                                        };
 
 /**
  * @brief The OutputOptions struct holds the options for ouptuting results
@@ -16,17 +40,17 @@ struct OutputOptions
     bool scientific = false;
 
     /// the maximum number of digits to be written
-    unsigned precision = 8;
+    unsigned precision = 0;
 
     /// csv file separator
     std::string separator = ",";
 
     /// file name/path
-    std::string fileName = "tpresults.csv";
+    std::string fileName = "xtpresults.csv";
 };
 
 /**
- * @brief The TPcalcualationsAPI class handels the interface between the TCorrPT library and coupled code for calculating the thermodynamic porperties
+ * @brief The TPcalcualationsAPI class handels the interface between the ThermoFun library and coupled code for calculating the thermodynamic porperties
  * of substances at various T and P and exporting them in a csv file or having dirrect acces to a vector of results
  */
 class TPcalcualationsAPI
@@ -34,7 +58,7 @@ class TPcalcualationsAPI
 
 public:
     /// Construct a TPcalcualationsAPI instance with given Database instance
-    explicit TPcalcualationsAPI(const Database& database);
+    /*explicit*/ TPcalcualationsAPI(const Database& database);
 
     /**
      * @brief calculateThermoProperties calculates the selected thermodynamic properties for selected substances at T and P
@@ -86,6 +110,15 @@ public:
      * @return a vector of results [[substances*TP-pairs]*properties]
      */
     auto results () -> std::vector<std::vector<double>>;
+
+    auto outputOptions() -> OutputOptions;
+
+    auto setOutputOptions(const OutputOptions &value) -> void;
+
+    auto thermoPrecision() -> map<std::string, int>;
+
+    auto setThermoPrecision(const map<std::string, int> &value) -> void;
+
 
 private:
     struct Impl;

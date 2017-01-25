@@ -1,7 +1,7 @@
 typedef std::vector<double> vd;
 typedef std::vector<std::vector<double> > vvd;
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// A type for storing the parameters of the HKF equation of state for a aqueous species
 //struct ParamsHKF
@@ -90,8 +90,29 @@ struct ThermoParametersSubstance
 /// its thermodynamic properties at a given temperature and pressure
 struct ThermoParametersReaction
 {
+    /// Lower and upper T limits for Cp=f(T) equation
+    vvd temperature_intervals;
 
+    /// Lower and upper P limits for pressure correction
+    vvd pressure_intervals;
 
+    /// Reaction logK as a function of T coefficients
+    vd reaction_logK_fT_coeff;
+
+    /// Reaction logK at T and P points for interpolation
+    vd logK_TP_array;
+
+    /// Reaction heat capacity as a function of T coefficients
+    vd reaction_Cp_fT_coeff;
+
+    /// Reaction volume as a function of T coefficients
+    vd reaction_V_fT_coeff;
+
+    /// Coefficients of Ryzhenko-Bryzgalin model
+    vd reaction_RB_coeff;
+
+    /// Coefficients of Frantz & Marshall density model
+    vd reaction_FM_coeff;
 };
 
 /// Describes the thermodynamic parameters of a solvent used in specific models to calculate
@@ -103,4 +124,4 @@ struct ThermoParametersSolvent
 };
 
 
-} // namespace TCorrPT
+} // namespace ThermoFun

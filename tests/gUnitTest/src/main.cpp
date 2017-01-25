@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 using namespace std;
-using namespace TCorrPT;
+using namespace ThermoFun;
 
 //auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance result_tcorrpt, string symbol, double T, double P ) -> int
 //{
@@ -67,7 +67,7 @@ struct DatabaseTest : testing::Test
   vector<Substance> vSubst;
   DatabaseTest()
   {
-    tdb = new Database("Resources/test_multi.VertexSubstance.json");
+    tdb = new Database("Resources/test_multi_new.VertexSubstance.json");
 
     Database tdb2;
 
@@ -94,7 +94,8 @@ struct TPcalculationAPITest : DatabaseTest
 
     TPcalculationAPITest()
     {
-        tpcalc = new TPcalcualationsAPI (*th);
+        tdb->setAllAqSubstanceSolventSymbol("H2O@");
+        tpcalc = new TPcalcualationsAPI (*tdb);
     }
 };
 
@@ -110,25 +111,25 @@ TEST_F(DatabaseTest, correct_internal_data_initialization)
 
 TEST_F(TPcalculationAPITest, correct_initialization)
 {
-    EXPECT_EQ(0, tpcalc->thermoPropSubstNames().at("sm_gibbs_energy"));
+    EXPECT_EQ(0, tpcalc->thermoPropSubstNames().at("gibbs_energy"));
 
-    EXPECT_STREQ("(J/mol)", tpcalc->thermoPropSubstUnits().at("sm_gibbs_energy").c_str());
-    EXPECT_STREQ("(bar)", tpcalc->thermoPropSubstUnits().at("pressure").c_str());
-    EXPECT_STREQ("(J/mol*K)", tpcalc->thermoPropSubstUnits().at("sm_heat_capacity_p").c_str());
+    EXPECT_STREQ("J/mol", tpcalc->thermoPropSubstUnits().at("gibbs_energy").c_str());
+    EXPECT_STREQ("bar", tpcalc->thermoPropSubstUnits().at("pressure").c_str());
+    EXPECT_STREQ("J/mol*K", tpcalc->thermoPropSubstUnits().at("heat_capacity_cp").c_str());
 }
 
 TEST_F(TPcalculationAPITest, correct_set_Thermo_subst_prop_names)
 {
-    tpcalc->calculateThermoProperties({"Al3+","SiO2@","AlO+"}, {"sm_heat_capacity_v","sm_enthalpy","sm_gibbs_energy"}, 25, 1);
+    tpcalc->calculateThermoProperties({"Al+3","SiO2@","AlO+"}, {"heat_capacity_cv","enthalpy","gibbs_energy"}, 25, 1);
 
-    EXPECT_EQ(1, tpcalc->thermoPropSubstNames().at("sm_heat_capacity_v"));
-    EXPECT_EQ(2, tpcalc->thermoPropSubstNames().at("sm_enthalpy"));
-    EXPECT_EQ(3, tpcalc->thermoPropSubstNames().at("sm_gibbs_energy"));
+    EXPECT_EQ(1, tpcalc->thermoPropSubstNames().at("heat_capacity_cv"));
+    EXPECT_EQ(2, tpcalc->thermoPropSubstNames().at("enthalpy"));
+    EXPECT_EQ(3, tpcalc->thermoPropSubstNames().at("gibbs_energy"));
 }
 
 TEST_F(TPcalculationAPITest, correct_set_header)
 {
-    tpcalc->calculateThermoProperties({"Al3+","SiO2@","AlO+"}, {"sm_heat_capacity_v","sm_enthalpy","sm_gibbs_energy"}, 25, 1);
+    tpcalc->calculateThermoProperties({"Al+3","SiO2@","AlO+"}, {"heat_capacity_cv","enthalpy","gibbs_energy"}, 25, 1);
 }
 
 //TEST(GEM_init, Correct_gem4r_initialization)

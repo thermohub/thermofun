@@ -4,7 +4,7 @@
 #include "Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 #include "Solvent/Reaktoro/WaterElectroState.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Return the electro-chemical properties of water
 /// @param wts instance of the strcuture holding the calculated electro-chemical properties of water

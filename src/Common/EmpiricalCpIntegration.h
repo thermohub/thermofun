@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Returns the temperature correcected themrodynamic properties of a substance uisng the Empicrical Cp integration
 /// @ref --

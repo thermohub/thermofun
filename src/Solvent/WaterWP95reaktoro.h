@@ -5,7 +5,7 @@
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 #include "Solvent/Reaktoro/WaterThermoState.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //// Forward declarations
 struct PropertiesSolvent;

@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(CMAKE_MACOSX_RPATH ON)
 
 # Set the name of the project
-project(tcorrpt)
+project(thermofun)
 
 # Set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -23,8 +23,8 @@ include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 
-# Set the tcorrpt source directory path
-set(TCORRPT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+# Set the thermofun source directory path
+set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 # Set the directory where the third-party libraries are temporarily installed before installed to CMAKE_INSTALL_PREFIX
 set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)
@@ -37,11 +37,11 @@ set(THIRDPARTY_LIBRARY_DIR ${THIRDPARTY_DIR}/lib)
 include(InstallThirdPartyLibs)
 
 # Set the include directories
-include_directories(${TCORRPT_SOURCE_DIR})
+include_directories(${THERMOFUN_SOURCE_DIR})
 include_directories(${THIRDPARTY_INCLUDE_DIR})
 
 # Set the lib directory of the third party libraries installed automatically
 link_directories(${THIRDPARTY_LIBRARY_DIR})
 
-# Build tcorrpt library
+# Build thermofun library
 add_subdirectory(src)

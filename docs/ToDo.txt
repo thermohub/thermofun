@@ -22,3 +22,8 @@ probably because of the implementation
 
 - In GEMS RTparam G0 in not backcorrected for the fluid mixtures models. The correction is made when calculating equilibirum and when exporting GEMS files.
 - fluids subroutines in GEMS and TCorrPT only implemented for CO2 and H2O (TCorrPT checks the formula)
+
+
+/// Development
+
+- add a log file to cout issues

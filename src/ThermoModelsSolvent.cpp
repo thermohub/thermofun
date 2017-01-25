@@ -9,7 +9,7 @@
 
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pmax, double Pmin, string model) -> void
 {
@@ -247,5 +247,5 @@ auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double &P, int stat
     return thermoPropertiesWaterZhangDuan2005(t, p);
 }
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 

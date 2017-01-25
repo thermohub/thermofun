@@ -1,15 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <sys/time.h>
-// TCorrPT include
+// ThermoFun include
 #include "Thermo.h"
 // GEMS4R include
 #include "node.h"
-// TCorrPT output include
+// ThermoFun output include
 #include "Common/OutputToCSV.h"
 
 using namespace std;
-using namespace TCorrPT;
+using namespace ThermoFun;
 
 auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance result_tcorrpt, string symbol, double T, double P ) -> int
 {
@@ -99,6 +99,8 @@ int main(int argc, char *argv[])
     double P;
 
     int c = 0;
+
+//    propertiesUnits["tmeperature"] = "K";
 
     /// Used to test different waters solvent models
 //    Substance water;
@@ -306,6 +308,8 @@ int main(int argc, char *argv[])
     cout << "+ Time for "<< c << " T-P calculations: "<< delta_calc << "s " << endl;
     cout << "+ Total time: " << delta + delta_calc << "s "<< endl;
     cout << "==================================================================" << endl<< endl;
+
+
 
     return 0;
 }

@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 /// Provides a convenient way to initialized an exception with helpful error messages.
 struct Exception
@@ -37,7 +37,7 @@ std::string message(const Exception& exception, const std::string& file, int lin
 /// @see Exception
 /// @ingroup Common
 #define RaiseError(exception) \
-    throw std::runtime_error(TCorrPT::internal::message(exception, __FILE__, __LINE__));
+    throw std::runtime_error(ThermoFun::internal::message(exception, __FILE__, __LINE__));
 
 /// Define a macro to raise a runtime exception from a error string and a reason string.
 /// @see Exception
@@ -65,10 +65,12 @@ std::string message(const Exception& exception, const std::string& file, int lin
 
 auto errorMethodNotFound(std::string type, std::string name, int line) -> void;
 
+auto errorReactionNotDefined(std::string name, int line) -> void;
+
 auto errorSolventNotDefined(std::string type, std::string name, int line) -> void;
 
 auto errorModelParameters(std::string type, std::string name, int line) -> void;
 
-} // namespace TCorrPT
+} // namespace ThermoFun
 
 #endif // EXCEPTION_H

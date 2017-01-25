@@ -1,7 +1,7 @@
 #include "Solvent/WaterZhangDuan2005.h"
 #include "Common/Exception.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 const double waterCriticalTemperature = 647.25; // K
 const double waterCriticalVolume      = 55.9480373; // cm^3/mol
@@ -67,7 +67,7 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
     }
 
 
-    TCorrPT::Exception exception;
+    ThermoFun::Exception exception;
     exception.error << "Unable to calculate the molar volume of water, Zhang and Duan (2005) EOS.";
     exception.reason << "The calculations did not converge at temperature "
         << T.val << " K and pressure " << P.val << "Pa.";

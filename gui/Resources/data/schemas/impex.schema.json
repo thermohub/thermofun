@@ -7,6 +7,22 @@
   "includes": [
   ],
   "enums": [
+    {
+      "name": "DirectionType",
+      "doc": "Classes of direction types\n",
+      "members": [
+        {
+          "name": "IMPORT",
+          "value": 0,
+          "doc": "import\n"
+        },
+        {
+          "name": "EXPORT",
+          "value": 1,
+          "doc": "export\n"
+        }
+      ]
+    }
   ],
   "typedefs": [
   ],
@@ -756,7 +772,7 @@
             "class": "FormatTextFile"
           },
           "doc": "Definition of text data file format\n",
-          "required": "req_out"
+          "required": "optional"
         },
         {
           "key": 2,
@@ -767,7 +783,7 @@
             "class": "FormatTableFile"
           },
           "doc": "Definition of data table file format\n",
-          "required": "req_out"
+          "required": "optional"
         },
         {
           "key": 3,
@@ -778,7 +794,7 @@
             "class": "FormatKeyValueFile"
           },
           "doc": "Definition of file format with key-value pair data\n",
-          "required": "req_out"
+          "required": "optional"
         },
         {
           "key": 4,
@@ -789,7 +805,79 @@
             "class": "FormatStructDataFile"
           },
           "doc": "Definition of foreign structured data JSON\/YAML\/XML file format\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ImpexFormat",
+      "doc": "description of import\/export format record\n",
+      "isException": false,
+      "to_select": [ "2", "3", "4", "5" ],
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this query record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "name",
+          "typeId": "string",
+          "doc": "short description\/keywd (used as key field)\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "impexschema",
+          "typeId": "string",
+          "doc": "impex schema\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "schema",
+          "typeId": "string",
+          "doc": "record schema\n",
           "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "description of record\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "direction",
+          "typeId": "i32",
+          "doc": "direction\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "impex",
+          "typeId": "string",
+          "doc": "format structure\n",
+          "required": "required"
+        },
+        {
+          "key": 8,
+          "name": "format",
+          "typeId": "string",
+          "doc": "Id\/description of foreign file format\n",
+          "required": "optional"
+        },
+        {
+          "key": 9,
+          "name": "extension",
+          "typeId": "string",
+          "doc": "file extension\n",
+          "required": "optional"
         }
       ]
     }

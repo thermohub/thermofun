@@ -1,7 +1,7 @@
 #include "Solvent/WaterIdealGasWolley.h"
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPropertiesSubstance
 {

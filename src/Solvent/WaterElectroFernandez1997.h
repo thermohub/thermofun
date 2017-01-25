@@ -3,7 +3,7 @@
 
 #include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 auto electroPropertiesWaterFernandez1997(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ElectroPropertiesSolvent;
 

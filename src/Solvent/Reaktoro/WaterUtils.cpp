@@ -71,7 +71,7 @@ auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsM
             return D;
     }
 
-    TCorrPT::Exception exception;
+    ThermoFun::Exception exception;
     exception.error << "Unable to calculate the density of water.";
     exception.reason << "The calculations did not converge at temperature "
         << T.val << " K and pressure " << P.val << "Pa.";
@@ -179,7 +179,7 @@ auto waterSaturatedVapourDensityWagnerPruss(Temperature T) -> ThermoScalar
 
 } // namespace Reaktoro
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //--------------------------------------------------------------------//
 // calc t/d properties H2O as ideal gas: equat see Woolley (1979).

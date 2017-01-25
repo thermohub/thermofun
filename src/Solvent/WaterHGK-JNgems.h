@@ -4,7 +4,7 @@
 #include <memory>
 #include <cstring>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 // Forward declarations
 struct PropertiesSolvent;

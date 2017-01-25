@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 struct TPcalcualationsAPI::Impl
 {
@@ -11,25 +11,37 @@ struct TPcalcualationsAPI::Impl
     Thermo thermo;
     OutputOptions outputOptions;
 
-    map<std::string, int> thermoPropSubstNames =  { {"sm_gibbs_energy", 0},
-                                              {"sm_enthalpy", 0},
-                                              {"sm_entropy_abs", 0},
-                                              {"sm_heat_capacity_p", 0},
-                                              {"sm_heat_capacity_v", 0},
-                                              {"sm_volume", 0},
-                                              {"sm_helmoltz_energy", 0},
-                                              {"sm_internal_energy", 0}
+    map<std::string, int> thermoPropSubstNames = {{"gibbs_energy", 0},
+                                              {"enthalpy", 0},
+                                              {"entropy", 0},
+                                              {"heat_capacity_cp", 0},
+                                              {"heat_capacity_cv", 0},
+                                              {"volume", 0},
+                                              {"helmholtz_energy", 0},
+                                              {"internal_energy", 0}
                                             };
-    map<std::string,std::string> thermoPropSubstUnits =  { {"temperature", "(C)"},
-                                              {"pressure", "(bar)"},
-                                              {"sm_gibbs_energy", "(J/mol)"},
-                                              {"sm_enthalpy", "(J/mol)"},
-                                              {"sm_entropy_abs", "(J/mol)"},
-                                              {"sm_heat_capacity_p", "(J/mol*K)"},
-                                              {"sm_heat_capacity_v", "(J/mol*K)"},
-                                              {"sm_volume", "(J/bar)"},
-                                              {"sm_helmoltz_energy", "(J/mol)"},
-                                              {"sm_internal_energy", "(J/mol)"}
+    map<std::string,std::string> thermoPropSubstUnits = {{"temperature", "C"},
+                                              {"pressure", "bar"},
+                                              {"gibbs_energy", "J/mol"},
+                                              {"enthalpy", "J/mol"},
+                                              {"entropy", "J/mol"},
+                                              {"heat_capacity_cp", "J/mol*K"},
+                                              {"heat_capacity_cv", "J/mol*K"},
+                                              {"volume", "J/bar"},
+                                              {"helmholtz_energy", "J/mol"},
+                                              {"internal_energy", "J/mol"}
+                                            };
+
+    map<std::string, int> thermoPropPrecision = {{"temperature", 0 },
+                                              {"pressure", 0 },
+                                              {"gibbs_energy", 0},
+                                              {"enthalpy", 0},
+                                              {"entropy", 0},
+                                              {"heat_capacity_cp", 0 },
+                                              {"heat_capacity_cv", 0 },
+                                              {"volume", 0 },
+                                              {"helmholtz_energy", 0 },
+                                              {"internal_energy", 0 }
                                             };
 
     map<int, std::string>               propNamesToExport;
@@ -63,6 +75,16 @@ auto TPcalcualationsAPI::setThermoPropSubstNames(const map<std::string, int> &va
     pimpl->thermoPropSubstNames = value;
 }
 
+auto TPcalcualationsAPI::thermoPrecision() -> map<std::string, int>
+{
+    return pimpl->thermoPropPrecision;
+}
+
+auto TPcalcualationsAPI::setThermoPrecision(const map<std::string, int> &value) -> void
+{
+    pimpl->thermoPropPrecision = value;
+}
+
 auto TPcalcualationsAPI::thermoPropSubstUnits() -> map<std::string, std::string>
 {
     return pimpl->thermoPropSubstUnits;
@@ -72,6 +94,17 @@ auto TPcalcualationsAPI::setThermoPropSubstUnits(const map<std::string, std::str
 {
     pimpl->thermoPropSubstUnits = value;
 }
+
+auto TPcalcualationsAPI::outputOptions() -> OutputOptions
+{
+    return pimpl->outputOptions;
+}
+
+auto TPcalcualationsAPI::setOutputOptions(const OutputOptions &value) -> void
+{
+    pimpl->outputOptions = value;
+}
+
 
 
 TPcalcualationsAPI::TPcalcualationsAPI(const Database &database)
@@ -123,14 +156,14 @@ auto TPcalcualationsAPI::setHeader(std::vector<string> substanceSymbols, map<int
 
     if (substanceSymbols.size() > 1)
     {
-        header = header + "Substance" + s + "T" + units.at("temperature") + s + "P" + units.at("pressure") /*+ s*/;
+        header = header + "Substance" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
         for(it_t it = PropertiesNames.begin(); it != PropertiesNames.end(); it++)
-        {   header = header + s + it->second + units.at(it->second); }
+        {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
     } else
     {
-        header = header + "T" + units.at("temperature") + s + "P" + units.at("pressure")/* + s*/;
+        header = header + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")"/* + s*/;
         for(it_t it = PropertiesNames.begin(); it != PropertiesNames.end(); it++)
-        {   header = header + s + it->second + units.at(it->second); }
+        {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
 
     }
 
@@ -144,14 +177,14 @@ auto TPcalcualationsAPI::selectedPropResults ( ThermoPropertiesSubstance tps ) -
 
     for(it = pimpl->propNamesToExport.begin(); it != pimpl->propNamesToExport.end(); it++)
     {
-        if (it->second == "sm_gibbs_energy")    properties.push_back(tps.gibbs_energy.val);
-        if (it->second == "sm_enthalpy")        properties.push_back(tps.enthalpy.val);
-        if (it->second == "sm_entropy_abs")     properties.push_back(tps.entropy.val);
-        if (it->second == "sm_heat_capacity_p") properties.push_back(tps.heat_capacity_cp.val);
-        if (it->second == "sm_heat_capacity_v") properties.push_back(tps.heat_capacity_cv.val);
-        if (it->second == "sm_volume")          properties.push_back(tps.volume.val);
-        if (it->second == "sm_helmoltz_energy") properties.push_back(tps.helmholtz_energy.val);
-        if (it->second == "sm_internal_energy") properties.push_back(tps.internal_energy.val);
+        if (it->second == "gibbs_energy")    properties.push_back(tps.gibbs_energy.val);
+        if (it->second == "helmholtz_energy") properties.push_back(tps.helmholtz_energy.val);
+        if (it->second == "internal_energy") properties.push_back(tps.internal_energy.val);
+        if (it->second == "enthalpy")        properties.push_back(tps.enthalpy.val);
+        if (it->second == "entropy")     properties.push_back(tps.entropy.val);
+        if (it->second == "volume")          properties.push_back(tps.volume.val);
+        if (it->second == "heat_capacity_cp") properties.push_back(tps.heat_capacity_cp.val);
+        if (it->second == "heat_capacity_cv") properties.push_back(tps.heat_capacity_cv.val);
     }
     return properties;
 }
@@ -175,20 +208,23 @@ auto TPcalcualationsAPI::outResults( ) -> void
 {
     std::string s = pimpl->outputOptions.separator; unsigned int c = 0;
     pimpl->fThermoPropertiesSubstance.open( pimpl->outputOptions.fileName, ios::trunc );
-    pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->outputOptions.precision);
-
-    if (pimpl->outputOptions.fixed) pimpl->fThermoPropertiesSubstance << std::fixed;
-    if (pimpl->outputOptions.scientific) pimpl->fThermoPropertiesSubstance << std::scientific;
 
     pimpl->fThermoPropertiesSubstance << pimpl->header << endl;
+
+    if (pimpl->outputOptions.fixed) pimpl->fThermoPropertiesSubstance << std::fixed;
 
     for (unsigned i=0; i<pimpl->substanceSymbols.size(); i++)
     {
         for (unsigned j=0; j<pimpl->TP_pairs.size(); j++)
         {
-            pimpl->fThermoPropertiesSubstance << pimpl->substanceSymbols[i] << s << pimpl->TP_pairs[j][0] << s << pimpl->TP_pairs[j][1];
+            pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at("temperature"));
+            pimpl->fThermoPropertiesSubstance << pimpl->substanceSymbols[i] << s << pimpl->TP_pairs[j][0];
+            pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at("pressure"));
+            pimpl->fThermoPropertiesSubstance << s << pimpl->TP_pairs[j][1];
+
             for (unsigned k=0; k<pimpl->results[i].size(); k++)
             {
+                pimpl->fThermoPropertiesSubstance << std::setprecision(pimpl->thermoPropPrecision.at(pimpl->propNamesToExport.at(k+1)));
                 pimpl->fThermoPropertiesSubstance << s << pimpl->results[c][k];
             }
             c++;

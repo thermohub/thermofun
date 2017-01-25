@@ -1,7 +1,7 @@
 #include "OutputToCSV.h"
 #include "ThermoProperties.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 
 std::string OutputToCSV::getOutputFolderPath() const

@@ -6,7 +6,7 @@
 #include "Solvent/Reaktoro/WaterThermoState.hpp"
 //#include "Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 //// Forward declarations
 struct PropertiesSolvent;

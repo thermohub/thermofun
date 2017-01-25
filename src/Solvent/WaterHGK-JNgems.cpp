@@ -1,9 +1,9 @@
-// TCorrPT includes
+// ThermoFun includes
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
 #include "ThermoProperties.h"
 
-namespace TCorrPT {
+namespace ThermoFun {
 
 
 auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstance
@@ -47,16 +47,16 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 
     if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
     {
-        wp.Surten   = wl.Surtenw;
+        wp.surface_tension   = wl.Surtenw;
         wp.Alpha    = wl.Alphaw;
         wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
-        wp.Tcond    = wl.Tcondw;
+        wp.thermal_conductivity    = wl.Tcondw;
         wp.Tdiff    = wl.Tdiffw;
         wp.Prndtl   = wl.Prndtlw;
         wp.dAldT    = wl.dAldT;
         wp.Albe     = wl.Albew;
-        wp.Speed    = wl.Speedw;
-        wp.Visc     = wl.Viscw;
+        wp.speed_of_sound    = wl.Speedw;
+        wp.dynamic_viscosity     = wl.Viscw;
         wp.Visck    = wl.Visckw;
 
         alp = wl.Alphaw;
@@ -68,16 +68,16 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
     } else
     if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) )
     {
-        wp.Surten   = wr.Surtenw;
+        wp.surface_tension   = wr.Surtenw;
         wp.Alpha    = wr.Alphaw;
         wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
-        wp.Tcond    = wr.Tcondw;
+        wp.thermal_conductivity    = wr.Tcondw;
         wp.Tdiff    = wr.Tdiffw;
         wp.Prndtl   = wr.Prndtlw;
         wp.dAldT    = wr.dAldT;
         wp.Albe     = wr.Albew;
-        wp.Speed    = wr.Speedw;
-        wp.Visc     = wr.Viscw;
+        wp.speed_of_sound    = wr.Speedw;
+        wp.dynamic_viscosity     = wr.Viscw;
         wp.Visck    = wr.Visckw;
 
         alp = wr.Alphaw;

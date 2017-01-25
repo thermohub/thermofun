@@ -1,8 +1,20 @@
+#ifndef THERMOPROPERTIES_H
+#define THERMOPROPERTIES_H
+
 // TCorPT includes
-#include "tcorrpt_global.h"
+#include "ThermoFun_global.h"
 #include "Common/ThermoScalar.hpp"
 
-namespace TCorrPT {
+namespace ThermoFun {
+
+struct ThermoVariables
+{
+    /// the temperature T (in units of C)
+    Reaktoro_::Temperature temperature;
+
+    /// the pressure P (in units of bar)
+    Reaktoro_::Pressure pressure;
+};
 
 /// Describe the thermodynamic state of a substance
 struct ThermoPropertiesSubstance
@@ -36,6 +48,12 @@ struct ThermoPropertiesSubstance
 /// Describes the thermodynamic state of a reaction
 struct ThermoPropertiesReaction
 {
+    /// The natural logarithm of the equilibirum constant of the reaction
+    Reaktoro_::ThermoScalar ln_equilibrium_constant;
+
+    /// The logarithm of the equilibirum constant of the reaction in base 10
+    Reaktoro_::ThermoScalar log_equilibrium_constant;
+
     /// The apparent standard molar Gibbs free energy @f$\Delta G_{f}^{\circ}@f$ of the species (in units of J/mol)
     Reaktoro_::ThermoScalar reaction_gibbs_energy;
 
@@ -65,15 +83,15 @@ struct ThermoPropertiesReaction
 struct PropertiesSolvent
 {
     /// speed of sound
-    double Speed,
+    double speed_of_sound,
 //       Alpha,            /// constant pressure expansion (alpha)
 //       Beta,             /// constant temperature compressibility (beta)
     /// dynamic viscosity
-       Visc,
+       dynamic_viscosity,
     /// thermal conductivity
-       Tcond,
+       thermal_conductivity,
     /// surface tension
-       Surten,
+       surface_tension,
     /// not clear (currently not used)
        Tdiff,
     /// Prandtl number (currently not used)
@@ -235,5 +253,7 @@ struct FunctionG
     Reaktoro_::ThermoScalar gPP;
 };
 
-} // namespace TCorrPT
+} // namespace ThermoFun
+
+#endif // THERMOPROPERTIES_H
 

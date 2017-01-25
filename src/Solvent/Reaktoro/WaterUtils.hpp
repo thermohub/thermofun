@@ -64,11 +64,11 @@ auto waterSaturatedVapourDensityWagnerPruss(Temperature T) -> ThermoScalar;
 
 } // namespace Reaktoro
 
-namespace TCorrPT
+namespace ThermoFun
 {
 // Forward declarations
 struct PropertiesSolvent;
 
-auto waterIdealGas (Reaktoro_::Temperature t, TCorrPT::PropertiesSolvent &wp) -> void;
+auto waterIdealGas (Reaktoro_::Temperature t, ThermoFun::PropertiesSolvent &wp) -> void;
 
 }
