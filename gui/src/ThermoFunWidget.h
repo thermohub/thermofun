@@ -312,6 +312,9 @@ public slots:
     void objectChanged()
        { contentsChanged = true; }
 
+    // File
+    void CmResetThermoFunData();
+
     // View
     void CmShowComments();
     void CmDisplayEnums();

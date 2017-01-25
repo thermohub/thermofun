@@ -52,6 +52,7 @@ void ThermoFunWidget::setActions()
              this, SLOT(typeChanged(const QString&)));
 
     // File
+    connect( ui->actionNew_Reset_Task_Definition, SIGNAL( triggered()), this, SLOT(CmResetThermoFunData()));
     connect( ui->actionE_xit, SIGNAL( triggered()), this, SLOT(close()));
     connect( ui->actionExport_CfgFile, SIGNAL( triggered()), this, SLOT(CmExportCFG()));
     connect( ui->actionImport_CfgFile, SIGNAL( triggered()), this, SLOT(CmImportCFG()));
@@ -318,6 +319,41 @@ void ThermoFunWidget::CmResetProperty()
 
 }
 
+void ThermoFunWidget::CmResetThermoFunData()
+{
+    ThermoFunData dt;
+
+    _data = dt;
+
+    // define ThermoFun data
+    _TPContainer = new TPContainer( "T", { "T", "P" }, _data.tppairs );
+    _TPlistTable  = new TMatrixTable( ui->outWidget );
+    TMatrixDelegate* deleg = new TMatrixDelegate();
+    _TPlistTable->setItemDelegate(deleg);
+    _TPlistModel = new TMatrixModel( _TPContainer, this );
+    _TPlistTable->setModel(_TPlistModel);
+    _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
+    ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
+
+    _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
+    _PropertyTable  = new TMatrixTable( ui->inWidget );
+     deleg = new TMatrixDelegate();
+    _PropertyTable->setItemDelegate(deleg);
+    _PropertyModel = new TMatrixModel( _PropertyContainer, this );
+    _PropertyTable->setModel(_PropertyModel);
+    _PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
+    ui->gridLayout_2->addWidget(_PropertyTable, 6, 0, 1, 7);
+    ui->pName->setText(_data.name.c_str());
+    ui->pComment->setText(_data.comment.c_str());
+    ui->pTVal->setValue(_data.T);
+    ui->pPVal->setValue(_data.P);
+    ui->pTunit->setCurrentText( _data.unitsT.c_str());
+    ui->pPunit->setCurrentText(_data.unitsP.c_str());
+    ui->pPrecision->setValue(_data.pPrecision);
+    ui->tPrecision->setValue(_data.tPrecision);
+
+    ui->calcStatus->setText(_data.calcStatus.c_str());
+}
 
 /// Read bson record from json file fileName
 void ThermoFunWidget::CmImportCFG()
