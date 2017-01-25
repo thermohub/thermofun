@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Define Temperature and Pressure points for ThermoFun calculations</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -434,7 +434,7 @@
         <item>
          <widget class="QLabel" name="textLabel1_3">
           <property name="text">
-           <string>Select mode for iterating xP and xT arguments. Default mode: 2.</string>
+           <string>Select mode for iterating Pressure and Temperature. Default mode: 2.</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignVCenter</set>
