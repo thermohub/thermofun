@@ -35,6 +35,9 @@ public:
     /// Set the name of the Reaction.
     auto setName(std::string name) -> void;
 
+    /// Set the symbol of the Reaction.
+    auto setSymbol(std::string symbol) -> void;
+
     auto setReactants(std::map<std::string, int> reactants) -> void;
 
     auto setReferenceT(double T) -> void;
@@ -50,6 +53,10 @@ public:
     /// Set the code for the pressure correction method
     auto setMethod_P(MethodCorrP_Thrift::type method_P) -> void;
 
+    auto setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void;
+
+    auto setThermoParameters(ThermoParametersReaction param) -> void;
+
 //    /// Set the formula of the Reaction.
 //    auto setFormula(std::string formula) -> void;
 
@@ -59,6 +66,8 @@ public:
     // Get functions
     /// Return the name of the chemical Reaction
     auto name() const -> std::string;
+
+    auto symbol() const -> std::string;
 
     auto reactants() -> std::map<std::string, int>;
 

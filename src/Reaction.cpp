@@ -25,6 +25,9 @@ struct Reaction::Impl
     /// The chemical formula of the chemical Reaction
     std::string formula;
 
+    /// The symbol of the chemical reaction
+    std::string symbol;
+
     std::map<std::string, int> reactants;
 
     ThermoPropertiesReaction thermo_ref_prop;
@@ -70,6 +73,11 @@ auto Reaction::setName(std::string name) -> void
     pimpl->name = name;
 }
 
+auto Reaction::setSymbol(std::string symbol) -> void
+{
+    pimpl->symbol = symbol;
+}
+
 auto Reaction::setReactants(std::map<std::string, int> reactants) -> void
 {
     pimpl->reactants = reactants;
@@ -100,6 +108,16 @@ auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
     pimpl->method_P = method_P;
 }
 
+auto Reaction::setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void
+{
+    pimpl->thermo_ref_prop = refprop;
+}
+
+auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
+{
+    pimpl->thermo_parameters = param;
+}
+
 //auto Reaction::setFormula(std::string formula) -> void
 //{
 //    pimpl->formula = formula;
@@ -108,6 +126,11 @@ auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 auto Reaction::name() const -> std::string
 {
     return pimpl->name;
+}
+
+auto Reaction::symbol() const -> std::string
+{
+    return pimpl->symbol;
 }
 
 auto Reaction::reactants() -> std::map<std::string, int>
@@ -187,7 +210,8 @@ auto Reaction::convert_CpfT_to_logKfT() -> void
     auto lgKr = A[0] + A[1]*T + A[2]/T + A[3]*log(T) + A[4]/T*T +
                 A[5]*T*T + A[6]/pow(T,0.5);
     ref_prop.reaction_heat_capacity_cp = Cpr;
-    ref_prop.ln_equilibrium_constant = lgKr*lg_to_ln;
+    ref_prop.ln_equilibrium_constant   = lgKr*lg_to_ln;
+    ref_prop.log_equilibrium_constant  = lgKr;
 }
 auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
 {
@@ -281,6 +305,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
        ref_prop.reaction_enthalpy = Hr;
        ref_prop.reaction_heat_capacity_cp = Cpr;
        ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
+       ref_prop.log_equilibrium_constant = lgKr;
        ref_prop.reaction_gibbs_energy = -Rln10*T*lgKr;
     }
 }
