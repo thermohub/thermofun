@@ -55,6 +55,7 @@ struct ThermoFunData
 {
     string name;    ///< Task (file) name
     string comment; ///< Task description
+    string calcStatus; ///< ThermoFun colaculation status
 
     string schemaName; ///< Selected schema
     string query;      ///< Current schema

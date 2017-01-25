@@ -518,16 +518,20 @@ oneSolvent:
          double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
                   end.tv_usec - start.tv_usec) / 1.e6;
 
-         cout << "Finished ThermoFun calculation in "<< delta_calc << "s!" << endl;
+         string status = "Calculations finished ("+ to_string(delta_calc) + "s). View results.";
+
+         ui->calcStatus->setText(status.c_str());
 
     }
    catch(bsonio_exeption& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
+       ui->calcStatus->setText(e.what());
    }
    catch(std::exception& e)
     {
        QMessageBox::critical( this, "std::exception", e.what() );
+       ui->calcStatus->setText(e.what());
     }
 
 }

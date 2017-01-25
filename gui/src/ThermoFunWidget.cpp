@@ -46,6 +46,7 @@ ThermoFunData::ThermoFunData()
 {
   name = "ThermoFunTask1";
   comment = "write comment here...";
+  calcStatus = "...";
   schemaName = "VertexSubstance";
   query = "";
   T =25;
@@ -265,6 +266,8 @@ ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
    ui->mainSplitter->setStretchFactor(2, 1);
    ui->mainSplitter->setCollapsible(0, false);
    ui->mainSplitter->setCollapsible(2, false);
+
+   ui->calcStatus->setText(_data.calcStatus.c_str());
 
    // reset in/out queries
    if(  pTable->model()->rowCount() > 0 )
