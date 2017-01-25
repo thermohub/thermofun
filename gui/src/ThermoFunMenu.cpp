@@ -237,7 +237,11 @@ void ThermoFunWidget::CmReallocTP()
         if(!ok) // cancel command
             return;
 
-        _data.tppairs.resize(size);
+        _data.tppairs[0] = {0,0};
+        for (uint i = 1; i<size; i++ )
+        {
+            _data.tppairs.push_back({0,0});
+        }
         _TPlistModel->resetMatrixData();
     }
    catch(bsonio_exeption& e)
