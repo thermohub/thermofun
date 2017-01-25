@@ -659,6 +659,9 @@
    </property>
   </action>
   <action name="actionShow_Results">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../ThermoFun.qrc">
      <normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</normaloff>:/menu/Icons/ShowGEMResultsIcon24.png</iconset>

@@ -353,6 +353,8 @@ void ThermoFunWidget::CmResetThermoFunData()
     ui->tPrecision->setValue(_data.tPrecision);
 
     ui->calcStatus->setText(_data.calcStatus.c_str());
+
+    ui->actionShow_Results->setEnabled(false);
 }
 
 /// Read bson record from json file fileName
@@ -557,6 +559,7 @@ oneSolvent:
          string status = "Calculations finished ("+ to_string(delta_calc) + "s). View results.";
 
          ui->calcStatus->setText(status.c_str());
+         ui->actionShow_Results->setEnabled(true);
 
     }
    catch(bsonio_exeption& e)
