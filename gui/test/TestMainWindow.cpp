@@ -205,7 +205,7 @@ void TestMainWindow::CmNewTCorPT()
 {
   try{
         BSONUIBase* testWidget;
-        testWidget = new ThermoFunWidget( mainSettings, &schema, ""/*cfg file name, this*/ );
+        testWidget = new ThermoFunWidget( mainSettings, &schema /*,this*/ );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
         testWidget->setShowWidgetFunction(showWidget);
