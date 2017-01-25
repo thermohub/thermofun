@@ -257,8 +257,8 @@ struct Database::Impl
                     } else
                     if (kbuf == "reaction")
                     {
-    //                      Reaction reaction = parseReaction(bso);
-    //                      reactions_map[reaction.name()] = reaction;
+                          Reaction reaction = parseReaction(bso.data);
+                          reactions_map[reaction.name()] = reaction;
                     } else
                     {
                         Exception exception;
