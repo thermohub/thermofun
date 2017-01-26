@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
 
     SiO = th.thermoPropertiesSubstance(T, P, "SiO3-2");
 
-
     cout << "Bye World!" << endl;
 
     return 0;

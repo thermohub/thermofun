@@ -15,14 +15,14 @@ using namespace bsonio;
 
 namespace ThermoFun {
 
+// Constructor
 DBClient::DBClient (string settingsFile)
 {
-
-//    settings = new DBSettings;
     settings.QtSettings = new QSettings(settingsFile.c_str(), QSettings::IniFormat);
     getDataFromPreferencesFile( );
 }
 
+// Desctructor
 DBClient::~DBClient()
 {
     delete settings.QtSettings;
@@ -52,11 +52,10 @@ void DBClient::getDataFromPreferencesFile()
 
     readSchemaDir( settings.schemaDir );
     SchemaNode::_schema =    &schema;
-
 }
 
 //---------------------------------------------------------------------
-// Read all thrift schemas from Dir
+// Read all thrift schemas from dirPath
 void DBClient::readSchemaDir( const QString& dirPath )
 {
   if( dirPath.isEmpty() )
@@ -115,18 +114,17 @@ void DBClient::resetDBClinet(string curSchemaName, string query)
 
 }
 
-
 auto DBClient::getDatabase(uint sourceTDB) -> Database
 {
-    string qrJson;
+    string qrJson, key, valDB, _idReac;
     bson record;
     Database db;
     vector<string> aKeyList;
     vector<vector<string>> aValList;
 
-    /// The set of all aqueous species in the database
+    // The set of all aqueous species in the database
     SubstancesMap substances_map;
-    /// The set of all gaseous species in the database
+    // The set of all gaseous species in the database
     ReactionsMap reactions_map;
 
     qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
@@ -145,9 +143,9 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     substanceVertex->GetKeyValueList( aKeyList, aValList );
     for( uint ii=0; ii<aKeyList.size(); ii++ )
     {
-        string key = aKeyList[ii];
+        key = aKeyList[ii];
         substanceVertex->GetRecord( key.c_str() );
-        string valDB = substanceVertex->GetJson();
+        valDB = substanceVertex->GetJson();
         jsonToBson( &record, valDB );
 
         Substance substance = parseSubstance(record.data);
@@ -165,12 +163,11 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     reactionVertex->GetKeyValueList( aKeyList, aValList );
     for( uint ii=0; ii<aKeyList.size(); ii++ )
     {
-        string key = aKeyList[ii];
+        key = aKeyList[ii];
         reactionVertex->GetRecord( key.c_str() );
-        string valDB = reactionVertex->GetJson();
+        valDB = reactionVertex->GetJson();
         jsonToBson( &record, valDB );
-        string _id;
-        bsonio::bson_to_key( record.data, "_id", _id );
+        bsonio::bson_to_key( record.data, "_id", _idReac );
 
         Reaction reaction = parseReaction(record.data);
 
@@ -181,16 +178,14 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
         }
 
         // get reactants by following reaction incoming takes edge
-        setReactantsFollowingIncomingTakesEdges(_id, reaction);
+        setReactantsFollowingIncomingTakesEdges(_idReac, reaction);
 
         // set defined substance
-        substances_map[getDefinedSubstanceSymbol(_id)].setReactionSymbol(reaction.symbol());
-        substances_map[getDefinedSubstanceSymbol(_id)].setThermoCalculationType(SubstanceThermoCalculationType::type::REACDC);
+        substances_map[getDefinedSubstanceSymbol(_idReac)].setReactionSymbol(reaction.symbol());
+        substances_map[getDefinedSubstanceSymbol(_idReac)].setThermoCalculationType(SubstanceThermoCalculationType::type::REACDC);
 
         reactions_map[reaction.symbol()] = reaction;
     }
-
-    // work with the edges
 
     db.addMapSubstances(substances_map);
     db.addMapReactions(reactions_map);
