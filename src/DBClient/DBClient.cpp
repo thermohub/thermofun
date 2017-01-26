@@ -1,3 +1,5 @@
+#ifdef DBCLIENT_H
+
 #include "DBClient.h"
 #include "bsonio/dbdriverejdb.h"
 #include "bsonio/dbclient.h"
@@ -185,7 +187,6 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
         substances_map[getDefinedSubstanceSymbol(_id)].setReactionSymbol(reaction.symbol());
         substances_map[getDefinedSubstanceSymbol(_id)].setThermoCalculationType(SubstanceThermoCalculationType::type::REACDC);
 
-
         reactions_map[reaction.symbol()] = reaction;
     }
 
@@ -263,3 +264,5 @@ std::string DBClient::getDefinedSubstanceSymbol(std::string _id)
 }
 
 }
+
+#endif // DBCLIENT_H
