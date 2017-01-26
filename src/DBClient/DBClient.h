@@ -12,6 +12,8 @@
 namespace ThermoFun {
 
 struct Database;
+struct Substance;
+struct Reaction;
 
 struct DBSettings
 {
@@ -41,9 +43,20 @@ class DBClient
     // keys list data
     boost::shared_ptr<bsonio::TDBGraph> dbgraph;
 
+    //    // Connect to DataBase
+    unique_ptr<bsonio::TDBGraph> reactionVertex;
+    unique_ptr<bsonio::TDBGraph> substanceVertex;
+    unique_ptr<bsonio::TDBGraph> takesEdge;
+    unique_ptr<bsonio::TDBGraph> definesEdge;
+
     void readSchemaDir( const QString& dirPath );
     void getDataFromPreferencesFile( );
     void resetDBClinet(string curSchemaName, string query);
+    bsonio::TDBGraph *newDBClinet(string schemaName, string query);
+
+    void setReactantsFollowingIncomingTakesEdges(std::string _id, Reaction &reaction);
+
+    std::string getDefinedSubstanceSymbol(std::string _id);
 
 public:
     explicit DBClient(std::string settingsFile);

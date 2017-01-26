@@ -51,12 +51,6 @@ void DBClient::getDataFromPreferencesFile()
     readSchemaDir( settings.schemaDir );
     SchemaNode::_schema =    &schema;
 
-//    // Connect to DataBase
-//    unique_ptr<TDBGraph> reactionVertex( newDBGraphClient( "VertexReaction", "" ) );
-//    unique_ptr<TDBGraph> substanceVertex( newDBGraphClient( "VertexSubstance", "" ) );
-//    unique_ptr<TDBGraph> takeEdge( newDBGraphClient( "EdgeTakes", "" ) );
-//    unique_ptr<TDBGraph> defineEdge( newDBGraphClient( "EdgeDefines", "" ) );
-
 }
 
 //---------------------------------------------------------------------
@@ -80,6 +74,17 @@ void DBClient::readSchemaDir( const QString& dirPath )
    //cout << "FILE: " << fName << endl;
    schema.addSchemaFile( fName.c_str() );
   }
+}
+
+TDBGraph *DBClient::newDBClinet(string schemaName, string query)
+{
+    // no schema
+    if( schemaName.empty() )
+        return nullptr;
+    string collcName = settings.collName.toStdString();
+    TDBGraph* newClient =TDBGraph::newDBClient( &schema,
+                                                dbDrive(settings.useLocalDB), collcName.c_str(), schemaName, query  );
+    return newClient;
 }
 
 void DBClient::resetDBClinet(string curSchemaName, string query)
@@ -122,20 +127,25 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     /// The set of all gaseous species in the database
     ReactionsMap reactions_map;
 
-    _shemaNames.push_back("VertexSubstance");
-    _shemaNames.push_back("VertexReaction");
-    _shemaNames.push_back("VertexReactionSet");
+    qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
+    substanceVertex = unique_ptr<TDBGraph> (newDBClinet("VertexSubstance", qrJson));
+
+    qrJson = "{ \"_label\" : \"reaction\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
+    reactionVertex = unique_ptr<bsonio::TDBGraph>(newDBClinet("VertexReaction", qrJson));
+
+    qrJson = "{ \"_label\" : \"takes\"}";
+    takesEdge = unique_ptr<TDBGraph> (newDBClinet("EdgeTakes", qrJson));
+
+    qrJson = "{ \"_label\" : \"defines\"}";
+    definesEdge = unique_ptr<TDBGraph> (newDBClinet("EdgeDefines", qrJson));
 
     // get substances
-    qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
-
-    resetDBClinet(_shemaNames[0], qrJson);
-    dbgraph->GetKeyValueList( aKeyList, aValList );
+    substanceVertex->GetKeyValueList( aKeyList, aValList );
     for( uint ii=0; ii<aKeyList.size(); ii++ )
     {
         string key = aKeyList[ii];
-        dbgraph->GetRecord( key.c_str() );
-        string valDB = dbgraph->GetJson();
+        substanceVertex->GetRecord( key.c_str() );
+        string valDB = substanceVertex->GetJson();
         jsonToBson( &record, valDB );
 
         Substance substance = parseSubstance(record.data);
@@ -150,26 +160,33 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     }
 
     // get reactions
-    qrJson = "{ \"_label\" : \"reaction\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
-
-    resetDBClinet(_shemaNames[1], qrJson);
-    dbgraph->GetKeyValueList( aKeyList, aValList );
+    reactionVertex->GetKeyValueList( aKeyList, aValList );
     for( uint ii=0; ii<aKeyList.size(); ii++ )
     {
         string key = aKeyList[ii];
-        dbgraph->GetRecord( key.c_str() );
-        string valDB = dbgraph->GetJson();
+        reactionVertex->GetRecord( key.c_str() );
+        string valDB = reactionVertex->GetJson();
         jsonToBson( &record, valDB );
+        string _id;
+        bsonio::bson_to_key( record.data, "_id", _id );
 
         Reaction reaction = parseReaction(record.data);
 
-        if ( reactions_map.find(reaction.name()) == reactions_map.end() ) {
-             reactions_map[reaction.name()] = reaction;
+        if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
+             reactions_map[reaction.symbol()] = reaction;
         } else {
           // ERROR reaction with the same symbol found!
         }
 
-        reactions_map[reaction.name()] = reaction;
+        // get reactants by following reaction incoming takes edge
+        setReactantsFollowingIncomingTakesEdges(_id, reaction);
+
+        // set defined substance
+        substances_map[getDefinedSubstanceSymbol(_id)].setReactionSymbol(reaction.symbol());
+        substances_map[getDefinedSubstanceSymbol(_id)].setThermoCalculationType(SubstanceThermoCalculationType::type::REACDC);
+
+
+        reactions_map[reaction.symbol()] = reaction;
     }
 
     // work with the edges
@@ -180,5 +197,69 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     return db;
 }
 
+void DBClient::setReactantsFollowingIncomingTakesEdges(std::string _id, Reaction &reaction)
+{
+    std::map<std::string, int> map;
+    string kbuf;
+    int stoi_coeff;
+    bson record;
+    string qrJson = "{'_type': 'edge', '_inV': '";
+    qrJson += _id;
+    qrJson += "' }";
+
+    vector<string> _queryFields = { "_outV", "properties.stoi_coeff"};
+    vector<string> _resultDataEdge, _resultDataSubst;
+    takesEdge->runQuery( qrJson,  _queryFields, _resultDataEdge );
+
+    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    {
+        jsonToBson(&record, _resultDataEdge[i]);
+        bsonio::bson_to_key( record.data, "properties.stoi_coeff", kbuf );
+        stoi_coeff = atoi(kbuf.c_str());
+
+        bsonio::bson_to_key( record.data, "_outV", kbuf );
+        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
+        substanceVertex->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
+
+        if (_resultDataSubst.size()>0)
+        {
+            jsonToBson(&record, _resultDataSubst[0]);
+            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
+        }
+
+        map.insert(std::pair<std::string,int>(kbuf,stoi_coeff));
+    }
+
+    reaction.setReactants(map);
+}
+
+std::string DBClient::getDefinedSubstanceSymbol(std::string _id)
+{
+    string kbuf;
+    bson record;
+    string qrJson = "{'_type': 'edge', '_outV': '";
+    qrJson += _id;
+    qrJson += "' }";
+
+    vector<string> _queryFields = { "_inV", "_label"};
+    vector<string> _resultDataEdge, _resultDataSubst;
+    definesEdge->runQuery( qrJson,  _queryFields, _resultDataEdge );
+
+    if (_resultDataEdge.size()>0)
+    {
+        jsonToBson(&record, _resultDataEdge[0]);
+        bsonio::bson_to_key( record.data, "_inV", kbuf );
+        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
+        substanceVertex->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
+
+        if (_resultDataSubst.size()>0)
+        {
+            jsonToBson(&record, _resultDataSubst[0]);
+            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
+        }
+    }
+
+    return kbuf;
+}
 
 }
