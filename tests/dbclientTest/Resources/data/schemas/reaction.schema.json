@@ -1,0 +1,616 @@
+{
+  "name": "reaction",
+  "doc": "Apache Thrift IDL definition for the reaction service interface\n",
+  "namespaces": {
+    "*": "reaction"
+  },
+  "includes": [
+"prop",
+"element",
+"substance"
+  ],
+  "enums": [
+    {
+      "name": "ReactionType",
+      "doc": "Classes (types) of reactions\n",
+      "members": [
+        {
+          "name": "TRIVIAL",
+          "value": 0,
+          "doc": "Trivial reaction for calculation of reaction effects\n"
+        },
+        {
+          "name": "FORMATION",
+          "value": 1,
+          "doc": "Formation reaction of a product from master species\n"
+        },
+        {
+          "name": "DISSOLUTION",
+          "value": 2,
+          "doc": "Dissolution reaction for a mineral (end member) or gas in\n"
+        },
+        {
+          "name": "EVAPORATION",
+          "value": 3,
+          "doc": "Dissolution reaction for mineral\/liquid in gas\n"
+        },
+        {
+          "name": "ELTRANSFER",
+          "value": 4,
+          "doc": "Redox reaction (electron transfer)\n"
+        },
+        {
+          "name": "ISOELECTRIC",
+          "value": 5,
+          "doc": "Isoelectric reaction\n"
+        },
+        {
+          "name": "ISOCOULOMBIC",
+          "value": 6,
+          "doc": "Isocoulombic reaction\n"
+        },
+        {
+          "name": "IONEXCHANGE",
+          "value": 7,
+          "doc": "Ion exchange reaction\n"
+        },
+        {
+          "name": "OTHER_RE",
+          "value": 8,
+          "doc": "Other type of reaction\n"
+        }
+      ]
+    },
+    {
+      "name": "ReactionComponentType",
+      "doc": "Classes (types) of reaction components\n",
+      "members": [
+        {
+          "name": "REACTANT",
+          "value": 0,
+          "doc": "Component properties available\n"
+        },
+        {
+          "name": "PRODUCT",
+          "value": 1,
+          "doc": "Component properties to be defined via this reaction properties\n"
+        },
+        {
+          "name": "CATALYST",
+          "value": 2,
+          "doc": "Catalyzes the reaction but is not consumed in it\n"
+        },
+        {
+          "name": "OTHER_RC",
+          "value": 3,
+          "doc": "Other type of reaction component\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+    {
+      "name": "Reactions",
+      "typeId": "list",
+      "type": {
+        "typeId": "list",
+        "elemTypeId": "struct",
+        "elemType": {
+          "typeId": "struct",
+          "class": "Reaction"
+        }
+      }
+    }
+  ],
+  "structs": [
+    {
+      "name": "Reaction",
+      "doc": "Description of a reaction between substances\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Unique name\/ID of this reaction (e.g. product species name)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "sourcetdb",
+          "typeId": "i32",
+          "doc": "Source TDB: enum validated with class SourceTDB\n",
+          "class": "SourceTDB",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "level",
+          "typeId": "i32",
+          "doc": "Level of the reaction (for superimposed IC or LMA reaction sets)\n",
+          "required": "required",
+          "default": 0
+        },
+        {
+          "key": 4,
+          "name": "name",
+          "typeId": "string",
+          "doc": "Name of the reaction (not compulsory)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "reactyp",
+          "typeId": "i32",
+          "doc": "Type (class) of reaction: enum validated with class ReactionType\n",
+          "class": "ReactionType",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 6,
+          "name": "Tst",
+          "typeId": "double",
+          "doc": "Reference temperature for standard state (usually 298.15 K)\n",
+          "required": "req_out",
+          "default": 298.15
+        },
+        {
+          "key": 7,
+          "name": "Pst",
+          "typeId": "double",
+          "doc": "Reference pressure (usually 1 bar = 10^5 Pa, sometimes 1.013 bar = 1 atm\n",
+          "required": "req_out",
+          "default": 100000
+        },
+        {
+          "key": 11,
+          "name": "logKr",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard equilibrium constant \"logK0\" (set in log10 units)\n",
+          "required": "req_out",
+          "default": {
+            "name": "logK0"
+          }
+        },
+        {
+          "key": 12,
+          "name": "drsm_volume",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard volume effect per mole \"drV0\" m3\/mol\n",
+          "required": "req_out",
+          "default": {
+            "name": "drV0"
+          }
+        },
+        {
+          "key": 13,
+          "name": "drsm_gibbs_energy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard Gibbs energy effect per mole  \"drGO\" J\/mol\n",
+          "required": "req_out",
+          "default": {
+            "name": "drG0"
+          }
+        },
+        {
+          "key": 14,
+          "name": "drsm_enthalpy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard enthalpy effect per mole \"drH0\" J\/mol\n",
+          "required": "req_out",
+          "default": {
+            "name": "drH0"
+          }
+        },
+        {
+          "key": 15,
+          "name": "drsm_entropy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard entropy effect of reaction \"drS0\" J\/K\/mol\n",
+          "required": "req_out",
+          "default": {
+            "name": "drS0"
+          }
+        },
+        {
+          "key": 16,
+          "name": "drsm_heat_capacity_p",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard heat capacity effect per mole \"drCp0\" J\/K\/mol\n",
+          "required": "req_out",
+          "default": {
+            "name": "drCp0"
+          }
+        },
+        {
+          "key": 18,
+          "name": "method_genEoS",
+          "typeId": "i32",
+          "doc": "General method (or equation of state for both T and P correction), validate with class MethodGenEoS\n",
+          "class": "MethodGenEoS",
+          "required": "req_out"
+        },
+        {
+          "key": 19,
+          "name": "method_corrT",
+          "typeId": "i32",
+          "doc": "Method of temperature correction of thermodynamic properties, validate with class MethodCorrT\n",
+          "class": "MethodCorrT",
+          "required": "req_out"
+        },
+        {
+          "key": 20,
+          "name": "method_corrP",
+          "typeId": "i32",
+          "doc": "Method of pressure correction of thermodynamic properties validate with class MethodCorrP\n",
+          "class": "MethodCorrP",
+          "required": "req_out"
+        },
+        {
+          "key": 21,
+          "name": "limitsTP",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "double"
+          },
+          "doc": "Lower and upper T, P limits for T,P corrections\n",
+          "required": "req_out",
+          "default": [
+            {
+              "lowerT": 273.15
+            },
+            {
+              "upperT": 298.15
+            },
+            {
+              "lowerP": 1
+            },
+            {
+              "upperP": 1000000
+            }
+          ]
+        },
+        {
+          "key": 22,
+          "name": "logk_ft_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of logK(T) function per mole  a0 to a6 \"logKTc\"\n",
+          "required": "optional",
+          "default": {
+            "name": "logKTc"
+          }
+        },
+        {
+          "key": 23,
+          "name": "logk_pt_values",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.PropertiesPTArray"
+          },
+          "doc": "Interpolation array for logK(P,T) values\n",
+          "required": "optional"
+        },
+        {
+          "key": 24,
+          "name": "dr_heat_capacity_p_t_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of Cp0(T) function per mole \"drCpTc\"\n",
+          "required": "optional",
+          "default": {
+            "name": "drCpTc"
+          }
+        },
+        {
+          "key": 25,
+          "name": "dr_volume_pt_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of V0(T,P) function per mole \"drVpTc\"\n",
+          "required": "optional",
+          "default": {
+            "name": "drVpTc"
+          }
+        },
+        {
+          "key": 26,
+          "name": "dr_sm_rb_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of Ryzhenko-Bryzgalin model \"drRBc\n",
+          "required": "optional",
+          "default": {
+            "name": "drRBc"
+          }
+        },
+        {
+          "key": 27,
+          "name": "isotop_lna_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coeffs of 1000ln(alpha) = f(T) equation a0 to a4\n",
+          "required": "optional",
+          "default": {
+            "name": "drCpTc"
+          }
+        },
+        {
+          "key": 28,
+          "name": "isotop_counter_fraction",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Mole fraction of counter-isotope in natural mixture (for isotopes)\n",
+          "required": "optional",
+          "default": {
+            "name": "iCfr"
+          }
+        },
+        {
+          "key": 30,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment - e.g. who entered\/modified, ...\n",
+          "required": "optional",
+          "default": "comment"
+        },
+        {
+          "key": 31,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 32,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Timestamp (\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ReactionComponentData",
+      "doc": "Data for processing reactions; properties from a substance connected to the reaction via takes edges\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "SC",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "mV0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "mG0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "mH0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "mS0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "mCp0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "fCharge",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 9,
+          "name": "rct",
+          "typeId": "i32",
+          "doc": "Type of reaction component: enum validated with class ReactionComponentType\n",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "subsid",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 11,
+          "name": "symbol",
+          "typeId": "string",
+          "required": "optional"
+        },
+        {
+          "key": 12,
+          "name": "formula",
+          "typeId": "string",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ReactionData",
+      "doc": "Work structure keeping the data to check\/calculate reaction\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "Nrcs",
+          "typeId": "i16",
+          "doc": "Number of components taking part in the reaction\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "rcs",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ReactionComponentData"
+            }
+          },
+          "doc": "Array of data for reacting components\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "T",
+          "typeId": "double",
+          "doc": "Current temperature in K\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "P",
+          "typeId": "double",
+          "doc": "Current pressure in bar (Pa?). These properties should already be for current T,P\n",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "logKr",
+          "typeId": "double",
+          "doc": "Standard equilibrium constant \"logK0\" (log10, set in units)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "lnK0",
+          "typeId": "double",
+          "doc": "Equilibrium constant from drG0 = -RTlnK0\n",
+          "required": "req_out"
+        },
+        {
+          "key": 12,
+          "name": "drV0",
+          "typeId": "double",
+          "doc": "Standard volume effect per mole \"drV0\" m3\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 13,
+          "name": "drG0",
+          "typeId": "double",
+          "doc": "Standard Gibbs energy effect per mole  \"drGO\" J\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "drH0",
+          "typeId": "double",
+          "doc": "Standard enthalpy effect per mole \"drH0\" J\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 15,
+          "name": "drS0",
+          "typeId": "double",
+          "doc": "Standard entropy effect of reaction \"S0f\" J\/K\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 16,
+          "name": "drCp0",
+          "typeId": "double",
+          "doc": "Standard heat capacity effect per mole \"Cp0\" J\/K\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 19,
+          "name": "slaveid",
+          "typeId": "i32",
+          "doc": "ID of \"product\" substance for which to calculate properties\n",
+          "required": "optional"
+        },
+        {
+          "key": 20,
+          "name": "computed",
+          "typeId": "bool",
+          "doc": "Set to true if the reaction props or slave props computed\n",
+          "required": "req_out",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}
