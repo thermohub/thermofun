@@ -51,6 +51,8 @@ class DBClient
     unique_ptr<bsonio::TDBGraph> takesEdge;
     unique_ptr<bsonio::TDBGraph> definesEdge;
 
+    std::map<std::string, bson> map_id_bson;
+
     // reading shcemas folder
     void readSchemaDir( const QString& dirPath );
     // reads settings from preferences ThermoFun.ini file
@@ -61,6 +63,8 @@ class DBClient
     bsonio::TDBGraph *newDBClinet(string schemaName, string query);
     // sets the reactans following the incoming takes edges of reaction with database _id
     void setReactantsFollowingIncomingTakesEdges(std::string _id, Reaction &reaction);
+    // sets the symbol of the reaction which defines the substance by folowing the incoming defines edge
+    std::string getDefinesReactionSymbol(std::string _idSubst);
     // returns the substance symbol which is defined by the reaction with the database _id
     std::string getDefinedSubstanceSymbol(std::string _id);
 

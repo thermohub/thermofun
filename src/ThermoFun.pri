@@ -66,7 +66,8 @@
     $$PWD/Reactions/RyzhenkoBryzgalyn.h \
     $$PWD/Reactions/LogK_function_of_T.h \
     $$PWD/Reactions/Volume_function_of_T.h \
-    $$PWD/DBClient/DBClient.h
+    $$PWD/DBClient/DBClient.h \
+    $$PWD/DBClient/Traversal.h
 
 
     SOURCES	 += $$PWD/Database.cpp \
@@ -129,4 +130,5 @@
     $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
     $$PWD/Reactions/LogK_function_of_T.cpp \
     $$PWD/Reactions/Volume_function_of_T.cpp \
-    $$PWD/DBClient/DBClient.cpp
+    $$PWD/DBClient/DBClient.cpp \
+    $$PWD/DBClient/Traversal.cpp
