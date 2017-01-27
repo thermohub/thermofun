@@ -1,4 +1,4 @@
-#ifdef DBCLIENT_H
+
 
 #include "Traversal.h"
 
@@ -33,7 +33,7 @@ MapIdBson Traversal::getLinkedSelectedData( vector<int> selNdx, vector<string> a
         // if not in the database
         if (!result.count(_id))
         {
-            result.insert(std::pair<std::string,bson>(_id, record));
+            result.insert(std::pair<std::string,std::string>(_id, valDB));
             if (_label == "substance")
             {
                  followIncomingDefines(_id, result);
@@ -65,17 +65,17 @@ void Traversal::followIncomingDefines(std::string _idSubst, MapIdBson &result)
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "_outV", kbuf );
         qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-        dbgraph->runQuery(qrJson, {"_id", "_label"}, _resultDataReac);
+        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataReac);
 
         if (_resultDataReac.size()>0)
         {
             jsonToBson(&record, _resultDataReac[0]);
-            bsonio::bson_to_key( record.data, "_outV", _idReac );
+            bsonio::bson_to_key( record.data, "_id", _idReac );
 
             // if not in the database
             if (!result.count(_idReac))
             {
-                result.insert((std::pair<std::string,bson>(_idReac, record)));
+                result.insert((std::pair<std::string,std::string>(_idReac, _resultDataReac[0])));
                 followIncomingTakes(_idReac, result);
             }
         }
@@ -99,17 +99,17 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdBson &result)
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "_outV", kbuf );
         qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-        dbgraph->runQuery(qrJson, {"_id", "_label"}, _resultDataSubst);
+        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
 
         if (_resultDataSubst.size()>0)
         {
             jsonToBson(&record, _resultDataSubst[0]);
-            bsonio::bson_to_key( record.data, "_outV", _idSubst );
+            bsonio::bson_to_key( record.data, "_id", _idSubst );
 
             // if not in the database
             if (!result.count(_idSubst))
             {
-                result.insert((std::pair<std::string,bson>(_idSubst, record)));
+                result.insert((std::pair<std::string,std::string>(_idSubst, _resultDataSubst[0])));
                 followIncomingDefines(_idSubst, result);
             }
         }
@@ -120,4 +120,4 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdBson &result)
 
 }
 
-#endif
+

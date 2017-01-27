@@ -1,4 +1,5 @@
-#ifdef DBCLIENT_H
+#ifndef DBCLIENT_H
+#define DBCLIENT_H
 
 #include <string>
 #include <QFileInfo>

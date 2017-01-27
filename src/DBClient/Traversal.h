@@ -1,4 +1,4 @@
-#ifdef DBCLIENT_H
+
 
 #ifndef TRAVERSAL_H
 #define TRAVERSAL_H
@@ -9,7 +9,7 @@
 
 namespace ThermoFun {
 
-using MapIdBson = std::map<std::string, bson>;
+using MapIdBson = std::map<std::string, std::string>;
 
 class Traversal
 {
@@ -30,4 +30,3 @@ class Traversal
 
 #endif // TRAVERSAL_H
 
-#endif

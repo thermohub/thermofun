@@ -7,7 +7,6 @@ TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++11
 
 QT += widgets
-DEFINES += DBCLIENT_H
 
 #CONFIG += -std=c++11
 

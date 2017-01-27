@@ -1,4 +1,4 @@
-#ifdef DBCLIENT_H
+
 
 #include "DBClient.h"
 #include "bsonio/dbdriverejdb.h"
@@ -296,4 +296,3 @@ std::string DBClient::getDefinedSubstanceSymbol(std::string _idSubst)
 
 }
 
-#endif // DBCLIENT_H

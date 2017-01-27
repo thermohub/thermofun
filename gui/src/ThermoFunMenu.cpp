@@ -43,6 +43,8 @@
 #include "bsonui/QueryWidget.h"
 #include "bsonio/json2cfg.h"
 
+#include "thermofun/DBClient/Traversal.h"
+
 using namespace bsonio;
 
 //  Connect all actions
@@ -443,6 +445,43 @@ void ThermoFunWidget::CmCalcMTPARM()
    int number_selected_solvent = 0;
 
    DBQueryDef oldquery( dbgraph->getQuery());
+
+   try {
+       // Select keys to send to ThermoFun
+       bool isSolvent = false;
+       vector<string> aKeyList;
+       vector<vector<string>> aValList;
+       vector<int> selNdx;
+       vector<string> substancesSymbols, substancesClass;
+       dbgraph->GetKeyValueList( aKeyList, aValList );
+       ThermoFun::Database tdb;
+       string solventSymbol;
+
+       if( aKeyList.empty() )
+           return;
+
+       SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
+       if( !selDlg.exec() )
+           return;
+       selNdx =  selDlg.allSelected();
+
+       ThermoFun::Traversal tr(dbgraph);
+
+       ThermoFun::MapIdBson map_ = tr.getLinkedSelectedData(selNdx, aKeyList);
+
+   }
+   catch(bsonio_exeption& e)
+   {
+       QMessageBox::critical( this, e.title(), e.what() );
+   }
+   catch(std::exception& e)
+   {
+       QMessageBox::critical( this, "std::exception", e.what() );
+   }
+
+
+
+
 
    try {
           // Select keys to send to ThermoFun

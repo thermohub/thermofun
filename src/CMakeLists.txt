@@ -1,6 +1,17 @@
 # Require a certain version of cmake
 cmake_minimum_required(VERSION 2.8)
 
+find_package(Qt5Widgets REQUIRED)
+if ( NOT Qt5Widgets_FOUND )
+  message(FATAL_ERROR "Package Qt5 required, but not found!")
+endif( NOT Qt5Widgets_FOUND )
+
+find_package(Qt5Core REQUIRED)
+# Add the include directories for the Qt 5 Widgets module to
+# the compile lines.
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+#include_directories(${Qt5Core_INCLUDE_DIRS})
+
 # Recursively collect all header files from the current directory
 file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 
@@ -36,7 +47,7 @@ if(BUILD_SHARED_LIBS)
     add_library(THERMOFUN_SHARED SHARED $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
     target_link_libraries(THERMOFUN_SHARED ${THIRDPARTY_LIBS} )
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    target_link_libraries(THERMOFUN_SHARED thrift lua bsonio)
+    target_link_libraries(THERMOFUN_SHARED thrift lua bsonio Qt5::Widgets)
 endif()
     set_target_properties(THERMOFUN_SHARED PROPERTIES OUTPUT_NAME thermofun)
     install(TARGETS THERMOFUN_SHARED DESTINATION lib)
