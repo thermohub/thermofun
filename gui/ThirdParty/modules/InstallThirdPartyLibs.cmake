@@ -31,8 +31,8 @@ ExternalProject_Add(BSONUI
 # Download and install the ThermoFun library
 ExternalProject_Add(THERMOFUN
     PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/thermofun.git
-    GIT_TAG feat-DBClient
+#    GIT_REPOSITORY https://bitbucket.org/gems4/thermofun.git
+#    GIT_TAG feat-DBClient
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

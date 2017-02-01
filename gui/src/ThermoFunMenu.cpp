@@ -44,6 +44,7 @@
 #include "bsonio/json2cfg.h"
 
 #include "thermofun/DBClient/Traversal.h"
+#include "thermofun/ReadFiles.h"
 
 using namespace bsonio;
 
@@ -437,6 +438,70 @@ void ThermoFunWidget::CmExportCFG()
     }
 }
 
+std::map<std::string, int> ThermoFunWidget::getReactantsCoeffMap(std::string _id)
+{
+    std::map<std::string, int> map;
+    string kbuf;
+    int stoi_coeff;
+    bson record;
+    string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
+    qrJson += _id;
+    qrJson += "' }";
+
+    vector<string> _queryFields = { "_outV", "properties.stoi_coeff"};
+    vector<string> _resultDataEdge, _resultDataSubst;
+    dbgraph->runQuery( qrJson,  _queryFields, _resultDataEdge );
+
+    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    {
+        jsonToBson(&record, _resultDataEdge[i]);
+        bsonio::bson_to_key( record.data, "properties.stoi_coeff", kbuf );
+        stoi_coeff = atoi(kbuf.c_str());
+
+        bsonio::bson_to_key( record.data, "_outV", kbuf );
+        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
+        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
+
+        if (_resultDataSubst.size()>0)
+        {
+            jsonToBson(&record, _resultDataSubst[0]);
+            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
+        }
+
+        map.insert(std::pair<std::string,int>(kbuf,stoi_coeff));
+    }
+
+    return map;
+}
+
+std::string ThermoFunWidget::getDefinesReactionSymbol(std::string _idSubst)
+{
+    string kbuf = "";
+    bson record;
+    string qrJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
+    qrJson += _idSubst;
+    qrJson += "' }";
+
+    vector<string> _queryFields = { "_outV", "_label"};
+    vector<string> _resultDataEdge, _resultDataReac;
+    dbgraph->runQuery( qrJson,  _queryFields, _resultDataEdge );
+
+    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    {
+        jsonToBson(&record, _resultDataEdge[i]);
+        bsonio::bson_to_key( record.data, "_outV", kbuf );
+        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
+        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataReac);
+
+        if (_resultDataReac.size()>0)
+        {
+            jsonToBson(&record, _resultDataReac[0]);
+            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
+        }
+    }
+    return kbuf;
+}
+
 void ThermoFunWidget::CmCalcMTPARM()
 {
     if( dbgraph.get() == 0 )
@@ -449,13 +514,21 @@ void ThermoFunWidget::CmCalcMTPARM()
    try {
        // Select keys to send to ThermoFun
        bool isSolvent = false;
+       string key, valDB, _idSubst;
+       bson record;
        vector<string> aKeyList;
        vector<vector<string>> aValList;
-       vector<int> selNdx;
+       vector<int> selNdx, selNdx_;
        vector<string> substancesSymbols, substancesClass;
        dbgraph->GetKeyValueList( aKeyList, aValList );
        ThermoFun::Database tdb;
        string solventSymbol;
+       typedef ThermoFun::MapIdBson::iterator it_;
+
+       // The set of all aqueous species in the database
+       ThermoFun::SubstancesMap substances_map;
+       // The set of all gaseous species in the database
+       ThermoFun::ReactionsMap reactions_map;
 
        if( aKeyList.empty() )
            return;
@@ -464,10 +537,159 @@ void ThermoFunWidget::CmCalcMTPARM()
        if( !selDlg.exec() )
            return;
        selNdx =  selDlg.allSelected();
+       selectedList.resize(selNdx.size());
+       selNdx_= selNdx;
+       substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
 
-       ThermoFun::Traversal tr(dbgraph);
+      for( uint ii=0; ii<selNdx.size(); ii++ )
+      {
+        string key = aKeyList[selNdx[ii]];
+//           dbgraph->GetRecord( key.c_str() );
+//           selectedList.push_back(curRecord);
+        dbgraph->GetRecord( key.c_str() );
+        string valDB = dbgraph->GetJson();
+        jsonToBson( &selectedList[ii], valDB );
 
-       ThermoFun::MapIdBson map_ = tr.getLinkedSelectedData(selNdx, aKeyList);
+        bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substSymbol, substancesSymbols[ii]);
+        bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
+      }
+
+//         ThermoFun::Interface tpCalc(selectedList);
+
+      // check solvent
+      for (uint ii=0; ii<substancesClass.size(); ii++)
+      {
+          if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
+          {
+//                 tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
+              isSolvent = true;
+              number_selected_solvent++;
+              solventSymbol = substancesSymbols[ii];
+          }
+      }
+
+      if (!isSolvent || number_selected_solvent>1)
+      {
+         // query the solvent
+              string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
+              DBQueryDef newquery = dbgraph->getQuery();
+              newquery.setEJDBQuery(qrJson);
+              updateQuery( newquery  );
+
+              dbgraph->GetKeyValueList( aKeyList, aValList );
+oneSolventX:
+          SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
+                                aValList, selNdx );
+          if( !selDlg2.exec() )
+              return;
+          selNdx = selDlg2.allSelected();
+
+          if (selNdx.size() != 1)
+              goto oneSolventX;
+          bson solvent; string symbol, class_;
+
+          string key = aKeyList[selNdx[0]];
+          dbgraph->GetRecord( key.c_str() );
+          string valDB = dbgraph->GetJson();
+          jsonToBson( &solvent, valDB );
+
+          bsonio::bson_to_key( solvent.data, ThermoFun::substClass, class_);
+          bsonio::bson_to_key( solvent.data, ThermoFun::substSymbol, symbol);
+
+          bool wasSelected = false;
+
+          std::vector<string>::iterator it = std::find(substancesSymbols.begin(), substancesSymbols.end(), symbol);
+
+          if (it != substancesSymbols.end())
+              wasSelected = true;
+          else
+              wasSelected = false;
+
+          if (!wasSelected)
+          {
+//                 substancesSymbols.push_back(symbol);
+//                 substancesClass.push_back(class_);
+              selectedList.push_back(solvent);
+
+              ThermoFun::Substance solv = ThermoFun::parseSubstance(solvent.data);
+
+              substances_map[symbol] = solv;
+              selNdx_.push_back(selNdx[0]);
+
+          }
+
+          solventSymbol = symbol;
+
+          // reset to the old list of substances
+           updateQuery( oldquery  );
+           dbgraph->GetKeyValueList( aKeyList, aValList );
+
+           ThermoFun::Traversal tr(dbgraph);
+
+           ThermoFun::MapIdBson map_ = tr.getLinkedSelectedData(selNdx_, aKeyList);
+
+           // get substances and the reaction symbol if necessary
+           for(it_ iterator = map_.begin(); iterator != map_.end(); iterator++)
+           {
+               if (iterator->second == "substance")
+               {
+                   resetDBClient("VertexSubstance");
+
+                   key = iterator->first +":";
+                   dbgraph->GetRecord( key.c_str() );
+                   valDB = dbgraph->GetJson();
+                   jsonToBson( &record, valDB );
+                   bsonio::bson_to_key( record.data, "_id", _idSubst );
+
+                   ThermoFun::Substance substance = ThermoFun::parseSubstance(record.data);
+
+                   if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
+                        substances_map[substance.symbol()] = substance;
+                   } else {
+                     // ERROR substance with the same symbol found!
+                   }
+
+                   // get reaction symbol which define substance with _idSubst
+                   if (getDefinesReactionSymbol(_idSubst) != "")
+                   {
+                       substance.setReactionSymbol(getDefinesReactionSymbol(_idSubst));
+                       substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
+                   }
+
+                   substances_map[substance.symbol()] = substance;
+               } else
+                   if (iterator->second == "reaction")
+                   {
+                       resetDBClient("VertexReaction");
+
+                       key = iterator->first +":";
+                       dbgraph->GetRecord( key.c_str() );
+                       valDB = dbgraph->GetJson();
+                       jsonToBson( &record, valDB );
+                       bsonio::bson_to_key( record.data, "_id", key );
+
+                       ThermoFun::Reaction reaction = ThermoFun::parseReaction(record.data);
+
+                       if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
+                           reactions_map[reaction.symbol()] = reaction;
+                       } else {
+                           // ERROR reaction with the same symbol found!
+                       }
+
+                       // get reactants by following reaction incoming takes edge
+                       reaction.setReactants(getReactantsCoeffMap(key));
+
+                       reactions_map[reaction.symbol()] = reaction;
+                   }
+
+           }
+           resetDBClient("VertexSubstance");
+
+
+
+      }
+
+
 
    }
    catch(bsonio_exeption& e)
@@ -501,7 +723,6 @@ void ThermoFunWidget::CmCalcMTPARM()
          if( !selDlg.exec() )
             return;
           selNdx =  selDlg.allSelected();
-readData:
           selectedList.resize(selNdx.size());
           substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
 
@@ -520,6 +741,7 @@ readData:
 
 //         ThermoFun::Interface tpCalc(selectedList);
 
+         // check solvent
          for (uint ii=0; ii<substancesClass.size(); ii++)
          {
              if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
@@ -579,7 +801,6 @@ oneSolvent:
 
              // reset to the old list of substances
               updateQuery( oldquery  );
-            //             goto readData;
          }
 
          ThermoFun::Interface tpCalc (selectedList);
