@@ -33,14 +33,15 @@ MapIdBson Traversal::getLinkedSelectedData( vector<int> selNdx, vector<string> a
         // if not in the database
         if (!result.count(_id))
         {
-            result.insert(std::pair<std::string,std::string>(_id, valDB));
             if (_label == "substance")
             {
-                 followIncomingDefines(_id, result);
+                result.insert(std::pair<std::string,std::string>(_id, "substance"));
+                followIncomingDefines(_id, result);
             }
             if (_label == "reaction")
             {
-                 followIncomingTakes(_id, result);
+                result.insert(std::pair<std::string,std::string>(_id, "reaction"));
+                followIncomingTakes(_id, result);
             }
         }
     }
@@ -75,7 +76,7 @@ void Traversal::followIncomingDefines(std::string _idSubst, MapIdBson &result)
             // if not in the database
             if (!result.count(_idReac))
             {
-                result.insert((std::pair<std::string,std::string>(_idReac, _resultDataReac[0])));
+                result.insert((std::pair<std::string,std::string>(_idReac, "reaction")));
                 followIncomingTakes(_idReac, result);
             }
         }
@@ -109,7 +110,7 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdBson &result)
             // if not in the database
             if (!result.count(_idSubst))
             {
-                result.insert((std::pair<std::string,std::string>(_idSubst, _resultDataSubst[0])));
+                result.insert((std::pair<std::string,std::string>(_idSubst, "substance")));
                 followIncomingDefines(_idSubst, result);
             }
         }
