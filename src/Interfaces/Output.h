@@ -32,6 +32,7 @@ private:
 
     auto CSVHeader          ()-> std::string;
     auto foutResultsSubst   ()-> void;
+    auto foutResultsReac    ()-> void;
 };
 
 }

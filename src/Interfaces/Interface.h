@@ -50,8 +50,14 @@ public:
     ///
     Interface(const Database &database);
 
+    // Substances
     auto addSubstances                  (const std::vector<string> &substSymbols) -> void;
     auto addSubstance                   (const std::string &substSymbol) -> void;
+    // Reactions
+    auto addReactions                   (const std::vector<string> &reacSymbols) -> void;
+    auto addReaction                   (const std::string &reacSymbol) -> void;
+
+
     auto addProperties                  (const std::vector<string> &propNames) -> void;
     auto addProperty                    (const std::string &propName) -> void;
     auto addUnits                       (const std::map<const std::string, std::string> &propUnits)-> void;
@@ -70,7 +76,7 @@ public:
     auto setOutputSettings              (const OutputSettings &value) -> void;
     auto setSolventSymbolForAqSubst     (const std::string solvent_symbol) ->void;
 
-    // claculate functions
+    // claculate functions substances
     auto calculateProperties    () -> Output;
     auto calculateProperties    (const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
     auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
@@ -80,7 +86,18 @@ public:
     auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
                              std::vector<std::vector<double> > tp_pairs) -> Output;
 
+    // claculate functions reactions
+    auto calcPropReactions    () -> Output;
+    auto calcPropReactions    (const std::string reacSymbol, const double T, const double P, const std::string propName) -> Output;
+    auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+                                    double T, double P) -> Output;
+    auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+                             double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
+    auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+                               std::vector<std::vector<double> > tp_pairs) -> Output;
+
     auto clearSubstances    () -> void;
+    auto clearReactions     () -> void;
     auto clearProperties    () -> void;
     auto clearTP_pairs      () -> void;
 
@@ -88,14 +105,22 @@ private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
 
+    // Substances
     auto selectResultsSubst     (ThermoPropertiesSubstance tps) -> std::vector<Reaktoro_::ThermoScalar>;
     auto calculateResultsSubst  () -> void;
     auto substanceSymbols       () -> const std::vector<string>;
+    auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+
+    // Reactions
+    auto selectResultsReac     (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
+    auto calculateResultsReac  () -> void;
+    auto reactionSymbols       () -> const std::vector<string>;
+    auto resultsReac           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+
     auto TP_pairs               () -> const std::vector<std::vector<double>>;
     auto propNames              () -> const map<int, std::string>;
     auto propUnits              () -> const std::map<const std::string, std::string>;
     auto propDigits             () -> const std::map<const std::string, int>;
-    auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
     auto outputSettings         () -> const OutputSettings;
 };
 

@@ -104,6 +104,69 @@ auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::v
     return Output (*this);
 }
 
+// Reactions
+
+auto Interface::calcPropReactions() -> Output
+{
+    calculateResultsReac();
+
+    return Output (*this);
+}
+
+auto Interface::calcPropReactions(const std::string reacSymbol, const double T, const double P, const std::string propName) -> Output
+{
+    addReaction(reacSymbol);
+
+    addTP_pair(T,P);
+
+    addProperty(propName);
+
+    calculateResultsReac();
+
+    return Output (*this);
+}
+
+auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+                                double T, double P) -> Output
+{
+    addReactions(reactionSymbols);
+
+    addProperties(thermoProperties);
+
+    addTP_pair(T, P);
+
+    calculateResultsReac();
+
+    return Output (*this);
+}
+
+auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+                     double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output
+{
+    addReactions(reactionSymbols);
+
+    addProperties(thermoProperties);
+
+    addTP_pairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
+
+    calculateResultsReac();
+
+    return Output (*this);
+}
+auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+                     std::vector<std::vector<double> > tp_pairs) -> Output
+{
+    addReactions(reactionSymbols);
+
+    addProperties(thermoProperties);
+
+    addTP_pairs(tp_pairs);
+
+    calculateResultsReac();
+
+    return Output (*this);
+}
+
 auto Interface::selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vector<Reaktoro_::ThermoScalar>
 {
     std::vector<Reaktoro_::ThermoScalar> resultsSubst;
@@ -123,6 +186,27 @@ auto Interface::selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vec
     return resultsSubst;
 }
 
+auto Interface::selectResultsReac ( ThermoPropertiesReaction tpr ) -> std::vector<Reaktoro_::ThermoScalar>
+{
+    std::vector<Reaktoro_::ThermoScalar> resultsReac;
+    std::map<int, std::string>::iterator it;
+
+    for(it = pimpl->propNames.begin(); it != pimpl->propNames.end(); it++)
+    {
+        if (it->second == "reaction_gibbs_energy")       {resultsReac.push_back(tpr.reaction_gibbs_energy);}
+        if (it->second == "reaction_helmholtz_energy")   {resultsReac.push_back(tpr.reaction_helmholtz_energy);}
+        if (it->second == "reaction_internal_energy")    {resultsReac.push_back(tpr.reaction_internal_energy);}
+        if (it->second == "reaction_enthalpy")           {resultsReac.push_back(tpr.reaction_enthalpy);}
+        if (it->second == "reaction_entropy")            {resultsReac.push_back(tpr.reaction_entropy);}
+        if (it->second == "reaction_volume")             {resultsReac.push_back(tpr.reaction_volume);}
+        if (it->second == "reaction_heat_capacity_cp")   {resultsReac.push_back(tpr.reaction_heat_capacity_cp);}
+        if (it->second == "reaction_heat_capacity_cv")   {resultsReac.push_back(tpr.reaction_heat_capacity_cv);}
+        if (it->second == "logKr")                       {resultsReac.push_back(tpr.log_equilibrium_constant);}
+        if (it->second == "lnK0")                        {resultsReac.push_back(tpr.ln_equilibrium_constant);}
+    }
+    return resultsReac;
+}
+
 auto Interface::calculateResultsSubst( ) -> void
 {
     pimpl->substResults.empty(); unsigned tp = pimpl->tp_pairs.size();
@@ -132,6 +216,19 @@ auto Interface::calculateResultsSubst( ) -> void
         for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
         {
             pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tp_pairs[j][0], pimpl->tp_pairs[j][1], pimpl->substSymbols[i]));
+        }
+    }
+}
+
+auto Interface::calculateResultsReac( ) -> void
+{
+    pimpl->reacResults.empty(); unsigned tp = pimpl->tp_pairs.size();
+    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tp_pairs.size());
+    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    {
+        for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
+        {
+            pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tp_pairs[j][0], pimpl->tp_pairs[j][1], pimpl->reacSymbols[i]));
         }
     }
 }
@@ -149,6 +246,21 @@ auto Interface::addSubstances (const std::vector<string> &substSymbols) -> void
     for (unsigned i = 0; i < substSymbols.size(); i++)
     {
         addSubstance(substSymbols[i]);
+    }
+}
+
+auto Interface::addReaction (const std::string &ReacSymbol) -> void
+{
+    if (std::find(pimpl->reacSymbols.begin(), pimpl->reacSymbols.end(), reacSymbol) == pimpl->reacSymbols.end())
+        pimpl->reacSymbols.push_back(reacSymbol);
+    // add exception ??
+}
+
+auto Interface::addReactions (const std::vector<string> &reacSymbols) -> void
+{
+    for (unsigned i = 0; i < reacSymbols.size(); i++)
+    {
+        addReaction(reacSymbols[i]);
     }
 }
 
@@ -245,6 +357,11 @@ auto Interface::substanceSymbols() -> const std::vector<string>
     return pimpl->substSymbols;
 }
 
+auto Interface::reactionSymbols() -> const std::vector<string>
+{
+    return pimpl->reacSymbols;
+}
+
 auto Interface::outputSettings() -> const OutputSettings
 {
     return pimpl->outSettings;
@@ -273,6 +390,11 @@ auto Interface::propDigits() -> const std::map<const std::string, int>
 auto Interface::resultsSubst() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
 {
     return pimpl->substResults;
+}
+
+auto Interface::resultsReac() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
+{
+    return pimpl->reacResults;
 }
 
 }

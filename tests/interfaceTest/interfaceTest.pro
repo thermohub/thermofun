@@ -7,6 +7,7 @@ TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++11
 
 #CONFIG += -std=c++11
+QT += widgets
 
 TARGET = autoTest
 

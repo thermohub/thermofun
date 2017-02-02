@@ -1,5 +1,3 @@
-
-
 #include "DBClient.h"
 #include "bsonio/dbdriverejdb.h"
 #include "bsonio/dbclient.h"
