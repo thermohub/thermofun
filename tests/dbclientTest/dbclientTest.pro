@@ -6,10 +6,11 @@ TEMPLATE = app
 #QMAKE_CXXFLAGS += -std=c++1y
 QMAKE_CXXFLAGS += -std=c++11
 
+QT += widgets
 
 #CONFIG += -std=c++11
 
-TARGET = autoTest
+TARGET = dbclientTest
 
 DEFINES += IPMGEMPLUGIN
 #DEFINES += NODEARRAYLEVEL
@@ -35,7 +36,7 @@ BUILD_DIR = $$OUT_PWD/..
 THRIFT_DIR    = ./thrift
 
 # Define the directory where GEMS4R source code is located
-GEMS4R_DIR = $$PWD/../../../gems4r/GEMS4R
+# EMS4R_DIR = $$PWD/../../../gems4r/GEMS4R
 
 # Define the directory where the third-party libraries have been installed
 #THIRDPARTY_DIR = $$BUILD_DIR/thirdparty/debug
@@ -51,19 +52,20 @@ THIRDPARTY_LIBRARY_DIR1 = $$THIRDPARTY_DIR/lib
 THIRDPARTY_LIBRARY_DIR2 = $$THIRDPARTY_DIR/lib/x86_64-linux-gnu
 
 DEPENDPATH    += $$THIRDPARTY_INCLUDE_DIR
-DEPENDPATH    += $$GEMS4R_DIR
+#DEPENDPATH    += $$GEMS4R_DIR
 
 INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
-INCLUDEPATH   += $$GEMS4R_DIR
+#INCLUDEPATH   += $$GEMS4R_DIR
 
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR2
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml -lReaktoro
+LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
+#-lReaktoro
 LIBS += -lthrift -lboost_regex
 LIBS += -llua5.2
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
-include(Modules/GEMS4R/GEMS4R.pri)
+#include(Modules/GEMS4R/GEMS4R.pri)
 
 

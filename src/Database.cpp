@@ -16,8 +16,6 @@
 namespace ThermoFun {
 
 namespace {
-using SubstancesMap = std::map<std::string, Substance>;
-using ReactionsMap = std::map<std::string, Reaction>;
 
 }
 
@@ -61,90 +59,35 @@ struct Database::Impl
 //               loadXml( bobj );
                break;
         }
-
-/*
-        bson InputBson;
-        bson bso;
-        bso.data = 0;
-
-        file.LoadBson( &InputBson );
-        string key = InputBson.data;
-
-
-        string kbuf;
-
-        vector<string> values;
-        string field = "properties.eos_hkf_coeffs.values.0";
-
-        bsonio::bson_to_key( InputBson.data, field.c_str(), kbuf );
-
-        bsonio::strip( kbuf );
-
-        std::string className = "VertexSubstance";
-
-        SchemaNode* data;
-
-        ThriftSchema schema;
-
-        data->_schema = &schema;
-
-        data->_schema->addSchemaFile("substance.schema.json");
-        data->_schema->addSchemaFile("graphdb.schema.json");
-        data->_schema->addSchemaFile("prop.schema.json");
-
-        SchemaNode* data2 = data->newSchemaStruct( className, bso.data );
-
-        char b;
-
-        // Reading work structure from json text file
-        fstream f(filename, ios::in);
-        bsonio::bsonioErrIf( !f.good() , filename, "Fileread error...");
-
-        bsonio::ParserJson parserJson;
-        string objStr;
-        string value;
-
-//        impex::FormatStructDataFile fformatdata;
-
-//        readDataFromBsonSchema(data->_schema, &InputBson, "VertexSubstance",  &fformatdata );
-
-        while( !f.eof() )
-           {
-              f.get(b);
-              if( b == bsonio::jsBeginObject )
-              {
-                b= ' ';
-                objStr =  parserJson.readObjectText(f);
-                //std::cout << objStr.c_str() << endl;
-                bson_init(&bso);
-                parserJson.parseObject( &bso );
-                bson_finish(&bso);
-
-                bsonio::bson_to_key( bso.data, field.c_str(), kbuf );
-                data2->setStruct(bso.data);
-
-                data2->field("properties.eos_hkf_coeffs.values.0")->getValue( value  );
-
-                int size = data2->field("properties.eos_hkf_coeffs.values")->getSizeArray();
-                vector<string> vvalue;
-
-                data2->field("properties.eos_hkf_coeffs.values")->getArray( vvalue  );
-
-//                cout << value << endl;
-
-               }
-            }
-
-*/
     }
 
     Impl(vector<bson> bsonSubstances)
     {
+        string kbuf;
         flog.open(parsinglogfile, ios::trunc); flog.close();
+
         for (int i=0; i<bsonSubstances.size(); i++)
-        {    
-            Substance substance = parseSubstance(bsonSubstances[i].data);
-            substances_map[substance.symbol()] = substance;
+        {
+
+            bsonio::bson_to_key( bsonSubstances[i].data, label, kbuf );
+
+            if (kbuf == "substance")
+            {
+                Substance substance = parseSubstance(bsonSubstances[i].data);
+                substances_map[substance.symbol()] = substance;
+            } else
+            if (kbuf == "reaction")
+            {
+                    //                      Reaction reaction = parseReaction(bso);
+                    //                      reactions_map[reaction.symbol()] = reaction;
+            } else
+            {
+                Exception exception;
+                exception.error << "Unknown JSON type " << kbuf << " ";
+                exception.reason << "The JSON object needs to be a substance or reaction.";
+                exception.line = __LINE__;
+                RaiseError(exception);
+            }
         }
     }
 
@@ -163,9 +106,19 @@ struct Database::Impl
         substances_map.insert({substance.symbol(), substance});
     }
 
+    auto addMapSubstances(const SubstancesMap& substances) -> void
+    {
+        substances_map = substances;
+    }
+
     auto addReaction(const Reaction& reaction) -> void
     {
         reactions_map.insert({reaction.name(), reaction});
+    }
+
+    auto addMapReactions(const ReactionsMap& reactions) -> void
+    {
+        reactions_map = reactions;
     }
 
     auto getSubstances() -> std::vector<Substance>
@@ -258,12 +211,12 @@ struct Database::Impl
                     if (kbuf == "reaction")
                     {
                           Reaction reaction = parseReaction(bso.data);
-                          reactions_map[reaction.name()] = reaction;
+                          reactions_map[reaction.symbol()] = reaction;
                     } else
                     {
                         Exception exception;
                         exception.error << "Unknown JSON type " << kbuf << " ";
-                        exception.reason << "The JSON object needs to be a substance, file " << filename << ".";
+                        exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
                         exception.line = __LINE__;
                         RaiseError(exception);
                     }
@@ -314,9 +267,19 @@ auto Database::addSubstance(const Substance& substance) -> void
     pimpl->addSubstance(substance);
 }
 
+auto Database::addMapSubstances(const SubstancesMap& substances) -> void
+{
+    pimpl->addMapSubstances(substances);
+}
+
 auto Database::addReaction(const Reaction& reaction) -> void
 {
     pimpl->addReaction(reaction);
+}
+
+auto Database::addMapReactions(const ReactionsMap& reactions) -> void
+{
+    pimpl->addMapReactions(reactions);
 }
 
 auto Database::getSubstance(std::string symbol) const -> const Substance&

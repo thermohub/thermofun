@@ -12,6 +12,7 @@ CONFIG += c++11
 
 QT  += widgets svg
 QT  += core gui printsupport concurrent
+DEFINES += DBCLIENT_H
 
 !win32 {
   DEFINES += __unix

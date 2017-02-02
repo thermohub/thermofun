@@ -17,6 +17,9 @@
 
 namespace ThermoFun {
 
+using SubstancesMap = std::map<std::string, Substance>;
+using ReactionsMap = std::map<std::string, Reaction>;
+
 // Forward declarations
 //class Substance;
 //class Reaction;
@@ -46,8 +49,14 @@ public:
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;
 
+    /// Add a map of Substances in the database.
+    auto addMapSubstances(const SubstancesMap& substances) -> void;
+
     /// Add an Reaction instance in the database.
     auto addReaction(const Reaction& reaction) -> void;
+
+    /// Add a map pf Reactions in the database.
+    auto addMapReactions(const ReactionsMap& reactions) -> void;
 
     /// Return all substance in the database
     auto getSubstances() -> std::vector<Substance>;

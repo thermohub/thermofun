@@ -57,8 +57,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
                 tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
                 break;
             }
-                // Exception
-                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+//                default:
+//                // Exception
+//                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
             }
 
             // method T
@@ -69,8 +70,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
                 tps = HPLandau(pref.workSubstance).thermoProperties(T, P, tps);
                 break;
             }
-                // Exception
-                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+//                default:
+//               // Exception
+//                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
             }
 
             // method P
@@ -137,8 +139,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
                 tps = IdealGasLawVol(pref.workSubstance).thermoProperties(T, P, tps);
                 break;
             }
-                // Exception
-                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+//                default:
+//                // Exception
+//                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
             }
         }
 
@@ -166,8 +169,9 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
                 tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
                 break;
             }
-                // Exception
-                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+//                default:
+//                // Exception
+//                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
             }
         }
     } else // substance proeprties calculated using the properties of a reaction
@@ -208,8 +212,9 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
             eps = WaterElectroFernandez1997(pref.workSubstance).electroPropertiesSolvent(T, P/*, ps*/);
             break;
         }
-            // Exception
-            errorMethodNotFound("solvent", pref.workSubstance.symbol(), __LINE__);
+//            default:
+//            // Exception
+//            errorMethodNotFound("solvent", pref.workSubstance.symbol(), __LINE__);
         }
     }
 
@@ -245,8 +250,9 @@ auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> Prop
             ps = WaterZhangDuan2005(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
             break;
         }
-            // Exception
-            errorMethodNotFound("solvent", pref.workSubstance.symbol(), __LINE__);
+//            default:
+//            // Exception
+//            errorMethodNotFound("solvent", pref.workSubstance.symbol(), __LINE__);
         }
     }
    return ps;
@@ -287,8 +293,9 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
         // calc_r_interp( q, p, CE, CV );
         break;
     }
-        // Exception
-        errorMethodNotFound("solvent", reac.name(), __LINE__);
+//    default:
+//        // Exception
+//        errorMethodNotFound("reaction", reac.name(), __LINE__);
     }
 
 
@@ -315,7 +322,11 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
         //    }
         //    // Calculating pressure correction to logK
         //    aW.twp->lgK -= aW.twp->dV * (aW.twp->P - aW.twp->Pst) / aW.twp->RT / lg_to_ln;
+        break;
     }
+//    default:
+//    // Exception
+//    errorMethodNotFound("reaction", reac.name(), __LINE__);
     }
 
 // make a new method P ???
