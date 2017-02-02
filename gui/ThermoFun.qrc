@@ -23,5 +23,8 @@
         <file>Icons/Incoming24.png</file>
         <file>Icons/RTparmModuleIcon24.png</file>
         <file>Icons/ShowGEMResultsIcon24.png</file>
+        <file>Icons/ComposModuleIcon24.png</file>
+        <file>Icons/CalculateRecordDataIcon24.png</file>
+        <file>Icons/SelectTP24.png</file>
     </qresource>
 </RCC>

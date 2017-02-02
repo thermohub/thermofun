@@ -36,7 +36,7 @@
 #include <algorithm>
 #include "ThermoFunWidget.h"
 #include "ui_ThermoFunWidget.h"
-#include "MinMaxDialog.h"
+#include "TPSetDialog.h"
 #include "bsonui/SchemaSelectDialog.h"
 #include "bsonui/SelectDialog.h"
 #include "bsonui/TableEditWindow.h"
@@ -55,6 +55,7 @@ void ThermoFunWidget::setActions()
              this, SLOT(typeChanged(const QString&)));
 
     // File
+    connect( ui->actionNew_Reset_Task_Definition, SIGNAL( triggered()), this, SLOT(CmResetThermoFunData()));
     connect( ui->actionE_xit, SIGNAL( triggered()), this, SLOT(close()));
     connect( ui->actionExport_CfgFile, SIGNAL( triggered()), this, SLOT(CmExportCFG()));
     connect( ui->actionImport_CfgFile, SIGNAL( triggered()), this, SLOT(CmImportCFG()));
@@ -62,10 +63,8 @@ void ThermoFunWidget::setActions()
     // Edit
     connect(ui->actionCopy_Field_Path, SIGNAL(triggered()), fieldTable, SLOT(CopyFieldPath()));
     connect(ui->actionCopy_Field, SIGNAL(triggered()), fieldTable, SLOT(CopyField()));
-    connect(ui->actionRealloc_T, SIGNAL(triggered()), this, SLOT(CmReallocT()));
-    connect(ui->actionReset_T, SIGNAL(triggered()), this, SLOT(CmResetT()));
-    connect(ui->actionRealloc_P, SIGNAL(triggered()), this, SLOT(CmReallocP()));
-    connect(ui->actionReset_P, SIGNAL(triggered()), this, SLOT(CmResetP()));
+    connect(ui->actionRealloc_TP, SIGNAL(triggered()), this, SLOT(CmReallocTP()));
+    connect(ui->actionReset_TP, SIGNAL(triggered()), this, SLOT(CmResetTP()));
     connect(ui->actionChange_Property_list, SIGNAL(triggered()), this, SLOT(CmResetProperty()));
 
     // Help
@@ -233,17 +232,21 @@ void ThermoFunWidget::updateQuery( const DBQueryDef& query  )
 
 // new commands -------------------------------------------------------------------
 
-void ThermoFunWidget::CmReallocT()
+void ThermoFunWidget::CmReallocTP()
 {
   try{
         bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new T array size",
-                 "Array size ", _data.pointsT.size(), 0, 999, 1, &ok );
+        uint size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
+                 "Array size ", _data.tppairs.size(), 0, 999, 1, &ok );
         if(!ok) // cancel command
             return;
 
-        _data.pointsT.resize(size);
-        _TlistModel->resetMatrixData();
+        _data.tppairs.clear();
+        for (uint i = 0; i<size; i++ )
+        {
+            _data.tppairs.push_back({0,0});
+        }
+        _TPlistModel->resetMatrixData();
     }
    catch(bsonio_exeption& e)
    {
@@ -256,27 +259,18 @@ void ThermoFunWidget::CmReallocT()
 }
 
 
-void ThermoFunWidget::CmResetT()
+void ThermoFunWidget::CmResetTP()
 {
   try{
         // define new preferences
-        MinMaxDialog dlg("Please, insert T interval", this);
+        TPSetDialog dlg( this);
          if( !dlg.exec() )
              return;
-        int crt = dlg.getMin();
-        int Tmax = dlg.getMax();
-        int step = dlg.getStep();
 
-        _data.pointsT.clear();
-        if(!step)
-            _data.pointsT.push_back(crt);
-        else
-           do{
-               _data.pointsT.push_back(crt);
-                crt += step;
-              }while( (step>0 && crt<=Tmax) || (step<0 && crt>=Tmax));
-
-        _TlistModel->resetMatrixData();
+         ui->pTunit->setCurrentText(dlg.getTUnits());
+         ui->pPunit->setCurrentText(dlg.getPUnits());
+        _data.tppairs = dlg.getTPpairs();
+        _TPlistModel->resetMatrixData();
     }
    catch(bsonio_exeption& e)
    {
@@ -288,60 +282,6 @@ void ThermoFunWidget::CmResetT()
     }
 }
 
-void ThermoFunWidget::CmReallocP()
-{
-  try{
-        bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new P array size",
-                 "Array size ", _data.pointsP.size(), 0, 999, 1, &ok );
-        if(!ok) // cancel command
-            return;
-
-        _data.pointsP.resize(size);
-        _PlistModel->resetMatrixData();
-    }
-   catch(bsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
-
-
-void ThermoFunWidget::CmResetP()
-{
-  try{
-        // define new preferences
-        MinMaxDialog dlg("Please, insert P interval", this);
-         if( !dlg.exec() )
-             return;
-        int crt = dlg.getMin();
-        int max = dlg.getMax();
-        int step = dlg.getStep();
-
-        _data.pointsP.clear();
-        if(!step)
-            _data.pointsP.push_back(crt);
-        else
-           do{
-               _data.pointsP.push_back(crt);
-                crt += step;
-              }while( (step>0 && crt<=max) || (step<0 && crt>=max));
-
-        _PlistModel->resetMatrixData();
-    }
-   catch(bsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
 
 void ThermoFunWidget::CmResetProperty()
 {
@@ -382,6 +322,43 @@ void ThermoFunWidget::CmResetProperty()
 
 }
 
+void ThermoFunWidget::CmResetThermoFunData()
+{
+    ThermoFunData dt;
+
+    _data = dt;
+
+    // define ThermoFun data
+    _TPContainer = new TPContainer( "T", { "T", "P" }, _data.tppairs );
+    _TPlistTable  = new TMatrixTable( ui->outWidget );
+    TMatrixDelegate* deleg = new TMatrixDelegate();
+    _TPlistTable->setItemDelegate(deleg);
+    _TPlistModel = new TMatrixModel( _TPContainer, this );
+    _TPlistTable->setModel(_TPlistModel);
+    _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
+    ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
+
+    _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
+    _PropertyTable  = new TMatrixTable( ui->inWidget );
+     deleg = new TMatrixDelegate();
+    _PropertyTable->setItemDelegate(deleg);
+    _PropertyModel = new TMatrixModel( _PropertyContainer, this );
+    _PropertyTable->setModel(_PropertyModel);
+    _PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
+    ui->gridLayout_2->addWidget(_PropertyTable, 6, 0, 1, 7);
+    ui->pName->setText(_data.name.c_str());
+    ui->pComment->setText(_data.comment.c_str());
+    ui->pTVal->setValue(_data.T);
+    ui->pPVal->setValue(_data.P);
+    ui->pTunit->setCurrentText( _data.unitsT.c_str());
+    ui->pPunit->setCurrentText(_data.unitsP.c_str());
+    ui->pPrecision->setValue(_data.pPrecision);
+    ui->tPrecision->setValue(_data.tPrecision);
+
+    ui->calcStatus->setText(_data.calcStatus.c_str());
+
+    ui->actionShow_Results->setEnabled(false);
+}
 
 /// Read bson record from json file fileName
 void ThermoFunWidget::CmImportCFG()
@@ -546,7 +523,6 @@ void ThermoFunWidget::CmCalcMTPARM()
         dbgraph->GetRecord( key.c_str() );
         string valDB = dbgraph->GetJson();
         jsonToBson( &selectedList[ii], valDB );
-
         bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substSymbol, substancesSymbols[ii]);
         bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
       }
@@ -704,182 +680,31 @@ oneSolvent:
 
       tpCalc.addDigits(precision);
 
-      std::vector<std::vector<double>> TPpairs;
-      for (uint jj=0; jj<_data.pointsT.size(); jj++)
-      {
-          TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
-      }
-
       struct timeval start, end;
       gettimeofday(&start, NULL);
 
-      tpCalc.calculateProperties(substancesSymbols, _data.properties, TPpairs).toCSV(op.fileNameSubst);
+      tpCalc.calculateProperties(substancesSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
 
       gettimeofday(&end, NULL);
       double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
                            end.tv_usec - start.tv_usec) / 1.e6;
 
-      cout << "Finished ThermoFun calculation in "<< delta_calc << "s!" << endl;
+      string status = "Calculations finished ("+ to_string(delta_calc) + "s). View results.";
+
+      ui->calcStatus->setText(status.c_str());
+      ui->actionShow_Results->setEnabled(true);
 
    }
    catch(bsonio_exeption& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
+       ui->calcStatus->setText(e.what());
    }
    catch(std::exception& e)
    {
        QMessageBox::critical( this, "std::exception", e.what() );
+       ui->calcStatus->setText(e.what());
    }
-
-
-
-
-
-//   try {
-//          // Select keys to send to ThermoFun
-//          bool isSolvent = false;
-//          vector<string> aKeyList;
-//          vector<vector<string>> aValList;
-//          vector<int> selNdx;
-//          vector<string> substancesSymbols, substancesClass;
-//          dbgraph->GetKeyValueList( aKeyList, aValList );
-//          ThermoFun::Database tdb;
-//          string solventSymbol;
-
-//         if( aKeyList.empty() )
-//             return;
-
-//         SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
-//         if( !selDlg.exec() )
-//            return;
-//          selNdx =  selDlg.allSelected();
-//          selectedList.resize(selNdx.size());
-//          substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
-
-//         for( uint ii=0; ii<selNdx.size(); ii++ )
-//         {
-//           string key = aKeyList[selNdx[ii]];
-////           dbgraph->GetRecord( key.c_str() );
-////           selectedList.push_back(curRecord);
-//           dbgraph->GetRecord( key.c_str() );
-//           string valDB = dbgraph->GetJson();
-//           jsonToBson( &selectedList[ii], valDB );
-
-//           bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substSymbol, substancesSymbols[ii]);
-//           bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
-//         }
-
-////         ThermoFun::Interface tpCalc(selectedList);
-
-//         // check solvent
-//         for (uint ii=0; ii<substancesClass.size(); ii++)
-//         {
-//             if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
-//             {
-////                 tpCalc.setSolventSymbolForAqSubst(substancesSymbols[ii]);
-//                 isSolvent = true;
-//                 number_selected_solvent++;
-//                 solventSymbol = substancesSymbols[ii];
-//             }
-//         }
-
-//         if (!isSolvent || number_selected_solvent>1)
-//         {
-//            // query the solvent
-//                 string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
-//                 DBQueryDef newquery = dbgraph->getQuery();
-//                 newquery.setEJDBQuery(qrJson);
-//                 updateQuery( newquery  );
-
-//                 dbgraph->GetKeyValueList( aKeyList, aValList );
-//oneSolvent:
-//             SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
-//                                   aValList, selNdx );
-//             if( !selDlg2.exec() )
-//                 return;
-//             selNdx = selDlg2.allSelected();
-
-//             if (selNdx.size() != 1)
-//                 goto oneSolvent;
-//             bson solvent; string symbol, class_;
-
-//             string key = aKeyList[selNdx[0]];
-//             dbgraph->GetRecord( key.c_str() );
-//             string valDB = dbgraph->GetJson();
-//             jsonToBson( &solvent, valDB );
-
-//             bsonio::bson_to_key( solvent.data, ThermoFun::substClass, class_);
-//             bsonio::bson_to_key( solvent.data, ThermoFun::substSymbol, symbol);
-
-//             bool wasSelected = false;
-
-//             std::vector<string>::iterator it = std::find(substancesSymbols.begin(), substancesSymbols.end(), symbol);
-
-//             if (it != substancesSymbols.end())
-//                 wasSelected = true;
-//             else
-//                 wasSelected = false;
-
-//             if (!wasSelected)
-//             {
-////                 substancesSymbols.push_back(symbol);
-////                 substancesClass.push_back(class_);
-//                 selectedList.push_back(solvent);
-//             }
-
-//             solventSymbol = symbol;
-
-//             // reset to the old list of substances
-//              updateQuery( oldquery  );
-//         }
-
-//         ThermoFun::Interface tpCalc (selectedList);
-//         tpCalc.setSolventSymbolForAqSubst(solventSymbol);
-
-//         ThermoFun::OutputSettings op;
-//         if (ui->FormatBox->isChecked())
-//         {
-//             op.isFixed = true;
-//             tpCalc.setOutputSettings(op);
-//         }
-
-//         std::map<const std::string, int> precision = ThermoFun::defaultPropertyDigits;
-//         for (uint jj = 0; jj <_data.properties.size(); jj++)
-//         {
-//             precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
-//         }
-
-//         precision.at("temperature") = _data.tPrecision;
-//         precision.at("pressure") = _data.pPrecision;
-
-//         tpCalc.addDigits(precision);
-
-//         std::vector<std::vector<double>> TPpairs;
-//         for (uint jj=0; jj<_data.pointsT.size(); jj++)
-//         {
-//             TPpairs.push_back({_data.pointsT[jj], _data.pointsP[jj]});
-//         }
-
-//         struct timeval start, end;
-//         gettimeofday(&start, NULL);
-
-//         tpCalc.calculateProperties(substancesSymbols, _data.properties, TPpairs).toCSV(op.fileNameSubst);
-
-//         gettimeofday(&end, NULL);
-//         double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
-//                  end.tv_usec - start.tv_usec) / 1.e6;
-
-//         cout << "Finished ThermoFun calculation in "<< delta_calc << "s!" << endl;
-
-//    }
-//   catch(bsonio_exeption& e)
-//   {
-//       QMessageBox::critical( this, e.title(), e.what() );
-//   }
-//   catch(std::exception& e)
-//    {
-//       QMessageBox::critical( this, "std::exception", e.what() );
-//    }
 
 }
 

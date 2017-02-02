@@ -12,6 +12,7 @@
 #include "ThermoFunWidget.h"
 #include "bsonio/dbdriverejdb.h"
 #include "bsonio/dbclient.h"
+
 using namespace bsonio;
 
 
@@ -205,7 +206,7 @@ void TestMainWindow::CmNewTCorPT()
 {
   try{
         BSONUIBase* testWidget;
-        testWidget = new ThermoFunWidget( mainSettings, &schema, ""/*cfg file name, this*/ );
+        testWidget = new ThermoFunWidget( mainSettings, &schema /*,this*/ );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
         testWidget->setShowWidgetFunction(showWidget);
