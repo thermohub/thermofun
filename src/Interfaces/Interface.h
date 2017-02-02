@@ -118,7 +118,9 @@ const std::map<const std::string, const std::string> defaultPropertyNames =
     {"reaction_entropy",               "reaction"      },
     {"reaction_volume",                "reaction"      },
     {"reaction_heat_capacity_cp",      "reaction"      },
-    {"reaction_heat_capacity_cv",      "reaction"      }
+    {"reaction_heat_capacity_cv",      "reaction"      },
+    {"logKr",                          "reaction"      },
+    {"lnK0",                           "reaction"      }
 
 };
 
@@ -144,7 +146,9 @@ const std::map<const std::string, std::string> defaultPropertyUnits =
     {"reaction_entropy",               "J/mol"         },
     {"reaction_volume",                "J/bar"         },
     {"reaction_heat_capacity_cp",      "J/mol*K"       },
-    {"reaction_heat_capacity_cv",      "J/mol*K"       }
+    {"reaction_heat_capacity_cv",      "J/mol*K"       },
+    {"logKr",                          ""              },
+    {"lnK0",                           ""              }
 
 };
 
@@ -171,6 +175,8 @@ const std::map<const std::string, int> defaultPropertyDigits =
     {"reaction_volume",                0               },
     {"reaction_heat_capacity_cp",      0               },
     {"reaction_heat_capacity_cv",      0               },
+    {"logKr",                          0               },
+    {"lnK0",                           0               }
 
 };
 
