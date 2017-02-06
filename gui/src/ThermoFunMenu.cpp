@@ -338,7 +338,16 @@ void ThermoFunWidget::CmResetThermoFunData()
     _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
     ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
 
+    if (curSchemaName == "VertexSubstance")
+        _data.properties[0] = "gibbs_energy";
+    if (curSchemaName == "VertexReaction")
+        _data.properties[0] = "reaction_gibbs_energy";
+
+    _data.propertyUnits[0] = _data.mapUnits[_data.properties[0]];
+    _data.propertyPrecision[0] = _data.mapPrecision[_data.properties[0]];
+
     _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
+
     _PropertyTable  = new TMatrixTable( ui->inWidget );
      deleg = new TMatrixDelegate();
     _PropertyTable->setItemDelegate(deleg);
@@ -482,229 +491,257 @@ std::string ThermoFunWidget::getDefinesReactionSymbol(std::string _idSubst)
 void ThermoFunWidget::CmCalcMTPARM()
 {
     if( dbgraph.get() == 0 )
-          return;
-   vector<bson> selectedList;
-   int number_selected_solvent = 0;
+        return;
+    vector<bson> selectedList;
+    int number_selected_solvent = 0;
 
-   DBQueryDef oldquery( dbgraph->getQuery());
+    DBQueryDef oldquery( dbgraph->getQuery());
 
-   try {
-       // Select keys to send to ThermoFun
-       bool isSolvent = false;
-       string key, valDB, _idSubst;
-       bson record;
-       vector<string> aKeyList;
-       vector<vector<string>> aValList;
-       vector<int> selNdx, selNdx_;
-       vector<string> substancesSymbols, substancesClass;
-       dbgraph->GetKeyValueList( aKeyList, aValList );
-       string solventSymbol;
-       typedef ThermoFun::MapIdBson::iterator it_;
+    try {
+        // Select keys to send to ThermoFun
+        bool isSolvent = false;
+        string key, valDB, _idSubst;
+        bson record;
+        vector<string> aKeyList;
+        vector<vector<string>> aValList;
+        vector<int> selNdx, selNdx_;
+        vector<string> substancesSymbols, substancesClass, reactionsSymbols;
+        dbgraph->GetKeyValueList( aKeyList, aValList );
+        string solventSymbol;
+        typedef ThermoFun::MapIdBson::iterator it_;
 
-       // The set of all aqueous species in the database
-       ThermoFun::SubstancesMap substances_map;
-       // The set of all gaseous species in the database
-       ThermoFun::ReactionsMap reactions_map;
+        // The set of all aqueous species in the database
+        ThermoFun::SubstancesMap substances_map;
+        // The set of all gaseous species in the database
+        ThermoFun::ReactionsMap reactions_map;
 
-       if( aKeyList.empty() )
-           return;
+        if( aKeyList.empty() )
+            return;
 
-       SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
-       if( !selDlg.exec() )
-           return;
-       selNdx =  selDlg.allSelected();
-       selectedList.resize(selNdx.size());
-       selNdx_= selNdx;
-       substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
+        SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
+        if( !selDlg.exec() )
+            return;
+        selNdx =  selDlg.allSelected();
+        selectedList.resize(selNdx.size());
+        selNdx_= selNdx;
 
-      for( uint ii=0; ii<selNdx.size(); ii++ )
-      {
-        string key = aKeyList[selNdx[ii]];
-        dbgraph->GetRecord( key.c_str() );
-        string valDB = dbgraph->GetJson();
-        jsonToBson( &selectedList[ii], valDB );
-        bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substSymbol, substancesSymbols[ii]);
-        bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
-      }
+        if (curSchemaName == "VertexSubstance")
+        {
+            substancesSymbols.resize(selNdx.size()); substancesClass.resize(selNdx.size());
+            for( uint ii=0; ii<selNdx.size(); ii++ )
+            {
+                string key = aKeyList[selNdx[ii]];
+                dbgraph->GetRecord( key.c_str() );
+                string valDB = dbgraph->GetJson();
+                jsonToBson( &selectedList[ii], valDB );
+                bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substSymbol, substancesSymbols[ii]);
+                bsonio::bson_to_key( selectedList[ii].data, ThermoFun::substClass, substancesClass[ii]);
+            }
+        }
 
-      // check for solvent
-      for (uint ii=0; ii<substancesClass.size(); ii++)
-      {
-          if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
-          {
-              isSolvent = true;
-              number_selected_solvent++;
-              solventSymbol = substancesSymbols[ii];
-          }
-      }
+        if (curSchemaName == "VertexReaction")
+        {
+            reactionsSymbols.resize(selNdx.size());
+            for( uint ii=0; ii<selNdx.size(); ii++ )
+            {
+                string key = aKeyList[selNdx[ii]];
+                dbgraph->GetRecord( key.c_str() );
+                string valDB = dbgraph->GetJson();
+                jsonToBson( &selectedList[ii], valDB );
+                bsonio::bson_to_key( selectedList[ii].data, ThermoFun::reacSymbol, reactionsSymbols[ii]);
+            }
+        }
 
-      if (!isSolvent || number_selected_solvent>1)
-      {
-         // query the solvent
-              string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
-              DBQueryDef newquery = dbgraph->getQuery();
-              newquery.setEJDBQuery(qrJson);
-              updateQuery( newquery  );
+        ThermoFun::Traversal tr(dbgraph);
 
-              dbgraph->GetKeyValueList( aKeyList, aValList );
+        ThermoFun::MapIdBson map_ = tr.getLinkedSelectedData(selNdx_, aKeyList);
+
+        // get substances and the reaction symbol if necessary
+        for(it_ iterator = map_.begin(); iterator != map_.end(); iterator++)
+        {
+            if (iterator->second == "substance")
+            {
+                resetDBClient("VertexSubstance");
+                string substClass, substSymbol;
+                key = iterator->first +":";
+                dbgraph->GetRecord( key.c_str() );
+                valDB = dbgraph->GetJson();
+                jsonToBson( &record, valDB );
+                bsonio::bson_to_key( record.data, "_id", _idSubst );
+//                bsonio::bson_to_key( record.data, ThermoFun::substClass, substClass );
+//                bsonio::bson_to_key( record.data, ThermoFun::substSymbol, substSymbol );
+//                substancesClass.push_back(substClass);
+//                substancesSymbols.push_back(substSymbol);
+
+                ThermoFun::Substance substance = ThermoFun::parseSubstance(record.data);
+
+                if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
+                    substances_map[substance.symbol()] = substance;
+                } else {
+                    // ERROR substance with the same symbol found!
+                }
+
+                // get reaction symbol which define substance with _idSubst
+                if (getDefinesReactionSymbol(_idSubst) != "")
+                {
+                    substance.setReactionSymbol(getDefinesReactionSymbol(_idSubst));
+                    substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
+                }
+
+                substances_map[substance.symbol()] = substance;
+            } else
+                if (iterator->second == "reaction")
+                {
+                    resetDBClient("VertexReaction");
+
+                    key = iterator->first +":";
+                    dbgraph->GetRecord( key.c_str() );
+                    valDB = dbgraph->GetJson();
+                    jsonToBson( &record, valDB );
+                    bsonio::bson_to_key( record.data, "_id", key );
+
+                    ThermoFun::Reaction reaction = ThermoFun::parseReaction(record.data);
+
+                    if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
+                        reactions_map[reaction.symbol()] = reaction;
+                    } else {
+                        // ERROR reaction with the same symbol found!
+                    }
+
+                    // get reactants by following reaction incoming takes edge
+                    reaction.setReactants(getReactantsCoeffMap(key));
+
+                    reactions_map[reaction.symbol()] = reaction;
+                }
+
+        }
+        resetDBClient(curSchemaName);
+
+        // check for solvent
+        resetDBClient("VertexSubstance");
+        for (uint ii=0; ii<substancesClass.size(); ii++)
+        {
+            if (stoi(substancesClass[ii]) == ThermoFun::SubstanceClass::type::AQSOLVENT)
+            {
+                isSolvent = true;
+                number_selected_solvent++;
+                solventSymbol = substancesSymbols[ii];
+            }
+        }
+
+        if (!isSolvent || number_selected_solvent>1)
+        {
+            // query the solvent
+            string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
+            DBQueryDef newquery = dbgraph->getQuery();
+            newquery.setEJDBQuery(qrJson);
+            updateQuery( newquery  );
+
+            dbgraph->GetKeyValueList( aKeyList, aValList );
 oneSolvent:
-          SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
-                                aValList, selNdx );
-          if( !selDlg2.exec() )
-              return;
-          selNdx = selDlg2.allSelected();
+            SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
+                                  aValList, selNdx );
+            if( !selDlg2.exec() )
+                return;
+            selNdx = selDlg2.allSelected();
 
-          if (selNdx.size() != 1)
-              goto oneSolvent;
-          bson solvent; string symbol, class_;
+            if (selNdx.size() != 1)
+                goto oneSolvent;
+            bson solvent; string symbol, class_;
 
-          string key = aKeyList[selNdx[0]];
-          dbgraph->GetRecord( key.c_str() );
-          string valDB = dbgraph->GetJson();
-          jsonToBson( &solvent, valDB );
+            string key = aKeyList[selNdx[0]];
+            dbgraph->GetRecord( key.c_str() );
+            string valDB = dbgraph->GetJson();
+            jsonToBson( &solvent, valDB );
 
-          bsonio::bson_to_key( solvent.data, ThermoFun::substClass, class_);
-          bsonio::bson_to_key( solvent.data, ThermoFun::substSymbol, symbol);
+            bsonio::bson_to_key( solvent.data, ThermoFun::substClass, class_);
+            bsonio::bson_to_key( solvent.data, ThermoFun::substSymbol, symbol);
 
-          bool wasSelected = false;
+            bool wasSelected = false;
 
-          std::vector<string>::iterator it = std::find(substancesSymbols.begin(), substancesSymbols.end(), symbol);
+            std::vector<string>::iterator it = std::find(substancesSymbols.begin(), substancesSymbols.end(), symbol);
 
-          if (it != substancesSymbols.end())
-              wasSelected = true;
-          else
-              wasSelected = false;
+            if (it != substancesSymbols.end())
+                wasSelected = true;
+            else
+                wasSelected = false;
 
-          if (!wasSelected)
-          {
-              selectedList.push_back(solvent);
+            if (!wasSelected)
+            {
+                selectedList.push_back(solvent);
 
-              ThermoFun::Substance solv = ThermoFun::parseSubstance(solvent.data);
+                ThermoFun::Substance solv = ThermoFun::parseSubstance(solvent.data);
 
-              substances_map[symbol] = solv;
-              selNdx_.push_back(selNdx[0]);
+                substances_map[symbol] = solv;
+                selNdx_.push_back(selNdx[0]);
 
-          }
+            }
 
-          solventSymbol = symbol;
+            solventSymbol = symbol;
 
-      }
+        }
 
-      // reset to the old list of substances
-      updateQuery( oldquery  );
-      dbgraph->GetKeyValueList( aKeyList, aValList );
+        // reset to the old list of substances
+        updateQuery( oldquery  );
+        dbgraph->GetKeyValueList( aKeyList, aValList );
 
-      ThermoFun::Traversal tr(dbgraph);
+        resetDBClient(curSchemaName);
 
-      ThermoFun::MapIdBson map_ = tr.getLinkedSelectedData(selNdx_, aKeyList);
+        ThermoFun::Database tdb;
+        tdb.addMapReactions(reactions_map);
+        tdb.addMapSubstances(substances_map);
 
-      // get substances and the reaction symbol if necessary
-      for(it_ iterator = map_.begin(); iterator != map_.end(); iterator++)
-      {
-          if (iterator->second == "substance")
-          {
-              resetDBClient("VertexSubstance");
+        ThermoFun::Interface tpCalc (tdb);
+        tpCalc.setSolventSymbolForAqSubst(solventSymbol);
 
-              key = iterator->first +":";
-              dbgraph->GetRecord( key.c_str() );
-              valDB = dbgraph->GetJson();
-              jsonToBson( &record, valDB );
-              bsonio::bson_to_key( record.data, "_id", _idSubst );
+        ThermoFun::OutputSettings op;
+        if (ui->FormatBox->isChecked())
+        {
+            op.isFixed = true;
+            tpCalc.setOutputSettings(op);
+        }
 
-              ThermoFun::Substance substance = ThermoFun::parseSubstance(record.data);
+        std::map<const std::string, int> precision = ThermoFun::defaultPropertyDigits;
+        for (uint jj = 0; jj <_data.properties.size(); jj++)
+        {
+            precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
+        }
 
-              if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
-                  substances_map[substance.symbol()] = substance;
-              } else {
-                  // ERROR substance with the same symbol found!
-              }
+        precision.at("temperature") = _data.tPrecision;
+        precision.at("pressure") = _data.pPrecision;
 
-              // get reaction symbol which define substance with _idSubst
-              if (getDefinesReactionSymbol(_idSubst) != "")
-              {
-                  substance.setReactionSymbol(getDefinesReactionSymbol(_idSubst));
-                  substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
-              }
+        tpCalc.addDigits(precision);
 
-              substances_map[substance.symbol()] = substance;
-          } else
-              if (iterator->second == "reaction")
-              {
-                  resetDBClient("VertexReaction");
+        struct timeval start, end;
+        gettimeofday(&start, NULL);
 
-                  key = iterator->first +":";
-                  dbgraph->GetRecord( key.c_str() );
-                  valDB = dbgraph->GetJson();
-                  jsonToBson( &record, valDB );
-                  bsonio::bson_to_key( record.data, "_id", key );
 
-                  ThermoFun::Reaction reaction = ThermoFun::parseReaction(record.data);
+        if (curSchemaName == "VertexReaction")
+            tpCalc.calcPropReactions(reactionsSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
 
-                  if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
-                      reactions_map[reaction.symbol()] = reaction;
-                  } else {
-                      // ERROR reaction with the same symbol found!
-                  }
+        if (curSchemaName == "VertexSubstance")
+            tpCalc.calculateProperties(substancesSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
 
-                  // get reactants by following reaction incoming takes edge
-                  reaction.setReactants(getReactantsCoeffMap(key));
+        gettimeofday(&end, NULL);
+        double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
+                             end.tv_usec - start.tv_usec) / 1.e6;
 
-                  reactions_map[reaction.symbol()] = reaction;
-              }
+        string status = "Calculations finished ("+ to_string(delta_calc) + "s). View results.";
 
-      }
-      resetDBClient("VertexSubstance");
+        ui->calcStatus->setText(status.c_str());
+        ui->actionShow_Results->setEnabled(true);
 
-      ThermoFun::Database tdb;
-      tdb.addMapReactions(reactions_map);
-      tdb.addMapSubstances(substances_map);
-
-      ThermoFun::Interface tpCalc (tdb);
-      tpCalc.setSolventSymbolForAqSubst(solventSymbol);
-
-      ThermoFun::OutputSettings op;
-      if (ui->FormatBox->isChecked())
-      {
-          op.isFixed = true;
-          tpCalc.setOutputSettings(op);
-      }
-
-      std::map<const std::string, int> precision = ThermoFun::defaultPropertyDigits;
-      for (uint jj = 0; jj <_data.properties.size(); jj++)
-      {
-          precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
-      }
-
-      precision.at("temperature") = _data.tPrecision;
-      precision.at("pressure") = _data.pPrecision;
-
-      tpCalc.addDigits(precision);
-
-      struct timeval start, end;
-      gettimeofday(&start, NULL);
-
-      tpCalc.calculateProperties(substancesSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
-
-      gettimeofday(&end, NULL);
-      double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
-                           end.tv_usec - start.tv_usec) / 1.e6;
-
-      string status = "Calculations finished ("+ to_string(delta_calc) + "s). View results.";
-
-      ui->calcStatus->setText(status.c_str());
-      ui->actionShow_Results->setEnabled(true);
-
-   }
-   catch(bsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-       ui->calcStatus->setText(e.what());
-   }
-   catch(std::exception& e)
-   {
-       QMessageBox::critical( this, "std::exception", e.what() );
-       ui->calcStatus->setText(e.what());
-   }
+    }
+    catch(bsonio_exeption& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+        ui->calcStatus->setText(e.what());
+    }
 
 }
 

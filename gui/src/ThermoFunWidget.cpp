@@ -344,6 +344,9 @@ void ThermoFunWidget::typeChanged(const QString & text)
         }
         else
          dbgraph->resetSchema( curSchemaName, false );
+
+        CmResetThermoFunData();
+
     }
    catch(bsonio_exeption& e)
    {
