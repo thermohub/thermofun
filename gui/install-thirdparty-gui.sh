@@ -20,18 +20,15 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../../build-ThermoFun-gui/{debug,release}/thirdparty
+mkdir -p ../../build-ThermoFun-gui/release/thirdparty
 
-cd ../../build-ThermoFun-gui/debug/thirdparty
+cd ../../build-ThermoFun-gui/release/thirdparty
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=.
 
-make -j$J install
+cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
-cd ../../release/thirdparty
+make -j$J 
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=.
+sudo make install
 
-make -j$J install=$1
-
-make -j$J install
+sudo ldconfig
