@@ -1,6 +1,8 @@
 #ifndef TPCALCULATIONSAPI
 #define TPCALCULATIONSAPI
 #include "Thermo.h"
+#include "DBClient/DBClient.h"
+#include "DBClient/Traversal.h"
 
 namespace ThermoFun {
 

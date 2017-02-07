@@ -249,7 +249,7 @@ auto Interface::addSubstances (const std::vector<string> &substSymbols) -> void
     }
 }
 
-auto Interface::addReaction (const std::string &ReacSymbol) -> void
+auto Interface::addReaction (const std::string &reacSymbol) -> void
 {
     if (std::find(pimpl->reacSymbols.begin(), pimpl->reacSymbols.end(), reacSymbol) == pimpl->reacSymbols.end())
         pimpl->reacSymbols.push_back(reacSymbol);
