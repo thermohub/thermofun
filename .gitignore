@@ -14,6 +14,16 @@ tests/unit06/H2OZD2005-test.pro.user
 tests/gUnitTest/gUnitTest.pro.user
 tests/interfaceTest/interfaceTest.pro.user
 tests/dbclientTest/dbclientTest.pro.user
-tests/dbclientTest/reactionsTest.pro.user
 src/*.autosave
 tests/unit01/src/*.autosave
+
+tests/autoTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
+tests/autoTest/install-thirdparty-old.sh
+tests/dbclientTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
+tests/dbclientTest/install-thirdparty-old.sh
+tests/interfaceTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
+tests/interfaceTest/install-thirdparty-old.sh
+tests/reactionsTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
+tests/reactionsTest/install-thirdparty-old.sh
+tests/reactionsTest/reactionsTest.pro.user
+
