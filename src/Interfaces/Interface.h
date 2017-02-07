@@ -21,7 +21,7 @@ struct OutputSettings
     std::string separator = ",";
 
     /// file name/path
-    std::string fileNameSubst = "tpresults_subst.csv";
+    std::string fileName = "tpresults.csv";
 };
 
 ///

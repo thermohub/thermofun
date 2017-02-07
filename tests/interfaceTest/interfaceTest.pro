@@ -38,13 +38,12 @@ INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"
 
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml 
+LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex
 LIBS += -llua5.2
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
-#include(Modules/GEMS4R/GEMS4R.pri)
 
 
