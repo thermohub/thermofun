@@ -157,9 +157,9 @@ const std::map<const std::string, std::string> defaultPropertyUnits =
 
     {"gibbs_energy",                   "J/mol"         },
     {"enthalpy",                       "J/mol"         },
-    {"entropy",                        "J/mol"         },
-    {"heat_capacity_cp",               "J/mol*K"       },
-    {"heat_capacity_cv",               "J/mol*K"       },
+    {"entropy",                        "J/K/mol"       },
+    {"heat_capacity_cp",               "J/K/mol"       },
+    {"heat_capacity_cv",               "J/K/mol"       },
     {"volume", "J/bar"},
     {"helmholtz_energy",               "J/mol"         },
     {"internal_energy",                "J/mol"         },
@@ -170,8 +170,8 @@ const std::map<const std::string, std::string> defaultPropertyUnits =
     {"reaction_enthalpy",              "J/mol"         },
     {"reaction_entropy",               "J/mol"         },
     {"reaction_volume",                "J/bar"         },
-    {"reaction_heat_capacity_cp",      "J/mol*K"       },
-    {"reaction_heat_capacity_cv",      "J/mol*K"       },
+    {"reaction_heat_capacity_cp",      "J/K/mol"       },
+    {"reaction_heat_capacity_cv",      "J/K/mol"       },
     {"logKr",                          ""              },
     {"lnK0",                           ""              }
 
