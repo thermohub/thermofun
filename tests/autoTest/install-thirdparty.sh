@@ -2,13 +2,13 @@
 
 J=1
 
-while [[ $# > 2 ]]
+while [[ $# > 1 ]]
 do
-key="$2"
+key="$1"
 
 case $key in
     -j)
-    J="$3"
+    J="$2"
     shift
     ;;
     *)
@@ -20,16 +20,15 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../../../build-auto-test/{debug,release}/thirdparty
+mkdir -p ../../../build-auto-test/release/thirdparty
 
 cd ../../../build-auto-test/debug/thirdparty
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
-
-make -j$J install
-
-cd ../../release/thirdparty
 
 cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
-make -j$J install
+make -j$J 
+
+sudo make install
+
+sudo ldconfig

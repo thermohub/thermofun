@@ -6,10 +6,14 @@ TEMPLATE = app
 #QMAKE_CXXFLAGS += -std=c++1y
 QMAKE_CXXFLAGS += -std=c++11
 
-
+QT += widgets
 #CONFIG += -std=c++11
 
 TARGET = autoTest
+
+INCLUDEPATH   += "/usr/local/include"
+DEPENDPATH   += "/usr/local/include"
+LIBPATH += "/usr/local/lib/"
 
 DEFINES += IPMGEMPLUGIN
 #DEFINES += NODEARRAYLEVEL
