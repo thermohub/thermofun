@@ -717,10 +717,10 @@ oneSolvent:
 
 
         if (curSchemaName == "VertexReaction")
-            tpCalc.calcPropReactions(reactionsSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
+            tpCalc.calcPropReactions(reactionsSymbols, _data.properties, _data.tppairs).toCSV(op.fileName);
 
         if (curSchemaName == "VertexSubstance")
-            tpCalc.calculateProperties(substancesSymbols, _data.properties, _data.tppairs).toCSV(op.fileNameSubst);
+            tpCalc.calculateProperties(substancesSymbols, _data.properties, _data.tppairs).toCSV(op.fileName);
 
         gettimeofday(&end, NULL);
         double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
@@ -768,7 +768,7 @@ void ThermoFunWidget::CmShowResult()
    try {
         // define new dialog
         ThermoFun::OutputSettings op;
-        string fileName = op.fileNameSubst;
+        string fileName = op.fileName;
         if(!_csvWin)
         {
             _csvWin = new TableEditWidget("CSV editor ", fileName,
