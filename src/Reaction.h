@@ -38,7 +38,7 @@ public:
     /// Set the symbol of the Reaction.
     auto setSymbol(std::string symbol) -> void;
 
-    auto setReactants(std::map<std::string, int> reactants) -> void;
+    auto setReactants(std::map<std::string, double> reactants) -> void;
 
     auto setReferenceT(double T) -> void;
 
@@ -69,7 +69,7 @@ public:
 
     auto symbol() const -> std::string;
 
-    auto reactants() -> std::map<std::string, int>;
+    auto reactants() -> std::map<std::string, double>;
 
     auto thermo_ref_prop() -> ThermoPropertiesReaction;
 

@@ -28,7 +28,7 @@ struct Reaction::Impl
     /// The symbol of the chemical reaction
     std::string symbol;
 
-    std::map<std::string, int> reactants;
+    std::map<std::string, double> reactants;
 
     ThermoPropertiesReaction thermo_ref_prop;
 
@@ -78,7 +78,7 @@ auto Reaction::setSymbol(std::string symbol) -> void
     pimpl->symbol = symbol;
 }
 
-auto Reaction::setReactants(std::map<std::string, int> reactants) -> void
+auto Reaction::setReactants(std::map<std::string, double> reactants) -> void
 {
     pimpl->reactants = reactants;
 }
@@ -133,7 +133,7 @@ auto Reaction::symbol() const -> std::string
     return pimpl->symbol;
 }
 
-auto Reaction::reactants() -> std::map<std::string, int>
+auto Reaction::reactants() -> std::map<std::string, double>
 {
     return pimpl->reactants;
 }

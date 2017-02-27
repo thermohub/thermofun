@@ -348,8 +348,8 @@ auto Thermo::reacDCthermoProperties(double T, double &P, Substance subst) -> The
     ThermoPropertiesReaction  tpr;
     string reactionSymbol = subst.reactionSymbol();
     Reaction reaction;
-    typedef std::map<std::string, int>::iterator it;
-    std::map<std::string, int> reactans;
+    typedef std::map<std::string, double>::iterator it;
+    std::map<std::string, double> reactans;
 
     if (!reactionSymbol.empty())
     {

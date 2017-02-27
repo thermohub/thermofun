@@ -424,11 +424,11 @@ void ThermoFunWidget::CmExportCFG()
     }
 }
 
-std::map<std::string, int> ThermoFunWidget::getReactantsCoeffMap(std::string _id)
+std::map<std::string, double> ThermoFunWidget::getReactantsCoeffMap(std::string _id)
 {
-    std::map<std::string, int> map;
+    std::map<std::string, double> map;
     string kbuf;
-    int stoi_coeff;
+    double stoi_coeff;
     bson record;
     string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
     qrJson += _id;
@@ -442,7 +442,7 @@ std::map<std::string, int> ThermoFunWidget::getReactantsCoeffMap(std::string _id
     {
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "properties.stoi_coeff", kbuf );
-        stoi_coeff = atoi(kbuf.c_str());
+        stoi_coeff = atof(kbuf.c_str());
 
         bsonio::bson_to_key( record.data, "_outV", kbuf );
         qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
@@ -454,7 +454,7 @@ std::map<std::string, int> ThermoFunWidget::getReactantsCoeffMap(std::string _id
             bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
         }
 
-        map.insert(std::pair<std::string,int>(kbuf,stoi_coeff));
+        map.insert(std::pair<std::string,double>(kbuf,stoi_coeff));
     }
 
     return map;

@@ -267,7 +267,7 @@ class ThermoFunWidget : public BSONUIBase
     void updateQuery( const bsonio::DBQueryDef& query  );
 
     std::string getDefinesReactionSymbol(std::string _idSubst);
-    std::map<std::string, int> getReactantsCoeffMap(std::string _id);
+    std::map<std::string, double> getReactantsCoeffMap(std::string _id);
 
 protected slots:
 
