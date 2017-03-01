@@ -422,6 +422,13 @@
           },
           "doc": "Timestamp (\n",
           "required": "optional"
+        },
+        {
+          "key": 33,
+          "name": "equation",
+          "typeId": "string",
+          "doc": "Equation of the reaction (not compulsory)\n",
+          "required": "req_out"
         }
       ]
     },
