@@ -37,6 +37,7 @@
 #include <QJsonArray>
 #include "bsonui/BSONUIBase.h"
 #include "bsonui/model_node.h"
+#include "bsonui/dbkeysmodel.h"
 #include "bsonio/nservice.h"
 
 // ThermoFun include

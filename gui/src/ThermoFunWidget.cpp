@@ -188,8 +188,8 @@ void ThermoFunWidget::closeEvent(QCloseEvent* e)
 
 
 ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema, QWidget *parent) :
-    BSONUIBase(amainSettings, aschema, parent),
-    curSchemaName(""), ui(new Ui::ThermoFunWidget),
+    BSONUIBase(amainSettings, aschema, "", parent),
+    ui(new Ui::ThermoFunWidget),
     dataTable(0), pTable(0), tableModel(0), queryWindow(0), queryResultWindow(0)
 {
     _shemaNames.push_back("VertexSubstance");

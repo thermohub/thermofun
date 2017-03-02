@@ -41,7 +41,7 @@ class DBClient
 {
     DBSettings settings;
 
-    ThriftSchema schema;
+    bsonio::ThriftSchema schema;
 
     // keys list data
     boost::shared_ptr<bsonio::TDBGraph> dbgraph;
