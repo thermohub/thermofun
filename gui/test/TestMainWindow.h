@@ -25,7 +25,7 @@ class TestMainWindow : public QMainWindow
     //bool useLocalDB;                ///< Flag for using local DB (no server )
 
     // Internal data
-    ThriftSchema schema;
+    bsonio::ThriftSchema schema;
     list<BSONUIBase*> bsonuiWindows;
     onEventfunction onCloseEvent;
     ShowWidgetFunction showWidget;
