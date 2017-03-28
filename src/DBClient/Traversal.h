@@ -10,7 +10,7 @@
 namespace ThermoFun {
 
 using  MapIdBson = std::map<std::string, std::string>;
-//struct Database;
+struct Database;
 
 class Traversal
 {
@@ -19,8 +19,8 @@ class Traversal
     void followIncomingDefines(std::string _idSubst, MapIdBson &result);
     void followIncomingTakes(std::string _idReac, MapIdBson &result);
 
-//    std::string getDefinesReactionSymbol(std::string _idSubst);
-//    std::map<std::string, double> getReactantsCoeffMap(std::string _id);
+    std::string getDefinesReactionSymbol(std::string _idSubst);
+    std::map<std::string, double> getReactantsCoeffMap(std::string _id);
 
     public:
 
@@ -29,7 +29,7 @@ class Traversal
 
     MapIdBson getLinkedSelectedData(vector<int> selNdx, vector<string> aKeyList);
 
-//    Database getDatabaseFromTraversal(MapIdBson resultTraversal);
+    Database getDatabaseFromTraversal(MapIdBson resultTraversal);
 };
 
 }

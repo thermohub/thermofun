@@ -1,7 +1,7 @@
 
 #include "Traversal.h"
-//#include "ReadFiles.h"
-//#include "Database.h"
+#include "ReadFiles.h"
+#include "Database.h"
 
 using namespace bsonio;
 
@@ -50,70 +50,75 @@ MapIdBson Traversal::getLinkedSelectedData( vector<int> selNdx, vector<string> a
     return result;
 }
 
-//Database Traversal::getDatabaseFromTraversal(MapIdBson resultTraversal)
-//{
-//    string key, valDB, _idSubst;
-//    bson record;
-//    Database tdb;
-//    auto map_ = resultTraversal;
+Database Traversal::getDatabaseFromTraversal(MapIdBson resultTraversal)
+{
+    string key, valDB, _idSubst;
+    bson record;
+    Database tdb;
+    auto map_ = resultTraversal;
 
-//    // The set of all aqueous species in the database
-//    SubstancesMap substances_map;
-//    // The set of all gaseous species in the database
-//    ReactionsMap reactions_map;
+    // The set of all aqueous species in the database
+    SubstancesMap substances_map;
+    // The set of all gaseous species in the database
+    ReactionsMap reactions_map;
 
-//    // get substances and the reaction symbol if necessary
-//    for(auto iterator = map_.begin(); iterator != map_.end(); iterator++)
-//    {
-//        if (iterator->second == "substance")
-//        {
-//            key = iterator->first +":";
-//            dbgraph->GetRecord( key.c_str() );
-//            valDB = dbgraph->GetJson();
-//            jsonToBson( &record, valDB );
-//            bsonio::bson_to_key( record.data, "_id", _idSubst );
+    dbgraph->resetMode(true);
 
-//            Substance substance = parseSubstance(record.data);
+    // get substances and the reaction symbol if necessary
+    for(auto iterator = map_.begin(); iterator != map_.end(); iterator++)
+    {
+        if (iterator->second == "substance")
+        {
+            key = iterator->first +":";
+            dbgraph->GetRecord( key.c_str() );
+            valDB = dbgraph->GetJson();
+            jsonToBson( &record, valDB );
+            bsonio::bson_to_key( record.data, "_id", _idSubst );
 
-//            if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
-//                substances_map[substance.symbol()] = substance;
-//            } else {
-//                // ERROR substance with the same symbol found!
-//            }
+            Substance substance = parseSubstance(record.data);
 
-//            // get reaction symbol which define substance with _idSubst
-//            if (getDefinesReactionSymbol(_idSubst) != "")
-//            {
-//                substance.setReactionSymbol(getDefinesReactionSymbol(_idSubst));
-//                substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
-//            }
+            if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
+                substances_map[substance.symbol()] = substance;
+            } else {
+                // ERROR substance with the same symbol found!
+            }
 
-//            substances_map[substance.symbol()] = substance;
-//        } else
-//            if (iterator->second == "reaction")
-//            {
-//                key = iterator->first +":";
-//                dbgraph->GetRecord( key.c_str() );
-//                valDB = dbgraph->GetJson();
-//                jsonToBson( &record, valDB );
-//                bsonio::bson_to_key( record.data, "_id", key );
+            // get reaction symbol which define substance with _idSubst
+            if (getDefinesReactionSymbol(_idSubst) != "")
+            {
+                substance.setReactionSymbol(getDefinesReactionSymbol(_idSubst));
+                substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
+            }
 
-//                ThermoFun::Reaction reaction = ThermoFun::parseReaction(record.data);
+            substances_map[substance.symbol()] = substance;
+        } else
+            if (iterator->second == "reaction")
+            {
+                key = iterator->first +":";
 
-//                if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
-//                    reactions_map[reaction.symbol()] = reaction;
-//                } else {
-//                    // ERROR reaction with the same symbol found!
-//                }
+                dbgraph->GetRecord( key.c_str() );
+                valDB = dbgraph->GetJson();
+                jsonToBson( &record, valDB );
+                bsonio::bson_to_key( record.data, "_id", key );
 
-//                // get reactants by following reaction incoming takes edge
-//                reaction.setReactants(getReactantsCoeffMap(key));
+                Reaction reaction = ThermoFun::parseReaction(record.data);
 
-//                reactions_map[reaction.symbol()] = reaction;
-//            }
-//    }
-//    return tdb;
-//}
+                if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
+                    reactions_map[reaction.symbol()] = reaction;
+                } else {
+                    // ERROR reaction with the same symbol found!
+                }
+
+                // get reactants by following reaction incoming takes edge
+                reaction.setReactants(getReactantsCoeffMap(key));
+
+                reactions_map[reaction.symbol()] = reaction;
+            }
+    }
+    tdb.addMapReactions(reactions_map);
+    tdb.addMapSubstances(substances_map);
+    return tdb;
+}
 
 void Traversal::followIncomingDefines(std::string _idSubst, MapIdBson &result)
 {
@@ -184,69 +189,69 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdBson &result)
 
 }
 
-//std::string Traversal::getDefinesReactionSymbol(std::string _idSubst)
-//{
-//    string kbuf = "";
-//    bson record;
-//    string qrJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
-//    qrJson += _idSubst;
-//    qrJson += "' }";
+std::string Traversal::getDefinesReactionSymbol(std::string _idSubst)
+{
+    string kbuf = "";
+    bson record;
+    string qrJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
+    qrJson += _idSubst;
+    qrJson += "' }";
 
-//    vector<string> _queryFields = { "_outV", "_label"};
-//    vector<string> _resultDataEdge, _resultDataReac;
-//    dbgraph->runQuery( qrJson,  _queryFields, _resultDataEdge );
+    vector<string> _queryFields = { "_outV", "_label"};
+    vector<string> _resultDataEdge, _resultDataReac;
+    dbgraph->runQuery( qrJson,  _queryFields, _resultDataEdge );
 
-//    for(uint i = 0; i < _resultDataEdge.size(); i++)
-//    {
-//        jsonToBson(&record, _resultDataEdge[i]);
-//        bsonio::bson_to_key( record.data, "_outV", kbuf );
-//        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-//        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataReac);
+    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    {
+        jsonToBson(&record, _resultDataEdge[i]);
+        bsonio::bson_to_key( record.data, "_outV", kbuf );
+        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
+        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataReac);
 
-//        if (_resultDataReac.size()>0)
-//        {
-//            jsonToBson(&record, _resultDataReac[0]);
-//            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
-//        }
-//    }
-//    return kbuf;
-//}
+        if (_resultDataReac.size()>0)
+        {
+            jsonToBson(&record, _resultDataReac[0]);
+            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
+        }
+    }
+    return kbuf;
+}
 
-//std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _id)
-//{
-//    std::map<std::string, double> map;
-//    string kbuf;
-//    double stoi_coeff;
-//    bson record;
-//    string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
-//    qrJson += _id;
-//    qrJson += "' }";
+std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _id)
+{
+    std::map<std::string, double> map;
+    string kbuf;
+    double stoi_coeff;
+    bson record;
+    string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
+    qrJson += _id;
+    qrJson += "' }";
 
-//    vector<string> _queryFields = { "_outV", "properties.stoi_coeff"};
-//    vector<string> _resultDataEdge, _resultDataSubst;
-//    dbgraph->runQuery( qrJson,  _queryFields, _resultDataEdge );
+    vector<string> _queryFields = { "_outV", "properties.stoi_coeff"};
+    vector<string> _resultDataEdge, _resultDataSubst;
+    dbgraph->runQuery( qrJson,  _queryFields, _resultDataEdge );
 
-//    for(uint i = 0; i < _resultDataEdge.size(); i++)
-//    {
-//        jsonToBson(&record, _resultDataEdge[i]);
-//        bsonio::bson_to_key( record.data, "properties.stoi_coeff", kbuf );
-//        stoi_coeff = atof(kbuf.c_str());
+    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    {
+        jsonToBson(&record, _resultDataEdge[i]);
+        bsonio::bson_to_key( record.data, "properties.stoi_coeff", kbuf );
+        stoi_coeff = atof(kbuf.c_str());
 
-//        bsonio::bson_to_key( record.data, "_outV", kbuf );
-//        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-//        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
+        bsonio::bson_to_key( record.data, "_outV", kbuf );
+        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
+        dbgraph->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
 
-//        if (_resultDataSubst.size()>0)
-//        {
-//            jsonToBson(&record, _resultDataSubst[0]);
-//            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
-//        }
+        if (_resultDataSubst.size()>0)
+        {
+            jsonToBson(&record, _resultDataSubst[0]);
+            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
+        }
 
-//        map.insert(std::pair<std::string,double>(kbuf,stoi_coeff));
-//    }
+        map.insert(std::pair<std::string,double>(kbuf,stoi_coeff));
+    }
 
-//    return map;
-//}
+    return map;
+}
 
 
 }
