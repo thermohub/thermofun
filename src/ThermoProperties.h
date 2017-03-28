@@ -7,6 +7,15 @@
 
 namespace ThermoFun {
 
+enum Status {
+    read = 0,
+    notdefined,
+    calculated
+};
+
+using PairStatusMessage = std::pair <Status, std::string>;
+using MapPropertiesCalculationStatus = std::map<const std::string, PairStatusMessage>;
+
 struct ThermoVariables
 {
     /// the temperature T (in units of C)
@@ -42,6 +51,17 @@ struct ThermoPropertiesSubstance
 
     /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol K))
     Reaktoro_::ThermoScalar heat_capacity_cv;
+
+    MapPropertiesCalculationStatus status = {
+        {"gibbs_energy",                   {Status::notdefined, ""}     },
+        {"enthalpy",                       {Status::notdefined, ""}     },
+        {"entropy",                        {Status::notdefined, ""}     },
+        {"heat_capacity_cp",               {Status::notdefined, ""}     },
+        {"heat_capacity_cv",               {Status::notdefined, ""}     },
+        {"volume",                         {Status::notdefined, ""}     },
+        {"helmholtz_energy",               {Status::notdefined, ""}     },
+        {"internal_energy",                {Status::notdefined, ""}     }
+    };
 };
 
 
@@ -77,6 +97,20 @@ struct ThermoPropertiesReaction
 
     /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol K))
     Reaktoro_::ThermoScalar reaction_heat_capacity_cv;
+
+    MapPropertiesCalculationStatus status = {
+        {"reaction_gibbs_energy",          {Status::notdefined, ""}      },
+        {"reaction_helmholtz_energy",      {Status::notdefined, ""}      },
+        {"reaction_internal_energy",       {Status::notdefined, ""}      },
+        {"reaction_enthalpy",              {Status::notdefined, ""}      },
+        {"reaction_entropy",               {Status::notdefined, ""}      },
+        {"reaction_volume",                {Status::notdefined, ""}      },
+        {"reaction_heat_capacity_cp",      {Status::notdefined, ""}      },
+        {"reaction_heat_capacity_cv",      {Status::notdefined, ""}      },
+        {"logKr",                          {Status::notdefined, ""}      },
+        {"lnK0",                           {Status::notdefined, ""}      }
+
+    };
 };
 
 /// Describes the thermodynamic properties specific to a solvent

@@ -149,22 +149,42 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
 auto thermoRefPropSubst (const char *data, string name) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
-    string kbuf;
+    string kbuf, idSubst;
+
+    PairStatusMessage status = {Status::read, "_id : "};
+
+    bsonio::bson_to_key( data, _id, idSubst );
+    if (!parseIssues(idSubst, name, _id)) status = {Status::read, "_id : " + idSubst};
 
     bsonio::bson_to_key( data, substRefCp0, kbuf );
-    if (!parseIssues(kbuf, name, substRefCp0)) tps.heat_capacity_cp = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, substRefCp0)) {
+        tps.heat_capacity_cp = (std::stod(kbuf.c_str()));
+        tps.status["heat_capacity_cp"]= status;
+    }
 
     bsonio::bson_to_key( data, substRefG0, kbuf );
-    if (!parseIssues(kbuf, name, substRefG0)) tps.gibbs_energy = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, substRefG0)) {
+        tps.gibbs_energy = (std::stod(kbuf.c_str()));
+        tps.status["gibbs_energy"]= status;
+    }
 
     bsonio::bson_to_key( data, substRefH0, kbuf );
-    if (!parseIssues(kbuf, name, substRefH0)) tps.enthalpy = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, substRefH0)) {
+        tps.enthalpy = (std::stod(kbuf.c_str()));
+        tps.status["enthalpy"]= status;
+    }
 
     bsonio::bson_to_key( data, substRefS0, kbuf );
-    if (!parseIssues(kbuf, name, substRefS0)) tps.entropy = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, substRefS0)) {
+        tps.entropy = (std::stod(kbuf.c_str()));
+        tps.status["entropy"]= status;
+    }
 
     bsonio::bson_to_key( data, substRefV0, kbuf );
-    if (!parseIssues(kbuf, name, substRefV0)) tps.volume = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, substRefV0)) {
+        tps.volume = (std::stod(kbuf.c_str()));
+        tps.status["volume"]= status;
+    }
 
     return tps;
 }
@@ -273,25 +293,48 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
 auto thermoRefPropReac (const char *data, string name) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
-    string kbuf;
+    string kbuf, idReac;
+
+    PairStatusMessage status = {Status::read, "_id : "};
+
+    bsonio::bson_to_key( data, _id, idReac );
+    if (!parseIssues(idReac, name, _id)) status = {Status::read, "_id : " + idReac};
 
     bsonio::bson_to_key( data, reacRefLogK0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefLogK0)) tpr.log_equilibrium_constant = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, reacRefLogK0)) {
+        tpr.log_equilibrium_constant = (std::stod(kbuf.c_str()));
+        tpr.status["logKr"] = status;
+    }
 
     bsonio::bson_to_key( data, reacRefCp0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefCp0)) tpr.reaction_heat_capacity_cp = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, reacRefCp0)) {
+        tpr.reaction_heat_capacity_cp = (std::stod(kbuf.c_str()));
+        tpr.status["reaction_heat_capacity_cp"] = status;
+    }
 
     bsonio::bson_to_key( data, reacRefG0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefG0)) tpr.reaction_gibbs_energy = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, reacRefG0)) {
+        tpr.reaction_gibbs_energy = (std::stod(kbuf.c_str()));
+        tpr.status["reaction_gibbs_energy"] = status;
+    }
 
     bsonio::bson_to_key( data, reacRefH0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefH0)) tpr.reaction_enthalpy = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, reacRefH0)) {
+        tpr.reaction_enthalpy = (std::stod(kbuf.c_str()));
+        tpr.status["reaction_enthalpy"] = status;
+    }
 
     bsonio::bson_to_key( data, reacRefS0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefS0)) tpr.reaction_entropy = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, reacRefS0)) {
+        tpr.reaction_entropy = (std::stod(kbuf.c_str()));
+        tpr.status["reaction_entropy"] = status;
+    }
 
     bsonio::bson_to_key( data, reacRefV0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefV0)) tpr.reaction_volume = (std::stod(kbuf.c_str()));
+    if (!parseIssues(kbuf, name, reacRefV0)) {
+        tpr.reaction_volume = (std::stod(kbuf.c_str()));
+        tpr.status["reaction_volume"] = status;
+    }
 
     return tpr;
 }

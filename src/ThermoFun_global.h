@@ -403,6 +403,7 @@ typedef struct {
 
 /// Key for reading substance / reaction data from input files
 static const char * label                   = "_label";
+static const char * _id                     = "_id";
 
 static const char * substName               = "properties.name";
 static const char * substSymbol             = "properties.symbol";
