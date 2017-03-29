@@ -3,6 +3,8 @@
 #include "bsonio/dbclient.h"
 
 #include "Database.h"
+#include "Substance.h"
+#include "Reaction.h"
 #include "ReadFiles.h"
 
 #include <QFile>

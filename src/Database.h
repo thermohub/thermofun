@@ -5,10 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-// ThermoFun includes
-#include "Substance.h"
-#include "Reaction.h"
+#include <map>
 
 //#include "ReadFiles.h"
 //#include "bson.h"
@@ -17,12 +14,13 @@
 
 namespace ThermoFun {
 
+// Forward declarations
+class Substance;
+class Reaction;
+
 using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap = std::map<std::string, Reaction>;
 
-// Forward declarations
-//class Substance;
-//class Reaction;
 //struct bson;
 
 /**
@@ -44,7 +42,7 @@ public:
      * @param bsonSubstances vector of substances in bson format
      * see BSONIO
      */
-    Database(vector<bson> bsonSubstances);
+    Database(std::vector<bson> bsonSubstances);
 
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;

@@ -2,6 +2,8 @@
 #include "Traversal.h"
 #include "ReadFiles.h"
 #include "Database.h"
+#include "Substance.h"
+#include "Reaction.h"
 
 using namespace bsonio;
 
@@ -250,6 +252,7 @@ std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _id)
         map.insert(std::pair<std::string,double>(kbuf,stoi_coeff));
     }
 
+    dbgraph->resetMode(true);
     return map;
 }
 
