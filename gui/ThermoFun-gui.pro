@@ -10,7 +10,7 @@ TEMPLATE = app
 CONFIG += thread
 CONFIG += c++11
 
-QT  += widgets svg
+QT  += widgets svg webkitwidgets
 QT  += core gui printsupport concurrent
 DEFINES += DBCLIENT_H
 
@@ -49,6 +49,7 @@ LIBS += -lbsonui -lbsonio -lyaml-cpp -lejdb -lpugixml -lqwt
 LIBS += -lthrift -lboost_regex
 LIBS += -lthermofun
 !macx-clang:LIBS += -llua5.2
+LIBS += -lapp-static -lhunspell -lmarkdown
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR

@@ -214,10 +214,10 @@ ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
 
    // define edit tree view
    aHeaderData << "key" << "value"  << "comment" ;
-   fieldTable =  new TBsonView(  ui->bsonWidget );
-   model_schema = new TSchemaNodeModel(  schema, &curRecord,
+   fieldTable =  new bsonui::TBsonView(  ui->bsonWidget );
+   model_schema = new bsonui::TSchemaNodeModel(  schema, &curRecord,
         curSchemaName, aHeaderData, this/*ui->centralWidget*/ );
-   deleg_schema = new TSchemaNodeDelegate();
+   deleg_schema = new bsonui::TSchemaNodeDelegate();
    fieldTable->setModel(model_schema);
    fieldTable->setItemDelegate(deleg_schema);
    fieldTable->setColumnWidth( 0, 150 );
@@ -233,19 +233,19 @@ ThermoFunWidget::ThermoFunWidget(QSettings *amainSettings,ThriftSchema *aschema,
 
    // define ThermoFun data
    _TPContainer = new TPContainer( "T", { "T", "P" }, _data.tppairs );
-   _TPlistTable  = new TMatrixTable( ui->outWidget );
-   TMatrixDelegate* deleg = new TMatrixDelegate();
+   _TPlistTable  = new bsonui::TMatrixTable( ui->outWidget );
+   bsonui::TMatrixDelegate* deleg = new bsonui::TMatrixDelegate();
    _TPlistTable->setItemDelegate(deleg);
-   _TPlistModel = new TMatrixModel( _TPContainer, this );
+   _TPlistModel = new bsonui::TMatrixModel( _TPContainer, this );
    _TPlistTable->setModel(_TPlistModel);
    _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
    ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
 
    _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
-   _PropertyTable  = new TMatrixTable( ui->inWidget );
-    deleg = new TMatrixDelegate();
+   _PropertyTable  = new bsonui::TMatrixTable( ui->inWidget );
+    deleg = new bsonui::TMatrixDelegate();
    _PropertyTable->setItemDelegate(deleg);
-   _PropertyModel = new TMatrixModel( _PropertyContainer, this );
+   _PropertyModel = new bsonui::TMatrixModel( _PropertyContainer, this );
    _PropertyTable->setModel(_PropertyModel);
    _PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
    ui->gridLayout_2->addWidget(_PropertyTable, 6, 0, 1, 7);
@@ -393,7 +393,7 @@ void ThermoFunWidget::resetDBClient(const string& schemaName_ )
 void ThermoFunWidget::defKeysTables()
 {
     // define table of keys
-    pTable = new TKeyTable(ui->keySplitter,
+    pTable = new bsonui::TKeyTable(ui->keySplitter,
                    [=]( const QModelIndex& index ){openRecordKey( index );});
     //TMatrixDelegate* deleg = new TMatrixDelegate();
     //pTable->setItemDelegate(deleg);
@@ -413,8 +413,8 @@ void ThermoFunWidget::resetKeysTable()
   {
     if( dataTable )
       delete dataTable;
-    dataTable = new TKeyListTableNew("select", dbgraph.get());
-    tableModel = new TMatrixModel( dataTable, this );
+    dataTable = new bsonui::TKeyListTableNew("select", dbgraph.get());
+    tableModel = new bsonui::TMatrixModel( dataTable, this );
     QSortFilterProxyModel *proxyModel;
     proxyModel = new QSortFilterProxyModel();
     proxyModel->setSourceModel( tableModel );
@@ -548,10 +548,10 @@ void ThermoFunWidget::resetThermoFunData()
 /// Change current View menu selections
 void ThermoFunWidget::updtViewMenu()
 {
-    ui->action_Show_comments->setChecked( TSchemaNodeModel::showComments );
-    ui->action_Display_enums->setChecked(TSchemaNodeModel::useEnumNames);
-    ui->action_Edit_id->setChecked(TSchemaNodeModel::editID );
-    ui->actionKeep_Data_Fields_Expanded->setChecked(TBsonView::expandedFields );
+    ui->action_Show_comments->setChecked( bsonui::TSchemaNodeModel::showComments );
+    ui->action_Display_enums->setChecked(bsonui::TSchemaNodeModel::useEnumNames);
+    ui->action_Edit_id->setChecked(bsonui::TSchemaNodeModel::editID );
+    ui->actionKeep_Data_Fields_Expanded->setChecked(bsonui::TBsonView::expandedFields );
 }
 
 /// Change model ( show/hide comments)

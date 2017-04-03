@@ -14,6 +14,7 @@
 #include "bsonio/dbclient.h"
 
 using namespace bsonio;
+using namespace bsonui;
 
 
 void TestMainWindow::setDefValues()
