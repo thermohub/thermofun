@@ -15,41 +15,54 @@ Traversal::Traversal (boost::shared_ptr<bsonio::TDBGraph> _dbgraph)
     dbgraph = _dbgraph;
 }
 
-MapIdBson Traversal::getLinkedSelectedData( vector<int> selNdx, vector<string> aKeyList)
+MapIdBson Traversal::getLinkedBsonFromSelectedData( vector<int> selNdx, vector<string> aKeyList)
 {
-    string key, valDB, _id, _label, _type;
-
     MapIdBson result;
-
     for( uint ii=0; ii<selNdx.size(); ii++ )
     {
-        bson record;
-        key = aKeyList[selNdx[ii]];
-        dbgraph->GetRecord( key.c_str() );
-        valDB = dbgraph->GetJson();
-        jsonToBson( &record, valDB );
+        linkedBsonDataFromId(aKeyList[selNdx[ii]], result);
+    }
+    return result;
+}
 
-        bsonio::bson_to_key( record.data, "_id",    _id);
-        bsonio::bson_to_key( record.data, "_label", _label);
-        bsonio::bson_to_key( record.data, "_type",  _type);
+MapIdBson Traversal::getLinkedBsonFromIdList( vector<string> idList)
+{
+    MapIdBson result;
+    for (uint ii=0; ii<idList.size(); ii++)
+    {
+        linkedBsonDataFromId(idList[ii], result);
+    }
+    return result;
+}
 
-        // if not in the database
-        if (!result.count(_id))
+void Traversal::linkedBsonDataFromId(std::string id_, MapIdBson &result)
+{
+    string valDB, _id, _label, _type;
+    bson record;
+    id_ = id_.c_str();
+    dbgraph->GetRecord( id_.c_str() );
+    valDB = dbgraph->GetJson();
+    jsonToBson( &record, valDB );
+
+    bsonio::bson_to_key( record.data, "_id",    _id);
+    bsonio::bson_to_key( record.data, "_label", _label);
+    bsonio::bson_to_key( record.data, "_type",  _type);
+
+    // if not in the database
+    if (!result.count(_id))
+    {
+        if (_label == "substance")
         {
-            if (_label == "substance")
-            {
-                result.insert(std::pair<std::string,std::string>(_id, "substance"));
-                followIncomingDefines(_id, result);
-            }
-            if (_label == "reaction")
-            {
-                result.insert(std::pair<std::string,std::string>(_id, "reaction"));
-                followIncomingTakes(_id, result);
-            }
+            result.insert(std::pair<std::string,std::string>(_id, "substance"));
+            followIncomingDefines(_id, result);
+        }
+        if (_label == "reaction")
+        {
+            result.insert(std::pair<std::string,std::string>(_id, "reaction"));
+            followIncomingTakes(_id, result);
         }
     }
 
-    return result;
 }
 
 Database Traversal::getDatabaseFromTraversal(MapIdBson resultTraversal)

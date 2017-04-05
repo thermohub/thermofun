@@ -22,12 +22,15 @@ class Traversal
     std::string getDefinesReactionSymbol(std::string _idSubst);
     std::map<std::string, double> getReactantsCoeffMap(std::string _id);
 
+    void linkedBsonDataFromId(std::string id_, MapIdBson &result);
+
     public:
 
     explicit Traversal(boost::shared_ptr<bsonio::TDBGraph> _dbgraph);
 //    ~Traversal();
 
-    MapIdBson getLinkedSelectedData(vector<int> selNdx, vector<string> aKeyList);
+    MapIdBson getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList);
+    MapIdBson getLinkedBsonFromIdList( vector<string> idList);
 
     Database getDatabaseFromTraversal(MapIdBson resultTraversal);
 };

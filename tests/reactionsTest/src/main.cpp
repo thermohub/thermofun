@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     double T = 25;
     double P = 1;
 
-    tpr = thermo.thermoPropertiesReaction(T, P, "CaSiO3  aq ( + H2O = CaSiO2(OH)2  aq )");
+    tpr = thermo.thermoPropertiesReaction(T, P, "CaSiO3@");
 
 
 
