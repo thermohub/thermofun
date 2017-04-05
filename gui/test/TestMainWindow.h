@@ -26,9 +26,9 @@ class TestMainWindow : public QMainWindow
 
     // Internal data
     bsonio::ThriftSchema schema;
-    list<BSONUIBase*> bsonuiWindows;
-    onEventfunction onCloseEvent;
-    ShowWidgetFunction showWidget;
+    list<bsonui::BSONUIBase*> bsonuiWindows;
+    bsonui::onEventfunction onCloseEvent;
+    bsonui::ShowWidgetFunction showWidget;
 
     // Work functions
 

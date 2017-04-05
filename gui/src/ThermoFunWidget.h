@@ -45,7 +45,9 @@
 #include "thermofun/Interfaces/Interface.h"
 
 
+namespace bsonui {
 class TableEditWidget;
+}
 
 namespace Ui {
 class ThermoFunWidget;
@@ -90,7 +92,7 @@ struct ThermoFunData
 };
 
 /// Class for double T P vector container
-class TPContainer : public TAbstractDataContainer
+class TPContainer : public bsonui::TAbstractDataContainer
 {
     vector<string>  _keys;
     vector<vector<double>>& _fields;
@@ -134,7 +136,7 @@ class TPContainer : public TAbstractDataContainer
    { return true; }
 
    virtual int getType( int /*line*/, int /*column*/ ) const
-   { return ftDouble; }
+   { return bsonui::ftDouble; }
 
    virtual QString getToolTip( int line, int column ) const
    {
@@ -147,7 +149,7 @@ class TPContainer : public TAbstractDataContainer
 
 
 /// Class for double T P vector container
-class TPropertyContainer : public TAbstractDataContainer
+class TPropertyContainer : public bsonui::TAbstractDataContainer
 {
     vector<string>& _properties;      ///< Properties names list
     vector<string>& _propertyUnits;   ///< Units of property
@@ -207,7 +209,7 @@ class TPropertyContainer : public TAbstractDataContainer
    { return true; }
 
    virtual int getType( int /*line*/, int /*column*/ ) const
-   { return ftString; }
+   { return bsonui::ftString; }
 
    virtual QString getToolTip( int /*line*/, int column ) const
    {
@@ -226,7 +228,7 @@ class TPropertyContainer : public TAbstractDataContainer
 
 
 /// Widget to work with CorrPT data
-class ThermoFunWidget : public BSONUIBase
+class ThermoFunWidget : public bsonui::BSONUIBase
 {
     Q_OBJECT
 
@@ -351,7 +353,7 @@ public:
     explicit ThermoFunWidget( QSettings *amainSettings, ThriftSchema *aschema, QWidget *parent = 0);
     ~ThermoFunWidget();
 
-    void setQuery( QueryWidget* queryW  );
+    void setQuery( bsonui::QueryWidget* queryW  );
 
 private:
 
@@ -359,28 +361,28 @@ private:
 
     // edit record view
     QStringList aHeaderData;
-    TSchemaNodeModel* model_schema;
+    bsonui::TSchemaNodeModel* model_schema;
     QItemDelegate *deleg_schema;
-    TBsonView* fieldTable;
+    bsonui::TBsonView* fieldTable;
 
     // keys list data
     boost::shared_ptr<bsonio::TDBGraph> dbgraph;
-    TKeyListTableNew* dataTable;
-    TKeyTable* pTable;
-    TMatrixModel* tableModel;
-    QueryWidget* queryWindow;
-    TableEditWidget* queryResultWindow;
+    bsonui::TKeyListTableNew* dataTable;
+    bsonui::TKeyTable* pTable;
+    bsonui::TMatrixModel* tableModel;
+    bsonui::QueryWidget* queryWindow;
+    bsonui::TableEditWidget* queryResultWindow;
 
     //ThermoFun data to edit;
     TPContainer* _TPContainer;
-    TMatrixTable*  _TPlistTable;
-    TMatrixModel*  _TPlistModel;
+    bsonui::TMatrixTable*  _TPlistTable;
+    bsonui::TMatrixModel*  _TPlistModel;
 
     TPropertyContainer* _PropertyContainer;
-    TMatrixTable*  _PropertyTable;
-    TMatrixModel*  _PropertyModel;
+    bsonui::TMatrixTable*  _PropertyTable;
+    bsonui::TMatrixModel*  _PropertyModel;
 
-    TableEditWidget* _csvWin = 0;
+    bsonui::TableEditWidget* _csvWin = 0;
 };
 
 

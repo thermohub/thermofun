@@ -145,8 +145,8 @@ void ThermoFunWidget::CmDisplaySearchResult()
      // define new dialog
      if(!queryResultWindow)
      {
-         queryResultWindow = new TableEditWidget("Query Result window",
-                         dataTable, TMatrixTable::tbShow );
+         queryResultWindow = new bsonui::TableEditWidget("Query Result window",
+                         dataTable, bsonui::TMatrixTable::tbShow );
      }
      else
      {
@@ -171,7 +171,7 @@ void ThermoFunWidget::CmSearchQuery()
       // define new dialog
       if(!queryWindow)
       {
-          queryWindow = new QueryWidget( "BSONUI Query Widget",
+          queryWindow = new bsonui::QueryWidget( "BSONUI Query Widget",
               schema, _shemaNames, dbgraph->getQuery(), this, this );
 
       }
@@ -191,7 +191,7 @@ void ThermoFunWidget::CmSearchQuery()
   }
 }
 
-void ThermoFunWidget::setQuery( QueryWidget* queryW  )
+void ThermoFunWidget::setQuery( bsonui::QueryWidget* queryW  )
 {
   if( dbgraph.get() == 0 )
        return;
@@ -289,8 +289,8 @@ void ThermoFunWidget::CmResetProperty()
   {   
     std::size_t pos = std::string("Vertex").length();
     std::string schemaName = "ThermoProperties" + curSchemaName.substr (pos);
-    SchemaSelectDialog dlg(this, "Please, mark property fields",
-        schema, schemaName, _data.properties, _data.properties);
+    bsonui::SchemaSelectDialog dlg(this, "Please, mark property fields",
+        schema, schemaName, _data.properties);
     if( !dlg.exec() )
        return;
 
@@ -330,10 +330,10 @@ void ThermoFunWidget::CmResetThermoFunData()
 
     // define ThermoFun data
     _TPContainer = new TPContainer( "T", { "T", "P" }, _data.tppairs );
-    _TPlistTable  = new TMatrixTable( ui->outWidget );
-    TMatrixDelegate* deleg = new TMatrixDelegate();
+    _TPlistTable  = new bsonui::TMatrixTable( ui->outWidget );
+    bsonui::TMatrixDelegate* deleg = new bsonui::TMatrixDelegate();
     _TPlistTable->setItemDelegate(deleg);
-    _TPlistModel = new TMatrixModel( _TPContainer, this );
+    _TPlistModel = new bsonui::TMatrixModel( _TPContainer, this );
     _TPlistTable->setModel(_TPlistModel);
     _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
     ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
@@ -348,10 +348,10 @@ void ThermoFunWidget::CmResetThermoFunData()
 
     _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
 
-    _PropertyTable  = new TMatrixTable( ui->inWidget );
-     deleg = new TMatrixDelegate();
+    _PropertyTable  = new bsonui::TMatrixTable( ui->inWidget );
+     deleg = new bsonui::TMatrixDelegate();
     _PropertyTable->setItemDelegate(deleg);
-    _PropertyModel = new TMatrixModel( _PropertyContainer, this );
+    _PropertyModel = new bsonui::TMatrixModel( _PropertyContainer, this );
     _PropertyTable->setModel(_PropertyModel);
     _PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
     ui->gridLayout_2->addWidget(_PropertyTable, 6, 0, 1, 7);
@@ -518,7 +518,7 @@ void ThermoFunWidget::CmCalcMTPARM()
         if( aKeyList.empty() )
             return;
 
-        SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
+        bsonui::SelectDialog selDlg( this, "Please, select one or more records", aValList, selNdx );
         if( !selDlg.exec() )
             return;
         selNdx =  selDlg.allSelected();
@@ -641,7 +641,7 @@ void ThermoFunWidget::CmCalcMTPARM()
 
             dbgraph->GetKeyValueList( aKeyList, aValList );
 oneSolvent:
-            SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
+            bsonui::SelectDialog selDlg2( this, "Please, select one solvent (e.g. H2O@) for solute properties calculation",
                                   aValList, selNdx );
             if( !selDlg2.exec() )
                 return;
@@ -773,8 +773,8 @@ void ThermoFunWidget::CmShowResult()
         string fileName = op.fileName;
         if(!_csvWin)
         {
-            _csvWin = new TableEditWidget("CSV editor ", fileName,
-              TMatrixTable::tbEdit|TMatrixTable::tbGraph/*|TMatrixTable::tbSort*/ );
+            _csvWin = new bsonui::TableEditWidget("CSV editor ", fileName,
+              bsonui::TMatrixTable::tbEdit|bsonui::TMatrixTable::tbGraph/*|TMatrixTable::tbSort*/ );
         }
         else
         {
