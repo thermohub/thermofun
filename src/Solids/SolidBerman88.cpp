@@ -16,7 +16,7 @@ auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure 
 
     if (vc.size() != 5)
     {
-        errorModelParameters("five volume coefficients", "dVdP Berman88", __LINE__);
+        errorModelParameters("five volume coefficients", "dVdP Berman88", __LINE__, __FILE__);
     }
 
     // expansion/compressibility

@@ -397,7 +397,7 @@ auto Thermo::reacDCthermoProperties(double T, double &P, Substance subst) -> The
 
     } else
     {
-        errorReactionNotDefined(subst.symbol(), __LINE__);
+        errorReactionNotDefined(subst.symbol(), __LINE__, __FILE__);
     }
 
 

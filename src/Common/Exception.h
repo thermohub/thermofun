@@ -19,6 +19,8 @@ struct Exception
 
     /// The line in the cpp file
     int line;
+
+    std::string file;
 };
 
 namespace internal {
@@ -63,13 +65,17 @@ std::string message(const Exception& exception, const std::string& file, int lin
         } \
     }
 
-auto errorMethodNotFound(std::string type, std::string name, int line) -> void;
+auto errorMethodNotFound(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorReactionNotDefined(std::string name, int line) -> void;
+auto errorReactionNotDefined(std::string name, int line, std::string file) -> void;
 
-auto errorSolventNotDefined(std::string type, std::string name, int line) -> void;
+auto errorSolventNotDefined(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorModelParameters(std::string type, std::string name, int line) -> void;
+auto errorModelParameters(std::string type, std::string name, int line, std::string file) -> void;
+
+auto errorSameSymbol(std::string type, std::string name, int line, std::string file) -> void;
+
+auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void;
 
 } // namespace ThermoFun
 

@@ -191,7 +191,7 @@ auto Reaction::convert_CpfT_to_logKfT() -> void
 
     if (Cp.size() < 5)
     {
-        errorModelParameters("CpfT", "convert CpfT to logKfT", __LINE__);
+        errorModelParameters("CpfT", "convert CpfT to logKfT", __LINE__, __FILE__);
     }
 
     // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
@@ -224,7 +224,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
 
     if (A.size() < 7)
     {
-        errorModelParameters("LogKfT", "convert logKfT to CpfT", __LINE__);
+        errorModelParameters("LogKfT", "convert logKfT to CpfT", __LINE__, __FILE__);
     }
 
     auto Sr = ref_prop.reaction_entropy;
@@ -280,7 +280,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void
         A[6]=0.0;
         break;
     default:
-        errorMethodNotFound("convert","logKfT to CpfT", __LINE__);
+        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);
     }
 
     switch( methodT )

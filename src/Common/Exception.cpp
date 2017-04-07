@@ -13,10 +13,10 @@ namespace internal {
 /// @param line The line number
 std::string location(const std::string& file, int line)
 {
-    std::string str = "ThermoFun/";
-    auto pos = std::find_end(file.begin(), file.end(), str.begin(), str.end()) - file.begin();
+    //    std::string str = "ThermoFun/";
+    //    auto pos = std::find_end(file.begin(), file.end(), str.begin(), str.end()) - file.begin();
     std::stringstream ss;
-    ss << file.substr(pos, file.size() - pos) << ":" << line;
+    ss << "..."<< file.substr(file.size() - 15) << ":" << line;
     return ss.str();
 }
 
@@ -24,8 +24,7 @@ std::string message(const Exception& exception, const std::string& file, int lin
 {
     std::string error = exception.error.str();
     std::string reason = exception.reason.str();
-    int line_ = exception.line;
-    std::string loc = location(file, line_);
+    std::string loc = location(exception.file, exception.line);
     unsigned length = std::max(error.size(), std::max(reason.size(), loc.size())) + 16;
     std::string bar(length, '*');
     std::stringstream message;
@@ -40,39 +39,63 @@ std::string message(const Exception& exception, const std::string& file, int lin
 }
 }
 
-auto errorMethodNotFound(std::string type, std::string name, int line) -> void
+auto errorMethodNotFound(std::string type, std::string name, int line, std::string file) -> void
 {
     Exception exception;
     exception.error << "The calculation method was not found.";
     exception.reason << "The calculation method defined for the " << type << " " << name << " is not implemented.";
     exception.line = line;
+    exception.file = file;
     RaiseError(exception);
 }
 
-auto errorReactionNotDefined(std::string name, int line) -> void
+auto errorReactionNotDefined(std::string name, int line, std::string file) -> void
 {
     Exception exception;
     exception.error << "The reaction for the dependent substance is not defined.";
     exception.reason << "The reaction symbol for the dependent substance " << name << " is not defined.";
     exception.line = line;
+    exception.file = file;
     RaiseError(exception);
 }
 
-auto errorSolventNotDefined(std::string type, std::string name, int line) -> void
+auto errorSolventNotDefined(std::string type, std::string name, int line, std::string file) -> void
 {
     Exception exception;
     exception.error << "Solvent symbol not defiend";
     exception.reason << "The solvent symbol for " << name <<  " was not defined.";
     exception.line = line;
+    exception.file = file;
     RaiseError(exception);
 }
 
-auto errorModelParameters(std::string type, std::string name, int line) -> void
+auto errorModelParameters(std::string type, std::string name, int line, std::string file) -> void
 {
     Exception exception;
     exception.error << "The parameters of the model are not correctly defiend";
     exception.reason << "The " << type <<  " parameters for " << name << " were not correctly defined. ";
     exception.line = line;
+    exception.file = file;
+    RaiseError(exception);
+}
+
+auto errorSameSymbol(std::string type, std::string name, int line, std::string file) -> void
+{
+    Exception exception;
+    exception.error << "Initializing Thermufun database.";
+    exception.reason << "Duplicate symbol for " << type <<  " " << name << " was encountered! ";
+    exception.line = line;
+    exception.file = file;
+    RaiseError(exception);
+}
+
+auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void
+{
+    Exception exception;
+    exception.error << "Not matching level in the graph traversal";
+    exception.reason << "For " << type <<  " " << name << " ";
+    exception.line = line;
+    exception.file = file;
     RaiseError(exception);
 }
 

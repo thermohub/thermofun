@@ -153,7 +153,7 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto BMc = subst.thermoParameters().volume_BirchM_coeff;
     if (BMc.size() < 8)
     {
-        errorModelParameters("Birch M.", "BMGottschalk", __LINE__);
+        errorModelParameters("Birch M.", "BMGottschalk", __LINE__, __FILE__);
     }
 
     if( (P_Pst != 0.0 || T_Tst != 0.) && BMc.size() >= 8 )

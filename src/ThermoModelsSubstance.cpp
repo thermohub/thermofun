@@ -51,7 +51,7 @@ auto checkSolvent(Substance substance)->void
 {
     if ((substance.SolventSymbol()).empty() || (substance.SolventSymbol()) == "*")
     {
-        errorSolventNotDefined("solvent", substance.symbol(), __LINE__);
+        errorSolventNotDefined("solvent", substance.symbol(), __LINE__, __FILE__);
     }
 }
 
