@@ -8,8 +8,8 @@
 namespace ThermoFun {
 
 enum Status {
-    read = 0,
-    notdefined,
+    notdefined = 0,
+    read,
     calculated
 };
 
