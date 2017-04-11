@@ -117,7 +117,7 @@ struct Database::Impl
 
     auto addReaction(const Reaction& reaction) -> void
     {
-        reactions_map.insert({reaction.name(), reaction});
+        reactions_map.insert({reaction.symbol(), reaction});
     }
 
     auto addMapReactions(const ReactionsMap& reactions) -> void
@@ -145,30 +145,30 @@ struct Database::Impl
         return collectValues(reactions_map).size();
     }
 
-    auto getSubstance(std::string name) -> Substance&
+    auto getSubstance(std::string symbol) -> Substance&
     {
-        if(substances_map.count(name) == 0)
-            errorNonExistent("substance", name, __LINE__);
+        if(substances_map.count(symbol) == 0)
+            errorNonExistent("substance", symbol, __LINE__);
 
-        return substances_map.find(name)->second;
+        return substances_map.find(symbol)->second;
     }
 
-    auto getReaction(std::string name) -> Reaction&
+    auto getReaction(std::string symbol) -> Reaction&
     {
-        if(reactions_map.count(name) == 0)
-            errorNonExistent("reaction", name, __LINE__);
+        if(reactions_map.count(symbol) == 0)
+            errorNonExistent("reaction", symbol, __LINE__);
 
-        return reactions_map.at(name);
+        return reactions_map.at(symbol);
     }
 
-    auto containsSubstance(std::string name) const -> bool
+    auto containsSubstance(std::string symbol) const -> bool
     {
-        return substances_map.count(name) != 0;
+        return substances_map.count(symbol) != 0;
     }
 
-    auto containsReaction(std::string name) const -> bool
+    auto containsReaction(std::string symbol) const -> bool
     {
-        return reactions_map.count(name) != 0;
+        return reactions_map.count(symbol) != 0;
     }
 
     /// Parses the JSON file and puts the data into the internal data structure
