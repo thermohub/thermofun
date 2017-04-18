@@ -111,71 +111,88 @@
       "members": [
         {
           "name": "CTPM_CPT",
-          "value": 100
+          "value": 100,
+          "doc": "Integration of empirical heat capacity equation Cp=f(T); DComp and ReacDC\n"
         },
         {
           "name": "CTPM_HKF",
-          "value": 101
+          "value": 101,
+          "doc": "Helgeson-Kirkham-Flowers (HKF) equation of state for aqueous species\n"
         },
         {
           "name": "CTPM_REA",
-          "value": 102
+          "value": 102,
+          "doc": "calculation of logK of reactions as they depend functionally on T and P; ReacDC\n"
         },
         {
           "name": "CTPM_EOS",
-          "value": 103
+          "value": 103,
+          "doc": "calculations via general equations of state (reserved)\n"
         },
         {
           "name": "CTPM_ISO",
-          "value": 104
+          "value": 104,
+          "doc": "calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC\n"
         },
         {
           "name": "CTPM_SOR",
-          "value": 105
+          "value": 105,
+          "doc": "calculations via adsorption or ion exchange constants, using LFER correlations; ReacDC (reserved)\n"
         },
         {
           "name": "CEM_OFF",
-          "value": 106
+          "value": 106,
+          "doc": "no fluid model routine\n"
         },
         {
           "name": "CEM_GAS",
-          "value": 107
+          "value": 107,
+          "doc": "generic fluid model routine\n"
         },
         {
           "name": "CEM_H2O",
-          "value": 108
+          "value": 108,
+          "doc": "subroutine for H2O fluid\n"
         },
         {
           "name": "CEM_CO2",
-          "value": 109
+          "value": 109,
+          "doc": "subroutine for CO2 fluid\n"
         },
         {
           "name": "CEM_CH4",
-          "value": 110
+          "value": 110,
+          "doc": "subroutine for CH4 fluid\n"
         },
         {
           "name": "CEM_N2",
-          "value": 111
+          "value": 111,
+          "doc": "subroutine for N2 fluid\n"
         },
         {
           "name": "CEM_H2",
-          "value": 112
+          "value": 112,
+          "doc": "subroutine for H2 fluid\n"
         },
         {
           "name": "CEM_O2",
-          "value": 113
+          "value": 113,
+          "doc": "subroutine for O2 fluid\n"
         },
         {
           "name": "CEM_AR",
-          "value": 114
+          "value": 114,
+          "doc": "subroutine for Ar fluid\n"
         },
         {
           "name": "CEM_PO",
-          "value": 115
+          "value": 115,
+          "doc": "subroutine for polar fluids\n"
         },
         {
           "name": "CEM_NP",
-          "value": 116
+          "value": 116,
+          "doc": "subroutine for nonpolar fluids\n"
         },
         {
           "name": "CTPM_WJNR",
@@ -205,87 +222,108 @@
       "members": [
         {
           "name": "CTM_CST",
-          "value": 200
+          "value": 200,
+          "doc": "calculation of ordinary integral using 11-term Cp=f(T) equations (up to 3 phase transitions)\n"
         },
         {
           "name": "CTM_CHP",
-          "value": 201
+          "value": 201,
+          "doc": "modifications for Landau phase transitions (Holland and Powell, 1998)\n"
         },
         {
           "name": "CTM_BER",
-          "value": 202
+          "value": 202,
+          "doc": "modifications for Landau phase transitions (Berman, 1988) (reserved)\n"
         },
         {
           "name": "CTM_FEI",
-          "value": 203
+          "value": 203,
+          "doc": "Cp=f(T) equation by Fei and Saxena (1986) (reserved)\n"
         },
         {
           "name": "CTM_LGX",
-          "value": 204
+          "value": 204,
+          "doc": "calculation of reaction properties from empirical from 5-term Cp(T); ReacDC\n"
         },
         {
           "name": "CTM_HKF",
-          "value": 205
+          "value": 205,
+          "doc": "calculation with HKF EOS (for aqueous species) as in SUPCRT92\n"
         },
         {
           "name": "CTM_WAT",
-          "value": 206
+          "value": 206,
+          "doc": "calculation of H2O water(steam) properties from HGK and LVS equations of state\n"
         },
         {
           "name": "CTM_WAS",
-          "value": 207
+          "value": 207,
+          "doc": "calculation of H2O water (steam) properties from IAPWS-95 equation of state (reserved)\n"
         },
         {
           "name": "CTM_LGK",
-          "value": 208
+          "value": 208,
+          "doc": "calculation from empirical function logK=f(T) (Nordstrom and Munoz, 1988); ReacDC only\n"
         },
         {
           "name": "CTM_EK0",
-          "value": 209
+          "value": 209,
+          "doc": "one-term extrapolation assuming dHr=0 and logK=const; ReacDC\n"
         },
         {
           "name": "CTM_EK1",
-          "value": 210
+          "value": 210,
+          "doc": "one-term extrapolation assuming dGr=const (Gu et al., 1994); ReacDC\n"
         },
         {
           "name": "CTM_EK2",
-          "value": 211
+          "value": 211,
+          "doc": "two-term extrapolation; ReacDC only\n"
         },
         {
           "name": "CTM_EK3",
-          "value": 212
+          "value": 212,
+          "doc": "three-term extrapolation assuming dCpr=const; ReacDC\n"
         },
         {
           "name": "CTM_IKZ",
-          "value": 213
+          "value": 213,
+          "doc": "Lagrange polynomial interpolation over logK(TP) array; ReacDC\n"
         },
         {
           "name": "CTM_DKR",
-          "value": 214
+          "value": 214,
+          "doc": "calculation of logK=f(T,P) from density equation (Marshall and Franck, 1978); ReacDC\n"
         },
         {
           "name": "CTM_PPE",
-          "value": 215
+          "value": 215,
+          "doc": "prediction of properties of aqueous hydroxides using Pronsprep-OH (Shock et al. 1997)\n"
         },
         {
           "name": "CTM_MRB",
-          "value": 216
+          "value": 216,
+          "doc": "calculation of logK=f(T,P) with modified Ryzhenko-Bryzgalin model\n"
         },
         {
           "name": "CTM_CPG",
-          "value": 217
+          "value": 217,
+          "doc": "reserved (FGL)\n"
         },
         {
           "name": "CTM_IFG",
-          "value": 218
+          "value": 218,
+          "doc": "calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC\n"
         },
         {
           "name": "CTM_KAS",
-          "value": 219
+          "value": 219,
+          "doc": "reserved\n"
         },
         {
           "name": "CTM_DAS",
-          "value": 220
+          "value": 220,
+          "doc": "reserved\n"
         },
         {
           "name": "CTM_WAR",
@@ -310,11 +348,13 @@
       "members": [
         {
           "name": "CPM_OFF",
-          "value": 300
+          "value": 300,
+          "doc": "no account for pressure dependence\n"
         },
         {
           "name": "CPM_NUL",
-          "value": 301
+          "value": 301,
+          "doc": "account for pressure dependence is already specified as inherent to a method\n"
         },
         {
           "name": "CPM_ONE",
@@ -330,75 +370,93 @@
         },
         {
           "name": "CPM_CON",
-          "value": 305
+          "value": 305,
+          "doc": "molar volume of DC or dVr are assumed independent of P and T\n"
         },
         {
           "name": "CPM_VKE",
-          "value": 306
+          "value": 306,
+          "doc": "molar volume from empirical V=f(T,P) equation (Dorogokupets et al., 1988)\n"
         },
         {
           "name": "CPM_VBE",
-          "value": 307
+          "value": 307,
+          "doc": "molar volume from empirical  V=f(T,P) equation (Berman, 1988)\n"
         },
         {
           "name": "CPM_VBM",
-          "value": 308
+          "value": 308,
+          "doc": "molar volume from Birch-Murnaghan EoS (Gottschalk, 1997)\n"
         },
         {
           "name": "CPM_CEH",
-          "value": 309
+          "value": 309,
+          "doc": "molar volume V(T,P) from Murnaghan EoS (Holland and Powell, 1998)\n"
         },
         {
           "name": "CPM_VTA",
-          "value": 310
+          "value": 310,
+          "doc": "molar volume V(T,P) from Tait EoS (Holland and Powell, 2011)\n"
         },
         {
           "name": "CPM_GAS",
-          "value": 311
+          "value": 311,
+          "doc": "calculation of fugacities of gases from their critical parameters (reserved)\n"
         },
         {
           "name": "CPM_PRSV",
-          "value": 312
+          "value": 312,
+          "doc": "Peng-Robinson-Stryjek-Vera (PRSV) EoS for fluids (nonelectrolytes)\n"
         },
         {
           "name": "CPM_EMP",
-          "value": 313
+          "value": 313,
+          "doc": "Churakov-Gottschalk (CG) EoS for fluids (nonelectrolytes)\n"
         },
         {
           "name": "CPM_SRK",
-          "value": 314
+          "value": 314,
+          "doc": "Soave-Redlich-Kwong (SRK) EoS for fluids (nonelectrolytes)\n"
         },
         {
           "name": "CPM_STP",
-          "value": 315
+          "value": 315,
+          "doc": "Sterner-Pitzer (SP) EoS for fluids (nonelectrolytes) (reserved)\n"
         },
         {
           "name": "CPM_PR78",
-          "value": 316
+          "value": 316,
+          "doc": "Peng-Robinson (PR78) EoS for fluids (nonelectrolytes)\n"
         },
         {
           "name": "CPM_CORK",
-          "value": 317
+          "value": 317,
+          "doc": "Compensated Redlich-Kwong (CORK) EoS for fluids (nonelectrolytes)\n"
         },
         {
           "name": "CPM_REFL",
-          "value": 318
+          "value": 318,
+          "doc": "reference EoS model for fluids (nonelectrolytes) (reserved)\n"
         },
         {
           "name": "CPM_HKF",
-          "value": 319
+          "value": 319,
+          "doc": "account for pressure up to 5 kbar by HKF (Tanger and Helgeson, 1988)\n"
         },
         {
           "name": "CPM_AKI",
-          "value": 320
+          "value": 320,
+          "doc": "partial molal volumes of aqueous nonelectrolyte species (Akinfiev and Diamond, 2003)\n"
         },
         {
           "name": "CPM_PCR",
-          "value": 321
+          "value": 321,
+          "doc": "PARCOR estimation of HKF EoS parameters\n"
         },
         {
           "name": "CPM_INK",
-          "value": 322
+          "value": 322,
+          "doc": "Lagrange polynomial interpolation over logK(TP) array; ReacDC\n"
         }
       ]
     }

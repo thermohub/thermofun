@@ -38,6 +38,22 @@
       ]
     },
     {
+      "name": "ReactionCombinedType",
+      "doc": "Classes (types) of combined reactions\n",
+      "members": [
+        {
+          "name": "INVESTIGATED",
+          "value": 0,
+          "doc": "Reaction which is combined with model reactions to generate isocoulombic reactions\n"
+        },
+        {
+          "name": "MODEL",
+          "value": 1,
+          "doc": "Model reaction which is combined with investigated reactions to generate isocoulombic reactions\n"
+        }
+      ]
+    },
+    {
       "name": "SpeciesTypeRS",
       "doc": "Data structures for linking and processing reactions in reactionset and database\n",
       "members": [

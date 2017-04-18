@@ -561,6 +561,13 @@
           "typeId": "string",
           "doc": "This string identifies the relation: { \"asop\": \"retrieved\" } | ...\n",
           "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "level",
+          "typeId": "i32",
+          "doc": "Level (color) of this reaction 0 | 1 | 2 | 3 | 4 | ...\n",
+          "required": "req_out"
         }
       ]
     },
@@ -842,6 +849,91 @@
             "class": "Prodreac"
           },
           "doc": "Properties of prodreac edge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Combined",
+      "doc": "Edge: Combined (properties for \"combined\" edges) defining reactions combined in an isocoulombic reaction\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "coeff",
+          "typeId": "double",
+          "doc": "coefficient of the combined reaction\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "rc_type",
+          "typeId": "i32",
+          "doc": "Type of combined reaction, INVESTIGATED or MODEL\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "level",
+          "typeId": "i32",
+          "doc": "Level (of alternative or generated reaction)\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "EdgeCombined",
+      "doc": "Edge of type \"prodreac\" definition\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this edge record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_type",
+          "typeId": "string",
+          "doc": "this must be always \"edge\"\n",
+          "required": "required",
+          "default": "edge"
+        },
+        {
+          "key": 3,
+          "name": "_outV",
+          "typeId": "string",
+          "doc": "id of outgoing reaction vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "_inV",
+          "typeId": "string",
+          "doc": "id of incoming isocoulombic reaction vertex\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "_label",
+          "typeId": "string",
+          "doc": "This label must be \"combined\"\n",
+          "required": "required",
+          "default": "combined"
+        },
+        {
+          "key": 6,
+          "name": "properties",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "Combined"
+          },
+          "doc": "Properties of combined edge\n",
           "required": "req_out"
         }
       ]
