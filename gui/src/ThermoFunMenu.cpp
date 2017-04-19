@@ -554,9 +554,9 @@ void ThermoFunWidget::CmCalcMTPARM()
 
         ThermoFun::Traversal tr(dbgraph);
 
-        ThermoFun::Database tdbt = tr.getDatabaseFromTraversal(tr.getLinkedBsonFromSelectedData(selNdx_, aKeyList, 0), 0);
+        ThermoFun::Database tdbt = tr.getDatabaseFromTraversal(tr.getLinkedBsonFromSelectedData(selNdx_, aKeyList, "0"), "0");
 
-        ThermoFun::MapIdBson map_ = tr.getLinkedBsonFromSelectedData(selNdx_, aKeyList, 0);
+        ThermoFun::MapIdBson map_ = tr.getLinkedBsonFromSelectedData(selNdx_, aKeyList, "0");
 
         // get substances and the reaction symbol if necessary
         for(it_ iterator = map_.begin(); iterator != map_.end(); iterator++)
