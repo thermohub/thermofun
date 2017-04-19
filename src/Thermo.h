@@ -132,6 +132,12 @@ public:
     /// @param P The pressure value (in units of bar)
     /// @param reaction The symbol of the reaction
     auto thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction;
+
+    /// Calculate the thermodynamic properties of a reaction from the substances participating in the reaction.
+    /// @param T The temperature value (in units of C)
+    /// @param P The pressure value (in units of bar)
+    /// @param reaction The symbol of the reaction
+    auto thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction;
 //    /// Calculate the ln equilibrium constant of a reaction.
 //    /// @param T The temperature value (in units of K)
 //    /// @param P The pressure value (in units of Pa)
@@ -201,6 +207,8 @@ private:
     auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
+
+    auto setReacPropStatus (ThermoPropertiesReaction &tpr, PairStatusMessage status) -> void;
 
 };
 
