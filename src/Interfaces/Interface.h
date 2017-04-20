@@ -96,6 +96,9 @@ public:
     auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
                                std::vector<std::vector<double> > tp_pairs) -> Output;
 
+    auto selectResultsSubst_vTpSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void;
+    auto selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void;
+
     auto clearSubstances    () -> void;
     auto clearReactions     () -> void;
     auto clearProperties    () -> void;

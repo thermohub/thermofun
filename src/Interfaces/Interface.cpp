@@ -233,6 +233,32 @@ auto Interface::calculateResultsReac( ) -> void
     }
 }
 
+auto Interface::selectResultsSubst_vTpSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void
+{
+    pimpl->substResults.empty(); unsigned tp = pimpl->tp_pairs.size();
+    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tp_pairs.size());
+    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    {
+        for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
+        {
+            pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(vTps[j][i]);
+        }
+    }
+}
+
+auto Interface::selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void
+{
+    pimpl->reacResults.empty(); unsigned tp = pimpl->tp_pairs.size();
+    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tp_pairs.size());
+    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    {
+        for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
+        {
+            pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(vTpr[j][i]);
+        }
+    }
+}
+
 // Add functions
 auto Interface::addSubstance (const std::string &substSymbol) -> void
 {
