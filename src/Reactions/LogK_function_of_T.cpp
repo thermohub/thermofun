@@ -17,7 +17,8 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto dHr     = ref_tpr.reaction_enthalpy;
     auto dSr     = ref_tpr.reaction_entropy;
     auto dCpr    = ref_tpr.reaction_heat_capacity_cp;
-    auto lgK     = ref_tpr.ln_equilibrium_constant*lg_to_ln;
+    auto dGr     = ref_tpr.reaction_gibbs_energy;
+    auto lgK     = ref_tpr.log_equilibrium_constant;
     auto Tr      = reaction.referenceT();
 
     /// deal with Cp and A parameters conversion
@@ -32,12 +33,13 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
                 // lgK = A[0];
             dCpr = 0.0;
             dHr  = 0.0;
-                // dGr_d = -dSr * T;
+//            dGr = -dSr * TK;
             break;
         case MethodCorrT_Thrift::type::CTM_EK1: // 1-term dGr = const
                 // lgK = A[2]/T;
             dCpr = 0.0;
             dSr  = 0.0;
+            dHr = dGr;
                 // dGr_d = dHr;
             lgK  = - dHr / TK / Rln10;
           break;
@@ -74,7 +76,7 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
        ; // error message ?
     }
     // Calculation of dGr
-    auto dGr  = -R_T * lgK * lg_to_ln;
+    dGr  = -R_T * lgK * lg_to_ln;
 //    if (dHr.val == 0) dHr = dGr + dSr * TK;
     Reaktoro_::ThermoScalar dUr, dAr;
     if (dHr.val != 0)
