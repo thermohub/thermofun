@@ -461,8 +461,8 @@ auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::st
 
 //        if (tpr.status["reaction_gibbs_energy"].first != ThermoFun::Status::notdefined)
         {
-            tpr.ln_equilibrium_constant = tpr.reaction_gibbs_energy / -(ThermoFun::R_CONSTANT*298.15);
-            tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant * ThermoFun::ln_to_lg;
+            tpr.ln_equilibrium_constant = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T+C_to_K));
+            tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant * ln_to_lg;
         } /*else
         {
             tpr.status["logKr"].first = ThermoFun::Status::notdefined;
