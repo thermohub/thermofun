@@ -463,7 +463,6 @@ static const char * reacRefH0_              = "properties.drsm_enthalpy";
 static const char * reacRefV0_              = "properties.drsm_volume";
 static const char * reacRefCp0_             = "properties.drsm_heat_capacity_p";
 
-
 /// Model parameters
 static const char * reacLogKfT             = "properties.logk_ft_coeffs.values";
 static const char * reacLogKPT             = "properties.logk_pt_values.pptv";

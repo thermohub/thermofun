@@ -208,8 +208,6 @@ private:
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
 
-    auto setReacPropStatus (ThermoPropertiesReaction &tpr, PairStatusMessage status) -> void;
-
 };
 
 } // namespace ThermoFun

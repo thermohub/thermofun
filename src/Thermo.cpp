@@ -407,11 +407,20 @@ auto Thermo::reacDCthermoProperties(double T, double &P, Substance subst) -> The
 auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction  tpr;
+    tpr.reaction_heat_capacity_cp   = 0.0;
+    tpr.reaction_gibbs_energy       = 0.0;
+    tpr.reaction_enthalpy           = 0.0;
+    tpr.reaction_entropy            = 0.0;
+    tpr.reaction_volume             = 0.0;
+    tpr.ln_equilibrium_constant     = 0.0;
+    tpr.log_equilibrium_constant    = 0.0;
+
+
     Reaction reaction = pimpl->database.getReaction(symbol);
 
     // Set properties status as calculated from reaction
-    ThermoFun::PairStatusMessage status = {ThermoFun::Status::calculated, "Calculated from the reaction components: " + reaction.symbol() + "; "};
-    setReacPropStatus(tpr, status);
+//    ThermoFun::PairStatusMessage status = {ThermoFun::Status::calculated, "Calculated from the reaction components: " + reaction.symbol() + "; "};
+//    setReacPropStatus(tpr, status);
 
     for (auto &reactant : reaction.reactants())
     {
@@ -532,17 +541,6 @@ auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, So
 auto Thermo::setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void
 {
     pimpl->database.setAllAqSubstanceSolventSymbol(solvent_symbol);
-}
-
-auto Thermo::setReacPropStatus (ThermoPropertiesReaction &tpr, PairStatusMessage status) -> void
-{
-    tpr.status["logKr"]                      = status;
-    tpr.status["lnK0"]                       = status;
-    tpr.status["reaction_heat_capacity_cp"]  = status;
-    tpr.status["reaction_gibbs_energy"]      = status;
-    tpr.status["reaction_enthalpy"]          = status;
-    tpr.status["reaction_entropy"]           = status;
-    tpr.status["reaction_volume"]            = status;
 }
 
 } // namespace ThermoFun
