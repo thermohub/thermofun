@@ -420,14 +420,14 @@ static const char * substRefT               = "properties.Tst";
 static const char * substRefP               = "properties.Pst";
 
 /// Reference properties
-static const char * substRefG0              = "properties.sm_gibbs_energy.values.0";
-static const char * substRefS0              = "properties.sm_entropy_abs.values.0";
-static const char * substRefH0              = "properties.sm_enthalpy.values.0";
-static const char * substRefV0              = "properties.sm_volume.values.0";
-static const char * substRefCp0             = "properties.sm_heat_capacity_p.values.0";
+static const char * substRefG0_              = "properties.sm_gibbs_energy";
+static const char * substRefS0_              = "properties.sm_entropy_abs";
+static const char * substRefH0_              = "properties.sm_enthalpy";
+static const char * substRefV0_              = "properties.sm_volume";
+static const char * substRefCp0_             = "properties.sm_heat_capacity_p";
 
-static const char * substExpans             = "properties.m_expansivity.values.0";
-static const char * substCompres            = "properties.m_compressibility.values.0";
+static const char * substExpans_             = "properties.m_expansivity";
+static const char * substCompres_            = "properties.m_compressibility";
 
 /// Model parameters
 static const char * substEOShkf             = "properties.eos_hkf_coeffs.values";
@@ -456,12 +456,13 @@ static const char * reacRefT               = "properties.Tst";
 static const char * reacRefP               = "properties.Pst";
 
 /// Reference properties
-static const char * reacRefLogK0           = "properties.logKr.values.0";
-static const char * reacRefG0              = "properties.drsm_gibbs_energy.values.0";
-static const char * reacRefS0              = "properties.drsm_entropy.values.0";
-static const char * reacRefH0              = "properties.drsm_enthalpy.values.0";
-static const char * reacRefV0              = "properties.drsm_volume.values.0";
-static const char * reacRefCp0             = "properties.drsm_heat_capacity_p.values.0";
+static const char * reacRefLogK0_           = "properties.logKr";
+static const char * reacRefG0_              = "properties.drsm_gibbs_energy";
+static const char * reacRefS0_              = "properties.drsm_entropy";
+static const char * reacRefH0_              = "properties.drsm_enthalpy";
+static const char * reacRefV0_              = "properties.drsm_volume";
+static const char * reacRefCp0_             = "properties.drsm_heat_capacity_p";
+
 
 /// Model parameters
 static const char * reacLogKfT             = "properties.logk_ft_coeffs.values";

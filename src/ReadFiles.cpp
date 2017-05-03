@@ -17,6 +17,23 @@ auto parseIssues(std::string data, string name, string prop) -> bool
         return false;
 }
 
+auto readValueError(const char * data, string propPath, double &val, double &err, string name, string message) -> Reaktoro_::StatusMessage
+{
+    string sval, serr;
+    Reaktoro_::StatusMessage status = {Reaktoro_::Status::notdefined, message};
+
+    bsonio::bson_to_key( data, propPath+".values.0", sval );
+    bsonio::bson_to_key( data, propPath+".errors.0", serr );
+    if (!parseIssues(sval, name, propPath+".values.0")) {
+        val = (std::stod(sval.c_str()));
+        status = {Reaktoro_::Status::read, message};;
+    }
+    if (!parseIssues(serr, name, propPath+".errors.0")) {
+        err = (std::stod(serr.c_str()));
+    }
+    return status;
+}
+
 auto parseSubstance (const char * data) -> Substance
 {
     Substance s;
@@ -76,12 +93,15 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
     string kbuf;
     ThermoParametersSubstance ps;
 
-    bsonio::bson_to_key(data, substExpans, kbuf);
-    if (!parseIssues(kbuf, name, substExpans))  ps.isobaric_expansivity = std::stod(kbuf.c_str());
+    string expans = substExpans_ ; expans += ".values.0";
+    string compres = substCompres_ ; compres += ".values.0";
+
+    bsonio::bson_to_key(data, expans, kbuf);
+    if (!parseIssues(kbuf, name, expans))  ps.isobaric_expansivity = std::stod(kbuf.c_str());
 //    else ps.isobaric_expansivity = 0.0;
 
-    bsonio::bson_to_key(data, substCompres, kbuf);
-    if (!parseIssues(kbuf, name, substCompres))  ps.isothermal_compresibility = std::stod(kbuf.c_str());
+    bsonio::bson_to_key(data, compres, kbuf);
+    if (!parseIssues(kbuf, name, compres))  ps.isothermal_compresibility = std::stod(kbuf.c_str());
 //    else ps.isobaric_expansivity = 0.0;
 
     bsonio::bson_read_array_path(data, substEOSad, vkbuf);
@@ -149,42 +169,16 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
 auto thermoRefPropSubst (const char *data, string name) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
-    string kbuf, idSubst;
-
-    PairStatusMessage status = {Status::read, "_id : "};
+    string idSubst, message;
 
     bsonio::bson_to_key( data, _id, idSubst );
-    if (!parseIssues(idSubst, name, _id)) status = {Status::read, "_id : " + idSubst};
+    if (!parseIssues(idSubst, name, _id)) message = "_id : " + idSubst;
 
-    bsonio::bson_to_key( data, substRefCp0, kbuf );
-    if (!parseIssues(kbuf, name, substRefCp0)) {
-        tps.heat_capacity_cp = (std::stod(kbuf.c_str()));
-        tps.status["heat_capacity_cp"]= status;
-    }
-
-    bsonio::bson_to_key( data, substRefG0, kbuf );
-    if (!parseIssues(kbuf, name, substRefG0)) {
-        tps.gibbs_energy = (std::stod(kbuf.c_str()));
-        tps.status["gibbs_energy"]= status;
-    }
-
-    bsonio::bson_to_key( data, substRefH0, kbuf );
-    if (!parseIssues(kbuf, name, substRefH0)) {
-        tps.enthalpy = (std::stod(kbuf.c_str()));
-        tps.status["enthalpy"]= status;
-    }
-
-    bsonio::bson_to_key( data, substRefS0, kbuf );
-    if (!parseIssues(kbuf, name, substRefS0)) {
-        tps.entropy = (std::stod(kbuf.c_str()));
-        tps.status["entropy"]= status;
-    }
-
-    bsonio::bson_to_key( data, substRefV0, kbuf );
-    if (!parseIssues(kbuf, name, substRefV0)) {
-        tps.volume = (std::stod(kbuf.c_str()));
-        tps.status["volume"]= status;
-    }
+    tps.heat_capacity_cp.sta = readValueError(data, substRefCp0_, tps.heat_capacity_cp.val, tps.heat_capacity_cp.err, name, message);
+    tps.gibbs_energy.sta     = readValueError(data, substRefG0_,  tps.gibbs_energy.val,     tps.gibbs_energy.err,     name, message);
+    tps.enthalpy.sta         = readValueError(data, substRefH0_,  tps.enthalpy.val,         tps.enthalpy.err,         name, message);
+    tps.entropy.sta          = readValueError(data, substRefS0_,  tps.entropy.val,          tps.entropy.err,          name, message);
+    tps.volume.sta           = readValueError(data, substRefV0_,  tps.volume.val,           tps.volume.err,           name, message);
 
     return tps;
 }
@@ -293,48 +287,17 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
 auto thermoRefPropReac (const char *data, string name) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
-    string kbuf, idReac;
-
-    PairStatusMessage status = {Status::read, "_id : "};
+    string message, idReac;
 
     bsonio::bson_to_key( data, _id, idReac );
-    if (!parseIssues(idReac, name, _id)) status = {Status::read, "_id : " + idReac};
+    if (!parseIssues(idReac, name, _id)) message = "_id : " + idReac;
 
-    bsonio::bson_to_key( data, reacRefLogK0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefLogK0)) {
-        tpr.log_equilibrium_constant = (std::stod(kbuf.c_str()));
-        tpr.status["logKr"] = status;
-    }
-
-    bsonio::bson_to_key( data, reacRefCp0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefCp0)) {
-        tpr.reaction_heat_capacity_cp = (std::stod(kbuf.c_str()));
-        tpr.status["reaction_heat_capacity_cp"] = status;
-    }
-
-    bsonio::bson_to_key( data, reacRefG0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefG0)) {
-        tpr.reaction_gibbs_energy = (std::stod(kbuf.c_str()));
-        tpr.status["reaction_gibbs_energy"] = status;
-    }
-
-    bsonio::bson_to_key( data, reacRefH0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefH0)) {
-        tpr.reaction_enthalpy = (std::stod(kbuf.c_str()));
-        tpr.status["reaction_enthalpy"] = status;
-    }
-
-    bsonio::bson_to_key( data, reacRefS0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefS0)) {
-        tpr.reaction_entropy = (std::stod(kbuf.c_str()));
-        tpr.status["reaction_entropy"] = status;
-    }
-
-    bsonio::bson_to_key( data, reacRefV0, kbuf );
-    if (!parseIssues(kbuf, name, reacRefV0)) {
-        tpr.reaction_volume = (std::stod(kbuf.c_str()));
-        tpr.status["reaction_volume"] = status;
-    }
+    tpr.log_equilibrium_constant.sta  = readValueError(data, reacRefLogK0_, tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  name, message);
+    tpr.reaction_heat_capacity_cp.sta = readValueError(data, reacRefCp0_,   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, name, message);
+    tpr.reaction_gibbs_energy.sta     = readValueError(data, reacRefG0_,    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     name, message);
+    tpr.reaction_enthalpy.sta         = readValueError(data, reacRefH0_,    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         name, message);
+    tpr.reaction_entropy.sta          = readValueError(data, reacRefS0_,    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          name, message);
+    tpr.reaction_volume.sta           = readValueError(data, reacRefV0_,    tpr.reaction_volume.val,           tpr.reaction_volume.err,           name, message);
 
     return tpr;
 }
