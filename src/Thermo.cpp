@@ -415,12 +415,8 @@ auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::st
     tpr.ln_equilibrium_constant     = 0.0;
     tpr.log_equilibrium_constant    = 0.0;
 
-
-    Reaction reaction = pimpl->database.getReaction(symbol);
-
-    // Set properties status as calculated from reaction
-//    ThermoFun::PairStatusMessage status = {ThermoFun::Status::calculated, "Calculated from the reaction components: " + reaction.symbol() + "; "};
-//    setReacPropStatus(tpr, status);
+    Reaction reaction = pimpl->database.getReaction(symbol); 
+    string message = "Calculated from the reaction components: " + reaction.symbol() + "; ";
 
     for (auto &reactant : reaction.reactants())
     {
@@ -428,55 +424,21 @@ auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::st
         auto substance = reactant.first;
         auto tps = thermoPropertiesSubstance(T, P, substance);
 
-//        if (tps.status["heat_capacity_cp"].first != ThermoFun::Status::notdefined)
-            tpr.reaction_heat_capacity_cp += tps.heat_capacity_cp*coeff;
-//        else
-//        {
-//            tpr.status["reaction_heat_capacity_cp"].first = ThermoFun::Status::notdefined;
-//            tpr.status["reaction_heat_capacity_cp"].second +=  "Cp of component " + substance + " not defined; ";
-//        }
+        tpr.reaction_heat_capacity_cp += tps.heat_capacity_cp*coeff;
+        tpr.reaction_gibbs_energy += tps.gibbs_energy*coeff;
+        tpr.reaction_enthalpy += tps.enthalpy*coeff;
+        tpr.reaction_entropy += tps.entropy*coeff;
+        tpr.reaction_volume += tps.volume*coeff;
+        tpr.ln_equilibrium_constant = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T+C_to_K));
+        tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant * ln_to_lg;
 
-//        if (tps.status["gibbs_energy"].first != ThermoFun::Status::notdefined)
-            tpr.reaction_gibbs_energy += tps.gibbs_energy*coeff;
-//        else
-//        {
-//            tpr.status["reaction_gibbs_energy"].first = ThermoFun::Status::notdefined;
-//            tpr.status["reaction_gibbs_energy"].second +=  "G0 of component " + substance + " not defined; ";
-//        }
-
-//        if (tps.status["enthalpy"].first != ThermoFun::Status::notdefined)
-            tpr.reaction_enthalpy += tps.enthalpy*coeff;
-//        else
-//        {
-//            tpr.status["reaction_enthalpy"].first = ThermoFun::Status::notdefined;
-//            tpr.status["reaction_enthalpy"].second +=  "H0 of component " + substance + " not defined; ";
-//        }
-
-//        if (tps.status["entropy"].first != ThermoFun::Status::notdefined)
-            tpr.reaction_entropy += tps.entropy*coeff;
-//        else
-//        {
-//            tpr.status["reaction_entropy"].first = ThermoFun::Status::notdefined;
-//            tpr.status["reaction_entropy"].second +=  "S0 of component " + substance + " not defined; ";
-//        }
-
-//        if (tps.status["volume"].first != ThermoFun::Status::notdefined)
-            tpr.reaction_volume += tps.volume*coeff;
-//        else
-//        {
-//            tpr.status["reaction_volume"].first = ThermoFun::Status::notdefined;
-//            tpr.status["reaction_volume"].second +=  "V0 of component " + substance + " not defined; ";
-//        }
-
-//        if (tpr.status["reaction_gibbs_energy"].first != ThermoFun::Status::notdefined)
-        {
-            tpr.ln_equilibrium_constant = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T+C_to_K));
-            tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant * ln_to_lg;
-        } /*else
-        {
-            tpr.status["logKr"].first = ThermoFun::Status::notdefined;
-            tpr.status["lnK0"].first = ThermoFun::Status::notdefined;
-        }*/
+        setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message, tpr.reaction_heat_capacity_cp.sta.second);
+        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.reaction_gibbs_energy.sta.second);
+        setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message, tpr.reaction_enthalpy.sta.second);
+        setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message, tpr.reaction_entropy.sta.second);
+        setMessage(tps.volume.sta.first,           "V0 of component " + substance, message, tpr.reaction_volume.sta.second);
+        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.log_equilibrium_constant.sta.second);
+        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.ln_equilibrium_constant.sta.second);
     }
     return tpr;
 }

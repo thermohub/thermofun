@@ -39,6 +39,14 @@ std::string message(const Exception& exception, const std::string& file, int lin
 }
 }
 
+auto setMessage(Reaktoro_::Status sta, std::string propertyOfsymbol, std::string calcMessage, std::string &message_ ) -> void
+{
+    if (sta == Reaktoro_::Status::notdefined)
+        message_ += propertyOfsymbol + " not defined; ";
+    else
+        message_ = calcMessage;
+}
+
 auto errorMethodNotFound(std::string type, std::string name, int line, std::string file) -> void
 {
     Exception exception;

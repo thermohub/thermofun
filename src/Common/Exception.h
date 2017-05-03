@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 
@@ -76,6 +77,8 @@ auto errorModelParameters(std::string type, std::string name, int line, std::str
 auto errorSameSymbol(std::string type, std::string name, int line, std::string file) -> void;
 
 auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void;
+
+auto setMessage(Reaktoro_::Status sta, std::string propertyOfsymbol, std::string calcMessage, std::string &message_ ) -> void;
 
 } // namespace ThermoFun
 
