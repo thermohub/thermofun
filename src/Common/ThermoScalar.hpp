@@ -25,6 +25,15 @@
 
 namespace Reaktoro_ {
 
+enum Status {
+    notdefined = 0,
+    read,
+    calculated,
+    assigned
+};
+
+using StatusMessage = std::pair <Status, std::string>;
+
 /// A template base class to represent a thermodynamic scalar and its partial derivatives.
 /// A *thermodynamic property* is a quantity that depends on temperature and pressure.
 /// @see ThermoScalar, ChemicalScalar, ThermoVector
@@ -44,6 +53,9 @@ public:
     /// The error of the value of the thermodynamic property
     V err;
 
+    /// The status of the themrodyanic property
+    StatusMessage sta;
+
     /// Construct a default ThermoScalar instance
     ThermoScalarBase()
     : ThermoScalarBase(0.0) {}
@@ -51,20 +63,20 @@ public:
     /// Construct a custom ThermoScalarBase instance with given value only.
     /// @param val The value of the thermodynamic property
     explicit ThermoScalarBase(double val)
-    : ThermoScalarBase(val, 0.0, 0.0, 0.0) {}
+        : ThermoScalarBase(val, 0.0, 0.0, 0.0, {Status::notdefined, ""}) {}
 
     /// Construct a custom ThermoScalarBase instance with given value and derivatives.
     /// @param val The value of the thermodynamic property
     /// @param ddt The partial temperature derivative of the thermodynamic property
     /// @param ddp The partial pressure derivative of the thermodynamic property
     /// @param err The error of the value of the thermodynamic property
-    ThermoScalarBase(const V& val, const V& ddt, const V& ddp, const V& err)
-    : val(val), ddt(ddt), ddp(ddp), err(err) {}
+    ThermoScalarBase(const V& val, const V& ddt, const V& ddp, const V& err, const StatusMessage& sta)
+    : val(val), ddt(ddt), ddp(ddp), err(err), sta(sta) {}
 
     /// Construct a copy of a ThermoScalar instance.
     template<typename VR>
     ThermoScalarBase(const ThermoScalarBase<VR>& other)
-    : val(other.val), ddt(other.ddt), ddp(other.ddp), err(other.err) {}
+    : val(other.val), ddt(other.ddt), ddp(other.ddp), err(other.err), sta(other.sta) {}
 
     /// Assign another ThermoScalarBase instance to this ThermoScalarBase instance.
     template<typename VR>
@@ -74,6 +86,7 @@ public:
         ddt = other.ddt;
         ddp = other.ddp;
         err = other.err;
+        sta = other.sta;
         return *this;
     }
 
@@ -84,6 +97,7 @@ public:
         ddt = 0.0;
         ddp = 0.0;
         err = 0.0;
+        sta = {Status::assigned, ""};
         return *this;
     }
 
@@ -94,7 +108,13 @@ public:
         val += other.val;
         ddt += other.ddt;
         ddp += other.ddp;
-        err += other.err;
+        err  = sqrt(err*err + other.err*other.err);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, ""};
+        else
+            sta = {Status::calculated, ""};
+
         return *this;
     }
 
@@ -105,7 +125,13 @@ public:
         val -= other.val;
         ddt -= other.ddt;
         ddp -= other.ddp;
-        err += other.err;
+        err  = sqrt(err*err + other.err*other.err);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, ""};
+        else
+            sta = {Status::calculated, ""};
+
         return *this;
     }
 
@@ -117,7 +143,13 @@ public:
         ddt  = ddt * other.val + val * other.ddt;
         ddp  = ddp * other.val + val * other.ddp;
         val *= other.val;
-        err  = val*(tmp_err + other.err/other.val);
+        err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, ""};
+        else
+            sta = {Status::calculated, ""};
+
         return *this;
     }
 
@@ -131,7 +163,13 @@ public:
         ddt  = (ddt * other.val - val * other.ddt) * tmp2;
         ddp  = (ddp * other.val - val * other.ddp) * tmp2;
         val *= tmp1;
-        err  = val*(tmp_err + other.err/other.val);
+        err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, ""};
+        else
+            sta = {Status::calculated, ""};
+
         return *this;
     }
 
@@ -152,20 +190,20 @@ public:
     /// Assign-multiplication of a ThermoScalar instance
     ThermoScalarBase& operator*=(double other)
     {
-        const double tmp_err = err/val;
+        const double tmp_err = err/val*err/val;
         val *= other;
         ddt *= other;
         ddp *= other;
-        err = val*tmp_err;
+        err = val*sqrt(tmp_err);
         return *this;
     }
 
     /// Assign-division of a ThermoScalar instance
     ThermoScalarBase& operator/=(double other)
     {
-        const double tmp_err = err/val;
+        const double tmp_err = err/val*err/val;
         *this *= 1.0/other;
-        err = val*tmp_err;
+        err = val*sqrt(tmp_err);
         return *this;
     }
 
@@ -192,7 +230,7 @@ public:
     Temperature() : Temperature(0.0) {}
 
     /// Construct a Temperature instance with given value
-    Temperature(double val) : ThermoScalarBase(val, 1.0, 0.0, 0.0) {}
+    Temperature(double val) : ThermoScalarBase(val, 1.0, 0.0, 0.0, {Status::assigned, ""}) {}
 
     /// Convert this Temperature instance into a double
 //    operator double() { return val; }
@@ -206,16 +244,34 @@ public:
     Pressure() : Pressure(0.0) {}
 
     /// Construct a Pressure instance with given value
-    Pressure(double val) : ThermoScalarBase(val, 0.0, 1.0, 0.0) {}
+    Pressure(double val) : ThermoScalarBase(val, 0.0, 1.0, 0.0, {Status::assigned, ""}) {}
 
     /// Convert this Pressure instance into a double
 //    operator double() { return val; }
 };
 
+
+template<typename VL, typename VR>
+inline auto status(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> StatusMessage
+{
+    if (l.sta.first == Status::notdefined || r.sta.first == Status::notdefined)
+        return {Status::notdefined, ""};
+    else
+        return {Status::calculated, ""};
+}
+template<typename VL>
+inline auto status(const ThermoScalarBase<VL>& l) -> StatusMessage
+{
+    if (l.sta.first == Status::notdefined)
+        return {Status::notdefined, ""};
+    else
+        return {Status::calculated, ""};
+}
 /// Unary addition operator for a ThermoScalar instance
 template<typename V>
 inline auto operator+(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
+    l.sta = status(l);
     return l;
 }
 
@@ -223,13 +279,13 @@ inline auto operator+(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 template<typename VL, typename VR>
 inline auto operator+(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    return {l.val + r.val, l.ddt + r.ddt, l.ddp + r.ddp, l.err + r.err};
+    return {l.val + r.val, l.ddt + r.ddt, l.ddp + r.ddp, sqrt(l.err*l.err + r.err*r.err), status(l,r)};
 }
 
 template<typename V>
 inline auto operator+(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    return {l + r.val, r.ddt, r.ddp, r.err};
+    return {l + r.val, r.ddt, r.ddp, r.err, status(r)};
 }
 
 template<typename V>
@@ -242,42 +298,42 @@ inline auto operator+(const ThermoScalarBase<V>& l, double r) -> ThermoScalarBas
 template<typename V>
 inline auto operator-(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    return {-l.val, -l.ddt, -l.ddp, +l.err};
+    return {-l.val, -l.ddt, -l.ddp, +(sqrt(l.err*l.err)), status(l)};
 }
 
 /// Subtract two ThermoScalar instances
 template<typename VL, typename VR>
 inline auto operator-(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    return {l.val - r.val, l.ddt - r.ddt, l.ddp - r.ddp, l.err + r.err};
+    return {l.val - r.val, l.ddt - r.ddt, l.ddp - r.ddp, sqrt(l.err*l.err + r.err*r.err), status(l, r)};
 }
 
 /// Right-subtract a ThermoScalar instance by a scalar
 template<typename V>
 inline auto operator-(const ThermoScalarBase<V>& l, double r) -> ThermoScalarBase<double>
 {
-    return {l.val - r, l.ddt, l.ddp, l.err};
+    return {l.val - r, l.ddt, l.ddp, l.err, status(l)};
 }
 
 /// Left-subtract a ThermoScalar instance by a scalar
 template<typename V>
 inline auto operator-(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    return {l - r.val, -r.ddt, -r.ddp, r.err};
+    return {l - r.val, -r.ddt, -r.ddp, r.err, status(r)};
 }
 
 /// Multiply two ThermoScalar instances
 template<typename VL, typename VR>
 inline auto operator*(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    return {l.val * r.val, l.val * r.ddt + l.ddt * r.val, l.val * r.ddp + l.ddp * r.val, (l.val * r.val)*(l.err/l.val+r.err/r.val)};
+    return {l.val * r.val, l.val * r.ddt + l.ddt * r.val, l.val * r.ddp + l.ddp * r.val, (l.val * r.val)*sqrt(l.err/l.val*l.err/l.val+r.err/r.val*r.err/r.val), status(l,r)};
 }
 
 /// Left-multiply a ThermoScalar instance by a scalar
 template<typename V>
 inline auto operator*(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    return {l * r.val, l * r.ddt, l * r.ddp, (l * r.val)*(r.err/r.val)};
+    return {l * r.val, l * r.ddt, l * r.ddp, (l * r.val)*sqrt(r.err/r.val*r.err/r.val), status(r)};
 }
 
 /// Right-multiply a ThermoScalar instance by a scalar
@@ -293,7 +349,7 @@ inline auto operator/(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>&
 {
     const double tmp1 = 1.0/r.val;
     const double tmp2 = tmp1 * tmp1;
-    return {tmp1 * l.val, tmp2 * (l.ddt * r.val - l.val * r.ddt), tmp2 * (l.ddp * r.val - l.val * r.ddp), (tmp1 * l.val)*(l.err/l.val+r.err/r.val)};
+    return {tmp1 * l.val, tmp2 * (l.ddt * r.val - l.val * r.ddt), tmp2 * (l.ddp * r.val - l.val * r.ddp), (tmp1 * l.val)*sqrt(l.err/l.val*l.err/l.val+r.err/r.val*r.err/r.val), status(l,r)};
 }
 
 /// Left-divide a ThermoScalar instance by a scalar
@@ -302,7 +358,7 @@ inline auto operator/(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBas
 {
     const double tmp1 = 1.0/r.val;
     const double tmp2 = -l*tmp1*tmp1;
-    return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, (tmp1 * r.val)*(r.err/r.val)};
+    return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, (tmp1 * r.val)*sqrt(r.err/r.val*r.err/r.val), status(r)};
 }
 
 /// Right-divide a ThermoScalar instance by a scalar
@@ -318,7 +374,7 @@ inline auto sqrt(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
     const double tmp1 = std::sqrt(l.val);
     const double tmp2 = 0.5 * tmp1/l.val;
-    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.5*(l.err/l.val)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.5*(l.err/l.val), status(l)};
 }
 
 /// Return the power of a ThermoScalar instance
@@ -327,7 +383,7 @@ inline auto pow(const ThermoScalarBase<V>& l, double power) -> ThermoScalarBase<
 {
     const double tmp1 = std::pow(l.val, power);
     const double tmp2 = power * tmp1/l.val;
-    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, fabs(power)*(l.err/l.val)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, fabs(power)*(l.err/l.val), status(l)};
 }
 
 /// Return the power of a ThermoScalar instance
@@ -337,7 +393,7 @@ inline auto pow(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& power
     const double logl = std::log(l.val);
     const double powl = std::pow(l.val, power.val);
     const double tmp = power.val/l.val;
-    return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), powl*(l.err/l.val)};
+    return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), powl*(l.err/l.val), status(l,power)};
 }
 
 /// Return the natural exponential of a ThermoScalar instance
@@ -345,7 +401,7 @@ template<typename V>
 inline auto exp(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
     const double tmp = std::exp(l.val);
-    return {tmp, tmp * l.ddt, tmp * l.ddp, l.err*tmp};
+    return {tmp, tmp * l.ddt, tmp * l.ddp, l.err*tmp, status(l)};
 }
 
 /// Return the natural log of a ThermoScalar instance
@@ -354,7 +410,7 @@ inline auto log(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
     const double tmp1 = std::log(l.val);
     const double tmp2 = 1.0/l.val;
-    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, l.err/l.val};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.434*(l.err/l.val), status(l)};
 }
 
 /// Return the log10 of a ThermoScalar instance
