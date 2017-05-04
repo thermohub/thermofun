@@ -61,6 +61,18 @@ public:
     /// Set the code for the pressure correction method
     auto setMethod_P(MethodCorrP_Thrift::type method_P) -> void;
 
+    /// Sett upper temperature limit of the correction method (K)
+    auto setLowerT(double T) -> void;
+
+    /// Sett upper presure limit of the correction method (Pa)
+    auto setLowerP(double P) -> void;
+
+    /// Sett lower temperature limit of the correction method (K)
+    auto setUpperT(double T) -> void;
+
+    /// Set lower pressure limit for the correction method (Pa)
+    auto setUpperP(double P) -> void;
+
     /// Set the code for the substance class
     auto setSubstanceClass(SubstanceClass::type substance_class) -> void;
 

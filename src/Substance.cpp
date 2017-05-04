@@ -28,6 +28,18 @@ struct Substance::Impl
     /// Reference pressure (in Pa)
     double reference_P;
 
+    /// Lower temperature limit (in K)
+    double lower_T;
+
+    /// Lower pressure limit (in Pa)
+    double lower_P;
+
+    /// Upper temperature limit (in K)
+    double upper_T;
+
+    /// Upper pressure limit (in Pa)
+    double upper_P;
+
     /// General method (or equation of state for both T and P correction)
     MethodGenEoS_Thrift::type method_genEoS;
 
@@ -153,6 +165,26 @@ auto Substance::setReferenceT(double T) -> void
 auto Substance::setReferenceP(double P) -> void
 {
     pimpl->reference_P = P;
+}
+
+auto Substance::setLowerT(double T) -> void
+{
+    pimpl->lower_T = T;
+}
+
+auto Substance::setLowerP(double P) -> void
+{
+    pimpl->lower_P = P;
+}
+
+auto Substance::setUpperT(double T) -> void
+{
+    pimpl->upper_T = T;
+}
+
+auto Substance::setUpperP(double P) -> void
+{
+    pimpl->upper_P = P;
 }
 
 auto Substance::setSolventSymbol(string symbol) -> void

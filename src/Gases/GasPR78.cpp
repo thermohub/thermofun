@@ -25,6 +25,8 @@ auto thermoPropertiesGasPR78(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Su
     // back correction
     tps.gibbs_energy -= R_CONSTANT * (t+273.15) * log(Fug/p);
 
+//    setMessage(Reaktoro_::Status::calculated,"PR78 fluid model: calculated", tps );
+
     return tps;
 }
 

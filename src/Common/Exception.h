@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include "Common/ThermoScalar.hpp"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 
@@ -79,6 +80,10 @@ auto errorSameSymbol(std::string type, std::string name, int line, std::string f
 auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void;
 
 auto setMessage(Reaktoro_::Status sta, std::string propertyOfsymbol, std::string calcMessage, std::string &message_ ) -> void;
+
+auto setMessage(Reaktoro_::Status sta, std::string message , ThermoPropertiesSubstance &tps) -> void;
+
+auto setMessage(Reaktoro_::Status sta, std::string message, ThermoPropertiesReaction &tpr ) -> void;
 
 } // namespace ThermoFun
 

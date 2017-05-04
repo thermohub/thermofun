@@ -40,9 +40,23 @@ public:
 
     auto setReactants(std::map<std::string, double> reactants) -> void;
 
+    /// Set reference temperature fo the standard properties of reaction (K)
     auto setReferenceT(double T) -> void;
 
+    /// Set references pressure for the standard proeprties of reaction (Pa)
     auto setReferenceP(double P) -> void;
+
+    /// Sett upper temperature limit of the correction method (K)
+    auto setLowerT(double T) -> void;
+
+    /// Sett upper presure limit of the correction method (Pa)
+    auto setLowerP(double P) -> void;
+
+    /// Sett lower temperature limit of the correction method (K)
+    auto setUpperT(double T) -> void;
+
+    /// Set lower pressure limit for the correction method (Pa)
+    auto setUpperP(double P) -> void;
 
     /// Set the code for general EOS calculation method
     auto setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void;
@@ -53,8 +67,10 @@ public:
     /// Set the code for the pressure correction method
     auto setMethod_P(MethodCorrP_Thrift::type method_P) -> void;
 
+    /// Set the refereneces proeprties of reaction
     auto setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void;
 
+    /// Set the parameters used for calculating the proeprties of reaction at T and P
     auto setThermoParameters(ThermoParametersReaction param) -> void;
 
 //    /// Set the formula of the Reaction.
@@ -64,19 +80,25 @@ public:
 //    auto setReaction(std::string reaction) -> void;
 
     // Get functions
-    /// Return the name of the chemical Reaction
+    /// Returns the name of the chemical Reaction
     auto name() const -> std::string;
 
+    /// Returns the symbol of the Reaction
     auto symbol() const -> std::string;
 
+    /// Returns the map of reactants symbols and their coeffiicents
     auto reactants() -> std::map<std::string, double>;
 
+    /// Returns the references proeprties of the reaction
     auto thermo_ref_prop() -> ThermoPropertiesReaction;
 
+    /// Returns an instance of the defined parameters of the reaction
     auto thermo_parameters() -> ThermoParametersReaction;
 
+    /// Returns the references temperature (K)
     auto referenceT() const -> double;
 
+    /// Returns the references pressure (Pa)
     auto referenceP() const -> double;
 
     /// Return the general EOS method code
@@ -94,7 +116,10 @@ public:
 
 private:
 
+    /// Converts the Cp as a function of T coefficients into logK as a function of T coefficients
     auto convert_CpfT_to_logKfT() -> void;
+
+    /// Converst the logK as a function of T coefficients into Cp as a function of T coefficients
     auto convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void;
 
     struct Impl;

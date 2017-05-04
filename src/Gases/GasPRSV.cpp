@@ -24,6 +24,8 @@ auto thermoPropertiesGasPRSV(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Su
     auto Fug = FugProps[0] * (p);
     tps.gibbs_energy -= R_CONSTANT * (t+273.15) * log(Fug/p);
 
+//    setMessage(Reaktoro_::Status::calculated,"PRSV fluid model: calculated", tps );
+
     return tps;
 }
 

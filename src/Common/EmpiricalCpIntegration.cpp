@@ -51,14 +51,14 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
        }
     }
 
-    if (k<0)
-    {
-        Exception exception;
-        exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
-        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
-        exception.line = __LINE__;
-        RaiseError(exception);
-    }
+//    if (k<0)
+//    {
+//        Exception exception;
+//        exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
+//        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
+//        exception.line = __LINE__;
+//        RaiseError(exception);
+//    }
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
@@ -135,6 +135,11 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     thermo_properties_PT.enthalpy           = H;
     thermo_properties_PT.entropy            = S;
     thermo_properties_PT.volume             = V;
+
+    if (k<0)
+    {
+        setMessage(Reaktoro_::Status::calculated,"Empirical Cp integration: Outside temperature bounds", thermo_properties_PT );
+    }
 
     return thermo_properties_PT;
 }

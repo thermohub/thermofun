@@ -46,8 +46,20 @@ struct Reaction::Impl
     /// Reference temperature (in K)
     double reference_T;
 
-    /// Reference pressure (in ___)
+    /// Reference pressure (in Pa)
     double reference_P;
+
+    /// Lower temperature limit (in K)
+    double lower_T;
+
+    /// Lower pressure limit (in Pa)
+    double lower_P;
+
+    /// Upper temperature limit (in K)
+    double upper_T;
+
+    /// Upper pressure limit (in Pa)
+    double upper_P;
 
 };
 
@@ -91,6 +103,26 @@ auto Reaction::setReferenceT(double T) -> void
 auto Reaction::setReferenceP(double P) -> void
 {
     pimpl->reference_P = P;
+}
+
+auto Reaction::setLowerT(double T) -> void
+{
+    pimpl->lower_T = T;
+}
+
+auto Reaction::setLowerP(double P) -> void
+{
+    pimpl->lower_P = P;
+}
+
+auto Reaction::setUpperT(double T) -> void
+{
+    pimpl->upper_T = T;
+}
+
+auto Reaction::setUpperP(double P) -> void
+{
+    pimpl->upper_P = P;
 }
 
 auto Reaction::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
