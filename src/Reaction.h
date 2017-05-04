@@ -101,6 +101,18 @@ public:
     /// Returns the references pressure (Pa)
     auto referenceP() const -> double;
 
+    /// Return upper temperature limit of the correction method (K)
+    auto lowerT( ) const -> double;
+
+    /// Return upper presure limit of the correction method (Pa)
+    auto lowerP( ) const -> double;
+
+    /// Return lower temperature limit of the correction method (K)
+    auto upperT( ) const -> double;
+
+    /// Return lower pressure limit for the correction method (Pa)
+    auto upperP( ) const -> double;
+
     /// Return the general EOS method code
     auto methodGenEOS() -> MethodGenEoS_Thrift::type;
 
@@ -109,6 +121,14 @@ public:
 
     /// Return the pressure correction method code
     auto method_P() -> MethodCorrP_Thrift::type;
+
+    /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
+    /// inside the property status
+    /// @param modelName Given model name
+    /// @param T temparature in bar
+    /// @param P pressure in C
+    /// @param tpr calculated properties of the reaction, their status message is changed is T and P is out of bounds
+    auto checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void;
 
 //    /// Return the formula of the chemical Reaction
 //    auto formula() const -> std::string;

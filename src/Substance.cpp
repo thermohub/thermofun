@@ -1,4 +1,5 @@
 #include "Substance.h"
+#include "Common/Exception.h"
 
 // ThermoFun includes
 //#include "ThermoProperties.h"
@@ -232,6 +233,26 @@ auto Substance::referenceP() const -> double
     return pimpl->reference_P;
 }
 
+auto Substance::lowerT( ) const -> double
+{
+    return pimpl->lower_T;
+}
+
+auto Substance::lowerP( ) const -> double
+{
+    return pimpl->lower_P;
+}
+
+auto Substance::upperT( ) const -> double
+{
+    return pimpl->upper_T;
+}
+
+auto Substance::upperP() const -> double
+{
+    return pimpl->upper_P;
+}
+
 auto Substance::thermoProperties() -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_prop;
@@ -285,6 +306,19 @@ auto Substance::charge() -> int
 auto Substance::SolventSymbol() -> string
 {
     return pimpl->solventSymbol;
+}
+
+auto Substance::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void
+{
+    if (pimpl->upper_P<(P*bar_to_Pa) || pimpl->upper_T<(T+C_to_K) ||
+        pimpl->lower_P>(P*bar_to_Pa) || pimpl->lower_T>(T+C_to_K))
+    {
+        string message = modelName +": out of "
+                                    "T(" + to_string(pimpl->lower_T) + "-" + to_string(pimpl->upper_T) +" K) and "
+                                    "P(" + to_string(pimpl->lower_P) + "-" + to_string(pimpl->upper_P) +" Pa) bounds";
+
+        setMessage(Reaktoro_::Status::calculated, message, tps );
+    }
 }
 
 } // namespace ThermoFun

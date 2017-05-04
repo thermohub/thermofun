@@ -27,7 +27,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance;
+auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent &wp) -> ThermoPropertiesSubstance;
 
 //auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void;
 }

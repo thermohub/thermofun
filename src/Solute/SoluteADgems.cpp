@@ -3,7 +3,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance subst, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {
 //    Reaktoro::ThermoScalar CaltoJ(cal_to_J);
     // calculate infinite dilution properties of aqueous species at T and P of interest
@@ -21,13 +21,13 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
 
     ThermoPropertiesSubstance state = tps;
 
-    const auto ADparam = species.thermoParameters().Cp_nonElectrolyte_coeff;
+    const auto ADparam = subst.thermoParameters().Cp_nonElectrolyte_coeff;
 
     if (ADparam.size() == 0)
     {
         Exception exception;
         exception.error << "Error in Akinfiev Diamond EOS";
-        exception.reason << "There are no model parameters given for "<<species.symbol() << ".";
+        exception.reason << "There are no model parameters given for "<<subst.symbol() << ".";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -87,6 +87,8 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     state.enthalpy         = Hids + Heos;
     state.internal_energy  = state.enthalpy - Pbar*state.volume;
     state.helmholtz_energy = state.internal_energy - Tk*state.entropy;
+
+    subst.checkCalcMethodBounds("Akinfiev and Diamond model", Tk.val-C_to_K, Pbar.val, tps);
 
     return state;
 }

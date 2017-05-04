@@ -198,7 +198,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
 
     ElectroPropertiesSubstance aes = omeg92(g, pimpl->substance);
 
-    return thermoPropertiesAqSoluteHKFgems(t, p, pimpl->substance, aes, wes);
+    return thermoPropertiesAqSoluteHKFgems(t, p, pimpl->substance, aes, wes, wp);
 }
 
 //=======================================================================================================
@@ -238,7 +238,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
 
     ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, pimpl->substance);
 
-    return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wes);
+    return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wes, wp);
 }
 
 //=======================================================================================================

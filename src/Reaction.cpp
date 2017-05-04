@@ -190,6 +190,26 @@ auto Reaction::referenceP() const -> double
     return pimpl->reference_P;
 }
 
+auto Reaction::lowerT( ) const -> double
+{
+    return pimpl->lower_T;
+}
+
+auto Reaction::lowerP( ) const -> double
+{
+    return pimpl->lower_P;
+}
+
+auto Reaction::upperT( ) const -> double
+{
+    return pimpl->upper_T;
+}
+
+auto Reaction::upperP() const -> double
+{
+    return pimpl->upper_P;
+}
+
 auto Reaction::methodGenEOS() -> MethodGenEoS_Thrift::type
 {
     return pimpl->method_genEoS;
@@ -209,6 +229,19 @@ auto Reaction::method_P() -> MethodCorrP_Thrift::type
 //{
 //    return pimpl->formula;
 //}
+
+auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void
+{
+    if (pimpl->upper_P<(P*bar_to_Pa) || pimpl->upper_T<(T+C_to_K) ||
+        pimpl->lower_P>(P*bar_to_Pa) || pimpl->lower_T>(T+C_to_K))
+    {
+        string message = modelName +": out of "
+                                    "T(" + to_string(pimpl->lower_T) + "-" + to_string(pimpl->upper_T) +" K) and "
+                                    "P(" + to_string(pimpl->lower_P) + "-" + to_string(pimpl->upper_P) +" Pa) bounds";
+
+        setMessage(Reaktoro_::Status::calculated, message, tpr );
+    }
+}
 
 auto Reaction::convert_CpfT_to_logKfT() -> void
 {

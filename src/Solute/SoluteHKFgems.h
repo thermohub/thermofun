@@ -12,7 +12,7 @@ namespace ThermoFun {
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance;
+auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
 
 /// Returns the G function and its derivatives (gShock2 in gems)
 /// @ref Shock et al. (1991)

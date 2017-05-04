@@ -61,6 +61,18 @@ auto parseSubstance (const char * data) -> Substance
     bsonio::bson_to_key( data, substClass, kbuf );
     if (!parseIssues(kbuf, name, substClass)) s.setSubstanceClass(SubstanceClass::type(std::stoi(kbuf.c_str())));
 
+    bsonio::bson_to_key( data, lowerT, kbuf );
+    if (!parseIssues(kbuf, name, lowerT)) s.setLowerT(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, upperT, kbuf );
+    if (!parseIssues(kbuf, name, upperT)) s.setUpperT(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, lowerP, kbuf );
+    if (!parseIssues(kbuf, name, lowerP)) s.setLowerP(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, upperP, kbuf );
+    if (!parseIssues(kbuf, name, upperP)) s.setUpperP(std::stod(kbuf.c_str()));
+
 //    bsonio::bson_to_key( data, substSolventNname, kbuf );
 //    if (!parseIssues(kbuf, name, substSolventNname)) s.setSolventSymbol(kbuf);
 
@@ -210,6 +222,18 @@ auto parseReaction (const char *data) -> Reaction
 
     bsonio::bson_to_key( data, reacRefP, kbuf );
     if (!parseIssues(kbuf, name, reacRefP)) r.setReferenceP(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, lowerT, kbuf );
+    if (!parseIssues(kbuf, name, lowerT)) r.setLowerT(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, upperT, kbuf );
+    if (!parseIssues(kbuf, name, upperT)) r.setUpperT(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, lowerP, kbuf );
+    if (!parseIssues(kbuf, name, lowerP)) r.setLowerP(std::stod(kbuf.c_str()));
+
+    bsonio::bson_to_key( data, upperP, kbuf );
+    if (!parseIssues(kbuf, name, upperP)) r.setUpperP(std::stod(kbuf.c_str()));
 
 
     // get thermodynamic parameters

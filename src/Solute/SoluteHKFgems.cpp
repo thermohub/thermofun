@@ -19,11 +19,11 @@ ZPrTr = -0.1278034682e-1,
                                                   gref = 0.0e0;
 
 
-auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent &wp) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
-    auto hkf = species.thermoParameters().HKF_parameters;
-    auto refProp = species.thermoReferenceProperties();
+    auto hkf = subst.thermoParameters().HKF_parameters;
+    auto refProp = subst.thermoReferenceProperties();
 
     auto T = Reaktoro_::Temperature (TC.val+C_to_K);
 
@@ -31,7 +31,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     {
         Exception exception;
         exception.error << "Error in HKFgems EOS";
-        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -39,7 +39,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     {
         Exception exception;
         exception.error << "Error in HKFgems EOS";
-        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -124,19 +124,25 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     A  *= cal_to_J;
     Cp *= cal_to_J;
 
-    ThermoPropertiesSubstance state;
-    state.volume           = V;
-    state.gibbs_energy     = G;
-    state.enthalpy         = H;
-    state.entropy          = S;
-    state.internal_energy  = U;
-    state.helmholtz_energy = A;
-    state.heat_capacity_cp = Cp;
-    state.heat_capacity_cv = state.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
+    ThermoPropertiesSubstance tps;
+    tps.volume           = V;
+    tps.gibbs_energy     = G;
+    tps.enthalpy         = H;
+    tps.entropy          = S;
+    tps.internal_energy  = U;
+    tps.helmholtz_energy = A;
+    tps.heat_capacity_cp = Cp;
+    tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
+
+    subst.checkCalcMethodBounds("HKF model", TC.val, Pbar.val, tps);
+    if (wp.density >= 1400 || wp.density<=600)
+    {
+        setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);
+    }
 
 ///    aW.twp->gfun = g;  // solvent g-function - passed for b_gamma=f(T,P) 07.06.05
 
-    return state;
+    return tps;
 }
 
 //-------------------------------------------------------------------------

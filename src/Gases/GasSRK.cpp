@@ -25,7 +25,7 @@ auto thermoPropertiesGasSRK(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Sub
     // back correction
     tps.gibbs_energy -= R_CONSTANT * (t+273.15) * log(Fug/p);
 
-//    setMessage(Reaktoro_::Status::calculated,"SRK fluid model: calculated", tps );
+    subst.checkCalcMethodBounds("SRK Soave-Redlich-Kwong fluid model", t.val, p.val, tps);
 
     return tps;
 }

@@ -432,13 +432,13 @@ auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::st
         tpr.ln_equilibrium_constant = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T+C_to_K));
         tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant * ln_to_lg;
 
-        setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message, tpr.reaction_heat_capacity_cp.sta.second);
-        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.reaction_gibbs_energy.sta.second);
-        setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message, tpr.reaction_enthalpy.sta.second);
-        setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message, tpr.reaction_entropy.sta.second);
-        setMessage(tps.volume.sta.first,           "V0 of component " + substance, message, tpr.reaction_volume.sta.second);
-        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.log_equilibrium_constant.sta.second);
-        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.ln_equilibrium_constant.sta.second);
+        setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
+        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);
+        setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message+tps.enthalpy.sta.second,         tpr.reaction_enthalpy.sta.second);
+        setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message+tps.entropy.sta.second,          tpr.reaction_entropy.sta.second);
+        setMessage(tps.volume.sta.first,           "V0 of component " + substance, message+tps.volume.sta.second,           tpr.reaction_volume.sta.second);
+        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.log_equilibrium_constant.sta.second);
+        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
     }
     return tpr;
 }

@@ -39,17 +39,17 @@ const double theta = 228;
 /// The constant characteristics \Psi of the solvent (in units of bar)
 const double psi = 2600;
 
-auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature TK, Reaktoro_::Pressure P, Substance subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
 {
     // Get the HKF thermodynamic data of the species
-    auto hkf = species.thermoParameters().HKF_parameters;
-    auto refProp = species.thermoReferenceProperties();
+    auto hkf = subst.thermoParameters().HKF_parameters;
+    auto refProp = subst.thermoReferenceProperties();
 
     if (hkf.size() == 0)
     {
         Exception exception;
         exception.error << "Error in HKFrektoro EOS";
-        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -57,7 +57,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pr
     {
         Exception exception;
         exception.error << "Error in HKFrektoro EOS";
-        exception.reason << "The HKF paramteres for "<< species.symbol() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -89,32 +89,32 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pr
 
     // Calculate the standard molal thermodynamic properties of the aqueous species
     auto V = 0.4184004e2 * (a1 + a2/(psi + Pbar) +
-        (a3 + a4/(psi + Pbar))/(T - theta) - w*Q - (Z + 1)*wP);
+        (a3 + a4/(psi + Pbar))/(TK - theta) - w*Q - (Z + 1)*wP);
 
-    auto G = Gf - Sr*(T - Tr) - c1*(T*log(T/Tr) - T + Tr)
+    auto G = Gf - Sr*(TK - Tr) - c1*(TK*log(TK/Tr) - TK + Tr)
         + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
-        - c2*((1.0/(T - theta) - 1.0/(Tr - theta))*(theta - T)/theta
-        - T/(theta*theta)*log(Tr/T * (T - theta)/(Tr - theta)))
-        + 1.0/(T - theta)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
-        - w*(Z + 1) + wr*(Zr + 1) + wr*Yr*(T - Tr);
+        - c2*((1.0/(TK - theta) - 1.0/(Tr - theta))*(theta - TK)/theta
+        - TK/(theta*theta)*log(Tr/TK * (TK - theta)/(Tr - theta)))
+        + 1.0/(TK - theta)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
+        - w*(Z + 1) + wr*(Zr + 1) + wr*Yr*(TK - Tr);
 
-    auto H = Hf + c1*(T - Tr) - c2*(1.0/(T - theta) - 1.0/(Tr - theta))
+    auto H = Hf + c1*(TK - Tr) - c2*(1.0/(TK - theta) - 1.0/(Tr - theta))
         + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
-        + (2*T - theta)/pow(T - theta, 2)*(a3*(Pbar - Pr)
+        + (2*TK - theta)/pow(TK - theta, 2)*(a3*(Pbar - Pr)
         + a4*log((psi + Pbar)/(psi + Pr)))
-        - w*(Z + 1) + w*T*Y + T*(Z + 1)*wT + wr*(Zr + 1) - wr*Tr*Yr;
+        - w*(Z + 1) + w*TK*Y + TK*(Z + 1)*wT + wr*(Zr + 1) - wr*Tr*Yr;
 
-    auto S = Sr + c1*log(T/Tr) - c2/theta*(1.0/(T - theta)
-        - 1.0/(Tr - theta) + log(Tr/T * (T - theta)/(Tr - theta))/theta)
-        + 1.0/pow(T - theta, 2)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
+    auto S = Sr + c1*log(TK/Tr) - c2/theta*(1.0/(TK - theta)
+        - 1.0/(Tr - theta) + log(Tr/TK * (TK - theta)/(Tr - theta))/theta)
+        + 1.0/pow(TK - theta, 2)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
         + w*Y + (Z + 1)*wT - wr*Yr;
 
-    auto Cp = c1 + c2/pow(T - theta, 2) - (2*T/pow(T - theta, 3))*(a3*(Pbar - Pr)
-        + a4*log((psi + Pbar)/(psi + Pr))) + w*T*X + 2*T*Y*wT + T*(Z + 1)*wTT;
+    auto Cp = c1 + c2/pow(TK - theta, 2) - (2*TK/pow(TK - theta, 3))*(a3*(Pbar - Pr)
+        + a4*log((psi + Pbar)/(psi + Pr))) + w*TK*X + 2*TK*Y*wT + TK*(Z + 1)*wTT;
 
     auto U = H - Pbar*V;
 
-    auto A = U - T*S;
+    auto A = U - TK*S;
 
     // Convert the thermodynamic properties of the gas to the standard units
     V  *= 1e-01/**cal_to_J/bar_to_Pa*/;
@@ -125,17 +125,23 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pr
     A  *= cal_to_J;
     Cp *= cal_to_J;
 
-    ThermoPropertiesSubstance state;
-    state.volume           = V;
-    state.gibbs_energy     = G;
-    state.enthalpy         = H;
-    state.entropy          = S;
-    state.internal_energy  = U;
-    state.helmholtz_energy = A;
-    state.heat_capacity_cp = Cp;
-    state.heat_capacity_cv = state.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
+    ThermoPropertiesSubstance tps;
+    tps.volume           = V;
+    tps.gibbs_energy     = G;
+    tps.enthalpy         = H;
+    tps.entropy          = S;
+    tps.internal_energy  = U;
+    tps.helmholtz_energy = A;
+    tps.heat_capacity_cp = Cp;
+    tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 
-    return state;
+    subst.checkCalcMethodBounds("HKF model", TK.val-C_to_K, Pbar.val, tps);
+    if (wp.density >= 1400 || wp.density<=600)
+    {
+        setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);
+    }
+
+    return tps;
 }
 
 
