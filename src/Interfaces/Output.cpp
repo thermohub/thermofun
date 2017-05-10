@@ -37,6 +37,20 @@ auto Output::toCSV(std::__cxx11::string filename) -> void
 
 }
 
+auto Output::toCSVtransposed(std::__cxx11::string filename, string propertyname) -> void
+{
+    pimpl->fThermoProperties.open( filename, ios::trunc );
+
+    pimpl->fThermoProperties << CSVHeaderTransposed() << endl;
+
+    foutResultsSubst();
+    foutResultsReac();
+
+    pimpl->fThermoProperties.close();
+
+}
+
+
 //auto Output::toThermoScalar() -> Reaktoro_::ThermoScalar
 //{
 //    return pimpl->api.resultsSubst()[0][0];
@@ -110,6 +124,32 @@ auto Output::CSVHeader( ) -> std::string
 
     return header;
 
+}
+
+auto Output::CSVHeaderTransposed( ) -> std::string
+{
+//    typedef std::map<int, std::string>::iterator it_t;
+
+    std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
+    std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
+//    std::map<int, std::string> properties           = pimpl->api.propNames();
+    std::map<const std::string, std::string> units  = pimpl->api.propUnits();
+
+    const auto s = pimpl->api.outputSettings().separator;
+    std::string header = "";
+    header = header + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")";
+
+    for (auto symbol : substanceSymbols)
+    {
+        header = header + s + symbol;
+    }
+
+    for (auto symbol : reactionSymbols)
+    {
+        header = header + s + symbol;
+    }
+
+    return header;
 }
 
 auto Output::foutResultsSubst()-> void
