@@ -422,7 +422,28 @@
           },
           "doc": "Timestamp (\n",
           "required": "optional"
-        }
+        },
+        {
+          "key": 33,
+          "name": "equation",
+          "typeId": "string",
+          "doc": "Equation of the reaction (not compulsory)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 34,
+          "name": "dr_dm_fm_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of Marshall-Franck density (MFD) model\n",
+          "required": "optional",
+          "default": {
+            "name": "drMFc"
+          }
+        },
       ]
     },
     {

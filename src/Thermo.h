@@ -16,16 +16,17 @@ namespace ThermoFun {
 struct ThermoPreferences
 {
     Substance workSubstance;
+    Reaction  workReaction;
     MethodGenEoS_Thrift::type method_genEOS;
     MethodCorrT_Thrift::type  method_T;
     MethodCorrP_Thrift::type  method_P;
 
-    unsigned solventState = 0;
+    unsigned solventState = 0; // 0: liquid; 1: vapor
 
-    bool isHydrogen = false;
-    bool isH2Ovapor = false;
-    bool isH2OSolvent = false;
-    bool isReacDC = false;
+    bool isHydrogen     = false;
+    bool isH2Ovapor     = false;
+    bool isH2OSolvent   = false;
+    bool isReacDC       = false;
 
     string solventSymbol;
 };
@@ -40,7 +41,7 @@ struct Solvent
     ElectroPropertiesSolvent  electroProperties;
     ThermoPropertiesSubstance thermoIdealGasProperties;
 
-    string solventSymbol;
+    string symbol;
 
     double T, P;
 };
@@ -57,7 +58,14 @@ public:
     /// Construct a Thermo instance with given Database instance
     explicit Thermo(const Database& database);
 
+    /// Sets the solvent symbol for all aqueous substances
     auto setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void;
+
+    /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
+    auto setSolventSymbol(const std::string solvent_symbol) ->void;
+
+    /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
+    auto solventSymbol( ) const -> std::string;
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.
@@ -205,6 +213,7 @@ private:
 
     auto getThermoPreferences(std::string substance) -> ThermoPreferences;
     auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
+    auto calculatePropertiesSolvent(double T, double &P)-> void;
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
 

@@ -266,6 +266,8 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
     auto methodT = reac.method_T();
     auto methodP = reac.method_P();
 
+    calculatePropertiesSolvent(T, P);
+
     switch (methodT)
     {
     case MethodCorrT_Thrift::type::CTM_LGX:
@@ -280,12 +282,12 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
     }
     case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
     {
-//        tpr = ReactionFrantzMarshall(reac).thermoProperties(T, P, wp );
+        tpr = ReactionFrantzMarshall(reac).thermoProperties(T, P, pimpl->solvent.properties);
         break;
     }
     case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
     {
-//        return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, wp);
+//        return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, pimpl->solvent.properties);
         break;
     }
     case MethodCorrT_Thrift::type::CTM_IKZ:
@@ -488,9 +490,9 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
 
 auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void
 {
-    if ((solvent.T != T || solvent.P != P || solvent.solventSymbol != solventSymbol) &&  (solventSymbol != "*") && (!solventSymbol.empty()))
+    if ((solvent.T != T || solvent.P != P || solvent.symbol != solventSymbol) &&  (solventSymbol != "*") && (!solventSymbol.empty()))
     {
-        solvent.solventSymbol            = solventSymbol;
+        solvent.symbol                   = solventSymbol;
         solvent.T                        = T;
         solvent.P                        = P;
         solvent.properties               = propertiesSolvent(T, P, solventSymbol);
@@ -499,6 +501,31 @@ auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, So
         solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(solventSymbol)).thermoProperties(T, P);
     }
 }
+
+auto Thermo::calculatePropertiesSolvent(double T, double &P)-> void
+{
+    if ((pimpl->solvent.T != T || pimpl->solvent.P != P) &&
+        (pimpl->solvent.symbol != "*") && (!pimpl->solvent.symbol.empty()))
+    {
+        pimpl->solvent.T                        = T;
+        pimpl->solvent.P                        = P;
+        pimpl->solvent.properties               = propertiesSolvent(T, P, pimpl->solvent.symbol);
+        pimpl->solvent.electroProperties        = electroPropertiesSolvent(T, P, pimpl->solvent.symbol);
+        pimpl->solvent.thermoProperties         = thermoPropertiesSubstance(T, P, pimpl->solvent.symbol);
+        pimpl->solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(pimpl->solvent.symbol)).thermoProperties(T, P);
+    }
+}
+
+auto Thermo::setSolventSymbol(const std::string solvent_symbol) ->void
+{
+    pimpl->solvent.symbol = solvent_symbol;
+}
+
+auto Thermo::solventSymbol( ) const -> std::string
+{
+    return pimpl->solvent.symbol;
+}
+
 
 auto Thermo::setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void
 {

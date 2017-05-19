@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
 
     th.setSolventSymbolForAllAqSubst("H2O@");
 
-    double T = 25;
-    double P = 1;
+    double T = 100;
+    double P = 1000;
 
-    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO;
+    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM;
 
     MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
 
@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
     RaS = th.thermoPropertiesSubstance(T, P, "RaSO4");
 
     SiO = th.thermoPropertiesSubstance(T, P, "SiO3-2");
+
+    CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
 
     cout << "Bye World!" << endl;
 
