@@ -22,8 +22,6 @@ int main(int argc, char *argv[])
 
     ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO;
 
-//    ThermoPropertiesSubstance tps = th.thermoPropertiesSubstance(T, P, "Mg+2");
-
     MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
 
     CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@");

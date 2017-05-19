@@ -20,22 +20,7 @@ int main(int argc, char *argv[])
 
     tpr = thermo.thermoPropertiesReaction(T, P, "CaSiO3@");
 
-
-
-    cout << "here" << endl;
-//    thermo.setSolventSymbolForAqSubst("H2O@");
-
-//    double T = 100;
-//    double P = 50;
-
-//    double S = thermo.calculateProperties("H2O@", 25, 1, "entropy").toDouble();
-
-//    thermo.calculateProperties({"Al+3", "OH-", "SiO2@"}, {"gibbs_energy","entropy", "volume"}, T, P).toCSV("results.csv");
-
-//    API.addTP_pairs(25, 1);
-//    API.addSubstances(substanceSymbols);
-//    API.addProperties({"gibbs_energy","entropy"});
-//    API.thermoCalculate().toCSV();
+    cout << tpr.log_equilibrium_constant << endl << tpr.reaction_gibbs_energy << endl;
 
     return 0;
 }
