@@ -287,7 +287,7 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
     }
     case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
     {
-//        return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, pimpl->solvent.properties);
+        return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, pimpl->solvent.properties); // NOT TESTED!!!
         break;
     }
     case MethodCorrT_Thrift::type::CTM_IKZ:
