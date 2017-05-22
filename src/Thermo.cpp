@@ -28,7 +28,8 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
     ThermoPreferences         pref = getThermoPreferences(substance);
     ThermoPropertiesSubstance tps;
 
-    calculateSolvent(pref.solventSymbol, T, P, pimpl->solvent);
+//    calculateSolvent(pref.solventSymbol, T, P, pimpl->solvent);
+    calculatePropertiesSolvent(T, P);
 
     if (pref.isHydrogen)
     {
@@ -508,8 +509,8 @@ auto Thermo::calculatePropertiesSolvent(double T, double &P)-> void
         (pimpl->solvent.symbol != "*") && (!pimpl->solvent.symbol.empty()))
     {
         pimpl->solvent.T                        = T;
-        pimpl->solvent.P                        = P;
         pimpl->solvent.properties               = propertiesSolvent(T, P, pimpl->solvent.symbol);
+        pimpl->solvent.P                        = P;
         pimpl->solvent.electroProperties        = electroPropertiesSolvent(T, P, pimpl->solvent.symbol);
         pimpl->solvent.thermoProperties         = thermoPropertiesSubstance(T, P, pimpl->solvent.symbol);
         pimpl->solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(pimpl->solvent.symbol)).thermoProperties(T, P);
@@ -525,7 +526,6 @@ auto Thermo::solventSymbol( ) const -> std::string
 {
     return pimpl->solvent.symbol;
 }
-
 
 auto Thermo::setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void
 {

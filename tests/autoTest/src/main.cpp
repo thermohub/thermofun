@@ -128,6 +128,7 @@ int main(int argc, char *argv[])
 
     Thermo thermo (tdb);
     ThermoPropertiesSubstance result_tcorrpt, tps_gems;
+    thermo.setSolventSymbol("H2O@");
 
     OutputToCSV out (argv[0]);
     out.openThermoPropertiesSubstanceFile("CompareP0_T5_370.csv");
