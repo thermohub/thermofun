@@ -27,8 +27,6 @@ struct ThermoPreferences
     bool isH2Ovapor     = false;
     bool isH2OSolvent   = false;
     bool isReacDC       = false;
-
-    string solventSymbol;
 };
 
 ///

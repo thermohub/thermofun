@@ -451,7 +451,7 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
     ThermoPreferences preferences;
 
     preferences.workSubstance    = pimpl->database.getSubstance(substance);
-    preferences.solventSymbol    = preferences.workSubstance.SolventSymbol();
+//    preferences.solventSymbol    = preferences.workSubstance.SolventSymbol();
     preferences.method_genEOS    = preferences.workSubstance.methodGenEOS();
     preferences.method_T         = preferences.workSubstance.method_T();
     preferences.method_P         = preferences.workSubstance.method_P();
@@ -485,6 +485,8 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
         preferences.isReacDC = true;
     else
         preferences.isReacDC = false;
+
+    // make check if substance is aq solute and needs a solvent
 
     return preferences;
 }
