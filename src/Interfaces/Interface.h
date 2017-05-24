@@ -7,7 +7,7 @@
 namespace ThermoFun {
 
 /**
- * @brief The OutputOptions struct holds the options for ouptuting results
+ * @brief The OutputOptions struct holds the options for outputing results
  */
 struct OutputSettings
 {
