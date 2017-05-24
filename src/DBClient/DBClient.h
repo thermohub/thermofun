@@ -37,6 +37,9 @@ struct DBSettings
 
 };
 
+///
+/// \brief The DBClient class is used for comunicating with the database and retrieving data using queries
+///
 class DBClient
 {
     DBSettings settings;
