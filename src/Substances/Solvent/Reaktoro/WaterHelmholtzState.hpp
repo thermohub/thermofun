@@ -20,39 +20,39 @@
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 
 struct WaterHelmholtzState
 {
 	/// The specific Helmholtz free energy of water (in units of J/kg)
-	ThermoScalar helmholtz;
+    Reaktoro_::ThermoScalar helmholtz;
 
 	/// The first-order partial derivative of the specific Helmholtz free energy of water with respect to temperature
-	ThermoScalar helmholtzT;
+    Reaktoro_::ThermoScalar helmholtzT;
 
 	/// The first-order partial derivative of the specific Helmholtz free energy of water with respect to density
-	ThermoScalar helmholtzD;
+    Reaktoro_::ThermoScalar helmholtzD;
 
 	/// The second-order partial derivative of the specific Helmholtz free energy of water with respect to temperature
-	ThermoScalar helmholtzTT;
+    Reaktoro_::ThermoScalar helmholtzTT;
 
 	/// The second-order partial derivative of the specific Helmholtz free energy of water with respect to temperature and density
-	ThermoScalar helmholtzTD;
+    Reaktoro_::ThermoScalar helmholtzTD;
 
 	/// The second-order partial derivative of the specific Helmholtz free energy of water with respect to density
-	ThermoScalar helmholtzDD;
+    Reaktoro_::ThermoScalar helmholtzDD;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to temperature
-	ThermoScalar helmholtzTTT;
+    Reaktoro_::ThermoScalar helmholtzTTT;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to temperature, temperature, and density
-	ThermoScalar helmholtzTTD;
+    Reaktoro_::ThermoScalar helmholtzTTD;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to temperature, density, and density
-	ThermoScalar helmholtzTDD;
+    Reaktoro_::ThermoScalar helmholtzTDD;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to density
-	ThermoScalar helmholtzDDD;
+    Reaktoro_::ThermoScalar helmholtzDDD;
 };
 
 } // namespace Reaktoro

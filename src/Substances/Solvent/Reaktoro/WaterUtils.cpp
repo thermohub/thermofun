@@ -24,10 +24,10 @@
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 
 template<typename HelmholtsModel>
-auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsModel& model) -> ThermoScalar
+auto waterDensity(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int solvent_state, const HelmholtsModel& model) -> Reaktoro_::ThermoScalar
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
@@ -45,7 +45,7 @@ auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsM
         state = 2;
 
     // Determine an adequate initial guess for (dimensionless) density based on the physical state of water
-    ThermoScalar D;
+    Reaktoro_::ThermoScalar D;
 
     if ((solvent_state >=0) && (T.val <= waterCriticalTemperature))
     state = solvent_state;
@@ -81,34 +81,34 @@ auto waterDensity(Temperature T, Pressure P, int solvent_state, const HelmholtsM
     return {};
 }
 
-auto waterDensityHGK(Temperature T, Pressure P, int state) -> ThermoScalar
+auto waterDensityHGK(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> Reaktoro_::ThermoScalar
 {
     return waterDensity(T, P, state, waterHelmholtzStateHGK);
 }
 
-auto waterDensityWagnerPruss(Temperature T, Pressure P, int state) -> ThermoScalar
+auto waterDensityWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> Reaktoro_::ThermoScalar
 {
     return waterDensity(T, P, state, waterHelmholtzStateWagnerPruss);
 }
 
 template<typename HelmholtzModel>
-auto waterPressure(Temperature T, ThermoScalar D, const HelmholtzModel& model) -> ThermoScalar
+auto waterPressure(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D, const HelmholtzModel& model) -> Reaktoro_::ThermoScalar
 {
     WaterHelmholtzState h = model(T, D);
     return D*D*h.helmholtzD.val;
 }
 
-auto waterPressureHGK(Temperature T, ThermoScalar D) -> ThermoScalar
+auto waterPressureHGK(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> Reaktoro_::ThermoScalar
 {
     return waterPressure(T, D, waterHelmholtzStateHGK);
 }
 
-auto waterPressureWagnerPruss(Temperature T, ThermoScalar D) -> ThermoScalar
+auto waterPressureWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> Reaktoro_::ThermoScalar
 {
     return waterPressure(T, D, waterHelmholtzStateHGK);
 }
 
-auto waterSaturatedPressureWagnerPruss(Temperature T) -> ThermoScalar
+auto waterSaturatedPressureWagnerPruss(Reaktoro_::Temperature T) -> Reaktoro_::ThermoScalar
 {
     const double a1 = -7.85951783;
     const double a2 =  1.84408259;
@@ -130,7 +130,7 @@ auto waterSaturatedPressureWagnerPruss(Temperature T) -> ThermoScalar
     return Pcr * exp(Tcr/T * (a1*t + a2*t15 + a3*t30 + a4*t35 + a5*t40 + a6*t75));
 }
 
-auto waterSaturatedLiquidDensityWagnerPruss(Temperature T) -> ThermoScalar
+auto waterSaturatedLiquidDensityWagnerPruss(Reaktoro_::Temperature T) -> Reaktoro_::ThermoScalar
 {
     const double b1 =  1.99274064;
     const double b2 =  1.09965342;
@@ -153,7 +153,7 @@ auto waterSaturatedLiquidDensityWagnerPruss(Temperature T) -> ThermoScalar
     return Dcr * (1 + b1*t13 + b2*t23 + b3*t53 + b4*t163 + b5*t433 + b6*t1103);
 }
 
-auto waterSaturatedVapourDensityWagnerPruss(Temperature T) -> ThermoScalar
+auto waterSaturatedVapourDensityWagnerPruss(Reaktoro_::Temperature T) -> Reaktoro_::ThermoScalar
 {
     const double c1 = -2.03150240;
     const double c2 = -2.68302940;

@@ -21,7 +21,7 @@
 #include <Substances/Solvent/Reaktoro/WaterElectroState.hpp>
 #include <Substances/Solvent/Reaktoro/WaterThermoState.hpp>
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 namespace {
 
 //------------------------------------------------------------------------------------------
@@ -52,31 +52,31 @@ const double a[] =
 	-0.2729401652e+02
 };
 
-inline auto k0(ThermoScalar t)    -> ThermoScalar { return {1.0, 0.0, 0.0, 0.0, {Status::assigned, ""}}; }
-inline auto k1(ThermoScalar t)    -> ThermoScalar { return a[1]/t; }
-inline auto k2(ThermoScalar t)    -> ThermoScalar { return a[2]/t + a[3] + a[4]*t; }
-inline auto k3(ThermoScalar t)    -> ThermoScalar { return a[5]/t + a[6]*t + a[7]*t*t; }
-inline auto k4(ThermoScalar t)    -> ThermoScalar { return a[8]/t/t + a[9]/t + a[10]; }
+inline auto k0(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return {1.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
+inline auto k1(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[1]/t; }
+inline auto k2(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[2]/t + a[3] + a[4]*t; }
+inline auto k3(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[5]/t + a[6]*t + a[7]*t*t; }
+inline auto k4(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[8]/t/t + a[9]/t + a[10]; }
 
-inline auto k0_t(ThermoScalar t)  -> ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Status::assigned, ""}}; }
-inline auto k1_t(ThermoScalar t)  -> ThermoScalar { return -a[1]/(t*t); }
-inline auto k2_t(ThermoScalar t)  -> ThermoScalar { return -a[2]/(t*t) + a[4]; }
-inline auto k3_t(ThermoScalar t)  -> ThermoScalar { return -a[5]/(t*t) + a[6] + 2*a[7]*t; }
-inline auto k4_t(ThermoScalar t)  -> ThermoScalar { return -2*a[8]/(t*t*t) - a[9]/(t*t); }
+inline auto k0_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
+inline auto k1_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -a[1]/(t*t); }
+inline auto k2_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -a[2]/(t*t) + a[4]; }
+inline auto k3_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -a[5]/(t*t) + a[6] + 2*a[7]*t; }
+inline auto k4_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -2*a[8]/(t*t*t) - a[9]/(t*t); }
 
-inline auto k0_tt(ThermoScalar t) -> ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Status::assigned, ""}}; }
-inline auto k1_tt(ThermoScalar t) -> ThermoScalar { return 2*a[1]/(t*t*t); }
-inline auto k2_tt(ThermoScalar t) -> ThermoScalar { return 2*a[2]/(t*t*t); }
-inline auto k3_tt(ThermoScalar t) -> ThermoScalar { return 2*a[5]/(t*t*t) + 2*a[7]; }
-inline auto k4_tt(ThermoScalar t) -> ThermoScalar { return 6*a[8]/(t*t*t*t) + 2*a[9]/(t*t*t); }
+inline auto k0_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
+inline auto k1_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 2*a[1]/(t*t*t); }
+inline auto k2_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 2*a[2]/(t*t*t); }
+inline auto k3_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 2*a[5]/(t*t*t) + 2*a[7]; }
+inline auto k4_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 6*a[8]/(t*t*t*t) + 2*a[9]/(t*t*t); }
 
-ThermoScalar (*k[5])(ThermoScalar)    = {k0, k1, k2, k3, k4};
-ThermoScalar (*k_t[5])(ThermoScalar)  = {k0_t, k1_t, k2_t, k3_t, k4_t};
-ThermoScalar (*k_tt[5])(ThermoScalar) = {k0_tt, k1_tt, k2_tt, k3_tt, k4_tt};
+Reaktoro_::ThermoScalar (*k[5])(Reaktoro_::ThermoScalar)    = {k0, k1, k2, k3, k4};
+Reaktoro_::ThermoScalar (*k_t[5])(Reaktoro_::ThermoScalar)  = {k0_t, k1_t, k2_t, k3_t, k4_t};
+Reaktoro_::ThermoScalar (*k_tt[5])(Reaktoro_::ThermoScalar) = {k0_tt, k1_tt, k2_tt, k3_tt, k4_tt};
 
 } // namespace
 
-auto waterElectroStateJohnsonNorton(Temperature T, /*Pressure P,*/ const WaterThermoState& wt) -> WaterElectroState
+auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, /*Pressure P,*/ const WaterThermoState& wt) -> WaterElectroState
 {
 	WaterElectroState we;
 

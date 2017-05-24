@@ -8,7 +8,7 @@ namespace ThermoFun {
 
 /// Return the electro-chemical properties of water
 /// @param wts instance of the strcuture holding the calculated electro-chemical properties of water
-auto electroPropertiesWaterJNreaktoro(const Reaktoro_::WaterElectroState& wts) -> ElectroPropertiesSolvent;
+auto electroPropertiesWaterJNreaktoro(const WaterElectroState& wts) -> ElectroPropertiesSolvent;
 
 }
 

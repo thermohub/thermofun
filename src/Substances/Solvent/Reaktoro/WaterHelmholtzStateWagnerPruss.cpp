@@ -23,7 +23,7 @@
 #include <Substances/Solvent/Reaktoro/WaterConstants.hpp>
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 namespace {
 
 const double no[] =
@@ -143,10 +143,10 @@ const double E[] = { 0.3, 0.3 };
 
 } // namespace
 
-auto waterHelmholtzStateWagnerPruss(Temperature T, ThermoScalar D) -> WaterHelmholtzState
+auto waterHelmholtzStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> WaterHelmholtzState
 {
-	const ThermoScalar tau   = waterCriticalTemperature/T;
-	const ThermoScalar delta = D/waterCriticalDensity;
+    const Reaktoro_::ThermoScalar tau   = waterCriticalTemperature/T;
+    const Reaktoro_::ThermoScalar delta = D/waterCriticalDensity;
 
 	auto phio     =  log(delta) + no[1] + no[2]*tau + no[3]*log(tau);
 	auto phio_d   =  1.0/delta;
@@ -171,16 +171,16 @@ auto waterHelmholtzStateWagnerPruss(Temperature T, ThermoScalar D) -> WaterHelmh
 		phio_ttt += no[i] * ee * (1 + ee) * pow((gammao[j]/(ee - 1)), 3);
 	}
 
-	ThermoScalar phir;
-	ThermoScalar phir_d;
-	ThermoScalar phir_t;
-	ThermoScalar phir_dd;
-	ThermoScalar phir_tt;
-	ThermoScalar phir_dt;
-	ThermoScalar phir_ddd;
-	ThermoScalar phir_ttt;
-	ThermoScalar phir_dtt;
-	ThermoScalar phir_ddt;
+    Reaktoro_::ThermoScalar phir;
+    Reaktoro_::ThermoScalar phir_d;
+    Reaktoro_::ThermoScalar phir_t;
+    Reaktoro_::ThermoScalar phir_dd;
+    Reaktoro_::ThermoScalar phir_tt;
+    Reaktoro_::ThermoScalar phir_dt;
+    Reaktoro_::ThermoScalar phir_ddd;
+    Reaktoro_::ThermoScalar phir_ttt;
+    Reaktoro_::ThermoScalar phir_dtt;
+    Reaktoro_::ThermoScalar phir_ddt;
 
 	for(int i = 1; i <= 7; ++i)
 	{

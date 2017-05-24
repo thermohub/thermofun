@@ -27,23 +27,23 @@
 #include <Substances/Solvent/Reaktoro/WaterThermoState.hpp>
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 
-auto waterThermoStateHGK(Temperature T, Pressure P, int state) -> WaterThermoState
+auto waterThermoStateHGK(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState
 {
-    const ThermoScalar D = waterDensityHGK(T, P, state);
+    const Reaktoro_::ThermoScalar D = waterDensityHGK(T, P, state);
     const WaterHelmholtzState whs = waterHelmholtzStateHGK(T, D);
     return waterThermoState(T, P, D, whs);
 }
 
-auto waterThermoStateWagnerPruss(Temperature T, Pressure P, int state) -> WaterThermoState
+auto waterThermoStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState
 {
-    const ThermoScalar D = waterDensityWagnerPruss(T, P, state);
+    const Reaktoro_::ThermoScalar D = waterDensityWagnerPruss(T, P, state);
     const WaterHelmholtzState whs = waterHelmholtzStateWagnerPruss(T, D);
     return waterThermoState(T, P, D, whs);
 }
 
-auto waterThermoState(Temperature T, Pressure P, ThermoScalar D, const WaterHelmholtzState& wh) -> WaterThermoState
+auto waterThermoState(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar D, const WaterHelmholtzState& wh) -> WaterThermoState
 {
 	WaterThermoState wt;
 

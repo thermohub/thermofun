@@ -18,7 +18,7 @@
 #include "WaterHelmholtzStateHGK.hpp"
 #include "WaterHelmholtzState.hpp"
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 namespace {
 
 // Reference temperature of water in units of K
@@ -184,7 +184,7 @@ const double A4[] =
 	-0.13362857E+1
 };
 
-auto calculateWaterHelmholtzStateHGK0(ThermoScalar t, ThermoScalar d) -> WaterHelmholtzState
+auto calculateWaterHelmholtzStateHGK0(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
 {
 	WaterHelmholtzState s;
 
@@ -208,7 +208,7 @@ auto calculateWaterHelmholtzStateHGK0(ThermoScalar t, ThermoScalar d) -> WaterHe
 	return s;
 }
 
-auto calculateWaterHelmholtzStateHGK1(ThermoScalar t, ThermoScalar d) -> WaterHelmholtzState
+auto calculateWaterHelmholtzStateHGK1(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
 {
 	WaterHelmholtzState s;
 
@@ -229,7 +229,7 @@ auto calculateWaterHelmholtzStateHGK1(ThermoScalar t, ThermoScalar d) -> WaterHe
 	return s;
 }
 
-auto calculateWaterHelmholtzStateHGK2(ThermoScalar t, ThermoScalar d) -> WaterHelmholtzState
+auto calculateWaterHelmholtzStateHGK2(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
 {
 	WaterHelmholtzState s;
 
@@ -289,7 +289,7 @@ auto calculateWaterHelmholtzStateHGK2(ThermoScalar t, ThermoScalar d) -> WaterHe
 	return s;
 }
 
-auto calculateWaterHelmholtzStateHGK3(ThermoScalar t, ThermoScalar d) -> WaterHelmholtzState
+auto calculateWaterHelmholtzStateHGK3(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
 {
 	WaterHelmholtzState s;
 
@@ -326,7 +326,7 @@ auto calculateWaterHelmholtzStateHGK3(ThermoScalar t, ThermoScalar d) -> WaterHe
 	return s;
 }
 
-auto calculateWaterHelmholtzStateHGK4(ThermoScalar t, ThermoScalar d) -> WaterHelmholtzState
+auto calculateWaterHelmholtzStateHGK4(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
 {
 	WaterHelmholtzState s;
 
@@ -372,7 +372,7 @@ auto calculateWaterHelmholtzStateHGK4(ThermoScalar t, ThermoScalar d) -> WaterHe
 
 } // namespace
 
-auto waterHelmholtzStateHGK(Temperature T, ThermoScalar D) -> WaterHelmholtzState
+auto waterHelmholtzStateHGK(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> WaterHelmholtzState
 {
 	// The dimensionless temperature and density
 	const auto t = T/referenceTemperature;

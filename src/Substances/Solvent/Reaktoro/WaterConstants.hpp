@@ -17,7 +17,7 @@
 
 #pragma once
 
-namespace Reaktoro_ {
+namespace ThermoFun {
 
 /// The molar mass of water in units of kg/mol
 const double waterMolarMass = 0.018015268;
