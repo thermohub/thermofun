@@ -1,134 +1,131 @@
     HEADERS	 += $$ThermoFun_H/ThermoFun_global.h \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
     $$ThermoFun_H/Common/ScalarTypes.hpp \
-    $$PWD/Solvent/Reaktoro/WaterConstants.hpp \
-    $$PWD/Solvent/Reaktoro/WaterHelmholtzState.hpp \
-    $$PWD/Solvent/Reaktoro/WaterThermoState.hpp \
-    $$PWD/Solvent/Reaktoro/WaterElectroState.hpp \
-    $$PWD/Solvent/Reaktoro/WaterHelmholtzStateHGK.hpp \
-    $$PWD/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp \
-    $$PWD/Solvent/Reaktoro/WaterThermoStateUtils.hpp \
-    $$PWD/Solvent/Reaktoro/WaterUtils.hpp \
-    $$PWD/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp \
-#    $$PWD/tsubstancept.h \
-#    $$PWD/treactionpt.h \
-#    $$PWD/reactiondataprtr.h \
-#    $$PWD/reactiondatapt.h \
-#    $$PWD/substancedataprtr.h \
-#    $$PWD/substancedatapt.h \
-#    $$PWD/tcorrmodsubstance.h \
-#    $$PWD/tcorrmodreaction.h \
-#$$ThermoFun_H/ThermoFun.h  \
+# ThermoFun
+    $$PWD/Thermo.h \
     $$PWD/Database.h \
     $$PWD/Substance.h \
     $$PWD/Reaction.h \
-    $$PWD/ThermoProperties.h \
-    $$PWD/ThermoParameters.h \
-    $$PWD/Thermo.h \
     $$PWD/ThermoModelsSolvent.h \
+    $$PWD/ElectroModelsSolvent.h \
     $$PWD/ThermoModelsSubstance.h \
     $$PWD/ThermoModelsReaction.h \
-#    $$PWD/SubstanceSolvent.h \
-    $$PWD/Common/Exception.h \
-#    $$PWD/Solvent/WaterHGK.h \
-    $$PWD/Solvent/WaterHGKreaktoro.h \
-    $$PWD/Solvent/WaterWP95reaktoro.h \
-    $$PWD/ElectroModelsSolvent.h \
-    $$PWD/Solvent/WaterJN91reaktoro.h \
-    $$PWD/Solvent/WaterHGK-JNgems.h \
-    $$PWD/Common/OutputWaterSteamConventionProp.h \
-    $$PWD/Solute/SoluteHKFreaktoro.h \
-    $$PWD/Solute/SoluteHKFgems.h \
-    $$PWD/Solute/SoluteADgems.h \
-    $$PWD/Solvent/WaterIdealGasWolley.h \
+    $$PWD/ThermoProperties.h \
+    $$PWD/ThermoParameters.h \
     $$PWD/ReadFiles.h \
-    $$PWD/Common/OutputToCSV.h \
-    $$PWD/Solids/SolidMurnaghanHP98.h \
-    $$PWD/Solids/SolidBerman88.h \
-    $$PWD/Solids/SolidBMGottschalk.h \
-    $$PWD/Substances/EmpiricalCpIntegration.h \
-    $$PWD/Solids/SolidHPLandau.h \
-    $$PWD/Gases/GasCORK.h \
-    $$PWD/Gases/s_solmod_.h \
-    $$PWD/Solvent/WaterZhangDuan2005.h \
-    $$PWD/Solvent/WaterElectroSverjensky2014.h \
     $$PWD/TPcalculationsAPI.h \
-    $$PWD/Gases/GasPRSV.h \
-    $$PWD/Gases/GasCGF.h \
-    $$PWD/Gases/GasSRK.h \
-    $$PWD/Gases/GasPR78.h \
-    $$PWD/Gases/GasSTP.h \
-    $$PWD/Gases/verror.h \
-    $$PWD/Solvent/WaterElectroFernandez1997.h \
-    $$PWD/Interfaces/Interface.h \
-    $$PWD/Interfaces/Output.h \
+# Substances
+    $$PWD/Substances/EmpiricalCpIntegration.h \
+# Substances - Solvent
+    $$PWD/Substances/Solvent/Reaktoro/WaterConstants.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterThermoState.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterElectroState.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateHGK.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterUtils.hpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp \
+    $$PWD/Substances/Solvent/WaterHGKreaktoro.h \
+    $$PWD/Substances/Solvent/WaterWP95reaktoro.h \
+    $$PWD/Substances/Solvent/WaterJN91reaktoro.h \
+    $$PWD/Substances/Solvent/WaterHGK-JNgems.h \
+    $$PWD/Substances/Solvent/WaterIdealGasWolley.h \
+    $$PWD/Substances/Solvent/WaterZhangDuan2005.h \
+    $$PWD/Substances/Solvent/WaterElectroSverjensky2014.h \
+    $$PWD/Substances/Solvent/WaterElectroFernandez1997.h \
+# Substances - Solute
+    $$PWD/Substances/Solute/SoluteHKFreaktoro.h \
+    $$PWD/Substances/Solute/SoluteHKFgems.h \
+    $$PWD/Substances/Solute/SoluteADgems.h \
+# Substances - Soldis
+    $$PWD/Substances/Solids/SolidMurnaghanHP98.h \
+    $$PWD/Substances/Solids/SolidBerman88.h \
+    $$PWD/Substances/Solids/SolidBMGottschalk.h \
+    $$PWD/Substances/Solids/SolidHPLandau.h \
+# Substances - Gases
+    $$PWD/Substances/Gases/GasCORK.h \
+    $$PWD/Substances/Gases/GasPRSV.h \
+    $$PWD/Substances/Gases/GasCGF.h \
+    $$PWD/Substances/Gases/GasSRK.h \
+    $$PWD/Substances/Gases/GasPR78.h \
+    $$PWD/Substances/Gases/GasSTP.h \
+    $$PWD/Substances/Gases/verror.h \
+    $$PWD/Substances/Gases/s_solmod_.h \
+# Reactions
     $$PWD/Reactions/FrantzMarshall.h \
     $$PWD/Reactions/RyzhenkoBryzgalyn.h \
     $$PWD/Reactions/LogK_function_of_T.h \
     $$PWD/Reactions/Volume_function_of_T.h \
+# Common
+    $$PWD/Common/Exception.h \
+    $$PWD/Common/OutputWaterSteamConventionProp.h \
+    $$PWD/Common/OutputToCSV.h \
+# Interface
+    $$PWD/Interfaces/Interface.h \
+    $$PWD/Interfaces/Output.h \
+# DBClient
     $$PWD/DBClient/DBClient.h \
     $$PWD/DBClient/Traversal.h
 
-
     SOURCES	 += $$PWD/Database.cpp \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
-    $$PWD/Solvent/Reaktoro/WaterHelmholtzStateHGK.cpp \
-    $$PWD/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \
-    $$PWD/Solvent/Reaktoro/WaterThermoStateUtils.cpp \
-    $$PWD/Solvent/Reaktoro/WaterUtils.cpp \
-    $$PWD/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.cpp \
-#    $$PWD/tsubstancept.cpp \
-#    $$PWD/treactionpt.cpp \
-#    $$PWD/substancedataprtr.cpp \
-#    $$PWD/reactiondatapt.cpp \
-#    $$PWD/reactiondataprtr.cpp \
-#    $$PWD/substancedatapt.cpp \
-#    $$PWD/tcorrmodsubstance.cpp \
-#    $$PWD/tcorrmodreaction.cpp \
-#$$ThermoFun_CPP/ThermoFun.cpp \
+# ThermoFun
+    $$PWD/Thermo.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
-    $$PWD/Thermo.cpp \
     $$PWD/ThermoModelsSolvent.cpp \
+    $$PWD/ElectroModelsSolvent.cpp \
     $$PWD/ThermoModelsReaction.cpp \
     $$PWD/ThermoModelsSubstance.cpp \
-#    $$PWD/SubstanceSolvent.cpp \
-    $$PWD/Common/Exception.cpp \
-#    $$PWD/Solvent/WaterHGK.cpp \
-    $$PWD/Solvent/WaterHGKreaktoro.cpp \
-    $$PWD/Solvent/WaterWP95reaktoro.cpp \
-    $$PWD/ElectroModelsSolvent.cpp \
-    $$PWD/Solvent/WaterJN91reaktoro.cpp \
-    $$PWD/Solvent/WaterHGK-JNgems.cpp \
-    $$PWD/Common/OutputWaterSteamConventionProp.cpp \
-    $$PWD/Solute/SoluteHKFreaktoro.cpp \
-    $$PWD/Solute/SoluteHKFgems.cpp \
-    $$PWD/Solute/SoluteADgems.cpp \
-    $$PWD/Solvent/WaterIdealGasWolley.cpp \
-    $$PWD/ReadFiles.cpp \
-    $$PWD/Common/OutputToCSV.cpp \
-    $$PWD/Solids/SolidMurnaghanHP98.cpp \
-    $$PWD/Solids/SolidBMGottschalk.cpp \
-    $$PWD/Solids/SolidBerman88.cpp \
-    $$PWD/Substances/EmpiricalCpIntegration.cpp \
-    $$PWD/Solids/SolidHPLandau.cpp \
-    $$PWD/Gases/GasCORK.cpp \
-    $$PWD/Gases/s_solmod2_.cpp \
-    $$PWD/Gases/s_solmod_.cpp \
-    $$PWD/Solvent/WaterZhangDuan2005.cpp \
-    $$PWD/Solvent/WaterElectroSverjensky2014.cpp \
     $$PWD/TPcalculationsAPI.cpp \
-    $$PWD/Gases/GasPRSV.cpp \
-    $$PWD/Gases/GasCGF.cpp \
-    $$PWD/Gases/GasSRK.cpp \
-    $$PWD/Gases/GasPR78.cpp \
-    $$PWD/Gases/GasSTP.cpp \
-    $$PWD/Solvent/WaterElectroFernandez1997.cpp \
-    $$PWD/Interfaces/Interface.cpp \
-    $$PWD/Interfaces/Output.cpp \
+    $$PWD/ReadFiles.cpp \
+# Substances
+    $$PWD/Substances/EmpiricalCpIntegration.cpp \
+# Substances - Solvent
+    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateHGK.cpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterThermoStateUtils.cpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterUtils.cpp \
+    $$PWD/Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.cpp \
+    $$PWD/Substances/Solvent/WaterHGKreaktoro.cpp \
+    $$PWD/Substances/Solvent/WaterWP95reaktoro.cpp \
+    $$PWD/Substances/Solvent/WaterJN91reaktoro.cpp \
+    $$PWD/Substances/Solvent/WaterHGK-JNgems.cpp \
+    $$PWD/Substances/Solvent/WaterIdealGasWolley.cpp \
+    $$PWD/Substances/Solvent/WaterZhangDuan2005.cpp \
+    $$PWD/Substances/Solvent/WaterElectroSverjensky2014.cpp \
+    $$PWD/Substances/Solvent/WaterElectroFernandez1997.cpp \
+# Substances - Solute
+    $$PWD/Substances/Solute/SoluteHKFreaktoro.cpp \
+    $$PWD/Substances/Solute/SoluteHKFgems.cpp \
+    $$PWD/Substances/Solute/SoluteADgems.cpp \
+# Substances - Solids
+    $$PWD/Substances/Solids/SolidMurnaghanHP98.cpp \
+    $$PWD/Substances/Solids/SolidBMGottschalk.cpp \
+    $$PWD/Substances/Solids/SolidBerman88.cpp \
+    $$PWD/Substances/Solids/SolidHPLandau.cpp \
+# Substances - Gases
+    $$PWD/Substances/Gases/GasCORK.cpp \
+    $$PWD/Substances/Gases/GasPRSV.cpp \
+    $$PWD/Substances/Gases/GasCGF.cpp \
+    $$PWD/Substances/Gases/GasSRK.cpp \
+    $$PWD/Substances/Gases/GasPR78.cpp \
+    $$PWD/Substances/Gases/GasSTP.cpp \
+    $$PWD/Substances/Gases/s_solmod2_.cpp \
+    $$PWD/Substances/Gases/s_solmod_.cpp \
+# Reactions
     $$PWD/Reactions/FrantzMarshall.cpp \
     $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
     $$PWD/Reactions/LogK_function_of_T.cpp \
     $$PWD/Reactions/Volume_function_of_T.cpp \
+# Common
+    $$PWD/Common/Exception.cpp \
+    $$PWD/Common/OutputWaterSteamConventionProp.cpp \
+    $$PWD/Common/OutputToCSV.cpp \
+# Interface
+    $$PWD/Interfaces/Interface.cpp \
+    $$PWD/Interfaces/Output.cpp \
+# DBClient
     $$PWD/DBClient/DBClient.cpp \
     $$PWD/DBClient/Traversal.cpp

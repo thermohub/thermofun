@@ -1,11 +1,11 @@
 #include "ThermoModelsSolvent.h"
 
 //#include "Substance.h"
-#include "Solvent/WaterHGK-JNgems.h"
-#include "Solvent/WaterHGKreaktoro.h"
-#include "Solvent/WaterWP95reaktoro.h"
-#include "Solvent/WaterZhangDuan2005.h"
-#include "Solvent/Reaktoro/WaterUtils.hpp"
+#include "Substances/Solvent/WaterHGK-JNgems.h"
+#include "Substances/Solvent/WaterHGKreaktoro.h"
+#include "Substances/Solvent/WaterWP95reaktoro.h"
+#include "Substances/Solvent/WaterZhangDuan2005.h"
+#include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
 
 #include "Common/Exception.h"
 

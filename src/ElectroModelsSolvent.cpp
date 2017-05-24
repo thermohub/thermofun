@@ -1,12 +1,12 @@
 #include "ElectroModelsSolvent.h"
 
-#include "Solvent/Reaktoro/WaterUtils.hpp"
-#include "Solvent/Reaktoro/WaterThermoState.hpp"
+#include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
+#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
 
-#include "Solvent/WaterHGK-JNgems.h"
-#include "Solvent/WaterJN91reaktoro.h"
-#include "Solvent/WaterElectroSverjensky2014.h"
-#include "Solvent/WaterElectroFernandez1997.h"
+#include "Substances/Solvent/WaterHGK-JNgems.h"
+#include "Substances/Solvent/WaterJN91reaktoro.h"
+#include "Substances/Solvent/WaterElectroSverjensky2014.h"
+#include "Substances/Solvent/WaterElectroFernandez1997.h"
 
 namespace ThermoFun {
 

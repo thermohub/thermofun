@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 
-#include "Solvent/Reaktoro/WaterThermoState.hpp"
+#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
 
 namespace ThermoFun {
 
