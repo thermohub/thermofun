@@ -3,10 +3,14 @@
 #include <sys/time.h>
 // ThermoFun include
 #include "Thermo.h"
+#include "Database.h"
 // GEMS4R include
 #include "node.h"
 // ThermoFun output include
 #include "Common/OutputToCSV.h"
+
+#include "ThermoProperties.h"
+#include "Substance.h"
 
 using namespace std;
 using namespace ThermoFun;

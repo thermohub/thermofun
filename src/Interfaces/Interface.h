@@ -1,8 +1,11 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <string>
+
 #include "../Thermo.h"
 #include "Output.h"
+#include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 
@@ -51,19 +54,19 @@ public:
     Interface(const Database &database);
 
     // Substances
-    auto addSubstances                  (const std::vector<string> &substSymbols) -> void;
+    auto addSubstances                  (const std::vector<std::string> &substSymbols) -> void;
     auto addSubstance                   (const std::string &substSymbol) -> void;
     // Reactions
-    auto addReactions                   (const std::vector<string> &reacSymbols) -> void;
+    auto addReactions                   (const std::vector<std::string> &reacSymbols) -> void;
     auto addReaction                   (const std::string &reacSymbol) -> void;
 
 
-    auto addProperties                  (const std::vector<string> &propNames) -> void;
+    auto addProperties                  (const std::vector<std::string> &propNames) -> void;
     auto addProperty                    (const std::string &propName) -> void;
     auto addUnits                       (const std::map<const std::string, std::string> &propUnits)-> void;
     auto addDigits                      (const std::map<const std::string, int> &propDigits)-> void;
-    auto addProperties_and_Units        (const std::vector<string> &propNames, const std::vector<string> &propUnits)-> void;
-    auto addProperties_and_Digits       (const std::vector<string> &propNames, const std::vector<int> &propDigits)-> void;
+    auto addProperties_and_Units        (const std::vector<std::string> &propNames, const std::vector<std::string> &propUnits)-> void;
+    auto addProperties_and_Digits       (const std::vector<std::string> &propNames, const std::vector<int> &propDigits)-> void;
     auto addProperty_and_Unit           (const std::string &propName, const std::string &propUnit)-> void;
     auto addProperty_and_Digit          (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
     auto addProperty_and_Unit_and_Digit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
@@ -79,21 +82,21 @@ public:
     // claculate functions substances
     auto calculateProperties    () -> Output;
     auto calculateProperties    (const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
-    auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
                                     double T, double P) -> Output;
-    auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
-    auto calculateProperties    (std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
+    auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
                              std::vector<std::vector<double> > tpPairs) -> Output;
 
     // claculate functions reactions
     auto calcPropReactions    () -> Output;
     auto calcPropReactions    (const std::string reacSymbol, const double T, const double P, const std::string propName) -> Output;
-    auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+    auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
                                     double T, double P) -> Output;
-    auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+    auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
-    auto calcPropReactions    (std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
+    auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
                                std::vector<std::vector<double> > tpPairs) -> Output;
 
     ///
@@ -120,17 +123,17 @@ private:
     // Substances
     auto selectResultsSubst     (ThermoPropertiesSubstance tps) -> std::vector<Reaktoro_::ThermoScalar>;
     auto calculateResultsSubst  () -> void;
-    auto substanceSymbols       () -> const std::vector<string>;
+    auto substanceSymbols       () -> const std::vector<std::string>;
     auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
 
     // Reactions
     auto selectResultsReac     (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
     auto calculateResultsReac  () -> void;
-    auto reactionSymbols       () -> const std::vector<string>;
+    auto reactionSymbols       () -> const std::vector<std::string>;
     auto resultsReac           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
 
     auto TPpairs                () -> const std::vector<std::vector<double>>;
-    auto propNames              () -> const map<int, std::string>;
+    auto propNames              () -> const std::map<int, std::string>;
     auto propUnits              () -> const std::map<const std::string, std::string>;
     auto propDigits             () -> const std::map<const std::string, int>;
     auto outputSettings         () -> const OutputSettings;

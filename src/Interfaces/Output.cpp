@@ -26,9 +26,9 @@ Output::Output(const Interface& interface)
 
 auto Output::toCSV(std::__cxx11::string filename) -> void
 {
-    pimpl->fThermoProperties.open( filename, ios::trunc );
+    pimpl->fThermoProperties.open( filename, std::ios::trunc );
 
-    pimpl->fThermoProperties << CSVHeader() << endl;
+    pimpl->fThermoProperties << CSVHeader() << std::endl;
 
     foutResultsSubst();
     foutResultsReac();
@@ -37,11 +37,11 @@ auto Output::toCSV(std::__cxx11::string filename) -> void
 
 }
 
-auto Output::toCSVtransposed(std::__cxx11::string filename, string propertyname) -> void
+auto Output::toCSVtransposed(std::__cxx11::string filename, std::string propertyname) -> void
 {
-    pimpl->fThermoProperties.open( filename, ios::trunc );
+    pimpl->fThermoProperties.open( filename, std::ios::trunc );
 
-    pimpl->fThermoProperties << CSVHeaderTransposed() << endl;
+    pimpl->fThermoProperties << CSVHeaderTransposed() << std::endl;
 
     foutResultsSubstTrans(propertyname);
     foutResultsReacTrans(propertyname);
@@ -179,7 +179,7 @@ auto Output::foutResultsSubst()-> void
                 pimpl->fThermoProperties << s << resultsSubst[c][k].val;
             }
             c++;
-            pimpl->fThermoProperties << endl;
+            pimpl->fThermoProperties << std::endl;
         }
     }
 }
@@ -211,12 +211,12 @@ auto Output::foutResultsReac()-> void
                 pimpl->fThermoProperties << s << resultsReac[c][k].val;
             }
             c++;
-            pimpl->fThermoProperties << endl;
+            pimpl->fThermoProperties << std::endl;
         }
     }
 }
 
-auto Output::foutResultsSubstTrans(string property)-> void
+auto Output::foutResultsSubstTrans(std::string property)-> void
 {
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
@@ -246,11 +246,11 @@ auto Output::foutResultsSubstTrans(string property)-> void
                 }
             }
         }
-        pimpl->fThermoProperties << endl;
+        pimpl->fThermoProperties << std::endl;
     }
 }
 
-auto Output::foutResultsReacTrans(string property)-> void
+auto Output::foutResultsReacTrans(std::string property)-> void
 {
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
@@ -283,7 +283,7 @@ auto Output::foutResultsReacTrans(string property)-> void
                 }
             }
         }
-        pimpl->fThermoProperties << endl;
+        pimpl->fThermoProperties << std::endl;
     }
 }
 

@@ -2,15 +2,10 @@
 #define READFILES
 
 #include <string>
-//#include "Database.h"
 
 // bsonio includes
 #include "bsonio/json2cfg.h"
 #include "bsonio/thrift_node.h"
-//#include "bsonio/impex_types.h"
-
-//#include "bsonio/dbbase.h"
-//#include "bsonio/nejdb.h"
 
 namespace ThermoFun {
 

@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <algorithm>
 
+#include "ThermoProperties.h"
+
 namespace ThermoFun {
 
 struct Interface::Impl

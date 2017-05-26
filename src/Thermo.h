@@ -1,48 +1,20 @@
 #ifndef THERMO_H
 #define THERMO_H
 
-// ThermoFun includes
-#include "Database.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoModelsSolvent.h"
-#include "ElectroModelsSolvent.h"
-#include "ThermoModelsReaction.h"
+#include <string>
+#include <memory>
 
 namespace ThermoFun {
 
-///
-/// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
-///
-struct ThermoPreferences
-{
-    Substance workSubstance;
-    Reaction  workReaction;
-    MethodGenEoS_Thrift::type method_genEOS;
-    MethodCorrT_Thrift::type  method_T;
-    MethodCorrP_Thrift::type  method_P;
-
-    unsigned solventState = 0; // 0: liquid; 1: vapor
-
-    bool isHydrogen     = false;
-    bool isH2Ovapor     = false;
-    bool isH2OSolvent   = false;
-    bool isReacDC       = false;
-};
-
-///
-/// \brief The Solvent struct hold the solvent proeprties at T and P
-///
-struct Solvent
-{
-    PropertiesSolvent         properties;
-    ThermoPropertiesSubstance thermoProperties;
-    ElectroPropertiesSolvent  electroProperties;
-    ThermoPropertiesSubstance thermoIdealGasProperties;
-
-    string symbol;
-
-    double T, P;
-};
+// Forward declarations
+struct Database;
+struct Solvent;
+struct Substance;
+struct ThermoPreferences;
+struct ThermoPropertiesSubstance;
+struct ThermoPropertiesReaction;
+struct ElectroPropertiesSolvent;
+struct PropertiesSolvent;
 
 /**
  * @brief The Thermo class mainly calculates the themrodynamic properties of the substances

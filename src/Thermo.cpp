@@ -1,8 +1,48 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "Thermo.h"
+#include "Database.h"
+#include "ThermoModelsSubstance.h"
+#include "ThermoModelsSolvent.h"
+#include "ThermoProperties.h"
+#include "ElectroModelsSolvent.h"
+#include "ThermoModelsReaction.h"
 
 namespace ThermoFun {
+
+///
+/// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
+///
+struct ThermoPreferences
+{
+    Substance workSubstance;
+    Reaction  workReaction;
+    MethodGenEoS_Thrift::type method_genEOS;
+    MethodCorrT_Thrift::type  method_T;
+    MethodCorrP_Thrift::type  method_P;
+
+    unsigned solventState = 0; // 0: liquid; 1: vapor
+
+    bool isHydrogen     = false;
+    bool isH2Ovapor     = false;
+    bool isH2OSolvent   = false;
+    bool isReacDC       = false;
+};
+
+///
+/// \brief The Solvent struct hold the solvent proeprties at T and P
+///
+struct Solvent
+{
+    PropertiesSolvent         properties;
+    ThermoPropertiesSubstance thermoProperties;
+    ElectroPropertiesSolvent  electroProperties;
+    ThermoPropertiesSubstance thermoIdealGasProperties;
+
+    string symbol;
+
+    double T, P;
+};
 
 struct Thermo::Impl
 {
