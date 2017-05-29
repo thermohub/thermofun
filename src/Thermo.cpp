@@ -529,9 +529,4 @@ auto Thermo::solventSymbol( ) const -> std::string
     return pimpl->solvent.symbol;
 }
 
-auto Thermo::setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void
-{
-    pimpl->database.setAllAqSubstanceSolventSymbol(solvent_symbol);
-}
-
 } // namespace ThermoFun

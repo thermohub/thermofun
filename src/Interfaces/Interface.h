@@ -74,7 +74,7 @@ public:
     auto addTP_pairs                    (const std::vector<std::vector<double>> &TP_pairs) -> void;
 
     auto setOutputSettings              (const OutputSettings &value) -> void;
-    auto setSolventSymbolForAqSubst     (const std::string solvent_symbol) ->void;
+    auto setSolventSymbol               (const std::string solvent_symbol) ->void;
 
     // claculate functions substances
     auto calculateProperties    () -> Output;

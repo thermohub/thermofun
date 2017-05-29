@@ -250,22 +250,6 @@ Database::Database(vector<bson> bsonSubstances)
 : pimpl(new Impl(bsonSubstances))
 {}
 
-auto Database::setAqSubstanceSolventSymbol(std::string substance_symbol, std::string solvent_symbol) -> void
-{
-    pimpl->substances_map.at(substance_symbol).setSolventSymbol(solvent_symbol);
-}
-
-auto Database::setAllAqSubstanceSolventSymbol(std::string solvent_symbol) -> void
-{
-    typedef SubstancesMap::iterator it_type;
-    for(it_type it = pimpl->substances_map.begin(); it != pimpl->substances_map.end(); it++) {
-        if (it->second.substanceClass() == SubstanceClass::type::AQSOLUTE)
-        {
-            it->second.setSolventSymbol(solvent_symbol);
-        }
-    }
-}
-
 auto Database::addSubstance(const Substance& substance) -> void
 {
     pimpl->addSubstance(substance);
