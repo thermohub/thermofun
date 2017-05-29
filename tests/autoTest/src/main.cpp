@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
     /// calculations
     for (int i = 0; i < vSubst.size(); i++)
     {
-        if (vSubst[i].substanceClass() == SubstanceClass::type::AQSOLUTE)
-        vSubst[i].setSolventSymbol("H2O@");
+//        if (vSubst[i].substanceClass() == SubstanceClass::type::AQSOLUTE)
+//        vSubst[i].setSolventSymbol("H2O@");
         tdb.addSubstance(vSubst[i]);
     }
 

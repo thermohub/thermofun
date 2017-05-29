@@ -50,11 +50,13 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             }
             case MethodGenEoS_Thrift::type::CTPM_HKF:
             {
+                checkSolvent(pref.workSubstance.symbol());
                 tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_HKFR:
             {
+                checkSolvent(pref.workSubstance.symbol());
                 tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, pimpl->solvent.properties, pimpl->solvent.electroProperties);
                 break;
             }
@@ -81,6 +83,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
             {
             case MethodCorrP_Thrift::type::CPM_AKI:
             {
+                checkSolvent(pref.workSubstance.symbol());
                 tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, pimpl->solvent.thermoProperties,
                                                pimpl->solvent.thermoIdealGasProperties, pimpl->solvent.properties);
                 break;
@@ -186,7 +189,7 @@ auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substanc
 auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent
 {
     ThermoPreferences        pref = getThermoPreferences(substance);
-    PropertiesSolvent        ps;
+    PropertiesSolvent        ps = propertiesSolvent(T, P, substance);;
     ElectroPropertiesSolvent eps;
 
     if (pref.isH2OSolvent)
@@ -195,7 +198,8 @@ auto Thermo::electroPropertiesSolvent(double T, double &P, std::string substance
         {
         case MethodGenEoS_Thrift::type::CTPM_WJNR:
         {
-            eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, pimpl->solvent.properties);
+            checkSolvent(pref.workSubstance.symbol());
+            eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, ps);
             break;
         }
         case MethodGenEoS_Thrift::type::CTPM_WJNG:
@@ -283,11 +287,13 @@ auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction
     }
     case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
     {
+        checkSolvent(reaction);
         tpr = ReactionFrantzMarshall(reac).thermoProperties(T, P, pimpl->solvent.properties);
         break;
     }
     case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
     {
+        checkSolvent(reaction);
         return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, pimpl->solvent.properties); // NOT TESTED!!!
         break;
     }
@@ -518,6 +524,15 @@ auto Thermo::calculatePropertiesSolvent(double T, double &P)-> void
         pimpl->solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(pimpl->solvent.symbol)).thermoProperties(T, P);
     }
 }
+
+auto Thermo::checkSolvent(std::string symbol) -> void
+{
+    if (pimpl->solvent.symbol.empty() || pimpl->solvent.symbol == "*")
+    {
+        errorSolventNotDefined("solvent", symbol, __LINE__, __FILE__);
+    }
+}
+
 
 auto Thermo::setSolventSymbol(const std::string solvent_symbol) ->void
 {

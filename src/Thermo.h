@@ -212,6 +212,8 @@ private:
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
 
+    auto checkSolvent(std::string symbol) -> void;
+
 };
 
 } // namespace ThermoFun
