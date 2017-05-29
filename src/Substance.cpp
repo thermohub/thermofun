@@ -68,8 +68,6 @@ struct Substance::Impl
     /// temperature and pressure using a certain calculation model
     ThermoParametersSubstance thermo_param;
 
-    string solventSymbol;
-
     int charge;
 
 //    /// Concentration scale used in defining the properties of the substance
@@ -188,11 +186,6 @@ auto Substance::setUpperP(double P) -> void
     pimpl->upper_P = P;
 }
 
-auto Substance::setSolventSymbol(string symbol) -> void
-{
-    pimpl->solventSymbol = symbol;
-}
-
 auto Substance::setMolarMass(double molar_mass) -> void
 {
     pimpl->molar_mass = molar_mass;
@@ -301,11 +294,6 @@ auto Substance::aggregateState() -> AggregateState::type
 auto Substance::charge() -> int
 {
     return pimpl->charge;
-}
-
-auto Substance::SolventSymbol() -> string
-{
-    return pimpl->solventSymbol;
 }
 
 auto Substance::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void

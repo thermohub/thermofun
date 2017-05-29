@@ -89,12 +89,6 @@ public:
     auto setCharge(int charge) -> void;
 
     /**
-     * @brief setSolventSymbol
-     * @param symbol
-     */
-    auto setSolventSymbol(string symbol) -> void;
-
-    /**
      * @brief setReferenceT
      * @param T temperature in K
      */
@@ -175,12 +169,6 @@ public:
      * @return substance charge
      */
     auto charge() -> int;
-
-    /**
-     * @brief SolventSymbol
-     * @return solvent symol used to calcul the properties of the solute
-     */
-    auto SolventSymbol() -> string;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status

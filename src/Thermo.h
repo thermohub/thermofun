@@ -28,9 +28,6 @@ public:
     /// Construct a Thermo instance with given Database instance
     explicit Thermo(const Database& database);
 
-    /// Sets the solvent symbol for all aqueous substances
-    auto setSolventSymbolForAllAqSubst(const std::string solvent_symbol) ->void;
-
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
     auto setSolventSymbol(const std::string solvent_symbol) ->void;
 
@@ -186,6 +183,8 @@ private:
     auto calculatePropertiesSolvent(double T, double &P)-> void;
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
+
+    auto checkSolvent(std::string symbol) -> void;
 
 };
 
