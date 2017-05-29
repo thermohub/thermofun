@@ -82,19 +82,6 @@ public:
     /// @param symbol The name of the reaction
     auto containsReaction(std::string symbol) const -> bool;
 
-    /**
-     * @brief setAqSubstanceSolventSymbol sets the solvent symbol that will be use for calculating the solute porperties
-     * @param substance_symbol for which substance
-     * @param solvent_symbol
-     */
-    auto setAqSubstanceSolventSymbol(std::string substance_symbol, std::string solvent_symbol) -> void;
-
-    /**
-     * @brief setAllAqSubstanceSolventSymbol sets a solvent symbol to all solutes
-     * @param solvent_symbol
-     */
-    auto setAllAqSubstanceSolventSymbol(std::string solvent_symbol) -> void;
-
 private:
     struct Impl;
 
