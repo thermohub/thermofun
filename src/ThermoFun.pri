@@ -1,4 +1,4 @@
-    HEADERS	 += $$ThermoFun_H/ThermoFun_global.h \
+    HEADERS	 += $$ThermoFun_H/GlobalVariables.h \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
     $$ThermoFun_H/Common/ScalarTypes.hpp \
 # ThermoFun

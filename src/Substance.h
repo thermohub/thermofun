@@ -8,7 +8,7 @@
 #include <vector>
 
 // ThermoFun includes
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 

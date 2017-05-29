@@ -9,13 +9,8 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "ReadFiles.h"
-
-// ThermoFun includes
 #include "Substance.h"
 #include "Reaction.h"
-
-//#include "bsonio/v_json.h"
-//#include "bsonio/nejdb.h"
 
 namespace ThermoFun {
 

@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
 

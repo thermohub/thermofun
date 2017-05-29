@@ -1,5 +1,5 @@
 #include "Substances/Solvent/WaterIdealGasWolley.h"
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
 

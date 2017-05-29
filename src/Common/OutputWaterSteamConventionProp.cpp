@@ -1,5 +1,5 @@
 #include "Common/OutputWaterSteamConventionProp.h"
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 #include <iostream>
 #include <fstream>
 

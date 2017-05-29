@@ -7,9 +7,6 @@
 #include <vector>
 #include <map>
 
-//#include "ReadFiles.h"
-//#include "bson.h"
-//#include "bsonio/v_json.h"
 #include "ejdb/bson.h"
 
 namespace ThermoFun {

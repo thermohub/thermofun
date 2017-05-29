@@ -3,7 +3,7 @@
 
 // ThermoFun includes
 #include "Reaction.h"
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 #include <memory>
 
 namespace ThermoFun {
