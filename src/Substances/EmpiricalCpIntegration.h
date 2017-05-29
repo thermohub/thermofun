@@ -1,10 +1,11 @@
 #ifndef EMPIRICALCPINTEGRATION
 #define EMPIRICALCPINTEGRATION
 
-#include "Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
+struct Substance;
 struct ThermoPropertiesSubstance;
 
 /// Returns the temperature correcected themrodynamic properties of a substance uisng the Empicrical Cp integration

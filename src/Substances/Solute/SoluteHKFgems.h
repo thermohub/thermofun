@@ -1,7 +1,7 @@
 #ifndef SOLUTEHKFGEMS
 #define SOLUTEHKFGEMS
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
@@ -10,6 +10,7 @@ struct ThermoPropertiesSubstance;
 struct ElectroPropertiesSolvent;
 struct PropertiesSolvent;
 struct FunctionG;
+struct Substance;
 
 /// Returns the thermodynamic properties of a substance using the HKF EOS
 /// @ref Tanger and Helgeson (1988)

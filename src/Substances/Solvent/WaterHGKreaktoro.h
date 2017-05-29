@@ -1,16 +1,14 @@
 #ifndef WATERHGKREAKTORO
 #define WATERHGKREAKTORO
 
-// Reacktoro includes
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
-#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
-//#include "Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 //// Forward declarations
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
+struct WaterThermoState;
 
 //auto propertiesSolvent(double T, double P) -> PropertiesSolvent;
 

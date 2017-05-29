@@ -1,10 +1,11 @@
 #ifndef SOLIDBMGOTTSCHALK
 #define SOLIDBMGOTTSCHALK
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
+struct Substance;
 struct ThermoPropertiesSubstance;
 
 /// Returns the correcected (dVdP) themrodynamic properties of a substance (mineral) uisng the using the Birch-Murnaghan EOS

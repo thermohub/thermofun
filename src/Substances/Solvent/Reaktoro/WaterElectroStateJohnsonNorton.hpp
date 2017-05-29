@@ -19,8 +19,6 @@
 
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Common/ScalarTypes.hpp>
-#include <Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp>
-
 
 namespace ThermoFun {
 

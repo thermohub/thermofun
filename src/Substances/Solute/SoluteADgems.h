@@ -1,11 +1,13 @@
 #ifndef SOLUTEADGEMS
 #define SOLUTEADGEMS
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 #include <vector>
+#include "Common/ScalarTypes.hpp"
+#include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 
+struct Substance;
 struct ThermoPropertiesSubstance;
 struct PropertiesSolvent;
 

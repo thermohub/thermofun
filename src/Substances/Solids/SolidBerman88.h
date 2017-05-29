@@ -1,10 +1,11 @@
 #ifndef SOLIDBERMAN88
 #define SOLIDBERMAN88
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
+struct Substance;
 struct ThermoPropertiesSubstance;
 
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Berman crrection model

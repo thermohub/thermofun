@@ -1,7 +1,7 @@
 #ifndef SOLUTEHKFREAKTORO
 #define SOLUTEHKFREAKTORO
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
@@ -11,6 +11,7 @@ struct ElectroPropertiesSolvent;
 struct ThermoPropertiesSubstance;
 struct PropertiesSolvent;
 struct FunctionG;
+struct Substance;
 
 /// Returns the G function and its derivatives
 /// @ref Shock et al. (1991)

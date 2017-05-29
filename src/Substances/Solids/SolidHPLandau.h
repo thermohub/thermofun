@@ -1,10 +1,11 @@
 #ifndef SOLIDHPLANDAU
 #define SOLIDHPLANDAU
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
+struct Substance;
 struct ThermoPropertiesSubstance;
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Holland-Powell phases with Landau transition
 /// @ref Holland T.J.B., Powell R. (1998) An internally consistent thermodynamic data set for phases of
