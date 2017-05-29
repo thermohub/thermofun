@@ -1,7 +1,7 @@
 #include "WaterWP95reaktoro.h"
 #include "Reaktoro/WaterConstants.hpp"
 #include "Common/OutputWaterSteamConventionProp.h"
-//#include "Solvent/Reaktoro/WaterUtils.hpp"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 

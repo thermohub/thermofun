@@ -1,4 +1,5 @@
 #include "Substances/Solvent/WaterJN91reaktoro.h"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 

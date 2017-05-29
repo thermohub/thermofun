@@ -5,6 +5,8 @@
 
 namespace ThermoFun {
 
+struct ThermoPropertiesSubstance;
+
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Berman crrection model
 /// @ref Berman R.G. (1988) Internally consistent thermodynamic data for minerals in the system Na2O-K2O-
 /// CaO-MgO-FeO-Fe2O3-Al2O3-SiO2-TiO2-H2O-CO2. Journal of Petrology, 29, 445-522.

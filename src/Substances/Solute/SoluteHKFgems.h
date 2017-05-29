@@ -5,6 +5,12 @@
 
 namespace ThermoFun {
 
+struct ElectroPropertiesSubstance;
+struct ThermoPropertiesSubstance;
+struct ElectroPropertiesSolvent;
+struct PropertiesSolvent;
+struct FunctionG;
+
 /// Returns the thermodynamic properties of a substance using the HKF EOS
 /// @ref Tanger and Helgeson (1988)
 /// @param T temparature (K)

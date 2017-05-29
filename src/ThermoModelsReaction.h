@@ -1,17 +1,16 @@
 #ifndef THERMOMODELREACTION_H
 #define THERMOMODELREACTION_H
 
-// ThermoFun includes
-#include "Reaction.h"
-#include "GlobalVariables.h"
 #include <memory>
+
+// ThermoFun includes
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
 
 class PropertiesSolvent;
-
 class Reaction;
-//class ThermoPropertiesReaction;
+class ThermoPropertiesReaction;
 
 /**
  * @brief The ThermoModelsReaction class

@@ -2,11 +2,15 @@
 #define SOLUTEADGEMS
 
 #include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include <vector>
 
 namespace ThermoFun {
 
+struct ThermoPropertiesSubstance;
+struct PropertiesSolvent;
+
 void Akinfiev_EOS_increments(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Gig, Reaktoro_::ThermoScalar Sig, Reaktoro_::ThermoScalar CPig,
-        Reaktoro_::ThermoScalar Gw, Reaktoro_::ThermoScalar Sw, Reaktoro_::ThermoScalar CPw, Reaktoro_::ThermoScalar rho, Reaktoro_::ThermoScalar alp, Reaktoro_::ThermoScalar bet, Reaktoro_::ThermoScalar dalpT, vd ADparam,
+        Reaktoro_::ThermoScalar Gw, Reaktoro_::ThermoScalar Sw, Reaktoro_::ThermoScalar CPw, Reaktoro_::ThermoScalar rho, Reaktoro_::ThermoScalar alp, Reaktoro_::ThermoScalar bet, Reaktoro_::ThermoScalar dalpT, std::vector<double> ADparam,
         Reaktoro_::ThermoScalar &Geos, Reaktoro_::ThermoScalar &Veos, Reaktoro_::ThermoScalar &Seos, Reaktoro_::ThermoScalar &CPeos, Reaktoro_::ThermoScalar &Heos );
 
 /// Returns the thermodynamic properties of an aqueous solute using the Akinfiev and Diamond EOS

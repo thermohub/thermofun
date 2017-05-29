@@ -5,6 +5,8 @@
 
 namespace ThermoFun {
 
+struct ThermoPropertiesSubstance;
+
 auto thermoPropertiesGasCGF(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 }

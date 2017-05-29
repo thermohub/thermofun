@@ -1,5 +1,8 @@
 #include "EmpiricalCpIntegration.h"
 #include "Common/Exception.h"
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
+#include "Substance.h"
 
 namespace ThermoFun {
 

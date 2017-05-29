@@ -1,4 +1,7 @@
 #include "SolidMurnaghanHP98.h"
+#include "Substance.h"
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
 
 namespace ThermoFun {
 

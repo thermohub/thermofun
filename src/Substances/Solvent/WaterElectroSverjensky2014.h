@@ -5,6 +5,8 @@
 
 namespace ThermoFun {
 
+struct ElectroPropertiesSolvent;
+
 auto electroPropertiesWaterSverjensky2014(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ElectroPropertiesSolvent;
 
 }

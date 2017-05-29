@@ -1,4 +1,6 @@
 #include "ElectroModelsSolvent.h"
+#include "Substance.h"
+#include "ThermoProperties.h"
 // Models
 #include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
 #include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"

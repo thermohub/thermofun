@@ -9,10 +9,11 @@
 
 // ThermoFun includes
 #include "GlobalVariables.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
 
 namespace ThermoFun {
+
+struct ThermoPropertiesSubstance;
+struct ThermoParametersSubstance;
 
 /// A type used to describe a chemical substance (species, dependent components) 
 class Substance

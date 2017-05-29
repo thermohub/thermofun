@@ -7,6 +7,10 @@ namespace ThermoFun {
 
 // Forward declarations
 struct ElectroPropertiesSubstance;
+struct ElectroPropertiesSolvent;
+struct ThermoPropertiesSubstance;
+struct PropertiesSolvent;
+struct FunctionG;
 
 /// Returns the G function and its derivatives
 /// @ref Shock et al. (1991)

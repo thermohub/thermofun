@@ -1,8 +1,9 @@
 #include "Substance.h"
-#include "Common/Exception.h"
 
 // ThermoFun includes
-//#include "ThermoProperties.h"
+#include "Common/Exception.h"
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
 
 namespace ThermoFun {
 

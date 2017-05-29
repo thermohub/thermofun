@@ -12,6 +12,9 @@
 #include "Substance.h"
 #include "Reaction.h"
 
+// bsonio includes
+#include "bsonio/json2cfg.h"
+
 namespace ThermoFun {
 
 namespace {

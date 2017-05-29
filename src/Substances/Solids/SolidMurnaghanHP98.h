@@ -5,6 +5,8 @@
 
 namespace ThermoFun {
 
+struct ThermoPropertiesSubstance;
+
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Murnaghan EoS (Holland and Powell, 1998)
 /// @ref Holland T.J.B., Powell R. (1998) An internally consistent thermodynamic data set for phases of
 /// petrological interest. Journal of Metamorphic Geology, 16, 309-343.

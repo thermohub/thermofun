@@ -27,6 +27,8 @@
 #include <Substances/Solvent/Reaktoro/WaterThermoState.hpp>
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
 
+#include <Substance.h>
+
 namespace ThermoFun {
 
 auto waterThermoStateHGK(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState

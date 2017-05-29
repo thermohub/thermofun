@@ -1,4 +1,5 @@
 #include "ThermoModelsSolvent.h"
+#include "Substance.h"
 
 //#include "Substance.h"
 #include "Substances/Solvent/WaterHGK-JNgems.h"

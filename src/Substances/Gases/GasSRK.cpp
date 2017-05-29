@@ -1,5 +1,8 @@
 #include "Substances/Gases/GasSRK.h"
 #include "Substances/Gases/s_solmod_.h"
+#include "Substance.h"
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
 
 namespace ThermoFun {
 

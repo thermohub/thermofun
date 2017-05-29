@@ -1,6 +1,11 @@
 #include "ReadFiles.h"
 #include "Substance.h"
 #include "Reaction.h"
+#include "ThermoParameters.h"
+
+// bsonio includes
+#include "bsonio/thrift_node.h"
+#include "Common/Exception.h"
 
 namespace ThermoFun {
 

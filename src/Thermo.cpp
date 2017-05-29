@@ -2,6 +2,8 @@
 #include "Common/Exception.h"
 #include "Thermo.h"
 #include "Database.h"
+#include "Reaction.h"
+#include "Substance.h"
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"

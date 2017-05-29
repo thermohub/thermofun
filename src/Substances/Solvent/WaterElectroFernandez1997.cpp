@@ -1,6 +1,8 @@
 #include "WaterElectroFernandez1997.h"
 #include "Thermo.h"
 #include "Database.h"
+#include "Substance.h"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 

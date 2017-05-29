@@ -1,5 +1,7 @@
 #include "SolidBMGottschalk.h"
 #include "Common/Exception.h"
+#include "Substance.h"
+#include "ThermoParameters.h"
 
 namespace ThermoFun {
 

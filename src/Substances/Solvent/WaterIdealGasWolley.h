@@ -7,6 +7,7 @@ namespace ThermoFun {
 
 // Forward declarations
 struct PropertiesSolvent;
+struct ThermoPropertiesSubstance;
 
 auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPropertiesSubstance;
 

@@ -1,5 +1,7 @@
 #include "Substances/Solute/SoluteHKFgems.h"
 #include "Common/Exception.h"
+#include "Substance.h"
+#include "ThermoParameters.h"
 
 
 namespace ThermoFun {

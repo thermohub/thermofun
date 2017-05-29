@@ -1,4 +1,6 @@
 #include "ThermoModelsSubstance.h"
+#include "Substance.h"
+
 #include "Substances//EmpiricalCpIntegration.h"
 #include "Substances/Solute/SoluteHKFreaktoro.h"
 #include "Substances/Solute/SoluteHKFgems.h"

@@ -5,6 +5,7 @@
 
 namespace ThermoFun {
 
+struct ThermoPropertiesSubstance;
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Holland-Powell phases with Landau transition
 /// @ref Holland T.J.B., Powell R. (1998) An internally consistent thermodynamic data set for phases of
 /// petrological interest. Journal of Metamorphic Geology, 16, 309-343.

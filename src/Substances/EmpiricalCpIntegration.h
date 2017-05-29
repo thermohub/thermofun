@@ -5,6 +5,8 @@
 
 namespace ThermoFun {
 
+struct ThermoPropertiesSubstance;
+
 /// Returns the temperature correcected themrodynamic properties of a substance uisng the Empicrical Cp integration
 /// @ref --
 /// @param T temparature (K)

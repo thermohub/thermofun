@@ -1,7 +1,8 @@
 #include "WaterElectroSverjensky2014.h"
 #include "Thermo.h"
 #include "Database.h"
-
+#include "Substance.h"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 

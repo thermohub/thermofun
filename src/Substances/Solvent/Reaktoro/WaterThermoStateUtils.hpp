@@ -19,13 +19,15 @@
 
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Common/ScalarTypes.hpp>
-#include <Substance.h>
+#include <Common/ThermoScalar.hpp>
+
 
 namespace ThermoFun {
 
 // Forward declarations
 struct WaterThermoState;
 struct WaterHelmholtzState;
+struct Substance;
 
 /// Calculate the thermodynamic state of water using the Haar-Gallagher-Kell (1984) equation of state
 /// @param T The temperature of water (in units of K)

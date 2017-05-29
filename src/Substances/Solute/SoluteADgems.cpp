@@ -1,5 +1,8 @@
 #include "Substances/Solute/SoluteADgems.h"
 #include "Common/Exception.h"
+#include "Substance.h"
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
 
 namespace ThermoFun {
 
