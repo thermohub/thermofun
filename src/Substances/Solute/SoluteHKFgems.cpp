@@ -2,6 +2,7 @@
 #include "Common/Exception.h"
 #include "Substance.h"
 #include "ThermoParameters.h"
+#include "ThermoProperties.h"
 
 
 namespace ThermoFun {

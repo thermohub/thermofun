@@ -11,7 +11,6 @@ namespace ThermoFun {
 class Interface;
 class ThermoScalar;
 
-
 class Output
 {
 public:

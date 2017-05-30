@@ -1,4 +1,6 @@
 #include "Interfaces/Interface.h"
+#include "Database.h"
+#include "Interfaces/Output.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -8,9 +10,8 @@ int main(int argc, char *argv[])
     cout << "Hello World!" << endl;
 
     string databaseFile = "Resources/test_multi_new.VertexSubstance.json";
-
     Interface thermo(databaseFile);
-    thermo.setSolventSymbolForAqSubst("H2O@");
+    thermo.setSolventSymbol("H2O@");
 
     double T = 100;
     double P = 50;

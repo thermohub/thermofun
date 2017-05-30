@@ -1,4 +1,5 @@
 #include "ThermoModelsSubstance.h"
+#include "ThermoProperties.h"
 #include "Substance.h"
 
 #include "Substances//EmpiricalCpIntegration.h"

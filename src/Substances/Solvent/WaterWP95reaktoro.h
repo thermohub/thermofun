@@ -1,15 +1,14 @@
 #ifndef WATERWP95REAKTORO
 #define WATERWP95REAKTORO
 
-// Reacktoro includes
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
-#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
+#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 //// Forward declarations
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
+struct WaterThermoState;
 
 /// Return the thermodynamic properties of water
 /// @param T temparature (K)

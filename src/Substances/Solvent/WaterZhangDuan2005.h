@@ -1,8 +1,8 @@
 #ifndef WATERZHANGDUAN2005
 #define WATERZHANGDUAN2005
 
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
-
+#include "Common/ScalarTypes.hpp"
+#include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 

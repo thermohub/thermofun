@@ -2,12 +2,18 @@
 #define INTERFACE_H
 
 #include <string>
+#include <vector>
+#include <map>
+#include <memory>
 
-#include "../Thermo.h"
-#include "Output.h"
 #include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
+
+struct Database;
+struct Output;
+struct ThermoPropertiesSubstance;
+struct ThermoPropertiesReaction;
 
 /**
  * @brief The OutputOptions struct holds the options for outputing results
@@ -58,7 +64,7 @@ public:
     auto addSubstance                   (const std::string &substSymbol) -> void;
     // Reactions
     auto addReactions                   (const std::vector<std::string> &reacSymbols) -> void;
-    auto addReaction                   (const std::string &reacSymbol) -> void;
+    auto addReaction                    (const std::string &reacSymbol) -> void;
 
 
     auto addProperties                  (const std::vector<std::string> &propNames) -> void;

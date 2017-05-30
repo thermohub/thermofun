@@ -2,6 +2,7 @@
 #include "Substance.h"
 #include "Reaction.h"
 #include "ThermoParameters.h"
+#include "ThermoProperties.h"
 
 // bsonio includes
 #include "bsonio/thrift_node.h"

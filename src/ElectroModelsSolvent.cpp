@@ -1,6 +1,7 @@
 #include "ElectroModelsSolvent.h"
 #include "Substance.h"
 #include "ThermoProperties.h"
+#include "Substances/Solvent/Reaktoro/WaterElectroState.hpp"
 // Models
 #include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
 #include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
@@ -8,6 +9,7 @@
 #include "Substances/Solvent/WaterJN91reaktoro.h"
 #include "Substances/Solvent/WaterElectroSverjensky2014.h"
 #include "Substances/Solvent/WaterElectroFernandez1997.h"
+#include "Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
 namespace ThermoFun {
 

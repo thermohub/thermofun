@@ -1,5 +1,6 @@
 #include "Substances/Solvent/WaterZhangDuan2005.h"
 #include "Common/Exception.h"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 

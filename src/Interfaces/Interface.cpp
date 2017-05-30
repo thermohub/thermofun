@@ -5,6 +5,9 @@
 #include <algorithm>
 
 #include "ThermoProperties.h"
+#include "Database.h"
+#include "Interfaces/Output.h"
+#include "Thermo.h"
 
 namespace ThermoFun {
 

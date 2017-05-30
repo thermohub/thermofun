@@ -18,6 +18,7 @@
 #include "WaterUtils.hpp"
 
 // Reaktoro includes (modified DM 11.05.2016)
+#include <ThermoProperties.h>
 #include <Common/Exception.h>
 #include <Substances/Solvent/Reaktoro/WaterConstants.hpp>
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzStateHGK.hpp>

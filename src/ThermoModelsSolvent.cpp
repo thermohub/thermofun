@@ -1,4 +1,5 @@
 #include "ThermoModelsSolvent.h"
+#include "ThermoProperties.h"
 #include "Substance.h"
 
 //#include "Substance.h"
@@ -7,7 +8,8 @@
 #include "Substances/Solvent/WaterWP95reaktoro.h"
 #include "Substances/Solvent/WaterZhangDuan2005.h"
 #include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
-
+#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
+#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
 #include "Common/Exception.h"
 
 namespace ThermoFun {
