@@ -66,7 +66,8 @@
     $$PWD/Interfaces/Output.h \
 # DBClient
     $$PWD/DBClient/DBClient.h \
-    $$PWD/DBClient/Traversal.h
+    $$PWD/DBClient/Traversal.h \
+    $$PWD/ThermoFun.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$ThermoFun_H/Common/ThermoScalar.hpp \

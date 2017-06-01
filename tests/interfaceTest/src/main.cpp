@@ -1,6 +1,4 @@
-#include "Interfaces/Interface.h"
-#include "Database.h"
-#include "Interfaces/Output.h"
+#include "ThermoFun.h"
 
 using namespace std;
 using namespace ThermoFun;

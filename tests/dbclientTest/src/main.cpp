@@ -1,5 +1,4 @@
-#include "DBClient/DBClient.h"
-#include "Interfaces/Interface.h"
+#include "ThermoFun.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -11,11 +10,10 @@ int main(int argc, char *argv[])
     DBClient dbc("./Resources/ThermoFun.ini");
 
     Database db = dbc.getDatabase(15);
-    db.setAllAqSubstanceSolventSymbol("H2O@");
 
     Thermo th(DBClient("./Resources/ThermoFun.ini").getDatabase(15));
 
-    th.setSolventSymbolForAllAqSubst("H2O@");
+    th.setSolventSymbol("H2O@");
 
     double T = 100;
     double P = 1000;
