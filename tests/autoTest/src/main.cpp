@@ -2,15 +2,12 @@
 #include <fstream>
 #include <sys/time.h>
 // ThermoFun include
-#include "Thermo.h"
-#include "Database.h"
+#include "ThermoFun.h"
+#include "Common/OutputToCSV.h"
 // GEMS4R include
 #include "node.h"
-// ThermoFun output include
-#include "Common/OutputToCSV.h"
 
-#include "ThermoProperties.h"
-#include "Substance.h"
+#pragma GCC diagnostic ignored "-fpermissive"
 
 using namespace std;
 using namespace ThermoFun;
