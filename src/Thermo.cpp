@@ -61,6 +61,10 @@ struct Thermo::Impl
     {}
 };
 
+Thermo::Thermo()
+: pimpl(new Impl())
+{}
+
 Thermo::Thermo(const Database& database)
 : pimpl(new Impl(database))
 {}
@@ -574,7 +578,6 @@ auto Thermo::checkSolvent(std::string symbol) -> void
         errorSolventNotDefined("solvent", symbol, __LINE__, __FILE__);
     }
 }
-
 
 auto Thermo::setSolventSymbol(const std::string solvent_symbol) ->void
 {

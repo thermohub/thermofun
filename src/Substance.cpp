@@ -292,7 +292,7 @@ auto Substance::aggregateState() -> AggregateState::type
     return pimpl->aggregate_state;
 }
 
-auto Substance::charge() -> int
+auto Substance::charge() const -> int
 {
     return pimpl->charge;
 }

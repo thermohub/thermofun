@@ -169,7 +169,7 @@ public:
      * @brief charge
      * @return substance charge
      */
-    auto charge() -> int;
+    auto charge() const -> int;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status

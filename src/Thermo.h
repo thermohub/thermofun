@@ -25,6 +25,9 @@ class Thermo
 {
     friend class Interface;
 public:
+
+    Thermo();
+
     /// Construct a Thermo instance with given Database instance
     explicit Thermo(const Database& database);
 

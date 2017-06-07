@@ -6,7 +6,7 @@
 #include <map>
 #include <memory>
 
-#include "Common/ThermoScalar.hpp"
+#include "../Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 

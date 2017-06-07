@@ -2,8 +2,8 @@
 #define DBCLIENT_H
 
 #include <string>
-#include <QFileInfo>
-#include <QSettings>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSettings>
 
 // bonio includes
 #include "bsonio/thrift_schema.h"
