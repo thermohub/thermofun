@@ -34,6 +34,9 @@ public:
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
     auto solventSymbol( ) const -> std::string;
 
+    /// Returns the instance of the database present inside thermo
+    auto database() -> const Database;
+
     // Substance
     /// Calculate the thermodynamic properties of a substance.
     /// @param T The temperature value (in units of C)

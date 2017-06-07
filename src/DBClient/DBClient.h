@@ -12,7 +12,6 @@
 namespace ThermoFun {
 
 struct Database;
-struct Substance;
 struct Reaction;
 
 ///

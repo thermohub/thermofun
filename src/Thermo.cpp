@@ -586,4 +586,9 @@ auto Thermo::solventSymbol( ) const -> std::string
     return pimpl->solvent.symbol;
 }
 
+auto Thermo::database() -> const Database
+{
+    return pimpl->database;
+}
+
 } // namespace ThermoFun
