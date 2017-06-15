@@ -6,6 +6,7 @@
 #include "Substance.h"
 #include "Reaction.h"
 #include "ReadFiles.h"
+#include "formuladata.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -292,6 +293,23 @@ std::string DBClient::getDefinedSubstanceSymbol(std::string _idSubst)
     }
 
     return kbuf;
+}
+
+auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
+{
+    map<ElementKey, double> elements;
+    mapElements mapelements;
+    FormulaToken formula("");
+
+    formula.setFormula(  formula_ );
+    elements.insert( formula.getElements().begin(), formula.getElements().end());
+
+    for (auto element : elements)
+    {
+        mapelements[element.first.symbol] = element.second;
+    }
+
+    return mapelements;
 }
 
 }

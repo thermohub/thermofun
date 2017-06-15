@@ -14,6 +14,8 @@ namespace ThermoFun {
 struct Database;
 struct Reaction;
 
+using mapElements = std::map<std::string, double>;
+
 ///
 /// \brief The DBSettings struct holds the settings for connecting to the local or server database
 ///
@@ -85,6 +87,8 @@ public:
     /// \return returns a ThermoFun Database structure containing the substances and reactions maps
     ///
     auto getDatabase(uint sourceTDB) -> Database;
+
+    auto parseSubstanceFormula (std::string formula) -> mapElements;
 
 };
 
