@@ -477,7 +477,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const string& 
     dbElements.clear();
     for(uint ii=0; ii<resultData.size(); ii++ )
     {
-      // cout << resultData[ii] << endl;
+       cout << resultData[ii] << endl;
       elementDB->SetJsonYaml(resultData[ii]);
       addOneElement( elementDB );
     }

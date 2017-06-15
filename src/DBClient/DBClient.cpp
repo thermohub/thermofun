@@ -140,6 +140,9 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     qrJson = "{ \"_label\" : \"defines\"}";
     definesEdge = unique_ptr<TDBGraph> (newDBClinet("EdgeDefines", qrJson));
 
+    qrJson = "{ \"_label\" : \"element\"}";
+    elementVertex = unique_ptr<bsonio::TDBGraph> (newDBClinet( "VertexElement", qrJson ));
+
     // get substances
     substanceVertex->GetKeyValueList( aKeyList, aValList );
     for( uint ii=0; ii<aKeyList.size(); ii++ )
@@ -306,7 +309,17 @@ auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
 
     for (auto element : elements)
     {
-        mapelements[element.first.symbol] = element.second;
+        ElementData elem;
+        elem.coefficient = element.second;
+
+        ChemicalFormula::setDBElements( elementVertex.get(), "{\"_label\": \"element\" }" );
+
+        auto itrdb = ChemicalFormula::getDBElements().find(element.first);
+        if( itrdb ==  ChemicalFormula::getDBElements().end() )
+            bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.first.symbol );
+        elem.atomicMass = itrdb->second.atomic_mass;
+
+        mapelements[element.first.symbol] = elem;
     }
 
     return mapelements;

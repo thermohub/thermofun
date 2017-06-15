@@ -14,7 +14,13 @@ namespace ThermoFun {
 struct Database;
 struct Reaction;
 
-using mapElements = std::map<std::string, double>;
+struct ElementData
+{
+    double coefficient;
+    double atomicMass;
+};
+
+using mapElements = std::map<std::string, ElementData>;
 
 ///
 /// \brief The DBSettings struct holds the settings for connecting to the local or server database
@@ -54,7 +60,8 @@ class DBClient
     unique_ptr<bsonio::TDBGraph> reactionVertex;
     unique_ptr<bsonio::TDBGraph> substanceVertex;
     unique_ptr<bsonio::TDBGraph> takesEdge;
-    unique_ptr<bsonio::TDBGraph> definesEdge;
+    unique_ptr<bsonio::TDBGraph> definesEdge; 
+    unique_ptr<bsonio::TDBGraph> elementVertex;
 
     std::map<std::string, bson> map_id_bson;
 
