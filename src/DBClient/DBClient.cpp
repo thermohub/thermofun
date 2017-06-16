@@ -302,9 +302,6 @@ std::string DBClient::getDefinedSubstanceSymbol(std::string _idSubst)
 
 auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
 {
-
-    // ChemicalFormula::setDBElements( elementVertex.get(), "{\"_label\": \"element\" }" );
-
     map<ElementKey, double> elements;
     mapElements mapelements;
     FormulaToken formula("");
@@ -316,7 +313,6 @@ auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
     {
         ElementData elem;
         elem.coefficient = element.second;
-
 
         auto itrdb = ChemicalFormula::getDBElements().find(element.first);
         if( itrdb ==  ChemicalFormula::getDBElements().end() )

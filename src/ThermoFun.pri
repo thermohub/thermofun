@@ -69,7 +69,8 @@
     $$PWD/DBClient/Traversal.h \
     $$PWD/ThermoFun.h \
     $$PWD/DBClient/formuladata.h \
-    $$PWD/DBClient/formulaparser.h
+    $$PWD/DBClient/formulaparser.h \
+    $$PWD/Element.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
@@ -133,4 +134,5 @@
     $$PWD/DBClient/DBClient.cpp \
     $$PWD/DBClient/Traversal.cpp \
     $$PWD/DBClient/formuladata.cpp \
-    $$PWD/DBClient/formulaparser.cpp
+    $$PWD/DBClient/formulaparser.cpp \
+    $$PWD/Element.cpp
