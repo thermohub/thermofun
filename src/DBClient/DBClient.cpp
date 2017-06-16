@@ -2,10 +2,11 @@
 #include "bsonio/dbdriverejdb.h"
 #include "bsonio/dbclient.h"
 
-#include "Database.h"
-#include "Substance.h"
-#include "Reaction.h"
-#include "ReadFiles.h"
+#include "../Database.h"
+#include "../Substance.h"
+#include "../Reaction.h"
+#include "../ReadFiles.h"
+#include "../Element.h"
 #include "formuladata.h"
 
 #include <QFile>
@@ -22,6 +23,16 @@ DBClient::DBClient (string settingsFile)
     settings.QtSettings = new QSettings(settingsFile.c_str(), QSettings::IniFormat);
     getDataFromPreferencesFile( );
 }
+
+auto DBClient::operator=(DBClient other) -> DBClient&
+{
+    settings = other.settings;
+    getDataFromPreferencesFile( );
+    return *this;
+}
+
+DBClient::DBClient ()
+{}
 
 // Desctructor
 DBClient::~DBClient()
@@ -140,10 +151,10 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     qrJson = "{ \"_label\" : \"defines\"}";
     definesEdge = unique_ptr<TDBGraph> (newDBClinet("EdgeDefines", qrJson));
 
-    qrJson = "{ \"_label\" : \"element\"}";
+    qrJson = "{ \"_label\" : \"element\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
     elementVertex = unique_ptr<bsonio::TDBGraph> (newDBClinet( "VertexElement", qrJson ));
     // load all elements into system
-    ChemicalFormula::setDBElements( elementVertex.get(), "{\"_label\": \"element\" }" );
+    ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
 
     // get substances
     substanceVertex->GetKeyValueList( aKeyList, aValList );
@@ -300,10 +311,10 @@ std::string DBClient::getDefinedSubstanceSymbol(std::string _idSubst)
     return kbuf;
 }
 
-auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
+auto DBClient::parseSubstanceFormula(std::string formula_) -> mapFormulaElements
 {
     map<ElementKey, double> elements;
-    mapElements mapelements;
+    mapFormulaElements map;
     FormulaToken formula("");
 
     formula.setFormula(  formula_ );
@@ -311,18 +322,25 @@ auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
 
     for (auto element : elements)
     {
-        ElementData elem;
-        elem.coefficient = element.second;
-
+        Element e;
         auto itrdb = ChemicalFormula::getDBElements().find(element.first);
         if( itrdb ==  ChemicalFormula::getDBElements().end() )
             bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.first.symbol );
-        elem.atomicMass = itrdb->second.atomic_mass;
 
-        mapelements[element.first.symbol] = elem;
+        e.setClass(element.first.class_);
+        e.setIsotopeMass(element.first.isotope);
+        e.setSymbol(element.first.symbol);
+        e.setName(itrdb->second.name);
+        e.setMolarMass(itrdb->second.atomic_mass);
+        e.setEntropy(itrdb->second.entropy);
+        e.setHeatCapacity(itrdb->second.heat_capacity);
+        e.setVolume(itrdb->second.volume);
+        e.setValence(itrdb->second.valence);
+
+        map[e] = element.second;
     }
 
-    return mapelements;
+    return map;
 }
 
 }

@@ -3,6 +3,7 @@
 #include "DBClient/DBClient.h"
 #include "Thermo.h"
 #include "Database.h"
+#include "Element.h"
 #include "Substance.h"
 #include "Reaction.h"
 #include "ThermoProperties.h"

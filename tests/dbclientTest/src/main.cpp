@@ -34,7 +34,9 @@ int main(int argc, char *argv[])
 
     CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
 
-    mapElements elem = dbc.parseSubstanceFormula("FeHSiO3+2");
+    DBClient dbc2 = DBClient ("./Resources/ThermoFun.ini");
+
+    mapFormulaElements elem = dbc.parseSubstanceFormula("FeHSiO3+2");
 
     cout << "Bye World!" << endl;
 

@@ -13,14 +13,9 @@ namespace ThermoFun {
 
 struct Database;
 struct Reaction;
+struct Element;
 
-struct ElementData
-{
-    double coefficient;
-    double atomicMass;
-};
-
-using mapElements = std::map<std::string, ElementData>;
+using mapFormulaElements = std::map<Element, double>;
 
 ///
 /// \brief The DBSettings struct holds the settings for connecting to the local or server database
@@ -86,7 +81,16 @@ public:
     /// \param settingsFile path to the ThermoFun.ini file
     ///
     explicit DBClient(std::string settingsFile);
-    ~DBClient();
+
+    DBClient();
+
+    /// Construct a copy of an DBClient instance
+    DBClient(const DBClient& other);
+
+    /// Assign a DBClient instance to this instance
+    auto operator=(DBClient other) -> DBClient&;
+
+    virtual ~DBClient();
 
     ///
     /// \brief getDatabase reads from the EJDB database substances and reactions with the same sourceTDB
@@ -95,7 +99,7 @@ public:
     ///
     auto getDatabase(uint sourceTDB) -> Database;
 
-    auto parseSubstanceFormula (std::string formula) -> mapElements;
+    auto parseSubstanceFormula (std::string formula) -> mapFormulaElements;
 
 };
 
