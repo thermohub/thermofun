@@ -142,6 +142,8 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
 
     qrJson = "{ \"_label\" : \"element\"}";
     elementVertex = unique_ptr<bsonio::TDBGraph> (newDBClinet( "VertexElement", qrJson ));
+    // load all elements into system
+    ChemicalFormula::setDBElements( elementVertex.get(), "{\"_label\": \"element\" }" );
 
     // get substances
     substanceVertex->GetKeyValueList( aKeyList, aValList );
@@ -300,6 +302,9 @@ std::string DBClient::getDefinedSubstanceSymbol(std::string _idSubst)
 
 auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
 {
+
+    // ChemicalFormula::setDBElements( elementVertex.get(), "{\"_label\": \"element\" }" );
+
     map<ElementKey, double> elements;
     mapElements mapelements;
     FormulaToken formula("");
@@ -312,7 +317,6 @@ auto DBClient::parseSubstanceFormula (std::string formula_) -> mapElements
         ElementData elem;
         elem.coefficient = element.second;
 
-        ChemicalFormula::setDBElements( elementVertex.get(), "{\"_label\": \"element\" }" );
 
         auto itrdb = ChemicalFormula::getDBElements().find(element.first);
         if( itrdb ==  ChemicalFormula::getDBElements().end() )
