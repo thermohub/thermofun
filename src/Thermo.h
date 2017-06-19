@@ -89,7 +89,7 @@ public:
 //    /// @param substance The name of the substance
 //    auto standardPartialMolarEntropy(double T, double P, std::string substance) const -> double;
 
-//    /// Calculate the standard molar volumes of a substance (in units of m3/mol).
+//    /// Calculate the standard molar volume of a substance (in units of m3/mol).
 //    /// @param T The temperature value (in units of K)
 //    /// @param P The pressure value (in units of Pa)
 //    /// @param substance The name of the substance
@@ -185,7 +185,7 @@ private:
     std::shared_ptr<Impl> pimpl;
 
     auto getThermoPreferences(std::string substance) -> ThermoPreferences;
-    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
+//    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
     auto calculatePropertiesSolvent(double T, double &P)-> void;
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;

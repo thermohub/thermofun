@@ -41,7 +41,7 @@ struct Solvent
     ElectroPropertiesSolvent  electroProperties;
     ThermoPropertiesSubstance thermoIdealGasProperties;
 
-    string symbol;
+    string symbol = "H2O@"; // default
 
     double T, P;
 };
@@ -543,22 +543,23 @@ auto Thermo::getThermoPreferences(std::string substance) -> ThermoPreferences
     return preferences;
 }
 
-auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void
-{
-    if ((solvent.T != T || solvent.P != P || solvent.symbol != solventSymbol) &&  (solventSymbol != "*") && (!solventSymbol.empty()))
-    {
-        solvent.symbol                   = solventSymbol;
-        solvent.T                        = T;
-        solvent.P                        = P;
-        solvent.properties               = propertiesSolvent(T, P, solventSymbol);
-        solvent.electroProperties        = electroPropertiesSolvent(T, P, solventSymbol);
-        solvent.thermoProperties         = thermoPropertiesSubstance(T, P, solventSymbol);
-        solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(solventSymbol)).thermoProperties(T, P);
-    }
-}
+//auto Thermo::calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void
+//{
+//    if ((solvent.T != T || solvent.P != P || solvent.symbol != solventSymbol) &&  (solventSymbol != "*") && (!solventSymbol.empty()))
+//    {
+//        solvent.symbol                   = solventSymbol;
+//        solvent.T                        = T;
+//        solvent.P                        = P;
+//        solvent.properties               = propertiesSolvent(T, P, solventSymbol);
+//        solvent.electroProperties        = electroPropertiesSolvent(T, P, solventSymbol);
+//        solvent.thermoProperties         = thermoPropertiesSubstance(T, P, solventSymbol);
+//        solvent.thermoIdealGasProperties = WaterIdealGasWoolley(pimpl->database.getSubstance(solventSymbol)).thermoProperties(T, P);
+//    }
+//}
 
 auto Thermo::calculatePropertiesSolvent(double T, double &P)-> void
 {
+    checkSolvent(pimpl->solvent.symbol);
     if ((pimpl->solvent.T != T || pimpl->solvent.P != P) &&
         (pimpl->solvent.symbol != "*") && (!pimpl->solvent.symbol.empty()))
     {
