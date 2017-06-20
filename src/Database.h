@@ -41,6 +41,12 @@ public:
      */
     Database(std::vector<bson> bsonSubstances);
 
+    /// Assign a Database instance to this instance
+    auto operator=(Database other) -> Database&;
+
+    /// Construct a copy of an Database instance
+    Database(const Database& other);
+
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;
 

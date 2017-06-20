@@ -310,5 +310,35 @@ auto Substance::checkCalcMethodBounds(string modelName, double T, double P, Ther
     }
 }
 
+auto operator<(const Substance& lhs, const Substance& rhs) -> bool
+{
+    if (lhs.symbol() < rhs.symbol())
+        return true;
+    if (lhs.symbol() == rhs.symbol())
+    {
+        if (lhs.name() < rhs.name())
+            return true;
+    }
+    return false;
+}
+
+auto operator>(const Substance& lhs, const Substance& rhs) -> bool
+{
+    if (lhs.symbol() > rhs.symbol())
+        return true;
+    if (lhs.symbol() == rhs.symbol())
+    {
+        if (lhs.name() > rhs.name())
+            return true;
+    }
+    return false;
+}
+
+auto operator==(const Substance& lhs, const Substance& rhs) -> bool
+{
+    return (lhs.symbol()        == rhs.symbol()) &&
+           (lhs.name()          == rhs.name());
+}
+
 } // namespace ThermoFun
 

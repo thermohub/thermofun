@@ -248,6 +248,16 @@ Database::Database(vector<bson> bsonSubstances)
 : pimpl(new Impl(bsonSubstances))
 {}
 
+Database::Database(const Database& other)
+: pimpl(new Impl(*other.pimpl))
+{}
+
+auto Database::operator=(Database other) -> Database&
+{
+    pimpl = std::move(other.pimpl);
+    return *this;
+}
+
 auto Database::addSubstance(const Substance& substance) -> void
 {
     pimpl->addSubstance(substance);

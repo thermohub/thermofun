@@ -36,9 +36,7 @@ DBClient::DBClient ()
 
 // Desctructor
 DBClient::~DBClient()
-{
-    delete settings.QtSettings;
-}
+{}
 
 void DBClient::getDataFromPreferencesFile()
 {

@@ -186,6 +186,15 @@ private:
 
 };
 
+/// Compare two Substance instances for less than
+auto operator<(const Substance& lhs, const Substance& rhs) -> bool;
+
+/// Compare two Substance instances for greater than
+auto operator>(const Substance& lhs, const Substance& rhs) -> bool;
+
+/// Compare two Substance instances for equality
+auto operator==(const Substance& lhs, const Substance& rhs) -> bool;
+
 } // namespace ThermoFun
 
 #endif // SUBSTANCE_H
