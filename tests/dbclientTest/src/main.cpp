@@ -15,10 +15,25 @@ int main(int argc, char *argv[])
 
     th.setSolventSymbol("H2O@");
 
-    double T = 100;
-    double P = 1000;
+    double T = 130;
+    double P = 0;
 
-    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM;
+    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
+
+    for (uint i = 0; i <150000; i++)
+    {
+//        SiOaq = th.thermoPropertiesSubstanceM(T, P, "SiO2@");
+    }
+
+    for (uint i = 0; i <150000; i++)
+    {
+//        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
+    }
+
+    for (uint i = 0; i <150000; i++)
+    {
+        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+    }
 
     MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
 

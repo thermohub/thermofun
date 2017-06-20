@@ -11,7 +11,6 @@
 #include "ThermoModelsReaction.h"
 
 #include "OptimizationUtils.h"
-#include "ThermoCalculations.h"
 
 #include <functional>
 
@@ -52,7 +51,16 @@ struct Solvent
 };
 
 using ThermoPropertiesSubstanceFunction =
-    std::function<ThermoPropertiesSubstance(double, double, Substance, Substance)>;
+    std::function<ThermoPropertiesSubstance(double, double&, std::string)>;
+
+using ThermoPropertiesSubstanceF =
+    std::function<ThermoPropertiesSubstance(double, double&, std::string)>;
+
+using ElectroPropertiesSolventFunction =
+    std::function<ElectroPropertiesSolvent(double, double&, std::string)>;
+
+using PropertiesSolventFunction =
+    std::function<PropertiesSolvent(double, double&, std::string)>;
 
 struct Thermo::Impl
 {
@@ -61,7 +69,13 @@ struct Thermo::Impl
 
     Solvent solvent;
 
+    std::string solventSymbol;
+
     ThermoPropertiesSubstanceFunction thermo_properties_substance_fn;
+
+    ElectroPropertiesSolventFunction  electro_properties_solvent_fn;
+
+    PropertiesSolventFunction         properties_solvent_fn;
 
     Impl()
     {}
@@ -69,11 +83,235 @@ struct Thermo::Impl
     Impl(const Database& database)
     : database(database)
     {
-        thermo_properties_substance_fn = [](double T, double P, Substance substance, Substance solvent)
+        thermo_properties_substance_fn = [=](double T, double &P, std::string symbol)
         {
-            return calcThermoPropertiesSubstance(T, P, substance, solvent);
+            return thermoPropertiesSubstance(T, P, symbol);
         };
         thermo_properties_substance_fn = memoize(thermo_properties_substance_fn);
+
+        electro_properties_solvent_fn = [=](double T, double &P, std::string symbol)
+        {
+            return electroPropertiesSolvent(T, P, symbol);
+        };
+        electro_properties_solvent_fn = memoize(electro_properties_solvent_fn);
+
+        properties_solvent_fn = [=](double T, double &P, std::string symbol)
+        {
+            return propertiesSolvent(T, P, symbol);
+        };
+        properties_solvent_fn = memoize(properties_solvent_fn);
+    }
+
+    auto getThermoPreferences(std::string substance) -> ThermoPreferences
+    {
+        ThermoPreferences preferences;
+
+        preferences.workSubstance    = database.getSubstance(substance);
+    //    preferences.solventSymbol    = preferences.workSubstance.SolventSymbol();
+        preferences.method_genEOS    = preferences.workSubstance.methodGenEOS();
+        preferences.method_T         = preferences.workSubstance.method_T();
+        preferences.method_P         = preferences.workSubstance.method_P();
+
+        // check for H+
+        if (preferences.workSubstance.name() == "H+")
+            preferences.isHydrogen = true;
+        else
+            preferences.isHydrogen = false;
+
+        // check for H2O vapor
+        if (preferences.method_genEOS == MethodGenEoS_Thrift::type::CTPM_HKF && preferences.method_P == MethodCorrP_Thrift::type::CPM_GAS)
+            preferences.isH2Ovapor = true;
+        else
+            preferences.isH2Ovapor = false;
+
+        // check for solvent
+        if (preferences.workSubstance.substanceClass() == SubstanceClass::type::AQSOLVENT /*&& !isH2Ovapor*/)
+            preferences.isH2OSolvent = true;
+        else
+            preferences.isH2OSolvent = false;
+
+        // set solvent state
+        if (preferences.workSubstance.aggregateState() == AggregateState::type::GAS)
+            preferences.solventState = 1;  // vapor
+        else
+            preferences.solventState = 0;  // liquid
+
+        // check if the substance is reaction dependent
+        if (preferences.workSubstance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC)
+            preferences.isReacDC = true;
+        else
+            preferences.isReacDC = false;
+
+        // make check if substance is aq solute and needs a solvent
+
+        return preferences;
+    }
+
+    auto thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
+    {
+        ThermoPreferences         pref = getThermoPreferences(substance);
+        ThermoPropertiesSubstance tps;
+
+        if (pref.isHydrogen)
+        {
+            return tps;
+        }
+
+        if (!pref.isReacDC)
+        {
+            if (!pref.isH2OSolvent && !pref.isH2Ovapor)
+            {
+                // metohd EOS
+                switch( pref.method_genEOS )
+                {
+                case MethodGenEoS_Thrift::type::CTPM_CPT:
+                {
+                    tps = EmpiricalCpIntegration(pref.workSubstance).thermoProperties(T, P);
+                    break;
+                }
+                case MethodGenEoS_Thrift::type::CTPM_HKF:
+                {
+                    tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, solventSymbol), electro_properties_solvent_fn(T, P, solventSymbol));
+                    break;
+                }
+                case MethodGenEoS_Thrift::type::CTPM_HKFR:
+                {
+                    tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, solventSymbol), electro_properties_solvent_fn(T, P, solventSymbol));
+                    break;
+                }
+    //                default:
+    //                // Exception
+    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                }
+
+                // method T
+                switch ( pref.method_T )
+                {
+                case MethodCorrT_Thrift::type::CTM_CHP:
+                {
+                    tps = HPLandau(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+    //                default:
+    //               // Exception
+    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                }
+
+                // method P
+                switch ( pref.method_P )
+                {
+                case MethodCorrP_Thrift::type::CPM_AKI:
+                {
+                    tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, solventSymbol),
+                                                                                                   WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P),
+                                                                                                   properties_solvent_fn(T, P, solventSymbol));
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_CEH:
+                {
+                    tps = MinMurnaghanEOSHP98(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_VBE:
+                {
+                    tps = MinBerman88(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_VBM:
+                {
+                    tps = MinBMGottschalk(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_CORK:
+                {
+                    tps = GasCORK(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_PRSV:
+                {
+                    tps = GasPRSV(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_EMP:
+                {
+                    tps = GasCGF(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_SRK:
+                {
+                    tps = GasSRK(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_PR78:
+                {
+                    tps = GasPR78(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_STP:
+                {
+                    tps = GasSTP(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_CON: // Molar volume assumed independent of T and P
+                {
+                    tps = ConMolVol(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_OFF:
+                {
+                    tps = IdealGasLawVol(pref.workSubstance).thermoProperties(T, P, tps);
+                    break;
+                }
+    //                default:
+    //                // Exception
+    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                }
+            }
+
+            if (pref.isH2OSolvent || pref.isH2Ovapor)
+            {
+                switch(pref.method_T)
+                {
+                case MethodCorrT_Thrift::type::CTM_WAT:
+                {
+                    tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    break;
+                }
+                case MethodCorrT_Thrift::type::CTM_WAR:
+                {
+                    tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    break;
+                }
+                case MethodCorrT_Thrift::type::CTM_WWP:
+                {
+                    tps = WaterWP95reaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    break;
+                }
+                case MethodCorrT_Thrift::type::CTM_WZD:
+                {
+                    tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    break;
+                }
+    //                default:
+    //                // Exception
+    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                }
+            }
+        } else // substance proeprties calculated using the properties of a reaction
+        {
+//            tps = reacDCthermoProperties(T, P, pref.workSubstance);
+        }
+       return tps;
+    }
+
+    auto electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent
+    {
+
+    }
+
+    auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent
+    {
+
     }
 };
 
@@ -85,16 +323,38 @@ Thermo::Thermo(const Database& database)
 : pimpl(new Impl(database))
 {}
 
-auto Thermo::thermoPropertiesSubstanceM (double T, double &P, std::string substance) -> ThermoPropertiesSubstance
-{
-    ThermoPreferences         pref = getThermoPreferences(substance);
-    if (!pref.isReacDC)
-    {
-        return pimpl->thermo_properties_substance_fn(T, P, pimpl->database.getSubstance(substance), pimpl->database.getSubstance(pimpl->solvent.symbol));
-    } else
-        //// needs to be changeed with a memoized version
-        return reacDCthermoProperties(T, P, pref.workSubstance);
-}
+//auto Thermo::thermoPropertiesSubstanceM (double T, double &P, std::string substance) -> ThermoPropertiesSubstance
+//{
+//    ThermoPreferences         pref = getThermoPreferences(substance);
+//    if (!pref.isReacDC)
+//    {
+//        return pimpl->thermo_properties_substance_fn(T, P, pimpl->database.getSubstance(substance), pimpl->database.getSubstance(pimpl->solvent.symbol));
+//    } else
+//        //// needs to be changeed with a memoized version
+//        return reacDCthermoProperties(T, P, pref.workSubstance);
+//}
+
+//auto Thermo::thermoPropertiesSubstanceF (double T, double &P, std::string substance) -> ThermoPropertiesSubstance
+//{
+//    ThermoPreferences         pref = getThermoPreferences(substance);
+//    if (!pref.isReacDC)
+//    {
+//        return pimpl->thermo_properties_substance_fn(T, P, substance);
+//    } else
+//        //// needs to be changeed with a memoized version
+//        return reacDCthermoProperties(T, P, pref.workSubstance);
+//}
+
+//auto Thermo::electroPropertiesSolventM(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent
+//{
+//    return pimpl->electro_properties_solvent_fn(T, P, pimpl->database.getSubstance(solvent));
+//}
+
+//auto Thermo::propertiesSolventM(double T, double &P, std::string solvent) -> PropertiesSolvent
+//{
+//    return pimpl->properties_solvent_fn(T, P, pimpl->database.getSubstance(solvent));
+//}
+
 
 auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
 {
