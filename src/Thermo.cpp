@@ -10,6 +10,11 @@
 #include "ElectroModelsSolvent.h"
 #include "ThermoModelsReaction.h"
 
+#include "OptimizationUtils.h"
+#include "ThermoCalculations.h"
+
+#include <functional>
+
 namespace ThermoFun {
 
 ///
@@ -46,6 +51,9 @@ struct Solvent
     double T, P;
 };
 
+using ThermoPropertiesSubstanceFunction =
+    std::function<ThermoPropertiesSubstance(double, double, Substance, Substance)>;
+
 struct Thermo::Impl
 {
     /// The database instance
@@ -53,12 +61,20 @@ struct Thermo::Impl
 
     Solvent solvent;
 
+    ThermoPropertiesSubstanceFunction thermo_properties_substance_fn;
+
     Impl()
     {}
 
     Impl(const Database& database)
     : database(database)
-    {}
+    {
+        thermo_properties_substance_fn = [](double T, double P, Substance substance, Substance solvent)
+        {
+            return calcThermoPropertiesSubstance(T, P, substance, solvent);
+        };
+        thermo_properties_substance_fn = memoize(thermo_properties_substance_fn);
+    }
 };
 
 Thermo::Thermo()
@@ -68,6 +84,17 @@ Thermo::Thermo()
 Thermo::Thermo(const Database& database)
 : pimpl(new Impl(database))
 {}
+
+auto Thermo::thermoPropertiesSubstanceM (double T, double &P, std::string substance) -> ThermoPropertiesSubstance
+{
+    ThermoPreferences         pref = getThermoPreferences(substance);
+    if (!pref.isReacDC)
+    {
+        return pimpl->thermo_properties_substance_fn(T, P, pimpl->database.getSubstance(substance), pimpl->database.getSubstance(pimpl->solvent.symbol));
+    } else
+        //// needs to be changeed with a memoized version
+        return reacDCthermoProperties(T, P, pref.workSubstance);
+}
 
 auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
 {

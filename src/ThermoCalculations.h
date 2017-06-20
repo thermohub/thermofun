@@ -1,65 +1,37 @@
-#ifndef THERMO_H
-#define THERMO_H
+#ifndef THERMOCALCULATIONS_H
+#define THERMOCALCULATIONS_H
 
 #include <string>
-#include <memory>
 
 namespace ThermoFun {
 
 // Forward declarations
 struct Database;
-struct Solvent;
 struct Substance;
-struct ThermoPreferences;
+struct Reaction;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;
 struct ElectroPropertiesSolvent;
 struct PropertiesSolvent;
 
-/**
- * @brief The Thermo class mainly calculates the themrodynamic properties of the substances
- * from the internal database. It also calculates the electro-chemical and other phisico-chemical
- * properites of the solvent
- */
-class Thermo
-{
-    friend class Interface;
-public:
+// Substance
+/// Calculate the thermodynamic properties of a substance.
+/// @param T The temperature value (in units of C)
+/// @param P The pressure value (in units of bar)
+/// @param substance The symbol of the substance
+auto calcThermoPropertiesSubstance (double T, double &P, Substance substance, Substance solvent) -> ThermoPropertiesSubstance;
 
-    Thermo();
+/// Calculate the electro-chemical properties of a substance.
+/// @param T The temperature value (in units of C)
+/// @param P The pressure value (in units of bar)
+/// @param substance The symbol of the substance
+auto calcElectroPropertiesSolvent(double T, double &P, Substance solvent) -> ElectroPropertiesSolvent;
 
-    /// Construct a Thermo instance with given Database instance
-    explicit Thermo(const Database& database);
-
-    /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
-    auto setSolventSymbol(const std::string solvent_symbol) ->void;
-
-    /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
-    auto solventSymbol( ) const -> std::string;
-
-    /// Returns the instance of the database present inside thermo
-    auto database() -> const Database;
-
-    // Substance
-    /// Calculate the thermodynamic properties of a substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    /// @param substance The symbol of the substance
-    auto thermoPropertiesSubstance (double T, double &P, std::string substance) -> ThermoPropertiesSubstance;
-
-    auto thermoPropertiesSubstanceM (double T, double &P, std::string substance) -> ThermoPropertiesSubstance;
-
-    /// Calculate the electro-chemical properties of a substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    /// @param substance The symbol of the substance
-    auto electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent;
-
-    /// Calculate the physical properties of a substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    /// @param solvent The symbol of the solvent
-    auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
+/// Calculate the physical properties of a substance.
+/// @param T The temperature value (in units of C)
+/// @param P The pressure value (in units of bar)
+/// @param solvent The symbol of the solvent
+auto calcPropertiesSolvent(double T, double &P, Substance solvent) -> PropertiesSolvent;
 
 //    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).
 //    /// @param T The temperature value (in units of K)
@@ -109,18 +81,13 @@ public:
 //    /// @param substance The name of the substance
 //    auto standardPartialMolarHeatCapacityConstV(double T, double P, std::string substance) const -> double;
 
-    // Reaction
-    /// Calculate the thermodynamic properties of a reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    /// @param reaction The symbol of the reaction
-    auto thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction;
+// Reaction
+/// Calculate the thermodynamic properties of a reaction.
+/// @param T The temperature value (in units of C)
+/// @param P The pressure value (in units of bar)
+/// @param reaction The symbol of the reaction
+auto thermoPropertiesReaction (double T, double &P, Reaction reaction, Substance solvent) -> ThermoPropertiesReaction;
 
-    /// Calculate the thermodynamic properties of a reaction from the substances participating in the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
-    /// @param reaction The symbol of the reaction
-    auto thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction;
 //    /// Calculate the ln equilibrium constant of a reaction.
 //    /// @param T The temperature value (in units of K)
 //    /// @param P The pressure value (in units of Pa)
@@ -181,21 +148,8 @@ public:
 //    /// @param reaction The name of the reaction
 //    auto standardPartialMolarHeatCapacityOfReactionConstV(double T, double P, std::string reaction) const -> double;
 
-private:
-    struct Impl;
 
-    std::shared_ptr<Impl> pimpl;
-
-    auto getThermoPreferences(std::string substance) -> ThermoPreferences;
-//    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
-    auto calculatePropertiesSolvent(double T, double &P)-> void;
-
-    auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
-
-    auto checkSolvent(std::string symbol) -> void;
-
-};
 
 } // namespace ThermoFun
 
-#endif // THERMO_H
+#endif // THERMOCALCULATIONS_H
