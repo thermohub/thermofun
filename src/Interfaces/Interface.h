@@ -60,8 +60,8 @@ public:
 
     auto addProperties                  (const std::vector<string> &propNames) -> void;
     auto addProperty                    (const std::string &propName) -> void;
-    auto addUnits                       (const std::map<const std::string, std::string> &propUnits)-> void;
-    auto addDigits                      (const std::map<const std::string, int> &propDigits)-> void;
+    auto addUnits                       (const std::map<std::string, std::string> &propUnits)-> void;
+    auto addDigits                      (const std::map<std::string, int> &propDigits)-> void;
     auto addProperties_and_Units        (const std::vector<string> &propNames, const std::vector<string> &propUnits)-> void;
     auto addProperties_and_Digits       (const std::vector<string> &propNames, const std::vector<int> &propDigits)-> void;
     auto addProperty_and_Unit           (const std::string &propName, const std::string &propUnit)-> void;
@@ -122,12 +122,12 @@ private:
 
     auto TP_pairs               () -> const std::vector<std::vector<double>>;
     auto propNames              () -> const map<int, std::string>;
-    auto propUnits              () -> const std::map<const std::string, std::string>;
-    auto propDigits             () -> const std::map<const std::string, int>;
+    auto propUnits              () -> const std::map<std::string, std::string>;
+    auto propDigits             () -> const std::map<std::string, int>;
     auto outputSettings         () -> const OutputSettings;
 };
 
-const std::map<const std::string, const std::string> defaultPropertyNames =
+const std::map<std::string, const std::string> defaultPropertyNames =
 {
 
     {"gibbs_energy",                   "substance"     },
@@ -152,7 +152,7 @@ const std::map<const std::string, const std::string> defaultPropertyNames =
 
 };
 
-const std::map<const std::string, std::string> defaultPropertyUnits =
+const std::map<std::string, std::string> defaultPropertyUnits =
 {
 
     {"temperature",                    "C"             },
@@ -180,7 +180,7 @@ const std::map<const std::string, std::string> defaultPropertyUnits =
 
 };
 
-const std::map<const std::string, int> defaultPropertyDigits =
+const std::map<std::string, int> defaultPropertyDigits =
 {
 
     {"temperature",                    0               },

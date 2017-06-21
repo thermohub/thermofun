@@ -17,9 +17,9 @@ struct Interface::Impl
 
     std::map<int, std::string>                          propNames;
 
-    std::map<const std::string, std::string>            propUnits  = defaultPropertyUnits;
+    std::map<std::string, std::string>            propUnits  = defaultPropertyUnits;
 
-    std::map<const std::string, int>                    propDigits = defaultPropertyDigits;
+    std::map<std::string, int>                    propDigits = defaultPropertyDigits;
 
     std::vector<string>                                 substSymbols;
 
@@ -292,7 +292,7 @@ auto Interface::addReactions (const std::vector<string> &reacSymbols) -> void
 
 auto Interface::addProperty (const std::string &propName) -> void
 {
-    std::map<const std::string, const std::string>::const_iterator it;
+    std::map<std::string, const std::string>::const_iterator it;
     it = defaultPropertyNames.find(propName);
     if ( it != defaultPropertyNames.end())
     {
@@ -308,7 +308,7 @@ auto Interface::addProperty (const std::string &propName) -> void
 
 auto Interface::addProperties (const std::vector<string> &propNames) -> void
 {
-    std::map<const std::string, const std::string>::const_iterator it;
+    std::map<std::string, const std::string>::const_iterator it;
 
     for (unsigned i = 0; i<propNames.size(); i++)
     {
@@ -347,7 +347,7 @@ auto Interface::addTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -
     pimpl->tp_pairs = TP_pairs;
 }
 
-auto Interface::addDigits (const std::map<const std::string, int> &propDigits)-> void
+auto Interface::addDigits (const std::map<std::string, int> &propDigits)-> void
 {
     pimpl->propDigits = propDigits;
 }
@@ -403,12 +403,12 @@ auto Interface::propNames() -> const map<int, std::string>
     return pimpl->propNames;
 }
 
-auto Interface::propUnits() -> const std::map<const std::string, std::string>
+auto Interface::propUnits() -> const std::map<std::string, std::string>
 {
     return pimpl->propUnits;
 }
 
-auto Interface::propDigits() -> const std::map<const std::string, int>
+auto Interface::propDigits() -> const std::map<std::string, int>
 {
     return pimpl->propDigits;
 }

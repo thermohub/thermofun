@@ -6,7 +6,7 @@ TEMPLATE = app
 #QMAKE_CXXFLAGS += -std=c++1y
 QMAKE_CXXFLAGS += -std=c++11
 
-#CONFIG += -std=c++11
+CONFIG += c++11
 QT += widgets
 
 TARGET = autoTest
@@ -41,7 +41,8 @@ LIBPATH += "/usr/local/lib/"
 LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex
-LIBS += -llua5.2
+!macx-clang:LIBS += -llua5.2
+macx-clang:LIBS += -llua
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)

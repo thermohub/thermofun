@@ -24,7 +24,7 @@ Output::Output(const Interface& interface)
 : pimpl(new Impl(interface))
 {}
 
-auto Output::toCSV(std::__cxx11::string filename) -> void
+auto Output::toCSV(std::string filename) -> void
 {
     pimpl->fThermoProperties.open( filename, ios::trunc );
 
@@ -37,7 +37,7 @@ auto Output::toCSV(std::__cxx11::string filename) -> void
 
 }
 
-auto Output::toCSVtransposed(std::__cxx11::string filename, string propertyname) -> void
+auto Output::toCSVtransposed(std::string filename, string propertyname) -> void
 {
     pimpl->fThermoProperties.open( filename, ios::trunc );
 
@@ -97,7 +97,7 @@ auto Output::CSVHeader( ) -> std::string
     std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
     std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<const std::string, std::string> units  = pimpl->api.propUnits();
+    std::map<std::string, std::string> units  = pimpl->api.propUnits();
 
     const auto s = pimpl->api.outputSettings().separator;
     std::string header = "";
@@ -133,7 +133,7 @@ auto Output::CSVHeaderTransposed( ) -> std::string
     std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
 //    std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<const std::string, std::string> units  = pimpl->api.propUnits();
+    std::map<std::string, std::string> units  = pimpl->api.propUnits();
 
     const auto s = pimpl->api.outputSettings().separator;
     std::string header = "";
@@ -158,7 +158,7 @@ auto Output::foutResultsSubst()-> void
 
     std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
     std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<const std::string, int> digits         = pimpl->api.propDigits();
+    std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TP_pairs       = pimpl->api.TP_pairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsSubst   = pimpl->api.resultsSubst();
 
@@ -190,7 +190,7 @@ auto Output::foutResultsReac()-> void
 
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
     std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<const std::string, int> digits         = pimpl->api.propDigits();
+    std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TP_pairs       = pimpl->api.TP_pairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsReac   = pimpl->api.resultsReac();
 
@@ -222,7 +222,7 @@ auto Output::foutResultsSubstTrans(string property)-> void
 
     std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
     std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<const std::string, int> digits         = pimpl->api.propDigits();
+    std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TP_pairs       = pimpl->api.TP_pairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsSubst   = pimpl->api.resultsSubst();
     unsigned tp = TP_pairs.size();
@@ -256,7 +256,7 @@ auto Output::foutResultsReacTrans(string property)-> void
 
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
     std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<const std::string, int> digits         = pimpl->api.propDigits();
+    std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TP_pairs       = pimpl->api.TP_pairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsReac   = pimpl->api.resultsReac();
     unsigned tp = TP_pairs.size();
