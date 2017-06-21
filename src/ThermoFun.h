@@ -1,6 +1,8 @@
 #include "Interfaces/Interface.h"
 #include "Interfaces/Output.h"
 #include "DBClient/DBClient.h"
+#include "DBClient/Traversal.h"
+#include "ReadFiles.h"
 #include "Thermo.h"
 #include "Database.h"
 #include "Element.h"
