@@ -52,7 +52,7 @@ struct Thermo::Impl
     /// The database instance
     Database database;
 
-    std::string solventSymbol;
+    std::string solventSymbol = "H2O@"; // default
 
     ThermoPropertiesSubstanceFunction thermo_properties_substance_fn;
 

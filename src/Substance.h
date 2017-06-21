@@ -136,34 +136,34 @@ public:
     auto upperP( ) const -> double;
 
     /// Return the thermodynamic data of the substance.
-    auto thermoProperties() -> ThermoPropertiesSubstance;
+    auto thermoProperties() const -> ThermoPropertiesSubstance;
 
     /// Return the thermodynamic parameters for calculating thermodynamic properties of the substance.
-    auto thermoParameters() -> ThermoParametersSubstance;
+    auto thermoParameters() const -> ThermoParametersSubstance;
 
     /// Return the reference thermodynamic data of the substance.
-    auto thermoReferenceProperties() -> ThermoPropertiesSubstance;
+    auto thermoReferenceProperties() const -> ThermoPropertiesSubstance;
 
     /// Return the general EOS method code
-    auto methodGenEOS() -> MethodGenEoS_Thrift::type;
+    auto methodGenEOS() const -> MethodGenEoS_Thrift::type;
 
     /// Return the temperature correction method code
-    auto method_T() -> MethodCorrT_Thrift::type;
+    auto method_T() const -> MethodCorrT_Thrift::type;
 
     /// Return the pressure correction method code
-    auto method_P() -> MethodCorrP_Thrift::type;
+    auto method_P() const -> MethodCorrP_Thrift::type;
 
     /// Return the class type of the substance
-    auto substanceClass() -> SubstanceClass::type;
+    auto substanceClass() const -> SubstanceClass::type;
 
     /// Return the code of the substance proeprties calculation type
-    auto thermoCalculationType() -> SubstanceThermoCalculationType::type;
+    auto thermoCalculationType() const -> SubstanceThermoCalculationType::type;
 
     /**
      * @brief aggregateState
      * @return substance aggregate state
      */
-    auto aggregateState() -> AggregateState::type;
+    auto aggregateState() const -> AggregateState::type;
 
     /**
      * @brief charge

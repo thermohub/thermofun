@@ -7,5 +7,6 @@
 #include "Substance.h"
 #include "Reaction.h"
 #include "ThermoProperties.h"
+#include "ThermoParameters.h"
 #include "GlobalVariables.h"
 

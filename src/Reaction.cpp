@@ -165,17 +165,17 @@ auto Reaction::symbol() const -> std::string
     return pimpl->symbol;
 }
 
-auto Reaction::reactants() -> std::map<std::string, double>
+auto Reaction::reactants() const -> std::map<std::string, double>
 {
     return pimpl->reactants;
 }
 
-auto Reaction::thermo_ref_prop() -> ThermoPropertiesReaction
+auto Reaction::thermo_ref_prop() const -> ThermoPropertiesReaction
 {
     return pimpl->thermo_ref_prop;
 }
 
-auto Reaction::thermo_parameters() -> ThermoParametersReaction
+auto Reaction::thermo_parameters() const -> ThermoParametersReaction
 {
     return pimpl->thermo_parameters;
 }
@@ -210,17 +210,17 @@ auto Reaction::upperP() const -> double
     return pimpl->upper_P;
 }
 
-auto Reaction::methodGenEOS() -> MethodGenEoS_Thrift::type
+auto Reaction::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
     return pimpl->method_genEoS;
 }
 
-auto Reaction::method_T() -> MethodCorrT_Thrift::type
+auto Reaction::method_T() const -> MethodCorrT_Thrift::type
 {
     return pimpl->method_T;
 }
 
-auto Reaction::method_P() -> MethodCorrP_Thrift::type
+auto Reaction::method_P() const -> MethodCorrP_Thrift::type
 {
     return pimpl->method_P;
 }

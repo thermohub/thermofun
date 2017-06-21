@@ -247,47 +247,47 @@ auto Substance::upperP() const -> double
     return pimpl->upper_P;
 }
 
-auto Substance::thermoProperties() -> ThermoPropertiesSubstance
+auto Substance::thermoProperties() const -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_prop;
 }
 
-auto Substance::thermoParameters() -> ThermoParametersSubstance
+auto Substance::thermoParameters() const -> ThermoParametersSubstance
 {
     return pimpl->thermo_param;
 }
 
-auto Substance::thermoReferenceProperties() -> ThermoPropertiesSubstance
+auto Substance::thermoReferenceProperties() const -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_ref_prop;
 }
 
-auto Substance::methodGenEOS() -> MethodGenEoS_Thrift::type
+auto Substance::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
     return pimpl->method_genEoS;
 }
 
-auto Substance::method_T() -> MethodCorrT_Thrift::type
+auto Substance::method_T() const -> MethodCorrT_Thrift::type
 {
     return pimpl->method_T;
 }
 
-auto Substance::method_P() -> MethodCorrP_Thrift::type
+auto Substance::method_P() const -> MethodCorrP_Thrift::type
 {
     return pimpl->method_P;
 }
 
-auto Substance::substanceClass() -> SubstanceClass::type
+auto Substance::substanceClass() const -> SubstanceClass::type
 {
     return pimpl->substance_class;
 }
 
-auto Substance::thermoCalculationType() -> SubstanceThermoCalculationType::type
+auto Substance::thermoCalculationType() const -> SubstanceThermoCalculationType::type
 {
     return pimpl->thermo_calculation_type;
 }
 
-auto Substance::aggregateState() -> AggregateState::type
+auto Substance::aggregateState() const -> AggregateState::type
 {
     return pimpl->aggregate_state;
 }
