@@ -55,7 +55,7 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param substance The symbol of the substance
-    auto electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent;
 
     auto electroPropertiesSolventM(double T, double &P, std::string substance) -> ElectroPropertiesSolvent;
 
@@ -191,15 +191,6 @@ private:
     struct Impl;
 
     std::shared_ptr<Impl> pimpl;
-
-    auto getThermoPreferences(std::string substance) -> ThermoPreferences;
-//    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
-    auto calculatePropertiesSolvent(double T, double &P)-> void;
-
-    auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
-
-    auto checkSolvent(std::string symbol) -> void;
-
 };
 
 } // namespace ThermoFun

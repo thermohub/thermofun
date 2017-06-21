@@ -22,18 +22,18 @@ int main(int argc, char *argv[])
 
     for (uint i = 0; i <150000; i++)
     {
-//        SiOaq = th.thermoPropertiesSubstanceM(T, P, "SiO2@");
-    }
-
-    for (uint i = 0; i <150000; i++)
-    {
-//        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
-    }
-
-    for (uint i = 0; i <150000; i++)
-    {
         SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
     }
+
+//    for (uint i = 0; i <150000; i++)
+//    {
+////        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
+//    }
+
+//    for (uint i = 0; i <150000; i++)
+//    {
+//        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+//    }
 
     MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
 
