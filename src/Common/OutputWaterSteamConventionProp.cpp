@@ -1,11 +1,11 @@
 #include "Common/OutputWaterSteamConventionProp.h"
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 #include <iostream>
 #include <fstream>
 
 namespace ThermoFun {
 
-auto OutputSteamConventionH2OProp (std::string filename, const Reaktoro_::WaterThermoState wt) -> void
+auto OutputSteamConventionH2OProp (std::string filename, const WaterThermoState wt) -> void
 {
     std::ofstream myfile;
 //    filename = output_path + filename;

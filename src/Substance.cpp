@@ -1,8 +1,9 @@
 #include "Substance.h"
-#include "Common/Exception.h"
 
 // ThermoFun includes
-//#include "ThermoProperties.h"
+#include "Common/Exception.h"
+#include "ThermoProperties.h"
+#include "ThermoParameters.h"
 
 namespace ThermoFun {
 
@@ -246,52 +247,52 @@ auto Substance::upperP() const -> double
     return pimpl->upper_P;
 }
 
-auto Substance::thermoProperties() -> ThermoPropertiesSubstance
+auto Substance::thermoProperties() const -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_prop;
 }
 
-auto Substance::thermoParameters() -> ThermoParametersSubstance
+auto Substance::thermoParameters() const -> ThermoParametersSubstance
 {
     return pimpl->thermo_param;
 }
 
-auto Substance::thermoReferenceProperties() -> ThermoPropertiesSubstance
+auto Substance::thermoReferenceProperties() const -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_ref_prop;
 }
 
-auto Substance::methodGenEOS() -> MethodGenEoS_Thrift::type
+auto Substance::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
     return pimpl->method_genEoS;
 }
 
-auto Substance::method_T() -> MethodCorrT_Thrift::type
+auto Substance::method_T() const -> MethodCorrT_Thrift::type
 {
     return pimpl->method_T;
 }
 
-auto Substance::method_P() -> MethodCorrP_Thrift::type
+auto Substance::method_P() const -> MethodCorrP_Thrift::type
 {
     return pimpl->method_P;
 }
 
-auto Substance::substanceClass() -> SubstanceClass::type
+auto Substance::substanceClass() const -> SubstanceClass::type
 {
     return pimpl->substance_class;
 }
 
-auto Substance::thermoCalculationType() -> SubstanceThermoCalculationType::type
+auto Substance::thermoCalculationType() const -> SubstanceThermoCalculationType::type
 {
     return pimpl->thermo_calculation_type;
 }
 
-auto Substance::aggregateState() -> AggregateState::type
+auto Substance::aggregateState() const -> AggregateState::type
 {
     return pimpl->aggregate_state;
 }
 
-auto Substance::charge() -> int
+auto Substance::charge() const -> int
 {
     return pimpl->charge;
 }
@@ -307,6 +308,36 @@ auto Substance::checkCalcMethodBounds(string modelName, double T, double P, Ther
 
         setMessage(Reaktoro_::Status::calculated, message, tps );
     }
+}
+
+auto operator<(const Substance& lhs, const Substance& rhs) -> bool
+{
+    if (lhs.symbol() < rhs.symbol())
+        return true;
+    if (lhs.symbol() == rhs.symbol())
+    {
+        if (lhs.name() < rhs.name())
+            return true;
+    }
+    return false;
+}
+
+auto operator>(const Substance& lhs, const Substance& rhs) -> bool
+{
+    if (lhs.symbol() > rhs.symbol())
+        return true;
+    if (lhs.symbol() == rhs.symbol())
+    {
+        if (lhs.name() > rhs.name())
+            return true;
+    }
+    return false;
+}
+
+auto operator==(const Substance& lhs, const Substance& rhs) -> bool
+{
+    return (lhs.symbol()        == rhs.symbol()) &&
+           (lhs.name()          == rhs.name());
 }
 
 } // namespace ThermoFun

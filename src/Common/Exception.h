@@ -6,9 +6,12 @@
 #include <stdexcept>
 #include <string>
 #include "Common/ThermoScalar.hpp"
-#include "ThermoProperties.h"
+//#include "ThermoProperties.h"
 
 namespace ThermoFun {
+
+struct ThermoPropertiesSubstance;
+struct ThermoPropertiesReaction;
 
 /// Provides a convenient way to initialized an exception with helpful error messages.
 struct Exception

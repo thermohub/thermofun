@@ -8,11 +8,12 @@
 #include <vector>
 
 // ThermoFun includes
-#include "ThermoFun_global.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
+
+struct ThermoPropertiesSubstance;
+struct ThermoParametersSubstance;
 
 /// A type used to describe a chemical substance (species, dependent components) 
 class Substance
@@ -135,40 +136,40 @@ public:
     auto upperP( ) const -> double;
 
     /// Return the thermodynamic data of the substance.
-    auto thermoProperties() -> ThermoPropertiesSubstance;
+    auto thermoProperties() const -> ThermoPropertiesSubstance;
 
     /// Return the thermodynamic parameters for calculating thermodynamic properties of the substance.
-    auto thermoParameters() -> ThermoParametersSubstance;
+    auto thermoParameters() const -> ThermoParametersSubstance;
 
     /// Return the reference thermodynamic data of the substance.
-    auto thermoReferenceProperties() -> ThermoPropertiesSubstance;
+    auto thermoReferenceProperties() const -> ThermoPropertiesSubstance;
 
     /// Return the general EOS method code
-    auto methodGenEOS() -> MethodGenEoS_Thrift::type;
+    auto methodGenEOS() const -> MethodGenEoS_Thrift::type;
 
     /// Return the temperature correction method code
-    auto method_T() -> MethodCorrT_Thrift::type;
+    auto method_T() const -> MethodCorrT_Thrift::type;
 
     /// Return the pressure correction method code
-    auto method_P() -> MethodCorrP_Thrift::type;
+    auto method_P() const -> MethodCorrP_Thrift::type;
 
     /// Return the class type of the substance
-    auto substanceClass() -> SubstanceClass::type;
+    auto substanceClass() const -> SubstanceClass::type;
 
     /// Return the code of the substance proeprties calculation type
-    auto thermoCalculationType() -> SubstanceThermoCalculationType::type;
+    auto thermoCalculationType() const -> SubstanceThermoCalculationType::type;
 
     /**
      * @brief aggregateState
      * @return substance aggregate state
      */
-    auto aggregateState() -> AggregateState::type;
+    auto aggregateState() const -> AggregateState::type;
 
     /**
      * @brief charge
      * @return substance charge
      */
-    auto charge() -> int;
+    auto charge() const -> int;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status
@@ -184,6 +185,15 @@ private:
     std::unique_ptr<Impl> pimpl;
 
 };
+
+/// Compare two Substance instances for less than
+auto operator<(const Substance& lhs, const Substance& rhs) -> bool;
+
+/// Compare two Substance instances for greater than
+auto operator>(const Substance& lhs, const Substance& rhs) -> bool;
+
+/// Compare two Substance instances for equality
+auto operator==(const Substance& lhs, const Substance& rhs) -> bool;
 
 } // namespace ThermoFun
 

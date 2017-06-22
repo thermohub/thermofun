@@ -4,6 +4,11 @@
 #include <iomanip>
 #include <algorithm>
 
+#include "ThermoProperties.h"
+#include "Database.h"
+#include "Interfaces/Output.h"
+#include "Thermo.h"
+
 namespace ThermoFun {
 
 struct Interface::Impl
@@ -13,7 +18,7 @@ struct Interface::Impl
 
     OutputSettings                                      outSettings;
 
-    std::vector<std::vector<double>>                    tp_pairs;
+    std::vector<std::vector<double>>                    tpPairs;
 
     std::map<int, std::string>                          propNames;
 
@@ -54,7 +59,7 @@ auto Interface::calculateProperties(const std::string substSymbol, const double 
 {
     addSubstance(substSymbol);
 
-    addTP_pair(T,P);
+    addTPpair(T,P);
 
     addProperty(propName);
 
@@ -70,7 +75,7 @@ auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::v
 
     addProperties(thermoProperties);
 
-    addTP_pair(T, P);
+    addTPpair(T, P);
 
     calculateResultsSubst();
 
@@ -84,20 +89,20 @@ auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::v
 
     addProperties(thermoProperties);
 
-    addTP_pairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
+    addTPpairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
 
     calculateResultsSubst();
 
     return Output (*this);
 }
 auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                     std::vector<std::vector<double> > tp_pairs) -> Output
+                     std::vector<std::vector<double> > tpPairs) -> Output
 {
     addSubstances(substanceSymbols);
 
     addProperties(thermoProperties);
 
-    addTP_pairs(tp_pairs);
+    addTPpairs(tpPairs);
 
     calculateResultsSubst();
 
@@ -117,7 +122,7 @@ auto Interface::calcPropReactions(const std::string reacSymbol, const double T, 
 {
     addReaction(reacSymbol);
 
-    addTP_pair(T,P);
+    addTPpair(T,P);
 
     addProperty(propName);
 
@@ -133,7 +138,7 @@ auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vect
 
     addProperties(thermoProperties);
 
-    addTP_pair(T, P);
+    addTPpair(T, P);
 
     calculateResultsReac();
 
@@ -147,20 +152,20 @@ auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vect
 
     addProperties(thermoProperties);
 
-    addTP_pairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
+    addTPpairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
 
     calculateResultsReac();
 
     return Output (*this);
 }
 auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
-                     std::vector<std::vector<double> > tp_pairs) -> Output
+                     std::vector<std::vector<double> > tpPairs) -> Output
 {
     addReactions(reactionSymbols);
 
     addProperties(thermoProperties);
 
-    addTP_pairs(tp_pairs);
+    addTPpairs(tpPairs);
 
     calculateResultsReac();
 
@@ -209,35 +214,35 @@ auto Interface::selectResultsReac ( ThermoPropertiesReaction tpr ) -> std::vecto
 
 auto Interface::calculateResultsSubst( ) -> void
 {
-    pimpl->substResults.empty(); unsigned tp = pimpl->tp_pairs.size();
-    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tp_pairs.size());
-    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
+    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
+    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
         {
-            pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tp_pairs[j][0], pimpl->tp_pairs[j][1], pimpl->substSymbols[i]));
+            pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
         }
     }
 }
 
 auto Interface::calculateResultsReac( ) -> void
 {
-    pimpl->reacResults.empty(); unsigned tp = pimpl->tp_pairs.size();
-    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tp_pairs.size());
-    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    pimpl->reacResults.empty(); unsigned tp = pimpl->tpPairs.size();
+    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
+    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
         {
-            pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tp_pairs[j][0], pimpl->tp_pairs[j][1], pimpl->reacSymbols[i]));
+            pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
         }
     }
 }
 
 auto Interface::selectResultsSubst_vTpSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void
 {
-    pimpl->substResults.empty(); unsigned tp = pimpl->tp_pairs.size();
-    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tp_pairs.size());
-    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
+    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
+    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
         {
@@ -248,9 +253,9 @@ auto Interface::selectResultsSubst_vTpSym(std::vector<std::vector<ThermoProperti
 
 auto Interface::selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void
 {
-    pimpl->reacResults.empty(); unsigned tp = pimpl->tp_pairs.size();
-    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tp_pairs.size());
-    for (unsigned j=0; j<pimpl->tp_pairs.size(); j++)
+    pimpl->reacResults.empty(); unsigned tp = pimpl->tpPairs.size();
+    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
+    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
         {
@@ -316,13 +321,13 @@ auto Interface::addProperties (const std::vector<string> &propNames) -> void
     }
 }
 
-auto Interface::addTP_pair (const double &T, const double &P) -> void
+auto Interface::addTPpair (const double &T, const double &P) -> void
 {
     std::vector<double> one_pair = {T, P};
-    pimpl->tp_pairs.push_back(one_pair);
+    pimpl->tpPairs.push_back(one_pair);
 }
 
-auto Interface::addTP_pairs (const double &Tmin, const double &Tmax, const double &Tstep,
+auto Interface::addTPpairs (const double &Tmin, const double &Tmax, const double &Tstep,
                   const double &Pmin, const double &Pmax, const double &Pstep) -> void
 {
     double t = Tmin;
@@ -331,20 +336,20 @@ auto Interface::addTP_pairs (const double &Tmin, const double &Tmax, const doubl
     {
        do
         {
-            addTP_pair(t,p);
+            addTPpair(t,p);
             p = p + Pstep;
         } while (p <= Pmax);
        t = t + Tstep;
     } while (t <= Tmax);
 }
 
-auto Interface::addTP_pairs (const std::vector<std::vector<double>> &TP_pairs) -> void
+auto Interface::addTPpairs (const std::vector<std::vector<double>> &tpPairs) -> void
 {
-    for (unsigned i=0; i <TP_pairs.size(); i++)
+    for (unsigned i=0; i <tpPairs.size(); i++)
     {
-        addTP_pair(TP_pairs[i][0], TP_pairs[i][1]);
+        addTPpair(tpPairs[i][0], tpPairs[i][1]);
     }
-    pimpl->tp_pairs = TP_pairs;
+    pimpl->tpPairs = tpPairs;
 }
 
 auto Interface::addDigits (const std::map<std::string, int> &propDigits)-> void
@@ -361,9 +366,9 @@ auto Interface::clearProperties () -> void
 {
     pimpl->propNames.clear();
 }
-auto Interface::clearTP_pairs () -> void
+auto Interface::clearTPpairs () -> void
 {
-    pimpl->tp_pairs.clear();
+    pimpl->tpPairs.clear();
 }
 
 // set functions
@@ -393,9 +398,9 @@ auto Interface::outputSettings() -> const OutputSettings
     return pimpl->outSettings;
 }
 
-auto Interface::TP_pairs() -> const std::vector<std::vector<double> >
+auto Interface::TPpairs() -> const std::vector<std::vector<double> >
 {
-    return pimpl->tp_pairs;
+    return pimpl->tpPairs;
 }
 
 auto Interface::propNames() -> const map<int, std::string>

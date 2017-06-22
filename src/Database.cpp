@@ -9,13 +9,11 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "ReadFiles.h"
-
-// ThermoFun includes
 #include "Substance.h"
 #include "Reaction.h"
 
-//#include "bsonio/v_json.h"
-//#include "bsonio/nejdb.h"
+// bsonio includes
+#include "bsonio/json2cfg.h"
 
 namespace ThermoFun {
 
@@ -249,6 +247,16 @@ Database::Database(std::string filename)
 Database::Database(vector<bson> bsonSubstances)
 : pimpl(new Impl(bsonSubstances))
 {}
+
+Database::Database(const Database& other)
+: pimpl(new Impl(*other.pimpl))
+{}
+
+auto Database::operator=(Database other) -> Database&
+{
+    pimpl = std::move(other.pimpl);
+    return *this;
+}
 
 auto Database::addSubstance(const Substance& substance) -> void
 {

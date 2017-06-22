@@ -2,11 +2,12 @@
 #include <fstream>
 #include <sys/time.h>
 // ThermoFun include
-#include "Thermo.h"
+#include "ThermoFun.h"
+#include "Common/OutputToCSV.h"
 // GEMS4R include
 #include "node.h"
-// ThermoFun output include
-#include "Common/OutputToCSV.h"
+
+#pragma GCC diagnostic ignored "-fpermissive"
 
 using namespace std;
 using namespace ThermoFun;
@@ -127,7 +128,7 @@ int main(int argc, char *argv[])
 //    }
 
     Thermo thermo (tdb);
-    ThermoPropertiesSubstance result_tcorrpt, tps_gems;
+    ThermoPropertiesSubstance result_tcorrpt, tps_gems, result_tcorrpt_;
     thermo.setSolventSymbol("H2O@");
 
     OutputToCSV out (argv[0]);
@@ -138,13 +139,19 @@ int main(int argc, char *argv[])
     double delta = ((middle.tv_sec  - start.tv_sec) * 1000000u +
              middle.tv_usec - start.tv_usec) / 1.e6;
 
-//    P = 4000; T = 400;
-//    // test PRSV
-//    result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,"CO2hp");
+    P = 5000; T = 25;
+    // test PRSV
+//    result_tcorrpt_ = thermo.thermoPropertiesSubstance(T,P,"Al+3");
+//    xCH = node->DC_name_to_xCH("Al+3");
+//    tps_gems.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
+//    tps_gems.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
+//    tps_gems.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
+//    tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
+//    tps_gems.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
 
 
     P = 0; T = 5;
-//
+    //
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
@@ -163,7 +170,7 @@ int main(int argc, char *argv[])
             compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
 
             c++;
-//            i = vSubst.size();
+            //            i = vSubst.size();
         }
         P = 0;
         T +=5;
@@ -220,7 +227,7 @@ int main(int argc, char *argv[])
         }
         T +=25;
     } while (T <= 800);
-//
+    //
     out.closeThermoPropertiesSubstanceFile();
 
     P = 1000; T = 25;
@@ -281,6 +288,11 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < vSubst.size(); i++)
         {
+            if( T == 800 && P == 5000 && vSubst[i].symbol() == "Quartz")
+            {
+                cout << "here" << endl;
+            }
+
             result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
             out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result_tcorrpt);
 

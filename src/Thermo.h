@@ -1,48 +1,20 @@
 #ifndef THERMO_H
 #define THERMO_H
 
-// ThermoFun includes
-#include "Database.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoModelsSolvent.h"
-#include "ElectroModelsSolvent.h"
-#include "ThermoModelsReaction.h"
+#include <string>
+#include <memory>
 
 namespace ThermoFun {
 
-///
-/// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
-///
-struct ThermoPreferences
-{
-    Substance workSubstance;
-    Reaction  workReaction;
-    MethodGenEoS_Thrift::type method_genEOS;
-    MethodCorrT_Thrift::type  method_T;
-    MethodCorrP_Thrift::type  method_P;
-
-    unsigned solventState = 0; // 0: liquid; 1: vapor
-
-    bool isHydrogen     = false;
-    bool isH2Ovapor     = false;
-    bool isH2OSolvent   = false;
-    bool isReacDC       = false;
-};
-
-///
-/// \brief The Solvent struct hold the solvent proeprties at T and P
-///
-struct Solvent
-{
-    PropertiesSolvent         properties;
-    ThermoPropertiesSubstance thermoProperties;
-    ElectroPropertiesSolvent  electroProperties;
-    ThermoPropertiesSubstance thermoIdealGasProperties;
-
-    string symbol;
-
-    double T, P;
-};
+// Forward declarations
+struct Database;
+struct Solvent;
+struct Substance;
+struct ThermoPreferences;
+struct ThermoPropertiesSubstance;
+struct ThermoPropertiesReaction;
+struct ElectroPropertiesSolvent;
+struct PropertiesSolvent;
 
 /**
  * @brief The Thermo class mainly calculates the themrodynamic properties of the substances
@@ -53,6 +25,9 @@ class Thermo
 {
     friend class Interface;
 public:
+
+    Thermo();
+
     /// Construct a Thermo instance with given Database instance
     explicit Thermo(const Database& database);
 
@@ -61,6 +36,9 @@ public:
 
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
     auto solventSymbol( ) const -> std::string;
+
+    /// Returns the instance of the database present inside thermo
+    auto database() -> const Database;
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.
@@ -73,7 +51,7 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param substance The symbol of the substance
-    auto electroPropertiesSolvent(double T, double &P, std::string substance) -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of C)
@@ -111,7 +89,7 @@ public:
 //    /// @param substance The name of the substance
 //    auto standardPartialMolarEntropy(double T, double P, std::string substance) const -> double;
 
-//    /// Calculate the standard molar volumes of a substance (in units of m3/mol).
+//    /// Calculate the standard molar volume of a substance (in units of m3/mol).
 //    /// @param T The temperature value (in units of K)
 //    /// @param P The pressure value (in units of Pa)
 //    /// @param substance The name of the substance
@@ -205,15 +183,6 @@ private:
     struct Impl;
 
     std::shared_ptr<Impl> pimpl;
-
-    auto getThermoPreferences(std::string substance) -> ThermoPreferences;
-    auto calculateSolvent(std::string solventSymbol, double T, double &P, Solvent &solvent)-> void;
-    auto calculatePropertiesSolvent(double T, double &P)-> void;
-
-    auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance;
-
-    auto checkSolvent(std::string symbol) -> void;
-
 };
 
 } // namespace ThermoFun

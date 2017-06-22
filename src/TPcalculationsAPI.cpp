@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 

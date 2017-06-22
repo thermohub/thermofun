@@ -1,5 +1,4 @@
-#include "DBClient/DBClient.h"
-#include "Interfaces/Interface.h"
+#include "ThermoFun.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -11,16 +10,30 @@ int main(int argc, char *argv[])
     DBClient dbc("./Resources/ThermoFun.ini");
 
     Database db = dbc.getDatabase(15);
-    db.setAllAqSubstanceSolventSymbol("H2O@");
 
     Thermo th(DBClient("./Resources/ThermoFun.ini").getDatabase(15));
 
-    th.setSolventSymbolForAllAqSubst("H2O@");
+    th.setSolventSymbol("H2O@");
 
-    double T = 100;
-    double P = 1000;
+    double T = 130;
+    double P = 0;
 
-    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM;
+    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
+
+    for (uint i = 0; i <150000; i++)
+    {
+        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+    }
+
+//    for (uint i = 0; i <150000; i++)
+//    {
+////        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
+//    }
+
+//    for (uint i = 0; i <150000; i++)
+//    {
+//        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+//    }
 
     MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
 
@@ -35,6 +48,10 @@ int main(int argc, char *argv[])
     SiO = th.thermoPropertiesSubstance(T, P, "SiO3-2");
 
     CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
+
+    DBClient dbc2 = DBClient ("./Resources/ThermoFun.ini");
+
+    mapFormulaElements elem = dbc.parseSubstanceFormula("FeHSiO3+2");
 
     cout << "Bye World!" << endl;
 

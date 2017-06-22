@@ -3,6 +3,7 @@
 // C++ includes
 #include <algorithm>
 #include <sstream>
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 namespace internal {

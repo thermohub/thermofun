@@ -1,12 +1,15 @@
 #include "ElectroModelsSolvent.h"
-
-#include "Solvent/Reaktoro/WaterUtils.hpp"
-#include "Solvent/Reaktoro/WaterThermoState.hpp"
-
-#include "Solvent/WaterHGK-JNgems.h"
-#include "Solvent/WaterJN91reaktoro.h"
-#include "Solvent/WaterElectroSverjensky2014.h"
-#include "Solvent/WaterElectroFernandez1997.h"
+#include "Substance.h"
+#include "ThermoProperties.h"
+#include "Substances/Solvent/Reaktoro/WaterElectroState.hpp"
+// Models
+#include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
+#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
+#include "Substances/Solvent/WaterHGK-JNgems.h"
+#include "Substances/Solvent/WaterJN91reaktoro.h"
+#include "Substances/Solvent/WaterElectroSverjensky2014.h"
+#include "Substances/Solvent/WaterElectroFernandez1997.h"
+#include "Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
 namespace ThermoFun {
 
@@ -43,9 +46,9 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
-    if (P==0) p = Reaktoro_::Pressure(Reaktoro_::waterSaturatedPressureWagnerPruss(t).val);
+    if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
 
-    Reaktoro_::WaterThermoState wts;
+    WaterThermoState wts;
 
     wts.density   = ps.density;
     wts.densityT  = ps.densityT;
@@ -54,7 +57,7 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     wts.densityTP = ps.densityTP;
     wts.densityPP = ps.densityPP;
 
-    Reaktoro_::WaterElectroState wes = Reaktoro_::waterElectroStateJohnsonNorton(t, /*p,*/ wts);
+    WaterElectroState wes = waterElectroStateJohnsonNorton(t, /*p,*/ wts);
 
     return electroPropertiesWaterJNreaktoro(wes);
 }

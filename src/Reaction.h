@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "ThermoFun_global.h"
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
 
@@ -87,13 +87,13 @@ public:
     auto symbol() const -> std::string;
 
     /// Returns the map of reactants symbols and their coeffiicents
-    auto reactants() -> std::map<std::string, double>;
+    auto reactants() const -> std::map<std::string, double>;
 
     /// Returns the references proeprties of the reaction
-    auto thermo_ref_prop() -> ThermoPropertiesReaction;
+    auto thermo_ref_prop() const  -> ThermoPropertiesReaction;
 
     /// Returns an instance of the defined parameters of the reaction
-    auto thermo_parameters() -> ThermoParametersReaction;
+    auto thermo_parameters() const  -> ThermoParametersReaction;
 
     /// Returns the references temperature (K)
     auto referenceT() const -> double;
@@ -114,13 +114,13 @@ public:
     auto upperP( ) const -> double;
 
     /// Return the general EOS method code
-    auto methodGenEOS() -> MethodGenEoS_Thrift::type;
+    auto methodGenEOS() const  -> MethodGenEoS_Thrift::type;
 
     /// Return the temperature correction method code
-    auto method_T() -> MethodCorrT_Thrift::type;
+    auto method_T() const  -> MethodCorrT_Thrift::type;
 
     /// Return the pressure correction method code
-    auto method_P() -> MethodCorrP_Thrift::type;
+    auto method_P() const  -> MethodCorrP_Thrift::type;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status

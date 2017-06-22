@@ -7,9 +7,6 @@
 #include <vector>
 #include <map>
 
-//#include "ReadFiles.h"
-//#include "bson.h"
-//#include "bsonio/v_json.h"
 #include "ejdb/bson.h"
 
 namespace ThermoFun {
@@ -43,6 +40,12 @@ public:
      * see BSONIO
      */
     Database(std::vector<bson> bsonSubstances);
+
+    /// Assign a Database instance to this instance
+    auto operator=(Database other) -> Database&;
+
+    /// Construct a copy of an Database instance
+    Database(const Database& other);
 
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;
