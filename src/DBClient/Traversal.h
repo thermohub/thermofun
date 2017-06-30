@@ -8,6 +8,7 @@
 namespace ThermoFun {
 
 using  MapIdType = std::map<std::string, std::string>;
+using  MapIdLevels = std::map<std::string, std::vector<std::string>>;
 struct Database;
 
 ///
@@ -20,8 +21,10 @@ class Traversal
 
     // follows the incoming Defines edge for substance with _idSubst
     void followIncomingDefines(std::string _idSubst, MapIdType &result, string level);
+    void followIncomingDefines(std::string _idSubst, MapIdType &result);
     // follows the incoming Takes edges for reaction with _idReac
     void followIncomingTakes(std::string _idReac, MapIdType &result, string level);
+    void followIncomingTakes(std::string _idReac, MapIdType &result);
     // returns the symbol of the reaction which defines the substance with _idSubst
     std::string getDefinesReactionSymbol(std::string _idSubst, string level);
     // returns a map of reactants symbols and coeficients participating in the reaction
@@ -29,6 +32,7 @@ class Traversal
 
     // fills the map MapIdType with all vertexes connected to the vertex with id_
     void linkedBsonDataFromId(std::string id_, MapIdType &result, string level);
+    void linkedBsonDataFromId(std::string id_, MapIdType &result);
 
     public:
 
@@ -54,6 +58,7 @@ class Traversal
     /// \return a map of [id, vertex type]
     ///
     MapIdType getLinkedBsonFromIdList(vector<string> idList, string level);
+    MapIdType getLinkedBsonFromIdList( vector<string> idList );
 
     ///
     /// \brief getDatabaseFromTraversal parses a a map of [id, vertex type] into a ThermoFun Database object
