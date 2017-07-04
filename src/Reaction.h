@@ -38,6 +38,9 @@ public:
     /// Set the symbol of the Reaction.
     auto setSymbol(std::string symbol) -> void;
 
+    /// Set the equation of the Reaction
+    auto setEquation(std::string equation) -> void;
+
     auto setReactants(std::map<std::string, double> reactants) -> void;
 
     /// Set reference temperature fo the standard properties of reaction (K)
@@ -85,6 +88,9 @@ public:
 
     /// Returns the symbol of the Reaction
     auto symbol() const -> std::string;
+
+    /// Returns the equation of the Reaction
+    auto equation() const -> std::string;
 
     /// Returns the map of reactants symbols and their coeffiicents
     auto reactants() const -> std::map<std::string, double>;

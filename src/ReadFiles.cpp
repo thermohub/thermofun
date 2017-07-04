@@ -214,6 +214,9 @@ auto parseReaction (const char *data) -> Reaction
     bsonio::bson_to_key( data, reacSymbol, kbuf );
     if (!parseIssues(kbuf, name, reacSymbol)) r.setSymbol(kbuf);
 
+    bsonio::bson_to_key( data, reacEquation, kbuf );
+    if (!parseIssues(kbuf, name, reacEquation)) r.setEquation(kbuf);
+
     bsonio::bson_to_key( data, reacMethodEOS, kbuf );
     if (!parseIssues(kbuf, name, reacMethodEOS)) r.setMethodGenEoS(MethodGenEoS_Thrift::type(std::stoi(kbuf.c_str())));
 
