@@ -36,6 +36,16 @@ MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, string leve
     return result;
 }
 
+MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, std::map<std::string, std::string> substSymbolLevel)
+{
+    MapIdType result;
+    for (uint ii=0; ii<idList.size(); ii++)
+    {
+        linkedBsonDataFromId(idList[ii], result, substSymbolLevel);
+    }
+    return result;
+}
+
 MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList )
 {
     MapIdType result;
@@ -46,9 +56,9 @@ MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList )
     return result;
 }
 
-void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string level)
+void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<std::string, std::string> substSymbolLevel)
 {
-    string valDB, _id, _label, _type, _level, _symbol;
+    string valDB, _id, _label, _type, _symbol;
     bson record;
     id_ = id_.c_str();
     dbgraph->GetRecord( id_.c_str() );
@@ -58,7 +68,38 @@ void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string 
     bsonio::bson_to_key( record.data, "_id",    _id);
     bsonio::bson_to_key( record.data, "_label", _label);
     bsonio::bson_to_key( record.data, "_type",  _type);
-    bsonio::bson_to_key( record.data, "properties.level",  _level);
+    bsonio::bson_to_key( record.data, "properties.symbol",  _symbol);
+
+    // if not in the database
+    if (!result.count(_id))
+    {
+        if (_label == "substance")
+        {
+            result.insert(std::pair<std::string,std::string>(_id, "substance"));
+            followIncomingDefines(_id, result, substSymbolLevel[_symbol]);
+        }
+        if (_label == "reaction")
+        {
+            result.insert(std::pair<std::string,std::string>(_id, "reaction"));
+            followIncomingTakes(_id, result, "0");
+        }
+    }
+
+}
+
+void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string level)
+{
+    string valDB, _id, _label, _type,/* _level,*/ _symbol;
+    bson record;
+    id_ = id_.c_str();
+    dbgraph->GetRecord( id_.c_str() );
+    valDB = dbgraph->GetJson();
+    jsonToBson( &record, valDB );
+
+    bsonio::bson_to_key( record.data, "_id",    _id);
+    bsonio::bson_to_key( record.data, "_label", _label);
+    bsonio::bson_to_key( record.data, "_type",  _type);
+//    bsonio::bson_to_key( record.data, "properties.level",  _level);
     bsonio::bson_to_key( record.data, "properties.symbol",  _symbol);
 
     // if not in the database
@@ -72,12 +113,12 @@ void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string 
         if (_label == "reaction")
         {
             // Check if levels match
-            if (level !=  _level)
-            {
-                errorNotMatchingLevel(_label, (_symbol + " level " + _level + " traversal level " + level), __LINE__, __FILE__);// error level of traversal
-            }
+//            if (level !=  _level)
+//            {
+//                errorNotMatchingLevel(_label, (_symbol + " level " + _level + " traversal level " + level), __LINE__, __FILE__);// error level of traversal
+//            }
             result.insert(std::pair<std::string,std::string>(_id, "reaction"));
-            followIncomingTakes(_id, result, level);
+            followIncomingTakes(_id, result, "0");
         }
     }
 
@@ -167,6 +208,72 @@ Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, string l
 
                 // get reactants by following reaction incoming takes edge
                 reaction.setReactants(getReactantsCoeffMap(key, level));
+
+                if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
+                    reactions_map[reaction.symbol()] = reaction;
+                } else {
+                    errorSameSymbol("reaction", reaction.symbol(), __LINE__, __FILE__ );
+                }
+            }
+    }
+    tdb.addMapReactions(reactions_map);
+    tdb.addMapSubstances(substances_map);
+    return tdb;
+}
+
+Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel)
+{
+    string key, valDB, _idSubst;
+    bson record;
+    Database tdb;
+    auto map_ = resultTraversal;
+
+    // The set of all aqueous species in the database
+    SubstancesMap substances_map;
+    // The set of all gaseous species in the database
+    ReactionsMap reactions_map;
+
+    dbgraph->resetMode(true);
+
+    // get substances and the reaction symbol if necessary
+    for(auto iterator = map_.begin(); iterator != map_.end(); iterator++)
+    {
+        if (iterator->second == "substance")
+        {
+            key = iterator->first +":";
+            dbgraph->GetRecord( key.c_str() );
+            valDB = dbgraph->GetJson();
+            jsonToBson( &record, valDB );
+            bsonio::bson_to_key( record.data, "_id", _idSubst );
+
+            Substance substance = parseSubstance(record.data);
+            std::string reactSymbol = getDefinesReactionSymbol(_idSubst, substSymbolLevel[substance.symbol()]);
+            // get reaction symbol which define substance with _idSubst
+            if (reactSymbol != "")
+            {
+                substance.setReactionSymbol(reactSymbol);
+                substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
+            }
+
+            if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
+                substances_map[substance.symbol()] = substance;
+            } else {
+                errorSameSymbol("substance", substance.symbol(), __LINE__, __FILE__ );
+            }
+        } else
+            if (iterator->second == "reaction")
+            {
+                key = iterator->first +":";
+
+                dbgraph->GetRecord( key.c_str() );
+                valDB = dbgraph->GetJson();
+                jsonToBson( &record, valDB );
+                bsonio::bson_to_key( record.data, "_id", key );
+
+                Reaction reaction = ThermoFun::parseReaction(record.data);
+
+                // get reactants by following reaction incoming takes edge
+                reaction.setReactants(getReactantsCoeffMap(key, "0"));
 
                 if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
                     reactions_map[reaction.symbol()] = reaction;

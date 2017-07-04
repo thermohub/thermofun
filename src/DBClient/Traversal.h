@@ -32,6 +32,7 @@ class Traversal
 
     // fills the map MapIdType with all vertexes connected to the vertex with id_
     void linkedBsonDataFromId(std::string id_, MapIdType &result, string level);
+    void linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<std::string, std::string> substSymbolLevel);
     void linkedBsonDataFromId(std::string id_, MapIdType &result);
 
     public:
@@ -58,6 +59,9 @@ class Traversal
     /// \return a map of [id, vertex type]
     ///
     MapIdType getLinkedBsonFromIdList(vector<string> idList, string level);
+
+    MapIdType getLinkedBsonFromIdList(vector<string> idList, std::map<std::string, std::string> substSymbolLevel);
+
     MapIdType getLinkedBsonFromIdList( vector<string> idList );
 
     ///
@@ -67,6 +71,7 @@ class Traversal
     /// \return returns a ThermoFun Database object
     ///
     Database getDatabaseFromTraversal(MapIdType resultTraversal, string level);
+    Database getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel);
 };
 
 }
