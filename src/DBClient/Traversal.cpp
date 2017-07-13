@@ -17,8 +17,9 @@ Traversal::Traversal (boost::shared_ptr<bsonio::TDBGraph> _dbgraph)
     dbgraph->resetMode(true);
 }
 
-MapIdType Traversal::getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList, string level)
+MapIdType Traversal::getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList, string level_)
 {
+    level = level_;
     MapIdType result;
     for( uint ii=0; ii<selNdx.size(); ii++ )
     {
@@ -27,8 +28,9 @@ MapIdType Traversal::getLinkedBsonFromSelectedData(vector<int> selNdx, vector<st
     return result;
 }
 
-MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, string level)
+MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, string level_)
 {
+    level = level_;
     MapIdType result;
     for (uint ii=0; ii<idList.size(); ii++)
     {
@@ -37,9 +39,10 @@ MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, string leve
     return result;
 }
 
-MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, std::map<std::string, std::string> substSymbolLevel)
+MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList, std::map<std::string, std::string> substSymbolLevel_)
 {
     MapIdType result;
+    substSymbolLevel = substSymbolLevel_;
     for (uint ii=0; ii<idList.size(); ii++)
     {
         linkedBsonDataFromId(idList[ii], result, substSymbolLevel);
@@ -57,7 +60,7 @@ MapIdType Traversal::getLinkedBsonFromIdList( vector<string> idList )
     return result;
 }
 
-void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<std::string, std::string> substSymbolLevel)
+void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<std::string, std::string> substSymbolLevel_)
 {
     string valDB, _id, _label, _type, _symbol;
     bson record;
@@ -82,13 +85,13 @@ void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, std::ma
         if (_label == "reaction")
         {
             result.insert(std::pair<std::string,std::string>(_id, "reaction"));
-            followIncomingTakes(_id, result, "0");
+            followIncomingTakes(_id, result, level);
         }
     }
 
 }
 
-void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string level)
+void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string level_)
 {
     string valDB, _id, _label, _type,/* _level,*/ _symbol;
     bson record;
@@ -119,7 +122,7 @@ void Traversal::linkedBsonDataFromId(std::string id_, MapIdType &result, string 
 //                errorNotMatchingLevel(_label, (_symbol + " level " + _level + " traversal level " + level), __LINE__, __FILE__);// error level of traversal
 //            }
             result.insert(std::pair<std::string,std::string>(_id, "reaction"));
-            followIncomingTakes(_id, result, "0");
+            followIncomingTakes(_id, result, level);
         }
     }
 
@@ -208,7 +211,7 @@ Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, string l
                 Reaction reaction = ThermoFun::parseReaction(record.data);
 
                 // get reactants by following reaction incoming takes edge
-                reaction.setReactants(getReactantsCoeffMap(key, level));
+                reaction.setReactants(getReactantsCoeffMap(key));
 
                 if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
                     reactions_map[reaction.symbol()] = reaction;
@@ -222,7 +225,7 @@ Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, string l
     return tdb;
 }
 
-Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel)
+Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel_)
 {
     string key, valDB, _idSubst;
     bson record;
@@ -248,7 +251,7 @@ Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, std::map
             bsonio::bson_to_key( record.data, "_id", _idSubst );
 
             Substance substance = parseSubstance(record.data);
-            std::string reactSymbol = getDefinesReactionSymbol(_idSubst, substSymbolLevel[substance.symbol()]);
+            std::string reactSymbol = getDefinesReactionSymbol(_idSubst, substSymbolLevel_[substance.symbol()]);
             // get reaction symbol which define substance with _idSubst
             if (reactSymbol != "")
             {
@@ -274,7 +277,7 @@ Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, std::map
                 Reaction reaction = ThermoFun::parseReaction(record.data);
 
                 // get reactants by following reaction incoming takes edge
-                reaction.setReactants(getReactantsCoeffMap(key, "0"));
+                reaction.setReactants(getReactantsCoeffMap(key));
 
                 if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
                     reactions_map[reaction.symbol()] = reaction;
@@ -288,7 +291,7 @@ Database Traversal::getDatabaseFromTraversal(MapIdType resultTraversal, std::map
     return tdb;
 }
 
-void Traversal::followIncomingDefines(std::string _idSubst, MapIdType &result, string level)
+void Traversal::followIncomingDefines(std::string _idSubst, MapIdType &result, string level_)
 {
     string _idReac = ""; string kbuf = "";
     bson record;
@@ -387,15 +390,15 @@ std::string Traversal::getDefinesReactionSymbol(std::string _idSubst, string lev
     return kbuf;
 }
 
-void Traversal::followIncomingTakes(std::string _idReac, MapIdType &result, string level)
+void Traversal::followIncomingTakes(std::string _idReac, MapIdType &result, string level_)
 {
     string _idSubst = ""; string kbuf = "";
     bson record;
     string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
     qrJson += (_idReac + "',");
-    qrJson += "'$and' : [ { 'properties.level' : ";
-    qrJson += level;
-    qrJson += "}]}";
+//    qrJson += "'$and' : [ { 'properties.level' : ";
+//    qrJson += level + "}]";
+    qrJson += "}";
 
     vector<string> _queryFields = { "_outV", "_label"};
     vector<string> _resultDataEdge, _resultDataSubst;
@@ -416,8 +419,16 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdType &result, stri
             // if not in the database
             if (!result.count(_idSubst))
             {
+                std::string substSymb; std::string key = _idSubst +":";
+                dbgraph->GetRecord( key.c_str() );
+                std::string valDB = dbgraph->GetJson();
+                jsonToBson( &record, valDB );
+                bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
                 result.insert((std::pair<std::string,std::string>(_idSubst, "substance")));
-                followIncomingDefines(_idSubst, result, level);
+                if (substSymbolLevel.find(substSymb) != substSymbolLevel.end())
+                    followIncomingDefines(_idSubst, result, substSymbolLevel[substSymb]);
+                else
+                    followIncomingDefines(_idSubst, result, level);
             }
         }
     }
@@ -456,7 +467,7 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdType &result)
     }
 }
 
-std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _idReac, string level)
+std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _idReac)
 {
     std::map<std::string, double> map;
     string kbuf;
@@ -464,9 +475,9 @@ std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _idRea
     bson record;
     string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
     qrJson += (_idReac+ "',");
-    qrJson += "'$and' : [ { 'properties.level' : ";
-    qrJson += level;
-    qrJson += "}]}";
+    //    qrJson += "'$and' : [ { 'properties.level' : ";
+    //    qrJson += level + "}]";
+    qrJson += "}";
 
     vector<string> _queryFields = { "_outV", "properties.stoi_coeff"};
     vector<string> _resultDataEdge, _resultDataSubst;

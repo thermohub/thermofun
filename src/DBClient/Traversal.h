@@ -19,20 +19,24 @@ class Traversal
 {
     boost::shared_ptr<bsonio::TDBGraph> dbgraph;
 
+    std::map<std::string, std::string> substSymbolLevel;
+
+    std::string level = "0";
+
     // follows the incoming Defines edge for substance with _idSubst
-    void followIncomingDefines(std::string _idSubst, MapIdType &result, string level);
+    void followIncomingDefines(std::string _idSubst, MapIdType &result, string level_);
     void followIncomingDefines(std::string _idSubst, MapIdType &result);
     // follows the incoming Takes edges for reaction with _idReac
-    void followIncomingTakes(std::string _idReac, MapIdType &result, string level);
+    void followIncomingTakes(std::string _idReac, MapIdType &result, string level_);
     void followIncomingTakes(std::string _idReac, MapIdType &result);
     // returns the symbol of the reaction which defines the substance with _idSubst
     std::string getDefinesReactionSymbol(std::string _idSubst, string level);
     // returns a map of reactants symbols and coeficients participating in the reaction
-    std::map<std::string, double> getReactantsCoeffMap(std::string _idReac, string level);
+    std::map<std::string, double> getReactantsCoeffMap(std::string _idReac);
 
     // fills the map MapIdType with all vertexes connected to the vertex with id_
-    void linkedBsonDataFromId(std::string id_, MapIdType &result, string level);
-    void linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<std::string, std::string> substSymbolLevel);
+    void linkedBsonDataFromId(std::string id_, MapIdType &result, string level_);
+    void linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<string, string> substSymbolLevel_);
     void linkedBsonDataFromId(std::string id_, MapIdType &result);
 
     public:
@@ -50,7 +54,7 @@ class Traversal
     /// \param level level of reactions
     /// \return a map of [id, vertex type]
     ///
-    MapIdType getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList, string level);
+    MapIdType getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList, string level_);
 
     ///
     /// \brief getLinkedBsonFromIdList returns the linked data strting form the selected id list
@@ -58,9 +62,9 @@ class Traversal
     /// \param level level of reactions
     /// \return a map of [id, vertex type]
     ///
-    MapIdType getLinkedBsonFromIdList(vector<string> idList, string level);
+    MapIdType getLinkedBsonFromIdList(vector<string> idList, string level_);
 
-    MapIdType getLinkedBsonFromIdList(vector<string> idList, std::map<std::string, std::string> substSymbolLevel);
+    MapIdType getLinkedBsonFromIdList(vector<string> idList, std::map<std::string, std::string> substSymbolLevel_);
 
     MapIdType getLinkedBsonFromIdList( vector<string> idList );
 
@@ -71,7 +75,7 @@ class Traversal
     /// \return returns a ThermoFun Database object
     ///
     Database getDatabaseFromTraversal(MapIdType resultTraversal, string level);
-    Database getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel);
+    Database getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel_);
 };
 
 }
