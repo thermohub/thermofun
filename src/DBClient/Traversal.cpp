@@ -14,6 +14,7 @@ namespace ThermoFun {
 Traversal::Traversal (boost::shared_ptr<bsonio::TDBGraph> _dbgraph)
 {
     dbgraph = _dbgraph;
+    dbgraph->resetMode(true);
 }
 
 MapIdType Traversal::getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList, string level)
