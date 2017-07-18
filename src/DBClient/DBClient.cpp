@@ -8,6 +8,7 @@
 #include "../ReadFiles.h"
 #include "../Element.h"
 #include "formuladata.h"
+#include "Traversal.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -126,16 +127,13 @@ void DBClient::resetDBClinet(string curSchemaName, string query)
 
 auto DBClient::getDatabase(uint sourceTDB) -> Database
 {
-    string qrJson, key, valDB, _idReac, _idSubst;
-    bson record;
+    string qrJson;
     Database db;
-    vector<string> aKeyList;
-    vector<vector<string>> aValList;
+    vector<string> substKeyList, reactKeyList, keyList;
+    vector<vector<string>> substValList, reactValList;
 
-    // The set of all aqueous species in the database
-    SubstancesMap substances_map;
-    // The set of all gaseous species in the database
-    ReactionsMap reactions_map;
+    qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
+    dbgraph = unique_ptr<TDBGraph> (newDBClinet("VertexSubstance", qrJson));
 
     qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
     substanceVertex = unique_ptr<TDBGraph> (newDBClinet("VertexSubstance", qrJson));
@@ -155,158 +153,16 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
 
     // get substances
-    substanceVertex->GetKeyValueList( aKeyList, aValList );
-    for( uint ii=0; ii<aKeyList.size(); ii++ )
-    {
-        key = aKeyList[ii];
-        substanceVertex->GetRecord( key.c_str() );
-        valDB = substanceVertex->GetJson();
-        jsonToBson( &record, valDB );
-        bsonio::bson_to_key( record.data, "_id", _idSubst );
+    substanceVertex->GetKeyValueList( substKeyList, substValList );
+    reactionVertex->GetKeyValueList( reactKeyList, reactValList );
+    keyList.insert(keyList.end(), substKeyList.begin(), substKeyList.end());
+    keyList.insert(keyList.end(), reactKeyList.begin(), reactKeyList.end());
 
-        Substance substance = parseSubstance(record.data);
+    Traversal tr(dbgraph);
 
-        if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
-             substances_map[substance.symbol()] = substance;
-        } else {
-          // ERROR substance with the same symbol found!
-        }
-
-        // get reaction symbol which define substance with _idSubst
-        if (getDefinesReactionSymbol(_idSubst) != "")
-        {
-            substance.setReactionSymbol(getDefinesReactionSymbol(_idSubst));
-            substance.setThermoCalculationType(SubstanceThermoCalculationType::type::REACDC);
-        }
-
-        substances_map[substance.symbol()] = substance;
-    }
-
-    // get reactions
-    reactionVertex->GetKeyValueList( aKeyList, aValList );
-    for( uint ii=0; ii<aKeyList.size(); ii++ )
-    {
-        key = aKeyList[ii];
-        reactionVertex->GetRecord( key.c_str() );
-        valDB = reactionVertex->GetJson();
-        jsonToBson( &record, valDB );
-        bsonio::bson_to_key( record.data, "_id", _idReac );
-
-        Reaction reaction = parseReaction(record.data);
-
-        if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
-             reactions_map[reaction.symbol()] = reaction;
-        } else {
-          // ERROR reaction with the same symbol found!
-        }
-
-        // get reactants by following reaction incoming takes edge
-        setReactantsFollowingIncomingTakesEdges(_idReac, reaction);
-
-        // set defined substance
-//        substances_map[getDefinedSubstanceSymbol(_idReac)].setReactionSymbol(reaction.symbol());
-//        substances_map[getDefinedSubstanceSymbol(_idReac)].setThermoCalculationType(SubstanceThermoCalculationType::type::REACDC);
-
-        reactions_map[reaction.symbol()] = reaction;
-    }
-
-    db.addMapSubstances(substances_map);
-    db.addMapReactions(reactions_map);
+    db = tr.getDatabaseFromMapOfIds(tr.getMapOfConnectedIds(keyList, "0"), "0");
 
     return db;
-}
-
-std::string DBClient::getDefinesReactionSymbol(std::string _idSubst)
-{
-    string kbuf = "";
-    bson record;
-    string qrJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
-    qrJson += _idSubst;
-    qrJson += "' }";
-
-    vector<string> _queryFields = { "_outV", "_label"};
-    vector<string> _resultDataEdge, _resultDataReac;
-    definesEdge->runQuery( qrJson,  _queryFields, _resultDataEdge );
-
-    for(uint i = 0; i < _resultDataEdge.size(); i++)
-    {
-        jsonToBson(&record, _resultDataEdge[i]);
-        bsonio::bson_to_key( record.data, "_outV", kbuf );
-        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-        substanceVertex->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataReac);
-
-        if (_resultDataReac.size()>0)
-        {
-            jsonToBson(&record, _resultDataReac[0]);
-            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
-        }
-    }
-    return kbuf;
-}
-
-void DBClient::setReactantsFollowingIncomingTakesEdges(std::string _id, Reaction &reaction)
-{
-    std::map<std::string, double> map;
-    string kbuf;
-    double stoi_coeff;
-    bson record;
-    string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
-    qrJson += _id;
-    qrJson += "' }";
-
-    vector<string> _queryFields = { "_outV", "properties.stoi_coeff"};
-    vector<string> _resultDataEdge, _resultDataSubst;
-    takesEdge->runQuery( qrJson,  _queryFields, _resultDataEdge );
-
-    for(uint i = 0; i < _resultDataEdge.size(); i++)
-    {
-        jsonToBson(&record, _resultDataEdge[i]);
-        bsonio::bson_to_key( record.data, "properties.stoi_coeff", kbuf );
-        stoi_coeff = atof(kbuf.c_str());
-
-        bsonio::bson_to_key( record.data, "_outV", kbuf );
-        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-        substanceVertex->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
-
-        if (_resultDataSubst.size()>0)
-        {
-            jsonToBson(&record, _resultDataSubst[0]);
-            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
-        }
-
-        map.insert(std::pair<std::string,double>(kbuf,stoi_coeff));
-    }
-
-    reaction.setReactants(map);
-}
-
-std::string DBClient::getDefinedSubstanceSymbol(std::string _idSubst)
-{
-    string kbuf;
-    bson record;
-    string qrJson = "{'_type': 'edge', '_label': 'defines', '_outV': '";
-    qrJson += _idSubst;
-    qrJson += "' }";
-
-    vector<string> _queryFields = { "_inV", "_label"};
-    vector<string> _resultDataEdge, _resultDataSubst;
-    definesEdge->runQuery( qrJson,  _queryFields, _resultDataEdge );
-
-    if (_resultDataEdge.size()>0)
-    {
-        jsonToBson(&record, _resultDataEdge[0]);
-        bsonio::bson_to_key( record.data, "_inV", kbuf );
-        qrJson = "{ \"_id\" : \""+kbuf+ "\"}";
-        substanceVertex->runQuery(qrJson, {"_id", "_label", "properties.symbol"}, _resultDataSubst);
-
-        if (_resultDataSubst.size()>0)
-        {
-            jsonToBson(&record, _resultDataSubst[0]);
-            bsonio::bson_to_key( record.data, "properties.symbol", kbuf );
-        }
-    }
-
-    return kbuf;
 }
 
 auto DBClient::parseSubstanceFormula(std::string formula_) -> mapFormulaElements

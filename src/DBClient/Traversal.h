@@ -11,6 +11,12 @@ using  MapIdType = std::map<std::string, std::string>;
 using  MapIdLevels = std::map<std::string, std::vector<std::string>>;
 struct Database;
 
+enum LevelMode {
+    all= 0,
+    single,
+    multiple
+};
+
 ///
 /// \brief The Traversal class is used to make traversals through the database starting from a selected list of
 ///        vertexes
@@ -19,25 +25,31 @@ class Traversal
 {
     boost::shared_ptr<bsonio::TDBGraph> dbgraph;
 
-    std::map<std::string, std::string> substSymbolLevel;
+    std::map<std::string, std::string> definedSubstSymbolLevel;
 
     std::string level = "0";
 
+    LevelMode levelMode = LevelMode::single;
+
+    vector<string> queryIncomingEdgeDefines(std::string idSubst, vector<string> queryFields,  string level);
+    vector<string> queryIncomingEdgeTakes(std::string idReact, vector<string> queryFields);
+    vector<string> queryVertexReaction(std::string idReact, vector<string> queryFields);
+    vector<string> queryVertexSubstance(std::string idSubst, vector<string> queryFields);
+
+
     // follows the incoming Defines edge for substance with _idSubst
     void followIncomingDefines(std::string _idSubst, MapIdType &result, string level_);
-    void followIncomingDefines(std::string _idSubst, MapIdType &result);
     // follows the incoming Takes edges for reaction with _idReac
-    void followIncomingTakes(std::string _idReac, MapIdType &result, string level_);
     void followIncomingTakes(std::string _idReac, MapIdType &result);
     // returns the symbol of the reaction which defines the substance with _idSubst
-    std::string getDefinesReactionSymbol(std::string _idSubst, string level);
+    std::string getDefinesReactionSymbol(std::string _idSubst, string level_);
     // returns a map of reactants symbols and coeficients participating in the reaction
     std::map<std::string, double> getReactantsCoeffMap(std::string _idReac);
 
     // fills the map MapIdType with all vertexes connected to the vertex with id_
-    void linkedBsonDataFromId(std::string id_, MapIdType &result, string level_);
-    void linkedBsonDataFromId(std::string id_, MapIdType &result, std::map<string, string> substSymbolLevel_);
-    void linkedBsonDataFromId(std::string id_, MapIdType &result);
+    void linkedDataFromId(std::string id_, MapIdType &result);
+
+    Database getDatabase(MapIdType resultTraversal);
 
     public:
 
@@ -54,7 +66,7 @@ class Traversal
     /// \param level level of reactions
     /// \return a map of [id, vertex type]
     ///
-    MapIdType getLinkedBsonFromSelectedData(vector<int> selNdx, vector<string> aKeyList, string level_);
+    MapIdType getMapOfConnectedIds(vector<int> selNdx, vector<string> idsList, string level_);
 
     ///
     /// \brief getLinkedBsonFromIdList returns the linked data strting form the selected id list
@@ -62,11 +74,11 @@ class Traversal
     /// \param level level of reactions
     /// \return a map of [id, vertex type]
     ///
-    MapIdType getLinkedBsonFromIdList(vector<string> idList, string level_);
+    MapIdType getMapOfConnectedIds(vector<string> idList, string level_);
 
-    MapIdType getLinkedBsonFromIdList(vector<string> idList, std::map<std::string, std::string> substSymbolLevel_);
+    MapIdType getMapOfConnectedIds(vector<string> idList, std::map<std::string, std::string> substSymbolLevel_);
 
-    MapIdType getLinkedBsonFromIdList( vector<string> idList );
+    MapIdType getMapOfConnectedIds(vector<string> idList);
 
     ///
     /// \brief getDatabaseFromTraversal parses a a map of [id, vertex type] into a ThermoFun Database object
@@ -74,8 +86,8 @@ class Traversal
     /// \param level level of reactions
     /// \return returns a ThermoFun Database object
     ///
-    Database getDatabaseFromTraversal(MapIdType resultTraversal, string level);
-    Database getDatabaseFromTraversal(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel_);
+    Database getDatabaseFromMapOfIds(MapIdType resultTraversal, string level_);
+    Database getDatabaseFromMapOfIds(MapIdType resultTraversal, std::map<std::string, std::string> substSymbolLevel_);
 };
 
 }
