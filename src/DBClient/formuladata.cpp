@@ -17,7 +17,8 @@ vector<string> ChemicalFormula::queryFields =
       "properties.heat_capacity.values.0",
       "properties.volume.values.0",
       "properties.valences.0",
-      "properties.number"
+      "properties.number",
+      "properties.name"
 };
 
 void ElementKey::classIsotopeFrom(const string& typeline)
@@ -486,7 +487,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const string& 
     dbElements.clear();
     for(uint ii=0; ii<resultData.size(); ii++ )
     {
-       cout << resultData[ii] << endl;
+//       cout << resultData[ii] << endl;
       elementDB->SetJsonYaml(resultData[ii]);
       addOneElement( elementDB );
     }
@@ -517,6 +518,7 @@ void ChemicalFormula::addOneElement( bsonio::TDBGraph* elementDB )
     elementDB->getValue( "properties.volume.values.0" , eldata.volume );
     elementDB->getValue( "properties.valences.0" , eldata.valence );
     elementDB->getValue( "properties.number" , eldata.number );
+    elementDB->getValue( "properties.name" , eldata.name );
 
     dbElements[elkey] = eldata;
 }

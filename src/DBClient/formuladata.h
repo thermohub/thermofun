@@ -44,6 +44,7 @@ struct ElementValues
   double volume;   // "Atomic volume V0 at standard state, cm3/mole"
   int valence;   // "Default valence number (charge) in compounds"
   int number;     // "Index in Periodical (Mendeleev's) table"
+  std::string name;
   // ...
 };
 
