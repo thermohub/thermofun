@@ -44,7 +44,6 @@ struct ElementValues
   double volume;   // "Atomic volume V0 at standard state, cm3/mole"
   int valence;   // "Default valence number (charge) in compounds"
   int number;     // "Index in Periodical (Mendeleev's) table"
-  std::string name;
   // ...
 };
 
@@ -181,6 +180,7 @@ class ChemicalFormula
   static map<ElementKey, double> extractElements(  const vector<string>& formulalist );
 
   static vector<FormulaProperites> calcThermo(  const vector<string>& formulalist );
+  static FormulaProperites         calcThermo(  const string formula_ );
   static vector<vector<double>> calcStoichiometryMatrixOld(  const vector<string>& formulalist );
 //  static Eigen::MatrixXd calcStoichiometryMatrix(  const vector<string>& formulalist );
 
