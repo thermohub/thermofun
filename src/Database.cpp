@@ -108,6 +108,11 @@ struct Database::Impl
         substances_map.insert({substance.symbol(), substance});
     }
 
+    auto setSubstance(const Substance& substance) -> void
+    {
+        substances_map[substance.symbol()] = substance;
+    }
+
     auto addMapSubstances(const SubstancesMap& substances) -> void
     {
         substances_map = substances;
@@ -116,6 +121,11 @@ struct Database::Impl
     auto addReaction(const Reaction& reaction) -> void
     {
         reactions_map.insert({reaction.symbol(), reaction});
+    }
+
+    auto setReaction(const Reaction& reaction) -> void
+    {
+        reactions_map[reaction.symbol()] = reaction;
     }
 
     auto addMapReactions(const ReactionsMap& reactions) -> void
@@ -157,6 +167,16 @@ struct Database::Impl
             errorNonExistent("reaction", symbol, __LINE__);
 
         return reactions_map.at(symbol);
+    }
+
+    auto mapSubstances() -> SubstancesMap&
+    {
+        return substances_map;
+    }
+
+    auto mapReactions() -> ReactionsMap&
+    {
+        return reactions_map;
     }
 
     auto containsSubstance(std::string symbol) const -> bool
@@ -263,6 +283,11 @@ auto Database::addSubstance(const Substance& substance) -> void
     pimpl->addSubstance(substance);
 }
 
+auto Database::setSubstance(const Substance& substance) -> void
+{
+    pimpl->setSubstance(substance);
+}
+
 auto Database::addMapSubstances(const SubstancesMap& substances) -> void
 {
     pimpl->addMapSubstances(substances);
@@ -271,6 +296,11 @@ auto Database::addMapSubstances(const SubstancesMap& substances) -> void
 auto Database::addReaction(const Reaction& reaction) -> void
 {
     pimpl->addReaction(reaction);
+}
+
+auto Database::setReaction(const Reaction& reaction) -> void
+{
+    pimpl->setReaction(reaction);
 }
 
 auto Database::addMapReactions(const ReactionsMap& reactions) -> void
@@ -286,6 +316,16 @@ auto Database::getSubstance(std::string symbol) const -> const Substance&
 auto Database::getReaction(std::string symbol) const -> const Reaction&
 {
     return pimpl->getReaction(symbol);
+}
+
+auto Database::mapSubstances() const -> const SubstancesMap&
+{
+    return pimpl->mapSubstances();
+}
+
+auto Database::mapReactions() const -> const ReactionsMap&
+{
+    return pimpl->mapReactions();
 }
 
 auto Database::getSubstances() -> std::vector<Substance>

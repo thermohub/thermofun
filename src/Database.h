@@ -50,11 +50,17 @@ public:
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;
 
+    /// Sets a substance in the database. If substance exists the record will be overwriten
+    auto setSubstance(const Substance& substance) -> void;
+
     /// Add a map of Substances in the database.
     auto addMapSubstances(const SubstancesMap& substances) -> void;
 
     /// Add an Reaction instance in the database.
     auto addReaction(const Reaction& reaction) -> void;
+
+    /// Sets a reaction in the database. If reaction exists the record will be overwriten
+    auto setReaction(const Reaction& reaction) -> void;
 
     /// Add a map pf Reactions in the database.
     auto addMapReactions(const ReactionsMap& reactions) -> void;
@@ -64,6 +70,12 @@ public:
 
     /// Return all reactions in the database
     auto getReactions() -> std::vector<Reaction>;
+
+    /// Returns the map of substances in the database
+    auto mapSubstances() const -> const SubstancesMap&;
+
+    /// Returns the map of reactions in the database
+    auto mapReactions() const -> const ReactionsMap&;
 
     /// Returns the number of substances in the databse
     auto numberOfSubstances() -> int;

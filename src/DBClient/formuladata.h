@@ -179,7 +179,7 @@ class ChemicalFormula
   static vector<ElementKey> elementsRow();
 
   static map<ElementKey, double> extractElements(  const vector<string>& formulalist );
-
+  static FormulaProperites         calcThermo(  const string formula_ );
   static vector<FormulaProperites> calcThermo(  const vector<string>& formulalist );
   static vector<vector<double>> calcStoichiometryMatrixOld(  const vector<string>& formulalist );
 //  static Eigen::MatrixXd calcStoichiometryMatrix(  const vector<string>& formulalist );
