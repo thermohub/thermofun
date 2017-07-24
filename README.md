@@ -11,9 +11,9 @@ A code for calculating the standard state thermodynamic properties at a given te
 sudo apt-get install cmake
 ~~~
 
-* Install Apache Thrift (on ubuntu linux) - open the terminal and run the command:
+* Install Apache Thrift v.0.9.1 (on ubuntu linux) - open the terminal and run the command:
 ~~~
-sudo apt-get install thrift
+sudo apt-get install thrift-compiler
 ~~~
 
 #### Install Lua
@@ -29,7 +29,7 @@ sudo apt-get install lua5.2 lua5.2-dev
 
 Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 
-* Letâ€™s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
+* Let’s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
 ~~~
 ~/gitThermoFun
     /thermofun
