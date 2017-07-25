@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "Common/ThermoScalar.hpp"
+#include "ThermoScalar.hpp"
 //#include "ThermoProperties.h"
 
 namespace ThermoFun {
