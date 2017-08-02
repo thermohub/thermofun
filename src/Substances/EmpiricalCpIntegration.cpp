@@ -33,7 +33,8 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
 
     if (thermo_parameters.Cp_coeff.size() == 0)
     {
-        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__, __FILE__);
+///        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__, __FILE__);
+        return thermo_properties_PrTr;
     }
 
 //    aW.twp->devG = dc[q].Gs[1];
