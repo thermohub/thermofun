@@ -280,10 +280,20 @@ struct Thermo::Impl
                     tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
                     break;
                 }
+                    switch( pref.method_genEOS )
+                    {
+                    case MethodGenEoS_Thrift::type::CTPM_CPT:
+                    {
+                        tps = EmpiricalCpIntegration(pref.workSubstance).thermoProperties(T, P);
+                        break;
+                    }
+    //                    default:
+                    }
     //                default:
     //                // Exception
     //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
                 }
+
             }
         } else // substance proeprties calculated using the properties of a reaction
         {
