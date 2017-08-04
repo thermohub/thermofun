@@ -20,10 +20,10 @@ int main(int argc, char *argv[])
 
     ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
 
-    for (uint i = 0; i <150000; i++)
-    {
-        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
-    }
+//    for (uint i = 0; i <150000; i++)
+//    {
+//        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+//    }
 
 //    for (uint i = 0; i <150000; i++)
 //    {
