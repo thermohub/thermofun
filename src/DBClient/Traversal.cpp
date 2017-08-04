@@ -114,13 +114,16 @@ void Traversal::linkedDataFromId(std::string id_, MapIdType &result)
     switch(levelMode)
     {
     case LevelMode::all         : level_ = "-1";  // follows all connected data
+        break;
     case LevelMode::single      : level_ = level;; // follows edges defines with level
+        break;
     case LevelMode::multiple    : {
                                     if (definedSubstSymbolLevel.find(_symbol) != definedSubstSymbolLevel.end()) // follows edges defines with specific leveles for substSymbols
                                         level_ = definedSubstSymbolLevel[_symbol];   // if the substance symbol is not found in the map, it uses the default level
                                     else
                                         level_ = level;
                                   }
+        break;
     }
 
     // if not in the database
@@ -240,7 +243,9 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdType &result)
                 switch(levelMode)
                 {
                 case LevelMode::all         : level_ = "-1";  // follows all connected data
+                    break;
                 case LevelMode::single      : level_ = level;; // follows edges defines with level
+                    break;
                 case LevelMode::multiple    : {
                     std::string substSymb; std::string key = _idSubst +":";
                     dbgraph->GetRecord( key.c_str() );
@@ -252,6 +257,7 @@ void Traversal::followIncomingTakes(std::string _idReac, MapIdType &result)
                     else
                         level_ = level;
                 }
+                    break;
                 }
                 result.insert((std::pair<std::string,std::string>(_idSubst, "substance")));
                 followIncomingDefines(_idSubst, result, level_);
@@ -287,13 +293,16 @@ Database Traversal::getDatabase(MapIdType resultTraversal)
             switch(levelMode)
             {
             case LevelMode::all         : level_ = "-1";  // follows all connected data
+                break;
             case LevelMode::single      : level_ = level;; // follows edges defines with level
+                break;
             case LevelMode::multiple    : {
                 if (definedSubstSymbolLevel.find(substSymb) != definedSubstSymbolLevel.end()) // follows edges defines with specific leveles for substSymbols
                     level_ = definedSubstSymbolLevel[substSymb];   // if the substance symbol is not found in the map, it uses the default level
                 else
                     level_ = level;
                 }
+                break;
             }
             Substance substance = parseSubstance(record.data);
 
