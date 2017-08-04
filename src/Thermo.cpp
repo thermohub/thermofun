@@ -280,6 +280,7 @@ struct Thermo::Impl
                     tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
                     break;
                 }
+                    default:
                     switch( pref.method_genEOS )
                     {
                     case MethodGenEoS_Thrift::type::CTPM_CPT:
