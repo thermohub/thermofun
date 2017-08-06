@@ -30,6 +30,10 @@ struct Interface::Impl
 
     std::vector<std::vector<Reaktoro_::ThermoScalar>>   substResults;
 
+    std::vector<Reaktoro_::ThermoScalar>                solventProp;
+
+    std::string                                         solventSymbol;
+
     std::vector<string>                                 reacSymbols;
 
     std::vector<std::vector<Reaktoro_::ThermoScalar>>   reacResults;
@@ -216,12 +220,15 @@ auto Interface::calculateResultsSubst( ) -> void
 {
     pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
     pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
+    pimpl->solventProp.resize(2*pimpl->tpPairs.size());
+    pimpl->solventSymbol = pimpl->thermo.solventSymbol();
     for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
         {
             pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
         }
+        pimpl->solventProp.push_back(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density);
     }
 }
 
@@ -229,12 +236,15 @@ auto Interface::calculateResultsReac( ) -> void
 {
     pimpl->reacResults.empty(); unsigned tp = pimpl->tpPairs.size();
     pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
+    pimpl->solventProp.resize(2*pimpl->tpPairs.size());
+        pimpl->solventSymbol = pimpl->thermo.solventSymbol();
     for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
         {
             pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
         }
+        pimpl->solventProp.push_back(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density);
     }
 }
 
@@ -421,6 +431,16 @@ auto Interface::propDigits() -> const std::map<std::string, int>
 auto Interface::resultsSubst() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
 {
     return pimpl->substResults;
+}
+
+auto Interface::solventProp() -> const std::vector<Reaktoro_::ThermoScalar>
+{
+    return pimpl->solventProp;
+}
+
+auto Interface::solventSymbol() -> const std::string
+{
+    return pimpl->solventSymbol;
 }
 
 auto Interface::resultsReac() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >

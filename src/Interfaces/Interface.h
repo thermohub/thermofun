@@ -31,6 +31,9 @@ struct OutputSettings
 
     /// file name/path
     std::string fileName = "tpresults.csv";
+
+    /// write solvent properties
+    bool outSolventProp = false;
 };
 
 ///
@@ -143,6 +146,9 @@ private:
     auto propUnits              () -> const std::map<std::string, std::string>;
     auto propDigits             () -> const std::map<std::string, int>;
     auto outputSettings         () -> const OutputSettings;
+
+    auto solventProp() -> const std::vector<Reaktoro_::ThermoScalar>;
+    auto solventSymbol() -> const std::string;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =
