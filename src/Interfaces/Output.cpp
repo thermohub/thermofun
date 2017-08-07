@@ -36,6 +36,13 @@ auto Output::toCSV(std::string filename) -> void
 
     pimpl->fThermoProperties.close();
 
+    if (pimpl->api.outputSettings().outSolventProp)
+    {
+        pimpl->fSolventProperties.open(pimpl->api.outputSettings().solventFileName, std::ios::trunc);
+        pimpl->fSolventProperties << CSVSolventHeader() << std::endl;
+        foutResultsSolv();
+        pimpl->fSolventProperties.close();
+    }
 }
 
 auto Output::toCSVtransposed(std::string filename, std::string propertyname) -> void
@@ -48,7 +55,6 @@ auto Output::toCSVtransposed(std::string filename, std::string propertyname) -> 
     foutResultsReacTrans(propertyname);
 
     pimpl->fThermoProperties.close();
-
 }
 
 
@@ -99,10 +105,8 @@ auto Output::CSVHeader( ) -> std::string
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
     std::map<int, std::string> properties           = pimpl->api.propNames();
     std::map<std::string, std::string> units        = pimpl->api.propUnits();
-    std::string solventSymbol                       = pimpl->api.solventSymbol();
 
     const auto s = pimpl->api.outputSettings().separator;
-    const auto outSol = pimpl->api.outputSettings().outSolventProp;
     std::string header = "";
 
     if (substanceSymbols.size() > 0)
@@ -124,17 +128,19 @@ auto Output::CSVHeader( ) -> std::string
         for(it_t it = properties.begin(); it != properties.end(); it++)
         {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
     }
-
-    if (outSol)
-        header = header + s + "ρ_" + solventSymbol + "(" + "g/cm3" + ")" + s +  + "ε_" + solventSymbol + "(relative_permitivity)";
-
     return header;
-
 }
 
 auto Output::CSVSolventHeader( ) -> std::string
 {
     std::string header = "";
+    auto properties = pimpl->api.solventPropNames();
+    auto units  = pimpl->api.solventPropUnits();
+    const auto s = pimpl->api.outputSettings().separator;
+
+    header = header + "Substance" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
+    for(auto prop : properties)
+    {   header = header + s + prop.second + "(" + units.at(prop.second) + ")"; }
     return header;
 }
 
@@ -160,25 +166,46 @@ auto Output::CSVHeaderTransposed( ) -> std::string
     {
         header = header + s + symbol;
     }
-
     return header;
 }
 
 auto Output::foutResultsSolv()-> void
 {
+    const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
+//    std::map<int, std::string> properties            = pimpl->api.solventPropNames();
+    std::map<std::string, int> digits                = pimpl->api.solventPropDigits();
+    std::vector<std::vector<double>> TPpairs         = pimpl->api.TPpairs();
+    std::vector<Reaktoro_::ThermoScalar> solventProp = pimpl->api.solventProp();
+    auto solventSymbol                               = pimpl->api.solventSymbol();
+
+    for (unsigned j=0; j<TPpairs.size(); j++)
+    {
+        pimpl->fSolventProperties << std::setprecision(digits.at("temperature"));
+        pimpl->fSolventProperties << solventSymbol << s << TPpairs[j][0];
+        pimpl->fSolventProperties << std::setprecision(digits.at("pressure"));
+        pimpl->fSolventProperties << s << TPpairs[j][1];
+
+        for (unsigned k=0; k<solventProp.size(); k++)
+        {
+//            pimpl->fSolventProperties << std::setprecision(digits.at(properties.at(k+1)));
+            pimpl->fSolventProperties << s << solventProp[c].val;
+            c++;
+        }
+        pimpl->fSolventProperties << std::endl;
+    }
 }
 
 auto Output::foutResultsSubst()-> void
 {
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
-    std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
-    std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<std::string, int> digits         = pimpl->api.propDigits();
-    std::vector<std::vector<double>> TPpairs       = pimpl->api.TPpairs();
+    std::vector<std::string> substanceSymbols        = pimpl->api.substanceSymbols();
+    std::map<int, std::string> properties            = pimpl->api.propNames();
+    std::map<std::string, int> digits                = pimpl->api.propDigits();
+    std::vector<std::vector<double>> TPpairs         = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsSubst   = pimpl->api.resultsSubst();
-    std::vector<Reaktoro_::ThermoScalar> solventProp   = pimpl->api.solventProp();
+    std::vector<Reaktoro_::ThermoScalar> solventProp = pimpl->api.solventProp();
     const auto outSol = pimpl->api.outputSettings().outSolventProp;
 
     if (pimpl->api.outputSettings().isFixed) pimpl->fThermoProperties << std::fixed;
@@ -197,16 +224,6 @@ auto Output::foutResultsSubst()-> void
                 pimpl->fThermoProperties << std::setprecision(digits.at(properties.at(k+1)));
                 pimpl->fThermoProperties << s << resultsSubst[c][k].val;
             }
-            if (outSol && i == 0)
-            {
-                pimpl->fThermoProperties << std::setprecision(2);
-                pimpl->fThermoProperties << s << solventProp[j+j].val;
-                pimpl->fThermoProperties << s << solventProp[j+j+1].val;
-            } else
-            {
-                pimpl->fThermoProperties << s << "";
-                pimpl->fThermoProperties << s << "";
-            }
             c++;
             pimpl->fThermoProperties << std::endl;
         }
@@ -222,8 +239,6 @@ auto Output::foutResultsReac()-> void
     std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TPpairs       = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsReac   = pimpl->api.resultsReac();
-    std::vector<Reaktoro_::ThermoScalar> solventProp   = pimpl->api.solventProp();
-    const auto outSol = pimpl->api.outputSettings().outSolventProp;
 
     if (pimpl->api.outputSettings().isFixed) pimpl->fThermoProperties << std::fixed;
 
@@ -240,16 +255,6 @@ auto Output::foutResultsReac()-> void
             {
                 pimpl->fThermoProperties << std::setprecision(digits.at(properties.at(k+1)));
                 pimpl->fThermoProperties << s << resultsReac[c][k].val;
-            }
-            if (outSol && i == 0)
-            {
-                pimpl->fThermoProperties << std::setprecision(2);
-                pimpl->fThermoProperties << s << solventProp[j+j].val;
-                pimpl->fThermoProperties << s << solventProp[j+j+1].val;
-            } else
-            {
-                pimpl->fThermoProperties << s << "";
-                pimpl->fThermoProperties << s << "";
             }
             c++;
             pimpl->fThermoProperties << std::endl;

@@ -129,10 +129,10 @@ public:
     ///
     auto selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void;
 
-    auto clearSubstances    () -> void;
-    auto clearReactions     () -> void;
-    auto clearProperties    () -> void;
-    auto clearTPpairs       () -> void;
+    auto clearSubstances        () -> void;
+    auto clearReactions         () -> void;
+    auto clearProperties        () -> void;
+    auto clearTPpairs           () -> void;
     auto clearSolventProperties () -> void;
 
 private:
@@ -148,10 +148,10 @@ private:
     auto selectPropertiesSolvent (PropertiesSolvent ps, ElectroPropertiesSolvent eps) -> std::vector<Reaktoro_::ThermoScalar>;
 
     // Reactions
-    auto selectResultsReac     (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
-    auto calculateResultsReac  () -> void;
-    auto reactionSymbols       () -> const std::vector<std::string>;
-    auto resultsReac           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+    auto selectResultsReac      (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
+    auto calculateResultsReac   () -> void;
+    auto reactionSymbols        () -> const std::vector<std::string>;
+    auto resultsReac            () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
 
     auto TPpairs                () -> const std::vector<std::vector<double>>;
     auto propNames              () -> const std::map<int, std::string>;
@@ -159,8 +159,11 @@ private:
     auto propDigits             () -> const std::map<std::string, int>;
     auto outputSettings         () -> const OutputSettings;
 
-    auto solventProp() -> const std::vector<Reaktoro_::ThermoScalar>;
-    auto solventSymbol() -> const std::string;
+    auto solventProp            () -> const std::vector<Reaktoro_::ThermoScalar>;
+    auto solventSymbol          () -> const std::string;
+    auto solventPropUnits       () -> const std::map<std::string, std::string>;
+    auto solventPropDigits      () -> const std::map<std::string, int>;
+    auto solventPropNames       () -> const std::map<int, std::string>;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =

@@ -497,6 +497,11 @@ auto Interface::propNames() -> const map<int, std::string>
     return pimpl->propNames;
 }
 
+auto Interface::solventPropNames() -> const map<int, std::string>
+{
+    return pimpl->solventPropNames;
+}
+
 auto Interface::propUnits() -> const std::map<std::string, std::string>
 {
     return pimpl->propUnits;
@@ -505,6 +510,16 @@ auto Interface::propUnits() -> const std::map<std::string, std::string>
 auto Interface::propDigits() -> const std::map<std::string, int>
 {
     return pimpl->propDigits;
+}
+
+auto Interface::solventPropUnits() -> const std::map<std::string, std::string>
+{
+    return pimpl->solventPropUnits;
+}
+
+auto Interface::solventPropDigits() -> const std::map<std::string, int>
+{
+    return pimpl->solventPropDigits;
 }
 
 auto Interface::resultsSubst() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
