@@ -31,9 +31,11 @@ private:
     std::shared_ptr<Impl> pimpl;
 
     auto CSVHeader            () -> std::string;
+    auto CSVSolventHeader     () -> std::string;
     auto CSVHeaderTransposed  () -> std::string;
     auto foutResultsSubst     () -> void;
     auto foutResultsReac      () -> void;
+    auto foutResultsSolv      () -> void;
     auto foutResultsReacTrans (std::string property) -> void;
     auto foutResultsSubstTrans(std::string property) -> void;
 };

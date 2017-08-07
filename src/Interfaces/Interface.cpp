@@ -22,9 +22,15 @@ struct Interface::Impl
 
     std::map<int, std::string>                          propNames;
 
-    std::map<std::string, std::string>            propUnits  = defaultPropertyUnits;
+    std::map<std::string, std::string>                  propUnits  = defaultPropertyUnits;
 
-    std::map<std::string, int>                    propDigits = defaultPropertyDigits;
+    std::map<std::string, int>                          propDigits = defaultPropertyDigits;
+
+    std::map<int, std::string>                          solventPropNames;
+
+    std::map<std::string, std::string>                  solventPropUnits  = defaultSolventPropertyUnits;
+
+    std::map<std::string, int>                          solventPropDigits = defaultSolventPropertyDigits;
 
     std::vector<string>                                 substSymbols;
 
@@ -195,6 +201,42 @@ auto Interface::selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vec
     return resultsSubst;
 }
 
+auto Interface::selectPropertiesSolvent ( PropertiesSolvent ps, ElectroPropertiesSolvent eps ) -> std::vector<Reaktoro_::ThermoScalar>
+{
+    std::vector<Reaktoro_::ThermoScalar> resultsSolvent;
+    std::map<int, std::string>::iterator it;
+
+    for(it = pimpl->solventPropNames.begin(); it != pimpl->solventPropNames.end(); it++)
+    {
+        if (it->second == "density")        {resultsSolvent.push_back(ps.density);}
+        if (it->second == "densityT")       {resultsSolvent.push_back(ps.densityT);}
+        if (it->second == "densityP")       {resultsSolvent.push_back(ps.densityP);}
+        if (it->second == "densityTT")      {resultsSolvent.push_back(ps.densityTT);}
+        if (it->second == "densityTP")      {resultsSolvent.push_back(ps.densityTP);}
+        if (it->second == "densityPP")      {resultsSolvent.push_back(ps.densityPP);}
+        if (it->second == "alpha")          {resultsSolvent.push_back(ps.Alpha);}
+        if (it->second == "beta")           {resultsSolvent.push_back(ps.Beta);}
+        if (it->second == "alphaT")         {resultsSolvent.push_back(ps.dAldT);}
+        if (it->second == "gibbsIdealGas")  {resultsSolvent.push_back(ps.gibbsIdealGas);}
+        if (it->second == "entropyIdealGas"){resultsSolvent.push_back(ps.entropyIdealGas);}
+        if (it->second == "cpIdealGas")     {resultsSolvent.push_back(ps.cpIdealGas);}
+
+        if (it->second == "epsilon")        {resultsSolvent.push_back(eps.epsilon);}
+        if (it->second == "epsilonT")       {resultsSolvent.push_back(eps.epsilonT);}
+        if (it->second == "epsilonP")       {resultsSolvent.push_back(eps.epsilonP);}
+        if (it->second == "epsilonTT")      {resultsSolvent.push_back(eps.epsilonTT);}
+        if (it->second == "epsilonTP")      {resultsSolvent.push_back(eps.epsilonTP);}
+        if (it->second == "epsilonPP")      {resultsSolvent.push_back(eps.epsilonPP);}
+        if (it->second == "bornZ")          {resultsSolvent.push_back(eps.bornZ);}
+        if (it->second == "bornY")          {resultsSolvent.push_back(eps.bornY);}
+        if (it->second == "bornQ")          {resultsSolvent.push_back(eps.bornQ);}
+        if (it->second == "bornN")          {resultsSolvent.push_back(eps.bornN);}
+        if (it->second == "bornU")          {resultsSolvent.push_back(eps.bornU);}
+        if (it->second == "bornX")          {resultsSolvent.push_back(eps.bornX);}
+    }
+    return resultsSolvent;
+}
+
 auto Interface::selectResultsReac ( ThermoPropertiesReaction tpr ) -> std::vector<Reaktoro_::ThermoScalar>
 {
     std::vector<Reaktoro_::ThermoScalar> resultsReac;
@@ -333,6 +375,32 @@ auto Interface::addProperties (const std::vector<string> &propNames) -> void
     }
 }
 
+auto Interface::addSolventProperty (const std::string &sovlentPropName) -> void
+{
+    std::map<std::string, const std::string>::const_iterator it;
+    it = defaultPropertyNames.find(sovlentPropName);
+    if ( it != defaultPropertyNames.end())
+    {
+        if (!pimpl->solventPropNames.empty())
+        {
+            pimpl->solventPropNames.insert(std::pair<int,std::string>(pimpl->solventPropNames.rbegin()->first+1,sovlentPropName));
+        } else
+            pimpl->solventPropNames.insert(std::pair<int,std::string>(1,sovlentPropName));
+    }
+
+    // write exception prop not existing
+}
+
+auto Interface::addSolventProperties (const std::vector<string> &solventPropNames) -> void
+{
+    std::map<std::string, const std::string>::const_iterator it;
+
+    for (unsigned i = 0; i<solventPropNames.size(); i++)
+    {
+        addProperty(solventPropNames[i]);
+    }
+}
+
 auto Interface::addTPpair (const double &T, const double &P) -> void
 {
     std::vector<double> one_pair = {T, P};
@@ -369,6 +437,11 @@ auto Interface::addDigits (const std::map<std::string, int> &propDigits)-> void
     pimpl->propDigits = propDigits;
 }
 
+auto Interface::addSolventPropDigits (const std::map<std::string, int> &solventPropDigits)-> void
+{
+    pimpl->solventPropDigits = solventPropDigits;
+}
+
 // clear functions
 auto Interface::clearSubstances () -> void
 {
@@ -377,6 +450,10 @@ auto Interface::clearSubstances () -> void
 auto Interface::clearProperties () -> void
 {
     pimpl->propNames.clear();
+}
+auto Interface::clearSolventProperties () -> void
+{
+    pimpl->solventPropNames.clear();
 }
 auto Interface::clearTPpairs () -> void
 {

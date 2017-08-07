@@ -13,6 +13,7 @@ struct Output::Impl
 
     std::string                         header = "";
     std::ofstream                       fThermoProperties;
+    std::ofstream                       fSolventProperties;
 
     Impl(const Interface& interface)
     : api(Interface(interface))
@@ -131,6 +132,12 @@ auto Output::CSVHeader( ) -> std::string
 
 }
 
+auto Output::CSVSolventHeader( ) -> std::string
+{
+    std::string header = "";
+    return header;
+}
+
 auto Output::CSVHeaderTransposed( ) -> std::string
 {
 //    typedef std::map<int, std::string>::iterator it_t;
@@ -155,6 +162,11 @@ auto Output::CSVHeaderTransposed( ) -> std::string
     }
 
     return header;
+}
+
+auto Output::foutResultsSolv()-> void
+{
+
 }
 
 auto Output::foutResultsSubst()-> void
@@ -187,9 +199,13 @@ auto Output::foutResultsSubst()-> void
             }
             if (outSol && i == 0)
             {
-                pimpl->fThermoProperties << std::setprecision(0);
+                pimpl->fThermoProperties << std::setprecision(2);
                 pimpl->fThermoProperties << s << solventProp[j+j].val;
                 pimpl->fThermoProperties << s << solventProp[j+j+1].val;
+            } else
+            {
+                pimpl->fThermoProperties << s << "";
+                pimpl->fThermoProperties << s << "";
             }
             c++;
             pimpl->fThermoProperties << std::endl;
@@ -227,9 +243,13 @@ auto Output::foutResultsReac()-> void
             }
             if (outSol && i == 0)
             {
-                pimpl->fThermoProperties << std::setprecision(0);
+                pimpl->fThermoProperties << std::setprecision(2);
                 pimpl->fThermoProperties << s << solventProp[j+j].val;
                 pimpl->fThermoProperties << s << solventProp[j+j+1].val;
+            } else
+            {
+                pimpl->fThermoProperties << s << "";
+                pimpl->fThermoProperties << s << "";
             }
             c++;
             pimpl->fThermoProperties << std::endl;
