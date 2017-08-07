@@ -225,26 +225,27 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
     g.gT = a * dDbdT + Db * dadT;
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
-    if((T < 155.0) || (P > 1000.0) || (T > 355.0))
-        return g;
+    // Check if the point (T,P) is inside region II, as depicted in Fig. 6 of Shock and others (1992), on page 809
+    if ((T > 155.0 && T < 355.0 && P < 1000.0) || (T>=355 && P >=500 && P < 1000))
+    {
+        tempy = ((T - 155.0) / 300.0);
+        ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);
+        dftdT = 4.8e0 / 300.0 * pow(tempy,3.8) + 16.0 / 300.0 * cC[0] * pow(tempy,15.);
+        dftdTT = 3.8 * 4.8 / (300.0 * 300.0) * pow(tempy,2.8)
+                 + 15.0 * 16.0 / (300.0 * 300.0) * cC[0] * pow(tempy,14.);
+        fp = cC[1] * pow((1000.0 - P),3.) + cC[2] * pow((1000.0 - P),4.);
+        dfpdP  = -3.0 * cC[1] * pow((1000.0 - P),2.) - 4.0 * cC[2] * pow((1000.0 - P),3.);
 
-    tempy = ((T - 155.0) / 300.0);
-    ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);
-    dftdT = 4.8e0 / 300.0 * pow(tempy,3.8) + 16.0 / 300.0 * cC[0] * pow(tempy,15.);
-    dftdTT = 3.8 * 4.8 / (300.0 * 300.0) * pow(tempy,2.8)
-             + 15.0 * 16.0 / (300.0 * 300.0) * cC[0] * pow(tempy,14.);
-    fp = cC[1] * pow((1000.0 - P),3.) + cC[2] * pow((1000.0 - P),4.);
-    dfpdP  = -3.0 * cC[1] * pow((1000.0 - P),2.) - 4.0 * cC[2] * pow((1000.0 - P),3.);
+        f = ft * fp;
+        dfdP = ft * dfpdP;
+        dfdT = fp * dftdT;
+        d2fdT2 = fp * dftdTT;
 
-    f = ft * fp;
-    dfdP = ft * dfpdP;
-    dfdT = fp * dftdT;
-    d2fdT2 = fp * dftdTT;
-
-    g.g -= f;
-    g.gP -= dfdP/1e05; // from bar to Pa
-    g.gT -= dfdT;
-    g.gTT -= d2fdT2;
+        g.g -= f;
+        g.gP -= dfdP/1e05; // from bar to Pa
+        g.gT -= dfdT;
+        g.gTT -= d2fdT2;
+    }
 
     return g;
 }
