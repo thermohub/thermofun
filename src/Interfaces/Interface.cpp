@@ -228,7 +228,8 @@ auto Interface::calculateResultsSubst( ) -> void
         {
             pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
         }
-        pimpl->solventProp.push_back(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density);
+        pimpl->solventProp[j+j]     = pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density;
+        pimpl->solventProp[j+j+1]   = pimpl->thermo.electroPropertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).epsilon;
     }
 }
 
@@ -244,7 +245,8 @@ auto Interface::calculateResultsReac( ) -> void
         {
             pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
         }
-        pimpl->solventProp.push_back(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density);
+        pimpl->solventProp[j+j]     = pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density;
+        pimpl->solventProp[j+j+1]   = pimpl->thermo.electroPropertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).epsilon;
     }
 }
 
