@@ -258,20 +258,29 @@ auto Interface::selectResultsReac ( ThermoPropertiesReaction tpr ) -> std::vecto
     return resultsReac;
 }
 
+auto Interface::calculateSolventProp( int j ) -> void
+{
+    if (pimpl->outSettings.outSolventProp)
+    {
+        auto solProp = selectPropertiesSolvent(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()),
+                                               pimpl->thermo.electroPropertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()));
+        pimpl->solventProp.insert(pimpl->solventProp.end(), solProp.begin(), solProp.end());
+    }
+}
+
 auto Interface::calculateResultsSubst( ) -> void
 {
     pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
     pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
     pimpl->solventProp.resize(2*pimpl->tpPairs.size());
-    pimpl->solventSymbol = pimpl->thermo.solventSymbol();
+    pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
     for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
         {
             pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
         }
-        pimpl->solventProp[j+j]     = pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density;
-        pimpl->solventProp[j+j+1]   = pimpl->thermo.electroPropertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).epsilon;
+        calculateSolventProp(j);
     }
 }
 
@@ -280,15 +289,14 @@ auto Interface::calculateResultsReac( ) -> void
     pimpl->reacResults.empty(); unsigned tp = pimpl->tpPairs.size();
     pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
     pimpl->solventProp.resize(2*pimpl->tpPairs.size());
-        pimpl->solventSymbol = pimpl->thermo.solventSymbol();
+    pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
     for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
         {
             pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
         }
-        pimpl->solventProp[j+j]     = pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).density;
-        pimpl->solventProp[j+j+1]   = pimpl->thermo.electroPropertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()).epsilon;
+        calculateSolventProp(j);
     }
 }
 
@@ -378,8 +386,8 @@ auto Interface::addProperties (const std::vector<string> &propNames) -> void
 auto Interface::addSolventProperty (const std::string &sovlentPropName) -> void
 {
     std::map<std::string, const std::string>::const_iterator it;
-    it = defaultPropertyNames.find(sovlentPropName);
-    if ( it != defaultPropertyNames.end())
+    it = defaultSolventPropertyNames.find(sovlentPropName);
+    if ( it != defaultSolventPropertyNames.end())
     {
         if (!pimpl->solventPropNames.empty())
         {
@@ -397,7 +405,7 @@ auto Interface::addSolventProperties (const std::vector<string> &solventPropName
 
     for (unsigned i = 0; i<solventPropNames.size(); i++)
     {
-        addProperty(solventPropNames[i]);
+        addSolventProperty(solventPropNames[i]);
     }
 }
 

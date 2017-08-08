@@ -144,6 +144,7 @@ private:
     auto calculateResultsSubst  () -> void;
     auto substanceSymbols       () -> const std::vector<std::string>;
     auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+    auto calculateSolventProp   (int tpNdx) -> void;
 
     auto selectPropertiesSolvent (PropertiesSolvent ps, ElectroPropertiesSolvent eps) -> std::vector<Reaktoro_::ThermoScalar>;
 
