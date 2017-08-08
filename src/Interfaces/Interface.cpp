@@ -290,11 +290,15 @@ auto Interface::calculateResultsReac( ) -> void
     pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
     pimpl->solventProp.resize(2*pimpl->tpPairs.size());
     pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
+    auto fromSubst = pimpl->outSettings.calcReactFromSubst;
     for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
         for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
         {
-            pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
+            if (fromSubst)
+                pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
+            else
+                pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
         }
         calculateSolventProp(j);
     }

@@ -39,6 +39,10 @@ struct OutputSettings
 
     /// write solvent properties
     bool outSolventProp = false;
+
+    bool calcSubstFromReact = false;
+
+    bool calcReactFromSubst = false;
 };
 
 ///
