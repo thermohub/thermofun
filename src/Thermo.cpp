@@ -190,9 +190,13 @@ struct Thermo::Impl
                 {
                 case MethodCorrP_Thrift::type::CPM_AKI:
                 {
+                    double Pr = 1.;
                     tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P,  solventSymbol),
                                                                                                    WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P),
-                                                                                                   properties_solvent_fn(T, P, P, solventSymbol));
+                                                                                                   properties_solvent_fn(T, P, P, solventSymbol),
+                                                                                                   thermo_properties_substance_fn(25, Pr, Pr,  solventSymbol),
+                                                                                                   WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(25, Pr),
+                                                                                                   properties_solvent_fn(25, Pr, Pr, solventSymbol));
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CEH:

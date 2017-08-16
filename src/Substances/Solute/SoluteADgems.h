@@ -23,7 +23,8 @@ void Akinfiev_EOS_increments(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Re
 /// @param wtp water thermo properties
 /// @param wigp water ideal gas properties
 /// @param wp water solvent properties
-auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp,
+                                const ThermoPropertiesSubstance &wigp, const PropertiesSolvent &wp, const ThermoPropertiesSubstance &wtpr, const ThermoPropertiesSubstance &wigpr, const PropertiesSolvent &wpr) -> ThermoPropertiesSubstance;
 
 }
 
