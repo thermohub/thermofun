@@ -35,7 +35,7 @@ ExternalProject_Add(REAKTORO
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DBUILD_SHARED_LIBS=ON
-               -DLINK_GEMS=OFF
+               -DLINK_GEMS=ON
 )
 
 # Create the install target for the third-party libraries
