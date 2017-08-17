@@ -307,9 +307,10 @@ auto calculateWaterHelmholtzStateHGK3(Reaktoro_::ThermoScalar t, Reaktoro_::Ther
 		const auto lambda_rt  =  lambda_r*lambda_t/lambda;
 		const auto lambda_tt  =  lambda_t*(lambda_t/lambda - 1.0/t);
 		const auto lambda_rrr =  lambda_rr*(z_rr/z_r + lambda_r/lambda - z_r/z) + lambda_r*(z_rrr/z_r - pow(z_rr/z_r, 2) + lambda_rr/lambda - pow(lambda_r/lambda, 2) - z_rr/z + pow(z_r/z, 2));
-		const auto lambda_rrt = -pow(lambda_r/lambda, 2)*lambda_t + (lambda_rr*lambda_t + lambda_rt*lambda_r)/lambda;
-		const auto lambda_rtt = -pow(lambda_t/lambda, 2)*lambda_r + (lambda_tt*lambda_r + lambda_rt*lambda_t)/lambda;
-		const auto lambda_ttt =  lambda_tt * (lambda_t/lambda - 1.0/t) + lambda_t*(lambda_tt/lambda - pow(lambda_t/lambda, 2) + 1.0/(t*t));
+        auto l_pow      = pow(lambda_t/lambda, 2); if (l_pow == 0) {l_pow.ddt = 0; l_pow.ddp = 0;}
+        const auto lambda_rrt = -pow(lambda_r/lambda, 2)*lambda_t + (lambda_rr*lambda_t + lambda_rt*lambda_r)/lambda;
+        const auto lambda_rtt = -l_pow*lambda_r + (lambda_tt*lambda_r + lambda_rt*lambda_t)/lambda;
+        const auto lambda_ttt =  lambda_tt * (lambda_t/lambda - 1.0/t) + lambda_t*(lambda_tt/lambda - l_pow + 1.0/(t*t));
 
 		s.helmholtz    += lambda;
 		s.helmholtzD   += lambda_r;
