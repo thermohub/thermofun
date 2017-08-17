@@ -11,12 +11,27 @@ int main(int argc, char *argv[])
 
     Database db = dbc.getDatabase(15);
 
-    Thermo th(DBClient("./Resources/ThermoFun.ini").getDatabase(15));
+    Substance water;
+    water.setName("water");
+    water.setSymbol("H2O@_");
+    water.setFormula("H2O");
+    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+    water.setAggregateState(AggregateState::type::AQUEOUS);
 
-    th.setSolventSymbol("H2O@");
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR);
 
-    double T = 130;
-    double P = 0;
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP);
+
+    db.addSubstance(water);
+
+    Thermo th(db/*DBClient("./Resources/ThermoFun.ini").getDatabase(15)*/);
+
+    th.setSolventSymbol("H2O@_");
+
+    double T = 400;
+    double P = 4000;
+
+    auto wat = th.thermoPropertiesSubstance(T, P, "H2O@_");
 
     ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
 
