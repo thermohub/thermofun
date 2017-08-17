@@ -4,10 +4,10 @@
 
 namespace ThermoFun {
 
-auto changeUnitPressure ( ThermoPropertiesSubstance  tpSubst, double &P, double multiplier) -> ThermoPropertiesSubstance
+auto changeUnitPressure ( ThermoPropertiesSubstance  tpSubst, double multiplier) -> ThermoPropertiesSubstance
 {
     auto p = tpSubst;
-    P /=multiplier;
+//    P /=multiplier;
 
     p.enthalpy.ddp         *= multiplier;
     p.entropy.ddp          *= multiplier;
@@ -20,10 +20,10 @@ auto changeUnitPressure ( ThermoPropertiesSubstance  tpSubst, double &P, double 
 
     return p;
 }
-auto changeUnitPressure ( ThermoPropertiesReaction   tpReact, double &P, double multiplier) -> ThermoPropertiesReaction
+auto changeUnitPressure (ThermoPropertiesReaction   tpReact, double multiplier) -> ThermoPropertiesReaction
 {
     auto p = tpReact;
-    P /=multiplier;
+//    P /=multiplier;
 
     p.ln_equilibrium_constant.ddp   *= multiplier;
     p.log_equilibrium_constant.ddp  *= multiplier;
@@ -38,10 +38,10 @@ auto changeUnitPressure ( ThermoPropertiesReaction   tpReact, double &P, double 
 
     return p;
 }
-auto changeUnitPressure ( PropertiesSolvent          pSolv,   double &P, double multiplier) -> PropertiesSolvent
+auto changeUnitPressure ( PropertiesSolvent          pSolv,  double multiplier) -> PropertiesSolvent
 {
     auto p = pSolv;
-    P /=multiplier;
+//    P /=multiplier;
 
     p.cpIdealGas.ddp      *= multiplier;
     p.cpIdealGas.ddp      *= multiplier;
@@ -70,10 +70,10 @@ auto changeUnitPressure ( PropertiesSolvent          pSolv,   double &P, double 
 
     return p;
 }
-auto changeUnitPressure ( ElectroPropertiesSolvent   epSolv,  double &P, double multiplier) -> ElectroPropertiesSolvent
+auto changeUnitPressure (ElectroPropertiesSolvent   epSolv, double multiplier) -> ElectroPropertiesSolvent
 {
     auto p = epSolv;
-    P /=multiplier;
+//    P /=multiplier;
 
     p.epsilon.ddp   *= multiplier;
     p.epsilonP      *= multiplier;
@@ -93,10 +93,10 @@ auto changeUnitPressure ( ElectroPropertiesSolvent   epSolv,  double &P, double 
 
     return p;
 }
-auto changeUnitPressure ( ElectroPropertiesSubstance epSubst, double &P, double multiplier) -> ElectroPropertiesSubstance
+auto changeUnitPressure ( ElectroPropertiesSubstance epSubst, double multiplier) -> ElectroPropertiesSubstance
 {
     auto p = epSubst;
-    P /=multiplier;
+//    P /=multiplier;
 
     p.re.ddp      *= multiplier;
     p.reref.ddp   *= multiplier;
@@ -109,10 +109,10 @@ auto changeUnitPressure ( ElectroPropertiesSubstance epSubst, double &P, double 
 
     return p;
 }
-auto changeUnitPressure ( FunctionG                  fG,      double &P, double multiplier) -> FunctionG
+auto changeUnitPressure ( FunctionG                  fG,  double multiplier) -> FunctionG
 {
     auto p = fG;
-    P /=multiplier;
+//    P /=multiplier;
 
     p.g.ddp   *= multiplier;
     p.gP      *= multiplier;
