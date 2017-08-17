@@ -21,6 +21,7 @@
 
 // ThermoFun includes
 #include "Common/Exception.h"
+#include "Common/Units.h"
 
 namespace ThermoFun {
 
@@ -119,7 +120,13 @@ auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoProper
     auto t = Reaktoro_::Temperature(T + C_to_K);
     auto p = Reaktoro_::Pressure(P * bar_to_Pa);
 
-    return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp, wigp, wp, wtpr, wigpr, wpr);
+    auto pp = p.val;
+    auto wtp_ = changeUnitPressure(wtp, pp, 1e5);
+    auto wp_ = changeUnitPressure(wp, pp, 1e5);
+    auto wtpr_ = changeUnitPressure(wtpr, pp, 1e5);
+    auto wpr_ = changeUnitPressure(wpr, pp, 1e5);
+
+    return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp_, wigp, wp_, wtpr_, wigpr, wpr_);
 }
 
 //=======================================================================================================

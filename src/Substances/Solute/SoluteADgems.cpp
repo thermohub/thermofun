@@ -49,7 +49,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     auto CPw   = wtpr.heat_capacity_cp;
     auto rho   = wpr.density/1000;
     auto alp   = wpr.Alpha;
-    auto bet   = wpr.Beta*1e05;
+    auto bet   = wpr.Beta/**1e05*/;
     auto dalpT = wpr.dAldT;
 
 //    Gig = -228526.66;
@@ -88,7 +88,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     /// units????
     rho = wp.density / 1000; // aSta.Dens[aSpc.isat];
     alp = wp.Alpha; // aWp.Alphaw[aSpc.isat];
-    bet = wp.Beta*1e05; // aWp.Betaw[aSpc.isat];
+    bet = wp.Beta/**1e05*/; // aWp.Betaw[aSpc.isat];
     dalpT = wp.dAldT; // aWp.dAldT[aSpc.isat];
 
     Akinfiev_EOS_increments(Tk, Pbar, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
@@ -96,6 +96,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
 
     // Getting dissolved gas properties corrected for T,P of interest
     // by adding properties of hydration at T,P
+    Gids.ddp = 0.0; Sids.ddp = 0.0; CPids.ddp = 0.0;
     state.gibbs_energy     = Gids + Geos + Seos298.val*(Tk.val-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
     // aW.twp->V = Vids + Veos;
     state.volume           = Veos;

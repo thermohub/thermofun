@@ -33,6 +33,10 @@ int main(int argc, char *argv[])
 
     auto wat = th.thermoPropertiesSubstance(T, P, "H2O@_");
 
+    auto ca = th.thermoPropertiesSubstance(T, P, "Ca+2");
+
+    auto co2 = th.thermoPropertiesSubstance(T, P, "CO2@");
+
     ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
 
 //    for (uint i = 0; i <150000; i++)
