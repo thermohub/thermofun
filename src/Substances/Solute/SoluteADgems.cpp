@@ -6,19 +6,20 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance subst, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance subst, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp,
+                                const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp, const ThermoPropertiesSubstance& wtpr, const ThermoPropertiesSubstance& wigpr, const PropertiesSolvent& wpr) -> ThermoPropertiesSubstance
 {
 //    Reaktoro::ThermoScalar CaltoJ(cal_to_J);
     // calculate infinite dilution properties of aqueous species at T and P of interest
-    Reaktoro_::ThermoScalar rho, alp, bet, dalpT, dH0k;
-//    Reaktoro::ThermoScalar R_CONST (R_CONSTANT);
-    Reaktoro_::ThermoScalar Gig, Sig, CPig, Gw, Sw, CPw;
+//    Reaktoro_::ThermoScalar rho, alp, bet, dalpT, dH0k;
+////    Reaktoro::ThermoScalar R_CONST (R_CONSTANT);
+//    Reaktoro_::ThermoScalar Gig, Sig, CPig, Gw, Sw, CPw;
     Reaktoro_::ThermoScalar Geos, Veos, Seos, CPeos, Heos;
     Reaktoro_::ThermoScalar Gids, /*Vids,*/ Sids, CPids, Hids;
     Reaktoro_::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
 
     Reaktoro_::Temperature Tk (T.val);
-    auto Tr = 298.15;
+    auto Tr (298.15);
     Reaktoro_::Pressure Pbar (P.val/1e05);
     auto Pr = 1.0;
 
@@ -35,20 +36,33 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
         RaiseError(exception);
     }
 
-    dH0k = (-182161.88);  // enthapy of ideal gas water at 0 K
+    auto dH0k = (-182161.88);  // enthapy of ideal gas water at 0 K
 
     // Properties of water at Tr,Pr (25 deg C, 1 bar) from SUPCRT92 routines
     // adopted H2O ideal gas data from NIST-TRC database
-    Gig = -228526.66;
-    Sig = 188.72683;
-    CPig = 33.58743;
-    Gw = -237181.38;
-    Sw = 69.92418;
-    CPw = 75.36053;
-    rho = 0.99706136;
-    alp = 2.59426542e-4;
-    bet = 4.52187717e-5;
-    dalpT = 9.56485765e-6;
+    auto Gig = wigpr.gibbs_energy;
+    auto Sig = wigpr.entropy;
+    auto CPig = wigpr.heat_capacity_cp;
+
+    auto Gw    = wtpr.gibbs_energy;
+    auto Sw    = wtpr.entropy;
+    auto CPw   = wtpr.heat_capacity_cp;
+    auto rho   = wpr.density/1000;
+    auto alp   = wpr.Alpha;
+    auto bet   = wpr.Beta/**1e05*/;
+    auto dalpT = wpr.dAldT;
+
+//    Gig = -228526.66;
+//    Sig = 188.72683;
+//    CPig = 33.58743;
+
+//    Gw = -237181.38;
+//    Sw = 69.92418;
+//    CPw = 75.36053;
+//    rho = 0.99706136;
+//    alp = 2.59426542e-4;
+//    bet = 4.52187717e-5;
+//    dalpT = 9.56485765e-6;
 
     Akinfiev_EOS_increments(Tr, Pr, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
                        Geos298, Veos298, Seos298, CPeos298, Heos298 );
@@ -74,7 +88,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     /// units????
     rho = wp.density / 1000; // aSta.Dens[aSpc.isat];
     alp = wp.Alpha; // aWp.Alphaw[aSpc.isat];
-    bet = wp.Beta*1e05; // aWp.Betaw[aSpc.isat];
+    bet = wp.Beta/**1e05*/; // aWp.Betaw[aSpc.isat];
     dalpT = wp.dAldT; // aWp.dAldT[aSpc.isat];
 
     Akinfiev_EOS_increments(Tk, Pbar, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
@@ -82,7 +96,8 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
 
     // Getting dissolved gas properties corrected for T,P of interest
     // by adding properties of hydration at T,P
-    state.gibbs_energy     = Gids + Geos + Seos298*(Tk-298.15);  // S(T-Tr) corrected for dSh at Tr,Pr
+    Gids.ddp = 0.0; Sids.ddp = 0.0; CPids.ddp = 0.0;
+    state.gibbs_energy     = Gids + Geos + Seos298.val*(Tk.val-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
     // aW.twp->V = Vids + Veos;
     state.volume           = Veos;
     state.entropy          = Sids + Seos;

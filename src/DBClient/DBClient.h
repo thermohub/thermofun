@@ -68,12 +68,6 @@ class DBClient
     void resetDBClinet(string curSchemaName, string query);
     // returns new DBClient using schema and query
     bsonio::TDBGraph *newDBClinet(string schemaName, string query);
-    // sets the reactans following the incoming takes edges of reaction with database _id
-    void setReactantsFollowingIncomingTakesEdges(std::string _id, Reaction &reaction);
-    // sets the symbol of the reaction which defines the substance by folowing the incoming defines edge
-    std::string getDefinesReactionSymbol(std::string _idSubst);
-    // returns the substance symbol which is defined by the reaction with the database _id
-    std::string getDefinedSubstanceSymbol(std::string _id);
 
 public:
     ///

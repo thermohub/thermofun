@@ -23,7 +23,7 @@ struct Reaction::Impl
     std::string name;
 
     /// The chemical formula of the chemical Reaction
-    std::string formula;
+    std::string equation;
 
     /// The symbol of the chemical reaction
     std::string symbol;
@@ -150,10 +150,10 @@ auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
     pimpl->thermo_parameters = param;
 }
 
-//auto Reaction::setFormula(std::string formula) -> void
-//{
-//    pimpl->formula = formula;
-//}
+auto Reaction::setEquation(std::string equation) -> void
+{
+    pimpl->equation = equation;
+}
 
 auto Reaction::name() const -> std::string
 {
@@ -225,10 +225,10 @@ auto Reaction::method_P() const -> MethodCorrP_Thrift::type
     return pimpl->method_P;
 }
 
-//auto Reaction::formula() const -> std::string
-//{
-//    return pimpl->formula;
-//}
+auto Reaction::equation() const -> std::string
+{
+    return pimpl->equation;
+}
 
 auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void
 {

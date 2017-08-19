@@ -447,6 +447,7 @@ static const char * upperP                  = "properties.limitsTP.upperP";
 /// Key for reading reaction data from input files
 static const char * reacName               = "properties.name";
 static const char * reacSymbol             = "properties.symbol";
+static const char * reacEquation           = "properties.equation";
 
 static const char * reacMethodEOS          = "properties.method_genEoS";
 static const char * reacMethodT            = "properties.method_corrT";

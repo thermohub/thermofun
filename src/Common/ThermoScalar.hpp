@@ -71,7 +71,7 @@ public:
     /// @param ddp The partial pressure derivative of the thermodynamic property
     /// @param err The error of the value of the thermodynamic property
     ThermoScalarBase(const V& val, const V& ddt, const V& ddp, const V& err, const StatusMessage& sta)
-    : val(val), ddt(ddt), ddp(ddp), err(err), sta(sta) {}
+    : val(val), ddt(ddt), ddp(ddp), err(fabs(err)), sta(sta) {}
 
     /// Construct a copy of a ThermoScalar instance.
     template<typename VR>
@@ -143,7 +143,10 @@ public:
         ddt  = ddt * other.val + val * other.ddt;
         ddp  = ddp * other.val + val * other.ddp;
         val *= other.val;
-        err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
+        if (other.val == 0)
+            err = 0.0;
+        else
+            err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
 
         if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
             sta = {Status::notdefined, ""};
@@ -163,7 +166,10 @@ public:
         ddt  = (ddt * other.val - val * other.ddt) * tmp2;
         ddp  = (ddp * other.val - val * other.ddp) * tmp2;
         val *= tmp1;
-        err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
+        if (other.val == 0)
+            err = 0.0;
+        else
+            err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
 
         if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
             sta = {Status::notdefined, ""};
@@ -194,7 +200,10 @@ public:
         val *= other;
         ddt *= other;
         ddp *= other;
-        err = val*sqrt(tmp_err);
+        if (val == 0)
+            err = 0.0;
+        else
+            err = val*sqrt(tmp_err);
         return *this;
     }
 
@@ -203,7 +212,10 @@ public:
     {
         const double tmp_err = err/val*err/val;
         *this *= 1.0/other;
-        err = val*sqrt(tmp_err);
+        if (val == 0)
+            err = 0.0;
+        else
+            err = val*sqrt(tmp_err);
         return *this;
     }
 
@@ -326,13 +338,20 @@ inline auto operator-(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBas
 template<typename VL, typename VR>
 inline auto operator*(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    return {l.val * r.val, l.val * r.ddt + l.ddt * r.val, l.val * r.ddp + l.ddp * r.val, (l.val * r.val)*sqrt(l.err/l.val*l.err/l.val+r.err/r.val*r.err/r.val), status(l,r)};
+    double a = 0.0; double b = 0.0;
+    if (l.val != 0)
+        a = l.err/l.val*l.err/l.val;
+    if (r.val != 0)
+        b = r.err/r.val*r.err/r.val;
+    return {l.val * r.val, l.val * r.ddt + l.ddt * r.val, l.val * r.ddp + l.ddp * r.val, (l.val * r.val)*sqrt(a+b), status(l,r)};
 }
 
 /// Left-multiply a ThermoScalar instance by a scalar
 template<typename V>
 inline auto operator*(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
+    if (r.val == 0)
+        return {l * r.val, l * r.ddt, l * r.ddp, 0.0, status(r)};
     return {l * r.val, l * r.ddt, l * r.ddp, (l * r.val)*sqrt(r.err/r.val*r.err/r.val), status(r)};
 }
 
@@ -349,7 +368,12 @@ inline auto operator/(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>&
 {
     const double tmp1 = 1.0/r.val;
     const double tmp2 = tmp1 * tmp1;
-    return {tmp1 * l.val, tmp2 * (l.ddt * r.val - l.val * r.ddt), tmp2 * (l.ddp * r.val - l.val * r.ddp), (tmp1 * l.val)*sqrt(l.err/l.val*l.err/l.val+r.err/r.val*r.err/r.val), status(l,r)};
+    double a = 0.0; double b = 0.0;
+    if (l.val != 0)
+        a = l.err/l.val*l.err/l.val;
+    if (r.val != 0)
+        b = r.err/r.val*r.err/r.val;
+    return {tmp1 * l.val, tmp2 * (l.ddt * r.val - l.val * r.ddt), tmp2 * (l.ddp * r.val - l.val * r.ddp), (tmp1 * l.val)*sqrt(a+b), status(l,r)};
 }
 
 /// Left-divide a ThermoScalar instance by a scalar
@@ -358,6 +382,8 @@ inline auto operator/(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBas
 {
     const double tmp1 = 1.0/r.val;
     const double tmp2 = -l*tmp1*tmp1;
+    if (r.val == 0)
+        return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, 0.0, status(r)};
     return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, (tmp1 * r.val)*sqrt(r.err/r.val*r.err/r.val), status(r)};
 }
 
@@ -374,6 +400,8 @@ inline auto sqrt(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
     const double tmp1 = std::sqrt(l.val);
     const double tmp2 = 0.5 * tmp1/l.val;
+    if (l.val == 0)
+        return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0, status(l)};
     return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.5*(l.err/l.val), status(l)};
 }
 
@@ -383,6 +411,8 @@ inline auto pow(const ThermoScalarBase<V>& l, double power) -> ThermoScalarBase<
 {
     const double tmp1 = std::pow(l.val, power);
     const double tmp2 = power * tmp1/l.val;
+    if (l.val == 0)
+        return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.0, status(l)};
     return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, fabs(power)*(l.err/l.val), status(l)};
 }
 
@@ -393,6 +423,8 @@ inline auto pow(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& power
     const double logl = std::log(l.val);
     const double powl = std::pow(l.val, power.val);
     const double tmp = power.val/l.val;
+    if (l.val == 0)
+        return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), 0.0, status(l,power)};
     return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), powl*(l.err/l.val), status(l,power)};
 }
 
@@ -410,6 +442,8 @@ inline auto log(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
     const double tmp1 = std::log(l.val);
     const double tmp2 = 1.0/l.val;
+    if (l.val == 0)
+        return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.0, status(l)};
     return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.434*(l.err/l.val), status(l)};
 }
 

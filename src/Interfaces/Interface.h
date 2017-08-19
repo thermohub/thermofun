@@ -14,6 +14,8 @@ struct Database;
 struct Output;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;
+struct PropertiesSolvent;
+struct ElectroPropertiesSolvent;
 
 /**
  * @brief The OutputOptions struct holds the options for outputing results
@@ -31,6 +33,16 @@ struct OutputSettings
 
     /// file name/path
     std::string fileName = "tpresults.csv";
+
+    /// solvent prop file name/path
+    std::string solventFileName = "tpSolventResults.csv";
+
+    /// write solvent properties
+    bool outSolventProp = false;
+
+    bool calcSubstFromReact = false;
+
+    bool calcReactFromSubst = false;
 };
 
 ///
@@ -77,6 +89,10 @@ public:
     auto addProperty_and_Digit          (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
     auto addProperty_and_Unit_and_Digit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
 
+    auto addSolventProperties           (const std::vector<std::string> &solventPropNames) -> void;
+    auto addSolventProperty             (const std::string &sovlentPropName) -> void;
+    auto addSolventPropDigits           (const std::map<std::string, int> &solventPropDigits)-> void;
+
     auto addTPpair                      (const double &T, const double &P) -> void;
     auto addTPpairs                     (const double &Tmin, const double &Tmax, const double &Tstep,
                                          const double &Pmin, const double &Pmax, const double &Pstep) -> void;
@@ -117,10 +133,11 @@ public:
     ///
     auto selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void;
 
-    auto clearSubstances    () -> void;
-    auto clearReactions     () -> void;
-    auto clearProperties    () -> void;
-    auto clearTPpairs       () -> void;
+    auto clearSubstances        () -> void;
+    auto clearReactions         () -> void;
+    auto clearProperties        () -> void;
+    auto clearTPpairs           () -> void;
+    auto clearSolventProperties () -> void;
 
 private:
     struct Impl;
@@ -131,23 +148,31 @@ private:
     auto calculateResultsSubst  () -> void;
     auto substanceSymbols       () -> const std::vector<std::string>;
     auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+    auto calculateSolventProp   (int tpNdx) -> void;
+
+    auto selectPropertiesSolvent (PropertiesSolvent ps, ElectroPropertiesSolvent eps) -> std::vector<Reaktoro_::ThermoScalar>;
 
     // Reactions
-    auto selectResultsReac     (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
-    auto calculateResultsReac  () -> void;
-    auto reactionSymbols       () -> const std::vector<std::string>;
-    auto resultsReac           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
+    auto selectResultsReac      (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
+    auto calculateResultsReac   () -> void;
+    auto reactionSymbols        () -> const std::vector<std::string>;
+    auto resultsReac            () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
 
     auto TPpairs                () -> const std::vector<std::vector<double>>;
     auto propNames              () -> const std::map<int, std::string>;
     auto propUnits              () -> const std::map<std::string, std::string>;
     auto propDigits             () -> const std::map<std::string, int>;
     auto outputSettings         () -> const OutputSettings;
+
+    auto solventProp            () -> const std::vector<Reaktoro_::ThermoScalar>;
+    auto solventSymbol          () -> const std::string;
+    auto solventPropUnits       () -> const std::map<std::string, std::string>;
+    auto solventPropDigits      () -> const std::map<std::string, int>;
+    auto solventPropNames       () -> const std::map<int, std::string>;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =
 {
-
     {"gibbs_energy",                   "substance"     },
     {"enthalpy",                       "substance"     },
     {"entropy",                        "substance"     },
@@ -167,6 +192,96 @@ const std::map<std::string, const std::string> defaultPropertyNames =
     {"reaction_heat_capacity_cv",      "reaction"      },
     {"logKr",                          "reaction"      },
     {"lnK0",                           "reaction"      }
+};
+
+const std::map<std::string, const std::string> defaultSolventPropertyNames =
+{
+    {"density",                        "solvent"      },
+    {"densityT",                       "solvent"      },
+    {"densityP",                       "solvent"      },
+    {"densityTT",                      "solvent"      },
+    {"densityTP",                      "solvent"      },
+    {"densityPP",                      "solvent"      },
+    {"alpha",                          "solvent"      },
+    {"beta",                           "solvent"      },
+    {"alphaT",                         "solvent"      },
+
+    {"gibbsIdealGas",                  "solvent"      },
+    {"entropyIdealGas",                "solvent"      },
+    {"cpIdealGas",                     "solvent"      },
+
+    {"epsilon",                        "solvent"      },
+    {"epsilonT",                       "solvent"      },
+    {"epsilonP",                       "solvent"      },
+    {"epsilonTT",                      "solvent"      },
+    {"epsilonTP",                      "solvent"      },
+    {"epsilonPP",                      "solvent"      },
+    {"bornZ",                          "solvent"      },
+    {"bornY",                          "solvent"      },
+    {"bornQ",                          "solvent"      },
+    {"bornN",                          "solvent"      },
+    {"bornU",                          "solvent"      },
+    {"bornX",                          "solvent"      }
+};
+
+const std::map<std::string, std::string> defaultSolventPropertyUnits =
+{
+    {"density",                        "kg/m3"          },
+    {"densityT",                       "(kg/m3)/K"      },
+    {"densityP",                       "(kg/m3)/Pa"     },
+    {"densityTT",                      "(kg/m3)/(K*K)"  },
+    {"densityTP",                      "(kg/m3)/(K*Pa)" },
+    {"densityPP",                      "(kg/m3)/(Pa*Pa)"},
+    {"alpha",                          "1/K"            },
+    {"beta",                           "1/Pa"           },
+    {"alphaT",                         ""               },
+
+    {"gibbsIdealGas",                  "J/mol"          },
+    {"entropyIdealGas",                "J/K/mol"        },
+    {"cpIdealGas",                     "J/K/mol"        },
+
+    {"epsilon",                        ""               },
+    {"epsilonT",                       ""               },
+    {"epsilonP",                       ""               },
+    {"epsilonTT",                      ""               },
+    {"epsilonTP",                      ""               },
+    {"epsilonPP",                      ""               },
+    {"bornZ",                          ""               },
+    {"bornY",                          "1/K"            },
+    {"bornQ",                          "1/Pa"           },
+    {"bornN",                          "1/Pa*Pa"        },
+    {"bornU",                          "1/Pa*K"         },
+    {"bornX",                          "1/K*K"          }
+};
+
+const std::map<std::string, int> defaultSolventPropertyDigits =
+{
+    {"density",                        0            },
+    {"densityT",                       0            },
+    {"densityP",                       0            },
+    {"densityTT",                      0            },
+    {"densityTP",                      0            },
+    {"densityPP",                      0            },
+    {"alpha",                          0            },
+    {"beta",                           0            },
+    {"alphaT",                         0            },
+
+    {"gibbsIdealGas",                  0            },
+    {"entropyIdealGas",                0            },
+    {"cpIdealGas",                     0            },
+
+    {"epsilon",                        0            },
+    {"epsilonT",                       0            },
+    {"epsilonP",                       0            },
+    {"epsilonTT",                      0            },
+    {"epsilonTP",                      0            },
+    {"epsilonPP",                      0            },
+    {"bornZ",                          0            },
+    {"bornY",                          0            },
+    {"bornQ",                          0            },
+    {"bornN",                          0            },
+    {"bornU",                          0            },
+    {"bornX",                          0            }
 };
 
 const std::map<std::string, std::string> defaultPropertyUnits =

@@ -51,7 +51,7 @@ public:
     /// @param wtp thermodynamic properties of liquid H2O
     /// @param wigp themrodynamic properties of water in ideal gas state
     /// @param wp water solvent proeoprties (e.g. density, alpha, beta, etc.)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance &wtp, const ThermoPropertiesSubstance &wigp, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance &wtp, const ThermoPropertiesSubstance &wigp, const PropertiesSolvent& wp, const ThermoPropertiesSubstance &wtpr, const ThermoPropertiesSubstance &wigpr, const PropertiesSolvent &wpr) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;

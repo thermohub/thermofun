@@ -439,6 +439,15 @@ vector<FormulaProperites> ChemicalFormula::calcThermo(  const vector<string>& fo
    return thermo;
 }
 
+FormulaProperites ChemicalFormula::calcThermo(  const string formula_ )
+{
+   FormulaToken formula("");
+   FormulaProperites val;
+   formula.setFormula(  formula_ );
+   formula.calcFormulaProperites( val );
+   return val;
+}
+
 vector<vector<double>> ChemicalFormula::calcStoichiometryMatrixOld(  const vector<string>& formulalist )
 {
    vector<vector<double>> matrA;

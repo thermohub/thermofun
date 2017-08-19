@@ -17,7 +17,10 @@ std::string location(const std::string& file, int line)
     //    std::string str = "ThermoFun/";
     //    auto pos = std::find_end(file.begin(), file.end(), str.begin(), str.end()) - file.begin();
     std::stringstream ss;
-    ss << "..."<< file.substr(file.size() - 15) << ":" << line;
+    if (file.size() > 45)
+        ss << "..."<< file.substr(file.size() - 45) << ":" << line;
+    else
+        ss << file << ":" << line;
     return ss.str();
 }
 
@@ -33,7 +36,7 @@ std::string message(const Exception& exception, const std::string& file, int lin
     message << bar << std::endl;
     message << "*** Error: " << error << std::endl;
     message << "*** Reason: " << reason << std::endl;
-    message << "*** Location: This error was encountered in " << loc << "." << std::endl;
+    message << "*** Location: " << loc << std::endl;
     message << bar << std::endl;
     message << std::endl;
     return message.str();
