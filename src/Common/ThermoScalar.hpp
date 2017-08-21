@@ -29,7 +29,8 @@ enum Status {
     notdefined = 0,
     read,
     calculated,
-    assigned
+    assigned,
+    initialized
 };
 
 using StatusMessage = std::pair <Status, std::string>;
@@ -63,7 +64,7 @@ public:
     /// Construct a custom ThermoScalarBase instance with given value only.
     /// @param val The value of the thermodynamic property
     explicit ThermoScalarBase(double val)
-        : ThermoScalarBase(val, 0.0, 0.0, 0.0, {Status::notdefined, ""}) {}
+        : ThermoScalarBase(val, 0.0, 0.0, 0.0, {Status::initialized, ""}) {}
 
     /// Construct a custom ThermoScalarBase instance with given value and derivatives.
     /// @param val The value of the thermodynamic property
