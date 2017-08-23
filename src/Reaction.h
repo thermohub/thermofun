@@ -143,10 +143,10 @@ public:
 private:
 
     /// Converts the Cp as a function of T coefficients into logK as a function of T coefficients
-    auto convert_CpfT_to_logKfT() -> void;
+    auto convert_CpfT_to_logKfT() -> ThermoPropertiesReaction;
 
     /// Converst the logK as a function of T coefficients into Cp as a function of T coefficients
-    auto convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> void;
+    auto convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction;
 
     struct Impl;
 
