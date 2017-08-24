@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR);
 
-    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WWP);
+    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
 
     db.addSubstance(water);
 
@@ -29,7 +29,9 @@ int main(int argc, char *argv[])
     th.setSolventSymbol("H2O@_");
 
     double T = 400;
-    double P = 4000;
+    double P = 298;
+
+    auto watP = th.propertiesSolvent(T, P, "H2O@_");
 
     auto wat = th.thermoPropertiesSubstance(T, P, "H2O@_");
 
