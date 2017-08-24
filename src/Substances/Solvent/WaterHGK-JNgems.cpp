@@ -483,10 +483,9 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
         memcpy(&wl, &wr, sizeof(WPROPS));
         memcpy(&wr, &tw, sizeof(WPROPS));
 
-//        double temp = aSta.Dens[0];
-//        aSta.Dens[0] = aSta.Dens[1];
-//        aSta.Dens[1] = temp;
-
+        double temp = aSta.Dens[0];
+        aSta.Dens[0] = aSta.Dens[1];
+        aSta.Dens[1] = temp;
     }
     else
     {
