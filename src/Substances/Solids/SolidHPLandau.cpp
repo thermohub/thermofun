@@ -61,11 +61,22 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
     auto smq = Smax * Tcr0 *( pow(Q298,2.) - pow(Q298,6.)/3. );
 
     // increment thermodynamic properties
-    tps.gibbs_energy += ( smq - TK*Smax*pow(Q298,2.) + ivdp + Smax*((TK-Tcr)*pow(Qq,2.) + Tcr*pow(Qq,6.)/3.) );
-    tps.entropy      += ( Smax * ( pow(Q298,2.) - pow(Qq,2.) ) - idvdtdp );
-    tps.enthalpy     += ( smq - Smax*Tcr*( pow(Qq,2.) - pow(Qq,6.)/3.) + ivdp - TK*idvdtdp );
-    tps.volume        = ( v_bis + 2.*Smax*(TK-Tcr)*Qq*dQq - Smax*pow(Qq,2.)*Vmax/Smax + Tcr*pow(Qq,2.)*dQq
-                          + Vmax/Smax*pow(Qq,3.)/3. );  // in J/bar
+    if (Qq == 0. && dQq == 0.)
+    {
+        double Qq_ = 0.0; double dQq_ = 0.0;
+        tps.gibbs_energy += ( smq - TK*Smax*pow(Q298,2.) + ivdp + Smax*((TK-Tcr)*pow(Qq_,2.) + Tcr*pow(Qq_,6.)/3.) );
+        tps.entropy      += ( Smax * ( pow(Q298,2.) - pow(Qq_,2.) ) - idvdtdp );
+        tps.enthalpy     += ( smq - Smax*Tcr*( pow(Qq_,2.) - pow(Qq_,6.)/3.) + ivdp - TK*idvdtdp );
+        tps.volume        = ( v_bis + 2.*Smax*(TK-Tcr)*Qq_*dQq_ - Smax*pow(Qq_,2.)*Vmax/Smax + Tcr*pow(Qq_,2.)*dQq_
+                              + Vmax/Smax*pow(Qq_,3.)/3. );  // in J/bar
+    } else
+    {
+        tps.gibbs_energy += ( smq - TK*Smax*pow(Q298,2.) + ivdp + Smax*((TK-Tcr)*pow(Qq,2.) + Tcr*pow(Qq,6.)/3.) );
+        tps.entropy      += ( Smax * ( pow(Q298,2.) - pow(Qq,2.) ) - idvdtdp );
+        tps.enthalpy     += ( smq - Smax*Tcr*( pow(Qq,2.) - pow(Qq,6.)/3.) + ivdp - TK*idvdtdp );
+        tps.volume        = ( v_bis + 2.*Smax*(TK-Tcr)*Qq*dQq - Smax*pow(Qq,2.)*Vmax/Smax + Tcr*pow(Qq,2.)*dQq
+                              + Vmax/Smax*pow(Qq,3.)/3. );  // in J/bar
+    }
     if( TK<Tcr )  // Cp is corrected at subcritical T only
         tps.heat_capacity_cp += ( TK*Smax/(2.*sqrt(Tcr)*sqrt(Tcr-TK)) );
 
