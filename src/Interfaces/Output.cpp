@@ -277,6 +277,7 @@ auto Output::foutResultsSubstTrans(std::string property)-> void
 
     if (pimpl->api.outputSettings().isFixed) pimpl->fThermoProperties << std::fixed;
 
+    if (substanceSymbols.size() > 0)
     for (unsigned j=0; j<TPpairs.size(); j++)
     {
         pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
@@ -311,7 +312,7 @@ auto Output::foutResultsReacTrans(std::string property)-> void
 
     if (pimpl->api.outputSettings().isFixed) pimpl->fThermoProperties << std::fixed;
 
-
+    if (reactionSymbols.size() > 0)
     for (unsigned j=0; j<TPpairs.size(); j++)
     {
         pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
