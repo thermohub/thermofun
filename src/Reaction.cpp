@@ -353,7 +353,7 @@ auto Reaction::calc_logK_fT_coefficients( ) -> vd
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
     auto T          = Reaktoro_::Temperature(pimpl->reference_T);
-    auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
+    vd K_fT_Coeff   = {0.0,0.0,0.0,0.0,0.0,0.0,0.0};
     auto ref_prop   = pimpl->thermo_ref_prop;
     auto method_T   = pimpl->method_T;
 
@@ -372,30 +372,16 @@ auto Reaction::calc_logK_fT_coefficients( ) -> vd
         return K_fT_Coeff;
     case MethodCorrT_Thrift::type::CTM_EK0: // Generating 1-term extrapolation at logK = const
         K_fT_Coeff[0]=(Sr/Rln10).val;
-        K_fT_Coeff[1]=0.0;
-        K_fT_Coeff[2]=0.0;
-        K_fT_Coeff[3]=0.0;
-        K_fT_Coeff[4]=0.0;
-        K_fT_Coeff[5]=0.0;
-        K_fT_Coeff[6]=0.0;
         break;
     case MethodCorrT_Thrift::type::CTM_EK1: // Generating 1-term extrapolation at dGr = const
         K_fT_Coeff[0]=0.0;
         K_fT_Coeff[1]=0.0;
         K_fT_Coeff[2]=(-Hr/Rln10).val;
-        K_fT_Coeff[3]=0.0;
-        K_fT_Coeff[4]=0.0;
-        K_fT_Coeff[5]=0.0;
-        K_fT_Coeff[6]=0.0;
         break;
     case MethodCorrT_Thrift::type::CTM_EK2: // Generating 2-term (Vant Hoff) extrapolation
         K_fT_Coeff[0]=(Sr/Rln10).val;
         K_fT_Coeff[1]=0.0;
         K_fT_Coeff[2]=(-Hr/Rln10).val;
-        K_fT_Coeff[3]=0.0;
-        K_fT_Coeff[4]=0.0;
-        K_fT_Coeff[5]=0.0;
-        K_fT_Coeff[6]=0.0;
         break;
     case MethodCorrT_Thrift::type::CTM_PPE:
     case MethodCorrT_Thrift::type::CTM_EK3: // Generating 3-term extrapolation at constant dCpr
@@ -403,9 +389,6 @@ auto Reaction::calc_logK_fT_coefficients( ) -> vd
         K_fT_Coeff[1]=0.0;
         K_fT_Coeff[2]=(( Cpr*T - Hr ) / Rln10).val;
         K_fT_Coeff[3]=(Cpr / Rln10).val;
-        K_fT_Coeff[4]=0.0;
-        K_fT_Coeff[5]=0.0;
-        K_fT_Coeff[6]=0.0;
         break;
 //    default:
 //        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);
