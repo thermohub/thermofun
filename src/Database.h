@@ -63,7 +63,7 @@ public:
     auto setReaction(const Reaction& reaction) -> void;
 
     /// Calculates the reaction record parameters, based on the defined method and available data
-    auto calcParametersReactions( ) -> void;
+//    auto calcParametersReactions( ) -> void;
 
     /// Add a map pf Reactions in the database.
     auto addMapReactions(const ReactionsMap& reactions) -> void;

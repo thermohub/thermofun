@@ -243,11 +243,6 @@ auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, Therm
     }
 }
 
-auto Reaction::calcParameters () -> void
-{
-    logK_params_from_123TermExtrapolations();
-}
-
 auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
@@ -354,7 +349,7 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 
 }
 
-auto Reaction::logK_params_from_123TermExtrapolations() -> void
+auto Reaction::calc_logK_fT_coefficients( ) -> vd
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
     auto T          = Reaktoro_::Temperature(pimpl->reference_T);
@@ -374,7 +369,7 @@ auto Reaction::logK_params_from_123TermExtrapolations() -> void
     case MethodCorrT_Thrift::type::CTM_LGX:  // uncommented, 19.06.2008
         break;
     case MethodCorrT_Thrift::type::CTM_IKZ:  // Isotopic forms
-        return /*ref_prop*/;
+        return K_fT_Coeff;
     case MethodCorrT_Thrift::type::CTM_EK0: // Generating 1-term extrapolation at logK = const
         K_fT_Coeff[0]=(Sr/Rln10).val;
         K_fT_Coeff[1]=0.0;
@@ -416,9 +411,11 @@ auto Reaction::logK_params_from_123TermExtrapolations() -> void
 //        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);
     }
 
-    auto th_param = thermo_parameters();
-    th_param.reaction_logK_fT_coeff = K_fT_Coeff;
-    setThermoParameters(th_param);
+    return K_fT_Coeff;
+
+//    auto th_param = thermo_parameters();
+//    th_param.reaction_logK_fT_coeff = K_fT_Coeff;
+//    setThermoParameters(th_param);
 }
 
 } // namespace ThermoFun
