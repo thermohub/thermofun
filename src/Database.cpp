@@ -143,6 +143,12 @@ struct Database::Impl
         return collectValues(reactions_map);
     }
 
+    auto calcParametersReactions( ) -> void
+    {
+        for (auto &reaction : reactions_map)
+            reaction.second.calcParameters();
+    }
+
     auto numberOfSubstances() -> int
     {
         return collectValues(substances_map).size();
@@ -316,6 +322,11 @@ auto Database::getSubstance(std::string symbol) const -> const Substance&
 auto Database::getReaction(std::string symbol) const -> const Reaction&
 {
     return pimpl->getReaction(symbol);
+}
+
+auto Database::calcParametersReactions( ) -> void
+{
+    return pimpl->calcParametersReactions( );
 }
 
 auto Database::mapSubstances() const -> const SubstancesMap&

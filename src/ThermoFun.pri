@@ -13,7 +13,7 @@
     $$PWD/ThermoProperties.h \
     $$PWD/ThermoParameters.h \
     $$PWD/ReadFiles.h \
-    $$PWD/TPcalculationsAPI.h \
+#    $$PWD/TPcalculationsAPI.h \
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.h \
 # Substances - Solvent
@@ -84,7 +84,7 @@
     $$PWD/ElectroModelsSolvent.cpp \
     $$PWD/ThermoModelsReaction.cpp \
     $$PWD/ThermoModelsSubstance.cpp \
-    $$PWD/TPcalculationsAPI.cpp \
+#    $$PWD/TPcalculationsAPI.cpp \
     $$PWD/ReadFiles.cpp \
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.cpp \

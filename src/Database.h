@@ -62,6 +62,9 @@ public:
     /// Sets a reaction in the database. If reaction exists the record will be overwriten
     auto setReaction(const Reaction& reaction) -> void;
 
+    /// Calculates the reaction record parameters, based on the defined method and available data
+    auto calcParametersReactions( ) -> void;
+
     /// Add a map pf Reactions in the database.
     auto addMapReactions(const ReactionsMap& reactions) -> void;
 

@@ -243,6 +243,11 @@ auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, Therm
     }
 }
 
+auto Reaction::calcParameters () -> void
+{
+    logK_params_from_123TermExtrapolations();
+}
+
 auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
@@ -296,7 +301,7 @@ auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
     return ref_prop;
 }
 
-auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
+auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> ThermoPropertiesReaction
 {
 
     auto Rln10      = R_CONSTANT * lg_to_ln;
@@ -304,6 +309,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> Thermo
     auto CpCoeff    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
     auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
     auto ref_prop   = pimpl->thermo_ref_prop;
+    auto method_T   = pimpl->method_T;
 
     auto Sr = ref_prop.reaction_entropy;
 //    auto Gr = ref_prop.reaction_gibbs_energy;
@@ -311,7 +317,56 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> Thermo
     auto Cpr = ref_prop.reaction_heat_capacity_cp;
     auto lgKr = ref_prop.ln_equilibrium_constant / lg_to_ln;
 
-    switch( methodT )
+    switch( method_T )
+    {
+    case MethodCorrT_Thrift::type::CTM_LGK:
+       /* Calc lgK, Hr and Sr */
+        CpCoeff.resize(5);
+        lgKr = K_fT_Coeff[0] + K_fT_Coeff[1]*T + K_fT_Coeff[2]/T + K_fT_Coeff[3]*log(T) + K_fT_Coeff[4]/T*T +
+                K_fT_Coeff[5]*T*T + K_fT_Coeff[6]/pow(T,0.5);
+        Hr = Rln10 * ( K_fT_Coeff[1]*T*T - K_fT_Coeff[2] + K_fT_Coeff[3]*T -
+                2.0*K_fT_Coeff[4]/T + 2.0*K_fT_Coeff[5]*T*T*T - 0.5*K_fT_Coeff[6]*pow(T,0.5) );
+        Sr = Rln10 * ( K_fT_Coeff[0] + 2.0*K_fT_Coeff[1]*T + K_fT_Coeff[3]*(1.0 + log(T))
+                - K_fT_Coeff[4]/T*T + 3.0*K_fT_Coeff[5]*T*T + 0.5*K_fT_Coeff[6]/pow(T,0.5) );
+
+        CpCoeff[0] = Rln10 * K_fT_Coeff[3];
+        CpCoeff[1] = Rln10 * 2.0 * K_fT_Coeff[1];
+        CpCoeff[2] = Rln10 * 2.0 * K_fT_Coeff[4];
+        CpCoeff[3] = -Rln10 * 0.25 * K_fT_Coeff[6];
+        CpCoeff[4] = Rln10 * 6.0 * K_fT_Coeff[5];
+        Cpr   = CpCoeff[0] + CpCoeff[1]*T + CpCoeff[2]/T*T + CpCoeff[4]*T*T + CpCoeff[3]/pow(T,0.5);
+
+        ref_prop.reaction_entropy = Sr;  // In this case, everything will be inserted
+        ref_prop.reaction_enthalpy = Hr;
+        ref_prop.reaction_heat_capacity_cp = Cpr;
+        ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
+        ref_prop.log_equilibrium_constant = lgKr;
+        ref_prop.reaction_gibbs_energy = -Rln10*T*lgKr;
+
+    }
+
+    auto th_param = thermo_parameters();
+    th_param.reaction_Cp_fT_coeff   = CpCoeff;
+    th_param.reaction_logK_fT_coeff = K_fT_Coeff;
+    setThermoParameters(th_param);
+
+    return ref_prop;
+
+}
+
+auto Reaction::logK_params_from_123TermExtrapolations() -> void
+{
+    auto Rln10      = R_CONSTANT * lg_to_ln;
+    auto T          = Reaktoro_::Temperature(pimpl->reference_T);
+    auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
+    auto ref_prop   = pimpl->thermo_ref_prop;
+    auto method_T   = pimpl->method_T;
+
+    auto Sr = ref_prop.reaction_entropy;
+    auto Hr = ref_prop.reaction_enthalpy;
+    auto Cpr = ref_prop.reaction_heat_capacity_cp;
+
+    switch( method_T )
     { // calculation 2- and 3-term param approximation
     case MethodCorrT_Thrift::type::CTM_DKR: // 3-term extrap. from Franck-Marshall density model
     case MethodCorrT_Thrift::type::CTM_MRB: // 3-term extrap. from MRB at 25 C (provisional DK 06.08.07)
@@ -319,7 +374,7 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> Thermo
     case MethodCorrT_Thrift::type::CTM_LGX:  // uncommented, 19.06.2008
         break;
     case MethodCorrT_Thrift::type::CTM_IKZ:  // Isotopic forms
-        return ref_prop;
+        return /*ref_prop*/;
     case MethodCorrT_Thrift::type::CTM_EK0: // Generating 1-term extrapolation at logK = const
         K_fT_Coeff[0]=(Sr/Rln10).val;
         K_fT_Coeff[1]=0.0;
@@ -357,49 +412,13 @@ auto Reaction::convert_logKfT_toCpfT(MethodCorrT_Thrift::type methodT) -> Thermo
         K_fT_Coeff[5]=0.0;
         K_fT_Coeff[6]=0.0;
         break;
-    default:
-        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);
-    }
-
-    if (K_fT_Coeff.size() < 7)
-    {
-        errorModelParameters("LogKfT", "convert logKfT to CpfT", __LINE__, __FILE__);
-    }
-
-    switch( methodT )
-    {
-    case MethodCorrT_Thrift::type::CTM_LGK:
-       /* Calc lgK, Hr and Sr */
-        CpCoeff.resize(5);
-        lgKr = K_fT_Coeff[0] + K_fT_Coeff[1]*T + K_fT_Coeff[2]/T + K_fT_Coeff[3]*log(T) + K_fT_Coeff[4]/T*T +
-                K_fT_Coeff[5]*T*T + K_fT_Coeff[6]/pow(T,0.5);
-        Hr = Rln10 * ( K_fT_Coeff[1]*T*T - K_fT_Coeff[2] + K_fT_Coeff[3]*T -
-                2.0*K_fT_Coeff[4]/T + 2.0*K_fT_Coeff[5]*T*T*T - 0.5*K_fT_Coeff[6]*pow(T,0.5) );
-        Sr = Rln10 * ( K_fT_Coeff[0] + 2.0*K_fT_Coeff[1]*T + K_fT_Coeff[3]*(1.0 + log(T))
-                - K_fT_Coeff[4]/T*T + 3.0*K_fT_Coeff[5]*T*T + 0.5*K_fT_Coeff[6]/pow(T,0.5) );
-
-        CpCoeff[0] = Rln10 * K_fT_Coeff[3];
-        CpCoeff[1] = Rln10 * 2.0 * K_fT_Coeff[1];
-        CpCoeff[2] = Rln10 * 2.0 * K_fT_Coeff[4];
-        CpCoeff[3] = -Rln10 * 0.25 * K_fT_Coeff[6];
-        CpCoeff[4] = Rln10 * 6.0 * K_fT_Coeff[5];
-        Cpr   = CpCoeff[0] + CpCoeff[1]*T + CpCoeff[2]/T*T + CpCoeff[4]*T*T + CpCoeff[3]/pow(T,0.5);
-
-        ref_prop.reaction_entropy = Sr;  // In this case, everything will be inserted
-        ref_prop.reaction_enthalpy = Hr;
-        ref_prop.reaction_heat_capacity_cp = Cpr;
-        ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
-        ref_prop.log_equilibrium_constant = lgKr;
-        ref_prop.reaction_gibbs_energy = -Rln10*T*lgKr;
-
+//    default:
+//        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);
     }
 
     auto th_param = thermo_parameters();
-    th_param.reaction_Cp_fT_coeff   = CpCoeff;
     th_param.reaction_logK_fT_coeff = K_fT_Coeff;
     setThermoParameters(th_param);
-
-    return ref_prop;
 }
 
 } // namespace ThermoFun
