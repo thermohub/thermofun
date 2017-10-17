@@ -8,7 +8,7 @@ auto thermoPropertiesRyzhenkoBryzgalin(Reaktoro_::Temperature TK, Reaktoro_::Pre
     ThermoPropertiesReaction tpr;
 
 //    auto ref_tpr = reaction.thermo_ref_prop();
-    auto RHO = wp.density; // check units
+    auto RHO = wp.density / 1000; // check units
     auto ALP = wp.Alpha;
     auto BET = wp.Beta;
     auto dALPdT = wp.dAldT;
@@ -66,6 +66,7 @@ auto thermoPropertiesRyzhenkoBryzgalin(Reaktoro_::Temperature TK, Reaktoro_::Pre
     auto dAr  = dUr - TK*dSr;
 
     tpr.ln_equilibrium_constant    = logKTP*lg_to_ln;
+    tpr.log_equilibrium_constant   = logKTP;
     tpr.reaction_gibbs_energy      = dGr;
     tpr.reaction_entropy           = dSr;
     tpr.reaction_enthalpy          = dHr;
