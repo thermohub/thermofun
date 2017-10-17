@@ -349,7 +349,7 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 
 }
 
-auto Reaction::calc_logK_fT_coefficients( ) -> vd
+auto Reaction::calc_logK_fT_coefficients(bool lg10 ) -> vd
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
     auto T          = Reaktoro_::Temperature(pimpl->reference_T);
@@ -388,7 +388,10 @@ auto Reaction::calc_logK_fT_coefficients( ) -> vd
         K_fT_Coeff[0]=(( Sr - Cpr*(1.+log(T)) ) / Rln10).val;
         K_fT_Coeff[1]=0.0;
         K_fT_Coeff[2]=(( Cpr*T - Hr ) / Rln10).val;
-        K_fT_Coeff[3]=(Cpr / Rln10).val;
+        if (lg10)
+            K_fT_Coeff[3]=(Cpr / R_CONSTANT).val;
+        else
+            K_fT_Coeff[3]=(Cpr / Rln10).val;
         break;
 //    default:
 //        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);

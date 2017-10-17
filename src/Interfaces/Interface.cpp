@@ -348,7 +348,7 @@ auto Interface::addSubstances (const std::vector<string> &substSymbols) -> void
 
 auto Interface::addReaction (const std::string &reacSymbol) -> void
 {
-    if (std::find(pimpl->reacSymbols.begin(), pimpl->reacSymbols.end(), reacSymbol) == pimpl->reacSymbols.end())
+//    if (std::find(pimpl->reacSymbols.begin(), pimpl->reacSymbols.end(), reacSymbol) == pimpl->reacSymbols.end())
         pimpl->reacSymbols.push_back(reacSymbol);
     // add exception ??
 }
@@ -471,6 +471,12 @@ auto Interface::clearTPpairs () -> void
 {
     pimpl->tpPairs.clear();
 }
+
+auto Interface::clearReactions () -> void
+{
+    pimpl->reacSymbols.clear();
+}
+
 
 // set functions
 auto Interface::setOutputSettings(const OutputSettings &value) -> void
