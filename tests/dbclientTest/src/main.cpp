@@ -7,9 +7,9 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-    DBClient dbc("/home/dmiron/gitREAKTORO/Test-build/debug/Resources/ThermoFun.ini");
+    DBClient dbc("./Resources/ThermoFun.ini");
 
-    Database db = dbc.getDatabase(20);
+    Database db = dbc.getDatabase(15);
 
     Substance water;
     water.setName("water");
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     double T = 650;
     double P = 2000;
 
-    auto qtz = th.thermoPropertiesSubstance(T, P, "Quartz");
+//    auto qtz = th.thermoPropertiesSubstance(T, P, "Quartz");
 
     auto watP = th.propertiesSolvent(T, P, "H2O@_");
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     auto ca = th.thermoPropertiesSubstance(T, P, "Ca+2");
 
-    auto co2 = th.thermoPropertiesSubstance(T, P, "CO2@");
+//    auto co2 = th.thermoPropertiesSubstance(T, P, "CO2@");
 
     ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
 

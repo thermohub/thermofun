@@ -21,7 +21,6 @@
 
 // ThermoFun includes
 #include "Common/Exception.h"
-#include "Common/Units.h"
 
 namespace ThermoFun {
 
@@ -117,15 +116,10 @@ SoluteAkinfievDiamondEOS::SoluteAkinfievDiamondEOS(const Substance &substance)
 auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp, const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp,
                                                 const ThermoPropertiesSubstance& wtpr, const ThermoPropertiesSubstance& wigpr, const PropertiesSolvent& wpr) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
+    auto p = Reaktoro_::Pressure(P);
 
-    auto wtp_  = changeUnitPressure(wtp,  1e5);
-    auto wp_   = changeUnitPressure(wp,   1e5);
-    auto wtpr_ = changeUnitPressure(wtpr, 1e5);
-    auto wpr_  = changeUnitPressure(wpr,  1e5);
-
-    return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp_, wigp, wp_, wtpr_, wigpr, wpr_);
+    return thermoPropertiesAqSoluteAD(t, p, pimpl->substance, tps, wtp, wigp, wp, wtpr, wigpr, wpr);
 }
 
 //=======================================================================================================
@@ -154,8 +148,8 @@ WaterIdealGasWoolley::WaterIdealGasWoolley(const Substance &substance)
 
 auto WaterIdealGasWoolley::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
+    auto p = Reaktoro_::Pressure(P ); p *=bar_to_Pa;
 
     return waterIdealGas(t, p);
 }
@@ -225,8 +219,8 @@ SoluteHKFreaktoro::SoluteHKFreaktoro(const Substance &substance)
 
 auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
+    auto p = Reaktoro_::Pressure(P ); p *=bar_to_Pa;
 
 //    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
@@ -263,7 +257,7 @@ MinMurnaghanEOSHP98::MinMurnaghanEOSHP98(const Substance &substance)
 
 auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
     auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
     return thermoPropertiesMinMurnaghanEOSHP98(t, p, pimpl->substance, tps);
@@ -295,7 +289,7 @@ MinBerman88::MinBerman88(const Substance &substance)
 
 auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto TK = Reaktoro_::Temperature(T); TK += C_to_K;
     auto Pbar = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
 
     return thermoPropertiesMinBerman88(TK, Pbar, pimpl->substance, tps);
@@ -327,7 +321,7 @@ MinBMGottschalk::MinBMGottschalk(const Substance &substance)
 
 auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto TK = Reaktoro_::Temperature(T); TK += C_to_K;
     auto Pbar = Reaktoro_::Pressure(P);
 
     return thermoPropertiesMinBMGottschalk(TK, Pbar, pimpl->substance, tps);
@@ -359,7 +353,7 @@ EmpiricalCpIntegration::EmpiricalCpIntegration(const Substance &substance)
 // calculation
 auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
     auto p = Reaktoro_::Pressure(P);
 
     return thermoPropertiesEmpCpIntegration(t, p, pimpl->substance);
@@ -391,7 +385,7 @@ HPLandau::HPLandau(const Substance &substance)
 // calculation
 auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto TK = Reaktoro_::Temperature(T + C_to_K);
+    auto TK = Reaktoro_::Temperature(T); TK += C_to_K;
     auto Pbar = Reaktoro_::Pressure(P);
 
     return thermoPropertiesHPLandau(TK, Pbar, pimpl->substance, tps);
@@ -615,7 +609,7 @@ ConMolVol::ConMolVol(const Substance &substance)
 // calculation
 auto ConMolVol::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
     auto p = Reaktoro_::Pressure(P);
 
     ThermoPropertiesSubstance rtps = pimpl->substance.thermoReferenceProperties();
@@ -655,7 +649,7 @@ IdealGasLawVol::IdealGasLawVol(const Substance &substance)
 // calculation
 auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T + C_to_K);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
     auto p = Reaktoro_::Pressure(P);
 
     if(( pimpl->substance.substanceClass() == SubstanceClass::type::GASFLUID ) && P > 0.0 )
