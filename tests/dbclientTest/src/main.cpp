@@ -7,7 +7,11 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-    DBClient dbc("/home/dmiron/gitREAKTORO/Test-build/debug/Resources/ThermoFun.ini");
+    DBClient dbc("./Resources/ThermoFun.ini");
+
+    auto tdblist = dbc.getSourcetdbList();
+
+    auto ellist = dbc.makeAvailableElementsList(19);
 
     Database db = dbc.getDatabase(20);
 

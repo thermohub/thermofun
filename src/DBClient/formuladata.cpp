@@ -7,6 +7,7 @@
 DBElementsData ChemicalFormula::dbElements= DBElementsData();
 vector<string> ChemicalFormula::queryFields =
 {
+      "_id",
       "_type",
       "_label",
       "properties.symbol",
@@ -245,7 +246,7 @@ double FormulaToken::calculateCharge()
     auto itr =  datamap.begin();
     while( itr != datamap.end() )
     {
-      if( itr->key.class_ ==  4 /*CHARGE*/ &&
+      if( itr->key.class_ !=  4 /*CHARGE*/ &&
           itr->valence != bsonio::SHORT_EMPTY )
          Zz += itr->stoichCoef * itr->valence;
       itr++;
@@ -512,6 +513,7 @@ void ChemicalFormula::addOneElement( bsonio::TDBGraph* elementDB )
     elementDB->getValue( "properties.isotope_mass" , elkey.isotope );
 
     ElementValues eldata;
+    elementDB->getValue( "_id" , eldata.recid );
     elementDB->getValue( "properties.atomic_mass.values.0" , eldata.atomic_mass );
     elementDB->getValue( "properties.entropy.values.0" , eldata.entropy );
     elementDB->getValue( "properties.heat_capacity.values.0" , eldata.heat_capacity );

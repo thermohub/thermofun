@@ -38,6 +38,7 @@ bool operator!=( const ElementKey&,  const ElementKey& );
 /// Elements values, loaded from Database
 struct ElementValues
 {
+  string recid;            // Record id
   double atomic_mass;   // "Atomic (molar) mass, g/atom (g/mole)"
   double entropy;   // "Atomic entropy S0 at standard state, J/mole/K"
   double heat_capacity;   // "Atomic heat capacity Cp0 at standard state, J/mole/K"

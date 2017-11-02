@@ -63,6 +63,12 @@ void DBClient::getDataFromPreferencesFile()
 
     readSchemaDir( settings.schemaDir );
     SchemaNode::_schema =    &schema;
+
+    dbgraph = unique_ptr<TDBGraph> (newDBClinet(vertName, vertQuery));
+    auto qrJson = "{ \"_label\" : \"element\"}";
+    elementVertex = unique_ptr<bsonio::TDBGraph> (newDBClinet( "VertexElement", qrJson ));
+    // load all elements into system
+    ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
 }
 
 //---------------------------------------------------------------------
@@ -147,11 +153,6 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
     qrJson = "{ \"_label\" : \"defines\"}";
     definesEdge = unique_ptr<TDBGraph> (newDBClinet("EdgeDefines", qrJson));
 
-    qrJson = "{ \"_label\" : \"element\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
-    elementVertex = unique_ptr<bsonio::TDBGraph> (newDBClinet( "VertexElement", qrJson ));
-    // load all elements into system
-    ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
-
     // get substances
     substanceVertex->GetKeyValueList( substKeyList, substValList );
     reactionVertex->GetKeyValueList( reactKeyList, reactValList );
@@ -196,6 +197,135 @@ auto DBClient::parseSubstanceFormula(std::string formula_) -> mapFormulaElements
 
     return map;
 }
+
+set<int> DBClient::getSourcetdbNums()
+{
+  string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" },"
+                               "{ \"_label\" :   \"reaction\"  }"
+                              "], \"_type\" :   \"vertex\"  }  ";
+  set<int> _sourcetdb;
+  vector<string> _resultData = dbgraph->fieldQuery("properties.sourcetdb", query );
+
+  for( uint ii=0; ii<_resultData.size(); ii++)
+  {
+      int asourcetdb =  stoi( _resultData[ii] );
+     _sourcetdb.insert(asourcetdb);
+  }
+  return _sourcetdb;
+}
+
+vector<string> DBClient::getSourcetdbNames( const set<int>& sourcetdb )
+{
+  // set lists
+  vector<string> _sourcetdbList;
+  bsonio::ThriftEnumDef* enumdef =  schema.getEnum("SourceTDB" );
+  if(enumdef != nullptr )
+  {
+      foreach( int idx, sourcetdb)
+      {
+         string name = enumdef->getNamebyId(idx);
+         name += " - " + enumdef->getDoc(name);
+         name = to_string(idx) + "-" + name;
+         _sourcetdbList.push_back(name);
+      }
+  }
+  return _sourcetdbList;
+}
+
+mapFormulaElements DBClient::makeAvailableElementsList( int sourcendx )
+{
+   map<ElementKey, double> elements;
+   mapFormulaElements map;
+
+   string query = "{ \"_label\" :   \"substance\", "
+                    " \"_type\" :   \"vertex\", "
+                    " \"properties.sourcetdb\" :   ";
+           query +=  to_string(sourcendx);
+           query += " }  ";
+   vector<string> _queryFields = { "_id",
+                                    "properties.formula",
+                                    "properties.symbol",
+                                  };
+    vector<string> _resultData;
+    dbgraph->runQuery( query,  _queryFields, _resultData );
+
+    FormulaToken parser("");
+    foreach( string subitem, _resultData )
+    {
+      string formula =  bsonio::extractStringField( "formula", subitem );
+      string symbol =  bsonio::extractStringField( "symbol", subitem );
+      //  cout << subitem << "      " << formula << "  " << symbol << endl;
+      // test elements
+      parser.exeptionCheckElements( symbol, formula );
+      parser.setFormula(formula);
+      elements.insert( parser.getElements().begin(), parser.getElements().end());
+    }
+
+    for (auto element : elements)
+    {
+        Element e;
+        auto itrdb = ChemicalFormula::getDBElements().find(element.first);
+        if( itrdb ==  ChemicalFormula::getDBElements().end() )
+            bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.first.symbol );
+
+        e.setClass(element.first.class_);
+        e.setIsotopeMass(element.first.isotope);
+        e.setSymbol(element.first.symbol);
+        e.setName(itrdb->second.name);
+        e.setMolarMass(itrdb->second.atomic_mass);
+        e.setEntropy(itrdb->second.entropy);
+        e.setHeatCapacity(itrdb->second.heat_capacity);
+        e.setVolume(itrdb->second.volume);
+        e.setValence(itrdb->second.valence);
+
+        map[e] = element.second;
+    }
+
+    return map;
+}
+
+auto DBClient::getMapSubstances(const mapFormulaElements& elements, vector<string> substKeyList, vector<vector<string>> substValList) -> void
+{
+
+}
+
+auto DBClient::getMapReactions(const mapFormulaElements& elements, vector<string> reactKeyList) -> void
+{
+    for (auto id : reactKeyList)
+    {
+
+    }
+}
+
+
+auto DBClient::getDatabase( int sourcetdb, const mapFormulaElements& elements ) -> ThermoFun::Database
+{
+    // get substance keys containing the selected elements
+
+    vector<string> substKeyList, reactKeyList;
+    vector<vector<string>> substValList, reactValList;
+
+    MapIdType mapSubst, mapReact;
+
+    auto qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourcetdb)+ "}]}";
+    substanceVertex = unique_ptr<TDBGraph> (newDBClinet("VertexSubstance", qrJson));
+
+    qrJson = "{ \"_label\" : \"reaction\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourcetdb)+ "}]}";
+    reactionVertex = unique_ptr<bsonio::TDBGraph>(newDBClinet("VertexReaction", qrJson));
+
+    substanceVertex->GetKeyValueList( substKeyList, substValList );
+    reactionVertex->GetKeyValueList( reactKeyList, reactValList );
+
+//    mapSubst = getMapSubstances (elements, substKeyList, substValList);
+//    mapReact = getMapReactions (elements, reactKeyList, reactValList);
+
+    MapIdType mapAll = mapSubst; mapAll.insert(mapReact.begin(), mapReact.end());
+
+    Traversal tr(dbgraph);
+
+    return tr.getDatabaseFromMapOfIds(mapAll, "0");
+}
+
 
 }
 

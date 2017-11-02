@@ -4,6 +4,7 @@
 #include <string>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
+#include <map>
 
 // bonio includes
 #include "bsonio/thrift_schema.h"
@@ -13,7 +14,9 @@ namespace ThermoFun {
 
 struct Database;
 struct Reaction;
+struct Substance;
 struct Element;
+//struct ElementKey;
 
 using mapFormulaElements = std::map<Element, double>;
 
@@ -44,6 +47,15 @@ struct DBSettings
 ///
 class DBClient
 {
+    /// Vertex name
+    const string vertName = "VertexSubstance";
+    /// Default query to vertex
+    const string vertQuery = "{ \"_label\" :   \"substance\" }";
+    /// Fields to be extracted
+    vector<string> vertFields;
+    /// Columns names ( for extracted data )
+    vector<string> vertHeads;
+
     DBSettings settings;
 
     bsonio::ThriftSchema schema;
@@ -69,12 +81,20 @@ class DBClient
     // returns new DBClient using schema and query
     bsonio::TDBGraph *newDBClinet(string schemaName, string query);
 
+    auto getMapReactions(const mapFormulaElements& elements, vector<string> reactKeyList) -> void;
+    auto getMapSubstances(const mapFormulaElements& elements, vector<string> substKeyList, vector<vector<string>> substValList) -> void;
+
 public:
     ///
     /// \brief DBClient creates a DBClient instance
     /// \param settingsFile path to the ThermoFun.ini file
     ///
     explicit DBClient(std::string settingsFile);
+
+//    ThermoDataAbstract( const string& name, const string& query,
+//                        const vector<string>& fields, const vector<string>& headers ):
+//        vertName(name), vertQuery(query),
+//        vertFields(fields), vertHeads(headers)
 
     DBClient();
 
@@ -93,7 +113,23 @@ public:
     ///
     auto getDatabase(uint sourceTDB) -> Database;
 
+    auto getDatabase( int sourcetdb, const mapFormulaElements& elements ) -> ThermoFun::Database;
+
     auto parseSubstanceFormula (std::string formula) -> mapFormulaElements;
+
+
+    // Special functions
+    /// Get Sourcetdb numbers present into data base
+    set<int> getSourcetdbNums();
+    /// Build Sourcetdb Names list from indexes
+    vector<string> getSourcetdbNames( const set<int>& sourcetdb);
+    /// Get Sourcetdb Names present into data base
+    vector<string> getSourcetdbList()
+    {
+      return getSourcetdbNames( getSourcetdbNums() );
+    }
+
+    mapFormulaElements makeAvailableElementsList( int sourcendx );
 
 };
 
