@@ -4,7 +4,10 @@
 #include <string>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
+
 #include <map>
+#include <QtCore/QDir>
+
 
 // bonio includes
 #include "bsonio/thrift_schema.h"
