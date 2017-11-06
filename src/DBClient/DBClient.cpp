@@ -10,10 +10,6 @@
 #include "formuladata.h"
 #include "Traversal.h"
 
-#include <QFile>
-#include <QFileInfo>
-#include <QFileDialog>
-
 using namespace bsonio;
 
 namespace ThermoFun {

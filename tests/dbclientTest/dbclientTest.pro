@@ -6,8 +6,6 @@ TEMPLATE = app
 #QMAKE_CXXFLAGS += -std=c++1y
 QMAKE_CXXFLAGS += -std=c++11
 
-QT += widgets
-
 #CONFIG += -std=c++11
 
 TARGET = dbclientTest
