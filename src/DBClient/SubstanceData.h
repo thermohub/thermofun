@@ -14,7 +14,7 @@ class SubstanceData : public ThermoDataAbstract
 {
 public:
 
-    SubstanceData(boost::shared_ptr<bsonio::TDBGraph> dbgraph);
+    SubstanceData( );
 
     /// Extract data connected to ReactionSet
 //    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );

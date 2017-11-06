@@ -74,7 +74,8 @@
     $$PWD/OptimizationUtils.h \
     $$PWD/Common/Units.h \
     $$PWD/DBClient/ThermoData.h \
-    $$PWD/DBClient/SubstanceData.h
+    $$PWD/DBClient/SubstanceData.h \
+    $$PWD/DBClient/DatabaseClient.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
@@ -142,4 +143,5 @@
     $$PWD/Element.cpp \
     $$PWD/Common/Units.cpp \
     $$PWD/DBClient/ThermoData.cpp \
-    $$PWD/DBClient/SubstanceData.cpp
+    $$PWD/DBClient/SubstanceData.cpp \
+    $$PWD/DBClient/DatabaseClient.cpp

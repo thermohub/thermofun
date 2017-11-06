@@ -29,15 +29,16 @@ public:
 
     // load values function
     /// Extract data connected to ReactionSet
-    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet ) = 0;
+//    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet ) = 0;
     /// Extract data by condition
     virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
     /// Get Elements list from record
     virtual map<ElementKey, double> getElementsList( const string& idrec ) = 0;
 
-protected:
     void setDB(const boost::shared_ptr<bsonio::TDBGraph> &value);
+
+    protected:
 
     /// Test all elements from formula exist into list
     static bool testElementsFormula( const string& aformula, const vector<ElementKey>& elements );

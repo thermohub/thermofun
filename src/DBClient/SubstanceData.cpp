@@ -27,10 +27,9 @@ struct SubstanceData::Impl
 
 };
 
-SubstanceData::SubstanceData( boost::shared_ptr<bsonio::TDBGraph> dbgraph )
+SubstanceData::SubstanceData()
     : ThermoDataAbstract( "VertexSubstance", substQuery, substFieldPaths, substColumnHeaders, substDataNames), pimpl(new Impl())
 {
-    setDB(dbgraph);
     resetSubstDataPathIndex();
 }
 
