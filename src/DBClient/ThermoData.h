@@ -34,9 +34,15 @@ public:
     virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
     /// Get Elements list from record
-    virtual map<ElementKey, double> getElementsList( const string& idrec ) = 0;
+//    virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
     void setDB(const boost::shared_ptr<bsonio::TDBGraph> &value);
+
+    std::map<std::string, int> getDataIndex() const;
+    std::map<std::string, std::string> getDataPath() const;
+
+    std::map<std::string, std::string> getSubstSymbolLevel() const;
+    void setSubstSymbolLevel(const std::map<std::string, std::string> &value);
 
     protected:
 
@@ -48,6 +54,12 @@ public:
 
     /// Build ids list connected to idInVertex by edge, record edgesIds
     vector<string> getOutVertexIds(const string& edgeLabel, const string& idInVertex,  vector<string> &edgesIds);
+
+    void resetDataPathIndex();
+
+    void setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable);
+
+    boost::shared_ptr<bsonio::TDBGraph> getDB_fullAccessMode() const;
 
 private:
     struct Impl;

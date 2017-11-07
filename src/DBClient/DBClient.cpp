@@ -164,7 +164,7 @@ auto DBClient::getDatabase(uint sourceTDB) -> Database
 
 auto DBClient::parseSubstanceFormula(std::string formula_) -> mapFormulaElements
 {
-    map<ElementKey, double> elements;
+    set<ElementKey> elements;
     mapFormulaElements map;
     FormulaToken formula("");
 
@@ -174,13 +174,13 @@ auto DBClient::parseSubstanceFormula(std::string formula_) -> mapFormulaElements
     for (auto element : elements)
     {
         Element e;
-        auto itrdb = ChemicalFormula::getDBElements().find(element.first);
+        auto itrdb = ChemicalFormula::getDBElements().find(element);
         if( itrdb ==  ChemicalFormula::getDBElements().end() )
-            bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.first.symbol );
+            bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.symbol );
 
-        e.setClass(element.first.class_);
-        e.setIsotopeMass(element.first.isotope);
-        e.setSymbol(element.first.symbol);
+        e.setClass(element.class_);
+        e.setIsotopeMass(element.isotope);
+        e.setSymbol(element.symbol);
         e.setName(itrdb->second.name);
         e.setMolarMass(itrdb->second.atomic_mass);
         e.setEntropy(itrdb->second.entropy);
@@ -188,7 +188,7 @@ auto DBClient::parseSubstanceFormula(std::string formula_) -> mapFormulaElements
         e.setVolume(itrdb->second.volume);
         e.setValence(itrdb->second.valence);
 
-        map[e] = element.second;
+        map[e]++;
     }
 
     return map;
@@ -230,7 +230,7 @@ vector<string> DBClient::getSourcetdbNames( const set<int>& sourcetdb )
 
 mapFormulaElements DBClient::makeAvailableElementsList( int sourcendx )
 {
-   map<ElementKey, double> elements;
+   set<ElementKey> elements;
    mapFormulaElements map;
 
    string query = "{ \"_label\" :   \"substance\", "
@@ -260,13 +260,13 @@ mapFormulaElements DBClient::makeAvailableElementsList( int sourcendx )
     for (auto element : elements)
     {
         Element e;
-        auto itrdb = ChemicalFormula::getDBElements().find(element.first);
+        auto itrdb = ChemicalFormula::getDBElements().find(element);
         if( itrdb ==  ChemicalFormula::getDBElements().end() )
-            bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.first.symbol );
+            bsonio::bsonioErr( "E37FPrun: Invalid symbol ", element.symbol );
 
-        e.setClass(element.first.class_);
-        e.setIsotopeMass(element.first.isotope);
-        e.setSymbol(element.first.symbol);
+        e.setClass(element.class_);
+        e.setIsotopeMass(element.isotope);
+        e.setSymbol(element.symbol);
         e.setName(itrdb->second.name);
         e.setMolarMass(itrdb->second.atomic_mass);
         e.setEntropy(itrdb->second.entropy);
@@ -274,7 +274,7 @@ mapFormulaElements DBClient::makeAvailableElementsList( int sourcendx )
         e.setVolume(itrdb->second.volume);
         e.setValence(itrdb->second.valence);
 
-        map[e] = element.second;
+        map[e]++;
     }
 
     return map;

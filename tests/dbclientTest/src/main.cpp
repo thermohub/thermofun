@@ -8,6 +8,22 @@ int main(int argc, char *argv[])
     cout << "Hello World!" << endl;
 
     DBClient dbc("./Resources/ThermoFun.ini");
+    DatabaseClient dbc_("./Resources/ThermoFun.ini");
+
+    Database db_ = dbc_.getDatabase(19);
+
+
+    auto ellist_ = dbc_.availableElements(19);
+
+    auto rcd = dbc_.reactData();
+
+    auto loadedReacData = rcd.loadRecordsValues("{ \"_label\" : \"reaction\"}", 19, dbc_.availableElementsList_(19) );
+
+
+//    for (auto e : ellist_)
+//        auto symbol = e.symbol();
+
+
 
     auto tdblist = dbc.getSourcetdbList();
 

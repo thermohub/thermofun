@@ -92,8 +92,8 @@ class FormulaToken
 {
     string formula;
     FormulaElementsData datamap;  ///< List of tokens
-    map<ElementKey, double>  elements;
-//    set<ElementKey>  elements;    ///< Set of existed elements
+    map<ElementKey, double>  elements_map;
+    set<ElementKey>  elements;    ///< Set of existed elements
 //    std::map<std::string, double> mapElementsCoeff; ///< Map of elements symbols and coefficients
     double aZ;                    ///< Calculated charge in Mol
 
@@ -147,7 +147,9 @@ public:
     void exeptionCargeImbalance();
 
     /// Get of existed elements
-    const map<ElementKey, double>& getElements() const
+    const map<ElementKey, double>& getElements_map() const
+    { return elements_map; }
+    const set<ElementKey>& getElements() const
     { return elements; }
 
 //    const std::vector<double>& getCoefficients() const
@@ -179,7 +181,8 @@ class ChemicalFormula
 
   static vector<ElementKey> elementsRow();
 
-  static map<ElementKey, double> extractElements(  const vector<string>& formulalist );
+  static map<ElementKey, double> extractElements_map(  const vector<string>& formulalist );
+  static set<ElementKey>         extractElements(  const vector<string>& formulalist );
   static FormulaProperites         calcThermo(  const string formula_ );
   static vector<FormulaProperites> calcThermo(  const vector<string>& formulalist );
   static vector<vector<double>> calcStoichiometryMatrixOld(  const vector<string>& formulalist );

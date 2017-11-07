@@ -15,18 +15,27 @@ struct ThermoDataAbstract::Impl
     /// Data names which will be used throughout the code
     vector<string> dataNames;
 
+    std::map<std::string, int> dataIndex;
+    std::map<std::string, std::string> dataPath;
+
+    std::map<std::string, std::string> substSymbolLevel;
+
     /// Data base connection
     boost::shared_ptr<bsonio::TDBGraph> graphdb;
+
+    /// Data base connection access to all data types
+    boost::shared_ptr<bsonio::TDBGraph> graphdb_all;
 
     Impl(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names) :
          name(name), query(query), fieldPaths(paths), dataHeaders(headers), dataNames(names)
     { }
-
 };
 
 ThermoDataAbstract::ThermoDataAbstract(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names)
     : pimpl(new Impl(name, query, paths, headers, names))
-{}
+{
+    resetDataPathIndex();
+}
 
 string ThermoDataAbstract::getName() const
 {
@@ -75,7 +84,19 @@ boost::shared_ptr<bsonio::TDBGraph> ThermoDataAbstract::getDB() const
 
 void ThermoDataAbstract::setDB(const boost::shared_ptr<bsonio::TDBGraph> &value)
 {
-    pimpl->graphdb = value;
+    pimpl->graphdb     = value;
+    pimpl->graphdb_all = value;
+    pimpl->graphdb_all->resetMode(true);
+}
+
+void ThermoDataAbstract::resetDataPathIndex()
+{
+    pimpl->dataIndex.clear(); pimpl->dataPath.clear();
+    for (uint i = 0; i<getDataNames().size(); i++)
+    {
+        pimpl->dataIndex[getDataNames()[i]] = i;
+        pimpl->dataPath[getDataNames()[i]] = getFieldPaths()[i];
+    }
 }
 
 bool ThermoDataAbstract::testElementsFormula( const string& aformula,
@@ -88,7 +109,7 @@ bool ThermoDataAbstract::testElementsFormula( const string& aformula,
       auto itr = elements.begin();
       while( itr != elements.end() )
       {
-        if( formelm.first == *itr )
+        if( formelm == *itr )
          break;
        itr++;
       }
@@ -141,6 +162,39 @@ vector<string> ThermoDataAbstract::getOutVertexIds(const string& edgeLabel, cons
       edgeIds_.push_back(edgeId_);
     }
     return vertexIds_;
+}
+
+void ThermoDataAbstract::setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable)
+{
+    for( const auto& subitem : valuesTable )
+    {
+        pimpl->substSymbolLevel[subitem[getDataIndex()["symbol"]]] = "0";
+    }
+}
+
+std::map<std::string, int> ThermoDataAbstract::getDataIndex() const
+{
+    return pimpl->dataIndex;
+}
+
+std::map<std::string, std::string> ThermoDataAbstract::getDataPath() const
+{
+    return pimpl->dataPath;
+}
+
+std::map<std::string, std::string> ThermoDataAbstract::getSubstSymbolLevel() const
+{
+    return pimpl->substSymbolLevel;
+}
+
+void ThermoDataAbstract::setSubstSymbolLevel(const std::map<std::string, std::string> &value)
+{
+    pimpl->substSymbolLevel = value;
+}
+
+boost::shared_ptr<bsonio::TDBGraph> ThermoDataAbstract::getDB_fullAccessMode() const
+{
+    return pimpl->graphdb_all;
 }
 
 }

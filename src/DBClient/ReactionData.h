@@ -1,5 +1,5 @@
-#ifndef SUBSTANCEDATA_H
-#define SUBSTANCEDATA_H
+#ifndef REACTIONDATA_H
+#define REACTIONDATA_H
 
 // C++ includes
 #include <memory>
@@ -10,21 +10,26 @@ namespace ThermoFun {
 
 //struct ThermoDataAbstract;
 
-class SubstanceData : public ThermoDataAbstract
+class ReactionData : public ThermoDataAbstract
 {
 public:
 
-    SubstanceData( );
+    ReactionData( );
 
     /// Extract data connected to ReactionSet
 //    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
     virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} );
-    /// Get Elements list from reaction record
-    virtual set<ElementKey> getElementsList( const string& idSubstance );
+   /// Get Elements list from reaction record
+    virtual set<ElementKey> getElementsList( const string& id );
+
+    /// Return all formulas from all connected substances
+    vector<string> getReactantsFormulas( const string& idReaction );
 
 private:
+
+    bool testElements( const string& idReaction, const vector<ElementKey>& elements );
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;
@@ -32,6 +37,4 @@ private:
 
 }
 
-
-
-#endif // SUBSTANCEDATA_H
+#endif // REACTIONDATA_H

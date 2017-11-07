@@ -234,7 +234,8 @@ void FormulaToken::unpack( list<ICTERM>& itt_ )
                 itr->val = itrdb->second.valence;
         }
         datamap.push_back( FormulaValues( key, itr->stoich, itr->val ));
-        elements.insert(pair<ElementKey,double>(key,itr->stoich));
+        elements.insert(key);
+        elements_map.insert(pair<ElementKey,double>(key,itr->stoich));
 //        coefficients.push_back(itr->stoich);
         itr++;
     }
@@ -259,6 +260,7 @@ void FormulaToken::clear()
 {
     datamap.clear();
     elements.clear();
+    elements_map.clear();
     aZ = 0.;
 }
 
@@ -410,9 +412,22 @@ vector<ElementKey> ChemicalFormula::elementsRow()
     return row;
 }
 
-map<ElementKey, double> ChemicalFormula::extractElements(  const vector<string>& formulalist )
+map<ElementKey, double> ChemicalFormula::extractElements_map(  const vector<string>& formulalist )
 {
-   map<ElementKey, double> elements;
+   map<ElementKey, double> elements_map;
+   FormulaToken formula("");
+
+   for(uint ii=0; ii<formulalist.size(); ii++ )
+   {
+     formula.setFormula(  formulalist[ii] );
+     elements_map.insert( formula.getElements_map().begin(), formula.getElements_map().end());
+   }
+   return elements_map;
+}
+
+set<ElementKey> ChemicalFormula::extractElements(  const vector<string>& formulalist )
+{
+   set<ElementKey> elements;
    FormulaToken formula("");
 
    for(uint ii=0; ii<formulalist.size(); ii++ )
@@ -420,7 +435,6 @@ map<ElementKey, double> ChemicalFormula::extractElements(  const vector<string>&
      formula.setFormula(  formulalist[ii] );
      elements.insert( formula.getElements().begin(), formula.getElements().end());
    }
-
    return elements;
 }
 
