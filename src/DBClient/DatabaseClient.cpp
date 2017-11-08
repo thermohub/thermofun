@@ -110,19 +110,11 @@ struct DatabaseClient::Impl
 
 DatabaseClient::DatabaseClient( std::string settingsFile )
 : pimpl(new Impl(settingsFile))
-{ }
+{}
 
-//DatabaseClient::DatabaseClient( boost::shared_ptr<bsonio::TDBGraph> dbgraph )
-//: pimpl(new Impl( ))
-//{ }
-
-DatabaseClient::DatabaseClient( )
-: pimpl(new Impl( ))
-{ }
-
-//DatabaseClient::DatabaseClient(const DatabaseClient& other)
-//: pimpl(new Impl(*other.pimpl))
-//{}
+DatabaseClient::DatabaseClient()
+: pimpl(new Impl())
+{}
 
 auto DatabaseClient::operator=(DatabaseClient other) -> DatabaseClient&
 {
@@ -130,21 +122,20 @@ auto DatabaseClient::operator=(DatabaseClient other) -> DatabaseClient&
     return *this;
 }
 
-
 DatabaseClient::~DatabaseClient()
-{ }
+{}
 
-auto DatabaseClient::getDatabase(uint sourceTDB) -> Database
+auto DatabaseClient::getDatabase(uint sourcetdbIndex) -> Database
 {
     string qrJson;
     Database db;
     vector<string> substKeyList, reactKeyList, keyList;
     vector<vector<string>> substValList, reactValList;
 
-    qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
+    qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourcetdbIndex)+ "}]}";
     pimpl->substData.setDB(boost::shared_ptr<bsonio::TDBGraph> (pimpl->newDBClinet("VertexSubstance", qrJson)));
 
-    qrJson = "{ \"_label\" : \"reaction\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourceTDB)+ "}]}";
+    qrJson = "{ \"_label\" : \"reaction\", \"$and\" : [{\"properties.sourcetdb\" : "+to_string(sourcetdbIndex)+ "}]}";
     pimpl->reactData.setDB(boost::shared_ptr<bsonio::TDBGraph>(pimpl->newDBClinet("VertexReaction", qrJson)));
 
     pimpl->substData.getDB()->GetKeyValueList( substKeyList, substValList );
@@ -160,10 +151,10 @@ auto DatabaseClient::getDatabase(uint sourceTDB) -> Database
     return db;
 }
 
-auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> mapElements
+auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Element, double>
 {
     std::set<ElementKey> elements;
-    mapElements map;
+    std::map<Element, double> map;
     FormulaToken formula("");
 
     formula.setFormula(  formula_ );
@@ -192,7 +183,7 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> mapElements
     return map;
 }
 
-set<int> DatabaseClient::getSourcetdbNums()
+set<int> DatabaseClient::getSourcetdbIndexes()
 {
   string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" },"
                                "{ \"_label\" :   \"reaction\"  }"
@@ -208,22 +199,36 @@ set<int> DatabaseClient::getSourcetdbNums()
   return _sourcetdb;
 }
 
-vector<string> DatabaseClient::getSourcetdbNames( const set<int>& sourcetdb )
+std::map<string, uint> DatabaseClient::sourcetdbNamesIndexes(const set<int>& sourcetdbIndexes )
 {
   // set lists
-  vector<string> _sourcetdbList;
+  std::map<string, uint> namesIndexes;
   bsonio::ThriftEnumDef* enumdef =  pimpl->schema.getEnum("SourceTDB" );
   if(enumdef != nullptr )
   {
-      foreach( int idx, sourcetdb)
+      foreach( int idx, sourcetdbIndexes)
       {
          string name = enumdef->getNamebyId(idx);
-         name += " - " + enumdef->getDoc(name);
-         name = to_string(idx) + "-" + name;
-         _sourcetdbList.push_back(name);
+         namesIndexes[name]=idx;
       }
   }
-  return _sourcetdbList;
+  return namesIndexes;
+}
+
+std::map<string, string> DatabaseClient::sourcetdbNamesComments(const set<int>& sourcetdbIndexes )
+{
+  // set lists
+  std::map<string, string> namesComments;
+  bsonio::ThriftEnumDef* enumdef =  pimpl->schema.getEnum("SourceTDB" );
+  if(enumdef != nullptr )
+  {
+      foreach( int idx, sourcetdbIndexes)
+      {
+         string name = enumdef->getNamebyId(idx);
+         namesComments[name]= enumdef->getDoc(name);
+      }
+  }
+  return namesComments;
 }
 
 set<Element> DatabaseClient::availableElementsList( int sourcetdb )
@@ -277,19 +282,18 @@ set<Element> DatabaseClient::availableElementsList( int sourcetdb )
     return set;
 }
 
-vector<string> DatabaseClient::availableElements( int sourcetdb )
+std::set<string> DatabaseClient::availableElements( int sourcetdb )
 {
-   vector<string> set;
+   std::set<string> set;
 
    auto elements = availableElementsList(sourcetdb);
 
     for (auto element : elements)
     {
-        set.push_back(element.symbol());
+        set.insert(element.symbol());
     }
     return set;
 }
-
 
 std::vector<ElementKey> DatabaseClient::availableElementsList_( int sourcetdb )
 {
@@ -339,7 +343,5 @@ ReactionData DatabaseClient::reactData() const
 {
     return pimpl->reactData;
 }
-
-
 
 }

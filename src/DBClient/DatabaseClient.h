@@ -22,8 +22,6 @@ struct SubstanceData;
 struct ReactionData;
 //struct ElementKey;
 
-using mapElements = std::map<Element, double>;
-
 ///
 /// \brief The DBSettings struct holds the settings for connecting to the local or server database
 ///
@@ -57,11 +55,6 @@ public:
 
     DatabaseClient( );
 
-//    DatabaseClient( boost::shared_ptr<bsonio::TDBGraph> dbgraph );
-
-//    /// Construct a copy of an DatabaseClient instance
-//    DatabaseClient(const DatabaseClient& other);
-
     /// Assign a DatabaseClient instance to this instance
     auto operator=(DatabaseClient other) -> DatabaseClient&;
 
@@ -73,35 +66,35 @@ public:
     /// \param sourceTDB
     /// \return returns a ThermoFun Database structure containing the substances and reactions maps
     ///
-    auto getDatabase(uint sourceTDB) -> Database;
+    auto getDatabase( uint sourcetdbIndex) -> Database;
 
-    auto getDatabase( int sourcetdb, const mapElements& elements ) -> ThermoFun::Database;
+    auto getDatabase( int sourcetdbIndex, const std::map<Element, double>& elements ) -> Database;
 
-    auto parseSubstanceFormula (std::string formula) -> mapElements;
-
+    auto parseSubstanceFormula (std::string formula) -> std::map<Element, double>;
 
     // Special functions
     /// Get Sourcetdb numbers present into data base
-    std::set<int> getSourcetdbNums();
+    std::set<int> getSourcetdbIndexes();
 
-    /// Build Sourcetdb Names list from indexes
-    std::vector<std::string> getSourcetdbNames( const std::set<int>& sourcetdb);
+    /// Build Sourcetdb Names set from indexes
+    std::map<std::string, uint> sourcetdbNamesIndexes(const std::set<int>& sourcetdbIndexes);
+
+    /// Build Sourcetdb Names set from indexes
+    std::map<std::string, std::string> sourcetdbNamesComments(const std::set<int>& sourcetdbIndexes);
 
     /// Get Sourcetdb Names present into data base
-    std::vector<std::string> getSourcetdbList()
+    std::map<std::string, uint> getSourcetdbList()
     {
-      return getSourcetdbNames( getSourcetdbNums() );
+      return sourcetdbNamesIndexes( getSourcetdbIndexes() );
     }
 
-    std::vector<std::string> availableElements(int sourcetdb );
+    std::set<std::string> availableElements(int sourcetdb );
     std::vector<ElementKey> availableElementsList_( int sourcetdb );
 
     SubstanceData substData() const;
     ReactionData reactData() const;
 
 private:
-
-
 
     std::set<Element> availableElementsList(int sourcetdb );
 

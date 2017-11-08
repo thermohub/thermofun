@@ -10,6 +10,10 @@ int main(int argc, char *argv[])
     DBClient dbc("./Resources/ThermoFun.ini");
     DatabaseClient dbc_("./Resources/ThermoFun.ini");
 
+    auto ndx = dbc_.getSourcetdbIndexes();
+
+    auto names = dbc_.sourcetdbNamesIndexes(ndx);
+
     Database db_ = dbc_.getDatabase(19);
 
 
