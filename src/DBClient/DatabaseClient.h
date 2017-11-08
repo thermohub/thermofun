@@ -57,11 +57,13 @@ public:
 
     DatabaseClient( );
 
+//    DatabaseClient( boost::shared_ptr<bsonio::TDBGraph> dbgraph );
+
 //    /// Construct a copy of an DatabaseClient instance
 //    DatabaseClient(const DatabaseClient& other);
 
     /// Assign a DatabaseClient instance to this instance
-//    auto operator=(DatabaseClient other) -> DatabaseClient&;
+    auto operator=(DatabaseClient other) -> DatabaseClient&;
 
     /// Destroy this instance
     virtual ~DatabaseClient();

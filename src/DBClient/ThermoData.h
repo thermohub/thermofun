@@ -16,6 +16,15 @@ public:
 
     ThermoDataAbstract( const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names );
 
+    /// Construct a copy of an ThermoDataAbstract instance
+    ThermoDataAbstract(const ThermoDataAbstract& other);
+
+    /// Assign a ThermoDataAbstract instance to this instance
+//    auto operator=(ThermoDataAbstract other) -> ThermoDataAbstract&;
+
+    /// Destroy this instance
+    virtual ~ThermoDataAbstract();
+
     boost::shared_ptr<bsonio::TDBGraph> getDB() const;
 
     string getName() const;
@@ -34,7 +43,7 @@ public:
     virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
     /// Get Elements list from record
-//    virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
+    virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
     void setDB(const boost::shared_ptr<bsonio::TDBGraph> &value);
 

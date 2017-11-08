@@ -2,9 +2,6 @@
 
 using namespace bsonio;
 
-
-
-
 namespace ThermoFun {
 
 const string reactQuery = "{\"_label\": \"reaction\" }";
@@ -25,6 +22,20 @@ struct ReactionData::Impl
 
 ReactionData::ReactionData( )
     : ThermoDataAbstract( "VertexReaction", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
+{ }
+
+
+//ReactionData::ReactionData(const ReactionData& other)
+// : pimpl(new Impl(*other.pimpl))
+//{}
+
+auto ReactionData::operator=(ReactionData other) -> ReactionData&
+{
+    pimpl = std::move(other.pimpl);
+    return *this;
+}
+
+ReactionData::~ReactionData()
 { }
 
 bsonio::ValuesTable ReactionData::loadRecordsValues( const string& aquery,

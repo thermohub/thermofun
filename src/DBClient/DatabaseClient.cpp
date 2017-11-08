@@ -112,9 +112,24 @@ DatabaseClient::DatabaseClient( std::string settingsFile )
 : pimpl(new Impl(settingsFile))
 { }
 
+//DatabaseClient::DatabaseClient( boost::shared_ptr<bsonio::TDBGraph> dbgraph )
+//: pimpl(new Impl( ))
+//{ }
+
 DatabaseClient::DatabaseClient( )
 : pimpl(new Impl( ))
 { }
+
+//DatabaseClient::DatabaseClient(const DatabaseClient& other)
+//: pimpl(new Impl(*other.pimpl))
+//{}
+
+auto DatabaseClient::operator=(DatabaseClient other) -> DatabaseClient&
+{
+    pimpl = std::move(other.pimpl);
+    return *this;
+}
+
 
 DatabaseClient::~DatabaseClient()
 { }

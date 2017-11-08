@@ -16,6 +16,10 @@ public:
 
     SubstanceData( );
 
+    auto operator=(SubstanceData other) -> SubstanceData&;
+
+    virtual ~SubstanceData();
+
     /// Extract data connected to ReactionSet
 //    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition

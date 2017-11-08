@@ -16,6 +16,13 @@ public:
 
     ReactionData( );
 
+    /// Construct a copy of an ReactionData instance
+//    ReactionData(const ReactionData& other);
+
+    auto operator=(ReactionData other) -> ReactionData&;
+
+    virtual ~ReactionData();
+
     /// Extract data connected to ReactionSet
 //    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition

@@ -37,6 +37,20 @@ ThermoDataAbstract::ThermoDataAbstract(const string &name, const string &query, 
     resetDataPathIndex();
 }
 
+ThermoDataAbstract::ThermoDataAbstract(const ThermoDataAbstract& other)
+: pimpl(new Impl(*other.pimpl))
+{}
+
+//auto ThermoDataAbstract::operator=(ThermoDataAbstract other) -> ThermoDataAbstract&
+//{
+//    pimpl = std::move(other.pimpl);
+//    return *this;
+//}
+
+
+ThermoDataAbstract::~ThermoDataAbstract()
+{ }
+
 string ThermoDataAbstract::getName() const
 {
     return pimpl->name;
