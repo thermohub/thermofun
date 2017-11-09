@@ -18,9 +18,9 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     Reaktoro_::ThermoScalar Gids, /*Vids,*/ Sids, CPids, Hids;
     Reaktoro_::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
 
-    Reaktoro_::Temperature Tk (T.val);
+    Reaktoro_::Temperature Tk = T;
     auto Tr (298.15);
-    Reaktoro_::Pressure Pbar (P.val/1e05);
+    Reaktoro_::Pressure Pbar = P;
     auto Pr = 1.0;
 
     ThermoPropertiesSubstance state = tps;
@@ -49,7 +49,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     auto CPw   = wtpr.heat_capacity_cp;
     auto rho   = wpr.density/1000;
     auto alp   = wpr.Alpha;
-    auto bet   = wpr.Beta/**1e05*/;
+    auto bet   = wpr.Beta*1e05;
     auto dalpT = wpr.dAldT;
 
 //    Gig = -228526.66;
@@ -88,7 +88,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature T, Reaktoro_::Pressure P,
     /// units????
     rho = wp.density / 1000; // aSta.Dens[aSpc.isat];
     alp = wp.Alpha; // aWp.Alphaw[aSpc.isat];
-    bet = wp.Beta/**1e05*/; // aWp.Betaw[aSpc.isat];
+    bet = wp.Beta*1e05; // aWp.Betaw[aSpc.isat];
     dalpT = wp.dAldT; // aWp.dAldT[aSpc.isat];
 
     Akinfiev_EOS_increments(Tk, Pbar, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,

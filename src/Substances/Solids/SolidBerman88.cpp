@@ -11,8 +11,8 @@ auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure 
     auto Pst = subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
-    auto T   = Reaktoro_::Temperature (TK.val);
-    auto P   = Reaktoro_::Pressure (Pbar.val); // in bar
+    auto T   = TK;
+    auto P   = Pbar; // in bar
     auto Ts2   = Tst*Tst;
 
     auto vc = subst.thermoParameters().volume_coeff;

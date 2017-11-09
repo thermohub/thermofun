@@ -22,7 +22,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     }
 
 
-    auto TK = Reaktoro_::Temperature(T.val /*+ C_to_K*/);
+    auto TK = T;
 //    auto Pb = Reaktoro_::Pressure(P);
 
     auto TrK = substance.referenceT()/* + C_to_K*/;

@@ -10,18 +10,18 @@ int main(int argc, char *argv[])
     DBClient dbc("./Resources/ThermoFun.ini");
     DatabaseClient dbc_("./Resources/ThermoFun.ini");
 
-    auto ndx = dbc_.getSourcetdbIndexes();
+    auto ndx = dbc_.sourcetdbIndexes();
 
     auto names = dbc_.sourcetdbNamesIndexes(ndx);
 
-    Database db_ = dbc_.getDatabase(19);
+    Database db_ = dbc_.thermoFunDatabase(19);
 
 
     auto ellist_ = dbc_.availableElements(19);
 
     auto rcd = dbc_.reactData();
 
-    auto loadedReacData = rcd.loadRecordsValues("{ \"_label\" : \"reaction\"}", 19, dbc_.availableElementsList_(19) );
+    auto loadedReacData = rcd.loadRecordsValues("{ \"_label\" : \"reaction\"}", 19, dbc_.availableElementsKey(19) );
 
 
 //    for (auto e : ellist_)

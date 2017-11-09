@@ -43,8 +43,8 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    auto t = Reaktoro_::Temperature(T + C_to_K);
-    auto p = Reaktoro_::Pressure(P * bar_to_Pa);
+    auto t = Reaktoro_::Temperature(T); t += C_to_K;
+    auto p = Reaktoro_::Pressure(P); p *= bar_to_Pa;
 
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
 

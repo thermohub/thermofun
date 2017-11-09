@@ -31,6 +31,17 @@ class Traversal
 
     LevelMode levelMode = LevelMode::single;
 
+    /// map of database ids and bson record of vertexes
+    std::map<std::string, bson> idBsonRec;
+    /// map of substance ids and the query result of conneted defines edges
+    std::map<std::string, std::vector<std::string>> idSubstDefinesEdges;
+    /// map of reactions ids and the query result of connected takes edges
+    std::map<std::string, std::vector<std::string>> idReactTakesEdges;
+    /// map of defines edge ids and the query results of outgoing reactions
+    std::map<std::string, std::vector<std::string>> idDefinesOutReact;
+    /// map of takes edge ids and the query results of outgoing substances
+    std::map<std::string, std::vector<std::string>> idTakesOutSubst;
+
     vector<string> queryIncomingEdgeDefines(std::string idSubst, vector<string> queryFields,  string level);
     vector<string> queryIncomingEdgeTakes(std::string idReact, vector<string> queryFields);
     vector<string> queryVertexReaction(std::string idReact, vector<string> queryFields);
@@ -40,9 +51,9 @@ class Traversal
     // follows the incoming Defines edge for substance with _idSubst
     void followIncomingDefines(std::string _idSubst, MapIdType &result, string level_);
     // follows the incoming Takes edges for reaction with _idReac
-    void followIncomingTakes(std::string _idReac, MapIdType &result);
+    void followIncomingTakes(std::string _idReact, MapIdType &result);
     // returns the symbol of the reaction which defines the substance with _idSubst
-    std::string getDefinesReactionSymbol(std::string _idSubst, string level_);
+    std::string getDefinesReactionSymbol(std::string _idSubst);
     // returns a map of reactants symbols and coeficients participating in the reaction
     std::map<std::string, double> getReactantsCoeffMap(std::string _idReac);
 
