@@ -6,42 +6,40 @@
 #include "formuladata.h"
 #include "ThermoData.h"
 
-namespace ThermoFun {
+namespace ThermoFun
+{
 
-//struct ThermoDataAbstract;
+// struct ThermoDataAbstract;
 
 class ReactionData : public ThermoDataAbstract
 {
-public:
-
-    ReactionData( );
+  public:
+    ReactionData();
 
     /// Construct a copy of an ReactionData instance
-//    ReactionData(const ReactionData& other);
+    // ReactionData(const ReactionData& other);
 
-    auto operator=(ReactionData other) -> ReactionData&;
+    auto operator=(ReactionData other) -> ReactionData &;
 
     virtual ~ReactionData();
 
     /// Extract data connected to ReactionSet
-//    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    //  virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
-    virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
-                                                    const vector<ElementKey>& elements = {} );
-   /// Get Elements list from reaction record
-    virtual set<ElementKey> getElementsList( const string& id );
+    virtual bsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
+                                                  const vector<ElementKey> &elements = {});
+    /// Get Elements list from reaction record
+    virtual set<ElementKey> getElementsList(const string &id);
 
     /// Return all formulas from all connected substances
-    vector<string> getReactantsFormulas( const string& idReaction );
+    vector<string> getReactantsFormulas(const string &idReaction);
 
-private:
-
-    bool testElements( const string& idReaction, const vector<ElementKey>& elements );
+  private:
+    bool testElements(const string &idReaction, const vector<ElementKey> &elements);
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;
 };
-
 }
 
 #endif // REACTIONDATA_H
