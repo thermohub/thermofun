@@ -53,7 +53,15 @@ public:
     std::map<std::string, std::string> getSubstSymbolLevel() const;
     void setSubstSymbolLevel(const std::map<std::string, std::string> &value);
 
-    protected:
+    /**
+     * @brief queryRecord returns a record queried by id
+     * @param idRecord record id in the database
+     * @param queryFields schema field paths which are copied and returned in the query result
+     * @return string representing the result in JSON format containing the queryFields as keys
+     */
+    auto queryRecord(string idRecord, vector<string> queryFields) -> string;
+
+protected:
 
     /// Test all elements from formula exist into list
     static bool testElementsFormula( const string& aformula, const vector<ElementKey>& elements );
@@ -69,6 +77,14 @@ public:
     void setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable);
 
     boost::shared_ptr<bsonio::TDBGraph> getDB_fullAccessMode() const;
+
+    auto queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
+
+    auto definesReactionSymbol_(string idSubst, string level) -> std::string;
+
+    auto queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>;
+
+    auto reactantsCoeff_(string idReact) -> std::map<string, double>;
 
 private:
     struct Impl;

@@ -34,6 +34,21 @@ class ReactionData : public ThermoDataAbstract
     /// Return all formulas from all connected substances
     vector<string> getReactantsFormulas(const string &idReaction);
 
+    /**
+     * @brief queryIncomingEdgesTakes
+     * @param idReact
+     * @param queryFields
+     * @return
+     */
+    auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>;
+
+    /**
+     * @brief mapReactantsCoeff
+     * @param _idReac
+     * @return
+     */
+    auto reactantsCoeff(string idReact) -> std::map<string, double>;
+
   private:
     bool testElements(const string &idReaction, const vector<ElementKey> &elements);
 

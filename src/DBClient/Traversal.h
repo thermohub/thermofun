@@ -42,10 +42,10 @@ class Traversal
     /// map of takes edge ids and the query results of outgoing substances
     std::map<std::string, std::vector<std::string>> idTakesOutSubst;
 
-    vector<string> queryIncomingEdgeDefines(std::string idSubst, vector<string> queryFields,  string level);
-    vector<string> queryIncomingEdgeTakes(std::string idReact, vector<string> queryFields);
-    vector<string> queryVertexReaction(std::string idReact, vector<string> queryFields);
-    vector<string> queryVertexSubstance(std::string idSubst, vector<string> queryFields);
+    vector<string> queryIncomingEdgeDefines(std::string idSubst, vector<string> queryFields,  string level); //****
+    vector<string> queryIncomingEdgeTakes(std::string idReact, vector<string> queryFields); //****
+    vector<string> queryVertexReaction(std::string idReact, vector<string> queryFields); //****
+    vector<string> queryVertexSubstance(std::string idSubst, vector<string> queryFields); //****
 
 
     // follows the incoming Defines edge for substance with _idSubst
@@ -53,9 +53,11 @@ class Traversal
     // follows the incoming Takes edges for reaction with _idReac
     void followIncomingTakes(std::string _idReact, MapIdType &result);
     // returns the symbol of the reaction which defines the substance with _idSubst
-    std::string getDefinesReactionSymbol(std::string _idSubst);
+
+
+    std::string getDefinesReactionSymbol(std::string _idSubst); //***
     // returns a map of reactants symbols and coeficients participating in the reaction
-    std::map<std::string, double> getReactantsCoeffMap(std::string _idReac);
+    std::map<std::string, double> getReactantsCoeffMap(std::string _idReac); //****
 
     // fills the map MapIdType with all vertexes connected to the vertex with id_
     void linkedDataFromId(std::string id_, MapIdType &result);

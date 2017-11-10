@@ -1,5 +1,11 @@
 #include "ReactionData.h"
 
+// C++ includes
+#include <functional>
+
+// ThermoFun includes
+#include "../OptimizationUtils.h"
+
 using namespace bsonio;
 
 namespace ThermoFun
@@ -11,13 +17,17 @@ const vector<string> reactFieldPaths =
 const vector<string> reactColumnHeaders = {"symbol", "name", "equation"};
 const vector<string> reactDataNames = {"symbol", "name", "equation", "_id", "level", "sourcetdb"};
 
+using QueryVertexReaction  = std::function<string(string, vector<string>)>;
+
+
 struct ReactionData::Impl
 {
     bsonio::ValuesTable valuesTable;
 
-    Impl()
+    Impl( )
     {
     }
+
 };
 
 ReactionData::ReactionData()
@@ -37,6 +47,16 @@ auto ReactionData::operator=(ReactionData other) -> ReactionData &
 
 ReactionData::~ReactionData()
 {
+}
+
+auto ReactionData::queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
+{
+    return queryInEdgesTakes_(idReact, queryFields);
+}
+
+auto ReactionData::reactantsCoeff(string idReact) -> std::map<std::string, double>
+{
+    return reactantsCoeff_(idReact);
 }
 
 bsonio::ValuesTable ReactionData::loadRecordsValues(const string &aquery,

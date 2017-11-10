@@ -4,7 +4,6 @@ using namespace bsonio;
 
 namespace ThermoFun {
 
-
 const string substQuery = "{\"_label\": \"substance\" }";
 const vector<string> substFieldPaths =
    { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
@@ -16,7 +15,9 @@ struct SubstanceData::Impl
     bsonio::ValuesTable valuesTable;
 
     Impl( )
-    { }
+    {
+    }
+
 };
 
 SubstanceData::SubstanceData()
@@ -32,6 +33,15 @@ auto SubstanceData::operator=(SubstanceData other) -> SubstanceData&
 SubstanceData::~SubstanceData()
 { }
 
+auto SubstanceData::queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
+{
+    return queryInEdgesDefines_(idSubst, queryFields, level);
+}
+
+auto SubstanceData::definesReactionSymbol(string idSubst, string level) -> std::string
+{
+    return definesReactionSymbol_(idSubst, level);
+}
 
 set<ElementKey> SubstanceData::getElementsList( const string& idSubstance )
 {
