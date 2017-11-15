@@ -58,7 +58,7 @@ void DBClient::getDataFromPreferencesFile()
                  TDBClientOne::thePort ).toInt();
 
     readSchemaDir( settings.schemaDir );
-    SchemaNode::_schema =    &schema;
+//    SchemaNode::_schema =    &schema;
 }
 
 //---------------------------------------------------------------------
