@@ -22,6 +22,8 @@ struct SubstanceData;
 struct ReactionData;
 //struct ElementKey;
 
+//using GetJsonRecord           = std::function<string(string)>;
+
 ///
 /// \brief The DBSettings struct holds the settings for connecting to the local or server database
 ///
@@ -153,6 +155,13 @@ class DatabaseClient
 
   private:
     auto recordsFieldValues(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>;
+
+//    /**
+//     * @brief getJsonRecord
+//     * @param idRecord
+//     * @return
+//     */
+//    auto getJsonRecord(string idRecord) -> string;
 
     struct Impl;
 

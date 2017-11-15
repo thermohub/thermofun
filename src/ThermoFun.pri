@@ -75,7 +75,8 @@
     $$PWD/DBClient/ThermoData.h \
     $$PWD/DBClient/SubstanceData.h \
     $$PWD/DBClient/DatabaseClient.h \
-    $$PWD/DBClient/ReactionData.h
+    $$PWD/DBClient/ReactionData.h \
+    $$PWD/DBClient/GraphTraversal.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
@@ -144,4 +145,5 @@
     $$PWD/DBClient/ThermoData.cpp \
     $$PWD/DBClient/SubstanceData.cpp \
     $$PWD/DBClient/DatabaseClient.cpp \
-    $$PWD/DBClient/ReactionData.cpp
+    $$PWD/DBClient/ReactionData.cpp \
+    $$PWD/DBClient/GraphTraversal.cpp

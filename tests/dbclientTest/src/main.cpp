@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     auto ellist = dbc.makeAvailableElementsList(19);
 
-    Database db = dbc.getDatabase(20);
+    Database db = dbc.getDatabase(19);
 
     Substance water;
     water.setName("water");

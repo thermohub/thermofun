@@ -12,6 +12,7 @@ namespace ThermoFun {
 
 using QueryRecord           = std::function<string(string, vector<string>)>;
 
+
 using QueryInEdgesDefines   = std::function<vector<string>(string, vector<string>, string)>;
 using DefinesReactionSymbol = std::function<string(string, string)>;
 
@@ -43,6 +44,7 @@ struct ThermoDataAbstract::Impl
     boost::shared_ptr<bsonio::TDBGraph> graphdb_all;
 
     QueryRecord  query_record_fn;
+
     QueryInEdgesDefines   query_in_edges_defines_fn;
     DefinesReactionSymbol defines_reaction_symbol_fn;
 
@@ -52,8 +54,8 @@ struct ThermoDataAbstract::Impl
     Impl(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names) :
          name(name), query(query), fieldPaths(paths), dataHeaders(headers), dataNames(names)
     {
-        query_record_fn = [=](string idSubst, vector<string> queryFields) {
-            return queryRecord(idSubst, queryFields);
+        query_record_fn = [=](string idRecord, vector<string> queryFields) {
+            return queryRecord(idRecord, queryFields);
         };
 
         query_in_edges_defines_fn = [=](string idSubst, vector<string> queryFields,  string level) {
@@ -77,13 +79,13 @@ struct ThermoDataAbstract::Impl
         reactans_coeff_fn = memoize(reactans_coeff_fn);
     }
 
-    auto queryRecord(string idSubst, vector<string> queryFields) -> string
+    auto queryRecord(string idRecord, vector<string> queryFields) -> string
     {
         string qrJson;
-        qrJson = "{ \"_id\" : \"" + idSubst + "\"}";
-        vector<string> resultSubst;
-        graphdb->runQuery(qrJson, queryFields, resultSubst);
-        return resultSubst[0];
+        qrJson = "{ \"_id\" : \"" + idRecord + "\"}";
+        vector<string> resultRecord;
+        graphdb->runQuery(qrJson, queryFields, resultRecord);
+        return resultRecord[0];
     }
 
     auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
@@ -179,7 +181,6 @@ auto ThermoDataAbstract::queryRecord(string idRecord, vector<string> queryFields
 {
     return pimpl->query_record_fn(idRecord, queryFields);
 }
-
 auto ThermoDataAbstract::queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>
 {
     return pimpl->query_in_edges_defines_fn(idSubst, queryFields, level);

@@ -24,8 +24,11 @@ namespace ThermoFun
 {
 
 using QuerySubstancesFunction = std::function<std::vector<std::string>(uint)>;
+using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
+using GetJsonRecord           = std::function<string(string)>;
 
-using QueryReactionsFunction = std::function<std::vector<std::string>(uint)>;
+std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
+std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
 
 struct DatabaseClient::Impl
 {
@@ -45,9 +48,16 @@ struct DatabaseClient::Impl
 
     QueryReactionsFunction query_reactions_fn;
 
+    GetJsonRecord get_json_record_fn;
+
     Impl(std::string settingsFile)
     {
         getDataFromSettingsFile(settingsFile);
+
+        get_json_record_fn = [=](string idRecord) {
+            return getJsonRecord(idRecord);
+        };
+        get_json_record_fn = memoize(get_json_record_fn);
 
         query_substances_fn = [=](uint sourcetdb) {
             return querySubstances(sourcetdb);
@@ -135,12 +145,19 @@ struct DatabaseClient::Impl
         }
     }
 
+    auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
+    {
+        auto graphdb_all = substData.getDB();
+        graphdb_all->GetRecord( idRecord.c_str() );
+        return graphdb_all->GetJson();
+    }
+
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += to_string(sourcetdb);
         query += " }";
-        vector<string> _queryFields = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
+        vector<string> _queryFields = queryFieldsSubstance;
         vector<string> _resultData;
         substData.getDB()->runQuery(query, _queryFields, _resultData);
         return _resultData;
@@ -151,7 +168,7 @@ struct DatabaseClient::Impl
         string query = "{ \"_label\" : \"reaction\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += to_string(sourcetdb);
         query += " }";
-        vector<string> _queryFields = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
+        vector<string> _queryFields = queryFieldsReaction;
         vector<string> _resultData;
         reactData.getDB()->runQuery(query, _queryFields, _resultData);
         return _resultData;
@@ -207,6 +224,11 @@ auto DatabaseClient::availableReactions(uint sourcetdb) -> std::vector<std::stri
 {
     return recordsFieldValues(pimpl->query_reactions_fn(sourcetdb), "symbol");
 }
+
+//auto DatabaseClient::getJsonRecord(string idRecord) -> string
+//{
+//    return pimpl->get_json_record_fn(idRecord);
+//}
 
 auto DatabaseClient::recordsFieldValues(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>
 {
@@ -381,4 +403,6 @@ auto DatabaseClient::reactData() const -> ReactionData
 {
     return pimpl->reactData;
 }
+
+
 }
