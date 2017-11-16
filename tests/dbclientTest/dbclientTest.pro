@@ -39,7 +39,7 @@ LIBPATH += "/usr/local/lib/"
 
 LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
-LIBS += -lthrift -lboost_regex
+LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
 LIBS += -llua5.2
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)

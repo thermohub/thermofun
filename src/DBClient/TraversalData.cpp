@@ -19,9 +19,9 @@ using namespace bsonio;
 namespace ThermoFun
 {
 
-using GetJsonRecord = std::function<string(string)>;
+using QueryRecord = std::function<string(string,vector<string>)>;
 
-std::vector<std::string> queryFieldsVertex       = {"_id", "_label", "properties.symbol"};
+std::vector<std::string> queryFieldsVertex       = {"_id", "_label", "_type", "properties.symbol"};
 std::vector<std::string> queryFieldsEdgeDefines  = { "_outV", "_label"};
 std::vector<std::string> queryFieldsEdgeTakes    = { "_outV", "_label", "properties.stoi_coeff" };
 
@@ -43,24 +43,35 @@ struct TraversalData::Impl
     /// map of database ids and bson record of vertexes
     std::map<std::string, bson> idBsonRec;
 
-    GetJsonRecord get_json_record_fn;
+    QueryRecord query_record_fn;
 
     SubstanceData  *substData;
     ReactionData  *reactData;
 
     Impl( )
     {
-        get_json_record_fn = [=](string idRecord) {
-            return getJsonRecord(idRecord);
+        query_record_fn = [=](string idRecord, vector<string> queryFields) {
+            return queryRecord(idRecord, queryFields);
         };
-        get_json_record_fn = memoize(get_json_record_fn);
+        query_record_fn = memoize(query_record_fn);
     }
 
-    auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
+//    auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
+//    {
+//        auto graphdb_all = substData->getDB();
+//        graphdb_all->GetRecord( idRecord.c_str() );
+//        return graphdb_all->GetJson();
+//    }
+
+    auto queryRecord(string idRecord, vector<string> queryFields) -> string // id: "12234444:" format
     {
         auto graphdb_all = substData->getDB();
-        graphdb_all->GetRecord( idRecord.c_str() );
-        return graphdb_all->GetJson();
+        graphdb_all->resetMode(true);
+        string qrJson;
+        qrJson = "{ \"_id\" : \"" + idRecord + "\"}";
+        vector<string> resultRecord;
+        graphdb_all->runQuery(qrJson, queryFields, resultRecord);
+        return resultRecord[0];
     }
 
 };
@@ -183,7 +194,7 @@ auto TraversalData::level (std::string idSubst) -> std::string
         break;
     case DefinesLevelMode::multiple    : {
         std::string substSymb; std::string key = idSubst +":";
-        std::string valDB = pimpl->get_json_record_fn(key);
+        std::string valDB = pimpl->query_record_fn(key, queryFieldsVertex);
                 jsonToBson( &record, valDB );
         bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
         if (pimpl->definedSubstSymbolLevel.find(substSymb) != pimpl->definedSubstSymbolLevel.end()) // follows edges defines with specific leveles for substSymbols
@@ -204,7 +215,7 @@ auto TraversalData::linkedDataFromId(std::string id_) -> MapId_VertexType
     MapId_VertexType result;
 
     // get recrod
-    valDB = pimpl->get_json_record_fn(id_);
+    valDB = pimpl->query_record_fn(id_,queryFieldsVertex);
     jsonToBson( &record, valDB );
 
     // Extract data from fields

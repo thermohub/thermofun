@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-    DatabaseClient dbc_("./Resources/ThermoFun.ini");
+    DatabaseClient dbc_("./Resources/ThermoFun.json");
 
     Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);

@@ -24,27 +24,6 @@ struct ReactionData;
 
 //using GetJsonRecord           = std::function<string(string)>;
 
-///
-/// \brief The DBSettings struct holds the settings for connecting to the local or server database
-///
-struct DatabaseClientSettings
-{
-    /// Object for reading ini settings file
-    QSettings *QtSettings;
-    /// Schemas folder
-    QString schemaDir;
-    /// Local folder with the EJDB database
-    QString localDBDir;
-    /// Name of the local EJDB database
-    QString localDBName;
-    /// Path to the EJDB database file
-    QFileInfo file;
-    /// name of database collection
-    QString collName;
-    /// true if we use local database
-    bool useLocalDB;
-};
-
 class DatabaseClient
 {
   public:

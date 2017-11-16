@@ -8,6 +8,7 @@
 #include "bsonio/dbgraph.h"
 #include "bsonio/dbdriverejdb.h"
 #include "bsonio/dbclient.h"
+#include "bsonio/io_settings.h"
 
 // ThermoFun includes
 #include "SubstanceData.h"
@@ -32,12 +33,6 @@ std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation"
 
 struct DatabaseClient::Impl
 {
-    /// settings for database connection
-    DatabaseClientSettings settings;
-
-    /// schema for parsing the data
-    ThriftSchema schema;
-
     /// access to substance records
     SubstanceData substData;
 
@@ -53,9 +48,17 @@ struct DatabaseClient::Impl
 
     Impl(std::string settingsFile) : traversal (&substData, &reactData)
     {
-//        traversal = new TraversalData(&substData, &reactData);
-        getDataFromSettingsFile(settingsFile);
+        bsonio::BsonioSettings::settingsFileName = settingsFile;
+        setDBClient();
+    }
 
+    Impl() : traversal (&substData, &reactData)
+    {
+        setDBClient();
+    }
+
+    auto setDBClient( ) -> void
+    {
         query_substances_fn = [=](uint sourcetdb) {
             return querySubstances(sourcetdb);
         };
@@ -65,81 +68,19 @@ struct DatabaseClient::Impl
             return queryReactions(sourcetdb);
         };
         query_reactions_fn = memoize(query_reactions_fn);
-    }
 
-    Impl() : traversal (&substData, &reactData)
-    {
-    }
-
-    TDBGraph *newDBClinet(string schemaName, string query)
-    {
-        // no schema
-        if (schemaName.empty())
-            return nullptr;
-        string collcName = settings.collName.toStdString();
-        TDBGraph *newClient = TDBGraph::newDBClient(&schema,
-                                                    dbDrive(settings.useLocalDB), collcName.c_str(), schemaName, query);
-        return newClient;
-    }
-
-    auto getDataFromSettingsFile(std::string settingsFile) -> void
-    {
         string qrJson;
-        settings.QtSettings = new QSettings(settingsFile.c_str(), QSettings::IniFormat);
-
-        if (!settings.QtSettings)
-            return;
-
-        settings.schemaDir = settings.QtSettings->value("SchemasDirectory", "./Resources/data/schemas").toString();
-        settings.localDBDir = settings.QtSettings->value("LocalDBDirectory", "./Resources/data/EJDB").toString();
-        settings.localDBName = settings.QtSettings->value("LocalDBName", "localdb").toString();
-        settings.useLocalDB = settings.QtSettings->value("UseLocalDB", true).toBool();
-        settings.file = QFileInfo(settings.localDBDir, settings.localDBName);
-        settings.collName = settings.QtSettings->value("LocalDBCollection", "data").toString().toUtf8().data();
-
-        TEJDBDriveOne::flEJPath = settings.file.filePath().toUtf8().data();
-
-        // server db defaults
-        // The host that the socket is connected to
-        TDBClientOne::theHost = settings.QtSettings->value("DBSocketHost",
-                                                           TDBClientOne::theHost.c_str())
-                                    .toString()
-                                    .toUtf8()
-                                    .data();
-        // The port that the socket is connected to
-        TDBClientOne::thePort = settings.QtSettings->value("DBSocketPort",
-                                                           TDBClientOne::thePort)
-                                    .toInt();
-
-        readSchemaDir(settings.schemaDir);
-        SchemaNode::_schema = &schema;
 
         // default connections to vertexes
         qrJson = "{ \"_label\" : \"substance\" }";
-        substData.setDB(boost::shared_ptr<bsonio::TDBGraph>(newDBClinet("VertexSubstance", qrJson)));
+        substData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", qrJson)));
         qrJson = "{ \"_label\" : \"reaction\" }";
-        reactData.setDB(boost::shared_ptr<bsonio::TDBGraph>(newDBClinet("VertexReaction", qrJson)));
-    }
+        reactData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexReaction", qrJson)));
 
-    auto readSchemaDir(const QString &dirPath) -> void
-    {
-        if (dirPath.isEmpty())
-            return;
-
-        QDir dir(dirPath);
-        QStringList nameFilter;
-        nameFilter << "*.schema.json";
-        QFileInfoList files = dir.entryInfoList(nameFilter, QDir::Files);
-
-        schema.clearAll();
-        string fName;
-        foreach (QFileInfo file, files)
-        {
-            //   fName = file.absoluteFilePath().toUtf8().data();
-            fName = file.filePath().toUtf8().data();
-            //cout << "FILE: " << fName << endl;
-            schema.addSchemaFile(fName.c_str());
-        }
+        qrJson = "{ \"_label\" : \"element\"}";
+        auto elementVertex = unique_ptr<bsonio::TDBGraph> (ioSettings().newDBGraphClient( "VertexElement", qrJson ));
+        // load all elements into system
+        ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
     }
 
     auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
@@ -291,7 +232,7 @@ auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexe
 {
     // set lists
     std::map<string, uint> namesIndexes;
-    bsonio::ThriftEnumDef *enumdef = pimpl->schema.getEnum("SourceTDB");
+    bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
         foreach (int idx, sourcetdbIndexes)
@@ -307,7 +248,7 @@ auto DatabaseClient::sourcetdbNamesComments(const std::set<uint> &sourcetdbIndex
 {
     // set lists
     std::map<string, string> namesComments;
-    bsonio::ThriftEnumDef *enumdef = pimpl->schema.getEnum("SourceTDB");
+    bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
         foreach (int idx, sourcetdbIndexes)
