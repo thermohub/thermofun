@@ -23,6 +23,7 @@ using QueryVertexReaction  = std::function<string(string, vector<string>)>;
 struct ReactionData::Impl
 {
     bsonio::ValuesTable valuesTable;
+    int t = 0;
 
     Impl( )
     {
@@ -87,6 +88,7 @@ bsonio::ValuesTable ReactionData::loadRecordsValues(const string &aquery,
     }
     setDefaultLevelForReactionDefinedSubst(reactMatr);
     pimpl->valuesTable = reactMatr;
+        pimpl->t = 1;
     return reactMatr;
 }
 
@@ -129,7 +131,6 @@ vector<string> ReactionData::getReactantsFormulas(const string &idReaction)
     getDB()->runQuery(queryJson, _queryFields, _resultData);
 
     // for all substances
-    //    unique_ptr<TDBGraph> substanceVertex( bsonui::theSettings().newDBGraphClient( "VertexSubstance", "" ) );
     for (auto rec : _resultData)
     {
         idSub = bsonio::extractStringField("_outV", rec);

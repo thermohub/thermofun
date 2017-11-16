@@ -13,6 +13,7 @@
 #include "SubstanceData.h"
 #include "ReactionData.h"
 #include "Traversal.h"
+#include "TraversalData.h"
 
 #include "../Database.h"
 #include "../Element.h"
@@ -25,7 +26,7 @@ namespace ThermoFun
 
 using QuerySubstancesFunction = std::function<std::vector<std::string>(uint)>;
 using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
-using GetJsonRecord           = std::function<string(string)>;
+
 
 std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
 std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
@@ -44,20 +45,17 @@ struct DatabaseClient::Impl
     /// access to reaction records
     ReactionData reactData;
 
+    /// for traversal operations
+    TraversalData traversal;
+
     QuerySubstancesFunction query_substances_fn;
 
     QueryReactionsFunction query_reactions_fn;
 
-    GetJsonRecord get_json_record_fn;
-
-    Impl(std::string settingsFile)
+    Impl(std::string settingsFile) : traversal (&substData, &reactData)
     {
+//        traversal = new TraversalData(&substData, &reactData);
         getDataFromSettingsFile(settingsFile);
-
-        get_json_record_fn = [=](string idRecord) {
-            return getJsonRecord(idRecord);
-        };
-        get_json_record_fn = memoize(get_json_record_fn);
 
         query_substances_fn = [=](uint sourcetdb) {
             return querySubstances(sourcetdb);
@@ -70,7 +68,7 @@ struct DatabaseClient::Impl
         query_reactions_fn = memoize(query_reactions_fn);
     }
 
-    Impl()
+    Impl() : traversal (&substData, &reactData)
     {
     }
 
@@ -225,11 +223,6 @@ auto DatabaseClient::availableReactions(uint sourcetdb) -> std::vector<std::stri
     return recordsFieldValues(pimpl->query_reactions_fn(sourcetdb), "symbol");
 }
 
-//auto DatabaseClient::getJsonRecord(string idRecord) -> string
-//{
-//    return pimpl->get_json_record_fn(idRecord);
-//}
-
 auto DatabaseClient::recordsFieldValues(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>
 {
     std::vector<std::string> values;
@@ -253,9 +246,11 @@ auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
     // get substances
     keyList.insert(keyList.end(), substKeyList.begin(), substKeyList.end());
 
-    Traversal tr(pimpl->substData.getDB());
-    // get all data connected to the substances using level 0 for reaction defined substances
-    db = tr.getDatabaseFromMapOfIds(tr.getMapOfConnectedIds(keyList, "0"), "0");
+//    Traversal tr(pimpl->substData.getDB());
+//    // get all data connected to the substances using level 0 for reaction defined substances
+//    db = tr.getDatabaseFromMapOfIds(tr.getMapOfConnectedIds(keyList, "0"), "0");
+
+    db = pimpl->traversal.getDatabaseFromMapOfIds(pimpl->traversal.getMapOfConnectedIds(keyList, "0"), "0");
 
     return db;
 }

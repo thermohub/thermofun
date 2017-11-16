@@ -10,14 +10,15 @@ int main(int argc, char *argv[])
     DBClient dbc("./Resources/ThermoFun.ini");
     DatabaseClient dbc_("./Resources/ThermoFun.ini");
 
-    auto ndx = dbc_.sourcetdbIndexes();
-
-    auto names = dbc_.sourcetdbNamesIndexes(ndx);
-
     Database db_ = dbc_.thermoFunDatabase(19);
+    Database db2_ = dbc_.thermoFunDatabase(19);
+    Database db = dbc.getDatabase(19);
 
-
+    auto tdblist_ = dbc_.sourcetdbNamesIndexes();
     auto ellist_ = dbc_.availableElements(19);
+
+    auto tdblist = dbc.getSourcetdbList();
+    auto ellist = dbc.makeAvailableElementsList(19);
 
     auto rcd = dbc_.reactData();
 
@@ -26,14 +27,6 @@ int main(int argc, char *argv[])
 
 //    for (auto e : ellist_)
 //        auto symbol = e.symbol();
-
-
-
-    auto tdblist = dbc.getSourcetdbList();
-
-    auto ellist = dbc.makeAvailableElementsList(19);
-
-    Database db = dbc.getDatabase(19);
 
     Substance water;
     water.setName("water");
