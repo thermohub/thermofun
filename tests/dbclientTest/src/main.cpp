@@ -7,18 +7,13 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-    DBClient dbc("./Resources/ThermoFun.ini");
     DatabaseClient dbc_("./Resources/ThermoFun.ini");
 
-    Database db_ = dbc_.thermoFunDatabase(19);
+    Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);
-    Database db = dbc.getDatabase(19);
 
     auto tdblist_ = dbc_.sourcetdbNamesIndexes();
     auto ellist_ = dbc_.availableElements(19);
-
-    auto tdblist = dbc.getSourcetdbList();
-    auto ellist = dbc.makeAvailableElementsList(19);
 
     auto rcd = dbc_.reactData();
 
@@ -89,9 +84,7 @@ int main(int argc, char *argv[])
 
     CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
 
-    DBClient dbc2 = DBClient ("./Resources/ThermoFun.ini");
-
-    mapFormulaElements elem = dbc.parseSubstanceFormula("FeHSiO3+2");
+    std::map<Element, double> elem = dbc_.parseSubstanceFormula("FeHSiO3+2");
 
     cout << "Bye World!" << endl;
 

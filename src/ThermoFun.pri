@@ -68,8 +68,6 @@
     $$PWD/Interfaces/Interface.h \
     $$PWD/Interfaces/Output.h \
 # DBClient
-    $$PWD/DBClient/DBClient.h \
-    $$PWD/DBClient/Traversal.h \
     $$PWD/DBClient/formuladata.h \
     $$PWD/DBClient/formulaparser.h \
     $$PWD/DBClient/ThermoData.h \
@@ -138,8 +136,6 @@
     $$PWD/Interfaces/Interface.cpp \
     $$PWD/Interfaces/Output.cpp \
 # DBClient
-    $$PWD/DBClient/DBClient.cpp \
-    $$PWD/DBClient/Traversal.cpp \
     $$PWD/DBClient/formuladata.cpp \
     $$PWD/DBClient/formulaparser.cpp \
     $$PWD/DBClient/ThermoData.cpp \

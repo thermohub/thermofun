@@ -12,7 +12,6 @@
 // ThermoFun includes
 #include "SubstanceData.h"
 #include "ReactionData.h"
-#include "Traversal.h"
 #include "TraversalData.h"
 
 #include "../Database.h"
