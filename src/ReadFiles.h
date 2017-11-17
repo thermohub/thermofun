@@ -22,7 +22,7 @@ auto thermoParamSubst (const char *data, std::string name) -> ThermoParametersSu
 
 /// Parses a bson object and loads reference thermodynamic properties into the internal sturcture
 /// @param bso bson object
-auto thermoRefPropSubst (const char * data, std::string name) -> ThermoPropertiesSubstance;
+auto thermoRefPropSubst (const char *data, std::string name) -> ThermoPropertiesSubstance;
 
 /// Parses a reaction bson object and loads its data into the reaction structure
 /// @param bso bson object
@@ -34,7 +34,7 @@ auto thermoParamReac (const char *data, std::string name) -> ThermoParametersRea
 
 /// Parses a bson object and loads reference thermodynamic properties into the internal sturcture
 /// @param bso bson object
-auto thermoRefPropReac (const char * data, std::string name) -> ThermoPropertiesReaction;
+auto thermoRefPropReac (const char *data, std::string name) -> ThermoPropertiesReaction;
 
 }
 

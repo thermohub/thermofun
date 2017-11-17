@@ -23,7 +23,6 @@ using QueryVertexReaction  = std::function<string(string, vector<string>)>;
 struct ReactionData::Impl
 {
     bsonio::ValuesTable valuesTable;
-    int t = 0;
 
     Impl( )
     {
@@ -35,10 +34,6 @@ ReactionData::ReactionData()
     : ThermoDataAbstract("VertexReaction", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
 }
-
-//ReactionData::ReactionData(const ReactionData& other)
-// : pimpl(new Impl(*other.pimpl))
-//{}
 
 auto ReactionData::operator=(ReactionData other) -> ReactionData &
 {
@@ -69,7 +64,7 @@ bsonio::ValuesTable ReactionData::loadRecordsValues(const string &aquery,
         query = getQuery();
     if (!elements.empty())
         addFieldsToQuery(query, {make_pair(string("properties.sourcetdb"), to_string(sourcetdb))});
-    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getFieldPaths());
+    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
 
     // get record by elements list
     ValuesTable reactMatr;
@@ -81,14 +76,13 @@ bsonio::ValuesTable ReactionData::loadRecordsValues(const string &aquery,
     {
         for (const auto &subitem : reactQueryMatr)
         {
-            string idreac = subitem[getDataIndex()["_id"]];
+            string idreac = subitem[getDataName_DataIndex()["_id"]];
             if (testElements(idreac, elements))
                 reactMatr.push_back(subitem);
         }
     }
     setDefaultLevelForReactionDefinedSubst(reactMatr);
     pimpl->valuesTable = reactMatr;
-        pimpl->t = 1;
     return reactMatr;
 }
 

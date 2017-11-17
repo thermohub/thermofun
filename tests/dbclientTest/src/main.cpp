@@ -1,4 +1,5 @@
 #include "ThermoFun.h"
+#include "bsonio/io_settings.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -7,7 +8,11 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
+//    bsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
+//    DatabaseClient dbc_;
+
     DatabaseClient dbc_("./Resources/ThermoFun.json");
+
 
     Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);

@@ -19,22 +19,8 @@ public:
     /// Construct a copy of an ThermoDataAbstract instance
     ThermoDataAbstract(const ThermoDataAbstract& other);
 
-    /// Assign a ThermoDataAbstract instance to this instance
-//    auto operator=(ThermoDataAbstract other) -> ThermoDataAbstract&;
-
     /// Destroy this instance
     virtual ~ThermoDataAbstract();
-
-    boost::shared_ptr<bsonio::TDBGraph> getDB() const;
-
-    string getName() const;
-    string getQuery() const;
-    vector<string> getFieldPaths() const;
-    void setFieldPaths(const vector<string> &value);
-    vector<string> getDataHeaders() const;
-    void setDataHeaders(const vector<string> &value);
-    vector<string> getDataNames() const;
-    void setDataNames(const vector<string> &value);
 
     // load values function
     /// Extract data connected to ReactionSet
@@ -45,13 +31,21 @@ public:
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
-    void setDB(const boost::shared_ptr<bsonio::TDBGraph> &value);
+    auto getDB() const -> boost::shared_ptr<bsonio::TDBGraph>;
+    auto getName() const -> string;
+    auto getQuery() const -> string;
+    auto getDataNames() const -> vector<string>;
+    auto getDataHeaders() const -> vector<string>;
+    auto getDataFieldPaths() const -> vector<string>;
+    auto getDataName_DataIndex() const -> std::map<std::string, int>;
+    auto getDataName_DataFieldPath() const -> std::map<std::string, std::string>;
+    auto getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>;
 
-    std::map<std::string, int> getDataIndex() const;
-    std::map<std::string, std::string> getDataPath() const;
-
-    std::map<std::string, std::string> getSubstSymbolLevel() const;
-    void setSubstSymbolLevel(const std::map<std::string, std::string> &value);
+    auto setDB(const boost::shared_ptr<bsonio::TDBGraph> &value) -> void;
+    auto setDataNames(const vector<string> &value) -> void;
+    auto setDataHeaders(const vector<string> &value) -> void;
+    auto setDataFieldPaths(const vector<string> &value) -> void;
+    auto setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void;
 
     /**
      * @brief queryRecord returns a record queried by id
@@ -64,19 +58,19 @@ public:
 protected:
 
     /// Test all elements from formula exist into list
-    static bool testElementsFormula( const string& aformula, const vector<ElementKey>& elements );
+    static auto testElementsFormula( const string& aformula, const vector<ElementKey>& elements) -> bool;
 
     /// Build ids list connected to idInVertex by edge
-    vector<string> getOutVertexIds(const string& edgeLabel, const string& idInVertex );
+    auto getOutVertexIds(const string& edgeLabel, const string& idInVertex) -> vector<string>;
 
     /// Build ids list connected to idInVertex by edge, record edgesIds
-    vector<string> getOutVertexIds(const string& edgeLabel, const string& idInVertex,  vector<string> &edgesIds);
+    auto getOutVertexIds(const string& edgeLabel, const string& idInVertex,  vector<string> &edgesIds) -> vector<string>;
 
-    void resetDataPathIndex();
+    auto resetDataPathIndex() -> void;
 
-    void setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable);
+    auto setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable) -> void;
 
-    boost::shared_ptr<bsonio::TDBGraph> getDB_fullAccessMode() const;
+    auto getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>;
 
     auto queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
 

@@ -14,8 +14,8 @@ struct Database;
 struct SubstanceData;
 struct ReactionData;
 
-using  MapId_VertexType = std::map<std::string, std::string>;
-using  MapId_DefinesLevels = std::map<std::string, std::vector<std::string>>;
+using  VertexId_VertexType = std::map<std::string, std::string>;
+using  VertexId_DefinesLevel = std::map<std::string, std::vector<std::string>>;
 
 class TraversalData
 {
@@ -25,61 +25,73 @@ public:
 
     auto operator=(TraversalData other) -> TraversalData&;
 
-    /// Construct a copy of an TraversalData instance
-//    TraversalData(const TraversalData& other);
-
     virtual ~TraversalData();
 
     ///
     /// \brief getLinkedBsonFromSelectedData returns the linked data strting form the selected id list
     /// \param selNdx Indexes of the selected ids from aKeyList
     /// \param aKeyList List of ids
-    /// \param level level of reactions
+    /// \param level of edge defines
     /// \return a map of [id, vertex type]
     ///
-    auto getMapOfConnectedIds(std::vector<int> selNdx, std::vector<std::string> idsList, std::string level_) -> MapId_VertexType;
+    auto getMapOfConnectedIds(std::vector<int> selNdx, std::vector<std::string> idsList, std::string level_) -> VertexId_VertexType;
 
     ///
-    /// \brief getLinkedBsonFromIdList returns the linked data strting form the selected id list
+    /// \brief getLinkedBsonFromIdList returns a map of vertex ids and vertex type which is linked to the idList, for a given level
     /// \param idList list of ids
-    /// \param level level of reactions
-    /// \return a map of [id, vertex type]
+    /// \param level of edge defines
+    /// \return a map of [vertex id, vertex type]
     ///
-    auto getMapOfConnectedIds(std::vector<std::string> idList, std::string level_) -> MapId_VertexType;
+    auto getMapOfConnectedIds(std::vector<std::string> idList, std::string level_) -> VertexId_VertexType;
 
-    auto getMapOfConnectedIds(std::vector<std::string> idList, std::map<std::string, std::string> substSymbolLevel_) -> MapId_VertexType;
+    /**
+     * @brief getMapOfConnectedIds returns a map of vertex ids and vertex type which is linked to the idList, following the level specified for
+     * individual substances defined by a reaction
+     * @param idList list of vertex ids
+     * @param substSymbolLevel_ map of substance symbol and level
+     * @return a map of [vertex id, vertex type]
+     */
+    auto getMapOfConnectedIds(std::vector<std::string> idList, std::map<std::string, std::string> substSymbol_definesLevel) -> VertexId_VertexType;
 
-    auto getMapOfConnectedIds(std::vector<std::string> idList) -> MapId_VertexType;
+    /**
+     * @brief getMapOfConnectedIds returns a map of vertex ids and vertex type which is linked to the idList, for all levels
+     * @param idList list of vertex ids
+     * @return a map of [vertex id, vertex type]
+     */
+    auto getMapOfConnectedIds(std::vector<std::string> idList) -> VertexId_VertexType;
 
     ///
-    /// \brief getDatabaseFromTraversal parses a a map of [id, vertex type] into a ThermoFun Database object
-    /// \param resultTraversal the map of [id, vertex type] resulted from traversal
-    /// \param level level of reactions
-    /// \return returns a ThermoFun Database object
+    /// \brief getDatabaseFromTraversal returns a TfermoFun::Database object from a map of [vertex id, vertex type], for a given level
+    /// \param resultTraversal the map of [id, vertex type] resulted from traversal (all connected vertexes)
+    /// \param level of edge defines
+    /// \return ThermoFun::Database object
     ///
-    auto getDatabaseFromMapOfIds(MapId_VertexType resultTraversal, std::string level_) -> Database;
-    auto getDatabaseFromMapOfIds(MapId_VertexType resultTraversal, std::map<std::string, std::string> substSymbolLevel_) -> Database;
+    auto getDatabaseFromMapOfIds(VertexId_VertexType resultTraversal, std::string level_) -> Database;
+
+    /**
+     * @brief getDatabaseFromMapOfIds returns a TfermoFun::Database object from a map of [vertex id, vertex type], following the level specified for
+     * individual substances defined by a reaction
+     * @param resultTraversal the map of [id, vertex type] resulted from traversal (all connected vertexes)
+     * @param substSymbolLevel_ map of substance symbol and level
+     * @return ThermoFun::Database object
+     */
+    auto getDatabaseFromMapOfIds(VertexId_VertexType resultTraversal, std::map<std::string, std::string> substSymbol_definesLevel) -> Database;
 
 private:
 
     // follows the incoming Defines edge for substance with _idSubst
-    void followIncomingEdgeDefines(std::string idSubst, MapId_VertexType &result, std::string level_);
+    void followIncomingEdgeDefines(std::string idSubst, VertexId_VertexType &result, std::string level_);
     // follows the incoming Takes edges for reaction with _idReac
-    void followIncomingEdgeTakes(std::string idReact, MapId_VertexType &result);
+    void followIncomingEdgeTakes(std::string idReact, VertexId_VertexType &result);
     // fills the map MapIdType with all vertexes connected to the vertex with id_
-    auto linkedDataFromId(std::string id_) -> MapId_VertexType;
+    auto linkedDataFromId(std::string id_) -> VertexId_VertexType;
     // returns the symbol of the reaction which defines the substance with _idSubst
     auto level (std::string idSubst) -> std::string;
+    // returns a map of [id, vertex type] with all vertexes connected to the idList
+    auto getResult(std::vector<std::string> idList, std::vector<int> selNdx = {}) -> VertexId_VertexType;
+    // returns a ThermoFun::Database object from a map of [id, vertex type] resulted from traversal (all connected vertexes)
+    auto getDatabase(VertexId_VertexType resultTraversal) -> Database;
 
-    auto getResult(std::vector<std::string> idList, std::vector<int> selNdx = {}) -> MapId_VertexType;
-
-    auto getDatabase(MapId_VertexType resultTraversal) -> Database;
-
-    //    /**
-    //     * @brief getJsonRecord
-    //     * @param idRecord
-    //     * @return
-    //     */
     //    auto getJsonRecord(string idRecord) -> string;
 
     struct Impl;

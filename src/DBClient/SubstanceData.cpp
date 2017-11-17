@@ -47,7 +47,7 @@ set<ElementKey> SubstanceData::getElementsList( const string& idSubstance )
 {
   string formula;
   getDB()->GetRecord( (idSubstance+":").c_str() );
-  getDB()->getValue( getDataPath()["formula"], formula);
+  getDB()->getValue( getDataName_DataFieldPath()["formula"], formula);
   FormulaToken parser(formula);
   return parser.getElements();
 }
@@ -60,9 +60,9 @@ bsonio::ValuesTable SubstanceData::loadRecordsValues( const string& aquery,
     if( query.empty() )
        query = getQuery();
     if( !elements.empty() )
-      addFieldsToQuery( query, { make_pair( string(getDataPath()["sourcetdb"]), to_string(sourcetdb)) } );
+      addFieldsToQuery( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
 
-    ValuesTable substQueryMatr = getDB()->loadRecords( query, getFieldPaths() );
+    ValuesTable substQueryMatr = getDB()->loadRecords( query, getDataFieldPaths() );
 
     // get record by elements list
     ValuesTable substMatr;
@@ -73,7 +73,7 @@ bsonio::ValuesTable SubstanceData::loadRecordsValues( const string& aquery,
     else
      {  for( const auto& subitem : substQueryMatr )
         {
-          string formula = subitem[getDataIndex()["formula"]];
+          string formula = subitem[getDataName_DataIndex()["formula"]];
           if( testElementsFormula( formula, elements)  )
                substMatr.push_back(subitem);
          }

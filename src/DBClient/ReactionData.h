@@ -16,9 +16,6 @@ class ReactionData : public ThermoDataAbstract
   public:
     ReactionData();
 
-    /// Construct a copy of an ReactionData instance
-    // ReactionData(const ReactionData& other);
-
     auto operator=(ReactionData other) -> ReactionData &;
 
     virtual ~ReactionData();

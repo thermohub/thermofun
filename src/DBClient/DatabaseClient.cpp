@@ -186,10 +186,6 @@ auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
     // get substances
     keyList.insert(keyList.end(), substKeyList.begin(), substKeyList.end());
 
-//    Traversal tr(pimpl->substData.getDB());
-//    // get all data connected to the substances using level 0 for reaction defined substances
-//    db = tr.getDatabaseFromMapOfIds(tr.getMapOfConnectedIds(keyList, "0"), "0");
-
     db = pimpl->traversal.getDatabaseFromMapOfIds(pimpl->traversal.getMapOfConnectedIds(keyList, "0"), "0");
 
     return db;
