@@ -4,7 +4,7 @@
 // C++ includes
 #include <memory>
 #include "formuladata.h"
-#include "ThermoData.h"
+#include "AbstractData.h"
 
 namespace ThermoFun
 {
@@ -25,7 +25,7 @@ class ReactionData : public ThermoDataAbstract
     /// Extract data by condition
     virtual bsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
-    /// Get Elements list from reaction record
+    /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
 
     /// Return all formulas from all connected substances

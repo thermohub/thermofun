@@ -1,0 +1,4 @@
+#ifndef THERMOSETDATA_H
+#define THERMOSETDATA_H
+
+#endif // THERMOSETDATA_H

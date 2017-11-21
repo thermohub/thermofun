@@ -4,7 +4,7 @@
 // C++ includes
 #include <memory>
 #include "formuladata.h"
-#include "ThermoData.h"
+#include "AbstractData.h"
 
 namespace ThermoFun {
 
