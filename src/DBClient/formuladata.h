@@ -7,6 +7,8 @@
 #include "formulaparser.h"
 #include "bsonio/dbgraph.h"
 
+namespace ThermoFun {
+
 /// Key fields of Element vertex
 struct ElementKey
 {
@@ -157,6 +159,10 @@ public:
 
 };
 
+vector<ElementKey> getDBElements( bsonio::TDBGraph* elementDB, const vector<string>& idList );
+string ElementsToJson( const set<ElementKey>& elements );
+
+
 class ChemicalFormula
 {
 
@@ -198,5 +204,6 @@ class ChemicalFormula
   }
 
 };
+}
 
 #endif // FORMULADATA_H

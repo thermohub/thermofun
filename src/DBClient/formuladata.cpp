@@ -3,6 +3,7 @@
 #include "formulaparser.h"
 #include "bsonio/dbgraph.h"
 
+namespace ThermoFun {
 
 DBElementsData ChemicalFormula::dbElements= DBElementsData();
 vector<string> ChemicalFormula::queryFields =
@@ -519,6 +520,23 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const vector<s
   }
 }
 
+vector<ElementKey> getDBElements( bsonio::TDBGraph* elementDB, const vector<string>& idList )
+{
+  vector<ElementKey> elements;
+  ElementKey elkey("");
+
+  for(uint ii=0; ii<idList.size(); ii++ )
+  {
+    elementDB->GetRecord( (idList[ii]+":").c_str() );
+    elementDB->getValue( "properties.symbol" , elkey.symbol );
+    elementDB->getValue( "properties.class_" , elkey.class_ );
+    elementDB->getValue( "properties.isotope_mass" , elkey.isotope );
+    elements.push_back(elkey);
+  }
+
+  return elements;
+}
+
 void ChemicalFormula::addOneElement( bsonio::TDBGraph* elementDB )
 {
     ElementKey elkey("");
@@ -537,4 +555,6 @@ void ChemicalFormula::addOneElement( bsonio::TDBGraph* elementDB )
     elementDB->getValue( "properties.name" , eldata.name );
 
     dbElements[elkey] = eldata;
+}
+
 }

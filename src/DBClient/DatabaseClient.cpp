@@ -175,20 +175,15 @@ auto DatabaseClient::recordsFieldValues(std::vector<std::string> resultQuery, st
 
 auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
 {
-    Database db;
-    vector<string> keyList;
-
+    // get substances ids
     auto substKeyList = recordsFieldValues(pimpl->query_substances_fn(sourcetdbIndex), "_id");
 
     for (auto &key_: substKeyList)
         key_ += ":";
+    // get all ids conected to the keyList (by incoming edges, e.g. defines reactions and thier reactants)
+    auto resultTraversal = pimpl->traversal.getMapOfConnectedIds(substKeyList, "0");
 
-    // get substances
-    keyList.insert(keyList.end(), substKeyList.begin(), substKeyList.end());
-
-    db = pimpl->traversal.getDatabaseFromMapOfIds(pimpl->traversal.getMapOfConnectedIds(keyList, "0"), "0");
-
-    return db;
+    return pimpl->traversal.getDatabaseFromMapOfIds(resultTraversal, "0");
 }
 
 auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Element, double>
@@ -333,6 +328,11 @@ auto DatabaseClient::substData() const -> SubstanceData
 auto DatabaseClient::reactData() const -> ReactionData
 {
     return pimpl->reactData;
+}
+
+auto DatabaseClient::getTraversal() const -> TraversalData
+{
+    return pimpl->traversal;
 }
 
 

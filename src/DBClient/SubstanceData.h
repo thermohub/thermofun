@@ -16,7 +16,7 @@ public:
 
     SubstanceData( );
 
-    auto operator=(SubstanceData other) -> SubstanceData&;
+//    auto operator=(SubstanceData other) -> SubstanceData&;
 
     virtual ~SubstanceData();
 

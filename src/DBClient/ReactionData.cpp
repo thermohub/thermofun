@@ -35,11 +35,11 @@ ReactionData::ReactionData()
 {
 }
 
-auto ReactionData::operator=(ReactionData other) -> ReactionData &
-{
-    pimpl = std::move(other.pimpl);
-    return *this;
-}
+//auto ReactionData::operator=(ReactionData other) -> ReactionData &
+//{
+//    pimpl = std::move(other.pimpl);
+//    return *this;
+//}
 
 ReactionData::~ReactionData()
 {

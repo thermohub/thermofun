@@ -24,11 +24,11 @@ SubstanceData::SubstanceData()
     : ThermoDataAbstract( "VertexSubstance", substQuery, substFieldPaths, substColumnHeaders, substDataNames), pimpl(new Impl())
 { }
 
-auto SubstanceData::operator=(SubstanceData other) -> SubstanceData&
-{
-    pimpl = std::move(other.pimpl);
-    return *this;
-}
+//auto SubstanceData::operator=(SubstanceData other) -> SubstanceData&
+//{
+//    pimpl = std::move(other.pimpl);
+//    return *this;
+//}
 
 SubstanceData::~SubstanceData()
 { }

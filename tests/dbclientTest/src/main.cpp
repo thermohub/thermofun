@@ -1,5 +1,7 @@
 #include "ThermoFun.h"
 #include "bsonio/io_settings.h"
+#include "thermofun/DBClient/DatabaseClient.h"
+#include "thermofun/DBClient/ReactionData.h"
 
 using namespace std;
 using namespace ThermoFun;

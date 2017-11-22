@@ -9,8 +9,6 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 
-#include "formuladata.h"
-
 namespace ThermoFun
 {
 
@@ -20,7 +18,8 @@ struct Database;
 struct Element;
 struct SubstanceData;
 struct ReactionData;
-//struct ElementKey;
+struct ElementKey;
+struct TraversalData;
 
 //using GetJsonRecord           = std::function<string(string)>;
 
@@ -131,6 +130,8 @@ class DatabaseClient
      * @return ReactionData object
      */
     auto reactData() const -> ReactionData;
+
+    auto getTraversal() const -> TraversalData;
 
   private:
     auto recordsFieldValues(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>;

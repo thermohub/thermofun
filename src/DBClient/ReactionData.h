@@ -16,7 +16,7 @@ class ReactionData : public ThermoDataAbstract
   public:
     ReactionData();
 
-    auto operator=(ReactionData other) -> ReactionData &;
+//    auto operator=(ReactionData other) -> ReactionData &;
 
     virtual ~ReactionData();
 
