@@ -11,7 +11,8 @@ using namespace bsonio;
 namespace ThermoFun {
 
 using QueryRecord           = std::function<string(string, vector<string>)>;
-
+using LoadRecord            = std::function<FieldSetMap(const string&, const vector<string>&)>;
+using LoadRecords           = std::function<ValuesTable(const vector<string>&)>;
 
 using QueryInEdgesDefines   = std::function<vector<string>(string, vector<string>, string)>;
 using DefinesReactionSymbol = std::function<string(string, string)>;
@@ -19,7 +20,7 @@ using DefinesReactionSymbol = std::function<string(string, string)>;
 using QueryInEdgesTakes     = std::function<vector<string>(string, vector<string>)>;
 using ReactantsCoeff        = std::function<std::map<string, double>(string)>;
 
-struct ThermoDataAbstract::Impl
+struct AbstractData::Impl
 {
     /// Vertex name
     const string name;
@@ -44,6 +45,8 @@ struct ThermoDataAbstract::Impl
     boost::shared_ptr<bsonio::TDBGraph> graphdb_all;
 
     QueryRecord  query_record_fn;
+    LoadRecord   load_record_fn;
+    LoadRecords  load_records_fn;
 
     QueryInEdgesDefines   query_in_edges_defines_fn;
     DefinesReactionSymbol defines_reaction_symbol_fn;
@@ -57,6 +60,17 @@ struct ThermoDataAbstract::Impl
         query_record_fn = [=](string idRecord, vector<string> queryFields) {
             return queryRecord(idRecord, queryFields);
         };
+        query_record_fn = memoize(query_record_fn);
+
+        load_record_fn = [=](const string& idRecord, const vector<string>& queryFields) {
+            return loadRecord(idRecord, queryFields);
+        };
+        load_record_fn = memoize(load_record_fn);
+
+        load_records_fn = [=](const vector<string>& idRecords) {
+            return loadRecords(idRecords);
+        };
+        load_records_fn = memoize(load_records_fn);
 
         query_in_edges_defines_fn = [=](string idSubst, vector<string> queryFields,  string level) {
             return queryInEdgesDefines(idSubst, queryFields, level);
@@ -86,6 +100,16 @@ struct ThermoDataAbstract::Impl
         vector<string> resultRecord;
         graphdb->runQuery(qrJson, queryFields, resultRecord);
         return resultRecord[0];
+    }
+
+    auto loadRecord(string idRecord, vector<string> queryFields) -> bsonio::FieldSetMap
+    {
+        return graphdb->loadRecordFields(idRecord, queryFields);
+    }
+
+    auto loadRecords(vector<string> idRecords) -> bsonio::ValuesTable
+    {
+        return graphdb->loadRecords(idRecords, fieldPaths);
     }
 
     auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
@@ -164,96 +188,106 @@ struct ThermoDataAbstract::Impl
     }
 };
 
-ThermoDataAbstract::ThermoDataAbstract(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names)
+AbstractData::AbstractData(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names)
     : pimpl(new Impl(name, query, paths, headers, names))
 {
     resetDataPathIndex();
 }
 
-ThermoDataAbstract::ThermoDataAbstract(const ThermoDataAbstract& other)
+AbstractData::AbstractData(const AbstractData& other)
 : pimpl(new Impl(*other.pimpl))
 {}
 
-ThermoDataAbstract::~ThermoDataAbstract()
+AbstractData::~AbstractData()
 { }
 
-auto ThermoDataAbstract::queryRecord(string idRecord, vector<string> queryFields) -> string
+auto AbstractData::queryRecord(string idRecord, vector<string> queryFields) -> string
 {
     return pimpl->query_record_fn(idRecord, queryFields);
 }
-auto ThermoDataAbstract::queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>
+auto AbstractData::queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>
 {
     return pimpl->query_in_edges_defines_fn(idSubst, queryFields, level);
 }
 
-auto ThermoDataAbstract::definesReactionSymbol_(string idSubst, string level) -> std::string
+auto AbstractData::definesReactionSymbol_(string idSubst, string level) -> std::string
 {
     return pimpl->defines_reaction_symbol_fn(idSubst, level);
 }
 
-auto ThermoDataAbstract::queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>
+auto AbstractData::queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>
 {
     return pimpl->query_in_edges_takes_fn(idReact, queryFields);
 }
 
-auto ThermoDataAbstract::reactantsCoeff_(string idReact) -> std::map<std::string, double>
+auto AbstractData::reactantsCoeff_(string idReact) -> std::map<std::string, double>
 {
     return pimpl->reactans_coeff_fn(idReact);
 }
 
-auto ThermoDataAbstract::getName() const -> string
+auto AbstractData::getName() const -> string
 {
     return pimpl->name;
 }
 
-auto ThermoDataAbstract::getQuery() const -> string
+auto AbstractData::getQuery() const -> string
 {
     return pimpl->query;
 }
 
-auto ThermoDataAbstract::getDataFieldPaths() const -> vector<string>
+auto AbstractData::getDataFieldPaths() const -> vector<string>
 {
     return pimpl->fieldPaths;
 }
 
-auto ThermoDataAbstract::setDataFieldPaths(const vector<string> &value) -> void
+auto AbstractData::setDataFieldPaths(const vector<string> &value) -> void
 {
     pimpl->fieldPaths = value;
 }
 
-auto ThermoDataAbstract::getDataHeaders() const -> vector<string>
+auto AbstractData::getDataHeaders() const -> vector<string>
 {
     return pimpl->dataHeaders;
 }
 
-auto ThermoDataAbstract::setDataHeaders(const vector<string> &value) -> void
+auto AbstractData::setDataHeaders(const vector<string> &value) -> void
 {
     pimpl->dataHeaders = value;
 }
 
-auto ThermoDataAbstract::getDataNames() const -> vector<string>
+auto AbstractData::getDataNames() const -> vector<string>
 {
     return pimpl->dataNames;
 }
 
-auto ThermoDataAbstract::setDataNames(const vector<string> &value) -> void
+auto AbstractData::setDataNames(const vector<string> &value) -> void
 {
     pimpl->dataNames = value;
 }
 
-auto ThermoDataAbstract::getDB() const -> boost::shared_ptr<bsonio::TDBGraph>
+auto AbstractData::getDB() const -> boost::shared_ptr<bsonio::TDBGraph>
 {
     return pimpl->graphdb;
 }
 
-auto ThermoDataAbstract::setDB(const boost::shared_ptr<bsonio::TDBGraph> &value) -> void
+auto AbstractData::setDB(const boost::shared_ptr<bsonio::TDBGraph> &value) -> void
 {
     pimpl->graphdb     = value;
     pimpl->graphdb_all = value;
     pimpl->graphdb_all->resetMode(true);
 }
 
-auto ThermoDataAbstract::resetDataPathIndex() -> void
+bool AbstractData::recordExists(const string& id )
+{
+    return getDB()->Find( (id+":").c_str() );
+}
+
+auto AbstractData::addNewRecord( const bsonio::FieldSetMap& fldvalues, bool testValues ) -> string
+{
+    return getDB()->addNewVertex( getName(), fldvalues, testValues );
+}
+
+auto AbstractData::resetDataPathIndex() -> void
 {
     pimpl->dataIndex.clear(); pimpl->dataPath.clear();
     for (uint i = 0; i<getDataNames().size(); i++)
@@ -263,7 +297,7 @@ auto ThermoDataAbstract::resetDataPathIndex() -> void
     }
 }
 
-auto ThermoDataAbstract::testElementsFormula( const string& aformula,
+auto AbstractData::testElementsFormula( const string& aformula,
                        const vector<ElementKey>& elements ) -> bool
 {
    FormulaToken parser(aformula);
@@ -283,7 +317,7 @@ auto ThermoDataAbstract::testElementsFormula( const string& aformula,
     return true;
 }
 
-auto ThermoDataAbstract::getOutVertexIds( const string& edgeLabel, const string& idInVertex ) -> vector<string>
+auto AbstractData::getOutVertexIds( const string& edgeLabel, const string& idInVertex ) -> vector<string>
 {
     vector<string> vertexIds_;
     string vertexId_;
@@ -304,7 +338,7 @@ auto ThermoDataAbstract::getOutVertexIds( const string& edgeLabel, const string&
     return vertexIds_;
 }
 
-auto ThermoDataAbstract::getOutVertexIds(const string& edgeLabel, const string& idInVertex,  vector<string> &edgeIds_) -> vector<string>
+auto AbstractData::getOutVertexIds(const string& edgeLabel, const string& idInVertex,  vector<string> &edgeIds_) -> vector<string>
 {
     vector<string> vertexIds_;
     string vertexId_, edgeId_;
@@ -328,7 +362,7 @@ auto ThermoDataAbstract::getOutVertexIds(const string& edgeLabel, const string& 
     return vertexIds_;
 }
 
-auto ThermoDataAbstract::setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable) -> void
+auto AbstractData::setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable) -> void
 {
     for( const auto& subitem : valuesTable )
     {
@@ -336,27 +370,27 @@ auto ThermoDataAbstract::setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTa
     }
 }
 
-auto ThermoDataAbstract::getDataName_DataIndex() const -> std::map<std::string, int>
+auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, int>
 {
     return pimpl->dataIndex;
 }
 
-auto ThermoDataAbstract::getDataName_DataFieldPath() const -> std::map<std::string, std::string>
+auto AbstractData::getDataName_DataFieldPath() const -> std::map<std::string, std::string>
 {
     return pimpl->dataPath;
 }
 
-auto ThermoDataAbstract::getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>
+auto AbstractData::getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>
 {
     return pimpl->substSymbolLevel;
 }
 
-auto ThermoDataAbstract::setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void
+auto AbstractData::setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void
 {
     pimpl->substSymbolLevel = value;
 }
 
-auto ThermoDataAbstract::getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>
+auto AbstractData::getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>
 {
     return pimpl->graphdb_all;
 }

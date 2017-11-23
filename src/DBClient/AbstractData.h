@@ -1,5 +1,5 @@
-#ifndef THERMODATA_H
-#define THERMODATA_H
+#ifndef ABSTRACTDATA_H
+#define ABSTRACTDATA_H
 
 // C++ includes
 #include <memory>
@@ -9,22 +9,21 @@
 
 namespace ThermoFun {
 
-
-class ThermoDataAbstract
+class AbstractData
 {
 public:
 
-    ThermoDataAbstract( const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names );
+    AbstractData( const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names );
 
     /// Construct a copy of an ThermoDataAbstract instance
-    ThermoDataAbstract(const ThermoDataAbstract& other);
+    AbstractData(const AbstractData& other);
 
     /// Destroy this instance
-    virtual ~ThermoDataAbstract();
+    virtual ~AbstractData();
 
     // load values function
     /// Extract data connected to ReactionSet
-//    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet ) = 0;
+    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet ) = 0;
     /// Extract data by condition
     virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
@@ -54,6 +53,19 @@ public:
      * @return string representing the result in JSON format containing the queryFields as keys
      */
     auto queryRecord(string idRecord, vector<string> queryFields) -> string;
+
+    /// Test record existence
+    auto recordExists(const string& id ) -> bool;
+
+    /// Add new Vertex record to database
+    /// \return oid of new record
+    auto addNewRecord( const bsonio::FieldSetMap& fldvalues, bool testValues ) -> string;
+
+    /// Extract values from record into database
+    auto loadRecord( const string& id, const vector<string>& queryFields ) -> bsonio::FieldSetMap;
+
+    /// Build table of fields values by ids list
+    auto loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable;
 
 protected:
 
@@ -90,4 +102,4 @@ private:
 
 }
 
-#endif // THERMODATA_H
+#endif // ABSTRACTDATA_H

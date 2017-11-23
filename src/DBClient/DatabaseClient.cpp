@@ -34,10 +34,10 @@ std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation"
 struct DatabaseClient::Impl
 {
     /// access to substance records
-    SubstanceData substData;
+    SubstanceData_ substData;
 
     /// access to reaction records
-    ReactionData reactData;
+    ReactionData_ reactData;
 
     /// for traversal operations
     TraversalData traversal;
@@ -320,12 +320,12 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     return set;
 }
 
-auto DatabaseClient::substData() const -> SubstanceData
+auto DatabaseClient::substData() const -> SubstanceData_
 {
     return pimpl->substData;
 }
 
-auto DatabaseClient::reactData() const -> ReactionData
+auto DatabaseClient::reactData() const -> ReactionData_
 {
     return pimpl->reactData;
 }

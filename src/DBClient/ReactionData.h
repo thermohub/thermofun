@@ -1,5 +1,5 @@
-#ifndef REACTIONDATA_H
-#define REACTIONDATA_H
+#ifndef _REACTIONDATA_H
+#define _REACTIONDATA_H
 
 // C++ includes
 #include <memory>
@@ -11,17 +11,20 @@ namespace ThermoFun
 
 // struct ThermoDataAbstract;
 
-class ReactionData : public ThermoDataAbstract
+class ReactionData_ : public AbstractData
 {
   public:
-    ReactionData();
+    ReactionData_();
 
-//    auto operator=(ReactionData other) -> ReactionData &;
+    /// Construct a copy of an ReactionData instance
+    ReactionData_(const ReactionData_& other);
 
-    virtual ~ReactionData();
+    auto operator=(ReactionData_ other) -> ReactionData_ &;
+
+    virtual ~ReactionData_();
 
     /// Extract data connected to ReactionSet
-    //  virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
     virtual bsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
@@ -54,4 +57,4 @@ class ReactionData : public ThermoDataAbstract
 };
 }
 
-#endif // REACTIONDATA_H
+#endif // _REACTIONDATA_H

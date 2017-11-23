@@ -1,5 +1,5 @@
-#ifndef FORMULADATA_H
-#define FORMULADATA_H
+#ifndef _FORMULADATA_H
+#define _FORMULADATA_H
 
 #include <iostream>
 #include <map>
@@ -206,4 +206,4 @@ class ChemicalFormula
 };
 }
 
-#endif // FORMULADATA_H
+#endif // _FORMULADATA_H

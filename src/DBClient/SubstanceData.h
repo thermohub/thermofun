@@ -1,5 +1,5 @@
-#ifndef SUBSTANCEDATA_H
-#define SUBSTANCEDATA_H
+#ifndef _SUBSTANCEDATA_H
+#define _SUBSTANCEDATA_H
 
 // C++ includes
 #include <memory>
@@ -10,18 +10,21 @@ namespace ThermoFun {
 
 //struct ThermoDataAbstract;
 
-class SubstanceData : public ThermoDataAbstract
+class SubstanceData_ : public AbstractData
 {
 public:
 
-    SubstanceData( );
+    SubstanceData_( );
 
-//    auto operator=(SubstanceData other) -> SubstanceData&;
+    /// Construct a copy of an SubstanceData instance
+    SubstanceData_(const SubstanceData_& other);
 
-    virtual ~SubstanceData();
+    auto operator=(SubstanceData_ other) -> SubstanceData_&;
+
+    virtual ~SubstanceData_();
 
     /// Extract data connected to ReactionSet
-//    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
     virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} );
@@ -45,6 +48,13 @@ public:
      */
     auto definesReactionSymbol(string idSubst, string level) -> std::string;
 
+    /**
+     * @brief querySolvents
+     * @param sourcetdb
+     * @return
+     */
+    auto querySolvents(int sourcetdb) -> vector<vector<string>>;
+
 private:
 
     struct Impl;
@@ -55,4 +65,4 @@ private:
 
 
 
-#endif // SUBSTANCEDATA_H
+#endif // _SUBSTANCEDATA_H

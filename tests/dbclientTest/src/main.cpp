@@ -1,7 +1,8 @@
 #include "ThermoFun.h"
 #include "bsonio/io_settings.h"
-#include "thermofun/DBClient/DatabaseClient.h"
-#include "thermofun/DBClient/ReactionData.h"
+#include "DBClient/DatabaseClient.h"
+#include "DBClient/ReactionData.h"
+#include "DBClient/AbstractData.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -15,12 +16,35 @@ int main(int argc, char *argv[])
 
     DatabaseClient dbc_("./Resources/ThermoFun.json");
 
+    AbstractData *abstr;
+
+    class ThermoDataContainer
+    {
+        ThermoFun::AbstractData *thermodata;
+
+        vector<string> colHeads;
+        bsonio::ValuesTable matrix;
+        bool isEditable = false;
+    public:
+
+      ThermoDataContainer( AbstractData *thermo  ):
+         thermodata( thermo )
+       {
+//          colHeads = thermodata->getHeads();
+//          colHeads.insert(colHeads.begin(), "Type");
+//          resetData();
+       }
+
+      virtual ~ThermoDataContainer() {}
+    };
 
     Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);
 
     auto tdblist_ = dbc_.sourcetdbNamesIndexes();
     auto ellist_ = dbc_.availableElements(19);
+
+//    auto rcd = dbc_.reactData();
 
     auto rcd = dbc_.reactData();
 

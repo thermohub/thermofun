@@ -20,7 +20,7 @@ const vector<string> reactDataNames = {"symbol", "name", "equation", "_id", "lev
 using QueryVertexReaction  = std::function<string(string, vector<string>)>;
 
 
-struct ReactionData::Impl
+struct ReactionData_::Impl
 {
     bsonio::ValuesTable valuesTable;
 
@@ -30,32 +30,36 @@ struct ReactionData::Impl
 
 };
 
-ReactionData::ReactionData()
-    : ThermoDataAbstract("VertexReaction", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
+ReactionData_::ReactionData_()
+    : AbstractData("VertexReaction", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
 }
 
-//auto ReactionData::operator=(ReactionData other) -> ReactionData &
-//{
-//    pimpl = std::move(other.pimpl);
-//    return *this;
-//}
+ReactionData_::ReactionData_(const ReactionData_& other)
+: AbstractData(other), pimpl(new Impl(*other.pimpl))
+{}
 
-ReactionData::~ReactionData()
+auto ReactionData_::operator=(ReactionData_ other) -> ReactionData_ &
+{
+    pimpl = std::move(other.pimpl);
+    return *this;
+}
+
+ReactionData_::~ReactionData_()
 {
 }
 
-auto ReactionData::queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
+auto ReactionData_::queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
 {
     return queryInEdgesTakes_(idReact, queryFields);
 }
 
-auto ReactionData::reactantsCoeff(string idReact) -> std::map<std::string, double>
+auto ReactionData_::reactantsCoeff(string idReact) -> std::map<std::string, double>
 {
     return reactantsCoeff_(idReact);
 }
 
-bsonio::ValuesTable ReactionData::loadRecordsValues(const string &aquery,
+bsonio::ValuesTable ReactionData_::loadRecordsValues(const string &aquery,
                                                     int sourcetdb, const vector<ElementKey> &elements)
 {
     // get records by query
@@ -86,7 +90,16 @@ bsonio::ValuesTable ReactionData::loadRecordsValues(const string &aquery,
     return reactMatr;
 }
 
-bool ReactionData::testElements(const string &idReaction,
+bsonio::ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
+{
+    auto reIds = getOutVertexIds( "prodreac", idReactionSet );
+    ValuesTable reactMatr = getDB()->loadRecords(reIds, getDataFieldPaths());
+    setDefaultLevelForReactionDefinedSubst(reactMatr);
+    pimpl->valuesTable = reactMatr;
+    return reactMatr;
+}
+
+bool ReactionData_::testElements(const string &idReaction,
                                 const vector<ElementKey> &elements)
 {
     set<ElementKey> reactelements = getElementsList(idReaction);
@@ -113,7 +126,7 @@ bool ReactionData::testElements(const string &idReaction,
     return true;
 }
 
-vector<string> ReactionData::getReactantsFormulas(const string &idReaction)
+vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 {
     vector<string> formulas;
     string idSub, formSub;
@@ -135,7 +148,7 @@ vector<string> ReactionData::getReactantsFormulas(const string &idReaction)
     return formulas;
 }
 
-set<ElementKey> ReactionData::getElementsList(const string &idReaction)
+set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
 {
     set<ElementKey> elements;
     getDB()->GetRecord((idReaction + ":").c_str());

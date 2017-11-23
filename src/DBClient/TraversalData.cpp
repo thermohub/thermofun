@@ -55,10 +55,10 @@ struct TraversalData::Impl
     GetJsonRecord get_json_record_fn;
 
     /// pointer to substance data for access to substance records
-    SubstanceData  *substData;
+    SubstanceData_  *substData;
 
     /// pointer to reaction data for access to reaction records
-    ReactionData   *reactData;
+    ReactionData_   *reactData;
 
     Impl( )
     {
@@ -76,7 +76,7 @@ struct TraversalData::Impl
     }
 };
 
-TraversalData::TraversalData( SubstanceData *substData,  ReactionData *reactData) : pimpl(new Impl())
+TraversalData::TraversalData( SubstanceData_ *substData,  ReactionData_ *reactData) : pimpl(new Impl())
 {
     pimpl->substData = substData;
     pimpl->reactData = reactData;

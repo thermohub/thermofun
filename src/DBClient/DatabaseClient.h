@@ -16,8 +16,8 @@ struct Database;
 //struct Reaction;
 //struct Substance;
 struct Element;
-struct SubstanceData;
-struct ReactionData;
+struct SubstanceData_;
+struct ReactionData_;
 struct ElementKey;
 struct TraversalData;
 
@@ -123,13 +123,13 @@ class DatabaseClient
      * @brief substData returns a SubstanceData object for reading substance data from the database
      * @return SubstanceData object
      */
-    auto substData() const -> SubstanceData;
+    auto substData() const -> SubstanceData_;
 
     /**
      * @brief reactData returns a ReactionData object for reading reaction data from the database
      * @return ReactionData object
      */
-    auto reactData() const -> ReactionData;
+    auto reactData() const -> ReactionData_;
 
     auto getTraversal() const -> TraversalData;
 

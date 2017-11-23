@@ -11,8 +11,8 @@ namespace ThermoFun
 {
 
 struct Database;
-struct SubstanceData;
-struct ReactionData;
+struct SubstanceData_;
+struct ReactionData_;
 
 using  VertexId_VertexType = std::map<std::string, std::string>;
 using  VertexId_DefinesLevel = std::map<std::string, std::vector<std::string>>;
@@ -21,7 +21,7 @@ class TraversalData
 {
 public:
 
-    TraversalData(SubstanceData *substData, ReactionData *reactData);
+    TraversalData(SubstanceData_ *substData, ReactionData_ *reactData);
 
     auto operator=(TraversalData other) -> TraversalData&;
 

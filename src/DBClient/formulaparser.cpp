@@ -1,6 +1,8 @@
 #include "formulaparser.h"
 #include "bsonio/ar2base.h"
 
+namespace ThermoFun {
+
 const int MAXICNAME = 10;
 const char* NOISOTOPE_CLASS  ="n";
 const char* CHARGE_CLASS   ="z";
@@ -347,3 +349,5 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
     }
    return nSites;
   }
+
+}
