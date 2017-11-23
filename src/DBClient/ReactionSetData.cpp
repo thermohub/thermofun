@@ -102,8 +102,8 @@ vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
     string formSub;
 
     // Select substance ids connected to reactionSet
-    auto subIds = getOutVertexIds( "product", idrcset );
-    auto subIds2 = getOutVertexIds( "master", idrcset );
+    auto subIds = getInVertexIds( "product", idrcset );
+    auto subIds2 = getInVertexIds( "master", idrcset );
     subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
 
     // for all substances
@@ -146,7 +146,7 @@ bool ReactionSetData_::testElements( const string& idrcset,
     return true;
 }
 
-void ReactionSetData_::resetElementsintoRecord( const string& aKey )
+void ReactionSetData_::resetRecordElements( const string& aKey )
 {
     string _id;
     try{

@@ -359,5 +359,19 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
     return tdb;
 }
 
+auto TraversalData::linkedDataIds(const std::vector<std::string> aKeyList, std::vector<std::string> &substIds, std::vector<std::string> &reactIds) -> void
+{
+    reactIds.clear(); substIds.clear();
+
+
+    for (auto idType : getMapOfConnectedIds(aKeyList))
+    {
+        if (idType.second == "reaction")
+            reactIds.push_back((idType.first));
+        if (idType.second == "substance")
+            substIds.push_back((idType.first));
+    }
+}
+
 
 }

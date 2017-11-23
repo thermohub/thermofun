@@ -92,7 +92,7 @@ bsonio::ValuesTable ReactionData_::loadRecordsValues(const string &aquery,
 
 bsonio::ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
 {
-    auto reIds = getOutVertexIds( "prodreac", idReactionSet );
+    auto reIds = getInVertexIds( "prodreac", idReactionSet );
     ValuesTable reactMatr = getDB()->loadRecords(reIds, getDataFieldPaths());
     setDefaultLevelForReactionDefinedSubst(reactMatr);
     pimpl->valuesTable = reactMatr;
@@ -165,4 +165,29 @@ set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
     }
     return elements;
 }
+
+void ReactionData_::resetRecordElements(const string& idReact )
+{
+    string _id;
+    try{
+        getDB()->GetRecord(idReact.c_str());
+        getDB()->getValue("_id",_id);
+
+        vector<string> formulalst = getReactantsFormulas( _id );
+        set<ThermoFun::ElementKey> elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
+
+        string elementsJsonArray = ElementsToJson( elements );
+        getDB()->setValue("properties.elements",elementsJsonArray);
+        getDB()->SaveCurrent( true, true  );
+    }
+    catch(bsonio_exeption& e)
+    {
+        cout << "ResetElementsintoReactionRecord " << e.title() << e.what() << endl;
+    }
+    catch(std::exception& e)
+    {
+        cout << "std::exception" << e.what() << endl;
+    }
+}
+
 }

@@ -49,6 +49,8 @@ class ReactionData_ : public AbstractData
      */
     auto reactantsCoeff(string idReact) -> std::map<string, double>;
 
+    auto resetRecordElements(const string& idReact) -> void;
+
   private:
     bool testElements(const string &idReaction, const vector<ElementKey> &elements);
 

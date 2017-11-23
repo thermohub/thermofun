@@ -77,6 +77,8 @@ public:
      */
     auto getDatabaseFromMapOfIds(VertexId_VertexType resultTraversal, std::map<std::string, std::string> substSymbol_definesLevel) -> Database;
 
+    auto linkedDataIds(const std::vector<std::string> aKeyList, std::vector<std::string> &substIds, std::vector<std::string> &reactIds) -> void;
+
 private:
 
     // follows the incoming Defines edge for substance with _idSubst

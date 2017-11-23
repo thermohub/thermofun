@@ -30,6 +30,8 @@ public:
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
+    auto updateDBClient() -> void;
+
     auto getDB() const -> boost::shared_ptr<bsonio::TDBGraph>;
     auto getName() const -> string;
     auto getQuery() const -> string;
@@ -67,16 +69,22 @@ public:
     /// Build table of fields values by ids list
     auto loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable;
 
+    /// Build ids list connected to idInVertex by edge
+    auto getInVertexIds(const string& edgeLabel, const string& idVertex) -> vector<string>;
+
+    /// Build ids list connected to idInVertex by edge, record edgesIds
+    auto getInVertexIds(const string& edgeLabel, const string& idVertex,  vector<string> &edgesIds) -> vector<string>;
+
+    /// Build ids list connected to idInVertex by edge
+    auto getOutVertexIds(const string& edgeLabel, const string& idVertex) -> vector<string>;
+
+    /// Build ids list connected to idInVertex by edge, record edgesIds
+    auto getOutVertexIds(const string& edgeLabel, const string& idVertex,  vector<string> &edgesIds) -> vector<string>;
+
 protected:
 
     /// Test all elements from formula exist into list
     static auto testElementsFormula( const string& aformula, const vector<ElementKey>& elements) -> bool;
-
-    /// Build ids list connected to idInVertex by edge
-    auto getOutVertexIds(const string& edgeLabel, const string& idInVertex) -> vector<string>;
-
-    /// Build ids list connected to idInVertex by edge, record edgesIds
-    auto getOutVertexIds(const string& edgeLabel, const string& idInVertex,  vector<string> &edgesIds) -> vector<string>;
 
     auto resetDataPathIndex() -> void;
 

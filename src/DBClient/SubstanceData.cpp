@@ -89,8 +89,8 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& aquery,
 
 ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 {
-    auto subIds = getOutVertexIds("product", idReactionSet);
-    auto subIds2 = getOutVertexIds("master", idReactionSet);
+    auto subIds = getInVertexIds("product", idReactionSet);
+    auto subIds2 = getInVertexIds("master", idReactionSet);
     subIds.insert(subIds.end(), subIds2.begin(), subIds2.end());
 
     ValuesTable substMatr = getDB()->loadRecords(subIds, getDataFieldPaths());
