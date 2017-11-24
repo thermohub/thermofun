@@ -47,6 +47,7 @@ public:
     auto setDataHeaders(const vector<string> &value) -> void;
     auto setDataFieldPaths(const vector<string> &value) -> void;
     auto setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void;
+    auto setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void;
 
     /**
      * @brief queryRecord returns a record queried by id
@@ -99,6 +100,10 @@ protected:
     auto queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>;
 
     auto reactantsCoeff_(string idReact) -> std::map<string, double>;
+
+    auto getSubstanceLevel_(string substSymbol) const -> string;
+
+    auto setSubstanceLevel_(string substSymbol, string level) -> void;
 
 private:
     struct Impl;

@@ -79,6 +79,8 @@ public:
 
     auto linkedDataIds(const std::vector<std::string> aKeyList, std::vector<std::string> &substIds, std::vector<std::string> &reactIds) -> void;
 
+    auto getJsonRecord(std::string idRecord) -> std::string;
+
 private:
 
     // follows the incoming Defines edge for substance with _idSubst

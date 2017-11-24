@@ -47,6 +47,16 @@ auto SubstanceData_::definesReactionSymbol(string idSubst, string level) -> std:
     return definesReactionSymbol_(idSubst, level);
 }
 
+auto SubstanceData_::getSubstanceLevel(string substSymbol) const -> string
+{
+    return getSubstanceLevel_(substSymbol);
+}
+
+auto SubstanceData_::setSubstanceLevel(string substSymbol, string level) -> void
+{
+    setSubstanceLevel_(substSymbol, level);
+}
+
 set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
 {
   string formula;
@@ -108,5 +118,68 @@ auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
   return solventMatr;
 }
 
+auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
+{
+    // maybe use query edge defines memoized?
+    string queryJson, level = "0"; ValuesTable levelQueryMatr;
+    vector<int> levels;
+    // check if more edge defines are connected to this substance
+    queryJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
+    queryJson += idSubst;
+    queryJson += "'}";
+
+    levelQueryMatr = getDB()->loadRecords( queryJson, {"properties.level"} );
+    for (uint i = 0; i < levelQueryMatr.size(); i++)
+    {
+        levels.push_back(std::stoi(levelQueryMatr[i][0]));
+    }
+    if (levels.size() > 0)
+    level = std::to_string((*std::max_element(levels.begin(), levels.end())+1));
+    return level;
+}
+
+MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction( )
+{
+    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
+    for (auto value : pimpl->valuesTable)
+    {
+        MapLevel_IdReaction levelReact;
+        // returns the ids of reactions which are conncted to the substance with id value[3] with edge defines
+        vector<string> resultDefinesEdges;
+        vector<string> resultDefinesReactions = getOutVertexIds( "defines", value[getDataName_DataIndex()["_id"]], resultDefinesEdges );
+        for (uint i = 0; i < resultDefinesReactions.size(); i++)
+        {
+            string level;
+            getDB_fullAccessMode()->GetRecord( (resultDefinesEdges[i]+":").c_str() );
+            getDB_fullAccessMode()->getValue(  "properties.level", level);
+            levelReact[level] = resultDefinesReactions[i]+":";
+        }
+//        if (!levelReact.empty())
+        recordsLevelReact[value[getDataName_DataIndex()["symbol"]]] = levelReact;
+    }
+    return recordsLevelReact;
+}
+
+MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols )
+{
+    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
+    for (uint i = 0; i < connectedSubstIds.size(); i++)
+    {
+        MapLevel_IdReaction levelReact;
+        // returns the ids of reactions which are conncted to the substance with id value[3] with edge defines
+        vector<string> resultDefinesEdges;
+        vector<string> resultDefinesReactions = getOutVertexIds( "defines", connectedSubstIds[i], resultDefinesEdges );
+        for (uint i = 0; i < resultDefinesReactions.size(); i++)
+        {
+            string level;
+            getDB_fullAccessMode()->GetRecord((resultDefinesEdges[i]+":").c_str());
+            getDB_fullAccessMode()->getValue("properties.level", level);
+            levelReact[level] = resultDefinesReactions[i]+":";
+        }
+//        if (!levelReact.empty())
+        recordsLevelReact[connectedSubstSymbols[i]] = levelReact;
+    }
+    return recordsLevelReact;
+}
 
 }

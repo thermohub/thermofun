@@ -278,6 +278,14 @@ auto AbstractData::setDB(const boost::shared_ptr<bsonio::TDBGraph> &value) -> vo
     pimpl->graphdb_all->resetMode(true);
 }
 
+auto AbstractData::setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void
+{
+    pimpl->dataNames = names;
+    pimpl->dataHeaders = headers;
+    pimpl->fieldPaths = fieldpaths;
+    resetDataPathIndex();
+}
+
 bool AbstractData::recordExists(const string& id )
 {
     return getDB()->Find( (id+":").c_str() );
@@ -448,6 +456,16 @@ auto AbstractData::getSubstSymbol_DefinesLevel() const -> std::map<std::string, 
 auto AbstractData::setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void
 {
     pimpl->substSymbolLevel = value;
+}
+
+auto AbstractData::getSubstanceLevel_(string substSymbol) const -> string
+{
+    return pimpl->substSymbolLevel[substSymbol];
+}
+
+auto AbstractData::setSubstanceLevel_(string substSymbol, string level) -> void
+{
+    pimpl->substSymbolLevel[substSymbol] = level;
 }
 
 auto AbstractData::getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>

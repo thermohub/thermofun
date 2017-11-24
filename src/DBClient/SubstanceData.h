@@ -9,6 +9,8 @@
 namespace ThermoFun {
 
 //struct ThermoDataAbstract;
+using MapLevel_IdReaction                   = map<string, string>;
+using MapSubstSymbol_MapLevel_IdReaction    = map<string, MapLevel_IdReaction>;
 
 class SubstanceData_ : public AbstractData
 {
@@ -54,6 +56,16 @@ public:
      * @return
      */
     auto querySolvents(int sourcetdb) -> vector<vector<string>>;
+
+    auto getSubstanceLevel(string substSymbol) const -> string;
+
+    auto setSubstanceLevel(string substSymbol, string level) -> void;
+
+    auto nextValueForDefinesLevel (string idSubst) const -> string;
+
+    MapSubstSymbol_MapLevel_IdReaction recordsMapLevelDefinesReaction( );
+
+    MapSubstSymbol_MapLevel_IdReaction recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols );
 
 private:
 

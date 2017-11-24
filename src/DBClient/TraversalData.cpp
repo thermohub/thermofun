@@ -101,6 +101,12 @@ TraversalData::~TraversalData()
 { }
 
 // Public
+
+auto TraversalData::getJsonRecord(string idRecord) -> string
+{
+    return pimpl->get_json_record_fn(idRecord);
+}
+
 auto TraversalData::getMapOfConnectedIds(vector<int> selNdx, vector<string> idsList, string level_) -> VertexId_VertexType
 {
     pimpl->level = level_;
