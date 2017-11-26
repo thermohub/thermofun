@@ -18,6 +18,7 @@ struct Database;
 struct Element;
 struct SubstanceData_;
 struct ReactionData_;
+struct ReactionSetData_;
 struct ElementKey;
 struct TraversalData;
 
@@ -130,6 +131,8 @@ class DatabaseClient
      * @return ReactionData object
      */
     auto reactData() const -> ReactionData_;
+
+    auto reactSetData() const -> ReactionSetData_;
 
     auto getTraversal() const -> TraversalData;
 

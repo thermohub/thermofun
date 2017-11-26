@@ -13,6 +13,7 @@
 // ThermoFun includes
 #include "SubstanceData.h"
 #include "ReactionData.h"
+#include "ReactionSetData.h"
 #include "TraversalData.h"
 
 #include "../Database.h"
@@ -38,6 +39,9 @@ struct DatabaseClient::Impl
 
     /// access to reaction records
     ReactionData_ reactData;
+
+    /// access to reactionSet records
+    ReactionSetData_ reactSetData;
 
     /// for traversal operations
     TraversalData traversal;
@@ -76,6 +80,8 @@ struct DatabaseClient::Impl
         substData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", qrJson)));
         qrJson = "{ \"_label\" : \"reaction\" }";
         reactData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexReaction", qrJson)));
+        qrJson = "{ \"_label\" : \"reactionset\" }";
+        reactSetData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexReactionSet", qrJson)));
 
         qrJson = "{ \"_label\" : \"element\"}";
         auto elementVertex = unique_ptr<bsonio::TDBGraph> (ioSettings().newDBGraphClient( "VertexElement", qrJson ));
@@ -86,6 +92,7 @@ struct DatabaseClient::Impl
     auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
     {
         auto graphdb_all = substData.getDB();
+        graphdb_all->resetMode(true);
         graphdb_all->GetRecord( idRecord.c_str() );
         return graphdb_all->GetJson();
     }
@@ -328,6 +335,11 @@ auto DatabaseClient::substData() const -> SubstanceData_
 auto DatabaseClient::reactData() const -> ReactionData_
 {
     return pimpl->reactData;
+}
+
+auto DatabaseClient::reactSetData() const -> ReactionSetData_
+{
+    return pimpl->reactSetData;
 }
 
 auto DatabaseClient::getTraversal() const -> TraversalData

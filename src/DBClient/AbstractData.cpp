@@ -473,4 +473,15 @@ auto AbstractData::getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDB
     return pimpl->graphdb_all;
 }
 
+/// Extract values from record into database
+auto AbstractData::loadRecord( const string& id, const vector<string>& queryFields ) -> bsonio::FieldSetMap
+{
+    return pimpl->graphdb_all->loadRecordFields( id, queryFields );
+}
+/// Build table of fields values by ids list
+auto AbstractData::loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable
+{
+   return pimpl->graphdb_all->loadRecords(ids, pimpl->fieldPaths );
+}
+
 }

@@ -171,7 +171,4 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
     }
 }
 
-
-
-
 }
