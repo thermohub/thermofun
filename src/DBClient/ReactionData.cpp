@@ -129,33 +129,29 @@ bool ReactionData_::testElements(const string &idReaction,
 vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 {
     vector<string> formulas;
-    string idSub, formSub;
+    string idSubst, formSubst;
+    bson record;
 
     // select all EdgeTakes for reaction
-    string queryJson = "{'_type': 'edge', '_label': 'takes', '_inV': '" + idReaction + "' }";
-    vector<string> _queryFields = {"_outV"};
-    vector<string> _resultData;
-    getDB()->runQuery(queryJson, _queryFields, _resultData);
+    vector<string> _resultDataEdge = queryInEdgesTakes(idReaction, {"_outV"});
 
     // for all substances
-    for (auto rec : _resultData)
+    for (auto rec : _resultDataEdge)
     {
-        idSub = bsonio::extractStringField("_outV", rec);
-        getDB_fullAccessMode()->GetRecord((idSub + ":").c_str());
-        getDB_fullAccessMode()->getValue("properties.formula", formSub);
-        formulas.push_back(formSub);
+        idSubst = bsonio::extractStringField("_outV", rec);
+        record = getJsonBsonRecord(idSubst+":").second;
+        bsonio::bson_to_key( record.data, "properties.formula", formSubst);
+        formulas.push_back(formSubst);
     }
     return formulas;
 }
 
 set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
 {
-    set<ElementKey> elements;
-    getDB()->GetRecord((idReaction + ":").c_str());
-    bson obj;
-    getDB()->GetBson(&obj);
+    set<ElementKey> elements; bson obj;
+    obj = getJsonBsonRecord(idReaction+":").second;
     ElementsFromBsonArray("properties.elements", obj.data, elements);
-    bson_destroy(&obj);
+//    bson_destroy(&obj);
 
     // if user fogot insert elements property
     if (elements.empty())
@@ -188,6 +184,58 @@ void ReactionData_::resetRecordElements(const string& idReact )
     {
         cout << "std::exception" << e.what() << endl;
     }
+}
+
+vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
+{
+    string queryJson;
+    queryJson = "{'_type': 'vertex', '_label': 'reaction', 'properties.symbol': '";
+    queryJson += symbol;
+    queryJson += "',  'properties.sourcetdb': ";
+    queryJson += sourcetdb;
+    queryJson += " }";
+    return getDB()->getKeysByQuery(queryJson);
+}
+
+bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
+{
+    vector<int> levels;
+    string queryJson; ValuesTable levelQueryMatr;
+    string reactSymbol = symbol;
+    vector<string> reactKeys = getKeys(symbol, sourcetdb);
+    level = "0";
+    while (reactKeys.size() > 0)
+    {
+        levels.clear();
+
+        for (auto key_: reactKeys)
+        {
+            strip_all( key_, ":" );
+            queryJson = "{'_type': 'edge', '_label': 'defines', '_outV': '";
+            queryJson += key_;
+            queryJson += "'}";
+
+            // level of the defines edge
+            levelQueryMatr = getDB_fullAccessMode()->loadRecords( queryJson, {"properties.level"} );
+            if (levelQueryMatr.size()>0)
+                levels.push_back(std::stoi(levelQueryMatr[0][0]));
+            else
+                levels.push_back(std::stoi(level));
+        }
+
+        if (levels.size()>0)
+        {
+            level  = std::to_string((*std::max_element(levels.begin(), levels.end())+1));
+            symbol = reactSymbol + "_"+level;
+        }
+
+        reactKeys = getKeys(symbol, sourcetdb);
+    }
+
+    if (symbol == reactSymbol)
+        return false;
+    else
+        return true;
 }
 
 }

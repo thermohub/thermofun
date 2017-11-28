@@ -3,6 +3,7 @@
 #include "DBClient/DatabaseClient.h"
 #include "DBClient/ReactionData.h"
 #include "DBClient/AbstractData.h"
+#include "DBClient/SubstanceData.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -16,27 +17,8 @@ int main(int argc, char *argv[])
 
     DatabaseClient dbc_("./Resources/ThermoFun.json");
 
-    AbstractData *abstr;
-
-    class ThermoDataContainer
-    {
-        ThermoFun::AbstractData *thermodata;
-
-        vector<string> colHeads;
-        bsonio::ValuesTable matrix;
-        bool isEditable = false;
-    public:
-
-      ThermoDataContainer( AbstractData *thermo  ):
-         thermodata( thermo )
-       {
-//          colHeads = thermodata->getHeads();
-//          colHeads.insert(colHeads.begin(), "Type");
-//          resetData();
-       }
-
-      virtual ~ThermoDataContainer() {}
-    };
+    auto t = dbc_.substData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
+    auto u = dbc_.reactData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
 
     Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);

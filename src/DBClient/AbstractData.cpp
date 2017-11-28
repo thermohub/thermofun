@@ -21,6 +21,41 @@ using DefinesReactionSymbol = std::function<string(string, string)>;
 using QueryInEdgesTakes     = std::function<vector<string>(string, vector<string>)>;
 using ReactantsCoeff        = std::function<std::map<string, double>(string)>;
 
+using GetJsonRecord           = std::function<std::string(std::string)>;
+using GetJsonBsonRecord       = std::function<std::pair<std::string, bson>(std::string)>;
+
+auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
+{
+    auto graphdb_all = boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", "{ \"_label\" : \"substance\" }"));
+    graphdb_all->resetMode(true);
+    graphdb_all->GetRecord(idRecord.c_str());
+    return graphdb_all->GetJson();
+}
+
+auto getJsonBsonRecord(string idRecord) -> std::pair<std::string, bson> // id: "12234444:" format
+{
+    std::pair<std::string, bson> json_bson;
+    bson bsr;
+    auto graphdb_all = boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", "{ \"_label\" : \"substance\" }"));
+    graphdb_all->resetMode(true);
+    graphdb_all->GetRecord(idRecord.c_str());
+    auto valDB = graphdb_all->GetJson();
+    jsonToBson( &bsr, valDB );
+
+    json_bson = std::make_pair(valDB, bsr);
+
+    return json_bson;
+}
+
+/// function for retrieving the full JSON record from the database using the record id
+GetJsonRecord get_json_record_fn = [=](string idRecord) {
+    return getJsonRecord(idRecord);
+};
+
+GetJsonBsonRecord get_json_bson_record_fn = [=](string idRecord) {
+    return getJsonBsonRecord(idRecord);
+};
+
 struct AbstractData::Impl
 {
     /// Vertex name
@@ -54,6 +89,9 @@ struct AbstractData::Impl
 
     QueryInEdgesTakes   query_in_edges_takes_fn;
     ReactantsCoeff      reactans_coeff_fn;
+
+    static GetJsonRecord get_json_record_fn_;
+    static GetJsonBsonRecord get_json_bson_record_fn_;
 
     Impl(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names) :
          name(name), query(query), fieldPaths(paths), dataHeaders(headers), dataNames(names)
@@ -189,6 +227,9 @@ struct AbstractData::Impl
     }
 };
 
+GetJsonRecord AbstractData::Impl::get_json_record_fn_ = memoize(get_json_record_fn);
+GetJsonBsonRecord AbstractData::Impl::get_json_bson_record_fn_ = memoize(get_json_bson_record_fn);
+
 AbstractData::AbstractData(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names)
     : pimpl(new Impl(name, query, paths, headers, names))
 {
@@ -201,6 +242,16 @@ AbstractData::AbstractData(const AbstractData& other)
 
 AbstractData::~AbstractData()
 { }
+
+auto AbstractData::getJsonRecord(string idRecord) -> string
+{
+    return pimpl->get_json_record_fn_(idRecord);
+}
+
+auto AbstractData::getJsonBsonRecord(string idRecord) -> std::pair<string, bson>
+{
+    return pimpl->get_json_bson_record_fn_(idRecord);
+}
 
 auto AbstractData::queryRecord(string idRecord, vector<string> queryFields) -> string
 {
@@ -224,6 +275,17 @@ auto AbstractData::queryInEdgesTakes_(string idReact, vector<string> queryFields
 auto AbstractData::reactantsCoeff_(string idReact) -> std::map<std::string, double>
 {
     return pimpl->reactans_coeff_fn(idReact);
+}
+
+/// Extract values from record into database
+auto AbstractData::loadRecord( const string& id, const vector<string>& queryFields ) -> bsonio::FieldSetMap
+{
+    return pimpl->load_record_fn( id, queryFields );
+}
+/// Build table of fields values by ids list
+auto AbstractData::loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable
+{
+   return pimpl->load_records_fn(ids);
 }
 
 auto AbstractData::getName() const -> string
@@ -371,7 +433,7 @@ auto AbstractData::getInVertexIds(const string& edgeLabel, const string& idVerte
     return vertexIds_;
 }
 
-auto AbstractData::getOutVertexIds( const string& edgeLabel, const string& idVertex ) -> vector<string>
+auto AbstractData::getOutVertexIds( const string &edgeLabel, const string& idVertex ) -> vector<string>
 {
     vector<string> vertexIds_;
     string vertexId_;
@@ -392,7 +454,7 @@ auto AbstractData::getOutVertexIds( const string& edgeLabel, const string& idVer
     return vertexIds_;
 }
 
-auto AbstractData::getOutVertexIds(const string& edgeLabel, const string& idVertex,  vector<string> &edgeIds_) -> vector<string>
+auto AbstractData::getOutVertexIds(const string &edgeLabel, const string& idVertex,  vector<string> &edgeIds_) -> vector<string>
 {
     vector<string> vertexIds_;
     string vertexId_, edgeId_;
@@ -471,17 +533,6 @@ auto AbstractData::setSubstanceLevel_(string substSymbol, string level) -> void
 auto AbstractData::getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>
 {
     return pimpl->graphdb_all;
-}
-
-/// Extract values from record into database
-auto AbstractData::loadRecord( const string& id, const vector<string>& queryFields ) -> bsonio::FieldSetMap
-{
-    return pimpl->graphdb_all->loadRecordFields( id, queryFields );
-}
-/// Build table of fields values by ids list
-auto AbstractData::loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable
-{
-   return pimpl->graphdb_all->loadRecords(ids, pimpl->fieldPaths );
 }
 
 }

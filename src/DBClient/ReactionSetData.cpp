@@ -23,7 +23,7 @@ struct ReactionSetData_::Impl
 };
 
 ReactionSetData_::ReactionSetData_()
-    : AbstractData("VertexReaction", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
+    : AbstractData("VertexReactionSet", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
 }
 
@@ -43,13 +43,10 @@ ReactionSetData_::~ReactionSetData_()
 
 set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrcset )
 {
-  set<ElementKey> elements;
-  auto graphdb = getDB();
-  graphdb->GetRecord( (idrcset+":").c_str() );
-  bson obj;
-  graphdb->GetBson(&obj);
-  ThermoFun::ElementsFromBsonArray( "properties.elements", obj.data, elements );
-  bson_destroy(&obj);
+  set<ElementKey> elements; bson obj;
+  obj = getJsonBsonRecord(idrcset+":").second;
+  ElementsFromBsonArray("properties.elements", obj.data, elements);
+//  bson_destroy(&obj);
 
   // if user fogot tnsert elements property
   if( elements.empty() )
@@ -99,7 +96,7 @@ bsonio::ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
 vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
 {
     vector<string> formulas;
-    string formSub;
+    string formSub; bson obj;
 
     // Select substance ids connected to reactionSet
     auto subIds = getInVertexIds( "product", idrcset );
@@ -107,12 +104,13 @@ vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
     subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
 
     // for all substances
-    unique_ptr<TDBGraph> substanceVertex( ioSettings().newDBGraphClient( "VertexSubstance", "" ) );
     for( auto rec: subIds)
     {
-      substanceVertex->GetRecord( (rec+":").c_str() );
-      substanceVertex->getValue(  "properties.formula", formSub);
-      formulas.push_back(formSub);
+//        getDB()->GetRecord((rec+":").c_str());
+//        getDB()->getValue("properties.formula", formSub);
+        obj = getJsonBsonRecord(rec+":").second;
+        bsonio::bson_to_key( obj.data, "properties.formula", formSub);
+        formulas.push_back(formSub);
     }
     return formulas;
 }

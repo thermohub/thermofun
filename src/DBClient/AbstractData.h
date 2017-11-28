@@ -70,19 +70,25 @@ public:
     /// Build table of fields values by ids list
     auto loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable;
 
-    /// Build ids list connected to idInVertex by edge
+    /// Build ids list connected to idVertex by incoming edge
     auto getInVertexIds(const string& edgeLabel, const string& idVertex) -> vector<string>;
 
-    /// Build ids list connected to idInVertex by edge, record edgesIds
+    /// Build ids list connected to idVertex by incoming edge, save edgesIds
     auto getInVertexIds(const string& edgeLabel, const string& idVertex,  vector<string> &edgesIds) -> vector<string>;
 
-    /// Build ids list connected to idInVertex by edge
+    /// Build ids list connected to idVertex by outgoing edge
     auto getOutVertexIds(const string& edgeLabel, const string& idVertex) -> vector<string>;
 
-    /// Build ids list connected to idInVertex by edge, record edgesIds
+    /// Build ids list connected to idVertex by outgoing edge, save edgesIds
     auto getOutVertexIds(const string& edgeLabel, const string& idVertex,  vector<string> &edgesIds) -> vector<string>;
 
+    /// Returns the record with idRecord as a pair of Json and Bson formats
+    auto getJsonBsonRecord(string idRecord) -> std::pair<std::string, bson>;
+
 protected:
+
+    /// Returns a record from a database in JSON format using the record id
+    auto getJsonRecord(string idRecord) -> string;
 
     /// Test all elements from formula exist into list
     static auto testElementsFormula( const string& aformula, const vector<ElementKey>& elements) -> bool;

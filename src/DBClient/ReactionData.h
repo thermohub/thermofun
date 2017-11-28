@@ -51,8 +51,21 @@ class ReactionData_ : public AbstractData
 
     auto resetRecordElements(const string& idReact) -> void;
 
+    /**
+     * @brief checkReactSymbolLevel checks if reaction with the same symbol / level exists. If exists the level is increased and the
+     * symbol is annotated with _#level
+     * @param sourcetdb
+     * @param symbol
+     * @param level
+     * @return
+     */
+    bool checkReactSymbolLevel (string sourcetdb, string &symbol, string &level);
+
   private:
+
     bool testElements(const string &idReaction, const vector<ElementKey> &elements);
+
+    vector<string> getKeys(string symbol, string sourcetdb);
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;

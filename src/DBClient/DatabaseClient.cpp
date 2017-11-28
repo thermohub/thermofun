@@ -28,7 +28,6 @@ namespace ThermoFun
 using QuerySubstancesFunction = std::function<std::vector<std::string>(uint)>;
 using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
 
-
 std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
 std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
 
@@ -56,7 +55,7 @@ struct DatabaseClient::Impl
         setDBClient();
     }
 
-    Impl() : traversal (&substData, &reactData)
+    Impl() : traversal (&substData, &reactData )
     {
         setDBClient();
     }
@@ -87,14 +86,6 @@ struct DatabaseClient::Impl
         auto elementVertex = unique_ptr<bsonio::TDBGraph> (ioSettings().newDBGraphClient( "VertexElement", qrJson ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
-    }
-
-    auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
-    {
-        auto graphdb_all = substData.getDB();
-        graphdb_all->resetMode(true);
-        graphdb_all->GetRecord( idRecord.c_str() );
-        return graphdb_all->GetJson();
     }
 
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
@@ -162,15 +153,15 @@ auto elementKeyToElement(ElementKey elementKey) -> Element
 
 auto DatabaseClient::availableSubstances(uint sourcetdb) -> std::vector<std::string>
 {
-    return recordsFieldValues(pimpl->query_substances_fn(sourcetdb), "symbol");
+    return extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdb), "symbol");
 }
 
 auto DatabaseClient::availableReactions(uint sourcetdb) -> std::vector<std::string>
 {
-    return recordsFieldValues(pimpl->query_reactions_fn(sourcetdb), "symbol");
+    return extractFieldValuesFromQueryResult(pimpl->query_reactions_fn(sourcetdb), "symbol");
 }
 
-auto DatabaseClient::recordsFieldValues(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>
+auto DatabaseClient::extractFieldValuesFromQueryResult(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>
 {
     std::vector<std::string> values;
     for (auto result : resultQuery)
@@ -183,10 +174,10 @@ auto DatabaseClient::recordsFieldValues(std::vector<std::string> resultQuery, st
 auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
 {
     // get substances ids
-    auto substKeyList = recordsFieldValues(pimpl->query_substances_fn(sourcetdbIndex), "_id");
+    auto substKeyList = extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdbIndex), "_id");
 
-    for (auto &key_: substKeyList)
-        key_ += ":";
+//    for (auto &key_: substKeyList)
+//        key_ += ":";
     // get all ids conected to the keyList (by incoming edges, e.g. defines reactions and thier reactants)
     auto resultTraversal = pimpl->traversal.getMapOfConnectedIds(substKeyList, "0");
 

@@ -3,10 +3,12 @@
 // bonio includes
 #include "bsonio/thrift_schema.h"
 #include "bsonio/dbgraph.h"
+#include "bsonio/io_settings.h"
 
 // ThermoFun includes
 #include "SubstanceData.h"
 #include "ReactionData.h"
+#include "DatabaseClient.h"
 #include "../Database.h"
 #include "../Substance.h"
 #include "../Reaction.h"
@@ -22,8 +24,6 @@ using namespace bsonio;
 
 namespace ThermoFun
 {
-
-using GetJsonRecord = std::function<string(string)>;
 
 std::vector<std::string> queryFieldsVertex       = {"_id", "_label", "_type", "properties.symbol"};
 std::vector<std::string> queryFieldsEdgeDefines  = { "_outV", "_label"};
@@ -49,10 +49,7 @@ struct TraversalData::Impl
     DefinesLevelMode definesLevelMode = DefinesLevelMode::single;
 
     /// map of database ids and bson record of vertexes
-    std::map<std::string, bson> idBsonRec;
-
-    /// function for retrieving the full JSON record from the database using the record id
-    GetJsonRecord get_json_record_fn;
+//    std::map<std::string, bson> idBsonRec;
 
     /// pointer to substance data for access to substance records
     SubstanceData_  *substData;
@@ -62,21 +59,10 @@ struct TraversalData::Impl
 
     Impl( )
     {
-        get_json_record_fn = [=](string idRecord) {
-            return getJsonRecord(idRecord);
-        };
-        get_json_record_fn = memoize(get_json_record_fn);
-    }
-
-    auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
-    {
-        auto graphdb_all = substData->getDB();
-        graphdb_all->GetRecord(idRecord.c_str());
-        return graphdb_all->GetJson();
     }
 };
 
-TraversalData::TraversalData( SubstanceData_ *substData,  ReactionData_ *reactData) : pimpl(new Impl())
+TraversalData::TraversalData(SubstanceData_ *substData,  ReactionData_ *reactData) : pimpl(new Impl())
 {
     pimpl->substData = substData;
     pimpl->reactData = reactData;
@@ -92,21 +78,10 @@ auto TraversalData::operator=(TraversalData other) -> TraversalData&
 //: pimpl(new Impl(*other.pimpl))
 //{}
 
-//auto GraphTraversal::getJsonRecord(string idRecord) -> string
-//{
-//    return pimpl->get_json_record_fn(idRecord);
-//}
-
 TraversalData::~TraversalData()
 { }
 
 // Public
-
-auto TraversalData::getJsonRecord(string idRecord) -> string
-{
-    return pimpl->get_json_record_fn(idRecord);
-}
-
 auto TraversalData::getMapOfConnectedIds(vector<int> selNdx, vector<string> idsList, string level_) -> VertexId_VertexType
 {
     pimpl->level = level_;
@@ -201,8 +176,7 @@ auto TraversalData::level (std::string idSubst) -> std::string
         break;
     case DefinesLevelMode::multiple    : {
         std::string substSymb; std::string key = idSubst +":";
-        std::string valDB = pimpl->get_json_record_fn(key);
-                jsonToBson( &record, valDB );
+        record = pimpl->substData->getJsonBsonRecord(key).second;
         bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
         if (pimpl->substSymbol_definesLevel.find(substSymb) != pimpl->substSymbol_definesLevel.end()) // follows edges defines with specific leveles for substSymbols
             level_ = pimpl->substSymbol_definesLevel[substSymb];   // if the substance symbol is not found in the map, it uses the default level
@@ -217,13 +191,12 @@ auto TraversalData::level (std::string idSubst) -> std::string
 
 auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
 {
-    string valDB, _idRecord, _label, _type, _symbol, level_;
+    string _idRecord, _label, _type, _symbol, level_;
     bson record;
     VertexId_VertexType result;
 
     // get recrod
-    valDB = pimpl->get_json_record_fn(id_);
-    jsonToBson( &record, valDB );
+    record = pimpl->substData->getJsonBsonRecord(id_+":").second;
 
     // Extract data from fields
     bsonio::bson_to_key( record.data, "_id",    _idRecord);
@@ -240,13 +213,11 @@ auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
         if (_label == "substance")
         {
             result.insert(std::pair<std::string,std::string>(_idRecord, "substance"));
-            pimpl->idBsonRec[_idRecord] = record;
             followIncomingEdgeDefines(_idRecord, result, level_);
         }
         if (_label == "reaction")
         {
             result.insert(std::pair<std::string,std::string>(_idRecord, "reaction"));
-            pimpl->idBsonRec[_idRecord] = record;
             followIncomingEdgeTakes(_idRecord, result);
         }
     }
@@ -256,8 +227,8 @@ auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
 
 void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_VertexType &result, string level_)
 {
-    string _idReact = "", _resultDataReac;
-    bson record;
+    string _idReact = "";
+    bson record, _resultDataReac;
     vector<string> _resultDataEdge;
 
     _resultDataEdge = pimpl->substData->queryInEdgesDefines(_idSubst, queryFieldsEdgeDefines, level_ );
@@ -265,15 +236,12 @@ void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_Ver
     {
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "_outV", _idReact );
-        _resultDataReac = pimpl->get_json_record_fn(_idReact+":") /*pimpl->reactData->queryRecord( _idReact, queryFieldsVertex)*/;
-
-        jsonToBson(&record, _resultDataReac);
+        _resultDataReac = pimpl->reactData->getJsonBsonRecord(_idReact+":").second /*pimpl->reactData->queryRecord( _idReact, queryFieldsVertex)*/;
 
         // if not in the database
         if (!result.count(_idReact))
         {
             result.insert((std::pair<std::string,std::string>(_idReact, "reaction")));
-            pimpl->idBsonRec[_idReact] = record;
             followIncomingEdgeTakes(_idReact, result);
         }
     }
@@ -281,8 +249,8 @@ void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_Ver
 
 void TraversalData::followIncomingEdgeTakes(std::string _idReact, VertexId_VertexType &result)
 {
-    string _idSubst = "", _resultDataSubst; string level_ = "0";
-    bson record;
+    string _idSubst = ""; string level_ = "0";
+    bson record, _resultDataSubst;
     vector<string> _resultDataEdge;
 
     _resultDataEdge = pimpl->reactData->queryInEdgesTakes(_idReact, queryFieldsEdgeTakes);
@@ -290,16 +258,13 @@ void TraversalData::followIncomingEdgeTakes(std::string _idReact, VertexId_Verte
     {
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "_outV", _idSubst );
-        _resultDataSubst = pimpl->get_json_record_fn(_idSubst+":")/*pimpl->substData->queryRecord(_idSubst, queryFieldsVertex)*/;
-
-        jsonToBson(&record, _resultDataSubst);
+        _resultDataSubst = pimpl->substData->getJsonBsonRecord(_idSubst+":").second/*pimpl->substData->queryRecord(_idSubst, queryFieldsVertex)*/;
 
         // if not in the database
         if (!result.count(_idSubst))
         {
             level_ = level(_idSubst);
             result.insert((std::pair<std::string,std::string>(_idSubst, "substance")));
-            pimpl->idBsonRec[_idSubst] = record;
             followIncomingEdgeDefines(_idSubst, result, level_);
         }
     }
@@ -323,7 +288,7 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
         if (iterator->second == "substance")
         {
             _idSubst = iterator->first;
-            record = pimpl->idBsonRec[_idSubst];
+            record = pimpl->substData->getJsonBsonRecord(_idSubst+":").second;
             bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
             level_ = level(_idSubst);
@@ -346,7 +311,7 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
             if (iterator->second == "reaction")
             {
                 _idReact = iterator->first;
-                record = pimpl->idBsonRec[_idReact];
+                record = pimpl->reactData->getJsonBsonRecord(_idReact+":").second;
 
                 Reaction reaction = ThermoFun::parseReaction(record.data);
 
@@ -368,8 +333,6 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
 auto TraversalData::linkedDataIds(const std::vector<std::string> aKeyList, std::vector<std::string> &substIds, std::vector<std::string> &reactIds) -> void
 {
     reactIds.clear(); substIds.clear();
-
-
     for (auto idType : getMapOfConnectedIds(aKeyList))
     {
         if (idType.second == "reaction")

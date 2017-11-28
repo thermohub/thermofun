@@ -22,8 +22,6 @@ struct ReactionSetData_;
 struct ElementKey;
 struct TraversalData;
 
-//using GetJsonRecord           = std::function<string(string)>;
-
 class DatabaseClient
 {
   public:
@@ -132,19 +130,21 @@ class DatabaseClient
      */
     auto reactData() const -> ReactionData_;
 
+    /**
+     * @brief reactSetData returns a ReactionSetData_ object
+     * @return
+     */
     auto reactSetData() const -> ReactionSetData_;
 
+    /**
+     * @brief getTraversal returns a TraversalData object
+     * @return
+     */
     auto getTraversal() const -> TraversalData;
 
-  private:
-    auto recordsFieldValues(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>;
+private:
 
-//    /**
-//     * @brief getJsonRecord
-//     * @param idRecord
-//     * @return
-//     */
-//    auto getJsonRecord(string idRecord) -> string;
+    auto extractFieldValuesFromQueryResult(std::vector<std::string> resultQuery, std::string fieldName) -> std::vector<std::string>;
 
     struct Impl;
 
