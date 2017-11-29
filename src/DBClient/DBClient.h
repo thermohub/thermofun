@@ -7,8 +7,11 @@
 #include <QtCore/QDir>
 
 // bonio includes
-#include "bsonio/thrift_schema.h"
-#include "bsonio/dbgraph.h"
+#ifdef addBSONIO
+#include "dbedgedoc.h"
+#else
+#include "bsonio/dbedgedoc.h"
+#endif
 
 namespace ThermoFun {
 
@@ -19,63 +22,32 @@ struct Element;
 using mapFormulaElements = std::map<Element, double>;
 
 ///
-/// \brief The DBSettings struct holds the settings for connecting to the local or server database
-///
-struct DBSettings
-{
-    /// Object for reading ini settings file
-    QSettings *QtSettings;
-    /// Schemas folder
-    QString schemaDir;
-    /// Local folder with the EJDB database
-    QString localDBDir;
-    /// Name of the local EJDB database
-    QString localDBName;
-    /// Path to the EJDB database file
-    QFileInfo file;
-    /// name of database collection
-    QString collName;
-    /// true if we use local database
-    bool useLocalDB;
-
-};
-
-///
 /// \brief The DBClient class is used for comunicating with the database and retrieving data using queries
 ///
 class DBClient
 {
-    DBSettings settings;
-
-    bsonio::ThriftSchema schema;
+    boost::shared_ptr<bsonio::TDataBase> dbconnections;
 
     // keys list data
-    boost::shared_ptr<bsonio::TDBGraph> dbgraph;
+    boost::shared_ptr<bsonio::TDBVertexDocument> dbvertex;
+    boost::shared_ptr<bsonio::TDBEdgeDocument> dbedge;
 
     // Connect to DataBase
-    unique_ptr<bsonio::TDBGraph> reactionVertex;
-    unique_ptr<bsonio::TDBGraph> substanceVertex;
-    unique_ptr<bsonio::TDBGraph> takesEdge;
-    unique_ptr<bsonio::TDBGraph> definesEdge; 
-    unique_ptr<bsonio::TDBGraph> elementVertex;
+    unique_ptr<bsonio::TDBVertexDocument> reactionVertex;
+    unique_ptr<bsonio::TDBVertexDocument> substanceVertex;
+    unique_ptr<bsonio::TDBEdgeDocument> takesEdge;
+    unique_ptr<bsonio::TDBEdgeDocument> definesEdge;
+    unique_ptr<bsonio::TDBVertexDocument> elementVertex;
 
     std::map<std::string, bson> map_id_bson;
 
-    // reading shcemas folder
-    void readSchemaDir( const QString& dirPath );
-    // reads settings from preferences ThermoFun.ini file
-    void getDataFromPreferencesFile( );
-    // resets DBClient with schema and query
-    void resetDBClinet(string curSchemaName, string query);
-    // returns new DBClient using schema and query
-    bsonio::TDBGraph *newDBClinet(string schemaName, string query);
-
 public:
+
     ///
     /// \brief DBClient creates a DBClient instance
     /// \param settingsFile path to the ThermoFun.ini file
     ///
-    explicit DBClient(std::string settingsFile);
+    explicit DBClient(boost::shared_ptr<bsonio::TDataBase>& adbconnections);
 
     DBClient();
 
@@ -95,7 +67,6 @@ public:
     auto getDatabase(uint sourceTDB) -> Database;
 
     auto parseSubstanceFormula (std::string formula) -> mapFormulaElements;
-
 };
 
 

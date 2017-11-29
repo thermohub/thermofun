@@ -11,10 +11,13 @@ using namespace bsonio;
 namespace ThermoFun {
 
 // Constructor
-Traversal::Traversal (boost::shared_ptr<bsonio::TDBGraph> _dbgraph)
+Traversal::Traversal (boost::shared_ptr<bsonio::TDBVertexDocument>& _dbvert,
+                      boost::shared_ptr<bsonio::TDBEdgeDocument>& _dbedge)
 {
-    dbgraph = _dbgraph;
-    dbgraph->resetMode(true);
+    dbvertex = _dbvert;
+    dbvertex->resetMode(true);
+    dbedge = _dbedge;
+    dbedge->resetMode(true);
 }
 
 MapIdType Traversal::getMapOfConnectedIds(vector<int> selNdx, vector<string> idsList, string level_)
@@ -104,8 +107,8 @@ void Traversal::linkedDataFromId(std::string id_, MapIdType &result)
     id_ = id_.c_str();
 
     // get recrod
-    dbgraph->GetRecord( id_.c_str() );
-    valDB = dbgraph->GetJson();
+    dbvertex->GetRecord( id_.c_str() );
+    valDB = dbvertex->GetJson();
     jsonToBson( &record, valDB );
 
     // Extract data from fields
@@ -163,7 +166,7 @@ vector<string> Traversal::queryIncomingEdgeDefines(std::string idSubst, vector<s
     }
 
     vector<string> resultsEdge;
-    dbgraph->runQuery( qrJson,  queryFields, resultsEdge );
+    dbedge->runQuery( qrJson,  queryFields, resultsEdge );
     return resultsEdge;
 }
 
@@ -172,7 +175,7 @@ vector<string> Traversal::queryIncomingEdgeTakes(std::string idReact, vector<str
     string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
     qrJson += (idReact + "' }");
     vector<string> resultEdge;
-    dbgraph->runQuery( qrJson,  queryFields, resultEdge );
+    dbedge->runQuery( qrJson,  queryFields, resultEdge );
     return resultEdge;
 }
 
@@ -181,7 +184,7 @@ vector<string> Traversal::queryVertexReaction(std::string idReact, vector<string
     string qrJson;
     qrJson = "{ \"_id\" : \"" + idReact + "\"}";
     vector<string> resultReact;
-    dbgraph->runQuery(qrJson, queryFields, resultReact);
+    dbvertex->runQuery(qrJson, queryFields, resultReact);
     return resultReact;
 }
 
@@ -190,7 +193,7 @@ vector<string> Traversal::queryVertexSubstance(std::string idSubst, vector<strin
     string qrJson;
     qrJson = "{ \"_id\" : \"" + idSubst + "\"}";
     vector<string> resultSubst;
-    dbgraph->runQuery(qrJson, queryFields, resultSubst);
+    dbvertex->runQuery(qrJson, queryFields, resultSubst);
     return resultSubst;
 }
 
@@ -253,8 +256,8 @@ void Traversal::followIncomingTakes(std::string _idReact, MapIdType &result)
                     break;
                 case LevelMode::multiple    : {
                     std::string substSymb; std::string key = _idSubst +":";
-                    dbgraph->GetRecord( key.c_str() );
-                    std::string valDB = dbgraph->GetJson();
+                    dbvertex->GetRecord( key.c_str() );
+                    std::string valDB = dbvertex->GetJson();
                     jsonToBson( &record, valDB );
                     bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
                     if (definedSubstSymbolLevel.find(substSymb) != definedSubstSymbolLevel.end()) // follows edges defines with specific leveles for substSymbols
@@ -393,7 +396,7 @@ std::map<std::string, double> Traversal::getReactantsCoeffMap(std::string _idRea
         }
         reactantsCoeff.insert(std::pair<std::string,double>(symbol, stoi_coeff));
     }
-    dbgraph->resetMode(true);
+    // dbgraph->resetMode(true);
     return reactantsCoeff;
 }
 

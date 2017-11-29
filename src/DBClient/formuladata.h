@@ -5,7 +5,11 @@
 #include <map>
 #include <set>
 #include "formulaparser.h"
-#include "bsonio/dbgraph.h"
+#ifdef addBSONIO
+#include "dbvertexdoc.h"
+#else
+#include "bsonio/dbvertexdoc.h"
+#endif
 
 /// Key fields of Element vertex
 struct ElementKey
@@ -161,7 +165,7 @@ class ChemicalFormula
   static  DBElementsData dbElements;
   static  vector<string> queryFields;
 
-  static void addOneElement( bsonio::TDBGraph* elementDB );
+  static void addOneElement( bsonio::TDBVertexDocument* elementDB );
 
  public:
 
@@ -172,9 +176,9 @@ class ChemicalFormula
      return dbElements;
   }
 
-  static void setDBElements( bsonio::TDBGraph* elementDB,
+  static void setDBElements( bsonio::TDBVertexDocument* elementDB,
                              const string& queryString = "{\"_label\": \"element\" }" );
-  static void setDBElements( bsonio::TDBGraph* elementDB, const vector<string>& keyList );
+  static void setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
 
   static vector<ElementKey> elementsRow();
 

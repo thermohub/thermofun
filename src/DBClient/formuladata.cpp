@@ -1,7 +1,7 @@
 #include <math.h>
 #include "formuladata.h"
 #include "formulaparser.h"
-#include "bsonio/dbgraph.h"
+//#include "bsonio/dbgraph.h"
 
 
 DBElementsData ChemicalFormula::dbElements= DBElementsData();
