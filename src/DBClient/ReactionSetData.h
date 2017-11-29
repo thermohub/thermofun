@@ -27,6 +27,10 @@ class ReactionSetData_ : public AbstractData
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
 
+    /**
+     * @brief resetRecordElements resets elements list in record
+     * @param aKey record key
+     */
     void resetRecordElements( const string& aKey );
 
   private:

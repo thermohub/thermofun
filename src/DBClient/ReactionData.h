@@ -35,20 +35,25 @@ class ReactionData_ : public AbstractData
     vector<string> getReactantsFormulas(const string &idReaction);
 
     /**
-     * @brief queryIncomingEdgesTakes
-     * @param idReact
-     * @param queryFields
-     * @return
+     * @brief queryIncomingEdgesTakes returns data of the incoming edges of type takes
+     * @param idReact reaction id
+     * @param queryFields which data from record for be extracted in the result
+     * @return list of extracted data for each edge
      */
     auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>;
 
     /**
-     * @brief mapReactantsCoeff
-     * @param _idReac
+     * @brief mapReactantsCoeff returns the map of reactants symbols and coefficients
+     * connected to a reaction with an edge of type takes
+     * @param _idReac reaction id
      * @return
      */
     auto reactantsCoeff(string idReact) -> std::map<string, double>;
 
+    /**
+     * @brief resetRecordElements resets elements list in record
+     * @param idReact
+     */
     auto resetRecordElements(const string& idReact) -> void;
 
     /**
@@ -63,8 +68,10 @@ class ReactionData_ : public AbstractData
 
   private:
 
+    // tests if elements are present in the reaction
     bool testElements(const string &idReaction, const vector<ElementKey> &elements);
 
+    // returns a list of ids for all reaction with symbol and sourcetdb present in the database
     vector<string> getKeys(string symbol, string sourcetdb);
 
     struct Impl;

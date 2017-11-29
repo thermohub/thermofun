@@ -87,28 +87,27 @@ public:
 
 protected:
 
-    /// Returns a record from a database in JSON format using the record id
+    // Returns a record from a database in JSON format using the record id
     auto getJsonRecord(string idRecord) -> string;
-
-    /// Test all elements from formula exist into list
+    // Test all elements from formula exist into list
     static auto testElementsFormula( const string& aformula, const vector<ElementKey>& elements) -> bool;
-
+    // Resets the data index and data names maps which connect the names to headers to paths
     auto resetDataPathIndex() -> void;
-
+    // sets the level = 0 for substances in ValuesTable
     auto setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable) -> void;
-
+    // returns the full access mode database connection (allows queryies on all types of records)
     auto getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>;
-
+    // query the ids of incoming edges of type defines
     auto queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
-
+    // returns the reaction symbol which defines a substance
     auto definesReactionSymbol_(string idSubst, string level) -> std::string;
-
+    //  returns data of the incoming edges of type takes
     auto queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>;
-
+    // returns the map of reactants symbols and coefficients
     auto reactantsCoeff_(string idReact) -> std::map<string, double>;
-
+    // returns the level which is set for the substance
     auto getSubstanceLevel_(string substSymbol) const -> string;
-
+    // sets the level
     auto setSubstanceLevel_(string substSymbol, string level) -> void;
 
 private:

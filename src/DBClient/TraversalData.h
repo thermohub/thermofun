@@ -77,6 +77,12 @@ public:
      */
     auto getDatabaseFromMapOfIds(VertexId_VertexType resultTraversal, std::map<std::string, std::string> substSymbol_definesLevel) -> Database;
 
+    /**
+     * @brief linkedDataIds sets the list of substsnce and reactio ids which are connected to a given list of database record keys
+     * @param aKeyList record key list
+     * @param substIds the list of substance ids resulted from the search
+     * @param reactIds the list of reaction ids resulted from the search
+     */
     auto linkedDataIds(const std::vector<std::string> aKeyList, std::vector<std::string> &substIds, std::vector<std::string> &reactIds) -> void;
 
 private:
