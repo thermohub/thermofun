@@ -86,6 +86,8 @@ struct DatabaseClient::Impl
         auto elementVertex = unique_ptr<bsonio::TDBGraph> (ioSettings().newDBGraphClient( "VertexElement", qrJson ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
+        // used to reset database connection in the static dbc variable from AbstractData.cpp
+        substData.updateDBClient();
     }
 
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>

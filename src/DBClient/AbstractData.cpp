@@ -24,22 +24,22 @@ using ReactantsCoeff        = std::function<std::map<string, double>(string)>;
 using GetJsonRecord           = std::function<std::string(std::string)>;
 using GetJsonBsonRecord       = std::function<std::pair<std::string, bson>(std::string)>;
 
+static boost::shared_ptr<bsonio::TDBGraph> dbc = boost::shared_ptr<bsonio::TDBGraph>();
+
 auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
 {
-    auto graphdb_all = boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", "{ \"_label\" : \"substance\" }"));
-    graphdb_all->resetMode(true);
-    graphdb_all->GetRecord(idRecord.c_str());
-    return graphdb_all->GetJson();
+    dbc->resetMode(true);
+    dbc->GetRecord(idRecord.c_str());
+    return dbc->GetJson();
 }
 
 auto getJsonBsonRecord(string idRecord) -> std::pair<std::string, bson> // id: "12234444:" format
 {
-    std::pair<std::string, bson> json_bson;
-    bson bsr;
-    auto graphdb_all = boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", "{ \"_label\" : \"substance\" }"));
-    graphdb_all->resetMode(true);
-    graphdb_all->GetRecord(idRecord.c_str());
-    auto valDB = graphdb_all->GetJson();
+    std::pair<std::string, bson> json_bson; bson bsr;
+
+    dbc->resetMode(true);
+    dbc->GetRecord(idRecord.c_str());
+    auto valDB = dbc->GetJson();
     jsonToBson( &bsr, valDB );
 
     json_bson = std::make_pair(valDB, bsr);
@@ -94,7 +94,7 @@ struct AbstractData::Impl
     static GetJsonBsonRecord get_json_bson_record_fn_;
 
     Impl(const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names) :
-         name(name), query(query), fieldPaths(paths), dataHeaders(headers), dataNames(names)
+        name(name), query(query), fieldPaths(paths), dataHeaders(headers), dataNames(names)
     {
         query_record_fn = [=](string idRecord, vector<string> queryFields) {
             return queryRecord(idRecord, queryFields);
@@ -237,7 +237,7 @@ AbstractData::AbstractData(const string &name, const string &query, const vector
 }
 
 AbstractData::AbstractData(const AbstractData& other)
-: pimpl(new Impl(*other.pimpl))
+    : pimpl(new Impl(*other.pimpl))
 {}
 
 AbstractData::~AbstractData()
@@ -285,7 +285,7 @@ auto AbstractData::loadRecord( const string& id, const vector<string>& queryFiel
 /// Build table of fields values by ids list
 auto AbstractData::loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable
 {
-   return pimpl->load_records_fn(ids);
+    return pimpl->load_records_fn(ids);
 }
 
 auto AbstractData::getName() const -> string
@@ -369,21 +369,21 @@ auto AbstractData::resetDataPathIndex() -> void
 }
 
 auto AbstractData::testElementsFormula( const string& aformula,
-                       const vector<ElementKey>& elements ) -> bool
+                                        const vector<ElementKey>& elements ) -> bool
 {
-   FormulaToken parser(aformula);
+    FormulaToken parser(aformula);
 
-   for( auto formelm: parser.getElements() )
+    for( auto formelm: parser.getElements() )
     {
-      auto itr = elements.begin();
-      while( itr != elements.end() )
-      {
-        if( formelm == *itr )
-         break;
-       itr++;
-      }
-      if( itr == elements.end() )
-          return false;
+        auto itr = elements.begin();
+        while( itr != elements.end() )
+        {
+            if( formelm == *itr )
+                break;
+            itr++;
+        }
+        if( itr == elements.end() )
+            return false;
     }
     return true;
 }
@@ -395,16 +395,16 @@ auto AbstractData::getInVertexIds( const string& edgeLabel, const string& idVert
 
     // select all EdgeTakes for reaction
     string queryJson = "{'_type': 'edge', '_label': '"
-                     + edgeLabel  + "', '_inV': '"
-                     + idVertex + "' }";
+            + edgeLabel  + "', '_inV': '"
+            + idVertex + "' }";
     vector<string> _queryFields = { "_outV"};
     vector<string> _resultData;
     pimpl->graphdb->runQuery( queryJson,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-      vertexId_ =  bsonio::extractStringField( "_outV", rec );
-      vertexIds_.push_back(vertexId_);
+        vertexId_ =  bsonio::extractStringField( "_outV", rec );
+        vertexIds_.push_back(vertexId_);
     }
     return vertexIds_;
 }
@@ -417,18 +417,18 @@ auto AbstractData::getInVertexIds(const string& edgeLabel, const string& idVerte
 
     // select all EdgeTakes for reaction
     string queryJson = "{'_type': 'edge', '_label': '"
-                     + edgeLabel  + "', '_inV': '"
-                     + idVertex + "' }";
+            + edgeLabel  + "', '_inV': '"
+            + idVertex + "' }";
     vector<string> _queryFields = { "_outV", "_id"};
     vector<string> _resultData;
     pimpl->graphdb->runQuery( queryJson,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-      vertexId_ =  bsonio::extractStringField( "_outV", rec );
-      vertexIds_.push_back(vertexId_);
-      edgeId_ =  bsonio::extractStringField( "_id", rec );
-      edgeIds_.push_back(edgeId_);
+        vertexId_ =  bsonio::extractStringField( "_outV", rec );
+        vertexIds_.push_back(vertexId_);
+        edgeId_ =  bsonio::extractStringField( "_id", rec );
+        edgeIds_.push_back(edgeId_);
     }
     return vertexIds_;
 }
@@ -440,16 +440,16 @@ auto AbstractData::getOutVertexIds( const string &edgeLabel, const string& idVer
 
     // select all EdgeTakes for reaction
     string queryJson = "{'_type': 'edge', '_label': '"
-                     + edgeLabel  + "', '_outV': '"
-                     + idVertex + "' }";
+            + edgeLabel  + "', '_outV': '"
+            + idVertex + "' }";
     vector<string> _queryFields = { "_inV"};
     vector<string> _resultData;
     pimpl->graphdb->runQuery( queryJson,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-      vertexId_ =  bsonio::extractStringField( "_inV", rec );
-      vertexIds_.push_back(vertexId_);
+        vertexId_ =  bsonio::extractStringField( "_inV", rec );
+        vertexIds_.push_back(vertexId_);
     }
     return vertexIds_;
 }
@@ -462,18 +462,18 @@ auto AbstractData::getOutVertexIds(const string &edgeLabel, const string& idVert
 
     // select all EdgeTakes for reaction
     string queryJson = "{'_type': 'edge', '_label': '"
-                     + edgeLabel  + "', '_outV': '"
-                     + idVertex + "' }";
+            + edgeLabel  + "', '_outV': '"
+            + idVertex + "' }";
     vector<string> _queryFields = { "_inV", "_id"};
     vector<string> _resultData;
     pimpl->graphdb->runQuery( queryJson,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-      vertexId_ =  bsonio::extractStringField( "_inV", rec );
-      vertexIds_.push_back(vertexId_);
-      edgeId_ =  bsonio::extractStringField( "_id", rec );
-      edgeIds_.push_back(edgeId_);
+        vertexId_ =  bsonio::extractStringField( "_inV", rec );
+        vertexIds_.push_back(vertexId_);
+        edgeId_ =  bsonio::extractStringField( "_id", rec );
+        edgeIds_.push_back(edgeId_);
     }
     return vertexIds_;
 }
@@ -481,15 +481,16 @@ auto AbstractData::getOutVertexIds(const string &edgeLabel, const string& idVert
 // Connect to new Data Base
 auto AbstractData::updateDBClient() -> void
 {
-  try{
-            getDB().reset( ioSettings().newDBGraphClient( getName(), getQuery()));
-            getDB_fullAccessMode().reset( ioSettings().newDBGraphClient( getName(), getQuery()));
-       }
-       catch(std::exception& e)
-       {
-          cout << "Internal comment " << e.what() << endl;
-          // throw;
-       }
+    try{
+        getDB().reset( ioSettings().newDBGraphClient( getName(), getQuery()) );
+        getDB_fullAccessMode().reset( ioSettings().newDBGraphClient( getName(), getQuery()) );
+        dbc.reset( ioSettings().newDBGraphClient( getName(), getQuery() ) );
+    }
+    catch(std::exception& e)
+    {
+        cout << "Internal comment " << e.what() << endl;
+        // throw;
+    }
 }
 
 auto AbstractData::setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable) -> void
