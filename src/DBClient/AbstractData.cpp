@@ -382,14 +382,14 @@ auto AbstractData::setDB(const boost::shared_ptr<bsonio::TDBGraph> &value) -> vo
     pimpl->graphdb_all = value;
     pimpl->graphdb_all->resetMode(true);
 }*/
-/*
+
 auto AbstractData::setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void
 {
     pimpl->dataNames = names;
     pimpl->dataHeaders = headers;
     pimpl->fieldPaths = fieldpaths;
     resetDataPathIndex();
-}*/
+}
 
 bool AbstractData::recordExists(const string& id )
 {
