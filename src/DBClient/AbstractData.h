@@ -48,8 +48,8 @@ public:
 
 ///    auto setDB(const boost::shared_ptr<bsonio::TDBVertexDocument> &value) -> void;
 ///    auto setDataNames(const vector<string> &value) -> void;
-///    auto setDataHeaders(const vector<string> &value) -> void;
-///    auto setDataFieldPaths(const vector<string> &value) -> void;
+    auto setDataHeaders(const vector<string> &value) -> void;
+    auto setDataFieldPaths(const vector<string> &value) -> void;
     auto setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void;
 ///    auto setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void;
 

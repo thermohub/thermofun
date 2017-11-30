@@ -344,21 +344,21 @@ auto AbstractData::getDataFieldPaths() const -> vector<string>
     return pimpl->fieldPaths;
 }
 
-/*
+
 auto AbstractData::setDataFieldPaths(const vector<string> &value) -> void
 {
     pimpl->fieldPaths = value;
-}*/
+}
 
 auto AbstractData::getDataHeaders() const -> vector<string>
 {
     return pimpl->dataHeaders;
 }
 
-/*auto AbstractData::setDataHeaders(const vector<string> &value) -> void
+auto AbstractData::setDataHeaders(const vector<string> &value) -> void
 {
     pimpl->dataHeaders = value;
-}*/
+}
 
 auto AbstractData::getDataNames() const -> vector<string>
 {
