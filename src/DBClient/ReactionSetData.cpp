@@ -22,8 +22,9 @@ struct ReactionSetData_::Impl
 
 };
 
-ReactionSetData_::ReactionSetData_()
-    : AbstractData("VertexReactionSet", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
+ReactionSetData_::ReactionSetData_(const bsonio::TDataBase* dbconnect)
+    : AbstractData(  dbconnect, "VertexReactionSet", reactQuery,
+     reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
 }
 
@@ -44,7 +45,7 @@ ReactionSetData_::~ReactionSetData_()
 set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrcset )
 {
   set<ElementKey> elements; bson obj;
-  obj = getJsonBsonRecord(idrcset+":").second;
+  obj = getJsonBsonRecordVertex(idrcset+":").second;
   ElementsFromBsonArray("properties.elements", obj.data, elements);
 //  bson_destroy(&obj);
 
@@ -108,7 +109,7 @@ vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
     {
 //        getDB()->GetRecord((rec+":").c_str());
 //        getDB()->getValue("properties.formula", formSub);
-        obj = getJsonBsonRecord(rec+":").second;
+        obj = getJsonBsonRecordVertex(rec+":").second;
         bsonio::bson_to_key( obj.data, "properties.formula", formSub);
         formulas.push_back(formSub);
     }

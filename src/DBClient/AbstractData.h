@@ -6,6 +6,8 @@
 
 // ThermoFun includes
 #include "formuladata.h"
+#include "bsonio/dbconnect.h"
+#include "bsonio/dbedgedoc.h"
 
 namespace ThermoFun {
 
@@ -13,7 +15,9 @@ class AbstractData
 {
 public:
 
-    AbstractData( const string &name, const string &query, const vector<string> &paths, const vector<string> &headers, const vector<string> &names );
+    AbstractData( const bsonio::TDataBase* dbconnect,
+                  const string &name, const string &query, const vector<string> &paths,
+                  const vector<string> &headers, const vector<string> &names );
 
     /// Construct a copy of an ThermoDataAbstract instance
     AbstractData(const AbstractData& other);
@@ -30,9 +34,9 @@ public:
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
-    auto updateDBClient() -> void;
+    auto updateDBClient( const bsonio::TDataBase* newdbconnect ) -> void;
 
-    auto getDB() const -> boost::shared_ptr<bsonio::TDBGraph>;
+    auto getDB() const -> boost::shared_ptr<bsonio::TDBVertexDocument>;
     auto getName() const -> string;
     auto getQuery() const -> string;
     auto getDataNames() const -> vector<string>;
@@ -42,12 +46,12 @@ public:
     auto getDataName_DataFieldPath() const -> std::map<std::string, std::string>;
     auto getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>;
 
-    auto setDB(const boost::shared_ptr<bsonio::TDBGraph> &value) -> void;
-    auto setDataNames(const vector<string> &value) -> void;
-    auto setDataHeaders(const vector<string> &value) -> void;
-    auto setDataFieldPaths(const vector<string> &value) -> void;
+///    auto setDB(const boost::shared_ptr<bsonio::TDBVertexDocument> &value) -> void;
+///    auto setDataNames(const vector<string> &value) -> void;
+///    auto setDataHeaders(const vector<string> &value) -> void;
+///    auto setDataFieldPaths(const vector<string> &value) -> void;
     auto setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void;
-    auto setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void;
+///    auto setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void;
 
     /**
      * @brief queryRecord returns a record queried by id
@@ -83,7 +87,9 @@ public:
     auto getOutVertexIds(const string& edgeLabel, const string& idVertex,  vector<string> &edgesIds) -> vector<string>;
 
     /// Returns the record with idRecord as a pair of Json and Bson formats
-    auto getJsonBsonRecord(string idRecord) -> std::pair<std::string, bson>;
+    auto getJsonBsonRecordVertex(string idRecord) -> std::pair<std::string, bson>;
+    /// Returns the record with idRecord as a pair of Json and Bson formats
+    auto getJsonBsonRecordEdge(string idRecord) -> std::pair<std::string, bson>;
 
 protected:
 
@@ -96,7 +102,7 @@ protected:
     // sets the level = 0 for substances in ValuesTable
     auto setDefaultLevelForReactionDefinedSubst(bsonio::ValuesTable valuesTable) -> void;
     // returns the full access mode database connection (allows queryies on all types of records)
-    auto getDB_fullAccessMode() const -> boost::shared_ptr<bsonio::TDBGraph>;
+    auto getDB_edgeAccessMode() const -> boost::shared_ptr<bsonio::TDBEdgeDocument>;
     // query the ids of incoming edges of type defines
     auto queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
     // returns the reaction symbol which defines a substance

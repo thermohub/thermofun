@@ -30,8 +30,9 @@ struct ReactionData_::Impl
 
 };
 
-ReactionData_::ReactionData_()
-    : AbstractData("VertexReaction", reactQuery, reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
+ReactionData_::ReactionData_(const bsonio::TDataBase* dbconnect)
+    : AbstractData(dbconnect, "VertexReaction", reactQuery, reactFieldPaths,
+                   reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
 }
 
@@ -139,7 +140,7 @@ vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
     for (auto rec : _resultDataEdge)
     {
         idSubst = bsonio::extractStringField("_outV", rec);
-        record = getJsonBsonRecord(idSubst+":").second;
+        record = getJsonBsonRecordVertex(idSubst+":").second;
         bsonio::bson_to_key( record.data, "properties.formula", formSubst);
         formulas.push_back(formSubst);
     }
@@ -149,7 +150,7 @@ vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
 {
     set<ElementKey> elements; bson obj;
-    obj = getJsonBsonRecord(idReaction+":").second;
+    obj = getJsonBsonRecordVertex(idReaction+":").second;
     ElementsFromBsonArray("properties.elements", obj.data, elements);
 //    bson_destroy(&obj);
 
@@ -216,7 +217,7 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
             queryJson += "'}";
 
             // level of the defines edge
-            levelQueryMatr = getDB_fullAccessMode()->loadRecords( queryJson, {"properties.level"} );
+            levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
             if (levelQueryMatr.size()>0)
                 levels.push_back(std::stoi(levelQueryMatr[0][0]));
             else

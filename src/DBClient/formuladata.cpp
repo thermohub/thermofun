@@ -1,7 +1,6 @@
 #include <math.h>
 #include "formuladata.h"
 #include "formulaparser.h"
-#include "bsonio/dbgraph.h"
 
 namespace ThermoFun {
 
@@ -495,7 +494,7 @@ vector<vector<double>> ChemicalFormula::calcStoichiometryMatrixOld(  const vecto
 //}
 
 
-void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const string& queryString )
+void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const string& queryString )
 {
     vector<string> resultData;
     elementDB->runQuery( queryString, queryFields, resultData );
@@ -509,7 +508,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const string& 
     }
 }
 
-void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const vector<string>& keyList )
+void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList )
 {
   dbElements.clear();
 
@@ -520,7 +519,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const vector<s
   }
 }
 
-vector<ElementKey> getDBElements( bsonio::TDBGraph* elementDB, const vector<string>& idList )
+vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
 {
   vector<ElementKey> elements;
   ElementKey elkey("");
@@ -537,7 +536,7 @@ vector<ElementKey> getDBElements( bsonio::TDBGraph* elementDB, const vector<stri
   return elements;
 }
 
-void ChemicalFormula::addOneElement( bsonio::TDBGraph* elementDB )
+void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
 {
     ElementKey elkey("");
     elementDB->getValue( "properties.symbol" , elkey.symbol );

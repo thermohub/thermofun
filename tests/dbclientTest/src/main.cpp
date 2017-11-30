@@ -12,13 +12,13 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-//    bsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
-//    DatabaseClient dbc_;
+    bsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
+    DatabaseClient dbc_;
 
-    DatabaseClient dbc_("./Resources/ThermoFun.json");
+//    DatabaseClient dbc_("./Resources/ThermoFun.json");
 
-    auto t = dbc_.substData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
-    auto u = dbc_.reactData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
+//    auto t = dbc_.substData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
+//    auto u = dbc_.reactData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
 
     Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);
@@ -100,7 +100,6 @@ int main(int argc, char *argv[])
     std::map<Element, double> elem = dbc_.parseSubstanceFormula("FeHSiO3+2");
 
     cout << "Bye World!" << endl;
-
     return 0;
 }
 

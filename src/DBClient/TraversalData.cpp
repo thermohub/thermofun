@@ -1,14 +1,9 @@
 #include "TraversalData.h"
 
-// bonio includes
-#include "bsonio/thrift_schema.h"
-#include "bsonio/dbgraph.h"
-#include "bsonio/io_settings.h"
-
 // ThermoFun includes
 #include "SubstanceData.h"
 #include "ReactionData.h"
-#include "DatabaseClient.h"
+//#include "DatabaseClient.h"
 #include "../Database.h"
 #include "../Substance.h"
 #include "../Reaction.h"
@@ -57,16 +52,14 @@ struct TraversalData::Impl
     /// pointer to reaction data for access to reaction records
     ReactionData_   *reactData;
 
-    Impl( )
-    {
-    }
+    Impl(SubstanceData_ *asubstData,  ReactionData_ *areactData ):
+     substData( asubstData ), reactData( areactData )
+    {  }
 };
 
-TraversalData::TraversalData(SubstanceData_ *substData,  ReactionData_ *reactData) : pimpl(new Impl())
-{
-    pimpl->substData = substData;
-    pimpl->reactData = reactData;
-}
+TraversalData::TraversalData(SubstanceData_ *substData,  ReactionData_ *reactData) :
+    pimpl(new Impl(substData, reactData ))
+{ }
 
 auto TraversalData::operator=(TraversalData other) -> TraversalData&
 {
@@ -176,7 +169,7 @@ auto TraversalData::level (std::string idSubst) -> std::string
         break;
     case DefinesLevelMode::multiple    : {
         std::string substSymb; std::string key = idSubst +":";
-        record = pimpl->substData->getJsonBsonRecord(key).second;
+        record = pimpl->substData->getJsonBsonRecordVertex(key).second;
         bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
         if (pimpl->substSymbol_definesLevel.find(substSymb) != pimpl->substSymbol_definesLevel.end()) // follows edges defines with specific leveles for substSymbols
             level_ = pimpl->substSymbol_definesLevel[substSymb];   // if the substance symbol is not found in the map, it uses the default level
@@ -196,7 +189,7 @@ auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
     VertexId_VertexType result;
 
     // get recrod
-    record = pimpl->substData->getJsonBsonRecord(id_+":").second;
+    record = pimpl->substData->getJsonBsonRecordVertex(id_+":").second;
 
     // Extract data from fields
     bsonio::bson_to_key( record.data, "_id",    _idRecord);
@@ -236,7 +229,7 @@ void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_Ver
     {
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "_outV", _idReact );
-        _resultDataReac = pimpl->reactData->getJsonBsonRecord(_idReact+":").second /*pimpl->reactData->queryRecord( _idReact, queryFieldsVertex)*/;
+        _resultDataReac = pimpl->reactData->getJsonBsonRecordVertex(_idReact+":").second /*pimpl->reactData->queryRecord( _idReact, queryFieldsVertex)*/;
 
         // if not in the database
         if (!result.count(_idReact))
@@ -258,7 +251,7 @@ void TraversalData::followIncomingEdgeTakes(std::string _idReact, VertexId_Verte
     {
         jsonToBson(&record, _resultDataEdge[i]);
         bsonio::bson_to_key( record.data, "_outV", _idSubst );
-        _resultDataSubst = pimpl->substData->getJsonBsonRecord(_idSubst+":").second/*pimpl->substData->queryRecord(_idSubst, queryFieldsVertex)*/;
+        _resultDataSubst = pimpl->substData->getJsonBsonRecordVertex(_idSubst+":").second/*pimpl->substData->queryRecord(_idSubst, queryFieldsVertex)*/;
 
         // if not in the database
         if (!result.count(_idSubst))
@@ -288,7 +281,7 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
         if (iterator->second == "substance")
         {
             _idSubst = iterator->first;
-            record = pimpl->substData->getJsonBsonRecord(_idSubst+":").second;
+            record = pimpl->substData->getJsonBsonRecordVertex(_idSubst+":").second;
             bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
             level_ = level(_idSubst);
@@ -311,7 +304,7 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
             if (iterator->second == "reaction")
             {
                 _idReact = iterator->first;
-                record = pimpl->reactData->getJsonBsonRecord(_idReact+":").second;
+                record = pimpl->reactData->getJsonBsonRecordVertex(_idReact+":").second;
 
                 Reaction reaction = ThermoFun::parseReaction(record.data);
 

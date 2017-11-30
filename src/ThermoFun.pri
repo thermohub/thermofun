@@ -141,9 +141,9 @@
 # DBClient
     $$PWD/DBClient/formuladata.cpp \
     $$PWD/DBClient/formulaparser.cpp \
-    $$PWD/DBClient/SubstanceData.cpp \
-    $$PWD/DBClient/DatabaseClient.cpp \
-    $$PWD/DBClient/ReactionData.cpp \
-    $$PWD/DBClient/TraversalData.cpp \
     $$PWD/DBClient/AbstractData.cpp \
-    $$PWD/DBClient/ReactionSetData.cpp
+    $$PWD/DBClient/SubstanceData.cpp \
+    $$PWD/DBClient/ReactionData.cpp \
+    $$PWD/DBClient/ReactionSetData.cpp \
+    $$PWD/DBClient/TraversalData.cpp \
+    $$PWD/DBClient/DatabaseClient.cpp

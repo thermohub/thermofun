@@ -2,12 +2,11 @@
 #define DATABASECLIENT_H
 
 #include <memory>
+#include <vector>
+#include <map>
 #include <set>
-
 #include <string>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QDir>
+#include "bsonio/dbconnect.h"
 
 namespace ThermoFun
 {
@@ -29,7 +28,7 @@ class DatabaseClient
     /// \brief DBClient creates a DBClient instance
     /// \param settingsFile path to the ThermoFun.ini file
     ///
-    explicit DatabaseClient(std::string settingsFile);
+    explicit DatabaseClient( const std::shared_ptr<bsonio::TDataBase>& otherdb );
 
     DatabaseClient();
 

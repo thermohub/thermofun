@@ -3,7 +3,7 @@
 
 // C++ includes
 #include <memory>
-#include "formuladata.h"
+//#include "formuladata.h"
 #include "AbstractData.h"
 
 namespace ThermoFun {
@@ -16,7 +16,7 @@ class SubstanceData_ : public AbstractData
 {
 public:
 
-    SubstanceData_( );
+    SubstanceData_( const bsonio::TDataBase* dbconnect );
 
     /// Construct a copy of an SubstanceData instance
     SubstanceData_(const SubstanceData_& other);

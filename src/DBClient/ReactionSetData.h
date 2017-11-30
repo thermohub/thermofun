@@ -1,7 +1,7 @@
 #ifndef _REACTIONSETDATA_H
 #define _REACTIONSETDATA_H
 
-#include "formuladata.h"
+//#include "formuladata.h"
 #include "AbstractData.h"
 
 namespace ThermoFun
@@ -10,7 +10,7 @@ namespace ThermoFun
 class ReactionSetData_ : public AbstractData
 {
   public:
-    ReactionSetData_();
+    ReactionSetData_(const bsonio::TDataBase* dbconnect);
 
     /// Construct a copy of an ReactionData instance
     ReactionSetData_(const ReactionSetData_& other);

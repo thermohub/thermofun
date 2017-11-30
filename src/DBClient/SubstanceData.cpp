@@ -20,8 +20,9 @@ struct SubstanceData_::Impl
 
 };
 
-SubstanceData_::SubstanceData_()
-    : AbstractData( "VertexSubstance", substQuery, substFieldPaths, substColumnHeaders, substDataNames), pimpl(new Impl())
+SubstanceData_::SubstanceData_( const bsonio::TDataBase* adbconnect )
+    : AbstractData( adbconnect, "VertexSubstance", substQuery,
+                    substFieldPaths, substColumnHeaders, substDataNames), pimpl(new Impl())
 { }
 
 SubstanceData_::SubstanceData_(const SubstanceData_& other)
@@ -61,7 +62,7 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
 {
   string formula; bson record;
   // get recrod
-  record = getJsonBsonRecord(idSubstance+":").second;
+  record = getJsonBsonRecordVertex(idSubstance+":").second;
   // Extract data from fields
   bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
 
@@ -131,7 +132,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
     queryJson += idSubst;
     queryJson += "'}";
 
-    levelQueryMatr = getDB()->loadRecords( queryJson, {"properties.level"} );
+    levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
     for (uint i = 0; i < levelQueryMatr.size(); i++)
     {
         levels.push_back(std::stoi(levelQueryMatr[i][0]));
@@ -153,7 +154,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for (uint i = 0; i < resultDefinesReactions.size(); i++)
         {
             string level;
-            record = getJsonBsonRecord((resultDefinesEdges[i]+":").c_str()).second;
+            record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
             // Extract data from fields
             bsonio::bson_to_key( record.data, "properties.level", level);
             levelReact[level] = resultDefinesReactions[i]+":";
@@ -176,7 +177,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for (uint i = 0; i < resultDefinesReactions.size(); i++)
         {
             string level;
-            record = getJsonBsonRecord((resultDefinesEdges[i]+":").c_str()).second;
+            record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
             // Extract data from fields
             bsonio::bson_to_key( record.data, "properties.level", level);
             levelReact[level] = resultDefinesReactions[i]+":";

@@ -6,7 +6,7 @@ TEMPLATE = app
 #QMAKE_CXXFLAGS += -std=c++1y
 QMAKE_CXXFLAGS += -std=c++11
 
-#CONFIG += -std=c++11
+CONFIG += -std=c++11
 
 TARGET = dbclientTest
 
@@ -33,9 +33,23 @@ OBJECTS_DIR = obj
 BUILD_DIR = $$OUT_PWD/..
 THRIFT_DIR    = ./thrift
 
-INCLUDEPATH   += "/usr/local/include"
-DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib/"
+#INCLUDEPATH   += "/usr/local/include"
+#DEPENDPATH   += "/usr/local/include"
+#LIBPATH += "/usr/local/lib/"
+
+# Define the directory where the third-party libraries have been installed
+#THIRDPARTY_DIR = $$BUILD_DIR/thirdparty/debug
+CONFIG(release, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/release/thirdparty
+CONFIG(debug, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty
+# Define the directories where the headers of the third-party libraries have been installed
+THIRDPARTY_INCLUDE_DIR = $$THIRDPARTY_DIR/include
+# Define the directories where the THIRDPARTY libraries have been installed
+THIRDPARTY_LIBRARY_DIR1 = $$THIRDPARTY_DIR/lib
+
+DEPENDPATH   += $$THIRDPARTY_INCLUDE_DIR
+INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
+LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
+
 
 LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro

@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 #include "formulaparser.h"
-#include "bsonio/dbgraph.h"
+#include "bsonio/dbvertexdoc.h"
 
 namespace ThermoFun {
 
@@ -159,7 +159,7 @@ public:
 
 };
 
-vector<ElementKey> getDBElements( bsonio::TDBGraph* elementDB, const vector<string>& idList );
+vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
 string ElementsToJson( const set<ElementKey>& elements );
 
 
@@ -170,7 +170,7 @@ class ChemicalFormula
   static  DBElementsData dbElements;
   static  vector<string> queryFields;
 
-  static void addOneElement( bsonio::TDBGraph* elementDB );
+  static void addOneElement( bsonio::TDBVertexDocument* elementDB );
 
  public:
 
@@ -181,9 +181,9 @@ class ChemicalFormula
      return dbElements;
   }
 
-  static void setDBElements( bsonio::TDBGraph* elementDB,
+  static void setDBElements( bsonio::TDBVertexDocument* elementDB,
                              const string& queryString = "{\"_label\": \"element\" }" );
-  static void setDBElements( bsonio::TDBGraph* elementDB, const vector<string>& keyList );
+  static void setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
 
   static vector<ElementKey> elementsRow();
 

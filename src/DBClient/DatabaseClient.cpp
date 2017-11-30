@@ -4,10 +4,10 @@
 #include <functional>
 
 // bonio includes
-#include "bsonio/thrift_schema.h"
-#include "bsonio/dbgraph.h"
-#include "bsonio/dbdriverejdb.h"
-#include "bsonio/dbclient.h"
+//#include "bsonio/thrift_schema.h"
+//#include "bsonio/dbgraph.h"
+//#include "bsonio/dbdriverejdb.h"
+//#include "bsonio/dbclient.h"
 #include "bsonio/io_settings.h"
 
 // ThermoFun includes
@@ -33,6 +33,8 @@ std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation"
 
 struct DatabaseClient::Impl
 {
+    std::shared_ptr<bsonio::TDataBase> _dbconnect;
+
     /// access to substance records
     SubstanceData_ substData;
 
@@ -49,18 +51,23 @@ struct DatabaseClient::Impl
 
     QueryReactionsFunction query_reactions_fn;
 
-    Impl(std::string settingsFile) : traversal (&substData, &reactData)
+    Impl(const std::shared_ptr<bsonio::TDataBase>& otherdb) :
+      _dbconnect( otherdb), substData(_dbconnect.get()),
+      reactData(_dbconnect.get()), reactSetData(_dbconnect.get()),
+      traversal (&substData, &reactData)
     {
-        bsonio::BsonioSettings::settingsFileName = settingsFile;
-        setDBClient();
+        setFunctions();
     }
 
-    Impl() : traversal (&substData, &reactData )
+    // read from default config
+    Impl() : _dbconnect( new bsonio::TDataBase() ), substData(_dbconnect.get()),
+        reactData(_dbconnect.get()), reactSetData(_dbconnect.get()),
+        traversal (&substData, &reactData)
     {
-        setDBClient();
+        setFunctions();
     }
 
-    auto setDBClient( ) -> void
+    auto setFunctions() -> void
     {
         query_substances_fn = [=](uint sourcetdb) {
             return querySubstances(sourcetdb);
@@ -74,20 +81,12 @@ struct DatabaseClient::Impl
 
         string qrJson;
 
-        // default connections to vertexes
-        qrJson = "{ \"_label\" : \"substance\" }";
-        substData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexSubstance", qrJson)));
-        qrJson = "{ \"_label\" : \"reaction\" }";
-        reactData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexReaction", qrJson)));
-        qrJson = "{ \"_label\" : \"reactionset\" }";
-        reactSetData.setDB(boost::shared_ptr<bsonio::TDBGraph>(ioSettings().newDBGraphClient("VertexReactionSet", qrJson)));
-
         qrJson = "{ \"_label\" : \"element\"}";
-        auto elementVertex = unique_ptr<bsonio::TDBGraph> (ioSettings().newDBGraphClient( "VertexElement", qrJson ));
+        auto elementVertex = unique_ptr<bsonio::TDBVertexDocument> (
+                    TDBVertexDocument::newDBVertexDocument(
+              _dbconnect.get(),  "VertexElement", qrJson ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
-        // used to reset database connection in the static dbc variable from AbstractData.cpp
-        substData.updateDBClient();
     }
 
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
@@ -113,8 +112,8 @@ struct DatabaseClient::Impl
     }
 };
 
-DatabaseClient::DatabaseClient(std::string settingsFile)
-    : pimpl(new Impl(settingsFile))
+DatabaseClient::DatabaseClient(const std::shared_ptr<bsonio::TDataBase>& otherdb)
+    : pimpl(new Impl( otherdb ))
 {
 }
 
@@ -226,7 +225,7 @@ auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexe
     bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
-        foreach (int idx, sourcetdbIndexes)
+        for (int idx: sourcetdbIndexes)
         {
             string name = enumdef->getNamebyId(idx);
             namesIndexes[name] = idx;
@@ -242,7 +241,7 @@ auto DatabaseClient::sourcetdbNamesComments(const std::set<uint> &sourcetdbIndex
     bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
-        foreach (int idx, sourcetdbIndexes)
+        for (int idx: sourcetdbIndexes)
         {
             string name = enumdef->getNamebyId(idx);
             namesComments[name] = enumdef->getDoc(name);
@@ -259,7 +258,7 @@ auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
     auto _resultData = pimpl->query_substances_fn(sourcetdb);
 
     FormulaToken parser("");
-    foreach (string subitem, _resultData)
+    for (string subitem: _resultData)
     {
         string formula = bsonio::extractStringField("formula", subitem);
         string symbol = bsonio::extractStringField("symbol", subitem);
@@ -299,7 +298,7 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     auto _resultData = pimpl->query_substances_fn(sourcetdb);
 
     FormulaToken parser("");
-    foreach (string subitem, _resultData)
+    for (string subitem: _resultData)
     {
         string formula = bsonio::extractStringField("formula", subitem);
         string symbol = bsonio::extractStringField("symbol", subitem);
