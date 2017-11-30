@@ -479,7 +479,7 @@ vector<vector<double>> ChemicalFormula::calcStoichiometryMatrixOld(  const vecto
 //}
 
 
-void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const string& queryString )
+void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const string& queryString )
 {
     vector<string> resultData;
     elementDB->runQuery( queryString, queryFields, resultData );
@@ -493,7 +493,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const string& 
     }
 }
 
-void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const vector<string>& keyList )
+void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList )
 {
   dbElements.clear();
 
@@ -504,7 +504,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBGraph* elementDB, const vector<s
   }
 }
 
-void ChemicalFormula::addOneElement( bsonio::TDBGraph* elementDB )
+void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
 {
     ElementKey elkey("");
     elementDB->getValue( "properties.symbol" , elkey.symbol );
