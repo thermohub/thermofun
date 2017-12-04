@@ -127,25 +127,25 @@ class DatabaseClient
      * @brief substData returns a SubstanceData object for reading substance data from the database
      * @return SubstanceData object
      */
-    auto substData() const -> SubstanceData_;
+    auto substData() const -> SubstanceData_&;
 
     /**
      * @brief reactData returns a ReactionData object for reading reaction data from the database
      * @return ReactionData object
      */
-    auto reactData() const -> ReactionData_;
+    auto reactData() const -> ReactionData_&;
 
     /**
      * @brief reactSetData returns a ReactionSetData_ object
      * @return
      */
-    auto reactSetData() const -> ReactionSetData_;
+    auto reactSetData() const -> ReactionSetData_&;
 
     /**
      * @brief getTraversal returns a TraversalData object
      * @return
      */
-    auto getTraversal() const -> TraversalData;
+    auto getTraversal() const -> TraversalData&;
 
 private:
 

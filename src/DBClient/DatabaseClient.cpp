@@ -337,22 +337,22 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     return set;
 }
 
-auto DatabaseClient::substData() const -> SubstanceData_
+auto DatabaseClient::substData() const -> SubstanceData_&
 {
     return pimpl->substData;
 }
 
-auto DatabaseClient::reactData() const -> ReactionData_
+auto DatabaseClient::reactData() const -> ReactionData_&
 {
     return pimpl->reactData;
 }
 
-auto DatabaseClient::reactSetData() const -> ReactionSetData_
+auto DatabaseClient::reactSetData() const -> ReactionSetData_&
 {
     return pimpl->reactSetData;
 }
 
-auto DatabaseClient::getTraversal() const -> TraversalData
+auto DatabaseClient::getTraversal() const -> TraversalData&
 {
     return pimpl->traversal;
 }
