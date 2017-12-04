@@ -250,6 +250,24 @@ auto DatabaseClient::sourcetdbNamesComments(const std::set<uint> &sourcetdbIndex
     return namesComments;
 }
 
+auto DatabaseClient::sourcetdbListAll() -> std::vector<string>
+{
+    string name, comment;
+    vector<string> _sourcetdbList;
+    auto indexes = sourcetdbIndexes();
+    bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
+    if (enumdef != nullptr)
+    {
+        for (int idx: indexes)
+        {
+            name = enumdef->getNamebyId(idx);
+            comment = enumdef->getDoc(name);
+            _sourcetdbList.push_back(std::to_string(idx)+"-"+ name + " - "+ comment );
+        }
+    }
+    return _sourcetdbList;
+}
+
 auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
 {
     std::set<ElementKey> elements;

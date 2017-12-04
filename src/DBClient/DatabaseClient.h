@@ -74,6 +74,12 @@ class DatabaseClient
     auto sourcetdbNamesComments(const std::set<uint> &sourcetdbIndexes) -> std::map<std::string, std::string>;
 
     /**
+     * @brief sourcetdbListAll returns the indexes and name of all available thermodynamic data sets
+     * @return a list of  <index>-<name>-<comment>
+     */
+    auto sourcetdbListAll() -> std::vector<string>;
+
+    /**
      * @brief sourcetdbNamesIndexes returns a map with all available thermodynamic data sets names and their indexes
      * @return  map of thermodynamic data sets names and indexes
      */
