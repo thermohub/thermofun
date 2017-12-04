@@ -79,7 +79,7 @@ bsonio::ValuesTable ReactionSetData_::loadRecordsValues( const string& aquery,
      {
        for( const auto& subitem: reactQueryMatr )
         {
-          string idreac = subitem[4];
+          string idreac = subitem[getDataName_DataIndex()["_id"]];
           if( testElements( idreac, elements)  )
                reactMatr.push_back(subitem);
         }
