@@ -319,10 +319,10 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     for (string subitem: _resultData)
     {
         string formula = bsonio::extractStringField("formula", subitem);
-        string symbol = bsonio::extractStringField("symbol", subitem);
+        //string symbol = bsonio::extractStringField("symbol", subitem);
         //  cout << subitem << "      " << formula << "  " << symbol << endl;
         // test elements
-        parser.exeptionCheckElements(symbol, formula);
+        // avoid double parse parser.exeptionCheckElements(symbol, formula);
         parser.setFormula(formula);
         elements.insert(parser.getElements().begin(), parser.getElements().end());
     }
