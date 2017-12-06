@@ -69,10 +69,10 @@ public:
     auto addNewRecord( const bsonio::FieldSetMap& fldvalues, bool testValues ) -> string;
 
     /// Extract values from record into database
-    auto loadRecord( const string& id, const vector<string>& queryFields ) -> bsonio::FieldSetMap;
+    auto loadRecord( const string id, const vector<string> queryFields ) -> bsonio::FieldSetMap;
 
     /// Build table of fields values by ids list
-    auto loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable;
+    auto loadRecords( const vector<string> ids ) -> bsonio::ValuesTable;
 
     /// Build ids list connected to idVertex by incoming edge
     auto getInVertexIds(const string& edgeLabel, const string& idVertex) -> vector<string>;

@@ -10,8 +10,8 @@ using namespace bsonio;
 namespace ThermoFun {
 
 using QueryRecord           = std::function<string(string, vector<string>)>;
-using LoadRecord            = std::function<FieldSetMap(const string&, const vector<string>&)>;
-using LoadRecords           = std::function<ValuesTable(const vector<string>&)>;
+using LoadRecord            = std::function<FieldSetMap(const string, const vector<string>)>;
+using LoadRecords           = std::function<ValuesTable(const vector<string>)>;
 
 using QueryInEdgesDefines   = std::function<vector<string>(string, vector<string>, string)>;
 using DefinesReactionSymbol = std::function<string(string, string)>;
@@ -108,12 +108,12 @@ struct AbstractData::Impl
         };
         query_record_fn = memoize(query_record_fn);
 
-        load_record_fn = [=](const string& idRecord, const vector<string>& queryFields) {
+        load_record_fn = [=](const string idRecord, const vector<string> queryFields) {
             return loadRecord(idRecord, queryFields);
         };
         load_record_fn = memoize(load_record_fn);
 
-        load_records_fn = [=](const vector<string>& idRecords) {
+        load_records_fn = [=](const vector<string> idRecords) {
             return loadRecords(idRecords);
         };
         load_records_fn = memoize(load_records_fn);
@@ -319,12 +319,12 @@ auto AbstractData::reactantsCoeff_(string idReact) -> std::map<std::string, doub
 }
 
 /// Extract values from record into database
-auto AbstractData::loadRecord( const string& id, const vector<string>& queryFields ) -> bsonio::FieldSetMap
+auto AbstractData::loadRecord( const string id, const vector<string> queryFields ) -> bsonio::FieldSetMap
 {
     return pimpl->load_record_fn( id, queryFields );
 }
 /// Build table of fields values by ids list
-auto AbstractData::loadRecords( const vector<string>& ids ) -> bsonio::ValuesTable
+auto AbstractData::loadRecords(const vector<string> ids ) -> bsonio::ValuesTable
 {
     return pimpl->load_records_fn(ids);
 }
