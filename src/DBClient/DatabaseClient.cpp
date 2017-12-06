@@ -337,6 +337,20 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     return set;
 }
 
+auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std::vector<string>
+{
+    std::vector<string> elmIds;
+    for (auto element : elements)
+    {
+        auto itrdb = ChemicalFormula::getDBElements().find(element);
+        if (itrdb == ChemicalFormula::getDBElements().end())
+            bsonio::bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+        elmIds.push_back(itrdb->second.recid);
+    }
+    return elmIds;
+}
+
+
 auto DatabaseClient::substData() const -> SubstanceData_&
 {
     return pimpl->substData;

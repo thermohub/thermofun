@@ -109,6 +109,14 @@ class DatabaseClient
      */
     auto availableElementsSet(int sourcetdb) -> std::set<Element>;
 
+
+    /**
+     * @brief elementIds returns a vector of element ids from ElementKeys
+     * @param elements vector of ElementKeys
+     * @return vector of Element ids
+     */
+    auto elementIds( const std::vector<ElementKey>& elements) -> std::vector<string>;
+
     /**
      * @brief availableSubstances returns the list of available substance symbols
      * @param sourcetdb thermodynamic data set index
