@@ -279,10 +279,10 @@ auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
     for (string subitem: _resultData)
     {
         string formula = bsonio::extractStringField("formula", subitem);
-        string symbol = bsonio::extractStringField("symbol", subitem);
+        //string symbol = bsonio::extractStringField("symbol", subitem);
         //  cout << subitem << "      " << formula << "  " << symbol << endl;
         // test elements
-        parser.exeptionCheckElements(symbol, formula);
+        // addiditon test and parser parser.exeptionCheckElements(symbol, formula);
         parser.setFormula(formula);
         elements.insert(parser.getElements().begin(), parser.getElements().end());
     }
