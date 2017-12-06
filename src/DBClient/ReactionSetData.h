@@ -33,10 +33,14 @@ class ReactionSetData_ : public AbstractData
      */
     void resetRecordElements( const string& aKey );
 
-  private:
+    /// Return all ids from all connected substances
+    vector<string> getSubstanceIds( const string& idrcset );
 
     /// Return all formulas from all connected substances
     vector<string> getSubstanceFormulas( const string& idreaction );
+
+  private:
+
 
     /// Test record all elements exist into list
     bool testElements( const string& idrecord,

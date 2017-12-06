@@ -94,6 +94,16 @@ bsonio::ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
     return getDB()->loadRecords(ids, getDataFieldPaths());
 }
 
+vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
+{
+    // Select substance ids connected to reactionSet
+    auto subIds = getInVertexIds( "product", idrcset );
+    auto subIds2 = getInVertexIds( "master", idrcset );
+    subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
+    return subIds;
+}
+
+
 vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
 {
     vector<string> formulas;
