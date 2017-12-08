@@ -180,4 +180,16 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
     }
 }
 
+bool ReactionSetData_::getSpeciesMap( const string& RcSid, std::map<string, int>& specmap )
+{
+    bson reobj;
+    // extract data from reaction record
+    getDB()->GetRecord( (RcSid+":").c_str() );
+    getDB()->GetBson(&reobj);
+    bool iret = bson_read_map_path( reobj.data, "properties.species_map", specmap );
+    bson_destroy(&reobj);
+    return iret;
+}
+
+
 }

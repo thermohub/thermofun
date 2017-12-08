@@ -39,6 +39,9 @@ class ReactionSetData_ : public AbstractData
     /// Return all formulas from all connected substances
     vector<string> getSubstanceFormulas( const string& idreaction );
 
+    /// Read species map from record
+    bool getSpeciesMap( const string& RcSid, std::map<string, int>& specmap );
+
   private:
 
 
