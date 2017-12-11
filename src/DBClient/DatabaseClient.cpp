@@ -4,9 +4,6 @@
 #include <functional>
 
 // bonio includes
-//#include "bsonio/thrift_schema.h"
-//#include "bsonio/dbgraph.h"
-//#include "bsonio/dbdriverejdb.h"
 #include "bsonio/traversal.h"
 #include "bsonio/io_settings.h"
 
@@ -46,9 +43,6 @@ struct DatabaseClient::Impl
 
     /// for traversal operations
     TraversalData traversal;
-
-    /// Incoming traversal results
-    List_VertexType_VertexId _internalList;
 
     QuerySubstancesFunction query_substances_fn;
 
