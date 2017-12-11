@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ThermoFun.h"
 #include "bsonio/io_settings.h"
 #include "DBClient/DatabaseClient.h"
@@ -15,6 +16,12 @@ int main(int argc, char *argv[])
     bsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
     DatabaseClient dbc_;
 
+    dbc_.BackupAllIncoming({"5a2e79f000daf03e00000000"}, "test1.json");
+    auto list = dbc_.TraverseAllIncomingEdges("5a2e79f000daf03e00000000");
+
+    for( auto row: list)
+     std::cout << row.first << " " << row.second << endl;
+    return 0;
 //    DatabaseClient dbc_("./Resources/ThermoFun.json");
 
 //    auto t = dbc_.substData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
