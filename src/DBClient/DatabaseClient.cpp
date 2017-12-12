@@ -4,10 +4,7 @@
 #include <functional>
 
 // bonio includes
-//#include "bsonio/thrift_schema.h"
-//#include "bsonio/dbgraph.h"
-//#include "bsonio/dbdriverejdb.h"
-//#include "bsonio/dbclient.h"
+#include "bsonio/traversal.h"
 #include "bsonio/io_settings.h"
 
 // ThermoFun includes
@@ -109,6 +106,12 @@ struct DatabaseClient::Impl
         vector<string> _resultData;
         reactData.getDB()->runQuery(query, _queryFields, _resultData);
         return _resultData;
+    }
+
+    auto executeIncomingTraversal( const vector<string>& ids, GraphElementFunction afunc ) -> void
+    {
+        GraphTraversal travel( _dbconnect.get() );
+        travel.Traversal( true, ids, afunc, GraphTraversal::trIn );
     }
 };
 
@@ -371,5 +374,42 @@ auto DatabaseClient::getTraversal() const -> TraversalData&
     return pimpl->traversal;
 }
 
+/// Output record and all incoming to json file
+auto DatabaseClient::BackupAllIncoming( const vector<string>& ids, const string fileName ) -> void
+{
+    FJsonArray file( fileName);
+    file.Open( OpenModeTypes::WriteOnly );
+
+    GraphElementFunction afunc =  [&file]( bool , bson *data )
+            {
+               file.SaveNext(data);
+            };
+
+    pimpl->executeIncomingTraversal( ids, afunc );
+
+    file.Close();
+
+}
+
+// Collect record and all incoming _ids
+auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_VertexType_VertexId
+{
+    List_VertexType_VertexId list;
+
+    GraphElementFunction afunc =  [&list]( bool vert, bson *bdata )
+            {
+              if( vert)
+              {
+                  string type, id;
+                  bson_to_key( bdata->data, "_id",    id );
+                  bson_to_key( bdata->data, "_label",  type);
+                  list.push_back(pair<string,string>(type, id));
+              }
+            };
+
+    pimpl->executeIncomingTraversal( {id}, afunc );
+
+    return list;
+}
 
 }

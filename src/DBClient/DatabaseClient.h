@@ -21,6 +21,8 @@ struct ReactionSetData_;
 struct ElementKey;
 struct TraversalData;
 
+using List_VertexType_VertexId    = vector< pair<string, string> >;
+
 class DatabaseClient
 {
   public:
@@ -154,6 +156,13 @@ class DatabaseClient
      * @return
      */
     auto getTraversal() const -> TraversalData&;
+
+    /// Output record and all incoming to json file
+    auto BackupAllIncoming( const vector<string>& ids, const string fileName ) -> void;
+
+    /// Collect record and all incoming _ids
+    auto TraverseAllIncomingEdges( const string& id ) -> List_VertexType_VertexId;
+
 
 private:
 
