@@ -2,8 +2,11 @@
 #define TRAVERSAL_H
 
 // bonio includes
-#include "bsonio/thrift_schema.h"
-#include "bsonio/dbgraph.h"
+#ifdef addBSONIO
+#include "dbedgedoc.h"
+#else
+#include "bsonio/dbedgedoc.h"
+#endif
 
 namespace ThermoFun {
 
@@ -23,7 +26,8 @@ enum LevelMode {
 ///
 class Traversal
 {
-    boost::shared_ptr<bsonio::TDBGraph> dbgraph;
+    boost::shared_ptr<bsonio::TDBVertexDocument> dbvertex;
+    boost::shared_ptr<bsonio::TDBEdgeDocument> dbedge;
 
     std::map<std::string, std::string> definedSubstSymbolLevel;
 
@@ -68,7 +72,8 @@ class Traversal
     /// \brief Traversal Constructor
     /// \param _dbgraph shared pointer for connection to the database
     ///
-    explicit Traversal(boost::shared_ptr<bsonio::TDBGraph> _dbgraph);
+    explicit Traversal(boost::shared_ptr<bsonio::TDBVertexDocument>& _dbvert,
+                       boost::shared_ptr<bsonio::TDBEdgeDocument>& _dbedge );
 
     ///
     /// \brief getLinkedBsonFromSelectedData returns the linked data strting form the selected id list
