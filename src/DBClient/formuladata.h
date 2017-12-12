@@ -1,15 +1,13 @@
-#ifndef FORMULADATA_H
-#define FORMULADATA_H
+#ifndef _FORMULADATA_H
+#define _FORMULADATA_H
 
 #include <iostream>
 #include <map>
 #include <set>
 #include "formulaparser.h"
-#ifdef addBSONIO
-#include "dbvertexdoc.h"
-#else
 #include "bsonio/dbvertexdoc.h"
-#endif
+
+namespace ThermoFun {
 
 /// Key fields of Element vertex
 struct ElementKey
@@ -42,6 +40,7 @@ bool operator!=( const ElementKey&,  const ElementKey& );
 /// Elements values, loaded from Database
 struct ElementValues
 {
+  string recid;            // Record id
   double atomic_mass;   // "Atomic (molar) mass, g/atom (g/mole)"
   double entropy;   // "Atomic entropy S0 at standard state, J/mole/K"
   double heat_capacity;   // "Atomic heat capacity Cp0 at standard state, J/mole/K"
@@ -95,8 +94,8 @@ class FormulaToken
 {
     string formula;
     FormulaElementsData datamap;  ///< List of tokens
-    map<ElementKey, double>  elements;
-//    set<ElementKey>  elements;    ///< Set of existed elements
+    map<ElementKey, double>  elements_map;
+    set<ElementKey>  elements;    ///< Set of existed elements
 //    std::map<std::string, double> mapElementsCoeff; ///< Map of elements symbols and coefficients
     double aZ;                    ///< Calculated charge in Mol
 
@@ -150,13 +149,19 @@ public:
     void exeptionCargeImbalance();
 
     /// Get of existed elements
-    const map<ElementKey, double>& getElements() const
+    const map<ElementKey, double>& getElements_map() const
+    { return elements_map; }
+    const set<ElementKey>& getElements() const
     { return elements; }
 
 //    const std::vector<double>& getCoefficients() const
 //    { return coefficients; }
 
 };
+
+vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
+string ElementsToJson( const set<ElementKey>& elements );
+
 
 class ChemicalFormula
 {
@@ -182,7 +187,8 @@ class ChemicalFormula
 
   static vector<ElementKey> elementsRow();
 
-  static map<ElementKey, double> extractElements(  const vector<string>& formulalist );
+  static map<ElementKey, double> extractElements_map(  const vector<string>& formulalist );
+  static set<ElementKey>         extractElements(  const vector<string>& formulalist );
   static FormulaProperites         calcThermo(  const string formula_ );
   static vector<FormulaProperites> calcThermo(  const vector<string>& formulalist );
   static vector<vector<double>> calcStoichiometryMatrixOld(  const vector<string>& formulalist );
@@ -198,5 +204,6 @@ class ChemicalFormula
   }
 
 };
+}
 
-#endif // FORMULADATA_H
+#endif // _FORMULADATA_H

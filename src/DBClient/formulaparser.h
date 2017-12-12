@@ -16,13 +16,15 @@
 // E-mail: gems2.support@psi.ch
 //-------------------------------------------------------------------
 //
-#ifndef FORMULAPARSER_H
-#define FORMULAPARSER_H
+#ifndef _FORMULAPARSER_H
+#define _FORMULAPARSER_H
 
 #include <string>
 #include <list>
 #include <vector>
 using namespace std;
+
+namespace ThermoFun {
 
 extern const char* NOISOTOPE_CLASS;
 extern const char* CHARGE_CLASS;
@@ -161,4 +163,6 @@ public:
 
 };
 
-#endif // FORMULAPARSER_H
+}
+
+#endif // _FORMULAPARSER_H

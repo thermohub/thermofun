@@ -1,0 +1,4 @@
+#ifndef ELEMENTDATA_H
+#define ELEMENTDATA_H
+
+#endif // ELEMENTDATA_H

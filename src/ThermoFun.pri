@@ -2,8 +2,10 @@
     $$ThermoFun_H/Common/ThermoScalar.hpp \
     $$ThermoFun_H/Common/ScalarTypes.hpp \
 # ThermoFun
+    $$PWD/ThermoFun.h \
     $$PWD/Thermo.h \
     $$PWD/Database.h \
+    $$PWD/Element.h \
     $$PWD/Substance.h \
     $$PWD/Reaction.h \
     $$PWD/ThermoModelsSolvent.h \
@@ -13,6 +15,7 @@
     $$PWD/ThermoProperties.h \
     $$PWD/ThermoParameters.h \
     $$PWD/ReadFiles.h \
+    $$PWD/OptimizationUtils.h \
 #    $$PWD/TPcalculationsAPI.h \
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.h \
@@ -65,18 +68,22 @@
     $$PWD/Interfaces/Interface.h \
     $$PWD/Interfaces/Output.h \
 # DBClient
-    $$PWD/DBClient/DBClient.h \
-    $$PWD/DBClient/Traversal.h \
-    $$PWD/ThermoFun.h \
     $$PWD/DBClient/formuladata.h \
     $$PWD/DBClient/formulaparser.h \
-    $$PWD/Element.h \
-    $$PWD/OptimizationUtils.h
+    $$PWD/DBClient/SubstanceData.h \
+    $$PWD/DBClient/DatabaseClient.h \
+    $$PWD/DBClient/ReactionData.h \
+    $$PWD/DBClient/TraversalData.h \
+    $$PWD/DBClient/ElementData.h \
+    $$PWD/DBClient/AbstractData.h \
+    $$PWD/DBClient/ThermoSetData.h \
+    $$PWD/DBClient/ReactionSetData.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$ThermoFun_H/Common/ThermoScalar.hpp \
 # ThermoFun
     $$PWD/Thermo.cpp \
+    $$PWD/Element.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
     $$PWD/ThermoModelsSolvent.cpp \
@@ -132,8 +139,11 @@
     $$PWD/Interfaces/Interface.cpp \
     $$PWD/Interfaces/Output.cpp \
 # DBClient
-    $$PWD/DBClient/DBClient.cpp \
-    $$PWD/DBClient/Traversal.cpp \
     $$PWD/DBClient/formuladata.cpp \
     $$PWD/DBClient/formulaparser.cpp \
-    $$PWD/Element.cpp
+    $$PWD/DBClient/AbstractData.cpp \
+    $$PWD/DBClient/SubstanceData.cpp \
+    $$PWD/DBClient/ReactionData.cpp \
+    $$PWD/DBClient/ReactionSetData.cpp \
+    $$PWD/DBClient/TraversalData.cpp \
+    $$PWD/DBClient/DatabaseClient.cpp

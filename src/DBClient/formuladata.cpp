@@ -1,12 +1,13 @@
 #include <math.h>
 #include "formuladata.h"
 #include "formulaparser.h"
-//#include "bsonio/dbgraph.h"
 
+namespace ThermoFun {
 
 DBElementsData ChemicalFormula::dbElements= DBElementsData();
 vector<string> ChemicalFormula::queryFields =
 {
+      "_id",
       "_type",
       "_label",
       "properties.symbol",
@@ -233,7 +234,8 @@ void FormulaToken::unpack( list<ICTERM>& itt_ )
                 itr->val = itrdb->second.valence;
         }
         datamap.push_back( FormulaValues( key, itr->stoich, itr->val ));
-        elements.insert(pair<ElementKey,double>(key,itr->stoich));
+        elements.insert(key);
+        elements_map.insert(pair<ElementKey,double>(key,itr->stoich));
 //        coefficients.push_back(itr->stoich);
         itr++;
     }
@@ -245,7 +247,7 @@ double FormulaToken::calculateCharge()
     auto itr =  datamap.begin();
     while( itr != datamap.end() )
     {
-      if( itr->key.class_ ==  4 /*CHARGE*/ &&
+      if( itr->key.class_ !=  4 /*CHARGE*/ &&
           itr->valence != bsonio::SHORT_EMPTY )
          Zz += itr->stoichCoef * itr->valence;
       itr++;
@@ -258,6 +260,7 @@ void FormulaToken::clear()
 {
     datamap.clear();
     elements.clear();
+    elements_map.clear();
     aZ = 0.;
 }
 
@@ -409,9 +412,22 @@ vector<ElementKey> ChemicalFormula::elementsRow()
     return row;
 }
 
-map<ElementKey, double> ChemicalFormula::extractElements(  const vector<string>& formulalist )
+map<ElementKey, double> ChemicalFormula::extractElements_map(  const vector<string>& formulalist )
 {
-   map<ElementKey, double> elements;
+   map<ElementKey, double> elements_map;
+   FormulaToken formula("");
+
+   for(uint ii=0; ii<formulalist.size(); ii++ )
+   {
+     formula.setFormula(  formulalist[ii] );
+     elements_map.insert( formula.getElements_map().begin(), formula.getElements_map().end());
+   }
+   return elements_map;
+}
+
+set<ElementKey> ChemicalFormula::extractElements(  const vector<string>& formulalist )
+{
+   set<ElementKey> elements;
    FormulaToken formula("");
 
    for(uint ii=0; ii<formulalist.size(); ii++ )
@@ -419,7 +435,6 @@ map<ElementKey, double> ChemicalFormula::extractElements(  const vector<string>&
      formula.setFormula(  formulalist[ii] );
      elements.insert( formula.getElements().begin(), formula.getElements().end());
    }
-
    return elements;
 }
 
@@ -504,6 +519,23 @@ void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const
   }
 }
 
+vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
+{
+  vector<ElementKey> elements;
+  ElementKey elkey("");
+
+  for(uint ii=0; ii<idList.size(); ii++ )
+  {
+    elementDB->GetRecord( (idList[ii]+":").c_str() );
+    elementDB->getValue( "properties.symbol" , elkey.symbol );
+    elementDB->getValue( "properties.class_" , elkey.class_ );
+    elementDB->getValue( "properties.isotope_mass" , elkey.isotope );
+    elements.push_back(elkey);
+  }
+
+  return elements;
+}
+
 void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
 {
     ElementKey elkey("");
@@ -512,6 +544,7 @@ void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
     elementDB->getValue( "properties.isotope_mass" , elkey.isotope );
 
     ElementValues eldata;
+    elementDB->getValue( "_id" , eldata.recid );
     elementDB->getValue( "properties.atomic_mass.values.0" , eldata.atomic_mass );
     elementDB->getValue( "properties.entropy.values.0" , eldata.entropy );
     elementDB->getValue( "properties.heat_capacity.values.0" , eldata.heat_capacity );
@@ -521,4 +554,6 @@ void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
     elementDB->getValue( "properties.name" , eldata.name );
 
     dbElements[elkey] = eldata;
+}
+
 }

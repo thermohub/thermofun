@@ -47,7 +47,7 @@ static const double H2OMolarMass = 18.015268;
 
 static const std::string output_path = "/Output/";
 
-static const std::string parsinglogfile = "logfile.txt";
+static const std::string parsinglogfile = "parseBsonDatalogfile.txt";
 
 static std::ofstream flog;
 
