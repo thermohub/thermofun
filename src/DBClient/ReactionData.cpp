@@ -68,7 +68,7 @@ bsonio::ValuesTable ReactionData_::loadRecordsValues(const string &aquery,
     if (query.empty())
         query = getQuery();
     if (!elements.empty())
-        addFieldsToQuery(query, {make_pair(string("properties.sourcetdb"), to_string(sourcetdb))});
+        addFieldsToQuery(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
     ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
 
     // get record by elements list
