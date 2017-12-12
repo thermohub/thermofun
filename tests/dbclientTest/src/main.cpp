@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
 //    auto t = dbc_.substData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
 //    auto u = dbc_.reactData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
 
+    auto rec = dbc_.substData().loadRecord( "59a7dd44f383054800000423", {"_id", "_label", "properties.formula", "properties.symbol"} );
+    auto rec2 = dbc_.substData().loadRecord( "59a7dd44f383054800000429", {"_id", "_label", "properties.formula", "properties.symbol"} );
+
     Database db = dbc_.thermoFunDatabase(19);
     Database db2_ = dbc_.thermoFunDatabase(19);
 
