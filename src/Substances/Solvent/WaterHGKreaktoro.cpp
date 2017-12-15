@@ -9,7 +9,7 @@ namespace ThermoFun {
 auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, const WaterThermoState& wt) -> ThermoPropertiesSubstance
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-    const auto Ttr =  273.16;             // unit: K
+    const auto Ttr =  273.15;             // unit: K
     const auto Str =  15.1320 * cal_to_J; // unit: J/(mol*K)
     const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
     const auto Htr = -68767.0 * cal_to_J; // unit: J/mol

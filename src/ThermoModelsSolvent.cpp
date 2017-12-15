@@ -21,8 +21,8 @@ auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pma
     {
         Exception exception;
         exception.error << "Out of T bound in model " << model;
-        exception.reason << "The provided temperature, " << T << " C,"  << "is either negative "
-              "or greater than the maximum allowed, " << Tmax << " C.";
+        exception.reason << "The provided temperature, " << T << " K,"  << "is either negative "
+              "or greater than the maximum allowed, " << Tmax << " K.";
         RaiseError(exception);
     }
 
@@ -31,7 +31,7 @@ auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pma
     {
         Exception exception;
         exception.error << "Out of P bound in model " << model;
-        exception.reason << "The provided pressure, " << P << " bar,"  << "is greater than the maximum allowed, " << Pmax << " bar.";
+        exception.reason << "The provided pressure, " << P << " Pa,"  << "is greater than the maximum allowed, " << Pmax << " Pa.";
         RaiseError(exception);
     }
 
@@ -40,7 +40,7 @@ auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pma
     {
         Exception exception;
         exception.error << "Out of P bound in model " << model;
-        exception.reason << "The provided pressure, " << P << " bar,"  << "is lower than the minimum allowed, " << Pmin << " bar.";
+        exception.reason << "The provided pressure, " << P << " Pa,"  << "is lower than the minimum allowed, " << Pmin << " Pa.";
         RaiseError(exception);
     }
 }
@@ -71,7 +71,7 @@ WaterHGK::WaterHGK(const Substance &substance)
 // calculation
 auto WaterHGK::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    WaterHGKgems water_hgk;
+    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
     water_hgk.calculateWaterHGKgems(T, P);
 
@@ -80,7 +80,7 @@ auto WaterHGK::propertiesSolvent(double T, double &P, int state) -> PropertiesSo
 
 auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
 {
-    WaterHGKgems water_hgk;
+    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
     water_hgk.calculateWaterHGKgems(T, P);
 
@@ -114,30 +114,22 @@ WaterHGKreaktoro::WaterHGKreaktoro(const Substance &substance)
 // calculation
 auto WaterHGKreaktoro::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
-
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P ); p *=bar_to_Pa;
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P);
 
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
     WaterThermoState wt = waterThermoStateHGK(t, p, state);
-
-    P = p.val / bar_to_Pa;
 
     return propertiesWaterHGKreaktoro(wt);
 }
 
 auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
 {
-//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
-
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P ); p *=bar_to_Pa;
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P );
 
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
     WaterThermoState wt = waterThermoStateHGK(t, p, state);
-
-    P = p.val / bar_to_Pa;
 
     return thermoPropertiesWaterHGKreaktoro(t, wt);
 }
@@ -170,28 +162,24 @@ WaterWP95reaktoro::WaterWP95reaktoro(const Substance &substance)
 // calculation
 auto WaterWP95reaktoro::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P ); p *=bar_to_Pa;
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P );
 
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
 
     WaterThermoState wt = waterThermoStateWagnerPruss(t, p, state);
-
-    P = p.val / bar_to_Pa;
 
     return propertiesWaterWP95reaktoro(wt);
 }
 
 auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P ); p *=bar_to_Pa;
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P );
 
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
 
     WaterThermoState wt = waterThermoStateWagnerPruss(t, p, state);
-
-    P = p.val / bar_to_Pa;
 
     return thermoPropertiesWaterWP95reaktoro(t, wt);
 }
@@ -222,30 +210,28 @@ WaterZhangDuan2005::WaterZhangDuan2005(const Substance &substance)
 // calculation
 auto WaterZhangDuan2005::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P /* * bar_to_Pa*/);
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    checkModelValidity(T, P, 2000, 0, 300000, 1000, "Zhang and Duan (2005) H2O model.");
+    checkModelValidity(T, P, 2273.15, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
 
 //    if (P==0) p = Reaktoro_::Pressure(Reaktoro_::waterSaturatedPressureWagnerPruss(t).val);
 
 //    Reaktoro_::WaterThermoState wt = Reaktoro_::waterThermoStateWagnerPruss(t, p, state);
-
-//    P = p.val / bar_to_Pa;
 
     return propertiesWaterZhangDuan2005(t,p);
 }
 
 auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P /*/ 10 *//* * bar_to_Pa*/); // bar
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa; // bar
+
+    checkModelValidity(T, P, 2273.15, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
 
 //    if (P==0) p = Reaktoro_::Pressure(Reaktoro_::waterSaturatedPressureWagnerPruss(t).val);
 
 //    Reaktoro_::WaterThermoState wt = Reaktoro_::waterThermoStateWagnerPruss(t, p, state);
-
-//    P = p.val / bar_to_Pa;
 
     return thermoPropertiesWaterZhangDuan2005(t, p);
 }
