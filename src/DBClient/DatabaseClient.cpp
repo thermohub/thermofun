@@ -403,6 +403,7 @@ auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_Vertex
                   string type, id;
                   bson_to_key( bdata->data, "_id",    id );
                   bson_to_key( bdata->data, "_label",  type);
+                  list.push_back(pair<string,string>(id, type));
               }
             };
     pimpl->executeIncomingTraversal( {id}, afunc );
