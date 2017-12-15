@@ -11,6 +11,7 @@
 #include "SubstanceData.h"
 #include "ReactionData.h"
 #include "ReactionSetData.h"
+#include "ThermoSetData.h"
 #include "TraversalData.h"
 
 #include "../Database.h"
@@ -41,6 +42,9 @@ struct DatabaseClient::Impl
     /// access to reactionSet records
     ReactionSetData_ reactSetData;
 
+    /// acccess to ThermoDataSet records
+    ThermoSetData thermoDataSet;
+
     /// for traversal operations
     TraversalData traversal;
 
@@ -51,7 +55,7 @@ struct DatabaseClient::Impl
     Impl(const std::shared_ptr<bsonio::TDataBase>& otherdb) :
       _dbconnect( otherdb), substData(_dbconnect.get()),
       reactData(_dbconnect.get()), reactSetData(_dbconnect.get()),
-      traversal (&substData, &reactData)
+      thermoDataSet(_dbconnect.get()), traversal (&substData, &reactData)
     {
         setFunctions();
     }
@@ -59,7 +63,7 @@ struct DatabaseClient::Impl
     // read from default config
     Impl() : _dbconnect( new bsonio::TDataBase() ), substData(_dbconnect.get()),
         reactData(_dbconnect.get()), reactSetData(_dbconnect.get()),
-        traversal (&substData, &reactData)
+        thermoDataSet(_dbconnect.get()), traversal (&substData, &reactData)
     {
         setFunctions();
     }
