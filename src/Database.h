@@ -14,10 +14,10 @@ namespace ThermoFun {
 // Forward declarations
 class Substance;
 class Reaction;
+class DatabaseClient;
 
 using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap = std::map<std::string, Reaction>;
-
 
 /**
  * @brief The Database class stores maps of substances and reactions. A database instance can be used to create a themro instance
@@ -39,6 +39,13 @@ public:
      * see BSONIO
      */
     Database(std::vector<bson> bsonSubstances);
+
+    /**
+     * @brief Database constructs a database instace from a database client server connection and a record list
+     * @param dbc database client server connection
+     * @param recordList record list retrieved from the
+     */
+    Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol);
 
     /// Assign a Database instance to this instance
     auto operator=(Database other) -> Database&;

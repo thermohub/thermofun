@@ -18,6 +18,7 @@ struct Element;
 struct SubstanceData_;
 struct ReactionData_;
 struct ReactionSetData_;
+struct ThermoSetData;
 struct ElementKey;
 struct TraversalData;
 
@@ -152,6 +153,12 @@ class DatabaseClient
     auto reactSetData() const -> ReactionSetData_&;
 
     /**
+     * @brief thermoDataSet returns a ThermoDataSet object
+     * @return
+     */
+    auto thermoDataSet() const -> ThermoSetData&;
+
+    /**
      * @brief getTraversal returns a TraversalData object
      * @return
      */
@@ -163,7 +170,7 @@ class DatabaseClient
     /// Collect record and all incoming _ids
     auto TraverseAllIncomingEdges( const string& id ) -> List_VertexId_VertexType;
 
-    auto recordsFromThermoDataSet( const string& idThermoDataSet ) -> List_VertexId_VertexType;
+    auto recordsFromThermoDataSet(const string& ThermoDataSetSymbol ) -> List_VertexId_VertexType;
 
 private:
 

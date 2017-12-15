@@ -32,8 +32,8 @@ public:
     explicit ReactionFrantzMarshall(const Reaction& reaction);
 
     /// Returns the thermodynamic properties of the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction;
 
 private:
@@ -52,8 +52,8 @@ public:
     explicit ReactionRyzhenkoBryzgalin(const Reaction& reaction);
 
     /// Returns the thermodynamic properties of the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction;
 
 private:
@@ -72,8 +72,8 @@ public:
     explicit Reaction_LogK_fT(const Reaction& reaction);
 
     /// Returns the thermodynamic properties of the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction;
 
 private:
@@ -92,8 +92,8 @@ public:
     explicit ReactionFromReactantsProperties(const Reaction& reaction);
 
     /// Returns the thermodynamic properties of the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P) -> ThermoPropertiesReaction;
 
 private:
@@ -112,8 +112,8 @@ public:
     explicit Reaction_Vol_fT(const Reaction& reaction);
 
     /// Returns the thermodynamic properties of the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P) -> ThermoPropertiesReaction;
 
 private:

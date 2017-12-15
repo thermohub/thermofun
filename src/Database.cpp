@@ -12,6 +12,7 @@
 #include "Substance.h"
 #include "Reaction.h"
 #include "DBClient/DatabaseClient.h"
+//#include "DBClient/ThermoSetData.h"
 
 // bsonio includes
 #include "bsonio/json2cfg.h"
@@ -64,93 +65,13 @@ struct Database::Impl
         }
     }
 
-//    Impl (const DatabaseClient &dbc, const List_VertexId_VertexType &recordList)
-//    {
-//        string _idSubst, _idReact, substSymb; string level_ = pimpl->level;
-//        bson record;
-
-//        // get substances and the reaction symbol if necessary
-//        for(auto iterator = recordList.begin(); iterator != recordList.end(); iterator++)
-//        {
-//            if (iterator->second == "substance")
-//            {
-//                _idSubst = iterator->first;
-//                record = pimpl->substData->getJsonBsonRecordVertex(_idSubst+":").second;
-//                bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
-
-//                level_ = level(_idSubst);
-//                Substance substance = parseSubstance(record.data);
-
-//                // get reaction symbol which define substance with _idSubst
-//                string definesReactSymb = pimpl->substData->definesReactionSymbol(_idSubst, level_);
-//                if (definesReactSymb != "")
-//                {
-//                    substance.setReactionSymbol(definesReactSymb);
-//                    substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
-//                }
-
-//                if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
-//                    substances_map[substance.symbol()] = substance;
-//                } else {
-//                    errorSameSymbol("substance", substance.symbol(), __LINE__, __FILE__ );
-//                }
-//            } else
-//                if (iterator->second == "reaction")
-//                {
-//                    _idReact = iterator->first;
-//                    record = pimpl->reactData->getJsonBsonRecordVertex(_idReact+":").second;
-
-//                    Reaction reaction = ThermoFun::parseReaction(record.data);
-
-//                    // get reactants by following reaction incoming takes edge
-//                    reaction.setReactants(pimpl->reactData->reactantsCoeff(_idReact));
-
-//                    if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
-//                        reactions_map[reaction.symbol()] = reaction;
-//                    } else {
-//                        errorSameSymbol("reaction", reaction.symbol(), __LINE__, __FILE__ );
-//                    }
-//                }
-//        }
-//    }
-
-//    /// map of substance symbol and level for the edge defines connected to the substance
-//    std::map<std::string, std::string> substSymbol_definesLevel;
-
-//    /// current level for the traversal operation
-//    std::string level = "0";
-
-//    /// mode of using levels for traversal (all: collect all connected; single: collect all connected using one
-//    /// defines level for all substances; multiple: collect all connectec using different levels for different
-//    /// substances (from map substSymbol_definesLevel)
-//    DefinesLevelMode definesLevelMode = DefinesLevelMode::single;
-
-
-//    auto level (std::string idSubst) -> std::string
-//    {
-//        bson record;
-//        std::string level_;
-
-//        switch(pimpl->definesLevelMode)
-//        {
-//        case DefinesLevelMode::all         : level_ = "-1";  // follows all connected data
-//            break;
-//        case DefinesLevelMode::single      : level_ = pimpl->level;; // follows edges defines with level
-//            break;
-//        case DefinesLevelMode::multiple    : {
-//            std::string substSymb; std::string key = idSubst +":";
-//            record = pimpl->substData->getJsonBsonRecordVertex(key).second;
-//            bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
-//            if (pimpl->substSymbol_definesLevel.find(substSymb) != pimpl->substSymbol_definesLevel.end()) // follows edges defines with specific leveles for substSymbols
-//                level_ = pimpl->substSymbol_definesLevel[substSymb];   // if the substance symbol is not found in the map, it uses the default level
-//            else
-//                level_ = pimpl->level;
-//        }
-//            break;
-//        }
-
-//        return level_;
-//    }
+    Impl (DatabaseClient &dbc, const string &ThermoDataSetSymbol)
+    {
+        auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
+        auto db = databaseFromRecordList(dbc, recordList);
+        substances_map = db.mapSubstances();
+        reactions_map  = db.mapReactions();
+    }
 
     Impl(vector<bson> bsonSubstances)
     {
@@ -307,7 +228,6 @@ struct Database::Impl
 
         try
         {
-
             while( !f.eof() )
             {
                 f.get(b);
@@ -362,6 +282,10 @@ Database::Database(std::string filename)
 
 Database::Database(vector<bson> bsonSubstances)
 : pimpl(new Impl(bsonSubstances))
+{}
+
+Database::Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol)
+: pimpl(new Impl(dbc, thermoDataSetSymbol))
 {}
 
 Database::Database(const Database& other)

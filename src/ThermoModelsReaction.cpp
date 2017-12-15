@@ -31,8 +31,8 @@ ReactionFrantzMarshall::ReactionFrantzMarshall(const Reaction &reaction)
 
 auto ReactionFrantzMarshall::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P);
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
     return thermoPropertiesFrantzMarshall(t, p, pimpl->reaction, wp);
 }
@@ -62,8 +62,8 @@ ReactionRyzhenkoBryzgalin::ReactionRyzhenkoBryzgalin(const Reaction &reaction)
 
 auto ReactionRyzhenkoBryzgalin::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P);
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
     return thermoPropertiesRyzhenkoBryzgalin(t, p, pimpl->reaction, wp);
 }
@@ -93,8 +93,8 @@ Reaction_LogK_fT::Reaction_LogK_fT(const Reaction &reaction)
 
 auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P);
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
     return thermoPropertiesReaction_LogK_fT(t, p, pimpl->reaction, methodT);
 }
@@ -124,8 +124,8 @@ ReactionFromReactantsProperties::ReactionFromReactantsProperties(const Reaction 
 
 auto ReactionFromReactantsProperties::thermoProperties(double T, double P) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P);
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
 //    return thermoPropertiesFromReactantsProperties(t, p, pimpl->reaction);
 }
@@ -155,8 +155,8 @@ Reaction_Vol_fT::Reaction_Vol_fT(const Reaction &reaction)
 
 auto Reaction_Vol_fT::thermoProperties(double T, double P) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T); t += C_to_K;
-    auto p = Reaktoro_::Pressure(P);
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
 //    return thermoPropertiesReaction_Vol_fT(t, p, pimpl->reaction);
 }

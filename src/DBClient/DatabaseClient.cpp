@@ -373,6 +373,11 @@ auto DatabaseClient::reactSetData() const -> ReactionSetData_&
     return pimpl->reactSetData;
 }
 
+auto DatabaseClient::thermoDataSet() const -> ThermoSetData&
+{
+    return pimpl->thermoDataSet;
+}
+
 auto DatabaseClient::getTraversal() const -> TraversalData&
 {
     return pimpl->traversal;
@@ -407,14 +412,16 @@ auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_Vertex
                   string type, id;
                   bson_to_key( bdata->data, "_id",    id );
                   bson_to_key( bdata->data, "_label",  type);
+                  list.push_back(pair<string,string>(id, type));
               }
             };
     pimpl->executeIncomingTraversal( {id}, afunc );
     return list;
 }
 
-auto DatabaseClient::recordsFromThermoDataSet( const string& idThermoDataSet ) -> List_VertexId_VertexType
+auto DatabaseClient::recordsFromThermoDataSet( const string& ThermoDataSetSymbol ) -> List_VertexId_VertexType
 {
+    auto idThermoDataSet = thermoDataSet().idRecordFromSymbol(ThermoDataSetSymbol);
     return TraverseAllIncomingEdges(idThermoDataSet);
 }
 
