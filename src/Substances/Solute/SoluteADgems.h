@@ -18,7 +18,7 @@ void Akinfiev_EOS_increments(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Re
 /// Returns the thermodynamic properties of an aqueous solute using the Akinfiev and Diamond EOS
 /// @ref Akinfiev and Diamond (2003)
 /// @param T temparature (K)
-/// @param P pressure (Pa)
+/// @param P pressure (bar)
 /// @param species aqueous species instance
 /// @param wtp water thermo properties
 /// @param wigp water ideal gas properties

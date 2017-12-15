@@ -7,10 +7,6 @@
 
 namespace ThermoFun {
 
-//void TDComp::calc_thkf( AQSREF& arf, double P, double T, double Dw, double betaw,
-//                        double alphaw, double daldTw, double Z, double Q,
-//                        double Y, double X, int geqn)
-
 const double
 ZPrTr = -0.1278034682e-1,
         YPrTr = -0.5798650444e-4,
@@ -28,7 +24,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     auto hkf = subst.thermoParameters().HKF_parameters;
     auto refProp = subst.thermoReferenceProperties();
 
-    auto T = Reaktoro_::Temperature (TC.val+C_to_K);
+    auto TK = Reaktoro_::Temperature (TC.val+C_to_K);
 
     if (hkf.size() == 0)
     {
@@ -79,44 +75,44 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     // the leading constant converts cal/(mol*bar) -> cm3/mol
 
     auto V   = 0.4184004e2 * (a1 + a2 / (psi + Pbar) + a3 /
-                            ( T - theta) + a4 / (psi + Pbar) / (T - theta)) + VQterm;
+                            ( TK - theta) + a4 / (psi + Pbar) / (TK - theta)) + VQterm;
 
     auto SYterm = W * Y - (-Z - 1.0) * dwdT - wr * YPrTr;
-    auto S = Sr + c1 * log(T / Tref) - c2 / theta
-                * (1.0 / (T - theta) - 1.0 / (Tref - theta) + (1.0 / theta)
-                * log(Tref * (T - theta) / T / (Tref - theta))) + (a3
+    auto S = Sr + c1 * log(TK / Tref) - c2 / theta
+                * (1.0 / (TK - theta) - 1.0 / (Tref - theta) + (1.0 / theta)
+                * log(Tref * (TK - theta) / TK / (Tref - theta))) + (a3
                 * (Pbar - Pref) + a4 * log((psi + Pbar) / (psi+Pref)))
-                * pow((1.0 / (T-theta)),2.) + SYterm;
+                * pow((1.0 / (TK-theta)),2.) + SYterm;
 
-    auto CpXtrm = W * T * X + 2.0 * T * Y * dwdT + T * (Z + 1.0) * d2wdT2;
-    auto Cp = c1 + c2 / pow((T - theta),2.) - (2.0 * T
-                / pow((T-theta),3.)) * (a3 * (Pbar - Pref) + a4
+    auto CpXtrm = W * TK * X + 2.0 * TK * Y * dwdT + TK * (Z + 1.0) * d2wdT2;
+    auto Cp = c1 + c2 / pow((TK - theta),2.) - (2.0 * TK
+                / pow((TK-theta),3.)) * (a3 * (Pbar - Pref) + a4
                 * log((psi + Pbar) / (psi + Pref))) + CpXtrm;
 
-    auto HYterm = W * (-Z - 1.0) + W * T * Y - T * (-Z - 1.0) *dwdT
+    auto HYterm = W * (-Z - 1.0) + W * TK * Y - TK * (-Z - 1.0) *dwdT
                 - wr * (-ZPrTr - 1.0) - wr * Tref * YPrTr;
-    auto H = Hf + c1 * (T - Tref) - c2 * (1.0
-                / (T - theta) - 1.0 / (Tref - theta)) + a1 * (Pbar
+    auto H = Hf + c1 * (TK - Tref) - c2 * (1.0
+                / (TK - theta) - 1.0 / (Tref - theta)) + a1 * (Pbar
                 - Pref) + a2 * log((psi + Pbar) / (psi + Pref))
                 + (a3 * (Pbar - Pref) + a4 * log((psi + Pbar)
-                / (psi + Pref))) * ((2.0 * T - theta) / pow((T - theta),2.))
+                / (psi + Pref))) * ((2.0 * TK - theta) / pow((TK - theta),2.))
                 + HYterm;
 
     auto GZterm = W * (-Z - 1.0e0) - wr * (-ZPrTr - 1.0e0) + wr
-                 * YPrTr * (T - Tref);
-    auto G = Gf - Sr * (T - Tref) - c1 * (T * log(T
-                / Tref) - T + Tref) + a1 * (Pbar - Pref) + a2
-                * log((psi + Pbar) / (psi + Pref)) - c2 * ((1.0 / (T - theta)
-                - 1.0 / (Tref - theta)) * ((theta - T) / theta) - T / pow(theta,2.)
-                * log((Tref * (T - theta)) / (T * (Tref - theta)))) + (1.0
-                / (T - theta)) * (a3 * (Pbar - Pref) + a4 * log((psi + Pbar)
+                 * YPrTr * (TK - Tref);
+    auto G = Gf - Sr * (TK - Tref) - c1 * (TK * log(TK
+                / Tref) - TK + Tref) + a1 * (Pbar - Pref) + a2
+                * log((psi + Pbar) / (psi + Pref)) - c2 * ((1.0 / (TK - theta)
+                - 1.0 / (Tref - theta)) * ((theta - TK) / theta) - TK / pow(theta,2.)
+                * log((Tref * (TK - theta)) / (TK * (Tref - theta)))) + (1.0
+                / (TK - theta)) * (a3 * (Pbar - Pref) + a4 * log((psi + Pbar)
                 / (psi + Pref))) + GZterm;
     // GZterm = W * (-Z - 1.0e0);
 
 
     auto U = H - Pbar*V;
 
-    auto A = U - T*S;
+    auto A = U - TK*S;
 
     // Convert the thermodynamic properties of the gas to the standard units
     V  *= 1e-01; // J/bar
@@ -137,7 +133,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 
-    subst.checkCalcMethodBounds("HKF model", TC.val, Pbar.val, tps);
+    subst.checkCalcMethodBounds("HKF model", TK.val, Pbar.val*1e05, tps);
     if (wp.density >= 1400 || wp.density<=600)
     {
         setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);
@@ -152,7 +148,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSolvent &ps ) -> FunctionG
+auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const PropertiesSolvent &ps ) -> FunctionG
 {
     Reaktoro_::ThermoScalar a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
@@ -194,16 +190,16 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
 
     const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
 
-    a = C[0] + C[1]*T + C[2]*pow(T,2.);
-    b = C[3] + C[4]*T + C[5]*pow(T,2.);
+    a = C[0] + C[1]*TC + C[2]*pow(TC,2.);
+    b = C[3] + C[4]*TC + C[5]*pow(TC,2.);
     g.g = a * pow(pw, b.val);
 
     dgdD = - a*b*pow(pw,(b.val - 1.0e0));
     // dgdD2 = a * b * (b - 1.0e0) * pow((1.0e0 - D),(b - 2.0e0));
 
-    dadT = C[1] + 2.0*C[2]*T;
+    dadT = C[1] + 2.0*C[2]*TC;
     dadTT = 2.0*C[2];
-    dbdT = C[4] + 2.0*C[5]*T;
+    dbdT = C[4] + 2.0*C[5]*TC;
     dbdTT = 2.0*C[5];
 
     dDdT = - D * alpha;
@@ -226,15 +222,15 @@ auto gShok2(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSol
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
     // Check if the point (T,P) is inside region II, as depicted in Fig. 6 of Shock and others (1992), on page 809
-    if ((T > 155.0 && T < 355.0 && P < 1000.0) || (T>=355 && P >=500 && P < 1000))
+    if ((TC > 155.0 && TC < 355.0 && Pbar < 1000.0) || (TC>=355 && Pbar >=500 && Pbar < 1000))
     {
-        tempy = ((T - 155.0) / 300.0);
+        tempy = ((TC - 155.0) / 300.0);
         ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);
         dftdT = 4.8e0 / 300.0 * pow(tempy,3.8) + 16.0 / 300.0 * cC[0] * pow(tempy,15.);
         dftdTT = 3.8 * 4.8 / (300.0 * 300.0) * pow(tempy,2.8)
                  + 15.0 * 16.0 / (300.0 * 300.0) * cC[0] * pow(tempy,14.);
-        fp = cC[1] * pow((1000.0 - P),3.) + cC[2] * pow((1000.0 - P),4.);
-        dfpdP  = -3.0 * cC[1] * pow((1000.0 - P),2.) - 4.0 * cC[2] * pow((1000.0 - P),3.);
+        fp = cC[1] * pow((1000.0 - Pbar),3.) + cC[2] * pow((1000.0 - Pbar),4.);
+        dfpdP  = -3.0 * cC[1] * pow((1000.0 - Pbar),2.) - 4.0 * cC[2] * pow((1000.0 - Pbar),3.);
 
         f = ft * fp;
         dfdP = ft * dfpdP;

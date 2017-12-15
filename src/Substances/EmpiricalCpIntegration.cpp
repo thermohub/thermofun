@@ -6,7 +6,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ThermoPropertiesSubstance
+auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance substance) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance   thermo_properties_PT   = substance.thermoProperties();
     ThermoPropertiesSubstance   thermo_properties_PrTr = substance.thermoReferenceProperties();
@@ -20,10 +20,6 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
     {
         ac.push_back(0.0);
     }
-
-
-    auto TK = T;
-//    auto Pb = Reaktoro_::Pressure(P);
 
     auto TrK = substance.referenceT()/* + C_to_K*/;
 
@@ -81,7 +77,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Press
         for (unsigned j=0; j<=k; j++)
         {
             if ( j == k )
-                TK = T.val/* + C_to_K*/;     // current T is the end T for phase transition Cp calculations
+                TK = TK.val/* + C_to_K*/;     // current T is the end T for phase transition Cp calculations
             else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
 
             if( !j )

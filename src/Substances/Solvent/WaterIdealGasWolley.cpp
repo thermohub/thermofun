@@ -38,13 +38,13 @@ auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPr
     Cvig = Cpig - 1.0e0;
     Sig  = Uig - Aig;
 
-    tp.enthalpy = Hig * R_CONSTANT * t + dH0k;
-    tp.entropy  = Sig * R_CONSTANT;
-    tp.gibbs_energy = Gig * R_CONSTANT * t + dH0k;
+    tp.enthalpy         = Hig * R_CONSTANT * t + dH0k;
+    tp.entropy          = Sig * R_CONSTANT;
+    tp.gibbs_energy     = Gig * R_CONSTANT * t + dH0k;
     tp.heat_capacity_cp = Cpig * R_CONSTANT;
     tp.heat_capacity_cv = Cvig * R_CONSTANT;
     tp.helmholtz_energy = Aig * R_CONSTANT * t + dH0k;
-    tp.internal_energy = Uig * R_CONSTANT * t + dH0k;
+    tp.internal_energy  = Uig * R_CONSTANT * t + dH0k;
 
     return tp;
 }

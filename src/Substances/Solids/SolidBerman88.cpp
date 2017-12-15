@@ -44,7 +44,7 @@ auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure 
         tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
     }
 
-    subst.checkCalcMethodBounds("Berman multisite model", TK.val-C_to_K, P.val, tps);
+    subst.checkCalcMethodBounds("Berman multisite model", TK.val, P.val*1e05, tps);
 
 
     // maybe this should be added back?

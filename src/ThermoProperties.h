@@ -9,10 +9,10 @@ namespace ThermoFun {
 
 struct ThermoVariables
 {
-    /// the temperature T (in units of C)
+    /// the temperature T (in units of Kelvin)
     Reaktoro_::Temperature temperature;
 
-    /// the pressure P (in units of bar)
+    /// the pressure P (in units of Pascal)
     Reaktoro_::Pressure pressure;
 };
 
@@ -31,16 +31,16 @@ struct ThermoPropertiesSubstance
     /// The apparent standard molar enthalpy @f$\Delta H_{f}^{\circ}@f$ of the species (in units of J/mol)
     Reaktoro_::ThermoScalar enthalpy;
 
-    /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/K)
+    /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar entropy;
 
-    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of J/bar)
+    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of cm3/mol)
     Reaktoro_::ThermoScalar volume;
 
-    /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol K))
+    /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar heat_capacity_cp;
 
-    /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol K))
+    /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar heat_capacity_cv;
 };
 
@@ -66,16 +66,16 @@ struct ThermoPropertiesReaction
     /// The apparent standard molar enthalpy @f$\Delta H_{f}^{\circ}@f$ of the species (in units of J/mol)
     Reaktoro_::ThermoScalar reaction_enthalpy;
 
-    /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/K)
+    /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar reaction_entropy;
 
-    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of J/bar)
+    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of cm3/mol)
     Reaktoro_::ThermoScalar reaction_volume;
 
-    /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol K))
+    /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar reaction_heat_capacity_cp;
 
-    /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol K))
+    /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol*))
     Reaktoro_::ThermoScalar reaction_heat_capacity_cv;
 };
 
@@ -112,13 +112,13 @@ struct PropertiesSolvent
     /// alpha/beta ratio (in units of K/Pa)
     Reaktoro_::ThermoScalar Albe;
 
-    /// ideal gas Gibbs energy
+    /// ideal gas Gibbs energy (in units of J/mol)
     Reaktoro_::ThermoScalar gibbsIdealGas;
 
-    /// ideal gas entropy
+    /// ideal gas entropy (in units of J/(mol K))
     Reaktoro_::ThermoScalar entropyIdealGas;
 
-    /// ideal gas isobaric heat capacity
+    /// ideal gas isobaric heat capacity (in units of J/(mol*K))
     Reaktoro_::ThermoScalar cpIdealGas;
 
     /// The specific density of solvent (in units of kg/m3)
