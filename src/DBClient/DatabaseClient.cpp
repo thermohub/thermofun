@@ -392,9 +392,9 @@ auto DatabaseClient::BackupAllIncoming( const vector<string>& ids, const string 
 }
 
 // Collect record and all incoming _ids
-auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_VertexType_VertexId
+auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_VertexId_VertexType
 {
-    List_VertexType_VertexId list;
+    List_VertexId_VertexType list;
 
     GraphElementFunction afunc =  [&list]( bool vert, bson *bdata )
             {
@@ -403,13 +403,15 @@ auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_Vertex
                   string type, id;
                   bson_to_key( bdata->data, "_id",    id );
                   bson_to_key( bdata->data, "_label",  type);
-                  list.push_back(pair<string,string>(type, id));
               }
             };
-
     pimpl->executeIncomingTraversal( {id}, afunc );
-
     return list;
+}
+
+auto DatabaseClient::recordsFromThermoDataSet( const string& idThermoDataSet ) -> List_VertexId_VertexType
+{
+    return TraverseAllIncomingEdges(idThermoDataSet);
 }
 
 }

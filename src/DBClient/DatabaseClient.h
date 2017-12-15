@@ -21,7 +21,7 @@ struct ReactionSetData_;
 struct ElementKey;
 struct TraversalData;
 
-using List_VertexType_VertexId    = vector< pair<string, string> >;
+using List_VertexId_VertexType    = vector< pair<string, string> >;
 
 class DatabaseClient
 {
@@ -161,8 +161,9 @@ class DatabaseClient
     auto BackupAllIncoming( const vector<string>& ids, const string fileName ) -> void;
 
     /// Collect record and all incoming _ids
-    auto TraverseAllIncomingEdges( const string& id ) -> List_VertexType_VertexId;
+    auto TraverseAllIncomingEdges( const string& id ) -> List_VertexId_VertexType;
 
+    auto recordsFromThermoDataSet( const string& idThermoDataSet ) -> List_VertexId_VertexType;
 
 private:
 

@@ -7,7 +7,7 @@
 #include "../Database.h"
 #include "../Substance.h"
 #include "../Reaction.h"
-#include "../ReadFiles.h"
+#include "../Common/ParseBsonTraversalData.h"
 #include "../Common/Exception.h"
 #include "../OptimizationUtils.h"
 

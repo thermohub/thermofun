@@ -5,19 +5,28 @@
 #include "DBClient/ReactionData.h"
 #include "DBClient/AbstractData.h"
 #include "DBClient/SubstanceData.h"
+#include "Common/ParseBsonTraversalData.h"
+#include <sys/time.h>
 
 using namespace std;
 using namespace ThermoFun;
 
+struct timeval st, en;
+
 int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
-
+    gettimeofday(&st, NULL);
     bsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
     DatabaseClient dbc_;
 
-    dbc_.BackupAllIncoming({"5a2e79f000daf03e00000000"}, "test1.json");
-    auto list = dbc_.TraverseAllIncomingEdges("5a2e79f000daf03e00000000");
+//    dbc_.BackupAllIncoming({"5a2e61034a7d9f1500000000"}, "test1.json");
+    auto list = dbc_.TraverseAllIncomingEdges("5a2e61034a7d9f1500000000");
+
+    Database db2 = databaseFromRecordList(dbc_, list);
+    gettimeofday(&en, NULL);
+    double delta = ((en.tv_sec  - st.tv_sec) * 1000000u +
+             en.tv_usec - st.tv_usec) / 1.e6;
 
     for( auto row: list)
      std::cout << row.first << " " << row.second << endl;

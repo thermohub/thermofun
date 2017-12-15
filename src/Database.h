@@ -18,7 +18,6 @@ class Reaction;
 using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap = std::map<std::string, Reaction>;
 
-//struct bson;
 
 /**
  * @brief The Database class stores maps of substances and reactions. A database instance can be used to create a themro instance

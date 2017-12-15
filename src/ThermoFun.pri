@@ -14,7 +14,6 @@
     $$PWD/ThermoModelsReaction.h \
     $$PWD/ThermoProperties.h \
     $$PWD/ThermoParameters.h \
-    $$PWD/ReadFiles.h \
     $$PWD/OptimizationUtils.h \
 #    $$PWD/TPcalculationsAPI.h \
 # Substances
@@ -64,6 +63,7 @@
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
     $$PWD/Common/OutputToCSV.h \
+    $$PWD/Common/ParseBsonTraversalData.h \
 # Interface
     $$PWD/Interfaces/Interface.h \
     $$PWD/Interfaces/Output.h \
@@ -91,7 +91,6 @@
     $$PWD/ThermoModelsReaction.cpp \
     $$PWD/ThermoModelsSubstance.cpp \
 #    $$PWD/TPcalculationsAPI.cpp \
-    $$PWD/ReadFiles.cpp \
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.cpp \
 # Substances - Solvent
@@ -135,6 +134,7 @@
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Common/OutputToCSV.cpp \
+    $$PWD/Common/ParseBsonTraversalData.cpp \
 # Interface
     $$PWD/Interfaces/Interface.cpp \
     $$PWD/Interfaces/Output.cpp \
