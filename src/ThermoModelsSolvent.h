@@ -126,13 +126,13 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param state defines the state of the solvent (liquid 0, vapor 1, below the critical point)
-    auto propertiesSolvent (double T, double &P, int state) -> PropertiesSolvent;
+    auto propertiesSolvent (double T, double P, int state) -> PropertiesSolvent;
 
     /// Return the themrodynamic properties of the solvent.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param state defines the state of the solvent (liquid 0, vapor 1, below the critical point)
-    auto thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
