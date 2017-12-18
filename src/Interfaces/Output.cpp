@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include "../GlobalVariables.h"
 
 namespace ThermoFun {
 
@@ -185,9 +186,9 @@ auto Output::foutResultsSolv()-> void
     for (unsigned j=0; j<TPpairs.size(); j++)
     {
 //        pimpl->fSolventProperties << std::setprecision(digits.at("temperature"));
-        pimpl->fSolventProperties << solventSymbol << s << TPpairs[j][0];
+        pimpl->fSolventProperties << solventSymbol << s << TPpairs[j][0]-C_to_K; // K to C
 //        pimpl->fSolventProperties << std::setprecision(digits.at("pressure"));
-        pimpl->fSolventProperties << s << TPpairs[j][1];
+        pimpl->fSolventProperties << s << TPpairs[j][1]/bar_to_Pa;
 
         for (unsigned k=0; k<c; k++)
         {
@@ -208,6 +209,7 @@ auto Output::foutResultsSubst()-> void
     std::vector<std::vector<double>> TPpairs         = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsSubst   = pimpl->api.resultsSubst();
     std::vector<Reaktoro_::ThermoScalar> solventProp = pimpl->api.solventProp();
+    std::map<std::string, std::string> units         = pimpl->api.propUnits();
     const auto outSol = pimpl->api.outputSettings().outSolventProp;
 
     if (pimpl->api.outputSettings().isFixed) pimpl->fThermoProperties << std::fixed;
@@ -217,9 +219,9 @@ auto Output::foutResultsSubst()-> void
         for (unsigned j=0; j<TPpairs.size(); j++)
         {
             pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
-            pimpl->fThermoProperties << substanceSymbols[i] << s << TPpairs[j][0];
+            pimpl->fThermoProperties << substanceSymbols[i] << s << TPpairs[j][0]-C_to_K; // K to C
             pimpl->fThermoProperties << std::setprecision(digits.at("pressure"));
-            pimpl->fThermoProperties << s << TPpairs[j][1];
+            pimpl->fThermoProperties << s << TPpairs[j][1]/bar_to_Pa; // Pa to bar
 
             for (unsigned k=0; k<resultsSubst[i].size(); k++)
             {
@@ -249,9 +251,9 @@ auto Output::foutResultsReac()-> void
         for (unsigned j=0; j<TPpairs.size(); j++)
         {
             pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
-            pimpl->fThermoProperties << reactionSymbols[i] << s << TPpairs[j][0];
+            pimpl->fThermoProperties << reactionSymbols[i] << s << TPpairs[j][0]-C_to_K; // K to C
             pimpl->fThermoProperties << std::setprecision(digits.at("pressure"));
-            pimpl->fThermoProperties << s << TPpairs[j][1];
+            pimpl->fThermoProperties << s << TPpairs[j][1]/bar_to_Pa;
 
             for (unsigned k=0; k<resultsReac[i].size(); k++)
             {
@@ -281,9 +283,9 @@ auto Output::foutResultsSubstTrans(std::string property)-> void
     for (unsigned j=0; j<TPpairs.size(); j++)
     {
         pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
-        pimpl->fThermoProperties << TPpairs[j][0];
+        pimpl->fThermoProperties << TPpairs[j][0]-C_to_K; // K to C
         pimpl->fThermoProperties << std::setprecision(digits.at("pressure"));
-        pimpl->fThermoProperties << s << TPpairs[j][1];
+        pimpl->fThermoProperties << s << TPpairs[j][1]/bar_to_Pa;
         for (unsigned i=0; i<substanceSymbols .size(); i++)
         {
             for (unsigned k=0; k<resultsSubst[i].size(); k++)
@@ -316,9 +318,9 @@ auto Output::foutResultsReacTrans(std::string property)-> void
     for (unsigned j=0; j<TPpairs.size(); j++)
     {
         pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
-        pimpl->fThermoProperties << TPpairs[j][0];
+        pimpl->fThermoProperties << TPpairs[j][0]-C_to_K; // K to C
         pimpl->fThermoProperties << std::setprecision(digits.at("pressure"));
-        pimpl->fThermoProperties << s << TPpairs[j][1];
+        pimpl->fThermoProperties << s << TPpairs[j][1]/bar_to_Pa;
 
         for (unsigned i=0; i<reactionSymbols .size(); i++)
         {

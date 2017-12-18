@@ -11,6 +11,7 @@ namespace ThermoFun {
 class Interface;
 class ThermoScalar;
 
+/// outputs temperature in C and pressure in bar
 class Output
 {
 public:

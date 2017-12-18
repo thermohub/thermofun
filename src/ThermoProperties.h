@@ -34,7 +34,7 @@ struct ThermoPropertiesSubstance
     /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar entropy;
 
-    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of cm3/mol)
+    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of J/bar)
     Reaktoro_::ThermoScalar volume;
 
     /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol*K))
@@ -69,7 +69,7 @@ struct ThermoPropertiesReaction
     /// The standard molar entropy @f$ S^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar reaction_entropy;
 
-    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of cm3/mol)
+    /// The standard molar volume @f$ V^{\circ}@f$ of the species (in units of J/bar)
     Reaktoro_::ThermoScalar reaction_volume;
 
     /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol*K))
