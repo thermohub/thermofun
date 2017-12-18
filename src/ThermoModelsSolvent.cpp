@@ -126,7 +126,7 @@ auto WaterHGKreaktoro::propertiesSolvent(double T, double &P, int state) -> Prop
 auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P );
+    auto p = Reaktoro_::Pressure(P);
 
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
     WaterThermoState wt = waterThermoStateHGK(t, p, state);
