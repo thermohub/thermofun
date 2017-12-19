@@ -15,4 +15,5 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "GlobalVariables.h"
+#include "DBClient/DatabaseClient.h"
 

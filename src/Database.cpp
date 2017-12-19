@@ -307,7 +307,6 @@ struct Database::Impl
 
         try
         {
-
             while( !f.eof() )
             {
                 f.get(b);
