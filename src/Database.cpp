@@ -11,6 +11,7 @@
 #include "Common/ParseBsonTraversalData.h"
 #include "Substance.h"
 #include "Reaction.h"
+#include "Element.h"
 #include "DBClient/DatabaseClient.h"
 
 // bsonio includes
@@ -34,11 +35,14 @@ auto errorNonExistent(std::string type, std::string name, int line) -> void
 
 struct Database::Impl
 {
-    /// The set of all aqueous species in the database
+    /// The map of all aqueous species in the database
     SubstancesMap substances_map;
 
-    /// The set of all gaseous species in the database
+    /// The map of all reactions in the database
     ReactionsMap reactions_map;
+
+    /// The map of all elements in the database
+    ElementsMap elements_map;
 
     char type_ = bsonio::FileTypes::Undef_;
 
@@ -64,94 +68,6 @@ struct Database::Impl
         }
     }
 
-//    Impl (const DatabaseClient &dbc, const List_VertexId_VertexType &recordList)
-//    {
-//        string _idSubst, _idReact, substSymb; string level_ = pimpl->level;
-//        bson record;
-
-//        // get substances and the reaction symbol if necessary
-//        for(auto iterator = recordList.begin(); iterator != recordList.end(); iterator++)
-//        {
-//            if (iterator->second == "substance")
-//            {
-//                _idSubst = iterator->first;
-//                record = pimpl->substData->getJsonBsonRecordVertex(_idSubst+":").second;
-//                bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
-
-//                level_ = level(_idSubst);
-//                Substance substance = parseSubstance(record.data);
-
-//                // get reaction symbol which define substance with _idSubst
-//                string definesReactSymb = pimpl->substData->definesReactionSymbol(_idSubst, level_);
-//                if (definesReactSymb != "")
-//                {
-//                    substance.setReactionSymbol(definesReactSymb);
-//                    substance.setThermoCalculationType(ThermoFun::SubstanceThermoCalculationType::type::REACDC);
-//                }
-
-//                if ( substances_map.find(substance.symbol()) == substances_map.end() ) {
-//                    substances_map[substance.symbol()] = substance;
-//                } else {
-//                    errorSameSymbol("substance", substance.symbol(), __LINE__, __FILE__ );
-//                }
-//            } else
-//                if (iterator->second == "reaction")
-//                {
-//                    _idReact = iterator->first;
-//                    record = pimpl->reactData->getJsonBsonRecordVertex(_idReact+":").second;
-
-//                    Reaction reaction = ThermoFun::parseReaction(record.data);
-
-//                    // get reactants by following reaction incoming takes edge
-//                    reaction.setReactants(pimpl->reactData->reactantsCoeff(_idReact));
-
-//                    if ( reactions_map.find(reaction.symbol()) == reactions_map.end() ) {
-//                        reactions_map[reaction.symbol()] = reaction;
-//                    } else {
-//                        errorSameSymbol("reaction", reaction.symbol(), __LINE__, __FILE__ );
-//                    }
-//                }
-//        }
-//    }
-
-//    /// map of substance symbol and level for the edge defines connected to the substance
-//    std::map<std::string, std::string> substSymbol_definesLevel;
-
-//    /// current level for the traversal operation
-//    std::string level = "0";
-
-//    /// mode of using levels for traversal (all: collect all connected; single: collect all connected using one
-//    /// defines level for all substances; multiple: collect all connectec using different levels for different
-//    /// substances (from map substSymbol_definesLevel)
-//    DefinesLevelMode definesLevelMode = DefinesLevelMode::single;
-
-
-//    auto level (std::string idSubst) -> std::string
-//    {
-//        bson record;
-//        std::string level_;
-
-//        switch(pimpl->definesLevelMode)
-//        {
-//        case DefinesLevelMode::all         : level_ = "-1";  // follows all connected data
-//            break;
-//        case DefinesLevelMode::single      : level_ = pimpl->level;; // follows edges defines with level
-//            break;
-//        case DefinesLevelMode::multiple    : {
-//            std::string substSymb; std::string key = idSubst +":";
-//            record = pimpl->substData->getJsonBsonRecordVertex(key).second;
-//            bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
-//            if (pimpl->substSymbol_definesLevel.find(substSymb) != pimpl->substSymbol_definesLevel.end()) // follows edges defines with specific leveles for substSymbols
-//                level_ = pimpl->substSymbol_definesLevel[substSymb];   // if the substance symbol is not found in the map, it uses the default level
-//            else
-//                level_ = pimpl->level;
-//        }
-//            break;
-//        }
-
-//        return level_;
-//    }
-
     Impl(vector<bson> bsonSubstances)
     {
         string kbuf;
@@ -171,6 +87,11 @@ struct Database::Impl
             {
                     //                      Reaction reaction = parseReaction(bso);
                     //                      reactions_map[reaction.symbol()] = reaction;
+            } else
+            if (kbuf == "element")
+            {
+                Element element = parseElement(bsonSubstances[i].data);
+                elements_map[element.symbol()] = element;
             } else
             {
                 Exception exception;
@@ -193,6 +114,16 @@ struct Database::Impl
         return collection;
     }
 
+    auto addElement(const Element& element) -> void
+    {
+        elements_map.insert({element.symbol(), element});
+    }
+
+    auto setElement(const Element& element) -> void
+    {
+        elements_map[element.symbol()] = element;
+    }
+
     auto addSubstance(const Substance& substance) -> void
     {
         substances_map.insert({substance.symbol(), substance});
@@ -201,6 +132,11 @@ struct Database::Impl
     auto setSubstance(const Substance& substance) -> void
     {
         substances_map[substance.symbol()] = substance;
+    }
+
+    auto addMapElements(const ElementsMap& elements) -> void
+    {
+        elements_map = elements;
     }
 
     auto addMapSubstances(const SubstancesMap& substances) -> void
@@ -223,6 +159,11 @@ struct Database::Impl
         reactions_map = reactions;
     }
 
+    auto getElements() -> std::vector<Element>
+    {
+        return collectValues(elements_map);
+    }
+
     auto getSubstances() -> std::vector<Substance>
     {
         return collectValues(substances_map);
@@ -239,6 +180,11 @@ struct Database::Impl
 //            reaction.second.calcParameters();
 //    }
 
+    auto numberOfElements() -> int
+    {
+        return collectValues(elements_map).size();
+    }
+
     auto numberOfSubstances() -> int
     {
         return collectValues(substances_map).size();
@@ -247,6 +193,14 @@ struct Database::Impl
     auto numberOfReactions() -> int
     {
         return collectValues(reactions_map).size();
+    }
+
+    auto getElement(std::string symbol) -> Element&
+    {
+        if(elements_map.count(symbol) == 0)
+            errorNonExistent("element", symbol, __LINE__);
+
+        return elements_map.find(symbol)->second;
     }
 
     auto getSubstance(std::string symbol) -> Substance&
@@ -265,6 +219,11 @@ struct Database::Impl
         return reactions_map.at(symbol);
     }
 
+    auto mapElements() -> ElementsMap&
+    {
+        return elements_map;
+    }
+
     auto mapSubstances() -> SubstancesMap&
     {
         return substances_map;
@@ -273,6 +232,11 @@ struct Database::Impl
     auto mapReactions() -> ReactionsMap&
     {
         return reactions_map;
+    }
+
+    auto containsElement(std::string symbol) const -> bool
+    {
+        return elements_map.count(symbol) != 0;
     }
 
     auto containsSubstance(std::string symbol) const -> bool
@@ -373,6 +337,21 @@ auto Database::operator=(Database other) -> Database&
     return *this;
 }
 
+auto Database::addElement(const Element& element) -> void
+{
+    pimpl->addElement(element);
+}
+
+auto Database::setElement(const Element& element) -> void
+{
+    pimpl->setElement(element);
+}
+
+auto Database::addMapElements(const ElementsMap& elements) -> void
+{
+    pimpl->addMapElements(elements);
+}
+
 auto Database::addSubstance(const Substance& substance) -> void
 {
     pimpl->addSubstance(substance);
@@ -403,6 +382,11 @@ auto Database::addMapReactions(const ReactionsMap& reactions) -> void
     pimpl->addMapReactions(reactions);
 }
 
+auto Database::getElement(std::string symbol) const -> const Element&
+{
+    return pimpl->getElement(symbol);
+}
+
 auto Database::getSubstance(std::string symbol) const -> const Substance&
 {
     return pimpl->getSubstance(symbol);
@@ -418,6 +402,11 @@ auto Database::getReaction(std::string symbol) const -> const Reaction&
 //    return pimpl->calcParametersReactions( );
 //}
 
+auto Database::mapElements() const -> const ElementsMap&
+{
+    return pimpl->mapElements();
+}
+
 auto Database::mapSubstances() const -> const SubstancesMap&
 {
     return pimpl->mapSubstances();
@@ -426,6 +415,11 @@ auto Database::mapSubstances() const -> const SubstancesMap&
 auto Database::mapReactions() const -> const ReactionsMap&
 {
     return pimpl->mapReactions();
+}
+
+auto Database::getElements() -> std::vector<Element>
+{
+    return pimpl->getElements();
 }
 
 auto Database::getSubstances() -> std::vector<Substance>
@@ -438,6 +432,11 @@ auto Database::getReactions() -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
+auto Database::numberOfElements() -> int
+{
+    return pimpl->numberOfElements();
+}
+
 auto Database::numberOfSubstances() -> int
 {
     return pimpl->numberOfSubstances();
@@ -447,6 +446,12 @@ auto Database::numberOfReactions() -> int
 {
     return pimpl->numberOfReactions();
 }
+
+auto Database::containsElement(std::string symbol) const -> bool
+{
+    return pimpl->containsElement(symbol);
+}
+
 auto Database::containsSubstance(std::string symbol) const -> bool
 {
     return pimpl->containsSubstance(symbol);

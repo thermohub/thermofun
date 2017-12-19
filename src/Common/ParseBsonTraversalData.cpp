@@ -2,6 +2,7 @@
 #include "Database.h"
 #include "Substance.h"
 #include "Reaction.h"
+#include "Element.h"
 #include "ThermoParameters.h"
 #include "ThermoProperties.h"
 #include "DBClient/DatabaseClient.h"
@@ -119,6 +120,14 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
     return tdb;
 }
 
+auto parseElement (const char *data) -> Element
+{
+    Element e;
+    string kbuf;
+    string name;
+
+    return e;
+}
 
 auto parseSubstance (const char * data) -> Substance
 {

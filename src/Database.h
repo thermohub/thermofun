@@ -14,10 +14,11 @@ namespace ThermoFun {
 // Forward declarations
 class Substance;
 class Reaction;
+class Element;
 
+using ElementsMap   = std::map<std::string, Element>;
 using SubstancesMap = std::map<std::string, Substance>;
-using ReactionsMap = std::map<std::string, Reaction>;
-
+using ReactionsMap  = std::map<std::string, Reaction>;
 
 /**
  * @brief The Database class stores maps of substances and reactions. A database instance can be used to create a themro instance
@@ -46,6 +47,15 @@ public:
     /// Construct a copy of an Database instance
     Database(const Database& other);
 
+    /// Add an Element instance in the database.
+    auto addElement(const Element& element) -> void;
+
+    /// Sets a Element in the database. If substance exists the record will be overwriten
+    auto setElement(const Element& element) -> void;
+
+    /// Add a map of Elements in the database.
+    auto addMapElements(const ElementsMap& elements) -> void;
+
     /// Add an Substance instance in the database.
     auto addSubstance(const Substance& substance) -> void;
 
@@ -67,11 +77,17 @@ public:
     /// Add a map pf Reactions in the database.
     auto addMapReactions(const ReactionsMap& reactions) -> void;
 
-    /// Return all substance in the database
+    /// Return all elements in the database
+    auto getElements() -> std::vector<Element>;
+
+    /// Return all substances in the database
     auto getSubstances() -> std::vector<Substance>;
 
     /// Return all reactions in the database
     auto getReactions() -> std::vector<Reaction>;
+
+    /// Returns the map of elements in the database
+    auto mapElements() const -> const ElementsMap&;
 
     /// Returns the map of substances in the database
     auto mapSubstances() const -> const SubstancesMap&;
@@ -79,17 +95,27 @@ public:
     /// Returns the map of reactions in the database
     auto mapReactions() const -> const ReactionsMap&;
 
+    /// Returns the number of elements in the databse
+    auto numberOfElements() -> int;
+
     /// Returns the number of substances in the databse
     auto numberOfSubstances() -> int;
 
     /// Returns the number of reactions in the database
     auto numberOfReactions() -> int;
 
+    /// Return a element in the database
+    auto getElement(std::string symbol) const -> const Element&;
+
     /// Return a substance in the database
     auto getSubstance(std::string symbol) const -> const Substance&;
 
     /// Return a reactions in the database
     auto getReaction(std::string symbol) const -> const Reaction&;
+
+    /// Check if the database contains a given element
+    /// @param symbol The name of the element
+    auto containsElement(std::string symbol) const -> bool;
 
     /// Check if the database contains a given substance
     /// @param symbol The name of the substance
@@ -98,6 +124,11 @@ public:
     /// Check if the database contains a given reaction
     /// @param symbol The name of the reaction
     auto containsReaction(std::string symbol) const -> bool;
+
+    /// Pareses a given substance formula present in the database
+    /// @param formula
+    /// @return map of Elements and coefficients
+    auto parseSubstanceFormula(std::string formula) -> std::map<Element, double>;
 
 private:
     struct Impl;

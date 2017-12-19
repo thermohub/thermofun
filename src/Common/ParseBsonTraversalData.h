@@ -12,6 +12,7 @@ struct DatabaseClient;
 struct Database;
 struct Substance;
 struct Reaction;
+struct Element;
 struct ThermoParametersSubstance;
 struct ThermoPropertiesSubstance;
 struct ThermoParametersReaction;
@@ -39,6 +40,9 @@ struct DefinesSubstLevelOptions {
 };
 
 //DefinesSubstLevelOptions levelOptionsDefault;
+/// Parses an element bson object and loads its data into the element structure
+/// @param bso bson object
+auto parseElement (const char *data) -> Element;
 
 /// Parses a substance bson object and loads its data into the substance structure
 /// @param bso bson object
