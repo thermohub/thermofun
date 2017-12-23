@@ -9,6 +9,7 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "Common/ParseBsonTraversalData.h"
+#include "DBClient/formuladata.h"
 #include "Substance.h"
 #include "Reaction.h"
 #include "Element.h"
@@ -66,21 +67,23 @@ struct Database::Impl
 //               loadXml( bobj );
                break;
         }
+        if (elements_map.size()>0)
+            ChemicalFormula::setDBElements( elements_map );
     }
 
-    Impl(vector<bson> bsonSubstances)
+    Impl(vector<bson> bsons)
     {
         string kbuf;
         flog.open(parsinglogfile, ios::trunc); flog.close();
 
-        for (int i=0; i<bsonSubstances.size(); i++)
+        for (int i=0; i<bsons.size(); i++)
         {
 
-            bsonio::bson_to_key( bsonSubstances[i].data, label, kbuf );
+            bsonio::bson_to_key( bsons[i].data, label, kbuf );
 
             if (kbuf == "substance")
             {
-                Substance substance = parseSubstance(bsonSubstances[i].data);
+                Substance substance = parseSubstance(bsons[i].data);
                 substances_map[substance.symbol()] = substance;
             } else
             if (kbuf == "reaction")
@@ -90,7 +93,7 @@ struct Database::Impl
             } else
             if (kbuf == "element")
             {
-                Element element = parseElement(bsonSubstances[i].data);
+                Element element = parseElement(bsons[i].data);
                 elements_map[element.symbol()] = element;
             } else
             {
@@ -100,6 +103,8 @@ struct Database::Impl
                 exception.line = __LINE__;
                 RaiseError(exception);
             }
+            if (elements_map.size()>0)
+                ChemicalFormula::setDBElements( elements_map );
         }
     }
 
@@ -291,9 +296,15 @@ struct Database::Impl
                     } else
                     if (kbuf == "reaction")
                     {
-                          Reaction reaction = parseReaction(bso.data);
-                          reactions_map[reaction.symbol()] = reaction;
+                        Reaction reaction = parseReaction(bso.data);
+                        reactions_map[reaction.symbol()] = reaction;
                     } else
+                    if (kbuf == "element")
+                    {
+                        Element element = parseElement(bso.data);
+                        elements_map[element.symbol()] = element;
+                    }
+                    else
                     {
                         Exception exception;
                         exception.error << "Unknown JSON type " << kbuf << " ";
@@ -461,6 +472,25 @@ auto Database::containsReaction(std::string symbol) const -> bool
 {
     return pimpl->containsReaction(symbol);
 }
+
+auto Database::parseSubstanceFormula(std::string formula_) -> std::map<Element, double>
+{
+    std::set<ElementKey> elements;
+    std::map<Element, double> map;
+    FormulaToken formula("");
+
+    formula.setFormula(formula_);
+    elements.insert(formula.getElements().begin(), formula.getElements().end());
+
+    for (auto element : elements)
+    {
+        Element e = elementKeyToElement(element);
+        map[e]++;
+    }
+
+    return map;
+}
+
 
 } // namespace ThermoFun
 

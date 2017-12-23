@@ -162,6 +162,7 @@ public:
 vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
 string ElementsToJson( const set<ElementKey>& elements );
 
+struct Element;
 
 class ChemicalFormula
 {
@@ -171,6 +172,7 @@ class ChemicalFormula
   static  vector<string> queryFields;
 
   static void addOneElement( bsonio::TDBVertexDocument* elementDB );
+  static void addOneElement(Element element);
 
  public:
 
@@ -184,6 +186,7 @@ class ChemicalFormula
   static void setDBElements( bsonio::TDBVertexDocument* elementDB,
                              const string& queryString = "{\"_label\": \"element\" }" );
   static void setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
+  static void setDBElements(std::map<std::string, Element> elements );
 
   static vector<ElementKey> elementsRow();
 
@@ -204,6 +207,9 @@ class ChemicalFormula
   }
 
 };
+
+auto elementKeyToElement(ElementKey elementKey) -> Element;
+
 }
 
 #endif // _FORMULADATA_H

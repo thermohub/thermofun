@@ -126,6 +126,33 @@ auto parseElement (const char *data) -> Element
     string kbuf;
     string name;
 
+    bsonio::bson_to_key( data, elemName, kbuf );
+    if (!parseIssues(kbuf, name, elemName)) { e.setName(kbuf); name = kbuf;}
+
+    bsonio::bson_to_key( data, elemSymbol, kbuf );
+    if (!parseIssues(kbuf, name, elemSymbol)) { e.setSymbol(kbuf);}
+
+    string entropy_ = elemEntropy;
+    entropy_ += ".values.0";
+    bsonio::bson_to_key( data, entropy_.c_str(), kbuf );
+    if (!parseIssues(kbuf, name, entropy_.c_str())) { e.setEntropy(atof(kbuf.c_str()));}
+
+    string cp_ = elemHeatCapacity;
+    cp_ += ".values.0";
+    bsonio::bson_to_key( data, cp_.c_str(), kbuf );
+    if (!parseIssues(kbuf, name, cp_.c_str())) { e.setHeatCapacity(atof(kbuf.c_str()));}
+
+    string mass_ = elemMolarMass;
+    mass_ += ".values.0";
+    bsonio::bson_to_key( data, mass_.c_str(), kbuf );
+    if (!parseIssues(kbuf, name, mass_.c_str())) { e.setMolarMass(atof(kbuf.c_str()));}
+
+    bsonio::bson_to_key( data, elemClass, kbuf );
+    if (!parseIssues(kbuf, name, elemClass)) { e.setClass(atoi(kbuf.c_str()));}
+
+    bsonio::bson_to_key( data, elemIsotopeMass, kbuf );
+    if (!parseIssues(kbuf, name, elemIsotopeMass)) { e.setIsotopeMass(atof(kbuf.c_str()));}
+
     return e;
 }
 

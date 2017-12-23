@@ -135,26 +135,6 @@ DatabaseClient::~DatabaseClient()
 {
 }
 
-auto elementKeyToElement(ElementKey elementKey) -> Element
-{
-    Element e;
-    auto itrdb = ChemicalFormula::getDBElements().find(elementKey);
-    if (itrdb == ChemicalFormula::getDBElements().end())
-        bsonio::bsonioErr("E37FPrun: Invalid symbol ", elementKey.symbol);
-
-    e.setClass(elementKey.class_);
-    e.setIsotopeMass(elementKey.isotope);
-    e.setSymbol(elementKey.symbol);
-    e.setName(itrdb->second.name);
-    e.setMolarMass(itrdb->second.atomic_mass);
-    e.setEntropy(itrdb->second.entropy);
-    e.setHeatCapacity(itrdb->second.heat_capacity);
-    e.setVolume(itrdb->second.volume);
-    e.setValence(itrdb->second.valence);
-
-    return e;
-}
-
 auto DatabaseClient::availableSubstances(uint sourcetdb) -> std::vector<std::string>
 {
     return extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdb), "symbol");

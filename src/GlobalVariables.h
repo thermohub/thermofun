@@ -405,6 +405,16 @@ typedef struct {
 static const char * label                   = "_label";
 static const char * _id                     = "_id";
 
+/// Element
+static const char * elemName               = "properties.name";
+static const char * elemSymbol             = "properties.symbol";
+static const char * elemMolarMass          = "properties.atomic_mass";
+static const char * elemEntropy            = "properties.entropy";
+static const char * elemHeatCapacity       = "properties.heat_capacity";
+static const char * elemClass              = "properties.class_";
+static const char * elemIsotopeMass        = "properties.isotope_mass";
+
+/// Substance
 static const char * substName               = "properties.name";
 static const char * substSymbol             = "properties.symbol";
 static const char * substFormula            = "properties.formula";

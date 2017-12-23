@@ -1,8 +1,10 @@
 #include <math.h>
 #include "formuladata.h"
 #include "formulaparser.h"
+#include "../Element.h"
 
 namespace ThermoFun {
+using ElementsMap   = std::map<std::string, Element>;
 
 DBElementsData ChemicalFormula::dbElements= DBElementsData();
 vector<string> ChemicalFormula::queryFields =
@@ -493,6 +495,11 @@ vector<vector<double>> ChemicalFormula::calcStoichiometryMatrixOld(  const vecto
 //   return matrA;
 //}
 
+void ChemicalFormula::setDBElements(ElementsMap elements )
+{
+    for (auto e : elements)
+        addOneElement(e.second);
+}
 
 void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const string& queryString )
 {
@@ -536,6 +543,26 @@ vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const ve
   return elements;
 }
 
+void ChemicalFormula::addOneElement(Element e)
+{
+    ElementKey elkey("");
+    elkey.symbol = e.symbol();
+    elkey.class_ = e.class_();
+    elkey.isotope = e.isotopeMass();
+
+    ElementValues eldata;
+//    eldata.recid =;
+    eldata.atomic_mass = e.molarMass();
+    eldata.entropy = e.entropy();
+    eldata.heat_capacity = e.heatCapacity();
+//    eldata.volume =;
+//    eldata.valence =;
+//    eldata.number =;
+    eldata.name = e.name();
+
+    dbElements[elkey] = eldata;
+}
+
 void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
 {
     ElementKey elkey("");
@@ -554,6 +581,26 @@ void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
     elementDB->getValue( "properties.name" , eldata.name );
 
     dbElements[elkey] = eldata;
+}
+
+auto elementKeyToElement(ElementKey elementKey) -> Element
+{
+    Element e;
+    auto itrdb = ChemicalFormula::getDBElements().find(elementKey);
+    if (itrdb == ChemicalFormula::getDBElements().end())
+        bsonio::bsonioErr("E37FPrun: Invalid symbol ", elementKey.symbol);
+
+    e.setClass(elementKey.class_);
+    e.setIsotopeMass(elementKey.isotope);
+    e.setSymbol(elementKey.symbol);
+    e.setName(itrdb->second.name);
+    e.setMolarMass(itrdb->second.atomic_mass);
+    e.setEntropy(itrdb->second.entropy);
+    e.setHeatCapacity(itrdb->second.heat_capacity);
+    e.setVolume(itrdb->second.volume);
+    e.setValence(itrdb->second.valence);
+
+    return e;
 }
 
 }
