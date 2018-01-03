@@ -4,6 +4,7 @@
 #include "Database.h"
 #include "Reaction.h"
 #include "Substance.h"
+#include "Element.h"
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"
@@ -603,6 +604,11 @@ auto Thermo::solventSymbol( ) const -> std::string
 auto Thermo::database() -> const Database
 {
     return pimpl->database;
+}
+
+auto Thermo::parseSubstanceFormula(std::string formula) -> std::map<Element, double>
+{
+    return pimpl->database.parseSubstanceFormula(formula);
 }
 
 } // namespace ThermoFun

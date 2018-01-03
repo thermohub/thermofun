@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <map>
 
 namespace ThermoFun {
 
@@ -10,6 +11,7 @@ namespace ThermoFun {
 struct Database;
 struct Solvent;
 struct Substance;
+struct Element;
 struct ThermoPreferences;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;
@@ -178,6 +180,11 @@ public:
 //    /// @param P The pressure value (in units of Pa)
 //    /// @param reaction The name of the reaction
 //    auto standardPartialMolarHeatCapacityOfReactionConstV(double T, double P, std::string reaction) const -> double;
+
+    /// Pareses a given substance formula present in the database
+    /// @param formula
+    /// @return map of Elements and coefficients
+    auto parseSubstanceFormula(std::string formula) -> std::map<Element, double>;
 
 private:
     struct Impl;
