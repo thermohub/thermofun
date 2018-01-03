@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
     cout << "Hello World!" << endl;
 
-    string file = "Resources/test_multi_new.VertexSubstance.json";
+    string file = "Resources/test_multi_new_elem.VertexSubstance.json";
     char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
 
     TNode* node = new TNode();
@@ -86,6 +86,8 @@ int main(int argc, char *argv[])
     Database temp(file);
     Database tdb;
     vector<Substance> vSubst = temp.getSubstances();
+
+    auto form = temp.parseSubstanceFormula("HSiO3-");
 
     /// adding the names of the solvent to be used in the aqueous species properties
     /// calculations
