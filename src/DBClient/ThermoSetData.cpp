@@ -1,3 +1,4 @@
+#include "boost/shared_ptr.hpp"
 #include "ThermoSetData.h"
 
 using namespace bsonio;
