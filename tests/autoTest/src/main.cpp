@@ -136,12 +136,12 @@ int main(int argc, char *argv[])
     OutputToCSV out (argv[0]);
     out.openThermoPropertiesSubstanceFile("CompareP0_T5_370.csv");
 
-    P=1;
+    P=1*1e5;
     gettimeofday(&middle, NULL);
     double delta = ((middle.tv_sec  - start.tv_sec) * 1000000u +
              middle.tv_usec - start.tv_usec) / 1.e6;
 
-    P = 5000; T = 25;
+    P = 5000*1e5; T = 25+273.15;
     // test PRSV
 //    result_tcorrpt_ = thermo.thermoPropertiesSubstance(T,P,"Al+3");
 //    xCH = node->DC_name_to_xCH("Al+3");
@@ -152,57 +152,59 @@ int main(int argc, char *argv[])
 //    tps_gems.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
 
 
-    P = 0; T = 5;
+    P = 0*1e5; T = 5+273.15;
     //
     do {
 
+//        if (T = 488.15)
+//            cout << "here" << endl;
         for (int i = 0; i < vSubst.size(); i++)
         {
             result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result_tcorrpt);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T-273.15, P/1e5, result_tcorrpt);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
-            tps_gems.gibbs_energy     = node->DC_G0 (xCH, 0, T+273.15, false);
-            tps_gems.enthalpy         = node->DC_H0 (xCH, 0, T+273.15);
-            tps_gems.entropy          = node->DC_S0 (xCH, 0, T+273.15);
-            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, 0, T+273.15);
-            tps_gems.volume           = node->DC_V0 (xCH, 0, T+273.15)*1e05;
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps_gems);
+            tps_gems.gibbs_energy     = node->DC_G0 (xCH, 0, T, false);
+            tps_gems.enthalpy         = node->DC_H0 (xCH, 0, T);
+            tps_gems.entropy          = node->DC_S0 (xCH, 0, T);
+            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, 0, T);
+            tps_gems.volume           = node->DC_V0 (xCH, 0, T)*1e05;
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T-273.15, P/1e5, tps_gems);
 
-            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
+            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T-273.15, P/1e5);
 
             c++;
             //            i = vSubst.size();
         }
         P = 0;
         T +=5;
-    } while (T <= 354); // 370 coreections in g function
+    } while (T <= 354+273.15); // 370 coreections in g function
     out.closeThermoPropertiesSubstanceFile();
 
-    P = 1; T = 5;
+    P = 1*1e5; T = 5+273.15;
     out.openThermoPropertiesSubstanceFile("CompareP1_T5_200.csv");
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
         {
             result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result_tcorrpt);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T-273.15, P/1e5, result_tcorrpt);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
-            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
-            tps_gems.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
-            tps_gems.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
-            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps_gems.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps_gems);
+            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P, T, false);
+            tps_gems.enthalpy         = node->DC_H0 (xCH, P, T);
+            tps_gems.entropy          = node->DC_S0 (xCH, P, T);
+            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P, T);
+            tps_gems.volume           = node->DC_V0 (xCH, P, T)*1e05;
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T-273.15, P/1e5, tps_gems);
 
-            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
+            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T-273.15, P/1e5);
 
             c++;
-            P = 1;
+            P = 1*1e5;
         }
         T +=5;
-    } while (T <= 200);
+    } while (T <= 200+273.15);
     out.closeThermoPropertiesSubstanceFile();
 
 //    P = 500; T = 25;
@@ -232,87 +234,87 @@ int main(int argc, char *argv[])
 //    //
 //    out.closeThermoPropertiesSubstanceFile();
 
-    P = 1000; T = 25;
+    P = 1000*1e5; T = 25+273.15;
     out.openThermoPropertiesSubstanceFile("CompareP1000_T25_800.csv");
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
         {
             result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result_tcorrpt);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T-273.15, P/1e5, result_tcorrpt);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
-            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
-            tps_gems.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
-            tps_gems.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
-            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps_gems.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps_gems);
+            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P, T, false);
+            tps_gems.enthalpy         = node->DC_H0 (xCH, P, T);
+            tps_gems.entropy          = node->DC_S0 (xCH, P, T);
+            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P, T);
+            tps_gems.volume           = node->DC_V0 (xCH, P, T)*1e05;
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T-273.15, P/1e5, tps_gems);
 
-            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
+            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T-273.15, P/1e5);
 
             c++;
-            P = 1000;
+            P = 1000*1e5;
         }
         T +=25;
-    } while (T <= 800);
+    } while (T <= 800+273.15);
     out.closeThermoPropertiesSubstanceFile();
 
-    P = 2000; T = 25;
+    P = 2000*1e5; T = 25+273.15;
     out.openThermoPropertiesSubstanceFile("CompareP2000_T25_800.csv");
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
         {
             result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result_tcorrpt);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T-273.15, P/1e5, result_tcorrpt);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
-            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
-            tps_gems.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
-            tps_gems.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
-            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps_gems.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps_gems);
+            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P, T, false);
+            tps_gems.enthalpy         = node->DC_H0 (xCH, P, T);
+            tps_gems.entropy          = node->DC_S0 (xCH, P, T);
+            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P, T);
+            tps_gems.volume           = node->DC_V0 (xCH, P, T)*1e05;
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T-273.15, P/1e5, tps_gems);
 
-            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
+            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T-273.15, P/1e5);
 
             c++;
-            P = 2000;
+            P = 2000*1e5;
         }
         T +=25;
-    } while (T <= 800);
+    } while (T <= 800+273.15);
     out.closeThermoPropertiesSubstanceFile();
 
-    P = 5000; T = 25;
+    P = 5000*1e5; T = 25+273.15;
     out.openThermoPropertiesSubstanceFile("CompareP5000_T25_800.csv");
     do {
 
         for (int i = 0; i < vSubst.size(); i++)
         {
-            if( T == 800 && P == 5000 && vSubst[i].symbol() == "Quartz")
+            if( T == (800+273.15) && P == (5000*1e5) && vSubst[i].symbol() == "Quartz")
             {
                 cout << "here" << endl;
             }
 
             result_tcorrpt = thermo.thermoPropertiesSubstance(T,P,vSubst[i].symbol());
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T, P, result_tcorrpt);
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_TCorrPT", T-273.15, P/1e5, result_tcorrpt);
 
             xCH = node->DC_name_to_xCH(vSubst[i].symbol().c_str());
-            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P*1e05, T+273.15, false);
-            tps_gems.enthalpy         = node->DC_H0 (xCH, P*1e05, T+273.15);
-            tps_gems.entropy          = node->DC_S0 (xCH, P*1e05, T+273.15);
-            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P*1e05, T+273.15);
-            tps_gems.volume           = node->DC_V0 (xCH, P*1e05, T+273.15)*1e05;
-            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T, P, tps_gems);
+            tps_gems.gibbs_energy     = node->DC_G0 (xCH, P, T, false);
+            tps_gems.enthalpy         = node->DC_H0 (xCH, P, T);
+            tps_gems.entropy          = node->DC_S0 (xCH, P, T);
+            tps_gems.heat_capacity_cp = node->DC_Cp0(xCH, P, T);
+            tps_gems.volume           = node->DC_V0 (xCH, P, T)*1e05;
+            out.writeThermoPropertiesSubstance( vSubst[i].symbol() + "_Gems", T-273.15, P/1e5, tps_gems);
 
-            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T, P);
+            compare(tps_gems, result_tcorrpt, vSubst[i].symbol().c_str(), T-273.15, P/1e5);
 
             c++;
-            P = 5000;
+            P = 5000*1e5;
         }
         T +=25;
-    } while (T <= 800);
+    } while (T <= 800+273.15);
     out.closeThermoPropertiesSubstanceFile();
 
     gettimeofday(&end, NULL);

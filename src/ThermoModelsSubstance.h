@@ -20,8 +20,8 @@ public:
     explicit ThermoModelsSubstance(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
@@ -45,8 +45,8 @@ public:
     explicit SoluteAkinfievDiamondEOS(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param tps thermodynamic properties of the substance previosuly corrected with the AD EOS
     /// @param wtp thermodynamic properties of liquid H2O
     /// @param wigp themrodynamic properties of water in ideal gas state
@@ -74,8 +74,8 @@ public:
     explicit WaterIdealGasWoolley(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
@@ -104,8 +104,8 @@ public:
     explicit SoluteHKFgems(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param wp structure holding the water solvent porperties
     /// @param wes structure holding the water solvent electro-chemical properties
     auto thermoProperties (double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance;
@@ -136,8 +136,8 @@ public:
     explicit SoluteHKFreaktoro(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param wp structure holding the water solvent porperties
     /// @param wes structure holding the water solvent electro-chemical properties
     auto thermoProperties (double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance;
@@ -161,8 +161,8 @@ public:
     explicit MinMurnaghanEOSHP98(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param tps thermodynamic properties of the substance previosuly corrected
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
@@ -187,8 +187,8 @@ public:
     explicit MinBerman88(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param tps thermodynamic properties of the substance previosuly corrected
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
@@ -211,8 +211,8 @@ public:
     explicit MinBMGottschalk(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param tps thermodynamic properties of the substance previosuly corrected with the MinBMGottschalk
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
@@ -237,8 +237,8 @@ public:
     explicit EmpiricalCpIntegration(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
@@ -263,8 +263,8 @@ public:
     explicit HPLandau(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param tps thermodynamic properties of the substance previosuly corrected
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
@@ -285,8 +285,8 @@ public:
     explicit GasCORK(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -306,8 +306,8 @@ public:
     explicit GasPRSV(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -327,8 +327,8 @@ public:
     explicit GasCGF(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -348,8 +348,8 @@ public:
     explicit GasSRK(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -369,8 +369,8 @@ public:
     explicit GasPR78(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -390,8 +390,8 @@ public:
     explicit GasSTP(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -411,8 +411,8 @@ public:
     explicit ConMolVol(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:
@@ -432,8 +432,8 @@ public:
     explicit IdealGasLawVol(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:

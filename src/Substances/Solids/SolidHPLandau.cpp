@@ -83,7 +83,7 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
     tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
     tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
 
-    subst.checkCalcMethodBounds("Holland and Powell Landau model", TK.val-C_to_K, Pbar.val, tps);
+    subst.checkCalcMethodBounds("Holland and Powell Landau model", TK.val, Pbar.val*bar_to_Pa, tps);
 
     return tps;
 }

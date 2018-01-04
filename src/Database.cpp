@@ -14,6 +14,7 @@
 #include "Reaction.h"
 #include "Element.h"
 #include "DBClient/DatabaseClient.h"
+//#include "DBClient/ThermoSetData.h"
 
 // bsonio includes
 #include "bsonio/json2cfg.h"
@@ -69,6 +70,14 @@ struct Database::Impl
         }
         if (elements_map.size()>0)
             ChemicalFormula::setDBElements( elements_map );
+    }
+
+    Impl (DatabaseClient &dbc, const string &ThermoDataSetSymbol)
+    {
+        auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
+        auto db = databaseFromRecordList(dbc, recordList);
+        substances_map = db.mapSubstances();
+        reactions_map  = db.mapReactions();
     }
 
     Impl(vector<bson> bsons)
@@ -336,6 +345,10 @@ Database::Database(std::string filename)
 
 Database::Database(vector<bson> bsonSubstances)
 : pimpl(new Impl(bsonSubstances))
+{}
+
+Database::Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol)
+: pimpl(new Impl(dbc, thermoDataSetSymbol))
 {}
 
 Database::Database(const Database& other)

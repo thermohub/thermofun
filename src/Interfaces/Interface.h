@@ -60,6 +60,7 @@ struct OutputSettings
 /// The class provides several functions for setting the unist in which the results are dysplayed and the
 /// siginifincat digits (or precision) in which the values will be written in the output CSV file.
 ///
+/// The input temperature and pressure should be in celsius and bar
 ///
 class Interface
 {
@@ -93,7 +94,7 @@ public:
     auto addSolventProperty             (const std::string &sovlentPropName) -> void;
     auto addSolventPropDigits           (const std::map<std::string, int> &solventPropDigits)-> void;
 
-    auto addTPpair                      (const double &T, const double &P) -> void;
+    auto addTPpair                      (const double &TC, const double &Pbar) -> void;
     auto addTPpairs                     (const double &Tmin, const double &Tmax, const double &Tstep,
                                          const double &Pmin, const double &Pmax, const double &Pstep) -> void;
     auto addTPpairs                     (const std::vector<std::vector<double>> &tpPairs) -> void;
@@ -103,9 +104,9 @@ public:
 
     // claculate functions substances
     auto calculateProperties    () -> Output;
-    auto calculateProperties    (const std::string substSymbol, const double T, const double P, const std::string propName) -> Output;
+    auto calculateProperties    (const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
     auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                                    double T, double P) -> Output;
+                                    double TC, double Pbar) -> Output;
     auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
     auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
@@ -113,9 +114,9 @@ public:
 
     // claculate functions reactions
     auto calcPropReactions    () -> Output;
-    auto calcPropReactions    (const std::string reacSymbol, const double T, const double P, const std::string propName) -> Output;
+    auto calcPropReactions    (const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
     auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                                    double T, double P) -> Output;
+                                    double TC, double Pbar) -> Output;
     auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
     auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,

@@ -191,13 +191,14 @@ struct Thermo::Impl
                 {
                 case MethodCorrP_Thrift::type::CPM_AKI:
                 {
-                    double Pr = 1.;
+                    double Pr = database.getSubstance(solventSymbol).referenceP();
+                    double Tr = database.getSubstance(solventSymbol).referenceT();
                     tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P,  solventSymbol),
                                                                                                    WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P),
                                                                                                    properties_solvent_fn(T, P, P, solventSymbol),
-                                                                                                   thermo_properties_substance_fn(25, Pr, Pr,  solventSymbol),
-                                                                                                   WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(25, Pr),
-                                                                                                   properties_solvent_fn(25, Pr, Pr, solventSymbol));
+                                                                                                   thermo_properties_substance_fn(Tr, Pr, Pr,  solventSymbol),
+                                                                                                   WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(Tr, Pr),
+                                                                                                   properties_solvent_fn(Tr, Pr, Pr, solventSymbol));
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CEH:
@@ -577,7 +578,7 @@ auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::st
         tpr.reaction_enthalpy           += tps.enthalpy*coeff;
         tpr.reaction_entropy            += tps.entropy*coeff;
         tpr.reaction_volume             += tps.volume*coeff;
-        tpr.ln_equilibrium_constant     = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T+C_to_K));
+        tpr.ln_equilibrium_constant     = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T));
         tpr.log_equilibrium_constant    = tpr.ln_equilibrium_constant * ln_to_lg;
 
         setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);

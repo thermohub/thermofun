@@ -406,7 +406,9 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
     else
         aSta.Psat = 0;
 
-    if( (fabs( P ) == 0) || (P == aSta.Psat) )
+    auto diff = fabs(fabs(P) - fabs(aSta.Psat));
+
+    if( (fabs( P ) == 0) || (diff < 1e-14) )
     { // set only T
         aSpc.isat=1;
         aSpc.iopt=1;

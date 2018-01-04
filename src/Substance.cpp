@@ -299,8 +299,8 @@ auto Substance::charge() const -> int
 
 auto Substance::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void
 {
-    if (pimpl->upper_P<(P*bar_to_Pa) || pimpl->upper_T<(T+C_to_K) ||
-        pimpl->lower_P>(P*bar_to_Pa) || pimpl->lower_T>(T+C_to_K))
+    if (pimpl->upper_P<(P) || pimpl->upper_T<(T) ||
+        pimpl->lower_P>(P) || pimpl->lower_T>(T))
     {
         string message = modelName +": out of "
                                     "T(" + to_string(pimpl->lower_T) + "-" + to_string(pimpl->upper_T) +" K) and "

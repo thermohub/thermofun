@@ -25,8 +25,12 @@ int main(int argc, char *argv[])
 
     Database db2 = databaseFromRecordList(dbc_, list);
     gettimeofday(&en, NULL);
+
     double delta = ((en.tv_sec  - st.tv_sec) * 1000000u +
              en.tv_usec - st.tv_usec) / 1.e6;
+
+    Database db3(dbc_, "t1");
+
 
     for( auto row: list)
      std::cout << row.first << " " << row.second << endl;

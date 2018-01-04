@@ -178,7 +178,7 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pres
 //       aW.twp->Bet = aE;
     }
 
-    subst.checkCalcMethodBounds("BMGottschalk model", TK.val-C_to_K, Pbar.val, tps);
+    subst.checkCalcMethodBounds("BMGottschalk model", TK.val, Pbar.val*1e05, tps);
 
     return tps;
 }

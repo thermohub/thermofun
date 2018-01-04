@@ -7,7 +7,7 @@ namespace ThermoFun {
 const string substQuery = "{\"_label\": \"substance\" }";
 const vector<string> substFieldPaths =
    { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
-const vector<string> substColumnHeaders = { "symbol", "name", "formula" };
+const vector<string> datsetColumnHeaders = { "symbol", "name", "formula" };
 const vector<string> substDataNames  = { "symbol", "name", "formula", "_id", "class_", "sourcetdb" };
 
 struct SubstanceData_::Impl
@@ -22,7 +22,7 @@ struct SubstanceData_::Impl
 
 SubstanceData_::SubstanceData_( const bsonio::TDataBase* adbconnect )
     : AbstractData( adbconnect, "VertexSubstance", substQuery,
-                    substFieldPaths, substColumnHeaders, substDataNames), pimpl(new Impl())
+                    substFieldPaths, datsetColumnHeaders, substDataNames), pimpl(new Impl())
 { }
 
 SubstanceData_::SubstanceData_(const SubstanceData_& other)

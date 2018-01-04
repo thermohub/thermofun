@@ -146,4 +146,5 @@
     $$PWD/DBClient/ReactionData.cpp \
     $$PWD/DBClient/ReactionSetData.cpp \
     $$PWD/DBClient/TraversalData.cpp \
-    $$PWD/DBClient/DatabaseClient.cpp
+    $$PWD/DBClient/DatabaseClient.cpp \
+    $$PWD/DBClient/ThermoSetData.cpp

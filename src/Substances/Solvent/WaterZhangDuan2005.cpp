@@ -30,31 +30,31 @@ const double a[] =
 
 const double gamma = 1.05999998e-02;
 
-auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar V0) -> Reaktoro_::ThermoScalar
+auto waterMolarVolume (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaktoro_::ThermoScalar V0) -> Reaktoro_::ThermoScalar
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
     const double tolerance = 1.0e-08;
 
-    const auto Tc = waterCriticalTemperature;
-//    const auto Pc = waterCriticalPressure;
-    const auto Vc = waterCriticalVolume;
-    const auto B = a[1] + a[2]/pow((T/Tc),2) + a[3]/pow((T/Tc),3);
-    const auto C = a[4] + a[5]/pow((T/Tc),2) + a[6]/pow((T/Tc),3);
-    const auto D = a[7] + a[8]/pow((T/Tc),2) + a[9]/pow((T/Tc),3);
-    const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
-    const auto F = a[13]/(T/Tc);
-    const auto G = a[14]*(T/Tc);
+    const auto Tcr = waterCriticalTemperature;
+//    const auto Pcr = waterCriticalPressure;
+    const auto Vcr = waterCriticalVolume;
+    const auto B = a[1] + a[2]/pow((TK/Tcr),2) + a[3]/pow((TK/Tcr),3);
+    const auto C = a[4] + a[5]/pow((TK/Tcr),2) + a[6]/pow((TK/Tcr),3);
+    const auto D = a[7] + a[8]/pow((TK/Tcr),2) + a[9]/pow((TK/Tcr),3);
+    const auto E = a[10] + a[11]/pow((TK/Tcr),2) + a[12]/pow((TK/Tcr),3);
+    const auto F = a[13]/(TK/Tcr);
+    const auto G = a[14]*(TK/Tcr);
     auto Vr = V0;
 
     for(int i = 1; i <= max_iters; ++i)
     {
         const auto f  = ( 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
                           (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2)))* RConstant
-                        * T/P - Vr*Vc;
+                        * TK/Pbar - Vr*Vcr;
         const auto df = ( -B/pow(Vr,2) - 2*C/pow(Vr,3) - 4*D/pow(Vr,5) - 5*E/pow(Vr,6) -
                           (2*exp(-gamma/pow(Vr,2))*(-F*gamma*pow(Vr,2) + F*pow(Vr,4) - gamma*G + 2*G*pow(Vr,2)))/pow(Vr,7)) * RConstant
-                        * T/P - Vc;
+                        * TK/Pbar - Vcr;
         const auto Vr_plus_1 = Vr - f/df;
 
         if (std::abs(Vr_plus_1.val - Vr.val) < tolerance)
@@ -67,11 +67,10 @@ auto waterMolarVolume (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro
         Vr = Vr_plus_1;
     }
 
-
     ThermoFun::Exception exception;
     exception.error << "Unable to calculate the molar volume of water, Zhang and Duan (2005) EOS.";
     exception.reason << "The calculations did not converge at temperature "
-        << T.val << " K and pressure " << P.val << "Pa.";
+        << TK.val << " K and pressure " << Pbar.val << "Pa.";
     exception.line = __LINE__;
     RaiseError(exception);
 

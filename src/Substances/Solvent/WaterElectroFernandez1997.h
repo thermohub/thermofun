@@ -8,7 +8,7 @@ namespace ThermoFun {
 struct Substance;
 struct ElectroPropertiesSolvent;
 
-auto electroPropertiesWaterFernandez1997(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ElectroPropertiesSolvent;
+auto electroPropertiesWaterFernandez1997(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance substance) -> ElectroPropertiesSolvent;
 
 }
 

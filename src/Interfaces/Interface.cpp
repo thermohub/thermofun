@@ -65,11 +65,11 @@ auto Interface::calculateProperties() -> Output
     return Output (*this);
 }
 
-auto Interface::calculateProperties(const std::string substSymbol, const double T, const double P, const std::string propName) -> Output
+auto Interface::calculateProperties(const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output
 {
     addSubstance(substSymbol);
 
-    addTPpair(T,P);
+    addTPpair(TC,Pbar);
 
     addProperty(propName);
 
@@ -79,13 +79,13 @@ auto Interface::calculateProperties(const std::string substSymbol, const double 
 }
 
 auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                                double T, double P) -> Output
+                                double TC, double Pbar) -> Output
 {
     addSubstances(substanceSymbols);
 
     addProperties(thermoProperties);
 
-    addTPpair(T, P);
+    addTPpair(TC, Pbar);
 
     calculateResultsSubst();
 
@@ -128,11 +128,11 @@ auto Interface::calcPropReactions() -> Output
     return Output (*this);
 }
 
-auto Interface::calcPropReactions(const std::string reacSymbol, const double T, const double P, const std::string propName) -> Output
+auto Interface::calcPropReactions(const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output
 {
     addReaction(reacSymbol);
 
-    addTPpair(T,P);
+    addTPpair(TC,Pbar);
 
     addProperty(propName);
 
@@ -142,13 +142,13 @@ auto Interface::calcPropReactions(const std::string reacSymbol, const double T, 
 }
 
 auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
-                                double T, double P) -> Output
+                                double TC, double Pbar) -> Output
 {
     addReactions(reactionSymbols);
 
     addProperties(thermoProperties);
 
-    addTPpair(T, P);
+    addTPpair(TC, Pbar);
 
     calculateResultsReac();
 
@@ -413,9 +413,9 @@ auto Interface::addSolventProperties (const std::vector<string> &solventPropName
     }
 }
 
-auto Interface::addTPpair (const double &T, const double &P) -> void
+auto Interface::addTPpair (const double &TC, const double &Pbar) -> void
 {
-    std::vector<double> one_pair = {T, P};
+    std::vector<double> one_pair = {TC+C_to_K, Pbar*bar_to_Pa};
     pimpl->tpPairs.push_back(one_pair);
 }
 
