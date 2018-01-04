@@ -25,6 +25,16 @@ Output::Output(const Interface& interface)
 : pimpl(new Impl(interface))
 {}
 
+auto find_and_replace(std::string source, std::string const& find, std::string const& replace) -> std::string
+{
+    for(std::string::size_type i = 0; (i = source.find(find, i)) != std::string::npos;)
+    {
+        source.replace(i, find.length(), replace);
+        i += replace.length();
+    }
+    return source;
+}
+
 auto Output::toCSV(std::string filename) -> void
 {
     pimpl->fThermoProperties.open( filename, std::ios::trunc );
@@ -160,12 +170,12 @@ auto Output::CSVHeaderTransposed( ) -> std::string
 
     for (auto symbol : substanceSymbols)
     {
-        header = header + s + symbol;
+        header = header + s + find_and_replace(symbol, s, "_");
     }
 
     for (auto symbol : reactionSymbols)
     {
-        header = header + s + symbol;
+        header = header + s + find_and_replace(symbol, s, "_");
     }
     return header;
 }
@@ -185,7 +195,7 @@ auto Output::foutResultsSolv()-> void
     for (unsigned j=0; j<TPpairs.size(); j++)
     {
 //        pimpl->fSolventProperties << std::setprecision(digits.at("temperature"));
-        pimpl->fSolventProperties << solventSymbol << s << TPpairs[j][0];
+        pimpl->fSolventProperties << find_and_replace(solventSymbol, s, "_") << s << TPpairs[j][0];
 //        pimpl->fSolventProperties << std::setprecision(digits.at("pressure"));
         pimpl->fSolventProperties << s << TPpairs[j][1];
 
@@ -217,7 +227,7 @@ auto Output::foutResultsSubst()-> void
         for (unsigned j=0; j<TPpairs.size(); j++)
         {
             pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
-            pimpl->fThermoProperties << substanceSymbols[i] << s << TPpairs[j][0];
+            pimpl->fThermoProperties << find_and_replace(substanceSymbols[i], s, "_") << s << TPpairs[j][0];
             pimpl->fThermoProperties << std::setprecision(digits.at("pressure"));
             pimpl->fThermoProperties << s << TPpairs[j][1];
 
@@ -249,7 +259,7 @@ auto Output::foutResultsReac()-> void
         for (unsigned j=0; j<TPpairs.size(); j++)
         {
             pimpl->fThermoProperties << std::setprecision(digits.at("temperature"));
-            pimpl->fThermoProperties << reactionSymbols[i] << s << TPpairs[j][0];
+            pimpl->fThermoProperties << find_and_replace(reactionSymbols[i], s, "_") << s << TPpairs[j][0];
             pimpl->fThermoProperties << std::setprecision(digits.at("pressure"));
             pimpl->fThermoProperties << s << TPpairs[j][1];
 
