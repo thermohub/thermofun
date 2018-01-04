@@ -12,9 +12,9 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 
 # Download and install the bsonui library
-ExternalProject_Add(BSONUI
+ExternalProject_Add(BSONIO
     PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/bsonui.git
+    GIT_REPOSITORY https://bitbucket.org/gems4/bsonio.git
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
