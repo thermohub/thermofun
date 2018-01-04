@@ -51,19 +51,19 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature TK, Reaktoro_::P
     if (hkf.size() == 0)
     {
         Exception exception;
-        exception.error << "Error in HKFrektoro EOS";
+        exception.error << "Error in HKFreaktoro EOS";
         exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception);
     }
-    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
-    {
-        Exception exception;
-        exception.error << "Error in HKFrektoro EOS";
-        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
-        exception.line = __LINE__;
-        RaiseError(exception);
-    }
+//    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
+//    {
+//        Exception exception;
+//        exception.error << "Error in HKFreaktoro EOS";
+//        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
+//        exception.line = __LINE__;
+//        RaiseError(exception);
+//    }
 
     // Auxiliary variables
     const auto Pbar = P * 1.0e-05;
