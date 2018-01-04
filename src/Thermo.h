@@ -44,20 +44,20 @@ public:
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param substance The symbol of the substance
     auto thermoPropertiesSubstance (double T, double &P, std::string substance) -> ThermoPropertiesSubstance;
 
     /// Calculate the electro-chemical properties of a substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param substance The symbol of the substance
     auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param solvent The symbol of the solvent
     auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
 
@@ -111,14 +111,14 @@ public:
 
     // Reaction
     /// Calculate the thermodynamic properties of a reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
     auto thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction;
 
     /// Calculate the thermodynamic properties of a reaction from the substances participating in the reaction.
-    /// @param T The temperature value (in units of C)
-    /// @param P The pressure value (in units of bar)
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
     auto thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction;
 //    /// Calculate the ln equilibrium constant of a reaction.

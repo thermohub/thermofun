@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "ParseBsonTraversalData.h"
 #include "Database.h"
 #include "Substance.h"
