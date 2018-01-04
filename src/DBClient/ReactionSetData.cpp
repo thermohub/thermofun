@@ -1,5 +1,6 @@
 #include "ReactionSetData.h"
 #include "bsonio/io_settings.h"
+#include "boost/shared_ptr.hpp"
 
 using namespace bsonio;
 

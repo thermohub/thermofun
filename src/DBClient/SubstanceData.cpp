@@ -1,4 +1,5 @@
 #include "SubstanceData.h"
+#include "boost/shared_ptr.hpp"
 
 using namespace bsonio;
 

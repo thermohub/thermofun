@@ -2,6 +2,7 @@
 
 // C++ includes
 #include <functional>
+#include "boost/shared_ptr.hpp"
 // ThermoFun includes
 #include "../OptimizationUtils.h"
 
