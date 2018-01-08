@@ -441,7 +441,6 @@ auto Interface::addTPpairs (const std::vector<std::vector<double>> &tpPairs) -> 
     {
         addTPpair(tpPairs[i][0], tpPairs[i][1]);
     }
-    pimpl->tpPairs = tpPairs;
 }
 
 auto Interface::addDigits (const std::map<std::string, int> &propDigits)-> void

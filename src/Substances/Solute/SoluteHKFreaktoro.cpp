@@ -197,7 +197,7 @@ auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const Properties
 
     // The temperature in units of celsius and pressure in units of bar
     const auto TdegC = T - 273.15;
-    const auto Pbar  = P * 1.0e-5;
+    const auto Pbar  = P;
 
     if (ps.density >= 1400)
     {

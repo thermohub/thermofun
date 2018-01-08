@@ -117,10 +117,10 @@ public:
     /// Return the molar mass of the chemical species (in units of kg/mol)
     auto molarMass() const -> double;
 
-    /// Return the reference temperature (celsius)
+    /// Return the reference temperature (K)
     auto referenceT() const -> double;
 
-    /// Return the referennce pressure (bar)
+    /// Return the referennce pressure (Pa)
     auto referenceP() const -> double;
 
     /// Return upper temperature limit of the correction method (K)

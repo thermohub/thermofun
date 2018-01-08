@@ -220,7 +220,7 @@ SoluteHKFreaktoro::SoluteHKFreaktoro(const Substance &substance)
 auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent wp, ElectroPropertiesSolvent wes) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
 //    checkModelValidity(t.val, p.val, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
