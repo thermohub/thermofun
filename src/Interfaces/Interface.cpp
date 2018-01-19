@@ -132,77 +132,6 @@ struct Interface::Impl
         }
     }
 
-    // get functions
-    auto substanceSymbols() -> const std::vector<string>
-    {
-        return substSymbols;
-    }
-
-    auto reactionSymbols() -> const std::vector<string>
-    {
-        return reactSymbols;
-    }
-
-    auto outputSettings() -> const OutputSettings
-    {
-        return outSettings;
-    }
-
-    auto TPpairs() -> const std::vector<std::vector<double> >
-    {
-        return tpPairs;
-    }
-
-    auto properties() -> const std::vector<std::string>
-    {
-        return propNames;
-    }
-
-    auto solventProperties() -> const std::vector<std::string>
-    {
-        return solventPropNames;
-    }
-
-    auto units() -> const std::map<std::string, std::string>
-    {
-        return propUnits;
-    }
-
-    auto digits() -> const std::map<std::string, int>
-    {
-        return propDigits;
-    }
-
-    auto solventUnits() -> const std::map<std::string, std::string>
-    {
-        return solventPropUnits;
-    }
-
-    auto solventDigits() -> const std::map<std::string, int>
-    {
-        return solventPropDigits;
-    }
-
-    auto resultsSubst() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
-    {
-        return substResults;
-    }
-
-    auto solventProp_() -> const std::vector<Reaktoro_::ThermoScalar>
-    {
-        return solventProp;
-    }
-
-    auto solvent() -> const std::string
-    {
-        return solventSymbol;
-    }
-
-    auto resultsReac() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
-    {
-        return reactResults;
-    }
-
     // select functions
     auto selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vector<Reaktoro_::ThermoScalar>
     {
@@ -286,7 +215,7 @@ auto Interface::thermoPropertiesSubstance(const std::string substSymbol, const d
 
     pimpl->addProperties({propName});
 
-    calculateResultsSubst();
+    calculateSubstProp();
 
     pimpl->clearAll();
 
@@ -302,7 +231,7 @@ auto Interface::thermoPropertiesSubstance(std::vector<string> substanceSymbols, 
 
     pimpl->addTPpair(TC, Pbar);
 
-    calculateResultsSubst();
+    calculateSubstProp();
 
     pimpl->clearAll();
 
@@ -318,7 +247,7 @@ auto Interface::thermoPropertiesSubstance(std::vector<string> substanceSymbols, 
 
     pimpl->addTPpairs(aT[1], aT[2], aT[3], aP[1], aP[2], aP[3]);
 
-    calculateResultsSubst();
+    calculateSubstProp();
 
     pimpl->clearAll();
 
@@ -336,7 +265,7 @@ auto Interface::thermoPropertiesSubstance(std::vector<string> substanceSymbols, 
 
     pimpl->addTPpairs(tpPairs);
 
-    calculateResultsSubst();
+    calculateSubstProp();
 
     pimpl->clearAll();
 
@@ -351,7 +280,7 @@ auto Interface::thermoPropertiesReaction(const std::string reacSymbol, const dou
 
     pimpl->addProperties({propName});
 
-    calculateResultsReac();
+    calculateReactProp();
 
     pimpl->clearAll();
 
@@ -367,7 +296,7 @@ auto Interface::thermoPropertiesReaction(std::vector<string> reactionSymbols, st
 
     pimpl->addTPpair(TC, Pbar);
 
-    calculateResultsReac();
+    calculateReactProp();
 
     pimpl->clearAll();
 
@@ -383,7 +312,7 @@ auto Interface::thermoPropertiesReaction(std::vector<string> reactionSymbols, st
 
     pimpl->addTPpairs(aT[1], aT[2], aT[3], aP[1], aP[2], aP[3]);
 
-    calculateResultsReac();
+    calculateReactProp();
 
     pimpl->clearAll();
 
@@ -398,7 +327,7 @@ auto Interface::thermoPropertiesReaction(std::vector<string> reactionSymbols, st
 
     pimpl->addTPpairs(tpPairs);
 
-    calculateResultsReac();
+    calculateReactProp();
 
     pimpl->clearAll();
 
@@ -407,6 +336,10 @@ auto Interface::thermoPropertiesReaction(std::vector<string> reactionSymbols, st
 
 auto Interface::calculateSolventProp( int j ) -> void
 {
+    pimpl->solventProp.empty();
+    unsigned tp_size = pimpl->tpPairs.size();
+    pimpl->solventProp.resize(2*tp_size);
+    pimpl->solventSymbol = pimpl->thermo.solventSymbol();
     if (pimpl->outSettings.outSolventProp)
     {
         auto solProp = pimpl->selectPropertiesSolvent(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()),
@@ -415,28 +348,35 @@ auto Interface::calculateSolventProp( int j ) -> void
     }
 }
 
-auto Interface::calculateResultsSubst( ) -> void
+auto Interface::calculateSubstProp( ) -> void
 {
-    pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
-    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
-    pimpl->solventProp.resize(2*pimpl->tpPairs.size());
-    pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
-    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
+    pimpl->substResults.empty();
+    unsigned j_size, i_size;
+    if (pimpl->outSettings.loopOverTPpairsFirst)
+        {j_size = pimpl->tpPairs.size(); i_size = pimpl->substSymbols.size();}
+    else
+        {j_size = pimpl->substSymbols.size(); i_size = pimpl->tpPairs.size();}
+
+    pimpl->substResults.resize(j_size * i_size);
+
+    for (unsigned j=0; j<j_size; j++)
     {
-        for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
+        for (unsigned i=0; i<i_size; i++)
         {
-            pimpl->substResults[(tp*i)+(j)] = pimpl->selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
+            if (pimpl->outSettings.loopOverTPpairsFirst)
+                pimpl->substResults[(j_size*i)+(j)] = pimpl->selectResultsSubst(
+                            pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
+            else
+                pimpl->substResults[(j_size*i)+(j)] = pimpl->selectResultsSubst(
+                            pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[i][0], pimpl->tpPairs[i][1], pimpl->substSymbols[j]));
         }
-        calculateSolventProp(j);
     }
 }
 
-auto Interface::calculateResultsReac( ) -> void
+auto Interface::calculateReactProp( ) -> void
 {
     pimpl->reactResults.empty(); unsigned tp = pimpl->tpPairs.size();
     pimpl->reactResults.resize(pimpl->reactSymbols.size() * pimpl->tpPairs.size());
-    pimpl->solventProp.resize(2*pimpl->tpPairs.size());
-    pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
     auto fromSubst = pimpl->outSettings.calcReactFromSubst;
     for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
     {
@@ -447,7 +387,6 @@ auto Interface::calculateResultsReac( ) -> void
             else
                 pimpl->reactResults[(tp*i)+(j)] = pimpl->selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reactSymbols[i]));
         }
-        calculateSolventProp(j);
     }
 }
 
@@ -478,37 +417,37 @@ auto Interface::selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertie
 }
 
 // Set functions
-auto Interface::setDigits (const std::map<std::string, int> &propDigits)-> void
+auto Interface::setDigits(const std::map<std::string, int> &propDigits)-> void
 {
     pimpl->propDigits = propDigits;
 }
 
-auto Interface::setUnits                   (const std::map<std::string, std::string> &propUnits)-> void
+auto Interface::setUnits(const std::map<std::string, std::string> &propUnits)-> void
 {
 
 }
 
-auto Interface::setPropertiesUnits         (const std::vector<std::string> &propNames, const std::vector<std::string> &propUnits)-> void
+auto Interface::setPropertiesUnits(const std::vector<std::string> &propNames, const std::vector<std::string> &propUnits)-> void
 {
 
 }
 
-auto Interface::setPropertiesDigits        (const std::vector<std::string> &propNames, const std::vector<int> &propDigits)-> void
+auto Interface::setPropertiesDigits(const std::vector<std::string> &propNames, const std::vector<int> &propDigits)-> void
 {
 
 }
 
-auto Interface::setPropertyUnit            (const std::string &propName, const std::string &propUnit)-> void
+auto Interface::setPropertyUnit(const std::string &propName, const std::string &propUnit)-> void
 {
 
 }
 
-auto Interface::setPropertyDigit           (const std::string &propName, const int &propDigit)-> void
+auto Interface::setPropertyDigit(const std::string &propName, const int &propDigit)-> void
 {
 
 }
 
-auto Interface::setPropertyUnitDigit       (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void
+auto Interface::setPropertyUnitDigit(const std::string &propName, const std::string &propUnit, const int &propDigit)-> void
 {
 
 }
@@ -523,9 +462,67 @@ auto Interface::setSolventSymbol(const std::string solventSymbol) -> void
     pimpl->thermo.setSolventSymbol(solventSymbol);
 }
 
+// Private
+
+// get functions
+auto Interface::substanceSymbols() -> const std::vector<string>
+{
+    return pimpl->substSymbols;
+}
+
+auto Interface::reactionSymbols() -> const std::vector<string>
+{
+    return pimpl->reactSymbols;
+}
+
 auto Interface::outputSettings() -> const OutputSettings
 {
     return pimpl->outSettings;
+}
+
+auto Interface::TPpairs() -> const std::vector<std::vector<double> >
+{
+    return pimpl->tpPairs;
+}
+
+auto Interface::propNames() -> const std::vector<std::string>
+{
+    return pimpl->propNames;
+}
+
+auto Interface::solventPropNames() -> const std::vector<std::string>
+{
+    return pimpl->solventPropNames;
+}
+
+auto Interface::propUnits() -> const std::map<std::string, std::string>
+{
+    return pimpl->propUnits;
+}
+
+auto Interface::propDigits() -> const std::map<std::string, int>
+{
+    return pimpl->propDigits;
+}
+
+auto Interface::resultsSubst() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
+{
+    return pimpl->substResults;
+}
+
+auto Interface::solventProp() -> const std::vector<Reaktoro_::ThermoScalar>
+{
+    return pimpl->solventProp;
+}
+
+auto Interface::solventSymbol() -> const std::string
+{
+    return pimpl->solventSymbol;
+}
+
+auto Interface::resultsReac() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
+{
+    return pimpl->reactResults;
 }
 
 }

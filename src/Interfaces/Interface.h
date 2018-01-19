@@ -111,24 +111,6 @@ public:
     auto setOutputSettings      (const OutputSettings &value) -> void;
     auto setSolventSymbol       (const std::string solventSymbol) ->void;
 
-    // claculate functions substances
-    auto calculateProperties    (const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
-    auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                                    double TC, double Pbar) -> Output;
-    auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                             double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
-    auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                             std::vector<std::vector<double> > tpPairs) -> Output;
-
-    // claculate functions reactions
-    auto calcPropReactions    (const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
-    auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                                    double TC, double Pbar) -> Output;
-    auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                             double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
-    auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                               std::vector<std::vector<double> > tpPairs) -> Output;
-
     // output order
     auto providedResultsSubstance_colTProwSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void;
 
@@ -149,29 +131,13 @@ private:
     std::shared_ptr<Impl> pimpl;
 
     // Substances
-    auto addSubstances                  (const std::vector<std::string> &substSymbols) -> void;
-    auto addSubstance                   (const std::string &substSymbol) -> void;
-    // Reactions
-    auto addReactions                   (const std::vector<std::string> &reacSymbols) -> void;
-    auto addReaction                    (const std::string &reacSymbol) -> void;
-
-
-    auto addProperties                  (const std::vector<std::string> &propNames) -> void;
-    auto addProperty                    (const std::string &propName) -> void;
-
-
-    // Substances
-    auto selectResultsSubst     (ThermoPropertiesSubstance tps) -> std::vector<Reaktoro_::ThermoScalar>;
-    auto calculateResultsSubst  () -> void;
     auto substanceSymbols       () -> const std::vector<std::string>;
     auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
     auto calculateSolventProp   (int tpNdx) -> void;
-
-    auto selectPropertiesSolvent (PropertiesSolvent ps, ElectroPropertiesSolvent eps) -> std::vector<Reaktoro_::ThermoScalar>;
+    auto calculateSubstProp( ) -> void;
 
     // Reactions
-    auto selectResultsReac      (ThermoPropertiesReaction tpr) -> std::vector<Reaktoro_::ThermoScalar>;
-    auto calculateResultsReac   () -> void;
+    auto calculateReactProp   () -> void;
     auto reactionSymbols        () -> const std::vector<std::string>;
     auto resultsReac            () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
 
@@ -183,17 +149,7 @@ private:
 
     auto solventProp            () -> const std::vector<Reaktoro_::ThermoScalar>;
     auto solventSymbol          () -> const std::string;
-    auto solventPropUnits       () -> const std::map<std::string, std::string>;
-    auto solventPropDigits      () -> const std::map<std::string, int>;
     auto solventPropNames       () -> const std::vector<std::string>;
-
-    auto clearSubstances        () -> void;
-    auto clearReactions         () -> void;
-    auto clearProperties        () -> void;
-    auto clearTPpairs           () -> void;
-    auto clearSolventProperties () -> void;
-
-//    auto clearAll() -> void;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =

@@ -144,13 +144,12 @@ auto Output::CSVSolventHeader( ) -> std::string
 {
     std::string header  = "";
     auto properties     = pimpl->api.solventPropNames();
-    auto solventUnits   = pimpl->api.solventPropUnits();
     auto units          = pimpl->api.propUnits();
     const auto s        = pimpl->api.outputSettings().separator;
 
     header = header + "Substance" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
     for(auto prop : properties)
-    {   header = header + s + prop + "(" + solventUnits.at(prop) + ")"; }
+    {   header = header + s + prop + "(" + units.at(prop) + ")"; }
     return header;
 }
 
