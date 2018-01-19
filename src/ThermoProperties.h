@@ -112,14 +112,14 @@ struct PropertiesSolvent
     /// alpha/beta ratio (in units of K/Pa)
     Reaktoro_::ThermoScalar Albe;
 
-    /// ideal gas Gibbs energy (in units of J/mol)
-    Reaktoro_::ThermoScalar gibbsIdealGas;
+//    /// ideal gas Gibbs energy (in units of J/mol)
+//    Reaktoro_::ThermoScalar gibbsIdealGas;
 
-    /// ideal gas entropy (in units of J/(mol K))
-    Reaktoro_::ThermoScalar entropyIdealGas;
+//    /// ideal gas entropy (in units of J/(mol K))
+//    Reaktoro_::ThermoScalar entropyIdealGas;
 
-    /// ideal gas isobaric heat capacity (in units of J/(mol*K))
-    Reaktoro_::ThermoScalar cpIdealGas;
+//    /// ideal gas isobaric heat capacity (in units of J/(mol*K))
+//    Reaktoro_::ThermoScalar cpIdealGas;
 
     /// The specific density of solvent (in units of kg/m3)
     Reaktoro_::ThermoScalar density;

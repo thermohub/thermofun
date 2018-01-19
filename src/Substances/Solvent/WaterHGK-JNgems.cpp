@@ -125,9 +125,9 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 //        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
 //    }
 
-    wp.gibbsIdealGas    = id.gi;
-    wp.entropyIdealGas  = id.si;
-    wp.cpIdealGas       = id.cpi;
+//    wp.gibbsIdealGas    = id.gi;
+//    wp.entropyIdealGas  = id.si;
+//    wp.cpIdealGas       = id.cpi;
 
 //    if (aSpc.metastable && !aSpc.isat)
 //    {

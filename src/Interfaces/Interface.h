@@ -24,6 +24,7 @@ struct OutputSettings
 {
     /// using fixed-point notation: the value is represented with exactly as many digits in the decimal part as specified by the precision field
     bool isFixed = true;
+    bool isFloating = false;
 
     /// write values in scientific notation.
     bool isScientific = false;
@@ -43,6 +44,15 @@ struct OutputSettings
     bool calcSubstFromReact = false;
 
     bool calcReactFromSubst = false;
+
+    bool loopOverTPpairsFirst = false;
+};
+
+struct CalculationSettings
+{
+    bool dependentSubstancesFromReactions = false;
+
+    bool reactionsFromSubstances = false;
 };
 
 ///
@@ -72,38 +82,36 @@ public:
     ///
     Interface(const Database &database);
 
-    // Substances
-    auto addSubstances                  (const std::vector<std::string> &substSymbols) -> void;
-    auto addSubstance                   (const std::string &substSymbol) -> void;
-    // Reactions
-    auto addReactions                   (const std::vector<std::string> &reacSymbols) -> void;
-    auto addReaction                    (const std::string &reacSymbol) -> void;
-
-
-    auto addProperties                  (const std::vector<std::string> &propNames) -> void;
-    auto addProperty                    (const std::string &propName) -> void;
-    auto addUnits                       (const std::map<std::string, std::string> &propUnits)-> void;
-    auto addDigits                      (const std::map<std::string, int> &propDigits)-> void;
-    auto addProperties_and_Units        (const std::vector<std::string> &propNames, const std::vector<std::string> &propUnits)-> void;
-    auto addProperties_and_Digits       (const std::vector<std::string> &propNames, const std::vector<int> &propDigits)-> void;
-    auto addProperty_and_Unit           (const std::string &propName, const std::string &propUnit)-> void;
-    auto addProperty_and_Digit          (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
-    auto addProperty_and_Unit_and_Digit (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
-
-    auto addSolventProperties           (const std::vector<std::string> &solventPropNames) -> void;
-    auto addSolventProperty             (const std::string &sovlentPropName) -> void;
-    auto addSolventPropDigits           (const std::map<std::string, int> &solventPropDigits)-> void;
-
-    auto addTPpair                      (const double &TC, const double &Pbar) -> void;
-    auto addTPpairs                     (const double &Tmin, const double &Tmax, const double &Tstep,
-                                         const double &Pmin, const double &Pmax, const double &Pstep) -> void;
-    auto addTPpairs                     (const std::vector<std::vector<double>> &tpPairs) -> void;
-
-    auto setOutputSettings              (const OutputSettings &value) -> void;
-    auto setSolventSymbol               (const std::string solvent_symbol) ->void;
+    auto setUnits                   (const std::map<std::string, std::string> &propUnits)-> void;
+    auto setDigits                  (const std::map<std::string, int> &propDigits)-> void;
+    auto setPropertiesUnits         (const std::vector<std::string> &propNames, const std::vector<std::string> &propUnits)-> void;
+    auto setPropertiesDigits        (const std::vector<std::string> &propNames, const std::vector<int> &propDigits)-> void;
+    auto setPropertyUnit            (const std::string &propName, const std::string &propUnit)-> void;
+    auto setPropertyDigit           (const std::string &propName, const int &propDigit)-> void;
+    auto setPropertyUnitDigit       (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
 
     // claculate functions substances
-    auto calculateProperties    () -> Output;
+    auto thermoPropertiesSubstance   (const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
+    auto thermoPropertiesSubstance   (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
+                                      double TC, double Pbar) -> Output;
+    auto thermoPropertiesSubstance   (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
+                                      std::array<double, 3> aT, std::array<double, 3> aP) -> Output;
+    auto thermoPropertiesSubstance   (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
+                                      std::vector<std::vector<double> > tpPairs) -> Output;
+
+    // claculate functions reactions
+    auto thermoPropertiesReaction    (const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
+    auto thermoPropertiesReaction    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
+                                      double TC, double Pbar) -> Output;
+    auto thermoPropertiesReaction    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
+                                      std::array<double, 3> aT, std::array<double, 3> aP) -> Output;
+    auto thermoPropertiesReaction    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
+                                      std::vector<std::vector<double> > tpPairs) -> Output;
+
+    auto setOutputSettings      (const OutputSettings &value) -> void;
+    auto setSolventSymbol       (const std::string solventSymbol) ->void;
+
+    // claculate functions substances
     auto calculateProperties    (const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
     auto calculateProperties    (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
                                     double TC, double Pbar) -> Output;
@@ -113,7 +121,6 @@ public:
                              std::vector<std::vector<double> > tpPairs) -> Output;
 
     // claculate functions reactions
-    auto calcPropReactions    () -> Output;
     auto calcPropReactions    (const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
     auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
                                     double TC, double Pbar) -> Output;
@@ -121,6 +128,9 @@ public:
                              double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output;
     auto calcPropReactions    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
                                std::vector<std::vector<double> > tpPairs) -> Output;
+
+    // output order
+    auto providedResultsSubstance_colTProwSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void;
 
     ///
     /// \brief selectResultsSubst_vTpSym Selects the results from given a vector of calculated properites
@@ -134,15 +144,21 @@ public:
     ///
     auto selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void;
 
-    auto clearSubstances        () -> void;
-    auto clearReactions         () -> void;
-    auto clearProperties        () -> void;
-    auto clearTPpairs           () -> void;
-    auto clearSolventProperties () -> void;
-
 private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
+
+    // Substances
+    auto addSubstances                  (const std::vector<std::string> &substSymbols) -> void;
+    auto addSubstance                   (const std::string &substSymbol) -> void;
+    // Reactions
+    auto addReactions                   (const std::vector<std::string> &reacSymbols) -> void;
+    auto addReaction                    (const std::string &reacSymbol) -> void;
+
+
+    auto addProperties                  (const std::vector<std::string> &propNames) -> void;
+    auto addProperty                    (const std::string &propName) -> void;
+
 
     // Substances
     auto selectResultsSubst     (ThermoPropertiesSubstance tps) -> std::vector<Reaktoro_::ThermoScalar>;
@@ -160,7 +176,7 @@ private:
     auto resultsReac            () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
 
     auto TPpairs                () -> const std::vector<std::vector<double>>;
-    auto propNames              () -> const std::map<int, std::string>;
+    auto propNames              () -> const std::vector<std::string>;
     auto propUnits              () -> const std::map<std::string, std::string>;
     auto propDigits             () -> const std::map<std::string, int>;
     auto outputSettings         () -> const OutputSettings;
@@ -169,11 +185,20 @@ private:
     auto solventSymbol          () -> const std::string;
     auto solventPropUnits       () -> const std::map<std::string, std::string>;
     auto solventPropDigits      () -> const std::map<std::string, int>;
-    auto solventPropNames       () -> const std::map<int, std::string>;
+    auto solventPropNames       () -> const std::vector<std::string>;
+
+    auto clearSubstances        () -> void;
+    auto clearReactions         () -> void;
+    auto clearProperties        () -> void;
+    auto clearTPpairs           () -> void;
+    auto clearSolventProperties () -> void;
+
+//    auto clearAll() -> void;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =
 {
+        // Substance propeties
     {"gibbs_energy",                   "substance"     },
     {"enthalpy",                       "substance"     },
     {"entropy",                        "substance"     },
@@ -182,7 +207,7 @@ const std::map<std::string, const std::string> defaultPropertyNames =
     {"volume",                         "substance"     },
     {"helmholtz_energy",               "substance"     },
     {"internal_energy",                "substance"     },
-
+        // Reaction propeties
     {"reaction_gibbs_energy",          "reaction"      },
     {"reaction_helmholtz_energy",      "reaction"      },
     {"reaction_internal_energy",       "reaction"      },
@@ -192,11 +217,8 @@ const std::map<std::string, const std::string> defaultPropertyNames =
     {"reaction_heat_capacity_cp",      "reaction"      },
     {"reaction_heat_capacity_cv",      "reaction"      },
     {"logKr",                          "reaction"      },
-    {"lnK0",                           "reaction"      }
-};
-
-const std::map<std::string, const std::string> defaultSolventPropertyNames =
-{
+    {"lnKr",                           "reaction"      },
+        // Solvent propeties
     {"density",                        "solvent"      },
     {"densityT",                       "solvent"      },
     {"densityP",                       "solvent"      },
@@ -206,10 +228,6 @@ const std::map<std::string, const std::string> defaultSolventPropertyNames =
     {"alpha",                          "solvent"      },
     {"beta",                           "solvent"      },
     {"alphaT",                         "solvent"      },
-
-    {"gibbsIdealGas",                  "solvent"      },
-    {"entropyIdealGas",                "solvent"      },
-    {"cpIdealGas",                     "solvent"      },
 
     {"epsilon",                        "solvent"      },
     {"epsilonT",                       "solvent"      },
@@ -237,10 +255,6 @@ const std::map<std::string, std::string> defaultSolventPropertyUnits =
     {"beta",                           "1/Pa"           },
     {"alphaT",                         ""               },
 
-    {"gibbsIdealGas",                  "J/mol"          },
-    {"entropyIdealGas",                "J/K/mol"        },
-    {"cpIdealGas",                     "J/K/mol"        },
-
     {"epsilon",                        ""               },
     {"epsilonT",                       ""               },
     {"epsilonP",                       ""               },
@@ -267,10 +281,6 @@ const std::map<std::string, int> defaultSolventPropertyDigits =
     {"beta",                           0            },
     {"alphaT",                         0            },
 
-    {"gibbsIdealGas",                  0            },
-    {"entropyIdealGas",                0            },
-    {"cpIdealGas",                     0            },
-
     {"epsilon",                        0            },
     {"epsilonT",                       0            },
     {"epsilonP",                       0            },
@@ -288,8 +298,8 @@ const std::map<std::string, int> defaultSolventPropertyDigits =
 const std::map<std::string, std::string> defaultPropertyUnits =
 {
 
-    {"temperature",                    "C"             },
-    {"pressure",                       "bar"           },
+    {"temperature",                    "K"             },
+    {"pressure",                       "Pa"            },
 
     {"gibbs_energy",                   "J/mol"         },
     {"enthalpy",                       "J/mol"         },

@@ -110,12 +110,10 @@ auto Output::to2DVectorDouble() -> std::vector<std::vector<double>>
 
 auto Output::CSVHeader( ) -> std::string
 {
-    typedef std::map<int, std::string>::iterator it_t;
-
-    std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
-    std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
-    std::map<int, std::string> properties           = pimpl->api.propNames();
-    std::map<std::string, std::string> units        = pimpl->api.propUnits();
+    std::vector<std::string> substanceSymbols   = pimpl->api.substanceSymbols();
+    std::vector<std::string> reactionSymbols    = pimpl->api.reactionSymbols();
+    std::vector<std::string> properties         = pimpl->api.propNames();
+    std::map<std::string, std::string> units    = pimpl->api.propUnits();
 
     const auto s = pimpl->api.outputSettings().separator;
     std::string header = "";
@@ -123,8 +121,8 @@ auto Output::CSVHeader( ) -> std::string
     if (substanceSymbols.size() > 0)
     {
         header = header + "Substance" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
-        for(it_t it = properties.begin(); it != properties.end(); it++)
-        {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
+        for(auto prop : properties)
+        {   header = header + s + prop + "(" + units.at(prop) + ")"; }
     }
     //else
 //    {
@@ -136,8 +134,8 @@ auto Output::CSVHeader( ) -> std::string
     if (reactionSymbols.size() > 0)
     {
         header = header + "Reaction" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
-        for(it_t it = properties.begin(); it != properties.end(); it++)
-        {   header = header + s + it->second + "(" + units.at(it->second) + ")"; }
+        for(auto prop : properties)
+        {   header = header + s + prop + "(" + units.at(prop) + ")"; }
     }
     return header;
 }
@@ -152,7 +150,7 @@ auto Output::CSVSolventHeader( ) -> std::string
 
     header = header + "Substance" + s + "T" + "(" + units.at("temperature") + ")" + s + "P" + "(" + units.at("pressure") + ")" /*+ s*/;
     for(auto prop : properties)
-    {   header = header + s + prop.second + "(" + solventUnits.at(prop.second) + ")"; }
+    {   header = header + s + prop + "(" + solventUnits.at(prop) + ")"; }
     return header;
 }
 
@@ -214,7 +212,7 @@ auto Output::foutResultsSubst()-> void
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
     std::vector<std::string> substanceSymbols        = pimpl->api.substanceSymbols();
-    std::map<int, std::string> properties            = pimpl->api.propNames();
+    auto properties                                  = pimpl->api.propNames();
     std::map<std::string, int> digits                = pimpl->api.propDigits();
     std::vector<std::vector<double>> TPpairs         = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsSubst   = pimpl->api.resultsSubst();
@@ -235,7 +233,7 @@ auto Output::foutResultsSubst()-> void
 
             for (unsigned k=0; k<resultsSubst[i].size(); k++)
             {
-                pimpl->fThermoProperties << std::setprecision(digits.at(properties.at(k+1)));
+                pimpl->fThermoProperties << std::setprecision(digits.at(properties[k+1]));
                 pimpl->fThermoProperties << s << resultsSubst[c][k].val;
             }
             c++;
@@ -249,7 +247,7 @@ auto Output::foutResultsReac()-> void
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
-    std::map<int, std::string> properties           = pimpl->api.propNames();
+    auto properties                                 = pimpl->api.propNames();
     std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TPpairs       = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsReac   = pimpl->api.resultsReac();
@@ -267,7 +265,7 @@ auto Output::foutResultsReac()-> void
 
             for (unsigned k=0; k<resultsReac[i].size(); k++)
             {
-                pimpl->fThermoProperties << std::setprecision(digits.at(properties.at(k+1)));
+                pimpl->fThermoProperties << std::setprecision(digits.at(properties[k+1]));
                 pimpl->fThermoProperties << s << resultsReac[c][k].val;
             }
             c++;
@@ -281,7 +279,7 @@ auto Output::foutResultsSubstTrans(std::string property)-> void
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
     std::vector<std::string> substanceSymbols       = pimpl->api.substanceSymbols();
-    std::map<int, std::string> properties           = pimpl->api.propNames();
+    auto properties           = pimpl->api.propNames();
     std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TPpairs       = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsSubst   = pimpl->api.resultsSubst();
@@ -300,9 +298,9 @@ auto Output::foutResultsSubstTrans(std::string property)-> void
         {
             for (unsigned k=0; k<resultsSubst[i].size(); k++)
             {
-                if (properties.at(k+1) == property)
+                if (properties[k+1] == property)
                 {
-                    pimpl->fThermoProperties << std::setprecision(digits.at(properties.at(k+1)));
+                    pimpl->fThermoProperties << std::setprecision(digits.at(property));
                     pimpl->fThermoProperties << s << resultsSubst[(tp*i)+(j)][k].val;
                 }
             }
@@ -316,7 +314,7 @@ auto Output::foutResultsReacTrans(std::string property)-> void
     const auto s = pimpl->api.outputSettings().separator; unsigned int c = 0;
 
     std::vector<std::string> reactionSymbols        = pimpl->api.reactionSymbols();
-    std::map<int, std::string> properties           = pimpl->api.propNames();
+    auto properties           = pimpl->api.propNames();
     std::map<std::string, int> digits         = pimpl->api.propDigits();
     std::vector<std::vector<double>> TPpairs       = pimpl->api.TPpairs();
     std::vector<std::vector<Reaktoro_::ThermoScalar>> resultsReac   = pimpl->api.resultsReac();
@@ -337,9 +335,9 @@ auto Output::foutResultsReacTrans(std::string property)-> void
 
             for (unsigned k=0; k<resultsReac[i].size(); k++)
             {
-                if (properties.at(k+1) == property)
+                if (properties[k+1] == property)
                 {
-                    pimpl->fThermoProperties << std::setprecision(digits.at(properties.at(k+1)));
+                    pimpl->fThermoProperties << std::setprecision(digits.at(property));
                     pimpl->fThermoProperties << s << resultsReac[(tp*i)+(j)][k].val;
                 }
             }
