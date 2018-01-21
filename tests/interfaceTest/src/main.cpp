@@ -7,16 +7,20 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
 
-    string databaseFile = "Resources/test_multi_new.VertexSubstance.json";
+    string databaseFile = "Resources/test_multi_new_elem.VertexSubstance.json";
     Interface thermo(databaseFile);
     thermo.setSolventSymbol("H2O@");
+
+    thermo.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
     double T = 100;
     double P = 50;
 
-    double S = thermo.calculateProperties("H2O@", 25, 1, "entropy").toDouble();
+    double S = thermo.thermoPropertiesSubstance( 25, 1, "H2O@", "entropy").toDouble();
 
-    thermo.calculateProperties({"Al+3", "OH-", "SiO2@"}, {"gibbs_energy","entropy", "volume"}, T, P).toCSV("results.csv");
+    thermo.thermoPropertiesSubstance({{25, 1}, {40, 1}, {70, 100}, {90, 100}, {100, 100}}, {"Al+3", "OH-", "SiO2@"}, {"gibbs_energy","entropy", "volume", "enthalpy"}).toCSV("results.csv");
+
+    thermo.thermoPropertiesSubstance({{25, 1}, {40, 1}, {70, 100}, {90, 100}, {100, 100}}, {"Al+3", "OH-", "SiO2@"}, {"gibbs_energy","entropy", "volume", "enthalpy"}).toCSVTransposed("resultsTransposed.csv");
 
 //    API.addTP_pairs(25, 1);
 //    API.addSubstances(substanceSymbols);

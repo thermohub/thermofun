@@ -22,7 +22,7 @@ public:
     Output(const Interface & interface);
 
     auto toCSV              (std::string filename) -> void;
-    auto toCSVtransposed    (std::string filename, std::string propertyname) -> void;
+    auto toCSVTransposed    (std::string filename) -> void;
     auto toDouble           () -> double;
     auto toThermoScalar     () -> ThermoScalar;
     auto to2DVectorDouble   () -> std::vector<std::vector<double>>;
@@ -32,13 +32,9 @@ private:
     std::shared_ptr<Impl> pimpl;
 
     auto CSVHeader            () -> std::string;
-    auto CSVSolventHeader     () -> std::string;
     auto CSVHeaderTransposed  () -> std::string;
-    auto foutResultsSubst     () -> void;
-    auto foutResultsReac      () -> void;
-    auto foutResultsSolv      () -> void;
-    auto foutResultsReacTrans (std::string property) -> void;
-    auto foutResultsSubstTrans(std::string property) -> void;
+    auto foutResults          () -> void;
+    auto foutResultsTransposed() -> void;
 };
 
 }

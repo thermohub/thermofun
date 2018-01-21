@@ -17,6 +17,13 @@ struct ThermoPropertiesReaction;
 struct PropertiesSolvent;
 struct ElectroPropertiesSolvent;
 
+typedef std::vector<std::string> vstr;
+typedef std::vector<std::vector<double>> vvd;
+typedef std::vector<Reaktoro_::ThermoScalar> vThScalar;
+typedef std::vector<vThScalar> vvThScalar;
+typedef std::vector<std::vector<ThermoPropertiesSubstance>> vtps;
+typedef std::vector<std::vector<ThermoPropertiesReaction>>  vtpr;
+
 /**
  * @brief The OutputOptions struct holds the options for outputing results
  */
@@ -45,7 +52,7 @@ struct OutputSettings
 
     bool calcReactFromSubst = false;
 
-    bool loopOverTPpairsFirst = false;
+    bool loopOverTPpairsFirst = true;
 };
 
 struct CalculationSettings
@@ -82,74 +89,42 @@ public:
     ///
     Interface(const Database &database);
 
-    auto setUnits                   (const std::map<std::string, std::string> &propUnits)-> void;
-    auto setDigits                  (const std::map<std::string, int> &propDigits)-> void;
-    auto setPropertiesUnits         (const std::vector<std::string> &propNames, const std::vector<std::string> &propUnits)-> void;
-    auto setPropertiesDigits        (const std::vector<std::string> &propNames, const std::vector<int> &propDigits)-> void;
-    auto setPropertyUnit            (const std::string &propName, const std::string &propUnit)-> void;
-    auto setPropertyDigit           (const std::string &propName, const int &propDigit)-> void;
-    auto setPropertyUnitDigit       (const std::string &propName, const std::string &propUnit, const int &propDigit)-> void;
+    auto setUnits                   (const std::map<std::string, std::string> &units)-> void;
+    auto setDigits                  (const std::map<std::string, int> &digits)-> void;
+    auto setPropertiesUnits         (const vstr &properties, const vstr &units)-> void;
+    auto setPropertiesDigits        (const vstr &properties, const std::vector<int> &digits)-> void;
+    auto setPropertyUnit            (const std::string &property, const std::string &unit)-> void;
+    auto setPropertyDigit           (const std::string &property, const int &digit)-> void;
+    auto setPropertyUnitDigit       (const std::string &property, const std::string &unit, const int &digit)-> void;
 
     // claculate functions substances
-    auto thermoPropertiesSubstance   (const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
-    auto thermoPropertiesSubstance   (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                                      double TC, double Pbar) -> Output;
-    auto thermoPropertiesSubstance   (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                                      std::array<double, 3> aT, std::array<double, 3> aP) -> Output;
-    auto thermoPropertiesSubstance   (std::vector<std::string> substanceSymbols, std::vector<std::string> thermoProperties,
-                                      std::vector<std::vector<double> > tpPairs) -> Output;
+    auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property)   -> Output;
+    auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
+    auto thermoPropertiesSubstance  (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps = {}) -> Output;
 
     // claculate functions reactions
-    auto thermoPropertiesReaction    (const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output;
-    auto thermoPropertiesReaction    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                                      double TC, double Pbar) -> Output;
-    auto thermoPropertiesReaction    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                                      std::array<double, 3> aT, std::array<double, 3> aP) -> Output;
-    auto thermoPropertiesReaction    (std::vector<std::string> reactionSymbols, std::vector<std::string> thermoProperties,
-                                      std::vector<std::vector<double> > tpPairs) -> Output;
+    auto thermoPropertiesReaction   (double T, double P, std::string symbol,  std::string property) -> Output;
+    auto thermoPropertiesReaction   (double T, double P, vstr        symbols, vstr        properties) -> Output;
+    auto thermoPropertiesReaction   (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr = {}) -> Output;
 
-    auto setOutputSettings      (const OutputSettings &value) -> void;
-    auto setSolventSymbol       (const std::string solventSymbol) ->void;
-
-    // output order
-    auto providedResultsSubstance_colTProwSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void;
-
-    ///
-    /// \brief selectResultsSubst_vTpSym Selects the results from given a vector of calculated properites
-    /// \param vTps Vector of calculated properties of the form [properties at T-P x substances]
-    ///
-    auto selectResultsSubst_vTpSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void;
-
-    ///
-    /// \brief selectResultsReac_vTpSym Selects the results from given a vector of calculated properites
-    /// \param vTpr Vector of calculated properties of the form [properties at T-P x substances]
-    ///
-    auto selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void;
+    auto setOutputSettings          (const OutputSettings &value) -> void;
+    auto setSolventSymbol           (const std::string solventSymbol) ->void;
 
 private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
 
     // Substances
-    auto substanceSymbols       () -> const std::vector<std::string>;
-    auto resultsSubst           () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
-    auto calculateSolventProp   (int tpNdx) -> void;
-    auto calculateSubstProp( ) -> void;
+    auto symbols        () -> const vstr;
+    auto results        () -> const vvThScalar;
 
-    // Reactions
-    auto calculateReactProp   () -> void;
-    auto reactionSymbols        () -> const std::vector<std::string>;
-    auto resultsReac            () -> const std::vector<std::vector<Reaktoro_::ThermoScalar>>;
-
-    auto TPpairs                () -> const std::vector<std::vector<double>>;
-    auto propNames              () -> const std::vector<std::string>;
-    auto propUnits              () -> const std::map<std::string, std::string>;
-    auto propDigits             () -> const std::map<std::string, int>;
-    auto outputSettings         () -> const OutputSettings;
-
-    auto solventProp            () -> const std::vector<Reaktoro_::ThermoScalar>;
-    auto solventSymbol          () -> const std::string;
-    auto solventPropNames       () -> const std::vector<std::string>;
+    auto TPpairs        () -> const vvd;
+    auto properties     () -> const vstr;
+    auto units          () -> const std::map<std::string, std::string>;
+    auto digits         () -> const std::map<std::string, int>;
+    auto outputSettings () -> const OutputSettings;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =
@@ -280,7 +255,6 @@ const std::map<std::string, std::string> defaultPropertyUnits =
 
 const std::map<std::string, int> defaultPropertyDigits =
 {
-
     {"temperature",                    0               },
     {"pressure",                       0               },
 
