@@ -21,8 +21,8 @@ typedef std::vector<std::string> vstr;
 typedef std::vector<std::vector<double>> vvd;
 typedef std::vector<Reaktoro_::ThermoScalar> vThScalar;
 typedef std::vector<vThScalar> vvThScalar;
-typedef std::vector<std::vector<ThermoPropertiesSubstance>> vtps;
-typedef std::vector<std::vector<ThermoPropertiesReaction>>  vtpr;
+typedef std::vector<ThermoPropertiesSubstance> vtps;
+typedef std::vector<ThermoPropertiesReaction>  vtpr;
 
 /**
  * @brief The OutputOptions struct holds the options for outputing results

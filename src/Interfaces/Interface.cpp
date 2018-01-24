@@ -17,25 +17,23 @@ enum Calculation {forSUBSTANCE, forREACTION, forSOLVENT};
 struct Interface::Impl
 {
     /// The thermo instance
-    Thermo                                              thermo;
+    Thermo                              thermo;
 
-    OutputSettings                                      outSettings;
+    OutputSettings                      outSettings;
 
-    CalculationSettings                                 calcSettings;
+    CalculationSettings                 calcSettings;
 
-    vvd                    tpPairs;
+    vvd                                 tpPairs;
 
-    vstr                            properties;
+    vstr                                properties;
 
-    std::map<std::string, std::string>                  givenPropertyUnits  = defaultPropertyUnits;
+    std::map<std::string, std::string>  givenPropertyUnits  = defaultPropertyUnits;
 
-    std::map<std::string, int>                          propDigits = defaultPropertyDigits;
+    std::map<std::string, int>          givenPropertyDigits = defaultPropertyDigits;
 
-    vstr                                 symbols;
+    vstr                                symbols;
 
-    vvThScalar   results;
-
-    unsigned int                                        count = 0;
+    vvThScalar                          results;
 
     Impl(const Database& database)
     : thermo(Thermo(database))
@@ -217,9 +215,27 @@ struct Interface::Impl
                 case forSOLVENT: calculateSolventProp(T, P, symbol, (j_size*i)+(j)); break;
                 }
             }
-
         }
     }
+
+    auto selectProvidedSubstancesProperties(vtps vTps) -> void
+    {
+        results.empty();
+        for (auto result : vTps)
+        {
+            results.push_back(selectResultsSubst(result));
+        }
+    }
+
+    auto selectProvidedReactionsProperties(vtpr vTpr) -> void
+    {
+        results.empty();
+        for (auto result : vTpr)
+        {
+            results.push_back(selectResultsReact(result));
+        }
+    }
+
     // Calculate functions
     auto calculateSubstProp( double T, double P, string symbol, unsigned index ) -> void
     {
@@ -239,13 +255,11 @@ struct Interface::Impl
         results[index] = selectResultsSolvent(thermo.propertiesSolvent(T, P, symbol),
                                               thermo.electroPropertiesSolvent(T, P, symbol));
     }
-
 };
 
 Interface::Interface(const Database& database)
     : pimpl(new Impl(database))
 {}
-
 
 auto Interface::thermoPropertiesSubstance(double T, double P, std::string symbol, std::string property) -> Output
 {
@@ -286,13 +300,15 @@ auto Interface::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr proper
 
     pimpl->addTPpairs(tpPairs);
 
-    pimpl->calculate(forSUBSTANCE);
+    if (vTps.empty())
+        pimpl->calculate(forSUBSTANCE);
+    else
+        pimpl->selectProvidedSubstancesProperties(vTps);
 
     return Output (*this);
 }
 
 // Reaction
-
 auto Interface::thermoPropertiesReaction(double T, double P, std::string symbol, std::string property) -> Output
 {
     pimpl->addSymbolsProperties({symbol}, {property});
@@ -331,41 +347,18 @@ auto Interface::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr propert
 
     pimpl->addTPpairs(tpPairs);
 
-    pimpl->calculate(forREACTION);
+    if (vTpr.empty())
+        pimpl->calculate(forREACTION);
+    else
+        pimpl->selectProvidedReactionsProperties(vTpr);
 
     return Output (*this);
 }
 
-//auto Interface::selectResultsSubst_vTpSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void
-//{
-//    pimpl->results.empty(); unsigned tp = pimpl->tpPairs.size();
-//    pimpl->results.resize(pimpl->symbols.size() * pimpl->tpPairs.size());
-//    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
-//    {
-//        for (unsigned i=0; i<pimpl->symbols.size(); i++)
-//        {
-//            pimpl->results[(tp*i)+(j)] = pimpl->selectResultsSubst(vTps[j][i]);
-//        }
-//    }
-//}
-
-//auto Interface::selectResultsReac_vTpSym(vtpr vTpr ) -> void
-//{
-//    pimpl->results.empty(); unsigned tp = pimpl->tpPairs.size();
-//    pimpl->results.resize(pimpl->symbols.size() * pimpl->tpPairs.size());
-//    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
-//    {
-//        for (unsigned i=0; i<pimpl->symbols.size(); i++)
-//        {
-//            pimpl->results[(tp*i)+(j)] = pimpl->selectResultsReact(vTpr[j][i]);
-//        }
-//    }
-//}
-
 // Set functions
 auto Interface::setDigits(const std::map<std::string, int> &propDigits)-> void
 {
-    pimpl->propDigits = propDigits;
+    pimpl->givenPropertyDigits = propDigits;
 }
 
 auto Interface::setUnits(const std::map<std::string, std::string> &units)-> void
@@ -392,7 +385,7 @@ auto Interface::setPropertyUnit(const std::string &property, const std::string &
 
 auto Interface::setPropertyDigit(const std::string &property, const int &digit)-> void
 {
-    pimpl->propDigits.at(property) = digit;
+    pimpl->givenPropertyDigits.at(property) = digit;
 }
 
 auto Interface::setPropertyUnitDigit(const std::string &property, const std::string &unit, const int &digit)-> void
@@ -412,7 +405,6 @@ auto Interface::setSolventSymbol(const std::string solventSymbol) -> void
 }
 
 // Private
-
 // get functions
 auto Interface::symbols() -> const vstr
 {
@@ -441,7 +433,7 @@ auto Interface::units() -> const std::map<std::string, std::string>
 
 auto Interface::digits() -> const std::map<std::string, int>
 {
-    return pimpl->propDigits;
+    return pimpl->givenPropertyDigits;
 }
 
 auto Interface::results() -> const vvThScalar

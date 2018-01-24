@@ -167,7 +167,7 @@ auto Output::foutResults()-> void
     }
 }
 
-auto Output::foutResultsTransposed( )-> void
+auto Output::foutResultsTransposed()-> void
 {
     unsigned j_size, i_size;
     auto outSettings    = pimpl->api.outputSettings();
