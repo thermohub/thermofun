@@ -399,7 +399,7 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
     aSpc.id=1;
     aSpc.ip=1;
     aSpc.ih=4;
-    aSpc.itripl=1;
+    aSpc.itripl=1; // 1 aparent molal properties convention; 0 steam tables convention
 
     if (Tk <= 647.067e0)
         aSta.Psat = PsHGK(Tk)*10;

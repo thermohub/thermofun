@@ -17,6 +17,11 @@
 
 namespace ThermoFun {
 
+const std::map<const std::string, const std::string> implemented_conventions = {
+    {"component",       "Benson-Helgeson"     },
+    {"component",       "Berman-Brown"        },
+    {"solvent",         "Steam-Tables"        }};
+
 ///
 /// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
 ///
@@ -54,6 +59,10 @@ struct Thermo::Impl
     Database database;
 
     std::string solventSymbol = "H2O@"; // default
+
+    const std::map<const std::string, std::string> conventions = {
+    {"component",       "Benson-Helgeson"     },
+    {"solvent",         "Benson-Helgeson"     }};
 
     ThermoPropertiesSubstanceFunction thermo_properties_substance_fn;
 
@@ -522,6 +531,9 @@ struct Thermo::Impl
 
         return tps;
     }
+
+    /// Convetion convert
+    /// ThermoFun::FormulaProperites prop = ThermoFun::ChemicalFormula::calcThermo(pimpl->database.getSubstance(symbol).formula());
 };
 
 Thermo::Thermo()
