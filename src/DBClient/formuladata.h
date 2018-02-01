@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 #include "formulaparser.h"
-#include "bsonio/dbvertexdoc.h"
+#include "jsonio/dbvertexdoc.h"
 
 namespace ThermoFun {
 
@@ -27,8 +27,11 @@ struct ElementKey
   void classIsotopeFrom(const string& line );
   string key() const;
   string getSymbol() const;
-  void toBson( bson *obj ) const;
-  void fromBson( const char* obj );
+
+  void toJsonNode( jsonio::JsonDom *object ) const;
+  void fromJsonNode( const jsonio::JsonDom *object );
+  //void toBson( bson *obj ) const;
+  //void fromBson( const char* obj );
 
 };
 
@@ -66,14 +69,6 @@ struct FormulaValues
       key(akey), valence(avalence), stoichCoef(astoichCoef)
     { }
 };
-
-
-void ElementsToBsonArray( const char *key, bson *obj, const set<ElementKey>& elements );
-string ElementsToJson( const set<ElementKey>& elements );
-
-bool ElementsFromBsonArray( const char *keypath, const char *obj, set<ElementKey>& elements );
-bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements );
-
 
 /// Values calculated from formula
 /// vectors of molar masses, entropies and charges of substances.
@@ -159,8 +154,10 @@ public:
 
 };
 
-vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
+vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
 string ElementsToJson( const set<ElementKey>& elements );
+bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements );
+bool ElementsFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements );
 
 struct Element;
 
@@ -171,7 +168,7 @@ class ChemicalFormula
   static  DBElementsData dbElements;
   static  vector<string> queryFields;
 
-  static void addOneElement( bsonio::TDBVertexDocument* elementDB );
+  static void addOneElement( jsonio::TDBVertexDocument* elementDB );
   static void addOneElement(Element element);
 
  public:
@@ -183,9 +180,9 @@ class ChemicalFormula
      return dbElements;
   }
 
-  static void setDBElements( bsonio::TDBVertexDocument* elementDB,
+  static void setDBElements( jsonio::TDBVertexDocument* elementDB,
                              const string& queryString = "{\"_label\": \"element\" }" );
-  static void setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
+  static void setDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
   static void setDBElements(std::map<std::string, Element> elements );
 
   static vector<ElementKey> elementsRow();

@@ -1,7 +1,6 @@
 #ifndef _REACTIONSETDATA_H
 #define _REACTIONSETDATA_H
 
-//#include "formuladata.h"
 #include "AbstractData.h"
 
 namespace ThermoFun
@@ -10,7 +9,7 @@ namespace ThermoFun
 class ReactionSetData_ : public AbstractData
 {
   public:
-    ReactionSetData_(const bsonio::TDataBase* dbconnect);
+    ReactionSetData_(const jsonio::TDataBase* dbconnect);
 
     /// Construct a copy of an ReactionData instance
     ReactionSetData_(const ReactionSetData_& other);
@@ -20,9 +19,9 @@ class ReactionSetData_ : public AbstractData
     virtual ~ReactionSetData_();
 
     /// Extract data connected to ReactionSet
-    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
-    virtual bsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
+    virtual jsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);

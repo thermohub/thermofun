@@ -11,8 +11,8 @@
 #include "DBClient/SubstanceData.h"
 #include "DBClient/ReactionData.h"
 
-// bsonio includes
-#include "bsonio/thrift_node.h"
+// jsonio includes
+#include "jsonio/thrift_node.h"
 #include "Common/Exception.h"
 
 namespace ThermoFun {

@@ -51,7 +51,7 @@ INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 
 
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
+LIBS += -ljsonio -lyaml-cpp -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
 LIBS += -llua5.2

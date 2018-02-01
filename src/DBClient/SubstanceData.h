@@ -3,7 +3,6 @@
 
 // C++ includes
 #include <memory>
-//#include "formuladata.h"
 #include "AbstractData.h"
 
 namespace ThermoFun {
@@ -16,7 +15,7 @@ class SubstanceData_ : public AbstractData
 {
 public:
 
-    SubstanceData_( const bsonio::TDataBase* dbconnect );
+    SubstanceData_( const jsonio::TDataBase* dbconnect );
 
     /// Construct a copy of an SubstanceData instance
     SubstanceData_(const SubstanceData_& other);
@@ -26,9 +25,9 @@ public:
     virtual ~SubstanceData_();
 
     /// Extract data connected to ReactionSet
-    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
-    virtual bsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
+    virtual jsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} );
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idSubstance );

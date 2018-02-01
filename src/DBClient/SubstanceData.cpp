@@ -1,7 +1,8 @@
+#include <algorithm>
 #include "SubstanceData.h"
-#include "boost/shared_ptr.hpp"
+#include "jsonio/jsondomfree.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun {
 
@@ -13,7 +14,7 @@ const vector<string> substDataNames  = { "symbol", "name", "formula", "_id", "cl
 
 struct SubstanceData_::Impl
 {
-    bsonio::ValuesTable valuesTable;
+    ValuesTable valuesTable;
 
     Impl( )
     {
@@ -21,7 +22,7 @@ struct SubstanceData_::Impl
 
 };
 
-SubstanceData_::SubstanceData_( const bsonio::TDataBase* adbconnect )
+SubstanceData_::SubstanceData_( const TDataBase* adbconnect )
     : AbstractData( adbconnect, "VertexSubstance", substQuery,
                     substFieldPaths, datsetColumnHeaders, substDataNames), pimpl(new Impl())
 { }
@@ -61,11 +62,14 @@ auto SubstanceData_::setSubstanceLevel(string substSymbol, string level) -> void
 
 set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
 {
-  string formula; bson record;
-  // get recrod
-  record = getJsonBsonRecordVertex(idSubstance+":").second;
+  string formula;
+  // get record
+  string jsonrecord = getJsonRecordVertex(idSubstance+":");
+  auto domdata = jsonio::unpackJson( jsonrecord );
+
   // Extract data from fields
-  bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
+  domdata->findKey(getDataName_DataFieldPath()["formula"], formula);
+  //bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
 
   FormulaToken parser(formula);
   return parser.getElements();
@@ -145,7 +149,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 
 MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction( )
 {
-    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact; bson record;
+    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
     for (auto value : pimpl->valuesTable)
     {
         MapLevel_IdReaction levelReact;
@@ -155,9 +159,12 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for (uint i = 0; i < resultDefinesReactions.size(); i++)
         {
             string level;
-            record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
-            // Extract data from fields
-            bsonio::bson_to_key( record.data, "properties.level", level);
+            string jsonrecord = getJsonRecordEdge(resultDefinesEdges[i]+":");
+            auto domdata = jsonio::unpackJson( jsonrecord );
+            domdata->findKey("properties.level", level);
+
+            //record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
+            //bsonio::bson_to_key( record.data, "properties.level", level);
             levelReact[level] = resultDefinesReactions[i]+":";
         }
 //        if (!levelReact.empty())
@@ -168,7 +175,8 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
 
 MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols )
 {
-    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact; bson record;
+    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
+
     for (uint i = 0; i < connectedSubstIds.size(); i++)
     {
         MapLevel_IdReaction levelReact;
@@ -178,9 +186,11 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for (uint i = 0; i < resultDefinesReactions.size(); i++)
         {
             string level;
-            record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
-            // Extract data from fields
-            bsonio::bson_to_key( record.data, "properties.level", level);
+            string jsonrecord = getJsonRecordEdge(resultDefinesEdges[i]+":");
+            auto domdata = jsonio::unpackJson( jsonrecord );
+            domdata->findKey("properties.level", level);
+            //record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
+            //bsonio::bson_to_key( record.data, "properties.level", level);
             levelReact[level] = resultDefinesReactions[i]+":";
         }
 //        if (!levelReact.empty())

@@ -16,8 +16,8 @@
 #include "DBClient/DatabaseClient.h"
 //#include "DBClient/ThermoSetData.h"
 
-// bsonio includes
-#include "bsonio/json2cfg.h"
+// jsonio includes
+#include "jsonio/json2cfg.h"
 
 namespace ThermoFun {
 

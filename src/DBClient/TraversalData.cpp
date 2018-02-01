@@ -1,9 +1,9 @@
 #include "TraversalData.h"
 
 // ThermoFun includes
+#include "jsonio/jsondomfree.h"
 #include "SubstanceData.h"
 #include "ReactionData.h"
-//#include "DatabaseClient.h"
 #include "../Database.h"
 #include "../Substance.h"
 #include "../Reaction.h"
@@ -15,7 +15,7 @@
 
 struct timeval start, end_;
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun
 {

@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include "bsonio/dbconnect.h"
+#include "jsonio/dbconnect.h"
 
 namespace ThermoFun
 {
@@ -31,7 +31,7 @@ class DatabaseClient
     /// \brief DBClient creates a DBClient instance
     /// \param settingsFile path to the ThermoFun.ini file
     ///
-    explicit DatabaseClient( const std::shared_ptr<bsonio::TDataBase>& otherdb );
+    explicit DatabaseClient( const std::shared_ptr<jsonio::TDataBase>& otherdb );
 
     DatabaseClient();
 

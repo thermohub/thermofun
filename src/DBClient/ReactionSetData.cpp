@@ -1,8 +1,8 @@
 #include "ReactionSetData.h"
-#include "bsonio/io_settings.h"
-#include "boost/shared_ptr.hpp"
+#include "jsonio/io_settings.h"
+#include "jsonio/jsondomfree.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun
 {
@@ -15,7 +15,7 @@ const vector<string> reactColumnHeaders = { "symbol", "name", "stype", "level" }
 
 struct ReactionSetData_::Impl
 {
-    bsonio::ValuesTable valuesTable;
+    ValuesTable valuesTable;
 
     Impl( )
     {
@@ -23,7 +23,7 @@ struct ReactionSetData_::Impl
 
 };
 
-ReactionSetData_::ReactionSetData_(const bsonio::TDataBase* dbconnect)
+ReactionSetData_::ReactionSetData_(const TDataBase* dbconnect)
     : AbstractData(  dbconnect, "VertexReactionSet", reactQuery,
      reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
@@ -45,10 +45,10 @@ ReactionSetData_::~ReactionSetData_()
 
 set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrcset )
 {
-  set<ElementKey> elements; bson obj;
-  obj = getJsonBsonRecordVertex(idrcset+":").second;
-  ElementsFromBsonArray("properties.elements", obj.data, elements);
-//  bson_destroy(&obj);
+  set<ElementKey> elements;
+  string jsonrecord = getJsonRecordVertex(idrcset+":");
+  auto domdata = jsonio::unpackJson( jsonrecord );
+  ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
 
   // if user fogot tnsert elements property
   if( elements.empty() )
@@ -59,7 +59,7 @@ set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrc
   return elements;
 }
 
-bsonio::ValuesTable ReactionSetData_::loadRecordsValues( const string& aquery,
+ValuesTable ReactionSetData_::loadRecordsValues( const string& aquery,
                 int sourcetdb, const vector<ElementKey>& elements )
 {
     // get records by query
@@ -88,7 +88,7 @@ bsonio::ValuesTable ReactionSetData_::loadRecordsValues( const string& aquery,
     return reactMatr;
 }
 
-bsonio::ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
+ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
 {
     vector<string> ids;
     ids.push_back(idrcset);
@@ -108,7 +108,7 @@ vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
 vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
 {
     vector<string> formulas;
-    string formSub; bson obj;
+    string formSub;
 
     // Select substance ids connected to reactionSet
     auto subIds = getInVertexIds( "product", idrcset );
@@ -120,8 +120,11 @@ vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
     {
 //        getDB()->GetRecord((rec+":").c_str());
 //        getDB()->getValue("properties.formula", formSub);
-        obj = getJsonBsonRecordVertex(rec+":").second;
-        bsonio::bson_to_key( obj.data, "properties.formula", formSub);
+        string jsonrecord = getJsonRecordVertex(rec+":");
+        auto domdata = jsonio::unpackJson( jsonrecord );
+        domdata->findKey("properties.formula", formSub);
+        //obj = getJsonRecordVertex(rec+":").second;
+        //bsonio::bson_to_key( obj.data, "properties.formula", formSub);
         formulas.push_back(formSub);
     }
     return formulas;
@@ -183,12 +186,10 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
 
 bool ReactionSetData_::getSpeciesMap( const string& RcSid, std::map<string, int>& specmap )
 {
-    bson reobj;
     // extract data from reaction record
     getDB()->GetRecord( (RcSid+":").c_str() );
-    getDB()->GetBson(&reobj);
-    bool iret = bson_read_map_path( reobj.data, "properties.species_map", specmap );
-    bson_destroy(&reobj);
+    bool iret = getDB()->getDom()->findObject(  "properties.species_map", specmap );
+    //bool iret = bson_read_map_path( reobj.data, "properties.species_map", specmap );
     return iret;
 }
 

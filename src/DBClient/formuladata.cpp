@@ -1,4 +1,5 @@
 #include <math.h>
+#include "jsonio/jsondomfree.h"
 #include "formuladata.h"
 #include "formulaparser.h"
 #include "../Element.h"
@@ -37,7 +38,7 @@ void ElementKey::classIsotopeFrom(const string& typeline)
 
       }
       else
-          if( bsonio::is<int>( isotope, typeline.c_str()) )
+          if( jsonio::is<int>( isotope, typeline.c_str()) )
              class_ = 1; // ElementClass::ISOTOPE schema.enumdef->getId( "ISOTOPE" );
           else
              isotope = 0;
@@ -61,110 +62,92 @@ string ElementKey::getSymbol() const
   return _key;
 }
 
-// Writes data to bson
-void ElementKey::toBson( bson *obj ) const
+// Writes data to json
+void ElementKey::toJsonNode( jsonio::JsonDom *object ) const
 {
-    bson_append_string( obj, "symbol", symbol.c_str() );
+    object->appendString( "symbol", symbol );
     if( isotope != 0 )
-     bson_append_int( obj, "isotope_mass", isotope );
+      object->appendInt( "isotope_mass", isotope );
     if( class_ != 0 )
-     bson_append_int( obj, "class_", class_ );
+      object->appendInt( "class_", class_ );
 }
 
-// Reads data from bson
-void ElementKey::fromBson( const char* obj )
+// Reads data from JsonDom
+void ElementKey::fromJsonNode( const jsonio::JsonDom *object )
 {
-    if(!bsonio::bson_find_string( obj, "symbol", symbol ) )
-        bsonio::bsonioErr( "ElementKey: ", "Undefined symbol.");
-    if(!bsonio::bson_find_value( obj, "isotope_mass", isotope ) )
+    if(!object->findValue( "symbol", symbol ) )
+        jsonio::bsonioErr( "ElementKey: ", "Undefined symbol.");
+    if(!object->findValue( "isotope_mass", isotope ) )
         isotope = 0;
-    if(!bsonio::bson_find_value( obj, "class_", class_ ) )
+    if(!object->findValue(  "class_", class_ ) )
         class_ = 0;
 }
 
-void ElementsToBson( bson *obj, const set<ElementKey>& elements )
+void ElementsToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements )
 {
   int ndx=0;
   for( auto el: elements)
   {
-      bson_append_start_object( obj, to_string(ndx++).c_str());
-      el.toBson( obj );
-      bson_append_finish_object( obj );
+      object->appendObject(to_string(ndx++));
+      el.toJsonNode( object );
   }
 }
 
-void ElementsToBsonArray( const char *key, bson *obj, const set<ElementKey>& elements )
+shared_ptr<jsonio::JsonDomFree> ElementsToJsonArray( const set<ElementKey>& elements )
 {
-  bson_append_start_array(obj, key);
-  ElementsToBson( obj, elements );
-  bson_append_finish_array( obj );
+    shared_ptr<jsonio::JsonDomFree> domdata(jsonio::JsonDomFree::newArray());
+    ElementsToJsonDom( domdata.get(), elements );
+    return domdata;
 }
 
 string ElementsToJson( const set<ElementKey>& elements )
 {
-  bson obj;
-  bson_init( &obj );
-  ElementsToBson( &obj, elements );
-  bson_finish( &obj );
-
+  auto domarray = ElementsToJsonArray( elements );
   string elmsjson;
-  bsonio::jsonArrayFromBson( obj.data, elmsjson );
-  bson_destroy( &obj );
+  printNodeToJson( elmsjson, domarray.get() );
   return elmsjson;
 }
 
 
-void ElementsFromBson( const char *obj, set<ElementKey>& elements )
+void ElementsFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elements )
 {
     ElementKey elem("");
-    bson_iterator it;
-    bson_iterator_from_buffer(&it, obj );
-    while (bson_iterator_next(&it))
-    {
-        bson_type t = bson_iterator_type(&it);
-        if( t != BSON_OBJECT)
-            continue;
+    int objsize = object->getChildrenCount();
 
-        elem.fromBson(bson_iterator_value(&it));
+    for( int ii=0; ii<objsize; ii++ )
+    {
+       auto childobj = object->getChild( ii);
+       if( childobj->getType() != jsonio::JSON_OBJECT )
+            continue;
+        elem.fromJsonNode(childobj);
         elements.insert(elem);
     }
  }
 
-bool ElementsFromBsonArray( const char *keypath, const char *obj, set<ElementKey>& elements )
+bool ElementsFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements )
 {
     elements.clear();
-
-    bson_iterator it;
-    bson_type type;
-    bson_iterator_from_buffer(&it, obj );
-    type =  bson_find_fieldpath_value( keypath, &it );
-
-    if( type == BSON_ARRAY  )
-    {
-      ElementsFromBson( bson_iterator_value(&it), elements );
-      return true;
-    }
-    else
+    auto elmobj = object->field(keypath);
+    if(elmobj==nullptr)
       return false;
-}
+    ElementsFromJsonDom( elmobj, elements );
+    return true;
+ }
+
 
 bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements )
 {
-    bson obj;
     try{
+        auto arrobject = jsonio::unpackJson( elmsjson );
         elements.clear();
-        bsonio::jsonToBsonArray( &obj, elmsjson );
-        ElementsFromBson( obj.data, elements );
-        bson_destroy(&obj);
+        ElementsFromJsonDom( arrobject.get(), elements );
         return true;
     }
     catch(...)
       {
-        bson_destroy(&obj);
         return false;
       }
 }
-
 
 bool operator <( const ElementKey& iEl,  const ElementKey& iEr)
 {
@@ -230,7 +213,7 @@ void FormulaToken::unpack( list<ICTERM>& itt_ )
     {
         ElementKey key( itr->ick, itr->ick_iso );
 
-        if( itr->val == bsonio::SHORT_EMPTY )
+        if( itr->val == jsonio::SHORT_EMPTY )
         {    auto itrdb = ChemicalFormula::getDBElements().find(key);
              if( itrdb !=  ChemicalFormula::getDBElements().end() )
                 itr->val = itrdb->second.valence;
@@ -250,7 +233,7 @@ double FormulaToken::calculateCharge()
     while( itr != datamap.end() )
     {
       if( itr->key.class_ !=  4 /*CHARGE*/ &&
-          itr->valence != bsonio::SHORT_EMPTY )
+          itr->valence != jsonio::SHORT_EMPTY )
          Zz += itr->stoichCoef * itr->valence;
       itr++;
     }
@@ -282,7 +265,7 @@ void FormulaToken::exeptionCheckElements( const string& subreacKey, const string
       msg += notPresent;
       msg += "\n in formula in record: \n";
       msg += subreacKey;
-      bsonio::bsonioErr( "E37FPrun: Invalid symbol ", msg );
+      jsonio::bsonioErr( "E37FPrun: Invalid symbol ", msg );
   }
 }
 
@@ -315,7 +298,7 @@ void FormulaToken::calcFormulaProperites( FormulaProperites& propert )
     {
       auto itrdb = ChemicalFormula::getDBElements().find(itr->key);
       if( itrdb ==  ChemicalFormula::getDBElements().end() )
-          bsonio::bsonioErr( "E37FPrun: Invalid symbol ", itr->key.symbol );
+          jsonio::bsonioErr( "E37FPrun: Invalid symbol ", itr->key.symbol );
 
       Sc = itr->stoichCoef;
       propert.atoms_formula_unit += Sc;
@@ -323,7 +306,7 @@ void FormulaToken::calcFormulaProperites( FormulaProperites& propert )
       propert.elemental_entropy += Sc * itrdb->second.entropy;
 
       valence = itr->valence;
-      if( valence == bsonio::SHORT_EMPTY )
+      if( valence == jsonio::SHORT_EMPTY )
           valence = itrdb->second.valence;
       if( itr->key.class_ !=  4 /*CHARGE*/ )
           propert.charge += Sc * valence;
@@ -395,7 +378,7 @@ void FormulaToken::exeptionCargeImbalance()
             str +=  formula + "\n calculated charge: ";
             str +=  to_string(aZ) + " != " + to_string(Zzval);
             //aSC[ii] = aZ;  // KD 03.01.04  - temporary workaround (adsorption)
-            bsonio::bsonioErr(  "W34FPrun: Charge imbalance ", str);
+            jsonio::bsonioErr(  "W34FPrun: Charge imbalance ", str);
          }
          break;
      }
@@ -501,7 +484,7 @@ void ChemicalFormula::setDBElements(ElementsMap elements )
         addOneElement(e.second);
 }
 
-void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const string& queryString )
+void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const string& queryString )
 {
     vector<string> resultData;
     elementDB->runQuery( queryString, queryFields, resultData );
@@ -515,7 +498,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const
     }
 }
 
-void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& keyList )
+void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& keyList )
 {
   dbElements.clear();
 
@@ -526,7 +509,7 @@ void ChemicalFormula::setDBElements( bsonio::TDBVertexDocument* elementDB, const
   }
 }
 
-vector<ElementKey> getDBElements( bsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
+vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
 {
   vector<ElementKey> elements;
   ElementKey elkey("");
@@ -563,7 +546,7 @@ void ChemicalFormula::addOneElement(Element e)
     dbElements[elkey] = eldata;
 }
 
-void ChemicalFormula::addOneElement( bsonio::TDBVertexDocument* elementDB )
+void ChemicalFormula::addOneElement( jsonio::TDBVertexDocument* elementDB )
 {
     ElementKey elkey("");
     elementDB->getValue( "properties.symbol" , elkey.symbol );
@@ -588,7 +571,7 @@ auto elementKeyToElement(ElementKey elementKey) -> Element
     Element e;
     auto itrdb = ChemicalFormula::getDBElements().find(elementKey);
     if (itrdb == ChemicalFormula::getDBElements().end())
-        bsonio::bsonioErr("E37FPrun: Invalid symbol ", elementKey.symbol);
+        jsonio::bsonioErr("E37FPrun: Invalid symbol ", elementKey.symbol);
 
     e.setClass(elementKey.class_);
     e.setIsotopeMass(elementKey.isotope);

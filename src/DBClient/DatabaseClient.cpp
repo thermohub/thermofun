@@ -5,8 +5,8 @@
 #include "boost/shared_ptr.hpp"
 
 // bonio includes
-#include "bsonio/traversal.h"
-#include "bsonio/io_settings.h"
+#include "jsonio/traversal.h"
+#include "jsonio/io_settings.h"
 
 // ThermoFun includes
 #include "SubstanceData.h"

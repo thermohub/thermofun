@@ -1,7 +1,7 @@
 #include "boost/shared_ptr.hpp"
 #include "ThermoSetData.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun {
 
@@ -12,7 +12,7 @@ const vector<string> datsetDataNames        = {"symbol", "name", "type", "_id"};
 
 struct ThermoSetData::Impl
 {
-    bsonio::ValuesTable valuesTable;
+    ValuesTable valuesTable;
 
     Impl( )
     {
@@ -20,7 +20,7 @@ struct ThermoSetData::Impl
 
 };
 
-ThermoSetData::ThermoSetData( const bsonio::TDataBase* adbconnect )
+ThermoSetData::ThermoSetData( const TDataBase* adbconnect )
     : AbstractData( adbconnect, "VertexThermoDataSet", datsetQuery,
                     datsetFieldPaths, datsetColumnHeaders, datsetDataNames), pimpl(new Impl())
 { }

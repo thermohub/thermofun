@@ -1,5 +1,5 @@
 #include "formulaparser.h"
-#include "bsonio/ar2base.h"
+#include "jsonio/ar2base.h"
 
 namespace ThermoFun {
 
@@ -195,17 +195,17 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
      case   LBRACKET1: startPos = startPos.substr(1);
                        scanFterm( itt_, startPos, RBRACKET1 );
-                       bsonio::bsonioErrIf( startPos[0]!=RBRACKET1, "TFormula","Must be )");
+                       jsonio::bsonioErrIf( startPos[0]!=RBRACKET1, "TFormula","Must be )");
                        startPos = startPos.substr(1);
                        break;
      case   LBRACKET2: startPos = startPos.substr(1);
                        scanFterm( itt_, startPos, RBRACKET2 );
-                       bsonio::bsonioErrIf( startPos[0]!=RBRACKET2, "TFormula","Must be ]");
+                       jsonio::bsonioErrIf( startPos[0]!=RBRACKET2, "TFormula","Must be ]");
                        startPos = startPos.substr(1);
                        break;
      case   LBRACKET3: startPos = startPos.substr(1);
                        scanFterm( itt_, startPos, RBRACKET3 );
-                       bsonio::bsonioErrIf( startPos[0]!=RBRACKET3, "TFormula","Must be }");
+                       jsonio::bsonioErrIf( startPos[0]!=RBRACKET3, "TFormula","Must be }");
                        startPos = startPos.substr(1);
                        break;
      case   PSUR_L_PLUS: startPos = startPos.substr(1);
@@ -218,7 +218,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
          {
            string isotop = string(NOISOTOPE_CLASS);
            string icName = "";
-           int val = bsonio::SHORT_EMPTY;;
+           int val = jsonio::SHORT_EMPTY;;
 
            scanIsotope( isotop, startPos);
            scanICsymb( icName, startPos);
@@ -243,14 +243,14 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
      cur = cur.substr(1);
      if(cur.empty())
-         bsonio::bsonioErr( cur,  "Term valence scan error");
+         jsonio::bsonioErr( cur,  "Term valence scan error");
 
      size_t ti = cur.find_first_of(B_VALENT);
      if( ti >= 3 || ti==string::npos )
-         bsonio::bsonioErr( cur,  "Term valence scan error");
+         jsonio::bsonioErr( cur,  "Term valence scan error");
 
      if( !sscanf( cur.c_str(), " %d", &val ))
-         bsonio::bsonioErr( cur, "Integer number scan error");
+         jsonio::bsonioErr( cur, "Integer number scan error");
      cur = cur.substr(ti+1);
  }
 
@@ -267,11 +267,11 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
      cur = cur.substr(1);
      if(cur.empty())
-         bsonio::bsonioErr( cur,  "Term isotope scan error");
+         jsonio::bsonioErr( cur,  "Term isotope scan error");
 
      size_t ti = cur.find_first_of(B_ISOTOPE);
      if( ti >= MAXICNAME || ti==string::npos )
-         bsonio::bsonioErr( cur,  "Term isotope scan error");
+         jsonio::bsonioErr( cur,  "Term isotope scan error");
 
      isotop = string( cur, 0, ti );  // test please
      cur = cur.substr(ti+1);
@@ -287,12 +287,12 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
          return;
 
      if( !iscapl( cur[0] ))
-         bsonio::bsonioErr( cur, " E30FPrun: A symbol of element expected here!");
+         jsonio::bsonioErr( cur, " E30FPrun: A symbol of element expected here!");
 
      for( i=1; i<=MAXICNAME+2; i++ )
         if( !islowl( cur[i]))
             break;
-     bsonio::bsonioErrIf(  i>=MAXICNAME, cur,  "IC Symbol scan error");
+     jsonio::bsonioErrIf(  i>=MAXICNAME, cur,  "IC Symbol scan error");
 
      icName = string( cur, 0, i ); //  strncpy( ic, aFa.cur, len );
      cur = cur.substr(i);
@@ -322,10 +322,10 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
         case LBRACKET3: {
                        cur_ = cur_.substr(1);
                        if( cur_.empty() )
-                           bsonio::bsonioErr( "scanMoiety","Must be }");
+                           jsonio::bsonioErr( "scanMoiety","Must be }");
                        endmoi =  cur_.find_first_of( RBRACKET3 );
                        if( endmoi == string::npos )
-                           bsonio::bsonioErr( "scanMoiety","Must be }");
+                           jsonio::bsonioErr( "scanMoiety","Must be }");
                        moiName = string( cur_, 0, endmoi );
                        //  moiName = string( cur_, 0, endmoi-1 );
                        cur_ = cur_.substr(endmoi+1);
