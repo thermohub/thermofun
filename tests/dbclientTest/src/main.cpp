@@ -2,12 +2,12 @@
 #include "ThermoFun.h"
 #include "jsonio/io_settings.h"
 
-/*#include "DBClient/DatabaseClient.h"
+#include "DBClient/DatabaseClient.h"
 #include "DBClient/ReactionData.h"
 #include "DBClient/AbstractData.h"
 #include "DBClient/SubstanceData.h"
 #include "Common/ParseBsonTraversalData.h"
-*/
+
 #include <sys/time.h>
 
 using namespace std;
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     cout << "Hello World!" << endl;
     gettimeofday(&st, NULL);
     jsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
-/*    DatabaseClient dbc_;
+    DatabaseClient dbc_;
 
 //    dbc_.BackupAllIncoming({"5a2e61034a7d9f1500000000"}, "test1.json");
     auto list = dbc_.TraverseAllIncomingEdges("5a2e61034a7d9f1500000000");
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
     db.addSubstance(water);
 
-    Thermo th(db/*DBClient("./Resources/ThermoFun.ini").getDatabase(15)*);
+    Thermo th(db/*DBClient("./Resources/ThermoFun.ini").getDatabase(15)*/);
 
     th.setSolventSymbol("H2O@_");
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
 
     std::map<Element, double> elem = dbc_.parseSubstanceFormula("FeHSiO3+2");
-*/
+
     cout << "Bye World!" << endl;
     return 0;
 }

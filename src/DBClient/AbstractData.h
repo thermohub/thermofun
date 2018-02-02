@@ -11,9 +11,6 @@
 
 namespace ThermoFun {
 
-/// Temporaly from jsonio
-void addFieldsToQuery( string& query, const jsonio::FieldSetMap& fldvalues );
-
 class AbstractData
 {
 public:

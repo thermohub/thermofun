@@ -1,11 +1,5 @@
 #include "Database.h"
 
-// C++ includes
-//#include <map>
-//#include <set>
-//#include <string>
-//#include <vector>
-
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "Common/ParseBsonTraversalData.h"
@@ -257,7 +251,7 @@ struct Database::Impl
     /// @param filename name of the file (in the working directory)
     auto parseJson(std::string filename) -> void
     {
-        string kbuf, objStr;
+        string kbuf;
         flog.open(parsinglogfile, ios::trunc);
         flog.close();
 

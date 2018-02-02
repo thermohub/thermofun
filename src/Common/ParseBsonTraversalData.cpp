@@ -458,4 +458,22 @@ auto thermoRefPropReac (const jsonio::JsonDom *object, string name) -> ThermoPro
     return tpr;
 }
 
+auto parseElement (const string& data) -> Element
+{
+  auto domdata = jsonio::unpackJson( data, "VertexElement" ); // with default values
+  return parseElement(domdata.get());
+}
+
+auto parseSubstance (const string& data) -> Substance
+{
+  auto domdata = jsonio::unpackJson( data, "VertexSubstance" ); // with default values
+  return parseSubstance(domdata.get());
+}
+
+auto parseReaction (const string& data) -> Reaction
+{
+ auto domdata = jsonio::unpackJson( data, "VertexReaction" ); // with default values
+ return parseReaction(domdata.get());
+}
+
 }
