@@ -2,11 +2,11 @@
 
 // C++ includes
 #include <functional>
-#include "boost/shared_ptr.hpp"
 
 // bonio includes
 #include "jsonio/traversal.h"
 #include "jsonio/io_settings.h"
+#include "jsonio/arrs2cfg.h"
 
 // ThermoFun includes
 #include "SubstanceData.h"
@@ -19,7 +19,7 @@
 #include "../Element.h"
 #include "../OptimizationUtils.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun
 {
@@ -32,7 +32,7 @@ std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation"
 
 struct DatabaseClient::Impl
 {
-    std::shared_ptr<bsonio::TDataBase> _dbconnect;
+    std::shared_ptr<TDataBase> _dbconnect;
 
     /// access to substance records
     SubstanceData_ substData;
@@ -53,7 +53,7 @@ struct DatabaseClient::Impl
 
     QueryReactionsFunction query_reactions_fn;
 
-    Impl(const std::shared_ptr<bsonio::TDataBase>& otherdb) :
+    Impl(const std::shared_ptr<TDataBase>& otherdb) :
       _dbconnect( otherdb), substData(_dbconnect.get()),
       reactData(_dbconnect.get()), reactSetData(_dbconnect.get()),
       thermoDataSet(_dbconnect.get()), traversal (&substData, &reactData)
@@ -62,7 +62,7 @@ struct DatabaseClient::Impl
     }
 
     // read from default config
-    Impl() : _dbconnect( new bsonio::TDataBase() ), substData(_dbconnect.get()),
+    Impl() : _dbconnect( new TDataBase() ), substData(_dbconnect.get()),
         reactData(_dbconnect.get()), reactSetData(_dbconnect.get()),
         thermoDataSet(_dbconnect.get()), traversal (&substData, &reactData)
     {
@@ -84,7 +84,7 @@ struct DatabaseClient::Impl
         string qrJson;
 
         qrJson = "{ \"_label\" : \"element\"}";
-        auto elementVertex = unique_ptr<bsonio::TDBVertexDocument> (
+        auto elementVertex = unique_ptr<TDBVertexDocument> (
                     TDBVertexDocument::newDBVertexDocument(
               _dbconnect.get(),  "VertexElement", qrJson ));
         // load all elements into system
@@ -120,7 +120,7 @@ struct DatabaseClient::Impl
     }
 };
 
-DatabaseClient::DatabaseClient(const std::shared_ptr<bsonio::TDataBase>& otherdb)
+DatabaseClient::DatabaseClient(const std::shared_ptr<TDataBase>& otherdb)
     : pimpl(new Impl( otherdb ))
 {
 }
@@ -155,7 +155,7 @@ auto DatabaseClient::extractFieldValuesFromQueryResult(std::vector<std::string> 
     std::vector<std::string> values;
     for (auto result : resultQuery)
     {
-        values.push_back(bsonio::extractStringField(fieldName, result));
+        values.push_back(extractStringField(fieldName, result));
     }
     return values;
 }
@@ -210,7 +210,7 @@ auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexe
 {
     // set lists
     std::map<string, uint> namesIndexes;
-    bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
+    ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
         for (int idx: sourcetdbIndexes)
@@ -226,7 +226,7 @@ auto DatabaseClient::sourcetdbNamesComments(const std::set<uint> &sourcetdbIndex
 {
     // set lists
     std::map<string, string> namesComments;
-    bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
+    ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
         for (int idx: sourcetdbIndexes)
@@ -243,7 +243,7 @@ auto DatabaseClient::sourcetdbListAll() -> std::vector<string>
     string name, comment;
     vector<string> _sourcetdbList;
     auto indexes = sourcetdbIndexes();
-    bsonio::ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
+    ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
         for (int idx: indexes)
@@ -266,7 +266,7 @@ auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
     FormulaToken parser("");
     for (string subitem: _resultData)
     {
-        string formula = bsonio::extractStringField("formula", subitem);
+        string formula = extractStringField("formula", subitem);
         //string symbol = bsonio::extractStringField("symbol", subitem);
         //  cout << subitem << "      " << formula << "  " << symbol << endl;
         // test elements
@@ -306,8 +306,8 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     FormulaToken parser("");
     for (string subitem: _resultData)
     {
-        string formula = bsonio::extractStringField("formula", subitem);
-        string symbol = bsonio::extractStringField("symbol", subitem);
+        string formula = extractStringField("formula", subitem);
+        string symbol = extractStringField("symbol", subitem);
         //  cout << subitem << "      " << formula << "  " << symbol << endl;
         // test elements
         parser.exeptionCheckElements(symbol, formula);
@@ -319,7 +319,7 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     {
         auto itrdb = ChemicalFormula::getDBElements().find(element);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            bsonio::bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
         set.push_back(element);
     }
     return set;
@@ -332,7 +332,7 @@ auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std
     {
         auto itrdb = ChemicalFormula::getDBElements().find(element);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            bsonio::bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
         elmIds.push_back(itrdb->second.recid);
     }
     return elmIds;
@@ -370,7 +370,7 @@ auto DatabaseClient::BackupAllIncoming( const vector<string>& ids, const string 
     FJsonArray file( fileName);
     file.Open( OpenModeTypes::WriteOnly );
 
-    GraphElementFunction afunc =  [&file]( bool , bson *data )
+    GraphElementFunction afunc =  [&file]( bool , const JsonDom* data )
             {
                file.SaveNext(data);
             };
@@ -386,13 +386,13 @@ auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_Vertex
 {
     List_VertexId_VertexType list;
 
-    GraphElementFunction afunc =  [&list]( bool vert, bson *bdata )
+    GraphElementFunction afunc =  [&list]( bool vert, const JsonDom* data )
             {
               if( vert)
               {
                   string type, id;
-                  bson_to_key( bdata->data, "_id",    id );
-                  bson_to_key( bdata->data, "_label",  type);
+                  data->findKey( "_id",    id );
+                  data->findKey( "_label",  type);
                   list.push_back(pair<string,string>(id, type));
               }
             };

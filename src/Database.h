@@ -7,7 +7,7 @@
 #include <vector>
 #include <map>
 
-#include "ejdb/bson.h"
+//#include "ejdb/bson.h"
 
 namespace ThermoFun {
 
@@ -41,7 +41,8 @@ public:
      * @param bsonSubstances vector of substances in bson format
      * see BSONIO
      */
-    Database(std::vector<bson> bsonSubstances);
+    Database(std::vector<std::string> jsonSubstances);
+//    Database(std::vector<bson> bsonSubstances);
 
     /**
      * @brief Database constructs a database instace from a database client server connection and a record list

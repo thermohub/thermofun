@@ -3,7 +3,6 @@
 // C++ includes
 #include <functional>
 #include "jsonio/jsondomfree.h"
-//#include "boost/shared_ptr.hpp"
 // ThermoFun includes
 #include "../OptimizationUtils.h"
 

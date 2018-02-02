@@ -1,10 +1,10 @@
 #include "Database.h"
 
 // C++ includes
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+//#include <map>
+//#include <set>
+//#include <string>
+//#include <vector>
 
 // ThermoFun includes
 #include "Common/Exception.h"
@@ -17,7 +17,8 @@
 //#include "DBClient/ThermoSetData.h"
 
 // jsonio includes
-#include "jsonio/json2cfg.h"
+#include "jsonio/arrs2cfg.h"
+#include "jsonio/jsondomfree.h"
 
 namespace ThermoFun {
 
@@ -46,28 +47,16 @@ struct Database::Impl
     /// The map of all elements in the database
     ElementsMap elements_map;
 
-    char type_ = bsonio::FileTypes::Undef_;
+    char type_ = jsonio::FileTypes::Undef_;
 
     Impl()
     {}
 
     Impl(std::string filename)
     {
-        bsonio::FJson file (filename);
-        type_ = file.Type();
-
-        switch( type_ )
-        {
-          case bsonio::FileTypes::Json_:
-              parseJson( filename );
-               break;
-          case bsonio::FileTypes::Yaml_:
-//               loadYaml( bobj );
-               break;
-          case bsonio::FileTypes::XML_:
-//               loadXml( bobj );
-               break;
-        }
+        //jsonio::FJson file (filename);
+        //type_ = file.Type();
+        parseJson( filename );
         if (elements_map.size()>0)
             ChemicalFormula::setDBElements( elements_map );
     }
@@ -80,19 +69,20 @@ struct Database::Impl
         reactions_map  = db.mapReactions();
     }
 
-    Impl(vector<bson> bsons)
+    Impl(vector<string> jsons)
     {
         string kbuf;
         flog.open(parsinglogfile, ios::trunc); flog.close();
 
-        for (int i=0; i<bsons.size(); i++)
+        for (int i=0; i<jsons.size(); i++)
         {
-
-            bsonio::bson_to_key( bsons[i].data, label, kbuf );
+            auto domdata = jsonio::unpackJson( jsons[i] );
+            domdata->findKey(label, kbuf );
+            //bsonio::bson_to_key( bsons[i].data, label, kbuf );
 
             if (kbuf == "substance")
             {
-                Substance substance = parseSubstance(bsons[i].data);
+                Substance substance = parseSubstance(domdata.get());
                 substances_map[substance.symbol()] = substance;
             } else
             if (kbuf == "reaction")
@@ -102,7 +92,7 @@ struct Database::Impl
             } else
             if (kbuf == "element")
             {
-                Element element = parseElement(bsons[i].data);
+                Element element = parseElement(domdata.get());
                 elements_map[element.symbol()] = element;
             } else
             {
@@ -267,53 +257,38 @@ struct Database::Impl
     /// @param filename name of the file (in the working directory)
     auto parseJson(std::string filename) -> void
     {
-        string kbuf, objStr; bsonio::ParserJson parserJson;
-        bson bso; char b;
-        bso.data = 0;
-        // Reading work structure from json text file
-        fstream f(filename, ios::in);
-        flog.open(parsinglogfile, ios::trunc); flog.close();
-
-        if (!f.good())
-        {
-            Exception exception;
-            exception.error << "File read error " << filename << " ";
-            exception.reason << "The file could not be read. ";
-            exception.line = __LINE__;
-            RaiseError(exception);
-        }
+        string kbuf, objStr;
+        flog.open(parsinglogfile, ios::trunc);
+        flog.close();
 
         try
         {
-            while( !f.eof() )
+            // Reading work structure from json text file
+            jsonio::FJsonArray file( filename);
+            type_ = file.Type();
+            file.Open( jsonio::OpenModeTypes::ReadOnly );
+
+            // iterate by readed dom array
+            jsonio::JsonDom* curRecord = nullptr;
+            while( (curRecord = file.LoadNext()) !=nullptr   )
             {
-                f.get(b);
-                if( b == bsonio::jsBeginObject )
-                {
-                    b= ' ';
-                    objStr =  parserJson.readObjectText(f);
-                    bson_init(&bso);
-                    parserJson.parseObject( &bso );
-                    bson_finish(&bso);
-
-                    bsonio::bson_to_key( bso.data, label, kbuf );
-
-                    if (kbuf == "substance")
+                 curRecord->findKey( label, kbuf );
+                 if (kbuf == "substance")
                     {
-                        Substance substance = parseSubstance(bso.data);
+                        Substance substance = parseSubstance(curRecord);
                         substances_map[substance.symbol()] = substance;
                     } else
-                    if (kbuf == "reaction")
+                  if (kbuf == "reaction")
                     {
-                        Reaction reaction = parseReaction(bso.data);
+                        Reaction reaction = parseReaction(curRecord);
                         reactions_map[reaction.symbol()] = reaction;
                     } else
-                    if (kbuf == "element")
+                  if (kbuf == "element")
                     {
-                        Element element = parseElement(bso.data);
+                        Element element = parseElement(curRecord);
                         elements_map[element.symbol()] = element;
                     }
-                    else
+                   else
                     {
                         Exception exception;
                         exception.error << "Unknown JSON type " << kbuf << " ";
@@ -321,10 +296,9 @@ struct Database::Impl
                         exception.line = __LINE__;
                         RaiseError(exception);
                     }
-                }
             }
         }
-        catch (bsonio::bsonio_exeption e)
+        catch (jsonio::bsonio_exeption e)
         {
             Exception exception;
             exception.error << e.title_;
@@ -343,8 +317,8 @@ Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
 
-Database::Database(vector<bson> bsonSubstances)
-: pimpl(new Impl(bsonSubstances))
+Database::Database(vector<string> jsonSubstances)
+: pimpl(new Impl(jsonSubstances))
 {}
 
 Database::Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol)
