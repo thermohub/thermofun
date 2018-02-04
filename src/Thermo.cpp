@@ -1,5 +1,6 @@
 // ThermoFun includes
 #include "Common/Exception.h"
+#include "DBClient/formuladata.h"
 #include "Thermo.h"
 #include "Database.h"
 #include "Reaction.h"
@@ -15,12 +16,14 @@
 
 #include <functional>
 
+#include <boost/algorithm/string/predicate.hpp>
+
 namespace ThermoFun {
 
 const std::map<const std::string, const std::string> implemented_conventions = {
-    {"component",       "Benson-Helgeson"     },
-    {"component",       "Berman-Brown"        },
-    {"solvent",         "Steam-Tables"        }};
+{"Benson-Helgeson",  "aparent-properties"   },
+{"Berman-Brown",     "aparent-properties"   },
+{"steam-tables",     "water-properties"     }};
 
 ///
 /// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
@@ -61,8 +64,8 @@ struct Thermo::Impl
     std::string solventSymbol = "H2O@"; // default
 
     const std::map<const std::string, std::string> conventions = {
-    {"component",       "Benson-Helgeson"     },
-    {"solvent",         "Benson-Helgeson"     }};
+    {"aparent-properties", "Benson-Helgeson"     },
+    {"water-properties", ""    }};
 
     ThermoPropertiesSubstanceFunction thermo_properties_substance_fn;
 
@@ -101,6 +104,29 @@ struct Thermo::Impl
             return thermoPropertiesReaction(T, P, symbol);
         };
         thermo_properties_reaction_fn = memoize(thermo_properties_reaction_fn);
+    }
+
+    auto toSteamTables(ThermoPropertiesSubstance &tps) -> void
+    {
+        // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
+        const auto Str =  15.1320 * cal_to_J; // unit: J/(mol*K)
+        const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
+        const auto Htr = -68767.0 * cal_to_J; // unit: J/mol
+        const auto Utr = -67887.0 * cal_to_J; // unit: J/mol
+        const auto Atr = -55415.0 * cal_to_J; // unit: J/mol
+
+        tps.gibbs_energy    -=Gtr; tps.enthalpy         -=Htr;
+        tps.entropy         -=Str; tps.helmholtz_energy -=Atr;
+        tps.internal_energy -=Utr;
+    }
+
+    auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) -> void
+    {
+        const auto Tr = subst.referenceT();
+        FormulaProperites prop = ThermoFun::ChemicalFormula::calcThermo(subst.formula());
+        const auto entropyElements = prop.elemental_entropy;
+        tps.gibbs_energy -= (Tr*entropyElements);
+        tps.enthalpy     -= (Tr*entropyElements);
     }
 
     auto getThermoPreferences(std::string substance) -> ThermoPreferences
@@ -177,9 +203,9 @@ struct Thermo::Impl
                     tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol), electro_properties_solvent_fn(T, P, P, solventSymbol));
                     break;
                 }
-    //                default:
-    //                // Exception
-    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                    //                default:
+                    //                // Exception
+                    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
                 }
 
                 // method T
@@ -190,9 +216,9 @@ struct Thermo::Impl
                     tps = HPLandau(pref.workSubstance).thermoProperties(T, P, tps);
                     break;
                 }
-    //                default:
-    //               // Exception
-    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                    //                default:
+                    //               // Exception
+                    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
                 }
 
                 // method P
@@ -203,11 +229,11 @@ struct Thermo::Impl
                     double Pr = database.getSubstance(solventSymbol).referenceP();
                     double Tr = database.getSubstance(solventSymbol).referenceT();
                     tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P,  solventSymbol),
-                                                                                                   WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P),
-                                                                                                   properties_solvent_fn(T, P, P, solventSymbol),
-                                                                                                   thermo_properties_substance_fn(Tr, Pr, Pr,  solventSymbol),
-                                                                                                   WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(Tr, Pr),
-                                                                                                   properties_solvent_fn(Tr, Pr, Pr, solventSymbol));
+                                                                                        WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P),
+                                                                                        properties_solvent_fn(T, P, P, solventSymbol),
+                                                                                        thermo_properties_substance_fn(Tr, Pr, Pr,  solventSymbol),
+                                                                                        WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(Tr, Pr),
+                                                                                        properties_solvent_fn(Tr, Pr, Pr, solventSymbol));
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CEH:
@@ -265,9 +291,9 @@ struct Thermo::Impl
                     tps = IdealGasLawVol(pref.workSubstance).thermoProperties(T, P, tps);
                     break;
                 }
-    //                default:
-    //                // Exception
-    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                    //                default:
+                    //                // Exception
+                    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
                 }
             }
 
@@ -295,7 +321,7 @@ struct Thermo::Impl
                     tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
                     break;
                 }
-                    default:
+                default:
                     switch( pref.method_genEOS )
                     {
                     case MethodGenEoS_Thrift::type::CTPM_CPT:
@@ -303,19 +329,30 @@ struct Thermo::Impl
                         tps = EmpiricalCpIntegration(pref.workSubstance).thermoProperties(T, P);
                         break;
                     }
-    //                    default:
+                        //                    default:
                     }
-    //                default:
-    //                // Exception
-    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
+                    //                default:
+                    //                // Exception
+                    //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
                 }
 
             }
-        } else // substance proeprties calculated using the properties of a reaction
+
+            /// Convetion convert
+            if (pref.isH2OSolvent) {
+                if (boost::iequals(conventions.at("water-properties"),"steam-tables")) {
+                    toSteamTables(tps);
+                }
+            } else {
+                if (boost::iequals(conventions.at("aparent-properties"),"Berman-Brown")) {
+                    toBermanBrown(tps, pref.workSubstance);
+                }
+            }
+        } else // substance properties calculated using the properties of a reaction
         {
             tps = reacDCthermoProperties(T, P, pref.workSubstance);
         }
-       return tps;
+        return tps;
     }
 
     auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent
@@ -531,9 +568,6 @@ struct Thermo::Impl
 
         return tps;
     }
-
-    /// Convetion convert
-    /// ThermoFun::FormulaProperites prop = ThermoFun::ChemicalFormula::calcThermo(pimpl->database.getSubstance(symbol).formula());
 };
 
 Thermo::Thermo()
