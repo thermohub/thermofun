@@ -23,7 +23,7 @@ class ReactionData_ : public AbstractData
     /// Extract data connected to ReactionSet
     virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
-    virtual jsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
+    virtual jsonio::ValuesTable loadRecordsValues(const jsonio::DBQueryData& query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);

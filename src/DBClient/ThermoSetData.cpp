@@ -4,7 +4,7 @@ using namespace jsonio;
 
 namespace ThermoFun {
 
-const string datsetQuery                    = "{\"_label\": \"thermodataset\" }";
+const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
 const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.type","_id"};
 const vector<string> datsetColumnHeaders    = {"symbol", "name", "type"};
 const vector<string> datsetDataNames        = {"symbol", "name", "type", "_id"};
@@ -42,7 +42,7 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idSubstance )
 
 }
 
-ValuesTable ThermoSetData::loadRecordsValues( const string& aquery,
+ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
 

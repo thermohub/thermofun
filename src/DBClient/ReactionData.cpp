@@ -13,7 +13,7 @@ using namespace jsonio;
 namespace ThermoFun
 {
 
-const string reactQuery = "{\"_label\": \"reaction\" }";
+const DBQueryData reactQuery("{\"_label\": \"reaction\" }", DBQueryData::qTemplate);
 const vector<string> reactFieldPaths =
     {"properties.symbol", "properties.name", "properties.equation", "_id", "properties.level", "properties.sourcetdb"};
 const vector<string> reactColumnHeaders = {"symbol", "name", "equation"};
@@ -62,11 +62,11 @@ auto ReactionData_::reactantsCoeff(string idReact) -> std::map<std::string, doub
     return reactantsCoeff_(idReact);
 }
 
-ValuesTable ReactionData_::loadRecordsValues(const string &aquery,
+ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
                                   int sourcetdb, const vector<ElementKey> &elements)
 {
     // get records by query
-    string query = aquery;
+    auto query = aquery;
     if (query.empty())
         query = getQuery();
     if (!elements.empty())
@@ -198,13 +198,13 @@ vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
     queryJson += "',  'properties.sourcetdb': ";
     queryJson += sourcetdb;
     queryJson += " }";
-    return getDB()->getKeysByQuery(queryJson);
+    return getDB()->getKeysByQuery( DBQueryData(queryJson,DBQueryData::qTemplate));
 }
 
 bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
 {
     vector<int> levels;
-    string queryJson; ValuesTable levelQueryMatr;
+    ValuesTable levelQueryMatr;
     string reactSymbol = symbol;
     vector<string> reactKeys = getKeys(symbol, sourcetdb);
     level = "0";
@@ -215,11 +215,12 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
         for (auto key_: reactKeys)
         {
             strip_all( key_, ":" );
-            queryJson = "{'_type': 'edge', '_label': 'defines', '_outV': '";
-            queryJson += key_;
-            queryJson += "'}";
+            //string queryJson = "{'_type': 'edge', '_label': 'defines', '_outV': '";
+            //queryJson += key_;
+            //queryJson += "'}";
 
             // level of the defines edge
+            auto queryJson = getDB_edgeAccessMode()->outEdgesQuery( "defines", key_ );
             levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
             if (levelQueryMatr.size()>0)
                 levels.push_back(std::stoi(levelQueryMatr[0][0]));

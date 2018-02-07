@@ -7,7 +7,7 @@ using namespace jsonio;
 namespace ThermoFun
 {
 
-const string reactQuery = "{\"_label\": \"reactionset\" }";
+const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
 const vector<string> reactFieldPaths =
     { "properties.symbol", "properties.name", "properties.stype", "properties.level", "_id"};
 const vector<string> reactDataNames = {"symbol", "name", "type", "level", "_id"};
@@ -59,11 +59,11 @@ set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrc
   return elements;
 }
 
-ValuesTable ReactionSetData_::loadRecordsValues( const string& aquery,
+ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
                 int sourcetdb, const vector<ElementKey>& elements )
 {
     // get records by query
-    string query = aquery;
+    auto query = aquery;
     if( query.empty() )
        query = getQuery();
     if( !elements.empty() )

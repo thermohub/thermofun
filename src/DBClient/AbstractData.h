@@ -16,7 +16,7 @@ class AbstractData
 public:
 
     AbstractData( const jsonio::TDataBase* dbconnect,
-                  const string &name, const string &query, const vector<string> &paths,
+                  const string &name, const jsonio::DBQueryData& query, const vector<string> &paths,
                   const vector<string> &headers, const vector<string> &names );
 
     /// Construct a copy of an ThermoDataAbstract instance
@@ -29,7 +29,7 @@ public:
     /// Extract data connected to ReactionSet
     virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet ) = 0;
     /// Extract data by condition
-    virtual jsonio::ValuesTable  loadRecordsValues( const string& query, int sourcetdb,
+    virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
@@ -38,7 +38,7 @@ public:
 
     auto getDB() const -> std::shared_ptr<jsonio::TDBVertexDocument>;
     auto getName() const -> string;
-    auto getQuery() const -> string;
+    auto getQuery() const -> jsonio::DBQueryData;
     auto getDataNames() const -> vector<string>;
     auto getDataHeaders() const -> vector<string>;
     auto getDataFieldPaths() const -> vector<string>;

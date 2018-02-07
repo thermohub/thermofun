@@ -6,7 +6,7 @@ using namespace jsonio;
 
 namespace ThermoFun {
 
-const string substQuery = "{\"_label\": \"substance\" }";
+const DBQueryData substQuery("{\"_label\": \"substance\" }", DBQueryData::qTemplate);
 const vector<string> substFieldPaths =
    { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
 const vector<string> datsetColumnHeaders = { "symbol", "name", "formula" };
@@ -75,11 +75,11 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
   return parser.getElements();
 }
 
-ValuesTable SubstanceData_::loadRecordsValues( const string& aquery,
+ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
     // get records by query
-    string query = aquery;
+    auto query = aquery;
     if (query.empty())
        query = getQuery();
     if (!elements.empty())
@@ -120,7 +120,8 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 
 auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
-  string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
+  //string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
+  auto qrJson = DBQueryData( "{ \"_label\" : \"substance\", \"properties.class_\" : 3 }", DBQueryData::qTemplate );
   addFieldsToQuery( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
 
   ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataFieldPaths());
@@ -130,13 +131,14 @@ auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 {
     // maybe use query edge defines memoized?
-    string queryJson, level = "0"; ValuesTable levelQueryMatr;
+    string level = "0"; ValuesTable levelQueryMatr;
     vector<int> levels;
     // check if more edge defines are connected to this substance
-    queryJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
-    queryJson += idSubst;
-    queryJson += "'}";
+    //string queryJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
+    //queryJson += idSubst;
+    //queryJson += "'}";
 
+    auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
     levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
     for (uint i = 0; i < levelQueryMatr.size(); i++)
     {

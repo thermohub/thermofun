@@ -81,14 +81,11 @@ struct DatabaseClient::Impl
         };
         query_reactions_fn = memoize(query_reactions_fn);
 
-        string qrJson;
-
-        qrJson = "{ \"_label\" : \"element\"}";
         auto elementVertex = unique_ptr<TDBVertexDocument> (
                     TDBVertexDocument::newDBVertexDocument(
-              _dbconnect.get(),  "VertexElement", qrJson ));
+              _dbconnect.get(),  "VertexElement", ChemicalFormula::getDefaultQuery() ));
         // load all elements into system
-        ChemicalFormula::setDBElements( elementVertex.get(), qrJson );
+        ChemicalFormula::setDBElements( elementVertex.get(), ChemicalFormula::getDefaultQuery() );
     }
 
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
@@ -98,7 +95,7 @@ struct DatabaseClient::Impl
         query += " }";
         vector<string> _queryFields = queryFieldsSubstance;
         vector<string> _resultData;
-        substData.getDB()->runQuery(query, _queryFields, _resultData);
+        substData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ), _queryFields, _resultData);
         return _resultData;
     }
 
@@ -109,7 +106,7 @@ struct DatabaseClient::Impl
         query += " }";
         vector<string> _queryFields = queryFieldsReaction;
         vector<string> _resultData;
-        reactData.getDB()->runQuery(query, _queryFields, _resultData);
+        reactData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ), _queryFields, _resultData);
         return _resultData;
     }
 
@@ -193,8 +190,10 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Ele
 
 auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
 {
-    string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" }, { \"_label\" :   \"reaction\"  }"
-                   "], \"_type\" :   \"vertex\"  }";
+    //string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" }, { \"_label\" :   \"reaction\"  }"
+    //               "], \"_type\" :   \"vertex\"  }";
+    /// !!! query only by substances (all reactions must connect substance )
+    DBQueryData query("{ \"_label\" :   \"substance\" , \"_type\" :   \"vertex\"  }", DBQueryData::qTemplate );
     set<uint> _sourcetdb;
     vector<string> _resultData = pimpl->substData.getDB()->fieldQuery("properties.sourcetdb", query);
 

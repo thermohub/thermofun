@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 //    auto rcd = dbc_.reactData();
 
     auto rcd = dbc_.reactData();
-
-    auto loadedReacData = rcd.loadRecordsValues("{ \"_label\" : \"reaction\"}", 19, dbc_.availableElementsKey(19) );
+    jsonio::DBQueryData query("{ \"_label\" : \"reaction\"}",jsonio::DBQueryData::qTemplate );
+    auto loadedReacData = rcd.loadRecordsValues(query, 19, dbc_.availableElementsKey(19) );
 
 
 //    for (auto e : ellist_)

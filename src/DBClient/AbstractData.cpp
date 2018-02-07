@@ -30,7 +30,7 @@ struct AbstractData::Impl
     /// Vertex name
     const string name;
     /// Default query to vertex
-    const string query;
+    const DBQueryData query;
     /// Paths to fields to be extracted
     vector<string> fieldPaths;
     /// Columns headers names ( for extracted data )
@@ -81,7 +81,7 @@ struct AbstractData::Impl
     }
 
     Impl(   const jsonio::TDataBase* adbconnect,
-            const string &aname, const string &aquery, const vector<string> &apaths,
+            const string &aname, const DBQueryData& aquery, const vector<string> &apaths,
             const vector<string> &headers, const vector<string> &names) :
             name(aname), query(aquery), fieldPaths(apaths),
             dataHeaders(headers), dataNames(names), dbconnect(adbconnect)
@@ -164,8 +164,7 @@ struct AbstractData::Impl
 
     auto queryRecord(string idRecord, vector<string> queryFields) -> string
     {
-        string qrJson;
-        qrJson = "{ \"_id\" : \"" + idRecord + "\"}";
+        auto qrJson = dbvertex->idQuery(idRecord);
         vector<string> resultRecord;
         dbvertex->runQuery(qrJson, queryFields, resultRecord);
         return resultRecord[0];
@@ -186,16 +185,16 @@ struct AbstractData::Impl
         string qrJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
         if (level != "-1")
         {
-            qrJson += (idSubst + "', '$and' : [ { 'properties.level' : ");
+            qrJson += (idSubst + "', 'properties.level' : ");
             qrJson += level;
-            qrJson += "}]}";
+            qrJson += " }";
         } else
         {
             qrJson += (idSubst + "'}");
         }
 
         vector<string> resultsEdge;
-        dbedge_all->runQuery(qrJson,  queryFields, resultsEdge);
+        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qTemplate ),  queryFields, resultsEdge);
         return resultsEdge;
     }
 
@@ -223,10 +222,9 @@ struct AbstractData::Impl
 
     auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
     {
-        string qrJson = "{'_type': 'edge', '_label': 'takes', '_inV': '";
-        qrJson += (idReact + "' }");
+        auto queryin = dbedge_all->inEdgesQuery( "takes", idReact );
         vector<string> resultEdge;
-        dbedge_all->runQuery( qrJson,  queryFields, resultEdge );
+        dbedge_all->runQuery( queryin,  queryFields, resultEdge );
         return resultEdge;
     }
 
@@ -263,7 +261,7 @@ struct AbstractData::Impl
 };
 
 
-AbstractData::AbstractData( const jsonio::TDataBase* dbconnect, const string &name, const string &query,
+AbstractData::AbstractData( const jsonio::TDataBase* dbconnect, const string &name, const DBQueryData& query,
                             const vector<string> &paths, const vector<string> &headers, const vector<string> &names)
     : pimpl(new Impl( dbconnect, name, query, paths, headers, names))
 {
@@ -332,7 +330,7 @@ auto AbstractData::getName() const -> string
     return pimpl->name;
 }
 
-auto AbstractData::getQuery() const -> string
+auto AbstractData::getQuery() const -> DBQueryData
 {
     return pimpl->query;
 }
@@ -434,13 +432,10 @@ auto AbstractData::getInVertexIds( const string& edgeLabel, const string& idVert
     vector<string> vertexIds_;
     string vertexId_;
 
-    // select all EdgeTakes for reaction
-    string queryJson = "{'_type': 'edge', '_label': '"
-            + edgeLabel  + "', '_inV': '"
-            + idVertex + "' }";
     vector<string> _queryFields = { "_outV"};
     vector<string> _resultData;
-    pimpl->dbedge_all->runQuery( queryJson,  _queryFields, _resultData );
+    auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeLabel, idVertex );
+    pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
@@ -456,13 +451,10 @@ auto AbstractData::getInVertexIds(const string& edgeLabel, const string& idVerte
     string vertexId_, edgeId_;
     edgeIds_.clear();
 
-    // select all EdgeTakes for reaction
-    string queryJson = "{'_type': 'edge', '_label': '"
-            + edgeLabel  + "', '_inV': '"
-            + idVertex + "' }";
     vector<string> _queryFields = { "_outV", "_id"};
     vector<string> _resultData;
-    pimpl->dbedge_all->runQuery( queryJson,  _queryFields, _resultData );
+    auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeLabel, idVertex );
+    pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
@@ -485,7 +477,7 @@ auto AbstractData::getOutVertexIds( const string &edgeLabel, const string& idVer
             + idVertex + "' }";
     vector<string> _queryFields = { "_inV"};
     vector<string> _resultData;
-    pimpl->dbedge_all->runQuery( queryJson,  _queryFields, _resultData );
+    pimpl->dbedge_all->runQuery( DBQueryData(queryJson, DBQueryData::qTemplate),  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
@@ -501,13 +493,10 @@ auto AbstractData::getOutVertexIds(const string &edgeLabel, const string& idVert
     string vertexId_, edgeId_;
     edgeIds_.clear();
 
-    // select all EdgeTakes for reaction
-    string queryJson = "{'_type': 'edge', '_label': '"
-            + edgeLabel  + "', '_outV': '"
-            + idVertex + "' }";
     vector<string> _queryFields = { "_inV", "_id"};
     vector<string> _resultData;
-    pimpl->dbedge_all->runQuery( queryJson,  _queryFields, _resultData );
+    auto queryin = pimpl->dbedge_all->outEdgesQuery( edgeLabel, idVertex );
+    pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {

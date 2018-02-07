@@ -180,8 +180,13 @@ class ChemicalFormula
      return dbElements;
   }
 
+  static jsonio::DBQueryData getDefaultQuery()
+  {
+    return jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate );
+  }
+
   static void setDBElements( jsonio::TDBVertexDocument* elementDB,
-                             const string& queryString = "{\"_label\": \"element\" }" );
+                             const jsonio::DBQueryData& query =  ChemicalFormula::getDefaultQuery() );
   static void setDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
   static void setDBElements(std::map<std::string, Element> elements );
 

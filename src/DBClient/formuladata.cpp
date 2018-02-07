@@ -484,10 +484,10 @@ void ChemicalFormula::setDBElements(ElementsMap elements )
         addOneElement(e.second);
 }
 
-void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const string& queryString )
+void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const jsonio::DBQueryData& query )
 {
     vector<string> resultData;
-    elementDB->runQuery( queryString, queryFields, resultData );
+    elementDB->runQuery( query, queryFields, resultData );
 
     dbElements.clear();
     for(uint ii=0; ii<resultData.size(); ii++ )
