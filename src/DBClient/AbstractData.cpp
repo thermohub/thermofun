@@ -182,7 +182,7 @@ struct AbstractData::Impl
 
     auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
     {
-        string qrJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
+        string qrJson = "{'_type': 'edge', '_label': 'defines', '_to': '";
         if (level != "-1")
         {
             qrJson += (idSubst + "', 'properties.level' : ");
@@ -194,7 +194,7 @@ struct AbstractData::Impl
         }
 
         vector<string> resultsEdge;
-        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qTemplate ),  queryFields, resultsEdge);
+        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qEdgesTo ),  queryFields, resultsEdge);
         return resultsEdge;
     }
 
@@ -202,15 +202,15 @@ struct AbstractData::Impl
     {
         string symbol = ""; string idReact, _resultDataReac;
         vector<string> _resultDataEdge;
-        vector<string> _queryFields = { "_outV", "_label"};
+        vector<string> _queryFields = { "_from", "_label"};
 
         _resultDataEdge = query_in_edges_defines_fn(idSubst, _queryFields, level);
 
         for(uint i = 0; i < _resultDataEdge.size(); i++)
         {
-            idReact =  jsonio::extractStringField( "_outV", _resultDataEdge[i] );
+            idReact =  jsonio::extractStringField( "_from", _resultDataEdge[i] );
             //jsonToBson(&record, _resultDataEdge[i]);
-            //bsonio::bson_to_key( record.data, "_outV", idReact );
+            //bsonio::bson_to_key( record.data, "_from", idReact );
             _resultDataReac = query_record_fn(idReact, {"_id", "_label", "properties.symbol"});
             auto domdata = jsonio::unpackJson( _resultDataReac );
             domdata->findKey("properties.symbol", symbol);
@@ -235,7 +235,7 @@ struct AbstractData::Impl
         double stoi_coeff;
         vector<string> _resultDataEdge;
 
-        _resultDataEdge = query_in_edges_takes_fn(idReact, {"_outV", "properties.stoi_coeff"});
+        _resultDataEdge = query_in_edges_takes_fn(idReact, {"_from", "properties.stoi_coeff"});
 
         for(uint i = 0; i < _resultDataEdge.size(); i++)
         {
@@ -245,8 +245,8 @@ struct AbstractData::Impl
             //bsonio::bson_to_key( record.data, "properties.stoi_coeff", coeff );
             stoi_coeff = atof(coeff.c_str());
 
-            domdata->findKey("_outV", idSubst);
-            //bsonio::bson_to_key( record.data, "_outV", idSubst );
+            domdata->findKey("_from", idSubst);
+            //bsonio::bson_to_key( record.data, "_from", idSubst );
             _resultDataSubst = query_record_fn(idSubst, {"_id", "_label", "properties.symbol"});
 
             domdata = jsonio::unpackJson( _resultDataSubst );
@@ -432,14 +432,14 @@ auto AbstractData::getInVertexIds( const string& edgeLabel, const string& idVert
     vector<string> vertexIds_;
     string vertexId_;
 
-    vector<string> _queryFields = { "_outV"};
+    vector<string> _queryFields = { "_from"};
     vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeLabel, idVertex );
     pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-        vertexId_ =  jsonio::extractStringField( "_outV", rec );
+        vertexId_ =  jsonio::extractStringField( "_from", rec );
         vertexIds_.push_back(vertexId_);
     }
     return vertexIds_;
@@ -451,14 +451,14 @@ auto AbstractData::getInVertexIds(const string& edgeLabel, const string& idVerte
     string vertexId_, edgeId_;
     edgeIds_.clear();
 
-    vector<string> _queryFields = { "_outV", "_id"};
+    vector<string> _queryFields = { "_from", "_id"};
     vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeLabel, idVertex );
     pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-        vertexId_ =  jsonio::extractStringField( "_outV", rec );
+        vertexId_ =  jsonio::extractStringField( "_from", rec );
         vertexIds_.push_back(vertexId_);
         edgeId_ =  jsonio::extractStringField( "_id", rec );
         edgeIds_.push_back(edgeId_);
@@ -472,16 +472,15 @@ auto AbstractData::getOutVertexIds( const string &edgeLabel, const string& idVer
     string vertexId_;
 
     // select all EdgeTakes for reaction
-    string queryJson = "{'_type': 'edge', '_label': '"
-            + edgeLabel  + "', '_outV': '"
-            + idVertex + "' }";
-    vector<string> _queryFields = { "_inV"};
+    auto queryout = pimpl->dbedge_all->outEdgesQuery( edgeLabel, idVertex );
+    vector<string> _queryFields = { "_to"};
     vector<string> _resultData;
-    pimpl->dbedge_all->runQuery( DBQueryData(queryJson, DBQueryData::qTemplate),  _queryFields, _resultData );
+
+    pimpl->dbedge_all->runQuery( queryout,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-        vertexId_ =  jsonio::extractStringField( "_inV", rec );
+        vertexId_ =  jsonio::extractStringField( "_to", rec );
         vertexIds_.push_back(vertexId_);
     }
     return vertexIds_;
@@ -493,14 +492,14 @@ auto AbstractData::getOutVertexIds(const string &edgeLabel, const string& idVert
     string vertexId_, edgeId_;
     edgeIds_.clear();
 
-    vector<string> _queryFields = { "_inV", "_id"};
+    vector<string> _queryFields = { "_to", "_id"};
     vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->outEdgesQuery( edgeLabel, idVertex );
     pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {
-        vertexId_ =  jsonio::extractStringField( "_inV", rec );
+        vertexId_ =  jsonio::extractStringField( "_to", rec );
         vertexIds_.push_back(vertexId_);
         edgeId_ =  jsonio::extractStringField( "_id", rec );
         edgeIds_.push_back(edgeId_);

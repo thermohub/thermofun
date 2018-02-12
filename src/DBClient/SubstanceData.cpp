@@ -134,7 +134,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
     string level = "0"; ValuesTable levelQueryMatr;
     vector<int> levels;
     // check if more edge defines are connected to this substance
-    //string queryJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
+    //string queryJson = "{'_type': 'edge', '_label': 'defines', '_to': '";
     //queryJson += idSubst;
     //queryJson += "'}";
 

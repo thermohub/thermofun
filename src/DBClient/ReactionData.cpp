@@ -134,12 +134,12 @@ vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
     vector<string> formulas;
     string idSubst, formSubst;
     // select all EdgeTakes for reaction
-    vector<string> _resultDataEdge = queryInEdgesTakes(idReaction, {"_outV"});
+    vector<string> _resultDataEdge = queryInEdgesTakes(idReaction, {"_from"});
 
     // for all substances
     for (auto rec : _resultDataEdge)
     {
-        idSubst = extractStringField("_outV", rec);
+        idSubst = extractStringField("_from", rec);
         string jsonrecord = getJsonRecordVertex(idSubst+":");
         auto domdata = jsonio::unpackJson( jsonrecord );
         domdata->findKey("properties.formula", formSubst);
@@ -215,7 +215,7 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
         for (auto key_: reactKeys)
         {
             strip_all( key_, ":" );
-            //string queryJson = "{'_type': 'edge', '_label': 'defines', '_outV': '";
+            //string queryJson = "{'_type': 'edge', '_label': 'defines', '_from': '";
             //queryJson += key_;
             //queryJson += "'}";
 

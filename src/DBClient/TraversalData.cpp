@@ -22,8 +22,8 @@ namespace ThermoFun
 {
 
 std::vector<std::string> queryFieldsVertex       = {"_id", "_label", "_type", "properties.symbol"};
-std::vector<std::string> queryFieldsEdgeDefines  = { "_outV", "_label"};
-std::vector<std::string> queryFieldsEdgeTakes    = { "_outV", "_label", "properties.stoi_coeff" };
+std::vector<std::string> queryFieldsEdgeDefines  = { "_from", "_label"};
+std::vector<std::string> queryFieldsEdgeTakes    = { "_from", "_label", "properties.stoi_coeff" };
 
 enum DefinesLevelMode {
     all= 0,
@@ -240,9 +240,9 @@ void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_Ver
     for(uint i = 0; i < _resultDataEdge.size(); i++)
     {
 
-        _idReact =  jsonio::extractStringField( "_outV", _resultDataEdge[i] );
+        _idReact =  jsonio::extractStringField( "_from", _resultDataEdge[i] );
         //jsonToBson(&record, _resultDataEdge[i]);
-        //bsonio::bson_to_key( record.data, "_outV", _idReact );
+        //bsonio::bson_to_key( record.data, "_from", _idReact );
         _resultDataReac = pimpl->reactData->getJsonRecordVertex(_idReact+":") /*pimpl->reactData->queryRecord( _idReact, queryFieldsVertex)*/;
 
         // if not in the database
@@ -263,9 +263,9 @@ void TraversalData::followIncomingEdgeTakes(std::string _idReact, VertexId_Verte
     _resultDataEdge = pimpl->reactData->queryInEdgesTakes(_idReact, queryFieldsEdgeTakes);
     for(uint i = 0; i < _resultDataEdge.size(); i++)
     {
-        _idSubst = extractStringField("_outV", _resultDataEdge[i]);
+        _idSubst = extractStringField("_from", _resultDataEdge[i]);
         //jsonToBson(&record, _resultDataEdge[i]);
-        //bsonio::bson_to_key( record.data, "_outV", _idSubst );
+        //bsonio::bson_to_key( record.data, "_from", _idSubst );
         _resultDataSubst = pimpl->substData->getJsonRecordVertex(_idSubst+":")/*pimpl->substData->queryRecord(_idSubst, queryFieldsVertex)*/;
 
         // if not in the database
