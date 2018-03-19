@@ -192,11 +192,11 @@ auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
 {
     //string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" }, { \"_label\" :   \"reaction\"  }"
     //               "], \"_type\" :   \"vertex\"  }";
-    /// !!! query only by substances (all reactions must connect substance )
-    DBQueryData query("{ \"_label\" :   \"substance\" , \"_type\" :   \"vertex\"  }", DBQueryData::qTemplate );
+    // query only by substances (all reactions must connect substance )
+    //DBQueryData query("{ \"_label\" :   \"substance\" , \"_type\" :   \"vertex\"  }", DBQueryData::qTemplate );
     set<uint> _sourcetdb;
-    vector<string> _resultData = pimpl->substData.getDB()->fieldQuery("properties.sourcetdb", query);
-
+    //vector<string> _resultData = pimpl->substData.getDB()->fieldQuery("properties.sourcetdb", query);
+    vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
     for (uint ii = 0; ii < _resultData.size(); ii++)
     {
         uint asourcetdb = stoi(_resultData[ii]);
