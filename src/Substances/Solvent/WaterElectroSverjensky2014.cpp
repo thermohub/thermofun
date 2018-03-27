@@ -35,7 +35,7 @@ auto electroPropertiesWaterSverjensky2014(/*PropertiesSolvent ps,*/ Reaktoro_::T
     Thermo   th(db);
 
     Reaktoro_::Temperature TK(TC.val + 273.15);
-    Reaktoro_::Pressure P(TC.val * 1e05);
+    Reaktoro_::Pressure P(Pbar.val * 1e05);
 
     auto psol = th.propertiesSolvent(TK.val, P.val, substance.symbol());
 
