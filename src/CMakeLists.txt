@@ -32,8 +32,8 @@ endif()
 # add_definitions(-D_MYNOZLIB)
 
 # Set the list of names of the third-party targets and libraries
-set(THIRDPARTY_TARGETS BSONIO)
-set(THIRDPARTY_LIBS bsonio)
+set(THIRDPARTY_TARGETS JSONIO)
+set(THIRDPARTY_LIBS jsonio)
 set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
 
 # Create the shared library using the collected source files

@@ -43,15 +43,15 @@ struct DefinesSubstLevelOptions {
 //DefinesSubstLevelOptions levelOptionsDefault;
 /// Parses an element bson object and loads its data into the element structure
 /// @param bso bson object
-auto parseElement (const string& data) -> Element;
+auto parseElement (const std::string& data) -> Element;
 
 /// Parses a substance bson object and loads its data into the substance structure
 /// @param bso bson object
-auto parseSubstance (const string& data) -> Substance;
+auto parseSubstance (const std::string& data) -> Substance;
 
 /// Parses a reaction bson object and loads its data into the reaction structure
 /// @param bso bson object
-auto parseReaction (const string& data) -> Reaction;
+auto parseReaction (const std::string& data) -> Reaction;
 
 /// Parses an element bson object and loads its data into the element structure
 /// @param bso bson object
