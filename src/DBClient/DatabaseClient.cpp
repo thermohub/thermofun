@@ -369,7 +369,7 @@ auto DatabaseClient::BackupAllIncoming( const vector<string>& ids, const string 
     FJsonArray file( fileName);
     file.Open( OpenModeTypes::WriteOnly );
 
-    GraphElementFunction afunc =  [&file]( bool , const JsonDom* data )
+    GraphElementFunction afunc =  [&file]( bool , const string& data )
             {
                file.SaveNext(data);
             };
@@ -385,13 +385,16 @@ auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_Vertex
 {
     List_VertexId_VertexType list;
 
-    GraphElementFunction afunc =  [&list]( bool vert, const JsonDom* data )
+    GraphElementFunction afunc =  [&list]( bool vert, const string& jsondata )
             {
               if( vert)
               {
-                  string type, id;
-                  data->findKey( "_id",    id );
-                  data->findKey( "_label",  type);
+                  string type = extractStringField( "_type", jsondata );
+                  string id = extractStringField( "_id", jsondata );
+
+                  //string type, id;
+                  //data->findKey( "_id",    id );
+                  //data->findKey( "_label",  type);
                   list.push_back(pair<string,string>(id, type));
               }
             };
