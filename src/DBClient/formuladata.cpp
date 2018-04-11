@@ -88,8 +88,8 @@ void ElementsToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements
   int ndx=0;
   for( auto el: elements)
   {
-      object->appendObject(to_string(ndx++));
-      el.toJsonNode( object );
+      auto objel = object->appendObject(to_string(ndx++));
+      el.toJsonNode( objel );
   }
 }
 
