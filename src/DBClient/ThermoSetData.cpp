@@ -56,7 +56,8 @@ ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
 {
     auto query = getQuery();
-    addFieldsToQuery(query , { make_pair( string("properties.symbol"), symbol) } );
+    string smb = "\""+symbol+"\"";
+    addFieldsToQueryAQL(query , { make_pair( string("properties.symbol"), smb) } );
     pimpl->valuesTable = getDB()->loadRecords(query, getDataFieldPaths());
     if (pimpl->valuesTable.size() == 1)
         return pimpl->valuesTable[0][getDataName_DataIndex()["_id"]];

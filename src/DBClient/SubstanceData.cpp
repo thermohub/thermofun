@@ -83,7 +83,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
     if (query.empty())
        query = getQuery();
     if (!elements.empty())
-      addFieldsToQuery( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
+      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
 
     ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
 
@@ -122,7 +122,7 @@ auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
   //string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
   auto qrJson = DBQueryData( "{ \"_label\" : \"substance\", \"properties.class_\" : 3 }", DBQueryData::qTemplate );
-  addFieldsToQuery( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
+  addFieldsToQueryAQL( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
 
   ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataFieldPaths());
   return solventMatr;

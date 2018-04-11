@@ -70,7 +70,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
     if (query.empty())
         query = getQuery();
     if (!elements.empty())
-        addFieldsToQuery(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
+        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
     ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
 
     // get record by elements list
