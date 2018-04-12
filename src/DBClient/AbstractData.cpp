@@ -168,7 +168,8 @@ struct AbstractData::Impl
         //vector<string> resultRecord;
         //dbvertex_all->runQuery(qrJson, queryFields, resultRecord);
         //return resultRecord[0];
-        return dbvertex_all->loadRecordFields(idRecord, queryFields);
+        dbvertex_all->GetRecord( (idRecord+":").c_str() );
+        return dbvertex_all->GetJson();
     }
 
     auto loadRecord(string idRecord, vector<string> queryFields) -> jsonio::FieldSetMap
