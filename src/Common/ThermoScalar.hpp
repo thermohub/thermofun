@@ -98,7 +98,7 @@ public:
         ddt = 0.0;
         ddp = 0.0;
         err = 0.0;
-        sta = {Status::assigned, ""};
+        sta = {Status::assigned, std::string("")};
         return *this;
     }
 
@@ -112,9 +112,9 @@ public:
         err  = sqrt(err*err + other.err*other.err);
 
         if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
-            sta = {Status::notdefined, ""};
+            sta = {Status::notdefined, std::string("")};
         else
-            sta = {Status::calculated, ""};
+            sta = {Status::calculated, std::string("")};
 
         return *this;
     }
@@ -129,9 +129,9 @@ public:
         err  = sqrt(err*err + other.err*other.err);
 
         if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
-            sta = {Status::notdefined, ""};
+            sta = {Status::notdefined, std::string("")};
         else
-            sta = {Status::calculated, ""};
+            sta = {Status::calculated, std::string("")};
 
         return *this;
     }
@@ -150,9 +150,9 @@ public:
             err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
 
         if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
-            sta = {Status::notdefined, ""};
+            sta = {Status::notdefined, std::string("")};
         else
-            sta = {Status::calculated, ""};
+            sta = {Status::calculated, std::string("")};
 
         return *this;
     }
@@ -173,9 +173,9 @@ public:
             err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
 
         if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
-            sta = {Status::notdefined, ""};
+            sta = {Status::notdefined, std::string("")};
         else
-            sta = {Status::calculated, ""};
+            sta = {Status::calculated, std::string("")};
 
         return *this;
     }
@@ -243,7 +243,7 @@ public:
     Temperature() : Temperature(0.0) {}
 
     /// Construct a Temperature instance with given value
-    Temperature(double val) : ThermoScalarBase(val, 1.0, 0.0, 0.0, {Status::assigned, ""}) {}
+    Temperature(double val) : ThermoScalarBase(val, 1.0, 0.0, 0.0, {Status::assigned, std::string("")}) {}
 
     /// Convert this Temperature instance into a double
 //    operator double() { return val; }
@@ -257,7 +257,7 @@ public:
     Pressure() : Pressure(0.0) {}
 
     /// Construct a Pressure instance with given value
-    Pressure(double val) : ThermoScalarBase(val, 0.0, 1.0, 0.0, {Status::assigned, ""}) {}
+    Pressure(double val) : ThermoScalarBase(val, 0.0, 1.0, 0.0, {Status::assigned, std::string("")}) {}
 
     /// Convert this Pressure instance into a double
 //    operator double() { return val; }
@@ -268,17 +268,17 @@ template<typename VL, typename VR>
 inline auto status(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> StatusMessage
 {
     if (l.sta.first == Status::notdefined || r.sta.first == Status::notdefined)
-        return {Status::notdefined, ""};
+        return {Status::notdefined, std::string("")};
     else
-        return {Status::calculated, ""};
+        return {Status::calculated, std::string("")};
 }
 template<typename VL>
 inline auto status(const ThermoScalarBase<VL>& l) -> StatusMessage
 {
     if (l.sta.first == Status::notdefined)
-        return {Status::notdefined, ""};
+        return {Status::notdefined, std::string("")};
     else
-        return {Status::calculated, ""};
+        return {Status::calculated, std::string("")};
 }
 /// Unary addition operator for a ThermoScalar instance
 template<typename V>
