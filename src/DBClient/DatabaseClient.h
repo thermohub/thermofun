@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include "bsonio/dbconnect.h"
+#include "jsonio/dbconnect.h"
 
 namespace ThermoFun
 {
@@ -22,7 +22,7 @@ struct ThermoSetData;
 struct ElementKey;
 struct TraversalData;
 
-using List_VertexId_VertexType    = vector< pair<string, string> >;
+using List_VertexId_VertexType    = std::vector< std::pair<std::string, std::string> >;
 
 class DatabaseClient
 {
@@ -31,7 +31,7 @@ class DatabaseClient
     /// \brief DBClient creates a DBClient instance
     /// \param settingsFile path to the ThermoFun.ini file
     ///
-    explicit DatabaseClient( const std::shared_ptr<bsonio::TDataBase>& otherdb );
+    explicit DatabaseClient( const std::shared_ptr<jsonio::TDataBase>& otherdb );
 
     DatabaseClient();
 
@@ -80,7 +80,7 @@ class DatabaseClient
      * @brief sourcetdbListAll returns the indexes and name of all available thermodynamic data sets
      * @return a list of  <index>-<name>-<comment>
      */
-    auto sourcetdbListAll() -> std::vector<string>;
+    auto sourcetdbListAll() -> std::vector<std::string>;
 
     /**
      * @brief sourcetdbNamesIndexes returns a map with all available thermodynamic data sets names and their indexes
@@ -118,7 +118,7 @@ class DatabaseClient
      * @param elements vector of ElementKeys
      * @return vector of Element ids
      */
-    auto elementIds( const std::vector<ElementKey>& elements) -> std::vector<string>;
+    auto elementIds( const std::vector<ElementKey>& elements) -> std::vector<std::string>;
 
     /**
      * @brief availableSubstances returns the list of available substance symbols
@@ -165,12 +165,12 @@ class DatabaseClient
     auto getTraversal() const -> TraversalData&;
 
     /// Output record and all incoming to json file
-    auto BackupAllIncoming( const vector<string>& ids, const string fileName ) -> void;
+    auto BackupAllIncoming( const std::vector<std::string>& ids, const std::string fileName ) -> void;
 
     /// Collect record and all incoming _ids
-    auto TraverseAllIncomingEdges( const string& id ) -> List_VertexId_VertexType;
+    auto TraverseAllIncomingEdges( const std::string& id ) -> List_VertexId_VertexType;
 
-    auto recordsFromThermoDataSet(const string& ThermoDataSetSymbol ) -> List_VertexId_VertexType;
+    auto recordsFromThermoDataSet(const std::string& ThermoDataSetSymbol ) -> List_VertexId_VertexType;
 
 private:
 

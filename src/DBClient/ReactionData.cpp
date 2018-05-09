@@ -2,17 +2,18 @@
 
 // C++ includes
 #include <functional>
-#include "boost/shared_ptr.hpp"
+#include <algorithm>
+#include "jsonio/jsondomfree.h"
 
 // ThermoFun includes
 #include "../OptimizationUtils.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun
 {
 
-const string reactQuery = "{\"_label\": \"reaction\" }";
+const DBQueryData reactQuery("{\"_label\": \"reaction\" }", DBQueryData::qTemplate);
 const vector<string> reactFieldPaths =
     {"properties.symbol", "properties.name", "properties.equation", "_id", "properties.level", "properties.sourcetdb"};
 const vector<string> reactColumnHeaders = {"symbol", "name", "equation"};
@@ -23,7 +24,7 @@ using QueryVertexReaction  = std::function<string(string, vector<string>)>;
 
 struct ReactionData_::Impl
 {
-    bsonio::ValuesTable valuesTable;
+    ValuesTable valuesTable;
 
     Impl( )
     {
@@ -31,7 +32,7 @@ struct ReactionData_::Impl
 
 };
 
-ReactionData_::ReactionData_(const bsonio::TDataBase* dbconnect)
+ReactionData_::ReactionData_(const TDataBase* dbconnect)
     : AbstractData(dbconnect, "VertexReaction", reactQuery, reactFieldPaths,
                    reactColumnHeaders, reactDataNames), pimpl(new Impl())
 {
@@ -61,15 +62,15 @@ auto ReactionData_::reactantsCoeff(string idReact) -> std::map<std::string, doub
     return reactantsCoeff_(idReact);
 }
 
-bsonio::ValuesTable ReactionData_::loadRecordsValues(const string &aquery,
-                                                    int sourcetdb, const vector<ElementKey> &elements)
+ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
+                                  int sourcetdb, const vector<ElementKey> &elements)
 {
     // get records by query
-    string query = aquery;
+    auto query = aquery;
     if (query.empty())
         query = getQuery();
     if (!elements.empty())
-        addFieldsToQuery(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
+        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
     ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
 
     // get record by elements list
@@ -92,7 +93,7 @@ bsonio::ValuesTable ReactionData_::loadRecordsValues(const string &aquery,
     return reactMatr;
 }
 
-bsonio::ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
+ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
 {
     auto reIds = getInVertexIds( "prodreac", idReactionSet );
     ValuesTable reactMatr = getDB()->loadRecords(reIds, getDataFieldPaths());
@@ -132,17 +133,18 @@ vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 {
     vector<string> formulas;
     string idSubst, formSubst;
-    bson record;
-
     // select all EdgeTakes for reaction
-    vector<string> _resultDataEdge = queryInEdgesTakes(idReaction, {"_outV"});
+    vector<string> _resultDataEdge = queryInEdgesTakes(idReaction, {"_from"});
 
     // for all substances
     for (auto rec : _resultDataEdge)
     {
-        idSubst = bsonio::extractStringField("_outV", rec);
-        record = getJsonBsonRecordVertex(idSubst+":").second;
-        bsonio::bson_to_key( record.data, "properties.formula", formSubst);
+        idSubst = extractStringField("_from", rec);
+        string jsonrecord = getJsonRecordVertex(idSubst+":");
+        auto domdata = jsonio::unpackJson( jsonrecord );
+        domdata->findKey("properties.formula", formSubst);
+        //record = getJsonBsonRecordVertex(idSubst+":").second;
+        //bsonio::bson_to_key( record.data, "properties.formula", formSubst);
         formulas.push_back(formSubst);
     }
     return formulas;
@@ -150,10 +152,10 @@ vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 
 set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
 {
-    set<ElementKey> elements; bson obj;
-    obj = getJsonBsonRecordVertex(idReaction+":").second;
-    ElementsFromBsonArray("properties.elements", obj.data, elements);
-//    bson_destroy(&obj);
+    set<ElementKey> elements;
+    string jsonrecord = getJsonRecordVertex(idReaction+":");
+    auto domdata = jsonio::unpackJson( jsonrecord );
+    ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
 
     // if user fogot insert elements property
     if (elements.empty())
@@ -196,13 +198,13 @@ vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
     queryJson += "',  'properties.sourcetdb': ";
     queryJson += sourcetdb;
     queryJson += " }";
-    return getDB()->getKeysByQuery(queryJson);
+    return getDB()->getKeysByQuery( DBQueryData(queryJson,DBQueryData::qTemplate));
 }
 
 bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
 {
     vector<int> levels;
-    string queryJson; ValuesTable levelQueryMatr;
+    ValuesTable levelQueryMatr;
     string reactSymbol = symbol;
     vector<string> reactKeys = getKeys(symbol, sourcetdb);
     level = "0";
@@ -213,11 +215,12 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
         for (auto key_: reactKeys)
         {
             strip_all( key_, ":" );
-            queryJson = "{'_type': 'edge', '_label': 'defines', '_outV': '";
-            queryJson += key_;
-            queryJson += "'}";
+            //string queryJson = "{'_type': 'edge', '_label': 'defines', '_from': '";
+            //queryJson += key_;
+            //queryJson += "'}";
 
             // level of the defines edge
+            auto queryJson = getDB_edgeAccessMode()->outEdgesQuery( "defines", key_ );
             levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
             if (levelQueryMatr.size()>0)
                 levels.push_back(std::stoi(levelQueryMatr[0][0]));

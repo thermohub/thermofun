@@ -51,10 +51,13 @@ INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 
 
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
+LIBS += -ljsonio -lyaml-cpp -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
-LIBS += -llua5.2
+LIBS += -llua5.3
+#LIBS += -lapp-static -lhunspell -lmarkdown
+LIBS += -lfuerte
+LIBS += -lpthread -lssl -lcrypto -lcurl -lboost_thread -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)

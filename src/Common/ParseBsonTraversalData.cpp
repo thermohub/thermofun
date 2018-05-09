@@ -11,8 +11,8 @@
 #include "DBClient/SubstanceData.h"
 #include "DBClient/ReactionData.h"
 
-// bsonio includes
-#include "bsonio/thrift_node.h"
+// jsonio includes
+#include "jsonio/jsondomschema.h"
 #include "Common/Exception.h"
 
 namespace ThermoFun {
@@ -30,13 +30,13 @@ auto parseIssues(std::string data, string name, string prop) -> bool
         return false;
 }
 
-auto readValueError(const char * data, string propPath, double &val, double &err, string name, string message) -> Reaktoro_::StatusMessage
+auto readValueError(const jsonio::JsonDom *object, string propPath, double &val, double &err, string name, string message) -> Reaktoro_::StatusMessage
 {
     string sval, serr;
     Reaktoro_::StatusMessage status = {Reaktoro_::Status::notdefined, message};
 
-    bsonio::bson_to_key( data, propPath+".values.0", sval );
-    bsonio::bson_to_key( data, propPath+".errors.0", serr );
+    object->findKey( propPath+".values.0", sval );
+    object->findKey(  propPath+".errors.0", serr );
     if (!parseIssues(sval, name, propPath+".values.0")) {
         val = (std::stod(sval.c_str()));
         status = {Reaktoro_::Status::read, message};;
@@ -49,8 +49,8 @@ auto readValueError(const char * data, string propPath, double &val, double &err
 
 auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_VertexType &recordList, DefinesSubstLevelOptions levelOptions ) -> Database
 {
-    string _idSubst, _idReact, substSymb; string level_;
-    bson record;
+    string _idSubst, _idReact, substSymb;
+    string level_;
     Database tdb;
 
     // The set of all aqueous species in the database
@@ -64,8 +64,11 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
         if (iterator->second == "substance")
         {
             _idSubst = iterator->first;
-            record = dbc.substData().getJsonBsonRecordVertex(_idSubst+":").second;
-            bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
+            string jsonrecord = dbc.substData().getJsonRecordVertex(_idSubst+":");
+            auto domdata = jsonio::unpackJson( jsonrecord, "VertexSubstance" ); // with default values
+            domdata->findKey("properties.symbol", substSymb);
+            // record = dbc.substData().getJsonBsonRecordVertex(_idSubst+":").second;
+            // bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
             auto mode = levelOptions.definesSubstLevelMode;
 
@@ -84,7 +87,7 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
                 break;
             }
 
-            Substance substance = parseSubstance(record.data);
+            Substance substance = parseSubstance(domdata.get());
 
             // get reaction symbol which define substance with _idSubst
             string definesReactSymb = dbc.substData().definesReactionSymbol(_idSubst, level_);
@@ -103,9 +106,11 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
             if (iterator->second == "reaction")
             {
                 _idReact = iterator->first;
-                record = dbc.reactData().getJsonBsonRecordVertex(_idReact+":").second;
+                string jsonrecord = dbc.reactData().getJsonRecordVertex(_idReact+":");
+                auto domdata = jsonio::unpackJson( jsonrecord, "VertexReaction" ); // with default values
+                // record = dbc.reactData().getJsonBsonRecordVertex(_idReact+":").second;
 
-                Reaction reaction = ThermoFun::parseReaction(record.data);
+                Reaction reaction = ThermoFun::parseReaction(domdata.get());
 
                 // get reactants by following reaction incoming takes edge
                 reaction.setReactants(dbc.reactData().reactantsCoeff(_idReact));
@@ -122,108 +127,108 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
     return tdb;
 }
 
-auto parseElement (const char *data) -> Element
+auto parseElement (const jsonio::JsonDom *object) -> Element
 {
     Element e;
     string kbuf;
     string name;
 
-    bsonio::bson_to_key( data, elemName, kbuf );
+    object->findKey( elemName, kbuf );
     if (!parseIssues(kbuf, name, elemName)) { e.setName(kbuf); name = kbuf;}
 
-    bsonio::bson_to_key( data, elemSymbol, kbuf );
+    object->findKey( elemSymbol, kbuf );
     if (!parseIssues(kbuf, name, elemSymbol)) { e.setSymbol(kbuf);}
 
     string entropy_ = elemEntropy;
     entropy_ += ".values.0";
-    bsonio::bson_to_key( data, entropy_.c_str(), kbuf );
+    object->findKey( entropy_.c_str(), kbuf );
     if (!parseIssues(kbuf, name, entropy_.c_str())) { e.setEntropy(atof(kbuf.c_str()));}
 
     string cp_ = elemHeatCapacity;
     cp_ += ".values.0";
-    bsonio::bson_to_key( data, cp_.c_str(), kbuf );
+    object->findKey( cp_.c_str(), kbuf );
     if (!parseIssues(kbuf, name, cp_.c_str())) { e.setHeatCapacity(atof(kbuf.c_str()));}
 
     string mass_ = elemMolarMass;
     mass_ += ".values.0";
-    bsonio::bson_to_key( data, mass_.c_str(), kbuf );
+    object->findKey( mass_.c_str(), kbuf );
     if (!parseIssues(kbuf, name, mass_.c_str())) { e.setMolarMass(atof(kbuf.c_str()));}
 
-    bsonio::bson_to_key( data, elemClass, kbuf );
+    object->findKey( elemClass, kbuf );
     if (!parseIssues(kbuf, name, elemClass)) { e.setClass(atoi(kbuf.c_str()));}
 
-    bsonio::bson_to_key( data, elemIsotopeMass, kbuf );
+    object->findKey( elemIsotopeMass, kbuf );
     if (!parseIssues(kbuf, name, elemIsotopeMass)) { e.setIsotopeMass(atof(kbuf.c_str()));}
 
     return e;
 }
 
-auto parseSubstance (const char * data) -> Substance
+auto parseSubstance (const jsonio::JsonDom *object) -> Substance
 {
     Substance s;
     string kbuf;
     string name;
 
-    bsonio::bson_to_key( data, substName, kbuf );
+    object->findKey( substName, kbuf );
     if (!parseIssues(kbuf, name, substName)) { s.setName(kbuf); name = kbuf;}
 
-    bsonio::bson_to_key( data, substSymbol, kbuf );
+    object->findKey( substSymbol, kbuf );
     if (!parseIssues(kbuf, name, substSymbol)) s.setSymbol(kbuf);
 
-    bsonio::bson_to_key( data, substFormula, kbuf );
+    object->findKey( substFormula, kbuf );
     if (!parseIssues(kbuf, name, substFormula )) s.setFormula(kbuf);
 
-    bsonio::bson_to_key( data, substCharge, kbuf );
+    object->findKey( substCharge, kbuf );
     if (!parseIssues(kbuf, name, substCharge)) s.setCharge(atoi(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, substMolarMass, kbuf );
+    object->findKey( substMolarMass, kbuf );
     if (!parseIssues(kbuf, name, substMolarMass)) s.setMolarMass(atof(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, substAggState, kbuf );
+    object->findKey( substAggState, kbuf );
     if (!parseIssues(kbuf, name, substAggState)) s.setAggregateState(AggregateState::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, substClass, kbuf );
+    object->findKey( substClass, kbuf );
     if (!parseIssues(kbuf, name, substClass)) s.setSubstanceClass(SubstanceClass::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, lowerT, kbuf );
+    object->findKey( lowerT, kbuf );
     if (!parseIssues(kbuf, name, lowerT)) s.setLowerT(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, upperT, kbuf );
+    object->findKey( upperT, kbuf );
     if (!parseIssues(kbuf, name, upperT)) s.setUpperT(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, lowerP, kbuf );
+    object->findKey( lowerP, kbuf );
     if (!parseIssues(kbuf, name, lowerP)) s.setLowerP(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, upperP, kbuf );
+    object->findKey( upperP, kbuf );
     if (!parseIssues(kbuf, name, upperP)) s.setUpperP(std::stod(kbuf.c_str()));
 
 //    bsonio::bson_to_key( data, substSolventNname, kbuf );
 //    if (!parseIssues(kbuf, name, substSolventNname)) s.setSolventSymbol(kbuf);
 
-    bsonio::bson_to_key( data, substMethodEOS, kbuf );
+    object->findKey( substMethodEOS, kbuf );
     if (!parseIssues(kbuf, name, substMethodEOS)) s.setMethodGenEoS(MethodGenEoS_Thrift::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, substMethodT, kbuf );
+    object->findKey( substMethodT, kbuf );
     if (!parseIssues(kbuf, name, substMethodT)) s.setMethod_T(MethodCorrT_Thrift::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, substMethodP, kbuf );
+    object->findKey( substMethodP, kbuf );
     if (!parseIssues(kbuf, name, substMethodP)) s.setMethod_P(MethodCorrP_Thrift::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, substRefT, kbuf );
+    object->findKey( substRefT, kbuf );
     if (!parseIssues(kbuf, name, substRefT)) s.setReferenceT(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, substRefP, kbuf );
+    object->findKey( substRefP, kbuf );
     if (!parseIssues(kbuf, name, substRefP)) s.setReferenceP(std::stod(kbuf.c_str()));
 
     // get thermodynamic parameters
-    s.setThermoParameters(thermoParamSubst (data, name));
+    s.setThermoParameters(thermoParamSubst (object, name));
     // get reference thermodynamic properties
-    s.setThermoReferenceProperties(thermoRefPropSubst (data, name));
+    s.setThermoReferenceProperties(thermoRefPropSubst (object, name));
 
     return s;
 }
 
-auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersSubstance
+auto thermoParamSubst (const jsonio::JsonDom *object, std::string name) -> ThermoParametersSubstance
 {
     vector<string> vkbuf;
     string kbuf;
@@ -232,15 +237,15 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
     string expans = substExpans_ ; expans += ".values.0";
     string compres = substCompres_ ; compres += ".values.0";
 
-    bsonio::bson_to_key(data, expans, kbuf);
+    object->findKey( expans, kbuf);
     if (!parseIssues(kbuf, name, expans))  ps.isobaric_expansivity = std::stod(kbuf.c_str());
 //    else ps.isobaric_expansivity = 0.0;
 
-    bsonio::bson_to_key(data, compres, kbuf);
+    object->findKey( compres, kbuf);
     if (!parseIssues(kbuf, name, compres))  ps.isothermal_compresibility = std::stod(kbuf.c_str());
 //    else ps.isobaric_expansivity = 0.0;
 
-    bsonio::bson_read_array_path(data, substEOSad, vkbuf);
+    object->findArray(  substEOSad, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, substEOSad))
     {
         ps.Cp_nonElectrolyte_coeff.resize(vkbuf.size());
@@ -248,7 +253,7 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, substEOSbm, vkbuf);
+    object->findArray(  substEOSbm, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, substEOSbm))
     {
         ps.volume_BirchM_coeff.resize(vkbuf.size());
@@ -256,11 +261,11 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, substEOScg, vkbuf);/* ps.critical_parameters.resize(vkbuf.size());*/
+    object->findArray(  substEOScg, vkbuf);/* ps.critical_parameters.resize(vkbuf.size());*/
 //    std::transform(kbuf.begin(), kbuf.end(), tps..begin(), [](const std::string& val)
 //    { return std::stod(val); });
 
-    bsonio::bson_read_array_path(data, substEOSgasCrit, vkbuf);
+    object->findArray(  substEOSgasCrit, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, substEOSgasCrit))
     {
         ps.critical_parameters.resize(vkbuf.size());
@@ -268,7 +273,7 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, substEOShkf, vkbuf);
+    object->findArray( substEOShkf, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, substEOShkf))
     {
         ps.HKF_parameters.resize(vkbuf.size());
@@ -279,7 +284,7 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
     // temporary fix - need to think how to handle more thna 1 TP interval
     ps.temperature_intervals.push_back({273.15, 2273.15});
 
-    bsonio::bson_read_array_path(data, substCpParam, vkbuf);
+    object->findArray( substCpParam, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, substCpParam))
     {
         ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
@@ -287,7 +292,7 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, substTransProp, vkbuf);
+    object->findArray( substTransProp, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, substTransProp))
     {
         ps.phase_transition_prop.resize(1); ps.phase_transition_prop[0].resize(vkbuf.size());
@@ -302,82 +307,82 @@ auto thermoParamSubst (const char * data, std::string name) -> ThermoParametersS
     return ps;
 }
 
-auto thermoRefPropSubst (const char *data, string name) -> ThermoPropertiesSubstance
+auto thermoRefPropSubst (const jsonio::JsonDom *object, string name) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
     string idSubst, message;
 
-    bsonio::bson_to_key( data, _id, idSubst );
+    object->findKey( _id, idSubst );
     if (!parseIssues(idSubst, name, _id)) message = "_id : " + idSubst;
 
-    tps.heat_capacity_cp.sta = readValueError(data, substRefCp0_, tps.heat_capacity_cp.val, tps.heat_capacity_cp.err, name, message);
-    tps.gibbs_energy.sta     = readValueError(data, substRefG0_,  tps.gibbs_energy.val,     tps.gibbs_energy.err,     name, message);
-    tps.enthalpy.sta         = readValueError(data, substRefH0_,  tps.enthalpy.val,         tps.enthalpy.err,         name, message);
-    tps.entropy.sta          = readValueError(data, substRefS0_,  tps.entropy.val,          tps.entropy.err,          name, message);
-    tps.volume.sta           = readValueError(data, substRefV0_,  tps.volume.val,           tps.volume.err,           name, message);
+    tps.heat_capacity_cp.sta = readValueError(object, substRefCp0_, tps.heat_capacity_cp.val, tps.heat_capacity_cp.err, name, message);
+    tps.gibbs_energy.sta     = readValueError(object, substRefG0_,  tps.gibbs_energy.val,     tps.gibbs_energy.err,     name, message);
+    tps.enthalpy.sta         = readValueError(object, substRefH0_,  tps.enthalpy.val,         tps.enthalpy.err,         name, message);
+    tps.entropy.sta          = readValueError(object, substRefS0_,  tps.entropy.val,          tps.entropy.err,          name, message);
+    tps.volume.sta           = readValueError(object, substRefV0_,  tps.volume.val,           tps.volume.err,           name, message);
 
     return tps;
 }
 
 
-auto parseReaction (const char *data) -> Reaction
+auto parseReaction (const jsonio::JsonDom *object) -> Reaction
 {
     Reaction r;
     string kbuf;
     string name;
 
-    bsonio::bson_to_key( data, reacName, kbuf );
+    object->findKey( reacName, kbuf );
     if (!parseIssues(kbuf, name, reacName)) { r.setName(kbuf); name = kbuf;}
 
-    bsonio::bson_to_key( data, reacSymbol, kbuf );
+    object->findKey( reacSymbol, kbuf );
     if (!parseIssues(kbuf, name, reacSymbol)) r.setSymbol(kbuf);
 
-    bsonio::bson_to_key( data, reacEquation, kbuf );
+    object->findKey( reacEquation, kbuf );
     if (!parseIssues(kbuf, name, reacEquation)) r.setEquation(kbuf);
 
-    bsonio::bson_to_key( data, reacMethodEOS, kbuf );
+    object->findKey( reacMethodEOS, kbuf );
     if (!parseIssues(kbuf, name, reacMethodEOS)) r.setMethodGenEoS(MethodGenEoS_Thrift::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, reacMethodT, kbuf );
+    object->findKey( reacMethodT, kbuf );
     if (!parseIssues(kbuf, name, reacMethodT)) r.setMethod_T(MethodCorrT_Thrift::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, reacMethodP, kbuf );
+    object->findKey( reacMethodP, kbuf );
     if (!parseIssues(kbuf, name, reacMethodP)) r.setMethod_P(MethodCorrP_Thrift::type(std::stoi(kbuf.c_str())));
 
-    bsonio::bson_to_key( data, reacRefT, kbuf );
+    object->findKey( reacRefT, kbuf );
     if (!parseIssues(kbuf, name, reacRefT)) r.setReferenceT(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, reacRefP, kbuf );
+    object->findKey( reacRefP, kbuf );
     if (!parseIssues(kbuf, name, reacRefP)) r.setReferenceP(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, lowerT, kbuf );
+    object->findKey( lowerT, kbuf );
     if (!parseIssues(kbuf, name, lowerT)) r.setLowerT(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, upperT, kbuf );
+    object->findKey( upperT, kbuf );
     if (!parseIssues(kbuf, name, upperT)) r.setUpperT(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, lowerP, kbuf );
+    object->findKey( lowerP, kbuf );
     if (!parseIssues(kbuf, name, lowerP)) r.setLowerP(std::stod(kbuf.c_str()));
 
-    bsonio::bson_to_key( data, upperP, kbuf );
+    object->findKey( upperP, kbuf );
     if (!parseIssues(kbuf, name, upperP)) r.setUpperP(std::stod(kbuf.c_str()));
 
 
     // get thermodynamic parameters
-    r.setThermoParameters(thermoParamReac (data, name));
+    r.setThermoParameters(thermoParamReac (object, name));
     // get reference thermodynamic properties
-    r.setThermoReferenceProperties(thermoRefPropReac (data, name));
+    r.setThermoReferenceProperties(thermoRefPropReac (object, name));
 
     return r;
 }
 
-auto thermoParamReac (const char * data, std::string name) -> ThermoParametersReaction
+auto thermoParamReac (const jsonio::JsonDom *object, std::string name) -> ThermoParametersReaction
 {
     vector<string> vkbuf;
     string kbuf;
     ThermoParametersReaction pr;
 
-    bsonio::bson_read_array_path(data, reacLogKfT, vkbuf);
+    object->findArray(  reacLogKfT, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacLogKfT))
     {
         pr.reaction_logK_fT_coeff.resize(vkbuf.size());
@@ -385,7 +390,7 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, reacLogKPT, vkbuf);
+    object->findArray( reacLogKPT, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacLogKPT))
     {
         pr.logK_TP_array.resize(vkbuf.size());
@@ -393,7 +398,7 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, reacDrCpfT, vkbuf);
+    object->findArray( reacDrCpfT, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacDrCpfT))
     {
         pr.reaction_Cp_fT_coeff.resize(vkbuf.size());
@@ -401,7 +406,7 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, reacDrVfT, vkbuf);
+    object->findArray( reacDrVfT, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacDrVfT))
     {
         pr.reaction_V_fT_coeff.resize(vkbuf.size());
@@ -410,13 +415,13 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
     }
 
     double lT = 273.15; double uT = 2273.15;
-    bsonio::bson_to_key( data, lowerT, kbuf );
+    object->findKey( lowerT, kbuf );
     if (!parseIssues(kbuf, name, lowerT)) lT = std::stod(kbuf.c_str());
-    bsonio::bson_to_key( data, upperT, kbuf );
+    object->findKey( upperT, kbuf );
     if (!parseIssues(kbuf, name, upperT)) uT = std::stod(kbuf.c_str());
     pr.temperature_intervals.push_back({lT, uT});
 
-    bsonio::bson_read_array_path(data, reacRBcoeff, vkbuf);
+    object->findArray(  reacRBcoeff, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacRBcoeff))
     {
         pr.reaction_RB_coeff.resize(vkbuf.size());
@@ -424,7 +429,7 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
         { return std::stod(val); });
     }
 
-    bsonio::bson_read_array_path(data, reacFMcoeff, vkbuf);
+    object->findArray( reacFMcoeff, vkbuf);
     if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacFMcoeff))
     {
         pr.reaction_FM_coeff.resize(vkbuf.size());
@@ -435,22 +440,40 @@ auto thermoParamReac (const char * data, std::string name) -> ThermoParametersRe
     return pr;
 }
 
-auto thermoRefPropReac (const char *data, string name) -> ThermoPropertiesReaction
+auto thermoRefPropReac (const jsonio::JsonDom *object, string name) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
     string message, idReac;
 
-    bsonio::bson_to_key( data, _id, idReac );
+    object->findKey( _id, idReac );
     if (!parseIssues(idReac, name, _id)) message = "_id : " + idReac;
 
-    tpr.log_equilibrium_constant.sta  = readValueError(data, reacRefLogK0_, tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  name, message);
-    tpr.reaction_heat_capacity_cp.sta = readValueError(data, reacRefCp0_,   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, name, message);
-    tpr.reaction_gibbs_energy.sta     = readValueError(data, reacRefG0_,    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     name, message);
-    tpr.reaction_enthalpy.sta         = readValueError(data, reacRefH0_,    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         name, message);
-    tpr.reaction_entropy.sta          = readValueError(data, reacRefS0_,    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          name, message);
-    tpr.reaction_volume.sta           = readValueError(data, reacRefV0_,    tpr.reaction_volume.val,           tpr.reaction_volume.err,           name, message);
+    tpr.log_equilibrium_constant.sta  = readValueError(object, reacRefLogK0_, tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  name, message);
+    tpr.reaction_heat_capacity_cp.sta = readValueError(object, reacRefCp0_,   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, name, message);
+    tpr.reaction_gibbs_energy.sta     = readValueError(object, reacRefG0_,    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     name, message);
+    tpr.reaction_enthalpy.sta         = readValueError(object, reacRefH0_,    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         name, message);
+    tpr.reaction_entropy.sta          = readValueError(object, reacRefS0_,    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          name, message);
+    tpr.reaction_volume.sta           = readValueError(object, reacRefV0_,    tpr.reaction_volume.val,           tpr.reaction_volume.err,           name, message);
 
     return tpr;
+}
+
+auto parseElement (const string& data) -> Element
+{
+  auto domdata = jsonio::unpackJson( data, "VertexElement" ); // with default values
+  return parseElement(domdata.get());
+}
+
+auto parseSubstance (const string& data) -> Substance
+{
+  auto domdata = jsonio::unpackJson( data, "VertexSubstance" ); // with default values
+  return parseSubstance(domdata.get());
+}
+
+auto parseReaction (const string& data) -> Reaction
+{
+ auto domdata = jsonio::unpackJson( data, "VertexReaction" ); // with default values
+ return parseReaction(domdata.get());
 }
 
 }

@@ -1,11 +1,13 @@
 #include <iostream>
 #include "ThermoFun.h"
-#include "bsonio/io_settings.h"
+#include "jsonio/io_settings.h"
+
 #include "DBClient/DatabaseClient.h"
 #include "DBClient/ReactionData.h"
 #include "DBClient/AbstractData.h"
 #include "DBClient/SubstanceData.h"
 #include "Common/ParseBsonTraversalData.h"
+
 #include <sys/time.h>
 
 using namespace std;
@@ -17,7 +19,7 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
     gettimeofday(&st, NULL);
-    bsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
+    jsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
     DatabaseClient dbc_;
 
 //    dbc_.BackupAllIncoming({"5a2e61034a7d9f1500000000"}, "test1.json");
@@ -52,8 +54,8 @@ int main(int argc, char *argv[])
 //    auto rcd = dbc_.reactData();
 
     auto rcd = dbc_.reactData();
-
-    auto loadedReacData = rcd.loadRecordsValues("{ \"_label\" : \"reaction\"}", 19, dbc_.availableElementsKey(19) );
+    jsonio::DBQueryData query("{ \"_label\" : \"reaction\"}",jsonio::DBQueryData::qTemplate );
+    auto loadedReacData = rcd.loadRecordsValues(query, 19, dbc_.availableElementsKey(19) );
 
 
 //    for (auto e : ellist_)

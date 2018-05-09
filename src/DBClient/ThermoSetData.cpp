@@ -1,18 +1,17 @@
-#include "boost/shared_ptr.hpp"
 #include "ThermoSetData.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun {
 
-const string datsetQuery                    = "{\"_label\": \"thermodataset\" }";
+const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
 const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.type","_id"};
 const vector<string> datsetColumnHeaders    = {"symbol", "name", "type"};
 const vector<string> datsetDataNames        = {"symbol", "name", "type", "_id"};
 
 struct ThermoSetData::Impl
 {
-    bsonio::ValuesTable valuesTable;
+    ValuesTable valuesTable;
 
     Impl( )
     {
@@ -20,7 +19,7 @@ struct ThermoSetData::Impl
 
 };
 
-ThermoSetData::ThermoSetData( const bsonio::TDataBase* adbconnect )
+ThermoSetData::ThermoSetData( const TDataBase* adbconnect )
     : AbstractData( adbconnect, "VertexThermoDataSet", datsetQuery,
                     datsetFieldPaths, datsetColumnHeaders, datsetDataNames), pimpl(new Impl())
 { }
@@ -43,7 +42,7 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idSubstance )
 
 }
 
-ValuesTable ThermoSetData::loadRecordsValues( const string& aquery,
+ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
 
@@ -57,7 +56,8 @@ ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
 {
     auto query = getQuery();
-    addFieldsToQuery(query , { make_pair( string("properties.symbol"), symbol) } );
+    string smb = "\""+symbol+"\"";
+    addFieldsToQueryAQL(query , { make_pair( string("properties.symbol"), smb) } );
     pimpl->valuesTable = getDB()->loadRecords(query, getDataFieldPaths());
     if (pimpl->valuesTable.size() == 1)
         return pimpl->valuesTable[0][getDataName_DataIndex()["_id"]];

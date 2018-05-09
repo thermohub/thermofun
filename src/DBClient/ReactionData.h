@@ -3,18 +3,15 @@
 
 // C++ includes
 #include <memory>
-//#include "formuladata.h"
 #include "AbstractData.h"
 
 namespace ThermoFun
 {
 
-// struct ThermoDataAbstract;
-
 class ReactionData_ : public AbstractData
 {
   public:
-    ReactionData_(const bsonio::TDataBase* dbconnect);
+    ReactionData_(const jsonio::TDataBase* dbconnect);
 
     /// Construct a copy of an ReactionData instance
     ReactionData_(const ReactionData_& other);
@@ -24,9 +21,9 @@ class ReactionData_ : public AbstractData
     virtual ~ReactionData_();
 
     /// Extract data connected to ReactionSet
-    virtual bsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
     /// Extract data by condition
-    virtual bsonio::ValuesTable loadRecordsValues(const string &query, int sourcetdb,
+    virtual jsonio::ValuesTable loadRecordsValues(const jsonio::DBQueryData& query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);

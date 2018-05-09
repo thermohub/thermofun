@@ -1,11 +1,12 @@
+#include <algorithm>
 #include "SubstanceData.h"
-#include "boost/shared_ptr.hpp"
+#include "jsonio/jsondomfree.h"
 
-using namespace bsonio;
+using namespace jsonio;
 
 namespace ThermoFun {
 
-const string substQuery = "{\"_label\": \"substance\" }";
+const DBQueryData substQuery("{\"_label\": \"substance\" }", DBQueryData::qTemplate);
 const vector<string> substFieldPaths =
    { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
 const vector<string> datsetColumnHeaders = { "symbol", "name", "formula" };
@@ -13,7 +14,7 @@ const vector<string> substDataNames  = { "symbol", "name", "formula", "_id", "cl
 
 struct SubstanceData_::Impl
 {
-    bsonio::ValuesTable valuesTable;
+    ValuesTable valuesTable;
 
     Impl( )
     {
@@ -21,7 +22,7 @@ struct SubstanceData_::Impl
 
 };
 
-SubstanceData_::SubstanceData_( const bsonio::TDataBase* adbconnect )
+SubstanceData_::SubstanceData_( const TDataBase* adbconnect )
     : AbstractData( adbconnect, "VertexSubstance", substQuery,
                     substFieldPaths, datsetColumnHeaders, substDataNames), pimpl(new Impl())
 { }
@@ -61,25 +62,28 @@ auto SubstanceData_::setSubstanceLevel(string substSymbol, string level) -> void
 
 set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
 {
-  string formula; bson record;
-  // get recrod
-  record = getJsonBsonRecordVertex(idSubstance+":").second;
+  string formula;
+  // get record
+  string jsonrecord = getJsonRecordVertex(idSubstance+":");
+  auto domdata = jsonio::unpackJson( jsonrecord );
+
   // Extract data from fields
-  bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
+  domdata->findKey(getDataName_DataFieldPath()["formula"], formula);
+  //bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
 
   FormulaToken parser(formula);
   return parser.getElements();
 }
 
-ValuesTable SubstanceData_::loadRecordsValues( const string& aquery,
+ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
     // get records by query
-    string query = aquery;
+    auto query = aquery;
     if (query.empty())
        query = getQuery();
     if (!elements.empty())
-      addFieldsToQuery( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
+      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
 
     ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
 
@@ -116,8 +120,9 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 
 auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
-  string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
-  addFieldsToQuery( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
+  //string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
+  auto qrJson = DBQueryData( "{ \"_label\" : \"substance\", \"properties.class_\" : 3 }", DBQueryData::qTemplate );
+  addFieldsToQueryAQL( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
 
   ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataFieldPaths());
   return solventMatr;
@@ -126,13 +131,14 @@ auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 {
     // maybe use query edge defines memoized?
-    string queryJson, level = "0"; ValuesTable levelQueryMatr;
+    string level = "0"; ValuesTable levelQueryMatr;
     vector<int> levels;
     // check if more edge defines are connected to this substance
-    queryJson = "{'_type': 'edge', '_label': 'defines', '_inV': '";
-    queryJson += idSubst;
-    queryJson += "'}";
+    //string queryJson = "{'_type': 'edge', '_label': 'defines', '_to': '";
+    //queryJson += idSubst;
+    //queryJson += "'}";
 
+    auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
     levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
     for (uint i = 0; i < levelQueryMatr.size(); i++)
     {
@@ -145,7 +151,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 
 MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction( )
 {
-    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact; bson record;
+    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
     for (auto value : pimpl->valuesTable)
     {
         MapLevel_IdReaction levelReact;
@@ -155,9 +161,12 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for (uint i = 0; i < resultDefinesReactions.size(); i++)
         {
             string level;
-            record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
-            // Extract data from fields
-            bsonio::bson_to_key( record.data, "properties.level", level);
+            string jsonrecord = getJsonRecordEdge(resultDefinesEdges[i]+":");
+            auto domdata = jsonio::unpackJson( jsonrecord );
+            domdata->findKey("properties.level", level);
+
+            //record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
+            //bsonio::bson_to_key( record.data, "properties.level", level);
             levelReact[level] = resultDefinesReactions[i]+":";
         }
 //        if (!levelReact.empty())
@@ -168,7 +177,8 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
 
 MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols )
 {
-    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact; bson record;
+    MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
+
     for (uint i = 0; i < connectedSubstIds.size(); i++)
     {
         MapLevel_IdReaction levelReact;
@@ -178,9 +188,11 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for (uint i = 0; i < resultDefinesReactions.size(); i++)
         {
             string level;
-            record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
-            // Extract data from fields
-            bsonio::bson_to_key( record.data, "properties.level", level);
+            string jsonrecord = getJsonRecordEdge(resultDefinesEdges[i]+":");
+            auto domdata = jsonio::unpackJson( jsonrecord );
+            domdata->findKey("properties.level", level);
+            //record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
+            //bsonio::bson_to_key( record.data, "properties.level", level);
             levelReact[level] = resultDefinesReactions[i]+":";
         }
 //        if (!levelReact.empty())

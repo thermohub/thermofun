@@ -6,10 +6,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   add_definitions("-w")
 endif()
 
-# Download and install the bsonio library
-ExternalProject_Add(BSONIO
+# Download and install the jsonio library
+ExternalProject_Add(JSONIO
     PREFIX thirdparty
-    GIT_REPOSITORY https://dmiron@bitbucket.org/gems4/bsonio.git 
+    GIT_REPOSITORY https://bitbucket.org/gems4/jsonio.git 
 #    GIT_TAG new-database
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
