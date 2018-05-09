@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 //    auto test = thermo.thermoPropertiesSubstance(10,10,"what");
 
     ThermoPropertiesSubstance result_tcorrpt, tps_gems, result_tcorrpt_, test2;
-    result_tcorrpt = thermo.thermoPropertiesSubstance(10,10,"what");
+//    result_tcorrpt = thermo.thermoPropertiesSubstance(10,10,"what");
 
     thermo.setSolventSymbol("H2O@");
 

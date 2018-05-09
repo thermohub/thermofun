@@ -43,28 +43,33 @@ GEMS4R_DIR = $$PWD/../../../gems4r/GEMS4R
 
 # Define the directory where the third-party libraries have been installed
 #THIRDPARTY_DIR = $$BUILD_DIR/thirdparty/debug
-CONFIG(release, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/release/thirdparty
-CONFIG(debug, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty
+#CONFIG(release, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/release/thirdparty
+#CONFIG(debug, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty
 # Define the directories where the headers of the third-party libraries have been installed
-THIRDPARTY_INCLUDE_DIR  += $$THIRDPARTY_DIR/include
-THIRDPARTY_INCLUDE_DIR  += $$THIRDPARTY_DIR/include/ejdb
-THIRDPARTY_INCLUDE_DIR  += $$THIRDPARTY_DIR/include/yaml-cpp
+#THIRDPARTY_INCLUDE_DIR  += $$THIRDPARTY_DIR/include
+#THIRDPARTY_INCLUDE_DIR  += $$THIRDPARTY_DIR/include/ejdb
+#THIRDPARTY_INCLUDE_DIR  += $$THIRDPARTY_DIR/include/yaml-cpp
 
 # Define the directories where the THIRDPARTY libraries have been installed
-THIRDPARTY_LIBRARY_DIR1 = $$THIRDPARTY_DIR/lib
-THIRDPARTY_LIBRARY_DIR2 = $$THIRDPARTY_DIR/lib/x86_64-linux-gnu
+#THIRDPARTY_LIBRARY_DIR1 = $$THIRDPARTY_DIR/lib
+#THIRDPARTY_LIBRARY_DIR2 = $$THIRDPARTY_DIR/lib/x86_64-linux-gnu
 
-DEPENDPATH    += $$THIRDPARTY_INCLUDE_DIR
+#DEPENDPATH    += $$THIRDPARTY_INCLUDE_DIR
 DEPENDPATH    += $$GEMS4R_DIR
 
-INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
+#INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 INCLUDEPATH   += $$GEMS4R_DIR
 
-LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
-LIBS += -L$$THIRDPARTY_LIBRARY_DIR2
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml -lReaktoro
+INCLUDEPATH   += "/usr/local/include"
+DEPENDPATH   += "/usr/local/include"
+LIBPATH += "/usr/local/lib/"
+
+#LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
+#LIBS += -L$$THIRDPARTY_LIBRARY_DIR2
+LIBS += -ljsonio -lyaml-cpp -lejdb -lpugixml -lReaktoro
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
-LIBS += -llua5.2
+LIBS +=  -lcurl  -lvelocypack
+LIBS += -llua5.3
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)

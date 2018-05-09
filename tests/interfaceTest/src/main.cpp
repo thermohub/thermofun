@@ -6,13 +6,19 @@
     {
       // Create the interface object using a database file in JSON
       Interface interface("Resources/aq17.json");
+
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       interface.setSolventSymbol("H2O@");
+
       // Optional: change default units
       interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+
+      // Optional: change default digits
       interface.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
+
       // Retrieve the entropy of H2O
       double H2Oentropy = interface.thermoPropertiesSubstance( 25, 1, "H2O@", "entropy").toDouble();
+
       // Write results to a comma separate files for a list of T-P pairs, substances, and properties
       interface.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
                                            {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
