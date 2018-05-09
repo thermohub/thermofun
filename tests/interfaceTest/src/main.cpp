@@ -1,28 +1,54 @@
-#include "ThermoFun.h"
+    #include "ThermoFun.h"
+#include "Common/ThermoScalar.hpp"
+    using namespace std;
+    using namespace ThermoFun;
 
-using namespace std;
-using namespace ThermoFun;
+    int main(int argc, char *argv[])
+    {
+      Reaktoro_::Temperature T(2);
+      Reaktoro_::ThermoScalar z;
 
-int main(int argc, char *argv[])
-{
-    cout << "Hello World!" << endl;
+      z = 3*pow(T, 2) + ;
 
-    string databaseFile = "Resources/test_multi_new.VertexSubstance.json";
-    Interface thermo(databaseFile);
-    thermo.setSolventSymbol("H2O@");
+      cout << "here";
 
-    double T = 100;
-    double P = 50;
+//      // Create the interface object using a database file in JSON
+//      Interface interface("Resources/supcrt92.json");
+//      // Optional: set the solvent symbol used for claulating properties of aqueous species
+//      interface.setSolventSymbol("H2O@");
+//      // Optional: change default units
+//      interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+//      // Retrieve the entropy of H2O
+//      double H2Oentropy = interface.thermoPropertiesSubstance( 25, 1, "H2O@", "entropy").toDouble();
+//      // Write results to a comma separate files for a list of T-P pairs, substances, and properties
+//      interface.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
+//                                           {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
+//                                           {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
+//                                          ).toCSV("results.csv");                           // output
+//      return 0;
+    }
 
-    double S = thermo.calculateProperties("H2O@", 25, 1, "entropy").toDouble();
+//    int main(int argc, char *argv[])
+//    {
+//      DatabaseClient dbc; // connecting to the database local/remote
 
-    thermo.calculateProperties({"Al+3", "OH-", "SiO2@"}, {"gibbs_energy","entropy", "volume"}, T, P).toCSV("results.csv");
+//      // retrieving records from supcrt92 dataset
+//      auto records = dbc.recordsFromThermoDataSet("supcrt92");
 
-//    API.addTP_pairs(25, 1);
-//    API.addSubstances(substanceSymbols);
-//    API.addProperties({"gibbs_energy","entropy"});
-//    API.thermoCalculate().toCSV();
+//      // loading ThermoFun database object
+//      Database db = databaseFromRecordList(dbc, records);
 
-    return 0;
-}
+//      // creating the Thermo object
+//      Thermo th(db);
+
+//      double T = 398.15; double P = 1e7; //100 degC and 100 bar
+//      auto propAl = th.thermoPropertiesSubstance(T, P, "Al+3");
+
+//      // extracting values from results for the Gibbs energy
+//      double G0       = propAl.gibbs_energy.val; // value
+//      double G0_dT    = propAl.gibbs_energy.ddt; // derivative with T = -S0
+//      double G0_error = propAl.gibbs_energy.err; // propagated error
+
+//      return 0;
+//    }
 

@@ -8,495 +8,407 @@
 #include "Database.h"
 #include "Interfaces/Output.h"
 #include "Thermo.h"
+#include "Common/Units.hpp"
 
 namespace ThermoFun {
+
+enum Calculation {forSUBSTANCE, forREACTION, forSOLVENT};
 
 struct Interface::Impl
 {
     /// The thermo instance
-    Thermo                                              thermo;
+    Thermo                              thermo;
 
-    OutputSettings                                      outSettings;
+    OutputSettings                      outSettings;
 
-    std::vector<std::vector<double>>                    tpPairs;
+    CalculationSettings                 calcSettings;
 
-    std::map<int, std::string>                          propNames;
+    vvd                                 tpPairs;
 
-    std::map<std::string, std::string>                  propUnits  = defaultPropertyUnits;
+    vstr                                properties;
 
-    std::map<std::string, int>                          propDigits = defaultPropertyDigits;
+    std::map<std::string, std::string>  givenPropertyUnits  = defaultPropertyUnits;
 
-    std::map<int, std::string>                          solventPropNames;
+    std::map<std::string, int>          givenPropertyDigits = defaultPropertyDigits;
 
-    std::map<std::string, std::string>                  solventPropUnits  = defaultSolventPropertyUnits;
+    vstr                                symbols;
 
-    std::map<std::string, int>                          solventPropDigits = defaultSolventPropertyDigits;
-
-    std::vector<string>                                 substSymbols;
-
-    std::vector<std::vector<Reaktoro_::ThermoScalar>>   substResults;
-
-    std::vector<Reaktoro_::ThermoScalar>                solventProp;
-
-    std::string                                         solventSymbol;
-
-    std::vector<string>                                 reacSymbols;
-
-    std::vector<std::vector<Reaktoro_::ThermoScalar>>   reacResults;
-
-    unsigned int                                        count = 0;
+    vvThScalar                          results;
 
     Impl(const Database& database)
     : thermo(Thermo(database))
     {}
 
+    // clear functions
+    auto clearSymbols () -> void
+    {
+        symbols.clear();
+    }
 
-public:
+    auto clearProperties () -> void
+    {
+        properties.clear();
+    }
+
+    auto clearTPpairs () -> void
+    {
+        tpPairs.clear();
+    }
+
+    auto clearAll() -> void
+    {
+        clearProperties();
+        clearSymbols();
+        clearTPpairs();
+    }
+
+    // Add functions
+    auto addSymbols(const vstr &symbols_) -> void
+    {
+        symbols = symbols_;
+    }
+
+    auto addProperties (const vstr &names) -> void
+    {
+        properties = names;
+    }
+
+    auto addTPpair (const double &T, const double &P) -> void
+    {
+        std::vector<double> one_pair = {T, P};
+        tpPairs.push_back(one_pair);
+    }
+
+    auto addSymbolsProperties(const vstr &symbols_, const vstr &properties) -> void
+    {
+        clearAll();
+        addSymbols(symbols_);
+        addProperties(properties);
+    }
+
+    auto addTPpairs (const double &Tmin, const double &Tmax, const double &Tstep,
+                     const double &Pmin, const double &Pmax, const double &Pstep) -> void
+    {
+        double t = Tmin;
+        double p = Pmin;
+        do
+        {   do
+            {
+                addTPpair(t,p);
+                p = p + Pstep;
+            } while (p <= Pmax);
+            t = t + Tstep;
+        } while (t <= Tmax);
+    }
+
+    auto addTPpairs (const vvd &tpPairs) -> void
+    {
+        for (unsigned i=0; i <tpPairs.size(); i++)
+        {
+            addTPpair(tpPairs[i][0], tpPairs[i][1]);
+        }
+    }
+
+    // select functions
+    auto selectResultsSubst ( ThermoPropertiesSubstance tps ) -> vThScalar
+    {
+        vThScalar resultsSubst;
+        for( auto name : properties)
+        {
+            if (name == "gibbs_energy")       {resultsSubst.push_back(tps.gibbs_energy);}
+            if (name == "helmholtz_energy")   {resultsSubst.push_back(tps.helmholtz_energy);}
+            if (name == "internal_energy")    {resultsSubst.push_back(tps.internal_energy);}
+            if (name == "enthalpy")           {resultsSubst.push_back(tps.enthalpy);}
+            if (name == "entropy")            {resultsSubst.push_back(tps.entropy);}
+            if (name == "volume")             {resultsSubst.push_back(tps.volume);}
+            if (name == "heat_capacity_cp")   {resultsSubst.push_back(tps.heat_capacity_cp);}
+            if (name == "heat_capacity_cv")   {resultsSubst.push_back(tps.heat_capacity_cv);}
+        }
+        return resultsSubst;
+    }
+
+    auto selectResultsSolvent ( PropertiesSolvent ps, ElectroPropertiesSolvent eps ) -> vThScalar
+    {
+        vThScalar resultsSolvent;
+        for( auto name : properties)
+        {
+            if (name == "density")        {resultsSolvent.push_back(ps.density);}
+            if (name == "densityT")       {resultsSolvent.push_back(ps.densityT);}
+            if (name == "densityP")       {resultsSolvent.push_back(ps.densityP);}
+            if (name == "densityTT")      {resultsSolvent.push_back(ps.densityTT);}
+            if (name == "densityTP")      {resultsSolvent.push_back(ps.densityTP);}
+            if (name == "densityPP")      {resultsSolvent.push_back(ps.densityPP);}
+            if (name == "alpha")          {resultsSolvent.push_back(ps.Alpha);}
+            if (name == "beta")           {resultsSolvent.push_back(ps.Beta);}
+            if (name == "alphaT")         {resultsSolvent.push_back(ps.dAldT);}
+
+            if (name == "epsilon")        {resultsSolvent.push_back(eps.epsilon);}
+            if (name == "epsilonT")       {resultsSolvent.push_back(eps.epsilonT);}
+            if (name == "epsilonP")       {resultsSolvent.push_back(eps.epsilonP);}
+            if (name == "epsilonTT")      {resultsSolvent.push_back(eps.epsilonTT);}
+            if (name == "epsilonTP")      {resultsSolvent.push_back(eps.epsilonTP);}
+            if (name == "epsilonPP")      {resultsSolvent.push_back(eps.epsilonPP);}
+            if (name == "bornZ")          {resultsSolvent.push_back(eps.bornZ);}
+            if (name == "bornY")          {resultsSolvent.push_back(eps.bornY);}
+            if (name == "bornQ")          {resultsSolvent.push_back(eps.bornQ);}
+            if (name == "bornN")          {resultsSolvent.push_back(eps.bornN);}
+            if (name == "bornU")          {resultsSolvent.push_back(eps.bornU);}
+            if (name == "bornX")          {resultsSolvent.push_back(eps.bornX);}
+        }
+        return resultsSolvent;
+    }
+
+    auto selectResultsReact ( ThermoPropertiesReaction tpr ) -> vThScalar
+    {
+        vThScalar resultsReac;
+        for( auto name : properties)
+        {
+            if (name == "reaction_gibbs_energy")       {resultsReac.push_back(tpr.reaction_gibbs_energy);}
+            if (name == "reaction_helmholtz_energy")   {resultsReac.push_back(tpr.reaction_helmholtz_energy);}
+            if (name == "reaction_internal_energy")    {resultsReac.push_back(tpr.reaction_internal_energy);}
+            if (name == "reaction_enthalpy")           {resultsReac.push_back(tpr.reaction_enthalpy);}
+            if (name == "reaction_entropy")            {resultsReac.push_back(tpr.reaction_entropy);}
+            if (name == "reaction_volume")             {resultsReac.push_back(tpr.reaction_volume);}
+            if (name == "reaction_heat_capacity_cp")   {resultsReac.push_back(tpr.reaction_heat_capacity_cp);}
+            if (name == "reaction_heat_capacity_cv")   {resultsReac.push_back(tpr.reaction_heat_capacity_cv);}
+            if (name == "logKr")                       {resultsReac.push_back(tpr.log_equilibrium_constant);}
+            if (name == "lnK0")                        {resultsReac.push_back(tpr.ln_equilibrium_constant);}
+        }
+        return resultsReac;
+    }
+
+    auto calculate(Calculation calculation) -> void
+    {
+        double T, P; string symbol; unsigned j_size, i_size;
+        auto defUnitT = defaultPropertyUnits.at("temperature");
+        auto unitT    =   givenPropertyUnits.at("temperature");
+        auto defUnitP = defaultPropertyUnits.at("pressure");
+        auto unitP    =   givenPropertyUnits.at("pressure");
+        results.empty();
+
+        if (outSettings.loopOverTPpairsFirst)
+        {j_size = tpPairs.size(); i_size = symbols.size();}
+        else
+        {j_size = symbols.size(); i_size = tpPairs.size();}
+
+        results.resize(j_size * i_size);
+
+        for (unsigned j=0; j<j_size; j++)
+        {
+            for (unsigned i=0; i<i_size; i++)
+            {
+                if (outSettings.loopOverTPpairsFirst)
+                {
+                    T = units::convert(tpPairs[j][0], unitT, defUnitT);
+                    P = units::convert(tpPairs[j][1], unitP, defUnitP);
+                    symbol = symbols[i];
+                } else
+                {
+                    T = units::convert(tpPairs[i][0], unitT, defUnitT);
+                    P = units::convert(tpPairs[i][1], unitP, defUnitP);
+                    symbol = symbols[j];
+                }
+
+                switch(calculation) {
+                case forSUBSTANCE: calculateSubstProp(T, P, symbol, (j_size*i)+(j)); break;
+                case forREACTION: calculateReactProp (T, P, symbol, (j_size*i)+(j)); break;
+                case forSOLVENT: calculateSolventProp(T, P, symbol, (j_size*i)+(j)); break;
+                }
+            }
+        }
+    }
+
+    auto selectProvidedSubstancesProperties(vtps vTps) -> void
+    {
+        results.empty();
+        for (auto result : vTps)
+        {
+            results.push_back(selectResultsSubst(result));
+        }
+    }
+
+    auto selectProvidedReactionsProperties(vtpr vTpr) -> void
+    {
+        results.empty();
+        for (auto result : vTpr)
+        {
+            results.push_back(selectResultsReact(result));
+        }
+    }
+
+    // Calculate functions
+    auto calculateSubstProp( double T, double P, string symbol, unsigned index ) -> void
+    {
+        results[index] = selectResultsSubst(thermo.thermoPropertiesSubstance(T, P, symbol));
+    }
+
+    auto calculateReactProp( double T, double P, string symbol, unsigned index ) -> void
+    {
+        if (calcSettings.reactionsFromSubstances)
+            results[index] = selectResultsReact(thermo.thermoPropertiesReactionFromReactants(T, P, symbol));
+        else
+            results[index] = selectResultsReact(thermo.thermoPropertiesReaction(T, P, symbol));
+    }
+
+    auto calculateSolventProp( double T, double P, string symbol, unsigned index ) -> void
+    {
+        results[index] = selectResultsSolvent(thermo.propertiesSolvent(T, P, symbol),
+                                              thermo.electroPropertiesSolvent(T, P, symbol));
+    }
 };
 
 Interface::Interface(const Database& database)
     : pimpl(new Impl(database))
 {}
 
-auto Interface::calculateProperties() -> Output
+auto Interface::thermoPropertiesSubstance(double T, double P, std::string symbol, std::string property) -> Output
 {
-    calculateResultsSubst();
+    pimpl->addSymbolsProperties({symbol}, {property});
+
+    pimpl->addTPpair(T,P);
+
+    pimpl->calculate(forSUBSTANCE);
 
     return Output (*this);
 }
 
-auto Interface::calculateProperties(const std::string substSymbol, const double TC, const double Pbar, const std::string propName) -> Output
+auto Interface::thermoPropertiesSubstance(double T, double P, vstr symbols, vstr properties) -> Output
 {
-    addSubstance(substSymbol);
+    pimpl->addSymbolsProperties(symbols, properties);
 
-    addTPpair(TC,Pbar);
+    pimpl->addTPpair(T, P);
 
-    addProperty(propName);
-
-    calculateResultsSubst();
+    pimpl->calculate(forSUBSTANCE);
 
     return Output (*this);
 }
 
-auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                                double TC, double Pbar) -> Output
+auto Interface::thermoPropertiesSubstance(std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output
 {
-    addSubstances(substanceSymbols);
+    pimpl->addSymbolsProperties(symbols, properties);
 
-    addProperties(thermoProperties);
+    pimpl->addTPpairs(aT[1], aT[2], aT[3], aP[1], aP[2], aP[3]);
 
-    addTPpair(TC, Pbar);
-
-    calculateResultsSubst();
+    pimpl->calculate(forSUBSTANCE);
 
     return Output (*this);
 }
 
-auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                     double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output
+auto Interface::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output
 {
-    addSubstances(substanceSymbols);
+    pimpl->addSymbolsProperties(symbols, properties);
 
-    addProperties(thermoProperties);
+    pimpl->addTPpairs(tpPairs);
 
-    addTPpairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
-
-    calculateResultsSubst();
-
-    return Output (*this);
-}
-auto Interface::calculateProperties(std::vector<string> substanceSymbols, std::vector<string> thermoProperties,
-                     std::vector<std::vector<double> > tpPairs) -> Output
-{
-    addSubstances(substanceSymbols);
-
-    addProperties(thermoProperties);
-
-    addTPpairs(tpPairs);
-
-    calculateResultsSubst();
+    if (vTps.empty())
+        pimpl->calculate(forSUBSTANCE);
+    else
+        pimpl->selectProvidedSubstancesProperties(vTps);
 
     return Output (*this);
 }
 
-// Reactions
-
-auto Interface::calcPropReactions() -> Output
+// Reaction
+auto Interface::thermoPropertiesReaction(double T, double P, std::string symbol, std::string property) -> Output
 {
-    calculateResultsReac();
+    pimpl->addSymbolsProperties({symbol}, {property});
+
+    pimpl->addTPpair(T,P);
+
+    pimpl->calculate(forREACTION);
 
     return Output (*this);
 }
 
-auto Interface::calcPropReactions(const std::string reacSymbol, const double TC, const double Pbar, const std::string propName) -> Output
+auto Interface::thermoPropertiesReaction(double T, double P, vstr symbols, vstr properties) -> Output
 {
-    addReaction(reacSymbol);
+    pimpl->addSymbolsProperties(symbols, properties);
 
-    addTPpair(TC,Pbar);
+    pimpl->addTPpair(T, P);
 
-    addProperty(propName);
-
-    calculateResultsReac();
+    pimpl->calculate(forREACTION);
 
     return Output (*this);
 }
 
-auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
-                                double TC, double Pbar) -> Output
+auto Interface::thermoPropertiesReaction(std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output
 {
-    addReactions(reactionSymbols);
+    pimpl->addSymbolsProperties(symbols, properties);
 
-    addProperties(thermoProperties);
+    pimpl->addTPpairs(aT[1], aT[2], aT[3], aP[1], aP[2], aP[3]);
 
-    addTPpair(TC, Pbar);
+    pimpl->calculate(forREACTION);
 
-    calculateResultsReac();
+    return Output (*this);
+}
+auto Interface::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output
+{
+    pimpl->addSymbolsProperties(symbols, properties);
+
+    pimpl->addTPpairs(tpPairs);
+
+    if (vTpr.empty())
+        pimpl->calculate(forREACTION);
+    else
+        pimpl->selectProvidedReactionsProperties(vTpr);
 
     return Output (*this);
 }
 
-auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
-                     double Tmin, double Tmax, double Tstep, double Pmin, double Pmax, double Pstep) -> Output
+// Set functions
+auto Interface::setDigits(const std::map<std::string, int> &propDigits)-> void
 {
-    addReactions(reactionSymbols);
-
-    addProperties(thermoProperties);
-
-    addTPpairs(Tmin, Tmax, Tstep, Pmin, Pmax, Pstep);
-
-    calculateResultsReac();
-
-    return Output (*this);
-}
-auto Interface::calcPropReactions(std::vector<string> reactionSymbols, std::vector<string> thermoProperties,
-                     std::vector<std::vector<double> > tpPairs) -> Output
-{
-    addReactions(reactionSymbols);
-
-    addProperties(thermoProperties);
-
-    addTPpairs(tpPairs);
-
-    calculateResultsReac();
-
-    return Output (*this);
+    pimpl->givenPropertyDigits = propDigits;
 }
 
-auto Interface::selectResultsSubst ( ThermoPropertiesSubstance tps ) -> std::vector<Reaktoro_::ThermoScalar>
+auto Interface::setUnits(const std::map<std::string, std::string> &units)-> void
 {
-    std::vector<Reaktoro_::ThermoScalar> resultsSubst;
-    std::map<int, std::string>::iterator it;
-
-    for(it = pimpl->propNames.begin(); it != pimpl->propNames.end(); it++)
-    {
-        if (it->second == "gibbs_energy")       {resultsSubst.push_back(tps.gibbs_energy);}
-        if (it->second == "helmholtz_energy")   {resultsSubst.push_back(tps.helmholtz_energy);}
-        if (it->second == "internal_energy")    {resultsSubst.push_back(tps.internal_energy);}
-        if (it->second == "enthalpy")           {resultsSubst.push_back(tps.enthalpy);}
-        if (it->second == "entropy")            {resultsSubst.push_back(tps.entropy);}
-        if (it->second == "volume")             {resultsSubst.push_back(tps.volume);}
-        if (it->second == "heat_capacity_cp")   {resultsSubst.push_back(tps.heat_capacity_cp);}
-        if (it->second == "heat_capacity_cv")   {resultsSubst.push_back(tps.heat_capacity_cv);}
-    }
-    return resultsSubst;
+    pimpl->givenPropertyUnits = units;
 }
 
-auto Interface::selectPropertiesSolvent ( PropertiesSolvent ps, ElectroPropertiesSolvent eps ) -> std::vector<Reaktoro_::ThermoScalar>
+auto Interface::setPropertiesUnits(const vstr &properties, const vstr &units)-> void
 {
-    std::vector<Reaktoro_::ThermoScalar> resultsSolvent;
-    std::map<int, std::string>::iterator it;
-
-    for(it = pimpl->solventPropNames.begin(); it != pimpl->solventPropNames.end(); it++)
-    {
-        if (it->second == "density")        {resultsSolvent.push_back(ps.density);}
-        if (it->second == "densityT")       {resultsSolvent.push_back(ps.densityT);}
-        if (it->second == "densityP")       {resultsSolvent.push_back(ps.densityP);}
-        if (it->second == "densityTT")      {resultsSolvent.push_back(ps.densityTT);}
-        if (it->second == "densityTP")      {resultsSolvent.push_back(ps.densityTP);}
-        if (it->second == "densityPP")      {resultsSolvent.push_back(ps.densityPP);}
-        if (it->second == "alpha")          {resultsSolvent.push_back(ps.Alpha);}
-        if (it->second == "beta")           {resultsSolvent.push_back(ps.Beta);}
-        if (it->second == "alphaT")         {resultsSolvent.push_back(ps.dAldT);}
-        if (it->second == "gibbsIdealGas")  {resultsSolvent.push_back(ps.gibbsIdealGas);}
-        if (it->second == "entropyIdealGas"){resultsSolvent.push_back(ps.entropyIdealGas);}
-        if (it->second == "cpIdealGas")     {resultsSolvent.push_back(ps.cpIdealGas);}
-
-        if (it->second == "epsilon")        {resultsSolvent.push_back(eps.epsilon);}
-        if (it->second == "epsilonT")       {resultsSolvent.push_back(eps.epsilonT);}
-        if (it->second == "epsilonP")       {resultsSolvent.push_back(eps.epsilonP);}
-        if (it->second == "epsilonTT")      {resultsSolvent.push_back(eps.epsilonTT);}
-        if (it->second == "epsilonTP")      {resultsSolvent.push_back(eps.epsilonTP);}
-        if (it->second == "epsilonPP")      {resultsSolvent.push_back(eps.epsilonPP);}
-        if (it->second == "bornZ")          {resultsSolvent.push_back(eps.bornZ);}
-        if (it->second == "bornY")          {resultsSolvent.push_back(eps.bornY);}
-        if (it->second == "bornQ")          {resultsSolvent.push_back(eps.bornQ);}
-        if (it->second == "bornN")          {resultsSolvent.push_back(eps.bornN);}
-        if (it->second == "bornU")          {resultsSolvent.push_back(eps.bornU);}
-        if (it->second == "bornX")          {resultsSolvent.push_back(eps.bornX);}
-    }
-    return resultsSolvent;
+    for (uint i=0; i<properties.size(); i++)
+        setPropertyUnit(properties[i], units[i]);
 }
 
-auto Interface::selectResultsReac ( ThermoPropertiesReaction tpr ) -> std::vector<Reaktoro_::ThermoScalar>
+auto Interface::setPropertiesDigits(const vstr &properties, const std::vector<int> &propDigits)-> void
 {
-    std::vector<Reaktoro_::ThermoScalar> resultsReac;
-    std::map<int, std::string>::iterator it;
-
-    for(it = pimpl->propNames.begin(); it != pimpl->propNames.end(); it++)
-    {
-        if (it->second == "reaction_gibbs_energy")       {resultsReac.push_back(tpr.reaction_gibbs_energy);}
-        if (it->second == "reaction_helmholtz_energy")   {resultsReac.push_back(tpr.reaction_helmholtz_energy);}
-        if (it->second == "reaction_internal_energy")    {resultsReac.push_back(tpr.reaction_internal_energy);}
-        if (it->second == "reaction_enthalpy")           {resultsReac.push_back(tpr.reaction_enthalpy);}
-        if (it->second == "reaction_entropy")            {resultsReac.push_back(tpr.reaction_entropy);}
-        if (it->second == "reaction_volume")             {resultsReac.push_back(tpr.reaction_volume);}
-        if (it->second == "reaction_heat_capacity_cp")   {resultsReac.push_back(tpr.reaction_heat_capacity_cp);}
-        if (it->second == "reaction_heat_capacity_cv")   {resultsReac.push_back(tpr.reaction_heat_capacity_cv);}
-        if (it->second == "logKr")                       {resultsReac.push_back(tpr.log_equilibrium_constant);}
-        if (it->second == "lnK0")                        {resultsReac.push_back(tpr.ln_equilibrium_constant);}
-    }
-    return resultsReac;
+    for (uint i=0; i<properties.size(); i++)
+        setPropertyDigit(properties[i], propDigits[i]);
 }
 
-auto Interface::calculateSolventProp( int j ) -> void
+auto Interface::setPropertyUnit(const std::string &property, const std::string &unit)-> void
 {
-    if (pimpl->outSettings.outSolventProp)
-    {
-        auto solProp = selectPropertiesSolvent(pimpl->thermo.propertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()),
-                                               pimpl->thermo.electroPropertiesSolvent(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->thermo.solventSymbol()));
-        pimpl->solventProp.insert(pimpl->solventProp.end(), solProp.begin(), solProp.end());
-    }
+    pimpl->givenPropertyUnits.at(property) = unit;
 }
 
-auto Interface::calculateResultsSubst( ) -> void
+auto Interface::setPropertyDigit(const std::string &property, const int &digit)-> void
 {
-    pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
-    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
-    pimpl->solventProp.resize(2*pimpl->tpPairs.size());
-    pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
-    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
-    {
-        for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
-        {
-            pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(pimpl->thermo.thermoPropertiesSubstance(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->substSymbols[i]));
-        }
-        calculateSolventProp(j);
-    }
+    pimpl->givenPropertyDigits.at(property) = digit;
 }
 
-auto Interface::calculateResultsReac( ) -> void
+auto Interface::setPropertyUnitDigit(const std::string &property, const std::string &unit, const int &digit)-> void
 {
-    pimpl->reacResults.empty(); unsigned tp = pimpl->tpPairs.size();
-    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
-    pimpl->solventProp.resize(2*pimpl->tpPairs.size());
-    pimpl->solventSymbol = pimpl->thermo.solventSymbol(); pimpl->solventProp.clear();
-    auto fromSubst = pimpl->outSettings.calcReactFromSubst;
-    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
-    {
-        for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
-        {
-            if (fromSubst)
-                pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReactionFromReactants(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
-            else
-                pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(pimpl->thermo.thermoPropertiesReaction(pimpl->tpPairs[j][0], pimpl->tpPairs[j][1], pimpl->reacSymbols[i]));
-        }
-        calculateSolventProp(j);
-    }
+    setPropertyUnit(property, unit);
+    setPropertyDigit(property, digit);
 }
 
-auto Interface::selectResultsSubst_vTpSym(std::vector<std::vector<ThermoPropertiesSubstance>> vTps ) -> void
-{
-    pimpl->substResults.empty(); unsigned tp = pimpl->tpPairs.size();
-    pimpl->substResults.resize(pimpl->substSymbols.size() * pimpl->tpPairs.size());
-    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
-    {
-        for (unsigned i=0; i<pimpl->substSymbols.size(); i++)
-        {
-            pimpl->substResults[(tp*i)+(j)] = selectResultsSubst(vTps[j][i]);
-        }
-    }
-}
-
-auto Interface::selectResultsReac_vTpSym(std::vector<std::vector<ThermoPropertiesReaction>> vTpr ) -> void
-{
-    pimpl->reacResults.empty(); unsigned tp = pimpl->tpPairs.size();
-    pimpl->reacResults.resize(pimpl->reacSymbols.size() * pimpl->tpPairs.size());
-    for (unsigned j=0; j<pimpl->tpPairs.size(); j++)
-    {
-        for (unsigned i=0; i<pimpl->reacSymbols.size(); i++)
-        {
-            pimpl->reacResults[(tp*i)+(j)] = selectResultsReac(vTpr[j][i]);
-        }
-    }
-}
-
-// Add functions
-auto Interface::addSubstance (const std::string &substSymbol) -> void
-{
-    if (std::find(pimpl->substSymbols.begin(), pimpl->substSymbols.end(), substSymbol) == pimpl->substSymbols.end())
-        pimpl->substSymbols.push_back(substSymbol);
-    // add exception ??
-}
-
-auto Interface::addSubstances (const std::vector<string> &substSymbols) -> void
-{
-    for (unsigned i = 0; i < substSymbols.size(); i++)
-    {
-        addSubstance(substSymbols[i]);
-    }
-}
-
-auto Interface::addReaction (const std::string &reacSymbol) -> void
-{
-//    if (std::find(pimpl->reacSymbols.begin(), pimpl->reacSymbols.end(), reacSymbol) == pimpl->reacSymbols.end())
-        pimpl->reacSymbols.push_back(reacSymbol);
-    // add exception ??
-}
-
-auto Interface::addReactions (const std::vector<string> &reacSymbols) -> void
-{
-    for (unsigned i = 0; i < reacSymbols.size(); i++)
-    {
-        addReaction(reacSymbols[i]);
-    }
-}
-
-auto Interface::addProperty (const std::string &propName) -> void
-{
-    std::map<std::string, const std::string>::const_iterator it;
-    it = defaultPropertyNames.find(propName);
-    if ( it != defaultPropertyNames.end())
-    {
-        if (!pimpl->propNames.empty())
-        {
-            pimpl->propNames.insert(std::pair<int,std::string>(pimpl->propNames.rbegin()->first+1,propName));
-        } else
-            pimpl->propNames.insert(std::pair<int,std::string>(1,propName));
-    }
-
-    // write exception prop not existing
-}
-
-auto Interface::addProperties (const std::vector<string> &propNames) -> void
-{
-    std::map<std::string, const std::string>::const_iterator it;
-
-    for (unsigned i = 0; i<propNames.size(); i++)
-    {
-        addProperty(propNames[i]);
-    }
-}
-
-auto Interface::addSolventProperty (const std::string &sovlentPropName) -> void
-{
-    std::map<std::string, const std::string>::const_iterator it;
-    it = defaultSolventPropertyNames.find(sovlentPropName);
-    if ( it != defaultSolventPropertyNames.end())
-    {
-        if (!pimpl->solventPropNames.empty())
-        {
-            pimpl->solventPropNames.insert(std::pair<int,std::string>(pimpl->solventPropNames.rbegin()->first+1,sovlentPropName));
-        } else
-            pimpl->solventPropNames.insert(std::pair<int,std::string>(1,sovlentPropName));
-    }
-
-    // write exception prop not existing
-}
-
-auto Interface::addSolventProperties (const std::vector<string> &solventPropNames) -> void
-{
-    std::map<std::string, const std::string>::const_iterator it;
-
-    for (unsigned i = 0; i<solventPropNames.size(); i++)
-    {
-        addSolventProperty(solventPropNames[i]);
-    }
-}
-
-auto Interface::addTPpair (const double &TC, const double &Pbar) -> void
-{
-    std::vector<double> one_pair = {TC+C_to_K, Pbar*bar_to_Pa};
-    pimpl->tpPairs.push_back(one_pair);
-}
-
-auto Interface::addTPpairs (const double &Tmin, const double &Tmax, const double &Tstep,
-                  const double &Pmin, const double &Pmax, const double &Pstep) -> void
-{
-    double t = Tmin;
-    double p = Pmin;
-    do
-    {
-       do
-        {
-            addTPpair(t,p);
-            p = p + Pstep;
-        } while (p <= Pmax);
-       t = t + Tstep;
-    } while (t <= Tmax);
-}
-
-auto Interface::addTPpairs (const std::vector<std::vector<double>> &tpPairs) -> void
-{
-    for (unsigned i=0; i <tpPairs.size(); i++)
-    {
-        addTPpair(tpPairs[i][0], tpPairs[i][1]);
-    }
-}
-
-auto Interface::addDigits (const std::map<std::string, int> &propDigits)-> void
-{
-    pimpl->propDigits = propDigits;
-}
-
-auto Interface::addSolventPropDigits (const std::map<std::string, int> &solventPropDigits)-> void
-{
-    pimpl->solventPropDigits = solventPropDigits;
-}
-
-// clear functions
-auto Interface::clearSubstances () -> void
-{
-    pimpl->substSymbols.clear();
-}
-auto Interface::clearProperties () -> void
-{
-    pimpl->propNames.clear();
-}
-auto Interface::clearSolventProperties () -> void
-{
-    pimpl->solventPropNames.clear();
-}
-auto Interface::clearTPpairs () -> void
-{
-    pimpl->tpPairs.clear();
-}
-
-auto Interface::clearReactions () -> void
-{
-    pimpl->reacSymbols.clear();
-}
-
-
-// set functions
 auto Interface::setOutputSettings(const OutputSettings &value) -> void
 {
     pimpl->outSettings = value;
 }
 
-auto Interface::setSolventSymbol(const std::string solvent_symbol) -> void
+auto Interface::setSolventSymbol(const std::string solventSymbol) -> void
 {
-    pimpl->thermo.setSolventSymbol(solvent_symbol);
+    pimpl->thermo.setSolventSymbol(solventSymbol);
 }
 
+// Private
 // get functions
-auto Interface::substanceSymbols() -> const std::vector<string>
+auto Interface::symbols() -> const vstr
 {
-    return pimpl->substSymbols;
-}
-
-auto Interface::reactionSymbols() -> const std::vector<string>
-{
-    return pimpl->reacSymbols;
+    return pimpl->symbols;
 }
 
 auto Interface::outputSettings() -> const OutputSettings
@@ -504,59 +416,29 @@ auto Interface::outputSettings() -> const OutputSettings
     return pimpl->outSettings;
 }
 
-auto Interface::TPpairs() -> const std::vector<std::vector<double> >
+auto Interface::TPpairs() -> const vvd
 {
     return pimpl->tpPairs;
 }
 
-auto Interface::propNames() -> const map<int, std::string>
+auto Interface::properties() -> const vstr
 {
-    return pimpl->propNames;
+    return pimpl->properties;
 }
 
-auto Interface::solventPropNames() -> const map<int, std::string>
+auto Interface::units() -> const std::map<std::string, std::string>
 {
-    return pimpl->solventPropNames;
+    return pimpl->givenPropertyUnits;
 }
 
-auto Interface::propUnits() -> const std::map<std::string, std::string>
+auto Interface::digits() -> const std::map<std::string, int>
 {
-    return pimpl->propUnits;
+    return pimpl->givenPropertyDigits;
 }
 
-auto Interface::propDigits() -> const std::map<std::string, int>
+auto Interface::results() -> const vvThScalar
 {
-    return pimpl->propDigits;
-}
-
-auto Interface::solventPropUnits() -> const std::map<std::string, std::string>
-{
-    return pimpl->solventPropUnits;
-}
-
-auto Interface::solventPropDigits() -> const std::map<std::string, int>
-{
-    return pimpl->solventPropDigits;
-}
-
-auto Interface::resultsSubst() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
-{
-    return pimpl->substResults;
-}
-
-auto Interface::solventProp() -> const std::vector<Reaktoro_::ThermoScalar>
-{
-    return pimpl->solventProp;
-}
-
-auto Interface::solventSymbol() -> const std::string
-{
-    return pimpl->solventSymbol;
-}
-
-auto Interface::resultsReac() -> const std::vector<std::vector<Reaktoro_::ThermoScalar> >
-{
-    return pimpl->reacResults;
+    return pimpl->results;
 }
 
 }

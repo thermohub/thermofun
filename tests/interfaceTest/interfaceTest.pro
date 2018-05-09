@@ -9,7 +9,7 @@ QMAKE_CXXFLAGS += -std=c++11
 CONFIG += c++11
 QT += widgets
 
-TARGET = autoTest
+TARGET = interfaceTest
 
 DEFINES += IPMGEMPLUGIN
 #DEFINES += NODEARRAYLEVEL
@@ -40,7 +40,7 @@ LIBPATH += "/usr/local/lib/"
 
 LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
-LIBS += -lthrift -lboost_regex
+LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
 !macx-clang:LIBS += -llua5.2
 macx-clang:LIBS += -llua
 

@@ -461,12 +461,12 @@ auto Database::parseSubstanceFormula(std::string formula_) -> std::map<Element, 
     FormulaToken formula("");
 
     formula.setFormula(formula_);
-    elements.insert(formula.getElements().begin(), formula.getElements().end());
+//    elements.insert(formula.getElements().begin(), formula.getElements().end());
 
-    for (auto element : elements)
+    for (auto element : formula.getElements_map())
     {
-        Element e = elementKeyToElement(element);
-        map[e]++;
+        Element e = elementKeyToElement(element.first);
+        map[e] = element.second;
     }
 
     return map;
