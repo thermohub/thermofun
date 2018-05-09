@@ -89,6 +89,12 @@ public:
     ///
     Interface(const Database &database);
 
+    ///
+    /// \brief Interface
+    /// \param filename
+    ///
+    Interface(std::string filename);
+
     auto setUnits                   (const std::map<std::string, std::string> &units)-> void;
     auto setDigits                  (const std::map<std::string, int> &digits)-> void;
     auto setPropertiesUnits         (const vstr &properties, const vstr &units)-> void;

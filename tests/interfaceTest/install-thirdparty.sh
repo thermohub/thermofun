@@ -20,11 +20,11 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../../../build-interface-test/release/thirdparty
+mkdir -p ../../../build-interface-test/debug/thirdparty
 
 cd ../../../build-interface-test/debug/thirdparty
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
+cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
 make -j$J 
 

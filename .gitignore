@@ -26,4 +26,13 @@ tests/interfaceTest/install-thirdparty-old.sh
 tests/reactionsTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
 tests/reactionsTest/install-thirdparty-old.sh
 tests/reactionsTest/reactionsTest.pro.user
+tests/interfaceTest/CMakeCache.txt
+tests/interfaceTest/CMakeFiles/
+tests/interfaceTest/Makefile
+tests/interfaceTest/cmake_install.cmake
+tests/interfaceTest/include/
+tests/interfaceTest/install_manifest.txt
+tests/interfaceTest/lib/
+tests/interfaceTest/thirdparty/
+
 

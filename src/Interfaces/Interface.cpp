@@ -39,6 +39,10 @@ struct Interface::Impl
     : thermo(Thermo(database))
     {}
 
+    Impl(std::string filename)
+    : thermo(filename)
+    {}
+
     // clear functions
     auto clearSymbols () -> void
     {
@@ -259,6 +263,10 @@ struct Interface::Impl
 
 Interface::Interface(const Database& database)
     : pimpl(new Impl(database))
+{}
+
+Interface::Interface(std::string filename)
+    : pimpl(new Impl(filename))
 {}
 
 auto Interface::thermoPropertiesSubstance(double T, double P, std::string symbol, std::string property) -> Output

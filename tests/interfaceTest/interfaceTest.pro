@@ -38,9 +38,10 @@ INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"
 
-LIBS += -lbsonio -lyaml-cpp -lejdb -lpugixml
+LIBS += -ljsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
+LIBS +=  -lcurl  -lvelocypack
 !macx-clang:LIBS += -llua5.2
 macx-clang:LIBS += -llua
 
