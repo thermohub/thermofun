@@ -18,7 +18,8 @@
       interface.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
 
       // Retrieve the entropy of H2O
-      double H2Oentropy = interface.thermoPropertiesSubstance( 400, 1000, "H2O@", "entropy").toDouble();
+      double H2Oentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+      double H2Ogentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toDouble();
       Reaktoro_::ThermoScalar entro = interface.thermoPropertiesSubstance( 250, 1000, "H2O@", "entropy").toThermoScalar();
       Reaktoro_::ThermoScalar G1 = interface.thermoPropertiesSubstance( 25, 1000, "H2O@", "gibbs_energy").toThermoScalar();
       Reaktoro_::ThermoScalar G2 = interface.thermoPropertiesSubstance( 25, 1, "H2O@", "gibbs_energy").toThermoScalar();
