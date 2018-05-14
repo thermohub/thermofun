@@ -64,6 +64,11 @@ auto Output::toDouble() -> double
     return pimpl->api.results()[0][0].val;
 }
 
+auto Output::toThermoScalar() -> Reaktoro_::ThermoScalar
+{
+    return pimpl->api.results()[0][0];
+}
+
 auto Output::to2DVectorDouble() -> std::vector<std::vector<double>>
 {
     std::vector<std::vector<Reaktoro_::ThermoScalar>> vectorTS;

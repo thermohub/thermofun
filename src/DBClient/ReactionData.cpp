@@ -180,7 +180,7 @@ void ReactionData_::resetRecordElements(const string& idReact )
         getDB()->setValue("properties.elements",elementsJsonArray);
         getDB()->SaveCurrent( true, true  );
     }
-    catch(bsonio_exeption& e)
+    catch(jsonio_exeption& e)
     {
         cout << "ResetElementsintoReactionRecord " << e.title() << e.what() << endl;
     }

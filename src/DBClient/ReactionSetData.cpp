@@ -174,7 +174,7 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
         graphdb->setValue("properties.elements",elementsJsonArray);
         graphdb->SaveCurrent( true, true  );
     }
-    catch(bsonio_exeption& e)
+    catch(jsonio_exeption& e)
     {
         cout << "ResetElementsintoReactionRecord " << e.title() << e.what() << endl;
     }

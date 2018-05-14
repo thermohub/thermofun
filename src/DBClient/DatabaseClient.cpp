@@ -318,7 +318,7 @@ auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<Element
     {
         auto itrdb = ChemicalFormula::getDBElements().find(element);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
         set.push_back(element);
     }
     return set;
@@ -331,7 +331,7 @@ auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std
     {
         auto itrdb = ChemicalFormula::getDBElements().find(element);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            bsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
         elmIds.push_back(itrdb->second.recid);
     }
     return elmIds;

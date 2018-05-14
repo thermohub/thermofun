@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 
 class Interface;
-class ThermoScalar;
 
 /// outputs temperature in C and pressure in bar
 class Output
@@ -24,7 +24,7 @@ public:
     auto toCSV                  (std::string filename) -> void;
     auto toCSVTransposed        (std::string filename) -> void;
     auto toDouble               () -> double;
-    auto toThermoScalar         () -> ThermoScalar;
+    auto toThermoScalar         () -> Reaktoro_::ThermoScalar;
     auto to2DVectorDouble       () -> std::vector<std::vector<double>>;
 
 private:

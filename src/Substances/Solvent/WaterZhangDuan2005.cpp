@@ -77,9 +77,10 @@ auto waterMolarVolume (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reak
     return {};
 }
 
+// Duan et al 1992a
 auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Vr, Reaktoro_::ThermoScalar V) -> Reaktoro_::ThermoScalar
 {
-    Reaktoro_::ThermoScalar lnFugCoef, lnFugCoef2;
+    Reaktoro_::ThermoScalar lnFugCoef, lnFugCoef2, lnFugCoef3;
 
     const auto Tc = waterCriticalTemperature;
     const auto B = a[1]  + a[2]/pow((T/Tc),2)  + a[3]/pow((T/Tc),3);
@@ -88,10 +89,10 @@ auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reakto
     const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
     const auto F = a[13]/(T/Tc);
     const auto G = a[14]*(T/Tc);
-//    const auto expf = exp(-gamma/pow(Vr,2));
+    const auto expf = exp(-gamma/pow(Vr,2));
     const auto Z = (P*V)/(RConstant*T);
 
-//    const auto H = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/pow(Vr,2);
+    const auto Hx = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/(pow(Vr,2)*(2*gamma));
 
     const auto H2 = G/(2*pow(gamma,2)) * (F*gamma/G + 1 - (F*gamma/G+1+gamma/pow(Vr,2)) * exp(-gamma/pow(Vr,2)));
 
@@ -100,6 +101,8 @@ auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reakto
     lnFugCoef = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) - H;
 
     lnFugCoef2 = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + H2;
+
+    lnFugCoef3 = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + Hx;
 
     return lnFugCoef;
 }
@@ -118,6 +121,8 @@ auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pre
 
     const auto V = Vr * waterCriticalVolume;
     FugCoef = exp(waterFugacityCoeff(T, P, Vr, V));
+
+    auto G = (waterFugacityCoeff(T, P, Vr, V)+log(P))*R_CONSTANT * (T);
 
     tps.volume = V / 10;
 

@@ -76,7 +76,7 @@ void ElementKey::toJsonNode( jsonio::JsonDom *object ) const
 void ElementKey::fromJsonNode( const jsonio::JsonDom *object )
 {
     if(!object->findValue( "symbol", symbol ) )
-        jsonio::bsonioErr( "ElementKey: ", "Undefined symbol.");
+        jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
     if(!object->findValue( "isotope_mass", isotope ) )
         isotope = 0;
     if(!object->findValue(  "class_", class_ ) )
@@ -265,7 +265,7 @@ void FormulaToken::exeptionCheckElements( const string& subreacKey, const string
       msg += notPresent;
       msg += "\n in formula in record: \n";
       msg += subreacKey;
-      jsonio::bsonioErr( "E37FPrun: Invalid symbol ", msg );
+      jsonio::jsonioErr( "E37FPrun: Invalid symbol ", msg );
   }
 }
 
@@ -298,7 +298,7 @@ void FormulaToken::calcFormulaProperites( FormulaProperites& propert )
     {
       auto itrdb = ChemicalFormula::getDBElements().find(itr->key);
       if( itrdb ==  ChemicalFormula::getDBElements().end() )
-          jsonio::bsonioErr( "E37FPrun: Invalid symbol ", itr->key.symbol );
+          jsonio::jsonioErr( "E37FPrun: Invalid symbol ", itr->key.symbol );
 
       Sc = itr->stoichCoef;
       propert.atoms_formula_unit += Sc;
@@ -378,7 +378,7 @@ void FormulaToken::exeptionCargeImbalance()
             str +=  formula + "\n calculated charge: ";
             str +=  to_string(aZ) + " != " + to_string(Zzval);
             //aSC[ii] = aZ;  // KD 03.01.04  - temporary workaround (adsorption)
-            jsonio::bsonioErr(  "W34FPrun: Charge imbalance ", str);
+            jsonio::jsonioErr(  "W34FPrun: Charge imbalance ", str);
          }
          break;
      }
@@ -571,7 +571,7 @@ auto elementKeyToElement(ElementKey elementKey) -> Element
     Element e;
     auto itrdb = ChemicalFormula::getDBElements().find(elementKey);
     if (itrdb == ChemicalFormula::getDBElements().end())
-        jsonio::bsonioErr("E37FPrun: Invalid symbol ", elementKey.symbol);
+        jsonio::jsonioErr("E37FPrun: Invalid symbol ", elementKey.symbol);
 
     e.setClass(elementKey.class_);
     e.setIsotopeMass(elementKey.isotope);
