@@ -188,7 +188,7 @@ struct Interface::Impl
         auto unitT    =   givenPropertyUnits.at("temperature");
         auto defUnitP = defaultPropertyUnits.at("pressure");
         auto unitP    =   givenPropertyUnits.at("pressure");
-        results.empty();
+        results.clear();
 
         if (outSettings.loopOverTPpairsFirst)
         {j_size = tpPairs.size(); i_size = symbols.size();}
@@ -224,7 +224,7 @@ struct Interface::Impl
 
     auto selectProvidedSubstancesProperties(vtps vTps) -> void
     {
-        results.empty();
+        results.clear();
         for (auto result : vTps)
         {
             results.push_back(selectResultsSubst(result));
@@ -233,7 +233,7 @@ struct Interface::Impl
 
     auto selectProvidedReactionsProperties(vtpr vTpr) -> void
     {
-        results.empty();
+        results.clear();
         for (auto result : vTpr)
         {
             results.push_back(selectResultsReact(result));
