@@ -1,0 +1,34 @@
+{
+     "block" :   {
+          "defaults" :   {
+               "4.19.1" :   "0",
+               "properties.radioactivity.half_life_lambda.values" :   "[ 0 ]",
+               "properties.datasources" :   "[\"THEREDA\"]",
+               "properties.sourcetdb" :   "12"
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "symbol" :   {
+                    "field" :   "properties.symbol"
+               },
+               "name" :   {
+                    "field" :   "properties.name"
+               },
+               "molarmass" :   {
+                    "field" :   "properties.atomic_mass.values"
+               },
+               "s298" :   {
+                    "field" :   "properties.entropy.values"
+               },
+               "description" :   {
+                    "field" :   "properties.comment"
+               }
+          },
+          "script" :   "if rintable.properties.symbol == \"EA\" then rintable.properties.class_ = 0 end;"
+     },
+     "renderer" :   "JSON",
+     "label" :   "VertexElement",
+     "comment" :   "Second test"
+}

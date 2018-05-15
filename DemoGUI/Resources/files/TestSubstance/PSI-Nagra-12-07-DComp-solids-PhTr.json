@@ -1,0 +1,4480 @@
+[
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "FeO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "HemA"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				159.688201904297
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				3.02740001678467,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-739527,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-821421,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				87.6129608154297,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				104.775909423828,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				25
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Hematite"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Fe|3|2O3"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				0,
+				676.849975585938
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				98.2821578979492,
+				0.0778224021196365,
+				-1485320,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				"G0 from logK = -1.12    "
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 16:13:26 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "FeO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "HemB"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				159.688201904297
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				3.02740001678467,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-853570,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-728446,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				245.410339355469,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				150.623992919922,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				676.849975585938
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Hematite"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Fe|3|2O3"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				676.849975585938,
+				776.849975585938
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				150.623992919922,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				""
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 16:17:43 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "FeO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "HemG"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				159.688201904297
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				3.02740001678467,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-878878,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-713384,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				260.485321044922,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				140.406677246094,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				776.849975585938
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Hematite"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Fe|3|2O3"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				776.849975585938,
+				1526.84997558594
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				132.675003051758,
+				0.00736384000629187,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				""
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 16:18:57 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "FeO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "MagA"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				231.532608032227
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				4.45240020751953,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-1017412,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-1120696,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				145.72900390625,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				151.67350769043,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				25
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Magnetite"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "FeFe|3|2O4"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				0,
+				626.849975585938
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				91.5458984375,
+				0.201668992638588,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				"G0 from logK = -10.02   "
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 16:07:02 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "FeO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "MagB"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				231.532608032227
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				4.45240020751953,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-1177597,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				7112.3,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1000367.1875,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				200.832000732422,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				626.849975585938
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Magnetite"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "FeFe|3|2O4"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				626.849975585938,
+				1526.84997558594
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				200.832000732422,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				""
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 16:12:21 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "S0"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "SulfurA"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"12.JUN.98"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				32.0670013427734
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1.56099998950958,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				0,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				0,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				31.7983989715576,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				22.762866973877,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				25
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S(rhomb)  orthorhombic"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S|0|"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				0,
+				95.4500045776367
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				14.9787197113037,
+				0.0261081587523222,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:"
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:G13A"
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:46:35 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "S0"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "SulfurB"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"12.JUN.98"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				32.0670013427734
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1.56099998950958,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-2421.2,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				2024.3,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				37.7804794311523,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				25.9407997131348,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				95.4499969482422
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S(rhomb)  orthorhombic"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S|0|"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				95.4499969482422,
+				118.849998474121
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				25.9407997131348,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:"
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:G13A"
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:51:58 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "S0"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "SulfurG"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"12.JUN.98"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				32.0670013427734
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1.56099998950958,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-3323.8,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				4032.7,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				42.9520378112793,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				36.5263175964355,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				118.849998474121
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S(rhomb)  orthorhombic"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S|0|"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				118.849998474121,
+				444.649993896484
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				36.5262985229492,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:"
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:G13A"
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:53:03 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "SiO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "QtzA"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				60.084300994873
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				2.2688000202179,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-854793,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-909242,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				41.3380012512207,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				44.4654159545898,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				25
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Quartz  alpha"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "SiO2"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				0,
+				574.849975585938
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				46.9444999694824,
+				0.0343087986111641,
+				-1129680,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				"G0 from logK = 3.746    "
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:33:31 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "SiO"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "QtzB"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"5.May.78"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				60.084300994873
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				2.2688000202179,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-896243,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-873862,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				105.13500213623,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				67.1745986938477,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				574.849975585938
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Quartz beta"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "SiO2"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				2,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				574.849975585938,
+				1726.84997558594
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				60.2914009094238,
+				0.00811695959419012,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:",
+				"AUG20_GEMS:2001:dat:            "
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:1",
+				""
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:37:38 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "Sn0"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "SnA"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"Aug.85"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				118.710998535156
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1.62890005111694,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				0,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				0,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				51.2122001647949,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				26.352294921875,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				25
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Tin(cr)  crystalline (white, tet.)"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Sn|0|"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				0,
+				231.910003662109
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				18.4932994842529,
+				0.0263592004776001,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:"
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:12"
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:39:09 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 4,
+			"fv": "s"
+		},
+		{
+			"fx": 1,
+			"fl": 8,
+			"fv": "Sn0"
+		},
+		{
+			"fx": 2,
+			"fl": 16,
+			"fv": "SnB"
+		},
+		{
+			"fx": 3,
+			"fl": 4,
+			"fv": "dnp"
+		}
+	],
+	"dod": [
+		{
+			"id": 510,
+			"label": "TPcMod",
+			"dot": -9,
+			"dN": 1,
+			"dM": 6,
+			"dyn": false,
+			"val": [
+				"C",
+				"S",
+				"C",
+				"N",
+				" ",
+				" "
+			]
+		},
+		{
+			"id": 511,
+			"label": "DCset",
+			"dot": -9,
+			"dN": 1,
+			"dM": 9,
+			"dyn": false,
+			"val": [
+				"O",
+				"j",
+				"j",
+				"b",
+				"C",
+				"+",
+				"-",
+				"-",
+				"-"
+			]
+		},
+		{
+			"id": 512,
+			"label": "Cdate",
+			"dot": 9,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"Aug.85"
+			]
+		},
+		{
+			"id": 513,
+			"label": "Zz",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 514,
+			"label": "M0",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				118.710998535156
+			]
+		},
+		{
+			"id": 515,
+			"label": "V0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1.62890005111694,
+				0
+			]
+		},
+		{
+			"id": 516,
+			"label": "G0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				-12257.9,
+				null
+			]
+		},
+		{
+			"id": 517,
+			"label": "H0d",
+			"dot": -6,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				13046.2,
+				null
+			]
+		},
+		{
+			"id": 518,
+			"label": "S0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				80.3316421508789,
+				null
+			]
+		},
+		{
+			"id": 519,
+			"label": "Cp0d",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				30.5431995391846,
+				0
+			]
+		},
+		{
+			"id": 520,
+			"label": "PrTr",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				1,
+				231.910003662109
+			]
+		},
+		{
+			"id": 521,
+			"label": "LamST",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 522,
+			"label": "BetAlp",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 523,
+			"label": "ab",
+			"dot": -5,
+			"dN": 1,
+			"dM": 2,
+			"dyn": false,
+			"val": [
+				null,
+				null
+			]
+		},
+		{
+			"id": 525,
+			"label": "DCname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Tin(cr)  crystalline (white, tet.)"
+		},
+		{
+			"id": 526,
+			"label": "DCform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Sn|0|"
+		},
+		{
+			"id": 527,
+			"label": "DC_cnt",
+			"dot": -1,
+			"dN": 1,
+			"dM": 4,
+			"dyn": false,
+			"val": [
+				1,
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"id": 531,
+			"label": "TCint",
+			"dot": -5,
+			"dN": 2,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				231.910003662109,
+				2726.85009765625
+			]
+		},
+		{
+			"id": 532,
+			"label": "aiCpT",
+			"dot": -5,
+			"dN": 12,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				30.5431995391846,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"id": 533,
+			"label": "aiNEs",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 534,
+			"label": "aiHKF",
+			"dot": -5,
+			"dN": 8,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 535,
+			"label": "aiVTP",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 536,
+			"label": "CritPg",
+			"dot": -5,
+			"dN": 7,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 537,
+			"label": "aiODc",
+			"dot": -5,
+			"dN": 12,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 538,
+			"label": "FT_p",
+			"dot": -5,
+			"dN": 5,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 539,
+			"label": "FT_pb",
+			"dot": -5,
+			"dN": 3,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 540,
+			"label": "Cemp_s",
+			"dot": -5,
+			"dN": 20,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 541,
+			"label": "FT_typ",
+			"dot": 4,
+			"dN": 1,
+			"dM": 0,
+			"dyn": true,
+			"val": null
+		},
+		{
+			"id": 542,
+			"label": "dSDref",
+			"dot": 32,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"Slop98_dat:1998:dat:"
+			]
+		},
+		{
+			"id": 543,
+			"label": "dSDval",
+			"dot": 24,
+			"dN": 1,
+			"dM": 1,
+			"dyn": true,
+			"val": [
+				"ref:12"
+			]
+		}
+	],
+	"mtime": "Wed, 03 Aug 2016 15:45:13 +0100"
+}
+]

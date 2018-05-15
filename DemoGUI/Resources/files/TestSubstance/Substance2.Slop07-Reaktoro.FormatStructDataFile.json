@@ -1,0 +1,109 @@
+{
+     "block" :   {
+          "defaults" :   {
+               "properties.sourcetdb" :   "22",
+               "properties.eos_gas_crit_props.values" :   "[ 0, 0, 0 ]",
+               "properties.m_heat_capacity_p_t_coeffs.values" :   "[ 0, 0, 0 ]",
+               "properties.eos_hkf_coeffs.values" :   "[ 0, 0, 0, 0, 0, 0, 0 ]"
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "Type" :   {
+                    "field" :   "properties.aggregate_state",
+                    "convert" :   {
+                         "Aqueous" :   "4",
+                         "Gaseous" :   "0",
+                         "Mineral" :   "3"
+                    }
+               },
+               "Name" :   {
+                    "field" :   "properties.symbol"
+               },
+               "Formula" :   {
+                    "field" :   "properties.formula"
+               },
+               "Charge" :   {
+                    "field" :   "properties.formula_charge"
+               },
+               "MolarMass.value" :   {
+                    "field" :   "properties.mass_per_mole"
+               },
+               "Thermo.HKF.Vr.value" :   {
+                    "field" :   "properties.sm_volume.values",
+                    "script" :   "field[1] = field[1]*0.1"
+               },
+               "Thermo.HKF.Gf.value" :   {
+                    "field" :   "properties.sm_gibbs_energy.values",
+                    "script" :   "field[1] = field[1]*4.184"
+               },
+               "Thermo.HKF.Hf.value" :   {
+                    "field" :   "properties.sm_enthalpy.values",
+                    "script" :   "field[1] = field[1]*4.184"
+               },
+               "Thermo.HKF.Sr.value" :   {
+                    "field" :   "properties.sm_entropy_abs.values",
+                    "script" :   "field[1] = field[1]*4.184"
+               },
+               "CriticalTemperature.value" :   {
+                "field" :   "properties.eos_gas_crit_props.values.0"
+               },
+               "CriticalPressure.value" :   {
+                "field" :   "properties.eos_gas_crit_props.values.1"
+               },
+               "AcentricFactor" :   {
+                "field" :   "properties.eos_gas_crit_props.values.2"
+               },
+               "Thermo.HKF.a.value" :   {
+                "field" :   "properties.m_heat_capacity_p_t_coeffs.values.0"
+               },
+               "Thermo.HKF.b.value" :   {
+                "field" :   "properties.m_heat_capacity_p_t_coeffs.values.1"
+               },
+               "Thermo.HKF.c.value" :   {
+                "field" :   "properties.m_heat_capacity_p_t_coeffs.values.2"
+               },
+               "Thermo.HKF.TemperatureRange0.a.value" :   {
+                "field" :   "properties.m_heat_capacity_p_t_coeffs.values.0"
+               },
+               "Thermo.HKF.TemperatureRange0.b.value" :   {
+                "field" :   "properties.m_heat_capacity_p_t_coeffs.values.1"
+               },
+               "Thermo.HKF.TemperatureRange0.c.value" :   {
+                "field" :   "properties.m_heat_capacity_p_t_coeffs.values.2"
+               },
+               "Thermo.HKF.a1.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.0"
+               },
+               "Thermo.HKF.a2.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.1"
+               },
+               "Thermo.HKF.a3.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.2"
+               },
+               "Thermo.HKF.a4.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.3"
+               },
+               "Thermo.HKF.c1.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.4"
+               },
+               "Thermo.HKF.c2.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.5"
+               },
+               "Thermo.HKF.wref.value" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values.6"
+               },
+               "Thermo.HKF.References" :   {
+                    "field" :   "properties.datasources"
+               },
+               "Thermo.HKF.Tmax.value" :   {
+                    "field" :   "properties.limitsTP.upperT"
+               }
+          },
+          "script" :   "rintable.properties.name = rintable.properties.symbol; if rintable.properties.aggregate_state == 4 then rintable.properties.class_ = 2 rintable.properties.method_genEoS = 119 rintable.properties.method_corrT = 205 rintable.properties.method_corrP = 319 end; if rintable.properties.aggregate_state == 3 then rintable.properties.class_ = 0 rintable.properties.method_genEoS = 100 rintable.properties.method_corrT = 200 rintable.properties.method_corrP = 305 end;  if rintable.properties.aggregate_state == 0 then rintable.properties.class_ = 1 rintable.properties.method_genEoS = 100 rintable.properties.method_corrT = 200 rintable.properties.method_corrP = 300 end;"
+     },
+     "renderer" :   "JSON",
+     "label" :   "VertexSubstance",
+     "comment" :   "Second test"
+}
