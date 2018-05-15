@@ -56,8 +56,9 @@ LIBS += -ljsonio -lyaml-cpp -lpugixml
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
 LIBS += -llua5.3
 #LIBS += -lapp-static -lhunspell -lmarkdown
-LIBS += -lfuerte
-LIBS += -lpthread -lssl -lcrypto -lcurl -lboost_thread -lvelocypack
+#LIBS += -lfuerte
+#LIBS += -lpthread -lssl -lcrypto -lcurl -lboost_thread -lvelocypack
+LIBS +=  -lcurl  -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
