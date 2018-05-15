@@ -98,9 +98,9 @@ ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
 vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
 {
     // Select substance ids connected to reactionSet
-    auto subIds = getInVertexIds( "product", idrcset );
-    auto subIds2 = getInVertexIds( "master", idrcset );
-    subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
+    auto subIds = getInVertexIds( "product, master", idrcset );
+    //auto subIds2 = getInVertexIds( "master", idrcset );
+    //subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
     return subIds;
 }
 
@@ -108,25 +108,11 @@ vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
 vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
 {
     vector<string> formulas;
-    string formSub;
+    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
+           qrJson += idrcset + "' \n product, master\n";
+           qrJson += "RETURN v.properties.formula";
 
-    // Select substance ids connected to reactionSet
-    auto subIds = getInVertexIds( "product", idrcset );
-    auto subIds2 = getInVertexIds( "master", idrcset );
-    subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
-
-    // for all substances
-    for( auto rec: subIds)
-    {
-//        getDB()->GetRecord((rec+":").c_str());
-//        getDB()->getValue("properties.formula", formSub);
-        string jsonrecord = getJsonRecordVertex(rec+":");
-        auto domdata = jsonio::unpackJson( jsonrecord );
-        domdata->findKey("properties.formula", formSub);
-        //obj = getJsonRecordVertex(rec+":").second;
-        //bsonio::bson_to_key( obj.data, "properties.formula", formSub);
-        formulas.push_back(formSub);
-    }
+    getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, formulas);
     return formulas;
 }
 
@@ -135,12 +121,6 @@ bool ReactionSetData_::testElements( const string& idrcset,
 {
    set<ElementKey> reactelements = getElementsList( idrcset );
 
-   /* if user fogot tnsert elements property
-   if( reactelements.empty() )
-   {
-       vector<string> formulalst = getSubstanceFormulas( idrcset );
-       reactelements = elements::ChemicalFormula::extractElements(formulalst );
-   }*/
    if(reactelements.empty())
      return false;
 

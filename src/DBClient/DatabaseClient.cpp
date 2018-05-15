@@ -172,20 +172,20 @@ auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
 
 auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Element, double>
 {
-  std::set<ElementKey> elements;
-  std::map<Element, double> map;
-  FormulaToken formula("");
+    std::set<ElementKey> elements;
+    std::map<Element, double> map;
+    FormulaToken formula("");
 
-  formula.setFormula(formula_);
-//    elements.insert(formula.getElements().begin(), formula.getElements().end());
+    formula.setFormula(formula_);
+    elements.insert(formula.getElements().begin(), formula.getElements().end());
 
-  for (auto element : formula.getElements_map())
-  {
-      Element e = elementKeyToElement(element.first);
-      map[e] = element.second;
-  }
+    for (auto element : elements)
+    {
+        Element e = elementKeyToElement(element);
+        map[e]++;
+    }
 
-  return map;
+    return map;
 }
 
 auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>

@@ -95,8 +95,12 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
 
 ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
 {
-    auto reIds = getInVertexIds( "prodreac", idReactionSet );
-    ValuesTable reactMatr = getDB()->loadRecords(reIds, getDataFieldPaths());
+    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
+           qrJson += idReactionSet + "' \n prodreac\n";
+           qrJson += "RETURN v";
+
+    ValuesTable reactMatr =
+        getDB()->loadRecords( DBQueryData( qrJson, DBQueryData::qAQL ), getDataFieldPaths());
     setDefaultLevelForReactionDefinedSubst(reactMatr);
     pimpl->valuesTable = reactMatr;
     return reactMatr;
@@ -132,21 +136,11 @@ bool ReactionData_::testElements(const string &idReaction,
 vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 {
     vector<string> formulas;
-    string idSubst, formSubst;
-    // select all EdgeTakes for reaction
-    vector<string> _resultDataEdge = queryInEdgesTakes(idReaction, {"_from"});
+    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
+           qrJson += idReaction + "' \n takes\n";
+           qrJson += "RETURN v.properties.formula";
 
-    // for all substances
-    for (auto rec : _resultDataEdge)
-    {
-        idSubst = extractStringField("_from", rec);
-        string jsonrecord = getJsonRecordVertex(idSubst+":");
-        auto domdata = jsonio::unpackJson( jsonrecord );
-        domdata->findKey("properties.formula", formSubst);
-        //record = getJsonBsonRecordVertex(idSubst+":").second;
-        //bsonio::bson_to_key( record.data, "properties.formula", formSubst);
-        formulas.push_back(formSubst);
-    }
+    getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, formulas);
     return formulas;
 }
 
@@ -204,7 +198,7 @@ vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
 bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
 {
     vector<int> levels;
-    ValuesTable levelQueryMatr;
+    vector<string> levelQueryMatr;
     string reactSymbol = symbol;
     vector<string> reactKeys = getKeys(symbol, sourcetdb);
     level = "0";
@@ -215,15 +209,12 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
         for (auto key_: reactKeys)
         {
             strip_all( key_, ":" );
-            //string queryJson = "{'_type': 'edge', '_label': 'defines', '_from': '";
-            //queryJson += key_;
-            //queryJson += "'}";
-
-            // level of the defines edge
-            auto queryJson = getDB_edgeAccessMode()->outEdgesQuery( "defines", key_ );
-            levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
+            string qrJson = "FOR v,e  IN 1..1 OUTBOUND '";
+                   qrJson += key_ + "' \n defines\n";
+                   qrJson += "RETURN e.properties.level";
+            getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, levelQueryMatr);
             if (levelQueryMatr.size()>0)
-                levels.push_back(std::stoi(levelQueryMatr[0][0]));
+                levels.push_back(std::stoi(levelQueryMatr[0]));
             else
                 levels.push_back(std::stoi(level));
         }

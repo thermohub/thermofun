@@ -108,11 +108,12 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
 
 ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 {
-    auto subIds = getInVertexIds("product", idReactionSet);
-    auto subIds2 = getInVertexIds("master", idReactionSet);
-    subIds.insert(subIds.end(), subIds2.begin(), subIds2.end());
+    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
+           qrJson += idReactionSet + "' \n product, master\n";
+           qrJson += "RETURN v";
 
-    ValuesTable substMatr = getDB()->loadRecords(subIds, getDataFieldPaths());
+    ValuesTable substMatr =
+        getDB()->loadRecords( DBQueryData( qrJson, DBQueryData::qAQL ), getDataFieldPaths());
     setDefaultLevelForReactionDefinedSubst(substMatr);
     pimpl->valuesTable = substMatr;
     return substMatr;
@@ -120,7 +121,6 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 
 auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
-  //string qrJson = "{ \"_label\" : \"substance\", \"$and\" : [{\"properties.class_\" : 3}]}";
   auto qrJson = DBQueryData( "{ \"_label\" : \"substance\", \"properties.class_\" : 3 }", DBQueryData::qTemplate );
   addFieldsToQueryAQL( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
 
@@ -133,10 +133,6 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
     // maybe use query edge defines memoized?
     string level = "0"; ValuesTable levelQueryMatr;
     vector<int> levels;
-    // check if more edge defines are connected to this substance
-    //string queryJson = "{'_type': 'edge', '_label': 'defines', '_to': '";
-    //queryJson += idSubst;
-    //queryJson += "'}";
 
     auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
     levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
@@ -151,23 +147,25 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 
 MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction( )
 {
+    string level, idreact, idsub;
     MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
     for (auto value : pimpl->valuesTable)
     {
         MapLevel_IdReaction levelReact;
-        // returns the ids of reactions which are conncted to the substance with id value[3] with edge defines
-        vector<string> resultDefinesEdges;
-        vector<string> resultDefinesReactions = getOutVertexIds( "defines", value[getDataName_DataIndex()["_id"]], resultDefinesEdges );
-        for (uint i = 0; i < resultDefinesReactions.size(); i++)
-        {
-            string level;
-            string jsonrecord = getJsonRecordEdge(resultDefinesEdges[i]+":");
-            auto domdata = jsonio::unpackJson( jsonrecord );
-            domdata->findKey("properties.level", level);
+        idsub = value[getDataName_DataIndex()["_id"]];
+        string qrJson = "FOR v,e  IN 1..1 INBOUND '";
+               qrJson += idsub + "' \n defines\n";
+               qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
 
-            //record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
-            //bsonio::bson_to_key( record.data, "properties.level", level);
-            levelReact[level] = resultDefinesReactions[i]+":";
+        vector<string> resultsQuery;
+        getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+
+        for( auto result: resultsQuery )
+        {
+            auto domdata = jsonio::unpackJson( result );
+            domdata->findKey("level", level);
+            domdata->findKey("reaction", idreact);
+            levelReact[level] = idreact+":";
         }
 //        if (!levelReact.empty())
         recordsLevelReact[value[getDataName_DataIndex()["symbol"]]] = levelReact;
@@ -175,25 +173,29 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
     return recordsLevelReact;
 }
 
+
 MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols )
 {
+    string level, idreact, idsub;
     MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
 
     for (uint i = 0; i < connectedSubstIds.size(); i++)
     {
         MapLevel_IdReaction levelReact;
-        // returns the ids of reactions which are conncted to the substance with id value[3] with edge defines
-        vector<string> resultDefinesEdges;
-        vector<string> resultDefinesReactions = getOutVertexIds( "defines", connectedSubstIds[i], resultDefinesEdges );
-        for (uint i = 0; i < resultDefinesReactions.size(); i++)
+        idsub = connectedSubstIds[i];
+        string qrJson = "FOR v,e  IN 1..1 INBOUND '";
+               qrJson += idsub + "' \n defines\n";
+               qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
+
+        vector<string> resultsQuery;
+        getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+
+        for( auto result: resultsQuery )
         {
-            string level;
-            string jsonrecord = getJsonRecordEdge(resultDefinesEdges[i]+":");
-            auto domdata = jsonio::unpackJson( jsonrecord );
-            domdata->findKey("properties.level", level);
-            //record = getJsonBsonRecordEdge((resultDefinesEdges[i]+":").c_str()).second;
-            //bsonio::bson_to_key( record.data, "properties.level", level);
-            levelReact[level] = resultDefinesReactions[i]+":";
+            auto domdata = jsonio::unpackJson( result );
+            domdata->findKey("level", level);
+            domdata->findKey("reaction", idreact);
+            levelReact[level] = idreact+":";
         }
 //        if (!levelReact.empty())
         recordsLevelReact[connectedSubstSymbols[i]] = levelReact;

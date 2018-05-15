@@ -526,6 +526,7 @@ vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const ve
   return elements;
 }
 
+
 void ChemicalFormula::addOneElement(Element e)
 {
     ElementKey elkey("");
@@ -585,5 +586,6 @@ auto elementKeyToElement(ElementKey elementKey) -> Element
 
     return e;
 }
+
 
 }
