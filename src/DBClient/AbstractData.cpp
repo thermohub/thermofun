@@ -196,6 +196,7 @@ struct AbstractData::Impl
         }
 
         vector<string> resultsEdge;
+        dbedge_all->resetSchema( "EdgeDefines", false );
         dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qTemplate ),  queryFields, resultsEdge);
         return resultsEdge;
     }
