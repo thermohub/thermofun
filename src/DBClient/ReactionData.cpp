@@ -193,9 +193,9 @@ void ReactionData_::resetRecordElements(const string& idReact )
 vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
 {
     string queryJson;
-    queryJson = "{'_type': 'vertex', '_label': 'reaction', 'properties.symbol': '";
+    queryJson = "{\"_type\": \"vertex\", \"_label\": \"reaction\", \"properties.symbol\": \"";
     queryJson += symbol;
-    queryJson += "',  'properties.sourcetdb': ";
+    queryJson += "\",  \"properties.sourcetdb\": ";
     queryJson += sourcetdb;
     queryJson += " }";
     return getDB()->getKeysByQuery( DBQueryData(queryJson,DBQueryData::qTemplate));

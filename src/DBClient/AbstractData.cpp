@@ -184,15 +184,15 @@ struct AbstractData::Impl
 
     auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
     {
-        string qrJson = "{'_type': 'edge', '_label': 'defines', '_to': '";
+        string qrJson = "{\"_type\": \"edge\", \"_label\": \"defines\", \"_to\": \"";
         if (level != "-1")
         {
-            qrJson += (idSubst + "', 'properties.level' : ");
+            qrJson += (idSubst + "\", \"properties.level\" : ");
             qrJson += level;
             qrJson += " }";
         } else
         {
-            qrJson += (idSubst + "'}");
+            qrJson += (idSubst + "\"}");
         }
 
         vector<string> resultsEdge;
