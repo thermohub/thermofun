@@ -1,0 +1,12 @@
+{
+     "cheminode_file_name" :   "cheminode.0000001.json",
+     "chemsystem_file_name" :   "chemisystem.json",
+     "host_name" :   "localhost",
+     "io_file_format" :   "-j",
+     "numsettings_file_name" :   "numericsettings.json",
+     "pipe_name" :   "pipe",
+     "port" :   9090,
+     "protocol" :   "-b",
+     "thermodata_file_name" :   "thermodata.json",
+     "transport" :   "-s"
+}

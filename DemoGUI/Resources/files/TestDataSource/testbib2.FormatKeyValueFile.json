@@ -1,0 +1,63 @@
+{
+     "block" :   {
+          "defaults" :   {
+              "properties.bibliographic_type" :   "3"
+          },
+          "pairs" :   {
+               "author" :   {
+                    "datatype" :   "string",
+                    "organization" :   "list"
+               }
+          },
+          "matches" :   {
+               "title" :   {
+                    "field" :   "properties.title"
+               },
+               "head0" :   {
+                    "field" :   "properties.bibliographic_type",
+                    "convert" :   {
+                         "@article" :   "0",
+                         "@book" :   "1",
+                         "@booklet" :   "2",
+                         "@conference" :   "3"
+                    }
+               },
+               "head1" :   {
+                    "field" :   "properties.shortname"
+               },
+               "journal" :   {
+                    "field" :   "properties.journal"
+               },
+               "volume" :   {
+                    "field" :   "properties.volume"
+               },
+               "number" :   {
+                    "field" :   "properties.number"
+               },
+               "pages" :   {
+                    "field" :   "properties.pages"
+               },
+               "year" :   {
+                    "field" :   "properties.year"
+               },
+               "author" :   {
+                    "field" :   "properties.author"
+               },
+               "abstract" :   {
+                    "field" :   "properties.abstracttext"
+               }
+          }
+     },
+     "format" :   {
+          "head_regexp" :   "^\\s*((?:@article|@book|@booklet|@conference|@inbook|@incollection|@inproceedings|@manual|@mastersthesis|@misc|@phdthesis|@proceedings|@techreport|@unpublished))\\s*\\{\\s*(\\w+)\\s*,",
+          "end_regexp" :   "^\\s*\\}",
+          "key_regexp" :   "^\\s*(\\w+)\\s*=\\s*",
+          "value_regexp" :   "^\"([^\"]*)\"\\s*,{0,1}",
+          "value_token_regexp" :   "\\s+and",
+          "comment_regexp" :   "#[^\n]*\n",
+          "Ndata" :   0
+     },
+     "renderer" :   "BIB",
+     "label" :   "VertexDataSource",
+     "comment" :   "test"
+}

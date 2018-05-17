@@ -1,0 +1,226 @@
+{
+     "block" :   {
+          "defaults" :   {
+               "properties.sourcetdb" :   "15"
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "key.0.fv" :   {
+                    "field" :   "properties.aggregate_state",
+                    "convert" :   {
+                         "a" :   "4",
+                         "g" :   "0",
+                         "s" :   "3",
+                         "c" :   "5",
+                         "l" :   "1"
+                    }
+               },
+               "dod.14.val" :   {
+                    "field" :   "properties.name"
+               },
+               "dod.15.val" :   {
+                    "field" :   "properties.formula"
+               },
+               "dod.0.val.0" :   {
+                    "field" :   "4.23",
+                    "convert" :   {
+                         "C" :   "100",
+                         "H" :   "101",
+                         "K" :   "102",
+                         "S" :   "103",
+                         "I" :   "104",
+                         "X" :   "105",
+                         "N" :   "106"
+                    }
+               },
+               "dod.0.val.1" :   {
+                    "field" :   "properties.method_corrT",
+                    "convert" :   {
+                         "S" :   "200",
+                         "H" :   "201",
+                         "B" :   "202",
+                         "F" :   "203",
+                         "X" :   "204",
+                         "K" :   "205",
+                         "W" :   "206",
+                         "V" :   "207",
+                         "L" :   "208",
+                         "0" :   "209",
+                         "1" :   "210",
+                         "2" :   "211",
+                         "3" :   "212",
+                         "Z" :   "213",
+                         "R" :   "214",
+                         "E" :   "215",
+                         "Y" :   "216",
+                         "C" :   "217",
+                         "G" :   "218"
+                    }
+               },
+               "dod.0.val.2" :   {
+                    "field" :   "4.25",
+                    "convert" :   {
+                         "N" :   "300",
+                         "0" :   "301",
+                         "1" :   "302",
+                         "2" :   "303",
+                         "3" :   "304",
+                         "C" :   "305",
+                         "K" :   "306",
+                         "V" :   "307",
+                         "B" :   "308",
+                         "E" :   "309",
+                         "H" :   "310",
+                         "G" :   "311",
+                         "R" :   "312",
+                         "S" :   "313",
+                         "T" :   "314",
+                         "6" :   "315",
+                         "7" :   "316",
+                         "8" :   "317",
+                         "9" :   "318",
+                         "F" :   "319",
+                         "A" :   "320",
+                         "P" :   "321",
+                         "Z" :   "322"
+                    }
+               },
+               "key.2.fv" :   {
+                    "field" :   "properties.symbol"
+               },
+               "dod.1.val.0" :   {
+                    "field" :   "properties.class_",
+                    "convert" :   {
+                         "d" :   "---",
+                         "r" :   "---",
+                         "n" :   "---",
+                         "i" :   "---",
+                         "f" :   "---",
+                         "T" :   "---",
+                         "E" :   "---",
+                         "S" :   "2",
+                         "K" :   "4",
+                         "W" :   "3",
+                         "L" :   "---",
+                         "G" :   "1",
+                         "V" :   "---",
+                         "C" :   "---",
+                         "H" :   "---",
+                         "N" :   "---",
+                         "I" :   "---",
+                         "J" :   "---",
+                         "M" :   "---",
+                         "F" :   "---",
+                         "D" :   "---",
+                         "Q" :   "---",
+                         "P" :   "---",
+                         "R" :   "---",
+                         "0" :   "---",
+                         "2" :   "---",
+                         "4" :   "---",
+                         "6" :   "---",
+                         "8" :   "---",
+                         "1" :   "---",
+                         "3" :   "---",
+                         "5" :   "---",
+                         "7" :   "---",
+                         "9" :   "---",
+                         "A" :   "---",
+                         "B" :   "---",
+                         "X" :   "5",
+                         "Y" :   "---",
+                         "Z" :   "---",
+                         "O" :   "0"
+                    }
+               },
+               "dod.3.val" :   {
+                    "field" :   "properties.formula_charge"
+               },
+               "dod.4.val" :   {
+                    "field" :   "properties.mass_per_mole"
+               },
+               "dod.5.val.0" :   {
+                    "field" :   "properties.sm_volume.values"
+               },
+               "dod.6.val.0" :   {
+                    "field" :   "properties.sm_gibbs_energy.values"
+               },
+               "dod.7.val.0" :   {
+                    "field" :   "properties.sm_enthalpy.values"
+               },
+               "dod.8.val.0" :   {
+                    "field" :   "properties.sm_entropy_abs.values"
+               },
+               "dod.9.val.0" :   {
+                    "field" :   "properties.sm_heat_capacity_p.values"
+               },
+               "dod.12.val.0" :   {
+                    "field" :   "properties.m_compressibility.values"
+               },
+               "dod.12.val.1" :   {
+                    "field" :   "properties.m_expansivity.values"
+               },
+               "dod.13.val" :   {
+                    "field" :   "properties.aq_edh_props.values"
+               },
+               "dod.18.val" :   {
+                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values"
+               },
+               "dod.19.val" :   {
+                    "field" :   "properties.eos_ad_coeffs.values"
+               },
+               "dod.20.val" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values"
+               },
+               "dod.21.val" :   {
+                    "field" :   "properties.m_volume_pt_coeffs.values"
+               },
+               "dod.22.val" :   {
+                    "field" :   "properties.eos_gas_crit_props.values"
+               },
+               "dod.25.val" :   {
+                    "field" :   "properties.m_phase_trans_props.values"
+               },
+               "dod.26.val" :   {
+                    "field" :   "properties.eos_cg_coeffs.values"
+               },
+               "dod.11.val" :   {
+                    "field" :   "properties.m_lambda_trans_props.values"
+               },
+               "dod.29.val" :   {
+                    "field" :   "properties.comment"
+               },
+               "dod.28.val" :   {
+                    "field" :   "properties.datasources"
+               },
+               "dod.17.val.0" :   {
+                    "field" :   "properties.limitsTP.lowerT",
+                    "script" :   "field = field+273.15"
+               },
+               "dod.17.val.1" :   {
+                    "field" :   "properties.limitsTP.upperT",
+                    "script" :   "field = field + 273.15"
+               },
+               "dod.6.val.1" :   {
+                    "field" :   "properties.sm_gibbs_energy.errors"
+               },
+               "dod.5.val.1" :   {
+                    "field" :   "properties.sm_volume.errors"
+               },
+               "dod.7.val.1" :   {
+                    "field" :   "properties.sm_enthalpy.errors"
+               },
+               "dod.8.val.1" :   {
+                    "field" :   "properties.sm_entropy_f.errors"
+               },
+               "dod.9.val.1" :   {
+                    "field" :   "properties.sm_heat_capacity_p.errors"
+               }
+          }
+     },
+     "renderer" :   "JSON",
+     "label" :   "VertexSubstance",
+     "comment" :   "Second test"
+}

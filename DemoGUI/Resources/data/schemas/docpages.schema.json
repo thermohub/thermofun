@@ -1,0 +1,101 @@
+{
+  "name": "docpages",
+  "doc": "Apache Thrift IDL definition for the query service interface\n",
+  "namespaces": {
+    "*": "docpages"
+  },
+  "includes": [
+  ],
+  "enums": [
+    {
+      "name": "DocFileTypes",
+      "doc": "Types of Help files\n",
+      "members": [
+        {
+          "name": "Markdown",
+          "value": 0,
+          "doc": "Markdown text file\n"
+        },
+        {
+          "name": "Image",
+          "value": 1,
+          "doc": "Image binary file\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "DocPages",
+      "doc": "description of  Help record ( Markdown or image file )\n",
+      "isException": false,
+      "isUnion": false,
+      "to_select": [ "4", "5", "6", "1" ],
+      "fields": [
+        {
+          "key": 1,
+          "name": "_id",
+          "typeId": "string",
+          "doc": "id of this help record or 0 if unknown\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "_key",
+          "typeId": "string",
+          "doc": "ID of this record within the impex collection (part of _id)\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "_rev",
+          "typeId": "string",
+          "doc": "Code of revision (changed by the system at every update)\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "name",
+          "typeId": "string",
+          "doc": "name of file (used as key field)\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "ext",
+          "typeId": "string",
+          "doc": "extension of file (used as key field)\n",
+          "required": "required"
+        },
+        {
+          "key": 6,
+          "name": "type",
+          "typeId": "i32",
+          "doc": "type of content (used as key field)\n",
+          "class": "DocFileTypes",
+          "required": "required"
+        },
+        {
+          "key": 7,
+          "name": "markdown",
+          "typeId": "string",
+          "doc": "markdown content\n",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "image",
+          "typeId": "string",
+          "doc": "image content\n",
+          "required": "req_out"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}
