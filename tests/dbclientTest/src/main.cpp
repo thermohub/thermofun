@@ -130,11 +130,31 @@ int main(int argc, char *argv[])
 
     auto rcd = dbc_.reactData();
     jsonio::DBQueryData query("{ \"_label\" : \"reaction\"}",jsonio::DBQueryData::qTemplate );
-    auto loadedReacData = rcd.loadRecordsValues(query, 20, dbc_.availableElementsKey(20) );
+    auto loadedReacData = rcd.loadRecordsValues(query, 20, dbc_.availableElementsKey(20));
+
+    auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
+    Database db = databaseFromRecordList(dbc_, list);
 
 
-//    for (auto e : ellist_)
-//        auto symbol = e.symbol();
+    ThermoFun::Interface interface (db);
+    interface.setSolventSymbol("H2O@");
+
+    ThermoFun::OutputSettings op;
+    op.isFixed = true;
+    op.outSolventProp       = true;
+    op.calcReactFromSubst   = false;
+    op.calcSubstFromReact   = false;
+    interface.setOutputSettings(op);
+
+    interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+    interface.setPropertiesDigits({"reaction_gibbs_energy","reaction_entropy", "reaction_volume",
+                                   "reaction_enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0});
+
+    interface.thermoPropertiesReaction({{25,1}}, {"NaCl@", "H2O@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                                             "reaction_volume", "reaction_enthalpy", "logKr"}/*, calcReactFromSubst*/).toCSV("NaCl@test.csv");
+
+    interface.thermoPropertiesReaction({0, 350, 25},{0,0,0},{"NaCl@","H2O@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                                         "reaction_volume", "reaction_enthalpy", "logKr"}/*, calcReactFromSubst*/).toCSV("NaClPsat@test.csv");
 
     cout << "Bye World!" << endl;
     return 0;

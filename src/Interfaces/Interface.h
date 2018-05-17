@@ -255,8 +255,8 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"reaction_volume",                "J/bar"         },
     {"reaction_heat_capacity_cp",      "J/K/mol"       },
     {"reaction_heat_capacity_cv",      "J/K/mol"       },
-    {"logKr",                          ""              },
-    {"lnK0",                           ""              }
+    {"logKr",                          "1"             },
+    {"lnK0",                           "1"             }
 };
 
 const std::map<std::string, int> defaultPropertyDigits =

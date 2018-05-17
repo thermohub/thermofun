@@ -394,13 +394,13 @@ auto DatabaseClient::TraverseAllIncomingEdges( const string& id ) -> List_Vertex
             {
               if( vert)
               {
-                  string type = extractStringField( "_type", jsondata );
+                  string label = extractStringField( "_label", jsondata );
                   string id = extractStringField( "_id", jsondata );
 
                   //string type, id;
                   //data->findKey( "_id",    id );
                   //data->findKey( "_label",  type);
-                  list.push_back(pair<string,string>(id, type));
+                  list.push_back(pair<string,string>(id, label));
               }
             };
     pimpl->executeIncomingTraversal( {id}, afunc );

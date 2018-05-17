@@ -93,16 +93,17 @@ struct Interface::Impl
     auto addTPpairs (const double &Tmin, const double &Tmax, const double &Tstep,
                      const double &Pmin, const double &Pmax, const double &Pstep) -> void
     {
-        double t = Tmin;
-        double p = Pmin;
+        double t = Tmin-Tstep;
+        double p = Pmin-Pstep;
+
         do
-        {   do
+        {   t = t + Tstep;
+            do
             {
-                addTPpair(t,p);
                 p = p + Pstep;
-            } while (p <= Pmax);
-            t = t + Tstep;
-        } while (t <= Tmax);
+                addTPpair(t,p);
+            } while (p < Pmax);
+        } while (t < Tmax);
     }
 
     auto addTPpairs (const vvd &tpPairs) -> void
@@ -343,7 +344,7 @@ auto Interface::thermoPropertiesReaction(std::array<double,3> aT, std::array<dou
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
-    pimpl->addTPpairs(aT[1], aT[2], aT[3], aP[1], aP[2], aP[3]);
+    pimpl->addTPpairs(aT[0], aT[1], aT[2], aP[0], aP[1], aP[2]);
 
     pimpl->calculate(forREACTION);
 
