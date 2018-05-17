@@ -271,12 +271,16 @@ auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
         //  cout << subitem << "      " << formula << "  " << symbol << endl;
         // test elements
         // addiditon test and parser parser.exeptionCheckElements(symbol, formula);
+//        parser.exeptionCheckElements(symbol, formula);
         parser.setFormula(formula);
         elements.insert(parser.getElements().begin(), parser.getElements().end());
     }
 
     for (auto element : elements)
     {
+        auto itrdb = ChemicalFormula::getDBElements().find(element);
+        if (itrdb == ChemicalFormula::getDBElements().end())
+            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
         Element e = elementKeyToElement(element);
         set.insert(e);
     }

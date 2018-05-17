@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ThermoFun.h"
 #include "jsonio/io_settings.h"
+#include "jsonio/nservice.h"
 
 #include "DBClient/DatabaseClient.h"
 #include "DBClient/ReactionData.h"
@@ -19,110 +20,121 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
     gettimeofday(&st, NULL);
-    jsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFun.json";
+    jsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUI.json";
     DatabaseClient dbc_;
 
-//    dbc_.BackupAllIncoming({"5a2e61034a7d9f1500000000"}, "test1.json");
-    auto list = dbc_.TraverseAllIncomingEdges("5a2e61034a7d9f1500000000");
+//    try {
+//        auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
+//        Database db2 = databaseFromRecordList(dbc_, list);
 
-    Database db2 = databaseFromRecordList(dbc_, list);
-    gettimeofday(&en, NULL);
+//        for( auto row: list)
+//            std::cout << row.first << " " << row.second << endl;
+//    }
+//    catch (jsonio::jsonio_exeption e) {}
 
-    double delta = ((en.tv_sec  - st.tv_sec) * 1000000u +
-             en.tv_usec - st.tv_usec) / 1.e6;
+//    try {
+//        auto list_test = dbc_.recordsFromThermoDataSet("Aq17");
+//    }
+//    catch (jsonio::jsonio_exeption e) {}
 
-    Database db3(dbc_, "t1");
+    try {
+        auto rec = dbc_.substData().loadRecord( "substances/AlOH+2_4_20", {"_id", "_label", "properties.formula", "properties.symbol"} );
+        auto rec2 = dbc_.substData().loadRecord( "substances/Diaspore_3_20", {"_id", "_label", "properties.formula", "properties.symbol"} );
 
+        auto a = 1;
 
-    for( auto row: list)
-     std::cout << row.first << " " << row.second << endl;
-    return 0;
-//    DatabaseClient dbc_("./Resources/ThermoFun.json");
+//        if ("rec[3][]" != "AlOH2+")
+//        {}
+    }
+    catch (jsonio::jsonio_exeption e) {}
 
-//    auto t = dbc_.substData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
-//    auto u = dbc_.reactData().getJsonBsonRecord("597b4bc8b29df90f0000002f:").first;
+    try {
+        auto availableSourceTBs = dbc_.sourcetdbNamesIndexes();
+        auto avaialbleElements = dbc_.availableElements(20);
+        auto availableElementskey = dbc_.availableElementsKey(20);
 
-    auto rec = dbc_.substData().loadRecord( "59a7dd44f383054800000423", {"_id", "_label", "properties.formula", "properties.symbol"} );
-    auto rec2 = dbc_.substData().loadRecord( "59a7dd44f383054800000429", {"_id", "_label", "properties.formula", "properties.symbol"} );
+        auto a = 1;
+    }
+    catch (jsonio::jsonio_exeption e) {}
 
-    Database db = dbc_.thermoFunDatabase(19);
-    Database db2_ = dbc_.thermoFunDatabase(19);
+    std::map<Element, double> elem = dbc_.parseSubstanceFormula("Mg4Al8Si2O20");
+/*
+    try {
+        Database db = dbc_.thermoFunDatabase(20);
 
-    auto tdblist_ = dbc_.sourcetdbNamesIndexes();
-    auto ellist_ = dbc_.availableElements(19);
+        Substance water;
+        water.setName("water");
+        water.setSymbol("H2O@_");
+        water.setFormula("H2O");
+        water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
+        water.setAggregateState(AggregateState::type::AQUEOUS);
+
+        water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR);
+
+        water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
+
+        db.addSubstance(water);
+
+        Thermo th(db); //DBClient("./Resources/ThermoFun.ini").getDatabase(15)
+
+        th.setSolventSymbol("H2O@_");
+
+        double T = 650;
+        double P = 2000;
+
+        auto qtz = th.thermoPropertiesSubstance(T, P, "Quartz");
+
+        auto watP = th.propertiesSolvent(T, P, "H2O@_");
+
+        auto wat = th.thermoPropertiesSubstance(T, P, "H2O@_");
+
+        auto ca = th.thermoPropertiesSubstance(T, P, "Ca+2");
+
+        auto co2 = th.thermoPropertiesSubstance(T, P, "CO2@");
+
+        ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
+
+    //    for (uint i = 0; i <150000; i++)
+    //    {
+    //        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+    //    }
+
+    //    for (uint i = 0; i <150000; i++)
+    //    {
+    ////        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
+    //    }
+
+    //    for (uint i = 0; i <150000; i++)
+    //    {
+    //        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
+    //    }
+
+        MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
+
+        CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@");
+
+        FeHSi = th.thermoPropertiesSubstance(T, P, "FeHSiO3+2");
+
+        RaC = th.thermoPropertiesSubstance(T, P, "RaCO3");
+
+        RaS = th.thermoPropertiesSubstance(T, P, "RaSO4");
+
+        SiO = th.thermoPropertiesSubstance(T, P, "SiO3-2");
+
+        CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
+    }
+    catch (jsonio::jsonio_exeption e) {}
+*/
 
 //    auto rcd = dbc_.reactData();
 
     auto rcd = dbc_.reactData();
     jsonio::DBQueryData query("{ \"_label\" : \"reaction\"}",jsonio::DBQueryData::qTemplate );
-    auto loadedReacData = rcd.loadRecordsValues(query, 19, dbc_.availableElementsKey(19) );
+    auto loadedReacData = rcd.loadRecordsValues(query, 20, dbc_.availableElementsKey(20) );
 
 
 //    for (auto e : ellist_)
 //        auto symbol = e.symbol();
-
-    Substance water;
-    water.setName("water");
-    water.setSymbol("H2O@_");
-    water.setFormula("H2O");
-    water.setSubstanceClass(SubstanceClass::type::AQSOLVENT);
-    water.setAggregateState(AggregateState::type::AQUEOUS);
-
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR);
-
-    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
-
-    db.addSubstance(water);
-
-    Thermo th(db/*DBClient("./Resources/ThermoFun.ini").getDatabase(15)*/);
-
-    th.setSolventSymbol("H2O@_");
-
-    double T = 650;
-    double P = 2000;
-
-    auto qtz = th.thermoPropertiesSubstance(T, P, "Quartz");
-
-    auto watP = th.propertiesSolvent(T, P, "H2O@_");
-
-    auto wat = th.thermoPropertiesSubstance(T, P, "H2O@_");
-
-    auto ca = th.thermoPropertiesSubstance(T, P, "Ca+2");
-
-    auto co2 = th.thermoPropertiesSubstance(T, P, "CO2@");
-
-    ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
-
-//    for (uint i = 0; i <150000; i++)
-//    {
-//        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
-//    }
-
-//    for (uint i = 0; i <150000; i++)
-//    {
-////        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
-//    }
-
-//    for (uint i = 0; i <150000; i++)
-//    {
-//        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
-//    }
-
-    MgSi = th.thermoPropertiesSubstance(T, P, "MgSiO3@");
-
-    CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@");
-
-    FeHSi = th.thermoPropertiesSubstance(T, P, "FeHSiO3+2");
-
-    RaC = th.thermoPropertiesSubstance(T, P, "RaCO3");
-
-    RaS = th.thermoPropertiesSubstance(T, P, "RaSO4");
-
-    SiO = th.thermoPropertiesSubstance(T, P, "SiO3-2");
-
-    CaSi = th.thermoPropertiesSubstance(T, P, "CaSiO3@_FM_test");
-
-    std::map<Element, double> elem = dbc_.parseSubstanceFormula("FeHSiO3+2");
 
     cout << "Bye World!" << endl;
     return 0;

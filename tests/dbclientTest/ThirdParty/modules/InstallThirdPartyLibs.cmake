@@ -12,10 +12,10 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 
 
-# Download and install the bsonui library
-ExternalProject_Add(BSONUI
+# Download and install the jsonui library
+ExternalProject_Add(JSONUI
     PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/bsonui.git
+    GIT_REPOSITORY https://bitbucket.org/gems4/jsonui.git
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
@@ -29,7 +29,12 @@ ExternalProject_Add(BSONUI
 
 
 # Create the install target for the third-party libraries
-install(DIRECTORY ${THIRDPARTY_DIR}/lib 
-    DESTINATION /usr/local)
-install(DIRECTORY ${THIRDPARTY_DIR}/include 
-    DESTINATION /usr/local)
+#install(DIRECTORY ${THIRDPARTY_DIR}/lib 
+#    DESTINATION /usr/local)
+#install(DIRECTORY ${THIRDPARTY_DIR}/include 
+#    DESTINATION /usr/local)
+
+install(DIRECTORY ${THIRDPARTY_DIR}/lib
+   DESTINATION .)
+install(DIRECTORY ${THIRDPARTY_DIR}/include
+   DESTINATION .)
