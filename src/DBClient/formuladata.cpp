@@ -2,7 +2,7 @@
 #include "jsonio/jsondomfree.h"
 #include "formuladata.h"
 #include "formulaparser.h"
-#include "../Element.h"
+#include "Element.h"
 
 namespace ThermoFun {
 using ElementsMap   = std::map<std::string, Element>;

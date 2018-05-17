@@ -28,6 +28,6 @@ cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_
 
 make -j$J 
 
-sudo make install
+make install
 
-sudo ldconfig
+#sudo ldconfig
