@@ -4,9 +4,10 @@ TEMPLATE = app
 #CONFIG -= qt
 
 #QMAKE_CXXFLAGS += -std=c++1y
-QMAKE_CXXFLAGS += -std=c++11
+#QMAKE_CXXFLAGS += -std=c++11
 
-CONFIG += -std=c++11
+#CONFIG += -std=c++11
+CONFIG += c++11
 
 TARGET = dbclientTest
 

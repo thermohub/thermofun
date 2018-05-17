@@ -6,7 +6,7 @@
 #include "jsonio/jsondomfree.h"
 
 // ThermoFun includes
-#include "../OptimizationUtils.h"
+#include "OptimizationUtils.h"
 
 using namespace jsonio;
 

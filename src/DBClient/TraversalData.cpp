@@ -5,12 +5,12 @@
 #include "jsonio/jsondomschema.h"
 #include "SubstanceData.h"
 #include "ReactionData.h"
-#include "../Database.h"
-#include "../Substance.h"
-#include "../Reaction.h"
-#include "../Common/ParseBsonTraversalData.h"
-#include "../Common/Exception.h"
-#include "../OptimizationUtils.h"
+#include "Database.h"
+#include "Substance.h"
+#include "Reaction.h"
+#include "Common/ParseBsonTraversalData.h"
+#include "Common/Exception.h"
+#include "OptimizationUtils.h"
 
 #include <sys/time.h>
 

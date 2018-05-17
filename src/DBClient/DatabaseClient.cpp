@@ -1,7 +1,7 @@
 #include "DatabaseClient.h"
 
 // C++ includes
-#include <functional>
+//#include <functional>
 
 // bonio includes
 #include "jsonio/traversal.h"
@@ -15,9 +15,9 @@
 #include "ThermoSetData.h"
 #include "TraversalData.h"
 
-#include "../Database.h"
-#include "../Element.h"
-#include "../OptimizationUtils.h"
+#include "Database.h"
+#include "Element.h"
+#include "OptimizationUtils.h"
 
 using namespace jsonio;
 
@@ -258,30 +258,31 @@ auto DatabaseClient::sourcetdbListAll() -> std::vector<string>
 
 auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
 {
-    std::set<ElementKey> elements;
+    std::set<ElementKey> els_;
     std::set<Element> set;
 
     auto _resultData = pimpl->query_substances_fn(sourcetdb);
+
 
     FormulaToken parser("");
     for (string subitem: _resultData)
     {
         string formula = extractStringField("formula", subitem);
         //string symbol = bsonio::extractStringField("symbol", subitem);
-        //  cout << subitem << "      " << formula << "  " << symbol << endl;
+        // cout <<  formula << "  " << symbol << endl;
         // test elements
         // addiditon test and parser parser.exeptionCheckElements(symbol, formula);
 //        parser.exeptionCheckElements(symbol, formula);
         parser.setFormula(formula);
-        elements.insert(parser.getElements().begin(), parser.getElements().end());
+        els_.insert(parser.getElements().begin(), parser.getElements().end());
     }
 
-    for (auto element : elements)
+    for (auto el : els_)
     {
-        auto itrdb = ChemicalFormula::getDBElements().find(element);
+        auto itrdb = ChemicalFormula::getDBElements().find(el);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
-        Element e = elementKeyToElement(element);
+            jsonioErr("E37FPrun: Invalid symbol ", el.symbol);
+        Element e = elementKeyToElement(el);
         set.insert(e);
     }
     return set;
@@ -295,7 +296,7 @@ auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
 
     for (auto element : elements)
     {
-        set.insert(element.symbol());
+       set.insert(element.symbol());
     }
     return set;
 }

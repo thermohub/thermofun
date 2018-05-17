@@ -51,8 +51,13 @@ int main(int argc, char *argv[])
     try {
         auto availableSourceTBs = dbc_.sourcetdbNamesIndexes();
         auto avaialbleElements = dbc_.availableElements(20);
+        for( auto el:avaialbleElements )
+            std::cout << el << "  " ;
+        std::cout << "avaialbleElements" << endl;
         auto availableElementskey = dbc_.availableElementsKey(20);
-
+        for( auto el:availableElementskey )
+            std::cout << el.symbol << "  " ;
+        std::cout << "availableElementskey" << endl;
         auto a = 1;
     }
     catch (jsonio::jsonio_exeption e) {}
