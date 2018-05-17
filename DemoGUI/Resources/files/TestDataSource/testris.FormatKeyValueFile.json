@@ -1,0 +1,100 @@
+{
+     "block" :   {
+          "defaults" :   {
+
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "T1" :   {
+                    "field" :   "properties.title"
+               },
+               "TY" :   {
+                    "field" :   "properties.bibliographic_type",
+                    "convert" :   {
+                         "JOUR" :   "0",
+                         "BOOK" :   "1",
+                         "CHAPTER" :   "3",
+                         "CONF" :   "11",
+                         "CHAP" :   "4",
+                         "THES" :   "10",
+                         "RPRT" :   "12",
+                         "UNPD" :   "13",
+                         "INPR" :   "15",
+                         "JFULL" :   "0"
+                    }
+               },
+               "AU" :   {
+                    "field" :   "properties.author"
+               },
+               "JO" :   {
+                    "field" :   "properties.journal"
+               },
+               "VL" :   {
+                    "field" :   "properties.volume"
+               },
+               "IS" :   {
+                    "field" :   "properties.number"
+               },
+               "PY" :   {
+                    "field" :   "properties.year"
+               },
+               "SP" :   {
+                    "field" :   "properties.pages"
+               },
+               "AB" :   {
+                    "field" :   "properties.abstracttext"
+               },
+               "PB" :   {
+                    "field" :   "properties.publisher"
+               },
+               "AD" :   {
+                    "field" :   "properties.address"
+               },
+               "ET" :   {
+                    "field" :   "properties.edition"
+               },
+               "T2" :   {
+                    "field" :   "properties.booktitle"
+               },
+               "UR" :   {
+                    "field" :   "properties.links"
+               },
+               "EP" :   {
+                    "field" :   "properties.pages",
+                    "script" :   "field = properties.pages + field;"
+               },
+               "ED" :   {
+                    "field" :   "properties.editor"
+               },
+               "ID" :   {
+                    "field" :   "properties.shortname"
+               },
+               "TI" :   {
+                    "field" :   "properties.title"
+               },
+               "BT" :   {
+                    "field" :   "properties.booktitle"
+               },
+               "DO" :   {
+                    "field" :   "properties.identifiers"
+               },
+                "KW" :   {
+                    "field" :   "properties.keywords"
+               }
+          },
+          "script" :   "if rintable.properties.shortname == \'\'  or rintable.properties.shortname == nil then rintable.properties.shortname = rintable.properties.author[1] end; if rintable.properties.bibliographic_type ~= 1 and rintable.properties.bibliographic_type ~= 2 and rintable.properties.bibliographic_type ~= 4 and rintable.properties.bibliographic_type ~= 6 then rintable.properties.booktitle = \'\' end; if rintable.properties.bibliographic_type == 1 then rintable.properties.booktitle = rintable.properties.title end;"
+     },
+     "format" :   {
+          "head_regexp" :   "",
+          "end_regexp" :   "^\\s*ER\\s*-\\s*",
+          "key_regexp" :   "^\\s*([A-Z0-9]{2})\\s*-\\s*",
+          "value_regexp" :   "",
+          "value_next" :   "",
+          "Ndata" :   0
+     },
+     "renderer" :   "RIS",
+     "label" :   "VertexDataSource",
+     "comment" :   "test"
+}

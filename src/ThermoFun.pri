@@ -1,7 +1,7 @@
-    HEADERS	 += $$ThermoFun_H/GlobalVariables.h \
-    $$ThermoFun_H/Common/ThermoScalar.hpp \
-    $$ThermoFun_H/Common/ScalarTypes.hpp \
-    $$ThermoFun_H/Common/Units.hpp \
+    HEADERS	 += $$PWD/GlobalVariables.h \
+    $$PWD/Common/ThermoScalar.hpp \
+    $$PWD/Common/ScalarTypes.hpp \
+    $$PWD/Common/Units.hpp \
 # ThermoFun
     $$PWD/ThermoFun.h \
     $$PWD/Thermo.h \
@@ -81,7 +81,7 @@
     $$PWD/DBClient/ReactionSetData.h
 
     SOURCES	 += $$PWD/Database.cpp \
-    $$ThermoFun_H/Common/Units.cpp \
+    $$PWD/Common/Units.cpp \
 # ThermoFun
     $$PWD/Thermo.cpp \
     $$PWD/Element.cpp \

@@ -1,0 +1,6203 @@
+[
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Ag"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "silver"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				107.868202209473
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				42.5499992370605
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				25.3500003814697
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				10.2720003128052
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				47
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Silver"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Ag"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:AG:Ag_cr:cd:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Al"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "aluminum"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.9815406799316
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.2999992370605
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				24.2000007629395
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				9.99300003051758
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				13
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s   "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Aluminum NEA(CODATA) "
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Al"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": ""
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Au"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "gold"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				196.966995239258
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				47.4000015258789
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				25.4179992675781
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				10.2150001525879
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				79
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Gold"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Au"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:AU:Au_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "C"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "carbon"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12.0108003616333
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				5.73999977111816
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				8.68200016021729
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4.58440017700195
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				6
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Carbon (graphite)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "C "
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:C0:Gr:dnp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Ca"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "calcium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				40.0779991149902
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				41.5900001525879
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				25.9290008544922
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				25.8600006103516
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				20
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Calcium NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Ca"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Ce"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "cerium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				140.119995117188
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				72
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.9400005340576
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				20.6700000762939
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				58
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Cerium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Ce"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:CE:Ce_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Cl"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "chlorine"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				35.4529991149902
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				111.540496826172
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				16.9745006561279
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12395
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				-1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				17
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"g   "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Chlorine NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Cl"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Cu"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "copper"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				63.5460014343262
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				33.1500015258789
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				24.4400005340576
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				7.11299991607666
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				29
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Copper"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Cu"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:CU:Cu_cr:cd:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Dy"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "dysprosium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				162.5
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				74.7699966430664
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.1599998474121
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				19.0300006866455
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				66
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Dysprosium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Dy"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:DY:Dy_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Er"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "erbium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				167.259994506836
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				73.1800003051758
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.1200008392334
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				18.4799995422363
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				68
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Erbium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Er"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:ER:Er_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Eu"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "europium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				151.964004516602
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				77.7799987792969
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.6599998474121
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.8899993896484
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				63
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Europium NBS"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Eu"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "F"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "fluorine"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				18.9983997344971
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				101.395500183105
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				15.6520004272461
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12395
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				-1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				9
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"g   "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Fluorine NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "F"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Fe"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "iron"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				55.8450012207031
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.2800006866455
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				24.9610004425049
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				7.09200000762939
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Iron"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Fe"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:Fe0:Fe:dnp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Gd"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "gadolinium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				157.25
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				68.0699996948242
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				37.0299987792969
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				19.8899993896484
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				64
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Gadolinium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Gd"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:GD:Gd_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "H"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "h"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "hydrogen"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1.00794994831085
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				65.3399963378906
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				14.4090003967285
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12395
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"g   "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Hydrogen"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "H"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "g:H0:H2:enp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Ho"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "holmium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				164.929992675781
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				75.3000030517578
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.1499996185303
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				18.7399997711182
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				67
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Holmium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Ho"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:HO:Ho_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "K"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "potassium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				39.0983009338379
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				64.6799926757812
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				29.6000003814697
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				45.4630012512207
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				19
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Potassium NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "K"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "La"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "lanthanum"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				138.910003662109
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				56.9000015258789
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.1100006103516
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				22.4699993133545
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				57
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Lanthanum"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "La"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:LA:La_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Lu"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "lutetium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				174.970001220703
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				50.9599990844727
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.8600006103516
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				17.7700004577637
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				71
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Lutetium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Lu"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:LU:lu_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Mg"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "magnesium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				24.3050003051758
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				32.6699981689453
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				24.8689994812012
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				13.996000289917
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Magnesium NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Mg"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Mo"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "molybdenum"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				95.9399871826172
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.6599998474121
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				23.8999996185303
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				9.39999961853027
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				42
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Molybdenum"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Mo"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:Mo0:Mo:dnp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Na"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "sodium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				22.9897994995117
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				51.2999992370605
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.2299995422363
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				23.7999992370605
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				11
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Sodium NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Na"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Nd"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "neodymium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				144.240005493164
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				71.5
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.4500007629395
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				20.5699996948242
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				60
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Neodymium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Nd"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:ND:Nd_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "O"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "o"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "oxygen"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				15.999400138855
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				102.569000244141
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				14.66100025177
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12395
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				-2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				8
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"g   "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Oxygen"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "O"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "g:O0:O2:enp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "P"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "phosphorus"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				30.9737606048584
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				41.0900001525879
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				23.8239994049072
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				17.0200004577637
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				5
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				15
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Phosphorus (white) NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "P"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Pb"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "lead"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				207.199996948242
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				64.8000030517578
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.6499996185303
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				18.1800003051758
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				82
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Lead"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Pb"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:PB:Pb_cr:cd:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Pr"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "praseodymium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				140.906997680664
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				73.1999969482422
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.2000007629395
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				20.8099994659424
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				59
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Praseodymium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Pr"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:PR:Pr_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "S"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "sulfur"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				32.0670013427734
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				31.7980003356934
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				22.7630004882812
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				15.5100002288818
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				6
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				16
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Sulfur"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "S"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:S0:Sulfur:dnp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Si"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "silicon"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.0855007171631
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				18.8099994659424
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				19.7889995574951
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				12.0559997558594
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				14
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Silicon NEA(CODATA)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Si"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Sm"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "samarium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				150.350006103516
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				69.5800018310547
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				29.5400009155273
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				19.9799995422363
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				62
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Samarium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Sm"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:SM:Sm_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Sn"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "tin"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				118.710998535156
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				51.2120018005371
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.3519992828369
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				16.2900009155273
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				50
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Tin (white, tet.)"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Sn"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:Sn0:Sn:dnp:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Tb"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "terbium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				158.92399597168
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				73.2200012207031
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				28.9099998474121
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				19.2199993133545
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				65
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Terbium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Tb"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:TB:Tb_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Ti"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "titanium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				47.8800010681152
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				30.7199993133545
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				25.0599994659424
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				10.6300001144409
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				22
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Titanium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Ti"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:Ti:Ti_cr:cd:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Tm"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "thulium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				168.934005737305
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				74.0100021362305
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				27.0300006866455
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				18.1299991607666
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				69
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Thulium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Tm"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:TM:Tm_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Y"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "yttrium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				88.9049987792969
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				44.4300003051758
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.5300006866455
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				15.039999961853
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				39
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Yttrium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Y"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:Y:Y_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Yb"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "ytterbium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				173.039993286133
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				59.8699989318848
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.7399997711182
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				24.8299999237061
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				3
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				70
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Ytterbium"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Yb"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:YB:Yb_cr:nbs:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Zn"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "zinc"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				65.379997253418
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				41.6300010681152
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				25.3899993896484
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				9.1569995880127
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				2
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				30
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"cr  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Zinc"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Zn"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "s:ZN:Zn_cr:cd:"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Zr"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "e"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "zirconium"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				91.2239990234375
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				39.0800018310547
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				26.0799999237061
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				14.0500001907349
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				4
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				40
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"s  "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Zirconium 12/07 UPDATE SOi CpOi"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Zr"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "---"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+},
+{
+	"key": [
+		{
+			"fx": 0,
+			"fl": 6,
+			"fv": "Zz"
+		},
+		{
+			"fx": 1,
+			"fl": 4,
+			"fv": "z"
+		},
+		{
+			"fx": 2,
+			"fl": 22,
+			"fv": "electric_charge"
+		}
+	],
+	"dod": [
+		{
+			"id": 494,
+			"label": "M0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 495,
+			"label": "S0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				-65.3399963378906
+			]
+		},
+		{
+			"id": 496,
+			"label": "Cp0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				-14.4180002212524
+			]
+		},
+		{
+			"id": 497,
+			"label": "V0i",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 498,
+			"label": "Ri",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 499,
+			"label": "IXi",
+			"dot": -5,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 500,
+			"label": "Valen",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				1
+			]
+		},
+		{
+			"id": 501,
+			"label": "indMT",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				0
+			]
+		},
+		{
+			"id": 502,
+			"label": "Zi",
+			"dot": -1,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				null
+			]
+		},
+		{
+			"id": 503,
+			"label": "StdSt",
+			"dot": 4,
+			"dN": 1,
+			"dM": 1,
+			"dyn": false,
+			"val": [
+				"`   "
+			]
+		},
+		{
+			"id": 504,
+			"label": "ICname",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Electrical (proton) charge"
+		},
+		{
+			"id": 505,
+			"label": "ICform",
+			"dot": 0,
+			"dN": 1,
+			"dM": 72,
+			"dyn": false,
+			"val": "Zz"
+		},
+		{
+			"id": 506,
+			"label": "IC_DC",
+			"dot": 0,
+			"dN": 1,
+			"dM": 32,
+			"dyn": false,
+			"val": "`"
+		}
+	],
+	"mtime": "Tue, 20 Dec 2016 13:56:16 +0100"
+}
+]

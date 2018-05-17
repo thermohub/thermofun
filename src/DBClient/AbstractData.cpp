@@ -192,6 +192,7 @@ struct AbstractData::Impl
 
         vector<string> resultsEdge;
         dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  queryFields, resultsEdge);
+
         return resultsEdge;
     }
 

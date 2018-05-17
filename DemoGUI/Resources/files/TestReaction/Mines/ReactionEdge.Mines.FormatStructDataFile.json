@@ -1,0 +1,27 @@
+{
+     "block" :   {
+          "defaults" :   {
+               "properties.rct" :   "1",
+               "properties.level" :   "11"
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "dod.21.val.%" :   {
+                    "field" :   "properties.stoi_coeff"
+               },
+               "dod.18.val.%" :   {
+                    "field" :   "@key",
+                    "script" :   "field = string.sub(field, 13, -5); field = string.match(field,\"(%S*)\");"
+               }
+          },
+          "script" :   ""
+     },
+     "renderer" :   "JSON",
+     "label" :   "EdgeTakes",
+     "comment" :   "",
+     "fname" :   "",
+     "Nblocks" :   0,
+     "Nlines" :   0
+}
