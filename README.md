@@ -1,10 +1,10 @@
-# ThermoFun #
+# ThermoFun (Under Construction / Update)#
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
 ## Build and Run Tests on Linux ##
 
-#### Install Apache Thrift ####
+#### Install Apache Thrift (OTUDATED) ####
 
 * Make sure you have cmake installed. If not, install it (on ubuntu linux):
 ~~~
@@ -20,8 +20,22 @@ sudo apt-get install thrift-compiler
 
 * Install Lua embedded scripts interpreter (on ubuntu linux):
 ~~~
-sudo apt-get install lua5.2 lua5.2-dev
+sudo apt-get install lua5.3 lua5.3-dev
 ~~~
+
+### Build and run ThermoFun GUI Demo ###
+
+* In a linux terminal, cd inside ~/gitTHERMOFUN/thermofun/DemoGUI and type
+~~~
+$ ./install-thirdparty.sh /home/your_user/Qt/5.9.2/gcc_64
+~~~
+
+This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, EJDB, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty.
+
+After this, headers and libraries of the third-party libraries can be found in build-DemoGUI/{debug,release}/thirdparty/{include,lib}. The .pro file of the master project has already been adjusted to find these dependencies.
+
+* Now in QtCreator, build the thermomatch.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.9.2) and then run the ThermoMatch code. 
+
 
 ### Automatic Test for comparing GEMS4 and ThermoFun calculations ###
 
@@ -88,7 +102,7 @@ After this, headers and libraries of the third-party libraries can be found in b
 * writes calculation results in *.csv files. GEMS4 and TCorrPT calculated properties at different T and P  
 
 
-### Simple API example ###
+### Simple API example (OTUDATED) ###
 
 ```
 #!c++
