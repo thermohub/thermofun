@@ -507,10 +507,10 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
             pdata->loadSubstData( selNdx, substKeys, substancesSymbols, substancesClass );
             pdata->loadReactData( selNdx, reactKeys, reactionsSymbols );
 
-            vector<string> linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses;
-            pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
+            vector<string> linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds;
+            pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
 
-            MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(substKeys, linkedSubstSymbols);
+            MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(linkedSubstIds, linkedSubstSymbols);
             for (auto substSymbol : linkedSubstSymbols)
             {
                 MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];

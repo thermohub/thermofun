@@ -150,7 +150,8 @@ public slots:
       _data.comment = text.toStdString();
     }
 
-    void retrieveConnectedData(map<string,string> mapOfConnectedIds, vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses);
+    void retrieveConnectedData(map<string,string> mapOfConnectedIds, vector<string> &linkedSubstSymbols,
+                               vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses, vector<string> &linkedSubstIds);
 
 
 public:
@@ -206,8 +207,8 @@ public:
        return dbclient.substData().getDataName_DataIndex();
    }
 
-   void retrieveConnectedDataSymbols( const vector<string>& substKeys, const vector<string>& reactKeys,
-                                     vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses);
+   void retrieveConnectedDataSymbols(const vector<string>& substKeys, const vector<string>& reactKeys,
+                                     vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses, vector<string> &linkedSubstIds);
 
    MapSymbolMapLevelReaction   recordsMapLevelDefinesReaction();
    MapSymbolMapLevelReaction   recordsMapLevelDefinesReaction(vector<string> connectedSubstIds , vector<string> connectedSubstSymbols);
