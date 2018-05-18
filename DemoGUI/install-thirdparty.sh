@@ -20,9 +20,9 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../build/{debug,release}/thirdparty
+mkdir -p ../../build-DemoGUI/{debug,release}/thirdparty
 
-cd ../build/debug/thirdparty
+cd ../../build-DemoGUI/debug/thirdparty
 
 cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=.
 
