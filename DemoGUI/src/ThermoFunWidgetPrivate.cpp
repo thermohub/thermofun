@@ -392,7 +392,7 @@ void ThermoFunWidgetPrivate::loadReactData( const vector<int>& selNdx,
 
 void ThermoFunWidgetPrivate::retrieveConnectedData(ThermoFun::VertexId_VertexType mapOfConnectedIds,
                             vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols,
-                                                   vector<string> &linkedSubstClasses)
+                                                   vector<string> &linkedSubstClasses, vector<string> &linkedSubstIds)
 {
     string valDB;
     for (auto idType : mapOfConnectedIds)
@@ -419,16 +419,18 @@ void ThermoFunWidgetPrivate::retrieveConnectedData(ThermoFun::VertexId_VertexTyp
             //  jsonio::bson_to_key( record.data, "properties.class_",  class_);
             linkedSubstClasses.push_back(class_);
             linkedSubstSymbols.push_back(symbol);
+            linkedSubstIds.push_back(idType.first);
         }
     }
 }
 
-void ThermoFunWidgetPrivate::retrieveConnectedDataSymbols( const vector<string>& substKeys, const vector<string>& reactKeys, vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses)
+void ThermoFunWidgetPrivate::retrieveConnectedDataSymbols( const vector<string>& substKeys, const vector<string>& reactKeys, vector<string> &linkedSubstSymbols,
+                                                           vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses, vector<string> &linkedSubstIds)
 {
     linkedReactSymbols.clear(); linkedSubstSymbols.clear(); linkedSubstClasses.clear();
 
-    retrieveConnectedData(dbclient.getTraversal().getMapOfConnectedIds(substKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
-    retrieveConnectedData(dbclient.getTraversal().getMapOfConnectedIds(reactKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
+    retrieveConnectedData(dbclient.getTraversal().getMapOfConnectedIds(substKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
+    retrieveConnectedData(dbclient.getTraversal().getMapOfConnectedIds(reactKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
 //    react.getLinkedDataSymbols(reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
 //    subst.getLinkedDataSymbols(substKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
 }
@@ -519,6 +521,17 @@ double ThermoFunWidgetPrivate::calcData(const vector<string>& substKeys, const v
     op.calcReactFromSubst   = calcReactFromSubst;
     op.calcSubstFromReact   = calcSubstFromReact;
     tpCalc.setOutputSettings(op);
+
+    tpCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+
+    if (_data.unitsP == "B kbar")
+        tpCalc.setPropertyUnit("pressure","kbar");
+    if (_data.unitsP == "p Pa")
+        tpCalc.setPropertyUnit("pressure","Pa");
+    if (_data.unitsP == "P MPa")
+        tpCalc.setPropertyUnit("pressure","MPa");
+    if (_data.unitsP == "A Atm")
+        tpCalc.setPropertyUnit("pressure","atm");
 
     /// check !!!
     vector<string> solventPropNames = {"density", "alpha", "beta", "alphaT", "epsilon", "bornZ", "bornY", "bornQ", "bornX"};
