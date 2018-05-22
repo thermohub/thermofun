@@ -207,8 +207,8 @@ public:
        return dbclient.substData().getDataName_DataIndex();
    }
 
-   void retrieveConnectedDataSymbols(const vector<string>& substKeys, const vector<string>& reactKeys,
-                                     vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses, vector<string> &linkedSubstIds);
+   void retrieveConnectedDataSymbols( const vector<string>& substKeys, const vector<string>& reactKeys,
+                                     vector<string> &linkedSubstSymbols, vector<string> &linkedReactSymbols, vector<string> &linkedSubstClasses);
 
    MapSymbolMapLevelReaction   recordsMapLevelDefinesReaction();
    MapSymbolMapLevelReaction   recordsMapLevelDefinesReaction(vector<string> connectedSubstIds , vector<string> connectedSubstSymbols);
