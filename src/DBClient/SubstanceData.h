@@ -98,6 +98,9 @@ public:
      */
     MapSubstSymbol_MapLevel_IdReaction recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols );
 
+    vector<string> selectGiven( const vector<int>& sourcetdbs, const vector<ElementKey>& elements, bool unique = true );
+
+
 private:
 
     struct Impl;

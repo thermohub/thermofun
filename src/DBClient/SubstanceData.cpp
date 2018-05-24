@@ -6,7 +6,8 @@ using namespace jsonio;
 
 namespace ThermoFun {
 
-const DBQueryData substQuery("{\"_label\": \"substance\" }", DBQueryData::qTemplate);
+//const DBQueryData substQuery("{\"_label\": \"substance\" }", DBQueryData::qTemplate);
+const DBQueryData substQuery("FOR u  IN substances ", DBQueryData::qAQL);
 const vector<string> substFieldPaths =
    { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
 const vector<string> datsetColumnHeaders = { "symbol", "name", "formula" };
@@ -21,6 +22,7 @@ struct SubstanceData_::Impl
     }
 
 };
+
 
 SubstanceData_::SubstanceData_( const TDataBase* adbconnect )
     : AbstractData( adbconnect, "VertexSubstance", substQuery,
@@ -85,7 +87,15 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
     if (!elements.empty())
       addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
 
-    ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
+    auto fields = getDataFieldPaths();
+
+    if( query.getType() == DBQueryData::qAQL &&  query.getQueryFields().empty() )
+    {
+       // read part of record
+       query.setQueryFields(makeQueryFields());
+       fields = getDataNames();
+    }
+    ValuesTable substQueryMatr = getDB()->loadRecords(query, fields);
 
     // get record by elements list
     ValuesTable substMatr;
@@ -108,12 +118,12 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
 
 ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 {
-    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
-           qrJson += idReactionSet + "' \n product, master\n";
-           qrJson += "RETURN v";
-
-    ValuesTable substMatr =
-        getDB()->loadRecords( DBQueryData( qrJson, DBQueryData::qAQL ), getDataFieldPaths());
+    string qrAQL = "FOR u,e  IN 1..1 INBOUND '";
+           qrAQL += idReactionSet + "' \n product, master ";
+    //       qrAQL += "RETURN u";
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    query.setQueryFields(makeQueryFields());
+    ValuesTable substMatr =  getDB()->loadRecords( query, getDataNames());
     setDefaultLevelForReactionDefinedSubst(substMatr);
     pimpl->valuesTable = substMatr;
     return substMatr;
@@ -121,11 +131,14 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 
 auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
-  auto qrJson = DBQueryData( "{ \"_label\" : \"substance\", \"properties.class_\" : 3 }", DBQueryData::qTemplate );
-  addFieldsToQueryAQL( qrJson, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
+  string aqlStr = "FOR u  IN substances\n  FILTER u.properties.class_ == 3 && u.properties.sourcetdb == ";
+        aqlStr +=  to_string(sourcetdb) + " ";
+  auto qrJson = DBQueryData( aqlStr, DBQueryData::qAQL );
+  qrJson.setQueryFields(makeQueryFields());
 
-  ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataFieldPaths());
-  return solventMatr;
+ ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataNames() );
+ return solventMatr;
+
 }
 
 auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
@@ -135,13 +148,14 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
     vector<int> levels;
 
     auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
-    levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"properties.level"} );
+    queryJson.setQueryFields( {{ "level", "properties.level" }} );
+    levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"level"} );
     for (uint i = 0; i < levelQueryMatr.size(); i++)
     {
         levels.push_back(std::stoi(levelQueryMatr[i][0]));
     }
     if (levels.size() > 0)
-    level = std::to_string((*std::max_element(levels.begin(), levels.end())+1));
+        level = std::to_string((*std::max_element(levels.begin(), levels.end())+1));
     return level;
 }
 
@@ -201,6 +215,65 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         recordsLevelReact[connectedSubstSymbols[i]] = levelReact;
     }
     return recordsLevelReact;
+}
+
+vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
+                   const vector<ElementKey>& elements, bool unique )
+{
+    // define query
+    string AQLreq = "FOR u IN substances \n"
+                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
+                    "  SORT u.properties.symbol ";
+
+    // generate bind values
+    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+    auto arr = domdata->appendArray( "sourcetdbs");
+    for(uint ii=0; ii<sourcetdbs.size(); ii++)
+        arr->appendInt( to_string(ii),sourcetdbs[ii]);
+
+    // make query
+    DBQueryData query( AQLreq, DBQueryData::qAQL );
+    query.setBindVars( domdata.get() );
+    query.setQueryFields( makeQueryFields() );
+
+    ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable substMatr;
+    // delete not unique
+    if( unique )
+    {
+        for (const auto& subitem : substQueryMatr)
+        {
+           auto symbol = subitem[getDataName_DataIndex()["symbol"]];
+           if ( substMatr.empty() ||
+                substMatr.back()[getDataName_DataIndex()["symbol"]] != symbol )
+                       substMatr.push_back(subitem);
+        }
+       substQueryMatr = move(substMatr);
+       substMatr.clear();
+    }
+
+    // get record by elements list
+    vector<string> substanceSymbols;
+    if (elements.empty())
+    {
+       substMatr = move(substQueryMatr);
+       for (const auto& subitem : substMatr)
+          substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+    }
+    else
+     {  for (const auto& subitem : substQueryMatr)
+        {
+          string formula = subitem[getDataName_DataIndex()["formula"]];
+          if (testElementsFormula(formula, elements))
+          {
+              substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+              substMatr.push_back(subitem);
+          }
+        }
+    }
+    setDefaultLevelForReactionDefinedSubst(substMatr);
+    pimpl->valuesTable =          move(substMatr);
+    return                substanceSymbols;
 }
 
 }

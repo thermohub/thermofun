@@ -46,6 +46,8 @@ public:
     auto getDataName_DataFieldPath() const -> std::map<std::string, std::string>;
     auto getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>;
 
+    auto makeQueryFields() const -> jsonio::QueryFields;
+
 ///    auto setDB(const std::shared_ptr<bsonio::TDBVertexDocument> &value) -> void;
 ///    auto setDataNames(const vector<string> &value) -> void;
     auto setDataHeaders(const vector<string> &value) -> void;

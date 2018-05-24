@@ -59,6 +59,7 @@ set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrc
   return elements;
 }
 
+// return all record, no only fields
 ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
                 int sourcetdb, const vector<ElementKey>& elements )
 {

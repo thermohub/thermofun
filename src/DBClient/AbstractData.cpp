@@ -182,6 +182,7 @@ struct AbstractData::Impl
         return dbvertex->loadRecords(idRecords, fieldPaths);
     }
 
+    // return all record, no only fields
     auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
     {
         string qrJson = "FOR e IN defines";
@@ -211,6 +212,7 @@ struct AbstractData::Impl
         return resultsSymbols[0];
     }
 
+    // return all record, no only fields
     auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
     {
         auto queryin = dbedge_all->inEdgesQuery( "takes", idReact );
@@ -372,6 +374,14 @@ auto AbstractData::setDataNamesHeadersFieldpaths(const vector<string> &names, co
     resetDataPathIndex();
 }
 
+auto AbstractData::makeQueryFields() const -> jsonio::QueryFields
+{
+   jsonio::QueryFields fldsMap;
+   for(uint ii=0; ii<pimpl->fieldPaths.size() ; ii++ )
+      fldsMap[pimpl->dataNames[ii]] = pimpl->fieldPaths[ii];
+   return fldsMap;
+}
+
 bool AbstractData::recordExists(const string& id )
 {
     return getDB()->Find( (id+":").c_str() );
@@ -420,6 +430,7 @@ auto AbstractData::getInVertexIds( const string& edgeCollections, const string& 
     vector<string> _queryFields = { "_from"};
     vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeCollections, idVertex );
+    queryin.setQueryFields(_queryFields);
     pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
@@ -439,6 +450,7 @@ auto AbstractData::getInVertexIds(const string& edgeCollections, const string& i
     vector<string> _queryFields = { "_from", "_id"};
     vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeCollections, idVertex );
+    queryin.setQueryFields(_queryFields);
     pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
@@ -461,6 +473,7 @@ auto AbstractData::getOutVertexIds( const string &edgeCollections, const string&
     vector<string> _queryFields = { "_to"};
     vector<string> _resultData;
 
+    queryout.setQueryFields(_queryFields);
     pimpl->dbedge_all->runQuery( queryout,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
@@ -479,8 +492,9 @@ auto AbstractData::getOutVertexIds(const string &edgeCollections, const string& 
 
     vector<string> _queryFields = { "_to", "_id"};
     vector<string> _resultData;
-    auto queryin = pimpl->dbedge_all->outEdgesQuery( edgeCollections, idVertex );
-    pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
+    auto queryout = pimpl->dbedge_all->outEdgesQuery( edgeCollections, idVertex );
+    queryout.setQueryFields(_queryFields);
+    pimpl->dbedge_all->runQuery( queryout,  _queryFields, _resultData );
 
     for( auto rec: _resultData)
     {

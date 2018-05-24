@@ -15,7 +15,8 @@ endif()
 # Download and install the jsonui library
 ExternalProject_Add(JSONIO
     PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/jsonio.git
+    GIT_REPOSITORY https://bitbucket.org/gems4/jsonio.git 
+    GIT_TAG graph-api
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}

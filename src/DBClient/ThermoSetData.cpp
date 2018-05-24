@@ -55,12 +55,12 @@ ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
 {
-    auto query = getQuery();
-    string smb = "\""+symbol+"\"";
-    addFieldsToQueryAQL(query , { make_pair( string("properties.symbol"), smb) } );
-    pimpl->valuesTable = getDB()->loadRecords(query, getDataFieldPaths());
-    if (pimpl->valuesTable.size() == 1)
-        return pimpl->valuesTable[0][getDataName_DataIndex()["_id"]];
+    vector<string> ids;
+    string qrJson = "FOR u  IN thermodatasets ";
+           qrJson += "FILTER u.properties.symbol == \""+symbol+"\" ";
+           qrJson += "RETURN u._id";
+    if ( ids.size() == 1)
+        return ids[0];
     else return "";
 }
 

@@ -62,6 +62,7 @@ auto ReactionData_::reactantsCoeff(string idReact) -> std::map<std::string, doub
     return reactantsCoeff_(idReact);
 }
 
+// return all record, no only fields
 ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
                                   int sourcetdb, const vector<ElementKey> &elements)
 {
@@ -93,6 +94,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
     return reactMatr;
 }
 
+// return all record, no only fields
 ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
 {
     string qrJson = "FOR v,e  IN 1..1 INBOUND '";
@@ -105,6 +107,7 @@ ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
     pimpl->valuesTable = reactMatr;
     return reactMatr;
 }
+
 
 bool ReactionData_::testElements(const string &idReaction,
                                 const vector<ElementKey> &elements)
@@ -184,6 +187,7 @@ void ReactionData_::resetRecordElements(const string& idReact )
     }
 }
 
+// return all record, no only fields
 vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
 {
     string queryJson;
@@ -192,7 +196,8 @@ vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
     queryJson += "\",  \"properties.sourcetdb\": ";
     queryJson += sourcetdb;
     queryJson += " }";
-    return getDB()->getKeysByQuery( DBQueryData(queryJson,DBQueryData::qTemplate));
+     DBQueryData query(queryJson,DBQueryData::qTemplate);
+    return getDB()->getKeysByQuery( query );
 }
 
 bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
