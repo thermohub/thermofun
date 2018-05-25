@@ -7,7 +7,8 @@ using namespace jsonio;
 namespace ThermoFun
 {
 
-const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
+//const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
+const DBQueryData reactQuery("FOR u  IN reactionsets ", DBQueryData::qAQL);
 const vector<string> reactFieldPaths =
     { "properties.symbol", "properties.name", "properties.stype", "properties.level", "_id"};
 const vector<string> reactDataNames = {"symbol", "name", "type", "level", "_id"};
@@ -59,23 +60,30 @@ set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrc
   return elements;
 }
 
-// return all record, no only fields
+// return all record, no only fields if not default
 ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
                 int sourcetdb, const vector<ElementKey>& elements )
 {
+    auto fields = getDataFieldPaths();
+
     // get records by query
     auto query = aquery;
-    if( query.empty() )
-       query = getQuery();
+    if (query.empty())
+    {
+        query = getQuery();
+        // only here we have subset fields to extract
+        query.setQueryFields(makeQueryFields());
+        fields = getDataNames();
+    }
     if( !elements.empty() )
       addFieldsToQueryAQL( query, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
-    ValuesTable reactQueryMatr = getDB()->loadRecords( query, getDataFieldPaths() );
+    ValuesTable reactQueryMatr = getDB()->loadRecords( query, fields );
 
     // get record by elements list
     ValuesTable reactMatr;
     if( elements.empty() )
     {
-       reactMatr = reactQueryMatr;
+       reactMatr = move(reactQueryMatr);
     }
     else
      {
@@ -172,6 +180,51 @@ bool ReactionSetData_::getSpeciesMap( const string& RcSid, std::map<string, int>
     bool iret = getDB()->getDom()->findObject(  "properties.species_map", specmap );
     //bool iret = bson_read_map_path( reobj.data, "properties.species_map", specmap );
     return iret;
+}
+
+vector<string> ReactionSetData_::selectGiven( const vector<int>& sourcetdbs,
+                   const vector<string>& substanceSymbols, bool unique )
+{
+    // define query string
+    string AQLreq = "FOR u IN reactionsets \n"
+                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
+                    "  LET takesreac = ( FOR v,e IN 1..1 INBOUND u._id prodreac  RETURN v.properties.symbol ) \n"
+                    "  FILTER takesreac ALL IN @substanceSymbols \n"
+                    "  SORT u.properties.symbol ";
+           AQLreq += DBQueryData::generateReturn(makeQueryFields());
+
+    // generate bind values
+    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    domdata->appendArray( "substanceSymbols", substanceSymbols);
+    // make query
+    DBQueryData query( AQLreq, DBQueryData::qAQL );
+    query.setBindVars( domdata.get() );
+    query.setQueryFields( makeQueryFields() );
+
+    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataNames());
+
+    // delete not unique
+    if( unique )
+    {
+        ValuesTable reactMatr;
+        for (const auto& subitem : reactQueryMatr)
+        {
+           auto symbol = subitem[getDataName_DataIndex()["symbol"]];
+           if ( reactMatr.empty() ||
+                reactMatr.back()[getDataName_DataIndex()["symbol"]] != symbol )
+                       reactMatr.push_back(subitem);
+        }
+       reactQueryMatr = move(reactMatr);
+    }
+
+    vector<string> reactSymbols;
+    for (const auto& subitem : reactQueryMatr)
+      reactSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
+    pimpl->valuesTable =          move(reactQueryMatr);
+    return                reactSymbols;
 }
 
 

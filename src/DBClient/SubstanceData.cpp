@@ -230,10 +230,7 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    auto arr = domdata->appendArray( "sourcetdbs");
-    for(uint ii=0; ii<sourcetdbs.size(); ii++)
-        arr->appendInt( to_string(ii),sourcetdbs[ii]);
-
+    domdata->appendArray( "sourcetdbs", sourcetdbs );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );

@@ -257,12 +257,8 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    auto arr = domdata->appendArray( "sourcetdbs");
-    for(uint ii=0; ii<sourcetdbs.size(); ii++)
-        arr->appendInt( to_string(ii),sourcetdbs[ii]);
-    arr = domdata->appendArray( "substanceSymbols");
-    for(uint ii=0; ii<substanceSymbols.size(); ii++)
-        arr->appendString( to_string(ii), substanceSymbols[ii]);
+    domdata->appendArray( "sourcetdbs", sourcetdbs);
+    domdata->appendArray( "substanceSymbols", substanceSymbols );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );

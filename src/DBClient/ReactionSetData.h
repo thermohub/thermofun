@@ -41,6 +41,8 @@ class ReactionSetData_ : public AbstractData
     /// Read species map from record
     bool getSpeciesMap( const string& RcSid, std::map<string, int>& specmap );
 
+    vector<string> selectGiven( const vector<int>& sourcetdbs,
+                       const vector<string>& substanceSymbols, bool unique );
   private:
 
 
