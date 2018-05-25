@@ -77,43 +77,47 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
   return parser.getElements();
 }
 
+
+void SubstanceData_::updateTableByElementsList( ValuesTable& substQueryMatr, const vector<ElementKey>& elements )
+{
+    if( !elements.empty() )
+    {
+        ValuesTable substMatr;
+        for (const auto& subitem : substQueryMatr)
+        {
+         string formula = subitem[getDataName_DataIndex()["formula"]];
+         if (testElementsFormula(formula, elements))
+              substMatr.push_back(subitem);
+        }
+        substQueryMatr = move(substMatr);
+    }
+ }
+
+// return all record, no only fields if not default
 ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
+    auto fields = getDataFieldPaths();
+
     // get records by query
     auto query = aquery;
     if (query.empty())
-       query = getQuery();
-    if (!elements.empty())
+    {
+        query = getQuery();
+        // only here we have subset fields to extract
+        query.setQueryFields(makeQueryFields());
+        fields = getDataNames();
+    }
+    //if (!elements.empty())
       addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
 
-    auto fields = getDataFieldPaths();
-
-    if( query.getType() == DBQueryData::qAQL &&  query.getQueryFields().empty() )
-    {
-       // read part of record
-       query.setQueryFields(makeQueryFields());
-       fields = getDataNames();
-    }
     ValuesTable substQueryMatr = getDB()->loadRecords(query, fields);
 
     // get record by elements list
-    ValuesTable substMatr;
-    if (elements.empty())
-    {
-       substMatr = substQueryMatr;
-    }
-    else
-     {  for (const auto& subitem : substQueryMatr)
-        {
-          string formula = subitem[getDataName_DataIndex()["formula"]];
-          if (testElementsFormula(formula, elements))
-               substMatr.push_back(subitem);
-         }
-    }
-    setDefaultLevelForReactionDefinedSubst(substMatr);
-    pimpl->valuesTable =          substMatr;
-    return                substMatr;
+    updateTableByElementsList( substQueryMatr, elements );
+    setDefaultLevelForReactionDefinedSubst(substQueryMatr);
+    pimpl->valuesTable = substQueryMatr;
+    return               move(substQueryMatr);
 }
 
 ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
@@ -138,7 +142,6 @@ auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 
  ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataNames() );
  return solventMatr;
-
 }
 
 auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
@@ -220,7 +223,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
 vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
                    const vector<ElementKey>& elements, bool unique )
 {
-    // define query
+    // define query string
     string AQLreq = "FOR u IN substances \n"
                     "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
                     "  SORT u.properties.symbol ";
@@ -237,10 +240,11 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
     query.setQueryFields( makeQueryFields() );
 
     ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataNames());
-    ValuesTable substMatr;
+
     // delete not unique
     if( unique )
     {
+        ValuesTable substMatr;
         for (const auto& subitem : substQueryMatr)
         {
            auto symbol = subitem[getDataName_DataIndex()["symbol"]];
@@ -249,30 +253,16 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
                        substMatr.push_back(subitem);
         }
        substQueryMatr = move(substMatr);
-       substMatr.clear();
     }
 
-    // get record by elements list
+    updateTableByElementsList( substQueryMatr, elements );
+
     vector<string> substanceSymbols;
-    if (elements.empty())
-    {
-       substMatr = move(substQueryMatr);
-       for (const auto& subitem : substMatr)
-          substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
-    }
-    else
-     {  for (const auto& subitem : substQueryMatr)
-        {
-          string formula = subitem[getDataName_DataIndex()["formula"]];
-          if (testElementsFormula(formula, elements))
-          {
-              substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
-              substMatr.push_back(subitem);
-          }
-        }
-    }
-    setDefaultLevelForReactionDefinedSubst(substMatr);
-    pimpl->valuesTable =          move(substMatr);
+    for (const auto& subitem : substQueryMatr)
+      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(substQueryMatr);
+    pimpl->valuesTable =          move(substQueryMatr);
     return                substanceSymbols;
 }
 

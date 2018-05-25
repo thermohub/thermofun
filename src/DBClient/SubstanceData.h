@@ -105,6 +105,7 @@ private:
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;
+    void updateTableByElementsList( jsonio::ValuesTable& substQueryMatr, const vector<ElementKey>& elements );
 };
 
 }

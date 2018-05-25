@@ -63,6 +63,9 @@ class ReactionData_ : public AbstractData
      */
     bool checkReactSymbolLevel (string sourcetdb, string &symbol, string &level);
 
+
+    vector<string> selectGiven( const vector<int>& sourcetdbs,
+                       const vector<string>& substanceSymbols, bool unique=true );
   private:
 
     // tests if elements are present in the reaction
@@ -70,6 +73,8 @@ class ReactionData_ : public AbstractData
 
     // returns a list of ids for all reaction with symbol and sourcetdb present in the database
     vector<string> getKeys(string symbol, string sourcetdb);
+
+    void updateTableByElementsList( jsonio::ValuesTable& reactQueryMatr, const vector<ElementKey>& elements );
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;

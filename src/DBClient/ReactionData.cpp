@@ -13,7 +13,8 @@ using namespace jsonio;
 namespace ThermoFun
 {
 
-const DBQueryData reactQuery("{\"_label\": \"reaction\" }", DBQueryData::qTemplate);
+//const DBQueryData reactQuery("{\"_label\": \"reaction\" }", DBQueryData::qTemplate);
+const DBQueryData reactQuery("FOR u  IN reactions ", DBQueryData::qAQL);
 const vector<string> reactFieldPaths =
     {"properties.symbol", "properties.name", "properties.equation", "_id", "properties.level", "properties.sourcetdb"};
 const vector<string> reactColumnHeaders = {"symbol", "name", "equation"};
@@ -62,52 +63,60 @@ auto ReactionData_::reactantsCoeff(string idReact) -> std::map<std::string, doub
     return reactantsCoeff_(idReact);
 }
 
-// return all record, no only fields
-ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
-                                  int sourcetdb, const vector<ElementKey> &elements)
+void ReactionData_::updateTableByElementsList( ValuesTable& reactQueryMatr, const vector<ElementKey>& elements )
 {
-    // get records by query
-    auto query = aquery;
-    if (query.empty())
-        query = getQuery();
-    if (!elements.empty())
-        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
-    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataFieldPaths());
-
-    // get record by elements list
-    ValuesTable reactMatr;
-    if (elements.empty())
+    if( !elements.empty() )
     {
-        reactMatr = reactQueryMatr;
-    }
-    else
-    {
-        for (const auto &subitem : reactQueryMatr)
+        ValuesTable reactMatr;
+        for (const auto& subitem : reactQueryMatr)
         {
             string idreac = subitem[getDataName_DataIndex()["_id"]];
             if (testElements(idreac, elements))
                 reactMatr.push_back(subitem);
         }
+        reactQueryMatr = move(reactMatr);
     }
-    setDefaultLevelForReactionDefinedSubst(reactMatr);
-    pimpl->valuesTable = reactMatr;
-    return reactMatr;
+ }
+
+// return all record, no only fields if not default
+ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
+                                  int sourcetdb, const vector<ElementKey> &elements)
+{
+    auto fields = getDataFieldPaths();
+
+    // get records by query
+    auto query = aquery;
+    if (query.empty())
+    {
+        query = getQuery();
+        // only here we have subset fields to extract
+        query.setQueryFields(makeQueryFields());
+        fields = getDataNames();
+    }
+    //if (!elements.empty())
+        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
+    ValuesTable reactQueryMatr = getDB()->loadRecords(query, fields);
+
+    // get record by elements list
+    updateTableByElementsList( reactQueryMatr, elements );
+    setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
+    pimpl->valuesTable = reactQueryMatr;
+    return move(reactQueryMatr);
 }
 
-// return all record, no only fields
 ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
 {
-    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
-           qrJson += idReactionSet + "' \n prodreac\n";
-           qrJson += "RETURN v";
+    string qrAQL = "FOR u,e  IN 1..1 INBOUND '";
+           qrAQL += idReactionSet + "' \n prodreac\n";
+           //qrAQL += "RETURN u";
 
-    ValuesTable reactMatr =
-        getDB()->loadRecords( DBQueryData( qrJson, DBQueryData::qAQL ), getDataFieldPaths());
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    query.setQueryFields(makeQueryFields());
+    ValuesTable reactMatr =  getDB()->loadRecords( query, getDataNames());
     setDefaultLevelForReactionDefinedSubst(reactMatr);
     pimpl->valuesTable = reactMatr;
     return reactMatr;
 }
-
 
 bool ReactionData_::testElements(const string &idReaction,
                                 const vector<ElementKey> &elements)
@@ -187,16 +196,13 @@ void ReactionData_::resetRecordElements(const string& idReact )
     }
 }
 
-// return all record, no only fields
 vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
 {
-    string queryJson;
-    queryJson = "{\"_type\": \"vertex\", \"_label\": \"reaction\", \"properties.symbol\": \"";
-    queryJson += symbol;
-    queryJson += "\",  \"properties.sourcetdb\": ";
-    queryJson += sourcetdb;
-    queryJson += " }";
-     DBQueryData query(queryJson,DBQueryData::qTemplate);
+   string qrAQL = "FOR u  IN reactions \nFILTER u.properties.symbol == '";
+          qrAQL += symbol + "' and  u.properties.sourcetdb == "+ sourcetdb;
+           //qrAQL += "RETURN u";
+
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
     return getDB()->getKeysByQuery( query );
 }
 
@@ -229,7 +235,6 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
             level  = std::to_string((*std::max_element(levels.begin(), levels.end())+1));
             symbol = reactSymbol + "_"+level;
         }
-
         reactKeys = getKeys(symbol, sourcetdb);
     }
 
@@ -238,5 +243,57 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
     else
         return true;
 }
+
+vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
+                   const vector<string>& substanceSymbols, bool unique )
+{
+    // define query string
+    string AQLreq = "FOR u IN reactions\n"
+                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
+                    "  LET takessub = ( FOR v,e IN 1..1 INBOUND u._id takes  RETURN v.properties.symbol ) \n"
+                    "  FILTER takessub ALL IN @substanceSymbols \n"
+                    "  SORT u.properties.symbol ";
+           AQLreq += DBQueryData::generateReturn(makeQueryFields());
+
+    // generate bind values
+    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+    auto arr = domdata->appendArray( "sourcetdbs");
+    for(uint ii=0; ii<sourcetdbs.size(); ii++)
+        arr->appendInt( to_string(ii),sourcetdbs[ii]);
+    arr = domdata->appendArray( "substanceSymbols");
+    for(uint ii=0; ii<substanceSymbols.size(); ii++)
+        arr->appendString( to_string(ii), substanceSymbols[ii]);
+    // make query
+    DBQueryData query( AQLreq, DBQueryData::qAQL );
+    query.setBindVars( domdata.get() );
+    query.setQueryFields( makeQueryFields() );
+
+    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataNames());
+
+    // delete not unique
+    if( unique )
+    {
+        ValuesTable reactMatr;
+        for (const auto& subitem : reactQueryMatr)
+        {
+           auto symbol = subitem[getDataName_DataIndex()["symbol"]];
+           if ( reactMatr.empty() ||
+                reactMatr.back()[getDataName_DataIndex()["symbol"]] != symbol )
+                       reactMatr.push_back(subitem);
+        }
+       reactQueryMatr = move(reactMatr);
+    }
+
+    vector<string> reactSymbols;
+    for (const auto& subitem : reactQueryMatr)
+      reactSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
+    pimpl->valuesTable =          move(reactQueryMatr);
+    return                reactSymbols;
+}
+
+
+
 
 }
