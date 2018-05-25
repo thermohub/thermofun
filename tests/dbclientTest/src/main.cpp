@@ -23,6 +23,16 @@ int main(int argc, char *argv[])
     jsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUI.json";
     DatabaseClient dbc_;
 
+    auto availableElementskey = dbc_.availableElementsKey(20);
+
+    auto substance = dbc_.substData( );
+
+    availableElementskey.erase (availableElementskey.begin(),availableElementskey.begin()+1);
+
+    auto substances = substance.selectGiven({20}, availableElementskey, true);
+
+    auto reactions = dbc_.reactData().selectGiven({20}, {"H2O@", "Wollastonite", "Ca+2", "OH-", "SiO2@", "Anorthite", "Al+3"});
+
 //    try {
 //        auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
 //        Database db2 = databaseFromRecordList(dbc_, list);
