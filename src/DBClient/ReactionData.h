@@ -25,6 +25,11 @@ class ReactionData_ : public AbstractData
     /// Extract data by condition
     virtual jsonio::ValuesTable loadRecordsValues(const jsonio::DBQueryData& query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
+    /// Extract data connected to ThermoDataSet
+    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+    vector<string> selectGiven( const vector<int>& sourcetdbs,
+                       const vector<string>& substanceSymbols, bool unique=true );
+
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
 
@@ -64,8 +69,6 @@ class ReactionData_ : public AbstractData
     bool checkReactSymbolLevel (string sourcetdb, string &symbol, string &level);
 
 
-    vector<string> selectGiven( const vector<int>& sourcetdbs,
-                       const vector<string>& substanceSymbols, bool unique=true );
   private:
 
     // tests if elements are present in the reaction

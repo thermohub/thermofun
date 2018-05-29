@@ -240,17 +240,7 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
 
     // delete not unique
     if( unique )
-    {
-        ValuesTable substMatr;
-        for (const auto& subitem : substQueryMatr)
-        {
-           auto symbol = subitem[getDataName_DataIndex()["symbol"]];
-           if ( substMatr.empty() ||
-                substMatr.back()[getDataName_DataIndex()["symbol"]] != symbol )
-                       substMatr.push_back(subitem);
-        }
-       substQueryMatr = move(substMatr);
-    }
+        deleteNotUnique( substQueryMatr, getDataName_DataIndex()["symbol"] );
 
     updateTableByElementsList( substQueryMatr, elements );
 
@@ -262,5 +252,29 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
     pimpl->valuesTable =          move(substQueryMatr);
     return                substanceSymbols;
 }
+
+vector<string> SubstanceData_::selectGiven( const vector<string>& idThermoDataSets, bool unique )
+{
+    string qrAQL = "FOR vertex IN " + vectorToJson( idThermoDataSets);
+           qrAQL += "\n  FOR v,e  IN 1..5 INBOUND vertex \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'substance' ";
+           qrAQL +=  "\n  SORT v.properties.symbol ";
+           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+
+    if( unique )
+        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+
+    vector<string> substanceSymbols;
+    for (const auto& subitem : resMatr)
+      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(resMatr);
+    pimpl->valuesTable = move(resMatr);
+    return substanceSymbols;
+}
+
 
 }

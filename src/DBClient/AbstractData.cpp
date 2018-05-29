@@ -24,6 +24,7 @@ using GetJsonRecord           = std::function<std::string(std::string)>;
 //using GetJsonBsonRecord       = std::function<std::pair<std::string, bson>(std::string)>;
 
 // static std::shared_ptr<bsonio::TDBGraph> dbc = std::shared_ptr<bsonio::TDBGraph>();
+const string ThermoDataSetQueryEdges = " basis, involves, master, prodreac, takes, defines, product ";
 
 struct AbstractData::Impl
 {
@@ -560,6 +561,19 @@ auto AbstractData::setSubstanceLevel_(string substSymbol, string level) -> void
 auto AbstractData::getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEdgeDocument>
 {
     return pimpl->dbedge_all;
+}
+
+// delete not unique
+void AbstractData::deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx )
+{
+    ValuesTable newMatr;
+    for (const auto& subitem : dataMatr)
+    {
+       auto symbol = subitem[fldtestNdx];
+       if ( newMatr.empty() ||  newMatr.back()[fldtestNdx] != symbol )
+                   newMatr.push_back(subitem);
+    }
+    dataMatr = move(newMatr);
 }
 
 }

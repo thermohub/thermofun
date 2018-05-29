@@ -23,6 +23,11 @@ class ReactionSetData_ : public AbstractData
     /// Extract data by condition
     virtual jsonio::ValuesTable loadRecordsValues(const jsonio::DBQueryData& query, int sourcetdb,
                                                   const vector<ElementKey> &elements = {});
+    /// Extract data connected to ThermoDataSet
+    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+    vector<string> selectGiven( const vector<int>& sourcetdbs,
+                       const vector<string>& substanceSymbols, bool unique );
+
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
 
@@ -41,8 +46,6 @@ class ReactionSetData_ : public AbstractData
     /// Read species map from record
     bool getSpeciesMap( const string& RcSid, std::map<string, int>& specmap );
 
-    vector<string> selectGiven( const vector<int>& sourcetdbs,
-                       const vector<string>& substanceSymbols, bool unique );
   private:
 
 

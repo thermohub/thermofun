@@ -253,7 +253,7 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
                     "  LET takessub = ( FOR v,e IN 1..1 INBOUND u._id takes  RETURN v.properties.symbol ) \n"
                     "  FILTER takessub ALL IN @substanceSymbols \n"
                     "  SORT u.properties.symbol ";
-           AQLreq += DBQueryData::generateReturn(makeQueryFields());
+           AQLreq += DBQueryData::generateReturn( false,  makeQueryFields());
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
@@ -268,17 +268,7 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
 
     // delete not unique
     if( unique )
-    {
-        ValuesTable reactMatr;
-        for (const auto& subitem : reactQueryMatr)
-        {
-           auto symbol = subitem[getDataName_DataIndex()["symbol"]];
-           if ( reactMatr.empty() ||
-                reactMatr.back()[getDataName_DataIndex()["symbol"]] != symbol )
-                       reactMatr.push_back(subitem);
-        }
-       reactQueryMatr = move(reactMatr);
-    }
+        deleteNotUnique( reactQueryMatr, getDataName_DataIndex()["symbol"] );
 
     vector<string> reactSymbols;
     for (const auto& subitem : reactQueryMatr)
@@ -289,6 +279,29 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
     return                reactSymbols;
 }
 
+vector<string> ReactionData_::selectGiven( const vector<string>& idThermoDataSets, bool unique )
+{
+    string qrAQL = "FOR vertex IN " + vectorToJson( idThermoDataSets);
+           qrAQL += "\n  FOR v,e  IN 1..5 INBOUND vertex \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'reaction' ";
+           qrAQL +=  "\n  SORT v.properties.symbol ";
+           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+
+    if( unique )
+        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+
+    vector<string> reacSymbols;
+    for (const auto& subitem : resMatr)
+      reacSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(resMatr);
+    pimpl->valuesTable = move(resMatr);
+    return reacSymbols;
+
+}
 
 
 

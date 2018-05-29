@@ -11,6 +11,8 @@
 
 namespace ThermoFun {
 
+extern const string ThermoDataSetQueryEdges;
+
 class AbstractData
 {
 public:
@@ -31,6 +33,10 @@ public:
     /// Extract data by condition
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
+    /// Extract data connected to ThermoDataSet
+    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true ) = 0 ;
+
+
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
@@ -121,6 +127,8 @@ protected:
     auto getSubstanceLevel_(string substSymbol) const -> string;
     // sets the level
     auto setSubstanceLevel_(string substSymbol, string level) -> void;
+
+    void deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx );
 
 private:
     struct Impl;
