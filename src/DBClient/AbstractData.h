@@ -103,6 +103,9 @@ public:
     /// Returns the record with idRecord as a pair of Json and Bson formats
     auto getJsonRecordEdge(string idRecord) -> std::string;
 
+    auto selectElementsGiven( const vector<int>& sourcetdbs, bool unique = true ) -> vector<ElementKey>;
+    auto selectElementsFromSubstancesGiven( const vector<int>& sourcetdbs ) -> set<ElementKey>;
+
 protected:
 
     // Returns a record from a database in JSON format using the record id

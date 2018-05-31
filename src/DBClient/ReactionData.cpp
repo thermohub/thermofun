@@ -150,7 +150,7 @@ vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
     vector<string> formulas;
     string qrJson = "FOR v,e  IN 1..1 INBOUND '";
            qrJson += idReaction + "' \n takes\n";
-           qrJson += "RETURN v.properties.formula";
+           qrJson += "RETURN DISTINCT v.properties.formula";
 
     getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, formulas);
     return formulas;
