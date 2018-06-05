@@ -594,7 +594,6 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
   // make query
   DBQueryData query( AQLreq, DBQueryData::qAQL );
   query.setBindVars( domdata.get() );
-  query.setQueryFields( makeQueryFields() );
 
   vector<ElementKey> elements;
   ElementKey elkey("");
