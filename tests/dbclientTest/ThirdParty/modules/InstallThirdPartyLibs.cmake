@@ -13,9 +13,9 @@ endif()
 
 
 # Download and install the bsonui library
-ExternalProject_Add(BSONUI
+ExternalProject_Add(JSONIO
     PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/bsonui.git
+    GIT_REPOSITORY https://bitbucket.org/gems4/jsonio.git
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}

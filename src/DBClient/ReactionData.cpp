@@ -198,7 +198,8 @@ vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
     queryJson += "\",  \"properties.sourcetdb\": ";
     queryJson += sourcetdb;
     queryJson += " }";
-    return getDB()->getKeysByQuery( DBQueryData(queryJson,DBQueryData::qTemplate));
+    DBQueryData query(queryJson,DBQueryData::qTemplate);
+    return getDB()->getKeysByQuery( query);
 }
 
 bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
