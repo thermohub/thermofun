@@ -11,6 +11,8 @@
 
 namespace ThermoFun {
 
+extern const string ThermoDataSetQueryEdges;
+
 class AbstractData
 {
 public:
@@ -31,6 +33,10 @@ public:
     /// Extract data by condition
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} ) = 0;
+    /// Extract data connected to ThermoDataSet
+    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true ) = 0 ;
+
+
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
 
@@ -97,6 +103,9 @@ public:
     /// Returns the record with idRecord as a pair of Json and Bson formats
     auto getJsonRecordEdge(string idRecord) -> std::string;
 
+    auto selectElementsGiven( const vector<int>& sourcetdbs, bool unique = true ) -> vector<ElementKey>;
+    auto selectElementsFromSubstancesGiven( const vector<int>& sourcetdbs ) -> set<ElementKey>;
+
 protected:
 
     // Returns a record from a database in JSON format using the record id
@@ -121,6 +130,8 @@ protected:
     auto getSubstanceLevel_(string substSymbol) const -> string;
     // sets the level
     auto setSubstanceLevel_(string substSymbol, string level) -> void;
+
+    void deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx );
 
 private:
     struct Impl;

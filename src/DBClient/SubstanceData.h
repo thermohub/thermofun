@@ -29,6 +29,10 @@ public:
     /// Extract data by condition
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} );
+    /// Extract data connected to ThermoDataSet
+    virtual vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+    vector<string> selectGiven( const vector<int>& sourcetdbs, const vector<ElementKey>& elements, bool unique = true );
+
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idSubstance );
 
@@ -98,7 +102,6 @@ public:
      */
     MapSubstSymbol_MapLevel_IdReaction recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols );
 
-    vector<string> selectGiven( const vector<int>& sourcetdbs, const vector<ElementKey>& elements, bool unique = true );
 
 
 private:

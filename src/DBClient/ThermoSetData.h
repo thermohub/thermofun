@@ -2,6 +2,7 @@
 #define THERMOSETDATA_H
 
 #include "AbstractData.h"
+#include "jsonio/traversal.h"
 
 namespace ThermoFun {
 
@@ -23,11 +24,18 @@ public:
     /// Extract data by condition
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} );
+    /// Extract data connected to ThermoDataSet
+    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idThermoDataSet);
 
     auto idRecordFromSymbol (const string &symbol) -> string;
 
+    /// Visit  all linked Vertexes
+    void traverceVertexes( const string& idThermoDataSet, jsonio::GraphElementFunction afunc );
+    /// Visit  all linked Edges
+    void traverceEdges( const string& idThermoDataSet, jsonio::GraphElementFunction afunc );
 
 private:
 

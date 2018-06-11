@@ -197,6 +197,7 @@ void FormulaToken::setFormula( const string& aformula )
 {
   clear();
   formula = aformula;
+  jsonio::strip_all( formula , "\"");
   ChemicalFormulaParser formparser;
   list<ICTERM> icterms = formparser.parse( formula );
   unpack( icterms );

@@ -64,4 +64,51 @@ auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
     else return "";
 }
 
+vector<string> ThermoSetData::selectGiven( const vector<string>& idThermoDataSets, bool  )
+{
+    auto  resMatr = getDB()->loadRecords(idThermoDataSets, getDataFieldPaths());
+
+    vector<string> thermoSymbols;
+    for (const auto& subitem : resMatr)
+      thermoSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    pimpl->valuesTable = move(resMatr);
+    return thermoSymbols;
+}
+
+
+// Visit  all linked Vertexes
+void ThermoSetData::traverceVertexes( const string& idThermoDataSet, jsonio::GraphElementFunction afunc )
+{
+    string qrAQL = "FOR v,e  IN 1..5 INBOUND '" + idThermoDataSet + "' \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  SORT v._label ";
+           qrAQL +=  " \n RETURN DISTINCT  v";
+
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    vector<string> resultsQuery;
+    getDB()->runQuery( query,  {}, resultsQuery );
+
+    for( auto result: resultsQuery )
+        afunc( true, result );
+}
+
+// Visit  all linked Edges
+void ThermoSetData::traverceEdges( const string& idThermoDataSet, jsonio::GraphElementFunction afunc )
+{
+    string qrAQL = "FOR v,e  IN 1..5 INBOUND '" + idThermoDataSet + "' \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  SORT e._label ";
+           qrAQL +=  " \n RETURN DISTINCT  e";
+
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    vector<string> resultsQuery;
+    getDB()->runQuery( query,  {}, resultsQuery );
+
+    for( auto result: resultsQuery )
+        afunc( false, result );
+}
+
+
+
 }

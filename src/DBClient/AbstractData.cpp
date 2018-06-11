@@ -24,6 +24,7 @@ using GetJsonRecord           = std::function<std::string(std::string)>;
 //using GetJsonBsonRecord       = std::function<std::pair<std::string, bson>(std::string)>;
 
 // static std::shared_ptr<bsonio::TDBGraph> dbc = std::shared_ptr<bsonio::TDBGraph>();
+const string ThermoDataSetQueryEdges = " basis, involves, master, prodreac, takes, defines, product ";
 
 struct AbstractData::Impl
 {
@@ -561,5 +562,75 @@ auto AbstractData::getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEd
 {
     return pimpl->dbedge_all;
 }
+
+// delete not unique
+void AbstractData::deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx )
+{
+    ValuesTable newMatr;
+    for (const auto& subitem : dataMatr)
+    {
+       auto symbol = subitem[fldtestNdx];
+       if ( newMatr.empty() ||  newMatr.back()[fldtestNdx] != symbol )
+                   newMatr.push_back(subitem);
+    }
+    dataMatr = move(newMatr);
+}
+
+// addition functions to work with elemens
+
+auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool unique ) -> vector<ElementKey>
+{
+  jsonio::QueryFields qwFields = { {"symbol", "properties.symbol"},
+                                   {"class_","properties.class_"},
+                                   {"isotope_mass", "properties.isotope_mass"} };
+  string AQLreq = "FOR u IN elements \n"
+                  "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
+                  "  SORT u.properties.symbol ";
+          AQLreq += DBQueryData::generateReturn( unique,  qwFields );
+
+  // generate bind values
+  shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+  domdata->appendArray( "sourcetdbs", sourcetdbs );
+  // make query
+  DBQueryData query( AQLreq, DBQueryData::qAQL );
+  query.setBindVars( domdata.get() );
+
+  vector<ElementKey> elements;
+  ElementKey elkey("");
+  vector<string> resultsQuery;
+  pimpl->dbvertex_all->runQuery( query, {}, resultsQuery );
+
+  for( auto result: resultsQuery )
+  {
+      auto domdata = jsonio::unpackJson( result );
+      domdata->findValue("symbol" , elkey.symbol );
+      domdata->findValue("class_" , elkey.class_ );
+      domdata->findValue("isotope_mass" , elkey.isotope );
+      elements.push_back(elkey);
+   }
+   return elements;
+}
+
+auto AbstractData::selectElementsFromSubstancesGiven( const vector<int>& sourcetdbs ) -> set<ElementKey>
+{
+    // Select all substances formulas
+    string AQLreq = "FOR u IN substances \n"
+                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
+                    "  SORT u.properties.symbol ";
+           AQLreq += "RETURN DISTINCT u.properties.formula";
+
+    // generate bind values
+    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    // make query
+    DBQueryData query( AQLreq, DBQueryData::qAQL );
+    query.setBindVars( domdata.get() );
+
+    vector<string> formulas;
+    getDB()->runQuery( query,  {}, formulas);
+    return ChemicalFormula::extractElements(formulas);
+
+}
+
 
 }
