@@ -30,8 +30,8 @@ macx-clang {
   LIBS += -llua
 }
 
-INCLUDEPATH   += "/usr/local/include"
-DEPENDPATH   += "/usr/local/include"
+#INCLUDEPATH   += "/usr/local/include"
+#DEPENDPATH   += "/usr/local/include"
 #LIBPATH += "/usr/local/lib/"
 
 # Define the directory where source code is located

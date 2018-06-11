@@ -1,6 +1,6 @@
 #!/bin/bash
 
-J=1
+J=10
 
 while [[ $# > 2 ]]
 do
@@ -20,9 +20,9 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../../build/{debug,release}/thirdparty
+mkdir -p ../../demoGUI-build/{debug,release}/thirdparty
 
-cd ../../build/debug/thirdparty
+cd ../../demoGUI-build/debug/thirdparty
 
 cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 

@@ -182,7 +182,7 @@ bool ReactionSetData_::getSpeciesMap( const string& RcSid, std::map<string, int>
     return iret;
 }
 
-vector<string> ReactionSetData_::selectGiven( const vector<int>& sourcetdbs,
+vector<string> ReactionSetData_::selectGivenSubstances( const vector<int>& sourcetdbs,
                    const vector<string>& substanceSymbols, bool unique )
 {
     // define query string
@@ -202,19 +202,54 @@ vector<string> ReactionSetData_::selectGiven( const vector<int>& sourcetdbs,
     query.setBindVars( domdata.get() );
     query.setQueryFields( makeQueryFields() );
 
-    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable reactSetQueryMatr = getDB()->loadRecords(query, getDataNames());
 
     // delete not unique
     if( unique )
-        deleteNotUnique( reactQueryMatr, getDataName_DataIndex()["symbol"] );
+        deleteNotUnique( reactSetQueryMatr, getDataName_DataIndex()["symbol"] );
 
-    vector<string> reactSymbols;
-    for (const auto& subitem : reactQueryMatr)
-      reactSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+    vector<string> reactSetSymbols;
+    for (const auto& subitem : reactSetQueryMatr)
+      reactSetSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
 
-    setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
-    pimpl->valuesTable =          move(reactQueryMatr);
-    return                reactSymbols;
+    setDefaultLevelForReactionDefinedSubst(reactSetQueryMatr);
+    pimpl->valuesTable =          move(reactSetQueryMatr);
+    return                reactSetSymbols;
+}
+
+vector<string> ReactionSetData_::selectGiven(const vector<int>& sourcetdbs,
+                   const vector<string>& reactionSymbols, bool unique )
+{
+    // define query string
+    string AQLreq = "FOR u IN reactionsets \n"
+                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
+                    "  LET prodreac = ( FOR v,e IN 1..1 INBOUND u._id prodreac  RETURN v.properties.symbol ) \n"
+                    "  FILTER prodreac ALL IN @reactionSymbols \n"
+                    "  SORT u.properties.symbol ";
+           AQLreq += DBQueryData::generateReturn( false, makeQueryFields());
+
+    // generate bind values
+    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    domdata->appendArray( "reactionSymbols", reactionSymbols);
+    // make query
+    DBQueryData query( AQLreq, DBQueryData::qAQL );
+    query.setBindVars( domdata.get() );
+    query.setQueryFields( makeQueryFields() );
+
+    ValuesTable reactSetQueryMatr = getDB()->loadRecords(query, getDataNames());
+
+    // delete not unique
+    if( unique )
+        deleteNotUnique( reactSetQueryMatr, getDataName_DataIndex()["symbol"] );
+
+    vector<string> reactSetSymbols;
+    for (const auto& subitem : reactSetQueryMatr)
+      reactSetSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(reactSetQueryMatr);
+    pimpl->valuesTable =          move(reactSetQueryMatr);
+    return                reactSetSymbols;
 }
 
 vector<string> ReactionSetData_::selectGiven( const vector<string>& idThermoDataSets, bool unique )

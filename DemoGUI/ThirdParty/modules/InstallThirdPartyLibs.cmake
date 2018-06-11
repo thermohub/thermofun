@@ -16,28 +16,12 @@ endif()
 ExternalProject_Add(JSONUI
     PREFIX thirdparty
     GIT_REPOSITORY https://bitbucket.org/gems4/jsonui.git
-    GIT_TAG impex-move
+#    GIT_TAG impex-move
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DCMAKE_CXX_FLAGS=${CXXFLAGS}               
-               -DCMAKE_INSTALL_INCLUDEDIR=include
-               -DCMAKE_INSTALL_LIBDIR=lib
-               -DCMAKE_INSTALL_BINDIR=bin
-               -DBUILD_SHARED_LIBS=ON
-)
-
-# Download and install the ThermoFun library
-ExternalProject_Add(THERMOFUN
-    PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/thermofun.git
-    GIT_TAG jsonio-api
-    UPDATE_COMMAND ""
-    CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
-               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-               -DCMAKE_CXX_FLAGS=${CXXFLAGS}
                -DCMAKE_INSTALL_INCLUDEDIR=include
                -DCMAKE_INSTALL_LIBDIR=lib
                -DCMAKE_INSTALL_BINDIR=bin
