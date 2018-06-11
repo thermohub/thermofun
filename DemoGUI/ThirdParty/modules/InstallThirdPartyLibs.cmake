@@ -16,7 +16,7 @@ endif()
 ExternalProject_Add(JSONUI
     PREFIX thirdparty
     GIT_REPOSITORY https://bitbucket.org/gems4/jsonui.git
-#   GIT_TAG new-database
+    GIT_TAG impex-move
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
@@ -32,7 +32,7 @@ ExternalProject_Add(JSONUI
 ExternalProject_Add(THERMOFUN
     PREFIX thirdparty
     GIT_REPOSITORY https://bitbucket.org/gems4/thermofun.git
-#    GIT_TAG jsonio-api
+    GIT_TAG jsonio-api
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
@@ -46,11 +46,11 @@ ExternalProject_Add(THERMOFUN
 
 
 # Create the install target for the third-party libraries
-install(DIRECTORY ${THIRDPARTY_DIR}/lib
-    DESTINATION /usr/local)
-install(DIRECTORY ${THIRDPARTY_DIR}/include
-    DESTINATION /usr/local)
 #install(DIRECTORY ${THIRDPARTY_DIR}/lib
-#   DESTINATION .)
+#    DESTINATION /usr/local)
 #install(DIRECTORY ${THIRDPARTY_DIR}/include
-#   DESTINATION .)
+#    DESTINATION /usr/local)
+install(DIRECTORY ${THIRDPARTY_DIR}/lib
+   DESTINATION .)
+install(DIRECTORY ${THIRDPARTY_DIR}/include
+   DESTINATION .)
