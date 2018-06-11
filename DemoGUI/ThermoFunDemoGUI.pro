@@ -30,9 +30,9 @@ macx-clang {
   LIBS += -llua
 }
 
-INCLUDEPATH   += "/usr/local/include"
-DEPENDPATH   += "/usr/local/include"
-#LIBPATH += "/usr/local/lib/"
+#INCLUDEPATH   += "/usr/local/include"
+#DEPENDPATH   += "/usr/local/include"
+LIBPATH += "/usr/local/lib/"
 
 # Define the directory where source code is located
 #THRIFT_DIR    = ./thrift
@@ -59,7 +59,7 @@ INCLUDEPATH   += $$FUN_DIR
 
 #temporary
 BUILD_DIR = $$OUT_PWD/..
-#THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty/thirdparty
+#THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty
 #THERMOFUN_SRC =  $$THIRDPARTY_DIR/src/THERMOFUN/src
 #DEPENDPATH   += $$THERMOFUN_SRC
 #INCLUDEPATH   += $$THERMOFUN_SRC
@@ -76,16 +76,20 @@ THIRDPARTY_LIBRARY_DIR1 = $$THIRDPARTY_DIR/lib
 
 DEPENDPATH   += $$THIRDPARTY_INCLUDE_DIR
 INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
-LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
+LIBPATH += $$THIRDPARTY_LIBRARY_DIR1
+#LIBPATH += "/usr/local/lib/"
+#LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 
 
 LIBS += -ljsonui -ljsonio -lyaml-cpp -lpugixml
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
-#LIBS += -lthermofun
+##LIBS += -lthermofun
 !macx-clang:LIBS += -llua5.3
-#LIBS += -lapp-static -lhunspell -lmarkdown
-#LIBS += -lfuerte
-LIBS += -lpthread -lssl -lcrypto -lcurl -lboost_thread -lvelocypack
+##LIBS += -lapp-static -lhunspell -lmarkdown
+##LIBS += -lfuerte
+#LIBS += -lpthread -lssl -lcrypto -lcurl -lboost_thread -lvelocypack
+
+LIBS +=  -lcurl  -lvelocypack
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR

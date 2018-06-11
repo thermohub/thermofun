@@ -3,18 +3,25 @@
 #include "jsonio/io_settings.h"
 #include "jsonui/JSONUIBase.h"
 #include "ThermoFunWidgetNew.h"
-#include "jsonio/nservice.h"
+//#include "jsonio/nservice.h"
+#include "jsonui/preferences.h"
 #include <QApplication>
 #include <QMessageBox>
 #include <QFileDialog>
 
-using namespace jsonui;
-using namespace jsonio;
+//using namespace jsonui;
+//using namespace jsonio;
+
+
+/*namespace jsonio {
+
+std::string JsonioSettings::settingsFileName = "jsonui.json";
+}*/
 
 int main(int argc, char *argv[])
 {
 
-    jsonio::BsonioSettings::settingsFileName = "ThermoFunDemoGUI.json";
+    jsonio::JsonioSettings::settingsFileName = "ThermoFunDemoGUI.json";
     QApplication a(argc, argv);
 
     std::list<jsonui::JSONUIBase*> bsonuiWindows;
@@ -26,7 +33,7 @@ int main(int argc, char *argv[])
 
 
     try{
-          JSONUIBase* testWidget;
+          jsonui::JSONUIBase* testWidget;
           testWidget = new ThermoFunWidgetNew( /*this*/ );
 
           testWidget->setOnCloseEventFunction(onCloseEvent);
@@ -35,7 +42,7 @@ int main(int argc, char *argv[])
           testWidget->show();
 
       }
-     catch(jsonio_exeption& e)
+     catch(jsonio::jsonio_exeption& e)
     {}
 //     {
 //         QMessageBox::critical( a, e.title(), e.what() );

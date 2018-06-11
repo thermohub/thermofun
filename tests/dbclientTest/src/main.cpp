@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World!" << endl;
     gettimeofday(&st, NULL);
-    jsonio::BsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUI.json";
+    jsonio::JsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUI.json";
     DatabaseClient dbc_;
 
 //    try {
