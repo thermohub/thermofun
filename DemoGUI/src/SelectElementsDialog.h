@@ -4,6 +4,10 @@
 #include <QDialog>
 #include "jsonui/SelectDialog.h"
 #include "thermofun/DBClient/formuladata.h"
+#include "thermofun/DBClient/DatabaseClient.h"
+#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermofun/DBClient/SubstanceData.h"
+
 
 namespace Ui {
 class SelectElements;
@@ -37,7 +41,7 @@ protected slots:
 
 public:
 
-    explicit SelectElementsDialog( QWidget *parent = 0);
+    explicit SelectElementsDialog(ThermoFun::DatabaseClient dbclient, QWidget *parent = 0);
     ~SelectElementsDialog();
 
     void setData( int sourcetdb, const vector<ThermoFun::ElementKey>& elementKeys, const string& idRcSet );

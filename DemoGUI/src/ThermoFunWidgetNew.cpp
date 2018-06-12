@@ -332,7 +332,7 @@ void ThermoFunWidgetNew::setQuery( QueryWidget* queryW  )
 void ThermoFunWidgetNew::CmSelectElements()
 {
   try {
-      SelectElementsDialog dlg( this);
+      SelectElementsDialog dlg( pdata->dbclient, this);
       dlg.setData( pdata->data().sourcetdb, pdata->data().elements, pdata->data().idReactionSet );
       if( dlg.exec() )
       {

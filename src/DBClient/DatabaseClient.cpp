@@ -26,6 +26,8 @@ namespace ThermoFun
 
 using QuerySubstancesFunction = std::function<std::vector<std::string>(uint)>;
 using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
+using AvailableElementsSet    = std::function<set<Element>(uint)>;
+using AvailableElementsKey    = std::function<std::vector<ElementKey>(uint)>;
 
 std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
 std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
@@ -52,6 +54,10 @@ struct DatabaseClient::Impl
     QuerySubstancesFunction query_substances_fn;
 
     QueryReactionsFunction query_reactions_fn;
+
+    AvailableElementsSet available_elements_set_fn;
+
+    AvailableElementsKey available_elements_key_fn;
 
     Impl(const std::shared_ptr<TDataBase>& otherdb) :
       _dbconnect( otherdb), substData(_dbconnect.get()),
@@ -81,11 +87,82 @@ struct DatabaseClient::Impl
         };
         query_reactions_fn = memoize(query_reactions_fn);
 
+        available_elements_key_fn = [=](uint sourcetdb) {
+            return availableElementsKey(sourcetdb);
+        };
+        available_elements_key_fn = memoize(available_elements_key_fn);
+
+        available_elements_set_fn = [=](uint sourcetdb) {
+            return availableElementsSet(sourcetdb);
+        };
+        available_elements_set_fn = memoize(available_elements_set_fn);
+
         auto elementVertex = unique_ptr<TDBVertexDocument> (
                     TDBVertexDocument::newDBVertexDocument(
               _dbconnect.get(),  "VertexElement", ChemicalFormula::getDefaultQuery() ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), ChemicalFormula::getDefaultQuery() );
+    }
+
+    auto availableElementsSet(int sourcetdb) -> set<Element>
+    {
+        std::set<ElementKey> els_;
+        std::set<Element> set;
+
+        auto _resultData = query_substances_fn(sourcetdb);
+
+
+        FormulaToken parser("");
+        for (string subitem: _resultData)
+        {
+            string formula = extractStringField("formula", subitem);
+            //string symbol = bsonio::extractStringField("symbol", subitem);
+            // cout <<  formula << "  " << symbol << endl;
+            // test elements
+            // addiditon test and parser parser.exeptionCheckElements(symbol, formula);
+    //        parser.exeptionCheckElements(symbol, formula);
+            parser.setFormula(formula);
+            els_.insert(parser.getElements().begin(), parser.getElements().end());
+        }
+
+        for (auto el : els_)
+        {
+            auto itrdb = ChemicalFormula::getDBElements().find(el);
+            if (itrdb == ChemicalFormula::getDBElements().end())
+                jsonioErr("E37FPrun: Invalid symbol ", el.symbol);
+            Element e = elementKeyToElement(el);
+            set.insert(e);
+        }
+        return set;
+    }
+
+    auto availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>
+    {
+        std::set<ElementKey> elements;
+        std::vector<ElementKey> set;
+
+        auto _resultData = query_substances_fn(sourcetdb);
+
+        FormulaToken parser("");
+        for (string subitem: _resultData)
+        {
+            string formula = extractStringField("formula", subitem);
+            string symbol = extractStringField("symbol", subitem);
+            //  cout << subitem << "      " << formula << "  " << symbol << endl;
+            // test elements
+            parser.exeptionCheckElements(symbol, formula);
+            parser.setFormula(formula);
+            elements.insert(parser.getElements().begin(), parser.getElements().end());
+        }
+
+        for (auto element : elements)
+        {
+            auto itrdb = ChemicalFormula::getDBElements().find(element);
+            if (itrdb == ChemicalFormula::getDBElements().end())
+                jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            set.push_back(element);
+        }
+        return set;
     }
 
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
@@ -258,34 +335,7 @@ auto DatabaseClient::sourcetdbListAll() -> std::vector<string>
 
 auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
 {
-    std::set<ElementKey> els_;
-    std::set<Element> set;
-
-    auto _resultData = pimpl->query_substances_fn(sourcetdb);
-
-
-    FormulaToken parser("");
-    for (string subitem: _resultData)
-    {
-        string formula = extractStringField("formula", subitem);
-        //string symbol = bsonio::extractStringField("symbol", subitem);
-        // cout <<  formula << "  " << symbol << endl;
-        // test elements
-        // addiditon test and parser parser.exeptionCheckElements(symbol, formula);
-//        parser.exeptionCheckElements(symbol, formula);
-        parser.setFormula(formula);
-        els_.insert(parser.getElements().begin(), parser.getElements().end());
-    }
-
-    for (auto el : els_)
-    {
-        auto itrdb = ChemicalFormula::getDBElements().find(el);
-        if (itrdb == ChemicalFormula::getDBElements().end())
-            jsonioErr("E37FPrun: Invalid symbol ", el.symbol);
-        Element e = elementKeyToElement(el);
-        set.insert(e);
-    }
-    return set;
+    return pimpl->available_elements_set_fn(sourcetdb);
 }
 
 auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
@@ -303,31 +353,7 @@ auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
 
 auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>
 {
-    std::set<ElementKey> elements;
-    std::vector<ElementKey> set;
-
-    auto _resultData = pimpl->query_substances_fn(sourcetdb);
-
-    FormulaToken parser("");
-    for (string subitem: _resultData)
-    {
-        string formula = extractStringField("formula", subitem);
-        string symbol = extractStringField("symbol", subitem);
-        //  cout << subitem << "      " << formula << "  " << symbol << endl;
-        // test elements
-        parser.exeptionCheckElements(symbol, formula);
-        parser.setFormula(formula);
-        elements.insert(parser.getElements().begin(), parser.getElements().end());
-    }
-
-    for (auto element : elements)
-    {
-        auto itrdb = ChemicalFormula::getDBElements().find(element);
-        if (itrdb == ChemicalFormula::getDBElements().end())
-            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
-        set.push_back(element);
-    }
-    return set;
+    return pimpl->available_elements_key_fn(sourcetdb);
 }
 
 auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std::vector<string>
@@ -342,7 +368,6 @@ auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std
     }
     return elmIds;
 }
-
 
 auto DatabaseClient::substData() const -> SubstanceData_&
 {

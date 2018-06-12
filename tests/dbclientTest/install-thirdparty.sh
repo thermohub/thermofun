@@ -1,6 +1,6 @@
 #!/bin/bash
 
-J=10
+J=1
 
 while [[ $# > 1 ]]
 do

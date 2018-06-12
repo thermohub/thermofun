@@ -21,7 +21,7 @@ std::string JsonioSettings::settingsFileName = "jsonui.json";
 int main(int argc, char *argv[])
 {
 
-    jsonio::JsonioSettings::settingsFileName = "ThermoFunDemoGUI.json";
+    jsonio::JsonioSettings::settingsFileName = "Resources/ThermoFunDemoGUI.json";
     QApplication a(argc, argv);
 
     std::list<jsonui::JSONUIBase*> bsonuiWindows;

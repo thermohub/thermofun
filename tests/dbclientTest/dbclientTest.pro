@@ -32,7 +32,6 @@ OBJECTS_DIR = obj
 
 # Define the directory where the gui, third-party libs, resources are located
 BUILD_DIR = $$OUT_PWD/..
-THRIFT_DIR    = ./thrift
 
 #INCLUDEPATH   += "/usr/local/include"
 #DEPENDPATH   += "/usr/local/include"
@@ -52,10 +51,9 @@ INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
 LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 
 
-LIBS += -ljsonio -lyaml-cpp -lpugixml
+LIBS += -ljsonio
 #-lReaktoro
-LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
-LIBS += -llua5.3
+LIBS += -lboost_regex -lboost_filesystem
 LIBS += -lcurl -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)

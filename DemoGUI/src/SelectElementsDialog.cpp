@@ -4,9 +4,6 @@
 #include "ElementsWidget.h"
 #include "ui_SelectElementsDialog.h"
 #include "jsonui/preferences.h"
-#include "thermofun/DBClient/DatabaseClient.h"
-#include "thermofun/DBClient/ReactionSetData.h"
-#include "thermofun/DBClient/SubstanceData.h"
 
 using namespace jsonui;
 
@@ -30,8 +27,8 @@ struct SelectElementsDialogPrivate
 
 // ---------------------------------------------
 
-   SelectElementsDialogPrivate(SelectElementsDialog* awindow):
-    window(awindow), dbclient( uiSettings().dbclient() )
+   SelectElementsDialogPrivate(SelectElementsDialog* awindow, ThermoFun::DatabaseClient dbclient_):
+    window(awindow), dbclient( dbclient_ )
    {
        rcsetData.reset( new jsonui::StringTable( "records", dbclient.reactSetData().getDataHeaders()) );
        rcsetModel.reset( new jsonui::TMatrixModel( rcsetData.get() ) );
@@ -97,10 +94,10 @@ struct SelectElementsDialogPrivate
 //===========================================================================
 
 
-SelectElementsDialog::SelectElementsDialog( QWidget *parent) :
+SelectElementsDialog::SelectElementsDialog(ThermoFun::DatabaseClient dbclient, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SelectElements), data(0), pTable(0),
-    pdata(new SelectElementsDialogPrivate(this))
+    pdata(new SelectElementsDialogPrivate(this, dbclient))
 {
     ui->setupUi(this);
 

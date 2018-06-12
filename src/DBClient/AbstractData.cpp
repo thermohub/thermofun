@@ -71,6 +71,7 @@ struct AbstractData::Impl
     void  changeDataBase( const jsonio::TDataBase* adbconnect )
     {
       dbconnect = adbconnect;
+//      auto v = jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query );
       dbvertex.reset( jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query ) );
       dbvertex_all.reset( jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query ) );
       dbvertex_all->resetMode(true);
