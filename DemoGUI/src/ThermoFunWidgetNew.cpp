@@ -510,35 +510,38 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
             vector<string> linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds;
             pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
 
-            MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(linkedSubstIds, linkedSubstSymbols);
-            for (auto substSymbol : linkedSubstSymbols)
+            if (calcReactFromSubst && calcSubstFromReact) // check - reaction with substance dependent on another reaction
             {
-                MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];
-                if (levelReaction.size() == 0)
-                    continue;
-                if (levelReaction.size() == 1)
+                MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(linkedSubstIds, linkedSubstSymbols);
+                for (auto substSymbol : linkedSubstSymbols)
                 {
-                    pdata->setSubstanceLevel(substSymbol, levelReaction.begin()->first);
-                }
-                if (levelReaction.size() > 1)
-                {
-                    ValuesTable values_;
-                    vector<string> levels;
-                    for (auto react : levelReaction)
+                    MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];
+                    if (levelReaction.size() == 0)
+                        continue;
+                    if (levelReaction.size() == 1)
                     {
-                        vector<string> symbolEq;
-                        symbolEq.push_back(react.second.symbol());
-                        symbolEq.push_back(react.second.equation());
-                        levels.push_back(react.first);
-                        values_.push_back(symbolEq);
+                        pdata->setSubstanceLevel(substSymbol, levelReaction.begin()->first);
                     }
+                    if (levelReaction.size() > 1)
+                    {
+                        ValuesTable values_;
+                        vector<string> levels;
+                        for (auto react : levelReaction)
+                        {
+                            vector<string> symbolEq;
+                            symbolEq.push_back(react.second.symbol());
+                            symbolEq.push_back(react.second.equation());
+                            levels.push_back(react.first);
+                            values_.push_back(symbolEq);
+                        }
 
-                    SelectDialog selDlg_lvl( this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
-                    if( !selDlg_lvl.exec() )
-                        return;
-                    int solvNdx =  selDlg_lvl.selIndex();
+                        SelectDialog selDlg_lvl( this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
+                        if( !selDlg_lvl.exec() )
+                            return;
+                        int solvNdx =  selDlg_lvl.selIndex();
 
-                    pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
+                        pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
+                    }
                 }
             }
 
