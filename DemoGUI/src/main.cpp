@@ -36,6 +36,11 @@ int main(int argc, char *argv[])
           jsonui::JSONUIBase* testWidget;
           testWidget = new ThermoFunWidgetNew( /*this*/ );
 
+          onCloseEvent = [](QMainWindow*)
+          {
+              return true;
+          };
+
           testWidget->setOnCloseEventFunction(onCloseEvent);
           testWidget->setShowWidgetFunction(showWidget);
           bsonuiWindows.push_back(testWidget);
