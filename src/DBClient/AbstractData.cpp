@@ -49,7 +49,6 @@ struct AbstractData::Impl
     std::shared_ptr<jsonio::TDBVertexDocument> dbvertex;
 
     /// Data base connection access to all data types
-    std::shared_ptr<jsonio::TDBVertexDocument> dbvertex_all;
     std::shared_ptr<jsonio::TDBEdgeDocument> dbedge_all;
 
     QueryRecord  query_record_fn;
@@ -64,8 +63,8 @@ struct AbstractData::Impl
 
     // function for retrieving the full JSON record from the database using the record id
     GetJsonRecord get_json_record_fn_;
-    GetJsonRecord get_json_bson_record_fn_v;
-    GetJsonRecord get_json_bson_record_fn_e;
+    GetJsonRecord get_json_bson_record_v_fn;
+    GetJsonRecord get_json_bson_record_e_fn;
 
     /// Reconect to other data base
     void  changeDataBase( const jsonio::TDataBase* adbconnect )
@@ -73,8 +72,6 @@ struct AbstractData::Impl
       dbconnect = adbconnect;
 //      auto v = jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query );
       dbvertex.reset( jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query ) );
-      dbvertex_all.reset( jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query ) );
-      dbvertex_all->resetMode(true);
       dbedge_all.reset( jsonio::documentAllEdges( dbconnect ) );
       // clear old data
       dataIndex.clear();
@@ -91,25 +88,15 @@ struct AbstractData::Impl
         // init connections to data base
         changeDataBase( adbconnect );
 
-        get_json_record_fn_ = [=](string idRecord) {
-            return getJsonRecord(idRecord);
-        };
-        get_json_record_fn_ = memoize(get_json_record_fn_);
-
-        get_json_bson_record_fn_v = [=](string idRecord) {
+        get_json_bson_record_v_fn = [=](string idRecord) {
             return getJsonRecordVertex(idRecord);
         };
-        get_json_bson_record_fn_v = memoize(get_json_bson_record_fn_v);
+        get_json_bson_record_v_fn = memoize(get_json_bson_record_v_fn);
 
-        get_json_bson_record_fn_e = [=](string idRecord) {
+        get_json_bson_record_e_fn = [=](string idRecord) {
             return getJsonRecordEdge(idRecord);
         };
-        get_json_bson_record_fn_e = memoize(get_json_bson_record_fn_e);
-
-        query_record_fn = [=](string idRecord, vector<string> queryFields) {
-            return queryRecord(idRecord, queryFields);
-        };
-        query_record_fn = memoize(query_record_fn);
+        get_json_bson_record_e_fn = memoize(get_json_bson_record_e_fn);
 
         load_record_fn = [=](const string idRecord, const vector<string> queryFields) {
             return loadRecord(idRecord, queryFields);
@@ -142,17 +129,13 @@ struct AbstractData::Impl
         reactans_coeff_fn = memoize(reactans_coeff_fn);
     }
 
-    auto getJsonRecord(string idRecord) -> string // id: "12234444:" format
-    {
-        dbvertex_all->GetRecord(idRecord.c_str());
-        return dbvertex_all->GetJson();
-    }
-
     auto getJsonRecordVertex(string idRecord) -> std::string // id: "12234444:" format
     {
         std::string json_str;
-        dbvertex_all->GetRecord(idRecord.c_str());
-        json_str = dbvertex_all->GetJson();
+        dbvertex->resetMode(true);
+        dbvertex->GetRecord(idRecord.c_str());
+        json_str = dbvertex->GetJson();
+        dbvertex->resetMode(false);
         return json_str;
     }
 
@@ -162,16 +145,6 @@ struct AbstractData::Impl
         dbedge_all->GetRecord(idRecord.c_str());
         json_str = dbedge_all->GetJson();
         return json_str;
-    }
-
-    auto queryRecord(string idRecord, vector<string> queryFields) -> string
-    {
-        //auto qrJson = dbvertex_all->idQuery(idRecord);
-        //vector<string> resultRecord;
-        //dbvertex_all->runQuery(qrJson, queryFields, resultRecord);
-        //return resultRecord[0];
-        dbvertex_all->GetRecord( (idRecord+":").c_str() );
-        return dbvertex_all->GetJson();
     }
 
     auto loadRecord(string idRecord, vector<string> queryFields) -> jsonio::FieldSetMap
@@ -264,19 +237,14 @@ AbstractData::AbstractData(const AbstractData& other)
 AbstractData::~AbstractData()
 { }
 
-auto AbstractData::getJsonRecord(string idRecord) -> string
-{
-    return pimpl->get_json_record_fn_(idRecord);
-}
-
 auto AbstractData::getJsonRecordVertex(string idRecord) -> std::string
 {
-    return pimpl->get_json_bson_record_fn_v(idRecord);
+    return pimpl->get_json_bson_record_v_fn(idRecord);
 }
 
 auto AbstractData::getJsonRecordEdge(string idRecord) -> std::string
 {
-    return pimpl->get_json_bson_record_fn_e(idRecord);
+    return pimpl->get_json_bson_record_e_fn(idRecord);
 }
 
 auto AbstractData::queryRecord(string idRecord, vector<string> queryFields) -> string
@@ -599,7 +567,9 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
   vector<ElementKey> elements;
   ElementKey elkey("");
   vector<string> resultsQuery;
-  pimpl->dbvertex_all->runQuery( query, {}, resultsQuery );
+  pimpl->dbvertex->resetMode(true);
+  pimpl->dbvertex->runQuery( query, {}, resultsQuery );
+  pimpl->dbvertex->resetMode(false);
 
   for( auto result: resultsQuery )
   {
@@ -630,7 +600,6 @@ auto AbstractData::selectElementsFromSubstancesGiven( const vector<int>& sourcet
     vector<string> formulas;
     getDB()->runQuery( query,  {}, formulas);
     return ChemicalFormula::extractElements(formulas);
-
 }
 
 
