@@ -42,7 +42,7 @@ LIBS += -ljsonio -lyaml-cpp -lejdb -lpugixml
 #-lReaktoro
 LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
 LIBS +=  -lcurl  -lvelocypack
-!macx-clang:LIBS += -llua5.2
+!macx-clang:LIBS += -llua5.3
 macx-clang:LIBS += -llua
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
