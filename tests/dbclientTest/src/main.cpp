@@ -7,6 +7,8 @@
 #include "DBClient/ReactionData.h"
 #include "DBClient/AbstractData.h"
 #include "DBClient/SubstanceData.h"
+#include "DBClient/ReactionSetData.h"
+#include "DBClient/ThermoSetData.h"
 #include "Common/ParseBsonTraversalData.h"
 
 #include <sys/time.h>
@@ -18,10 +20,55 @@ struct timeval st, en;
 
 int main(int argc, char *argv[])
 {
+
     cout << "Hello World!" << endl;
     gettimeofday(&st, NULL);
     jsonio::JsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUI.json";
     DatabaseClient dbc_;
+
+
+    /// access to substance records
+    auto results =  dbc_.substData().querySolvents(20);
+    for( auto rez: results[0] )
+        std::cout << rez << std::endl;
+
+
+    auto results2 =  dbc_.substData().selectGiven(  {"thermodatasets/Aq17_Na_Cl_Si_2_0"}, false );
+    for( auto rezt: results2 )
+        std::cout << rezt <<  std::endl;
+
+    auto results3 =  dbc_.substData().selectGiven(  {"thermodatasets/Aq17_Na_Cl_K_LMA_1_0"}, false );
+    for( auto rezt: results2 )
+        std::cout << rezt <<  std::endl;
+
+    /// access to reactionSet records
+    //ThermoFun::ThermoSetData thermoSetData(&datab);
+    jsonio::GraphElementFunction afunc =  []( bool isVertex, const string& data )
+    {
+        if(isVertex )
+            cout << "Vertex: ";
+        else
+            cout << "Edge: ";
+        cout << jsonio::extractStringField( "_id", data ) << endl;
+    };
+    dbc_.thermoDataSet().traverceVertexes( "thermodatasets/Aq17_Na_Cl_K_LMA_1_0", afunc );
+
+    auto list2 = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_Na_Cl_K_LMA_1_0");
+    Database db2 = databaseFromRecordList(dbc_, list2);
+
+    auto availableElementskey = dbc_.availableElementsKey(20);
+
+    auto substance = dbc_.substData( );
+
+    availableElementskey.erase (availableElementskey.begin(),availableElementskey.begin()+1);
+
+    auto substances = substance.selectGiven({20}, availableElementskey, true);
+
+    auto reactions = dbc_.reactData().selectGiven({20}, {"H2O@", "Wollastonite", "Ca+2", "OH-", "SiO2@", "Anorthite", "Al+3"});
+
+    auto reacSets = dbc_.reactSetData().selectGivenSubstances({20}, {"K+","Na+","Cl-","KCl@","Halite","Sylvite","NaCl@" });
+
+    auto reacSets2 = dbc_.reactSetData().selectGiven({20}, {"KCl@","Halite","Sylvite","NaCl@"});
 
 //    try {
 //        auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");

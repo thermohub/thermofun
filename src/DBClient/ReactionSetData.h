@@ -25,8 +25,13 @@ class ReactionSetData_ : public AbstractData
                                                   const vector<ElementKey> &elements = {});
     /// Extract data connected to ThermoDataSet
     virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+
+    vector<string> selectGivenSubstances( const vector<int>& sourcetdbs,
+                       const vector<string>& substanceSymbols, bool unique = true );
+
+    /// Select reaction sets belonging to sourcetdbs and containing given reaction symbols
     vector<string> selectGiven( const vector<int>& sourcetdbs,
-                       const vector<string>& substanceSymbols, bool unique );
+                       const vector<string>& reactionSymbols, bool unique = true );
 
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);

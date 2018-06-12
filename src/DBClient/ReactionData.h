@@ -27,6 +27,8 @@ class ReactionData_ : public AbstractData
                                                   const vector<ElementKey> &elements = {});
     /// Extract data connected to ThermoDataSet
     virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+
+    /// Select reactions belonging to sourcetdbs and containing given substance symbols
     vector<string> selectGiven( const vector<int>& sourcetdbs,
                        const vector<string>& substanceSymbols, bool unique=true );
 

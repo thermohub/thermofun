@@ -24,7 +24,6 @@ macx-g++ {
   DEFINES += __APPLE__
 }
 
-
 # Define the directory where source code is located
 #THRIFT_DIR    = ./thrift
 FUN_DIR       = ../src
@@ -56,7 +55,7 @@ macx-clang {
   LIBS += -llua
 }
 else{
-#  LIBS += -llua5.3
+  LIBS += -llua5.3
 }
 
 INCLUDEPATH   += "/usr/local/include"
@@ -72,8 +71,7 @@ LIBS +=  -ljsonui -ljsonio -ljsonimpex
 LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
-LIBS +=  -lcurl  -lvelocypack
-LIBS += -llua5.3 -lthrift
+LIBS +=  -lcurl  -lvelocypack -lthrift
 
 
 MOC_DIR = tmp

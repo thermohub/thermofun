@@ -1,6 +1,6 @@
 #!/bin/bash
 
-J=1
+J=10
 
 while [[ $# > 1 ]]
 do
@@ -28,6 +28,6 @@ cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_
 
 make -j$J 
 
-make install
+#make install
 
 #sudo ldconfig
