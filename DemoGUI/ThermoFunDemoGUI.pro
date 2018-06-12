@@ -4,16 +4,17 @@
 #
 #-------------------------------------------------
 
+QT  += widgets svg
+QT  += core gui printsupport concurrent
+QT  += charts webenginewidgets
+#QT  += webkitwidgets
+
 TARGET = ThermoFunDemoGUI
 TEMPLATE = app
 
 CONFIG += thread
 CONFIG += c++11
 
-QT  += widgets svg
-QT  += core gui printsupport concurrent
-QT  += charts webenginewidgets
-#QT  += webkitwidgets
 
 !win32 {
   DEFINES += __unix
@@ -23,16 +24,6 @@ macx-g++ {
   DEFINES += __APPLE__
 }
 
-macx-clang {
-  DEFINES += __APPLE__
-  CONFIG -= warn_on
-  CONFIG += warn_off
-  LIBS += -llua
-}
-
-#INCLUDEPATH   += "/usr/local/include"
-#DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib/"
 
 # Define the directory where source code is located
 #THRIFT_DIR    = ./thrift
@@ -58,38 +49,32 @@ INCLUDEPATH   += $$FUN_H
 INCLUDEPATH   += $$FUN_DIR
 
 #temporary
-BUILD_DIR = $$OUT_PWD/..
-#THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty
-#THERMOFUN_SRC =  $$THIRDPARTY_DIR/src/THERMOFUN/src
-#DEPENDPATH   += $$THERMOFUN_SRC
-#INCLUDEPATH   += $$THERMOFUN_SRC
-#include($$THERMOFUN_SRC/ThermoFun.pri)
+macx-clang {
+  DEFINES += __APPLE__
+  CONFIG -= warn_on
+  CONFIG += warn_off
+  LIBS += -llua
+}
+else{
+#  LIBS += -llua5.3
+}
 
-# Define the directory where the third-party libraries have been installed
-#THIRDPARTY_DIR = $$BUILD_DIR/thirdparty/debug
-CONFIG(release, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/release/thirdparty
-CONFIG(debug, debug|release): THIRDPARTY_DIR = $$BUILD_DIR/debug/thirdparty
-# Define the directories where the headers of the third-party libraries have been installed
-THIRDPARTY_INCLUDE_DIR = $$THIRDPARTY_DIR/include
-# Define the directories where the THIRDPARTY libraries have been installed
-THIRDPARTY_LIBRARY_DIR1 = $$THIRDPARTY_DIR/lib
+INCLUDEPATH   += "/usr/local/include"
+DEPENDPATH   += "/usr/local/include"
+LIBPATH += "/usr/local/lib/"
 
-DEPENDPATH   += $$THIRDPARTY_INCLUDE_DIR
-INCLUDEPATH   += $$THIRDPARTY_INCLUDE_DIR
-LIBPATH += $$THIRDPARTY_LIBRARY_DIR1
-#LIBPATH += "/usr/local/lib/"
-#LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
+# Define the directory where CuteMarkEd code is located
+#INCLUDEPATH   += "/usr/local/include/app-static"
+#DEPENDPATH   += "/usr/local/include/app-static"
 
 
-LIBS += -ljsonui -ljsonio -lyaml-cpp -lpugixml
-LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
-##LIBS += -lthermofun
-!macx-clang:LIBS += -llua5.3
-##LIBS += -lapp-static -lhunspell -lmarkdown
-##LIBS += -lfuerte
-#LIBS += -lpthread -lssl -lcrypto -lcurl -lboost_thread -lvelocypack
-
+LIBS +=  -ljsonui -ljsonio -ljsonimpex
+LIBS +=  -lyaml-cpp  -lpugixml
+LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
+#LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack
+LIBS += -llua5.3 -lthrift
+
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR
@@ -106,3 +91,4 @@ RESOURCES += \
     ThermoFunDemoGUI.qrc
 
 #thrift -r -v --gen cpp
+

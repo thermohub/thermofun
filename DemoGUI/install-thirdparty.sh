@@ -27,11 +27,12 @@ cd ../../build/debug/thirdparty
 cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
 
-make -j$J install
+make -j$J 
+sudo make install
 
-cd ../../release/thirdparty
+#cd ../../release/thirdparty
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
+#cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
 
-make -j$J install
+#make -j$J install

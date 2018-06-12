@@ -46,11 +46,11 @@ ExternalProject_Add(JSONUI
 
 
 # Create the install target for the third-party libraries
-#install(DIRECTORY ${THIRDPARTY_DIR}/lib
-#    DESTINATION /usr/local)
-#install(DIRECTORY ${THIRDPARTY_DIR}/include
-#    DESTINATION /usr/local)
 install(DIRECTORY ${THIRDPARTY_DIR}/lib
-   DESTINATION .)
+    DESTINATION /usr/local)
 install(DIRECTORY ${THIRDPARTY_DIR}/include
-   DESTINATION .)
+    DESTINATION /usr/local)
+#install(DIRECTORY ${THIRDPARTY_DIR}/lib
+#   DESTINATION .)
+#install(DIRECTORY ${THIRDPARTY_DIR}/include
+#   DESTINATION .)
