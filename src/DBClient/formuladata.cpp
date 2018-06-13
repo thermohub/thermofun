@@ -494,7 +494,7 @@ void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const
     for(uint ii=0; ii<resultData.size(); ii++ )
     {
 //       cout << resultData[ii] << endl;
-      elementDB->SetJsonYaml(resultData[ii]);
+      elementDB->SetJson(resultData[ii]);
       addOneElement( elementDB );
     }
 }

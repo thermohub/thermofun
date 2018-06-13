@@ -6,7 +6,6 @@
 // bonio includes
 #include "jsonio/traversal.h"
 #include "jsonio/io_settings.h"
-#include "jsonio/arrs2cfg.h"
 
 // ThermoFun includes
 #include "SubstanceData.h"

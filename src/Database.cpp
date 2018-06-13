@@ -11,8 +11,7 @@
 //#include "DBClient/ThermoSetData.h"
 
 // jsonio includes
-#include "jsonio/arrs2cfg.h"
-#include "jsonio/jsondomfree.h"
+#include "jsonio/json2file.h"
 
 namespace ThermoFun {
 
@@ -41,7 +40,7 @@ struct Database::Impl
     /// The map of all elements in the database
     ElementsMap elements_map;
 
-    char type_ = jsonio::FileTypes::Undef_;
+    //char type_ = jsonio::FileTypes::Undef_;
 
     Impl()
     {}
@@ -259,7 +258,7 @@ struct Database::Impl
         {
             // Reading work structure from json text file
             jsonio::FJsonArray file( filename);
-            type_ = file.Type();
+            //type_ = file.Type();
             file.Open( jsonio::OpenModeTypes::ReadOnly );
 
             // iterate by readed dom array
