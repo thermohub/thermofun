@@ -61,8 +61,10 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
     //define schema checkbox
     _shemaNames.push_back("VertexSubstance");
     _shemaNames.push_back("VertexReaction");
-    for( uint ii=0; ii<_shemaNames.size(); ii++ )
-      ui->typeBox->addItem(_shemaNames[ii].c_str());
+    _typeNames.push_back("Substances");
+    _typeNames.push_back("Reactions");
+    for( uint ii=0; ii<_typeNames.size(); ii++ )
+      ui->typeBox->addItem(_typeNames[ii].c_str());
 
     setAttribute(Qt::WA_DeleteOnClose); // automatically delete itself when window is closed
     QString title = qApp->applicationName()+" ThermoFun Widget";
@@ -148,7 +150,7 @@ void ThermoFunWidgetNew::setActions()
     connect(ui->actionRealloc_TP, SIGNAL(triggered()), this, SLOT(CmReallocTP()));
     connect(ui->actionReset_TP, SIGNAL(triggered()), this, SLOT(CmResetTP()));
     connect(ui->actionChange_Property_list, SIGNAL(triggered()), this, SLOT(CmResetProperty()));
-    connect(ui->actionSelect_Elements, SIGNAL(triggered()), this, SLOT(CmSelectElements()));
+    connect(ui->actionSelect_ThermoDataSet, SIGNAL(triggered()), this, SLOT(CmSelectElements()));
     connect(ui->action_Set_Elemets_to_reactions, SIGNAL(triggered()), this, SLOT(CmSetElementsReactions()));
     connect(ui->action_Set_Elemets_to_reactionsets, SIGNAL(triggered()), this, SLOT(CmSetElementsReactionSets()));
 
@@ -232,6 +234,12 @@ void ThermoFunWidgetNew::resetThermoFunData( const ThermoFunData& newdata )
     ui->calcStatus->setText(newdata.calcStatus.c_str());
 //    ui->FormatBox->setChecked(newdata.isFixedFormat);
     ui->edgeQuery->setText(newdata.query.getQueryString().c_str());
+    ui->actionShow_Results->setEnabled(false);
+    ui->actionCalculate_Properties->setEnabled(false);
+    ui->actionChange_Property_list->setEnabled(false);
+    ui->typeBox->setEnabled(false);
+    ui->actionReset_TP->setEnabled(false);
+    ui->pSolventSymbol->clear();
     resetTypeBox( newdata.schemaName.c_str() );
 }
 
@@ -243,8 +251,6 @@ void ThermoFunWidgetNew::CmResetThermoFunData()
     ThermoFunData dt;
     dt.resetSchemaName( pdata->data().schemaName );
     resetThermoFunData(dt);
-    ui->actionShow_Results->setEnabled(false);
-    ui->pSolventSymbol->clear();
 }
 
 
@@ -253,16 +259,17 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
 {
   try {
         string newname = text.toStdString();
-        pdata->typeChanged( newname );
-        if (newname == "VertexSubstance")
+        if (newname == "Substances")
         {
+            pdata->typeChanged( "VertexSubstance" );
             calcReactFromSubst = false;
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(true);
             ui->actionCalculate_Reactions_Records_from_Reactants->setChecked(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(false);
         }
-        if (newname == "VertexReaction")
+        if (newname == "Reactions")
         {
+            pdata->typeChanged( "VertexReaction" );
             calcSubstFromReact = false;
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setChecked(false);
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(false);
@@ -340,30 +347,32 @@ void ThermoFunWidgetNew::CmSelectElements()
         dlg.allSelected( elKeys );
         pdata->updateElements(dlg.sourceTDB(), elKeys, dlg.idReactionSet() );
         update();
+
+        auto substDataNdx = pdata->getSubstDataIndex();
+        solventsIds.clear();
+        ui->pSolventSymbol->clear();
+
+        ValuesTable solvents = pdata->querySolvents();
+
+        if (solvents.size() == 0)
+        {
+            ui->pSolventSymbol->addItem("No solvent!", 0);
+        }
+
+        for (uint ii = 0; ii<solvents.size(); ii++)
+        {
+            string sSymbol = solvents[ii][substDataNdx["symbol"]];
+            solventsIds.push_back(solvents[ii][substDataNdx["_id"]]);
+            ui->pSolventSymbol->addItem(sSymbol.c_str(), ii);
+        }
+
+        ui->actionReset_TP->setEnabled(true);
+        ui->actionRealloc_TP->setEnabled(true);
+        ui->actionChange_Property_list->setEnabled(true);
+        ui->actionCalculate_Properties->setEnabled(true);
+        ui->typeBox->setEnabled(true);
+        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate."); // status
       }
-
-      auto substDataNdx = pdata->getSubstDataIndex();
-      solventsIds.clear();
-      ui->pSolventSymbol->clear();
-
-      ValuesTable solvents = pdata->querySolvents();
-
-      if (solvents.size() == 0)
-      {
-          ui->pSolventSymbol->addItem("No solvent!", 0);
-      }
-
-      for (uint ii = 0; ii<solvents.size(); ii++)
-      {
-          string sSymbol = solvents[ii][substDataNdx["symbol"]];
-          solventsIds.push_back(solvents[ii][substDataNdx["_id"]]);
-          ui->pSolventSymbol->addItem(sSymbol.c_str(), ii);
-      }
-
-      ui->actionReset_TP->setEnabled(true);
-      ui->actionRealloc_TP->setEnabled(true);
-      ui->actionChange_Property_list->setEnabled(true);
-      ui->actionCalculate_Properties->setEnabled(true);
     }
    catch(jsonio_exeption& e)
    {
@@ -558,7 +567,7 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
             double delta_calc = pdata->calcData( substKeys, reactKeys,
                substancesSymbols,  reactionsSymbols, solventSymbol, ui->FormatBox->isChecked(), calcSubstFromReact, calcReactFromSubst, start );
 
-           string status = "Calculations finished ("+ to_string(delta_calc) + "s). View results.";
+           string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
 
             ui->calcStatus->setText(status.c_str());
             ui->actionShow_Results->setEnabled(true);

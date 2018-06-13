@@ -54,6 +54,7 @@ class ThermoFunWidgetNew : public jsonui::JSONUIBase
 
     friend class ThermoFunWidgetPrivate;
     std::vector<std::string> _shemaNames;
+    std::vector<std::string> _typeNames;
 
     // Work functions
 

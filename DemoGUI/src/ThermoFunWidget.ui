@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>872</width>
-    <height>641</height>
+    <height>631</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,6 +107,9 @@
             </item>
             <item row="5" column="0" colspan="2">
              <widget class="QCheckBox" name="FormatBox">
+              <property name="toolTip">
+               <string>Fixed number of digits after the decimal &quot;.&quot; point, set in precission fields</string>
+              </property>
               <property name="text">
                <string>Fixed Format</string>
               </property>
@@ -127,6 +130,9 @@
             </item>
             <item row="5" column="3">
              <widget class="QLabel" name="label_13">
+              <property name="toolTip">
+               <string>Symbol of the solvent used for calculating properties of disolved solute species</string>
+              </property>
               <property name="text">
                <string>Solvent Symbol</string>
               </property>
@@ -170,7 +176,7 @@
             <item row="0" column="0" colspan="2" alignment="Qt::AlignLeft">
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>Schema</string>
+               <string>Data type</string>
               </property>
              </widget>
             </item>
@@ -209,6 +215,9 @@
             </item>
             <item row="4" column="4">
              <widget class="QLabel" name="label_12">
+              <property name="statusTip">
+               <string>Precision of pressure values</string>
+              </property>
               <property name="text">
                <string>Precision</string>
               </property>
@@ -219,6 +228,9 @@
             </item>
             <item row="3" column="4">
              <widget class="QLabel" name="label_10">
+              <property name="statusTip">
+               <string>Precision of temperature values</string>
+              </property>
               <property name="text">
                <string>Precision</string>
               </property>
@@ -372,36 +384,25 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0" rowspan="2">
-             <layout class="QGridLayout" name="statusLayout">
-              <item row="0" column="0" alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Status</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="calcStatus">
-                <property name="minimumSize">
-                 <size>
-                  <width>125</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
            </layout>
           </widget>
          </widget>
         </item>
        </layout>
       </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="calcStatus">
+      <property name="minimumSize">
+       <size>
+        <width>125</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>
@@ -451,11 +452,8 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <addaction name="actionSelect_Elements"/>
     <addaction name="separator"/>
-    <addaction name="actionChange_Property_list"/>
     <addaction name="separator"/>
-    <addaction name="actionReset_TP"/>
     <addaction name="actionRealloc_TP"/>
     <addaction name="separator"/>
     <addaction name="action_Set_Elemets_to_reactions"/>
@@ -473,7 +471,6 @@
     <property name="title">
      <string>&amp;Results</string>
     </property>
-    <addaction name="actionShow_Results"/>
    </widget>
    <widget class="QMenu" name="menuPreferences">
     <property name="title">
@@ -482,16 +479,44 @@
     <addaction name="actionCalculate_Substances_Records_from_Dependent_Reactions"/>
     <addaction name="actionCalculate_Reactions_Records_from_Reactants"/>
    </widget>
+   <widget class="QMenu" name="menuSelect">
+    <property name="title">
+     <string>Select</string>
+    </property>
+    <addaction name="actionSelect_ThermoDataSet"/>
+    <addaction name="actionSelect_Elements"/>
+    <addaction name="actionSelect_Substances"/>
+    <addaction name="actionSelect_Reactions"/>
+   </widget>
+   <widget class="QMenu" name="menuSet">
+    <property name="title">
+     <string>Set</string>
+    </property>
+    <addaction name="actionReset_TP"/>
+    <addaction name="actionChange_Property_list"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionShow_Results"/>
+   </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Edit"/>
-   <addaction name="menuPreferences"/>
+   <addaction name="menuSelect"/>
+   <addaction name="menuSet"/>
    <addaction name="menu_Calc"/>
-   <addaction name="menuResults"/>
+   <addaction name="menuView"/>
+   <addaction name="menuPreferences"/>
    <addaction name="menuDataBase"/>
    <addaction name="menuHelp"/>
+   <addaction name="menu_Edit"/>
+   <addaction name="menuResults"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="statusTip">
+    <string/>
+   </property>
    <property name="floatable">
     <bool>true</bool>
    </property>
@@ -505,7 +530,7 @@
    <addaction name="actionExport_CfgFile"/>
    <addaction name="actionImport_CfgFile"/>
    <addaction name="separator"/>
-   <addaction name="actionSelect_Elements"/>
+   <addaction name="actionSelect_ThermoDataSet"/>
    <addaction name="actionReset_TP"/>
    <addaction name="actionChange_Property_list"/>
    <addaction name="actionCalculate_Properties"/>
@@ -544,7 +569,7 @@
     <string>Read Task Definition from File ...</string>
    </property>
    <property name="toolTip">
-    <string>Read Task Definition from File ...</string>
+    <string>Read calculation setup from file ...</string>
    </property>
   </action>
   <action name="actionExport_CfgFile">
@@ -559,7 +584,7 @@
     <string>Save Task Definition to File ...</string>
    </property>
    <property name="toolTip">
-    <string>Save Task Definition to File...</string>
+    <string>Save calculation setup to file...</string>
    </property>
   </action>
   <action name="action_Help_About">
@@ -617,7 +642,7 @@
      <normaloff>:/Icons/CalculateRecordDataIcon24.png</normaloff>:/Icons/CalculateRecordDataIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Calculate &amp;Properties</string>
+    <string>&amp;Properties ...</string>
    </property>
   </action>
   <action name="actionCalculate_TP">
@@ -641,7 +666,7 @@
      <normaloff>:/Icons/ShowGEMResultsIcon24.png</normaloff>:/Icons/ShowGEMResultsIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Show Table with Results in CSV Widget ...</string>
+    <string>Table with &amp;Results  ...</string>
    </property>
   </action>
   <action name="actionChange_Property_list">
@@ -650,7 +675,10 @@
      <normaloff>:/Icons/DocumentsPileIcon24.png</normaloff>:/Icons/DocumentsPileIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Change Property List ...</string>
+    <string>&amp;Properties to Calculate ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Set properties to calculate</string>
    </property>
   </action>
   <action name="actionRealloc_TP">
@@ -667,10 +695,10 @@
      <normaloff>:/Icons/SelectTP24.png</normaloff>:/Icons/SelectTP24.png</iconset>
    </property>
    <property name="text">
-    <string>R&amp;eset TP list ...</string>
+    <string>&amp;Temperature and Pressure points ...</string>
    </property>
    <property name="toolTip">
-    <string>Reset TP list</string>
+    <string>Set temperature and pressure points</string>
    </property>
   </action>
   <action name="actionNew_Reset_Task_Definition">
@@ -681,14 +709,20 @@
    <property name="text">
     <string>&amp;New/Reset Task Definition</string>
    </property>
+   <property name="toolTip">
+    <string>Reset window</string>
+   </property>
   </action>
-  <action name="actionSelect_Elements">
+  <action name="actionSelect_ThermoDataSet">
    <property name="icon">
     <iconset resource="../ThermoFunDemoGUI.qrc">
      <normaloff>:/Icons/ICompModuleIcon24.png</normaloff>:/Icons/ICompModuleIcon24.png</iconset>
    </property>
    <property name="text">
-    <string>Se&amp;lect Elements ...</string>
+    <string>Select &amp;ThermoDataSet ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Select thermodynamic dataset</string>
    </property>
   </action>
   <action name="action_Set_Elemets_to_reactions">
@@ -718,6 +752,35 @@
    </property>
    <property name="toolTip">
     <string>Set Elemets to ReactionSets</string>
+   </property>
+  </action>
+  <action name="actionSelect_Elements">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Select &amp;Elements ...</string>
+   </property>
+  </action>
+  <action name="actionSelect_Substances">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Select &amp;Substances ...</string>
+   </property>
+  </action>
+  <action name="actionSelect_ReactionSets">
+   <property name="text">
+    <string>Select ReactionSets ...</string>
+   </property>
+  </action>
+  <action name="actionSelect_Reactions">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Select Reactions ...</string>
    </property>
   </action>
  </widget>

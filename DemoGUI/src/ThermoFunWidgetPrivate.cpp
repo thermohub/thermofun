@@ -26,11 +26,11 @@ ThermoFunData::ThermoFunData()
 {
   name = "ThermoFunTask1";
   comment = "write comment here...";
-  calcStatus = "...";
+  calcStatus = "Select a thermodynamic dataset."; // status
   schemaName = "VertexSubstance";
   query = emptyQuery;
   idReactionSet = "";
-  sourcetdb = 2;//defSourcetdb;
+  sourcetdb = -1;//defSourcetdb;
   T =25;
   tPrecision = 0;
   unitsT = "C Celsius";
@@ -339,12 +339,14 @@ void ThermoFunWidgetPrivate::newThermoFunData( const ThermoFunData& newdata )
 {
     _data = newdata;
 
+    tableModel->linkData(new ThermoFun::SubstanceData_(dbclient.substData()));
+
     _curSchemaName = _data.schemaName;
     // update models
     updateElementsModel();
    _TPlistModel->resetMatrixData();
    _PropertyModel->resetMatrixData();
-    linkChange();
+//    linkChange();
     isDefaultQuery = !_data.query.empty();
     // update view must be up
 }
@@ -606,7 +608,7 @@ void ThermoFunWidgetPrivate::initWindow()
     elementTable->verticalHeader()->hide();
     elementTable->verticalHeader()->setStretchLastSection(true);
     //elementTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    int iHeight = elementTable->verticalHeader()->sectionSize(0);
+    int iHeight = 1.5*elementTable->verticalHeader()->sectionSize(0);
     //iHeight += elementTable->horizontalScrollBar()->height();
     elementTable->setMaximumHeight(iHeight);
     window->ui->verticalLayout_2->insertWidget(0, elementTable);
