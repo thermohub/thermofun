@@ -71,7 +71,7 @@ struct AbstractData::Impl
     {
       dbconnect = adbconnect;
 //      auto v = jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query );
-      dbvertex.reset( jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query ) );
+      dbvertex.reset( jsonio::TDBVertexDocument::newDBVertexReadOnlyDocument( dbconnect, name/*, query*/ ) );
       dbedge_all.reset( jsonio::documentAllEdges( dbconnect ) );
       // clear old data
       dataIndex.clear();
