@@ -43,7 +43,7 @@ $ ./install-thirdparty.sh /home/your_user/Qt/5.9.2/gcc_64
 
 Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 
-* Let�s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
+* Let us call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
 ~~~
 ~/gitThermoFun
     /thermofun
@@ -102,7 +102,7 @@ $ ./install-thirdparty.sh /home/your_user/Qt5/5.5/gcc64
 * writes calculation results in *.csv files. GEMS4 and TCorrPT calculated properties at different T and P  
 
 
-### Simple API example (OTUDATED)
+### Simple API example (OUTDATED)
 
 ```
 #!c++
