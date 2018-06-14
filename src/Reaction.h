@@ -143,7 +143,7 @@ public:
 //    auto calcParameters () -> void;
 
     /// Returns the vector of logK as a function of T coefficients calculated based on the defined method and the available data
-    auto calc_logK_fT_coefficients(bool lg10) -> vd;
+    auto calc_logK_fT_coefficients() -> vd;
 
 private:
 
