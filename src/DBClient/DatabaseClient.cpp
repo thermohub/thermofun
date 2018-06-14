@@ -97,8 +97,8 @@ struct DatabaseClient::Impl
         available_elements_set_fn = memoize(available_elements_set_fn);
 
         auto elementVertex = unique_ptr<TDBVertexDocument> (
-                    TDBVertexDocument::newDBVertexDocument(
-              _dbconnect.get(),  "VertexElement", ChemicalFormula::getDefaultQuery() ));
+                    TDBVertexDocument::newDBVertexReadOnlyDocument(
+              _dbconnect.get(),  "VertexElement"/*, ChemicalFormula::getDefaultQuery()*/ ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), ChemicalFormula::getDefaultQuery() );
     }
