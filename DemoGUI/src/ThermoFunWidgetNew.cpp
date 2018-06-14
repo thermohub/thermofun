@@ -67,7 +67,7 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
       ui->typeBox->addItem(_typeNames[ii].c_str());
 
     setAttribute(Qt::WA_DeleteOnClose); // automatically delete itself when window is closed
-    QString title = qApp->applicationName()+" ThermoFun Widget";
+    QString title = qApp->applicationName()+" application for tabulating standard state thermodynamic properties";
     setWindowTitle(title);
 
     // init internal data
@@ -77,6 +77,9 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
     setActions();
     initSourceTDB();
     resetThermoFunData(pdata->data());
+
+    show();
+    CmSelectElements();
 }
 
 ThermoFunWidgetNew::~ThermoFunWidgetNew()
@@ -167,9 +170,7 @@ void ThermoFunWidgetNew::setActions()
     //TCorpt data
     connect( ui->pName, SIGNAL( textEdited(const QString&)), pdata.get(), SLOT(nameChanged(const QString&)));
     connect( ui->pComment, SIGNAL( textEdited(const QString&)), pdata.get(), SLOT(commentChanged(const QString&)));
-    connect( ui->pTVal, SIGNAL( valueChanged(double)), pdata.get(), SLOT(TChanged(double)));
     connect( ui->pTunit, SIGNAL( currentIndexChanged(const QString&)), pdata.get(), SLOT(TUnitsChanged(const QString&)));
-    connect( ui->pPVal, SIGNAL( valueChanged(double)), pdata.get(), SLOT(PChanged(double)));
     connect( ui->pPunit, SIGNAL( currentIndexChanged(const QString&)), pdata.get(), SLOT(PUnitsChanged(const QString&)));
     connect( ui->pPrecision, SIGNAL( valueChanged(int)), pdata.get(), SLOT(pPChanged(int)));
     connect( ui->tPrecision, SIGNAL( valueChanged(int)), pdata.get(), SLOT(tPChanged(int)));
@@ -202,7 +203,6 @@ void ThermoFunWidgetNew::setActions()
     //pLineTask->setText(title);
     ui->nameToolBar->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
     //ui->nameToolBar->addWidget( pLineTask ); // setStretchableWidget( pLine );
-
 }
 
 
@@ -225,14 +225,11 @@ void ThermoFunWidgetNew::resetThermoFunData( const ThermoFunData& newdata )
     // update view
     ui->pName->setText(newdata.name.c_str());
     ui->pComment->setText(newdata.comment.c_str());
-    ui->pTVal->setValue(newdata.T);
-    ui->pPVal->setValue(newdata.P);
     ui->pTunit->setCurrentText( newdata.unitsT.c_str());
     ui->pPunit->setCurrentText(newdata.unitsP.c_str());
     ui->pPrecision->setValue(newdata.pPrecision);
     ui->tPrecision->setValue(newdata.tPrecision);
     ui->calcStatus->setText(newdata.calcStatus.c_str());
-//    ui->FormatBox->setChecked(newdata.isFixedFormat);
     ui->edgeQuery->setText(newdata.query.getQueryString().c_str());
     ui->actionShow_Results->setEnabled(false);
     ui->actionCalculate_Properties->setEnabled(false);
@@ -565,7 +562,7 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
 
             // calculate task
             double delta_calc = pdata->calcData( substKeys, reactKeys,
-               substancesSymbols,  reactionsSymbols, solventSymbol, ui->FormatBox->isChecked(), calcSubstFromReact, calcReactFromSubst, start );
+               substancesSymbols,  reactionsSymbols, solventSymbol, ui->actionFixed_output_number_format->isChecked(), calcSubstFromReact, calcReactFromSubst, start );
 
            string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
 

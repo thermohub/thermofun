@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
           testWidget->setOnCloseEventFunction(onCloseEvent);
           testWidget->setShowWidgetFunction(showWidget);
           bsonuiWindows.push_back(testWidget);
-          testWidget->show();
+//          testWidget->show();
 
       }
      catch(jsonio::jsonio_exeption& e)

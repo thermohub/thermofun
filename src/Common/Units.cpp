@@ -289,6 +289,7 @@ map<string, DerivedUnit> derivedUnitsMap =
     {"Mpsi"         , {{mega , "psi", 1}}},
     {"psf"          , {{1 , "lbf", 1}, {1 , "ft2", -1}}},
     {"bar"          , {{100000 , "Pa" , 1}}},
+    {"kbar"         , {{1000 , "bar" , 1}}},
     {"torr"         , {{133.322368 , "Pa" , 1}}},
     {"inH2O"        , {{249.08891, "Pa" , 1}}},
     {"ftH2O"        , {{12 , "inH2O", 1}}},

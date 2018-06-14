@@ -34,12 +34,7 @@ struct ThermoFunData
     string idReactionSet; ///< Id of reaction set,
                           ///< if not empty we load records only from ReactionSet
 
-    double T;               ///< T to MTPARM calculations
-    //vector<double> pointsT; ///< T points to RTparam calculation
     string unitsT;          ///< Current units of T
-
-    double P;               ///< P to MTPARM calculations
-    //vector<double> pointsP; ///< P points to RTparam calculation
     string unitsP;          ///< Current units of P
 
     std::vector<std::vector<double>> tppairs;
@@ -117,14 +112,6 @@ class ThermoFunWidgetPrivate: public QObject
 
 public slots:
 
-    void TChanged(double val)
-    {
-      _data.T = val;
-    }
-    void PChanged(double val)
-    {
-      _data.P = val;
-    }
     void pPChanged(int val)
     {
       _data.pPrecision = val;

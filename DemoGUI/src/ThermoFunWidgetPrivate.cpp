@@ -31,10 +31,8 @@ ThermoFunData::ThermoFunData()
   query = emptyQuery;
   idReactionSet = "";
   sourcetdb = -1;//defSourcetdb;
-  T =25;
   tPrecision = 0;
   unitsT = "C Celsius";
-  P =1;
   pPrecision = 0;
   tppairs.push_back({25.,1.});
   unitsP = "b bar";
@@ -83,10 +81,8 @@ void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
         arr2->appendInt( "2", elements[ii].isotope );
     }
 
-    object->appendDouble("Temperature", T );
     object->appendDouble("TemperaturePrecision", tPrecision );
     object->appendString("TemperatureUnits", unitsT );
-    object->appendDouble("Pressure", P );
     object->appendDouble("PressurePrecision", pPrecision );
     object->appendString("PressureUnits", unitsP );
 
@@ -146,15 +142,11 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
        }
     }
 
-    if(!object->findValue( "Temperature", T ) )
-        T=deflt.T;
     if(!object->findValue( "TemperaturePrecision", tPrecision ) )
         tPrecision=deflt.tPrecision;
     if(!object->findValue( "TemperatureUnits", unitsT ) )
         unitsT=deflt.unitsT;
 
-    if(!object->findValue( "Pressure", P ) )
-        P=deflt.P;
     if(!object->findValue( "PressurePrecision", pPrecision ) )
         pPrecision=deflt.pPrecision;
     if(!object->findValue( "PressureUnits", unitsP ) )
@@ -517,7 +509,8 @@ double ThermoFunWidgetPrivate::calcData(const vector<string>& substKeys, const v
     if( FormatBox )
     {
       op.isFixed = true;
-    }
+    } else
+        op.isFixed = false;
 
     op.outSolventProp       = true;
     op.calcReactFromSubst   = calcReactFromSubst;
