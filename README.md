@@ -1,10 +1,10 @@
-# ThermoFun (Under Construction / Update)#
+# ThermoFun (Under Construction / Update)
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
-## Build and Run Tests on Linux ##
+## Build and Run Tests on Linux
 
-#### Install Apache Thrift (OTUDATED) ####
+#### Install Apache Thrift (OTUDATED)
 
 * Make sure you have cmake installed. If not, install it (on ubuntu linux):
 ~~~
@@ -23,27 +23,27 @@ sudo apt-get install thrift-compiler
 sudo apt-get install lua5.3 lua5.3-dev
 ~~~
 
-### Build and run ThermoFun GUI Demo ###
+### Build and run ThermoFun GUI Demo
 
 * In a linux terminal, cd inside ~/gitTHERMOFUN/thermofun/DemoGUI and type
 ~~~
 $ ./install-thirdparty.sh /home/your_user/Qt/5.9.2/gcc_64
 ~~~
 
-This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, EJDB, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty.
+* This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, EJDB, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty.
 
-After this, headers and libraries of the third-party libraries can be found in build-DemoGUI/{debug,release}/thirdparty/{include,lib}. The .pro file of the master project has already been adjusted to find these dependencies.
+* After this, headers and libraries of the third-party libraries can be found in build-DemoGUI/{debug,release}/thirdparty/{include,lib}. The .pro file of the master project has already been adjusted to find these dependencies.
 
 * Now in QtCreator, build the thermomatch.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.9.2) and then run the ThermoMatch code. 
 
 
-### Automatic Test for comparing GEMS4 and ThermoFun calculations ###
+### Automatic Test for comparing GEMS4 and ThermoFun calculations
 
 #### Build autoTest
 
 Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
 
-* Let’s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
+* Letï¿½s call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
 ~~~
 ~/gitThermoFun
     /thermofun
@@ -72,9 +72,9 @@ $ ./install-thirdparty.sh
 $ ./install-thirdparty.sh /home/your_user/Qt5/5.5/gcc64
 ~~~
 
-This step will download, configure, build, and install all third-party libraries (bsonio, bsonui, EJDB, YAML-CPP, and pugixml) in build/{debug,release}/thirdparty.
+* This step will download, configure, build, and install all third-party libraries (bsonio, bsonui, EJDB, YAML-CPP, and pugixml) in build/{debug,release}/thirdparty.
 
-After this, headers and libraries of the third-party libraries can be found in build-auto-test/{debug,release}/thirdparty/{include,lib}. The .pro file of master project has already been adjusted to find these dependencies.
+* After this, headers and libraries of the third-party libraries can be found in build-auto-test/{debug,release}/thirdparty/{include,lib}. The .pro file of master project has already been adjusted to find these dependencies.
 
 * Copy the Resources into the debug and release build folders 
 ~~~
@@ -102,7 +102,7 @@ After this, headers and libraries of the third-party libraries can be found in b
 * writes calculation results in *.csv files. GEMS4 and TCorrPT calculated properties at different T and P  
 
 
-### Simple API example (OTUDATED) ###
+### Simple API example (OTUDATED)
 
 ```
 #!c++
