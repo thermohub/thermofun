@@ -348,7 +348,10 @@ auto AbstractData::makeQueryFields() const -> jsonio::QueryFields
 {
    jsonio::QueryFields fldsMap;
    for(uint ii=0; ii<pimpl->fieldPaths.size() ; ii++ )
-      fldsMap[pimpl->dataNames[ii]] = pimpl->fieldPaths[ii];
+   {
+      auto fieldpath = replace(pimpl->fieldPaths[ii], "values.0", "values[0]");
+      fldsMap[pimpl->dataNames[ii]] = fieldpath;
+   }
    return fldsMap;
 }
 
