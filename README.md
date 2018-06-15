@@ -72,7 +72,7 @@ For compiling ThermoFun library from its source code change folder to `~/gitTHER
 cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
 ~~~
 
-This will start the builting process, first the JSONIO third party library 
+This will start the building process, first the JSONIO third party library, followed by the ThermoFun library. 
 
 For a global installation of the compiled libraries in your system, execute:
 ~~~
@@ -87,8 +87,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
 make install
 ~~~
 
-The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
-
+The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compil
 
 
 ### Build and run ThermoFun GUI Demo
