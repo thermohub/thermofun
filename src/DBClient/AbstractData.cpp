@@ -180,11 +180,12 @@ struct AbstractData::Impl
                   qrJson += "FILTER e.properties.level ==" + level +"\n";
                qrJson += "RETURN v.properties.symbol";
 
-        vector<string> resultsSymbols;
-        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsSymbols);
-        if( resultsSymbols.empty() )
+        vector<string> symbols;
+        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, symbols);
+        if( symbols.empty() )
           return ""; //"undefined";
-        return resultsSymbols[0];
+        jsonio::strip_all( symbols[0] , "\"");
+        return symbols[0];
     }
 
     // return all record, no only fields
