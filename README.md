@@ -4,24 +4,92 @@ A code for calculating the standard state thermodynamic properties at a given te
 
 ## Build and Run Tests on Linux
 
-#### Install Apache Thrift (OTUDATED)
+## Pepare building tools
 
-* Make sure you have cmake installed. If not, install it (on ubuntu linux):
+* Make sure you have g++, cmake and git installed. If not, install them (on ubuntu linux):
 ~~~
-sudo apt-get install cmake
-~~~
-
-* Install Apache Thrift v.0.9.1 (on ubuntu linux) - open the terminal and run the command:
-~~~
-sudo apt-get install thrift-compiler
+sudo apt-get install g++ cmake git
 ~~~
 
-#### Install Lua
+## Prepare folder structure and download ThermoFun source code
 
-* Install Lua embedded scripts interpreter (on ubuntu linux):
+* The directory structure should now look like this:
 ~~~
-sudo apt-get install lua5.3 lua5.3-dev
+~/gitTHERMOFUN
+    /build
+        /debug
+        /release
+    /thermofun
 ~~~
+
+* In a terminal, run the following commands to clone the ThermoFun library:
+~~~
+$ cd ~/gitTHERMOFUN/thermofun
+$ git clone https://bitbucket.org/gems4/thermofun.git .
+~~~
+
+## Install additional packages
+
+Install additional packages required by JSNOIO library. This library is used for reading data and comunicating with the local or remote ArangoDB database.
+~~~
+$ sudo apt-get install libboost-all-dev curl libcurl4-openssl-dev
+~~~
+
+* ThermoFun uses ArangoDB database: 
+
+Install current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/):
+
+~~~
+curl -OL https://download.arangodb.com/arangodb33/xUbuntu_16.04/Release.key
+sudo apt-key add - < Release.key
+echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_16.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt-get install arangodb3=3.3.8
+~~~
+
+Build ArangoDB VelocyPack serializer as follows:
+
+~~~
+sudo apt-get update
+sudo apt-get install libcurl4-openssl-dev
+cd ~
+mkdir -p code && \
+    cd code && \
+    git clone https://github.com/arangodb/velocypack.git && \
+    cd velocypack && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    sudo make install
+~~~
+
+## Build ThermoFun library (release)
+
+For compiling ThermoFun library from its source code change folder to `~/gitTHERMOFUN/build/release` and execute:
+
+~~~
+cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
+~~~
+
+This will start the builting process, first the JSONIO third party library 
+
+For a global installation of the compiled libraries in your system, execute:
+~~~
+make install
+~~~
+
+This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). Note that this installation mode might require administrator rights, so that you would need to execute sudo make install instead.
+
+For a local installation, you can specify a directory path for the installed files as:
+~~~
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
+make install
+~~~
+
+The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
+
+
 
 ### Build and run ThermoFun GUI Demo
 
