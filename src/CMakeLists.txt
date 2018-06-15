@@ -9,7 +9,7 @@ file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 # Set the list of names of the third-party targets and libraries
 set(THIRDPARTY_TARGETS JSONIO)
-set(THIRDPARTY_LIBS jsonio)
+set(THIRDPARTY_LIBS jsonio boost_regex boost_filesystem curl velocypack)
 set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
 
 # Create the shared library using the collected source files
