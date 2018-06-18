@@ -17,6 +17,8 @@ tests/interfaceTest/interfaceTest.pro.user
 tests/dbclientTest/dbclientTest.pro.user
 src/*.autosave
 tests/unit01/src/*.autosave
+.directory
+/DemoGUI/.directory
 
 tests/autoTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
 tests/autoTest/install-thirdparty-old.sh

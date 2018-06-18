@@ -1,5 +1,6 @@
 #include <sys/time.h>
 #include <QScrollBar>
+#include <QHeaderView>
 #include "jsonio/jsondomfree.h"
 #include "ThermoFunWidgetPrivate.h"
 #include "ui_ThermoFunWidget.h"
