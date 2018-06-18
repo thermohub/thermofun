@@ -1,4 +1,4 @@
-# ThermoFun (Under Construction / Update)
+# ThermoFun
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
@@ -30,7 +30,8 @@ $ git clone https://bitbucket.org/gems4/thermofun.git .
 
 ## Install additional packages
 
-Install additional packages required by JSNOIO library. This library is used for reading data and comunicating with the local or remote ArangoDB database.
+* Install additional packages required by JSNOIO library. JSNOIO is used for reading data and comunicating with the local or remote ArangoDB database.
+
 ~~~
 $ sudo apt-get install libboost-all-dev curl libcurl4-openssl-dev
 ~~~
@@ -52,7 +53,6 @@ Build ArangoDB VelocyPack serializer as follows:
 
 ~~~
 sudo apt-get update
-sudo apt-get install libcurl4-openssl-dev
 cd ~
 mkdir -p code && \
     cd code && \
@@ -60,28 +60,30 @@ mkdir -p code && \
     cd velocypack && \
     mkdir -p build && \
     cd build && \
-    cmake .. && \
+    cmake .. -DCMAKE_CXX_FLAGS=-fPIC && \
     sudo make install
 ~~~
 
 ## Build ThermoFun library (release)
 
-For compiling ThermoFun library from its source code change folder to `~/gitTHERMOFUN/build/release` and execute:
+* For compiling ThermoFun library from its source code change folder to `~/gitTHERMOFUN/build/release` and execute:
 
 ~~~
-cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
+cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Release
 ~~~
 
 This will start the building process, first the JSONIO third party library, followed by the ThermoFun library. 
 
-For a global installation of the compiled libraries in your system, execute:
+* For a global installation of the compiled libraries in your system, execute:
+
 ~~~
 make install
 ~~~
 
 This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). Note that this installation mode might require administrator rights, so that you would need to execute sudo make install instead.
 
-For a local installation, you can specify a directory path for the installed files as:
+* For a local installation, you can specify a directory path for the installed files as:
+
 ~~~
 cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
 make install
@@ -90,9 +92,10 @@ make install
 The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compil
 
 
-### Build and run ThermoFun GUI Demo
+### Build and run ThermoFun GUI Demo (OUTDATED - Under Construction / Update)
 
 * In a linux terminal, cd inside ~/gitTHERMOFUN/thermofun/DemoGUI and type
+
 ~~~
 $ ./install-thirdparty.sh /home/your_user/Qt/5.9.2/gcc_64
 ~~~
