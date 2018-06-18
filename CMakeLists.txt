@@ -15,6 +15,7 @@ include(GNUInstallDirs)
 # Define which types of libraries to build
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
+option(BUILD_TESTS "Build tests." OFF)
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -75,3 +76,10 @@ link_directories(${THIRDPARTY_LIBRARY_DIR})
 
 # Build thermofun library
 add_subdirectory(src)
+
+# Build the tests
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+else()
+    add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif()
