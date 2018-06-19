@@ -2,7 +2,7 @@
 #define CONTAINERS_H
 
 #include "jsonui/SelectDialog.h"
-#include "thermofun/DBClient/formuladata.h"
+#include "DBClient/formuladata.h"
 #include "model_reactions.h"
 
 /// Class  Elements table data container

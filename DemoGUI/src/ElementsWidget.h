@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QButtonGroup>
-#include "thermofun/DBClient/formuladata.h"
+#include "DBClient/formuladata.h"
 
 namespace Ui {
 class ElementsWidget;
