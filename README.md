@@ -124,11 +124,6 @@ sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config lib
 ~~~
 sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
 
-sudo apt-get install libssl-dev libtool byacc flex
-sudo apt-get install libboost-dev libboost-test-dev libboost-program-options-dev libboost-filesystem-dev 
-sudo apt-get install libboost-thread-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev
-sudo apt-get install libboost-all-dev
-
 cd ~
 mkdir thrift
 cd thrift
