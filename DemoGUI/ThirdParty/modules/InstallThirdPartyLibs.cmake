@@ -11,7 +11,19 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CXXFLAGS "-fPIC")
 endif()
 
+option(BUILD_THIRDPARTY "Build thirdparty libaries." OFF)
+set(BUILD_THIRDPARTY OFF)
 
+if (REFRESH_THIRDPARTY) 
+	set(BUILD_THIRDPARTY ON)
+else ()
+	find_library(JSONUI_LIB jsonui PATHS /usr/local/lib NO_DEFAULT_PATH)
+	if(NOT JSONUI_LIB)
+        	set(BUILD_THIRDPARTY ON)
+	endif()
+endif()
+
+if (BUILD_THIRDPARTY)
 # Download and install the bsonui library
 ExternalProject_Add(JSONUI
     PREFIX thirdparty
@@ -38,3 +50,7 @@ install(DIRECTORY ${THIRDPARTY_DIR}/include
 #   DESTINATION .)
 #install(DIRECTORY ${THIRDPARTY_DIR}/include
 #   DESTINATION .)
+
+else ()
+	message(STATUS "JSNOUI already present at /usr/local/lib")
+endif()
