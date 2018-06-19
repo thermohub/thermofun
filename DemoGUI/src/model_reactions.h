@@ -8,7 +8,7 @@
 #include "jsonio/ar2base.h"
 
 // ThermoFun includes
-#include "thermofun/ThermoProperties.h"
+#include "ThermoProperties.h"
 
 /// Definition of tree reaction line structure
 class ReactionTree

@@ -24,7 +24,7 @@ mkdir -p ../../build-DemoGUI/debug/thirdparty
 
 cd ../../build-DemoGUI/debug/thirdparty
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
+cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DREFRESH_THIRDPARTY=OFF -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
 make -j$J 
 sudo make install

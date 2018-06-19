@@ -16,6 +16,7 @@ include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 option(BUILD_TESTS "Build tests." OFF)
+option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)

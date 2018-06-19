@@ -2,12 +2,13 @@
 #define THERMOFUNWIDGETPRIVATE_H
 
 #include <QObject>
+#include <QtWidgets>
 #include "ThermoFunWidgetNew.h"
 #include "thermomodel.h"
-#include "thermofun/Interfaces/Interface.h"
-#include "thermofun/DBClient/ReactionData.h"
-#include "thermofun/DBClient/ReactionSetData.h"
-#include "thermofun/DBClient/SubstanceData.h"
+#include "Interfaces/Interface.h"
+#include "DBClient/ReactionData.h"
+#include "DBClient/ReactionSetData.h"
+#include "DBClient/SubstanceData.h"
 
 class TPContainer;
 class TPropertyContainer;
