@@ -16,6 +16,7 @@ include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 option(BUILD_TESTS "Build tests." OFF)
+option(BUILD_DEMOGUI "Build ThermoFun GUI DEMO." OFF)
 option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
@@ -83,4 +84,11 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 else()
     add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif()
+
+# Build the tests
+if(BUILD_DEMOGUI)
+    add_subdirectory(DemoGUI)
+else()
+    add_subdirectory(DemoGUI EXCLUDE_FROM_ALL)
 endif()
