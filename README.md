@@ -95,22 +95,60 @@ make install
 The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
 
 
-### Build and run ThermoFun GUI Demo (OUTDATED - Under Construction / Update)
+### Build and run ThermoFun GUI Demo
 
-* In a linux terminal, cd inside ~/gitTHERMOFUN/thermofun/DemoGUI and type
+To be able to build and run the ThemroFun GUI (graphical user interface) application demo, Qt needs to be installed.
+
+* Download and install Qt 5.11.0 (https://www1.qt.io/download/). In the "Select components to install" menu select: Qt 5.11.0 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
+
+* in addition libgl-dev is required
+~~~
+$ sudo apt-get install libgl-dev
+~~~
+
+ThermoFun GUI demo uses the JSONUI as a thrid party library (https://bitbucket.org/gems4/jsonui) 
+
+* Before installing the thirparty libraries, Apache Thrift and Lua need to be installed
+
+* Install the Lua embedded scripts interpreter (on ubuntu linux):
+~~~
+sudo apt-get install lua5.3 lua5.3-dev
+~~~
+
+* Before building Apache Thrift
+~~~
+sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
+~~~
+
+* Build and install the 0.11.0 version of the Apache Thrift by cloning it with git:
+~~~
+sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
+
+cd ~
+mkdir thrift
+cd thrift
+git clone http://github.com/apache/thrift . -b 0.11.0
+./bootstrap.sh
+./configure --without-lua
+sudo make install
+sudo ldconfig
+~~~
+
+* To install the thirdparty libraries in a linux terminal, cd inside `~/gitTHERMOFUN/thermofun/DemoGUI` and type
 
 ~~~
-$ ./install-thirdparty.sh /home/your_user/Qt/5.9.2/gcc_64
+$ ./install-thirdparty.sh /home/your_user/Qt/5.11.0/gcc_64
 ~~~
 
-* This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, EJDB, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty.
+* This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, JSONIMPEX, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty. The build script will check if the libraries are already installed and only build and install them if not found in  /usr/local/. If the thirdparty libraries need to be refreshed/updated in the file `install-thirdparty.sh` change `-DREFRESH_THIRDPARTY=OFF` to `-DREFRESH_THIRDPARTY=ON`
 
-* After this, headers and libraries of the third-party libraries can be found in build-DemoGUI/{debug,release}/thirdparty/{include,lib}. The .pro file of the master project has already been adjusted to find these dependencies.
+* Now in QtCreator, build the ThermoFunDemoGUI.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.11.0) and then run the DemoGUI code. 
 
-* Now in QtCreator, build the thermomatch.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.9.2) and then run the ThermoMatch code. 
+* Before running DemoGUI copy the Resources folder found in thermofun/DemoGUI in the build folder
 
+The ThermoFunDemoGUI.json file contains the settings for connecting to the local or remote ArangoDB server. To use the local server set `"CurrentDBConnection" :   1` to use the remote server set `"CurrentDBConnection" :   0`
 
-### Automatic Test for comparing GEMS4 and ThermoFun calculations
+### Automatic Test for comparing GEMS4 and ThermoFun calculations (OUTDATED - Under Construction / Update)
 
 #### Build autoTest
 
