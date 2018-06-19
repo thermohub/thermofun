@@ -6,6 +6,20 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   add_definitions("-w")
 endif()
 
+option(BUILD_THIRDPARTY "Build thirdparty libaries." OFF)
+set(BUILD_THIRDPARTY OFF)
+
+if (REFRESH_THIRDPARTY) 
+	set(BUILD_THIRDPARTY ON)
+else ()
+	find_library(JSONUI_LIB jsonui PATHS /usr/local/lib NO_DEFAULT_PATH)
+	if(NOT JSONUI_LIB)
+        	set(BUILD_THIRDPARTY ON)
+	endif()
+endif()
+
+if (BUILD_THIRDPARTY)
+
 # Download and install the jsonio library
 ExternalProject_Add(JSONIO
     PREFIX thirdparty
@@ -29,7 +43,14 @@ ExternalProject_Add(JSONIO
 #               -DBUILD_SHARED_LIBS=ON
 #)
 
-
 # Create the install target for the third-party libraries
 install(DIRECTORY ${THIRDPARTY_DIR}/
     DESTINATION .)
+
+else ()
+	message(STATUS "JSONIO already present at /usr/local/lib. CMake will Stop. \n   Use -DREFRESH_THIRDPARTY=ON to reinstall ThirdParty.")
+return(0)
+
+endif()
+
+

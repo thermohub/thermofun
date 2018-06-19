@@ -52,5 +52,5 @@ install(DIRECTORY ${THIRDPARTY_DIR}/include
 #   DESTINATION .)
 
 else ()
-	message(STATUS "JSNOUI already present at /usr/local/lib")
+	message(STATUS "JSONUI already present at /usr/local/lib. CMake will Stop. \n Use -DREFRESH_THIRDPARTY=ON to reinstall ThirdParty")
 endif()

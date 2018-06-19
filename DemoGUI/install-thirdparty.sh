@@ -20,19 +20,13 @@ done
 
 CMAKE_FILE_DIR=$(pwd)/ThirdParty
 
-mkdir -p ../../build-DemoGUI/debug/thirdparty
+mkdir -p ../../build-DemoGUI/release/thirdparty
 
-cd ../../build-DemoGUI/debug/thirdparty
+cd ../../build-DemoGUI/release/thirdparty
 
-cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Debug -DREFRESH_THIRDPARTY=OFF -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
+cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DREFRESH_THIRDPARTY=OFF -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
 
 make -j$J 
 sudo make install
 sudo ldconfig
-
-#cd ../../release/thirdparty
-
-#cmake $CMAKE_FILE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. -DCMAKE_PREFIX_PATH=$1
-
-#make -j$J install
 
