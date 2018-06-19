@@ -1,5 +1,6 @@
 #include <iostream>
 #include <QMessageBox>
+#include <QHeaderView>
 #include "SelectElementsDialog.h"
 #include "ElementsWidget.h"
 #include "ui_SelectElementsDialog.h"

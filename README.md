@@ -30,15 +30,13 @@ $ git clone https://bitbucket.org/gems4/thermofun.git .
 
 ## Install additional packages
 
-* Install additional packages required by JSNOIO library. JSNOIO is used for reading data and comunicating with the local or remote ArangoDB database.
+* Install additional packages required by JSONIO library, which is used for operating with data and communicating with the local or remote ArangoDB database.
 
 ~~~
 $ sudo apt-get install libboost-all-dev curl libcurl4-openssl-dev
 ~~~
 
-* ThermoFun uses ArangoDB database: 
-
-Install current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/):
+* ThermoFun (via JSONIO) uses ArangoDB database with which it communicates with VelocyPack serializer. First install current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/):
 
 ~~~
 curl -OL https://download.arangodb.com/arangodb33/xUbuntu_16.04/Release.key
@@ -49,7 +47,7 @@ sudo apt-get update
 sudo apt-get install arangodb3=3.3.8
 ~~~
 
-Build ArangoDB VelocyPack serializer as follows:
+Then build ArangoDB VelocyPack serializer as follows:
 
 ~~~
 sudo apt-get update
@@ -80,7 +78,12 @@ This will start the building process, first the JSONIO third party library, foll
 make install
 ~~~
 
-This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). Note that this installation mode might require administrator rights, so that you would need to execute sudo make install instead.
+This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). 
+Note that this installation mode might require administrator rights, so that you would need to execute 
+~~~
+sudo make install
+~~~
+instead.
 
 * For a local installation, you can specify a directory path for the installed files as:
 
@@ -89,7 +92,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
 make install
 ~~~
 
-The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compil
+The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
 
 
 ### Build and run ThermoFun GUI Demo (OUTDATED - Under Construction / Update)
