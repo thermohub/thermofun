@@ -40,7 +40,7 @@ endif()
 
 
 # Set some necessary definitions to compile BSONUI
-#add_definitions(-D_MYNOZLIB)
+#add_definitions(-D_MYNOZLIB -DFROM_SRC)
 
 set(thermofungui_SOURCES ${SOURCE_FILES} )
 set(thermofungui_HEADERS ${HEADER_FILES} )
