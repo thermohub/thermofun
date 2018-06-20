@@ -5,9 +5,18 @@
 //#include "jsonio/dbquerydef.h"
 #include "jsonui/model_table.h"
 //#include "ThermoData.h"
+
+// ThermoFun includes
+#ifdef FROM_QT
 #include "DBClient/AbstractData.h"
 #include "Reaction.h"
 #include "Substance.h"
+#endif
+#ifndef FROM_QT
+#include "thermofun/DBClient/AbstractData.h"
+#include "thermofun/Reaction.h"
+#include "thermofun/Substance.h"
+#endif
 
 using MapLevelReaction             = map<string, ThermoFun::Reaction>;
 using MapSymbolMapLevelReaction    = map<string, MapLevelReaction>;

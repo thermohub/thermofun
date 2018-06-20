@@ -4,10 +4,22 @@
 #include <QDialog>
 #include <QtWidgets>
 #include "jsonui/SelectDialog.h"
+
+// ThermoFun includes
+#ifdef FROM_QT
 #include "DBClient/formuladata.h"
 #include "DBClient/DatabaseClient.h"
 #include "DBClient/ReactionSetData.h"
 #include "DBClient/SubstanceData.h"
+#endif
+#ifndef FROM_QT
+#include "thermofun/DBClient/formuladata.h"
+#include "thermofun/DBClient/DatabaseClient.h"
+#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermofun/DBClient/SubstanceData.h"
+#endif
+
+
 
 
 namespace Ui {

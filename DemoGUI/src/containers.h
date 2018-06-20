@@ -2,8 +2,14 @@
 #define CONTAINERS_H
 
 #include "jsonui/SelectDialog.h"
-#include "DBClient/formuladata.h"
 #include "model_reactions.h"
+
+#ifdef FROM_QT
+#include "DBClient/formuladata.h"
+#endif
+#ifndef FROM_QT
+#include "thermofun/DBClient/formuladata.h"
+#endif
 
 /// Class  Elements table data container
 class ElementsDataContainer : public jsonui::TAbstractDataContainer

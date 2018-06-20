@@ -5,6 +5,21 @@
 #include <QtWidgets>
 #include "ThermoFunWidgetNew.h"
 #include "thermomodel.h"
+
+// ThermoFun includes
+#ifdef FROM_QT
+#include "Interfaces/Interface.h"
+#include "DBClient/ReactionData.h"
+#include "DBClient/ReactionSetData.h"
+#include "DBClient/SubstanceData.h"
+#endif
+#ifndef FROM_QT
+#include "thermofun/Interfaces/Interface.h"
+#include "thermofun/DBClient/ReactionData.h"
+#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermofun/DBClient/SubstanceData.h"
+#endif
+
 #include "Interfaces/Interface.h"
 #include "DBClient/ReactionData.h"
 #include "DBClient/ReactionSetData.h"

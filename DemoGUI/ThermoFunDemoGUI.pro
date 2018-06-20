@@ -15,6 +15,7 @@ TEMPLATE = app
 CONFIG += thread
 CONFIG += c++11
 
+DEFINES += FROM_QT
 
 !win32 {
   DEFINES += __unix

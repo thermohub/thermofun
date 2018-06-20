@@ -34,7 +34,12 @@
 #define ThermoFunWIDGETNEW_H
 
 #include "jsonui/JSONUIBase.h"
+#ifdef FROM_QT
 #include "DBClient/DatabaseClient.h"
+#endif
+#ifndef FROM_QT
+#include "thermofun/DBClient/DatabaseClient.h"
+#endif
 
 namespace jsonui {
 class TableEditWidget;
