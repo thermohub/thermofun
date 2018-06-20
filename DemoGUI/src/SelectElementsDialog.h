@@ -6,13 +6,13 @@
 #include "jsonui/SelectDialog.h"
 
 // ThermoFun includes
-#ifdef FROM_QT
-#include "DBClient/formuladata.h"
-#include "DBClient/DatabaseClient.h"
-#include "DBClient/ReactionSetData.h"
-#include "DBClient/SubstanceData.h"
+#ifdef FROM_SRC
+#include "../src/DBClient/formuladata.h"
+#include "../src/DBClient/DatabaseClient.h"
+#include "../src/DBClient/ReactionSetData.h"
+#include "../src/DBClient/SubstanceData.h"
 #endif
-#ifndef FROM_QT
+#ifndef FROM_SRC
 #include "thermofun/DBClient/formuladata.h"
 #include "thermofun/DBClient/DatabaseClient.h"
 #include "thermofun/DBClient/ReactionSetData.h"

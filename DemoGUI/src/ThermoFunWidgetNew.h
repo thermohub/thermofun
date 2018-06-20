@@ -34,10 +34,10 @@
 #define ThermoFunWIDGETNEW_H
 
 #include "jsonui/JSONUIBase.h"
-#ifdef FROM_QT
-#include "DBClient/DatabaseClient.h"
+#ifdef FROM_SRC
+#include "../src/DBClient/DatabaseClient.h"
 #endif
-#ifndef FROM_QT
+#ifndef FROM_SRC
 #include "thermofun/DBClient/DatabaseClient.h"
 #endif
 

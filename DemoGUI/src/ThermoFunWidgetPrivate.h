@@ -7,23 +7,18 @@
 #include "thermomodel.h"
 
 // ThermoFun includes
-#ifdef FROM_QT
-#include "Interfaces/Interface.h"
-#include "DBClient/ReactionData.h"
-#include "DBClient/ReactionSetData.h"
-#include "DBClient/SubstanceData.h"
+#ifdef FROM_SRC
+#include "../src/Interfaces/Interface.h"
+#include "../src/DBClient/ReactionData.h"
+#include "../src/DBClient/ReactionSetData.h"
+#include "../src/DBClient/SubstanceData.h"
 #endif
-#ifndef FROM_QT
+#ifndef FROM_SRC
 #include "thermofun/Interfaces/Interface.h"
 #include "thermofun/DBClient/ReactionData.h"
 #include "thermofun/DBClient/ReactionSetData.h"
 #include "thermofun/DBClient/SubstanceData.h"
 #endif
-
-#include "Interfaces/Interface.h"
-#include "DBClient/ReactionData.h"
-#include "DBClient/ReactionSetData.h"
-#include "DBClient/SubstanceData.h"
 
 class TPContainer;
 class TPropertyContainer;

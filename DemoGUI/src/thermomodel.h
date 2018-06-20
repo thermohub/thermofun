@@ -7,12 +7,12 @@
 //#include "ThermoData.h"
 
 // ThermoFun includes
-#ifdef FROM_QT
-#include "DBClient/AbstractData.h"
-#include "Reaction.h"
-#include "Substance.h"
+#ifdef FROM_SRC
+#include "../src/DBClient/AbstractData.h"
+#include "../src/Reaction.h"
+#include "../src/Substance.h"
 #endif
-#ifndef FROM_QT
+#ifndef FROM_SRC
 #include "thermofun/DBClient/AbstractData.h"
 #include "thermofun/Reaction.h"
 #include "thermofun/Substance.h"

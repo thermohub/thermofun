@@ -3,10 +3,10 @@
 
 #include <QWidget>
 #include <QButtonGroup>
-#ifdef FROM_QT
-#include "DBClient/formuladata.h"
+#ifdef FROM_SRC
+#include "../src/DBClient/formuladata.h"
 #endif
-#ifndef FROM_QT
+#ifndef FROM_SRC
 #include "thermofun/DBClient/formuladata.h"
 #endif
 

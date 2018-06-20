@@ -8,10 +8,10 @@
 #include "jsonio/ar2base.h"
 
 // ThermoFun includes
-#ifdef FROM_QT
-#include "ThermoProperties.h"
+#ifdef FROM_SRC
+#include "../src/ThermoProperties.h"
 #endif
-#ifndef FROM_QT
+#ifndef FROM_SRC
 #include "thermofun/ThermoProperties.h"
 #endif
 

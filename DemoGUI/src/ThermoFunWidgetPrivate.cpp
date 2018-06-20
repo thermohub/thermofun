@@ -5,13 +5,22 @@
 #include "ThermoFunWidgetPrivate.h"
 #include "ui_ThermoFunWidget.h"
 #include "containers.h"
+
 // ThermoFun includes
-#include "Interfaces/Output.h"
-#include "Database.h"
-#include "Substance.h"
-#include "DBClient/TraversalData.h"
-#include "DBClient/SubstanceData.h"
-#include "Common/ParseBsonTraversalData.h"
+#ifdef FROM_SRC
+#include "../src/Interfaces/Output.h"
+#include "../src/Database.h"
+#include "../src/Substance.h"
+#include "../src/DBClient/TraversalData.h"
+#include "../src/Common/ParseBsonTraversalData.h"
+#endif
+#ifndef FROM_SRC
+#include "thermofun/Interfaces/Output.h"
+#include "thermofun/Database.h"
+#include "thermofun/Substance.h"
+#include "thermofun/DBClient/TraversalData.h"
+#include "thermofun/Common/ParseBsonTraversalData.h"
+#endif
 
 using namespace jsonio;
 using namespace jsonui;
