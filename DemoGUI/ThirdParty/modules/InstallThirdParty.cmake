@@ -37,6 +37,7 @@ ExternalProject_Add(JSONUI
                -DCMAKE_INSTALL_INCLUDEDIR=include
                -DCMAKE_INSTALL_LIBDIR=lib
                -DCMAKE_INSTALL_BINDIR=bin
+               -DREFRESH_THIRDPARTY=ON
                -DBUILD_SHARED_LIBS=ON
 )
 
