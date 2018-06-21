@@ -40,7 +40,7 @@ endif()
 
 
 # Set some necessary definitions to compile BSONUI
-#add_definitions(-D_MYNOZLIB -DFROM_SRC)
+add_definitions(-DFROM_SRC)
 
 set(thermofungui_SOURCES ${SOURCE_FILES} )
 set(thermofungui_HEADERS ${HEADER_FILES} )
@@ -54,6 +54,8 @@ qt5_add_resources(thermofungui_SRCS ${RESOURCE})
 #qt5_add_binary_resources(target inputfile ... OPTIONS ... DESTINATION ...)
 
 include_directories(${CMAKE_BINARY_DIR}/DemoGUI/src)
+# access to thirdpary includes
+include_directories(${CMAKE_BINARY_DIR}/../../../include)
 
 # Create the shared library using the collected source files
 add_library(THERMOFUNGUI_OBJECTS OBJECT ${thermofungui_HEADERS} ${thermofungui_SOURCES} ${thermofungui_HEADERS_MOC} ${thermofungui_FORMS_HEADERS} ${thermofungui_SRCS} )
