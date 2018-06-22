@@ -1,0 +1,11 @@
+/* returns thermodynamic properties and Cp = f(T) coefficients for all gaseous species belonging to a given ThermoDataSet */
+FOR tds IN thermodatasets
+    FILTER tds.properties.name == "CEMDATA18"
+    FOR v IN 1..1 INBOUND tds pulls
+        FILTER v.properties.aggregate_state == 0
+        RETURN { symbol: v.properties.symbol, G0: v.properties.sm_gibbs_energy.values[0], H0: v.properties.sm_enthalpy.values[0], S0: v.properties.sm_entropy_abs.values[0], Cp0: v.properties.sm_heat_capacity_p.values[0], 
+        V0: v.properties.sm_volume.values[0], 
+        a1: v.properties.m_heat_capacity_p_t_coeffs.values[0],
+        a2: v.properties.m_heat_capacity_p_t_coeffs.values[1],
+        a3: v.properties.m_heat_capacity_p_t_coeffs.values[2],
+        a4: v.properties.m_heat_capacity_p_t_coeffs.values[3]}
