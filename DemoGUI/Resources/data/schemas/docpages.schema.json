@@ -33,6 +33,7 @@
       "isException": false,
       "isUnion": false,
       "to_select": [ "4", "5", "6", "1" ],
+      "to_key": [ "4", "5" ],
       "fields": [
         {
           "key": 1,

@@ -76,6 +76,25 @@
           "typeId": "string",
           "doc": "query string\n",
           "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "bind",
+          "typeId": "string",
+          "doc": "bind values string\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "fields",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "string"
+          },
+          "doc": "return fields map\n",
+          "required": "req_out"
         }
       ]
     },
