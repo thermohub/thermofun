@@ -31,6 +31,8 @@ auto convert(double value, const std::string& from, const std::string& to) -> do
 
 /// Check if two units are convertible among each other
 /// @return True if they are convertible, false otherwise
+/// Units strings can be composite, for instance "J/K/mol" or "N*km/mol."
+/// However, composing units must be known in the derivedUnitsMap. 
 auto convertible(const std::string& from, const std::string& to) -> bool;
 
 } /* namespace units */

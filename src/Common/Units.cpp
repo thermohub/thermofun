@@ -97,7 +97,13 @@ const double pi    = 3.14159265359;
 map<string, DerivedUnit> derivedUnitsMap =
 {
     // Nondimensional Unit
-    {"1"            , {{1, "1", 1}}},
+    {"1"             , {{1, "1", 1}}},
+    {"%%"            , {{centi, "1", 1}}},
+    {"percent"       , {{centi, "1", 1}}},
+    {"%%%%"          , {{milli, "1", 1}}},
+    {"permil"        , {{milli, "1", 1}}},
+    {"ppm"           , {{micro, "1", 1}}},
+    {"ppb"           , {{nano,  "1", 1}}},
 
     // Mass Units
     {"g"            , {{1, "g", 1}}},
@@ -270,6 +276,7 @@ map<string, DerivedUnit> derivedUnitsMap =
 
     // Force Units
     {"N"            , {{1 , "kg" , 1}, {1 , "m", 1}, {1 , "s" , -2}}},
+    {"kN"           , {{kilo, "N", 1}}},
     {"lbf"          , {{4.44822162 , "N", 1}}},
     {"dyne"         , {{1.0e-5 , "N", 1}}},
     {"dynes"        , {{1, "dyne" , 1}}},
@@ -321,11 +328,13 @@ map<string, DerivedUnit> derivedUnitsMap =
     {"C"            , {{1 , "A", 1}, {1 , "s", 1}}},
     {"coulomb"      , {{1, "C", 1}}},
     {"coulombs"     , {{1, "C", 1}}},
+    {"mC"           , {{milli, "C", 1}}},
 
     // Voltage Units
     {"V"            , {{1 , "J", 1}, {1 , "C", -1}}},
     {"volt"         , {{1, "V", 1}}},
     {"volts"        , {{1, "V", 1}}},
+    {"mV"           , {{milli, "V", 1}}},
 
     // Resistance Units
     {"ohm"          , {{1 , "V", 1}, {1 , "A", -1}}},
@@ -365,16 +374,19 @@ map<string, DerivedUnit> derivedUnitsMap =
     {"molal"        , {{1 , "mol", 1}, {1 , "kg" , -1}}},
     {"mmolal"       , {{milli, "molal", 1}}},
     {"umolal"       , {{micro, "molal", 1}}},
+    {"nmolal"       , {{nano, "molal", 1}}},
 
     // Molarity Units
     {"molar"        , {{1 , "mol", 1}, {1 , "liter" , -1}}},
     {"mmolar"       , {{milli, "molar", 1}}},
     {"umolar"       , {{micro, "molar", 1}}},
+    {"nmolar"       , {{nano, "molar", 1}}},
 
     // Equivalent Units
     {"eq"          , {{1, "eq", 1}}},
     {"meq"         , {{milli, "eq", 1}}},
-    {"ueq"         , {{micro, "eq", 1}}}
+    {"ueq"         , {{micro, "eq", 1}}},
+    {"neq"         , {{nano, "eq", 1}}}
 };
 
 map<string, TemperatureUnit> temperatureUnitsMap =
