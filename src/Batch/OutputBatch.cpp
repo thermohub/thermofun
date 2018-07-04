@@ -1,5 +1,5 @@
-#include "Output.h"
-#include "Interface.h"
+#include "OutputBatch.h"
+#include "ThermoBatch.h"
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -11,18 +11,18 @@ namespace ThermoFun {
 struct Output::Impl
 {
     /// Interface instance
-    Interface api;
+    ThermoBatch api;
 
     std::string                         header = "";
     std::ofstream                       fProperties;
 
-    Impl(const Interface& interface)
-    : api(Interface(interface))
+    Impl(const ThermoBatch& interface)
+    : api(ThermoBatch(interface))
     {}
 
 };
 
-Output::Output(const Interface& interface)
+Output::Output(const ThermoBatch& interface)
 : pimpl(new Impl(interface))
 {}
 

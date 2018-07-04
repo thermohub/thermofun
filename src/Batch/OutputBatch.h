@@ -9,7 +9,7 @@
 
 namespace ThermoFun {
 
-class Interface;
+class ThermoBatch;
 
 /// outputs temperature in C and pressure in bar
 class Output
@@ -19,7 +19,7 @@ public:
     /// \brief Output constructor
     /// \param interface
     ///
-    Output(const Interface & interface);
+    Output(const ThermoBatch & interface);
 
     auto toCSV                  (std::string filename) -> void;
     auto toCSVTransposed        (std::string filename) -> void;

@@ -1,7 +1,7 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "DBClient/formuladata.h"
-#include "Thermo.h"
+#include "ThermoEngine.h"
 #include "Database.h"
 #include "Reaction.h"
 #include "Substance.h"
@@ -56,7 +56,7 @@ using PropertiesSolventFunction =
 using ThermoPropertiesReactionFunction =
     std::function<ThermoPropertiesReaction(double, double, double&, std::string)>;
 
-struct Thermo::Impl
+struct ThermoEngine::Impl
 {
     /// The database instance
     Database database;
@@ -570,36 +570,36 @@ struct Thermo::Impl
     }
 };
 
-Thermo::Thermo()
+ThermoEngine::ThermoEngine()
 : pimpl(new Impl())
 {}
 
-Thermo::Thermo(const Database& database)
+ThermoEngine::ThermoEngine(const Database& database)
 : pimpl(new Impl(database))
 {}
 
-auto Thermo::thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
+auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_properties_substance_fn(T, P, P, substance);
 }
 
-auto Thermo::electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent
+auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent
 {
     return pimpl->electro_properties_solvent_fn(T, P, P, solvent);
 }
 
-auto Thermo::propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent
+auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent
 {
     return pimpl->properties_solvent_fn(T, P, P, solvent);
 }
 
 // Reaction
-auto Thermo::thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction
+auto ThermoEngine::thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction
 {
     return pimpl->thermo_properties_reaction_fn(T, P, P, reaction);
 }
 
-auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction
+auto ThermoEngine::thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction  tpr;
     tpr.reaction_heat_capacity_cp   = 0.0;
@@ -638,22 +638,22 @@ auto Thermo::thermoPropertiesReactionFromReactants (double T, double &P, std::st
     return tpr;
 }
 
-auto Thermo::setSolventSymbol(const std::string solvent_symbol) -> void
+auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
 {
     pimpl->solventSymbol = solvent_symbol;
 }
 
-auto Thermo::solventSymbol( ) const -> std::string
+auto ThermoEngine::solventSymbol( ) const -> std::string
 {
     return pimpl->solventSymbol;
 }
 
-auto Thermo::database() -> const Database
+auto ThermoEngine::database() -> const Database
 {
     return pimpl->database;
 }
 
-auto Thermo::parseSubstanceFormula(std::string formula) -> std::map<Element, double>
+auto ThermoEngine::parseSubstanceFormula(std::string formula) -> std::map<Element, double>
 {
     return pimpl->database.parseSubstanceFormula(formula);
 }

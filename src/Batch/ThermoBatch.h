@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "../Common/ThermoScalar.hpp"
+#include "Batch/OutputBatch.h"
 
 namespace ThermoFun {
 
@@ -55,7 +56,7 @@ struct OutputSettings
     bool loopOverTPpairsFirst = true;
 };
 
-struct CalculationSettings
+struct BatchCalculationSettings
 {
     bool dependentSubstancesFromReactions = false;
 
@@ -79,7 +80,7 @@ struct CalculationSettings
 ///
 /// The input temperature and pressure should be in celsius and bar
 ///
-class Interface
+class ThermoBatch
 {
     friend class Output;
 public:
@@ -87,13 +88,13 @@ public:
     /// \brief Interface constructor
     /// \param database
     ///
-    Interface(const Database &database);
+    ThermoBatch(const Database &database);
 
     ///
     /// \brief Interface
     /// \param filename
     ///
-    Interface(std::string filename);
+    ThermoBatch(std::string filename);
 
     auto setUnits                   (const std::map<std::string, std::string> &units)-> void;
     auto setDigits                  (const std::map<std::string, int> &digits)-> void;

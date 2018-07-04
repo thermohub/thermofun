@@ -1,5 +1,5 @@
 #include "WaterElectroFernandez1997.h"
-#include "Thermo.h"
+#include "ThermoEngine.h"
 #include "Database.h"
 #include "Substance.h"
 #include "ThermoProperties.h"
@@ -47,7 +47,7 @@ auto electroPropertiesWaterFernandez1997(/*PropertiesSolvent ps,*/ Reaktoro_::Te
     ElectroPropertiesSolvent wep;
 
     Database db; db.addSubstance(substance);
-    Thermo   th(db);
+    ThermoEngine   th(db);
 
     Reaktoro_::Temperature TK(TC.val + 273.15);
     Reaktoro_::Pressure P(Pbar.val * 1e05);

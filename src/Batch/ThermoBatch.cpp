@@ -1,4 +1,4 @@
-#include "Interface.h"
+#include "ThermoBatch.h"
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -6,22 +6,21 @@
 
 #include "ThermoProperties.h"
 #include "Database.h"
-#include "Interfaces/Output.h"
-#include "Thermo.h"
+#include "ThermoEngine.h"
 #include "Common/Units.hpp"
 
 namespace ThermoFun {
 
 enum Calculation {forSUBSTANCE, forREACTION, forSOLVENT};
 
-struct Interface::Impl
+struct ThermoBatch::Impl
 {
     /// The thermo instance
-    Thermo                              thermo;
+    ThermoEngine                              thermo;
 
     OutputSettings                      outSettings;
 
-    CalculationSettings                 calcSettings;
+    BatchCalculationSettings                 calcSettings;
 
     vvd                                 tpPairs;
 
@@ -36,7 +35,7 @@ struct Interface::Impl
     vvThScalar                          results;
 
     Impl(const Database& database)
-    : thermo(Thermo(database))
+    : thermo(ThermoEngine(database))
     {}
 
     Impl(std::string filename)
@@ -262,15 +261,15 @@ struct Interface::Impl
     }
 };
 
-Interface::Interface(const Database& database)
+ThermoBatch::ThermoBatch(const Database& database)
     : pimpl(new Impl(database))
 {}
 
-Interface::Interface(std::string filename)
+ThermoBatch::ThermoBatch(std::string filename)
     : pimpl(new Impl(filename))
 {}
 
-auto Interface::thermoPropertiesSubstance(double T, double P, std::string symbol, std::string property) -> Output
+auto ThermoBatch::thermoPropertiesSubstance(double T, double P, std::string symbol, std::string property) -> Output
 {
     pimpl->addSymbolsProperties({symbol}, {property});
 
@@ -281,7 +280,7 @@ auto Interface::thermoPropertiesSubstance(double T, double P, std::string symbol
     return Output (*this);
 }
 
-auto Interface::thermoPropertiesSubstance(double T, double P, vstr symbols, vstr properties) -> Output
+auto ThermoBatch::thermoPropertiesSubstance(double T, double P, vstr symbols, vstr properties) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
@@ -292,7 +291,7 @@ auto Interface::thermoPropertiesSubstance(double T, double P, vstr symbols, vstr
     return Output (*this);
 }
 
-auto Interface::thermoPropertiesSubstance(std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output
+auto ThermoBatch::thermoPropertiesSubstance(std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
@@ -303,7 +302,7 @@ auto Interface::thermoPropertiesSubstance(std::array<double,3> aT, std::array<do
     return Output (*this);
 }
 
-auto Interface::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output
+auto ThermoBatch::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
@@ -318,7 +317,7 @@ auto Interface::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr proper
 }
 
 // Reaction
-auto Interface::thermoPropertiesReaction(double T, double P, std::string symbol, std::string property) -> Output
+auto ThermoBatch::thermoPropertiesReaction(double T, double P, std::string symbol, std::string property) -> Output
 {
     pimpl->addSymbolsProperties({symbol}, {property});
 
@@ -329,7 +328,7 @@ auto Interface::thermoPropertiesReaction(double T, double P, std::string symbol,
     return Output (*this);
 }
 
-auto Interface::thermoPropertiesReaction(double T, double P, vstr symbols, vstr properties) -> Output
+auto ThermoBatch::thermoPropertiesReaction(double T, double P, vstr symbols, vstr properties) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
@@ -340,7 +339,7 @@ auto Interface::thermoPropertiesReaction(double T, double P, vstr symbols, vstr 
     return Output (*this);
 }
 
-auto Interface::thermoPropertiesReaction(std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output
+auto ThermoBatch::thermoPropertiesReaction(std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
@@ -350,7 +349,7 @@ auto Interface::thermoPropertiesReaction(std::array<double,3> aT, std::array<dou
 
     return Output (*this);
 }
-auto Interface::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output
+auto ThermoBatch::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
@@ -365,87 +364,87 @@ auto Interface::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr propert
 }
 
 // Set functions
-auto Interface::setDigits(const std::map<std::string, int> &propDigits)-> void
+auto ThermoBatch::setDigits(const std::map<std::string, int> &propDigits)-> void
 {
     pimpl->givenPropertyDigits = propDigits;
 }
 
-auto Interface::setUnits(const std::map<std::string, std::string> &units)-> void
+auto ThermoBatch::setUnits(const std::map<std::string, std::string> &units)-> void
 {
     pimpl->givenPropertyUnits = units;
 }
 
-auto Interface::setPropertiesUnits(const vstr &properties, const vstr &units)-> void
+auto ThermoBatch::setPropertiesUnits(const vstr &properties, const vstr &units)-> void
 {
     for (uint i=0; i<properties.size(); i++)
         setPropertyUnit(properties[i], units[i]);
 }
 
-auto Interface::setPropertiesDigits(const vstr &properties, const std::vector<int> &propDigits)-> void
+auto ThermoBatch::setPropertiesDigits(const vstr &properties, const std::vector<int> &propDigits)-> void
 {
     for (uint i=0; i<properties.size(); i++)
         setPropertyDigit(properties[i], propDigits[i]);
 }
 
-auto Interface::setPropertyUnit(const std::string &property, const std::string &unit)-> void
+auto ThermoBatch::setPropertyUnit(const std::string &property, const std::string &unit)-> void
 {
     pimpl->givenPropertyUnits.at(property) = unit;
 }
 
-auto Interface::setPropertyDigit(const std::string &property, const int &digit)-> void
+auto ThermoBatch::setPropertyDigit(const std::string &property, const int &digit)-> void
 {
     pimpl->givenPropertyDigits.at(property) = digit;
 }
 
-auto Interface::setPropertyUnitDigit(const std::string &property, const std::string &unit, const int &digit)-> void
+auto ThermoBatch::setPropertyUnitDigit(const std::string &property, const std::string &unit, const int &digit)-> void
 {
     setPropertyUnit(property, unit);
     setPropertyDigit(property, digit);
 }
 
-auto Interface::setOutputSettings(const OutputSettings &value) -> void
+auto ThermoBatch::setOutputSettings(const OutputSettings &value) -> void
 {
     pimpl->outSettings = value;
 }
 
-auto Interface::setSolventSymbol(const std::string solventSymbol) -> void
+auto ThermoBatch::setSolventSymbol(const std::string solventSymbol) -> void
 {
     pimpl->thermo.setSolventSymbol(solventSymbol);
 }
 
 // Private
 // get functions
-auto Interface::symbols() -> const vstr
+auto ThermoBatch::symbols() -> const vstr
 {
     return pimpl->symbols;
 }
 
-auto Interface::outputSettings() -> const OutputSettings
+auto ThermoBatch::outputSettings() -> const OutputSettings
 {
     return pimpl->outSettings;
 }
 
-auto Interface::TPpairs() -> const vvd
+auto ThermoBatch::TPpairs() -> const vvd
 {
     return pimpl->tpPairs;
 }
 
-auto Interface::properties() -> const vstr
+auto ThermoBatch::properties() -> const vstr
 {
     return pimpl->properties;
 }
 
-auto Interface::units() -> const std::map<std::string, std::string>
+auto ThermoBatch::units() -> const std::map<std::string, std::string>
 {
     return pimpl->givenPropertyUnits;
 }
 
-auto Interface::digits() -> const std::map<std::string, int>
+auto ThermoBatch::digits() -> const std::map<std::string, int>
 {
     return pimpl->givenPropertyDigits;
 }
 
-auto Interface::results() -> const vvThScalar
+auto ThermoBatch::results() -> const vvThScalar
 {
     return pimpl->results;
 }
