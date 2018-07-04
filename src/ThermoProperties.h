@@ -75,7 +75,7 @@ struct ThermoPropertiesReaction
     /// The standard molar isobaric heat capacity @f$ C_{P}^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar reaction_heat_capacity_cp;
 
-    /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol*))
+    /// The standard molar isochoric heat capacity @f$ C_{V}^{\circ}@f$ of the species (in units of J/(mol*K))
     Reaktoro_::ThermoScalar reaction_heat_capacity_cv;
 };
 
