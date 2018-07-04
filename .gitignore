@@ -20,6 +20,8 @@ tests/unit01/src/*.autosave
 .directory
 /DemoGUI/.directory
 
+python/pyThermoFun/build/
+
 tests/autoTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
 tests/autoTest/install-thirdparty-old.sh
 tests/dbclientTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
