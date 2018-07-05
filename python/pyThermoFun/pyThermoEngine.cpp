@@ -16,21 +16,28 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
-#include "PyThermoFun.hpp"
-using namespace ThermoFun;
+// pybind11 includes
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
 
-PYBIND11_MODULE(PyThermoFun, m)
+// ThermoFun includes
+#include <thermofun/ThermoEngine.h>
+#include <thermofun/Database.h>
+#include <thermofun/ThermoProperties.h>
+
+namespace ThermoFun {
+
+void exportThermoEngine(py::module& m)
 {
-    // Common module
-    exportThermoScalar(m);
-    exportThermoPropertiesSubstance(m);
-//    exportStatus(m);
-//    exportDatabase(m);
-    exportThermoEngine(m);
-//    exportThermoBatch(m);
+    py::class_<ThermoEngine>(m, "ThermoEngine")
+//        .def(py::init<>())
+        .def(py::init<const std::string>())
+        .def(py::init<const Database&>())
+        .def("thermoPropertiesSubstance", &ThermoEngine::thermoPropertiesSubstance, (py::arg("T"), py::arg("P"), "substance"))
+        .def("electroPropertiesSolvent", &ThermoEngine::electroPropertiesSolvent, (py::arg("T"), py::arg("P"), "solvent"))
+        .def("propertiesSolvent", &ThermoEngine::propertiesSolvent, (py::arg("T"), py::arg("P"), "solvent"))
+        ;
+}
 
-
-//    exportThermoPropertiesReaction(m);
-//    exportElectroPropertiesSolvent(m);
-//    exportPropertiesSolvent(m);
 }

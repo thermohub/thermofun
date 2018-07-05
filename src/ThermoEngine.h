@@ -19,22 +19,25 @@ struct ElectroPropertiesSolvent;
 struct PropertiesSolvent;
 
 /**
- * @brief The Thermo class mainly calculates the themrodynamic properties of the substances
- * from the internal database. It also calculates the electro-chemical and other phisico-chemical
- * properites of the solvent
+ * @brief The Thermo class mainly calculates the thermodynamic properties of the substances
+ * from the internal database. It also calculates the electro-chemical and other physico-chemical
+ * properties of the solvent
  */
 class ThermoEngine
 {
     friend class Interface;
 public:
 
-    ThermoEngine();
+    //ThermoEngine();
+
+    /// Construct a Thermo instance with given dataset file
+    ThermoEngine(const std::string dataset);
 
     /// Construct a Thermo instance with given Database instance
-    explicit ThermoEngine(const Database& database);
+    ThermoEngine(const Database& database);
 
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
-    auto setSolventSymbol(const std::string solvent_symbol) ->void;
+    auto setSolventSymbol(const std::string solvent_symbol) -> void;
 
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
     auto solventSymbol( ) const -> std::string;

@@ -5,29 +5,29 @@
 
     int main(int argc, char *argv[])
     {
-      // Create the interface object using a database file in JSON
-      Interface interface("Resources/aq17.json");
+      // Create the engine object using a database file in JSON
+      ThermoBatch batch("Resources/aq17.json");
 
       // Optional: set the solvent symbol used for claulating properties of aqueous species
-      interface.setSolventSymbol("H2O@");
+      batch.setSolventSymbol("H2O@");
 
       // Optional: change default units
-      interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+      batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
       // Optional: change default digits
-      interface.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
+      batch.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
 
       // Retrieve the entropy of H2O
-      double H2Oentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
-      double H2Ogentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toDouble();
-      Reaktoro_::ThermoScalar entro = interface.thermoPropertiesSubstance( 250, 1000, "H2O@", "entropy").toThermoScalar();
-      Reaktoro_::ThermoScalar G1 = interface.thermoPropertiesSubstance( 25, 1000, "H2O@", "gibbs_energy").toThermoScalar();
-      Reaktoro_::ThermoScalar G2 = interface.thermoPropertiesSubstance( 25, 1, "H2O@", "gibbs_energy").toThermoScalar();
+      double H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+      double H2Ogentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+      Reaktoro_::ThermoScalar entro = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "entropy").toThermoScalar();
+      Reaktoro_::ThermoScalar G1 = batch.thermoPropertiesSubstance( 25, 1000, "H2O@", "gibbs_energy").toThermoScalar();
+      Reaktoro_::ThermoScalar G2 = batch.thermoPropertiesSubstance( 25, 1, "H2O@", "gibbs_energy").toThermoScalar();
       auto G= G1-G2;
-      Reaktoro_::ThermoScalar V = interface.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar();
+      Reaktoro_::ThermoScalar V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar();
 
       // Write results to a comma separate files for a list of T-P pairs, substances, and properties
-      interface.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
+      batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
                                            {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
                                            {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
                                           ).toCSV("results.csv");                           // output

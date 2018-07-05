@@ -257,7 +257,7 @@ struct Database::Impl
         try
         {
             // Reading work structure from json text file
-            jsonio::FJsonArray file( filename);
+            jsonio::FJsonArray file(filename);
             //type_ = file.Type();
             file.Open( jsonio::OpenModeTypes::ReadOnly );
 

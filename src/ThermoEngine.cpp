@@ -570,8 +570,12 @@ struct ThermoEngine::Impl
     }
 };
 
-ThermoEngine::ThermoEngine()
-: pimpl(new Impl())
+//ThermoEngine::ThermoEngine()
+//: pimpl(new Impl())
+//{}
+
+ThermoEngine::ThermoEngine(const std::string dataset)
+: pimpl(new Impl(*(new const Database(dataset))))
 {}
 
 ThermoEngine::ThermoEngine(const Database& database)

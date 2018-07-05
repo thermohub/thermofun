@@ -24,10 +24,19 @@ namespace ThermoFun {
 
 // Common module
 void exportThermoScalar(py::module& m);
+// properties
+void exportThermoPropertiesSubstance(py::module& m);
+// void exportStatus(py::module& m);
+
+// void exportDatabase(py::module& m);
 
 // Core module
-// void exportThermoEngine(py::module& m);
+void exportThermoEngine(py::module& m);
 // void exportThermoBatch(py::module& m);
+
+//void exportThermoPropertiesReaction(py::module& m);
+//void exportElectroPropertiesSolvent(py::module& m);
+//void exportPropertiesSolvent(py::module& m);
 
 
 // void exportChemicalProperties(py::module& m);

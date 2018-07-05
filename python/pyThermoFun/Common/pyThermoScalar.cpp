@@ -26,16 +26,17 @@ namespace py = pybind11;
 namespace r_ = Reaktoro_;
 
 namespace ThermoFun {
-//
-//    py::enum_<r_::Status>(m, "Status", py::arithmetic())
-//        .value("notdefined", r_::Status::notdefined)
-//        .value("read", r_::Status::read)
-//        .value("calculated", r_::Status::calculated)
-//        .value("assigned", r_::Status::assigned)
-//        .value("initialized", r_::Status::initialized)
-//        .export_values();
-//    
-//    py::bind_pair<std::pair<r_::Status, std::string>>(m, "StatusMessage");
+
+auto exportStatus(py::module& m) -> void
+{
+    py::enum_<r_::Status>(m, "Status")
+        .value("notdefined", r_::Status::notdefined)
+        .value("read", r_::Status::read)
+        .value("calculated", r_::Status::calculated)
+        .value("assigned", r_::Status::assigned)
+        .value("initialized", r_::Status::initialized)
+        ;
+}
 
 void exportThermoScalar(py::module& m)
 {
@@ -44,8 +45,8 @@ void exportThermoScalar(py::module& m)
         .def(py::init<double>())
         .def(py::init<double, double, double, double, r_::StatusMessage>())
         .def_readwrite("val", &r_::ThermoScalar::val)
-        .def_readwrite("ddT", &r_::ThermoScalar::ddt)
-        .def_readwrite("ddP", &r_::ThermoScalar::ddp)
+        .def_readwrite("ddt", &r_::ThermoScalar::ddt)
+        .def_readwrite("ddp", &r_::ThermoScalar::ddp)
         .def_readwrite("err", &r_::ThermoScalar::err)
         .def_readwrite("sta", &r_::ThermoScalar::sta)
         ;
