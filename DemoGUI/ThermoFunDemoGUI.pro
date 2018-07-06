@@ -73,7 +73,7 @@ LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift
-
+LIBS +=  -lmarkdown
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR
