@@ -37,78 +37,69 @@ void exportThermoPropertiesSubstance(py::module& m)
         .def_readwrite("heat_capacity_cp", &ThermoPropertiesSubstance::heat_capacity_cp)
         .def_readwrite("heat_capacity_cv", &ThermoPropertiesSubstance::heat_capacity_cv)
         ;
-//    m.def("thermoPropertiesSubstance", thermoPropertiesSubstance);
 }
 
-
-//void exportThermoPropertiesReaction(py::module& m)
-//{
-//    py::class_<ThermoPropertiesReaction>(m, "ThermoPropertiesReaction")
-//        .def_readwrite("ln_equilibrium_constant",   &ThermoPropertiesReaction::ln_equilibrium_constant)
-//        .def_readwrite("log_equilibrium_constant",  &ThermoPropertiesReaction::log_equilibrium_constant)
-//        .def_readwrite("reaction_gibbs_energy",     &ThermoPropertiesReaction::reaction_gibbs_energy)
-//        .def_readwrite("reaction_helmholtz_energy", &ThermoPropertiesReaction::reaction_helmholtz_energy)
-//        .def_readwrite("reaction_internal_energy",  &ThermoPropertiesReaction::reaction_internal_energy)
-//        .def_readwrite("reaction_enthalpy",         &ThermoPropertiesReaction::reaction_enthalpy)
-//        .def_readwrite("reaction_entropy",          &ThermoPropertiesReaction::reaction_entropy)
-//        .def_readwrite("reaction_volume",           &ThermoPropertiesReaction::reaction_volume)
-//        .def_readwrite("reaction_heat_capacity_cp", &ThermoPropertiesReaction::reaction_heat_capacity_cp)
-//        .def_readwrite("reaction_heat_capacity_cv", &ThermoPropertiesReaction::reaction_heat_capacity_cv)
-//        ;
-//
-////    m.def("thermoPropertiesReaction", thermoPropertiesReaction); // where this variable name appears? 
-//}
-//
-//
-//void exportElectroPropertiesSolvent(py::module& m)
-//{
-//    py::class_<ElectroPropertiesSolvent>(m, "ElectroPropertiesSolvent")
-//        .def_readwrite("epsilon", &ElectroPropertiesSolvent::epsilon)
-//        .def_readwrite("epsilonT", &ElectroPropertiesSolvent::epsilonT)
-//        .def_readwrite("epsilonP", &ElectroPropertiesSolvent::epsilonP)
-//        .def_readwrite("epsilonTT", &ElectroPropertiesSolvent::epsilonTT)
-//        .def_readwrite("epsilonTP", &ElectroPropertiesSolvent::epsilonTP)
-//        .def_readwrite("epsilonPP", &ElectroPropertiesSolvent::epsilonPP)
-//        .def_readwrite("bornZ", &ElectroPropertiesSolvent::bornZ)
-//        .def_readwrite("bornY", &ElectroPropertiesSolvent::bornY)
-//        .def_readwrite("bornQ", &ElectroPropertiesSolvent::bornQ)
-//        .def_readwrite("bornN", &ElectroPropertiesSolvent::bornN)
-//        .def_readwrite("bornU", &ElectroPropertiesSolvent::bornU)
-//        .def_readwrite("bornX", &ElectroPropertiesSolvent::bornX)
-//        ;
-//
-////    m.def("electroPropertiesSolvent", electroPropertiesSolvent);
-//}
-//
-//void exportPropertiesSolvent(py::module& m)
-//{
-//    py::class_<PropertiesSolvent>(m, "PropertiesSolvent")
-//        .def_readwrite("speed_of_sound", &PropertiesSolvent::speed_of_sound)
-//        .def_readwrite("dynamic_viscosity", &PropertiesSolvent::dynamic_viscosity)
-//        .def_readwrite("thermal_conductivity", &PropertiesSolvent::thermal_conductivity)
-//        .def_readwrite("surface_tension", &PropertiesSolvent::surface_tension)
-//        .def_readwrite("Tdiff", &PropertiesSolvent::Tdiff)
-//        .def_readwrite("Prndtl", &PropertiesSolvent::Prndtl)
-//        .def_readwrite("Visck", &PropertiesSolvent::Visck)
-//        .def_readwrite("Alpha", &PropertiesSolvent::Alpha)
-//        .def_readwrite("dAldT", &PropertiesSolvent::dAldT)
-//        .def_readwrite("Beta", &PropertiesSolvent::Beta)
-//        .def_readwrite("Albe", &PropertiesSolvent::Albe)
-//        .def_readwrite("density", &PropertiesSolvent::density)
-//        .def_readwrite("densityT", &PropertiesSolvent::densityT)
-//        .def_readwrite("densityP", &PropertiesSolvent::densityP)
-//        .def_readwrite("densityTT", &PropertiesSolvent::densityTT)
-//        .def_readwrite("densityTP", &PropertiesSolvent::densityTP)
-//        .def_readwrite("densityPP", &PropertiesSolvent::densityPP)
-//        .def_readwrite("pressure", &PropertiesSolvent::pressure)
-//        .def_readwrite("pressureT", &PropertiesSolvent::pressureT)
-//        .def_readwrite("pressureD", &PropertiesSolvent::pressureD)
-//        .def_readwrite("pressureTT", &PropertiesSolvent::pressureTT)
-//        .def_readwrite("pressureTD", &PropertiesSolvent::pressureTD)
-//        .def_readwrite("pressureDD", &PropertiesSolvent::pressureDD)
-//        ;
-//    m.def("propertiesSolvent", propertiesSolvent);
-//}
-
-
+void exportThermoPropertiesReaction(py::module& m)
+{
+    py::class_<ThermoPropertiesReaction>(m, "ThermoPropertiesReaction")
+        .def_readwrite("ln_equilibrium_constant",   &ThermoPropertiesReaction::ln_equilibrium_constant)
+        .def_readwrite("log_equilibrium_constant",  &ThermoPropertiesReaction::log_equilibrium_constant)
+        .def_readwrite("reaction_gibbs_energy",     &ThermoPropertiesReaction::reaction_gibbs_energy)
+        .def_readwrite("reaction_helmholtz_energy", &ThermoPropertiesReaction::reaction_helmholtz_energy)
+        .def_readwrite("reaction_internal_energy",  &ThermoPropertiesReaction::reaction_internal_energy)
+        .def_readwrite("reaction_enthalpy",         &ThermoPropertiesReaction::reaction_enthalpy)
+        .def_readwrite("reaction_entropy",          &ThermoPropertiesReaction::reaction_entropy)
+        .def_readwrite("reaction_volume",           &ThermoPropertiesReaction::reaction_volume)
+        .def_readwrite("reaction_heat_capacity_cp", &ThermoPropertiesReaction::reaction_heat_capacity_cp)
+        .def_readwrite("reaction_heat_capacity_cv", &ThermoPropertiesReaction::reaction_heat_capacity_cv)
+        ;
 }
+
+void exportElectroPropertiesSolvent(py::module& m)
+{
+    py::class_<ElectroPropertiesSolvent>(m, "ElectroPropertiesSolvent")
+        .def_readwrite("epsilon", &ElectroPropertiesSolvent::epsilon)
+        .def_readwrite("epsilonT", &ElectroPropertiesSolvent::epsilonT)
+        .def_readwrite("epsilonP", &ElectroPropertiesSolvent::epsilonP)
+        .def_readwrite("epsilonTT", &ElectroPropertiesSolvent::epsilonTT)
+        .def_readwrite("epsilonTP", &ElectroPropertiesSolvent::epsilonTP)
+        .def_readwrite("epsilonPP", &ElectroPropertiesSolvent::epsilonPP)
+        .def_readwrite("bornZ", &ElectroPropertiesSolvent::bornZ)
+        .def_readwrite("bornY", &ElectroPropertiesSolvent::bornY)
+        .def_readwrite("bornQ", &ElectroPropertiesSolvent::bornQ)
+        .def_readwrite("bornN", &ElectroPropertiesSolvent::bornN)
+        .def_readwrite("bornU", &ElectroPropertiesSolvent::bornU)
+        .def_readwrite("bornX", &ElectroPropertiesSolvent::bornX)
+        ;
+}
+
+void exportPropertiesSolvent(py::module& m)
+{
+    py::class_<PropertiesSolvent>(m, "PropertiesSolvent")
+        .def_readwrite("speed_of_sound", &PropertiesSolvent::speed_of_sound)
+        .def_readwrite("dynamic_viscosity", &PropertiesSolvent::dynamic_viscosity)
+        .def_readwrite("thermal_conductivity", &PropertiesSolvent::thermal_conductivity)
+        .def_readwrite("surface_tension", &PropertiesSolvent::surface_tension)
+        .def_readwrite("Tdiff", &PropertiesSolvent::Tdiff)
+        .def_readwrite("Prndtl", &PropertiesSolvent::Prndtl)
+        .def_readwrite("Visck", &PropertiesSolvent::Visck)
+        .def_readwrite("Alpha", &PropertiesSolvent::Alpha)
+        .def_readwrite("dAldT", &PropertiesSolvent::dAldT)
+        .def_readwrite("Beta", &PropertiesSolvent::Beta)
+        .def_readwrite("Albe", &PropertiesSolvent::Albe)
+        .def_readwrite("density", &PropertiesSolvent::density)
+        .def_readwrite("densityT", &PropertiesSolvent::densityT)
+        .def_readwrite("densityP", &PropertiesSolvent::densityP)
+        .def_readwrite("densityTT", &PropertiesSolvent::densityTT)
+        .def_readwrite("densityTP", &PropertiesSolvent::densityTP)
+        .def_readwrite("densityPP", &PropertiesSolvent::densityPP)
+        .def_readwrite("pressure", &PropertiesSolvent::pressure)
+        .def_readwrite("pressureT", &PropertiesSolvent::pressureT)
+        .def_readwrite("pressureD", &PropertiesSolvent::pressureD)
+        .def_readwrite("pressureTT", &PropertiesSolvent::pressureTT)
+        .def_readwrite("pressureTD", &PropertiesSolvent::pressureTD)
+        .def_readwrite("pressureDD", &PropertiesSolvent::pressureDD)
+        ;
+}
+
+} // namespace ThermoFun

@@ -21,37 +21,17 @@
 namespace py = pybind11;
 
 namespace ThermoFun {
+    // Common module
+    void exportThermoScalar(py::module& m);
+    // void exportStatus(py::module& m);
+    // Properties
+    void exportThermoPropertiesSubstance(py::module& m);
+    void exportThermoPropertiesReaction(py::module& m);
+    void exportElectroPropertiesSolvent(py::module& m);
+    void exportPropertiesSolvent(py::module& m);
+    // Core module
+    void exportThermoEngine(py::module& m);
+    void exportThermoBatch(py::module& m);
 
-// Common module
-void exportThermoScalar(py::module& m);
-// properties
-void exportThermoPropertiesSubstance(py::module& m);
-// void exportStatus(py::module& m);
-
-// void exportDatabase(py::module& m);
-
-// Core module
-void exportThermoEngine(py::module& m);
-// void exportThermoBatch(py::module& m);
-
-//void exportThermoPropertiesReaction(py::module& m);
-//void exportElectroPropertiesSolvent(py::module& m);
-//void exportPropertiesSolvent(py::module& m);
-
-
-// void exportChemicalProperties(py::module& m);
-// void exportChemicalProperty(py::module& m);
-// void exportChemicalQuantity(py::module& m);
-// void exportChemicalState(py::module& m);
-// void exportChemicalSystem(py::module& m);
-// void exportConnectivity(py::module& m);
-// void exportElement(py::module& m);
-// void exportPartition(py::module& m);
-// void exportPhase(py::module& m);
-// void exportReaction(py::module& m);
-// void exportReactionSystem(py::module& m);
-// void exportSpecies(py::module& m);
-// void exportThermoProperties(py::module& m);
-// void exportUtils(py::module& m);
-
+    // void exportDatabase(py::module& m);
 } // namespace ThermoFun

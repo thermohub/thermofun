@@ -2,7 +2,7 @@ import PyThermoFun
 
 properties = PyThermoFun.ThermoPropertiesSubstance
 
-engine = PyThermoFun.ThermoEngine("/home/dmiron/gitTHERMOFUN/thermofun/python/tests/Resources/aq17.json")
+engine = PyThermoFun.ThermoEngine("aq17.json")
 
 prop = engine.thermoPropertiesSubstance(373.15, 100000000, "H2O@")
 

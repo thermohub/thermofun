@@ -22,7 +22,7 @@ tests/unit01/src/*.autosave
 
 python/pyThermoFun/build/
 .vscode/
-tests/PyThermoFun.so
+python/tests/PyThermoFun.so
 
 tests/autoTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
 tests/autoTest/install-thirdparty-old.sh
@@ -41,5 +41,6 @@ tests/interfaceTest/include/
 tests/interfaceTest/install_manifest.txt
 tests/interfaceTest/lib/
 tests/interfaceTest/thirdparty/
+
 
 

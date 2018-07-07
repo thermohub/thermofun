@@ -37,6 +37,8 @@ void exportThermoEngine(py::module& m)
         .def("thermoPropertiesSubstance", &ThermoEngine::thermoPropertiesSubstance, (py::arg("T"), py::arg("P"), "substance"))
         .def("electroPropertiesSolvent", &ThermoEngine::electroPropertiesSolvent, (py::arg("T"), py::arg("P"), "solvent"))
         .def("propertiesSolvent", &ThermoEngine::propertiesSolvent, (py::arg("T"), py::arg("P"), "solvent"))
+        .def("thermoPropertiesReaction", &ThermoEngine::thermoPropertiesReaction, (py::arg("T"), py::arg("P"), "reaction"))
+        .def("thermoPropertiesReactionFromReactants", &ThermoEngine::thermoPropertiesReaction, (py::arg("T"), py::arg("P"), "symbol"))
         ;
 }
 

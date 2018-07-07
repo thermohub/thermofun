@@ -16,11 +16,11 @@ enum Calculation {forSUBSTANCE, forREACTION, forSOLVENT};
 struct ThermoBatch::Impl
 {
     /// The thermo instance
-    ThermoEngine                              thermo;
+    ThermoEngine                        thermo;
 
     OutputSettings                      outSettings;
 
-    BatchCalculationSettings                 calcSettings;
+    BatchCalculationSettings            calcSettings;
 
     vvd                                 tpPairs;
 

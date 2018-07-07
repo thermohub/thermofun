@@ -23,6 +23,8 @@ file(GLOB_RECURSE SOURCE_FILES *.cpp)
 # Create the PyThermoFun library
 pybind11_add_module(PyThermoFun ${SOURCE_FILES} NO_EXTRAS) # NO_EXTRAS used to decrease linking time, but causes larger module file size
 
+#link_directories(/usr/local/lib)
+
 # Link PyThermoFun against ThermoFun library
 target_link_libraries(PyThermoFun LINK_PRIVATE thermofun)
 

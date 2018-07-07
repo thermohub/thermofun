@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "../Common/ThermoScalar.hpp"
-#include "Batch/OutputBatch.h"
+#include "OutputBatch.h"
 
 namespace ThermoFun {
 
@@ -105,7 +105,7 @@ public:
     auto setPropertyUnitDigit       (const std::string &property, const std::string &unit, const int &digit)-> void;
 
     // claculate functions substances
-    auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property)   -> Output;
+    auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
     auto thermoPropertiesSubstance  (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps = {}) -> Output;

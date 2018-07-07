@@ -23,14 +23,15 @@ PYBIND11_MODULE(PyThermoFun, m)
 {
     // Common module
     exportThermoScalar(m);
-    exportThermoPropertiesSubstance(m);
 //    exportStatus(m);
-//    exportDatabase(m);
+    // Properties 
+    exportThermoPropertiesSubstance(m);
+    exportThermoPropertiesReaction(m);
+    exportElectroPropertiesSolvent(m);
+    exportPropertiesSolvent(m);
+    // Core module
     exportThermoEngine(m);
-//    exportThermoBatch(m);
+    exportThermoBatch(m);
 
-
-//    exportThermoPropertiesReaction(m);
-//    exportElectroPropertiesSolvent(m);
-//    exportPropertiesSolvent(m);
+//    exportDatabase(m);
 }
