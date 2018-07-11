@@ -73,7 +73,7 @@ LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift
-LIBS +=  -lmarkdown
+#LIBS +=  -lmarkdown
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR
@@ -90,4 +90,14 @@ RESOURCES += \
     ThermoFunDemoGUI.qrc
 
 #thrift -r -v --gen cpp
+
+SOURCES += \
+    test/main.cpp \
+    test/ThermoFunMainWindow.cpp
+
+HEADERS += \
+    test/ThermoFunMainWindow.h
+
+FORMS += \
+    test/ThermoFunMainWindow.ui
 

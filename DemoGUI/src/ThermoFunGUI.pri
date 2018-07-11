@@ -9,7 +9,7 @@ HEADERS += \
     $$PWD/model_reactions.h
 
 SOURCES += \
-    $$PWD/main.cpp \
+#    $$PWD/main.cpp \
     $$PWD/SelectElementsDialog.cpp \
     $$PWD/ThermoFunWidgetPrivate.cpp \
     $$PWD/ThermoFunWidgetNew.cpp \
