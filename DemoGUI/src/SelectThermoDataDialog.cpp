@@ -73,9 +73,9 @@ struct SelectThermoDataDialogPrivate
        return dbclient.sourcetdbListAll();
    }
 
-   bool makeAvailableElementsList( int idThermo )
+   bool makeAvailableElementsList( const string& idThermo )
    {
-     elementsRow = dbclient.availableElementsKey(idThermo); // ????????????????
+     //elementsRow = dbclient.availableElementsKey(idThermo); // ????????????????
      return true;
    }
 
@@ -342,6 +342,7 @@ void  SelectThermoDataDialog::defineTermodata()
     setModel( thermoTable, pdata->thermoModel->getModel() );
     thermoTable->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->verticalLayout_3->addWidget(thermoTable);
+    pdata->thermoModel->loadModeRecords( jsonio::emptyQuery, -1, {} );
 }
 
 void  SelectThermoDataDialog::defineSubstance()
@@ -370,7 +371,7 @@ void  SelectThermoDataDialog::defineReactionSets()
 
 void  SelectThermoDataDialog::updateElementsThermo()
 {
-   int idThermo = thermoTable->currentIndex().sibling(thermoTable->currentIndex().row(),0).data().toInt();
+   auto idThermo = thermoTable->currentIndex().sibling(thermoTable->currentIndex().row(),0).data().toString().toStdString();
 
    if( pdata->makeAvailableElementsList(idThermo))
    {

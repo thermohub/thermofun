@@ -449,7 +449,7 @@ void TThermoFunMainWin::CmSelectElementsTest()
 {
   try {
         ThermoFun::DatabaseClient dbclient( uiSettings().dbclient() );
-        SelectThermoDataDialog dlg( 'B', dbclient, this);
+        SelectThermoDataDialog dlg( 'A', dbclient, this);
         if( dlg.exec() )
         {
 

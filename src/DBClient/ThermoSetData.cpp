@@ -4,10 +4,11 @@ using namespace jsonio;
 
 namespace ThermoFun {
 
-const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
-const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.type","_id"};
-const vector<string> datsetColumnHeaders    = {"symbol", "name", "type"};
-const vector<string> datsetDataNames        = {"symbol", "name", "type", "_id"};
+//const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
+const DBQueryData datsetQuery("FOR u  IN thermodatasets ", DBQueryData::qAQL);
+const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.stype","_id"};
+const vector<string> datsetColumnHeaders    = {"symbol", "name", "stype"};
+const vector<string> datsetDataNames        = {"symbol", "name", "stype", "_id"};
 
 struct ThermoSetData::Impl
 {
@@ -46,6 +47,26 @@ ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
 
+    auto fields = getDataFieldPaths();
+
+    // get records by query
+    auto query = aquery;
+    if (query.empty())
+    {
+        query = getQuery();
+        // only here we have subset fields to extract
+        query.setQueryFields(makeQueryFields());
+        fields = getDataNames();
+    }
+    //?? if (!elements.empty())
+    //??  addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
+
+    ValuesTable substQueryMatr = getDB()->loadRecords(query, fields);
+
+    // get record by elements list
+    //?? updateTableByElementsList( substQueryMatr, elements );
+    pimpl->valuesTable = substQueryMatr;
+    return   move(substQueryMatr);
 }
 
 ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
