@@ -13,6 +13,7 @@
 #include "thermofungui/ThermoFunWidgetNew.h"
 #include "thermofun/DBClient/DatabaseClient.h"
 #include "thermofun/DBClient/ReactionData.h"
+#include "SelectThermoDataDialog.h"
 
 using namespace jsonio;
 using namespace jsonui;
@@ -91,7 +92,7 @@ void TThermoFunMainWin::setActions()
 
     //Tools
     connect( ui->actionThermo_Fun_Properties_at_TP, SIGNAL( triggered()), this, SLOT(CmThermoFun()));
-//    connect( ui->actionRecord_Calculator, SIGNAL( triggered()), this, SLOT(CmRecordCalc()));
+    connect( ui->actionRecord_Calculator, SIGNAL( triggered()), this, SLOT(CmSelectElementsTest()));
 
     connect( &uiSettings(), SIGNAL(dbChanged()), this, SLOT(setAllElements()));
     connect( &uiSettings(), SIGNAL(schemaChanged()), this, SLOT(setAllElements()));
@@ -433,6 +434,26 @@ void TThermoFunMainWin::setAllElements()
         }
 
 
+    }
+   catch(jsonio_exeption& e)
+   {
+       QMessageBox::critical( this, e.title(), e.what() );
+   }
+   catch(std::exception& e)
+    {
+       QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+void TThermoFunMainWin::CmSelectElementsTest()
+{
+  try {
+        ThermoFun::DatabaseClient dbclient( uiSettings().dbclient() );
+        SelectThermoDataDialog dlg( 'B', dbclient, this);
+        if( dlg.exec() )
+        {
+
+        }
     }
    catch(jsonio_exeption& e)
    {

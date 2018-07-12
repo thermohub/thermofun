@@ -9,8 +9,8 @@
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/AbstractData.h"
-#include "../src/Reaction.h"
-#include "../src/Substance.h"
+//#include "../src/Reaction.h"
+//#include "../src/Substance.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/DBClient/AbstractData.h"
@@ -18,15 +18,15 @@
 #include "thermofun/Substance.h"
 #endif
 
-using MapLevelReaction             = map<string, ThermoFun::Reaction>;
-using MapSymbolMapLevelReaction    = map<string, MapLevelReaction>;
+//using MapLevelReaction             = map<string, ThermoFun::Reaction>;
+//using MapSymbolMapLevelReaction    = map<string, MapLevelReaction>;
 
 class ThermoViewModel: public QObject
 {
     Q_OBJECT
 
     //QSortFilterProxyModel *proxyModel;
-    ThermoFun::AbstractData *data_;
+    std::shared_ptr<ThermoFun::AbstractData> data_;
 
     /// loaded data
     std::shared_ptr<jsonui::StringTable> thermoData;
@@ -45,7 +45,7 @@ public:
 
     void linkData( ThermoFun::AbstractData *data )
     {
-      data_ = data;
+      data_.reset(data);
       thermoData->updateHeads( data_->getDataHeaders() );
       thermoData->updateValues( {} );
       thermoModel->resetMatrixData();
@@ -85,6 +85,11 @@ public:
     {
         if( tableView  )
           tableView->setModel(thermoModel.get());
+    }
+
+    jsonui::TMatrixModel* getModel() const
+    {
+      return  thermoModel.get();
     }
 
 protected:

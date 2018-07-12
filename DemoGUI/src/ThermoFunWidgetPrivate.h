@@ -12,6 +12,8 @@
 #include "../src/DBClient/ReactionData.h"
 #include "../src/DBClient/ReactionSetData.h"
 #include "../src/DBClient/SubstanceData.h"
+#include "../src/Reaction.h"
+#include "../src/Substance.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/Interfaces/Interface.h"
