@@ -1,4 +1,5 @@
 #include "ThermoSetData.h"
+#include "jsonio/jsondomfree.h"
 
 using namespace jsonio;
 
@@ -38,9 +39,32 @@ auto ThermoSetData::operator=(ThermoSetData other) -> ThermoSetData&
 ThermoSetData::~ThermoSetData()
 {}
 
-set<ElementKey> ThermoSetData::getElementsList( const string& idSubstance )
+set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
 {
+    set<ElementKey> elements;
+    string jsonrecord = getJsonRecordVertex(idthermo+":");
+    auto domdata = jsonio::unpackJson( jsonrecord );
+    ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
 
+    // if user fogot tnsert elements property
+    if( elements.empty() )
+    {
+        vector<string> formulalst = getSubstanceFormulas( idthermo );
+        elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
+    }
+    return elements;
+}
+
+vector<string> ThermoSetData::getSubstanceFormulas( const string& idthermo )
+{
+    vector<string> formulas;
+    string qrAQL = "FOR v,e  IN 1..5 INBOUND " + idthermo + " \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'substance' ";
+           qrAQL += "\nRETURN DISTINCT v.properties.formula";
+
+    getDB()->runQuery( DBQueryData( qrAQL, DBQueryData::qAQL ),  {}, formulas);
+    return formulas;
 }
 
 ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,

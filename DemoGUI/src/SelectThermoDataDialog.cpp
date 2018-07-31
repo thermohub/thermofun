@@ -54,10 +54,14 @@ struct SelectThermoDataDialogPrivate
    SelectThermoDataDialogPrivate(SelectThermoDataDialog* awindow, ThermoFun::DatabaseClient dbclient_):
     window(awindow), dbclient( dbclient_ )
    {
-       thermoModel.reset(new ThermoViewModel( new ThermoFun::ThermoSetData(dbclient.thermoDataSet() ), window ));
-       substModel.reset(new ThermoViewModel( new ThermoFun::SubstanceData_(dbclient.substData()), window ));
-       reactModel.reset(new ThermoViewModel( new ThermoFun::ReactionData_(dbclient.reactData()), window ));
-       rcsetModel.reset(new ThermoViewModel( new ThermoFun::ReactionSetData_(dbclient.reactSetData()), window ));
+       thermoModel.reset(new ThermoViewModel( &dbclient.thermoDataSet() , window ));
+       substModel.reset(new ThermoViewModel( &dbclient.substData(), window ));
+       reactModel.reset(new ThermoViewModel( &dbclient.reactData(), window ));
+       rcsetModel.reset(new ThermoViewModel( &dbclient.reactSetData(), window ));
+//       thermoModel.reset(new ThermoViewModel( new ThermoFun::ThermoSetData(dbclient.thermoDataSet() ), window ));
+//       substModel.reset(new ThermoViewModel( new ThermoFun::SubstanceData_(dbclient.substData()), window ));
+//       reactModel.reset(new ThermoViewModel( new ThermoFun::ReactionData_(dbclient.reactData()), window ));
+//       rcsetModel.reset(new ThermoViewModel( new ThermoFun::ReactionSetData_(dbclient.reactSetData()), window ));
    }
 
    virtual ~SelectThermoDataDialogPrivate()
@@ -73,9 +77,13 @@ struct SelectThermoDataDialogPrivate
        return dbclient.sourcetdbListAll();
    }
 
-   bool makeAvailableElementsList( const string& idThermo )
+   bool makeAvailableElementsList( int selrow )
    {
-     //elementsRow = dbclient.availableElementsKey(idThermo); // ????????????????
+       auto matr = thermoModel->getValues();
+       string idThermo = matr[selrow][dbclient.thermoDataSet().getDataName_DataIndex()["_id"]];
+       auto elmnts = dbclient.thermoDataSet().getElementsList(idThermo);
+       elementsRow.clear();
+       elementsRow.insert( elementsRow.begin(), elmnts.begin(), elmnts.end() );
      return true;
    }
 
@@ -371,9 +379,7 @@ void  SelectThermoDataDialog::defineReactionSets()
 
 void  SelectThermoDataDialog::updateElementsThermo()
 {
-   auto idThermo = thermoTable->currentIndex().sibling(thermoTable->currentIndex().row(),0).data().toString().toStdString();
-
-   if( pdata->makeAvailableElementsList(idThermo))
+   if( pdata->makeAvailableElementsList(thermoTable->currentIndex().row()))
    {
        const vector<ThermoFun::ElementKey>& elements = pdata->allAvailableElementsList();
        //foreach ( ElementKey elm, elements)

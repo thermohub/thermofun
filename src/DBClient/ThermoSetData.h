@@ -30,6 +30,10 @@ public:
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idThermoDataSet);
 
+    /// Return all formulas from all connected substances
+    vector<string> getSubstanceFormulas( const string& idThermoDataSet );
+
+
     auto idRecordFromSymbol (const string &symbol) -> string;
 
     /// Visit  all linked Vertexes

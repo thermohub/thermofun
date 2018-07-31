@@ -119,7 +119,7 @@ vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
     vector<string> formulas;
     string qrJson = "FOR v,e  IN 1..1 INBOUND '";
            qrJson += idrcset + "' \n product, master\n";
-           qrJson += "RETURN v.properties.formula";
+           qrJson += "RETURN DISTINCT v.properties.formula";
 
     getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, formulas);
     return formulas;

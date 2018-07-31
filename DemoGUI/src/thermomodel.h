@@ -26,7 +26,8 @@ class ThermoViewModel: public QObject
     Q_OBJECT
 
     //QSortFilterProxyModel *proxyModel;
-    std::shared_ptr<ThermoFun::AbstractData> data_;
+    ///std::shared_ptr<ThermoFun::AbstractData> data__;
+    ThermoFun::AbstractData* data_;
 
     /// loaded data
     std::shared_ptr<jsonui::StringTable> thermoData;
@@ -45,7 +46,8 @@ public:
 
     void linkData( ThermoFun::AbstractData *data )
     {
-      data_.reset(data);
+       // data__.reset(data);
+      data_ == data;
       thermoData->updateHeads( data_->getDataHeaders() );
       thermoData->updateValues( {} );
       thermoModel->resetMatrixData();
