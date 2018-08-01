@@ -39,6 +39,11 @@ auto ThermoSetData::operator=(ThermoSetData other) -> ThermoSetData&
 ThermoSetData::~ThermoSetData()
 {}
 
+const jsonio::ValuesTable&  ThermoSetData::getValuesTable()
+{
+    return pimpl->valuesTable;
+}
+
 set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
 {
     set<ElementKey> elements;

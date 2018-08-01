@@ -53,6 +53,11 @@ ReactionData_::~ReactionData_()
 {
 }
 
+const jsonio::ValuesTable&  ReactionData_::getValuesTable()
+{
+    return pimpl->valuesTable;
+}
+
 auto ReactionData_::queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
 {
     return queryInEdgesTakes_(idReact, queryFields);

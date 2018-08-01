@@ -68,10 +68,36 @@ public:
       thermoModel->resetMatrixData();
     }
 
-    void loadModeRecords(const vector<vector<string>> matr )
+    void loadModeRecords(const jsonio::ValuesTable&  matr )
     {
       thermoData->updateValues( matr );
       thermoModel->resetMatrixData();
+    }
+
+    /// Resize model to selected
+    void leftOnlySelected(  const vector<int> selrows )
+    {
+        jsonio::ValuesTable newmatr;
+        const jsonio::ValuesTable&  oldmatr = getValues();
+
+        for( auto rowndx: selrows)
+          newmatr.push_back( oldmatr[rowndx] );
+        loadModeRecords(newmatr );
+    }
+
+    vector<string> getColumn( uint column, const vector<int>& selrows ) const
+    {
+        vector<string> keys;
+        const jsonio::ValuesTable&  matrix = getValues();
+        for( auto rowndx: selrows)
+        {
+          auto row = matrix[rowndx];
+          if( column >= row.size())
+              keys.push_back( "" );
+           else
+             keys.push_back( row[column]);
+        }
+        return keys;
     }
 
     const jsonio::DBQueryDef& getQuery( ) const

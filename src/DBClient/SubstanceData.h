@@ -32,9 +32,13 @@ public:
     /// Extract data connected to ThermoDataSet
     virtual vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
     vector<string> selectGiven( const vector<int>& sourcetdbs, const vector<ElementKey>& elements, bool unique = true );
-
+    vector<string> selectGiven( const string& idThermoDataSet,
+                       const vector<ElementKey>& elements, bool unique = true );
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idSubstance );
+
+     /// Link to table of fields values loaded before
+     const jsonio::ValuesTable& getValuesTable();
 
     /**
      * @brief queryIncomingEdgesDefines query the ids of incoming edges of type defines
@@ -105,7 +109,6 @@ public:
 
 
 private:
-
     struct Impl;
     std::shared_ptr<Impl> pimpl;
     void updateTableByElementsList( jsonio::ValuesTable& substQueryMatr, const vector<ElementKey>& elements );

@@ -35,6 +35,9 @@ class ReactionData_ : public AbstractData
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
 
+    /// Link to table of fields values loaded before
+    const jsonio::ValuesTable& getValuesTable();
+
     /// Return all formulas from all connected substances
     vector<string> getReactantsFormulas(const string &idReaction);
 

@@ -36,11 +36,11 @@ protected slots:
 
 public:
 
-    explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient dbclient, QWidget *parent = 0);
+    explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
     ~SelectThermoDataDialog();
 
     /// Return all changed data
-    const ThermoFun::DatabaseClient& dbclientData() const;
+    //const ThermoFun::DatabaseClient& dbclientData() const;
     /// Return all selected elements
     void allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const;
 
@@ -78,6 +78,7 @@ private:
 
     void  resetButtons();
     void  setModel( jsonui::TMatrixTable* table, jsonui::TMatrixModel* model );
+    std::vector<int> allSelectedRows( jsonui::TMatrixTable *dataTable );
 
     // define windows
     void  defineTermodata();
@@ -88,25 +89,13 @@ private:
 
     // updateData
     void  updateElementsThermo();
-    void  updateElementsSourceTDBs(){}
-    void  updateSubstance(){}
-    void  updateReaction(){}
+    void  updateElementsSourceTDBs();
+    void  updateSubstance();
+    void  updateReaction();
     void  updateReactionSets();
 
-
-    // load data
-    ///  The container for substances, reactions, and reactionsSets belonging to the ThermoDataset
-    ///   and containing the selected elements will be field
-    void  loadAll(){}
-    /// The selected substances will be loaded in the substance container (SubstanceData::ValuesTable),
-    ///  followed by the reactions container (ReactionData::ValuesTable) containing the selected substances
-    /// and reactionSets container (ReactionSetData::ValuesTable) containing the reactions
-    void  loadFromSubstance(){}
-    ///  The selected reactions will be loaded in the reactions container (ReactionData::ValuesTable),
-    /// followed by the reactionSets container (ReactionSetData::ValuesTable) containing the selected reactions
-    void  loadFromReaction(){}
-    ///  the reactionSets container (ReactionSetData::ValuesTable) will be filled with the selected ReactionSets.
-    void  loadFromReactionSets(){}
+    /// Update all table containers - left only selected values
+    void leftOnlySelected();
 
 };
 

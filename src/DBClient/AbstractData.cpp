@@ -24,7 +24,8 @@ using GetJsonRecord           = std::function<std::string(std::string)>;
 //using GetJsonBsonRecord       = std::function<std::pair<std::string, bson>(std::string)>;
 
 // static std::shared_ptr<bsonio::TDBGraph> dbc = std::shared_ptr<bsonio::TDBGraph>();
-const string ThermoDataSetQueryEdges = " basis, involves, master, prodreac, takes, defines, product ";
+//const string ThermoDataSetQueryEdges = " basis, pulls, involves, master, prodreac, takes, defines, product ";
+const string ThermoDataSetQueryEdges = " basis, pulls, involves, master, prodreac, takes, defines, product ";
 
 struct AbstractData::Impl
 {
@@ -329,6 +330,7 @@ auto AbstractData::getDB() const -> std::shared_ptr<jsonio::TDBVertexDocument>
     return pimpl->dbvertex;
 }
 
+
 /*
 auto AbstractData::setDB(const std::shared_ptr<bsonio::TDBGraph> &value) -> void
 {
@@ -493,9 +495,9 @@ auto AbstractData::updateDBClient( const jsonio::TDataBase* newdbconnect ) -> vo
     }
 }
 
-auto AbstractData::setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable valuesTable) -> void
+auto AbstractData::setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable avaluesTable) -> void
 {
-    for( const auto& subitem : valuesTable )
+    for( const auto& subitem : avaluesTable )
     {
         pimpl->substSymbolLevel[subitem[getDataName_DataIndex()["symbol"]]] = "0";
     }
@@ -537,7 +539,7 @@ auto AbstractData::getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEd
 }
 
 // delete not unique
-void AbstractData::deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx )
+void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, int fldtestNdx )
 {
     ValuesTable newMatr;
     for (const auto& subitem : dataMatr)

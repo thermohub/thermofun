@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>724</width>
-    <height>529</height>
+    <height>551</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -103,13 +103,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QCheckBox" name="checkUnique1">
-         <property name="text">
-          <string> Unique symbols can be selected in the following page</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page_2">
@@ -143,13 +136,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QCheckBox" name="checkUnique_3">
-         <property name="text">
-          <string> Unique symbols can be selected in the following page</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page_4">
@@ -177,13 +163,6 @@
         <widget class="Line" name="line_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkUnique_4">
-         <property name="text">
-          <string> Unique symbols can be selected in the following page</string>
          </property>
         </widget>
        </item>
@@ -217,15 +196,18 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QCheckBox" name="checkUnique_5">
-         <property name="text">
-          <string> Unique symbols can be selected in the following page</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkUnique">
+     <property name="text">
+      <string> Unique symbols can be selected in the following page</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item>

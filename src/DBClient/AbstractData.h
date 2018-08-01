@@ -36,9 +36,11 @@ public:
     /// Extract data connected to ThermoDataSet
     virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true ) = 0 ;
 
-
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
+
+    /// Link to table of fields values loaded before
+    virtual const jsonio::ValuesTable& getValuesTable() = 0;
 
     auto updateDBClient( const jsonio::TDataBase* newdbconnect ) -> void;
 
@@ -82,6 +84,7 @@ public:
     /// Build table of fields values by ids list
     auto loadRecords( const vector<string> ids ) -> jsonio::ValuesTable;
 
+
     /// Build ids list connected to idVertex by incoming edge,
     /// edgeCollections ( "coll1, coll2") list of collections to search into
     auto getInVertexIds(const string& edgeCollections, const string& idVertex) -> vector<string>;
@@ -115,7 +118,7 @@ protected:
     // Resets the data index and data names maps which connect the names to headers to paths
     auto resetDataPathIndex() -> void;
     // sets the level = 0 for substances in ValuesTable
-    auto setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable valuesTable) -> void;
+    auto setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable avaluesTable) -> void;
     // returns the full access mode database connection (allows queryies on all types of records)
     auto getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEdgeDocument>;
     // query the ids of incoming edges of type defines
@@ -131,7 +134,7 @@ protected:
     // sets the level
     auto setSubstanceLevel_(string substSymbol, string level) -> void;
 
-    void deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx );
+    void deleteNotUnique(jsonio::ValuesTable& dataMatr, int fldtestNdx );
 
 private:
     struct Impl;

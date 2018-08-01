@@ -36,6 +36,9 @@ class ReactionSetData_ : public AbstractData
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
 
+    /// Link to table of fields values loaded before
+    const jsonio::ValuesTable& getValuesTable();
+
     /**
      * @brief resetRecordElements resets elements list in record
      * @param aKey record key

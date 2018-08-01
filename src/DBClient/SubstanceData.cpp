@@ -42,6 +42,11 @@ auto SubstanceData_::operator=(SubstanceData_ other) -> SubstanceData_&
 SubstanceData_::~SubstanceData_()
 { }
 
+const jsonio::ValuesTable&  SubstanceData_::getValuesTable()
+{
+    return pimpl->valuesTable;
+}
+
 auto SubstanceData_::queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
 {
     return queryInEdgesDefines_(idSubst, queryFields, level);
@@ -274,6 +279,32 @@ vector<string> SubstanceData_::selectGiven( const vector<string>& idThermoDataSe
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable = move(resMatr);
     return substanceSymbols;
+}
+
+vector<string> SubstanceData_::selectGiven( const string& idThermoDataSet,
+                   const vector<ElementKey>& elements, bool unique )
+{
+    string qrAQL =  "FOR v,e  IN 1..5 INBOUND '" + idThermoDataSet + "' \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'substance' ";
+           qrAQL +=  "\n  SORT v.properties.symbol ";
+           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
+    cout << "qrAQL: " << qrAQL << endl;
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+
+    if( unique )
+        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+
+    updateTableByElementsList( resMatr, elements );
+
+    vector<string> substanceSymbols;
+    for (const auto& subitem : resMatr)
+      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(resMatr);
+    pimpl->valuesTable =   move(resMatr);
+    return                substanceSymbols;
 }
 
 

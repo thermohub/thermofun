@@ -26,42 +26,39 @@
 using namespace jsonui;
 
 
-
-
 struct SelectThermoDataDialogPrivate
 {
-   SelectThermoDataDialog* window;
+   // window data
 
-   /// Selected ThermoDataSet
-   int idThermoDataSet = -1;
-   /// Selected SourceTDBs
-   vector<int> sourceTDBs;
-
-   /// Define ELEMENTS table data
-   vector<ThermoFun::ElementKey> elementsRow;
-
+   /// top level widget
+    SelectThermoDataDialog* _window;
    /// Connect to ReactionSet record
-   ThermoFun::DatabaseClient dbclient;
+   ThermoFun::DatabaseClient& _dbclient;
 
    std::shared_ptr<ThermoViewModel>  thermoModel;
    std::shared_ptr<ThermoViewModel>  substModel;
    std::shared_ptr<ThermoViewModel>  reactModel;
    std::shared_ptr<ThermoViewModel>  rcsetModel;
 
+   // Selkected data
+
+   /// Selected ThermoDataSet
+   string idThermoDataSet;
+   /// Selected SourceTDBs
+   vector<int> sourceTDBs;
+
+   /// Define ELEMENTS table data
+   vector<ThermoFun::ElementKey> elementsRow;
 
 // ---------------------------------------------
 
-   SelectThermoDataDialogPrivate(SelectThermoDataDialog* awindow, ThermoFun::DatabaseClient dbclient_):
-    window(awindow), dbclient( dbclient_ )
+   SelectThermoDataDialogPrivate(SelectThermoDataDialog* awindow, ThermoFun::DatabaseClient& adbclient):
+    _window(awindow), _dbclient( adbclient )
    {
-       thermoModel.reset(new ThermoViewModel( &dbclient.thermoDataSet() , window ));
-       substModel.reset(new ThermoViewModel( &dbclient.substData(), window ));
-       reactModel.reset(new ThermoViewModel( &dbclient.reactData(), window ));
-       rcsetModel.reset(new ThermoViewModel( &dbclient.reactSetData(), window ));
-//       thermoModel.reset(new ThermoViewModel( new ThermoFun::ThermoSetData(dbclient.thermoDataSet() ), window ));
-//       substModel.reset(new ThermoViewModel( new ThermoFun::SubstanceData_(dbclient.substData()), window ));
-//       reactModel.reset(new ThermoViewModel( new ThermoFun::ReactionData_(dbclient.reactData()), window ));
-//       rcsetModel.reset(new ThermoViewModel( new ThermoFun::ReactionSetData_(dbclient.reactSetData()), window ));
+       thermoModel.reset(new ThermoViewModel( &_dbclient.thermoDataSet() , _window ));
+       substModel.reset(new ThermoViewModel( &_dbclient.substData(), _window ));
+       reactModel.reset(new ThermoViewModel( &_dbclient.reactData(), _window ));
+       rcsetModel.reset(new ThermoViewModel( &_dbclient.reactSetData(), _window ));
    }
 
    virtual ~SelectThermoDataDialogPrivate()
@@ -74,17 +71,30 @@ struct SelectThermoDataDialogPrivate
 
    vector<string> getSourcetdbList()
    {
-       return dbclient.sourcetdbListAll();
+       return _dbclient.sourcetdbListAll();
    }
 
-   bool makeAvailableElementsList( int selrow )
+   bool makeAvailableElementsListA( int selrow )
    {
        auto matr = thermoModel->getValues();
-       string idThermo = matr[selrow][dbclient.thermoDataSet().getDataName_DataIndex()["_id"]];
-       auto elmnts = dbclient.thermoDataSet().getElementsList(idThermo);
+       string idThermo = matr[selrow][_dbclient.thermoDataSet().getDataName_DataIndex()["_id"]];
+       auto elmnts = _dbclient.thermoDataSet().getElementsList(idThermo);
        elementsRow.clear();
-       elementsRow.insert( elementsRow.begin(), elmnts.begin(), elmnts.end() );
+       if( !elmnts.empty() )
+       {    idThermoDataSet = idThermo;
+            elementsRow.insert( elementsRow.begin(), elmnts.begin(), elmnts.end() );
+       }
      return true;
+   }
+
+   bool makeAvailableElementsListB( const vector<int>& sourcetdbs )
+   {
+       sourceTDBs  = sourcetdbs;
+       auto elmnts = _dbclient.thermoDataSet().selectElementsFromSubstancesGiven( sourceTDBs );
+       elementsRow.clear();
+       if( !elmnts.empty() )
+           elementsRow.insert( elementsRow.begin(), elmnts.begin(), elmnts.end() );
+       return true;
    }
 
    const vector<ThermoFun::ElementKey>& allAvailableElementsList() const
@@ -92,46 +102,53 @@ struct SelectThermoDataDialogPrivate
      return elementsRow;
    }
 
-/*
-   int loadReacSetRecords( const vector<ThermoFun::ElementKey>& elements )
+   void loadSubstanceRecords( bool typeA, const vector<ThermoFun::ElementKey>& elements, bool unique )
    {
-     jsonio::ValuesTable matr = dbclient.reactSetData().loadRecordsValues(  jsonio::emptyQuery, sourceTDB, elements );
-
-// here
-  ///  auto jsonT = dbclient.substData().getJsonBsonRecordVertex("59a7dcedf3830548000000e7:").first;
-// here
-     matr.insert( matr.begin(), {"All","", "", "",""});
-     rcsetData->updateValues( matr );
-     rcsetModel->resetMatrixData();
-     if( !idReactopnSet.empty() )
-     {
-       for( uint ii=1; ii<matr.size(); ii++)
-        if( idReactopnSet == matr[ii][4] )
-         return ii;
-     }
-     return 0;
-   }
-
-   string getReactionSetId(int ndx ) const
-   {
-     jsonio::ValuesTable matr = rcsetData->getValues();
-     if( ndx< matr.size() && ndx > 0 )
-         return matr[ndx][4];
+     vector<string> substanceSymbols;
+     if( typeA )
+        substanceSymbols = _dbclient.substData().selectGiven( idThermoDataSet, elements, false );
      else
-         return "";
+        substanceSymbols = _dbclient.substData().selectGiven( sourceTDBs, elements, unique );
+
+     substModel->loadModeRecords( _dbclient.substData().getValuesTable() );
    }
-   */
+
+   void loadReactionRecords( bool typeA, const std::vector<int>& substSelectedRows, bool unique )
+   {
+     vector<string> reactSymbols;
+     auto substanceSymbols = substModel->getColumn( _dbclient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
+     if( typeA )
+        ; //reactSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, substanceSymbols );
+     else
+        reactSymbols = _dbclient.reactData().selectGiven( sourceTDBs, substanceSymbols, unique );
+
+     reactModel->loadModeRecords( _dbclient.reactData().getValuesTable() );
+   }
+
+   void loadReacSetRecords( bool typeA, const std::vector<int>& reactSelectedRows, bool unique )
+   {
+     vector<string> scsetSymbols;
+     auto reactSymbols = reactModel->getColumn( _dbclient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
+     if( typeA )
+        ; //scsetSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, reactSymbols );
+     else
+        scsetSymbols = _dbclient.reactSetData().selectGiven( sourceTDBs, reactSymbols, unique );
+
+     rcsetModel->loadModeRecords( _dbclient.reactSetData().getValuesTable() );
+   }
+
 };
 
 
 //===========================================================================
 
 
-SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient dbclient, QWidget *parent) :
+SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent) :
     QDialog(parent), useCase(acase),
     ui(new Ui::SelectThermoData), pdata(new SelectThermoDataDialogPrivate( this, dbclient))
 {
     ui->setupUi(this);
+    ui->checkUnique->hide();
 
     if( useCase=='A')
     {
@@ -207,6 +224,7 @@ void SelectThermoDataDialog::CmNext()
         break;
       case 1:
         updateElementsSourceTDBs();
+        ui->checkUnique->show();
         break;
       case 2:
         updateSubstance();
@@ -238,19 +256,20 @@ void SelectThermoDataDialog::CmFinish()
       auto current = ui->stackedWidget->currentIndex();
       switch( current )
       {
-        case 2:
-           loadAll();
-           break;
-        case 3:
-           loadFromSubstance();
-           break;
-        case 4:
-           loadFromReaction();
-           break;
-        case 5:
-           loadFromReactionSets();
-           break;
+//  The container for substances, reactions, and reactionsSets belonging to the ThermoDataset
+//   and containing the selected elements will be field
+        case 2: updateSubstance();
+// The selected substances will be loaded in the substance container (SubstanceData::ValuesTable),
+//  followed by the reactions container (ReactionData::ValuesTable) containing the selected substances
+// and reactionSets container (ReactionSetData::ValuesTable) containing the reactions
+      case 3: updateReaction();
+//  The selected reactions will be loaded in the reactions container (ReactionData::ValuesTable),
+// followed by the reactionSets container (ReactionSetData::ValuesTable) containing the selected reactions
+      case 4: updateReactionSets();
+                break;
      }
+     // left only selected in mode
+     leftOnlySelected();
      accept();
   }
   catch(jsonio::jsonio_exeption& e)
@@ -311,7 +330,7 @@ void SelectThermoDataDialog::resetButtons()
     ui->bSelectAll->setVisible(current != 0 );
     ui->bBack->setEnabled( current > 1 );
     ui->bNext->setEnabled( current < ui->stackedWidget->count() - 1 );
-    ui->bFinish->setEnabled( current > 2 );
+    ui->bFinish->setEnabled( current > 1 );
 }
 
 
@@ -339,7 +358,7 @@ void  SelectThermoDataDialog::setModel( TMatrixTable* table, TMatrixModel* model
     table->setModel(model);
     table->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setSelectionMode(QAbstractItemView::MultiSelection);
     QObject::disconnect( table, SIGNAL(customContextMenuRequested(QPoint)),
            table, SLOT(slotPopupContextMenu(QPoint)));
 }
@@ -356,8 +375,6 @@ void  SelectThermoDataDialog::defineTermodata()
 void  SelectThermoDataDialog::defineSubstance()
 {
     substTable = new TMatrixTable( this );
-    //tableModel = new ThermoViewModel( new ThermoFun::SubstanceData_(dbclient.substData()), window );
-    //tableModel->updateModel(valuesTable);
     setModel( substTable, pdata->substModel->getModel() );
     ui->verticalLayout->addWidget(substTable);
 }
@@ -379,7 +396,7 @@ void  SelectThermoDataDialog::defineReactionSets()
 
 void  SelectThermoDataDialog::updateElementsThermo()
 {
-   if( pdata->makeAvailableElementsList(thermoTable->currentIndex().row()))
+   if( pdata->makeAvailableElementsListA(thermoTable->currentIndex().row()))
    {
        const vector<ThermoFun::ElementKey>& elements = pdata->allAvailableElementsList();
        //foreach ( ElementKey elm, elements)
@@ -388,22 +405,74 @@ void  SelectThermoDataDialog::updateElementsThermo()
    }
 }
 
-void   SelectThermoDataDialog::updateReactionSets()
+void  SelectThermoDataDialog::updateElementsSourceTDBs()
 {
-    vector<ThermoFun::ElementKey> elementKeys;
-    allSelected( elementKeys );
-    int curndx = 0;//pdata->loadReacSetRecords( elementKeys );
-    rcsetTable->setCurrentIndex(rcsetTable->model()->index( curndx,0 ));
-    rcsetTable->SelectRow();
+    std::vector<int> sourcetdbs;
+    QModelIndexList indexList = sourceDBTable->selectionModel()->selectedIndexes();
+    foreach (QModelIndex index, indexList)
+    {
+        if(index.column() == 0 )
+          sourcetdbs.push_back( index.data().toInt() );
+    }
+    if( pdata->makeAvailableElementsListB(sourcetdbs) )
+    {
+       const vector<ThermoFun::ElementKey>& elements = pdata->allAvailableElementsList();
+       elmsWidget->setElementList( elements );
+    }
 }
 
-// -- Returns selection array
+// -- Returns selection elements array
 void SelectThermoDataDialog::allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const
 {
     elementKeys.clear();
     elmsWidget->allSelected( elementKeys );
 }
 
+void   SelectThermoDataDialog::updateSubstance()
+{
+    vector<ThermoFun::ElementKey> elementKeys;
+    allSelected( elementKeys );
+    pdata->loadSubstanceRecords( (useCase=='A'),  elementKeys, ui->checkUnique->isChecked() );
+    substTable->selectAll();
+}
+
+void   SelectThermoDataDialog::updateReaction()
+{
+    auto substsel = allSelectedRows( substTable );
+    pdata->loadReactionRecords( (useCase=='A'),  substsel, ui->checkUnique->isChecked() );
+    reactTable->selectAll();
+}
+
+
+void   SelectThermoDataDialog::updateReactionSets()
+{
+    auto reactsel = allSelectedRows( reactTable );
+    pdata->loadReacSetRecords( (useCase=='A'),  reactsel, ui->checkUnique->isChecked() );
+    rcsetTable->selectAll();
+}
+
+
+std::vector<int> SelectThermoDataDialog::allSelectedRows( jsonui::TMatrixTable *dataTable )
+{
+    std::vector<int> rows;
+    QModelIndexList indexList = dataTable->selectionModel()->selectedIndexes();
+    foreach (QModelIndex index, indexList)
+    {
+        if(index.column() == 0 )
+          rows.push_back( index.row() );
+    }
+    return rows;
+}
+
+void SelectThermoDataDialog::leftOnlySelected()
+{
+   auto substsel = allSelectedRows( substTable );
+   pdata->substModel->leftOnlySelected(substsel);
+   auto reactsel = allSelectedRows( reactTable );
+   pdata->reactModel->leftOnlySelected(reactsel);
+   auto rcsetsel = allSelectedRows( rcsetTable );
+   pdata->rcsetModel->leftOnlySelected(rcsetsel);
+}
 
 // ------------------------ OK old
 

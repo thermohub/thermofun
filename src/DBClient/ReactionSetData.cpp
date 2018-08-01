@@ -44,6 +44,11 @@ ReactionSetData_::~ReactionSetData_()
 {
 }
 
+const jsonio::ValuesTable&  ReactionSetData_::getValuesTable()
+{
+    return pimpl->valuesTable;
+}
+
 set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrcset )
 {
   set<ElementKey> elements;
