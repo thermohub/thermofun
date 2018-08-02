@@ -280,4 +280,32 @@ vector<string> ReactionSetData_::selectGiven( const vector<string>& idThermoData
     return reacSymbols;
 }
 
+vector<string> ReactionSetData_::selectGiven( const string& idThermoDataSet, const vector<string>& reactionSymbols )
+{
+    string qrAQL =  "FOR v  IN 1..5 INBOUND '" + idThermoDataSet + "'\n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'reactionset' ";
+           qrAQL +=  "\n  LET prodreac = ( FOR v1 IN 1..1 INBOUND v._id prodreac  RETURN v1.properties.symbol )";
+           qrAQL +=  "\n  FILTER prodreac ALL IN @reactionSymbols";
+           qrAQL +=  "\n  SORT v.properties.symbol ";
+           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
+
+     // generate bind values
+     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+     domdata->appendArray( "reactionSymbols", reactionSymbols);
+     // make query
+     DBQueryData query( qrAQL, DBQueryData::qAQL );
+     query.setBindVars( domdata.get() );
+     ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+
+     vector<string> reacSymbols;
+     for (const auto& subitem : resMatr)
+       reacSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+     setDefaultLevelForReactionDefinedSubst(resMatr);
+     pimpl->valuesTable = move(resMatr);
+     return reacSymbols;
+}
+
+
 }

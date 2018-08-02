@@ -118,7 +118,7 @@ struct SelectThermoDataDialogPrivate
      vector<string> reactSymbols;
      auto substanceSymbols = substModel->getColumn( _dbclient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
      if( typeA )
-        ; //reactSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, substanceSymbols );
+        reactSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, substanceSymbols );
      else
         reactSymbols = _dbclient.reactData().selectGiven( sourceTDBs, substanceSymbols, unique );
 
@@ -130,7 +130,7 @@ struct SelectThermoDataDialogPrivate
      vector<string> scsetSymbols;
      auto reactSymbols = reactModel->getColumn( _dbclient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
      if( typeA )
-        ; //scsetSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, reactSymbols );
+        scsetSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, reactSymbols );
      else
         scsetSymbols = _dbclient.reactSetData().selectGiven( sourceTDBs, reactSymbols, unique );
 
