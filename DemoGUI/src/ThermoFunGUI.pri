@@ -1,7 +1,7 @@
 HEADERS += \
     $$PWD/SelectElementsDialog.h \
     $$PWD/thermomodel.h \
-    $$PWD/ThermoFunWidgetPrivate.h \
+    $$PWD/ThermoFunPrivateNew.h \
     $$PWD/ThermoFunWidgetNew.h \
     $$PWD/ElementsWidget.h \
     $$PWD/TPSetDialog.h \
@@ -12,7 +12,7 @@ HEADERS += \
 SOURCES += \
 #    $$PWD/main.cpp \
     $$PWD/SelectElementsDialog.cpp \
-    $$PWD/ThermoFunWidgetPrivate.cpp \
+    $$PWD/ThermoFunPrivateNew.cpp \
     $$PWD/ThermoFunWidgetNew.cpp \
     $$PWD/ElementsWidget.cpp \
     $$PWD/TPSetDialog.cpp \

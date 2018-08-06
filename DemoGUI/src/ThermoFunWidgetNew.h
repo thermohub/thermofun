@@ -49,7 +49,7 @@ namespace Ui {
 class ThermoFunWidget;
 }
 
-class ThermoFunWidgetPrivate;
+class ThermoFunPrivateNew;
 class ThermoFunData;
 
 /// Widget to work with CorrPT data
@@ -57,7 +57,7 @@ class ThermoFunWidgetNew : public jsonui::JSONUIBase
 {
     Q_OBJECT
 
-    friend class ThermoFunWidgetPrivate;
+    friend class ThermoFunPrivateNew;
     std::vector<std::string> _shemaNames;
     std::vector<std::string> _typeNames;
 
@@ -77,7 +77,6 @@ class ThermoFunWidgetNew : public jsonui::JSONUIBase
 
     /// Reset new ThermoFun data
     void resetThermoFunData( const ThermoFunData& newdata );
-//    void updateElements();
 
 protected slots:
 
@@ -97,14 +96,16 @@ public slots:
     void CmImportCFG();
 
    // Record
-    void CmDisplaySearchResult();
-    void CmSearchQuery();
+    //?? void CmDisplaySearchResult();
+    //?? void CmSearchQuery();
 
     //Edit
+    void CmSelectThermoDataSet();
+    void CmSelectSourceTDBs(){}
     void CmResetTP();
     void CmReallocTP();
     void CmResetProperty();
-    void CmSelectElements();
+    //?? void CmSelectElements();
     void CmSetElementsReactions();
     void CmSetElementsReactionSets();
 
@@ -123,16 +124,16 @@ public:
     explicit ThermoFunWidgetNew( QWidget *parent = 0);
     ~ThermoFunWidgetNew();
 
-    void setQuery( jsonui::QueryWidget* queryW  );
+    void setQuery( jsonui::QueryWidget*   ) {}
 
 private:
 
     Ui::ThermoFunWidget *ui;
-    std::unique_ptr<ThermoFunWidgetPrivate> pdata;
+    std::unique_ptr<ThermoFunPrivateNew> pdata;
 
     // Extern windows
-    jsonui::QueryWidget* queryWindow = 0;
-    jsonui::TableEditWidget* queryResultWindow = 0;
+    //jsonui::QueryWidget* queryWindow = 0;
+    //jsonui::TableEditWidget* queryResultWindow = 0;
     jsonui::TableEditWidget* _csvWin = 0;
 
     bool calcSubstFromReact = false;

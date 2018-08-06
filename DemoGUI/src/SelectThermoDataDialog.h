@@ -37,12 +37,22 @@ protected slots:
 public:
 
     explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
+
+    SelectThermoDataDialog( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys,
+                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
+    SelectThermoDataDialog( const std::vector<int>& sourcetdb, const std::vector<ThermoFun::ElementKey>& elementKeys,
+                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
+
     ~SelectThermoDataDialog();
 
-    /// Return all changed data
-    //const ThermoFun::DatabaseClient& dbclientData() const;
     /// Return all selected elements
     void allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const;
+    ///  Selection of data starting from ThermoDataSet
+    std::string idThermoDataSet() const;
+    /// Get the selected substances container
+    const jsonio::ValuesTable&  getSubstanceValues() const;
+    /// Get the selected reactions container
+    const jsonio::ValuesTable&  getReactionValues() const;
 
 private:
 

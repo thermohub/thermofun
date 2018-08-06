@@ -181,6 +181,22 @@ SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseC
     connect( ui->pCancelButton, SIGNAL( clicked() ),this, SLOT( reject()  ) );
 }
 
+SelectThermoDataDialog::SelectThermoDataDialog( const std::string& aThermoDataSet,
+                                                const std::vector<ThermoFun::ElementKey>& elementKeys,
+                                                ThermoFun::DatabaseClient& dbclient, QWidget *parent ):
+    SelectThermoDataDialog('A', dbclient, parent )
+{
+  // set old selection
+}
+
+SelectThermoDataDialog::SelectThermoDataDialog( const std::vector<int>& sourcetdb,
+                                                const std::vector<ThermoFun::ElementKey>& elementKeys,
+                                                ThermoFun::DatabaseClient& dbclient, QWidget *parent ):
+    SelectThermoDataDialog('B', dbclient, parent )
+{
+  // set old selection
+}
+
 SelectThermoDataDialog::~SelectThermoDataDialog()
 {
     if( thermoTable )
@@ -426,6 +442,24 @@ void SelectThermoDataDialog::allSelected( vector<ThermoFun::ElementKey>& element
 {
     elementKeys.clear();
     elmsWidget->allSelected( elementKeys );
+}
+
+//  Selection of data starting from ThermoDataSet
+std::string SelectThermoDataDialog::idThermoDataSet() const
+{
+  return pdata->idThermoDataSet;
+}
+
+// Get the selected substances container
+const jsonio::ValuesTable&  SelectThermoDataDialog::getSubstanceValues() const
+{
+  return pdata->substModel->getValues();
+}
+
+// Get the selected reactions container
+const jsonio::ValuesTable&  SelectThermoDataDialog::getReactionValues() const
+{
+  return pdata->reactModel->getValues();
 }
 
 void   SelectThermoDataDialog::updateSubstance()

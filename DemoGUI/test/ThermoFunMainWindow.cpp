@@ -353,10 +353,10 @@ void TThermoFunMainWin::CmThermoFun()
 {
   try{
         JSONUIBase* testWidget;
-        testWidget = new ThermoFunWidgetNew( /*this*/ );
+        testWidget = new ThermoFunWidgetNew( this );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
-        testWidget->setShowWidgetFunction(showWidget);
+        //testWidget->setShowWidgetFunction(showWidget);
         bsonuiWindows.push_back(testWidget);
         testWidget->show();
 
@@ -376,7 +376,7 @@ void TThermoFunMainWin::CmRecordCalc()
 {
   try{
         JSONUIBase* testWidget;
-        testWidget = new RecordCalculatorWidgetNew( /*this* );
+        testWidget = new RecordCalculatorWidgetNew( *this* );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
         testWidget->setShowWidgetFunction(showWidget);
