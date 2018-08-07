@@ -2,24 +2,13 @@
 #define THERMOMODEL_H
 
 #include <QObject>
-//#include "jsonio/dbquerydef.h"
 #include "jsonui/model_table.h"
-//#include "ThermoData.h"
-
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/AbstractData.h"
-//#include "../src/Reaction.h"
-//#include "../src/Substance.h"
-#endif
-#ifndef FROM_SRC
+#else
 #include "thermofun/DBClient/AbstractData.h"
-#include "thermofun/Reaction.h"
-#include "thermofun/Substance.h"
 #endif
-
-//using MapLevelReaction             = map<string, ThermoFun::Reaction>;
-//using MapSymbolMapLevelReaction    = map<string, MapLevelReaction>;
 
 class ThermoViewModel: public QObject
 {
@@ -46,8 +35,7 @@ public:
 
     void linkData( ThermoFun::AbstractData *data )
     {
-       // data__.reset(data);
-      data_ == data;
+      data_ = data;
       thermoData->updateHeads( data_->getDataHeaders() );
       thermoData->updateValues( {} );
       thermoModel->resetMatrixData();

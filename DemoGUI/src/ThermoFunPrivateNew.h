@@ -5,26 +5,21 @@
 #include <QtWidgets>
 #include "ThermoFunWidgetNew.h"
 #include "thermomodel.h"
-
+#include "containers.h"
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/Interfaces/Interface.h"
-#include "../src/DBClient/ReactionData.h"
-#include "../src/DBClient/ReactionSetData.h"
+#include "../src/DBClient/DatabaseClient.h"
 #include "../src/DBClient/SubstanceData.h"
 #include "../src/Reaction.h"
 #include "../src/Substance.h"
-#endif
-#ifndef FROM_SRC
+#else
 #include "thermofun/Interfaces/Interface.h"
-#include "thermofun/DBClient/ReactionData.h"
-#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermofun/DBClient/DatabaseClient.h"
 #include "thermofun/DBClient/SubstanceData.h"
+#include "thermofun/Reaction.h"
+#include "thermofun/Substance.h"
 #endif
-
-class TPContainer;
-class TPropertyContainer;
-class ElementsDataContainer;
 
 using MapLevelReaction             = map<string, ThermoFun::Reaction>;
 using MapLevelSubstances           = map<string, vector<ThermoFun::Substance>>;
@@ -82,6 +77,9 @@ struct ThermoFunData
 
     ///  Clear properies and query if schema changed
     void resetSchemaName( const string& newSchemaName );
+
+    /// Get string definition of selection
+    std::string selection_to_string() const;
 };
 
 
@@ -108,7 +106,6 @@ class ThermoFunPrivateNew: public QObject
    // keys list data
    /// Selected data view
    jsonui::TMatrixTable* valuesTable = 0;
-   //ThermoViewModel* tableModel = 0;
 
    // define  ELEMENTS table model
    ElementsDataContainer *elementContainer = 0;
@@ -128,9 +125,8 @@ class ThermoFunPrivateNew: public QObject
    void initWindow();
    void freeInternal();
    void updateElementsModel();
-   void updataSourceTDB();
+   void updateSelectMessage();
    void linkChange();
-   //?? void loadModel();
 
    MapSymbolMapLevelReaction recordsMapLevelDefinesReaction_(ThermoFun::MapSubstSymbol_MapLevel_IdReaction mapSymbol_Level_idReact);
 
@@ -167,6 +163,8 @@ public slots:
 
 public:
 
+   ThermoFun::DatabaseClient dbclient;
+
    ThermoFunPrivateNew( ThermoFunWidgetNew* awindow );
 
    ~ThermoFunPrivateNew()
@@ -192,8 +190,6 @@ public:
        return reactModel->getValues();
    }
 
-
-
    string getThermoPropertiesName() const
    {
        std::size_t pos = std::string("Vertex").length();
@@ -201,10 +197,20 @@ public:
        return schemaName;
    }
 
+   void newThermoFunData( const ThermoFunData& newdata );
+
+   /// Reset internal data (after select dialog )
+   void updateData( const std::string& aThermoDataSet,
+                    const std::vector<int>& sourcetdbs,
+                    const std::vector<ThermoFun::ElementKey>& elementKeys,
+                    const jsonio::ValuesTable&  substanceValues,
+                    const jsonio::ValuesTable&  reactionValues );
+
    void reallocTP( int newsize );
    void updateTP( const string& unitsT, const string& unitsP,
                       const std::vector<std::vector<double>>& tppairs);
    void updateProperty( const vector<string>& properties );
+
    void typeChanged(const string& newSchemaName);
 
    // calc functions
@@ -233,33 +239,12 @@ public:
      const string& solventSymbol, bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst , struct timeval start);
 
    // temporaly functions
-   void resetElementsintoRecord( bool isreact, const string& aKey )
-   {
-     if(isreact)
-      dbclient.reactData().resetRecordElements( aKey );
-     else
-      dbclient.reactSetData().resetRecordElements( aKey );
-   }
-
-   ThermoFun::DatabaseClient dbclient;
+   void resetElementsintoRecord( bool isreact, const string& aKey );
 
 
 // MUST BE CHANGED
 
-   //?? void updateElements( int sourcetdb, const vector<ThermoFun::ElementKey>& elKeys, const string& idrcset );
-   void newThermoFunData( const ThermoFunData& newdata );
    void updateDBClient();
-   jsonio::ValuesTable querySolvents();
-
-// MIGHT BE NOT USED
-
-   //?? const jsonio::DBQueryDef& getQuery( ) const
-   // {
-   //  return tableModel->getQuery();
-   // }
-
-   //?? void updateQuery( const jsonio::DBQueryData& newquery  );
-
 };
 
 

@@ -34,12 +34,6 @@
 #define ThermoFunWIDGETNEW_H
 
 #include "jsonui/JSONUIBase.h"
-#ifdef FROM_SRC
-#include "../src/DBClient/DatabaseClient.h"
-#endif
-#ifndef FROM_SRC
-#include "thermofun/DBClient/DatabaseClient.h"
-#endif
 
 namespace jsonui {
 class TableEditWidget;
@@ -49,8 +43,8 @@ namespace Ui {
 class ThermoFunWidget;
 }
 
-class ThermoFunPrivateNew;
 class ThermoFunData;
+class ThermoFunPrivateNew;
 
 /// Widget to work with CorrPT data
 class ThermoFunWidgetNew : public jsonui::JSONUIBase
@@ -58,29 +52,10 @@ class ThermoFunWidgetNew : public jsonui::JSONUIBase
     Q_OBJECT
 
     friend class ThermoFunPrivateNew;
-    std::vector<std::string> _shemaNames;
-    std::vector<std::string> _typeNames;
-
-    // Work functions
-
-    /// Set up menu commands
-    void setActions();
-    void initSourceTDB();
-    void resetTypeBox( const QString& text );
-    void closeEvent(QCloseEvent* e);
-
-    // update after change preferences
-    virtual void updtViewMenu() {}
-    virtual void updtModel() {}
-    virtual void updtTable() {}
-    virtual void updtDB();
-
-    /// Reset new ThermoFun data
-    void resetThermoFunData( const ThermoFunData& newdata );
 
 protected slots:
 
-    void typeChanged(const QString & text);
+    void typeChanged(const QString& text);
 
 public slots:
 
@@ -95,17 +70,13 @@ public slots:
     void CmExportCFG();
     void CmImportCFG();
 
-   // Record
-    //?? void CmDisplaySearchResult();
-    //?? void CmSearchQuery();
-
     //Edit
     void CmSelectThermoDataSet();
-    void CmSelectSourceTDBs(){}
+    void CmSelectSourceTDBs();
     void CmResetTP();
     void CmReallocTP();
     void CmResetProperty();
-    //?? void CmSelectElements();
+    //temporaly
     void CmSetElementsReactions();
     void CmSetElementsReactionSets();
 
@@ -116,11 +87,8 @@ public slots:
     //Result
     void CmShowResult();
 
-    //Preferences
-    void CmCalcSubstFromReact(bool togled);
-    void CmCalcReactFromSubst(bool togled);
-
 public:
+
     explicit ThermoFunWidgetNew( QWidget *parent = 0);
     ~ThermoFunWidgetNew();
 
@@ -130,16 +98,33 @@ private:
 
     Ui::ThermoFunWidget *ui;
     std::unique_ptr<ThermoFunPrivateNew> pdata;
-
     // Extern windows
-    //jsonui::QueryWidget* queryWindow = 0;
-    //jsonui::TableEditWidget* queryResultWindow = 0;
     jsonui::TableEditWidget* _csvWin = 0;
 
-    bool calcSubstFromReact = false;
-    bool calcReactFromSubst = false;
+    bool calcSubstFromReact() const;
+    bool calcReactFromSubst() const;
 
-    std::vector<std::string> solventsIds;
+    // Internal functions ------------------------
+
+    /// Reset new ThermoFun data and update editors
+    void resetThermoFunData( const ThermoFunData& newdata );
+    /// Set up menu commands
+    void setActions();
+
+    void resetTypeBox( const QString& text );
+    /// Reset Solvewnts Checkbox
+    void resetSolvents( const jsonio::ValuesTable&  solventValues );
+
+    void closeEvent(QCloseEvent* e);
+    // update after change preferences
+    virtual void updtViewMenu() {}
+    virtual void updtModel() {}
+    virtual void updtTable() {}
+    virtual void updtDB()
+    {
+        close(); // must be reopen, class DatabaseClient has not resetDB functions
+    }
+
 };
 
 

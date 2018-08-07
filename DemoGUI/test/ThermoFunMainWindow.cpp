@@ -13,7 +13,6 @@
 #include "thermofungui/ThermoFunWidgetNew.h"
 #include "thermofun/DBClient/DatabaseClient.h"
 #include "thermofun/DBClient/ReactionData.h"
-#include "SelectThermoDataDialog.h"
 
 using namespace jsonio;
 using namespace jsonui;
@@ -29,7 +28,7 @@ TThermoFunMainWin::TThermoFunMainWin(QWidget *parent) :
    ui->centralWidget_->setStyleSheet(
     "border-image: url(:/main/GUI/Icons/BackgroundAqueosReactions900.png) stretch;");
 
-   onCloseEvent = [=](QMainWindow* win)
+   onCloseEvent = [&](QMainWindow* win)
    {
        auto it = bsonuiWindows.begin();
        while( it != bsonuiWindows.end() )
@@ -92,7 +91,7 @@ void TThermoFunMainWin::setActions()
 
     //Tools
     connect( ui->actionThermo_Fun_Properties_at_TP, SIGNAL( triggered()), this, SLOT(CmThermoFun()));
-    connect( ui->actionRecord_Calculator, SIGNAL( triggered()), this, SLOT(CmSelectElementsTest()));
+//    connect( ui->actionRecord_Calculator, SIGNAL( triggered()), this, SLOT(CmSelectElementsTest()));
 
     connect( &uiSettings(), SIGNAL(dbChanged()), this, SLOT(setAllElements()));
     connect( &uiSettings(), SIGNAL(schemaChanged()), this, SLOT(setAllElements()));
@@ -272,93 +271,16 @@ void TThermoFunMainWin::onDeleteVertex()
 
 // ----------------------------------------
 
-
-
-
-
-/*
-void TThermoFunMainWin::CmGenerateThermoDataSet()
-{
-    try{
-        ThermoDataSetDialog dlg( this );
-        if( !dlg.exec() )
-             return;
-    }
-   catch(jsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
-
-void TThermoMatchMainWin::CmExportThermoDataSet()
-{
-    try{
-        string fileName = "*.exportThermoDataSet.json";
-        if(  ChooseFileSave( this, fileName,
-                    "Please, select a file to write (document) records", "*.json", fileName  ))
-        {
-           unique_ptr<TDBVertexDocument> thermoDB( TDBVertexDocument::newDBVertexDocument(
-                         uiSettings().database(),  "VertexThermoDataSet" ) );
-
-           vector<string> aKeyList;
-           vector<vector<string>> aValList;
-           vector<int> selNdx;
-           thermoDB->GetKeyValueList( aKeyList, aValList );
-           if( aKeyList.empty() )
-              return;
-
-           SelectDialog selDlg( this, "Please, select ThermoDataSets", aValList, selNdx );
-           if( !selDlg.exec() )
-                 return;
-
-           selNdx =  selDlg.allSelected();
-           vector<string> idList;
-           for( auto const &ent : selNdx)
-           {
-               string key = aKeyList[ent];
-               strip_all( key, ":" );
-               idList.push_back(key);
-           }
-
-          ThermoFun::DatabaseClient dbclient( uiSettings().dbclient() );
-          dbclient.BackupAllIncoming(idList, fileName );
-
-          // test list
-          if(idList.empty())
-            return;
-          auto list = dbclient.TraverseAllIncomingEdges(idList[0]);
-                for( auto row: list)
-          std::cout << row.first << " " << row.second << endl;
-        }
-
-    }
-   catch(jsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
-
-*/
-
-
 void TThermoFunMainWin::CmThermoFun()
 {
   try{
-        JSONUIBase* testWidget;
-        testWidget = new ThermoFunWidgetNew( this );
+        ThermoFunWidgetNew* testWidget = new ThermoFunWidgetNew( this );
 
         testWidget->setOnCloseEventFunction(onCloseEvent);
         //testWidget->setShowWidgetFunction(showWidget);
         bsonuiWindows.push_back(testWidget);
         testWidget->show();
+        //testWidget->CmSelectThermoDataSet();
 
     }
    catch(jsonio_exeption& e)
@@ -370,30 +292,6 @@ void TThermoFunMainWin::CmThermoFun()
        QMessageBox::critical( this, "std::exception", e.what() );
     }
 }
-
-/*
-void TThermoFunMainWin::CmRecordCalc()
-{
-  try{
-        JSONUIBase* testWidget;
-        testWidget = new RecordCalculatorWidgetNew( *this* );
-
-        testWidget->setOnCloseEventFunction(onCloseEvent);
-        testWidget->setShowWidgetFunction(showWidget);
-        bsonuiWindows.push_back(testWidget);
-        testWidget->show();
-
-    }
-   catch(jsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}
-*/
 
 /// Set up all elements to formula parser
 void TThermoFunMainWin::setAllElements()
@@ -445,22 +343,3 @@ void TThermoFunMainWin::setAllElements()
     }
 }
 
-void TThermoFunMainWin::CmSelectElementsTest()
-{
-  try {
-        ThermoFun::DatabaseClient dbclient( uiSettings().dbclient() );
-        SelectThermoDataDialog dlg( 'A', dbclient, this); //'A'
-        if( dlg.exec() )
-        {
-
-        }
-    }
-   catch(jsonio_exeption& e)
-   {
-       QMessageBox::critical( this, e.title(), e.what() );
-   }
-   catch(std::exception& e)
-    {
-       QMessageBox::critical( this, "std::exception", e.what() );
-    }
-}

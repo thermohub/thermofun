@@ -7,8 +7,7 @@
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/DatabaseClient.h"
-#endif
-#ifndef FROM_SRC
+#else
 #include "thermofun/DBClient/DatabaseClient.h"
 #endif
 
@@ -40,19 +39,29 @@ public:
 
     SelectThermoDataDialog( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys,
                             ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
-    SelectThermoDataDialog( const std::vector<int>& sourcetdb, const std::vector<ThermoFun::ElementKey>& elementKeys,
+    SelectThermoDataDialog( const std::vector<int>& sourcetdbs, const std::vector<ThermoFun::ElementKey>& elementKeys,
                             ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
 
     ~SelectThermoDataDialog();
 
     /// Return all selected elements
     void allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const;
+
     ///  Selection of data starting from ThermoDataSet
     std::string idThermoDataSet() const;
+
+    ///  Selection of data starting from sourceTDBs
+    const std::vector<int>& sourceTDBs() const;
+
     /// Get the selected substances container
     const jsonio::ValuesTable&  getSubstanceValues() const;
+
     /// Get the selected reactions container
     const jsonio::ValuesTable&  getReactionValues() const;
+
+    /// Get Solvent substances container
+    const jsonio::ValuesTable&  getSolventValues() const;
+
 
 private:
 

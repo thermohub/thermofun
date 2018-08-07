@@ -61,7 +61,7 @@ public slots:
 
     // Tools
     void CmThermoFun();
-    void CmSelectElementsTest();
+//    void CmSelectElementsTest();
 //    void CmRecordCalc();
 //    void CmGenerateThermoDataSet();
 //    void CmExportThermoDataSet();

@@ -2,45 +2,41 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include "SelectThermoDataDialog.h"
-#include "ElementsWidget.h"
 #include "ui_SelectThermoDataDialog.h"
-#include "jsonui/preferences.h"
+#include "ElementsWidget.h"
 #include "thermomodel.h"
 
 // ThermoFun includes
 #ifdef FROM_SRC
-//#include "../src/DBClient/formuladata.h"
 #include "../src/DBClient/ThermoSetData.h"
 #include "../src/DBClient/SubstanceData.h"
 #include "../src/DBClient/ReactionData.h"
 #include "../src/DBClient/ReactionSetData.h"
-#endif
-#ifndef FROM_SRC
-#include "thermofun/DBClient/formuladata.h"
-#include "thermofun/DBClient/DatabaseClient.h"
-#include "thermofun/DBClient/ReactionSetData.h"
+#else
+#include "thermofun/DBClient/ThermoSetData.h"
 #include "thermofun/DBClient/SubstanceData.h"
+#include "thermofun/DBClient/ReactionData.h"
+#include "thermofun/DBClient/ReactionSetData.h"
 #endif
-
 
 using namespace jsonui;
 
-
 struct SelectThermoDataDialogPrivate
 {
-   // window data
+   // Window data ---------------------------
 
-   /// top level widget
-    SelectThermoDataDialog* _window;
-   /// Connect to ReactionSet record
+   /// Link to top level widget
+   SelectThermoDataDialog* _window;
+   /// Connect to DatabaseClient for requests
    ThermoFun::DatabaseClient& _dbclient;
 
+   // Thermodata selection containers
    std::shared_ptr<ThermoViewModel>  thermoModel;
    std::shared_ptr<ThermoViewModel>  substModel;
    std::shared_ptr<ThermoViewModel>  reactModel;
    std::shared_ptr<ThermoViewModel>  rcsetModel;
 
-   // Selkected data
+   // Selected data ---------------------------
 
    /// Selected ThermoDataSet
    string idThermoDataSet;
@@ -50,11 +46,15 @@ struct SelectThermoDataDialogPrivate
    /// Define ELEMENTS table data
    vector<ThermoFun::ElementKey> elementsRow;
 
+   /// Solvent substances Values ( for selected elements )
+   jsonio::ValuesTable  solventValues;
+
 // ---------------------------------------------
 
    SelectThermoDataDialogPrivate(SelectThermoDataDialog* awindow, ThermoFun::DatabaseClient& adbclient):
-    _window(awindow), _dbclient( adbclient )
+    _window(awindow), _dbclient( adbclient ), idThermoDataSet("")
    {
+       sourceTDBs.clear();
        thermoModel.reset(new ThermoViewModel( &_dbclient.thermoDataSet() , _window ));
        substModel.reset(new ThermoViewModel( &_dbclient.substData(), _window ));
        reactModel.reset(new ThermoViewModel( &_dbclient.reactData(), _window ));
@@ -63,11 +63,6 @@ struct SelectThermoDataDialogPrivate
 
    virtual ~SelectThermoDataDialogPrivate()
    { }
-
-   void clearAll()
-   {
-     elementsRow.clear();
-   }
 
    vector<string> getSourcetdbList()
    {
@@ -110,7 +105,16 @@ struct SelectThermoDataDialogPrivate
      else
         substanceSymbols = _dbclient.substData().selectGiven( sourceTDBs, elements, unique );
 
-     substModel->loadModeRecords( _dbclient.substData().getValuesTable() );
+     const jsonio::ValuesTable& subData = _dbclient.substData().getValuesTable();
+
+     // build solvents table
+     solventValues.clear();
+     for( auto subRecord: subData )
+     {
+       if( subRecord[_dbclient.substData().getDataName_DataIndex()["class_"]]  == "3" )
+           solventValues.push_back(subRecord);
+     }
+     substModel->loadModeRecords( subData );
    }
 
    void loadReactionRecords( bool typeA, const std::vector<int>& substSelectedRows, bool unique )
@@ -139,9 +143,7 @@ struct SelectThermoDataDialogPrivate
 
 };
 
-
 //===========================================================================
-
 
 SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent) :
     QDialog(parent), useCase(acase),
@@ -216,6 +218,42 @@ SelectThermoDataDialog::~SelectThermoDataDialog()
     delete ui;
 }
 
+// -- Returns selection elements array
+void SelectThermoDataDialog::allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const
+{
+    elementKeys.clear();
+    elmsWidget->allSelected( elementKeys );
+}
+
+//  Selection of data starting from ThermoDataSet
+std::string SelectThermoDataDialog::idThermoDataSet() const
+{
+  return pdata->idThermoDataSet;
+}
+
+//  Selection of data starting from sourceTDBs
+const std::vector<int>& SelectThermoDataDialog::sourceTDBs() const
+{
+  return pdata->sourceTDBs;
+}
+
+// Get the selected substances container
+const jsonio::ValuesTable&  SelectThermoDataDialog::getSubstanceValues() const
+{
+  return pdata->substModel->getValues();
+}
+
+// Get the selected reactions container
+const jsonio::ValuesTable&  SelectThermoDataDialog::getReactionValues() const
+{
+  return pdata->reactModel->getValues();
+}
+
+// Get Solvent substances container
+const jsonio::ValuesTable&  SelectThermoDataDialog::getSolventValues() const
+{
+   return pdata->solventValues;
+}
 
 //------------------- Actions
 
@@ -402,7 +440,6 @@ void  SelectThermoDataDialog::defineReaction()
     ui->verticalLayout_5->addWidget(reactTable);
 }
 
-
 void  SelectThermoDataDialog::defineReactionSets()
 {
     rcsetTable = new TMatrixTable( this );
@@ -437,30 +474,6 @@ void  SelectThermoDataDialog::updateElementsSourceTDBs()
     }
 }
 
-// -- Returns selection elements array
-void SelectThermoDataDialog::allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const
-{
-    elementKeys.clear();
-    elmsWidget->allSelected( elementKeys );
-}
-
-//  Selection of data starting from ThermoDataSet
-std::string SelectThermoDataDialog::idThermoDataSet() const
-{
-  return pdata->idThermoDataSet;
-}
-
-// Get the selected substances container
-const jsonio::ValuesTable&  SelectThermoDataDialog::getSubstanceValues() const
-{
-  return pdata->substModel->getValues();
-}
-
-// Get the selected reactions container
-const jsonio::ValuesTable&  SelectThermoDataDialog::getReactionValues() const
-{
-  return pdata->reactModel->getValues();
-}
 
 void   SelectThermoDataDialog::updateSubstance()
 {
@@ -485,7 +498,6 @@ void   SelectThermoDataDialog::updateReactionSets()
     rcsetTable->selectAll();
 }
 
-
 std::vector<int> SelectThermoDataDialog::allSelectedRows( jsonui::TMatrixTable *dataTable )
 {
     std::vector<int> rows;
@@ -508,8 +520,4 @@ void SelectThermoDataDialog::leftOnlySelected()
    pdata->rcsetModel->leftOnlySelected(rcsetsel);
 }
 
-// ------------------------ OK old
-
-
-
-
+//--------------------------------------------------------------------------------------------------

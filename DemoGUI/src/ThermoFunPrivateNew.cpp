@@ -8,6 +8,8 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
+#include "../src/DBClient/ReactionData.h"
+#include "../src/DBClient/ReactionSetData.h"
 #include "../src/Interfaces/Output.h"
 #include "../src/Database.h"
 #include "../src/Substance.h"
@@ -206,6 +208,22 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
 
 }
 
+ std::string ThermoFunData::selection_to_string() const
+ {
+     std::string output;
+     output +=  " idThermoDataSet: " + idThermoDataSet;
+     output +=  "\n sourceTDBs: ";
+
+     ThriftEnumDef* enumdef =  ioSettings().Schema()->getEnum( "SourceTDB" );
+     if(enumdef != nullptr )
+     {
+      for( uint ii=0; ii<sourceTDBs.size(); ii++ )
+              output += enumdef->getNamebyId(sourceTDBs[ii]) + "  ";
+     }
+     output +=  "\n";
+     return output;
+ }
+
 // ThermoFunPrivateNew ------------------------------------------------------------------
 
 ThermoFunPrivateNew::ThermoFunPrivateNew( ThermoFunWidgetNew* awindow ):
@@ -276,6 +294,23 @@ void ThermoFunPrivateNew::initWindow()
 
 // Edit part --------------------------------------------------------------------
 
+
+// Reset internal data
+void ThermoFunPrivateNew::updateData( const std::string& aThermoDataSet,
+                                      const std::vector<int>& sourcetdbs,
+                                      const std::vector<ThermoFun::ElementKey>& elementKeys,
+                                      const jsonio::ValuesTable&  substanceValues,
+                                      const jsonio::ValuesTable&  reactionValues )
+{
+   _data.idThermoDataSet = aThermoDataSet;
+   _data.sourceTDBs = move(sourcetdbs);
+   _data.elements  = elementKeys;
+    substModel->loadModeRecords( substanceValues );
+    reactModel->loadModeRecords( reactionValues );
+    updateElementsModel();
+
+}
+
 void ThermoFunPrivateNew::updateElementsModel()
 {
     if( elementModel)
@@ -288,7 +323,12 @@ void ThermoFunPrivateNew::updateElementsModel()
           elementTable->setMaximumHeight(iHeight);
       }
     }
-    updataSourceTDB();
+    updateSelectMessage();
+}
+
+void ThermoFunPrivateNew::updateSelectMessage()
+{
+    window->ui->taskQuery->setText( _data.selection_to_string().c_str() );
 }
 
 void ThermoFunPrivateNew::reallocTP( int newsize )
@@ -603,6 +643,14 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
 
 //-----------------------------------------------------------------------
 
+// temporaly functions
+void ThermoFunPrivateNew::resetElementsintoRecord( bool isreact, const string& aKey )
+{
+  if(isreact)
+   dbclient.reactData().resetRecordElements( aKey );
+  else
+   dbclient.reactSetData().resetRecordElements( aKey );
+}
 
 
 
@@ -611,24 +659,7 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
 
 
 
-
-void ThermoFunPrivateNew::updataSourceTDB()
-{
-    jsonio::ThriftEnumDef* enumdef =  ioSettings().Schema()->getEnum("SourceTDB" );
-    if(enumdef != nullptr )
-    {
-        string curText = enumdef->getNamebyId(_data._sourcetdb);
-        window->ui->pSourceTDB->setCurrentText(curText.c_str());
-    }
-}
-
-
-jsonio::ValuesTable ThermoFunPrivateNew::querySolvents()
-{
- //?? return dbclient.substData().querySolvents(_data.sourcetdb);
-}
-
- void ThermoFunPrivateNew::updateDBClient()
+void ThermoFunPrivateNew::updateDBClient()
    {
       /** dbclient.substData().updateDBClient();
       dbclient.reactData().updateDBClient();
@@ -637,37 +668,3 @@ jsonio::ValuesTable ThermoFunPrivateNew::querySolvents()
    }
 
 
-   // MIGHT BE NOT USED ---------------------------------------------------------------------------
-
-/*
- /// Reset internal elements list
- void ThermoFunPrivateNew::updateElements( int sourcetdb,
-      const vector<ThermoFun::ElementKey>& elKeys, const string& idrcset )
- {
-         _data.idReactionSet = idrcset;
-         _data.sourcetdb = sourcetdb;
-         _data.elements  = elKeys;
-          updateElementsModel();
-          loadModel();
- }
-
- void ThermoFunPrivateNew::loadModel()
-   {
-      if( !_data.idReactionSet.empty()  && dbclient.reactSetData().recordExists(_data.idReactionSet) )
-       tableModel->loadModeRecords( _data.idReactionSet );
-      else
-       tableModel->loadModeRecords( _data.query, _data.sourcetdb, _data.elements );
-   }
-
-   /// Reset internal query data
-   void ThermoFunPrivateNew::updateQuery( const DBQueryData& newquery  )
-   {
-     // reset internal query data
-     if( newquery != _data.query )
-     {
-        isDefaultQuery = true;
-        _data.query = newquery;
-      }
-      loadModel();
-   }
-*/
