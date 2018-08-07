@@ -1,16 +1,12 @@
 #ifndef TMAINWINDOW_H
 #define TMAINWINDOW_H
 
-//#include <string>
 #include <QMainWindow>
-#include "jsonimpex/thrift_impex.h"
-#include "jsonio/dbschemadoc.h"
 #include "jsonui/JSONUIBase.h"
 
 namespace Ui {
 class TThermoFunMainWindow;
 }
-
 
 class TThermoFunMainWin : public QMainWindow
 {
@@ -61,10 +57,6 @@ public slots:
 
     // Tools
     void CmThermoFun();
-//    void CmSelectElementsTest();
-//    void CmRecordCalc();
-//    void CmGenerateThermoDataSet();
-//    void CmExportThermoDataSet();
 
     // Help
     void CmHelpAbout();

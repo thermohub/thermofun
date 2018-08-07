@@ -88,6 +88,22 @@ public:
         return keys;
     }
 
+    int findRow( uint column, const string& value ) const
+    {
+        const jsonio::ValuesTable&  matrix = getValues();
+        for( uint ii=0; ii<matrix.size(); ii++ )
+        {
+          if( column >= matrix[ii].size())
+              continue;
+           else
+             if( matrix[ii][column] == value )
+              return ii;
+        }
+        return -1;
+    }
+
+
+
     const jsonio::DBQueryDef& getQuery( ) const
     {
       return data_->getDB()->getQuery();

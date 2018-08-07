@@ -3,20 +3,17 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include "ThermoFunMainWindow.h"
-#include "ui_ThermoFunMainWindow.h"
-#include "jsonio/jsondomfree.h"
 #include "jsonui/VertexWidget.h"
 #include "jsonui/EdgesWidget.h"
-#include "jsonui/FormatImpexWidget.h"
 #include "jsonui/HelpMainWindow.h"
-#include "thermofungui/ThermoFunWidgetNew.h"
-#include "thermofun/DBClient/DatabaseClient.h"
-#include "thermofun/DBClient/ReactionData.h"
-
-using namespace jsonio;
-using namespace jsonui;
-
+#include "ThermoFunMainWindow.h"
+#include "ui_ThermoFunMainWindow.h"
+#include "ThermoFunWidgetNew.h"
+#ifdef FROM_SRC
+#include "../src/DBClient/formuladata.h"
+#else
+#include "thermofun/DBClient/formuladata.h"
+#endif
 
 TThermoFunMainWin::TThermoFunMainWin(QWidget *parent) :
     QMainWindow(parent),
@@ -40,8 +37,8 @@ TThermoFunMainWin::TThermoFunMainWin(QWidget *parent) :
        return true;
    };
 
-   showWidget =  [=]( bool isVertex, const string& testschema,
-           const string& recordkey, const DBQueryData& query )
+   showWidget =  [=]( bool isVertex, const std::string& testschema,
+           const std::string& recordkey, const jsonio::DBQueryData& query )
            {
                OpenNewWidget( isVertex, testschema, recordkey, query );
            };
@@ -77,13 +74,13 @@ void TThermoFunMainWin::setActions()
     connect( ui->actionContents, SIGNAL( triggered()), this, SLOT(CmHelpContens()));
     connect( ui->actionAuthors, SIGNAL( triggered()), this, SLOT(CmHelpAuthors()));
     connect( ui->actionLicense, SIGNAL( triggered()), this, SLOT(CmHelpLicense()));
-    connect( ui->actionPreferences, SIGNAL( triggered()), &uiSettings(), SLOT(CmSettingth()));
+    connect( ui->actionPreferences, SIGNAL( triggered()), &jsonui::uiSettings(), SLOT(CmSettingth()));
 
     // View
-    connect( ui->action_Show_comments, SIGNAL( toggled(bool)), &uiSettings(), SLOT(CmShowComments(bool)));
-    connect( ui->action_Display_enums, SIGNAL( toggled(bool)), &uiSettings(), SLOT(CmDisplayEnums(bool)));
-    connect( ui->action_Edit_id, SIGNAL(toggled(bool)), &uiSettings(), SLOT(CmEditID(bool)));
-    connect( ui->action_Keep_Data_Fields_Expanded, SIGNAL(toggled(bool)), &uiSettings(), SLOT(CmEditExpanded(bool)));
+    connect( ui->action_Show_comments, SIGNAL( toggled(bool)), &jsonui::uiSettings(), SLOT(CmShowComments(bool)));
+    connect( ui->action_Display_enums, SIGNAL( toggled(bool)), &jsonui::uiSettings(), SLOT(CmDisplayEnums(bool)));
+    connect( ui->action_Edit_id, SIGNAL(toggled(bool)), &jsonui::uiSettings(), SLOT(CmEditID(bool)));
+    connect( ui->action_Keep_Data_Fields_Expanded, SIGNAL(toggled(bool)), &jsonui::uiSettings(), SLOT(CmEditExpanded(bool)));
 
     //Data
 //    connect( ui->actionGenerate_a_ThermoDataSet_record, SIGNAL( triggered()), this, SLOT(CmGenerateThermoDataSet()));
@@ -93,33 +90,33 @@ void TThermoFunMainWin::setActions()
     connect( ui->actionThermo_Fun_Properties_at_TP, SIGNAL( triggered()), this, SLOT(CmThermoFun()));
 //    connect( ui->actionRecord_Calculator, SIGNAL( triggered()), this, SLOT(CmSelectElementsTest()));
 
-    connect( &uiSettings(), SIGNAL(dbChanged()), this, SLOT(setAllElements()));
-    connect( &uiSettings(), SIGNAL(schemaChanged()), this, SLOT(setAllElements()));
+    connect( &jsonui::uiSettings(), SIGNAL(dbChanged()), this, SLOT(setAllElements()));
+    connect( &jsonui::uiSettings(), SIGNAL(schemaChanged()), this, SLOT(setAllElements()));
 
-    connect( &uiSettings(), SIGNAL(dbChanged()), this, SLOT(updateDB()));
-    connect( &uiSettings(), SIGNAL(schemaChanged()), this, SLOT(closeAll()));
-    connect( &uiSettings(), SIGNAL(viewMenuChanged()), this, SLOT(updateViewMenu()));
-    connect( &uiSettings(), SIGNAL(modelChanged()), this, SLOT(updateModel()));
-    connect( &uiSettings(), SIGNAL(tableChanged()), this, SLOT(updateTable()));
-    connect( &uiSettings(), SIGNAL(errorSettings(std::string)), this, SLOT(closeAll()));
+    connect( &jsonui::uiSettings(), SIGNAL(dbChanged()), this, SLOT(updateDB()));
+    connect( &jsonui::uiSettings(), SIGNAL(schemaChanged()), this, SLOT(closeAll()));
+    connect( &jsonui::uiSettings(), SIGNAL(viewMenuChanged()), this, SLOT(updateViewMenu()));
+    connect( &jsonui::uiSettings(), SIGNAL(modelChanged()), this, SLOT(updateModel()));
+    connect( &jsonui::uiSettings(), SIGNAL(tableChanged()), this, SLOT(updateTable()));
+    connect( &jsonui::uiSettings(), SIGNAL(errorSettings(std::string)), this, SLOT(closeAll()));
 
 }
 
 
 /// Open new EdgesWidget  or JSONUIWidget  window
-void TThermoFunMainWin::OpenNewWidget( bool isVertex, const string& testschema,
-                        const string& recordkey, const DBQueryData& query )
+void TThermoFunMainWin::OpenNewWidget( bool isVertex, const std::string& testschema,
+                        const std::string& recordkey, const jsonio::DBQueryData& query )
 {
-      JSONUIBase* testWidget;
+      jsonui::JSONUIBase* testWidget;
       if( isVertex )
       {
-          testWidget = new VertexWidget( testschema/*, this*/ );
-          connect( (VertexWidget*)testWidget, SIGNAL(vertexDeleted()), this, SLOT(onDeleteVertex()));
+          testWidget = new jsonui::VertexWidget( testschema/*, this*/ );
+          connect( (jsonui::VertexWidget*)testWidget, SIGNAL(vertexDeleted()), this, SLOT(onDeleteVertex()));
       }
       else
       {
-          testWidget = new EdgesWidget( testschema, query/*, this*/ );
-          connect( (EdgesWidget*)testWidget, SIGNAL(edgeDeleted()), this, SLOT(onDeleteEdge()));
+          testWidget = new jsonui::EdgesWidget( testschema, query/*, this*/ );
+          connect( (jsonui::EdgesWidget*)testWidget, SIGNAL(edgeDeleted()), this, SLOT(onDeleteEdge()));
       }
 
       testWidget->setOnCloseEventFunction(onCloseEvent);
@@ -141,7 +138,7 @@ void TThermoFunMainWin::newSchemaWin(const char* testschema )
   try{
       OpenNewWidget( true, testschema, "" );
     }
-   catch(jsonio_exeption& e)
+   catch(jsonio::jsonio_exeption& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -178,7 +175,7 @@ void TThermoFunMainWin::CmNewEdge()
   try{
       OpenNewWidget( false, "", "" );
     }
-   catch(jsonio_exeption& e)
+   catch(jsonio::jsonio_exeption& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -192,9 +189,9 @@ void TThermoFunMainWin::CmNewEdge()
 /// Update menu for all windows
 void TThermoFunMainWin::updateViewMenu()
 {
-    ui->action_Show_comments->setChecked( TJsonSchemaModel::showComments );
-    ui->action_Display_enums->setChecked(TJsonSchemaModel::useEnumNames);
-    ui->action_Edit_id->setChecked(TJsonSchemaModel::editID );
+    ui->action_Show_comments->setChecked( jsonui::TJsonSchemaModel::showComments );
+    ui->action_Display_enums->setChecked(jsonui::TJsonSchemaModel::useEnumNames);
+    ui->action_Edit_id->setChecked(jsonui::TJsonSchemaModel::editID );
 
     auto it = bsonuiWindows.begin();
     while( it != bsonuiWindows.end() )
@@ -244,7 +241,7 @@ void TThermoFunMainWin::onDeleteEdge()
     auto it = bsonuiWindows.begin();
     while( it != bsonuiWindows.end() )
     {
-       EdgesWidget* edgWin = dynamic_cast<EdgesWidget*>(*it);
+       jsonui::EdgesWidget* edgWin = dynamic_cast<jsonui::EdgesWidget*>(*it);
        if( edgWin )
          edgWin->changeKeyList();
        it++;
@@ -256,12 +253,12 @@ void TThermoFunMainWin::onDeleteVertex()
     auto it = bsonuiWindows.begin();
     while( it != bsonuiWindows.end() )
     {
-        EdgesWidget* edgWin = dynamic_cast<EdgesWidget*>(*it);
+        jsonui::EdgesWidget* edgWin = dynamic_cast<jsonui::EdgesWidget*>(*it);
         if( edgWin )
           edgWin->updateAllKeys();
         else
           {
-            VertexWidget* verWin = dynamic_cast<VertexWidget*>(*it);
+            jsonui::VertexWidget* verWin = dynamic_cast<jsonui::VertexWidget*>(*it);
             if( verWin )
               verWin->changeKeyList();
           }
@@ -283,7 +280,7 @@ void TThermoFunMainWin::CmThermoFun()
         //testWidget->CmSelectThermoDataSet();
 
     }
-   catch(jsonio_exeption& e)
+   catch(jsonio::jsonio_exeption& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -297,12 +294,12 @@ void TThermoFunMainWin::CmThermoFun()
 void TThermoFunMainWin::setAllElements()
 {
     try{
-         if( ioSettings().Schema()->getStruct("VertexElement") == nullptr )
+         if( jsonio::ioSettings().Schema()->getStruct("VertexElement") == nullptr )
             return;
 
          // Connect to DataBase
-         unique_ptr<TDBVertexDocument> elementDB( TDBVertexDocument::newDBVertexDocument(
-                    uiSettings().database(),  "VertexElement" ));
+         std::unique_ptr<jsonio::TDBVertexDocument> elementDB( jsonio::TDBVertexDocument::newDBVertexDocument(
+                    jsonui::uiSettings().database(),  "VertexElement" ));
 
          if(elementDB.get() == nullptr )
            return;
@@ -313,11 +310,11 @@ void TThermoFunMainWin::setAllElements()
          const ThermoFun::DBElementsData& elements = ThermoFun::ChemicalFormula::getDBElements();
 
         // save data to file
-        fstream outFile("elementsDB_All.csv", ios::out );
-        jsonioErrIf( !outFile.good() , "elementsDB_All.csv", "Fileopen error...");
+        std::fstream outFile("elementsDB_All.csv", std::ios::out );
+        jsonio::jsonioErrIf( !outFile.good() , "elementsDB_All.csv", "Fileopen error...");
 
         outFile << "symbol,class_,isotope,atomic_mass,";
-        outFile << "entropy,heat_capacity,volume,valence,number" << endl;
+        outFile << "entropy,heat_capacity,volume,valence,number" << std::endl;
 
         auto itr = elements.begin();
         while( itr != elements.end() )
@@ -331,9 +328,8 @@ void TThermoFunMainWin::setAllElements()
             itr++;
         }
 
-
     }
-   catch(jsonio_exeption& e)
+   catch(jsonio::jsonio_exeption& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }

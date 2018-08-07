@@ -98,6 +98,7 @@ private:
     void  resetButtons();
     void  setModel( jsonui::TMatrixTable* table, jsonui::TMatrixModel* model );
     std::vector<int> allSelectedRows( jsonui::TMatrixTable *dataTable );
+    void selectRows( jsonui::TMatrixTable *dataTable, const std::vector<int>& rows  );
 
     // define windows
     void  defineTermodata();
@@ -105,6 +106,8 @@ private:
     void  defineSubstance();
     void  defineReaction();
     void  defineReactionSets();
+    void selectA( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys  );
+    void selectB( const std::vector<int>& sourcetdbs, const std::vector<ThermoFun::ElementKey>& elementKeys  );
 
     // updateData
     void  updateElementsThermo();
@@ -115,6 +118,7 @@ private:
 
     /// Update all table containers - left only selected values
     void leftOnlySelected();
+
 
 };
 

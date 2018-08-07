@@ -189,14 +189,16 @@ SelectThermoDataDialog::SelectThermoDataDialog( const std::string& aThermoDataSe
     SelectThermoDataDialog('A', dbclient, parent )
 {
   // set old selection
+    selectA( aThermoDataSet, elementKeys  );
 }
 
-SelectThermoDataDialog::SelectThermoDataDialog( const std::vector<int>& sourcetdb,
+SelectThermoDataDialog::SelectThermoDataDialog( const std::vector<int>& sourcetdbs,
                                                 const std::vector<ThermoFun::ElementKey>& elementKeys,
                                                 ThermoFun::DatabaseClient& dbclient, QWidget *parent ):
     SelectThermoDataDialog('B', dbclient, parent )
 {
   // set old selection
+    selectB( sourcetdbs, elementKeys  );
 }
 
 SelectThermoDataDialog::~SelectThermoDataDialog()
@@ -518,6 +520,39 @@ void SelectThermoDataDialog::leftOnlySelected()
    pdata->reactModel->leftOnlySelected(reactsel);
    auto rcsetsel = allSelectedRows( rcsetTable );
    pdata->rcsetModel->leftOnlySelected(rcsetsel);
+}
+
+void SelectThermoDataDialog::selectRows( jsonui::TMatrixTable *dataTable, const std::vector<int>& rows  )
+{
+    for(auto row: rows)
+    {
+        QModelIndex index = dataTable->model()->index(row,0);
+        dataTable->selectionModel()->select(index, QItemSelectionModel::Rows|QItemSelectionModel::Select);
+    }
+}
+
+void SelectThermoDataDialog::selectA( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys  )
+{
+  auto row = pdata->thermoModel->findRow( pdata->_dbclient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet );
+  selectRows( thermoTable, { row }  );
+  pdata->elementsRow = elementKeys;
+
+}
+
+void SelectThermoDataDialog::selectB( const std::vector<int>& sourcetdbs, const std::vector<ThermoFun::ElementKey>& elementKeys  )
+{
+  vector<int> rows;
+  for( auto sourcetdb: sourcetdbs )
+    for( int ii=0; ii<data->rowCount(); ii++ )
+     {
+         if( data->data( ii, 0 ).toInt() == sourcetdb )
+          rows.push_back(ii);
+    }
+
+  if( rows.size() > 0)
+     sourceDBTable->clearSelection();
+  selectRows( sourceDBTable, rows );
+  pdata->elementsRow = elementKeys;
 }
 
 //--------------------------------------------------------------------------------------------------
