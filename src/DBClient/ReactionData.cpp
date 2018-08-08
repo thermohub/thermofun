@@ -320,7 +320,7 @@ vector<string> ReactionData_::selectGiven( const string& idThermoDataSet,
            qrAQL +=  "\n  SORT v.properties.symbol ";
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
 
-    cout << "qrAQL: " << qrAQL << endl;
+    //cout << "qrAQL: " << qrAQL << endl;
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
     domdata->appendArray( "substanceSymbols", substanceSymbols );

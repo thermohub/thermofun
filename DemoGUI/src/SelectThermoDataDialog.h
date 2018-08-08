@@ -138,7 +138,6 @@ private:
     /// Update all table containers - left only selected values
     void leftOnlySelected();
 
-
 };
 
 #endif // SELECTTHERMODIALOG_H

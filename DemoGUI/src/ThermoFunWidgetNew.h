@@ -120,10 +120,7 @@ private:
     virtual void updtViewMenu() {}
     virtual void updtModel() {}
     virtual void updtTable() {}
-    virtual void updtDB()
-    {
-        close(); // must be reopen, class DatabaseClient has not resetDB functions
-    }
+    virtual void updtDB();
 
 };
 

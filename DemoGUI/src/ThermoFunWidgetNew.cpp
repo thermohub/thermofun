@@ -49,9 +49,6 @@
 #include "thermofun/DBClient/ReactionSetData.h"
 #endif
 
-//using namespace jsonio;
-//using namespace jsonui;
-
 ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
     JSONUIBase( "", parent),
     ui(new Ui::ThermoFunWidget), _csvWin(0)
@@ -103,6 +100,11 @@ void ThermoFunWidgetNew::closeEvent(QCloseEvent* e)
            QWidget::closeEvent(e);
 }
 
+void ThermoFunWidgetNew::updtDB()
+{
+    // clear internal data
+     resetThermoFunData( pdata->data() );
+}
 
 //  Connect all actions
 void ThermoFunWidgetNew::setActions()

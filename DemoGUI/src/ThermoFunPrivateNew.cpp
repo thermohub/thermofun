@@ -1,32 +1,25 @@
 #include <sys/time.h>
 #include <QScrollBar>
 #include <QHeaderView>
-#include "jsonio/jsondomfree.h"
 #include "ThermoFunPrivateNew.h"
 #include "ui_ThermoFunWidget.h"
-#include "containers.h"
 
 // ThermoFun includes
 #ifdef FROM_SRC
+#include "../src/Database.h"
+#include "../src/DBClient/TraversalData.h"
 #include "../src/DBClient/ReactionData.h"
 #include "../src/DBClient/ReactionSetData.h"
 #include "../src/Interfaces/Output.h"
-#include "../src/Database.h"
-#include "../src/Substance.h"
-#include "../src/DBClient/TraversalData.h"
 #include "../src/Common/ParseBsonTraversalData.h"
-#endif
-#ifndef FROM_SRC
-#include "thermofun/Interfaces/Output.h"
+#else
 #include "thermofun/Database.h"
-#include "thermofun/Substance.h"
 #include "thermofun/DBClient/TraversalData.h"
+#include "thermofun/DBClient/ReactionData.h"
+#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermofun/Interfaces/Output.h"
 #include "thermofun/Common/ParseBsonTraversalData.h"
 #endif
-
-using namespace jsonio;
-using namespace jsonui;
-
 
 ThermoFunData::ThermoFunData()
 {
@@ -47,7 +40,7 @@ ThermoFunData::ThermoFunData()
   propertyPrecision.push_back(0);
 
   // old
-  _query = emptyQuery;
+  _query = jsonio::emptyQuery;
   _idReactionSet = "";
   _sourcetdb = -1;//defSourcetdb;
 }
@@ -68,7 +61,7 @@ void ThermoFunData::resetSchemaName( const string& newSchemaName )
     propertyPrecision[0] = mapPrecision[ properties[0]];
 
     // old
-    _query = emptyQuery;
+    _query = jsonio::emptyQuery;
 }
 
 
@@ -143,7 +136,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
 
     elements.clear();
     auto arr  = object->field(  "ElementsList"  );
-    if( arr!=nullptr && arr->getType() == JSON_ARRAY )
+    if( arr!=nullptr && arr->getType() == jsonio::JSON_ARRAY )
     {
        string symbol;
        int class_, isotope;
@@ -173,7 +166,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
     // read tp pairs
     tppairs.clear();
     arr  = object->field(  "TemperaturePressurePoints"  );
-    if( arr==nullptr && arr->getType() != JSON_ARRAY )
+    if( arr==nullptr && arr->getType() != jsonio::JSON_ARRAY )
       tppairs =deflt.tppairs;
     else
     {
@@ -214,7 +207,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
      output +=  " idThermoDataSet: " + idThermoDataSet;
      output +=  "\n sourceTDBs: ";
 
-     ThriftEnumDef* enumdef =  ioSettings().Schema()->getEnum( "SourceTDB" );
+     jsonio::ThriftEnumDef* enumdef =  jsonio::ioSettings().Schema()->getEnum( "SourceTDB" );
      if(enumdef != nullptr )
      {
       for( uint ii=0; ii<sourceTDBs.size(); ii++ )
@@ -227,7 +220,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
 // ThermoFunPrivateNew ------------------------------------------------------------------
 
 ThermoFunPrivateNew::ThermoFunPrivateNew( ThermoFunWidgetNew* awindow ):
- QObject(awindow), window(awindow), dbclient( uiSettings().dbclient() )
+ QObject(awindow), window(awindow), dbclient( jsonui::uiSettings().dbclient() )
 {
     initWindow();
 }
@@ -245,7 +238,7 @@ void ThermoFunPrivateNew::freeInternal()
 void ThermoFunPrivateNew::initWindow()
 {
     // define all keys tables
-    valuesTable = new TMatrixTable( window );
+    valuesTable = new jsonui::TMatrixTable( window );
     valuesTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
     valuesTable->setEditTriggers( QAbstractItemView::AnyKeyPressed );
     valuesTable->setSortingEnabled(true);
@@ -259,8 +252,8 @@ void ThermoFunPrivateNew::initWindow()
 
     // Elements list
     elementContainer = new ElementsDataContainer( _data.elements );
-    elementModel = new TMatrixModel( elementContainer, window );
-    elementTable = new TMatrixTable( window, TMatrixTable::tbShow );
+    elementModel = new jsonui::TMatrixModel( elementContainer, window );
+    elementTable = new jsonui::TMatrixTable( window, jsonui::TMatrixTable::tbShow );
     elementTable->setModel(elementModel);
     elementTable->horizontalHeader()->hide();
     elementTable->verticalHeader()->hide();
@@ -273,19 +266,19 @@ void ThermoFunPrivateNew::initWindow()
 
    // define ThermoFun data
    _TPContainer = new TPContainer( "T", { "T", "P" }, _data.tppairs );
-   _TPlistTable  = new TMatrixTable( window->ui->outWidget );
-   TMatrixDelegate* deleg = new TMatrixDelegate();
+   _TPlistTable  = new jsonui::TMatrixTable( window->ui->outWidget );
+   jsonui::TMatrixDelegate* deleg = new jsonui::TMatrixDelegate();
    _TPlistTable->setItemDelegate(deleg);
-   _TPlistModel = new TMatrixModel( _TPContainer, window );
+   _TPlistModel = new jsonui::TMatrixModel( _TPContainer, window );
    _TPlistTable->setModel(_TPlistModel);
    _TPlistTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
    window->ui->gridLayout_3->addWidget(_TPlistTable, 1, 0, 1, 1);
 
    _PropertyContainer = new TPropertyContainer( "Property", _data.properties, _data.propertyUnits, _data.propertyPrecision );
-   _PropertyTable  = new TMatrixTable( window->ui->inWidget );
-    deleg = new TMatrixDelegate();
+   _PropertyTable  = new jsonui::TMatrixTable( window->ui->inWidget );
+    deleg = new jsonui::TMatrixDelegate();
    _PropertyTable->setItemDelegate(deleg);
-   _PropertyModel = new TMatrixModel( _PropertyContainer, window );
+   _PropertyModel = new jsonui::TMatrixModel( _PropertyContainer, window );
    _PropertyTable->setModel(_PropertyModel);
    _PropertyTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch/*Interactive*/ );
     window->ui->gridLayout->addWidget(_PropertyTable, 7, 0, 1, 8);
@@ -408,6 +401,10 @@ void ThermoFunPrivateNew::newThermoFunData( const ThermoFunData& newdata )
    _PropertyModel->resetMatrixData();
     linkChange();
     //isDefaultQuery = !_data.query.empty();
+    // clear selection lists
+    jsonio::ValuesTable emptytable;
+    substModel->loadModeRecords( emptytable );
+    reactModel->loadModeRecords( emptytable );
 }
 
 
@@ -640,7 +637,6 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
 
 }
 
-
 //-----------------------------------------------------------------------
 
 // temporaly functions
@@ -651,20 +647,4 @@ void ThermoFunPrivateNew::resetElementsintoRecord( bool isreact, const string& a
   else
    dbclient.reactSetData().resetRecordElements( aKey );
 }
-
-
-
-
-// MUST BE CHANGED ---------------------------------------------------------------
-
-
-
-void ThermoFunPrivateNew::updateDBClient()
-   {
-      /** dbclient.substData().updateDBClient();
-      dbclient.reactData().updateDBClient();
-      dbclient.reactSetData().updateDBClient();
-      */
-   }
-
 

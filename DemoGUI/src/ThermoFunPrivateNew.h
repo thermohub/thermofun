@@ -241,10 +241,6 @@ public:
    // temporaly functions
    void resetElementsintoRecord( bool isreact, const string& aKey );
 
-
-// MUST BE CHANGED
-
-   void updateDBClient();
 };
 
 
