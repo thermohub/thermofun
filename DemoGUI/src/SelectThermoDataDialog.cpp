@@ -44,7 +44,9 @@ struct SelectThermoDataDialogPrivate
    vector<int> sourceTDBs;
 
    /// Define ELEMENTS table data
-   vector<ThermoFun::ElementKey> elementsRow;
+   vector<ThermoFun::ElementKey> elementsAll;
+   /// Selected elements
+   vector<ThermoFun::ElementKey> elementsSelected;
 
    /// Solvent substances Values ( for selected elements )
    jsonio::ValuesTable  solventValues;
@@ -74,10 +76,10 @@ struct SelectThermoDataDialogPrivate
        auto matr = thermoModel->getValues();
        string idThermo = matr[selrow][_dbclient.thermoDataSet().getDataName_DataIndex()["_id"]];
        auto elmnts = _dbclient.thermoDataSet().getElementsList(idThermo);
-       elementsRow.clear();
+       elementsAll.clear();
        if( !elmnts.empty() )
        {    idThermoDataSet = idThermo;
-            elementsRow.insert( elementsRow.begin(), elmnts.begin(), elmnts.end() );
+            elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
        }
      return true;
    }
@@ -86,19 +88,20 @@ struct SelectThermoDataDialogPrivate
    {
        sourceTDBs  = sourcetdbs;
        auto elmnts = _dbclient.thermoDataSet().selectElementsFromSubstancesGiven( sourceTDBs );
-       elementsRow.clear();
+       elementsAll.clear();
        if( !elmnts.empty() )
-           elementsRow.insert( elementsRow.begin(), elmnts.begin(), elmnts.end() );
+           elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
        return true;
    }
 
    const vector<ThermoFun::ElementKey>& allAvailableElementsList() const
    {
-     return elementsRow;
+     return elementsAll;
    }
 
    void loadSubstanceRecords( bool typeA, const vector<ThermoFun::ElementKey>& elements, bool unique )
    {
+     elementsSelected = elements;
      vector<string> substanceSymbols;
      if( typeA )
         substanceSymbols = _dbclient.substData().selectGiven( idThermoDataSet, elements, false );
@@ -149,6 +152,7 @@ SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseC
     QDialog(parent), useCase(acase),
     ui(new Ui::SelectThermoData), pdata(new SelectThermoDataDialogPrivate( this, dbclient))
 {
+    updateFrom = 0;
     ui->setupUi(this);
     ui->checkUnique->hide();
 
@@ -406,6 +410,8 @@ void SelectThermoDataDialog::defineSourceTDB()
   sourceDBTable->setSelectionMode(QAbstractItemView::MultiSelection);
   sourceDBTable->setCurrentIndex( sourceDBTable->model()->index(0,0) );
   sourceDBTable->SelectRow();
+  connect( sourceDBTable->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    this,  SLOT(updateAllFrom1(const QItemSelection &, const QItemSelection &))  );
 }
 
 
@@ -426,6 +432,8 @@ void  SelectThermoDataDialog::defineTermodata()
     thermoTable->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->verticalLayout_3->addWidget(thermoTable);
     pdata->thermoModel->loadModeRecords( jsonio::emptyQuery, -1, {} );
+    connect( thermoTable->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+     this,  SLOT(updateAllFrom0(const QItemSelection &, const QItemSelection &))  );
 }
 
 void  SelectThermoDataDialog::defineSubstance()
@@ -433,6 +441,8 @@ void  SelectThermoDataDialog::defineSubstance()
     substTable = new TMatrixTable( this );
     setModel( substTable, pdata->substModel->getModel() );
     ui->verticalLayout->addWidget(substTable);
+    connect( substTable->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+      this,  SLOT(updateAllFrom3(const QItemSelection &, const QItemSelection &))  );
 }
 
 void  SelectThermoDataDialog::defineReaction()
@@ -440,6 +450,8 @@ void  SelectThermoDataDialog::defineReaction()
     reactTable = new TMatrixTable( this );
     setModel( reactTable, pdata->reactModel->getModel() );
     ui->verticalLayout_5->addWidget(reactTable);
+    connect( reactTable->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+      this,  SLOT(updateAllFrom4(const QItemSelection &, const QItemSelection &))  );
 }
 
 void  SelectThermoDataDialog::defineReactionSets()
@@ -451,17 +463,23 @@ void  SelectThermoDataDialog::defineReactionSets()
 
 void  SelectThermoDataDialog::updateElementsThermo()
 {
+   if( updateFrom > 1) // nothing change on page 0
+       return;
    if( pdata->makeAvailableElementsListA(thermoTable->currentIndex().row()))
    {
        const vector<ThermoFun::ElementKey>& elements = pdata->allAvailableElementsList();
        //foreach ( ElementKey elm, elements)
        // cout << elm.symbol << endl;
        elmsWidget->setElementList( elements );
+       elmsWidget->selectElementList( pdata->elementsSelected );
+       updateFrom = 2;
    }
 }
 
 void  SelectThermoDataDialog::updateElementsSourceTDBs()
 {
+   if( updateFrom > 1) // nothing change on page 0
+        return;
     std::vector<int> sourcetdbs;
     QModelIndexList indexList = sourceDBTable->selectionModel()->selectedIndexes();
     foreach (QModelIndex index, indexList)
@@ -473,6 +491,8 @@ void  SelectThermoDataDialog::updateElementsSourceTDBs()
     {
        const vector<ThermoFun::ElementKey>& elements = pdata->allAvailableElementsList();
        elmsWidget->setElementList( elements );
+       elmsWidget->selectElementList( pdata->elementsSelected );
+       updateFrom = 2;
     }
 }
 
@@ -481,23 +501,43 @@ void   SelectThermoDataDialog::updateSubstance()
 {
     vector<ThermoFun::ElementKey> elementKeys;
     allSelected( elementKeys );
+
+    // test change element selected
+    if( elementKeys != pdata->elementsSelected )
+        updateFrom = min( 2, updateFrom);
+
+    if( updateFrom > 2 ) // nothing change on pages 0-2
+         return;
+
     pdata->loadSubstanceRecords( (useCase=='A'),  elementKeys, ui->checkUnique->isChecked() );
     substTable->selectAll();
+
+    updateFrom = 3;
 }
 
 void   SelectThermoDataDialog::updateReaction()
 {
+   if( updateFrom > 3 ) // nothing change on pages 0-3
+         return;
+
     auto substsel = allSelectedRows( substTable );
     pdata->loadReactionRecords( (useCase=='A'),  substsel, ui->checkUnique->isChecked() );
     reactTable->selectAll();
+
+    updateFrom = 4;
 }
 
 
 void   SelectThermoDataDialog::updateReactionSets()
 {
+    if( updateFrom > 4 ) // nothing change on pages 0-4
+          return;
+
     auto reactsel = allSelectedRows( reactTable );
     pdata->loadReacSetRecords( (useCase=='A'),  reactsel, ui->checkUnique->isChecked() );
     rcsetTable->selectAll();
+
+    updateFrom = 5;
 }
 
 std::vector<int> SelectThermoDataDialog::allSelectedRows( jsonui::TMatrixTable *dataTable )
@@ -534,8 +574,10 @@ void SelectThermoDataDialog::selectRows( jsonui::TMatrixTable *dataTable, const 
 void SelectThermoDataDialog::selectA( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys  )
 {
   auto row = pdata->thermoModel->findRow( pdata->_dbclient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet );
-  selectRows( thermoTable, { row }  );
-  pdata->elementsRow = elementKeys;
+  row = max( row, 0 );
+  if( thermoTable->model()->rowCount() > 0 )
+     thermoTable->setCurrentIndex(thermoTable->model()->index(row,0));
+  pdata->elementsSelected = elementKeys;
 
 }
 
@@ -552,7 +594,7 @@ void SelectThermoDataDialog::selectB( const std::vector<int>& sourcetdbs, const 
   if( rows.size() > 0)
      sourceDBTable->clearSelection();
   selectRows( sourceDBTable, rows );
-  pdata->elementsRow = elementKeys;
+  pdata->elementsSelected = elementKeys;
 }
 
 //--------------------------------------------------------------------------------------------------

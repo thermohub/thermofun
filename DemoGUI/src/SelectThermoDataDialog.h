@@ -33,6 +33,23 @@ protected slots:
     void CmClearSelection();
     void CmSelectAll();
 
+   void updateAllFrom0(const QItemSelection &, const QItemSelection &)
+   {
+     updateFrom = 0;
+   }
+   void updateAllFrom1(const QItemSelection &, const QItemSelection &)
+   {
+     updateFrom = 1;
+   }
+   void updateAllFrom3(const QItemSelection &, const QItemSelection &)
+   {
+     updateFrom = std::min(3,updateFrom );
+   }
+   void updateAllFrom4(const QItemSelection &, const QItemSelection &)
+   {
+     updateFrom = std::min(4,updateFrom );
+   }
+
 public:
 
     explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
@@ -69,6 +86,8 @@ private:
     /// A.    Selection of data starting from ThermoDataSet list – select one ThermoDataSet
     /// B.    Selection of data starting from sourcetdb list – select one or more sourceDB
     char useCase;
+    /// Flag for reset old selection
+    int updateFrom = 0;
 
     Ui::SelectThermoData *ui;
 
