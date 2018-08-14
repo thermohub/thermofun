@@ -31,7 +31,7 @@ SubstanceData_::SubstanceData_( const TDataBase* adbconnect )
 
 SubstanceData_::SubstanceData_(const SubstanceData_& other)
 : AbstractData(other), pimpl(new Impl(*other.pimpl))
-{}
+{ }
 
 auto SubstanceData_::operator=(SubstanceData_ other) -> SubstanceData_&
 {
@@ -289,7 +289,7 @@ vector<string> SubstanceData_::selectGiven( const string& idThermoDataSet,
            qrAQL +=  "\n  FILTER v._label == 'substance' ";
            qrAQL +=  "\n  SORT v.properties.symbol ";
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
-    cout << "qrAQL: " << qrAQL << endl;
+    //cout << "qrAQL: " << qrAQL << endl;
     DBQueryData query( qrAQL, DBQueryData::qAQL );
     ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
 
