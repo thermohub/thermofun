@@ -14,6 +14,7 @@ TEMPLATE = app
 
 CONFIG += thread
 CONFIG += c++11
+CONFIG += warn_on
 
 DEFINES += FROM_SRC
 

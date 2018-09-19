@@ -6,7 +6,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance substance) -> ThermoPropertiesSubstance
+auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pressure /*Pbar*/, Substance substance) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance   thermo_properties_PT   = substance.thermoProperties();
     ThermoPropertiesSubstance   thermo_properties_PrTr = substance.thermoReferenceProperties();

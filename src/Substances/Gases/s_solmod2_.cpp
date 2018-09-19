@@ -490,14 +490,14 @@ long int TPRSVcalc::FugacityPure( long int i )
 {
 	double Tcrit, Pcrit, Tred, aprsv, bprsv, alph, da, d2a, k, A, B, a2, a1, a0,
 			z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
-	double gig, hig, sig, cpig, fugpure, grs, hrs, srs, cprs,
+    double /*gig, hig, sig, cpig,*/ fugpure, grs, hrs, srs, cprs,
 			cv, dPdT, dPdV, dVdT;
 
 	// ideal gas changes from 1 bar to P at T of interest
-	hig = 0.;
-	sig = (-1.)*R_CONST*log(Pbar);
-	gig = hig - Tk*sig;
-	cpig = 0.;
+    //hig = 0.;
+    //sig = (-1.)*R_CONST*log(Pbar);
+    //gig = hig - Tk*sig;
+    //cpig = 0.;
 
 	// retrieve a and b terms of cubic EoS
 	Tcrit = Eosparm[i][0];
@@ -757,7 +757,7 @@ long int TPRSVcalc::ResidualFunct( double *fugpure )
 {
     long int i, j, iRet=0;
 	double fugmix=0., zmix=0., vmix=0., amix=0., bmix=0.;
-	double A, B, K, dK, d2K, Q, dQ, d2Q, damix, d2amix, ai, aj, dai, daj, d2ai, d2aj,
+    double /*A,*/ B, K, dK, d2K, Q, dQ, d2Q, damix, d2amix, ai, aj, dai, daj, d2ai, d2aj,
 			cv, dPdT, dPdV, dVdT;
 
     // Reload params to Pureparm (probably now obsolete?)
@@ -769,7 +769,7 @@ long int TPRSVcalc::ResidualFunct( double *fugpure )
 	// retrieve properties of the mixture
 	iRet = MixParam( amix, bmix );
 	iRet = FugacityMix( amix, bmix, fugmix, zmix, vmix );
-	A = amix*Pbar/(pow(R_CONST, 2.)*pow(Tk, 2.));
+    //A = amix*Pbar/(pow(R_CONST, 2.)*pow(Tk, 2.));
 	B = bmix*Pbar/(R_CONST*Tk);
 
 	// calculate total state functions of the mixture
@@ -2860,7 +2860,7 @@ long int TSRKcalc::FugacityPT( long int i, double *EoSparam )
 
 /// Calculates attractive (a) and repulsive (b) parameter of SRK equation of state
 /// and partial derivatives of alpha function
-long int TSRKcalc::AB( double Tcrit, double Pcrit, double omg, double N,
+long int TSRKcalc::AB( double Tcrit, double Pcrit, double omg, double /*N*/,
 		double &apure, double &bpure, double &da, double &d2a )
 {
 	double Tred, m, alph, ac, sqa, dsqa, d2sqa;
@@ -2885,21 +2885,21 @@ long int TSRKcalc::AB( double Tcrit, double Pcrit, double omg, double N,
 /// Calculates fugacities and residual functions of pure fluid species
 long int TSRKcalc::FugacityPure( long int i )
 {
-	double Tcrit, Pcrit, Tred, asrk, bsrk, da, d2a, A, B, a2, a1, a0,
+    double /*Tcrit, Pcrit, Tred,*/ asrk, bsrk, da, d2a, A, B, a2, a1, a0,
 			z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
-	double gig, hig, sig, cpig, fugpure, grs, hrs, srs, cprs,
+    double /*gig, hig, sig, cpig,*/ fugpure, grs, hrs, srs, cprs,
 			cv, dPdT, dPdV, dVdT;
 
 	// ideal gas changes from 1 bar to P at T of interest
-	hig = 0.;
-	sig = (-1.)*R_CONST*log(Pbar);
-	gig = hig - Tk*sig;
-	cpig = 0.;
+    //hig = 0.;
+    //sig = (-1.)*R_CONST*log(Pbar);
+    //gig = hig - Tk*sig;
+    //cpig = 0.;
 
 	// retrieve a and b terms of cubic EoS
-	Tcrit = Eosparm[i][0];
-	Pcrit = Eosparm[i][1];
-	Tred = Tk/Tcrit;
+    //Tcrit = Eosparm[i][0];
+    //Pcrit = Eosparm[i][1];
+    //Tred = Tk/Tcrit;
 	asrk = Pureparm[i][0];
 	bsrk = Pureparm[i][1];
 	da = Pureparm[i][2];
@@ -3152,7 +3152,7 @@ long int TSRKcalc::ResidualFunct( double *fugpure )
 {
 	long int i, j, iRet=0;
 	double fugmix=0., zmix=0., vmix=0., amix=0., bmix=0.;
-	double A, B, K, dK, d2K, Q, dQ, d2Q, damix, d2amix, ai, aj, dai, daj, d2ai, d2aj,
+    double /*A,*/ B, K, dK, d2K, Q, dQ, d2Q, damix, d2amix, ai, aj, dai, daj, d2ai, d2aj,
 				cv, dPdT, dPdV, dVdT;
 
 	// Reload params to Pureparm (possibly not required any more)
@@ -3164,7 +3164,7 @@ long int TSRKcalc::ResidualFunct( double *fugpure )
 	// calculate properties of the mixture
 	iRet = MixParam( amix, bmix);
 	iRet = FugacityMix( amix, bmix, fugmix, zmix, vmix);
-	A = amix*Pbar/(pow(R_CONST, 2.)*pow(Tk, 2.));
+    //A = amix*Pbar/(pow(R_CONST, 2.)*pow(Tk, 2.));
 	B = bmix*Pbar/(R_CONST*Tk);
 
 	// calculate total state functions of the mixture
@@ -3664,7 +3664,7 @@ long int TPR78calc::FugacityPT( long int i, double *EoSparam )
 
 /// Calculates attractive (a) and repulsive (b) parameter of SRK equation of state
 /// and partial derivatives of alpha function
-long int TPR78calc::AB( double Tcrit, double Pcrit, double omg, double N,
+long int TPR78calc::AB( double Tcrit, double Pcrit, double omg, double /*N*/,
 		double &apure, double &bpure, double &da, double &d2a )
 {
 	double Tred, k, alph, ac, sqa, dsqa, d2sqa;
@@ -3695,14 +3695,14 @@ long int TPR78calc::FugacityPure( long int i )
 {
 	double Tcrit, Pcrit, Tred, apr, bpr, alph, da, d2a, k, A, B, a2, a1, a0,
 			z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
-	double gig, hig, sig, cpig, fugpure, grs, hrs, srs, cprs,
+    double /*gig, hig, sig, cpig,*/ fugpure, grs, hrs, srs, cprs,
 			cv, dPdT, dPdV, dVdT;
 
 	// ideal gas changes from 1 bar to P at T of interest
-	hig = 0.;
-	sig = (-1.)*R_CONST*log(Pbar);
-	gig = hig - Tk*sig;
-	cpig = 0.;
+    //hig = 0.;
+    //sig = (-1.)*R_CONST*log(Pbar);
+    //gig = hig - Tk*sig;
+    //cpig = 0.;
 
 	// retrieve a and b terms of cubic EoS
 	Tcrit = Eosparm[i][0];
@@ -3965,7 +3965,7 @@ long int TPR78calc::ResidualFunct( double *fugpure )
 {
     long int i, j, iRet=0;
 	double fugmix=0., zmix=0., vmix=0., amix=0., bmix=0.;
-	double A, B, K, dK, d2K, Q, dQ, d2Q, damix, d2amix, ai, aj, dai, daj, d2ai, d2aj,
+    double /*A,*/ B, K, dK, d2K, Q, dQ, d2Q, damix, d2amix, ai, aj, dai, daj, d2ai, d2aj,
 			cv, dPdT, dPdV, dVdT;
 
     // Reload params to Pureparm (probably now obsolete?)
@@ -3977,7 +3977,7 @@ long int TPR78calc::ResidualFunct( double *fugpure )
 	// retrieve properties of the mixture
 	iRet = MixParam( amix, bmix );
 	iRet = FugacityMix( amix, bmix, fugmix, zmix, vmix );
-	A = amix*Pbar/(pow(R_CONST, 2.)*pow(Tk, 2.));
+    //A = amix*Pbar/(pow(R_CONST, 2.)*pow(Tk, 2.));
 	B = bmix*Pbar/(R_CONST*Tk);
 
 	// calculate total state functions of the mixture
@@ -4428,7 +4428,7 @@ long int TCORKcalc::FugacityH2O( long int j )
 {
     long int phState;   // 1: vapor, 2: liquid
     double a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a, da, d2a, b, c0, c1, c,
-            d0, d1, d, e0, e, dc, dd, p0, Psat, vc, fc, v, g1, g2, g3, rho, z;
+            d0, d1, d, e0, e, /*dc, dd,*/ p0, Psat, vc, fc, v, g1, g2, g3, rho, z;
     double grs, hrs, srs, cprs, cvrs, dpr, dprr, dpt, dptt, dprt,
             drt, drtt, drp, drpp, drtp, dpv, dvt;
 
@@ -4451,8 +4451,8 @@ long int TCORKcalc::FugacityH2O( long int j )
     c = c0 + c1*Tk;
     d = d0 + d1*Tk;
     e = e0;
-    dc = c1;
-    dd = d1;
+    //dc = c1;
+    //dd = d1;
     p0 = 2.;
 
     // molar volume and fugacity coefficient
@@ -5518,10 +5518,10 @@ long int TSTPcalc::FugacityPT( long int j, double *EoSparam )
 long int TSTPcalc::FugacityH2O( long int j )
 {
     long int k, maxit, iErr = 0;
-    double pmpa, tol, rhoguess, rho, pnew, pgrad, rhoold, rhonew, errnew, errold, step,
+    double pmpa, tol, rhoguess, rho, pnew, pgrad, rhoold, rhonew, errnew, /*errold,*/ step,
                     rhomin, rhomax, vol, lnfug, fug, fugc;
-    double ar, dard, dardd, darddd, dart, dartt, dardt, darddt, dardtt, pig,
-                    g, h, s, cp, cv, /*u,*/ a, dpr, dprr, dpt, dptt, dprt, drt, drtt, drp, drpp, drtp;
+    double /*ar,*/ dard, dardd, darddd, dart, dartt, dardt, darddt, dardtt, pig,
+                    g, h, s, cp, cv, /*u, a,*/ dpr, dprr, dpt, dptt, dprt, drt, drtt, drp, drpp, drtp;
 
     pmpa = Pbar/10.;  // MPa
     tol = 1.e-10;
@@ -5536,7 +5536,7 @@ long int TSTPcalc::FugacityH2O( long int j )
     rhoold = rhoguess;
     rhonew = rhoguess;
     errnew = pnew - pmpa;
-    errold = pnew - pmpa;
+    //errold = pnew - pmpa;
 
     // find density by Newton iteration
     k = 0;
@@ -5551,7 +5551,7 @@ long int TSTPcalc::FugacityH2O( long int j )
             }
 
             rhoold = rhonew;
-            errold = errnew;
+            //errold = errnew;
             Pressure( rhonew, pnew, pgrad, cfh );
             errnew = pnew - pmpa;
             step = - errnew/pgrad;
@@ -5567,7 +5567,7 @@ long int TSTPcalc::FugacityH2O( long int j )
     // calculate thermodynamic properties
     rho = rhonew;
     Helmholtz( j, rho, cfh );
-    ar = RC*Tk*Phi[j];
+    //ar = RC*Tk*Phi[j];
     dard = RC*Tk*dPhiD[j];
     dardd = RC*Tk*dPhiDD[j];
     darddd = RC*Tk*dPhiDDD[j];
@@ -5585,7 +5585,7 @@ long int TSTPcalc::FugacityH2O( long int j )
     g = log(fugc)*RC*Tk;
     s = - dart + RC*log(pmpa/pig);
     h = g + Tk*s;
-    a = ar - RC*Tk*log(pmpa/pig);
+    //a = ar - RC*Tk*log(pmpa/pig);
     cv = - Tk*dartt - RC;
     cp = cv + RC*pow((1.+(rho/RC)*dardt),2.) / (1.+(2.*rho)/(RC*Tk)*dard + pow(rho,2.)/(RC*Tk)*dardd);
     dpr = RC*Tk + 2.*rho*dard + pow(rho,2.)*dardd;
@@ -5629,10 +5629,10 @@ long int TSTPcalc::FugacityH2O( long int j )
 long int TSTPcalc::FugacityCO2( long int j )
 {
     long int k, maxit, iErr = 0;
-    double pmpa, tol, rhoguess, rho, pnew, pgrad, rhoold, rhonew, errnew, errold, step,
+    double pmpa, tol, rhoguess, rho, pnew, pgrad, rhoold, rhonew, errnew, /*errold,*/ step,
                     rhomin, rhomax, vol, lnfug, fug, fugc;
-    double ar, dard, dardd, darddd, dart, dartt, dardt, darddt, dardtt, pig,
-                    g, h, s, cp, cv, /*u,*/ a, dpr, dprr, dpt, dptt, dprt, drt, drtt, drp, drpp, drtp;
+    double /*ar,*/ dard, dardd, darddd, dart, dartt, dardt, darddt, dardtt, pig,
+                    g, h, s, cp, cv, /*u, a,*/ dpr, dprr, dpt, dptt, dprt, drt, drtt, drp, drpp, drtp;
 
     pmpa = Pbar/10.;  // MPa
     tol = 1.e-10;
@@ -5647,7 +5647,7 @@ long int TSTPcalc::FugacityCO2( long int j )
     rhoold = rhoguess;
     rhonew = rhoguess;
     errnew = pnew - pmpa;
-    errold = errnew;
+    //errold = errnew;
 
     k = 0;
     do
@@ -5661,7 +5661,7 @@ long int TSTPcalc::FugacityCO2( long int j )
             }
 
             rhoold = rhonew;
-            errold = errnew;
+            //errold = errnew;
             Pressure( rhonew, pnew, pgrad, cfc );
             errnew = pnew - pmpa;
             step = - errnew/pgrad;
@@ -5677,7 +5677,7 @@ long int TSTPcalc::FugacityCO2( long int j )
     // calculate thermodynamic properties
     rho = rhonew;
     Helmholtz( j, rho, cfc );
-    ar = RC*Tk*Phi[j];
+    //ar = RC*Tk*Phi[j];
     dard = RC*Tk*dPhiD[j];
     dardd = RC*Tk*dPhiDD[j];
     darddd = RC*Tk*dPhiDDD[j];
@@ -5695,7 +5695,7 @@ long int TSTPcalc::FugacityCO2( long int j )
     g = log(fugc)*RC*Tk;
     s = - dart + RC*log(pmpa/pig);
     h = g + Tk*s;
-    a = ar - RC*Tk*log(pmpa/pig);
+    //a = ar - RC*Tk*log(pmpa/pig);
     cv = - Tk*dartt - RC;
     cp = cv + RC*pow((1.+(rho/RC)*dardt),2.) / (1.+(2.*rho)/(RC*Tk)*dard + pow(rho,2.)/(RC*Tk)*dardd);
     dpr = RC*Tk + 2.*rho*dard + pow(rho,2.)*dardd;

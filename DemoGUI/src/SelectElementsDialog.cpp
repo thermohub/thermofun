@@ -84,7 +84,7 @@ struct SelectElementsDialogPrivate
    string getReactionSetId(int ndx ) const
    {
      jsonio::ValuesTable matr = rcsetData->getValues();
-     if( ndx< matr.size() && ndx > 0 )
+     if( ndx< (int)matr.size() && ndx > 0 )
          return matr[ndx][4];
      else
          return "";

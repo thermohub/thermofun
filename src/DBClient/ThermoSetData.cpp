@@ -93,14 +93,15 @@ ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,
     ValuesTable substQueryMatr = getDB()->loadRecords(query, fields);
 
     // get record by elements list
-    //?? updateTableByElementsList( substQueryMatr, elements );
+    //updateTableByElementsList( substQueryMatr, elements );
     pimpl->valuesTable = substQueryMatr;
     return   move(substQueryMatr);
 }
 
 ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 {
-
+    ValuesTable substQueryMatr;
+    return   move(substQueryMatr);
 }
 
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string

@@ -82,7 +82,7 @@ auto OutputToCSV::openThermoPropertiesSubstanceFile (std::string fileName) ->voi
 {
     fileThermoPropertiesSubstance = fileName;
 
-    string fullPath = outputFolderPath + "\/" + fileName;
+    string fullPath = outputFolderPath + "/" + fileName;
 
     fThermoPropertiesSubstance.open( fullPath , ios::trunc );
 }
@@ -91,7 +91,7 @@ auto OutputToCSV::openPropertiesSolventFile (std::string fileName) ->void
 {
     filePropertiesSolvent = fileName;
 
-    string fullPath = outputFolderPath + "\/" + fileName;
+    string fullPath = outputFolderPath + "/" + fileName;
 
     fPropertiesSolvent.open( fullPath , ios::trunc );
 }
@@ -100,7 +100,7 @@ auto OutputToCSV::openElectroPropertiesSolventFile (std::string fileName) ->void
 {
     fileElectroPropertiesSolvent = fileName;
 
-    string fullPath = outputFolderPath + "\/" + fileName;
+    string fullPath = outputFolderPath + "/" + fileName;
 
     fElectroPropertiesSolvent.open( fullPath , ios::trunc );
 }
