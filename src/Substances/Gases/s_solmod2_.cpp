@@ -1076,36 +1076,36 @@ long int TCGFcalc::PTparam()
 /// high-level method to retrieve activity coefficients in the fluid mixture
 long int TCGFcalc::MixMod()
 {
-	long int j;
-	double roro; // changed, 21.06.2008 (TW)
+    long int j;
+    double roro; // changed, 21.06.2008 (TW)
 
-	if( Tk >= 273.15 && Tk < 1e4 && Pbar >= 1e-6 && Pbar < 1e5 )
-	{
-		CGActivCoefPT( aX, EoSparam, FugCoefs, NComp, Pbar, Tk, roro );  // changed, 21.06.2008 (TW)
-		if (roro <= 0. )
-		{
-			char buf[150];
-			sprintf(buf, "CG fluid: bad calculation of density ro= %lg", roro);
-			Error( "E71IPM IPMgamma: ",  buf );
-		}
+    if( Tk >= 273.15 && Tk < 1e4 && Pbar >= 1e-6 && Pbar < 1e5 )
+    {
+        CGActivCoefPT( aX, EoSparam, FugCoefs, NComp, Pbar, Tk, roro );  // changed, 21.06.2008 (TW)
+        if (roro <= 0. )
+        {
+            char buf[150];
+            sprintf(buf, "CG fluid: bad calculation of density ro= %lg", roro);
+            Error( "E71IPM IPMgamma: ",  buf );
+        }
 
-		// Phase volume of the fluid in cm3 (not needed any more?)
-		phVOL[0] = phWGT[0] / roro;
+        // Phase volume of the fluid in cm3 (not needed any more?)
+        phVOL[0] = phWGT[0] / roro;
 
-	}
+    }
 
-	else  // Setting Fugcoefs to 0 outside TP interval
-		for( j=0; j<NComp; j++ )
-			FugCoefs[ j ] = 0.0;
+    else  // Setting Fugcoefs to 0 outside TP interval
+        for( j=0; j<NComp; j++ )
+            FugCoefs[ j ] = 0.0;
 
-		for( j=0; j<NComp; j++  )
-		{
-			if( FugCoefs[j] > 1e-23 )
-				lnGamma[j] = log(FugCoefs[j]/Pparc[j]);
-			else
-				lnGamma[j] = 0;
-		}  // j
-	return 0;
+    for( j=0; j<NComp; j++  )
+    {
+        if( FugCoefs[j] > 1e-23 )
+            lnGamma[j] = log(FugCoefs[j]/Pparc[j]);
+        else
+            lnGamma[j] = 0;
+    }  // j
+    return 0;
 }
 
 

@@ -43,7 +43,7 @@ return wp;
 auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolvent
 {
     PropertiesSolvent wp;
-    double rho, alp, dal, bet;
+    double rho=0., alp=0., dal=0., bet=0.;
 
     if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
     {
@@ -151,7 +151,7 @@ return wp;
 auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent wp;
-    double eps, xborn, yborn, qborn;
+    double eps=0., xborn=0., yborn=0., qborn=0.;
 
     if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
     {
