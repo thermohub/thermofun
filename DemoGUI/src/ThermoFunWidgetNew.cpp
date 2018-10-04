@@ -248,7 +248,7 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(true);
         }
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -280,7 +280,7 @@ void ThermoFunWidgetNew::CmSelectThermoDataSet()
         ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate."); // status
       }
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -312,7 +312,7 @@ void ThermoFunWidgetNew::CmSelectSourceTDBs()
         ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate."); // status
       }
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -331,7 +331,7 @@ void ThermoFunWidgetNew::CmReallocTP()
         if(ok)
           pdata->reallocTP( size );
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -349,7 +349,7 @@ void ThermoFunWidgetNew::CmResetTP()
            pdata->updateTP( dlg.getTUnits().toStdString(),
                   dlg.getPUnits().toStdString(), dlg.getTPpairs() );
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -369,7 +369,7 @@ void ThermoFunWidgetNew::CmResetProperty()
     if( dlg.exec() )
       pdata->updateProperty( dlg.allSelected() );
   }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -397,7 +397,7 @@ void ThermoFunWidgetNew::CmImportCFG()
           resetThermoFunData(thdata);
         }
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -422,7 +422,7 @@ void ThermoFunWidgetNew::CmExportCFG()
              file.SaveJson( domdata.get() );
          }
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -515,7 +515,7 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
             ui->actionShow_Results->setEnabled(true);
 
     }
-    catch(jsonio::jsonio_exeption& e)
+    catch(jsonio::jsonio_exception& e)
     {
         QMessageBox::critical( this, e.title(), e.what() );
         ui->calcStatus->setText(e.what());
@@ -533,7 +533,7 @@ void ThermoFunWidgetNew::CmCalcRTParm()
         cout << "CmCalcRTParm" << endl;
 
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -563,7 +563,7 @@ void ThermoFunWidgetNew::CmShowResult()
         }
         _csvWin->show();
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -583,7 +583,7 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
      vector<string> aKeyList;
      vector<vector<string>> aValList;
      vector<int> selNdx;
-     graphdb->GetKeyValueList( aKeyList, aValList );
+     graphdb->lastQueryData()->getKeyValueList( aKeyList, aValList );
      if( aKeyList.empty() )
        return;
 
@@ -596,7 +596,7 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
        pdata->resetElementsintoRecord( true, aKeyList[selNdx[ii]]);
 
    }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -616,7 +616,7 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
      vector<string> aKeyList;
      vector<vector<string>> aValList;
      vector<int> selNdx;
-     graphdb->GetKeyValueList( aKeyList, aValList );
+     graphdb->lastQueryData()->getKeyValueList( aKeyList, aValList );
      if( aKeyList.empty() )
        return;
 
@@ -629,7 +629,7 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
        pdata->resetElementsintoRecord(false, aKeyList[selNdx[ii]]);
 
    }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }

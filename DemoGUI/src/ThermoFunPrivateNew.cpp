@@ -458,17 +458,17 @@ void ThermoFunPrivateNew::retrieveConnectedData(ThermoFun::VertexId_VertexType m
         if (idType.second == "reaction")
         {
             string symbol;
-            string jsonrecord = dbclient.reactData().getJsonRecordVertex(idType.first+":");
+            string jsonrecord = dbclient.reactData().getJsonRecordVertex(idType.first);
             auto domdata = jsonio::unpackJson( jsonrecord );
             domdata->findKey("properties.symbol",  symbol);
-            // record = dbclient.reactData().getJsonRecordVertex(idType.first+":").second;
+            // record = dbclient.reactData().getJsonRecordVertex(idType.first).second;
             // jsonio::bson_to_key( record.data, "properties.symbol",  symbol);
             linkedReactSymbols.push_back(symbol);
         }
         if (idType.second == "substance")
         {
             string symbol, class_;
-            string jsonrecord = dbclient.substData().getJsonRecordVertex(idType.first+":");
+            string jsonrecord = dbclient.substData().getJsonRecordVertex(idType.first);
             auto domdata = jsonio::unpackJson( jsonrecord );
             domdata->findKey("properties.symbol",  symbol);
             domdata->findKey("properties.class_",  class_);
@@ -513,7 +513,7 @@ MapSymbolMapLevelReaction ThermoFunPrivateNew::recordsMapLevelDefinesReaction_(T
         for (auto level_idReact : symbol_Level_idReact.second)
         {
             levelReact[level_idReact.first] = ThermoFun::parseReaction(
-                        dbclient.reactData().getJsonRecordVertex(level_idReact.second+":") );
+                        dbclient.reactData().getJsonRecordVertex(level_idReact.second) );
         }
         recordsLevelReact[symbol_Level_idReact.first] = levelReact;
     }

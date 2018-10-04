@@ -157,7 +157,7 @@ void SelectElementsDialog::CmNext()
     resetNextButton();
     resetBackButton();
   }
-    catch(jsonio::jsonio_exeption& e)
+    catch(jsonio::jsonio_exception& e)
     {
         QMessageBox::critical( this, e.title(), e.what() );
     }

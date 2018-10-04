@@ -52,7 +52,7 @@ const jsonio::ValuesTable&  ReactionSetData_::getValuesTable()
 set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrcset )
 {
   set<ElementKey> elements;
-  string jsonrecord = getJsonRecordVertex(idrcset+":");
+  string jsonrecord = getJsonRecordVertex(idrcset);
   auto domdata = jsonio::unpackJson( jsonrecord );
   ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
 
@@ -82,7 +82,7 @@ ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
     }
     if( !elements.empty() )
       addFieldsToQueryAQL( query, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
-    ValuesTable reactQueryMatr = getDB()->loadRecords( query, fields );
+    ValuesTable reactQueryMatr = getDB()->downloadDocuments( query, fields );
 
     // get record by elements list
     ValuesTable reactMatr;
@@ -106,7 +106,7 @@ ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
 {
     vector<string> ids;
     ids.push_back(idrcset);
-    return getDB()->loadRecords(ids, getDataFieldPaths());
+    return getDB()->downloadDocuments(ids, getDataFieldPaths());
 }
 
 vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
@@ -121,12 +121,11 @@ vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
 
 vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
 {
-    vector<string> formulas;
     string qrJson = "FOR v,e  IN 1..1 INBOUND '";
            qrJson += idrcset + "' \n product, master\n";
            qrJson += "RETURN DISTINCT v.properties.formula";
 
-    getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, formulas);
+    vector<string> formulas = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
     return formulas;
 }
 
@@ -158,7 +157,7 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
     string _id;
     try{
         auto graphdb = getDB();
-        graphdb->GetRecord(aKey.c_str());
+        graphdb->Read( aKey );
         graphdb->getValue("_id",_id);
 
         vector<string> formulalst = getSubstanceFormulas( _id );
@@ -168,7 +167,7 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
         graphdb->setValue("properties.elements",elementsJsonArray);
         graphdb->SaveCurrent( true, true  );
     }
-    catch(jsonio_exeption& e)
+    catch(jsonio_exception& e)
     {
         cout << "ResetElementsintoReactionRecord " << e.title() << e.what() << endl;
     }
@@ -181,7 +180,7 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
 bool ReactionSetData_::getSpeciesMap( const string& RcSid, std::map<string, int>& specmap )
 {
     // extract data from reaction record
-    getDB()->GetRecord( (RcSid+":").c_str() );
+    getDB()->Read( RcSid );
     bool iret = getDB()->getDom()->findObject(  "properties.species_map", specmap );
     //bool iret = bson_read_map_path( reobj.data, "properties.species_map", specmap );
     return iret;
@@ -207,7 +206,7 @@ vector<string> ReactionSetData_::selectGivenSubstances( const vector<int>& sourc
     query.setBindVars( domdata.get() );
     query.setQueryFields( makeQueryFields() );
 
-    ValuesTable reactSetQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable reactSetQueryMatr = getDB()->downloadDocuments(query, getDataNames());
 
     // delete not unique
     if( unique )
@@ -242,7 +241,7 @@ vector<string> ReactionSetData_::selectGiven(const vector<int>& sourcetdbs,
     query.setBindVars( domdata.get() );
     query.setQueryFields( makeQueryFields() );
 
-    ValuesTable reactSetQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable reactSetQueryMatr = getDB()->downloadDocuments(query, getDataNames());
 
     // delete not unique
     if( unique )
@@ -266,7 +265,7 @@ vector<string> ReactionSetData_::selectGiven( const vector<string>& idThermoData
            qrAQL +=  "\n  SORT v.properties.symbol ";
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
         deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
@@ -296,7 +295,7 @@ vector<string> ReactionSetData_::selectGiven( const string& idThermoDataSet, con
      // make query
      DBQueryData query( qrAQL, DBQueryData::qAQL );
      query.setBindVars( domdata.get() );
-     ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+     ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
      vector<string> reacSymbols;
      for (const auto& subitem : resMatr)

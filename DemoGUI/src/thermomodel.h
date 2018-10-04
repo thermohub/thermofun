@@ -104,10 +104,10 @@ public:
 
 
 
-    const jsonio::DBQueryDef& getQuery( ) const
+    /*const jsonio::DBQueryDef& getQuery( ) const
     {
       return data_->getDB()->getQuery();
-    }
+    }*/
 
     const jsonio::ValuesTable&  getValues() const
     {

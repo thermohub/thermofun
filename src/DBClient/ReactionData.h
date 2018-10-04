@@ -46,10 +46,9 @@ class ReactionData_ : public AbstractData
     /**
      * @brief queryIncomingEdgesTakes returns data of the incoming edges of type takes
      * @param idReact reaction id
-     * @param queryFields which data from record for be extracted in the result
      * @return list of extracted data for each edge
      */
-    auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>;
+    auto queryInEdgesTakes(string idReact) -> vector<string>;
 
     /**
      * @brief mapReactantsCoeff returns the map of reactants symbols and coefficients

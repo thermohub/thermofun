@@ -138,7 +138,7 @@ void TThermoFunMainWin::newSchemaWin(const char* testschema )
   try{
       OpenNewWidget( true, testschema, "" );
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -175,7 +175,7 @@ void TThermoFunMainWin::CmNewEdge()
   try{
       OpenNewWidget( false, "", "" );
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -280,7 +280,7 @@ void TThermoFunMainWin::CmThermoFun()
         //testWidget->CmSelectThermoDataSet();
 
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }
@@ -298,7 +298,7 @@ void TThermoFunMainWin::setAllElements()
             return;
 
          // Connect to DataBase
-         std::unique_ptr<jsonio::TDBVertexDocument> elementDB( jsonio::TDBVertexDocument::newDBVertexDocument(
+         std::unique_ptr<jsonio::TDBVertexDocument> elementDB( jsonio::TDBVertexDocument::newVertexDocumentQuery(
                     jsonui::uiSettings().database(),  "VertexElement" ));
 
          if(elementDB.get() == nullptr )
@@ -329,7 +329,7 @@ void TThermoFunMainWin::setAllElements()
         }
 
     }
-   catch(jsonio::jsonio_exeption& e)
+   catch(jsonio::jsonio_exception& e)
    {
        QMessageBox::critical( this, e.title(), e.what() );
    }

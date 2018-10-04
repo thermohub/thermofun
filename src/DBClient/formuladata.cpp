@@ -487,8 +487,7 @@ void ChemicalFormula::setDBElements(ElementsMap elements )
 
 void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const jsonio::DBQueryData& query )
 {
-    vector<string> resultData;
-    elementDB->runQuery( query, queryFields, resultData );
+    vector<string> resultData = elementDB->runQuery( query );
 
     dbElements.clear();
     for(uint ii=0; ii<resultData.size(); ii++ )
@@ -505,7 +504,7 @@ void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const
 
   for(uint ii=0; ii<keyList.size(); ii++ )
   {
-    elementDB->GetRecord( keyList[ii].c_str() );
+    elementDB->Read( keyList[ii] );
     addOneElement( elementDB );
   }
 }
@@ -517,7 +516,7 @@ vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const ve
 
   for(uint ii=0; ii<idList.size(); ii++ )
   {
-    elementDB->GetRecord( (idList[ii]+":").c_str() );
+    elementDB->Read( idList[ii] );
     elementDB->getValue( "properties.symbol" , elkey.symbol );
     elementDB->getValue( "properties.class_" , elkey.class_ );
     elementDB->getValue( "properties.isotope_mass" , elkey.isotope );

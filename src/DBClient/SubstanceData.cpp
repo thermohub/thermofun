@@ -47,9 +47,9 @@ const jsonio::ValuesTable&  SubstanceData_::getValuesTable()
     return pimpl->valuesTable;
 }
 
-auto SubstanceData_::queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
+auto SubstanceData_::queryInEdgesDefines(string idSubst,  string level) -> vector<string>
 {
-    return queryInEdgesDefines_(idSubst, queryFields, level);
+    return queryInEdgesDefines_(idSubst, level);
 }
 
 auto SubstanceData_::definesReactionSymbol(string idSubst, string level) -> std::string
@@ -71,7 +71,7 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
 {
   string formula;
   // get record
-  string jsonrecord = getJsonRecordVertex(idSubstance+":");
+  string jsonrecord = getJsonRecordVertex(idSubstance);
   auto domdata = jsonio::unpackJson( jsonrecord );
 
   // Extract data from fields
@@ -116,7 +116,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
     //if (!elements.empty())
       addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
 
-    ValuesTable substQueryMatr = getDB()->loadRecords(query, fields);
+    ValuesTable substQueryMatr = getDB()->downloadDocuments(query, fields);
 
     // get record by elements list
     updateTableByElementsList( substQueryMatr, elements );
@@ -132,7 +132,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
     //       qrAQL += "RETURN u";
     DBQueryData query( qrAQL, DBQueryData::qAQL );
     query.setQueryFields(makeQueryFields());
-    ValuesTable substMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable substMatr =  getDB()->downloadDocuments( query, getDataNames());
     setDefaultLevelForReactionDefinedSubst(substMatr);
     pimpl->valuesTable = substMatr;
     return substMatr;
@@ -145,7 +145,7 @@ auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
   auto qrJson = DBQueryData( aqlStr, DBQueryData::qAQL );
   qrJson.setQueryFields(makeQueryFields());
 
- ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataNames() );
+ ValuesTable solventMatr = getDB()->downloadDocuments(qrJson, getDataNames() );
  return solventMatr;
 }
 
@@ -157,7 +157,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 
     auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
     queryJson.setQueryFields( {{ "level", "properties.level" }} );
-    levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"level"} );
+    levelQueryMatr = getDB_edgeAccessMode()->downloadDocuments( queryJson, {"level"} );
     for (uint i = 0; i < levelQueryMatr.size(); i++)
     {
         levels.push_back(std::stoi(levelQueryMatr[i][0]));
@@ -179,8 +179,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
                qrJson += idsub + "' \n defines\n";
                qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
 
-        vector<string> resultsQuery;
-        getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+        vector<string> resultsQuery =  getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
         for( auto result: resultsQuery )
         {
@@ -209,8 +208,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
                qrJson += idsub + "' \n defines\n";
                qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
 
-        vector<string> resultsQuery;
-        getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+        vector<string> resultsQuery = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
         for( auto result: resultsQuery )
         {
@@ -241,7 +239,7 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
     query.setBindVars( domdata.get() );
     query.setQueryFields( makeQueryFields() );
 
-    ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable substQueryMatr = getDB()->downloadDocuments(query, getDataNames());
 
     // delete not unique
     if( unique )
@@ -267,7 +265,7 @@ vector<string> SubstanceData_::selectGiven( const vector<string>& idThermoDataSe
            qrAQL +=  "\n  SORT v.properties.symbol ";
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
         deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
@@ -291,7 +289,7 @@ vector<string> SubstanceData_::selectGiven( const string& idThermoDataSet,
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
     //cout << "qrAQL: " << qrAQL << endl;
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
         deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );

@@ -43,11 +43,10 @@ public:
     /**
      * @brief queryIncomingEdgesDefines query the ids of incoming edges of type defines
      * @param idSubst substance id
-     * @param queryFields fields data to be retrieved from the query
      * @param level level of the edge
      * @return list of ids
      */
-    auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
+    auto queryInEdgesDefines(string idSubst,  string level) -> vector<string>;
 
     /**
      * @brief definesReactionSymbol returns the reaction symbol which defines a substance

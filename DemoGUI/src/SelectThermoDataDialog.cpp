@@ -299,7 +299,7 @@ void SelectThermoDataDialog::CmNext()
     ui->stackedWidget->setCurrentIndex ( current+1 );
     resetButtons();
   }
-    catch(jsonio::jsonio_exeption& e)
+    catch(jsonio::jsonio_exception& e)
     {
         QMessageBox::critical( this, e.title(), e.what() );
     }
@@ -332,7 +332,7 @@ void SelectThermoDataDialog::CmFinish()
      leftOnlySelected();
      accept();
   }
-  catch(jsonio::jsonio_exeption& e)
+  catch(jsonio::jsonio_exception& e)
   {
       QMessageBox::critical( this, e.title(), e.what() );
   }

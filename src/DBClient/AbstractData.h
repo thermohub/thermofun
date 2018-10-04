@@ -122,11 +122,11 @@ protected:
     // returns the full access mode database connection (allows queryies on all types of records)
     auto getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEdgeDocument>;
     // query the ids of incoming edges of type defines
-    auto queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
+    auto queryInEdgesDefines_(string idSubst, string level) -> vector<string>;
     // returns the reaction symbol which defines a substance
     auto definesReactionSymbol_(string idSubst, string level) -> std::string;
     //  returns data of the incoming edges of type takes
-    auto queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>;
+    auto queryInEdgesTakes_(string idReact ) -> vector<string>;
     // returns the map of reactants symbols and coefficients
     auto reactantsCoeff_(string idReact) -> std::map<string, double>;
     // returns the level which is set for the substance

@@ -14,10 +14,10 @@ using QueryRecord           = std::function<string(string, vector<string>)>;
 using LoadRecord            = std::function<jsonio::FieldSetMap(const string, const vector<string>)>;
 using LoadRecords           = std::function<jsonio::ValuesTable(const vector<string>)>;
 
-using QueryInEdgesDefines   = std::function<vector<string>(string, vector<string>, string)>;
+using QueryInEdgesDefines   = std::function<vector<string>(string, string)>;
 using DefinesReactionSymbol = std::function<string(string, string)>;
 
-using QueryInEdgesTakes     = std::function<vector<string>(string, vector<string>)>;
+using QueryInEdgesTakes     = std::function<vector<string>(string)>;
 using ReactantsCoeff        = std::function<std::map<string, double>(string)>;
 
 using GetJsonRecord           = std::function<std::string(std::string)>;
@@ -72,7 +72,7 @@ struct AbstractData::Impl
     {
       dbconnect = adbconnect;
 //      auto v = jsonio::TDBVertexDocument::newDBVertexDocument( dbconnect, name, query );
-      dbvertex.reset( jsonio::TDBVertexDocument::newDBVertexReadOnlyDocument( dbconnect, name/*, query*/ ) );
+      dbvertex.reset( jsonio::TDBVertexDocument::newVertexDocument( dbconnect, name ) );
       dbedge_all.reset( jsonio::documentAllEdges( dbconnect ) );
       // clear old data
       dataIndex.clear();
@@ -109,8 +109,8 @@ struct AbstractData::Impl
         };
         load_records_fn = memoize(load_records_fn);
 
-        query_in_edges_defines_fn = [=](string idSubst, vector<string> queryFields,  string level) {
-            return queryInEdgesDefines(idSubst, queryFields, level);
+        query_in_edges_defines_fn = [=](string idSubst,  string level) {
+            return queryInEdgesDefines(idSubst, level);
         };
         query_in_edges_defines_fn = memoize(query_in_edges_defines_fn);
 
@@ -119,8 +119,8 @@ struct AbstractData::Impl
         };
         defines_reaction_symbol_fn = memoize(defines_reaction_symbol_fn);
 
-        query_in_edges_takes_fn = [=](string idReact, vector<string> queryFields) {
-            return queryInEdgesTakes(idReact, queryFields);
+        query_in_edges_takes_fn = [=](string idReact) {
+            return queryInEdgesTakes(idReact);
         };
         query_in_edges_takes_fn = memoize(query_in_edges_takes_fn);
 
@@ -130,20 +130,20 @@ struct AbstractData::Impl
         reactans_coeff_fn = memoize(reactans_coeff_fn);
     }
 
-    auto getJsonRecordVertex(string idRecord) -> std::string // id: "12234444:" format
+    auto getJsonRecordVertex(string idRecord) -> std::string // id: "12234444" format
     {
         std::string json_str;
         dbvertex->resetMode(true);
-        dbvertex->GetRecord(idRecord.c_str());
+        dbvertex->Read(idRecord);
         json_str = dbvertex->GetJson();
         dbvertex->resetMode(false);
         return json_str;
     }
 
-    auto getJsonRecordEdge(string idRecord) -> std::string // id: "12234444:" format
+    auto getJsonRecordEdge(string idRecord) -> std::string // id: "12234444" format
     {
         std::string json_str;
-        dbedge_all->GetRecord(idRecord.c_str());
+        dbedge_all->Read(idRecord);
         json_str = dbedge_all->GetJson();
         return json_str;
     }
@@ -155,22 +155,21 @@ struct AbstractData::Impl
 
     auto loadRecords(vector<string> idRecords) -> jsonio::ValuesTable
     {
-        return dbvertex->loadRecords(idRecords, fieldPaths);
+        return dbvertex->downloadDocuments(idRecords, fieldPaths);
     }
 
     // return all record, no only fields
-    auto queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
+    auto queryInEdgesDefines(string idSubst,  string level) -> vector<string>
     {
         string qrJson = "FOR e IN defines";
                qrJson += "\n FILTER e._to == '" + idSubst + "'";
                if (level != "-1")
                   qrJson += " && e.properties.level ==" + level;
-               qrJson += "\n RETURN e";
+               qrJson += "\n RETURN e._from";
 
-        vector<string> resultsEdge;
-        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  queryFields, resultsEdge);
+        vector<string> resultsEdgeIds =  dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
-        return resultsEdge;
+        return resultsEdgeIds;
     }
 
     auto definesReactionSymbol(string idSubst, string level) -> std::string
@@ -181,8 +180,7 @@ struct AbstractData::Impl
                   qrJson += "FILTER e.properties.level ==" + level +"\n";
                qrJson += "RETURN v.properties.symbol";
 
-        vector<string> symbols;
-        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, symbols);
+        vector<string> symbols = dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
         if( symbols.empty() )
           return ""; //"undefined";
         jsonio::strip_all( symbols[0] , "\"");
@@ -190,11 +188,10 @@ struct AbstractData::Impl
     }
 
     // return all record, no only fields
-    auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
+    auto queryInEdgesTakes(string idReact) -> vector<string>
     {
         auto queryin = dbedge_all->inEdgesQuery( "takes", idReact );
-        vector<string> resultEdge;
-        dbedge_all->runQuery( queryin,  queryFields, resultEdge );
+        vector<string> resultEdge =  dbedge_all->runQuery( queryin );
         return resultEdge;
         //"FOR v,e  IN 1..1 INBOUND 'reactions/OH-_1_15_1' takes RETURN e"
     }
@@ -209,8 +206,7 @@ struct AbstractData::Impl
                qrJson += idReact + "' \n takes\n";
                qrJson += "RETURN { 'stoi_coeff': e.properties.stoi_coeff, 'symbol': v.properties.symbol }";
 
-        vector<string> resultsQuery;
-        dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+        vector<string> resultsQuery =  dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
         for( auto result: resultsQuery )
         {
@@ -253,9 +249,9 @@ auto AbstractData::queryRecord(string idRecord, vector<string> queryFields) -> s
 {
     return pimpl->query_record_fn(idRecord, queryFields);
 }
-auto AbstractData::queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>
+auto AbstractData::queryInEdgesDefines_(string idSubst,  string level) -> vector<string>
 {
-    return pimpl->query_in_edges_defines_fn(idSubst, queryFields, level);
+    return pimpl->query_in_edges_defines_fn(idSubst, level);
 }
 
 auto AbstractData::definesReactionSymbol_(string idSubst, string level) -> std::string
@@ -263,9 +259,9 @@ auto AbstractData::definesReactionSymbol_(string idSubst, string level) -> std::
     return pimpl->defines_reaction_symbol_fn(idSubst, level);
 }
 
-auto AbstractData::queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>
+auto AbstractData::queryInEdgesTakes_(string idReact) -> vector<string>
 {
-    return pimpl->query_in_edges_takes_fn(idReact, queryFields);
+    return pimpl->query_in_edges_takes_fn(idReact);
 }
 
 auto AbstractData::reactantsCoeff_(string idReact) -> std::map<std::string, double>
@@ -404,10 +400,10 @@ auto AbstractData::getInVertexIds( const string& edgeCollections, const string& 
     string vertexId_;
 
     vector<string> _queryFields = { "_from"};
-    vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeCollections, idVertex );
     queryin.setQueryFields(_queryFields);
-    pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
+
+    vector<string> _resultData = pimpl->dbedge_all->runQuery( queryin );
 
     for( auto rec: _resultData)
     {
@@ -424,10 +420,10 @@ auto AbstractData::getInVertexIds(const string& edgeCollections, const string& i
     edgeIds_.clear();
 
     vector<string> _queryFields = { "_from", "_id"};
-    vector<string> _resultData;
     auto queryin = pimpl->dbedge_all->inEdgesQuery( edgeCollections, idVertex );
     queryin.setQueryFields(_queryFields);
-    pimpl->dbedge_all->runQuery( queryin,  _queryFields, _resultData );
+
+    vector<string> _resultData = pimpl->dbedge_all->runQuery( queryin );
 
     for( auto rec: _resultData)
     {
@@ -447,10 +443,9 @@ auto AbstractData::getOutVertexIds( const string &edgeCollections, const string&
     // select all EdgeTakes for reaction
     auto queryout = pimpl->dbedge_all->outEdgesQuery( edgeCollections, idVertex );
     vector<string> _queryFields = { "_to"};
-    vector<string> _resultData;
-
     queryout.setQueryFields(_queryFields);
-    pimpl->dbedge_all->runQuery( queryout,  _queryFields, _resultData );
+
+    vector<string> _resultData = pimpl->dbedge_all->runQuery( queryout );
 
     for( auto rec: _resultData)
     {
@@ -467,10 +462,10 @@ auto AbstractData::getOutVertexIds(const string &edgeCollections, const string& 
     edgeIds_.clear();
 
     vector<string> _queryFields = { "_to", "_id"};
-    vector<string> _resultData;
     auto queryout = pimpl->dbedge_all->outEdgesQuery( edgeCollections, idVertex );
     queryout.setQueryFields(_queryFields);
-    pimpl->dbedge_all->runQuery( queryout,  _queryFields, _resultData );
+
+    vector<string> _resultData = pimpl->dbedge_all->runQuery( queryout );
 
     for( auto rec: _resultData)
     {
@@ -572,9 +567,9 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
 
   vector<ElementKey> elements;
   ElementKey elkey("");
-  vector<string> resultsQuery;
+
   pimpl->dbvertex->resetMode(true);
-  pimpl->dbvertex->runQuery( query, {}, resultsQuery );
+  vector<string> resultsQuery = pimpl->dbvertex->runQuery( query );
   pimpl->dbvertex->resetMode(false);
 
   for( auto result: resultsQuery )
@@ -603,8 +598,7 @@ auto AbstractData::selectElementsFromSubstancesGiven( const vector<int>& sourcet
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );
 
-    vector<string> formulas;
-    getDB()->runQuery( query,  {}, formulas);
+    vector<string> formulas = getDB()->runQuery( query );
     return ChemicalFormula::extractElements(formulas);
 }
 

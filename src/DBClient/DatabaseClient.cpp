@@ -28,8 +28,8 @@ using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
 using AvailableElementsSet    = std::function<set<Element>(uint)>;
 using AvailableElementsKey    = std::function<std::vector<ElementKey>(uint)>;
 
-std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
-std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
+//std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
+//std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
 
 struct DatabaseClient::Impl
 {
@@ -97,8 +97,7 @@ struct DatabaseClient::Impl
         available_elements_set_fn = memoize(available_elements_set_fn);
 
         auto elementVertex = unique_ptr<TDBVertexDocument> (
-                    TDBVertexDocument::newDBVertexReadOnlyDocument(
-              _dbconnect.get(),  "VertexElement"/*, ChemicalFormula::getDefaultQuery()*/ ));
+                    TDBVertexDocument::newVertexDocument( _dbconnect.get(),  "VertexElement" ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), ChemicalFormula::getDefaultQuery() );
     }
@@ -169,9 +168,7 @@ struct DatabaseClient::Impl
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += to_string(sourcetdb);
         query += " }";
-        vector<string> _queryFields = queryFieldsSubstance;
-        vector<string> _resultData;
-        substData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ), _queryFields, _resultData);
+        vector<string> _resultData = substData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ) );
         return _resultData;
     }
 
@@ -180,9 +177,7 @@ struct DatabaseClient::Impl
         string query = "{ \"_label\" : \"reaction\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += to_string(sourcetdb);
         query += " }";
-        vector<string> _queryFields = queryFieldsReaction;
-        vector<string> _resultData;
-        reactData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ), _queryFields, _resultData);
+        vector<string> _resultData = reactData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ) );
         return _resultData;
     }
 
