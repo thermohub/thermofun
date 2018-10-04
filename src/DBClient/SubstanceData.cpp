@@ -186,7 +186,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
             auto domdata = jsonio::unpackJson( result );
             domdata->findKey("level", level);
             domdata->findKey("reaction", idreact);
-            levelReact[level] = idreact+":";
+            levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
         recordsLevelReact[value[getDataName_DataIndex()["symbol"]]] = levelReact;
@@ -215,7 +215,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
             auto domdata = jsonio::unpackJson( result );
             domdata->findKey("level", level);
             domdata->findKey("reaction", idreact);
-            levelReact[level] = idreact+":";
+            levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
         recordsLevelReact[connectedSubstSymbols[i]] = levelReact;

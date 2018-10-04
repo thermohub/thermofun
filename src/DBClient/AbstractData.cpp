@@ -356,7 +356,7 @@ auto AbstractData::makeQueryFields() const -> jsonio::QueryFields
 
 bool AbstractData::recordExists(const string& id )
 {
-    return getDB()->Find( (id+":").c_str() );
+    return getDB()->Find( id );
 }
 
 auto AbstractData::addNewRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string

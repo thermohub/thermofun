@@ -169,7 +169,7 @@ auto TraversalData::level (std::string idSubst) -> std::string
         break;
     case DefinesLevelMode::multiple    : {
         std::string substSymb;
-        std::string key = idSubst +":";
+        std::string key = idSubst;
 
         string jsonrecord = pimpl->substData->getJsonRecordVertex(key);
         auto domdata = jsonio::unpackJson( jsonrecord );
@@ -201,7 +201,7 @@ auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
     domdata->findKey("properties.symbol",  _symbol);
 
     // get recrod
-    //record = pimpl->substData->getJsonBsonRecordVertex(id_+":").second;
+    //record = pimpl->substData->getJsonBsonRecordVertex(id_).second;
 
     // Extract data from fields
     //bsonio::bson_to_key( record.data, "_id",    _idRecord);
@@ -318,7 +318,7 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
                 _idReact = iterator->first;
                 string jsonrecord = pimpl->reactData->getJsonRecordVertex(_idReact);
                 auto domdata = jsonio::unpackJson( jsonrecord, "VertexReaction" ); // with default values
-                //record = pimpl->reactData->getJsonBsonRecordVertex(_idReact+":").second;
+                //record = pimpl->reactData->getJsonBsonRecordVertex(_idReact).second;
 
                 Reaction reaction = ThermoFun::parseReaction(domdata.get());
 

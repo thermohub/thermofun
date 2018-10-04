@@ -233,8 +233,6 @@ auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
     // get substances ids
     auto substKeyList = extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdbIndex), "_id");
 
-//    for (auto &key_: substKeyList)
-//        key_ += ":";
     // get all ids conected to the keyList (by incoming edges, e.g. defines reactions and thier reactants)
     auto resultTraversal = pimpl->traversal.getMapOfConnectedIds(substKeyList, "0");
 

@@ -223,7 +223,6 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
 
         for (auto key_: reactKeys)
         {
-            strip_all( key_, ":" );
             string qrJson = "FOR v,e  IN 1..1 OUTBOUND '";
                    qrJson += key_ + "' \n defines\n";
                    qrJson += "RETURN e.properties.level";

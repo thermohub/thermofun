@@ -428,7 +428,7 @@ void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
         auto itValues = values[selNdx[ii]];
         substancesSymbols[ii] = itValues[0];
         substancesClass[ii] = itValues[4];
-        aKeyList[ii] = itValues[3]/*+":"*/;
+        aKeyList[ii] = itValues[3];
      }
 }
 
@@ -444,7 +444,7 @@ void ThermoFunPrivateNew::loadReactData( const vector<int>& selNdx,
     {
         auto itValues = values[selNdx[ii]];
         reactionsSymbols[ii] = itValues[0];
-        aKeyList[ii] = itValues[3]/*+":"*/;
+        aKeyList[ii] = itValues[3];
     }
 }
 
@@ -472,7 +472,7 @@ void ThermoFunPrivateNew::retrieveConnectedData(ThermoFun::VertexId_VertexType m
             auto domdata = jsonio::unpackJson( jsonrecord );
             domdata->findKey("properties.symbol",  symbol);
             domdata->findKey("properties.class_",  class_);
-            //  record = dbclient.substData().getJsonBsonRecordVertex(idType.first+":").second;
+            //  record = dbclient.substData().getJsonBsonRecordVertex(idType.first).second;
             //  jsonio::bson_to_key( record.data, "properties.symbol",  symbol);
             //  jsonio::bson_to_key( record.data, "properties.class_",  class_);
             linkedSubstClasses.push_back(class_);
