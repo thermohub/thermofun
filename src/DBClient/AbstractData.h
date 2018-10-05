@@ -76,7 +76,7 @@ public:
 
     /// Add new Vertex record to database
     /// \return oid of new record
-    auto addNewRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string;
+    auto CreateRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string;
 
     /// Extract values from record into database
     auto loadRecord( const string id, const vector<string> queryFields ) -> jsonio::FieldSetMap;

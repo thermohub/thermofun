@@ -188,7 +188,7 @@ void ReactionData_::resetRecordElements(const string& idReact )
 
         string elementsJsonArray = ElementsToJson( elements );
         getDB()->setValue("properties.elements",elementsJsonArray);
-        getDB()->SaveCurrent( true  );
+        getDB()->UpdateWithTestValues();
     }
     catch(jsonio_exception& e)
     {

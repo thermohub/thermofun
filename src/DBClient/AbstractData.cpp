@@ -169,6 +169,9 @@ struct AbstractData::Impl
 
         vector<string> resultsEdgeIds =  dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
+        for( uint ii=0; ii<resultsEdgeIds.size(); ii++  )
+            jsonio::strip_all( resultsEdgeIds[ii] , "\"");
+
         return resultsEdgeIds;
     }
 
@@ -359,9 +362,9 @@ bool AbstractData::recordExists(const string& id )
     return getDB()->Find( id );
 }
 
-auto AbstractData::addNewRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string
+auto AbstractData::CreateRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string
 {
-    return getDB()->addNewVertex( getName(), fldvalues, testValues );
+    return getDB()->CreateVertex( getName(), fldvalues, testValues );
 }
 
 auto AbstractData::resetDataPathIndex() -> void

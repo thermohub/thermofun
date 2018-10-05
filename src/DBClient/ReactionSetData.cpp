@@ -165,7 +165,7 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
 
         string elementsJsonArray = ThermoFun::ElementsToJson( elements );
         graphdb->setValue("properties.elements",elementsJsonArray);
-        graphdb->SaveCurrent( true, true  );
+        graphdb->UpdateWithTestValues();
     }
     catch(jsonio_exception& e)
     {
