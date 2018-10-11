@@ -80,6 +80,12 @@ struct AbstractData::Impl
       substSymbolLevel.clear();
     }
 
+    /// Internl functiond for using internal selection part API
+    void loadQuery()
+    {
+      dbvertex->SetQuery( query, fieldPaths );
+    }
+
     Impl(   const jsonio::TDataBase* adbconnect,
             const string &aname, const DBQueryData& aquery, const vector<string> &apaths,
             const vector<string> &headers, const vector<string> &names) :
@@ -291,6 +297,12 @@ auto AbstractData::getName() const -> string
 auto AbstractData::getQuery() const -> DBQueryData
 {
     return pimpl->query;
+}
+
+// Execute query before load impex to compare data
+auto  AbstractData::loadQueryData() -> void
+{
+   pimpl->loadQuery();
 }
 
 auto AbstractData::getDataFieldPaths() const -> vector<string>

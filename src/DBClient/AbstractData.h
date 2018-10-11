@@ -62,6 +62,8 @@ public:
     auto setDataFieldPaths(const vector<string> &value) -> void;
     auto setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void;
     auto setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void;
+    /// Execute query before load impex to compare data
+    auto loadQueryData() -> void;
 
     /**
      * @brief queryRecord returns a record queried by id
