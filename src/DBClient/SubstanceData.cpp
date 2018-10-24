@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "SubstanceData.h"
 #include "jsonio/jsondomfree.h"
+#include "sourcetdb.h"
 
 using namespace jsonio;
 
@@ -114,7 +115,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
         fields = getDataNames();
     }
     //if (!elements.empty())
-      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
+      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), sourceTDB_from_index(sourcetdb)) } );
 
     ValuesTable substQueryMatr = getDB()->downloadDocuments(query, fields);
 
@@ -140,8 +141,8 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 
 auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
-  string aqlStr = "FOR u  IN substances\n  FILTER u.properties.class_ == 3 && u.properties.sourcetdb == ";
-        aqlStr +=  to_string(sourcetdb) + " ";
+  string aqlStr = "FOR u  IN substances\n  FILTER u.properties.class_ == {'3' : 'SC_AQSOLVENT'} && u.properties.sourcetdb == ";
+        aqlStr +=  sourceTDB_from_index(sourcetdb) + " ";
   auto qrJson = DBQueryData( aqlStr, DBQueryData::qAQL );
   qrJson.setQueryFields(makeQueryFields());
 
@@ -233,7 +234,7 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );

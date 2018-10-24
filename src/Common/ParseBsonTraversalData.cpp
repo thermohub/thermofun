@@ -17,6 +17,14 @@
 
 namespace ThermoFun {
 
+auto index_from_map (std::string map) -> int
+{
+    unsigned first = map.find("\"");
+    unsigned second = map.find("\"", first+1);
+    string strNew = map.substr (first+1,second-(first+1));
+    return stoi(strNew);
+}
+
 auto parseIssues(std::string data, string name, string prop) -> bool
 {
     if ((data == "*") || (data == ""))
@@ -155,7 +163,7 @@ auto parseElement (const jsonio::JsonDom *object) -> Element
     if (!parseIssues(kbuf, name, mass_.c_str())) { e.setMolarMass(atof(kbuf.c_str()));}
 
     object->findKey( elemClass, kbuf );
-    if (!parseIssues(kbuf, name, elemClass)) { e.setClass(atoi(kbuf.c_str()));}
+    if (!parseIssues(kbuf, name, elemClass)) { e.setClass(index_from_map(kbuf));}
 
     object->findKey( elemIsotopeMass, kbuf );
     if (!parseIssues(kbuf, name, elemIsotopeMass)) { e.setIsotopeMass(atof(kbuf.c_str()));}
@@ -185,10 +193,10 @@ auto parseSubstance (const jsonio::JsonDom *object) -> Substance
     if (!parseIssues(kbuf, name, substMolarMass)) s.setMolarMass(atof(kbuf.c_str()));
 
     object->findKey( substAggState, kbuf );
-    if (!parseIssues(kbuf, name, substAggState)) s.setAggregateState(AggregateState::type(std::stoi(kbuf.c_str())));
+    if (!parseIssues(kbuf, name, substAggState)) s.setAggregateState(AggregateState::type(index_from_map(kbuf)));
 
     object->findKey( substClass, kbuf );
-    if (!parseIssues(kbuf, name, substClass)) s.setSubstanceClass(SubstanceClass::type(std::stoi(kbuf.c_str())));
+    if (!parseIssues(kbuf, name, substClass)) s.setSubstanceClass(SubstanceClass::type(index_from_map(kbuf)));
 
     object->findKey( lowerT, kbuf );
     if (!parseIssues(kbuf, name, lowerT)) s.setLowerT(std::stod(kbuf.c_str()));

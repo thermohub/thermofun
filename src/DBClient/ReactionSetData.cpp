@@ -1,6 +1,7 @@
 #include "ReactionSetData.h"
 #include "jsonio/io_settings.h"
 #include "jsonio/jsondomfree.h"
+#include "sourcetdb.h"
 
 using namespace jsonio;
 
@@ -81,7 +82,7 @@ ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
         fields = getDataNames();
     }
     if( !elements.empty() )
-      addFieldsToQueryAQL( query, { make_pair( string("properties.sourcetdb"), to_string(sourcetdb)) } );
+      addFieldsToQueryAQL( query, { make_pair( string("properties.sourcetdb"), sourceTDB_from_index(sourcetdb)) } );
     ValuesTable reactQueryMatr = getDB()->downloadDocuments( query, fields );
 
     // get record by elements list
@@ -199,7 +200,7 @@ vector<string> ReactionSetData_::selectGivenSubstances( const vector<int>& sourc
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
     domdata->appendArray( "substanceSymbols", substanceSymbols);
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
@@ -234,7 +235,7 @@ vector<string> ReactionSetData_::selectGiven(const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
     domdata->appendArray( "reactionSymbols", reactionSymbols);
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );

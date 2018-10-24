@@ -25,6 +25,14 @@ vector<string> ChemicalFormula::queryFields =
       "properties.name"
 };
 
+auto index_from_map2 (std::string map) -> int
+{
+    unsigned first = map.find("\"");
+    unsigned second = map.find("\"", first+1);
+    string strNew = map.substr (first+1,second-(first+1));
+    return stoi(strNew);
+}
+
 void ElementKey::classIsotopeFrom(const string& typeline)
 {
   class_ = 0;  // ElementClass::ELEMENT schema.enumdef->getId( "ELEMENT" );
@@ -518,7 +526,9 @@ vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const ve
   {
     elementDB->Read( idList[ii] );
     elementDB->getValue( "properties.symbol" , elkey.symbol );
-    elementDB->getValue( "properties.class_" , elkey.class_ );
+    std::string class_;
+    elementDB->getValue( "properties.class_" , class_ );
+    elkey.class_ = index_from_map2(class_);
     elementDB->getValue( "properties.isotope_mass" , elkey.isotope );
     elements.push_back(elkey);
   }
@@ -551,7 +561,9 @@ void ChemicalFormula::addOneElement( jsonio::TDBVertexDocument* elementDB )
 {
     ElementKey elkey("");
     elementDB->getValue( "properties.symbol" , elkey.symbol );
-    elementDB->getValue( "properties.class_" , elkey.class_ );
+    std::string class_;
+    elementDB->getValue( "properties.class_" , class_ );
+    elkey.class_ = index_from_map2(class_);
     elementDB->getValue( "properties.isotope_mass" , elkey.isotope );
 
     ElementValues eldata;

@@ -13,6 +13,7 @@
 #include "ReactionSetData.h"
 #include "ThermoSetData.h"
 #include "TraversalData.h"
+#include "sourcetdb.h"
 
 #include "Database.h"
 #include "Element.h"
@@ -166,7 +167,7 @@ struct DatabaseClient::Impl
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
-        query += to_string(sourcetdb);
+        query += sourceTDB_from_index(sourcetdb);
         query += " }";
         vector<string> _resultData = substData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ) );
         return _resultData;
@@ -174,8 +175,8 @@ struct DatabaseClient::Impl
 
     auto queryReactions(uint sourcetdb) -> std::vector<std::string>
     {
-        string query = "{ \"_label\" : \"reaction\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
-        query += to_string(sourcetdb);
+        string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
+        query += sourceTDB_from_index(sourcetdb);
         query += " }";
         vector<string> _resultData = reactData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ) );
         return _resultData;
@@ -185,29 +186,6 @@ struct DatabaseClient::Impl
     {
         GraphTraversal travel( _dbconnect.get() );
         travel.Traversal( true, ids, afunc, GraphTraversal::trIn );
-    }
-
-    auto sourceTDB_from_index(uint ndx) -> std::string
-    {
-        std::string _sourcetdb = "{\"";
-        _sourcetdb += to_string(ndx);
-        _sourcetdb += "\":\"";
-        ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
-        _sourcetdb += enumdef->getNamebyId(ndx);
-        _sourcetdb += "\"}";
-        return _sourcetdb;
-    }
-
-    auto sourceTDB_from_name(std::string name) -> std::string
-    {
-        ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
-        std::string _sourcetdb = "{\"";
-        uint ndx = enumdef->getId(name);
-        _sourcetdb += to_string(ndx);
-        _sourcetdb += "\":\"";
-        _sourcetdb += name;
-        _sourcetdb += "\"}";
-        return _sourcetdb;
     }
 };
 

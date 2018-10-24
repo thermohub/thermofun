@@ -23,11 +23,35 @@ int main(int argc, char *argv[])
 
     cout << "Hello World!" << endl;
     gettimeofday(&st, NULL);
-    jsonio::JsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUI.json";
-    DatabaseClient dbc_;
+    jsonio::JsonioSettings::settingsFileName = "./Resources/ThermoFunDemoGUInew.json";
+    DatabaseClient dbc_v, dbc_;
+
+    auto results_ =  dbc_v.substData().querySolvents(12);
+    for( auto rez: results_[0] )
+        std::cout << rez << std::endl;
+
+    std::vector<ThermoFun::ElementKey> availableElementskey_ = dbc_v.availableElementsKey(12);
+
+    auto substance_ = dbc_v.substData( );
+
+    availableElementskey_.erase (availableElementskey_.begin(),availableElementskey_.begin()+1);
+
+    vector<int> sourcetdbs_ = {12};
+
+    auto substances_ = substance_.selectGiven(sourcetdbs_, availableElementskey_, true);
+
+    auto reactions_ = dbc_v.reactData().selectGiven(sourcetdbs_, {"Ca<2+>", "H2O(l)", "Ca(OH)2(cr)", "H<+>", "SO4<2->", "Ca(SO4)(cr)"});
+
+    auto reacSets_ = dbc_v.reactSetData().selectGivenSubstances(sourcetdbs_, {"K+","Na+","Cl-","KCl@","Halite","Sylvite","NaCl@" });
+
+    auto reacSets2_ = dbc_v.reactSetData().selectGiven(sourcetdbs_, {"KCl@","Halite","Sylvite","NaCl@"});
+
+
+
 
 
     /// access to substance records
+
     auto results =  dbc_.substData().querySolvents(20);
     for( auto rez: results[0] )
         std::cout << rez << std::endl;
@@ -56,19 +80,21 @@ int main(int argc, char *argv[])
     auto list2 = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_Na_Cl_K_LMA_1_0");
     Database db2 = databaseFromRecordList(dbc_, list2);
 
-    auto availableElementskey = dbc_.availableElementsKey(20);
+    std::vector<ThermoFun::ElementKey> availableElementskey = dbc_.availableElementsKey(20);
 
     auto substance = dbc_.substData( );
 
     availableElementskey.erase (availableElementskey.begin(),availableElementskey.begin()+1);
 
-    auto substances = substance.selectGiven({20}, availableElementskey, true);
+    vector<int> sourcetdbs = {20};
 
-    auto reactions = dbc_.reactData().selectGiven({20}, {"H2O@", "Wollastonite", "Ca+2", "OH-", "SiO2@", "Anorthite", "Al+3"});
+    auto substances = substance.selectGiven(sourcetdbs, availableElementskey, true);
 
-    auto reacSets = dbc_.reactSetData().selectGivenSubstances({20}, {"K+","Na+","Cl-","KCl@","Halite","Sylvite","NaCl@" });
+    auto reactions = dbc_.reactData().selectGiven(sourcetdbs, {"H2O@", "Wollastonite", "Ca+2", "OH-", "SiO2@", "Anorthite", "Al+3"});
 
-    auto reacSets2 = dbc_.reactSetData().selectGiven({20}, {"KCl@","Halite","Sylvite","NaCl@"});
+    auto reacSets = dbc_.reactSetData().selectGivenSubstances(sourcetdbs, {"K+","Na+","Cl-","KCl@","Halite","Sylvite","NaCl@" });
+
+    auto reacSets2 = dbc_.reactSetData().selectGiven(sourcetdbs, {"KCl@","Halite","Sylvite","NaCl@"});
 
 //    try {
 //        auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
@@ -93,7 +119,7 @@ int main(int argc, char *argv[])
 //        if ("rec[3][]" != "AlOH2+")
 //        {}
     }
-    catch (jsonio::jsonio_exeption e) {}
+    catch (jsonio::jsonio_exception e) {}
 
     try {
         auto availableSourceTBs = dbc_.sourcetdbNamesIndexes();
@@ -107,7 +133,7 @@ int main(int argc, char *argv[])
         std::cout << "availableElementskey" << endl;
         auto a = 1;
     }
-    catch (jsonio::jsonio_exeption e) {}
+    catch (jsonio::jsonio_exception e) {}
 
     std::map<Element, double> elem = dbc_.parseSubstanceFormula("Mg4Al8Si2O20");
 /*

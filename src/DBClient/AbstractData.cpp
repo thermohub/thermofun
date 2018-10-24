@@ -5,6 +5,7 @@
 #include "jsonio/jsondomfree.h"
 // ThermoFun includes
 #include "OptimizationUtils.h"
+#include "sourcetdb.h"
 
 using namespace jsonio;
 
@@ -575,7 +576,7 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
 
   // generate bind values
   shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-  domdata->appendArray( "sourcetdbs", sourcetdbs );
+  domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
   // make query
   DBQueryData query( AQLreq, DBQueryData::qAQL );
   query.setBindVars( domdata.get() );
@@ -608,7 +609,7 @@ auto AbstractData::selectElementsFromSubstancesGiven( const vector<int>& sourcet
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );

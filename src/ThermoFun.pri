@@ -78,7 +78,8 @@
     $$PWD/DBClient/ElementData.h \
     $$PWD/DBClient/AbstractData.h \
     $$PWD/DBClient/ThermoSetData.h \
-    $$PWD/DBClient/ReactionSetData.h
+    $$PWD/DBClient/ReactionSetData.h \
+    $$PWD/DBClient/sourcetdb.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$PWD/Common/Units.cpp \
@@ -148,4 +149,5 @@
     $$PWD/DBClient/ReactionSetData.cpp \
     $$PWD/DBClient/TraversalData.cpp \
     $$PWD/DBClient/DatabaseClient.cpp \
-    $$PWD/DBClient/ThermoSetData.cpp
+    $$PWD/DBClient/ThermoSetData.cpp \
+    $$PWD/DBClient/sourcetdb.cpp

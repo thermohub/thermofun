@@ -7,6 +7,7 @@
 
 // ThermoFun includes
 #include "OptimizationUtils.h"
+#include "sourcetdb.h"
 
 using namespace jsonio;
 
@@ -99,7 +100,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
         fields = getDataNames();
     }
     //if (!elements.empty())
-        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
+        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), sourceTDB_from_index(sourcetdb))});
     ValuesTable reactQueryMatr = getDB()->downloadDocuments(query, fields);
 
     // get record by elements list
@@ -260,7 +261,7 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourcetdbs);
+    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs));
     domdata->appendArray( "substanceSymbols", substanceSymbols );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
