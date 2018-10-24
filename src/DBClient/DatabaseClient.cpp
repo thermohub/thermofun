@@ -191,6 +191,29 @@ struct DatabaseClient::Impl
         GraphTraversal travel( _dbconnect.get() );
         travel.Traversal( true, ids, afunc, GraphTraversal::trIn );
     }
+
+    auto sourceTDB_from_index(uint ndx) -> std::string
+    {
+        std::string _sourcetdb = "{\"";
+        _sourcetdb += to_string(ndx);
+        _sourcetdb += "\":\"";
+        ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
+        _sourcetdb += enumdef->getNamebyId(ndx);
+        _sourcetdb += "\"}";
+        return _sourcetdb;
+    }
+
+    auto sourceTDB_from_name(std::string name) -> std::string
+    {
+        ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
+        std::string _sourcetdb = "{\"";
+        uint ndx = enumdef->getId(name);
+        _sourcetdb += to_string(ndx);
+        _sourcetdb += "\":\"";
+        _sourcetdb += name;
+        _sourcetdb += "\"}";
+        return _sourcetdb;
+    }
 };
 
 DatabaseClient::DatabaseClient(const std::shared_ptr<TDataBase>& otherdb)
@@ -267,16 +290,15 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Ele
 
 auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
 {
-    //string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" }, { \"_label\" :   \"reaction\"  }"
-    //               "], \"_type\" :   \"vertex\"  }";
-    // query only by substances (all reactions must connect substance )
-    //DBQueryData query("{ \"_label\" :   \"substance\" , \"_type\" :   \"vertex\"  }", DBQueryData::qTemplate );
+
     set<uint> _sourcetdb;
-    //vector<string> _resultData = pimpl->substData.getDB()->fieldQuery("properties.sourcetdb", query);
     vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
     for (uint ii = 0; ii < _resultData.size(); ii++)
     {
-        uint asourcetdb = stoi(_resultData[ii]);
+        uint first  = _resultData[ii].find("\"");
+        uint second = _resultData[ii].find("\"", first+1);
+        string strNew   = _resultData[ii].substr (first+1,second-(first+1));
+        int asourcetdb = stoi(strNew);
         _sourcetdb.insert(asourcetdb);
     }
     return _sourcetdb;
