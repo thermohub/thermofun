@@ -12,6 +12,8 @@
 #include "../src/DBClient/ReactionData.h"
 #include "../src/DBClient/ReactionSetData.h"
 #include "../src/DBClient/SubstanceData.h"
+#include "../src/Reaction.h"
+#include "../src/Substance.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/Interfaces/Interface.h"
@@ -240,140 +242,6 @@ public:
 
 };
 
-/// Class for double T P vector container
-class TPContainer : public jsonui::TAbstractDataContainer
-{
-    vector<string>  _keys;
-    vector<vector<double>>& _fields;
-
- public:
-
-   TPContainer( const char * aname, const vector<string>& akeys, vector<vector<double>>& afields ):
-      TAbstractDataContainer(aname),
-      _keys(akeys),_fields( afields ) {}
-
-   virtual ~TPContainer() {}
-
-   int rowCount() const
-   { return _fields.size();  }
-
-   int columnCount() const
-   {
-      if(_fields.size()>0 )
-       return _fields[0].size();
-      else
-       return 2;
-   }
-
-   QVariant data( int line, int column ) const
-   {
-      return _fields[line][column];
-   }
-
-   bool setData( int line, int column, const QVariant &value )
-   {
-       _fields[line][column] = value.toDouble();
-       return true;
-   }
-
-   virtual QString headerData ( int section ) const
-   {
-       return _keys[section].c_str();
-   }
-
-   virtual bool  IsEditable( int /*line*/, int /*column*/ ) const
-   { return true; }
-
-   virtual int getType( int /*line*/, int /*column*/ ) const
-   { return jsonui::ftDouble; }
-
-   virtual QString getToolTip( int line, int column ) const
-   {
-       return (_keys[column]+" "+to_string(line)).c_str();
-   }
-
-   void resetData()
-   { }
-};
-
-
-/// Class for double T P vector container
-class TPropertyContainer : public jsonui::TAbstractDataContainer
-{
-    vector<string>& _properties;      ///< Properties names list
-    vector<string>& _propertyUnits;   ///< Units of property
-    vector<int>& _propertyPrecision; ///< Output formats of property
-
- public:
-
-   TPropertyContainer( const char * aname, vector<string>& aProperties, vector<string>& aPUnits, vector<int>& aPPrecision ):
-      TAbstractDataContainer(aname),
-      _properties(aProperties),_propertyUnits( aPUnits ), _propertyPrecision( aPPrecision ) {}
-
-   virtual ~TPropertyContainer() {}
-
-   int rowCount() const
-   { return _properties.size();  }
-
-   int columnCount() const
-   { return 3; }
-
-   QVariant data( int line, int column ) const
-   {
-       if(column == 0)
-          return _properties[line].c_str();
-       else
-       if(column == 1)
-          return _propertyUnits[line].c_str();
-       else
-          return _propertyPrecision[line];
-   }
-
-   bool setData( int line, int column, const QVariant &value )
-   {
-       string val = value.toString().toUtf8().data();
-       int    vali= value.toInt();
-       if(column == 0)
-          _properties[line] = val;
-       else
-       if(column == 1)
-          _propertyUnits[line] = val;
-       else
-          _propertyPrecision[line] = vali;
-       return true;
-   }
-
-   virtual QString headerData ( int section ) const
-   {
-       if(section == 0)
-           return "Property";
-       else
-       if(section == 1)
-           return "Unit";
-       else
-           return "Precision";
-   }
-
-   virtual bool  IsEditable( int /*line*/, int /*column*/ ) const
-   { return true; }
-
-   virtual int getType( int /*line*/, int /*column*/ ) const
-   { return jsonui::ftString; }
-
-   virtual QString getToolTip( int /*line*/, int column ) const
-   {
-       if(column == 0)
-           return "Property";
-       else
-       if(column == 1)
-           return "Unit";
-       else
-           return "Output precision / digits after decimal point (in Fixed Format)";
-   }
-
-   void resetData()
-   { }
-};
 
 
 #endif // THERMOFUNWIDGETPRIVATE_H

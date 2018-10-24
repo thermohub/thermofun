@@ -31,9 +31,14 @@ class ReactionData_ : public AbstractData
     /// Select reactions belonging to sourcetdbs and containing given substance symbols
     vector<string> selectGiven( const vector<int>& sourcetdbs,
                        const vector<string>& substanceSymbols, bool unique=true );
+    /// Extract data connected to ThermoDataSet and containing given substance symbols
+    vector<string> selectGiven( const string& idThermoDataSet, const vector<string>& substanceSymbols );
 
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
+
+    /// Link to table of fields values loaded before
+    const jsonio::ValuesTable& getValuesTable();
 
     /// Return all formulas from all connected substances
     vector<string> getReactantsFormulas(const string &idReaction);
@@ -41,10 +46,9 @@ class ReactionData_ : public AbstractData
     /**
      * @brief queryIncomingEdgesTakes returns data of the incoming edges of type takes
      * @param idReact reaction id
-     * @param queryFields which data from record for be extracted in the result
      * @return list of extracted data for each edge
      */
-    auto queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>;
+    auto queryInEdgesTakes(string idReact) -> vector<string>;
 
     /**
      * @brief mapReactantsCoeff returns the map of reactants symbols and coefficients

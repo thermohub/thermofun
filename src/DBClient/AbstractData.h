@@ -36,9 +36,11 @@ public:
     /// Extract data connected to ThermoDataSet
     virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true ) = 0 ;
 
-
     /// Get Elements list from record
     virtual set<ElementKey> getElementsList( const string& idrec ) = 0;
+
+    /// Link to table of fields values loaded before
+    virtual const jsonio::ValuesTable& getValuesTable() = 0;
 
     auto updateDBClient( const jsonio::TDataBase* newdbconnect ) -> void;
 
@@ -60,6 +62,8 @@ public:
     auto setDataFieldPaths(const vector<string> &value) -> void;
     auto setSubstSymbol_DefinesLevel(const std::map<std::string, std::string> &value) -> void;
     auto setDataNamesHeadersFieldpaths(const vector<string> &names, const vector<string> &headers, const vector<string> &fieldpaths) -> void;
+    /// Execute query before load impex to compare data
+    auto loadQueryData() -> void;
 
     /**
      * @brief queryRecord returns a record queried by id
@@ -74,13 +78,14 @@ public:
 
     /// Add new Vertex record to database
     /// \return oid of new record
-    auto addNewRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string;
+    auto CreateRecord( const jsonio::FieldSetMap& fldvalues, bool testValues ) -> string;
 
     /// Extract values from record into database
     auto loadRecord( const string id, const vector<string> queryFields ) -> jsonio::FieldSetMap;
 
     /// Build table of fields values by ids list
     auto loadRecords( const vector<string> ids ) -> jsonio::ValuesTable;
+
 
     /// Build ids list connected to idVertex by incoming edge,
     /// edgeCollections ( "coll1, coll2") list of collections to search into
@@ -115,15 +120,15 @@ protected:
     // Resets the data index and data names maps which connect the names to headers to paths
     auto resetDataPathIndex() -> void;
     // sets the level = 0 for substances in ValuesTable
-    auto setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable valuesTable) -> void;
+    auto setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable avaluesTable) -> void;
     // returns the full access mode database connection (allows queryies on all types of records)
     auto getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEdgeDocument>;
     // query the ids of incoming edges of type defines
-    auto queryInEdgesDefines_(string idSubst, vector<string> queryFields,  string level) -> vector<string>;
+    auto queryInEdgesDefines_(string idSubst, string level) -> vector<string>;
     // returns the reaction symbol which defines a substance
     auto definesReactionSymbol_(string idSubst, string level) -> std::string;
     //  returns data of the incoming edges of type takes
-    auto queryInEdgesTakes_(string idReact, vector<string> queryFields) -> vector<string>;
+    auto queryInEdgesTakes_(string idReact ) -> vector<string>;
     // returns the map of reactants symbols and coefficients
     auto reactantsCoeff_(string idReact) -> std::map<string, double>;
     // returns the level which is set for the substance
@@ -131,7 +136,7 @@ protected:
     // sets the level
     auto setSubstanceLevel_(string substSymbol, string level) -> void;
 
-    void deleteNotUnique(jsonio::ValuesTable dataMatr, int fldtestNdx );
+    void deleteNotUnique(jsonio::ValuesTable& dataMatr, int fldtestNdx );
 
 private:
     struct Impl;

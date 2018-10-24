@@ -63,7 +63,7 @@
              <number>1</number>
             </property>
             <item>
-             <widget class="QTextEdit" name="edgeQuery">
+             <widget class="QTextEdit" name="taskQuery">
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -103,16 +103,6 @@
              <widget class="QLabel" name="label_5">
               <property name="text">
                <string>Units</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="4">
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>SourceTDB</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -245,13 +235,6 @@
                 <string>K Kelvin</string>
                </property>
               </item>
-             </widget>
-            </item>
-            <item row="0" column="5">
-             <widget class="QComboBox" name="pSourceTDB">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
              </widget>
             </item>
             <item row="7" column="0" colspan="8">
@@ -401,17 +384,9 @@
      <x>0</x>
      <y>0</y>
      <width>872</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuDataBase">
-    <property name="title">
-     <string>&amp;Database</string>
-    </property>
-    <addaction name="actionSearch"/>
-    <addaction name="actionSearch_Results"/>
-    <addaction name="separator"/>
-   </widget>
    <widget class="QMenu" name="menu_File">
     <property name="title">
      <string>&amp;File</string>
@@ -482,7 +457,6 @@
    <addaction name="menu_Calc"/>
    <addaction name="menuView"/>
    <addaction name="menuPreferences"/>
-   <addaction name="menuDataBase"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -530,7 +504,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_Help_About"/>
-   <addaction name="actionSearch"/>
   </widget>
   <action name="actionE_xit">
    <property name="text">
@@ -592,23 +565,6 @@
   <action name="actionContents">
    <property name="text">
     <string>Help &amp;Contents ...</string>
-   </property>
-  </action>
-  <action name="actionSearch">
-   <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
-     <normaloff>:/Icons/SelectDisplayRecordIcon24.png</normaloff>:/Icons/SelectDisplayRecordIcon24.png</iconset>
-   </property>
-   <property name="text">
-    <string>Create a &amp;Query to FInd Substances ...</string>
-   </property>
-  </action>
-  <action name="actionSearch_Results">
-   <property name="text">
-    <string>E&amp;xplore this Query Results Table ...</string>
-   </property>
-   <property name="shortcut">
-    <string>F3</string>
    </property>
   </action>
   <action name="actionVersion">
@@ -736,7 +692,7 @@
   </action>
   <action name="actionSelect_Elements">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Select &amp;Elements ...</string>

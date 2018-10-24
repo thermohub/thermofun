@@ -33,8 +33,14 @@ class ReactionSetData_ : public AbstractData
     vector<string> selectGiven( const vector<int>& sourcetdbs,
                        const vector<string>& reactionSymbols, bool unique = true );
 
+    /// Extract data connected to ThermoDataSet and containing given reaction symbols
+    vector<string> selectGiven( const string& idThermoDataSet, const vector<string>& reactionSymbols );
+
     /// Get Elements list from reactions
     virtual set<ElementKey> getElementsList(const string &id);
+
+    /// Link to table of fields values loaded before
+    const jsonio::ValuesTable& getValuesTable();
 
     /**
      * @brief resetRecordElements resets elements list in record

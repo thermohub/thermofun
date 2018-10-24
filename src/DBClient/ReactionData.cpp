@@ -53,9 +53,14 @@ ReactionData_::~ReactionData_()
 {
 }
 
-auto ReactionData_::queryInEdgesTakes(string idReact, vector<string> queryFields) -> vector<string>
+const jsonio::ValuesTable&  ReactionData_::getValuesTable()
 {
-    return queryInEdgesTakes_(idReact, queryFields);
+    return pimpl->valuesTable;
+}
+
+auto ReactionData_::queryInEdgesTakes(string idReact) -> vector<string>
+{
+    return queryInEdgesTakes_(idReact);
 }
 
 auto ReactionData_::reactantsCoeff(string idReact) -> std::map<std::string, double>
@@ -95,7 +100,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
     }
     //if (!elements.empty())
         addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb))});
-    ValuesTable reactQueryMatr = getDB()->loadRecords(query, fields);
+    ValuesTable reactQueryMatr = getDB()->downloadDocuments(query, fields);
 
     // get record by elements list
     updateTableByElementsList( reactQueryMatr, elements );
@@ -112,7 +117,7 @@ ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
 
     DBQueryData query( qrAQL, DBQueryData::qAQL );
     query.setQueryFields(makeQueryFields());
-    ValuesTable reactMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable reactMatr =  getDB()->downloadDocuments( query, getDataNames());
     setDefaultLevelForReactionDefinedSubst(reactMatr);
     pimpl->valuesTable = reactMatr;
     return reactMatr;
@@ -147,19 +152,18 @@ bool ReactionData_::testElements(const string &idReaction,
 
 vector<string> ReactionData_::getReactantsFormulas(const string &idReaction)
 {
-    vector<string> formulas;
     string qrJson = "FOR v,e  IN 1..1 INBOUND '";
            qrJson += idReaction + "' \n takes\n";
            qrJson += "RETURN DISTINCT v.properties.formula";
 
-    getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, formulas);
+    vector<string> formulas = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
     return formulas;
 }
 
 set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
 {
     set<ElementKey> elements;
-    string jsonrecord = getJsonRecordVertex(idReaction+":");
+    string jsonrecord = getJsonRecordVertex(idReaction);
     auto domdata = jsonio::unpackJson( jsonrecord );
     ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
 
@@ -176,7 +180,7 @@ void ReactionData_::resetRecordElements(const string& idReact )
 {
     string _id;
     try{
-        getDB()->GetRecord(idReact.c_str());
+        getDB()->Read(idReact);
         getDB()->getValue("_id",_id);
 
         vector<string> formulalst = getReactantsFormulas( _id );
@@ -184,9 +188,9 @@ void ReactionData_::resetRecordElements(const string& idReact )
 
         string elementsJsonArray = ElementsToJson( elements );
         getDB()->setValue("properties.elements",elementsJsonArray);
-        getDB()->SaveCurrent( true, true  );
+        getDB()->UpdateWithTestValues();
     }
-    catch(jsonio_exeption& e)
+    catch(jsonio_exception& e)
     {
         cout << "ResetElementsintoReactionRecord " << e.title() << e.what() << endl;
     }
@@ -219,11 +223,10 @@ bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, str
 
         for (auto key_: reactKeys)
         {
-            strip_all( key_, ":" );
             string qrJson = "FOR v,e  IN 1..1 OUTBOUND '";
                    qrJson += key_ + "' \n defines\n";
                    qrJson += "RETURN e.properties.level";
-            getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, levelQueryMatr);
+            levelQueryMatr = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
             if (levelQueryMatr.size()>0)
                 levels.push_back(std::stoi(levelQueryMatr[0]));
             else
@@ -264,7 +267,7 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
     query.setBindVars( domdata.get() );
     query.setQueryFields( makeQueryFields() );
 
-    ValuesTable reactQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable reactQueryMatr = getDB()->downloadDocuments(query, getDataNames());
 
     // delete not unique
     if( unique )
@@ -288,7 +291,7 @@ vector<string> ReactionData_::selectGiven( const vector<string>& idThermoDataSet
            qrAQL +=  "\n  SORT v.properties.symbol ";
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
         deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
@@ -304,5 +307,34 @@ vector<string> ReactionData_::selectGiven( const vector<string>& idThermoDataSet
 }
 
 
+vector<string> ReactionData_::selectGiven( const string& idThermoDataSet,
+                                           const vector<string>& substanceSymbols )
+{
+    string qrAQL = "FOR v,e  IN 1..5 INBOUND '" + idThermoDataSet+ "' \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'reaction' ";
+           qrAQL +=  "\n  LET takessub = ( FOR v1 IN 1..1 INBOUND v._id takes  RETURN v1.properties.symbol )";
+           qrAQL +=  "\n  FILTER takessub ALL IN @substanceSymbols \n";
+           qrAQL +=  "\n  SORT v.properties.symbol ";
+           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
+
+    //cout << "qrAQL: " << qrAQL << endl;
+    // generate bind values
+    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
+    domdata->appendArray( "substanceSymbols", substanceSymbols );
+    // make query
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    query.setBindVars( domdata.get() );
+
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
+
+    vector<string> reacSymbols;
+    for (const auto& subitem : resMatr)
+      reacSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(resMatr);
+    pimpl->valuesTable = move(resMatr);
+    return reacSymbols;
+}
 
 }

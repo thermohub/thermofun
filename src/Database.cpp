@@ -291,7 +291,7 @@ struct Database::Impl
                     }
             }
         }
-        catch (jsonio::jsonio_exeption e)
+        catch (jsonio::jsonio_exception e)
         {
             Exception exception;
             exception.error << e.title_;

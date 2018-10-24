@@ -64,10 +64,10 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
         if (iterator->second == "substance")
         {
             _idSubst = iterator->first;
-            string jsonrecord = dbc.substData().getJsonRecordVertex(_idSubst+":");
+            string jsonrecord = dbc.substData().getJsonRecordVertex(_idSubst);
             auto domdata = jsonio::unpackJson( jsonrecord, "VertexSubstance" ); // with default values
             domdata->findKey("properties.symbol", substSymb);
-            // record = dbc.substData().getJsonBsonRecordVertex(_idSubst+":").second;
+            // record = dbc.substData().getJsonBsonRecordVertex(_idSubst).second;
             // bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
             auto mode = levelOptions.definesSubstLevelMode;
@@ -106,9 +106,9 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
             if (iterator->second == "reaction")
             {
                 _idReact = iterator->first;
-                string jsonrecord = dbc.reactData().getJsonRecordVertex(_idReact+":");
+                string jsonrecord = dbc.reactData().getJsonRecordVertex(_idReact);
                 auto domdata = jsonio::unpackJson( jsonrecord, "VertexReaction" ); // with default values
-                // record = dbc.reactData().getJsonBsonRecordVertex(_idReact+":").second;
+                // record = dbc.reactData().getJsonBsonRecordVertex(_idReact).second;
 
                 Reaction reaction = ThermoFun::parseReaction(domdata.get());
 

@@ -599,7 +599,8 @@ void ThermoFunWidgetPrivate::initWindow()
     //pTable->setItemDelegate(deleg);
     window->ui->keySplitter->insertWidget(0, valuesTable);
     window->ui->keySplitter->setStretchFactor(0, 4);
-    tableModel = new ThermoViewModel( new ThermoFun::SubstanceData_(dbclient.substData()), window );
+    //tableModel = new ThermoViewModel( new ThermoFun::SubstanceData_(dbclient.substData()), window );
+    tableModel = new ThermoViewModel( &dbclient.substData(), window );
     tableModel->updateModel(valuesTable);
 
     // Elements list

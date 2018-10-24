@@ -88,7 +88,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     return state;
 }
 
-void Akinfiev_EOS_increments(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Gig, Reaktoro_::ThermoScalar Sig, Reaktoro_::ThermoScalar CPig,
+void Akinfiev_EOS_increments(Reaktoro_::Temperature Tk, Reaktoro_::Pressure /*P*/, Reaktoro_::ThermoScalar Gig, Reaktoro_::ThermoScalar Sig, Reaktoro_::ThermoScalar CPig,
         Reaktoro_::ThermoScalar Gw, Reaktoro_::ThermoScalar Sw, Reaktoro_::ThermoScalar CPw, Reaktoro_::ThermoScalar rho, Reaktoro_::ThermoScalar alp, Reaktoro_::ThermoScalar bet, Reaktoro_::ThermoScalar dalpT, vd ADparam,
         Reaktoro_::ThermoScalar &Geos, Reaktoro_::ThermoScalar &Veos, Reaktoro_::ThermoScalar &Seos, Reaktoro_::ThermoScalar &CPeos, Reaktoro_::ThermoScalar &Heos )
 {

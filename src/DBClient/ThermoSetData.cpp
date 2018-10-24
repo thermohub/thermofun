@@ -1,13 +1,15 @@
 #include "ThermoSetData.h"
+#include "jsonio/jsondomfree.h"
 
 using namespace jsonio;
 
 namespace ThermoFun {
 
-const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
-const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.type","_id"};
-const vector<string> datsetColumnHeaders    = {"symbol", "name", "type"};
-const vector<string> datsetDataNames        = {"symbol", "name", "type", "_id"};
+//const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
+const DBQueryData datsetQuery("FOR u  IN thermodatasets ", DBQueryData::qAQL);
+const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.stype","_id"};
+const vector<string> datsetColumnHeaders    = {"symbol", "name", "stype"};
+const vector<string> datsetDataNames        = {"symbol", "name", "stype", "_id"};
 
 struct ThermoSetData::Impl
 {
@@ -37,20 +39,67 @@ auto ThermoSetData::operator=(ThermoSetData other) -> ThermoSetData&
 ThermoSetData::~ThermoSetData()
 {}
 
-set<ElementKey> ThermoSetData::getElementsList( const string& idSubstance )
+const jsonio::ValuesTable&  ThermoSetData::getValuesTable()
 {
+    return pimpl->valuesTable;
+}
 
+set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
+{
+    set<ElementKey> elements;
+    string jsonrecord = getJsonRecordVertex(idthermo);
+    auto domdata = jsonio::unpackJson( jsonrecord );
+    ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
+
+    // if user fogot tnsert elements property
+    if( elements.empty() )
+    {
+        vector<string> formulalst = getSubstanceFormulas( idthermo );
+        elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
+    }
+    return elements;
+}
+
+vector<string> ThermoSetData::getSubstanceFormulas( const string& idthermo )
+{
+    string qrAQL = "FOR v,e  IN 1..5 INBOUND " + idthermo + " \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'substance' ";
+           qrAQL += "\nRETURN DISTINCT v.properties.formula";
+
+    vector<string> formulas = getDB()->runQuery( DBQueryData( qrAQL, DBQueryData::qAQL ) );
+    return formulas;
 }
 
 ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,
                     int sourcetdb, const vector<ElementKey>& elements )
 {
+    auto fields = getDataFieldPaths();
 
+    // get records by query
+    auto query = aquery;
+    if (query.empty())
+    {
+        query = getQuery();
+        // only here we have subset fields to extract
+        query.setQueryFields(makeQueryFields());
+        fields = getDataNames();
+    }
+    //?? if (!elements.empty())
+    //??  addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
+
+    ValuesTable substQueryMatr = getDB()->downloadDocuments(query, fields);
+
+    // get record by elements list
+    //updateTableByElementsList( substQueryMatr, elements );
+    pimpl->valuesTable = substQueryMatr;
+    return   move(substQueryMatr);
 }
 
 ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 {
-
+    ValuesTable substQueryMatr;
+    return   move(substQueryMatr);
 }
 
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
@@ -66,7 +115,7 @@ auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
 
 vector<string> ThermoSetData::selectGiven( const vector<string>& idThermoDataSets, bool  )
 {
-    auto  resMatr = getDB()->loadRecords(idThermoDataSets, getDataFieldPaths());
+    auto  resMatr = getDB()->downloadDocuments(idThermoDataSets, getDataFieldPaths());
 
     vector<string> thermoSymbols;
     for (const auto& subitem : resMatr)
@@ -86,8 +135,7 @@ void ThermoSetData::traverceVertexes( const string& idThermoDataSet, jsonio::Gra
            qrAQL +=  " \n RETURN DISTINCT  v";
 
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    vector<string> resultsQuery;
-    getDB()->runQuery( query,  {}, resultsQuery );
+    vector<string> resultsQuery = getDB()->runQuery( query );
 
     for( auto result: resultsQuery )
         afunc( true, result );
@@ -102,8 +150,7 @@ void ThermoSetData::traverceEdges( const string& idThermoDataSet, jsonio::GraphE
            qrAQL +=  " \n RETURN DISTINCT  e";
 
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    vector<string> resultsQuery;
-    getDB()->runQuery( query,  {}, resultsQuery );
+    vector<string> resultsQuery = getDB()->runQuery( query );
 
     for( auto result: resultsQuery )
         afunc( false, result );

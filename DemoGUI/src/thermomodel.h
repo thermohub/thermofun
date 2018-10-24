@@ -2,31 +2,21 @@
 #define THERMOMODEL_H
 
 #include <QObject>
-//#include "jsonio/dbquerydef.h"
 #include "jsonui/model_table.h"
-//#include "ThermoData.h"
-
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/AbstractData.h"
-#include "../src/Reaction.h"
-#include "../src/Substance.h"
-#endif
-#ifndef FROM_SRC
+#else
 #include "thermofun/DBClient/AbstractData.h"
-#include "thermofun/Reaction.h"
-#include "thermofun/Substance.h"
 #endif
-
-using MapLevelReaction             = map<string, ThermoFun::Reaction>;
-using MapSymbolMapLevelReaction    = map<string, MapLevelReaction>;
 
 class ThermoViewModel: public QObject
 {
     Q_OBJECT
 
     //QSortFilterProxyModel *proxyModel;
-    ThermoFun::AbstractData *data_;
+    ///std::shared_ptr<ThermoFun::AbstractData> data__;
+    ThermoFun::AbstractData* data_;
 
     /// loaded data
     std::shared_ptr<jsonui::StringTable> thermoData;
@@ -66,16 +56,58 @@ public:
       thermoModel->resetMatrixData();
     }
 
-    void loadModeRecords(const vector<vector<string>> matr )
+    void loadModeRecords(const jsonio::ValuesTable&  matr )
     {
       thermoData->updateValues( matr );
       thermoModel->resetMatrixData();
     }
 
-    const jsonio::DBQueryDef& getQuery( ) const
+    /// Resize model to selected
+    void leftOnlySelected(  const vector<int> selrows )
+    {
+        jsonio::ValuesTable newmatr;
+        const jsonio::ValuesTable&  oldmatr = getValues();
+
+        for( auto rowndx: selrows)
+          newmatr.push_back( oldmatr[rowndx] );
+        loadModeRecords(newmatr );
+    }
+
+    vector<string> getColumn( uint column, const vector<int>& selrows ) const
+    {
+        vector<string> keys;
+        const jsonio::ValuesTable&  matrix = getValues();
+        for( auto rowndx: selrows)
+        {
+          auto row = matrix[rowndx];
+          if( column >= row.size())
+              keys.push_back( "" );
+           else
+             keys.push_back( row[column]);
+        }
+        return keys;
+    }
+
+    int findRow( uint column, const string& value ) const
+    {
+        const jsonio::ValuesTable&  matrix = getValues();
+        for( uint ii=0; ii<matrix.size(); ii++ )
+        {
+          if( column >= matrix[ii].size())
+              continue;
+           else
+             if( matrix[ii][column] == value )
+              return ii;
+        }
+        return -1;
+    }
+
+
+
+    /*const jsonio::DBQueryDef& getQuery( ) const
     {
       return data_->getDB()->getQuery();
-    }
+    }*/
 
     const jsonio::ValuesTable&  getValues() const
     {
@@ -85,6 +117,11 @@ public:
     {
         if( tableView  )
           tableView->setModel(thermoModel.get());
+    }
+
+    jsonui::TMatrixModel* getModel() const
+    {
+      return  thermoModel.get();
     }
 
 protected:

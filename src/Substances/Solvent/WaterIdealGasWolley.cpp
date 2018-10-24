@@ -4,7 +4,7 @@
 
 namespace ThermoFun {
 
-auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPropertiesSubstance
+auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure /*p*/) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tp;
     int i=1;

@@ -184,7 +184,7 @@ const double A4[] =
 	-0.13362857E+1
 };
 
-auto calculateWaterHelmholtzStateHGK0(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
+auto calculateWaterHelmholtzStateHGK0(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar /*d*/) -> WaterHelmholtzState
 {
 	WaterHelmholtzState s;
 
