@@ -576,7 +576,8 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
 
   // generate bind values
   shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-  domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
+  auto arr = domdata->appendArray( "sourcetdbs");
+  sourceTDB_from_indexes( sourcetdbs, arr );
   // make query
   DBQueryData query( AQLreq, DBQueryData::qAQL );
   query.setBindVars( domdata.get() );
@@ -609,7 +610,8 @@ auto AbstractData::selectElementsFromSubstancesGiven( const vector<int>& sourcet
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
+    auto arr = domdata->appendArray( "sourcetdbs");
+    sourceTDB_from_indexes( sourcetdbs, arr );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );

@@ -200,7 +200,8 @@ vector<string> ReactionSetData_::selectGivenSubstances( const vector<int>& sourc
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
+    auto arr = domdata->appendArray( "sourcetdbs");
+    sourceTDB_from_indexes( sourcetdbs, arr );
     domdata->appendArray( "substanceSymbols", substanceSymbols);
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
@@ -235,7 +236,8 @@ vector<string> ReactionSetData_::selectGiven(const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
+    auto arr = domdata->appendArray( "sourcetdbs");
+    sourceTDB_from_indexes( sourcetdbs, arr );
     domdata->appendArray( "reactionSymbols", reactionSymbols);
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );

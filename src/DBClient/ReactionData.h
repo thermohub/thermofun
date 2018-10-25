@@ -72,7 +72,7 @@ class ReactionData_ : public AbstractData
      * @param level
      * @return
      */
-    bool checkReactSymbolLevel (string sourcetdb, string &symbol, string &level);
+    bool checkReactSymbolLevel (int sourcetdb, string &symbol, string &level);
 
 
   private:
@@ -81,7 +81,7 @@ class ReactionData_ : public AbstractData
     bool testElements(const string &idReaction, const vector<ElementKey> &elements);
 
     // returns a list of ids for all reaction with symbol and sourcetdb present in the database
-    vector<string> getKeys(string symbol, string sourcetdb);
+    vector<string> getKeys(string symbol, int sourcetdb);
 
     void updateTableByElementsList( jsonio::ValuesTable& reactQueryMatr, const vector<ElementKey>& elements );
 

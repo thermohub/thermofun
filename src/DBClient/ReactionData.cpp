@@ -201,17 +201,17 @@ void ReactionData_::resetRecordElements(const string& idReact )
     }
 }
 
-vector<string> ReactionData_::getKeys(string symbol, string sourcetdb)
+vector<string> ReactionData_::getKeys(string symbol, int sourcetdb)
 {
    string qrAQL = "FOR u  IN reactions \nFILTER u.properties.symbol == '";
-          qrAQL += symbol + "' and  u.properties.sourcetdb == "+ sourcetdb;
+          qrAQL += symbol + "' and  u.properties.sourcetdb == " + sourceTDB_from_index(sourcetdb) + " ";
            //qrAQL += "RETURN u";
 
     DBQueryData query( qrAQL, DBQueryData::qAQL );
     return getDB()->getKeysByQuery( query );
 }
 
-bool ReactionData_::checkReactSymbolLevel (string sourcetdb, string &symbol, string &level)
+bool ReactionData_::checkReactSymbolLevel (int sourcetdb, string &symbol, string &level)
 {
     vector<int> levels;
     vector<string> levelQueryMatr;
@@ -261,7 +261,8 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs));
+    auto arr = domdata->appendArray( "sourcetdbs");
+    sourceTDB_from_indexes( sourcetdbs, arr );
     domdata->appendArray( "substanceSymbols", substanceSymbols );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );

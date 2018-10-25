@@ -234,7 +234,8 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourceTDB_from_indexes(sourcetdbs) );
+    auto arr = domdata->appendArray( "sourcetdbs");
+    sourceTDB_from_indexes( sourcetdbs, arr );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );
