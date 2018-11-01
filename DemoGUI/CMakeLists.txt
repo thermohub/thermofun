@@ -9,6 +9,34 @@ cmake_minimum_required(VERSION 2.8)
 # Set the name of the project
 project(thermofungui)
 
+find_package(Qt5Widgets REQUIRED)
+if ( NOT Qt5Widgets_FOUND )
+  message(FATAL_ERROR "Package Qt5 required, but not found!")
+endif( NOT Qt5Widgets_FOUND )
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5PrintSupport REQUIRED)
+find_package (Qt5WebEngineWidgets REQUIRED )
+find_package (Qt5Charts REQUIRED )
+# Add the include directories for the Qt 5 Widgets module to
+# the compile lines.
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+include_directories(${Qt5PrintSupport_INCLUDE_DIRS})
+include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
+
+find_library(JSONUI_LIB jsonui)
+if(NOT JSONUI_LIB)
+  message(FATAL_ERROR "jsonui library not found")
+endif()
+
+find_library(THRIFT_LIB thrift)
+if(NOT THRIFT_LIB)
+  message(FATAL_ERROR "thrift library not found")
+endif()
+
 # Set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -41,7 +69,7 @@ include_directories(${THERMOFUNGUI_SOURCE_DIR})
 #include_directories(${THIRDPARTY_INCLUDE_DIR})
 
 # Set the lib directory of the third party libraries installed automatically
-link_directories(${THIRDPARTY_LIBRARY_DIR})
+#link_directories(${THIRDPARTY_LIBRARY_DIR})
 
 # Build thermofun library
 add_subdirectory(src)

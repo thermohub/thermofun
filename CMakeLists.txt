@@ -6,8 +6,35 @@ project(thermofun)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+#set(CMAKE_PREFIX_PATH /usr/local/lib/)
 
 set(CMAKE_MACOSX_RPATH ON)
+
+find_library(BOOSTRE_LIB boost_regex)
+if(NOT BOOSTRE_LIB)
+  message(FATAL_ERROR "boost_regex library not found")
+endif()
+
+find_library(BOOSTFILE_LIB boost_filesystem)
+if(NOT BOOSTFILE_LIB)
+  message(FATAL_ERROR "boost_filesystem library not found")
+endif()
+
+find_library(CURL_LIB curl)
+if(NOT CURL_LIB)
+  message(FATAL_ERROR "curl library not found")
+endif()
+
+find_library(VELOCYPACK_LIB velocypack)
+if(NOT VELOCYPACK_LIB)
+  message(FATAL_ERROR "velocypack library not found")
+endif()
+
+find_library(JSONIO_LIB jsonio)
+if(NOT JSONIO_LIB)
+  message(FATAL_ERROR "jsonio library not found")
+endif()
+
 
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
@@ -17,7 +44,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 option(BUILD_TESTS "Build tests." OFF)
 option(BUILD_DEMOGUI "Build ThermoFun GUI DEMO." OFF)
-option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
+#option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -59,22 +86,22 @@ endif()
 set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 # Set the directory where the third-party libraries are temporarily installed before installed to CMAKE_INSTALL_PREFIX
-set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)
+#set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)
 
 # Set the include and library directories where the third party libraries were installed
-set(THIRDPARTY_INCLUDE_DIR ${THIRDPARTY_DIR}/include)
-set(THIRDPARTY_LIBRARY_DIR ${THIRDPARTY_DIR}/lib)
+#set(THIRDPARTY_INCLUDE_DIR ${THIRDPARTY_DIR}/include)
+#set(THIRDPARTY_LIBRARY_DIR ${THIRDPARTY_DIR}/lib)
 
 # Set the include directories
 include_directories(${THERMOFUN_SOURCE_DIR})
-include_directories(${THIRDPARTY_INCLUDE_DIR})
+#include_directories(${THIRDPARTY_INCLUDE_DIR})
 include_directories(${BOOST_INCLUDE_DIR})
 
 # Install the third-party libraries first
-include(InstallThirdPartyLibs)
+#include(InstallThirdPartyLibs)
 
 # Set the lib directory of the third party libraries installed automatically
-link_directories(${THIRDPARTY_LIBRARY_DIR})
+#link_directories(${THIRDPARTY_LIBRARY_DIR})
 
 # Build thermofun library
 add_subdirectory(src)

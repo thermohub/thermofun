@@ -137,7 +137,7 @@ struct SelectThermoDataDialogPrivate
      vector<string> scsetSymbols;
      auto reactSymbols = reactModel->getColumn( _dbclient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
      if( typeA )
-        scsetSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, reactSymbols );
+        scsetSymbols = _dbclient.reactSetData().selectGiven( idThermoDataSet, reactSymbols );
      else
         scsetSymbols = _dbclient.reactSetData().selectGiven( sourceTDBs, reactSymbols, unique );
 
