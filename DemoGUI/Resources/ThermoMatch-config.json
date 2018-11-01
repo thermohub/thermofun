@@ -1,0 +1,71 @@
+{
+     "jsonio" :   {
+          "UseArangoDBInstance" :   "ArangoDBLocal",
+          "UseVelocypackPut" :   true,
+          "UseVelocypackGet" :   true,
+          "ArangoDBLocal" :   {
+               "DBName" :   "test_thereda",
+               "DBCreate" :   true,
+               "DB_URL" :   "http://localhost:8529",
+               "DBUser" :   "root",
+               "DBUserPassword" :   "",
+               "DBAccess" :   "rw",
+               "DBRootName" :   "_system",
+               "DBRootUser" :   "root",
+               "DBRootPassword" :   ""
+          },
+          "ArangoDBRemote" :   {
+               "DBName" :   "test_thereda",
+               "DBCreate" :   false,
+               "DB_URL" :   "https://db.thermohub.net",
+               "DBUser" :   "adminrem",
+               "DBUserPassword" :   "Administrator@Remote-ThermoHub-Server",
+               "DBAccess" :   "rw",
+               "DBRootName" :   "_system",
+               "DBRootUser" :   "",
+               "DBRootPassword" :   ""
+          }
+     },
+     "jsonimpex" :   {
+          "ImpexScriptsDirectory" :   "Resources/data/impex",
+          "ImpexScriptsInDB" :   true,
+          "ThriftDBSocketHost" :   "localhost",
+          "ThriftDBSocketPort" :   9090
+     },
+     "jsonui" :   {
+          "CurrentDBConnection" :   "ArangoDBLocal",
+          "ViewOnlyMode" :   false,
+          "CanEdit_id" :   false,
+          "KeepExpanded" :   false,
+          "ShowComments" :   true,
+          "ShowEnumNames" :   true
+     },
+     "common" :   {
+          "UserHomeDirectoryPath" :   "~",
+          "WorkDirectoryPath" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda",
+          "ResourcesDirectory" :   "Resources",
+          "SchemasDirectory" :   "Resources/data/schemas",
+          "LuaScriptsDirectory" :   "Resources/lua"
+     },
+     "ThermoMatch" :   {
+          "ReacDCImport" :   {
+               "ReactionFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/Reaction2.Thereda_aq_Reac.FormatStructDataFile.json",
+               "ReactionDependentSubstanceFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/ReactionDependentSubstance2.Thereda_aq_Reac.FormatStructDataFile.json",
+               "ReactionEdgesFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/ReactionEdges2.Thereda_aq_Reac.FormatStructDataFile.json",
+               "InputFilePath" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/Thereda_aq_Reac.json",
+               "ImportFormatOverwrite" :   true,
+               "ImportFormatUseDB" :   false
+          },
+          "TheredaImport" :   {
+               "ReactionFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/Reaction2.Thereda_aq_Reac.FormatStructDataFile.json",
+               "MasterSubstanceFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/Substance2.Thereda_aq_Master.FormatStructDataFile.json",
+               "ProductSubstanceFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/ReactionDependentSubstance2.Thereda_aq_Reac.FormatStructDataFile.json",
+               "ElementFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/Element-Thereda.FormatStructDataFile.json",
+               "ReactionEdgesFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/ReactionEdges2.Thereda_aq_Reac.FormatStructDataFile.json",
+               "InputFilePath" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/THEREDA_PIT_JSON_r01.json",
+               "ImportFormatOverwrite" :   true,
+               "ImportFormatUseDB" :   false,
+               "PhaseFormatStructData" :   "/home/dmiron/gitTHERMOMATCH/build/debug/Resources/files/TestReaction/Thereda/Phase-Thereda.FormatStructDataFile.json"
+          }
+     }
+}

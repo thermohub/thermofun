@@ -68,8 +68,9 @@
             }
         },
         "script": "s1 = \"referencestate: \" .. rintable.properties.temp_import[1] if rintable.properties.comment == nil then rintable.properties.comment = s1 else rintable.properties.comment = rintable.properties.comment .. \"; \" .. s1 end; 
-if rintable.properties.symbol == \"EA\" then rintable.properties.class_[4] = \"CHARGE\" rintable.properties.class_[1] = nil end;
-if rintable.properties.temp_import[2] ~=\"1\" then tmp = tonumber(rintable.properties.temp_import[2]) rintable.properties.entropy.values[1] = rintable.properties.entropy.values[1] / tmp rintable.properties.entropy.errors[1] = rintable.properties.entropy.errors[1] / tmp rintable.properties.heat_capacity.values[1] = rintable.properties.heat_capacity.values[1] / tmp rintable.properties.heat_capacity.errors[1] = rintable.properties.heat_capacity.errors[1] / tmp end;"
+if rintable.properties.symbol == \"EA\" then rintable.properties.class_ = {} rintable.properties.class_['4'] = 'CHARGE' rintable.properties.symbol = \"Zz\" end;
+if rintable.properties.temp_import[2] ~=\"1\" then tmp = tonumber(rintable.properties.temp_import[2]) rintable.properties.entropy.values[1] = rintable.properties.entropy.values[1] / tmp rintable.properties.entropy.errors[1] = rintable.properties.entropy.errors[1] / tmp rintable.properties.heat_capacity.values[1] = rintable.properties.heat_capacity.values[1] / tmp rintable.properties.heat_capacity.errors[1] = rintable.properties.heat_capacity.errors[1] / tmp end;
+rintable.properties.temp_import[1] = nil; rintable.properties.temp_import[2] = nil; "
     },
     "renderer": "JSON",
     "label": "VertexElement",

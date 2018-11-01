@@ -2,6 +2,7 @@
     "block": {
         "defaults": {
             "properties.sourcetdb": "{\"12\" :   \"THEREDA\"}",
+            "properties.TPMethods": "[{\"method\" :{\"0\" :   \"cp_ft_equation\"}, \"m_heat_capacity_ft_coeffs\" :{\"values\" : [0,0,0,0,0,0]}}]",
             "properties.aggregate_state": "{\"4\" :   \"AS_AQUEOUS\"}",
             "properties.class_": "{\"2\" :   \"SC_AQSOLUTE\"}",
             "properties.sm_gibbs_energy": "{\"units\": [\"J/mol\"]}",
@@ -17,7 +18,7 @@
             "properties.sm_entropy_abs.status": "[{\"4\" :   \"IMPORTED\"}]",
             "properties.sm_heat_capacity_p.status": "[{\"4\" :   \"IMPORTED\"}]",
             "properties.Tst": "298.15",
-            "properties.Pst": "1.0e5",
+            "properties.Pst": "1.0e5"
         },
         "pairs": {},
         "matches": {
@@ -135,12 +136,6 @@
                     "Gauss2s": "{\"0\" :   \"NORMAL\"}"
                 }
             },
-            "DataVariable.0.datatype": {
-                "field": "properties.TPMethods.0",
-                "convert": {
-                    "DFGT": "{\"method\" :{\"0\" :   \"cp_ft_equation\"}, \"m_heat_capacity_ft_coeffs\" :{\"values\" : [0,0,0,0,0,0]}}"
-                }
-            },
             "DataVariable.0.mintk": {
                 "field": "properties.TPMethods.0.limitsTP.lowerT"
             },
@@ -175,18 +170,22 @@
             }
         },
         "script":   "formula = rintable.properties.symbol;
+if (formula == 'H2O(l)') then rintable.properties.class_ = {} rintable.properties.class_['3'] = 'SC_AQSOLVENT' rintable.properties.aggregate_state = {} rintable.properties.aggregate_state['4'] =  'AS_AQUEOUS' end;
+if string.match(formula, '(g)') then rintable.properties.class_ = {} rintable.properties.class_['1'] = 'SC_GASFLUID' rintable.properties.aggregate_state = {} rintable.properties.aggregate_state['0'] =  'AS_GAS' end;
+if string.match(formula, '(cr)') then rintable.properties.class_ = {} rintable.properties.class_['0'] = 'SC_COMPONENT' rintable.properties.aggregate_state = {} rintable.properties.aggregate_state['3'] =  'AS_CRYSTAL' end;
 formula = string.gsub(formula, '<(%d*)->',  '-%1' );
 formula = string.gsub(formula, '<(%d*)+>',  '+%1' );
 formula = string.gsub(formula, '<0>',  '@' );
 formula = string.gsub(formula, '%(l%)',  '@' );
 formula = string.gsub(formula, '%(g%)',  '' );
+formula = string.gsub(formula, '%(cr%)',  '' );
+formula = string.gsub(formula, '%(am%)',  '' );
+formula = string.gsub(formula, '%(s%)',  '' );
 formula = string.gsub(formula, '^O2(@?)$',  'O|0|2%1' );
 formula = string.gsub(formula, '^H2(@?)$',  'H|0|2%1' );
 rintable.properties.formula = formula;
 rintable.properties.name = rintable.properties.symbol;
-print(rintable.properties.TPMethods[
-            1
-        ]);"
+print(rintable.properties.TPMethods[1]);"
     },
     "renderer": "JSON",
     "label": "VertexSubstance",

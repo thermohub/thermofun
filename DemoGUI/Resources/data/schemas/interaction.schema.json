@@ -244,83 +244,91 @@
           "name": "PITZ_BETA",
           "value": 1,
           "doc": "Pitzer type beta parameter more will be added here\n"
+        },
+        {
+          "name": "PITZ_THETA",
+          "value": 2,
+          "doc": " "
+        },
+        {
+          "name": "PITZ_LAMBDA",
+          "value": 3,
+          "doc": " "
+        },
+        {
+          "name": "PITZ_PSI",
+          "value": 4,
+          "doc": " "
+        },
+        {
+          "name": "SIT",
+          "value": 5,
+          "doc": " "
         }
       ]
     },
     {
-      "name": "ipMethodP",
-      "doc": "Code of method of pressure correction of the interaction parameter\n",
+      "name": "ipMethod",
+      "doc": "Code of method of pressure, temperature, and ionic strength correction of the interaction parameters\n",
       "members": [
         {
           "name": "IP_CONSTANT",
-          "value": 0,
+          "value": 100,
           "doc": "Constant on P\n"
         },
         {
           "name": "IP_LINEAR",
-          "value": 1,
+          "value": 101,
           "doc": "Linear on P\n"
         },
         {
           "name": "IP_CUBIC",
-          "value": 2,
+          "value": 102,
           "doc": "Cubic on P\n"
         },
         {
           "name": "IP_OTHER",
-          "value": 101,
+          "value": 199,
           "doc": "Other on P\n"
-        }
-      ]
-    },
-    {
-      "name": "ipMethodT",
-      "doc": "Code of method of temperature correction of the interaction parameter\n",
-      "members": [
+        },
         {
           "name": "IT_CONSTANT",
-          "value": 0,
+          "value": 200,
           "doc": "Constant on T\n"
         },
         {
           "name": "IT_LINEAR",
-          "value": 1,
+          "value": 201,
           "doc": "Linear on T\n"
         },
         {
           "name": "IT_CUBIC",
-          "value": 2,
+          "value": 202,
           "doc": "Cubic on T\n"
         },
         {
           "name": "IT_POLYNOM",
-          "value": 3,
+          "value": 203,
           "doc": "Polynomial with ln on P\n"
         },
         {
           "name": "IT_OTHER",
-          "value": 101,
+          "value": 299,
           "doc": "Other on T\n"
-        }
-      ]
-    },
-    {
-      "name": "ipMethodIS",
-      "doc": "Code of method of ionic strength correction of the interaction parameter\n",
-      "members": [
+        },
         {
           "name": "IS_CONSTANT",
-          "value": 0,
+          "value": 300,
           "doc": "Constant on IS\n"
         },
         {
           "name": "IS_LINEAR",
-          "value": 1,
+          "value": 301,
           "doc": "Linear on IS\n"
         },
         {
           "name": "IS_OTHER",
-          "value": 101,
+          "value": 399,
           "doc": "Other on IS\n"
         }
       ]
@@ -329,6 +337,65 @@
   "typedefs": [
   ],
   "structs": [
+    {
+      "name": "InteractionMethodData",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "method",
+	  "class": "ipMethod",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "Overall T,P limits for all methods involved\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "intparcoeff",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Interaction parameter coefficients - interpreted by model and method codes below\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment: e.g. who entered\/modified, ...\n",
+          "required": "optional"
+        },
+        {
+          "key": 5,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        }
+      ]
+    },
     {
       "name": "Interaction",
       "doc": "Description of interaction between substances or moieties\n",
@@ -430,51 +497,18 @@
         },
         {
           "key": 14,
-          "name": "methodT",
-          "class": "ipMethodT",
-          "typeId": "map",
+          "name": "TPIMethods",
+          "typeId": "list",
           "type": {
-            "typeId": "map",
-            "keyTypeId": "i32",
-            "valueTypeId": "string"
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "InteractionMethodData"
+            }
           },
-          "doc": "Method of temperature correction of interaction properties\n",
-          "required": "req_out",
-          "default": {
-            "0": "IT_CONSTANT"
-          }
-        },
-        {
-          "key": 15,
-          "name": "methodP",
-          "class": "ipMethodP",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "i32",
-            "valueTypeId": "string"
-          },
-          "doc": "Method of pressure correction of interaction properties\n",
-          "required": "req_out",
-          "default": {
-            "0": "IP_CONSTANT"
-          }
-        },
-        {
-          "key": 16,
-          "name": "methodI",
-          "class": "ipMethodIS",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "i32",
-            "valueTypeId": "string"
-          },
-          "doc": "Method of ionic strength correction\n",
-          "required": "req_out",
-          "default": {
-            "0": "IS_CONSTANT"
-          }
+          "doc": "List of Methods temperature T, pressure P, and ionic strength I correction of the interaction parameters\n",
+          "required": "req_out"
         },
         {
           "key": 22,

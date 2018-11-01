@@ -92,7 +92,7 @@
       "doc": "Element vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.2", "6.3" ],
+      "to_select": [ "5", "6.1", "6.3","6.13"],
       "to_key": [ "6.1", "6.2", "6.5" ],
       "fields": [
         {
@@ -150,7 +150,7 @@
       "doc": "Substance vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.2", "6.5", "6.3" ],
+      "to_select": [ "5", "6.1", "6.5", "6.3", "6.8", "6.2" ],
       "to_key": [ "properties.symbol", "properties.aggregate_state", "properties.sourcetdb" ],
       "to_unique": [ "properties.symbol", "properties.sourcetdb" ],
       "fields": [
@@ -209,7 +209,7 @@
       "doc": "Reaction vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.2", "6.4", "6.3", "6.11.3.0" ],
+      "to_select": [ "5", "6.1", "6.4", "6.6", "6.3","6.2" ],
       "to_key": [ "properties.symbol", "properties.sourcetdb", "properties.level" ],
       "to_unique": [ "properties.symbol", "properties.sourcetdb" ],
       "fields": [
@@ -268,7 +268,7 @@
       "doc": "Reactionset vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.2", "6.3", "6.4", "6.8" ],
+      "to_select": [ "5", "6.1", "6.2", "6.4", "6.3", "6.8" ],
       "to_key": [ "properties.symbol", "properties.stype", "properties.level" ],
       "fields": [
         {
@@ -326,7 +326,7 @@
       "doc": "Thermodataset vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.2", "6.3", "6.4", "6.8.0" ],
+      "to_select": [ "5", "6.1", "6.2", "6.4", "6.8" ],
       "to_key": [ "properties.symbol", "properties.stype", "properties.level" ],
       "fields": [
         {
@@ -442,6 +442,8 @@
       "doc": "MixingModel vertex document\n",
       "isException": false,
       "isUnion": false,
+      "to_select": [ "5", "6.1", "6.2", "6.3", "6.6" ],
+      "to_key": [ "properties.symbol", "properties.sourcetdb" ],
       "fields": [
         {
           "key": 1,
@@ -2118,7 +2120,7 @@
       "doc": "Edge of type \"interacts\" definition\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "7", "8.1","8.2", "4", "5" ],
+      "to_select": [ "7", "4", "5" ],
       "fields": [
         {
           "key": 1,
@@ -2211,7 +2213,7 @@
       "doc": "Edge of type \"specific\" definition\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "7", "8.1", "8.2", "4", "5" ],
+      "to_select": [ "7", "4", "5" ],
       "fields": [
         {
           "key": 1,
@@ -2411,7 +2413,7 @@
       "doc": "Edge of type \"kinspecies\" definition\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "7", "8.1", "8.2","8.3", "4", "5" ],
+      "to_select": [ "7", "4", "5" ],
       "fields": [
         {
           "key": 1,
@@ -2643,6 +2645,7 @@
       "doc": "Edge of type \"component\" definition\n",
       "isException": false,
       "isUnion": false,
+      "to_select": [ "7", "4", "5", "8.1" ],
       "fields": [
         {
           "key": 1,
@@ -2893,7 +2896,7 @@
       "doc": "Edge of type \"addsto\" definition\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "7", "8.1", "8.2", "4", "5" ],
+      "to_select": [ "7", "4", "5" ],
       "fields": [
         {
           "key": 1,
@@ -3029,7 +3032,7 @@
           "typeId": "string",
           "doc": "This label must be \"collects\"\n",
           "required": "required",
-          "default": "collect"
+          "default": "collect_"
         },
         {
           "key": 8,

@@ -185,31 +185,23 @@
           "required": "req_out"
         },
         {
-          "key": 21,
+          "key": 22,
           "name": "elements",
           "typeId": "list",
           "type": {
             "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "element.ElementInfo"
-            }
+            "elemTypeId": "string"
           },
           "doc": "Set of elements (IComps) represented in all components of the phase\n",
           "required": "req_out"
         },
         {
-          "key": 23,
-          "name": "components",
+          "key": 24,
+          "name": "substances",
           "typeId": "list",
           "type": {
             "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "substance.SubstanceInfo"
-            }
+            "elemTypeId": "string"
           },
           "doc": "Set of substances (components, end members) of the phase\n",
           "required": "req_out"
@@ -267,6 +259,17 @@
             "class": "prop.TimeStamp"
           },
           "doc": "Timestamp when the record was created or modified\n",
+          "required": "optional"
+        },
+        {
+          "key": 2001,
+          "name": "temp_import",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Field for storing temporary values needed during import script\n",
           "required": "optional"
         }
       ]
