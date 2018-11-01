@@ -9,31 +9,32 @@
 "element",
 "phase",
 "chemeqsysdef",
-"composition"
+"ingredient",
+"compound"
   ],
   "enums": [
     {
-      "name": "ChemEqSysRecipeType",
+      "name": "SysRecipeType",
       "members": [
         {
-          "name": "FORWARD",
+          "name": "RCP_FORWARD",
           "value": 0,
           "doc": "Forward equilibrium modeling recipe - speciation from bulk composition, T and P\n"
         },
         {
-          "name": "INVERSE",
+          "name": "RCP_INVERSE",
           "value": 1,
-          "doc": "Inverce modeling recipe - some activities, concentrations, ... known; bc, T. P to be determined\n"
+          "doc": "Inverce modeling recipe - some activities, concentrations, ... known; bc, T, P to be determined\n"
         },
         {
-          "name": "OTHER_RCP",
+          "name": "RCP_OTHER",
           "value": 101,
           "doc": "Other types of recipe\n"
         }
       ]
     },
     {
-      "name": "InitialGuess",
+      "name": "InitialGuessType",
       "members": [
         {
           "name": "START_COLD",
@@ -47,31 +48,18 @@
         },
         {
           "name": "START_OTHER",
-          "value": 2,
+          "value": 101,
           "doc": "other\n"
         }
       ]
     }
   ],
   "typedefs": [
-    {
-      "name": "ChemEqSysRecipes",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "ChemEqSysRecipe"
-        }
-      },
-      "doc": "Definition of recipes (recipe array) type\n"
-    }
   ],
   "structs": [
     {
       "name": "ChemEqSysRecipe",
-      "doc": "recipe to set the bulk composition and kinetic AMRs for a chemnode instance\n",
+      "doc": "should be connected to its parent ChemEqSysDef record via the edge \"Belongs\"\n",
       "isException": false,
       "isUnion": false,
       "fields": [
@@ -84,293 +72,319 @@
         },
         {
           "key": 2,
-          "name": "name",
+          "name": "comment",
           "typeId": "string",
           "doc": "Name comment of the recipe (e.g. \"bentonite+porewater\")\n",
           "required": "req_out"
         },
         {
           "key": 3,
-          "name": "rcptype",
-          "typeId": "i32",
-          "doc": "Type of this recipe, validated with class ChemEqSysRecipeType \n",
-          "class": "ChemEqSysRecipeType",
+          "name": "formula",
+          "typeId": "string",
+          "doc": "Optional shortcut formula of 1 mole of this constituent e.g. Fe | Fe2O3 | Fe+2\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "recipeType",
+	  "class": "SysRecipeType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of this recipe - validate with class SysRecipeType\n",
+          "required": "req_out",
+          "default": {
+            "0": "RCP_FORWARD"
+          }
+        },
+        {
+          "key": 5,
+          "name": "chemeqSysdef",
+          "typeId": "string",
+          "doc": "should be connected to this parent ChemEqSysDef record via the edge \"Belongs\"\n",
+          "required": "req_out",
+          "default": "CSD#1"
+        },
+        {
+          "key": 6,
+          "name": "initialGuessType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of initial guess for GEMS3K to use, validate with class InitialGuessType\n",
+          "required": "req_out",
+          "default": {
+            "0": "START_COLD"
+          }
+        },
+        {
+          "key": 7,
+          "name": "reactionExtent",
+          "typeId": "double",
+          "doc": "Extent of reaction, i.e. mass fraction of constituent composition to equilibrate\n",
+          "required": "req_out",
+          "default": 1
+        },
+        {
+          "key": 11,
+          "name": "quantity",
+          "typeId": "double",
+          "doc": "Amount\/mass of the recipe material (to normalize the contributions from ingredients and formulae\n",
+          "required": "req_out",
+          "default": 1
+        },
+        {
+          "key": 12,
+          "name": "unit_q",
+          "typeId": "string",
+          "doc": "Units\n",
+          "required": "req_out",
+          "default": "kg"
+        },
+        {
+          "key": 13,
+          "name": "density",
+          "typeId": "double",
+          "doc": "Initial volume or density of the recipe\n",
           "required": "req_out",
           "default": 0
         },
         {
-          "key": 4,
-          "name": "chemeqsysdef",
+          "key": 14,
+          "name": "unit_d",
           "typeId": "string",
-          "doc": "Symbol of chemsysdef to which this recipe belongs - via \"belongs\" link\n",
+          "doc": "Units\n",
+          "required": "req_out",
+          "default": "kg\/m^3"
+        },
+        {
+          "key": 15,
+          "name": "ss_area",
+          "typeId": "double",
+          "doc": "Specific surface area\n",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 16,
+          "name": "unit_a",
+          "typeId": "string",
+          "doc": "Units for area\n",
+          "required": "req_out",
+          "default": "m^2\/kg"
+        },
+        {
+          "key": 17,
+          "name": "enthalpy",
+          "typeId": "double",
+          "doc": "Enthalpy content\n",
           "required": "req_out"
         },
         {
-          "key": 6,
-          "name": "elements",
+          "key": 18,
+          "name": "unit_h",
+          "typeId": "string",
+          "doc": "Units of measurement for enthalpy\n",
+          "required": "req_out",
+          "default": "kJ\/kg"
+        },
+        {
+          "key": 19,
+          "name": "heat_capacity",
+          "typeId": "double",
+          "doc": "Heat capacity of this consituent in J\/K\/kg\n",
+          "required": "req_out"
+        },
+        {
+          "key": 20,
+          "name": "unit_cp",
+          "typeId": "string",
+          "required": "req_out",
+          "default": "J\/K\/kg"
+        },
+        {
+          "key": 21,
+          "name": "pressure",
+          "typeId": "double",
+          "doc": "Total pressure P\n",
+          "required": "req_out",
+          "default": 0.1
+        },
+        {
+          "key": 22,
+          "name": "unit_p",
+          "typeId": "string",
+          "doc": "Units of pressure\n",
+          "required": "req_out",
+          "default": "MPa"
+        },
+        {
+          "key": 23,
+          "name": "temperature",
+          "typeId": "double",
+          "doc": "Total temperature P\n",
+          "required": "req_out",
+          "default": 25
+        },
+        {
+          "key": 24,
+          "name": "unit_t",
+          "typeId": "string",
+          "doc": "Units of temperature\n",
+          "required": "req_out",
+          "default": "degC"
+        },
+        {
+          "key": 27,
+          "name": "ingredients",
           "typeId": "list",
           "type": {
             "typeId": "list",
             "elemTypeId": "struct",
             "elemType": {
               "typeId": "struct",
-              "class": "element.ElementInfo"
+              "class": "ingredient.Ingredient"
             }
           },
-          "doc": "List of elements and their masses as basis of this recipe\n",
+          "doc": "can be constructed automatically using \"AddTo\" edges from ingredients\n",
           "required": "req_out"
         },
         {
-          "key": 7,
-          "name": "bco",
+          "key": 29,
+          "name": "scalvals",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.ScalingValues"
+          },
+          "doc": "Scaling values at the whole recipe level\n",
+          "required": "req_out"
+        },
+        {
+          "key": 31,
+          "name": "bcObjectComputed",
+          "typeId": "bool",
+          "doc": "Indicator of calculation consistency\n",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 32,
+          "name": "bcObject",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "compound.bcObjectItem"
+            }
+          },
+          "doc": "List of elements and their amounts for this recipe [ {\"Al\": 0.35}, {\"Ca\": 0.9} ...\n",
+          "required": "req_out",
+          "default": [
+            {
+              "el": "O",
+              "am": 0,
+              "ma": 0
+            }
+          ]
+        },
+        {
+          "key": 33,
+          "name": "bcMass",
+          "typeId": "double",
+          "doc": "Mass of this rbcObject \"Mass\" in kg\/mol (calculated using the elements list)\n",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 35,
+          "name": "eqStateComputed",
+          "typeId": "bool",
+          "doc": "Indicator of equilibrium calculation consistency\n",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 41,
+          "name": "initialSpeciation",
           "typeId": "map",
           "type": {
             "typeId": "map",
             "keyTypeId": "string",
             "valueTypeId": "double"
           },
-          "doc": "Bulk system composition in moles of elements (after calculation or from cformula if entered) as [ {\"Al\": 0.35}, {\"Ca\": 0.9} ... ]\n",
+          "doc": "for example  \"Al+3\":1e-6, \"Al(OH)+2\": 4e-9, \"Al(OH)2+\": 3e-8, ...\n",
           "required": "req_out"
         },
         {
-          "key": 8,
-          "name": "bcMass",
-          "typeId": "double",
-          "doc": "Mass of this bco \"Mass\" in kg\/mol (calculated using the elements list)\n",
+          "key": 43,
+          "name": "sKinUpper",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "double"
+          },
+          "doc": "Additional kinetic restrictions for species (name,value) - upper (from above)\n",
           "required": "req_out"
         },
         {
-          "key": 9,
-          "name": "bformula",
-          "typeId": "string",
-          "doc": "Optionally: contents of this bco generated as a single formula string\n",
-          "required": "req_out"
-        },
-        {
-          "key": 11,
-          "name": "Moles",
+          "key": 44,
+          "name": "sKinLower",
           "typeId": "map",
           "type": {
             "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "doc": "Input scaling values for various concentration scales, unit of measurement\n",
-          "required": "optional",
-          "default": {
-            "0": 0
-          }
-        },
-        {
-          "key": 12,
-          "name": "Ptotal",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "100000": 2
-          }
-        },
-        {
-          "key": 13,
-          "name": "Mwater",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "1": 5
-          }
-        },
-        {
-          "key": 14,
-          "name": "Vaqtotal",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "0.001": 9
-          }
-        },
-        {
-          "key": 15,
-          "name": "Mass",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "1": 5
-          }
-        },
-        {
-          "key": 16,
-          "name": "SurfMoles",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "0.001": 0
-          }
-        },
-        {
-          "key": 17,
-          "name": "SurfMolal",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "0.001": 3
-          }
-        },
-        {
-          "key": 18,
-          "name": "SurfArea",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "double",
-            "valueTypeId": "i32"
-          },
-          "required": "optional",
-          "default": {
-            "1": 8
-          }
-        },
-        {
-          "key": 21,
-          "name": "qformulae",
-          "typeId": "struct",
-          "type": {
-            "typeId": "struct",
-            "class": "prop.CompositionFormulaAmountArray"
-          },
-          "doc": "Optionally: Input quantities of user-defined formulae to add, can also be formulae of compositions\n",
-          "required": "optional"
-        },
-        {
-          "key": 22,
-          "name": "qelements",
-          "typeId": "struct",
-          "type": {
-            "typeId": "struct",
-            "class": "prop.Item"
-          },
-          "doc": "Input amounts of elements to add, values in the same order as in the elements list\n",
-          "required": "optional",
-          "default": {
-            "name": "qe"
-          }
-        },
-        {
-          "key": 23,
-          "name": "csi",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
-          },
-          "doc": "map of input amounts of species for warm initial guess, not added to bco\n",
-          "required": "optional"
-        },
-        {
-          "key": 24,
-          "name": "chemeqspeciation",
-          "typeId": "string",
-          "doc": "Symbol (unique name) of speciation object as a source of csi\n",
-          "required": "optional"
-        },
-        {
-          "key": 25,
-          "name": "pkinupper",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
-          },
-          "doc": "Additional kinetic restrictions for phases - upper (from above)\n",
-          "required": "optional"
-        },
-        {
-          "key": 26,
-          "name": "pkinlower",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
-          },
-          "doc": "Additional kinetic restrictions for phases - lower (from above)\n",
-          "required": "optional"
-        },
-        {
-          "key": 28,
-          "name": "skinupper",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
-          },
-          "doc": "Additional kinetic restrictions for species - upper (from above)\n",
-          "required": "optional"
-        },
-        {
-          "key": 29,
-          "name": "skinlower",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
+            "keyTypeId": "string",
+            "valueTypeId": "double"
           },
           "doc": "Additional kinetic restrictions for species - lower (from above)\n",
-          "required": "optional"
+          "required": "req_out"
         },
         {
-          "key": 31,
-          "name": "pskparams",
-          "typeId": "list",
+          "key": 45,
+          "name": "pKinUpper",
+          "typeId": "map",
           "type": {
-            "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "phase.SurfKin"
-            }
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "double"
           },
-          "doc": "List of parameters for surfaces and kinetics for phases\n",
-          "required": "optional"
+          "doc": "Additional kinetic restrictions for phases - upper (from above)\n",
+          "required": "req_out"
         },
         {
-          "key": 33,
-          "name": "comment",
-          "typeId": "string",
-          "doc": "Comment e.g. who entered\/modified, ...\n",
-          "required": "optional",
-          "default": "comment (element)"
+          "key": 46,
+          "name": "pKinLower",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "double"
+          },
+          "doc": "Additional kinetic restrictions for phases - lower (from above)\n",
+          "required": "req_out"
         },
         {
-          "key": 34,
+          "key": 49,
+          "name": "timeStamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Timestamp of the last modification\n",
+          "required": "req_out"
+        },
+        {
+          "key": 50,
           "name": "datasources",
           "typeId": "set",
           "type": {
@@ -379,17 +393,29 @@
           },
           "doc": "Labels of datasource DB objects\n",
           "required": "optional"
-        },
+        }
+      ]
+    },
+    {
+      "name": "ChemEqSysRecipes",
+      "doc": "Definition of an array of chemical system recipes\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
         {
-          "key": 35,
-          "name": "time_stamp",
-          "typeId": "struct",
+          "key": 2,
+          "name": "recipes",
+          "typeId": "list",
           "type": {
-            "typeId": "struct",
-            "class": "prop.TimeStamp"
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ChemEqSysRecipe"
+            }
           },
-          "doc": "Timestamp\n",
-          "required": "optional"
+          "doc": "List of CemGEMS chemical system recipes\n",
+          "required": "req_out"
         }
       ]
     }

@@ -1,7 +1,7 @@
 {
      "block" :   {
           "defaults" :   {
-               "4.19.1" :   "0",
+               "6.19.1" :   "0",
                "properties.radioactivity.half_life_lambda.values" :   "[ 0 ]",
                "properties.datasources" :   "[\"PSI-Nagra-12-07\"]",
                "properties.sourcetdb" :   "15"
@@ -11,7 +11,7 @@
           },
           "matches" :   {
                "key.0.fv" :   {
-                    "field" :   "4.1"
+                    "field" :   "6.1"
                },
                "key.1.fv" :   {
                     "field" :   "properties.class_",
@@ -25,10 +25,10 @@
                     "field" :   "properties.name"
                },
                "dod.0.label" :   {
-                    "field" :   "4.4.1"
+                    "field" :   "6.4.1"
                },
                "dod.0.val" :   {
-                    "field" :   "4.4.3"
+                    "field" :   "6.4.3"
                },
                "dod.1.label" :   {
                     "field" :   "properties.entropy.name"
@@ -37,10 +37,10 @@
                     "field" :   "properties.entropy.values"
                },
                "dod.2.label" :   {
-                    "field" :   "4.11.1"
+                    "field" :   "6.11.1"
                },
                "dod.2.val" :   {
-                    "field" :   "4.11.3"
+                    "field" :   "6.11.3"
                },
                "dod.3.label" :   {
                     "field" :   "properties.volume.name"

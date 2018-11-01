@@ -197,22 +197,22 @@
         {
           "name": "HKF_DEW",
           "value": 18,
-          "doc": "Sverjensky et al., 2014\n"
+          "doc": "Sverjensky et al. 2014\n"
         },
         {
           "name": "MINES",
           "value": 19,
-          "doc": "Mines16 TDB, Gysi, 2016\n"
+          "doc": "Mines16 TDB Gysi, 2016\n"
         },
         {
           "name": "AQ17",
           "value": 20,
-          "doc": "Aq17 TDB, Miron et al., 2017\n"
+          "doc": "Aq17 TDB Miron et al., 2017\n"
         },
         {
           "name": "CEMDATA18",
           "value": 21,
-          "doc": "CEMDATA 18\n"
+          "doc": "CEMDATA 18 Lothenbach et al., 2018\n"
         },
         {
           "name": "SUPCRT07",
@@ -243,19 +243,6 @@
     }
   ],
   "typedefs": [
-    {
-      "name": "Elements",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "Element"
-        }
-      },
-      "doc": "Definition of elements (element array) type\n"
-    }
   ],
   "structs": [
     {
@@ -267,7 +254,12 @@
         {
           "key": 1,
           "name": "decay_type",
-          "typeId": "i32",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Decay type: enum validated with class DecayType\n",
           "class": "DecayType",
           "required": "req_out"
@@ -281,10 +273,7 @@
             "class": "prop.Item"
           },
           "doc": "Time of decay of half amount in s; 0 if unknown\n",
-          "required": "req_out",
-          "default": {
-            "name": "lambda"
-          }
+          "required": "req_out"
         },
         {
           "key": 4,
@@ -346,15 +335,17 @@
             "class": "prop.Item"
           },
           "doc": "Atomic mass of this element, relative to mass of 1\/12 mol of 12C isotope\n",
-          "required": "req_out",
-          "default": {
-            "name": "Mar"
-          }
+          "required": "req_out"
         },
         {
           "key": 5,
           "name": "class_",
-          "typeId": "i32",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Class of element: enum validated with class ElementClass\n",
           "class": "ElementClass",
           "required": "req_out"
@@ -362,7 +353,12 @@
         {
           "key": 6,
           "name": "aggregate_state",
-          "typeId": "i32",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "(Standard) state of this element: enum validated with class AggregateState\n",
           "class": "AggregateState",
           "required": "req_out"
@@ -376,10 +372,7 @@
             "class": "prop.Item"
           },
           "doc": "Isotope abundance fraction, default 1.0\n",
-          "required": "req_out",
-          "default": {
-            "name": "iNA"
-          }
+          "required": "req_out"
         },
         {
           "key": 9,
@@ -390,10 +383,7 @@
             "class": "prop.Item"
           },
           "doc": "Standard absolute entropy J\/K\/mol per atom per mole\n",
-          "required": "req_out",
-          "default": {
-            "name": "S0a"
-          }
+          "required": "req_out"
         },
         {
           "key": 10,
@@ -404,10 +394,7 @@
             "class": "prop.Item"
           },
           "doc": "Standard volume cm3 per atom per mole\n",
-          "required": "req_out",
-          "default": {
-            "name": "V0a"
-          }
+          "required": "req_out"
         },
         {
           "key": 11,
@@ -418,18 +405,15 @@
             "class": "prop.Item"
           },
           "doc": "Standard heat capacity J\/K\/mol\n",
-          "required": "req_out",
-          "default": {
-            "name": "Cp0a"
-          }
+          "required": "req_out"
         },
         {
           "key": 12,
           "name": "valences",
-          "typeId": "list",
+          "typeId": "struct",
           "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
+            "typeId": "struct",
+            "class": "prop.Item"
           },
           "doc": "Possible valences for this element - at least one value\n",
           "required": "optional"
@@ -444,9 +428,14 @@
         {
           "key": 14,
           "name": "sourcetdb",
-          "typeId": "i32",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Source TDB: enum validated with class SourceTDB\n",
-  	      "class": "SourceTDB",
+  	  "class": "SourceTDB",
           "required": "optional"
         },
         {
@@ -468,8 +457,7 @@
           "name": "comment",
           "typeId": "string",
           "doc": "E.g. who entered\/modified, ...\n",
-          "required": "optional",
-          "default": "comment (element)"
+          "required": "optional"
         },
         {
           "key": 18,
@@ -502,6 +490,17 @@
             "class": "prop.TimeStamp"
           },
           "doc": "Time stamp when the record was created or  modified\n",
+          "required": "optional"
+        },
+        {
+          "key": 2001,
+          "name": "temp_import",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Field for storing temporary values needed during import script\n",
           "required": "optional"
         }
       ]
@@ -546,6 +545,29 @@
           "name": "atomic_charge",
           "typeId": "double",
           "doc": "Default valence charge of this element - to compute formula charge\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "Elements",
+      "doc": "Definition of an array of elements\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "elements",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "Element"
+            }
+          },
+          "doc": "List of chemical elements\n",
           "required": "req_out"
         }
       ]

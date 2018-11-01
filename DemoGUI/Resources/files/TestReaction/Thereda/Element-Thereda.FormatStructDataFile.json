@@ -1,34 +1,77 @@
 {
-     "block" :   {
-          "defaults" :   {
-               "4.19.1" :   "0",
-               "properties.radioactivity.half_life_lambda.values" :   "[ 0 ]",
-               "properties.datasources" :   "[\"THEREDA\"]",
-               "properties.sourcetdb" :   "12"
-          },
-          "pairs" :   {
-
-          },
-          "matches" :   {
-               "symbol" :   {
-                    "field" :   "properties.symbol"
-               },
-               "name" :   {
-                    "field" :   "properties.name"
-               },
-               "molarmass" :   {
-                    "field" :   "properties.atomic_mass.values"
-               },
-               "s298" :   {
-                    "field" :   "properties.entropy.values"
-               },
-               "description" :   {
-                    "field" :   "properties.comment"
+    "block": {
+        "defaults": {
+            "properties.radioactivity.half_life_lambda.values": "[ 0 ]",
+            "properties.datasources": "[\"THEREDA\"]",
+            "properties.sourcetdb": "{\"12\" :   \"THEREDA\"}",
+            "properties.class_": "{\"0\" :   \"ELEMENT\"}",
+            "properties.atomic_mass.status":"[{\"4\" :   \"IMPORTED\"}]",
+            "properties.entropy.status":"[{\"4\" :   \"IMPORTED\"}]",
+            "properties.heat_capacity.status":"[{\"4\" :   \"IMPORTED\"}]",
+            "properties.temp_import": "[\"\",\"\"]"
+        },
+        "pairs": {},
+        "matches": {
+            "symbol": {
+                "field": "properties.symbol"
+            },
+            "name": {
+                "field": "properties.name"
+            },
+            "molarmass": {
+                "field": "properties.atomic_mass.values"
+            },
+            "molarmass_referenceid": {
+                "field": "properties.atomic_mass.datasources"
+            },
+            "s298": {
+                "field": "properties.entropy.values"
+            },
+            "s298_positiveunc": {
+                "field": "properties.entropy.errors"
+            },
+            "s298_unctype": {
+                "field": "properties.entropy.errortypes",
+                "convert" :   {
+                    "Gauss2s" :   "{\"0\" :   \"NORMAL\"}"
                }
-          },
-          "script" :   "if rintable.properties.symbol == \"EA\" then rintable.properties.class_ = 0 end;"
-     },
-     "renderer" :   "JSON",
-     "label" :   "VertexElement",
-     "comment" :   "Second test"
+            },
+            "s298_referenceid": {
+                "field": "properties.entropy.datasources"
+            },
+            "cp298": {
+                "field": "properties.heat_capacity.values"
+            },
+            "cp298_positiveunc": {
+                "field": "properties.heat_capacity.errors"
+            },
+            "cp298_unctype": {
+                "field": "properties.heat_capacity.errortypes",
+                "convert" :   {
+                    "Gauss2s" :   "{\"0\" :   \"NORMAL\"}"
+               }
+            },
+            "cp298_referenceid": {
+                "field": "properties.heat_capacity.datasources"
+            },
+            "description": {
+                "field": "properties.comment"
+            },
+            "atomicnumber": {
+                "field": "properties.number"
+            },
+            "referencestate": {
+                "field": "properties.temp_import.0"
+            },
+            "stoichiometriccoefficient": {
+                "field": "properties.temp_import.1"
+            }
+        },
+        "script": "s1 = \"referencestate: \" .. rintable.properties.temp_import[1] if rintable.properties.comment == nil then rintable.properties.comment = s1 else rintable.properties.comment = rintable.properties.comment .. \"; \" .. s1 end; 
+if rintable.properties.symbol == \"EA\" then rintable.properties.class_[4] = \"CHARGE\" rintable.properties.class_[1] = nil end;
+if rintable.properties.temp_import[2] ~=\"1\" then tmp = tonumber(rintable.properties.temp_import[2]) rintable.properties.entropy.values[1] = rintable.properties.entropy.values[1] / tmp rintable.properties.entropy.errors[1] = rintable.properties.entropy.errors[1] / tmp rintable.properties.heat_capacity.values[1] = rintable.properties.heat_capacity.values[1] / tmp rintable.properties.heat_capacity.errors[1] = rintable.properties.heat_capacity.errors[1] / tmp end;"
+    },
+    "renderer": "JSON",
+    "label": "VertexElement",
+    "comment": "Second test"
 }

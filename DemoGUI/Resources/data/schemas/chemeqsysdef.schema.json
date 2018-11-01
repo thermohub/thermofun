@@ -14,50 +14,38 @@
   ],
   "enums": [
     {
-      "name": "cesdtype",
+      "name": "csdType",
       "doc": "classes (types) of chemsysdefs\n",
       "members": [
         {
-          "name": "GEM",
+          "name": "CSD_GEM",
           "value": 0,
           "doc": "GEM-type chemical system\n"
         },
         {
-          "name": "LMA",
+          "name": "CSD_LMA",
           "value": 1,
           "doc": "LMA-type chemical system definition\n"
         },
         {
-          "name": "UNI",
+          "name": "CSD_UNI",
           "value": 2,
           "doc": "Universal system definition (for exporting both )\n"
         },
         {
-          "name": "REF",
+          "name": "CSD_REF",
           "value": 3,
           "doc": "Reference system definition\n"
         },
         {
-          "name": "OTHER_CSD",
-          "value": 4,
+          "name": "CSD_OTHER",
+          "value": 101,
           "doc": "other type\n"
         }
       ]
     }
   ],
   "typedefs": [
-    {
-      "name": "ChemEqSysDefs",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "ChemEqSysDef"
-        }
-      }
-    },
     {
       "name": "dcrow",
       "typeId": "list",
@@ -84,11 +72,19 @@
         },
         {
           "key": 2,
-          "name": "cesdtyp",
-          "typeId": "i32",
-          "doc": "type of chemsysdef - validate with csdtype, csdtypes\n",
+          "name": "csdtyp",
+	  "class": "csdType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "type of chemsysdef - validate with class csdType\n",
           "required": "required",
-          "default": 0
+          "default": {
+            "0": "CSD_GEM"
+          }
         },
         {
           "key": 3,
@@ -99,9 +95,9 @@
         },
         {
           "key": 5,
-          "name": "name",
+          "name": "comment",
           "typeId": "string",
-          "doc": "name of the chemsysdef (not compulsory)\n",
+          "doc": "Full name comment of the chemsysdef (not compulsory)\n",
           "required": "req_out"
         },
         {
@@ -131,7 +127,7 @@
               "class": "phase.PhaseInfo"
             }
           },
-          "doc": "list of phases symbols (sorted by aggregate state) csdpulls\n",
+          "doc": "can be constructed automatically using \"Collect\" edges to phases\n",
           "required": "req_out"
         },
         {
@@ -142,7 +138,14 @@
             "typeId": "list",
             "elemTypeId": "i32"
           },
-          "doc": "number of species (DCs) in phases\n",
+          "doc": "numbers of species (DCs) in phases\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "nphsol",
+          "typeId": "i32",
+          "doc": "number of phases - solutions\n",
           "required": "req_out"
         },
         {
@@ -162,7 +165,7 @@
         },
         {
           "key": 14,
-          "name": "species_map",
+          "name": "speciesMap",
           "typeId": "map",
           "type": {
             "typeId": "map",
@@ -173,33 +176,26 @@
           "required": "req_out"
         },
         {
-          "key": 16,
-          "name": "TPlimits",
-          "typeId": "map",
+          "key": 17,
+          "name": "limitsTP",
+          "typeId": "struct",
           "type": {
-            "typeId": "map",
-            "keyTypeId": "string",
-            "valueTypeId": "double"
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
           },
-          "doc": "lower and upper T, P limits for T,P corrections\n",
-          "required": "optional",
+          "doc": "lower and upper T, P limits fof applicability\n",
+          "required": "req_out",
           "default": {
-            "loT": 273.15,
-            "upT": 298.15,
-            "loP": 1,
-            "upP": 1000000
+            "range": 0,
+            "lowerT": 273.15,
+            "upperT": 298.15,
+            "lowerP": 0.1,
+            "upperP": 1000000
           }
         },
         {
-          "key": 19,
-          "name": "comment",
-          "typeId": "string",
-          "doc": "Comment e.g. who entered\/modified, ...\n",
-          "required": "optional"
-        },
-        {
-          "key": 20,
-          "name": "dsrefs",
+          "key": 18,
+          "name": "datasources",
           "typeId": "set",
           "type": {
             "typeId": "set",
@@ -209,7 +205,7 @@
           "required": "optional"
         },
         {
-          "key": 21,
+          "key": 19,
           "name": "time_stamp",
           "typeId": "struct",
           "type": {
@@ -218,6 +214,29 @@
           },
           "doc": "timestamp\n",
           "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ChemEqSysDefs",
+      "doc": "Definition of an array of recipes and data for chemical system definitions\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "systems",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ChemEqSysDef"
+            }
+          },
+          "doc": "List of chemical system definitions\n",
+          "required": "req_out"
         }
       ]
     },
@@ -264,7 +283,7 @@
         },
         {
           "key": 6,
-          "name": "csspecies",
+          "name": "species",
           "typeId": "list",
           "type": {
             "typeId": "list",
@@ -301,16 +320,6 @@
           "required": "req_out"
         },
         {
-          "key": 11,
-          "name": "npco",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "double"
-          },
-          "required": "req_out"
-        },
-        {
           "key": 13,
           "name": "Nphases",
           "typeId": "i32",
@@ -318,7 +327,7 @@
         },
         {
           "key": 14,
-          "name": "csphas",
+          "name": "phases",
           "typeId": "list",
           "type": {
             "typeId": "list",
@@ -351,8 +360,8 @@
           "required": "req_out"
         },
         {
-          "key": 20,
-          "name": "processed",
+          "key": 19,
+          "name": "processedCSD",
           "typeId": "bool",
           "required": "req_out",
           "default": 0

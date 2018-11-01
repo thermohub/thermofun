@@ -15,42 +15,42 @@
       "doc": "Selection of kinetic models\n",
       "members": [
         {
-          "name": "INSTANT",
+          "name": "KIN_INSTANT",
           "value": 0,
           "doc": "No kinetics - instant reactions, equilibrium\n"
         },
         {
-          "name": "TST",
+          "name": "KIN_TST",
           "value": 1,
           "doc": "Generic TST dissolution\/precipitation model following (Shott ea 2012)\n"
         },
         {
-          "name": "PARALLEL",
+          "name": "KIN_PARALLEL",
           "value": 2,
           "doc": "Parallel dissolution (precipitation) reactions after Palandri 2004\n"
         },
         {
-          "name": "STEPS",
+          "name": "KIN_STEPS",
           "value": 3,
           "doc": "Kinetics of growth (dissolution) derived from step propagation\n"
         },
         {
-          "name": "RDIST",
+          "name": "KIN_RDIST",
           "value": 4,
           "doc": "Rate distribution dissolution kinetics (Fischer, Luettge)\n"
         },
         {
-          "name": "CNT",
+          "name": "KIN_CNT",
           "value": 5,
           "doc": "Classical nucleation theory model: nucleation kinetics\n"
         },
         {
-          "name": "CNTS",
+          "name": "KIN_CNTS",
           "value": 6,
           "doc": "Simplified CNT kinetics (Hellevang)\n"
         },
         {
-          "name": "OTHER_K",
+          "name": "KIN_OTHER",
           "value": 101,
           "doc": "Other kinetic models\n"
         }
@@ -61,71 +61,72 @@
       "doc": "Kinetic type (for reactions)\n",
       "members": [
         {
-          "name": "NONE",
-          "value": 0
+          "name": "KT_NOT_KNOWN",
+          "value": 0,
+          "doc": "Not known whether hetero- or homoheneous\n"
         },
         {
-          "name": "HETE_MIN_AQ",
+          "name": "KT_HETE_MIN_AQ",
           "value": 1,
           "doc": "Heterogeneous reaction kinetics mineral-water\n"
         },
         {
-          "name": "HETE_MIN_MELT",
+          "name": "KT_HETE_MIN_MELT",
           "value": 2,
           "doc": "Heterogeneous reaction kinetics mineral-melt\n"
         },
         {
-          "name": "HETE_MIN_GAS",
+          "name": "KT_HETE_MIN_GAS",
           "value": 3,
           "doc": "Heterogeneous reaction kinetics mineral-gas\n"
         },
         {
-          "name": "HETE_MELT_GAS",
+          "name": "KT_HETE_MELT_GAS",
           "value": 4,
           "doc": "Heterogeneous reaction kinetics melt-gas\n"
         },
         {
-          "name": "HETE_AQ_GAS",
+          "name": "KT_HETE_AQ_GAS",
           "value": 5,
           "doc": "Heterogeneous reaction kinetics water-gas\n"
         },
         {
-          "name": "HETE_AQ_MELT",
+          "name": "KT_HETE_AQ_MELT",
           "value": 6,
           "doc": "Heterogeneous reaction kinetics water-melt\n"
         },
         {
-          "name": "HETE_SURF_AQ",
+          "name": "KT_HETE_SURF_AQ",
           "value": 7,
           "doc": "Heterogeneous reaction kinetics surface-water\n"
         },
         {
-          "name": "HETE_SURF_GAS",
+          "name": "KT_HETE_SURF_GAS",
           "value": 8,
           "doc": "Heterogeneous reaction kinetics surface-gas\n"
         },
         {
-          "name": "HOMO_AQ",
+          "name": "KT_HOMO_AQ",
           "value": 9,
           "doc": "Homogeneous in aqueous solution\n"
         },
         {
-          "name": "HOMO_GAS",
+          "name": "KT_HOMO_GAS",
           "value": 10,
           "doc": "Homogeneous in gas phase or plasma\n"
         },
         {
-          "name": "HOMO_MELT",
+          "name": "KT_HOMO_MELT",
           "value": 11,
           "doc": "Homogeneous in non-electrolyte liquid (melt)\n"
         },
         {
-          "name": "HOMO_MIN",
+          "name": "KT_HOMO_MIN",
           "value": 12,
           "doc": "Homogeneous in solid (transformation)\n"
         },
         {
-          "name": "OTHER_H",
+          "name": "KT_OTHER",
           "value": 101,
           "doc": "Other\n"
         }
@@ -136,22 +137,22 @@
       "doc": "Code of method of temperature correction of kinetic rate constant\n",
       "members": [
         {
-          "name": "CONSTANT_T",
+          "name": "KMT_CONSTANT_T",
           "value": 0,
           "doc": "Constant on T\n"
         },
         {
-          "name": "ARRHENIUS_ABS",
+          "name": "KMT_ARRHENIUS_ABS",
           "value": 1,
           "doc": "Arrhenius equation evaluated at absolute temperature\n"
         },
         {
-          "name": "ARRHENIUS_DIF",
+          "name": "KMT_ARRHENIUS_DIF",
           "value": 2,
           "doc": "Arrhenius equation evaluated at temperature relative to Tref\n"
         },
         {
-          "name": "OTHER_T",
+          "name": "KMT_OTHER",
           "value": 101,
           "doc": "Other methods of rate constant correction on T\n"
         }
@@ -162,90 +163,78 @@
       "doc": "Code of selection of the affinity term type\n",
       "members": [
         {
-          "name": "NONE",
+          "name": "KMA_NONE",
           "value": 0,
           "doc": "No term for affinity\n"
         },
         {
-          "name": "TST_CLASSIC",
+          "name": "KMA_TST_CLASSIC",
           "value": 1,
           "doc": "Classic TST affinity term\n"
         },
         {
-          "name": "TST_REVERSE",
+          "name": "KMA_TST_REVERSE",
           "value": 2,
           "doc": "Classic TST affinity term, reversed\n"
         },
         {
-          "name": "SCHOTT",
+          "name": "KMA_SCHOTT",
           "value": 3,
           "doc": "Affinity term from Schott et al. (2012), Fig. 1e\n"
         },
         {
-          "name": "HELLMANN",
+          "name": "KMA_HELLMANN",
           "value": 4,
           "doc": "Affinity term from Hellmann & Tisserand (2006), eq 9\n"
         },
         {
-          "name": "TENG_A",
+          "name": "KMA_TENG_A",
           "value": 5,
           "doc": "Affinity term from Teng et al. (2000), eq.13\n"
         },
         {
-          "name": "TENG_B",
+          "name": "KMA_TENG_B",
           "value": 6,
           "doc": "Affinity term from Teng et al. (2000), Fig.6\n"
         },
         {
-          "name": "FRITZ",
+          "name": "KMA_FRITZ",
           "value": 7,
           "doc": "Nucleation affinity term from Fritz et al. (2009), eq 6\n"
         },
         {
-          "name": "OTHER_A",
+          "name": "KMA_OTHER",
           "value": 101
         }
       ]
     },
     {
-      "name": "KineticMethodS",
+      "name": "KineticMethodSSA",
       "doc": "Code of selection of the method of (specific) surface area correction\n",
       "members": [
         {
-          "name": "CONSTANT_SSA",
+          "name": "SSA_CONSTANT",
           "value": 0,
           "doc": "Constant specific surface area\n"
         },
         {
-          "name": "CUBICROOT_SSA",
+          "name": "SSA_CUBICROOT",
           "value": 1,
           "doc": "Cubic root SSA correction\n"
         },
         {
-          "name": "SPHERICITY_SI",
+          "name": "SSA_SPHERICITY_SI",
           "value": 2,
           "doc": "Sphericity factor SSA correction upon saturation index\n"
         },
         {
-          "name": "OTHER_SSA",
+          "name": "SSA_OTHER",
           "value": 101
         }
       ]
     }
   ],
   "typedefs": [
-    {
-      "name": "KineticRates",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "KineticRate"
-        }
-      }
-    }
   ],
   "structs": [
     {
@@ -264,7 +253,12 @@
         {
           "key": 2,
           "name": "sourcekdb",
-          "typeId": "i32",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Source KDB: enum validated with class SourceTDB\n",
           "class": "SourceTDB",
           "required": "required"
@@ -287,100 +281,126 @@
         {
           "key": 5,
           "name": "kinmod",
-          "typeId": "i32",
-          "doc": "Code of kinetic rate model; validated with class KineticModel\n",
           "class": "KineticModel",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Code of kinetic rate model; validate with class KineticModel\n",
           "required": "req_out",
-          "default": 1
+          "default": {
+            "1": "KIN_TST"
+          }
         },
         {
           "key": 6,
           "name": "kintype",
-          "typeId": "i32",
-          "doc": "Code of kinetics type - validated with class KineticType\n",
           "class": "KineticType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Code of kinetics type - validate with class KineticType\n",
           "required": "req_out",
-          "default": 1
+          "default": {
+            "1": "KT_HETE_MIN_AQ"
+          }
         },
         {
           "key": 7,
           "name": "methodT",
-          "typeId": "i32",
+          "class": "KineticMethodT",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Method of temperature correction of rate constant\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "KMT_CONSTANT_T"
+          }
         },
         {
           "key": 8,
           "name": "methodA",
-          "typeId": "i32",
+          "class": "KineticMethodA",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Method of calculation of the affinity term\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "KMA_NONE"
+          }
         },
         {
           "key": 9,
           "name": "methodS",
-          "typeId": "i32",
+          "class": "KineticMethodSSA",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Method of the specific surface area correction\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "SSA_CONSTANT"
+          }
         },
         {
           "key": 11,
-          "name": "rparam_temp",
+          "name": "rate_param_temp",
           "typeId": "struct",
           "type": {
             "typeId": "struct",
             "class": "prop.Item"
           },
           "doc": "4 kinetic rate law parameter coefficients for the arrrhenius part cf. KineticMethodT\n",
-          "required": "req_out",
-          "default": {
-            "name": "kpTc"
-          }
+          "required": "req_out"
         },
         {
           "key": 12,
-          "name": "rparam_activ",
+          "name": "rate_param_activ",
           "typeId": "struct",
           "type": {
             "typeId": "struct",
             "class": "prop.Item"
           },
           "doc": "5 kinetic rate law parameter coefficients for the activity term\n",
-          "required": "req_out",
-          "default": {
-            "name": "kpact"
-          }
+          "required": "req_out"
         },
         {
           "key": 13,
-          "name": "rparam_affin",
+          "name": "rate_param_affin",
           "typeId": "struct",
           "type": {
             "typeId": "struct",
             "class": "prop.Item"
           },
           "doc": "5 kinetic rate law parameter coefficients for the affinity term cf KineticMethodA\n",
-          "required": "req_out",
-          "default": {
-            "name": "kpaff"
-          }
+          "required": "req_out"
         },
         {
           "key": 14,
-          "name": "rparam_ssa",
+          "name": "rate_param_ssa",
           "typeId": "struct",
           "type": {
             "typeId": "struct",
             "class": "prop.Item"
           },
           "doc": "4 kinetic rate law parameter coefficients for specific surface area correction cf KineticMethodS\n",
-          "required": "req_out",
-          "default": {
-            "name": "kpssa"
-          }
+          "required": "req_out"
         },
         {
           "key": 16,
@@ -399,30 +419,22 @@
           "default": 100000
         },
         {
-          "key": 18,
+          "key": 10,
           "name": "limitsTP",
-          "typeId": "map",
+          "typeId": "struct",
           "type": {
-            "typeId": "map",
-            "keyTypeId": "string",
-            "valueTypeId": "double"
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
           },
-          "doc": "Lower and upper T, P limits for T,P corrections\n",
-          "required": "req_out",
-          "default": {
-            "lowerT": 273.15,
-            "upperT": 298.15,
-            "lowerP": 1,
-            "upperP": 1000000
-          }
+          "doc": "Overall lower and upper T, P limits for T,P corrections\n",
+          "required": "req_out"
         },
         {
           "key": 20,
           "name": "comment",
           "typeId": "string",
           "doc": "Comment: e.g. who entered\/modified, ...\n",
-          "required": "optional",
-          "default": "comment"
+          "required": "optional"
         },
         {
           "key": 21,
@@ -445,6 +457,29 @@
           },
           "doc": "Timestamp\n",
           "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "KineticRates",
+      "doc": "Definition of an array of kinetic rates\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "kineticrates",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "KineticRate"
+            }
+          },
+          "doc": "List of chemical kinetic ratess\n",
+          "required": "req_out"
         }
       ]
     }

@@ -95,18 +95,6 @@
     }
   ],
   "typedefs": [
-    {
-      "name": "DataSources",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "DataSource"
-        }
-      }
-    }
   ],
   "structs": [
     {
@@ -146,11 +134,18 @@
         {
           "key": 5,
           "name": "bibliographic_type",
-          "typeId": "i32",
-          "doc": "Bibliographic type, as found in bibtex: enum validated with class BibType\n",
           "class": "BibType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Bibliographic type, as found in bibtex: validate with class BibType\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "ARTICLE"
+          }
         },
         {
           "key": 6,
@@ -366,6 +361,29 @@
           },
           "doc": "List of reference keywords\n",
           "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "DataSources",
+      "doc": "Definition of a list of data sources\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "datasources",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "DataSource"
+            }
+          },
+          "doc": "List of data sources and bibliographic references\n",
+          "required": "req_out"
         }
       ]
     }

@@ -15,217 +15,217 @@
       "doc": "Selection of models of mixing and non-ideal interactions\n",
       "members": [
         {
-          "name": "PURE",
+          "name": "M_PURE",
           "value": 0,
           "doc": "No mixing - this is a pure condensed phase\n"
         },
         {
-          "name": "IDEAL",
+          "name": "M_IDEAL",
           "value": 1,
           "doc": "Ideal mixing (also in sublattice solutions or in ion exchange)\n"
         },
         {
-          "name": "REGULAR",
+          "name": "M_REGULAR",
           "value": 2,
           "doc": "Regular (multicomponent) mixing\n"
         },
         {
-          "name": "MARGULES2",
+          "name": "M_MARGULES2",
           "value": 3,
           "doc": "Margules (binary) subregular\n"
         },
         {
-          "name": "MARGULES3",
+          "name": "M_MARGULES3",
           "value": 4,
           "doc": "Margules (ternary) subregular\n"
         },
         {
-          "name": "REDKIST2",
+          "name": "M_REDKIST2",
           "value": 5,
           "doc": "Redlich-Kister (binary) model\n"
         },
         {
-          "name": "GUGGENHEIM",
+          "name": "M_GUGGENHEIM",
           "value": 6,
           "doc": "Guggenheim (0 to 3rd order) also Redlich-Kister\n"
         },
         {
-          "name": "VANLAAR",
+          "name": "M_VANLAAR",
           "value": 7,
           "doc": "Van Laar mix model (melt, solid solution)\n"
         },
         {
-          "name": "BERMAN",
+          "name": "M_BERMAN",
           "value": 8,
           "doc": "Sublattice mixing after Berman\n"
         },
         {
-          "name": "CEF",
+          "name": "M_CEF",
           "value": 9,
           "doc": "Sublattice mixing after Hillert (Compound Energy Formalism)\n"
         },
         {
-          "name": "WILSON",
+          "name": "M_WILSON",
           "value": 10,
           "doc": "Wilson model of mixing in liquids\n"
         },
         {
-          "name": "VANDERVAALS",
+          "name": "M_VANDERVAALS",
           "value": 11,
           "doc": "Van der Vaals model of mixing\n"
         },
         {
-          "name": "UNIQUAC",
+          "name": "M_UNIQUAC",
           "value": 12,
           "doc": "UNIQUAC non-electrolyte mixing in liquids\n"
         },
         {
-          "name": "NRTL",
+          "name": "M_NRTL",
           "value": 13,
           "doc": "NRTL non-electrolyte mixing in liquids\n"
         },
         {
-          "name": "DONNAN",
+          "name": "M_DONNAN",
           "value": 14,
           "doc": "Donnan volume polyelectrolyte model\n"
         },
         {
-          "name": "NEM",
+          "name": "M_NEM",
           "value": 15,
           "doc": "NEM - non-electrostatic SCM (competitive Langmuir)\n"
         },
         {
-          "name": "CCM",
+          "name": "M_CCM",
           "value": 16,
           "doc": "CCM - constant-capacitance SCM\n"
         },
         {
-          "name": "DLM",
+          "name": "M_DLM",
           "value": 17,
           "doc": "DLM - Diffuse double layer SCM\n"
         },
         {
-          "name": "BSM",
+          "name": "M_BSM",
           "value": 18,
           "doc": "BSM - Basic Stern model SCM\n"
         },
         {
-          "name": "TLM",
+          "name": "M_TLM",
           "value": 19,
           "doc": "TLM - Triple layer model SCM\n"
         },
         {
-          "name": "CD3LM",
+          "name": "M_CD3LM",
           "value": 20,
           "doc": "CD3LM - CD-MUSIC 3-layer SCM\n"
         },
         {
-          "name": "BET",
+          "name": "M_BET",
           "value": 21,
           "doc": "BET - Brunauer-Emmet-Teller adsorption isotherm model\n"
         },
         {
-          "name": "CGFLUID",
+          "name": "M_CGFLUID",
           "value": 22,
           "doc": "Churakov-Gottschalk\n"
         },
         {
-          "name": "PRFLUID",
+          "name": "M_PRFLUID",
           "value": 23,
           "doc": "Peng-Robinson-Stryjek-Vera\n"
         },
         {
-          "name": "PCSFLUID",
+          "name": "M_PCSFLUID",
           "value": 24,
           "doc": "PCSAFT\n"
         },
         {
-          "name": "STPFLUID",
+          "name": "M_STPFLUID",
           "value": 25,
           "doc": "Sterner-Pitzer\n"
         },
         {
-          "name": "PR78FLUID",
+          "name": "M_PR78FLUID",
           "value": 26,
           "doc": "Peng-Robinson 1978\n"
         },
         {
-          "name": "CORKFLUID",
+          "name": "M_CORKFLUID",
           "value": 27,
           "doc": "Compensated Redlich-Kwong\n"
         },
         {
-          "name": "REFLUID",
+          "name": "M_REFLUID",
           "value": 28,
           "doc": "Reference EOS fluid model (TBD)\n"
         },
         {
-          "name": "SRFLUID",
+          "name": "M_SRFLUID",
           "value": 29,
           "doc": "Soave-Redlich-Kwong\n"
         },
         {
-          "name": "AQSIT",
+          "name": "M_AQSIT",
           "value": 30,
           "doc": "Aqueous electrolyte - SIT model\n"
         },
         {
-          "name": "AQPITZER",
+          "name": "M_AQPITZER",
           "value": 31,
           "doc": "Aqueous electrolyte - Pitzer model\n"
         },
         {
-          "name": "AQPITZERHMW",
+          "name": "M_AQPITZERHMW",
           "value": 32,
           "doc": "Aqueous electrolyte - Pitzer HMW model\n"
         },
         {
-          "name": "AQMSE",
+          "name": "M_AQMSE",
           "value": 33,
           "doc": "Mixed-solvent electrolyte model (TBD)\n"
         },
         {
-          "name": "AQEXUQ",
+          "name": "M_AQEXUQ",
           "value": 34,
           "doc": "Extended UNIQUAC (Thomsen)\n"
         },
         {
-          "name": "AQREXUQ",
+          "name": "M_AQREXUQ",
           "value": 35,
           "doc": "Revised extended UNIQUAC (Hingerl et al.)\n"
         },
         {
-          "name": "AQDAVIES",
+          "name": "M_AQDAVIES",
           "value": 36,
           "doc": "Davies (0.3) model, truncated after I = 0.4 m\n"
         },
         {
-          "name": "AQDH1",
+          "name": "M_AQDH1",
           "value": 37,
           "doc": "Debye-Hueckel limiting law\n"
         },
         {
-          "name": "AQDH2",
+          "name": "M_AQDH2",
           "value": 38,
           "doc": "Debye-Hueckel 2-term\n"
         },
         {
-          "name": "AQDH3",
+          "name": "M_AQDH3",
           "value": 39,
           "doc": "Debye-Hueckel 3-term\n"
         },
         {
-          "name": "AQDHH",
+          "name": "M_AQDHH",
           "value": 40,
           "doc": "Debye-Hueckel 3-term (HKF)\n"
         },
         {
-          "name": "AQDHS",
+          "name": "M_AQDHS",
           "value": 41,
           "doc": "Debye-Hueckel 3-term (Shvarov)\n"
         },
         {
-          "name": "OTHER_M",
+          "name": "M_OTHER",
           "value": 101,
           "doc": "Other type of specific-interaction model of mixing\n"
         }
@@ -252,22 +252,22 @@
       "doc": "Code of method of pressure correction of the interaction parameter\n",
       "members": [
         {
-          "name": "CONSTANT_P",
+          "name": "IP_CONSTANT",
           "value": 0,
           "doc": "Constant on P\n"
         },
         {
-          "name": "LINEAR_P",
+          "name": "IP_LINEAR",
           "value": 1,
           "doc": "Linear on P\n"
         },
         {
-          "name": "CUBIC_P",
+          "name": "IP_CUBIC",
           "value": 2,
           "doc": "Cubic on P\n"
         },
         {
-          "name": "OTHER_P",
+          "name": "IP_OTHER",
           "value": 101,
           "doc": "Other on P\n"
         }
@@ -278,27 +278,27 @@
       "doc": "Code of method of temperature correction of the interaction parameter\n",
       "members": [
         {
-          "name": "CONSTANT_T",
+          "name": "IT_CONSTANT",
           "value": 0,
           "doc": "Constant on T\n"
         },
         {
-          "name": "LINEAR_T",
+          "name": "IT_LINEAR",
           "value": 1,
           "doc": "Linear on T\n"
         },
         {
-          "name": "CUBIC_T",
+          "name": "IT_CUBIC",
           "value": 2,
           "doc": "Cubic on T\n"
         },
         {
-          "name": "POLYNOM_T",
+          "name": "IT_POLYNOM",
           "value": 3,
           "doc": "Polynomial with ln on P\n"
         },
         {
-          "name": "OTHER_T",
+          "name": "IT_OTHER",
           "value": 101,
           "doc": "Other on T\n"
         }
@@ -309,17 +309,17 @@
       "doc": "Code of method of ionic strength correction of the interaction parameter\n",
       "members": [
         {
-          "name": "CONSTANT_IS",
+          "name": "IS_CONSTANT",
           "value": 0,
           "doc": "Constant on IS\n"
         },
         {
-          "name": "LINEAR_IS",
+          "name": "IS_LINEAR",
           "value": 1,
           "doc": "Linear on IS\n"
         },
         {
-          "name": "OTHER_IS",
+          "name": "IS_OTHER",
           "value": 101,
           "doc": "Other on IS\n"
         }
@@ -327,18 +327,6 @@
     }
   ],
   "typedefs": [
-    {
-      "name": "Interactions",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "Interaction"
-        }
-      }
-    }
   ],
   "structs": [
     {
@@ -357,7 +345,12 @@
         {
           "key": 2,
           "name": "sourcetdb",
-          "typeId": "i32",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Source TDB: enum validated with class SourceTDB\n",
           "class": "SourceTDB",
           "required": "required"
@@ -380,20 +373,33 @@
         {
           "key": 5,
           "name": "mixmod",
-          "typeId": "i32",
-          "doc": "Code of model of mixing - validated with class MixModel\n",
           "class": "MixModel",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Code of model of mixing - validate with class MixModel\n",
           "required": "req_out",
-          "default": 1
+          "default": {
+            "1": "M_IDEAL"
+          }
         },
         {
           "key": 6,
           "name": "intpart",
-          "typeId": "i32",
-          "doc": "Code of interaction parameter type - validated with class InteractionType\n",
-          "class": "InteractionType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Code of interaction parameter type - validate with class InteractionType\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "TYPICAL"
+          }
         },
         {
           "key": 7,
@@ -419,61 +425,74 @@
             "typeId": "struct",
             "class": "prop.Item"
           },
-          "doc": "Interaction parameter coefficients - interpreted by model and methos codes below\n",
-          "required": "req_out",
-          "default": {
-            "name": "IPc"
-          }
+          "doc": "Interaction parameter coefficients - interpreted by model and method codes below\n",
+          "required": "req_out"
         },
         {
           "key": 14,
           "name": "methodT",
-          "typeId": "i32",
+          "class": "ipMethodT",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Method of temperature correction of interaction properties\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "IT_CONSTANT"
+          }
         },
         {
           "key": 15,
           "name": "methodP",
-          "typeId": "i32",
+          "class": "ipMethodP",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
           "doc": "Method of pressure correction of interaction properties\n",
           "required": "req_out",
-          "default": 0
+          "default": {
+            "0": "IP_CONSTANT"
+          }
         },
         {
           "key": 16,
           "name": "methodI",
-          "typeId": "i32",
-          "doc": "Method of ionic strength correction\n",
-          "required": "req_out",
-          "default": 0
-        },
-        {
-          "key": 17,
-          "name": "limitsTP",
+          "class": "ipMethodIS",
           "typeId": "map",
           "type": {
             "typeId": "map",
-            "keyTypeId": "string",
-            "valueTypeId": "double"
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
           },
-          "doc": "Lower and upper T, P limits for T,P corrections\n",
+          "doc": "Method of ionic strength correction\n",
           "required": "req_out",
           "default": {
-            "lowerT": 273.15,
-            "upperT": 298.15,
-            "lowerP": 1,
-            "upperP": 1000000
+            "0": "IS_CONSTANT"
           }
+        },
+        {
+          "key": 22,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "Overall T,P limits for all methods involved\n",
+          "required": "req_out"
         },
         {
           "key": 18,
           "name": "comment",
           "typeId": "string",
           "doc": "Comment: e.g. who entered\/modified, ...\n",
-          "required": "optional",
-          "default": "comment"
+          "required": "optional"
         },
         {
           "key": 19,
@@ -496,6 +515,29 @@
           },
           "doc": "Timestamp\n",
           "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Interactions",
+      "doc": "Definition of an array of interactions\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "interactions",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "Interaction"
+            }
+          },
+          "doc": "List of interactions in activity models\n",
+          "required": "req_out"
         }
       ]
     }

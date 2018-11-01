@@ -17,22 +17,22 @@
       "doc": "classes (types) of thermodynamic datasets\n",
       "members": [
         {
-          "name": "REF_TDS",
+          "name": "TDS_REF",
           "value": 0,
           "doc": "Reference thermodynamic dataset (e.g. CODATA, mainly for .csv export)\n"
         },
         {
-          "name": "LMA_TDS",
+          "name": "TDS_LMA",
           "value": 1,
           "doc": "LMA-type thermodynamic dataset\n"
         },
         {
-          "name": "GEM_TDS",
+          "name": "TDS_GEM",
           "value": 2,
           "doc": "GEM-type thermodynamic dataset\n"
         },
         {
-          "name": "OTHER_TDS",
+          "name": "TDS_OTHER",
           "value": 101,
           "doc": "therodynamic dataset of other type\n"
         }
@@ -40,18 +40,6 @@
     }
   ],
   "typedefs": [
-    {
-      "name": "ThermoDataSets",
-      "typeId": "list",
-      "type": {
-        "typeId": "list",
-        "elemTypeId": "struct",
-        "elemType": {
-          "typeId": "struct",
-          "class": "ThermoDataSet"
-        }
-      }
-    },
     {
       "name": "elementdata",
       "typeId": "struct",
@@ -110,11 +98,18 @@
         {
           "key": 2,
           "name": "stype",
-          "typeId": "i32",
-          "doc": "Type of thermodataset - validated with class ThermoDataSetType\n",
           "class": "ThermoDataSetType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of thermodataset - validate with class ThermoDataSetType\n",
           "required": "required",
-          "default": 2
+          "default": {
+            "2": "TDS_GEM"
+          }
         },
         {
           "key": 3,
@@ -145,7 +140,6 @@
         {
           "key": 6,
           "name": "species_map",
-          "class": "SpeciesTypeRS",
           "typeId": "map",
           "type": {
             "typeId": "map",
@@ -165,16 +159,17 @@
             "keyTypeId": "string",
             "valueTypeId": "i32"
           },
-          "doc": "Symbol of reactionset used by this thermodataset if of LMA_TDS type\n",
+          "doc": "Symbol of reactionsets used by this thermodataset if of LMA_TDS type\n",
           "required": "optional"
         },
         {
           "key": 8,
           "name": "sourcetdbs",
-          "typeId": "list",
+          "typeId": "map",
           "type": {
-            "typeId": "list",
-            "elemTypeId": "i32"
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
           },
           "doc": "Source TDB: list of enums validated with the class SourceTDB\n",
           "class": "SourceTDB",
@@ -198,18 +193,18 @@
         {
           "key": 10,
           "name": "limitsTP",
-          "typeId": "map",
+          "typeId": "struct",
           "type": {
-            "typeId": "map",
-            "keyTypeId": "string",
-            "valueTypeId": "double"
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
           },
-          "doc": "Lower and upper T, P limits for T,P corrections\n",
+          "doc": "Overall lower and upper T, P limits for T,P corrections\n",
           "required": "req_out",
           "default": {
+            "range": 0,
             "lowerT": 273.15,
             "upperT": 298.15,
-            "lowerP": 1,
+            "lowerP": 0.1,
             "upperP": 1000000
           }
         },
@@ -241,6 +236,29 @@
           },
           "doc": "Timestamp\n",
           "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ThermoDataSets",
+      "doc": "Definition of an array of thermodata sets\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "thermodatasets",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ThermoDataSet"
+            }
+          },
+          "doc": "List of thermodata sets\n",
+          "required": "req_out"
         }
       ]
     },

@@ -1,17 +1,14 @@
 {
-  "name": "phase",
+  "name": "kineticmodel",
   "doc": "Apache Thrift IDL definition for the phase service interface\n",
   "namespaces": {
-    "*": "phase"
+    "*": "kineticmodel"
   },
   "includes": [
 "prop",
 "element",
 "substance",
-"interaction",
-"mixingmodel",
-"kineticrate",
-"kineticmodel"
+"kineticrate"
   ],
   "enums": [
   ],
@@ -19,7 +16,7 @@
   ],
   "structs": [
     {
-      "name": "Phase",
+      "name": "KineticModel",
       "doc": "Description of (thermodynamic) phase\n",
       "isException": false,
       "isUnion": false,
@@ -34,7 +31,6 @@
         {
           "key": 2,
           "name": "sourcetdb",
-          "class": "SourceTDB",
           "typeId": "map",
           "type": {
             "typeId": "map",
@@ -61,7 +57,6 @@
         {
           "key": 5,
           "name": "aggregate_state",
-          "class": "AggregateState",
           "typeId": "map",
           "type": {
             "typeId": "map",
@@ -70,22 +65,6 @@
           },
           "doc": "Aggregate state of this phase: enum validated with class AggregateState\n",
           "required": "req_out"
-        },
-        {
-          "key": 6,
-          "name": "mixmod",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "i32",
-            "valueTypeId": "string"
-          },
-          "doc": "Model of mixing - validate using class MixModel in interaction\n",
-          "class": "MixModel",
-          "required": "req_out",
-          "default": {
-            "0": "M_PURE"
-          }
         },
         {
           "key": 7,
@@ -97,14 +76,13 @@
             "valueTypeId": "string"
           },
           "doc": "Kinetic rate model - validate using class RateModel in kineticrate\n",
-          "class": "RateModel",
           "required": "req_out",
           "default": {
             "0": "KIN_INSTANT"
           }
         },
         {
-          "key": 11,
+          "key": 8,
           "name": "associatedProperties",
           "typeId": "list",
           "type": {
@@ -119,7 +97,7 @@
           "required": "req_out"
         },
         {
-          "key": 13,
+          "key": 9,
           "name": "associatedPropertiesExpressions",
           "typeId": "list",
           "type": {
@@ -130,7 +108,7 @@
           "required": "req_out"
         },
         {
-          "key": 15,
+          "key": 10,
           "name": "SpecSurfaceArea",
           "typeId": "struct",
           "type": {
@@ -141,7 +119,18 @@
           "required": "req_out"
         },
         {
-          "key": 16,
+          "key": 11,
+          "name": "SpecInterfaceEnergy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "SigmaA surface energy of solid-aqueous interface and other interfaces\n",
+          "required": "req_out"
+        },
+        {
+          "key": 13,
           "name": "SpecPoreVolume",
           "typeId": "struct",
           "type": {
@@ -149,6 +138,28 @@
             "class": "prop.Item"
           },
           "doc": "new: Specific pore volume of (carrier) phase, m3\/g (default: 0)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "SurfaceAreaFraction",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "new: fraction of surface area of the sorbent (ref. in lPh) occupied by this surface tile (def. 1)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 15,
+          "name": "PoreVolumeFraction",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "new: fraction of phase pore volume occupied by this Donnan electrolyte (default 1)\n",
           "required": "req_out"
         },
         {
@@ -196,7 +207,7 @@
               "class": "element.ElementInfo"
             }
           },
-          "doc": "Set of elements (IComps) represented in all components of the phase\n",
+          "doc": "Set of elements (IComps) represented in all components in kinmod\n",
           "required": "req_out"
         },
         {
@@ -211,19 +222,41 @@
               "class": "substance.SubstanceInfo"
             }
           },
-          "doc": "Set of substances (components, end members) of the phase\n",
+          "doc": "Set of substances (components, end members) in kinmod\n",
           "required": "req_out"
         },
         {
           "key": 25,
-          "name": "Ncomps",
-          "typeId": "i32",
-          "doc": "Number of phase components incl solvents\n",
-          "required": "req_out",
-          "default": 1
+          "name": "kineticrates",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "kineticrate.KineticRate"
+            }
+          },
+          "doc": "Full Set of kinetic rate laws covered by this kinetic model\n",
+          "required": "req_out"
         },
         {
           "key": 27,
+          "name": "KinRateComponentProps",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "prop.Item"
+            }
+          },
+          "doc": "optional array: properties of phase components used in the model of mixing\n",
+          "required": "req_out"
+        },
+        {
+          "key": 31,
           "name": "limitsTP",
           "typeId": "struct",
           "type": {
@@ -241,14 +274,14 @@
           }
         },
         {
-          "key": 28,
+          "key": 32,
           "name": "comment",
           "typeId": "string",
           "doc": "Comment - e.g. who entered\/modified, ...\n",
           "required": "optional"
         },
         {
-          "key": 29,
+          "key": 33,
           "name": "datasources",
           "typeId": "set",
           "type": {
@@ -259,7 +292,7 @@
           "required": "optional"
         },
         {
-          "key": 30,
+          "key": 34,
           "name": "time_stamp",
           "typeId": "struct",
           "type": {
@@ -272,76 +305,7 @@
       ]
     },
     {
-      "name": "Phases",
-      "doc": "Definition of an array of phases\n",
-      "isException": false,
-      "isUnion": false,
-      "fields": [
-        {
-          "key": 2,
-          "name": "phases",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "Phase"
-            }
-          },
-          "doc": "List of chemical thermodynamic phases\n",
-          "required": "req_out"
-        }
-      ]
-    },
-    {
-      "name": "PhaseInfo",
-      "doc": "Short description of phase (for using in ChemSysDef etc.)\n",
-      "isException": false,
-      "isUnion": false,
-      "fields": [
-        {
-          "key": 1,
-          "name": "symbol",
-          "typeId": "string",
-          "doc": "unique name\/ID of this phase (e.g. \"bentpw\")\n",
-          "required": "required"
-        },
-        {
-          "key": 2,
-          "name": "aggregate_state",
-          "typeId": "i32",
-          "doc": "Aggregate state of this phase: enum validated with class AggregateState\n",
-          "class": "AggregateState",          
-          "required": "req_out"
-        },
-        {
-          "key": 3,
-          "name": "mixmod",
-          "typeId": "i32",
-          "doc": "Model of mixing - validate using class MixModel in interaction\n",
-          "class": "MixModel",
-          "required": "req_out"
-        },
-        {
-          "key": 4,
-          "name": "kinratemod",
-          "typeId": "i32",
-          "doc": "Kinetic rate model - validate using class RateModel in kineticrate\n",
-          "class": "RateModel",
-          "required": "req_out"
-        },
-        {
-          "key": 5,
-          "name": "Ncomps",
-          "typeId": "i32",
-          "doc": "Number of phase components incl solvents\n",
-          "required": "req_out"
-        }
-      ]
-    },
-    {
-      "name": "pcdata",
+      "name": "kmpcdata",
       "doc": "Data extracted from a substance connected to the phase via components edges\n",
       "isException": false,
       "isUnion": false,
@@ -385,7 +349,7 @@
       ]
     },
     {
-      "name": "psmdata",
+      "name": "kmpsmdata",
       "doc": "Data extracted from a substance\/moiety connected to the phase via sitemoieties edges\n",
       "isException": false,
       "isUnion": false,
@@ -417,109 +381,60 @@
       ]
     },
     {
-      "name": "phasedata",
-      "doc": "Work structure keeping the data to assemble\/check\/calculate the phase\n",
+      "name": "kmkrdata",
+      "doc": "Data extracted from a kineticrate connected to kinmodel via kinmodips edges\n",
       "isException": false,
       "isUnion": false,
       "fields": [
         {
           "key": 1,
-          "name": "Nelems",
-          "typeId": "i16",
-          "required": "req_out"
-        },
-        {
-          "key": 2,
-          "name": "elems",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "string"
-          },
+          "name": "krtype",
+          "typeId": "string",
           "required": "req_out"
         },
         {
           "key": 3,
-          "name": "Ncomps",
-          "typeId": "i16",
-          "required": "req_out"
+          "name": "interid",
+          "typeId": "i32",
+          "required": "optional"
         },
         {
           "key": 4,
-          "name": "ctype",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "string"
-          },
-          "required": "req_out"
+          "name": "symbol",
+          "typeId": "string",
+          "required": "optional"
         },
         {
           "key": 5,
-          "name": "comps",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "pcdata"
-            }
-          },
-          "required": "req_out"
+          "name": "order",
+          "typeId": "i32",
+          "required": "optional"
         },
         {
           "key": 6,
-          "name": "Nsites",
-          "typeId": "i16",
-          "required": "req_out"
-        },
-        {
-          "key": 7,
-          "name": "sites",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "string"
-          },
-          "required": "req_out"
+          "name": "Nkrc",
+          "typeId": "i32",
+          "required": "optional"
         },
         {
           "key": 8,
-          "name": "smult",
+          "name": "krindx",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "required": "optional"
+        },
+        {
+          "key": 9,
+          "name": "krpc",
           "typeId": "list",
           "type": {
             "typeId": "list",
             "elemTypeId": "double"
           },
-          "required": "req_out"
-        },
-        {
-          "key": 9,
-          "name": "Nsmois",
-          "typeId": "i16",
-          "required": "req_out"
-        },
-        {
-          "key": 10,
-          "name": "smois",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "psmdata"
-            }
-          },
-          "required": "req_out"
-        },
-        {
-          "key": 21,
-          "name": "computed",
-          "typeId": "bool",
-          "required": "req_out",
-          "default": 0
+          "required": "optional"
         }
       ]
     }

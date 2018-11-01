@@ -1,124 +1,197 @@
 {
-     "block" :   {
-          "defaults" :   {
-               "properties.sourcetdb" :   "12",
-               "properties.method_genEoS" :   "100",
-               "properties.method_corrT" :   "200",
-               "properties.method_corrP" :   "300",
-               "properties.aggregate_state" :   "4",
-               "properties.class_" :   "2",
-               "properties.Tst" :   "298.15",
-               "properties.Pst" :   "1.0e5",
-               "properties.standard_cscale" :   "3",
-               "properties.m_gibbs_energy_polynom.values" :   "[0,0,0,0,0,0,0]",
-               "properties.m_heat_capacity_p_t_coeffs.values" :   "[0,0,0,0,0,0,0]"
-          },
-          "pairs" :   {
-
-          },
-          "matches" :   {
-               "symbol" :   {
-                    "field" :   "properties.symbol"
-               },
-               "Declaration.charge" :   {
-                    "field" :   "properties.formula_charge"
-               },
-               "Declaration.molarmass" :   {
-                    "field" :   "properties.mass_per_mole"
-               },
-               "DataStandard.0.datatype" :   {
-                    "field" :   "properties.sm_gibbs_energy.name"
-               },
-               "DataStandard.0.value" :   {
-                    "field" :   "properties.sm_gibbs_energy.values"
-               },
-               "DataStandard.1.datatype" :   {
-                    "field" :   "properties.sm_enthalpy.name"
-               },
-               "DataStandard.1.value" :   {
-                    "field" :   "properties.sm_enthalpy.values"
-               },
-               "DataStandard.2.datatype" :   {
-                    "field" :   "properties.sm_entropy_abs.name"
-               },
-               "DataStandard.2.value" :   {
-                    "field" :   "properties.sm_entropy_abs.values"
-               },
-               "DataStandard.3.datatype" :   {
-                    "field" :   "properties.sm_heat_capacity_p.name"
-               },
-               "DataStandard.3.value" :   {
-                    "field" :   "properties.sm_heat_capacity_p.values"
-               },
-               "DataVariable.0.datatype" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.name"
-               },
-               "DataVariable.0.tpfunc" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.comment"
-               },
-               "DataVariable.0.a" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.values.0"
-               },
-               "DataVariable.0.b" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.values.1"
-               },
-               "DataVariable.0.c" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.values.2"
-               },
-               "DataVariable.0.d" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.values.3"
-               },
-               "DataVariable.0.e" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.values.4"
-               },
-               "DataVariable.0.f" :   {
-                    "field" :   "properties.m_gibbs_energy_polynom.values.5"
-               },
-               "DataVariable.0.mintk" :   {
-                    "field" :   "properties.limitsTP.lowerT"
-               },
-               "DataVariable.0.maxtk" :   {
-                    "field" :   "properties.limitsTP.upperT"
-               },
-               "DataVariable.0.minpbar" :   {
-                    "field" :   "properties.limitsTP.lowerP",
-                    "script" :   "field = field * 1e05;"
-               },
-               "DataVariable.0.maxpbar" :   {
-                    "field" :   "properties.limitsTP.upperP",
-                    "script" :   "field = field * 1e05;"
-               },
-               "DataVariable.1.datatype" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.name"
-               },
-               "DataVariable.1.tpfunc" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.comment"
-               },
-               "DataVariable.1.a" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values.0"
-               },
-               "DataVariable.1.b" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values.1"
-               },
-               "DataVariable.1.c" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values.2"
-               },
-               "DataVariable.1.d" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values.3"
-               },
-               "DataVariable.1.e" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values.4"
-               },
-               "DataVariable.1.f" :   {
-                    "field" :   "properties.m_heat_capacity_p_t_coeffs.values.5"
-               }
-          },
-          "script" :   "rintable.properties.formula = rintable.properties.symbol;rintable.properties.name = rintable.properties.symbol;"
-     },
-     "renderer" :   "JSON",
-     "label" :   "VertexSubstance",
-     "comment" :   "",
-     "fname" :   "",
-     "Nblocks" :   0,
-     "Nlines" :   0
+    "block": {
+        "defaults": {
+            "properties.sourcetdb": "{\"12\" :   \"THEREDA\"}",
+            "properties.aggregate_state": "{\"4\" :   \"AS_AQUEOUS\"}",
+            "properties.class_": "{\"2\" :   \"SC_AQSOLUTE\"}",
+            "properties.sm_gibbs_energy": "{\"units\": [\"J/mol\"]}",
+            "properties.sm_enthalpy": "{\"units\": [\"J/mol\"]}",
+            "properties.sm_entropy_abs": "{\"units\": [\"J/(mol*K)\"]}",
+            "properties.sm_heat_capacity_p": "{\"units\": [\"J/(mol*K)\"]}",
+            "properties.sm_gibbs_energy.datasources": "[\"\",\"\"]",
+            "properties.sm_enthalpy.datasources": "[\"\",\"\"]",
+            "properties.sm_entropy_abs.datasources": "[\"\",\"\"]",
+            "properties.sm_heat_capacity_p.datasources": "[\"\",\"\"]",
+            "properties.sm_gibbs_energy.status": "[{\"4\" :   \"IMPORTED\"}]",
+            "properties.sm_enthalpy.status": "[{\"4\" :   \"IMPORTED\"}]",
+            "properties.sm_entropy_abs.status": "[{\"4\" :   \"IMPORTED\"}]",
+            "properties.sm_heat_capacity_p.status": "[{\"4\" :   \"IMPORTED\"}]",
+            "properties.Tst": "298.15",
+            "properties.Pst": "1.0e5",
+        },
+        "pairs": {},
+        "matches": {
+            "symbol": {
+                "field": "properties.symbol"
+            },
+            "Declaration.charge": {
+                "field": "properties.formula_charge"
+            },
+            "Declaration.molarmass": {
+                "field": "properties.mass_per_mole"
+            },
+            "DataStandard.0.datatype": {
+                "field": "properties.sm_gibbs_energy.name"
+            },
+            "DataStandard.0.value": {
+                "field": "properties.sm_gibbs_energy.values"
+            },
+            "DataStandard.0.positiveunc": {
+                "field": "properties.sm_gibbs_energy.errors"
+            },
+            "DataStandard.0.reference_1": {
+                "field": "properties.sm_gibbs_energy.datasources.0"
+            },
+            "DataStandard.0.reference_2": {
+                "field": "properties.sm_gibbs_energy.datasources.1"
+            },
+            "DataStandard.0.unctype": {
+                "field": "properties.sm_gibbs_energy.errortypes",
+                "convert": {
+                    "Gauss2s": "{\"0\" :   \"NORMAL\"}"
+                }
+            },
+            "DataStandard.1.datatype": {
+                "field": "properties.sm_enthalpy.name"
+            },
+            "DataStandard.1.value": {
+                "field": "properties.sm_enthalpy.values"
+            },
+            "DataStandard.1.positiveunc": {
+                "field": "properties.sm_enthalpy.errors"
+            },
+            "DataStandard.1.reference_1": {
+                "field": "properties.sm_enthalpy.datasources.0"
+            },
+            "DataStandard.1.reference_2": {
+                "field": "properties.sm_enthalpy.datasources.1"
+            },
+            "DataStandard.1.unctype": {
+                "field": "properties.sm_enthalpy.errortypes",
+                "convert": {
+                    "Gauss2s": "{\"0\" :   \"NORMAL\"}"
+                }
+            },
+            "DataStandard.2.datatype": {
+                "field": "properties.sm_entropy_abs.name"
+            },
+            "DataStandard.2.value": {
+                "field": "properties.sm_entropy_abs.values"
+            },
+            "DataStandard.2.positiveunc": {
+                "field": "properties.sm_entropy_abs.errors"
+            },
+            "DataStandard.2.reference_1": {
+                "field": "properties.sm_entropy_abs.datasources.0"
+            },
+            "DataStandard.2.reference_2": {
+                "field": "properties.sm_entropy_abs.datasources.1"
+            },
+            "DataStandard.2.unctype": {
+                "field": "properties.sm_entropy_abs.errortypes",
+                "convert": {
+                    "Gauss2s": "{\"0\" :   \"NORMAL\"}"
+                }
+            },
+            "DataStandard.3.datatype": {
+                "field": "properties.sm_heat_capacity_p.name"
+            },
+            "DataStandard.3.value": {
+                "field": "properties.sm_heat_capacity_p.values"
+            },
+            "DataStandard.3.positiveunc": {
+                "field": "properties.sm_heat_capacity_p.errors"
+            },
+            "DataStandard.3.reference_1": {
+                "field": "properties.sm_heat_capacity_p.datasources.0"
+            },
+            "DataStandard.3.reference_2": {
+                "field": "properties.sm_heat_capacity_p.datasources.1"
+            },
+            "DataStandard.3.unctype": {
+                "field": "properties.sm_heat_capacity_p.errortypes",
+                "convert": {
+                    "Gauss2s": "{\"0\" :   \"NORMAL\"}"
+                }
+            },
+            "DataStandard.4.datatype": {
+                "field": "properties.sm_volume.name"
+            },
+            "DataStandard.4.value": {
+                "field": "properties.sm_volume.values"
+            },
+            "DataStandard.4.positiveunc": {
+                "field": "properties.sm_volume.errors"
+            },
+            "DataStandard.4.reference_1": {
+                "field": "properties.sm_volume.datasources.0"
+            },
+            "DataStandard.4.reference_2": {
+                "field": "properties.sm_volume.datasources.1"
+            },
+            "DataStandard.4.unctype": {
+                "field": "properties.sm_volume.errortypes",
+                "convert": {
+                    "Gauss2s": "{\"0\" :   \"NORMAL\"}"
+                }
+            },
+            "DataVariable.0.datatype": {
+                "field": "properties.TPMethods.0",
+                "convert": {
+                    "DFGT": "{\"method\" :{\"0\" :   \"cp_ft_equation\"}, \"m_heat_capacity_ft_coeffs\" :{\"values\" : [0,0,0,0,0,0]}}"
+                }
+            },
+            "DataVariable.0.mintk": {
+                "field": "properties.TPMethods.0.limitsTP.lowerT"
+            },
+            "DataVariable.0.maxtk": {
+                "field": "properties.TPMethods.0.limitsTP.upperT"
+            },
+            "DataVariable.0.minpbar": {
+                "field": "properties.TPMethods.0.limitsTP.lowerP",
+                "script": "field = field*1e05;"
+            },
+            "DataVariable.0.maxpbar": {
+                "field": "properties.TPMethods.0.limitsTP.upperP",
+                "script": "field = field*1e05;"
+            },
+            "DataVariable.0.a": {
+                "field": "properties.TPMethods.0.m_heat_capacity_ft_coeffs.values.0"
+            },
+            "DataVariable.0.b": {
+                "field": "properties.TPMethods.0.m_heat_capacity_ft_coeffs.values.1"
+            },
+            "DataVariable.0.c": {
+                "field": "properties.TPMethods.0.m_heat_capacity_ft_coeffs.values.2"
+            },
+            "DataVariable.0.d": {
+                "field": "properties.TPMethods.0.m_heat_capacity_ft_coeffs.values.3"
+            },
+            "DataVariable.0.e": {
+                "field": "properties.TPMethods.0.m_heat_capacity_ft_coeffs.values.4"
+            },
+            "DataVariable.0.f": {
+                "field": "properties.TPMethods.0.m_heat_capacity_ft_coeffs.values.5"
+            }
+        },
+        "script":   "formula = rintable.properties.symbol;
+formula = string.gsub(formula, '<(%d*)->',  '-%1' );
+formula = string.gsub(formula, '<(%d*)+>',  '+%1' );
+formula = string.gsub(formula, '<0>',  '@' );
+formula = string.gsub(formula, '%(l%)',  '@' );
+formula = string.gsub(formula, '%(g%)',  '' );
+formula = string.gsub(formula, '^O2(@?)$',  'O|0|2%1' );
+formula = string.gsub(formula, '^H2(@?)$',  'H|0|2%1' );
+rintable.properties.formula = formula;
+rintable.properties.name = rintable.properties.symbol;
+print(rintable.properties.TPMethods[
+            1
+        ]);"
+    },
+    "renderer": "JSON",
+    "label": "VertexSubstance",
+    "comment": "",
+    "fname": "",
+    "Nblocks": 0,
+    "Nlines": 0
 }
