@@ -49,7 +49,25 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
     set<ElementKey> elements;
     string jsonrecord = getJsonRecordVertex(idthermo);
     auto domdata = jsonio::unpackJson( jsonrecord );
-    ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
+
+    // query elements
+    vector<string> jElements;
+    string qrAQL = "FOR v,e  IN 1..1 INBOUND '" + idthermo + "' \n";
+           qrAQL +=  "basis";
+           qrAQL +=  "\n  FILTER v._label == 'element' ";
+           qrAQL += "\nRETURN DISTINCT v";
+
+    jElements =  getDB()->runQuery( DBQueryData( qrAQL, DBQueryData::qAQL ) );
+
+    string prop;
+    for (auto jel : jElements)
+    {
+        ElementKey elem("");
+        jsonio::unpackJson(jel)->findValue("properties", prop);
+        elem.fromJsonNode(jsonio::unpackJson(prop).get());
+        elements.insert(elem);
+    }
+    //ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
 
     // if user fogot tnsert elements property
     if( elements.empty() )
@@ -62,7 +80,7 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
 
 vector<string> ThermoSetData::getSubstanceFormulas( const string& idthermo )
 {
-    string qrAQL = "FOR v,e  IN 1..5 INBOUND " + idthermo + " \n";
+    string qrAQL = "FOR v,e  IN 1..5 INBOUND '" + idthermo + "' \n";
            qrAQL +=  ThermoDataSetQueryEdges;
            qrAQL +=  "\n  FILTER v._label == 'substance' ";
            qrAQL += "\nRETURN DISTINCT v.properties.formula";

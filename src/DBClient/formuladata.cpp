@@ -71,6 +71,7 @@ string ElementKey::getSymbol() const
 }
 
 // Writes data to json
+/// NOT CORRECT!!!
 void ElementKey::toJsonNode( jsonio::JsonDom *object ) const
 {
     object->appendString( "symbol", symbol );
@@ -87,8 +88,15 @@ void ElementKey::fromJsonNode( const jsonio::JsonDom *object )
         jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
     if(!object->findValue( "isotope_mass", isotope ) )
         isotope = 0;
-    if(!object->findValue(  "class_", class_ ) )
+    if (symbol == "Zz")
+    {
+        auto c = 1;
+    }
+    std::map<std::string, int> map_;
+    if(!object->findObject("class_", map_ ) )
         class_ = 0;
+    else
+        class_ = atoi(map_.begin()->first.c_str());
 }
 
 void ElementsToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements )
