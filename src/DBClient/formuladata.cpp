@@ -88,10 +88,6 @@ void ElementKey::fromJsonNode( const jsonio::JsonDom *object )
         jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
     if(!object->findValue( "isotope_mass", isotope ) )
         isotope = 0;
-    if (symbol == "Zz")
-    {
-        auto c = 1;
-    }
     std::map<std::string, int> map_;
     if(!object->findObject("class_", map_ ) )
         class_ = 0;
