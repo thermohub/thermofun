@@ -1,0 +1,583 @@
+{
+  "name": "interaction",
+  "doc": "Apache Thrift IDL definition for the interaction service interface\n",
+  "namespaces": {
+    "*": "interaction"
+  },
+  "includes": [
+"prop",
+"element",
+"substance"
+  ],
+  "enums": [
+    {
+      "name": "MixModel",
+      "doc": "Selection of models of mixing and non-ideal interactions\n",
+      "members": [
+        {
+          "name": "M_PURE",
+          "value": 0,
+          "doc": "No mixing - this is a pure condensed phase\n"
+        },
+        {
+          "name": "M_IDEAL",
+          "value": 1,
+          "doc": "Ideal mixing (also in sublattice solutions or in ion exchange)\n"
+        },
+        {
+          "name": "M_REGULAR",
+          "value": 2,
+          "doc": "Regular (multicomponent) mixing\n"
+        },
+        {
+          "name": "M_MARGULES2",
+          "value": 3,
+          "doc": "Margules (binary) subregular\n"
+        },
+        {
+          "name": "M_MARGULES3",
+          "value": 4,
+          "doc": "Margules (ternary) subregular\n"
+        },
+        {
+          "name": "M_REDKIST2",
+          "value": 5,
+          "doc": "Redlich-Kister (binary) model\n"
+        },
+        {
+          "name": "M_GUGGENHEIM",
+          "value": 6,
+          "doc": "Guggenheim (0 to 3rd order) also Redlich-Kister\n"
+        },
+        {
+          "name": "M_VANLAAR",
+          "value": 7,
+          "doc": "Van Laar mix model (melt, solid solution)\n"
+        },
+        {
+          "name": "M_BERMAN",
+          "value": 8,
+          "doc": "Sublattice mixing after Berman\n"
+        },
+        {
+          "name": "M_CEF",
+          "value": 9,
+          "doc": "Sublattice mixing after Hillert (Compound Energy Formalism)\n"
+        },
+        {
+          "name": "M_WILSON",
+          "value": 10,
+          "doc": "Wilson model of mixing in liquids\n"
+        },
+        {
+          "name": "M_VANDERVAALS",
+          "value": 11,
+          "doc": "Van der Vaals model of mixing\n"
+        },
+        {
+          "name": "M_UNIQUAC",
+          "value": 12,
+          "doc": "UNIQUAC non-electrolyte mixing in liquids\n"
+        },
+        {
+          "name": "M_NRTL",
+          "value": 13,
+          "doc": "NRTL non-electrolyte mixing in liquids\n"
+        },
+        {
+          "name": "M_DONNAN",
+          "value": 14,
+          "doc": "Donnan volume polyelectrolyte model\n"
+        },
+        {
+          "name": "M_NEM",
+          "value": 15,
+          "doc": "NEM - non-electrostatic SCM (competitive Langmuir)\n"
+        },
+        {
+          "name": "M_CCM",
+          "value": 16,
+          "doc": "CCM - constant-capacitance SCM\n"
+        },
+        {
+          "name": "M_DLM",
+          "value": 17,
+          "doc": "DLM - Diffuse double layer SCM\n"
+        },
+        {
+          "name": "M_BSM",
+          "value": 18,
+          "doc": "BSM - Basic Stern model SCM\n"
+        },
+        {
+          "name": "M_TLM",
+          "value": 19,
+          "doc": "TLM - Triple layer model SCM\n"
+        },
+        {
+          "name": "M_CD3LM",
+          "value": 20,
+          "doc": "CD3LM - CD-MUSIC 3-layer SCM\n"
+        },
+        {
+          "name": "M_BET",
+          "value": 21,
+          "doc": "BET - Brunauer-Emmet-Teller adsorption isotherm model\n"
+        },
+        {
+          "name": "M_CGFLUID",
+          "value": 22,
+          "doc": "Churakov-Gottschalk\n"
+        },
+        {
+          "name": "M_PRFLUID",
+          "value": 23,
+          "doc": "Peng-Robinson-Stryjek-Vera\n"
+        },
+        {
+          "name": "M_PCSFLUID",
+          "value": 24,
+          "doc": "PCSAFT\n"
+        },
+        {
+          "name": "M_STPFLUID",
+          "value": 25,
+          "doc": "Sterner-Pitzer\n"
+        },
+        {
+          "name": "M_PR78FLUID",
+          "value": 26,
+          "doc": "Peng-Robinson 1978\n"
+        },
+        {
+          "name": "M_CORKFLUID",
+          "value": 27,
+          "doc": "Compensated Redlich-Kwong\n"
+        },
+        {
+          "name": "M_REFLUID",
+          "value": 28,
+          "doc": "Reference EOS fluid model (TBD)\n"
+        },
+        {
+          "name": "M_SRFLUID",
+          "value": 29,
+          "doc": "Soave-Redlich-Kwong\n"
+        },
+        {
+          "name": "M_AQSIT",
+          "value": 30,
+          "doc": "Aqueous electrolyte - SIT model\n"
+        },
+        {
+          "name": "M_AQPITZER",
+          "value": 31,
+          "doc": "Aqueous electrolyte - Pitzer model\n"
+        },
+        {
+          "name": "M_AQPITZERHMW",
+          "value": 32,
+          "doc": "Aqueous electrolyte - Pitzer HMW model\n"
+        },
+        {
+          "name": "M_AQMSE",
+          "value": 33,
+          "doc": "Mixed-solvent electrolyte model (TBD)\n"
+        },
+        {
+          "name": "M_AQEXUQ",
+          "value": 34,
+          "doc": "Extended UNIQUAC (Thomsen)\n"
+        },
+        {
+          "name": "M_AQREXUQ",
+          "value": 35,
+          "doc": "Revised extended UNIQUAC (Hingerl et al.)\n"
+        },
+        {
+          "name": "M_AQDAVIES",
+          "value": 36,
+          "doc": "Davies (0.3) model, truncated after I = 0.4 m\n"
+        },
+        {
+          "name": "M_AQDH1",
+          "value": 37,
+          "doc": "Debye-Hueckel limiting law\n"
+        },
+        {
+          "name": "M_AQDH2",
+          "value": 38,
+          "doc": "Debye-Hueckel 2-term\n"
+        },
+        {
+          "name": "M_AQDH3",
+          "value": 39,
+          "doc": "Debye-Hueckel 3-term\n"
+        },
+        {
+          "name": "M_AQDHH",
+          "value": 40,
+          "doc": "Debye-Hueckel 3-term (HKF)\n"
+        },
+        {
+          "name": "M_AQDHS",
+          "value": 41,
+          "doc": "Debye-Hueckel 3-term (Shvarov)\n"
+        },
+        {
+          "name": "M_OTHER",
+          "value": 101,
+          "doc": "Other type of specific-interaction model of mixing\n"
+        }
+      ]
+    },
+    {
+      "name": "InteractionType",
+      "doc": "Interaction (parameter) type for some specific interaction models\n",
+      "members": [
+        {
+          "name": "TYPICAL",
+          "value": 0,
+          "doc": "Typical format of interaction parameter for the respective model\n"
+        },
+        {
+          "name": "PITZ_BETA",
+          "value": 1,
+          "doc": "Pitzer type beta parameter more will be added here\n"
+        },
+        {
+          "name": "PITZ_THETA",
+          "value": 2,
+          "doc": " "
+        },
+        {
+          "name": "PITZ_LAMBDA",
+          "value": 3,
+          "doc": " "
+        },
+        {
+          "name": "PITZ_PSI",
+          "value": 4,
+          "doc": " "
+        },
+        {
+          "name": "SIT",
+          "value": 5,
+          "doc": " "
+        }
+      ]
+    },
+    {
+      "name": "ipMethod",
+      "doc": "Code of method of pressure, temperature, and ionic strength correction of the interaction parameters\n",
+      "members": [
+        {
+          "name": "IP_CONSTANT",
+          "value": 100,
+          "doc": "Constant on P\n"
+        },
+        {
+          "name": "IP_LINEAR",
+          "value": 101,
+          "doc": "Linear on P\n"
+        },
+        {
+          "name": "IP_CUBIC",
+          "value": 102,
+          "doc": "Cubic on P\n"
+        },
+        {
+          "name": "IP_OTHER",
+          "value": 199,
+          "doc": "Other on P\n"
+        },
+        {
+          "name": "IT_CONSTANT",
+          "value": 200,
+          "doc": "Constant on T\n"
+        },
+        {
+          "name": "IT_LINEAR",
+          "value": 201,
+          "doc": "Linear on T\n"
+        },
+        {
+          "name": "IT_CUBIC",
+          "value": 202,
+          "doc": "Cubic on T\n"
+        },
+        {
+          "name": "IT_POLYNOM",
+          "value": 203,
+          "doc": "Polynomial with ln on P\n"
+        },
+        {
+          "name": "IT_OTHER",
+          "value": 299,
+          "doc": "Other on T\n"
+        },
+        {
+          "name": "IS_CONSTANT",
+          "value": 300,
+          "doc": "Constant on IS\n"
+        },
+        {
+          "name": "IS_LINEAR",
+          "value": 301,
+          "doc": "Linear on IS\n"
+        },
+        {
+          "name": "IS_OTHER",
+          "value": 399,
+          "doc": "Other on IS\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "InteractionMethodData",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "method",
+	  "class": "ipMethod",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "Overall T,P limits for all methods involved\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "intparcoeff",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Interaction parameter coefficients - interpreted by model and method codes below\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment: e.g. who entered\/modified, ...\n",
+          "required": "optional"
+        },
+        {
+          "key": 5,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Interaction",
+      "doc": "Description of interaction between substances or moieties\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Unique name\/ID of this interaction\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "sourcetdb",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Source TDB: enum validated with class SourceTDB\n",
+          "class": "SourceTDB",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "level",
+          "typeId": "i32",
+          "doc": "Level of the interaction (for superimposed IC or LMA reaction sets)\n",
+          "required": "required",
+          "default": 0
+        },
+        {
+          "key": 4,
+          "name": "name",
+          "typeId": "string",
+          "doc": "Name of the interaction (not compulsory)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "mixmod",
+          "class": "MixModel",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Code of model of mixing - validate with class MixModel\n",
+          "required": "req_out",
+          "default": {
+            "1": "M_IDEAL"
+          }
+        },
+        {
+          "key": 6,
+          "name": "intpart",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Code of interaction parameter type - validate with class InteractionType\n",
+          "required": "req_out",
+          "default": {
+            "0": "TYPICAL"
+          }
+        },
+        {
+          "key": 7,
+          "name": "Tst",
+          "typeId": "double",
+          "doc": "Reference temperature (usually 298.15 K)\n",
+          "required": "req_out",
+          "default": 298.15
+        },
+        {
+          "key": 8,
+          "name": "Pst",
+          "typeId": "double",
+          "doc": "Reference pressure (usually 1 bar  !0^5 Pa, sometimes 1.013 bar = 1 atm\n",
+          "required": "req_out",
+          "default": 100000
+        },
+        {
+          "key": 11,
+          "name": "intpar",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Interaction parameter coefficients - interpreted by model and method codes below\n",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "TPIMethods",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "InteractionMethodData"
+            }
+          },
+          "doc": "List of Methods temperature T, pressure P, and ionic strength I correction of the interaction parameters\n",
+          "required": "req_out"
+        },
+        {
+          "key": 22,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "Overall T,P limits for all methods involved\n",
+          "required": "req_out"
+        },
+        {
+          "key": 18,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment: e.g. who entered\/modified, ...\n",
+          "required": "optional"
+        },
+        {
+          "key": 19,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 20,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Timestamp\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Interactions",
+      "doc": "Definition of an array of interactions\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "interactions",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "Interaction"
+            }
+          },
+          "doc": "List of interactions in activity models\n",
+          "required": "req_out"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

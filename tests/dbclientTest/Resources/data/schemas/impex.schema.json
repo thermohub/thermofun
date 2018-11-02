@@ -102,7 +102,7 @@
           "key": 2,
           "name": "organization",
           "typeId": "string",
-          "doc": "Organization: \"\" | \"list\" | \"set\" | \"map\" | \"embedded\" | ...\n",
+          "doc": "Organization: \"\" | \"list\" | \"set\" | \"map\" | \"group\" | \"embedded\" | ...\n",
           "required": "req_out"
         }
       ]
@@ -131,7 +131,7 @@
           "key": 3,
           "name": "script",
           "typeId": "string",
-          "doc": "Default \"\" or contains ECMA function script for operation on data values in block TBD\n",
+          "doc": "Default \"\" or contains lua script for operation on data values in block\n",
           "required": "optional"
         },
         {
@@ -234,7 +234,7 @@
             "keyTypeId": "string",
             "valueTypeId": "string"
           },
-          "doc": "Default Key, Value pairs to DOM\n",
+          "doc": "Default Key, Value pairs to DOM (import)  or to output (export)\n",
           "required": "req_out"
         },
         {
@@ -266,14 +266,14 @@
               "class": "DataObject"
             }
           },
-          "doc": ">=1 keywd, DataObject pairs connecting the block of data in file with DOM\n",
+          "doc": ">=1 keywd, DataObject pairs connecting the block of data in file with DOM.\n",
           "required": "required"
         },
         {
           "key": 4,
           "name": "script",
           "typeId": "string",
-          "doc": "Default \"\" or contains ECMA function script for operation on data values in block TBD\n",
+          "doc": "Default \"\" or contains lua script for operation on data values in full DOM\n",
           "required": "optional"
         }
       ]
@@ -358,12 +358,20 @@
           "typeId": "i32",
           "doc": "total number of characters in file, 0 if unknown\n",
           "required": "optional"
+        },
+        {
+          "key": 10,
+          "name": "direction",
+          "typeId": "i32",
+          "doc": "direction\n",
+          "class": "DirectionType",
+          "required": "req_out"
         }
       ]
     },
     {
       "name": "FormatKeyValue",
-      "doc": "Definition of key-value input format\n",
+      "doc": "Definition of key-value import\/export format\nWe use Regular Expression in case of import and Print Format in case of export.\nUse names \"head0\", ..., \"headN\", \"end0\", ..., \"endN\" to import\/export data from\/to head and end part\n",
       "isException": false,
       "isUnion": false,
       "fields": [
@@ -371,35 +379,35 @@
           "key": 1,
           "name": "head_regexp",
           "typeId": "string",
-          "doc": "Regular Expression for head of block\n",
+          "doc": "Head of Block:  \"\\\\s*([^\\\\s]+)\\\\s*;\\\\s*(([\\\\w\\\\t \\\\+\\\\-\\\\(\\\\):\\\\.]+)\\\\s*=\\\\s*([^;]+))\" (import)\nor  \"\\n%head0\\n\\t%head1\\n\" (export)\n",
           "required": "required"
         },
         {
           "key": 2,
           "name": "end_regexp",
           "typeId": "string",
-          "doc": "Regular Expression for end of block\n",
+          "doc": "End of Block: \"([^\\n]+)\" (import)  or  \"%end0\\n\" (export)\n",
           "required": "required"
         },
         {
           "key": 3,
           "name": "key_regexp",
           "typeId": "string",
-          "doc": "Regular Expression for keyword\n",
+          "doc": "Keyword:  \"\\\\s*;\\\\s*\\\\-{0,1}([a-zA-Z]\\\\w*)\\\\s*\" (import)  or  \"\\t-%key\\t\" (export)\n",
           "required": "required"
         },
         {
           "key": 4,
           "name": "value_regexp",
           "typeId": "string",
-          "doc": "Regular Expression for data value(s)\n",
+          "doc": "Data Value(s):  \"\\\\s*([^#\\\\n;]*)\" (import)  or  \"%value\" (export)\n",
           "required": "req_out"
         },
         {
           "key": 5,
           "name": "value_next",
           "typeId": "string",
-          "doc": "Key-Value pair end delimiter (used if empty value_regexp )\n",
+          "doc": "Key-Value pair end delimiter (used if empty value_regexp or export mode )\n",
           "required": "req_out",
           "default": "\n"
         },
@@ -407,8 +415,9 @@
           "key": 6,
           "name": "value_token_regexp",
           "typeId": "string",
-          "doc": "Regular Expression to iterate over matches  (used to convert value to string list)\n",
-          "required": "optional"
+          "doc": "Regular Expression to iterate over matches  (used to convert value to string list or if export mode )\n",
+          "required": "optional",
+          "default": " "
         },
         {
           "key": 7,
@@ -422,6 +431,24 @@
           "name": "Ndata",
           "typeId": "i32",
           "doc": "number of data items per block (0 if not set)\n",
+          "required": "optional"
+        },
+        {
+          "key": 9,
+          "name": "strvalue_exp",
+          "typeId": "string",
+          "doc": "Data String Value(s): only for export  \"\\'%value\\'\"\n",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "key_order",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Keyword order list:  only for export\n",
           "required": "optional"
         }
       ]
@@ -506,115 +533,107 @@
           "typeId": "i32",
           "doc": "total number of text lines in the file, 0 if unknown\n",
           "required": "optional"
-        }
-      ]
-    },
-    {
-      "name": "FormatTableHeaderRow",
-      "doc": "Definition of header row values\n",
-      "isException": false,
-      "isUnion": false,
-      "fields": [
+        },
         {
-          "key": 1,
-          "name": "h_row",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "string"
-          },
-          "doc": "Format,Value pairs for value(s) - number of map elements as Ncols\n",
+          "key": 10,
+          "name": "direction",
+          "typeId": "i32",
+          "doc": "direction\n",
+          "class": "DirectionType",
           "required": "req_out"
         }
       ]
     },
     {
-      "name": "FormatTableHeader",
-      "doc": "Definition of format of the table header - can have one or more rows\n",
+      "name": "FormatTable",
+      "doc": "Definition of of the table input format\nif defined  colsizes, split by sizes\nif defined  value_regexp, split used regexpr\notherwise split by  columns delimiter\n",
       "isException": false,
       "isUnion": false,
       "fields": [
         {
           "key": 1,
-          "name": "h_rows",
-          "typeId": "list",
-          "type": {
-            "typeId": "list",
-            "elemTypeId": "struct",
-            "elemType": {
-              "typeId": "struct",
-              "class": "FormatTableHeaderRow"
-            }
-          },
-          "doc": "One or more header rows forming the header\n",
-          "required": "req_out"
-        },
-        {
-          "key": 2,
-          "name": "match",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "i32",
-            "valueTypeId": "struct",
-            "valueType": {
-              "typeId": "struct",
-              "class": "DataObject"
-            }
-          },
-          "doc": "Mapping of header column index to internal thrift data objects in DOM\n",
-          "required": "req_out"
-        },
-        {
-          "key": 3,
           "name": "Nhcols",
           "typeId": "i32",
           "doc": "Number of header columns\n",
           "required": "req_out"
         },
         {
-          "key": 4,
+          "key": 2,
           "name": "Nhrows",
           "typeId": "i32",
-          "doc": "Number of header rows\n",
-          "required": "req_out"
-        }
-      ]
-    },
-    {
-      "name": "FormatTableRow",
-      "doc": "Definition of format of the table data row (treated as data block\/record)\n",
-      "isException": false,
-      "isUnion": false,
-      "fields": [
-        {
-          "key": 1,
-          "name": "data_row",
-          "typeId": "map",
-          "type": {
-            "typeId": "map",
-            "keyTypeId": "string",
-            "valueTypeId": "struct",
-            "valueType": {
-              "typeId": "struct",
-              "class": "DataObject"
-            }
-          },
-          "doc": "Mapping of column data. See also FormatTableHeader (to avoid duplication)\n",
-          "required": "req_out"
-        },
-        {
-          "key": 2,
-          "name": "Ndcols",
-          "typeId": "i32",
-          "doc": "Number of data columns in the row\n",
+          "doc": "Number of header rows (start porting from row )\n",
           "required": "req_out"
         },
         {
           "key": 3,
-          "name": "func_script",
+          "name": "headers",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Names of header columns\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "rowend",
           "typeId": "string",
-          "doc": "Default \"\" or contains ECMA function script for operation on data values in block TBD\n",
+          "doc": "Row delimiter\n",
+          "required": "req_out",
+          "default": "\n"
+        },
+        {
+          "key": 5,
+          "name": "colends",
+          "typeId": "string",
+          "doc": "Columns delimiters\n",
+          "required": "req_out",
+          "default": "\t "
+        },
+        {
+          "key": 6,
+          "name": "usequotes",
+          "typeId": "bool",
+          "doc": "Quoted field as text\n",
+          "required": "req_out",
+          "default": 1
+        },
+        {
+          "key": 7,
+          "name": "usemore",
+          "typeId": "bool",
+          "doc": "Can be more than one delimiter between columns\n",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 8,
+          "name": "comment_regexp",
+          "typeId": "string",
+          "doc": "Regular Expression for skip comments\n",
+          "required": "optional"
+        },
+        {
+          "key": 9,
+          "name": "colsizes",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "doc": "Fixed size of columns for importing ( apply to all if one item )\n",
+          "required": "optional"
+        },
+        {
+          "key": 10,
+          "name": "value_regexp",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Regular Expression for column value(s) ( apply to all if one item )\n",
           "required": "optional"
         }
       ]
@@ -627,35 +646,42 @@
       "fields": [
         {
           "key": 1,
-          "name": "header",
+          "name": "block",
           "typeId": "struct",
           "type": {
             "typeId": "struct",
-            "class": "FormatTableHeader"
+            "class": "FormatBlock"
           },
-          "doc": "Table header defining order of data in columns\n",
+          "doc": "Format for one or more blocks for data records\n",
           "required": "required"
         },
         {
           "key": 2,
-          "name": "datarow",
+          "name": "format",
           "typeId": "struct",
           "type": {
             "typeId": "struct",
-            "class": "FormatTableRow"
+            "class": "FormatTable"
           },
-          "doc": "Table row format for reading\/writing the data body of the table\n",
+          "doc": "Definition of key-value block in file\n",
           "required": "required"
         },
         {
           "key": 3,
+          "name": "renderer",
+          "typeId": "string",
+          "doc": "Rendering syntax for the foreign key-value file \"GEMS3K\" | \"BIB\" | \"RIS\" | ...\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
           "name": "label",
           "typeId": "string",
           "doc": "Label of data type (vertex type), e.g. \"datasource\", \"element\" ...\n",
           "required": "required"
         },
         {
-          "key": 4,
+          "key": 5,
           "name": "separators",
           "typeId": "struct",
           "type": {
@@ -666,32 +692,40 @@
           "required": "req_out"
         },
         {
-          "key": 5,
+          "key": 6,
           "name": "comment",
           "typeId": "string",
           "doc": "Export: the whole comment text; Import: the comment begin markup string (to skip until endl)\n",
           "required": "optional"
         },
         {
-          "key": 6,
-          "name": "file_name",
+          "key": 7,
+          "name": "fname",
           "typeId": "string",
           "doc": "File name or \"console\" for export\n",
           "required": "optional"
         },
         {
-          "key": 7,
-          "name": "Ndrows",
+          "key": 8,
+          "name": "Nblocks",
           "typeId": "i32",
-          "doc": "Number of rows in the table data >=1; 0 if unknown\n",
+          "doc": "number of data blocks (records) >=1, 0 if unknown\n",
           "required": "optional"
         },
         {
-          "key": 8,
+          "key": 9,
           "name": "Nlines",
           "typeId": "i32",
           "doc": "total number of text lines in the file, 0 if unknown\n",
           "required": "optional"
+        },
+        {
+          "key": 10,
+          "name": "direction",
+          "typeId": "i32",
+          "doc": "direction\n",
+          "class": "DirectionType",
+          "required": "req_out"
         }
       ]
     },
@@ -754,6 +788,14 @@
           "typeId": "i32",
           "doc": "total number of text lines in the file, 0 if unknown\n",
           "required": "optional"
+        },
+        {
+          "key": 10,
+          "name": "direction",
+          "typeId": "i32",
+          "doc": "direction\n",
+          "class": "DirectionType",
+          "required": "req_out"
         }
       ]
     },
@@ -813,67 +855,83 @@
       "name": "ImpexFormat",
       "doc": "description of import\/export format record\n",
       "isException": false,
-      "to_select": [ "2", "3", "4", "5" ],
+      "to_select": [ "4", "5", "6", "7" ],
+      "to_key": [ "4" ],
       "isUnion": false,
       "fields": [
         {
           "key": 1,
           "name": "_id",
           "typeId": "string",
-          "doc": "id of this query record or 0 if unknown\n",
+          "doc": "Handle (id) of this record or 0 if unknown\n",
           "required": "required"
         },
         {
           "key": 2,
+          "name": "_key",
+          "typeId": "string",
+          "doc": "ID of this record within the impex collection (part of _id)\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "_rev",
+          "typeId": "string",
+          "doc": "Code of revision (changed by the system at every update)\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
           "name": "name",
           "typeId": "string",
           "doc": "short description\/keywd (used as key field)\n",
           "required": "required"
         },
         {
-          "key": 3,
+          "key": 5,
           "name": "impexschema",
           "typeId": "string",
           "doc": "impex schema\n",
           "required": "required"
         },
         {
-          "key": 4,
+          "key": 6,
           "name": "schema",
           "typeId": "string",
           "doc": "record schema\n",
           "required": "req_out"
         },
         {
-          "key": 5,
+          "key": 7,
           "name": "comment",
           "typeId": "string",
           "doc": "description of record\n",
           "required": "req_out"
         },
         {
-          "key": 6,
+          "key": 8,
           "name": "direction",
           "typeId": "i32",
           "doc": "direction\n",
+          "class": "DirectionType",
           "required": "req_out"
         },
         {
-          "key": 7,
+          "key": 9,
           "name": "impex",
           "typeId": "string",
           "doc": "format structure\n",
           "required": "required"
         },
         {
-          "key": 8,
+          "key": 10,
           "name": "format",
           "typeId": "string",
           "doc": "Id\/description of foreign file format\n",
           "required": "optional"
         },
         {
-          "key": 9,
+          "key": 11,
           "name": "extension",
           "typeId": "string",
           "doc": "file extension\n",

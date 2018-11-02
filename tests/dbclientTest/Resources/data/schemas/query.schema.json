@@ -12,14 +12,44 @@
       "doc": "Classes of query style\n",
       "members": [
         {
-          "name": "EJDB",
-          "value": 0,
-          "doc": "EJDB-style query\n"
+          "name": "QUndef",
+          "value": -1,
+          "doc": "Undefined query\n"
         },
         {
-          "name": "SPARQL",
+          "name": "QTemplate",
+          "value": 0,
+          "doc": "Fields template query\n"
+        },
+        {
+          "name": "QAll",
           "value": 1,
-          "doc": "SPARQL-style query\n"
+          "doc": "Select all records\n"
+        },
+        {
+          "name": "QEdgesFrom",
+          "value": 2,
+          "doc": "Select outgoing edges\n"
+        },
+        {
+          "name": "QEdgesTo",
+          "value": 3,
+          "doc": "Select incoming edges\n"
+        },
+        {
+          "name": "QEdgesAll",
+          "value": 5,
+          "doc": "Select edges by query\n"
+        },
+        {
+          "name": "QAQL",
+          "value": 6,
+          "doc": "AQL-style query\n"
+        },
+        {
+          "name": "QEJDB",
+          "value": 7,
+          "doc": "EJDB-style query\n"
         }
       ]
     }
@@ -28,11 +58,53 @@
   ],
   "structs": [
     {
+      "name": "ConditionData",
+      "doc": "Struct for query condition\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "style",
+          "typeId": "i32",
+          "doc": "query style\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "find",
+          "typeId": "string",
+          "doc": "query string\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "bind",
+          "typeId": "string",
+          "doc": "bind values string\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "fields",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "string"
+          },
+          "doc": "return fields map\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
       "name": "Query",
       "doc": "description of query record\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "2", "3", "4", "1" ],
+      "to_select": [ "4", "5", "6.1", "1" ],
+      "to_key": [ "4" ],
        "fields": [
         {
           "key": 1,
@@ -43,35 +115,45 @@
         },
         {
           "key": 2,
+          "name": "_key",
+          "typeId": "string",
+          "doc": "ID of this record within the impex collection (part of _id)\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "_rev",
+          "typeId": "string",
+          "doc": "Code of revision (changed by the system at every update)\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
           "name": "name",
           "typeId": "string",
           "doc": "short name of query (used as key field)\n",
           "required": "required"
         },
         {
-          "key": 3,
+          "key": 5,
           "name": "comment",
           "typeId": "string",
           "doc": "description of query\n",
           "required": "req_out"
         },
         {
-          "key": 4,
-          "name": "style",
-          "typeId": "i32",
-          "doc": "query style\n",
-          "class": "QueryStyle",
+          "key": 6,
+          "name": "condition",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "ConditionData"
+          },
+          "doc": "query filter condtition\n",
           "required": "required"
         },
         {
-          "key": 5,
-          "name": "qschema",
-          "typeId": "string",
-          "doc": "query for schema\n",
-          "required": "req_out"
-        },
-        {
-          "key": 6,
+          "key": 7,
           "name": "collect",
           "typeId": "list",
           "type": {
@@ -82,10 +164,10 @@
           "required": "required"
         },
         {
-          "key": 7,
-          "name": "find",
+          "key": 8,
+          "name": "qschema",
           "typeId": "string",
-          "doc": "query string\n",
+          "doc": "query for schema\n",
           "required": "req_out"
         }
       ]

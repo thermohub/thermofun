@@ -1,0 +1,339 @@
+{
+  "name": "composition",
+  "doc": "Apache Thrift IDL definition for the composition service interface\n",
+  "namespaces": {
+    "*": "composition"
+  },
+  "includes": [
+"prop",
+"element",
+"substance"
+  ],
+  "enums": [
+  ],
+  "typedefs": [
+    {
+      "name": "Compositions",
+      "typeId": "list",
+      "type": {
+        "typeId": "list",
+        "elemTypeId": "struct",
+        "elemType": {
+          "typeId": "struct",
+          "class": "Composition"
+        }
+      },
+      "doc": "Definition of compositions (composition array) type\n"
+    }
+  ],
+  "structs": [
+    {
+      "name": "Composition",
+      "doc": "Description of composition (chemical species, chemical component)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Unique name\/ID of this composition e.g. \"pw-bentonite\"\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "name",
+          "typeId": "string",
+          "doc": "Name of the composition (e.g. \"bentonite porewater\")\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "elements",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "element.ElementInfo"
+            }
+          },
+          "doc": "List of elements and their masses as basis of this composition\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "pco",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "double"
+          },
+          "doc": "Composition in moles of elements (after calculation or from cformula if entered) as [ {\"Al\": 0.35}, {\"Ca\": 0.9} ... ]\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "cmMass",
+          "typeId": "double",
+          "doc": "Mass per 1 mole of this pco \"mM\" in kg\/mol (calculated using the elements list)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "cformula",
+          "typeId": "string",
+          "doc": "Optionally: contents of pco generated as a single formula string\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "Moles",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "doc": "Input scaling values for various concentration scales, unit of measurement\n",
+          "required": "optional",
+          "default": {
+            "0": 0
+          }
+        },
+        {
+          "key": 12,
+          "name": "Ptotal",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "100000": 2
+          }
+        },
+        {
+          "key": 13,
+          "name": "Mwater",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "1": 5
+          }
+        },
+        {
+          "key": 14,
+          "name": "Vaqtotal",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "0.001": 9
+          }
+        },
+        {
+          "key": 15,
+          "name": "Mass",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "1": 5
+          }
+        },
+        {
+          "key": 16,
+          "name": "SurfMoles",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "0.001": 0
+          }
+        },
+        {
+          "key": 17,
+          "name": "SurfMolal",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "0.001": 3
+          }
+        },
+        {
+          "key": 18,
+          "name": "SurfArea",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "double",
+            "valueTypeId": "i32"
+          },
+          "required": "optional",
+          "default": {
+            "1": 8
+          }
+        },
+        {
+          "key": 21,
+          "name": "qformulae",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.CompositionFormulaAmountArray"
+          },
+          "doc": "Optionally: Input quantities of user-defined formulae to add, can also be formulae of substances\n",
+          "required": "optional"
+        },
+        {
+          "key": 22,
+          "name": "qelements",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Optionally: Input amounts of elements to add, values in the same order as in the elements list\n",
+          "required": "optional",
+          "default": {
+            "name": "qe"
+          }
+        },
+        {
+          "key": 24,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment e.g. who entered\/modified, ...\n",
+          "required": "optional",
+          "default": "comment (element)"
+        },
+        {
+          "key": 25,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 26,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Timestamp\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "composdata",
+      "doc": "Work structure keeping the data to check\/calculate composition\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "Nelems",
+          "typeId": "i16",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "elems",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "Ncel",
+          "typeId": "i16",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "elams",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "Nfus",
+          "typeId": "i16",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "fuams",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "compos",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "computed",
+          "typeId": "bool",
+          "required": "req_out",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}
