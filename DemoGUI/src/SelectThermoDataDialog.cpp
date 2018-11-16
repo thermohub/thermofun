@@ -114,7 +114,7 @@ struct SelectThermoDataDialogPrivate
      solventValues.clear();
      for( auto subRecord: subData )
      {
-       if( subRecord[_dbclient.substData().getDataName_DataIndex()["class_"]]  == "3" )
+       if( subRecord[_dbclient.substData().getDataName_DataIndex()["class_"]]  == "{\"3\": \"SC_AQSOLVENT\"}" )
            solventValues.push_back(subRecord);
      }
      substModel->loadModeRecords( subData );

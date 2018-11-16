@@ -255,7 +255,7 @@ void TThermoFunMainWin::onDeleteVertex()
     {
         jsonui::EdgesWidget* edgWin = dynamic_cast<jsonui::EdgesWidget*>(*it);
         if( edgWin )
-          edgWin->updateAllKeys();
+          edgWin->changeKeyList();
         else
           {
             jsonui::VertexWidget* verWin = dynamic_cast<jsonui::VertexWidget*>(*it);

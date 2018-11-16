@@ -76,7 +76,7 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
   auto domdata = jsonio::unpackJson( jsonrecord );
 
   // Extract data from fields
-  domdata->findKey(getDataName_DataFieldPath()["formula"], formula);
+  domdata->findValue(getDataName_DataFieldPath()["formula"], formula);
   //bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
 
   FormulaToken parser(formula);
@@ -185,8 +185,8 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for( auto result: resultsQuery )
         {
             auto domdata = jsonio::unpackJson( result );
-            domdata->findKey("level", level);
-            domdata->findKey("reaction", idreact);
+            domdata->findValue("level", level);
+            domdata->findValue("reaction", idreact);
             levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
@@ -214,8 +214,8 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
         for( auto result: resultsQuery )
         {
             auto domdata = jsonio::unpackJson( result );
-            domdata->findKey("level", level);
-            domdata->findKey("reaction", idreact);
+            domdata->findValue("level", level);
+            domdata->findValue("reaction", idreact);
             levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
