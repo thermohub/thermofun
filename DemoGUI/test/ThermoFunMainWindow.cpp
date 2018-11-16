@@ -112,11 +112,13 @@ void TThermoFunMainWin::OpenNewWidget( bool isVertex, const std::string& testsch
       {
           testWidget = new jsonui::VertexWidget( testschema/*, this*/ );
           connect( (jsonui::VertexWidget*)testWidget, SIGNAL(vertexDeleted()), this, SLOT(onDeleteVertex()));
+          connect( (jsonui::VertexWidget*)testWidget, SIGNAL(graphLoaded()), this, SLOT(onLoadGraph()));
       }
       else
       {
           testWidget = new jsonui::EdgesWidget( testschema, query/*, this*/ );
           connect( (jsonui::EdgesWidget*)testWidget, SIGNAL(edgeDeleted()), this, SLOT(onDeleteEdge()));
+          connect( (jsonui::EdgesWidget*)testWidget, SIGNAL(graphLoaded()), this, SLOT(onLoadGraph()));
       }
 
       testWidget->setOnCloseEventFunction(onCloseEvent);
@@ -235,6 +237,25 @@ void TThermoFunMainWin::closeAll()
 
     // bsonuiWindows.clear();
 }
+
+void TThermoFunMainWin::onLoadGraph()
+{
+    auto it = bsonuiWindows.begin();
+    while( it != bsonuiWindows.end() )
+    {
+        jsonui::EdgesWidget* edgWin = dynamic_cast<jsonui::EdgesWidget*>(*it);
+        if( edgWin )
+          edgWin->updateQuery();
+        else
+          {
+            jsonui::VertexWidget* verWin = dynamic_cast<jsonui::VertexWidget*>(*it);
+            if( verWin )
+              verWin->updateQuery();
+          }
+        it++;
+    }
+}
+
 
 void TThermoFunMainWin::onDeleteEdge()
 {

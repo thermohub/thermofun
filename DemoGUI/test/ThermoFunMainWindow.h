@@ -69,6 +69,7 @@ public slots:
 
     void onDeleteVertex();
     void onDeleteEdge();
+    void onLoadGraph();
 
 public:
     explicit TThermoFunMainWin(QWidget *parent = 0);
