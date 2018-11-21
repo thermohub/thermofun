@@ -52,6 +52,99 @@ static const std::string parsinglogfile = "parseBsonDatalogfile.txt";
 static std::ofstream flog;
 
 
+enum SubstanceTPMethodType {
+    cp_ft_equation = 0,
+    cp_ft_equation_saxena86 = 1,
+    solute_hkf88_gems = 2,
+    solute_hkf88_reaktoro = 3,
+    solute_aknifiev_diamond03 = 4,
+    landau_holland_powell98 = 5,
+    landau_berman88 = 6,
+    general_equation_of_state = 7,
+    fug_critical_param = 8,
+    fluid_prsv = 9,
+    fluid_churakov_gottschalk = 10,
+    fluid_soave_redlich_kwong = 11,
+    fluid_sterner_pitzer = 12,
+    fluid_peng_robinson78 = 13,
+    fluid_comp_redlich_kwong_hp91 = 14,
+    fluid_generic = 15,
+    fluid_H2O = 16,
+    fluid_CO2 = 17,
+    fluid_CH4 = 18,
+    fluid_N2 = 19,
+    fluid_H2 = 20,
+    fluid_O2 = 21,
+    fluid_Ar = 22,
+    fluid_polar = 23,
+    fluid_nonpolar = 24,
+    water_diel_jnort91_reaktoro = 25,
+    water_diel_jnort91_gems = 26,
+    water_diel_sverj14 = 27,
+    water_diel_fern97 = 28,
+    water_eos_hgk84_lvs83_gems = 29,
+    water_eos_iapws95_gems = 30,
+    water_eos_hgk84_reaktoro = 31,
+    water_eos_iapws95_reaktoro = 32,
+    water_pvt_zhang_duan05 = 33,
+    mv_constant = 34,
+    mv_equation_dorogokupets88 = 35,
+    mv_equation_berman88 = 36,
+    mv_eos_birch_murnaghan_gott97 = 37,
+    mv_eos_murnaghan_hp98 = 38,
+    mv_eos_tait_hp11 = 39
+};
+
+enum ReactionTPMethodType {
+    logk_fpt_function = 0,
+    adsor_ion_exchange = 1,
+    iso_compounds_grichuk88 = 2,
+    logk_nordstrom_munoz88 = 3,
+    logk_1_term_extrap0 = 4,
+    logk_1_term_extrap1 = 5,
+    logk_2_term_extrap = 6,
+    logk_3_term_extrap = 7,
+    logk_lagrange_interp = 8,
+    logk_marshall_frank78 = 9,
+    solute_eos_ryzhenko_gems = 10,
+    dr_heat_capacity_ft = 11,
+    dr_volume_fpt = 12
+};
+
+const std::map<const SubstanceTPMethodType, const std::vector<std::string>> method_parameters = {
+{SubstanceTPMethodType::cp_ft_equation, {"m_heat_capacity_ft_coeffs"} },
+{SubstanceTPMethodType::solute_hkf88_gems, {"eos_hkf_coeffs"} },
+{SubstanceTPMethodType::solute_hkf88_reaktoro, {"eos_hkf_coeffs"} },
+{SubstanceTPMethodType::water_diel_jnort91_reaktoro, {""} },
+{SubstanceTPMethodType::water_diel_jnort91_gems, {""} },
+{SubstanceTPMethodType::water_diel_sverj14, {""} },
+{SubstanceTPMethodType::water_diel_fern97, {""} },
+{SubstanceTPMethodType::landau_holland_powell98, {"m_landau_phase_trans_props"} },
+{SubstanceTPMethodType::landau_berman88, {"m_berman_phase_trans_props"} },
+{SubstanceTPMethodType::cp_ft_equation_saxena86, {"m_heat_capacity_ft_coeffs"} },
+{SubstanceTPMethodType::water_eos_hgk84_lvs83_gems, {""} },
+{SubstanceTPMethodType::water_eos_iapws95_gems, {""} },
+{SubstanceTPMethodType::water_eos_hgk84_reaktoro, {""} },
+{SubstanceTPMethodType::water_eos_iapws95_reaktoro, {""} },
+{SubstanceTPMethodType::water_pvt_zhang_duan05, {""} },
+{SubstanceTPMethodType::mv_constant, {""} },
+{SubstanceTPMethodType::mv_equation_dorogokupets88, {"m_volume_fpt_coeffs"} },
+{SubstanceTPMethodType::mv_equation_berman88, {"m_volume_fpt_coeffs"} },
+{SubstanceTPMethodType::mv_eos_birch_murnaghan_gott97, {"eos_birch_murnaghan_coeffs"} },
+{SubstanceTPMethodType::mv_eos_murnaghan_hp98, {"eos_birch_murnaghan_coeffs"} },
+{SubstanceTPMethodType::mv_eos_tait_hp11, {""} },
+{SubstanceTPMethodType::fug_critical_param, {"eos_gas_crit_props"} },
+{SubstanceTPMethodType::fluid_prsv, {""} },
+{SubstanceTPMethodType::fluid_churakov_gottschalk, {"eos_churakov_gottschalk_coeffs"} },
+{SubstanceTPMethodType::fluid_soave_redlich_kwong, {""} },
+{SubstanceTPMethodType::fluid_sterner_pitzer, {""} },
+{SubstanceTPMethodType::fluid_peng_robinson78, {""} },
+{SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, {""} },
+{SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} } 
+};
+
+
+
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
@@ -106,7 +199,7 @@ static const int MethodGenEoS_ndxThrift[] = {
 //  "S",          ///< CTPM_EOS calculations via general equations of state (reserved)
 //  "I",          ///< CTPM_ISO calculation of parameters for isotopic forms of compounds (Grichuk, 1988); ReacDC ####
 //  "X",          ///< CTPM_SOR calculations via adsorption or ion exchange constants, using LFER correlations; ReacDC (reserved) ####
-//  "N",          ///< CEM_OFF no fluid model routine
+//  "N",          ///< CEM_OFF no fluid model routicompne
 //  "G",          ///< CEM_GAS generic fluid model routine
 //  "V",          ///< CEM_H2O subroutine for H2O fluid
 //  "C",          ///< CEM_CO2 subroutine for CO2 fluid
@@ -280,6 +373,38 @@ static const int MethodCorrP_ndxThrift[] = {
 //  "Z"             ///< CPM_INK Lagrange polynomial interpolation over logK(TP) array; ReacDC
 //};
 
+static const std::map<const SubstanceTPMethodType, const int> new_old_methodtype = {
+  {SubstanceTPMethodType::cp_ft_equation, 100},
+  {SubstanceTPMethodType::solute_hkf88_gems, 101},
+  {SubstanceTPMethodType::solute_hkf88_reaktoro, 119},
+  {SubstanceTPMethodType::water_diel_jnort91_reaktoro, 117},
+  {SubstanceTPMethodType::water_diel_jnort91_gems, 118},
+  {SubstanceTPMethodType::water_diel_sverj14, 120},
+  {SubstanceTPMethodType::water_diel_fern97, 121},
+  {SubstanceTPMethodType::landau_holland_powell98, 201},
+  {SubstanceTPMethodType::landau_berman88, 202},
+  {SubstanceTPMethodType::cp_ft_equation_saxena86, 203},
+  {SubstanceTPMethodType::water_eos_hgk84_lvs83_gems, 206},
+  {SubstanceTPMethodType::water_eos_iapws95_gems, 207},
+  {SubstanceTPMethodType::water_eos_hgk84_reaktoro, 221},
+  {SubstanceTPMethodType::water_eos_iapws95_reaktoro, 222},
+  {SubstanceTPMethodType::water_pvt_zhang_duan05, 223},
+  {SubstanceTPMethodType::mv_constant, 305},
+  {SubstanceTPMethodType::mv_equation_dorogokupets88, 306},
+  {SubstanceTPMethodType::mv_equation_berman88, 307},
+  {SubstanceTPMethodType::mv_eos_birch_murnaghan_gott97, 308},
+  {SubstanceTPMethodType::mv_eos_murnaghan_hp98, 309},
+  {SubstanceTPMethodType::mv_eos_tait_hp11, 310},
+  {SubstanceTPMethodType::fug_critical_param, 311},
+  {SubstanceTPMethodType::fluid_prsv, 312},
+  {SubstanceTPMethodType::fluid_churakov_gottschalk, 313},
+  {SubstanceTPMethodType::fluid_soave_redlich_kwong, 314},
+  {SubstanceTPMethodType::fluid_sterner_pitzer, 315},
+  {SubstanceTPMethodType::fluid_peng_robinson78, 316},
+  {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, 317},
+  {SubstanceTPMethodType::solute_aknifiev_diamond03, 320}
+};
+
 typedef struct {
   enum type {
     C_MOLFRACTION = 0,
@@ -440,13 +565,13 @@ static const char * substExpans_             = "properties.m_expansivity";
 static const char * substCompres_            = "properties.m_compressibility";
 
 /// Model parameters
-static const char * substEOShkf             = "properties.eos_hkf_coeffs.values";
-static const char * substEOSad              = "properties.eos_ad_coeffs.values";
-static const char * substEOSbm              = "properties.eos_bm_coeffs.values";
-static const char * substEOScg              = "properties.eos_cg_coeffs.values";
-static const char * substEOSgasCrit         = "properties.eos_gas_crit_props.values";
-static const char * substCpParam            = "properties.m_heat_capacity_p_t_coeffs.values";
-static const char * substTransProp          = "properties.m_phase_trans_props.values";
+static const char * substEOShkf             = "eos_hkf_coeffs.values"; //
+static const char * substEOSad              = "eos_akinfiev_diamond_coeffs.values"; //
+static const char * substEOSbm              = "eos_birch_murnaghan_coeffs.values"; //
+static const char * substEOScg              = "eos_churakov_gottschalk_coeffs.values"; //
+static const char * substEOSgasCrit         = "eos_gas_crit_props.values"; //
+static const char * substCpParam            = "m_heat_capacity_ft_coeffs.values"; //
+static const char * substTransProp          = "m_landau_phase_trans_props.values"; //
 //static const char * substTransPropBm        = "properties.phase_transition_prop_Berman.values";
 
 static const char * lowerT                  = "properties.limitsTP.lowerT";
@@ -464,6 +589,8 @@ static const char * reacMethodT            = "properties.method_corrT";
 static const char * reacMethodP            = "properties.method_corrP";
 static const char * reacRefT               = "properties.Tst";
 static const char * reacRefP               = "properties.Pst";
+
+static const char * TPMethods              = "properties.TPMethods";
 
 /// Reference properties
 static const char * reacRefLogK0_           = "properties.logKr";

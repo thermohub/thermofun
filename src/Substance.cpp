@@ -42,6 +42,9 @@ struct Substance::Impl
     /// Upper pressure limit (in Pa)
     double upper_P;
 
+    /// list of Temperature and pressure correction methods in the order they will be executed
+    listmethods TPMethods;
+
     /// General method (or equation of state for both T and P correction)
     MethodGenEoS_Thrift::type method_genEoS;
 

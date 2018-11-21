@@ -1,10 +1,36 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include <vector>
+#include <unordered_map>
 typedef std::vector<double> vd;
-typedef std::vector<std::vector<double> > vvd;
+typedef std::vector<std::vector<double>> vvd;
+
 
 namespace ThermoFun {
+
+struct TPlimit {
+
+    /// upper, lower temperature and pressure limits in degrees K
+    double upperT, lowerT, upperP, lowerP;
+
+    /// hard limit, calculation not executed beyond the limit; soft limit calculation executed
+    bool isHard = false;
+};
+
+struct Method {
+
+    /// Method name
+    std::string name;
+
+    /// Parameter name and coefficients
+    std::unordered_map<std::string,std::vector<double>> parameter_coefficients;
+
+    /// Temperature and pressure limit of the method
+    TPlimit tplimit;
+};
+
+typedef std::vector<std::pair<std::string,Method>> listmethods;
 
 /// A type for storing the parameters of the HKF equation of state for a aqueous species
 //struct ParamsHKF
