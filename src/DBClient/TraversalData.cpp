@@ -173,7 +173,7 @@ auto TraversalData::level (std::string idSubst) -> std::string
 
         string jsonrecord = pimpl->substData->getJsonRecordVertex(key);
         auto domdata = jsonio::unpackJson( jsonrecord );
-        domdata->findKey("properties.symbol", substSymb);
+        domdata->findValue("properties.symbol", substSymb);
 
         //record = pimpl->substData->getJsonBsonRecordVertex(key).second;
         //bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
@@ -195,10 +195,10 @@ auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
 
     string jsonrecord =  pimpl->substData->getJsonRecordVertex(id_);
     auto domdata = jsonio::unpackJson( jsonrecord );
-    domdata->findKey("_id",    _idRecord);
-    domdata->findKey("_label", _label);
-    domdata->findKey("_type",  _type);
-    domdata->findKey("properties.symbol",  _symbol);
+    domdata->findValue("_id",    _idRecord);
+    domdata->findValue("_label", _label);
+    domdata->findValue("_type",  _type);
+    domdata->findValue("properties.symbol",  _symbol);
 
     // get recrod
     //record = pimpl->substData->getJsonBsonRecordVertex(id_).second;
@@ -292,7 +292,7 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
 
             string jsonrecord = pimpl->substData->getJsonRecordVertex(_idSubst);
             auto domdata = jsonio::unpackJson( jsonrecord, "VertexSubstance" ); // with default values
-            domdata->findKey("properties.symbol", substSymb);
+            domdata->findValue("properties.symbol", substSymb);
             //record = pimpl->substData->getJsonBsonRecordVertex(_idSubst).second;
             //bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 

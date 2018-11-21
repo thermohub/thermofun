@@ -221,9 +221,9 @@ struct AbstractData::Impl
         for( auto result: resultsQuery )
         {
             auto domdata = jsonio::unpackJson( result );
-            domdata->findKey("stoi_coeff", coeff);
+            domdata->findValue("stoi_coeff", coeff);
             stoi_coeff = atof(coeff.c_str());
-            domdata->findKey("symbol", symbol);
+            domdata->findValue("symbol", symbol);
             reactantsCoeff.insert(std::pair<std::string,double>(symbol, stoi_coeff));
         }
         return reactantsCoeff;

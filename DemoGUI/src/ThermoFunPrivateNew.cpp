@@ -460,7 +460,7 @@ void ThermoFunPrivateNew::retrieveConnectedData(ThermoFun::VertexId_VertexType m
             string symbol;
             string jsonrecord = dbclient.reactData().getJsonRecordVertex(idType.first);
             auto domdata = jsonio::unpackJson( jsonrecord );
-            domdata->findKey("properties.symbol",  symbol);
+            domdata->findValue("properties.symbol",  symbol);
             // record = dbclient.reactData().getJsonRecordVertex(idType.first).second;
             // jsonio::bson_to_key( record.data, "properties.symbol",  symbol);
             linkedReactSymbols.push_back(symbol);
@@ -470,11 +470,12 @@ void ThermoFunPrivateNew::retrieveConnectedData(ThermoFun::VertexId_VertexType m
             string symbol, class_;
             string jsonrecord = dbclient.substData().getJsonRecordVertex(idType.first);
             auto domdata = jsonio::unpackJson( jsonrecord );
-            domdata->findKey("properties.symbol",  symbol);
-            domdata->findKey("properties.class_",  class_);
+            domdata->findValue("properties.symbol",  symbol);
+            domdata->findValue("properties.class_",  class_);
             //  record = dbclient.substData().getJsonBsonRecordVertex(idType.first).second;
             //  jsonio::bson_to_key( record.data, "properties.symbol",  symbol);
             //  jsonio::bson_to_key( record.data, "properties.class_",  class_);
+            /// !!!! class now struct
             linkedSubstClasses.push_back(class_);
             linkedSubstSymbols.push_back(symbol);
             linkedSubstIds.push_back(idType.first);

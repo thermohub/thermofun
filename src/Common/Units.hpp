@@ -19,7 +19,7 @@
 
 // C++ includes
 #include <string>
-
+namespace ThermoFun {
 namespace units {
 
 /// Convert a numeric value from a unit to another
@@ -36,3 +36,4 @@ auto convert(double value, const std::string& from, const std::string& to) -> do
 auto convertible(const std::string& from, const std::string& to) -> bool;
 
 } /* namespace units */
+} /* namespace ThermoFun */
