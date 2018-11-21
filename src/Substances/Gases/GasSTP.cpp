@@ -10,6 +10,8 @@ auto thermoPropertiesGasSTP(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar,
 {
     double FugProps[6];
     char Eos_Code;
+    if (Pbar.val == 0.0)
+        Pbar += 1e-5;
 
     if (subst.formula() == "CO2") Eos_Code = 'C';
     if (subst.formula() == "H2O") Eos_Code = 'V';

@@ -2281,7 +2281,7 @@ long int TCGFcalc::CGcalcFugPure(double Tmin, double *Cemp, double *FugProps )
 		Coeff[ii] = (double)Cemp[ii];
 
 	// Calling CG EoS functions here
-	if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-6) && (Pbar < 1e5) )
+    if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5) )
 	{
 		retCode = CGFugacityPT( Coeff, Eos4parPT, Fugacity, Volume, P, T, roro );
 		FugProps[0] = Fugacity/Pbar;
