@@ -185,39 +185,39 @@
           "doc": "PSI-Nagra TDB 12\/07\n"
         },
         {
-          "name": "OTHER",
-          "value": 16,
-          "doc": "Other data sources\n"
-        },
-        {
           "name": "MOIETY",
-          "value": 17,
+          "value": 16,
           "doc": "Moiety in multi-site phase models (no TDB source)\n"
         },
         {
           "name": "HKF_DEW",
-          "value": 18,
+          "value": 17,
           "doc": "Sverjensky et al. 2014\n"
         },
         {
           "name": "MINES",
-          "value": 19,
+          "value": 18,
           "doc": "Mines16 TDB Gysi, 2016\n"
         },
         {
           "name": "AQ17",
-          "value": 20,
+          "value": 19,
           "doc": "Aq17 TDB Miron et al., 2017\n"
         },
         {
           "name": "CEMDATA18",
-          "value": 21,
+          "value": 20,
           "doc": "CEMDATA 18 Lothenbach et al., 2018\n"
         },
         {
           "name": "SUPCRT07",
-          "value": 22,
+          "value": 21,
           "doc": "SUPCRT 2007 slop07.dat\n"
+        },
+        {
+          "name": "HERACLES",
+          "value": 22,
+          "doc": "Heracles\n"
         },
         {
           "name": "WORK1",
@@ -238,6 +238,11 @@
           "name": "WORK4",
           "value": 1004,
           "doc": "SourceTDB code for data under work\/development\n"
+        },
+        {
+          "name": "OTHER",
+          "value": 1111,
+          "doc": "Other data sources\n"
         }
       ]
     }
@@ -348,7 +353,10 @@
           },
           "doc": "Class of element: enum validated with class ElementClass\n",
           "class": "ElementClass",
-          "required": "req_out"
+          "required": "req_out",
+          "default": {
+            "5": "OTHER_EC"
+          }
         },
         {
           "key": 6,

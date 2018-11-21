@@ -92,7 +92,7 @@
       "doc": "Element vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.3","6.13"],
+      "to_select": [ "5", "6.1", "6.3","6.13", "6.5"],
       "to_key": [ "6.1", "6.2", "6.5" ],
       "fields": [
         {
@@ -150,8 +150,8 @@
       "doc": "Substance vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.5", "6.3", "6.8", "6.2" ],
-      "to_key": [ "properties.symbol", "properties.aggregate_state", "properties.sourcetdb" ],
+      "to_select": [ "5", "6.1", "6.5", "6.3", "6.6", "6.2" ],
+      "to_key": [ "properties.symbol", "properties.class_", "properties.sourcetdb" ],
       "to_unique": [ "properties.symbol", "properties.sourcetdb" ],
       "fields": [
         {
@@ -209,7 +209,7 @@
       "doc": "Reaction vertex document\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "5", "6.1", "6.4", "6.6", "6.3","6.2" ],
+      "to_select": [ "5", "6.1", "6.4", "6.3", "6.6", "6.2" ],
       "to_key": [ "properties.symbol", "properties.sourcetdb", "properties.level" ],
       "to_unique": [ "properties.symbol", "properties.sourcetdb" ],
       "fields": [

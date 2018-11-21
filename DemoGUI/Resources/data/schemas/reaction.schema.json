@@ -62,7 +62,7 @@
       ]
     },
     {
-      "name": "ReactionEoSMethodType",
+      "name": "ReactionTPMethodType",
       "members": [
         {
           "name": "logk_fpt_function",
@@ -157,7 +157,7 @@
   ],
   "structs": [
     {
-      "name": "ReactionEoSMethodData",
+      "name": "ReactionTPMethodData",
       "doc": "Data structure describing method codes and data for computing P,T corrections to standard properties of reaction\n",
       "isException": false,
       "isUnion": false,
@@ -172,7 +172,7 @@
             "valueTypeId": "string"
           },
           "doc": "Method type - validate with class SubstanceEoSMethodType\n",
-          "class": "ReactionEoSMethodType",
+          "class": "ReactionTPMethodType",
           "required": "req_out"
         },
         {
@@ -431,7 +431,7 @@
             "elemTypeId": "struct",
             "elemType": {
               "typeId": "struct",
-              "class": "ReactionEoSMethodData"
+              "class": "ReactionTPMethodData"
             }
           },
           "doc": "One or more method codes and data for computing P,T corrections to standard properties\n",
@@ -485,7 +485,7 @@
           "required": "optional"
         },
         {
-          "key": 29,
+          "key": 28,
           "name": "elements",
           "typeId": "list",
           "type": {
