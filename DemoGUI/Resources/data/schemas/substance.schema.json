@@ -201,6 +201,11 @@
           "name": "mv_eos_tait_hp11",
           "value": 39,
           "doc": "molar volume V(T,P) from Tait EoS (Holland and Powell, 2011)\n"
+        },
+        {
+          "name": "mv_pvnrt",
+          "value": 40,
+          "doc": "molar volume from ideal gas law pv=nrt\n"
         }
       ]
     }

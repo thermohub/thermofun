@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
     cout << "Hello World!" << endl;
 
-    string file = "Resources/test_multi_new_elem.VertexSubstance.json";
+    string file = "Resources/test_substances_elements.VertexSubstance.json";
     char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
 
     TNode* node = new TNode();

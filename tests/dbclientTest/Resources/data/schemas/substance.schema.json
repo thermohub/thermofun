@@ -10,7 +10,7 @@
   ],
   "enums": [
     {
-      "name": "SubstanceEoSMethodType",
+      "name": "SubstanceTPMethodType",
       "doc": "Codes for T-P correction methods of calculation of DC thermodynamic parameters from GEMS3 v_mod.h\n",
       "members": [
         {
@@ -201,6 +201,11 @@
           "name": "mv_eos_tait_hp11",
           "value": 39,
           "doc": "molar volume V(T,P) from Tait EoS (Holland and Powell, 2011)\n"
+        },
+        {
+          "name": "mv_pvnrt",
+          "value": 40,
+          "doc": "molar volume from ideal gas law pv=nrt\n"
         }
       ]
     }
@@ -209,22 +214,22 @@
   ],
   "structs": [
     {
-      "name": "SubstanceEoSMethodData",
-      "doc": "Lagrange polynomial interpolation over logK(TP) array; ReacDC\n",
+      "name": "SubstanceTPMethodData",
+      "doc": "Data structure holding method codes and data for computing P,T corrections to standard properties\n",
       "isException": false,
       "isUnion": false,
       "fields": [
         {
           "key": 1,
           "name": "method",
-          "class": "SubstanceEoSMethodType",
+          "class": "SubstanceTPMethodType",
           "typeId": "map",
           "type": {
             "typeId": "map",
             "keyTypeId": "i32",
             "valueTypeId": "string"
           },
-          "doc": "Method type - validate with class SubstanceEoSMethodType\n",
+          "doc": "Method type - validate with class SubstanceTPMethodType\n",
           "required": "req_out"
         },
         {
@@ -600,7 +605,7 @@
             "elemTypeId": "struct",
             "elemType": {
               "typeId": "struct",
-              "class": "SubstanceEoSMethodData"
+              "class": "SubstanceTPMethodData"
             }
           },
           "doc": "One or more method codes and data for computing P,T corrections to standard properties\n",
@@ -615,14 +620,7 @@
             "class": "prop.LimitsTP"
           },
           "doc": "Overall T,P limits for all methods involved\n",
-          "required": "req_out",
-          "default": {
-            "range": 0,
-            "lowerT": 273.15,
-            "upperT": 298.15,
-            "lowerP": 0.1,
-            "upperP": 1000000
-          }
+          "required": "req_out"
         },
         {
           "key": 31,

@@ -92,7 +92,8 @@ enum SubstanceTPMethodType {
     mv_equation_berman88 = 36,
     mv_eos_birch_murnaghan_gott97 = 37,
     mv_eos_murnaghan_hp98 = 38,
-    mv_eos_tait_hp11 = 39
+    mv_eos_tait_hp11 = 39,
+    mv_pvnrt = 40
 };
 
 enum ReactionTPMethodType {
@@ -402,7 +403,8 @@ static const std::map<const SubstanceTPMethodType, const int> new_old_methodtype
   {SubstanceTPMethodType::fluid_sterner_pitzer, 315},
   {SubstanceTPMethodType::fluid_peng_robinson78, 316},
   {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, 317},
-  {SubstanceTPMethodType::solute_aknifiev_diamond03, 320}
+  {SubstanceTPMethodType::solute_aknifiev_diamond03, 320},
+  {SubstanceTPMethodType::mv_pvnrt, 300}
 };
 
 typedef struct {

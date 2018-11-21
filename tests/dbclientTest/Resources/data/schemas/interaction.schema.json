@@ -308,8 +308,13 @@
         },
         {
           "name": "IT_POLYNOM",
-          "value": 203,
+          "value": 204,
           "doc": "Polynomial with ln on P\n"
+        },
+        {
+          "name": "IT_PITZER",
+          "value": 205,
+          "doc": "f(T)=A+B*(1/T-1/298.15)+C*ln(T/298.15)+D*(T-298.15)+E*(T^2-298.15^2)\n"
         },
         {
           "name": "IT_OTHER",
@@ -456,6 +461,7 @@
         {
           "key": 6,
           "name": "intpart",
+          "class": "InteractionType",
           "typeId": "map",
           "type": {
             "typeId": "map",
