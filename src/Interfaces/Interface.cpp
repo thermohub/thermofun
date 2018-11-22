@@ -21,7 +21,7 @@ struct Interface::Impl
 
     OutputSettings                      outSettings;
 
-    CalculationSettings                 calcSettings;
+//    CalculationSettings                 calcSettings;
 
     vvd                                 tpPairs;
 
@@ -249,7 +249,7 @@ struct Interface::Impl
 
     auto calculateReactProp( double T, double P, string symbol, unsigned index ) -> void
     {
-        if (calcSettings.reactionsFromSubstances)
+        if (outSettings.calcReactFromSubst)
             results[index] = selectResultsReact(thermo.thermoPropertiesReactionFromReactants(T, P, symbol));
         else
             results[index] = selectResultsReact(thermo.thermoPropertiesReaction(T, P, symbol));
