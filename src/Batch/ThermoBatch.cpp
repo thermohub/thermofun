@@ -20,7 +20,7 @@ struct ThermoBatch::Impl
 
     OutputSettings                      outSettings;
 
-    BatchCalculationSettings            calcSettings;
+//    BatchCalculationSettings            calcSettings;
 
     vvd                                 tpPairs;
 
@@ -248,7 +248,7 @@ struct ThermoBatch::Impl
 
     auto calculateReactProp( double T, double P, string symbol, unsigned index ) -> void
     {
-        if (calcSettings.reactionsFromSubstances)
+        if (outSettings.calcReactFromSubst)
             results[index] = selectResultsReact(thermo.thermoPropertiesReactionFromReactants(T, P, symbol));
         else
             results[index] = selectResultsReact(thermo.thermoPropertiesReaction(T, P, symbol));

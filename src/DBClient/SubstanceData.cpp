@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "SubstanceData.h"
 #include "jsonio/jsondomfree.h"
+#include "sourcetdb.h"
 
 using namespace jsonio;
 
@@ -31,7 +32,7 @@ SubstanceData_::SubstanceData_( const TDataBase* adbconnect )
 
 SubstanceData_::SubstanceData_(const SubstanceData_& other)
 : AbstractData(other), pimpl(new Impl(*other.pimpl))
-{}
+{ }
 
 auto SubstanceData_::operator=(SubstanceData_ other) -> SubstanceData_&
 {
@@ -42,9 +43,14 @@ auto SubstanceData_::operator=(SubstanceData_ other) -> SubstanceData_&
 SubstanceData_::~SubstanceData_()
 { }
 
-auto SubstanceData_::queryInEdgesDefines(string idSubst, vector<string> queryFields,  string level) -> vector<string>
+const jsonio::ValuesTable&  SubstanceData_::getValuesTable()
 {
-    return queryInEdgesDefines_(idSubst, queryFields, level);
+    return pimpl->valuesTable;
+}
+
+auto SubstanceData_::queryInEdgesDefines(string idSubst,  string level) -> vector<string>
+{
+    return queryInEdgesDefines_(idSubst, level);
 }
 
 auto SubstanceData_::definesReactionSymbol(string idSubst, string level) -> std::string
@@ -66,11 +72,11 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
 {
   string formula;
   // get record
-  string jsonrecord = getJsonRecordVertex(idSubstance+":");
+  string jsonrecord = getJsonRecordVertex(idSubstance);
   auto domdata = jsonio::unpackJson( jsonrecord );
 
   // Extract data from fields
-  domdata->findKey(getDataName_DataFieldPath()["formula"], formula);
+  domdata->findValue(getDataName_DataFieldPath()["formula"], formula);
   //bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
 
   FormulaToken parser(formula);
@@ -109,9 +115,9 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
         fields = getDataNames();
     }
     //if (!elements.empty())
-      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), to_string(sourcetdb)) } );
+      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), sourceTDB_from_index(sourcetdb)) } );
 
-    ValuesTable substQueryMatr = getDB()->loadRecords(query, fields);
+    ValuesTable substQueryMatr = getDB()->downloadDocuments(query, fields);
 
     // get record by elements list
     updateTableByElementsList( substQueryMatr, elements );
@@ -127,7 +133,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
     //       qrAQL += "RETURN u";
     DBQueryData query( qrAQL, DBQueryData::qAQL );
     query.setQueryFields(makeQueryFields());
-    ValuesTable substMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable substMatr =  getDB()->downloadDocuments( query, getDataNames());
     setDefaultLevelForReactionDefinedSubst(substMatr);
     pimpl->valuesTable = substMatr;
     return substMatr;
@@ -135,12 +141,12 @@ ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )
 
 auto SubstanceData_::querySolvents(int sourcetdb) -> vector<vector<string>>
 {
-  string aqlStr = "FOR u  IN substances\n  FILTER u.properties.class_ == 3 && u.properties.sourcetdb == ";
-        aqlStr +=  to_string(sourcetdb) + " ";
+  string aqlStr = "FOR u  IN substances\n  FILTER u.properties.class_ == {'3' : 'SC_AQSOLVENT'} && u.properties.sourcetdb == ";
+        aqlStr +=  sourceTDB_from_index(sourcetdb) + " ";
   auto qrJson = DBQueryData( aqlStr, DBQueryData::qAQL );
   qrJson.setQueryFields(makeQueryFields());
 
- ValuesTable solventMatr = getDB()->loadRecords(qrJson, getDataNames() );
+ ValuesTable solventMatr = getDB()->downloadDocuments(qrJson, getDataNames() );
  return solventMatr;
 }
 
@@ -152,7 +158,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
 
     auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
     queryJson.setQueryFields( {{ "level", "properties.level" }} );
-    levelQueryMatr = getDB_edgeAccessMode()->loadRecords( queryJson, {"level"} );
+    levelQueryMatr = getDB_edgeAccessMode()->downloadDocuments( queryJson, {"level"} );
     for (uint i = 0; i < levelQueryMatr.size(); i++)
     {
         levels.push_back(std::stoi(levelQueryMatr[i][0]));
@@ -174,15 +180,14 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
                qrJson += idsub + "' \n defines\n";
                qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
 
-        vector<string> resultsQuery;
-        getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+        vector<string> resultsQuery =  getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
         for( auto result: resultsQuery )
         {
             auto domdata = jsonio::unpackJson( result );
-            domdata->findKey("level", level);
-            domdata->findKey("reaction", idreact);
-            levelReact[level] = idreact+":";
+            domdata->findValue("level", level);
+            domdata->findValue("reaction", idreact);
+            levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
         recordsLevelReact[value[getDataName_DataIndex()["symbol"]]] = levelReact;
@@ -204,15 +209,14 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
                qrJson += idsub + "' \n defines\n";
                qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
 
-        vector<string> resultsQuery;
-        getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ),  {}, resultsQuery);
+        vector<string> resultsQuery = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
         for( auto result: resultsQuery )
         {
             auto domdata = jsonio::unpackJson( result );
-            domdata->findKey("level", level);
-            domdata->findKey("reaction", idreact);
-            levelReact[level] = idreact+":";
+            domdata->findValue("level", level);
+            domdata->findValue("reaction", idreact);
+            levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
         recordsLevelReact[connectedSubstSymbols[i]] = levelReact;
@@ -230,13 +234,14 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
 
     // generate bind values
     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    domdata->appendArray( "sourcetdbs", sourcetdbs );
+    auto arr = domdata->appendArray( "sourcetdbs");
+    sourceTDB_from_indexes( sourcetdbs, arr );
     // make query
     DBQueryData query( AQLreq, DBQueryData::qAQL );
     query.setBindVars( domdata.get() );
     query.setQueryFields( makeQueryFields() );
 
-    ValuesTable substQueryMatr = getDB()->loadRecords(query, getDataNames());
+    ValuesTable substQueryMatr = getDB()->downloadDocuments(query, getDataNames());
 
     // delete not unique
     if( unique )
@@ -262,7 +267,7 @@ vector<string> SubstanceData_::selectGiven( const vector<string>& idThermoDataSe
            qrAQL +=  "\n  SORT v.properties.symbol ";
            qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
     DBQueryData query( qrAQL, DBQueryData::qAQL );
-    ValuesTable resMatr =  getDB()->loadRecords( query, getDataNames());
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
         deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
@@ -274,6 +279,32 @@ vector<string> SubstanceData_::selectGiven( const vector<string>& idThermoDataSe
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable = move(resMatr);
     return substanceSymbols;
+}
+
+vector<string> SubstanceData_::selectGiven( const string& idThermoDataSet,
+                   const vector<ElementKey>& elements, bool unique )
+{
+    string qrAQL =  "FOR v,e  IN 1..5 INBOUND '" + idThermoDataSet + "' \n";
+           qrAQL +=  ThermoDataSetQueryEdges;
+           qrAQL +=  "\n  FILTER v._label == 'substance' ";
+           qrAQL +=  "\n  SORT v.properties.symbol ";
+           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
+    //cout << "qrAQL: " << qrAQL << endl;
+    DBQueryData query( qrAQL, DBQueryData::qAQL );
+    ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
+
+    if( unique )
+        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+
+    updateTableByElementsList( resMatr, elements );
+
+    vector<string> substanceSymbols;
+    for (const auto& subitem : resMatr)
+      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+
+    setDefaultLevelForReactionDefinedSubst(resMatr);
+    pimpl->valuesTable =   move(resMatr);
+    return                substanceSymbols;
 }
 
 

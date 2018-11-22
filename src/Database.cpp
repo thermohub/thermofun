@@ -70,7 +70,7 @@ struct Database::Impl
         for (int i=0; i<jsons.size(); i++)
         {
             auto domdata = jsonio::unpackJson( jsons[i] );
-            domdata->findKey(label, kbuf );
+            domdata->findValue(label, kbuf );
             //bsonio::bson_to_key( bsons[i].data, label, kbuf );
 
             if (kbuf == "substance")
@@ -265,7 +265,7 @@ struct Database::Impl
             jsonio::JsonDom* curRecord = nullptr;
             while( (curRecord = file.LoadNext()) !=nullptr   )
             {
-                 curRecord->findKey( label, kbuf );
+                 curRecord->findValue( label, kbuf );
                  if (kbuf == "substance")
                     {
                         Substance substance = parseSubstance(curRecord);
@@ -291,7 +291,7 @@ struct Database::Impl
                     }
             }
         }
-        catch (jsonio::jsonio_exeption e)
+        catch (jsonio::jsonio_exception e)
         {
             Exception exception;
             exception.error << e.title_;

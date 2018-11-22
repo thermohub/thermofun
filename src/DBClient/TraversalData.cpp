@@ -169,11 +169,11 @@ auto TraversalData::level (std::string idSubst) -> std::string
         break;
     case DefinesLevelMode::multiple    : {
         std::string substSymb;
-        std::string key = idSubst +":";
+        std::string key = idSubst;
 
         string jsonrecord = pimpl->substData->getJsonRecordVertex(key);
         auto domdata = jsonio::unpackJson( jsonrecord );
-        domdata->findKey("properties.symbol", substSymb);
+        domdata->findValue("properties.symbol", substSymb);
 
         //record = pimpl->substData->getJsonBsonRecordVertex(key).second;
         //bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
@@ -193,15 +193,15 @@ auto TraversalData::linkedDataFromId(std::string id_) -> VertexId_VertexType
     string _idRecord, _label, _type, _symbol, level_;
     VertexId_VertexType result;
 
-    string jsonrecord =  pimpl->substData->getJsonRecordVertex(id_+":");
+    string jsonrecord =  pimpl->substData->getJsonRecordVertex(id_);
     auto domdata = jsonio::unpackJson( jsonrecord );
-    domdata->findKey("_id",    _idRecord);
-    domdata->findKey("_label", _label);
-    domdata->findKey("_type",  _type);
-    domdata->findKey("properties.symbol",  _symbol);
+    domdata->findValue("_id",    _idRecord);
+    domdata->findValue("_label", _label);
+    domdata->findValue("_type",  _type);
+    domdata->findValue("properties.symbol",  _symbol);
 
     // get recrod
-    //record = pimpl->substData->getJsonBsonRecordVertex(id_+":").second;
+    //record = pimpl->substData->getJsonBsonRecordVertex(id_).second;
 
     // Extract data from fields
     //bsonio::bson_to_key( record.data, "_id",    _idRecord);
@@ -234,16 +234,13 @@ void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_Ver
 {
     string _idReact = "";
     string  _resultDataReac;
-    vector<string> _resultDataEdge;
+    vector<string> _resultDataEdge = pimpl->substData->queryInEdgesDefines(_idSubst, level_ );
 
-    _resultDataEdge = pimpl->substData->queryInEdgesDefines(_idSubst, queryFieldsEdgeDefines, level_ );
     for(uint i = 0; i < _resultDataEdge.size(); i++)
     {
 
-        _idReact =  jsonio::extractStringField( "_from", _resultDataEdge[i] );
-        //jsonToBson(&record, _resultDataEdge[i]);
-        //bsonio::bson_to_key( record.data, "_from", _idReact );
-        _resultDataReac = pimpl->reactData->getJsonRecordVertex(_idReact+":") /*pimpl->reactData->queryRecord( _idReact, queryFieldsVertex)*/;
+        _idReact = _resultDataEdge[i];
+        _resultDataReac = pimpl->reactData->getJsonRecordVertex(_idReact);
 
         // if not in the database
         if (!result.count(_idReact))
@@ -258,15 +255,12 @@ void TraversalData::followIncomingEdgeTakes(std::string _idReact, VertexId_Verte
 {
     string _idSubst = ""; string level_ = "0";
     string _resultDataSubst;
-    vector<string> _resultDataEdge;
+    vector<string> _resultDataEdge  = pimpl->reactData->queryInEdgesTakes(_idReact );
 
-    _resultDataEdge = pimpl->reactData->queryInEdgesTakes(_idReact, queryFieldsEdgeTakes);
     for(uint i = 0; i < _resultDataEdge.size(); i++)
     {
         _idSubst = extractStringField("_from", _resultDataEdge[i]);
-        //jsonToBson(&record, _resultDataEdge[i]);
-        //bsonio::bson_to_key( record.data, "_from", _idSubst );
-        _resultDataSubst = pimpl->substData->getJsonRecordVertex(_idSubst+":")/*pimpl->substData->queryRecord(_idSubst, queryFieldsVertex)*/;
+        _resultDataSubst = pimpl->substData->getJsonRecordVertex(_idSubst);
 
         // if not in the database
         if (!result.count(_idSubst))
@@ -296,10 +290,10 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
         {
             _idSubst = iterator->first;
 
-            string jsonrecord = pimpl->substData->getJsonRecordVertex(_idSubst+":");
+            string jsonrecord = pimpl->substData->getJsonRecordVertex(_idSubst);
             auto domdata = jsonio::unpackJson( jsonrecord, "VertexSubstance" ); // with default values
-            domdata->findKey("properties.symbol", substSymb);
-            //record = pimpl->substData->getJsonBsonRecordVertex(_idSubst+":").second;
+            domdata->findValue("properties.symbol", substSymb);
+            //record = pimpl->substData->getJsonBsonRecordVertex(_idSubst).second;
             //bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
             level_ = level(_idSubst);
@@ -322,9 +316,9 @@ auto TraversalData::getDatabase(VertexId_VertexType resultTraversal) -> Database
             if (iterator->second == "reaction")
             {
                 _idReact = iterator->first;
-                string jsonrecord = pimpl->reactData->getJsonRecordVertex(_idReact+":");
+                string jsonrecord = pimpl->reactData->getJsonRecordVertex(_idReact);
                 auto domdata = jsonio::unpackJson( jsonrecord, "VertexReaction" ); // with default values
-                //record = pimpl->reactData->getJsonBsonRecordVertex(_idReact+":").second;
+                //record = pimpl->reactData->getJsonBsonRecordVertex(_idReact).second;
 
                 Reaction reaction = ThermoFun::parseReaction(domdata.get());
 

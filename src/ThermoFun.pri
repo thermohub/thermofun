@@ -78,7 +78,8 @@
     $$PWD/DBClient/ReactionSetData.h \
     $$PWD/ThermoEngine.h \
     $$PWD/Batch/ThermoBatch.h \
-    $$PWD/Batch/OutputBatch.h
+    $$PWD/Batch/OutputBatch.h \
+    $$PWD/DBClient/sourcetdb.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$PWD/Common/Units.cpp \
@@ -148,4 +149,5 @@
     $$PWD/DBClient/ThermoSetData.cpp \
     $$PWD/ThermoEngine.cpp \
     $$PWD/Batch/ThermoBatch.cpp \
-    $$PWD/Batch/OutputBatch.cpp
+    $$PWD/Batch/OutputBatch.cpp \
+    $$PWD/DBClient/sourcetdb.cpp

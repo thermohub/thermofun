@@ -227,32 +227,32 @@ class TSolMod
 		virtual long int PureSpecies()
 		{
 			return 0;
-		};
+        }
 
 		virtual long int PTparam()
 		{
 			return 0;
-		};
+        }
 
 		virtual long int MixMod()
 		{
 			return 0;
-		};
+        }
 
-		virtual long int ExcessProp( double *Zex )
+        virtual long int ExcessProp( double */*Zex*/ )
 		{
 			return 0;
-		};
+        }
 
-		virtual long int IdealProp( double *Zid )
+        virtual long int IdealProp( double */*Zid*/ )
 		{
 			return 0;
-		};
+        }
 
-        virtual long int Set_Felect_bc (long int Flagelect, double Bc, double Ac)
+        virtual long int Set_Felect_bc (long int /*Flagelect*/, double /*Bc*/, double /*Ac*/)
         {
             return 0;
-        };
+        }
 
 
         /// Set new system state

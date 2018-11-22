@@ -476,7 +476,7 @@ double TSolMod::ideal_conf_entropy()
 void TSolMod::Set_aIPc( const vector<double> aIPc_ )
 {
   long int rc;
-  if( aIPc_.size() != (NPar*NPcoef) )
+  if( (long)aIPc_.size() != (NPar*NPcoef) )
   {
       cout<<endl;
       cout<<" TNode::Set_aIPc() error: vector aIPc does not match the dimensions specified in the GEMS4K IPM file (NPar*NPcoef) !!!! "<<endl;
@@ -504,7 +504,7 @@ void TSolMod::Get_aIPc ( vector<double> &aIPc_ )
 void TSolMod::Set_aDCc( const vector<double> aDCc_ )
 {
   long int rc;
-  if( aDCc_.size() != (NComp*NP_DC) )
+  if( (long)aDCc_.size() != (NComp*NP_DC) )
   {
       cout<<endl;
       cout<<"TNode::Set_aDCc() error: vector aDCc does not match the dimensions specified in the GEMS4K IPM file (NComp*NP_DC) !!!! "<<endl;

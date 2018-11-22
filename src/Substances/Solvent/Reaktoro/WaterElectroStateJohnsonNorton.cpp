@@ -52,19 +52,19 @@ const double a[] =
 	-0.2729401652e+02
 };
 
-inline auto k0(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return {1.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
+inline auto k0(Reaktoro_::ThermoScalar /*t*/)    -> Reaktoro_::ThermoScalar { return {1.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
 inline auto k1(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[1]/t; }
 inline auto k2(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[2]/t + a[3] + a[4]*t; }
 inline auto k3(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[5]/t + a[6]*t + a[7]*t*t; }
 inline auto k4(Reaktoro_::ThermoScalar t)    -> Reaktoro_::ThermoScalar { return a[8]/t/t + a[9]/t + a[10]; }
 
-inline auto k0_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
+inline auto k0_t(Reaktoro_::ThermoScalar /*t*/)  -> Reaktoro_::ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
 inline auto k1_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -a[1]/(t*t); }
 inline auto k2_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -a[2]/(t*t) + a[4]; }
 inline auto k3_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -a[5]/(t*t) + a[6] + 2*a[7]*t; }
 inline auto k4_t(Reaktoro_::ThermoScalar t)  -> Reaktoro_::ThermoScalar { return -2*a[8]/(t*t*t) - a[9]/(t*t); }
 
-inline auto k0_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
+inline auto k0_tt(Reaktoro_::ThermoScalar /*t*/) -> Reaktoro_::ThermoScalar { return {0.0, 0.0, 0.0, 0.0, {Reaktoro_::Status::assigned, ""}}; }
 inline auto k1_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 2*a[1]/(t*t*t); }
 inline auto k2_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 2*a[2]/(t*t*t); }
 inline auto k3_tt(Reaktoro_::ThermoScalar t) -> Reaktoro_::ThermoScalar { return 2*a[5]/(t*t*t) + 2*a[7]; }

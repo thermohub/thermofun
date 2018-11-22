@@ -13,6 +13,7 @@
 #include "ReactionSetData.h"
 #include "ThermoSetData.h"
 #include "TraversalData.h"
+#include "sourcetdb.h"
 
 #include "Database.h"
 #include "Element.h"
@@ -28,8 +29,8 @@ using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
 using AvailableElementsSet    = std::function<set<Element>(uint)>;
 using AvailableElementsKey    = std::function<std::vector<ElementKey>(uint)>;
 
-std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
-std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
+//std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
+//std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
 
 struct DatabaseClient::Impl
 {
@@ -97,8 +98,7 @@ struct DatabaseClient::Impl
         available_elements_set_fn = memoize(available_elements_set_fn);
 
         auto elementVertex = unique_ptr<TDBVertexDocument> (
-                    TDBVertexDocument::newDBVertexReadOnlyDocument(
-              _dbconnect.get(),  "VertexElement"/*, ChemicalFormula::getDefaultQuery()*/ ));
+                    TDBVertexDocument::newVertexDocument( _dbconnect.get(),  "VertexElement" ));
         // load all elements into system
         ChemicalFormula::setDBElements( elementVertex.get(), ChemicalFormula::getDefaultQuery() );
     }
@@ -167,22 +167,18 @@ struct DatabaseClient::Impl
     auto querySubstances(uint sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
-        query += to_string(sourcetdb);
+        query += sourceTDB_from_index(sourcetdb);
         query += " }";
-        vector<string> _queryFields = queryFieldsSubstance;
-        vector<string> _resultData;
-        substData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ), _queryFields, _resultData);
+        vector<string> _resultData = substData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ) );
         return _resultData;
     }
 
     auto queryReactions(uint sourcetdb) -> std::vector<std::string>
     {
-        string query = "{ \"_label\" : \"reaction\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
-        query += to_string(sourcetdb);
+        string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
+        query += sourceTDB_from_index(sourcetdb);
         query += " }";
-        vector<string> _queryFields = queryFieldsReaction;
-        vector<string> _resultData;
-        reactData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ), _queryFields, _resultData);
+        vector<string> _resultData = reactData.getDB()->runQuery(DBQueryData( query, DBQueryData::qTemplate ) );
         return _resultData;
     }
 
@@ -238,8 +234,6 @@ auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
     // get substances ids
     auto substKeyList = extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdbIndex), "_id");
 
-//    for (auto &key_: substKeyList)
-//        key_ += ":";
     // get all ids conected to the keyList (by incoming edges, e.g. defines reactions and thier reactants)
     auto resultTraversal = pimpl->traversal.getMapOfConnectedIds(substKeyList, "0");
 
@@ -267,16 +261,15 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Ele
 
 auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
 {
-    //string query = "{ \"$or\" : [ { \"_label\" :   \"substance\" }, { \"_label\" :   \"reaction\"  }"
-    //               "], \"_type\" :   \"vertex\"  }";
-    // query only by substances (all reactions must connect substance )
-    //DBQueryData query("{ \"_label\" :   \"substance\" , \"_type\" :   \"vertex\"  }", DBQueryData::qTemplate );
+
     set<uint> _sourcetdb;
-    //vector<string> _resultData = pimpl->substData.getDB()->fieldQuery("properties.sourcetdb", query);
     vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
     for (uint ii = 0; ii < _resultData.size(); ii++)
     {
-        uint asourcetdb = stoi(_resultData[ii]);
+        uint first  = _resultData[ii].find("\"");
+        uint second = _resultData[ii].find("\"", first+1);
+        string strNew   = _resultData[ii].substr (first+1,second-(first+1));
+        int asourcetdb = stoi(strNew);
         _sourcetdb.insert(asourcetdb);
     }
     return _sourcetdb;

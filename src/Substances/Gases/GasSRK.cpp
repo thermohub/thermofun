@@ -9,6 +9,8 @@ namespace ThermoFun {
 auto thermoPropertiesGasSRK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     double FugProps[6];
+    if (Pbar.val == 0.0)
+        Pbar += 1e-5;
     solmod::TSRKcalc mySRK( 1, (Pbar.val), (TK.val) );
     double TClow = subst.thermoParameters().temperature_intervals[0][0];
     double * CPg = new double[7];

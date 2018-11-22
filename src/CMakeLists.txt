@@ -8,7 +8,7 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 # Set the list of names of the third-party targets and libraries
-set(THIRDPARTY_TARGETS JSONIO)
+#set(THIRDPARTY_TARGETS JSONIO)
 set(THIRDPARTY_LIBS jsonio boost_regex boost_filesystem curl velocypack)
 set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
 
@@ -16,7 +16,7 @@ set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
 add_library(THERMOFUN_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 
 # Specify the dependencies of THERMOFUN to ensure proper build sequence
-add_dependencies(THERMOFUN_OBJECTS ${THIRDPARTY_TARGETS})
+#add_dependencies(THERMOFUN_OBJECTS ${THIRDPARTY_TARGETS})
 
 # Check if a shared library is to be built
 if(BUILD_SHARED_LIBS)

@@ -35,6 +35,7 @@ using std::vector;
 using std::shared_ptr;
 using std::stringstream;
 
+namespace ThermoFun {
 namespace units {
 namespace internal {
 
@@ -633,3 +634,4 @@ bool convertible(const std::string& from, const std::string& to)
 }
 
 } // namespace units
+} // namespace ThermoFun

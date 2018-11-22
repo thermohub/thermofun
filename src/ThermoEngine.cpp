@@ -36,7 +36,7 @@ struct ThermoPreferences
     MethodCorrT_Thrift::type  method_T;
     MethodCorrP_Thrift::type  method_P;
 
-    unsigned solventState = 0; // 0: liquid; 1: vapor
+    int solventState = 0; // 0: liquid; 1: vapor
 
     bool isHydrogen     = false;
     bool isH2Ovapor     = false;
@@ -82,25 +82,25 @@ struct ThermoEngine::Impl
     : database(database)
     {
         thermo_properties_substance_fn = [=](double T, double P_, double &P, std::string symbol)
-        {
+        {   auto x = P_;
             return thermoPropertiesSubstance(T, P, symbol);
         };
         thermo_properties_substance_fn = memoize(thermo_properties_substance_fn);
 
         electro_properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol)
-        {
+        {   auto x = P_;
             return electroPropertiesSolvent(T, P, symbol);
         };
         electro_properties_solvent_fn = memoize(electro_properties_solvent_fn);
 
         properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol)
-        {
+        {   auto x = P_;
             return propertiesSolvent(T, P, symbol);
         };
         properties_solvent_fn = memoize(properties_solvent_fn);
 
         thermo_properties_reaction_fn = [=](double T, double P_, double &P, std::string symbol)
-        {
+        {   auto x = P_;
             return thermoPropertiesReaction(T, P, symbol);
         };
         thermo_properties_reaction_fn = memoize(thermo_properties_reaction_fn);
@@ -456,8 +456,7 @@ struct ThermoEngine::Impl
         }
         case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
         {
-            return tpr = ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol)); // NOT TESTED!!!
-            break;
+            return ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol)); // NOT TESTED!!!
         }
         case MethodCorrT_Thrift::type::CTM_IKZ:
         {
@@ -621,7 +620,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants (double T, double &P, s
     {
         auto coeff      = reactant.second;
         auto substance  = reactant.first;
-        auto tps        = pimpl->thermo_properties_substance_fn(T, P, P, substance); /*thermoPropertiesSubstance(T, P, substance);*/
+        auto tps        = pimpl->thermo_properties_substance_fn(T, P,P, substance); /*thermoPropertiesSubstance(T, P, substance);*/
 
         tpr.reaction_heat_capacity_cp   += tps.heat_capacity_cp*coeff;
         tpr.reaction_gibbs_energy       += tps.gibbs_energy*coeff;

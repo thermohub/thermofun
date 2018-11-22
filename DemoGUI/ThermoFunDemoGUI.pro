@@ -14,6 +14,7 @@ TEMPLATE = app
 
 CONFIG += thread
 CONFIG += c++11
+CONFIG += warn_on
 
 DEFINES += FROM_SRC
 
@@ -69,11 +70,10 @@ LIBPATH += "/usr/local/lib/"
 
 
 LIBS +=  -ljsonui -ljsonio -ljsonimpex
-LIBS +=  -lyaml-cpp  -lpugixml
+#LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift
-
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR
@@ -90,4 +90,14 @@ RESOURCES += \
     ThermoFunDemoGUI.qrc
 
 #thrift -r -v --gen cpp
+
+SOURCES += \
+    test/main.cpp \
+    test/ThermoFunMainWindow.cpp
+
+HEADERS += \
+    test/ThermoFunMainWindow.h
+
+FORMS += \
+    test/ThermoFunMainWindow.ui
 

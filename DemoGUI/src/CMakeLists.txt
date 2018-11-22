@@ -1,22 +1,3 @@
-
-find_package(Qt5Widgets REQUIRED)
-if ( NOT Qt5Widgets_FOUND )
-  message(FATAL_ERROR "Package Qt5 required, but not found!")
-endif( NOT Qt5Widgets_FOUND )
-
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5PrintSupport REQUIRED)
-find_package (Qt5WebEngineWidgets REQUIRED )
-find_package (Qt5Charts REQUIRED )
-# Add the include directories for the Qt 5 Widgets module to
-# the compile lines.
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
-include_directories(${Qt5Core_INCLUDE_DIRS})
-include_directories(${Qt5Gui_INCLUDE_DIRS})
-include_directories(${Qt5PrintSupport_INCLUDE_DIRS})
-include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
-
 set(CMAKE_AUTORCC ON)
 
 # Recursively collect all header files from the current directory

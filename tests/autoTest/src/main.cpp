@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
     cout << "Hello World!" << endl;
 
-    string file = "Resources/test_multi_new_elem.VertexSubstance.json";
+    string file = "Resources/autoTest_substances_elements.VertexSubstance.json";
     char config_json_file_path[256] = "Resources/GEMS4/TestMulti";
 
     TNode* node = new TNode();
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 //        tdb2.addSubstance(vSubst[i]);
 //    }
 
-    Thermo thermo (tdb);
+    ThermoEngine thermo (tdb);
 //    auto test = thermo.thermoPropertiesSubstance(10,10,"what");
 
     ThermoPropertiesSubstance result_tcorrpt, tps_gems, result_tcorrpt_, test2;

@@ -11,21 +11,6 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CXXFLAGS "-fPIC")
 endif()
 
-# Download and install the bsonui library
-ExternalProject_Add(BSONIO
-    PREFIX thirdparty
-    GIT_REPOSITORY https://bitbucket.org/gems4/bsonio.git
-    UPDATE_COMMAND ""
-    CMAKE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THIRDPARTY_DIR}
-               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-               -DCMAKE_CXX_FLAGS=${CXXFLAGS}               
-               -DCMAKE_INSTALL_INCLUDEDIR=include
-               -DCMAKE_INSTALL_LIBDIR=lib
-               -DCMAKE_INSTALL_BINDIR=bin
-               -DBUILD_SHARED_LIBS=ON
-)
-
 # Download and install the Reaktoro library
 ExternalProject_Add(REAKTORO
     PREFIX thirdparty

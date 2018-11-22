@@ -42,5 +42,8 @@ tests/interfaceTest/install_manifest.txt
 tests/interfaceTest/lib/
 tests/interfaceTest/thirdparty/
 
+.vscode/
+python/
+tests/PyThermoFun.so
 
 

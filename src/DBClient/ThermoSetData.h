@@ -30,6 +30,13 @@ public:
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idThermoDataSet);
 
+    /// Link to table of fields values loaded before
+    const jsonio::ValuesTable& getValuesTable();
+
+    /// Return all formulas from all connected substances
+    vector<string> getSubstanceFormulas( const string& idThermoDataSet );
+
+
     auto idRecordFromSymbol (const string &symbol) -> string;
 
     /// Visit  all linked Vertexes

@@ -1,0 +1,376 @@
+{
+  "name": "chemeqsysdef",
+  "doc": "Apache Thrift IDL definition for the chemsystem service interface\n",
+  "namespaces": {
+    "*": "chemeqsysdef"
+  },
+  "includes": [
+"prop",
+"element",
+"substance",
+"reactionset",
+"thermodataset",
+"phase"
+  ],
+  "enums": [
+    {
+      "name": "csdType",
+      "doc": "classes (types) of chemsysdefs\n",
+      "members": [
+        {
+          "name": "CSD_GEM",
+          "value": 0,
+          "doc": "GEM-type chemical system\n"
+        },
+        {
+          "name": "CSD_LMA",
+          "value": 1,
+          "doc": "LMA-type chemical system definition\n"
+        },
+        {
+          "name": "CSD_UNI",
+          "value": 2,
+          "doc": "Universal system definition (for exporting both )\n"
+        },
+        {
+          "name": "CSD_REF",
+          "value": 3,
+          "doc": "Reference system definition\n"
+        },
+        {
+          "name": "CSD_OTHER",
+          "value": 101,
+          "doc": "other type\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+    {
+      "name": "dcrow",
+      "typeId": "list",
+      "type": {
+        "typeId": "list",
+        "elemTypeId": "double"
+      },
+      "doc": "row of stoichiometry matrix for DC (substance)\n"
+    }
+  ],
+  "structs": [
+    {
+      "name": "ChemEqSysDef",
+      "doc": "description of chemical system definition\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "unique name\/ID of this chemsysdef set\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "csdtyp",
+	  "class": "csdType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "type of chemsysdef - validate with class csdType\n",
+          "required": "required",
+          "default": {
+            "0": "CSD_GEM"
+          }
+        },
+        {
+          "key": 3,
+          "name": "thermodataset",
+          "typeId": "string",
+          "doc": "Used thermodataset symbol (also csdinvolves link)\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Full name comment of the chemsysdef (not compulsory)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "elements",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "element.ElementInfo"
+            }
+          },
+          "doc": "List of element symbols and infos, a subset of the thermodataset list\n",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "phases",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "phase.PhaseInfo"
+            }
+          },
+          "doc": "can be constructed automatically using \"Collect\" edges to phases\n",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "nspiph",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "doc": "numbers of species (DCs) in phases\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "nphsol",
+          "typeId": "i32",
+          "doc": "number of phases - solutions\n",
+          "required": "req_out"
+        },
+        {
+          "key": 12,
+          "name": "substances",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "substance.SubstanceInfo"
+            }
+          },
+          "doc": "list of chemical species symbols (arranged by phases) - a subset of that in thermodataset\n",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "speciesMap",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "i32"
+          },
+          "doc": "Map of species symbols and types (class SpeciesTypeRS) - a re-sorted subset, for LMA-type\n",
+          "required": "req_out"
+        },
+        {
+          "key": 17,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "lower and upper T, P limits fof applicability\n",
+          "required": "req_out",
+          "default": {
+            "range": 0,
+            "lowerT": 273.15,
+            "upperT": 298.15,
+            "lowerP": 0.1,
+            "upperP": 1000000
+          }
+        },
+        {
+          "key": 18,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 19,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "timestamp\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ChemEqSysDefs",
+      "doc": "Definition of an array of recipes and data for chemical system definitions\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "systems",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ChemEqSysDef"
+            }
+          },
+          "doc": "List of chemical system definitions\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "chemsysdefdata",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "Nelements",
+          "typeId": "i32",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "elements",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "element.ElementInfo"
+            }
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "bic",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "Nspecies",
+          "typeId": "i32",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "species",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "substance.SubstanceInfo"
+            }
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "ndc",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "A",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "list",
+            "elemType": {
+              "typeId": "list",
+              "elemTypeId": "double"
+            }
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 13,
+          "name": "Nphases",
+          "typeId": "i32",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "phases",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "phase.PhaseInfo"
+            }
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 15,
+          "name": "nph",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 16,
+          "name": "ndcinph",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 19,
+          "name": "processedCSD",
+          "typeId": "bool",
+          "required": "req_out",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

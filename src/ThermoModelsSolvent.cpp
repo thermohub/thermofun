@@ -14,7 +14,7 @@
 
 namespace ThermoFun {
 
-auto checkModelValidity(double T, double P, double Tmax, double Tmin, double Pmax, double Pmin, string model) -> void
+auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double Pmax, double Pmin, string model) -> void
 {
     // Check if given temperature is within the allowed range
     if(T < 0 /*Tmin*/ || T > Tmax)
@@ -208,7 +208,7 @@ WaterZhangDuan2005::WaterZhangDuan2005(const Substance &substance)
 {}
 
 // calculation
-auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int state) -> PropertiesSolvent
+auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int /*state*/) -> PropertiesSolvent
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
@@ -222,7 +222,7 @@ auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int state) -> Pro
     return propertiesWaterZhangDuan2005(t,p);
 }
 
-auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance
+auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double P, int /*state*/) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa; // bar
