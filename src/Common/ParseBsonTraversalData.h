@@ -77,7 +77,7 @@ auto parseReaction (const jsonio::JsonDom *object) -> Reaction;
 
 /// Parses a bson object and loads the parameters into the internal sturcture
 /// @param bso bson object
-auto thermoParamReac ( const jsonio::JsonDom *object, std::string name) -> ThermoParametersReaction;
+auto thermoParamReac (const jsonio::JsonDom *object, std::string name, ThermoParametersReaction& pr) -> void;
 
 /// Parses a bson object and loads reference thermodynamic properties into the internal sturcture
 /// @param bso bson object
@@ -87,6 +87,7 @@ auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_Verte
 
 auto getTPMethods(const std::vector<std::string>& vkbuf) -> std::vector<std::pair<std::string, Method>>;
 auto getTPMethods(const jsonio::JsonDom *object, const std::vector<std::string>& vkbuf, Substance& s) -> void;
+auto getTPMethods(const std::vector<std::string> &vkbuf, Reaction &r) -> void;
 
 }
 

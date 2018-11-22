@@ -127,6 +127,9 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P) -> Th
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
+    ThermoPropertiesReaction tpr;
+    return tpr;
+
 //    return thermoPropertiesFromReactantsProperties(t, p, pimpl->reaction);
 }
 
@@ -157,6 +160,9 @@ auto Reaction_Vol_fT::thermoProperties(double T, double P) -> ThermoPropertiesRe
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
+
+    ThermoPropertiesReaction tpr;
+    return tpr;
 
 //    return thermoPropertiesReaction_Vol_fT(t, p, pimpl->reaction);
 }

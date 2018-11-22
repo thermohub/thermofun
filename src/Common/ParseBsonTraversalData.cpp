@@ -184,7 +184,7 @@ auto parseElement (const jsonio::JsonDom *object) -> Element
         if (!parseIssues(kbuf, name, elemClass)) { e.setClass(index_from_map(kbuf));}
 
     if (object->findValue( elemIsotopeMass, kbuf ))
-        if (!parseIssues(kbuf, name, elemIsotopeMass)) { e.setIsotopeMass(atof(kbuf.c_str()));}
+        if (!parseIssues(kbuf, name, elemIsotopeMass)) { e.setIsotopeMass(atoi(kbuf.c_str()));}
 
     return e;
 }
@@ -259,7 +259,7 @@ auto parseSubstance (const jsonio::JsonDom *object) -> Substance
     return s;
 }
 
-auto getParameterCoefficients(const jsonio::JsonDom *object, const SubstanceTPMethodType &type) -> std::unordered_map<std::string, std::vector<double>>
+auto getParameterCoefficients(/*const jsonio::JsonDom *object,*/ const SubstanceTPMethodType &type) -> std::unordered_map<std::string, std::vector<double>>
 {
     std::unordered_map<std::string, std::vector<double>> coefficients;
     std::vector<double> coeffs;
@@ -279,6 +279,33 @@ auto getParameterCoefficients(const jsonio::JsonDom *object, const SubstanceTPMe
     return coefficients;
 }
 
+auto setTPMethods_old(const ReactionTPMethodType &type, Reaction &r) -> void
+{
+    switch (type)
+    {
+        case ReactionTPMethodType::dr_heat_capacity_ft:
+        case ReactionTPMethodType::adsor_ion_exchange:
+        case ReactionTPMethodType::logk_fpt_function:
+        case ReactionTPMethodType::iso_compounds_grichuk88:
+            r.setMethodGenEoS(MethodGenEoS_Thrift::type(new_old_r_methodtype.at(type)));
+            break;
+        case ReactionTPMethodType::logk_nordstrom_munoz88:
+        case ReactionTPMethodType::logk_1_term_extrap0:
+        case ReactionTPMethodType::logk_1_term_extrap1:
+        case ReactionTPMethodType::logk_2_term_extrap:
+        case ReactionTPMethodType::logk_3_term_extrap:
+        case ReactionTPMethodType::logk_lagrange_interp:
+        case ReactionTPMethodType::logk_marshall_frank78:
+        case ReactionTPMethodType::solute_eos_ryzhenko_gems:
+            r.setMethod_T(MethodCorrT_Thrift::type(new_old_r_methodtype.at(type)));
+            break;
+        case ReactionTPMethodType::dr_volume_fpt:
+        case ReactionTPMethodType::dr_volume_constant:
+            r.setMethod_P(MethodCorrP_Thrift::type(new_old_r_methodtype.at(type)));
+            break;
+    }
+}
+
 auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
 {
     switch (type)
@@ -290,7 +317,7 @@ auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
     case SubstanceTPMethodType::water_diel_jnort91_gems:        
     case SubstanceTPMethodType::water_diel_sverj14:        
     case SubstanceTPMethodType::water_diel_fern97:
-        s.setMethodGenEoS(MethodGenEoS_Thrift::type(new_old_methodtype.at(type)));
+        s.setMethodGenEoS(MethodGenEoS_Thrift::type(new_old_s_methodtype.at(type)));
         break;
     case SubstanceTPMethodType::landau_holland_powell98:
     case SubstanceTPMethodType::landau_berman88:
@@ -300,7 +327,7 @@ auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
     case SubstanceTPMethodType::water_eos_hgk84_reaktoro:
     case SubstanceTPMethodType::water_eos_iapws95_reaktoro:
     case SubstanceTPMethodType::water_pvt_zhang_duan05:
-        s.setMethod_T(MethodCorrT_Thrift::type(new_old_methodtype.at(type)));
+        s.setMethod_T(MethodCorrT_Thrift::type(new_old_s_methodtype.at(type)));
         break;
     case SubstanceTPMethodType::mv_constant:
     case SubstanceTPMethodType::mv_equation_dorogokupets88:
@@ -317,7 +344,7 @@ auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
     case SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91:
     case SubstanceTPMethodType::solute_aknifiev_diamond03:
     case SubstanceTPMethodType::mv_pvnrt:
-        s.setMethod_P(MethodCorrP_Thrift::type(new_old_methodtype.at(type)));
+        s.setMethod_P(MethodCorrP_Thrift::type(new_old_s_methodtype.at(type)));
         break;
     }
 
@@ -334,9 +361,23 @@ auto getTPMethods(const std::vector<std::string>& vkbuf) -> listmethods
         int key;
         Method method;
         extractMapFirst(jmethod.get(), "method", key, method.name);
-        method.parameter_coefficients = getParameterCoefficients(jmethod.get(), SubstanceTPMethodType(key));
+        method.parameter_coefficients = getParameterCoefficients(/*jmethod.get(),*/ SubstanceTPMethodType(key));
     }
     return tpmethods;
+}
+
+auto getTPMethods(/*const jsonio::JsonDom *object,*/ const std::vector<std::string> &vkbuf, Reaction &r) -> void
+{
+    ThermoParametersReaction pr;
+    for (auto kbufx : vkbuf)
+    {
+        auto jmethod = jsonio::unpackJson(kbufx);
+        int key; std::string name;
+        extractMapFirst(jmethod.get(), "method", key, name);
+        setTPMethods_old(ReactionTPMethodType(key), r);
+        thermoParamReac(jmethod.get(), r.name(), pr);
+    }
+    r.setThermoParameters(pr);
 }
 
 auto getTPMethods(const jsonio::JsonDom *object, const std::vector<std::string> &vkbuf, Substance &s) -> void
@@ -452,6 +493,7 @@ auto parseReaction (const jsonio::JsonDom *object) -> Reaction
 {
     Reaction r;
     string kbuf;
+    vector<string> vkbuf;
     string name;
 
     if (object->findValue( reacName, kbuf ))
@@ -490,20 +532,22 @@ auto parseReaction (const jsonio::JsonDom *object) -> Reaction
     if (object->findValue( upperP, kbuf ))
         if (!parseIssues(kbuf, name, upperP)) r.setUpperP(std::stod(kbuf.c_str()));
 
+    // get temperature and pressure coreection methods
+    if (object->findArray(TPMethods, vkbuf))
+        getTPMethods(/*object,*/ vkbuf, r);
 
     // get thermodynamic parameters
-    r.setThermoParameters(thermoParamReac (object, name));
+//    r.setThermoParameters(thermoParamReac (object, name));
     // get reference thermodynamic properties
     r.setThermoReferenceProperties(thermoRefPropReac (object, name));
 
     return r;
 }
 
-auto thermoParamReac (const jsonio::JsonDom *object, std::string name) -> ThermoParametersReaction
+auto thermoParamReac (const jsonio::JsonDom *object, std::string name, ThermoParametersReaction& pr) -> void
 {
     vector<string> vkbuf;
     string kbuf;
-    ThermoParametersReaction pr;
 
     if (object->findArray(  reacLogKfT, vkbuf))
         if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacLogKfT))
@@ -537,12 +581,19 @@ auto thermoParamReac (const jsonio::JsonDom *object, std::string name) -> Thermo
         { return std::stod(val); });
     }
 
-    double lT = 273.15; double uT = 2273.15;
+    double lT = 0.0; double uT = 0.0;
+    double lP = 0.0; double uP = 0.0;
     if (object->findValue( lowerT, kbuf ))
         if (!parseIssues(kbuf, name, lowerT)) lT = std::stod(kbuf.c_str());
     if (object->findValue( upperT, kbuf ))
         if (!parseIssues(kbuf, name, upperT)) uT = std::stod(kbuf.c_str());
     pr.temperature_intervals.push_back({lT, uT});
+
+    if (object->findValue( lowerP, kbuf ))
+        if (!parseIssues(kbuf, name, lowerP)) lT = std::stod(kbuf.c_str());
+    if (object->findValue( upperP, kbuf ))
+        if (!parseIssues(kbuf, name, upperP)) uT = std::stod(kbuf.c_str());
+    pr.pressure_intervals.push_back({lT, uT});
 
     if (object->findArray(  reacRBcoeff, vkbuf))
         if (vkbuf.size() > 0) if (!parseIssues(vkbuf[0], name, reacRBcoeff))
@@ -559,8 +610,7 @@ auto thermoParamReac (const jsonio::JsonDom *object, std::string name) -> Thermo
         std::transform(vkbuf.begin(), vkbuf.end(), pr.reaction_FM_coeff.begin(), [](const std::string& val)
         { return std::stod(val); });
     }
-
-    return pr;
+//    return pr;
 }
 
 auto thermoRefPropReac (const jsonio::JsonDom *object, string name) -> ThermoPropertiesReaction

@@ -109,7 +109,8 @@ enum ReactionTPMethodType {
     logk_marshall_frank78 = 9,
     solute_eos_ryzhenko_gems = 10,
     dr_heat_capacity_ft = 11,
-    dr_volume_fpt = 12
+    dr_volume_fpt = 12,
+    dr_volume_constant = 13
 };
 
 const std::map<const SubstanceTPMethodType, const std::vector<std::string>> method_parameters = {
@@ -143,8 +144,6 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, {""} },
 {SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} } 
 };
-
-
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {
@@ -374,7 +373,7 @@ static const int MethodCorrP_ndxThrift[] = {
 //  "Z"             ///< CPM_INK Lagrange polynomial interpolation over logK(TP) array; ReacDC
 //};
 
-static const std::map<const SubstanceTPMethodType, const int> new_old_methodtype = {
+static const std::map<const SubstanceTPMethodType, const int> new_old_s_methodtype = {
   {SubstanceTPMethodType::cp_ft_equation, 100},
   {SubstanceTPMethodType::solute_hkf88_gems, 101},
   {SubstanceTPMethodType::solute_hkf88_reaktoro, 119},
@@ -405,6 +404,23 @@ static const std::map<const SubstanceTPMethodType, const int> new_old_methodtype
   {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, 317},
   {SubstanceTPMethodType::solute_aknifiev_diamond03, 320},
   {SubstanceTPMethodType::mv_pvnrt, 300}
+};
+
+static const std::map<const ReactionTPMethodType, const int> new_old_r_methodtype = {
+  {ReactionTPMethodType::dr_heat_capacity_ft, 100},
+  {ReactionTPMethodType::adsor_ion_exchange, 105},
+  {ReactionTPMethodType::logk_fpt_function, 102},
+  {ReactionTPMethodType::iso_compounds_grichuk88, 104},
+  {ReactionTPMethodType::logk_nordstrom_munoz88, 208},
+  {ReactionTPMethodType::logk_1_term_extrap0, 209},
+  {ReactionTPMethodType::logk_1_term_extrap1, 210},
+  {ReactionTPMethodType::logk_2_term_extrap, 211},
+  {ReactionTPMethodType::logk_3_term_extrap, 212},
+  {ReactionTPMethodType::logk_lagrange_interp, 213},
+  {ReactionTPMethodType::logk_marshall_frank78, 214},
+  {ReactionTPMethodType::solute_eos_ryzhenko_gems, 216},
+  {ReactionTPMethodType::dr_volume_fpt, 306},
+  {ReactionTPMethodType::dr_volume_constant, 305 }
 };
 
 typedef struct {
@@ -576,10 +592,15 @@ static const char * substCpParam            = "m_heat_capacity_ft_coeffs.values"
 static const char * substTransProp          = "m_landau_phase_trans_props.values"; //
 //static const char * substTransPropBm        = "properties.phase_transition_prop_Berman.values";
 
-static const char * lowerT                  = "properties.limitsTP.lowerT";
-static const char * upperT                  = "properties.limitsTP.upperT";
-static const char * lowerP                  = "properties.limitsTP.lowerP";
-static const char * upperP                  = "properties.limitsTP.upperP";
+static const char * lowerT                  = "limitsTP.lowerT";
+static const char * upperT                  = "limitsTP.upperT";
+static const char * lowerP                  = "limitsTP.lowerP";
+static const char * upperP                  = "limitsTP.upperP";
+
+static const char * plowerT                  = "properties.limitsTP.lowerT";
+static const char * pupperT                  = "properties.limitsTP.upperT";
+static const char * plowerP                  = "properties.limitsTP.lowerP";
+static const char * pupperP                  = "properties.limitsTP.upperP";
 
 /// Key for reading reaction data from input files
 static const char * reacName               = "properties.name";
@@ -603,12 +624,12 @@ static const char * reacRefV0_              = "properties.drsm_volume";
 static const char * reacRefCp0_             = "properties.drsm_heat_capacity_p";
 
 /// Model parameters
-static const char * reacLogKfT             = "properties.logk_ft_coeffs.values";
-static const char * reacLogKPT             = "properties.logk_pt_values.pptv";
-static const char * reacDrCpfT             = "properties.dr_heat_capacity_p_t_coeffs.values";
-static const char * reacDrVfT              = "properties.dr_volume_pt_coeffs.values";
-static const char * reacRBcoeff            = "properties.dr_sm_rb_coeffs.values";
-static const char * reacFMcoeff            = "properties.dr_dm_fm_coeffs.values";
+static const char * reacLogKfT             = "logk_ft_coeffs.values"; //
+static const char * reacLogKPT             = "logk_pt_values.pptv"; //
+static const char * reacDrCpfT             = "dr_heat_capacity_ft_coeffs.values"; //
+static const char * reacDrVfT              = "dr_volume_fpt_coeffs.values"; //
+static const char * reacRBcoeff            = "dr_ryzhenko_coeffs.values"; //
+static const char * reacFMcoeff            = "dr_marshall_franck_coeffs.values"; //
 
 
 //typedef std::vector<struct SubstanceData*>  Substances;
