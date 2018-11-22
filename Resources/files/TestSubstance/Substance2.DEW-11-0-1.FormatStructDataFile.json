@@ -1,0 +1,56 @@
+{
+     "block" :   {
+          "defaults" :   {
+               "properties.aggregate_state" :   "4",
+               "properties.method_genEoS" :   "101",
+               "properties.method_corrT" :   "205",
+               "properties.method_corrP" :   "319",
+               "properties.class_" :   "2",
+               "properties.Tst" :   "298.15",
+               "properties.Pst" :   "1.0e5",
+               "properties.eos_hkf_coeffs.list_size" :   "7",
+               "properties.sourcetdb" :   "18",
+               "properties.standard_cscale" :   "2",
+               "properties.datasources" :   "[\"DEW_Model_11.0.1\"]"
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "Name" :   {
+                    "field" :   "properties.name"
+               },
+               "Symbol" :   {
+                    "field" :   "properties.symbol"
+               },
+               "Comments" :   {
+                    "field" :   "properties.comment"
+               },
+               "Z" :   {
+                    "field" :   "properties.formula_charge"
+               },
+               "G0" :   {
+                    "field" :   "properties.sm_gibbs_energy.values"
+               },
+               "H0" :   {
+                    "field" :   "properties.sm_enthalpy.values",
+                    "script" :   "field = field * 4.184"
+               },
+               "S0" :   {
+                    "field" :   "properties.sm_entropy_abs.values"
+               },
+               "Cp0" :   {
+                    "field" :   "properties.sm_heat_capacity_p.values"
+               },
+               "V0" :   {
+                    "field" :   "properties.sm_volume.values"
+               },
+               "HKF" :   {
+                    "field" :   "properties.eos_hkf_coeffs.values"
+               }
+          }
+     },
+     "renderer" :   "JSON",
+     "label" :   "VertexSubstance",
+     "comment" :   "Second test"
+}

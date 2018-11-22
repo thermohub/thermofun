@@ -1,0 +1,26 @@
+{
+     "block" :   {
+          "defaults" :   {
+               "properties.rct" :   "1",
+               "properties.level" :   "11"
+          },
+          "pairs" :   {
+
+          },
+          "matches" :   {
+               "FormingReaction.%.coefficient" :   {
+                    "field" :   "properties.stoi_coeff"
+               },
+               "FormingReaction.%.pcon_reactant" :   {
+                    "field" :   "@key"
+               }
+          },
+          "script" :   ""
+     },
+     "renderer" :   "JSON",
+     "label" :   "EdgeTakes",
+     "comment" :   "",
+     "fname" :   "",
+     "Nblocks" :   0,
+     "Nlines" :   0
+}

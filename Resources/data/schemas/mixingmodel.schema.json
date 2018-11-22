@@ -1,0 +1,421 @@
+{
+  "name": "mixingmodel",
+  "doc": "Apache Thrift IDL definition for the phase service interface\n",
+  "namespaces": {
+    "*": "mixingmodel"
+  },
+  "includes": [
+"prop",
+"element",
+"substance",
+"interaction"
+  ],
+  "enums": [
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "MixingModel",
+      "doc": "Description of (thermodynamic activity) model of mixing\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "unique name\/ID of this phase (e.g. \"bentpw\")\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "sourcetdb",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Source TDB: enum validated with class SourceTDB - do we need it or thermodataset is enough?\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "thermodataset",
+          "typeId": "string",
+          "doc": "Used thermodataset symbol (also phaseinvolves link)\n",
+          "required": "required"
+        },
+        {
+          "key": 4,
+          "name": "name",
+          "typeId": "string",
+          "doc": "Extended name comment of the phase (e.g. \"aqueous electrolyte Davies model\")\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "aggregate_state",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Aggregate state for this mixing model: enum validated with class AggregateState\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "mixmod",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of mixing model - validate using class MixModel in interaction\n",
+          "required": "req_out",
+          "default": {
+            "0": "M_PURE"
+          }
+        },
+        {
+          "key": 8,
+          "name": "associatedProperties",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "prop.Item"
+            }
+          },
+          "doc": "list of possile asociated indirect properties which are calculated using an expression\n",
+          "required": "req_out"
+        },
+        {
+          "key": 9,
+          "name": "associatedPropertiesExpressions",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "expression, lua script for calculating property values (same order as in associatedProperties)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "elements",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "element.ElementInfo"
+            }
+          },
+          "doc": "Full Set of elements (IComps) covered by this mixing model\n",
+          "required": "req_out"
+        },
+        {
+          "key": 12,
+          "name": "components",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "substance.SubstanceInfo"
+            }
+          },
+          "doc": "Full Set of substances (components, end members, moieties) covered by this mixing model\n",
+          "required": "req_out"
+        },
+        {
+          "key": 13,
+          "name": "interactions",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "interaction.Interaction"
+            }
+          },
+          "doc": "Full Set of interactions (between components, end members, moieties) covered by this mixing model\n",
+          "required": "req_out"
+        },
+        {
+          "key": 15,
+          "name": "Nsites",
+          "typeId": "i32",
+          "doc": "Number of sublattice sites: 1 to 5; 0 for aq, gas\n",
+          "required": "req_out",
+          "default": 1
+        },
+        {
+          "key": 16,
+          "name": "sitemults",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "doc": "Multiplicity numbers of sublattice sites\n",
+          "required": "req_out"
+        },
+        {
+          "key": 17,
+          "name": "moieties",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "list of symbols of site moieties involved\n",
+          "required": "req_out"
+        },
+        {
+          "key": 19,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "Overall lower and upper T, P limits for T,P corrections\n",
+          "required": "req_out",
+          "default": {
+            "range": 0,
+            "lowerT": 273.15,
+            "upperT": 298.15,
+            "lowerP": 0.1,
+            "upperP": 1000000
+          }
+        },
+        {
+          "key": 21,
+          "name": "MixModComponentProps",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "prop.Item"
+            }
+          },
+          "doc": "optional array: properties of phase components used in the model of mixing\n",
+          "required": "req_out"
+        },
+        {
+          "key": 22,
+          "name": "SizeParams",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Size parameters of components\n",
+          "required": "optional"
+        },
+        {
+          "key": 23,
+          "name": "DarkenParams",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Darken parameters of components\n",
+          "required": "optional"
+        },
+        {
+          "key": 24,
+          "name": "OrderingParams",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Ordering parameters of the phase or components\n",
+          "required": "optional"
+        },
+        {
+          "key": 31,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment - e.g. who entered\/modified, ...\n",
+          "required": "optional"
+        },
+        {
+          "key": 32,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 33,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Timestamp when the record was created or modified\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "mmpcdata",
+      "doc": "Data extracted from a substance connected to the mixing model via components edges\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "SC",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "units",
+          "typeId": "string",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "subsid",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 4,
+          "name": "symbol",
+          "typeId": "string",
+          "required": "optional"
+        },
+        {
+          "key": 5,
+          "name": "formula",
+          "typeId": "string",
+          "required": "optional"
+        },
+        {
+          "key": 6,
+          "name": "subsx",
+          "typeId": "i32",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "mmpsmdata",
+      "doc": "Data extracted from a substance\/moiety connected to mixmod via sitemoieties edges\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "siteid",
+          "typeId": "string",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "subsid",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 4,
+          "name": "symbol",
+          "typeId": "string",
+          "required": "optional"
+        },
+        {
+          "key": 5,
+          "name": "moix",
+          "typeId": "i32",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "mmipdata",
+      "doc": "Data extracted from an interaction connected to the mixmodel via mixmodips edges\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "iptype",
+          "typeId": "string",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "interid",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 4,
+          "name": "symbol",
+          "typeId": "string",
+          "required": "optional"
+        },
+        {
+          "key": 5,
+          "name": "order",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 6,
+          "name": "Nipc",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 8,
+          "name": "mindx",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "i32"
+          },
+          "required": "optional"
+        },
+        {
+          "key": 9,
+          "name": "ipc",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "required": "optional"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

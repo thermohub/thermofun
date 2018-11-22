@@ -1,0 +1,39 @@
+TY  - JOUR
+T1  - Preface: SI: Geochemical speciation codes and databases
+JO  - Applied Geochemistry
+VL  - 55
+IS  - 
+SP  - 1
+EP  - 2
+PY  - 2015/4//
+T2  - Geochemical Speciation Codes and Databases
+AU  - Kulik, Dmitrii A.
+AU  - Hummel, Wolfgang
+AU  - Lützenkirchen, Johannes
+AU  - Lefèvre, Grégory
+SN  - 0883-2927
+DO  - http://dx.doi.org/10.1016/j.apgeochem.2014.12.019
+UR  - http://www.sciencedirect.com/science/article/pii/S0883292714003321
+ER  - 
+
+TY  - JOUR
+T1  - GEMSFITS: Code package for optimization of geochemical model parameters and inverse modeling
+JO  - Applied Geochemistry
+VL  - 55
+IS  - 
+SP  - 28
+EP  - 45
+PY  - 2015/4//
+T2  - Geochemical Speciation Codes and Databases
+AU  - Miron, George D.
+AU  - Kulik, Dmitrii A.
+AU  - Dmytrieva, Svitlana V.
+AU  - Wagner, Thomas
+SN  - 0883-2927
+DO  - http://dx.doi.org/10.1016/j.apgeochem.2014.10.013
+UR  - http://www.sciencedirect.com/science/article/pii/S088329271400256X
+AB  - Abstract
+GEMSFITS is a new code package for fitting internally consistent input parameters of GEM (Gibbs Energy Minimization) geochemical–thermodynamic models against various types of experimental or geochemical data, and for performing inverse modeling tasks. It consists of the gemsfit2 (parameter optimizer) and gfshell2 (graphical user interface) programs both accessing a NoSQL database, all developed with flexibility, generality, efficiency, and user friendliness in mind. The parameter optimizer gemsfit2 includes the GEMS3K chemical speciation solver (http://gems.web.psi.ch/GEMS3K), which features a comprehensive suite of non-ideal activity- and equation-of-state models of solution phases (aqueous electrolyte, gas and fluid mixtures, solid solutions, (ad)sorption. The gemsfit2 code uses the robust open-source NLopt library for parameter fitting, which provides a selection between several nonlinear optimization algorithms (global, local, gradient-based), and supports large-scale parallelization. The gemsfit2 code can also perform comprehensive statistical analysis of the fitted parameters (basic statistics, sensitivity, Monte Carlo confidence intervals), thus supporting the user with powerful tools for evaluating the quality of the fits and the physical significance of the model parameters. The gfshell2 code provides menu-driven setup of optimization options (data selection, properties to fit and their constraints, measured properties to compare with computed counterparts, and statistics). The practical utility, efficiency, and geochemical relevance of GEMSFITS is demonstrated by examples of typical classes of problems that include fitting of parameters of thermodynamic mixing models, optimization of standard state Gibbs energies of aqueous species and solid-solution end-members, thermobarometry, inverse titrations, and optimization problems that combine several parameter- and property types.
+ER  - 
+
+
