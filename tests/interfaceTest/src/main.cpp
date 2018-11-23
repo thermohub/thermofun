@@ -6,7 +6,7 @@
     int main(int argc, char *argv[])
     {
       // Create the engine object using a database file in JSON
-      ThermoBatch batch("Resources/aq17.json");
+      ThermoBatch batch("Resources/aq17new-format.json");
 
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       batch.setSolventSymbol("H2O@");

@@ -32,6 +32,11 @@ using AvailableElementsKey    = std::function<std::vector<ElementKey>(uint)>;
 //std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
 //std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
 
+auto setDatabaseConnectionFilePath(const std::string &filePath) -> void
+{
+    jsonio::JsonioSettings::settingsFileName = filePath;
+}
+
 struct DatabaseClient::Impl
 {
     std::shared_ptr<TDataBase> _dbconnect;

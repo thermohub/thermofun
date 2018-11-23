@@ -41,6 +41,7 @@ public:
     /// Set the equation of the Reaction
     auto setEquation(std::string equation) -> void;
 
+    /// Set map of reactant symbols
     auto setReactants(std::map<std::string, double> reactants) -> void;
 
     /// Set reference temperature fo the standard properties of reaction (K)
@@ -49,13 +50,13 @@ public:
     /// Set references pressure for the standard proeprties of reaction (Pa)
     auto setReferenceP(double P) -> void;
 
-    /// Sett upper temperature limit of the correction method (K)
+    /// Set upper temperature limit of the correction method (K)
     auto setLowerT(double T) -> void;
 
-    /// Sett upper presure limit of the correction method (Pa)
+    /// Set upper presure limit of the correction method (Pa)
     auto setLowerP(double P) -> void;
 
-    /// Sett lower temperature limit of the correction method (K)
+    /// Set lower temperature limit of the correction method (K)
     auto setUpperT(double T) -> void;
 
     /// Set lower pressure limit for the correction method (Pa)

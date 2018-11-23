@@ -19,7 +19,7 @@ src/*.autosave
 tests/unit01/src/*.autosave
 .directory
 /DemoGUI/.directory
-
+build/
 python/pyThermoFun/build/
 .vscode/
 python/tests/PyThermoFun.so

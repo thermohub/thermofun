@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     Database db = databaseFromRecordList(dbc_, list);
 
 
-    ThermoFun::Interface interface (db);
+    ThermoFun::ThermoBatch interface (db);
     interface.setSolventSymbol("H2O@");
 
     ThermoFun::OutputSettings op;

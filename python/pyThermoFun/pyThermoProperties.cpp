@@ -28,6 +28,7 @@ namespace ThermoFun {
 void exportThermoPropertiesSubstance(py::module& m)
 {
     py::class_<ThermoPropertiesSubstance>(m, "ThermoPropertiesSubstance")
+        .def(py::init<>())
         .def_readwrite("gibbs_energy", &ThermoPropertiesSubstance::gibbs_energy)
         .def_readwrite("helmholtz_energy", &ThermoPropertiesSubstance::helmholtz_energy)
         .def_readwrite("internal_energy", &ThermoPropertiesSubstance::internal_energy)

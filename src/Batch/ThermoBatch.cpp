@@ -302,6 +302,11 @@ auto ThermoBatch::thermoPropertiesSubstance(std::array<double,3> aT, std::array<
     return Output (*this);
 }
 
+auto ThermoBatch::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr properties) -> Output
+{
+    return thermoPropertiesSubstance(tpPairs,symbols,properties,{});
+}
+
 auto ThermoBatch::thermoPropertiesSubstance(vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);
@@ -349,6 +354,12 @@ auto ThermoBatch::thermoPropertiesReaction(std::array<double,3> aT, std::array<d
 
     return Output (*this);
 }
+
+auto ThermoBatch::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr properties) -> Output
+{
+    return thermoPropertiesReaction(tpPairs, symbols, properties, {});
+}
+
 auto ThermoBatch::thermoPropertiesReaction(vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output
 {
     pimpl->addSymbolsProperties(symbols, properties);

@@ -1,13 +1,21 @@
 # Set cmake version requirement
 cmake_minimum_required(VERSION 3.0)
 
-    find_package(pybind11 2.2.2 REQUIRED)
+# Find pybind11 package, which is also going to find the python libraries and executable
+find_package(pybind11 REQUIRED)
+
+if(NOT pybind11_FOUND)
+    set(BUILD_PYTHON OFF)
+    message(WARNING "pybind11 was not found. "
+        "Cannot build python wrappers and packages for ThremoFun.")
+endif()
     
-    if(NOT pybind11_FOUND)
-        set(PYTHERMOFUN_BUILD_PYTHON OFF)
-        message(WARNING "pybind11 has not been found. "
-            "Cannot build python bindings for ThermoFun.")
-    endif()
+# Check if python was found
+if(NOT PYTHONINTERP_FOUND)
+    set(BUILD_PYTHON OFF)
+    message(WARNING "Python executable was not found. "
+        "Cannot build python wrappers and packages for ThermoFun.")
+endif()
 ########
 
 # Include the parent directory of pyThermoFun

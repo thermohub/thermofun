@@ -24,6 +24,8 @@ struct TraversalData;
 
 using List_VertexId_VertexType    = std::vector< std::pair<std::string, std::string> >;
 
+auto setDatabaseConnectionFilePath(const std::string &filePath) -> void;
+
 class DatabaseClient
 {
   public:

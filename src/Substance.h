@@ -2,10 +2,8 @@
 #define SUBSTANCE_H
 
 // C++ includes
-#include <map>
 #include <memory>
 #include <string>
-#include <vector>
 
 // ThermoFun includes
 #include "GlobalVariables.h"

@@ -108,13 +108,15 @@ public:
     auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
     auto thermoPropertiesSubstance  (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
-    auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps = {}) -> Output;
+    auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output;
 
     // claculate functions reactions
     auto thermoPropertiesReaction   (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesReaction   (double T, double P, vstr        symbols, vstr        properties) -> Output;
     auto thermoPropertiesReaction   (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
-    auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr = {}) -> Output;
+    auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output;
 
     auto setOutputSettings          (const OutputSettings &value) -> void;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
