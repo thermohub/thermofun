@@ -35,6 +35,20 @@ git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
     /thermofun
 ```
 
+## Install ArangoDB local
+
+* For using ThermoFun with a local arangodb. If only the remote db.thermohub.net database is used the instalation of a local arangodb clinet is not necessary. In a terminal copy-paste and run to folowing code: (for possibily newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/)
+
+```
+curl -OL https://download.arangodb.com/arangodb33/xUbuntu_17.04/Release.key
+sudo apt-key add - < Release.key
+echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt-get install arangodb3=3.3.19
+```
+
+
 ## Install additional packages
 
 * Install additional packages required by JSONIO library, which is used for operating with data and communicating with the local or remote ArangoDB database.
