@@ -98,72 +98,17 @@ then execute:
 sudo make install 
 ```
 
-## Install additional packages
+To compile ThermoFun library in degub mode change directory to ```~/gitTHERMOFUN/build/release``` and:
 
-* Install additional packages required by JSONIO library, which is used for operating with data and communicating with the local or remote ArangoDB database.
+```
+#!bash
+cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
+```
+then execute:
 
-~~~
-$ sudo apt-get install libboost-all-dev curl libcurl4-openssl-dev
-~~~
-
-* ThermoFun (via JSONIO) uses ArangoDB database with which it communicates with VelocyPack serializer. First install current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/):
-
-~~~
-curl -OL https://download.arangodb.com/arangodb33/xUbuntu_16.04/Release.key
-sudo apt-key add - < Release.key
-echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_16.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
-sudo apt-get install apt-transport-https
-sudo apt-get update
-sudo apt-get install arangodb3=3.3.8
-~~~
-
-Then build ArangoDB VelocyPack serializer as follows:
-
-~~~
-sudo apt-get update
-cd ~
-mkdir -p code && \
-    cd code && \
-    git clone https://github.com/arangodb/velocypack.git && \
-    cd velocypack && \
-    mkdir -p build && \
-    cd build && \
-    cmake .. -DCMAKE_CXX_FLAGS=-fPIC && \
-    sudo make install
-~~~
-
-## Build ThermoFun library (release)
-
-* For compiling ThermoFun library from its source code change folder to `~/gitTHERMOFUN/build/release` and execute:
-
-~~~
-cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Release
-~~~
-
-This will start the building process, first the JSONIO third party library, followed by the ThermoFun library. 
-
-* For a global installation of the compiled libraries in your system, execute:
-
-~~~
-make install
-~~~
-
-This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). 
-Note that this installation mode might require administrator rights, so that you would need to execute 
-~~~
-sudo make install
-~~~
-instead.
-
-* For a local installation, you can specify a directory path for the installed files as:
-
-~~~
-cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
-make install
-~~~
-
-The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
-
+```
+sudo make install 
+```
 
 ### Build and run ThermoFun GUI Demo
 
