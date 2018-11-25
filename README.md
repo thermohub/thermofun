@@ -37,10 +37,11 @@ git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
 
 ## Install ArangoDB local
 
-* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the instalation of a local arangodb client is not necessary. 
+* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the instalation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
 * In a terminal copy-paste and run to folowing code: (for possibily newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recomend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
 
 ```
+#!bash
 sudo apt-get install curl && \
 curl -OL https://download.arangodb.com/arangodb33/xUbuntu_17.04/Release.key && \
 sudo apt-key add - < Release.key && \
@@ -50,6 +51,52 @@ sudo apt-get update && \
 sudo apt-get install arangodb3=3.3.19
 ```
 
+## Build and install ThermoFun library 
+
+Buil and ThermoFun library for use in C++ or python thirdparty codes.
+
+### Install Dependencies
+
+Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in a terminal ```~/gitTHERMOFUN/thermofun$``` execute the following: 
+
+```
+#!bash
+sudo ./install-dependencies.sh
+```
+
+### Compiling the C++ library
+
+In the terminal, execute the following commands:
+
+```
+#!bash
+cd ../build/release && \
+cmake ../../thermofun && \
+make
+``` 
+
+To thake advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
+
+For a global installation of the compiled libraries in your system, execute:
+
+```
+#!bash
+sudo make install 
+```
+
+This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` ).
+
+For a local installation, you can specify a directory path for the installed files as follows:
+
+```
+#!bash
+cmake ../../thermofun -DCMAKE_INSTALL_PREFIX=/home/username/local/
+```
+then execute:
+
+```
+sudo make install 
+```
 
 ## Install additional packages
 
