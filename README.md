@@ -35,119 +35,116 @@ git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
     /thermofun
 ```
 
-## Install additional packages
+## Install ArangoDB local
 
-* Install additional packages required by JSONIO library, which is used for operating with data and communicating with the local or remote ArangoDB database.
+* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the instalation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
+* In a terminal copy-paste and run to folowing code: (for possibily newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recomend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
 
-~~~
-$ sudo apt-get install libboost-all-dev curl libcurl4-openssl-dev
-~~~
+```
+#!bash
+sudo apt-get install curl && \
+curl -OL https://download.arangodb.com/arangodb33/xUbuntu_17.04/Release.key && \
+sudo apt-key add - < Release.key && \
+echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list && \
+sudo apt-get install apt-transport-https && \
+sudo apt-get update && \
+sudo apt-get install arangodb3=3.3.19
+```
 
-* ThermoFun (via JSONIO) uses ArangoDB database with which it communicates with VelocyPack serializer. First install current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/):
+## Build and install ThermoFun library 
 
-~~~
-curl -OL https://download.arangodb.com/arangodb33/xUbuntu_16.04/Release.key
-sudo apt-key add - < Release.key
-echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_16.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
-sudo apt-get install apt-transport-https
-sudo apt-get update
-sudo apt-get install arangodb3=3.3.8
-~~~
+Buil and ThermoFun library for use in C++ or python thirdparty codes.
 
-Then build ArangoDB VelocyPack serializer as follows:
+### Install Dependencies
 
-~~~
-sudo apt-get update
-cd ~
-mkdir -p code && \
-    cd code && \
-    git clone https://github.com/arangodb/velocypack.git && \
-    cd velocypack && \
-    mkdir -p build && \
-    cd build && \
-    cmake .. -DCMAKE_CXX_FLAGS=-fPIC && \
-    sudo make install
-~~~
+Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in a terminal ```~/gitTHERMOFUN/thermofun$``` execute the following: 
 
-## Build ThermoFun library (release)
+```
+#!bash
+sudo ./install-dependencies.sh
+```
 
-* For compiling ThermoFun library from its source code change folder to `~/gitTHERMOFUN/build/release` and execute:
+### Compiling the C++ library
 
-~~~
-cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Release
-~~~
+In the terminal, execute the following commands:
 
-This will start the building process, first the JSONIO third party library, followed by the ThermoFun library. 
+```
+#!bash
+cd ../build/release && \
+cmake ../../thermofun && \
+make
+``` 
 
-* For a global installation of the compiled libraries in your system, execute:
+To thake advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
 
-~~~
-make install
-~~~
+For a global installation of the compiled libraries in your system, execute:
 
-This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). 
-Note that this installation mode might require administrator rights, so that you would need to execute 
-~~~
-sudo make install
-~~~
-instead.
+```
+#!bash
+sudo make install 
+```
 
-* For a local installation, you can specify a directory path for the installed files as:
+This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` ).
 
-~~~
-cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
-make install
-~~~
+For a local installation, you can specify a directory path for the installed files as follows:
 
-The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
+```
+#!bash
+cmake ../../thermofun -DCMAKE_INSTALL_PREFIX=/home/username/local/
+```
+then execute:
 
+```
+sudo make install 
+```
+
+To compile ThermoFun library in degub mode change directory to ```~/gitTHERMOFUN/build/release``` and:
+
+```
+#!bash
+cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
+```
+then execute:
+
+```
+sudo make install 
+```
 
 ### Build and run ThermoFun GUI Demo
 
 To be able to build and run the ThemroFun GUI (graphical user interface) application demo, Qt needs to be installed.
 
-* Download and install Qt 5.11.0 (https://www1.qt.io/download/). In the "Select components to install" menu select: Qt 5.11.0 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
+* Download and install Qt 5.11.0 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.11.0 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
 
-* in addition libgl-dev is required
-~~~
-$ sudo apt-get install libgl-dev
-~~~
+### Install Dependencies
 
-ThermoFun GUI demo uses the JSONUI as a thrid party library (https://bitbucket.org/gems4/jsonui) 
+Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in the terminal go in ```~/gitTHERMOFUN/thermofun$``` and execute the following: 
 
-* Before installing the thirparty libraries, Apache Thrift and Lua need to be installed
-
-* Install the Lua embedded scripts interpreter (on ubuntu linux):
-~~~
-sudo apt-get install lua5.3 lua5.3-dev
-~~~
-
-* Before building Apache Thrift
-~~~
-sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
-~~~
-
-* Build and install the 0.11.0 version of the Apache Thrift by cloning it with git:
-~~~
-sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
-
-cd ~
-mkdir thrift
-cd thrift
-git clone http://github.com/apache/thrift . -b 0.11.0
-./bootstrap.sh
-./configure --without-lua
-sudo make install
-sudo ldconfig
-~~~
-
-* To install the thirdparty libraries in a linux terminal, cd inside `~/gitTHERMOFUN/thermofun/DemoGUI` and type
+```
+#!bash
+sudo ./install-dependencies-gui.sh $HOME/Qt/5.11.0/gcc_64
+```
 
 ~~~
 $ ./install-thirdparty.sh /home/your_user/Qt/5.11.0/gcc_64
 ~~~
 
-* This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, JSONIMPEX, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty. The build script will check if the libraries are already installed and only build and install them if not found in  /usr/local/. If the thirdparty libraries need to be refreshed/updated in the file `install-thirdparty.sh` change `-DREFRESH_THIRDPARTY=OFF` to `-DREFRESH_THIRDPARTY=ON`
+This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`, `thermofun`, and `thermofungui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 
+To reinstall dependencies open `install-dependencies.sh` and/or `install-dependencies-gui.sh` files with a text editor. At the beginning of the script file commands for removing dependency library files are present but they are commented out with `#` symbol. Remove `#` for each dependency you wish to be reinstalled. 
+
+### Compiling the ThermoFun GUI demo
+
+In the terminal, execute the following commands:
+
+```
+#!bash
+cd .. && mkdir build-gui \
+cd build-gui && mkdir release && cd release && \
+cmake ../../thermofun/DEMOGui && \
+make
+``` 
+
+--
 
 * Now in QtCreator, build the ThermoFunDemoGUI.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.11.0) and then run the DemoGUI code. 
 
