@@ -43,7 +43,6 @@ tests/interfaceTest/lib/
 tests/interfaceTest/thirdparty/
 
 .vscode/
-python/
 tests/PyThermoFun.so
 
 
