@@ -7,16 +7,20 @@
 chmod u+x install-dependencies.sh
 ./install-dependencies.sh
 
-sudo apt-get install -y lua5.3-dev libboost-all-dev libcurl4-openssl-dev libboost-test-dev automake flex bison libssl-dev
+sudo apt-get install -y lua5.3-dev libboost-all-dev libcurl4-openssl-dev libboost-test-dev automake flex bison libssl-dev libgl-dev
 
 # Uncomment what is necessary to reinstall by force 
 #sudo rm -f /usr/local/lib/pugixml.so
 #sudo rm -f /usr/local/lib/libyaml-cpp.so
 #sudo rm -f /usr/local/lib/libthrift.a
+##sudo rm -f /usr/local/lib/libjsonimpex.a
 #sudo rm -f /usr/local/lib/libjsonui.a
 
 threads=3
-QT_PATH=/home/dmiron/Qt/5.11.0/gcc_64
+QT_PATH=$1
+echo $QT_PATH
+BRANCH_JSON=master
+workfolder=${PWD}
 
 # pugixml
 test -f /usr/local/lib/libpugixml.so || {
@@ -74,6 +78,26 @@ test -f /usr/local/lib/libthrift.a || {
 	cd ~ && \
 		 rm -rf ~/code
 }
+
+## JSONIMPEX (added for building ThermoMatch code)
+## if no JSONIMPEX installed in /usr/local/lib/libjsonimpex.a (/usr/local/include/jsonimpex)
+#test -f /usr/local/lib/libjsonimpex.a || {
+#
+#	# Building jsonimpex library
+#	mkdir -p ~/code && \
+#		cd ~/code && \
+#		git clone https://bitbucket.org/gems4/jsonimpex.git -b $BRANCH_JSON && \
+#		cd jsonimpex && \
+#		mkdir -p build && \
+#		cd build && \
+#		cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=Release && \
+#        	make -j 2 && \
+#		sudo make install
+#
+#	# Removing generated build files
+#	cd ~ && \
+#		 rm -rf ~/code
+#}
 
 # JSONUI database client (added for building ThermoMatch code)
 # if no JSONUI installed in /usr/local/lib/libjsonui.a (/usr/local/include/jsonui)

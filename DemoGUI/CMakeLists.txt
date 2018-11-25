@@ -74,3 +74,5 @@ include_directories(${THERMOFUNGUI_SOURCE_DIR})
 # Build thermofun library
 add_subdirectory(src)
 
+#add_subdirectory(test)
+
