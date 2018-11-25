@@ -7,26 +7,33 @@ A code for calculating the standard state thermodynamic properties at a given te
 ## Pepare building tools
 
 * Make sure you have g++, cmake and git installed. If not, install them (on ubuntu linux):
-~~~
+
+```
+#!bash
 sudo apt-get install g++ cmake git
-~~~
+```
 
 ## Prepare folder structure and download ThermoFun source code
 
-* The directory structure should now look like this:
-~~~
+* In a terminal, at the home directory level e.g. ```<user>@ubuntu:~$``` copy-paste and run the following code:
+
+```
+#!bash
+mkdir gitTHERMOFUN && cd gitTHERMOFUN && \
+mkdir build && cd build && \
+mkdir release && mkdir debug && cd .. && \
+git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
+```
+
+* In the terminal you should be in ```~/gitTHERMOFUN/thermofun$``` and the directory structure should now look like this:
+
+```
 ~/gitTHERMOFUN
     /build
         /debug
         /release
     /thermofun
-~~~
-
-* In a terminal, run the following commands to clone the ThermoFun library:
-~~~
-$ cd ~/gitTHERMOFUN/thermofun
-$ git clone https://bitbucket.org/gems4/thermofun.git .
-~~~
+```
 
 ## Install additional packages
 
