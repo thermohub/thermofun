@@ -39,3 +39,8 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
                                  ["Al+3", "OH-", "SiO2@"],                          # // list of substance symbols
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
                                ).toCSV("results.csv")                               # // output
+
+PyThermoFun.setDatabaseConnectionFilePath("Resources/ThermoFunGUI-config.json")
+
+dbc = PyThermoFun.DatabaseClient()
+

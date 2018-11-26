@@ -1,0 +1,395 @@
+{
+  "name": "datasource",
+  "doc": "Apache Thrift IDL definition for the datasource service interface\n",
+  "namespaces": {
+    "*": "datasource"
+  },
+  "includes": [
+  ],
+  "enums": [
+    {
+      "name": "BibType",
+      "doc": "Type of publication\/datasource according to bibtex documentation\n",
+      "members": [
+        {
+          "name": "ARTICLE",
+          "value": 0,
+          "doc": "An article from a journal or magazine\n"
+        },
+        {
+          "name": "BOOK",
+          "value": 1,
+          "doc": "A book with an explicit publisher\n"
+        },
+        {
+          "name": "BOOKLET",
+          "value": 2,
+          "doc": "A work that is printed and bound, but without a named publisher or sponsoring institution\n"
+        },
+        {
+          "name": "CONFERENCE",
+          "value": 3,
+          "doc": "The same as INPROCEEDINGS, included for Scribe compatibility\n"
+        },
+        {
+          "name": "INBOOK",
+          "value": 4,
+          "doc": "A part of a book, which may be a chapter (or section or whatever) and\/or a range of pages\n"
+        },
+        {
+          "name": "INCOLLECTION",
+          "value": 5,
+          "doc": "A part of a book having its own title\n"
+        },
+        {
+          "name": "INPROCEEDINGS",
+          "value": 6,
+          "doc": "An article in a conference proceedings\n"
+        },
+        {
+          "name": "MANUAL",
+          "value": 7,
+          "doc": "Technical documentation\n"
+        },
+        {
+          "name": "MASTERTHESIS",
+          "value": 8,
+          "doc": "A Master thesis. Required fields: author, booktitle, school, year\n"
+        },
+        {
+          "name": "MISC",
+          "value": 9,
+          "doc": "Use this type when nothing else fits. Required fields: none\n"
+        },
+        {
+          "name": "PHDTHESIS",
+          "value": 10,
+          "doc": "A PhD thesis. Required fields: author, booktitle, school, year\n"
+        },
+        {
+          "name": "PROCEEDINGS",
+          "value": 11,
+          "doc": "The proceedings of a conference. Required fields: title, year\n"
+        },
+        {
+          "name": "TECHREPORT",
+          "value": 12,
+          "doc": "A report published by a school or other institution, usually numbered within a series\n"
+        },
+        {
+          "name": "UNPUBLISHED",
+          "value": 13,
+          "doc": "A document having an author and booktitle, but not formally published\n"
+        },
+        {
+          "name": "RESEARCHNOTE",
+          "value": 14,
+          "doc": "Preliminary research note. Required fields: none\n"
+        },
+        {
+          "name": "PREPRINT",
+          "value": 15,
+          "doc": "Preliminary publication. Required fields: none\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "DataSource",
+      "doc": "Description of data source following the OKFN bibjson schema, with bibtex schema extensions\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "shortname",
+          "typeId": "string",
+          "doc": "Short name that is unique within all datasource records, e.g. 2012a_ALA_BOR\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "year",
+          "typeId": "string",
+          "doc": "Year of publication\n",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "author",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "List of author name strings\n",
+          "required": "req_out",
+          "default": [
+            "Author1, B.C."
+          ]
+        },
+        {
+          "key": 5,
+          "name": "bibliographic_type",
+          "class": "BibType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Bibliographic type, as found in bibtex: validate with class BibType\n",
+          "required": "req_out",
+          "default": {
+            "0": "ARTICLE"
+          }
+        },
+        {
+          "key": 6,
+          "name": "title",
+          "typeId": "string",
+          "doc": "Title (of a journal paper)\n",
+          "required": "req_out",
+          "default": "title"
+        },
+        {
+          "key": 7,
+          "name": "journal",
+          "typeId": "string",
+          "doc": "Journal title\n",
+          "required": "req_out",
+          "default": "journal"
+        },
+        {
+          "key": 8,
+          "name": "volume",
+          "typeId": "string",
+          "doc": "Journal or book volume\n",
+          "required": "req_out",
+          "default": "volume"
+        },
+        {
+          "key": 9,
+          "name": "number",
+          "typeId": "string",
+          "doc": "Number of a journal issue\n",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "month",
+          "typeId": "string",
+          "doc": "Month of a journal issue\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "pages",
+          "typeId": "string",
+          "doc": "Pages\n",
+          "required": "req_out",
+          "default": "pages"
+        },
+        {
+          "key": 13,
+          "name": "booktitle",
+          "typeId": "string",
+          "doc": "Book title\n",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "chapter",
+          "typeId": "string",
+          "doc": "Chapter number\n",
+          "required": "optional"
+        },
+        {
+          "key": 15,
+          "name": "edition",
+          "typeId": "string",
+          "doc": "Book edition\n",
+          "required": "optional"
+        },
+        {
+          "key": 16,
+          "name": "series",
+          "typeId": "string",
+          "doc": "Book series\n",
+          "required": "optional"
+        },
+        {
+          "key": 17,
+          "name": "editor",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "Book editors\n",
+          "required": "optional"
+        },
+        {
+          "key": 18,
+          "name": "publisher",
+          "typeId": "string",
+          "doc": "Book publisher\n",
+          "required": "optional"
+        },
+        {
+          "key": 19,
+          "name": "how_published",
+          "typeId": "string",
+          "doc": "Some info on how a strange publication has been published\n",
+          "required": "optional"
+        },
+        {
+          "key": 20,
+          "name": "university",
+          "typeId": "string",
+          "doc": "University for thesis\n",
+          "required": "optional"
+        },
+        {
+          "key": 21,
+          "name": "institution",
+          "typeId": "string",
+          "doc": "Institution for reports, preprints\n",
+          "required": "optional"
+        },
+        {
+          "key": 22,
+          "name": "organization",
+          "typeId": "string",
+          "doc": "Organization\n",
+          "required": "optional"
+        },
+        {
+          "key": 23,
+          "name": "identifiers",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "string"
+          },
+          "doc": "Bibliographic identifiers e.g. <DOI>:<DOI-code>, <UDC>:<UDC-code>,   <ISBN>:<ISBN-code>> ...\n",
+          "required": "optional"
+        },
+        {
+          "key": 24,
+          "name": "links",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "string",
+            "valueTypeId": "string"
+          },
+          "doc": "Map of link objects relevant to this record\n",
+          "required": "optional"
+        },
+        {
+          "key": 25,
+          "name": "uuid",
+          "typeId": "string",
+          "doc": "Universally unique identification key, created with this record\n",
+          "required": "optional"
+        },
+        {
+          "key": 26,
+          "name": "collection",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Collection of books this record belongs to\n",
+          "required": "optional"
+        },
+        {
+          "key": 27,
+          "name": "annotation",
+          "typeId": "string",
+          "doc": "Annotation, not in OKFN but in bibtex schema\n",
+          "required": "optional"
+        },
+        {
+          "key": 28,
+          "name": "note",
+          "typeId": "string",
+          "doc": "Note, in bibtex schema\n",
+          "required": "optional"
+        },
+        {
+          "key": 29,
+          "name": "address",
+          "typeId": "string",
+          "doc": "Address, in bibtex schema\n",
+          "required": "optional"
+        },
+        {
+          "key": 30,
+          "name": "crossref",
+          "typeId": "string",
+          "doc": "Crossreference, in bibtex schema\n",
+          "required": "optional"
+        },
+        {
+          "key": 31,
+          "name": "key",
+          "typeId": "string",
+          "doc": "Key, in bibtex schema\n",
+          "required": "optional"
+        },
+        {
+          "key": 32,
+          "name": "abstracttext",
+          "typeId": "string",
+          "doc": "Abstract in bibtex schema, thrift does not allow the use of abstract\n",
+          "required": "optional"
+        },
+        {
+          "key": 33,
+          "name": "keywords",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "List of reference keywords\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "DataSources",
+      "doc": "Definition of a list of data sources\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "datasources",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "DataSource"
+            }
+          },
+          "doc": "List of data sources and bibliographic references\n",
+          "required": "req_out"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

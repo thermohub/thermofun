@@ -1,0 +1,1042 @@
+{
+  "name": "substance",
+  "doc": "Apache Thrift IDL definition for the substance service interface\n",
+  "namespaces": {
+    "*": "substance"
+  },
+  "includes": [
+"prop",
+"element"
+  ],
+  "enums": [
+    {
+      "name": "SubstanceTPMethodType",
+      "doc": "Codes for T-P correction methods of calculation of DC thermodynamic parameters from GEMS3 v_mod.h\n",
+      "members": [
+        {
+          "name": "cp_ft_equation",
+          "value": 0,
+          "doc": "Integration of empirical heat capacity equation Cp=f(T); DComp and ReacDC\n"
+        },
+        {
+          "name": "cp_ft_equation_saxena86",
+          "value": 1,
+          "doc": "Cp=f(T) equation by Fei and Saxena (1986) (reserved)\n"
+        },
+        {
+          "name": "solute_hkf88_gems",
+          "value": 2,
+          "doc": "Helgeson-Kirkham-Flowers (HKF) equation of state for aqueous species - Gems variant\n"
+        },
+        {
+          "name": "solute_hkf88_reaktoro",
+          "value": 3,
+          "doc": "Helgeson-Kirkham-Flowers (HKF) equation of state for aqueous species - Reaktoro variant\n"
+        },
+        {
+          "name": "solute_aknifiev_diamond03",
+          "value": 4,
+          "doc": "partial molal volumes of aqueous nonelectrolyte species (Akinfiev and Diamond, 2003)\n"
+        },
+        {
+          "name": "landau_holland_powell98",
+          "value": 5,
+          "doc": "modifications for Landau phase transitions (Holland and Powell, 1998)\n"
+        },
+        {
+          "name": "landau_berman88",
+          "value": 6,
+          "doc": "modifications for Landau phase transitions (Berman, 1988) (reserved)\n"
+        },
+        {
+          "name": "general_equation_of_state",
+          "value": 7,
+          "doc": "calculations via general equations of state (reserved)\n"
+        },
+        {
+          "name": "fug_critical_param",
+          "value": 8,
+          "doc": "calculation of fugacities of gases from their critical parameters (reserved)\n"
+        },
+        {
+          "name": "fluid_prsv",
+          "value": 9,
+          "doc": "Peng-Robinson-Stryjek-Vera (PRSV) EoS for fluids (nonelectrolytes)\n"
+        },
+        {
+          "name": "fluid_churakov_gottschalk",
+          "value": 10,
+          "doc": "Churakov-Gottschalk (CG) EoS for fluids (nonelectrolytes)\n"
+        },
+        {
+          "name": "fluid_soave_redlich_kwong",
+          "value": 11,
+          "doc": "Soave-Redlich-Kwong (SRK) EoS for fluids (nonelectrolytes)\n"
+        },
+        {
+          "name": "fluid_sterner_pitzer",
+          "value": 12,
+          "doc": "Sterner-Pitzer (SP) EoS for fluids (nonelectrolytes) (reserved)\n"
+        },
+        {
+          "name": "fluid_peng_robinson78",
+          "value": 13,
+          "doc": "Peng-Robinson (PR78) EoS for fluids (nonelectrolytes)\n"
+        },
+        {
+          "name": "fluid_comp_redlich_kwong_hp91",
+          "value": 14,
+          "doc": "Compensated Redlich-Kwong (CORK) EoS for fluids (nonelectrolytes)\n"
+        },
+        {
+          "name": "fluid_generic",
+          "value": 15
+        },
+        {
+          "name": "fluid_H2O",
+          "value": 16
+        },
+        {
+          "name": "fluid_CO2",
+          "value": 17
+        },
+        {
+          "name": "fluid_CH4",
+          "value": 18
+        },
+        {
+          "name": "fluid_N2",
+          "value": 19
+        },
+        {
+          "name": "fluid_H2",
+          "value": 20
+        },
+        {
+          "name": "fluid_O2",
+          "value": 21
+        },
+        {
+          "name": "fluid_Ar",
+          "value": 22
+        },
+        {
+          "name": "fluid_polar",
+          "value": 23
+        },
+        {
+          "name": "fluid_nonpolar",
+          "value": 24
+        },
+        {
+          "name": "water_diel_jnort91_reaktoro",
+          "value": 25,
+          "doc": "Water dielectric properites usin Jhonson and Norton (1991) model as implemented in Reaktoro\n"
+        },
+        {
+          "name": "water_diel_jnort91_gems",
+          "value": 26,
+          "doc": "Water dielectric properites using Jhonson and Norton (1991) model as implemented in GEMS\n"
+        },
+        {
+          "name": "water_diel_sverj14",
+          "value": 27,
+          "doc": "Water electro-chemical properties using Sverjensky et al. (2014) dielectric constant model\n"
+        },
+        {
+          "name": "water_diel_fern97",
+          "value": 28,
+          "doc": "Water electro-chemical properties using the Fernandez et al. (1997) dielectric constant model\n"
+        },
+        {
+          "name": "water_eos_hgk84_lvs83_gems",
+          "value": 29,
+          "doc": "calculation of H2O water(steam) properties from HGK and LVS equations of state\n"
+        },
+        {
+          "name": "water_eos_iapws95_gems",
+          "value": 30,
+          "doc": "calculation of H2O water (steam) properties from IAPWS-95 equation of state (reserved)\n"
+        },
+        {
+          "name": "water_eos_hgk84_reaktoro",
+          "value": 31,
+          "doc": "Water properties using Haar-Gallagher-Kell (1984) equation of state as implemented in Reaktoro\n"
+        },
+        {
+          "name": "water_eos_iapws95_reaktoro",
+          "value": 32,
+          "doc": "Water properties using Wagner and Pruss 1995 (IAWPS95) EOS as implemented in Reaktoro\n"
+        },
+        {
+          "name": "water_pvt_zhang_duan05",
+          "value": 33,
+          "doc": "Water properties using Zhang and Duan 2005 PVT EOS\n"
+        },
+        {
+          "name": "mv_constant",
+          "value": 34
+        },
+        {
+          "name": "mv_equation_dorogokupets88",
+          "value": 35,
+          "doc": "molar volume from empirical V=f(T,P) equation (Dorogokupets et al., 1988)\n"
+        },
+        {
+          "name": "mv_equation_berman88",
+          "value": 36,
+          "doc": "molar volume from empirical  V=f(T,P) equation (Berman, 1988)\n"
+        },
+        {
+          "name": "mv_eos_birch_murnaghan_gott97",
+          "value": 37,
+          "doc": "molar volume from Birch-Murnaghan EoS (Gottschalk, 1997)\n"
+        },
+        {
+          "name": "mv_eos_murnaghan_hp98",
+          "value": 38,
+          "doc": "molar volume V(T,P) from Murnaghan EoS (Holland and Powell, 1998)\n"
+        },
+        {
+          "name": "mv_eos_tait_hp11",
+          "value": 39,
+          "doc": "molar volume V(T,P) from Tait EoS (Holland and Powell, 2011)\n"
+        },
+        {
+          "name": "mv_pvnrt",
+          "value": 40,
+          "doc": "molar volume from ideal gas law pv=nrt\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "SubstanceTPMethodData",
+      "doc": "Data structure holding method codes and data for computing P,T corrections to standard properties\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "method",
+          "class": "SubstanceTPMethodType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Method type - validate with class SubstanceTPMethodType\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "TP limits of applicability\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "g0_pt_values",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.PropertiesPTArray"
+          },
+          "doc": "Interpolation array for G0(P,T) values\n",
+          "required": "optional"
+        },
+        {
+          "key": 4,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 10,
+          "name": "m_gibbs_energy_ft_polynom",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Polynomial coefficients for G0(T) in Calphad format (compatible with Maier-Kelly)\n",
+          "required": "optional"
+        },
+        {
+          "key": 11,
+          "name": "m_heat_capacity_ft_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of Cp0(T) function per mole \"CpTc\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 12,
+          "name": "m_volume_fpt_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of V0(T,P) function per mole \"VpTc\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 13,
+          "name": "eos_hkf_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of HKF EoS    \"HKFc\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 14,
+          "name": "eos_akinfiev_diamond_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of Akinfiev-Diamond EoS \"ADmc\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 15,
+          "name": "eos_birch_murnaghan_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Coefficients of Birch-Murnaghan EoS \"BMmc\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 16,
+          "name": "eos_churakov_gottschalk_coeffs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Churakov-Gottschalk EoS coefficients (max. 13) \"CGmc\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 17,
+          "name": "eos_gas_crit_props",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Critical properties for gas\/fluid CST EoS \"gcrp\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 18,
+          "name": "m_landau_phase_trans_props",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Properties of phase transitions for minerals (Berman) Tr; Tft; tilt; l1,l2 \"Phtrp\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 21,
+          "name": "m_berman_phase_trans_props",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Properties of phase transitions for minerals (Berman) Tr; Tft; tilt; l1,l2 \"Phtrp\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 22,
+          "name": "m_lambda_trans_props",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Properties of lambda transition for minerals Smax, Tlt \"Lamtrp\"\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Substance",
+      "doc": "Description of a substance (chemical species, chemical component, site moiety)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Unique name\/ID of this substance (e.g. abbreviated mineral name)\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "sourcetdb",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Source TDB: enum validated with class SourceTDB\n",
+          "class": "SourceTDB",
+          "required": "required"
+        },
+        {
+          "key": 3,
+          "name": "formula",
+          "typeId": "string",
+          "doc": "Formula of substance in GEMS syntax, in elements, can include moiety symbols\n",
+          "required": "required"
+        },
+        {
+          "key": 5,
+          "name": "name",
+          "typeId": "string",
+          "doc": "Name of the substance (chemical or mineral nomenclature)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "class_",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Class of substance: enum validated with class SubstanceClass\n",
+          "class": "SubstanceClass",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "aggregate_state",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "(Standard) state of this substance: enum validated with class AggregateState\n",
+          "class": "AggregateState",
+          "required": "req_out"
+        },
+        {
+          "key": 9,
+          "name": "standard_cscale",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "(Standard) concentration scale: enum validated with class ConcentrationScales\n",
+          "class": "ConcentrationScale",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "Tst",
+          "typeId": "double",
+          "doc": "Reference temperature for standard state (usually 298.15 K)\n",
+          "required": "req_out",
+          "default": 298.15
+        },
+        {
+          "key": 11,
+          "name": "Pst",
+          "typeId": "double",
+          "doc": "Reference pressure (usually 1 bar or 10^5 Pa, sometimes 1.013 bar = 1 atm)\n",
+          "required": "req_out",
+          "default": 100000
+        },
+        {
+          "key": 12,
+          "name": "formula_charge",
+          "typeId": "double",
+          "doc": "Formula charge, default 0 (usually calculated from parsed formula)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 13,
+          "name": "mass_per_mole",
+          "typeId": "double",
+          "doc": "Mass per 1 mole of this substance \"mM\" kg\/mol (calculated with fCharge)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 14,
+          "name": "s_density",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard-state density at Tst, Pst  \"d0\"  kg\/m3\n",
+          "required": "req_out"
+        },
+        {
+          "key": 15,
+          "name": "sm_volume",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard volume at Tst, Pst \"V0\" m3\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 16,
+          "name": "sm_gibbs_energy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard Gibbs energy at Tst, Pst  \"GO\" J\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 17,
+          "name": "sm_enthalpy",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard enthalpy at Tst, Pst  \"H0\" J\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 18,
+          "name": "sm_entropy_f",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard entropy of formation from elements at st.states \"S0f\" J\/K\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 19,
+          "name": "sm_entropy_abs",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard absolute entropy at Tst, Pst \"S0\" J\/K\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 20,
+          "name": "sm_heat_capacity_p",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard constant-pressure heat capacity at Tst, Pst \"Cp0\" J\/K\/mol\n",
+          "required": "req_out"
+        },
+        {
+          "key": 21,
+          "name": "m_compressibility",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Isothermal compressibility (for condensed substances)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 22,
+          "name": "m_expansivity",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Isobaric expansivity (for condensed substances)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 25,
+          "name": "TPMethods",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "SubstanceTPMethodData"
+            }
+          },
+          "doc": "One or more method codes and data for computing P,T corrections to standard properties\n",
+          "required": "req_out"
+        },
+        {
+          "key": 26,
+          "name": "limitsTP",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.LimitsTP"
+          },
+          "doc": "Overall T,P limits for all methods involved\n",
+          "required": "req_out"
+        },
+        {
+          "key": 31,
+          "name": "surface_density",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Standard surface density and denticity (for surface species) \"surfd\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 32,
+          "name": "aq_edh_props",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Individual properties for Debye-Hueckel-type aqueous activity \"EDHp\"\n",
+          "required": "optional"
+        },
+        {
+          "key": 35,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Comment - e.g. who entered\/modified, ...\n",
+          "required": "optional"
+        },
+        {
+          "key": 36,
+          "name": "datasources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "Labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 37,
+          "name": "time_stamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "Timestamp when the record was created or modified\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Substances",
+      "doc": "Definition of an array of substances\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "substances",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "Substance"
+            }
+          },
+          "doc": "List of CemGEMS chemical system recipes\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "SubstanceInfo",
+      "doc": "Short description of substance (for using in ChemSysDef etc.)\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Unique name\/ID of this substance (e.g. abbreviated mineral name)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "formula",
+          "typeId": "string",
+          "doc": "Formula of substance in GEMS syntax, in elements, can include moiety symbols\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "class_",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Class of substance: enum validated with class SubstanceClass\n",
+          "class": "SubstanceClass",           
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "aggregate_state",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "(Standard) state of this substance: enum validated with class AggregateState\n",
+          "class": "AggregateState", 
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "standard_cscale",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "(Standard) concentration scale: enum validated with class ConcentrationScales\n",
+          "class": "ConcentrationScale", 
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "formula_charge",
+          "typeId": "double",
+          "doc": "Formula charge, default 0 (usually calculated from parsed formula)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "mass_per_mole",
+          "typeId": "double",
+          "doc": "Mass per 1 mole of this substance \"mM\" kg\/mol (calculated with fCharge)\n",
+          "required": "req_out"
+        }
+      ]
+    },
+    {
+      "name": "ElementData",
+      "doc": "Data structure for processing the elements\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "elemc",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Class (type) of this element (independent component)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "Mar",
+          "typeId": "double",
+          "doc": "Relative atomic mass of this element, dimensionless\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "iMass",
+          "typeId": "i16",
+          "doc": "Isotope mass or 0 if natural mixture of isotopes\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "iNA",
+          "typeId": "double",
+          "doc": "Isotope abundance fraction, default 1\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "S0a",
+          "typeId": "double",
+          "doc": "Standard abs entropy J\/K\/mol per mole of atoms\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "V0a",
+          "typeId": "double",
+          "doc": "Standard volume cm3 per mole of atoms\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "Cp0a",
+          "typeId": "double",
+          "doc": "Standard heat capacity J\/K\/mol per mole of atoms\n",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "valences",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "doc": "Valences possible for this element\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "processed",
+          "typeId": "bool",
+          "doc": "indicator of processing the data\n",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 12,
+          "name": "elemid",
+          "typeId": "i32",
+          "doc": "Element id\n",
+          "required": "optional"
+        },
+        {
+          "key": 13,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "element symbol\n",
+          "required": "optional"
+        },
+        {
+          "key": 14,
+          "name": "formula",
+          "typeId": "string",
+          "doc": "element (IComp) formula\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "SubstanceData",
+      "doc": "Work structure keeping the data for substance data object calculations\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "Nelem",
+          "typeId": "i16",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "elems",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ElementData"
+            }
+          },
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "cmV0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "cmG0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "cmH0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "cmS0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "cmCp0",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 9,
+          "name": "cfCharge",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "cmMass",
+          "typeId": "double",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "processed",
+          "typeId": "bool",
+          "required": "req_out",
+          "default": 0
+        },
+        {
+          "key": 12,
+          "name": "subsid",
+          "typeId": "i32",
+          "required": "optional"
+        },
+        {
+          "key": 13,
+          "name": "symbol",
+          "typeId": "string",
+          "required": "optional"
+        },
+        {
+          "key": 14,
+          "name": "formula",
+          "typeId": "string",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ThermoPropertiesSubstance",
+      "doc": "Structure keeping thermodynamic properites that can be calculated at P,T for a substance\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "gibbs_energy",
+          "typeId": "double",
+          "doc": "The apparent standard molar Gibbs free energy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 2,
+          "name": "helmholtz_energy",
+          "typeId": "double",
+          "doc": "The apparent standard molar Helmholtz free energy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "internal_energy",
+          "typeId": "double",
+          "doc": "The apparent standard molar internal energy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 4,
+          "name": "enthalpy",
+          "typeId": "double",
+          "doc": "The apparent standard molar enthalpy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 5,
+          "name": "entropy",
+          "typeId": "double",
+          "doc": "The standard molar entropy of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "volume",
+          "typeId": "double",
+          "doc": "The standard molar volume of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "heat_capacity_cp",
+          "typeId": "double",
+          "doc": "The standard molar isobaric heat capacity of the species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "heat_capacity_cv",
+          "typeId": "double",
+          "doc": "The standard molar isochoric heat capacity of the species\n",
+          "required": "req_out"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

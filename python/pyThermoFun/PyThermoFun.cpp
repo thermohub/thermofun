@@ -38,4 +38,7 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportSubstance(m);
     exportReaction(m);
     exportElement(m);
+
+    // Database Client
+    exportDatabaseClient(m);
 }

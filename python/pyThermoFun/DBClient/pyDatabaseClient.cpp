@@ -32,6 +32,8 @@ void exportDatabaseClient(py::module& m)
     py::class_<DatabaseClient>(m, "DatabaseClient")
         .def(py::init<>())
         ;
+
+    m.def("setDatabaseConnectionFilePath", &setDatabaseConnectionFilePath,"Set path to the database connection preferences file.");
 }
 
 }

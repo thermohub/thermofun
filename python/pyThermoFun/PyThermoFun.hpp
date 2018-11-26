@@ -40,4 +40,5 @@ namespace ThermoFun {
     void exportElement(py::module& m);
 
     // Database Client
+    void exportDatabaseClient(py::module& m);
 } // namespace ThermoFun
