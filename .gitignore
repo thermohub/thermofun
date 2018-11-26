@@ -45,4 +45,10 @@ tests/interfaceTest/thirdparty/
 .vscode/
 tests/PyThermoFun.so
 
+python/tests/H2OWP95reaktoro.csv
+python/tests/PyThermoFun.cpython-36m-x86_64-linux-gnu.so
+python/tests/parseBsonDatalogfile.txt
+python/tests/results.csv
+
+
 
