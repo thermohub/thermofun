@@ -4,9 +4,9 @@ A code for calculating the standard state thermodynamic properties at a given te
 
 ## Build and Run Tests on Linux
 
-## Pepare building tools
+## Prepare building tools
 
-* Make sure you have g++, cmake and git installed. If not, install them (on ubuntu linux):
+* Make sure you have g++, cmake and git installed. If not, install them (on Ubuntu Linux):
 
 ```
 #!bash
@@ -37,8 +37,8 @@ git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
 
 ## Install ArangoDB local
 
-* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the instalation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
-* In a terminal copy-paste and run to folowing code: (for possibily newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recomend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
+* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the installation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
+* In a terminal copy-paste and run to flowing code: (for possibly newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recommend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
 
 ```
 #!bash
@@ -66,7 +66,7 @@ sudo ./install-dependencies.sh
 
 ### Compiling the C++ library
 
-In the terminal, execute the following commands:
+In the terminal ```~/gitTHERMOFUN/thermofun$```, execute the following commands:
 
 ```
 #!bash
@@ -75,7 +75,7 @@ cmake ../../thermofun && \
 make
 ``` 
 
-To thake advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
+To take advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
 
 For a global installation of the compiled libraries in your system, execute:
 
@@ -98,7 +98,7 @@ then execute:
 sudo make install 
 ```
 
-To compile ThermoFun library in degub mode change directory to ```~/gitTHERMOFUN/build/release``` and:
+To compile ThermoFun library in debug mode change directory to ```~/gitTHERMOFUN/build/debug``` and:
 
 ```
 #!bash
@@ -125,32 +125,31 @@ Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18
 sudo ./install-dependencies-gui.sh $HOME/Qt/5.11.0/gcc_64
 ```
 
-~~~
-$ ./install-thirdparty.sh /home/your_user/Qt/5.11.0/gcc_64
-~~~
-
-This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`, `thermofun`, and `thermofungui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 
+This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 
 To reinstall dependencies open `install-dependencies.sh` and/or `install-dependencies-gui.sh` files with a text editor. At the beginning of the script file commands for removing dependency library files are present but they are commented out with `#` symbol. Remove `#` for each dependency you wish to be reinstalled. 
 
 ### Compiling the ThermoFun GUI demo
 
-In the terminal, execute the following commands:
+In the terminal at ```~/gitTHERMOFUN/thermofun$```, execute the following commands:
 
 ```
 #!bash
 cd .. && mkdir build-gui \
 cd build-gui && mkdir release && cd release && \
-cmake ../../thermofun/DEMOGui && \
+cmake ../../thermofun/fungui -DBUILD_FUNGUI=ON -DBUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.0/gcc_64 && \
 make
 ``` 
 
---
+The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "ThermoFun-config.json" is present and contains the arangodb database connection preferences. 
 
-* Now in QtCreator, build the ThermoFunDemoGUI.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.11.0) and then run the DemoGUI code. 
+To run the ThermoFun GUI demo in the terminal at ```~/gitTHERMOFUN/build-gui$``` execute:
 
-* Before running DemoGUI copy the Resources folder found in thermofun/DemoGUI in the build folder
+```
+./guidemo.sh
+```
 
-The ThermoFunDemoGUI.json file contains the settings for connecting to the local or remote ArangoDB server. To use the local server set `"CurrentDBConnection" :   1` to use the remote server set `"CurrentDBConnection" :   0`
+* For building using Qt Creator, use the ThermoFunDemoGUI.pro project file found in  ```~/gitTHERMOFUN/thermofun/fungui```.
+
 
 ### Automatic Test for comparing GEMS4 and ThermoFun calculations (OUTDATED - Under Construction / Update)
 

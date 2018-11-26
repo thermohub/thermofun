@@ -1,75 +1,50 @@
 {
-     "ArangoDBName" :   "_system",
-     "ArangoDBUrl" :   "http://localhost:8529",
-     "ArangoDBUser" :   "root",
-     "ArangoDBUserPassword" :   "",
-     "CurrentDBConnection" :   0,
-     "DBSocketHost" :   "localhost",
-     "DBSocketPort" :   9090,
-     "Edit_id" :   false,
-     "ElementsFormatTable" :   "Resources/files/TestPhreeqc/Export/concrOut/export_I_IElements.FormatTableFile.json",
-     "ImpexDirection" :   true,
-     "ImpexFormatOverwrite" :   false,
-     "ImpexFormatUseDB" :   false,
-     "ImpexReactionSetName" :   "Aq17",
-     "InputOutputFilePath" :   "test_export_phreeqc_Aq17.dat",
-     "KeepExpanded" :   true,
-     "LocalArangoDBCreate" :   true,
-     "LocalArangoDBName" :   "hub_work",
-     "LocalArangoDBUrl" :   "http://localhost:8529",
-     "LocalArangoDBUser" :   "matchloc",
-     "LocalArangoDBUserPassword" :   "ThermoMatch@Local",
-     "LocalDBCollection" :   "data",
-     "LocalDBDirectory" :   "",
-     "LocalDBName" :   "cemdata18",
-     "ReactIIIFormatKeyValue" :   "Resources/files/TestPhreeqc/Export/concrOut/export_III_React.FormatKeyValueFile_.json",
-     "ReactIVFormatKeyValue" :   "Resources/files/TestPhreeqc/Export/concrOut/export_IV_phase_React.FormatKeyValueFile_.json",
-     "RemoteArangoDBName" :   "hub_test",
-     "RemoteArangoDBUrl" :   "https://db.thermohub.net",
-     "RemoteArangoDBUser" :   "adminrem",
-     "RemoteArangoDBUserPassword" :   "Administrator@Remote-ThermoHub-Server",
-     "ResourcesDirectory" :   "Resources",
-     "SchemasDirectory" :   "Resources/data/schemas",
-     "ShowComments" :   true,
-     "SubstIIFormatKeyValue" :   "Resources/files/TestPhreeqc/Export/concrOut/export_II_Subst.FormatKeyValueFile_.json",
-     "SubstIIIFormatKeyValue" :   "Resources/files/TestPhreeqc/Export/concrOut/export_III_Subst.FormatKeyValueFile_.json",
-     "SubstIVFormatKeyValue" :   "Resources/files/TestPhreeqc/Export/concrOut/export_IV_phase_Subst.FormatKeyValueFile_.json",
-     "UseEnumNames" :   true,
-     "UseLocalDB" :   true,
-     "UseThriftServer" :   false,
-     "UserFolderPath" :   "Resources/files/TestElement/New",
      "jsonio" :   {
+          "UseArangoDBInstance" :   "ArangoDBRemote",
+          "UseVelocypackPut" :   true,
+          "UseVelocypackGet" :   true,
           "ArangoDBLocal" :   {
+               "DBName" :   "userdatabase",
+               "DBCreate" :   true,
                "DB_URL" :   "http://localhost:8529",
-               "DBName" :   "_system",
                "DBUser" :   "root",
                "DBUserPassword" :   "",
                "DBAccess" :   "rw",
-               "DBCreate" :   false
+               "DBRootName" :   "_system",
+               "DBRootUser" :   "root",
+               "DBRootPassword" :   ""
           },
           "ArangoDBRemote" :   {
+               "DBName" :   "hub_main",
+               "DBCreate" :   false,
                "DB_URL" :   "https://db.thermohub.net",
-               "DBName" :   "test_thereda2",
-               "DBUser" :   "adminrem",
-               "DBUserPassword" :   "Administrator@Remote-ThermoHub-Server",
-               "DBAccess" :   "rw"
-          },
-          "UseArangoDBInstance" :   "ArangoDBRemote"
-     },
-     "jsonui" :   {
-          "ShowComments" :   false,
-          "ShowEnumNames" :   false,
-          "CanEdit_id" :   false,
-          "KeepExpanded" :   true,
-          "CurrentDBConnection" :   "ArangoDBRemote"
-     },
-     "common" :   {
-          "ResourcesDirectory" :   "/home/dmiron/gitTHERMOFUN/build-gui/debug/Resources",
-          "SchemasDirectory" :   "/home/dmiron/gitTHERMOFUN/build-gui/debug/Resources/data/schemas",
-          "WorkDirectoryPath" :   "/home/dmiron/gitTHERMOFUN/build-gui/debug"
+               "DBUser" :   "funrem",
+               "DBUserPassword" :   "ThermoFun@Remote-ThermoHub-Server",
+               "DBAccess" :   "rw",
+               "DBRootName" :   "_system",
+               "DBRootUser" :   "",
+               "DBRootPassword" :   ""
+          }
      },
      "jsonimpex" :   {
+          "ImpexScriptsDirectory" :   "Resources/data/impex",
+          "ImpexScriptsInDB" :   true,
           "ThriftDBSocketHost" :   "localhost",
           "ThriftDBSocketPort" :   9090
+     },
+     "jsonui" :   {
+          "CurrentDBConnection" :   "ArangoDBRemote",
+          "ViewOnlyMode" :   false,
+          "CanEdit_id" :   false,
+          "KeepExpanded" :   true,
+          "ShowComments" :   true,
+          "ShowEnumNames" :   true
+     },
+     "common" :   {
+          "UserHomeDirectoryPath" :   "~",
+          "WorkDirectoryPath" :   ".",
+          "ResourcesDirectory" :   "Resources",
+          "SchemasDirectory" :   "Resources/data/schemas",
+          "LuaScriptsDirectory" :   "~Resources/lua"
      }
 }

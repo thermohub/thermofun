@@ -4,7 +4,7 @@
           "UseVelocypackPut" :   true,
           "UseVelocypackGet" :   true,
           "ArangoDBLocal" :   {
-               "DBName" :   "test_gems_newz",
+               "DBName" :   "userdatabase",
                "DBCreate" :   true,
                "DB_URL" :   "http://localhost:8529",
                "DBUser" :   "root",
@@ -15,11 +15,11 @@
                "DBRootPassword" :   ""
           },
           "ArangoDBRemote" :   {
-               "DBName" :   "test_thereda",
+               "DBName" :   "hub_main",
                "DBCreate" :   false,
                "DB_URL" :   "https://db.thermohub.net",
-               "DBUser" :   "adminrem",
-               "DBUserPassword" :   "Administrator@Remote-ThermoHub-Server",
+               "DBUser" :   "funrem",
+               "DBUserPassword" :   "ThermoFun@Remote-ThermoHub-Server",
                "DBAccess" :   "rw",
                "DBRootName" :   "_system",
                "DBRootUser" :   "",
@@ -33,7 +33,7 @@
           "ThriftDBSocketPort" :   9090
      },
      "jsonui" :   {
-          "CurrentDBConnection" :   "ArangoDBLocal",
+          "CurrentDBConnection" :   "ArangoDBRemote",
           "ViewOnlyMode" :   false,
           "CanEdit_id" :   false,
           "KeepExpanded" :   true,
@@ -41,10 +41,10 @@
           "ShowEnumNames" :   true
      },
      "common" :   {
-          "UserHomeDirectoryPath" :   "~/",
-          "WorkDirectoryPath" :   "~/gitTHERMOFUN/demoGUI-build/release",
-          "ResourcesDirectory" :   "~/gitTHERMOFUN/demoGUI-build/release/Resources",
-          "SchemasDirectory" :   "~/gitTHERMOFUN/demoGUI-build/release/Resources/data/schemas",
+          "UserHomeDirectoryPath" :   "~",
+          "WorkDirectoryPath" :   ".",
+          "ResourcesDirectory" :   "Resources",
+          "SchemasDirectory" :   "Resources/data/schemas",
           "LuaScriptsDirectory" :   "~Resources/lua"
      }
 }

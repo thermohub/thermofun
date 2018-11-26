@@ -34,7 +34,7 @@ set(RESOURCE ${QRC_FILES})
 qt5_add_resources(thermofungui_SRCS ${RESOURCE})
 #qt5_add_binary_resources(target inputfile ... OPTIONS ... DESTINATION ...)
 
-include_directories(${CMAKE_BINARY_DIR}/DemoGUI/src)
+include_directories(${CMAKE_BINARY_DIR}/fungui/src)
 # access to thirdpary includes
 include_directories(${CMAKE_BINARY_DIR}/../../../include)
 

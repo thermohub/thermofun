@@ -53,11 +53,26 @@ qt5_wrap_ui(guidemo_FORMS_HEADERS ${guidemo_FORMS})
 qt5_add_resources(guidemo_SRCS ${RESOURCE})
 #qt5_add_binary_resources(target inputfile ... OPTIONS ... DESTINATION ...)
 
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_BINARY_DIR}/fungui/demo)
 include_directories(${CMAKE_SOURCE_DIR}/../src/)
 #include_directories(${CMAKE_BINARY_DIR}/../)
 
 add_executable(guidemo ${guidemo_SOURCES} ${guidemo_HEADERS_MOC} ${guidemo_FORMS_HEADERS} ${guidemo_SRCS})
 
-target_link_libraries (guidemo jsonio jsonui Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts boost_regex boost_system boost_filesystem curl velocypack thrift thermofun thermofungui)
+target_link_libraries (guidemo jsonio jsonui Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts boost_regex boost_system boost_filesystem curl velocypack thrift)
+target_link_libraries (guidemo THERMOFUNGUI_STATIC)
+target_link_libraries (guidemo THERMOFUN_STATIC)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources
+        DESTINATION ${CMAKE_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/guidemo.sh
+        DESTINATION ${CMAKE_BINARY_DIR})
+
+# Copy the binary file
+add_custom_command(TARGET guidemo POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:guidemo>
+    $/../../$<TARGET_FILE_NAME:guidemo>
+    COMMENT "Copying guidemo to build directory.")
+
 
