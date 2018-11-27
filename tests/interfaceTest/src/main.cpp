@@ -3,10 +3,10 @@
     using namespace std;
     using namespace ThermoFun;
 
-    int main(int argc, char *argv[])
+    int main()
     {
       // Create the interface object using a database file in JSON
-      Interface interface("Resources/aq17.json");
+      Interface interface("aq17.json");
 
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       interface.setSolventSymbol("H2O@");
@@ -19,6 +19,9 @@
 
       // Retrieve the entropy of H2O
       double H2Oentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+
+      // Retrieve the derivative of G with respect to T
+      double H2OdGdT = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
       double H2Ogentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toDouble();
       Reaktoro_::ThermoScalar entro = interface.thermoPropertiesSubstance( 250, 1000, "H2O@", "entropy").toThermoScalar();
       Reaktoro_::ThermoScalar G1 = interface.thermoPropertiesSubstance( 25, 1000, "H2O@", "gibbs_energy").toThermoScalar();

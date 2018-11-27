@@ -211,8 +211,12 @@ int main(int argc, char *argv[])
     auto loadedReacData = rcd.loadRecordsValues(query, 20, dbc_.availableElementsKey(20));
 
     auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
-    Database db = databaseFromRecordList(dbc_, list);
 
+    DatabaseClient dbc;
+
+    auto records = dbc.recordsFromThermoDataSet("Cemdata18");
+
+    Database db = databaseFromRecordList(dbc, records);
 
     ThermoFun::Interface interface (db);
     interface.setSolventSymbol("H2O@");

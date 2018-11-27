@@ -25,7 +25,7 @@ public:
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
                                                     const vector<ElementKey>& elements = {} );
     /// Extract data connected to ThermoDataSet
-    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+    virtual vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
 
     /// Get Elements list from reaction record
     virtual set<ElementKey> getElementsList( const string& idThermoDataSet);

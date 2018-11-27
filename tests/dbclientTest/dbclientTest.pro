@@ -53,8 +53,8 @@ LIBS += -L$$THIRDPARTY_LIBRARY_DIR1
 
 LIBS += -ljsonio
 #-lReaktoro
-LIBS += -lboost_regex -lboost_filesystem
-LIBS += -lcurl -lvelocypack
+LIBS += -lboost_regex -lboost_system -lboost_filesystem
+LIBS +=  -lcurl  -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
