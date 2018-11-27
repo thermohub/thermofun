@@ -157,74 +157,73 @@ To run the ThermoFun GUI demo in the terminal at ```~/gitTHERMOFUN/build-gui$```
 
 ```
 #!c++
-    int main()
-    {
-      // Create the interface object using a database file in JSON
-      Interface interface("aq17.json");
+int main()
+{
+   // Create the interface object using a database file in JSON
+   Interface interface("aq17.json");
 
-      // Optional: set the solvent symbol used for calculating properties of aqueous species
-      interface.setSolventSymbol("H2O@");
+   // Optional: set the solvent symbol used for calculating properties of aqueous species
+   interface.setSolventSymbol("H2O@");
 
-      // Optional: change default units
-      interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+   // Optional: change default units
+   interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
-      // Optional: change default digits
-      interface.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
+   // Optional: change default digits
+   interface.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
 
-      // Retrieve the entropy of H2O
-      double H2Oentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+   // Retrieve the entropy of H2O
+   double H2Oentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
 
-      // Retrieve the derivative of G with respect to T
-      double H2OdGdT = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
+   // Retrieve the derivative of G with respect to T
+   double H2OdGdT = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
 
-      // Write results to a comma separate files for a list of T-P pairs, substances, and properties
-      interface.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
-                                           {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
-                                           {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
-                                          ).toCSV("results.csv");                           // output
-      return 0;
-    }
+   // Write results to a comma separate files for a list of T-P pairs, substances, and properties
+   interface.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
+                                        {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
+                                        {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
+                                      ).toCSV("results.csv");                            // output
+}
 ```
 
 * Using the database client and retrieving a ThermoDataSet from the remote database
 
 ```
 #!c++
-    int main()
-    {
-    // Initialize a database client object
-    DatabaseClient dbc;
+int main()
+{
+   // Initialize a database client object
+   DatabaseClient dbc;
 
-    // Retrieve list of records given a ThermoDataSet symbol
-    auto records = dbc.recordsFromThermoDataSet("PSINagra07"); 
+   // Retrieve list of records given a ThermoDataSet symbol
+   auto records = dbc.recordsFromThermoDataSet("PSINagra07"); 
 
-    // Create a ThermoFun database using the records list
-    Database db = databaseFromRecordList(dbc, records);
+   // Create a ThermoFun database using the records list
+   Database db = databaseFromRecordList(dbc, records);
 
-    // Initialize an interface object using the database
-    ThermoFun::Interface interface (db);
+   // Initialize an interface object using the database
+   ThermoFun::Interface interface (db);
 
-    // Optional: set the solvent symbol used for calculating properties of aqueous species
-    interface.setSolventSymbol("H2O@");
+   // Optional: set the solvent symbol used for calculating properties of aqueous species
+   interface.setSolventSymbol("H2O@");
 
-    // Optional set calculation and output preferences
-    ThermoFun::OutputSettings op;
-    op.isFixed = true;
-    op.outSolventProp       = true;
-    op.calcReactFromSubst   = false;
-    op.calcSubstFromReact   = false;
-    interface.setOutputSettings(op);
+   // Optional set calculation and output preferences
+   ThermoFun::OutputSettings op;
+   op.isFixed = true;
+   op.outSolventProp       = true;
+   op.calcReactFromSubst   = false;
+   op.calcSubstFromReact   = false;
+   interface.setOutputSettings(op);
 
-    // Optional set units and significant digits
-    interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
-    interface.setPropertiesDigits({"reaction_gibbs_energy","reaction_entropy", "reaction_volume",
-                                   "reaction_enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0});
+   // Optional set units and significant digits
+   interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+   interface.setPropertiesDigits({"reaction_gibbs_energy","reaction_entropy", "reaction_volume",
+                                  "reaction_enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0});
 
-    interface.thermoPropertiesReaction({{25,1}}, {"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
-                                                             "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
+   interface.thermoPropertiesReaction({{25,1}}, {"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                      "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
 
-    interface.thermoPropertiesReaction({0,20,50,75},{0,0,0,0},{"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
-                                                         "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
-    }
+   interface.thermoPropertiesReaction({0,20,50,75},{0,0,0,0},{"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                      "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
+}
 
 ```
