@@ -4,257 +4,231 @@ A code for calculating the standard state thermodynamic properties at a given te
 
 ## Build and Run Tests on Linux
 
-## Pepare building tools
+## Prepare building tools
 
-* Make sure you have g++, cmake and git installed. If not, install them (on ubuntu linux):
-~~~
+* Make sure you have g++, cmake and git installed. If not, install them (on Ubuntu Linux):
+
+```
+#!bash
 sudo apt-get install g++ cmake git
-~~~
+```
 
 ## Prepare folder structure and download ThermoFun source code
 
-* The directory structure should now look like this:
-~~~
+* In a terminal, at the home directory level e.g. ```<user>@ubuntu:~$``` copy-paste and run the following code:
+
+```
+#!bash
+mkdir gitTHERMOFUN && cd gitTHERMOFUN && \
+mkdir build && cd build && \
+mkdir release && mkdir debug && cd .. && \
+git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
+```
+
+* In the terminal you should be in ```~/gitTHERMOFUN/thermofun$``` and the directory structure should now look like this:
+
+```
 ~/gitTHERMOFUN
     /build
         /debug
         /release
     /thermofun
-~~~
+```
 
-* In a terminal, run the following commands to clone the ThermoFun library:
-~~~
-$ cd ~/gitTHERMOFUN/thermofun
-$ git clone https://bitbucket.org/gems4/thermofun.git .
-~~~
+## Install ArangoDB local
 
-## Install additional packages
+* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the installation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
+* In a terminal copy-paste and run to flowing code: (for possibly newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recommend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
 
-* Install additional packages required by JSONIO library, which is used for operating with data and communicating with the local or remote ArangoDB database.
+```
+#!bash
+sudo apt-get install curl && \
+curl -OL https://download.arangodb.com/arangodb33/xUbuntu_17.04/Release.key && \
+sudo apt-key add - < Release.key && \
+echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list && \
+sudo apt-get install apt-transport-https && \
+sudo apt-get update && \
+sudo apt-get install arangodb3=3.3.19
+```
 
-~~~
-$ sudo apt-get install libboost-all-dev curl libcurl4-openssl-dev
-~~~
+## Build and install ThermoFun library 
 
-* ThermoFun (via JSONIO) uses ArangoDB database with which it communicates with VelocyPack serializer. First install current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/):
+Buil and ThermoFun library for use in C++ or python thirdparty codes.
 
-~~~
-curl -OL https://download.arangodb.com/arangodb33/xUbuntu_16.04/Release.key
-sudo apt-key add - < Release.key
-echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_16.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
-sudo apt-get install apt-transport-https
-sudo apt-get update
-sudo apt-get install arangodb3=3.3.8
-~~~
+### Install Dependencies
 
-Then build ArangoDB VelocyPack serializer as follows:
+Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in a terminal ```~/gitTHERMOFUN/thermofun$``` execute the following: 
 
-~~~
-sudo apt-get update
-cd ~
-mkdir -p code && \
-    cd code && \
-    git clone https://github.com/arangodb/velocypack.git && \
-    cd velocypack && \
-    mkdir -p build && \
-    cd build && \
-    cmake .. -DCMAKE_CXX_FLAGS=-fPIC && \
-    sudo make install
-~~~
+```
+#!bash
+sudo ./install-dependencies.sh
+```
 
-## Build ThermoFun library (release)
+### Compiling the C++ library
 
-* For compiling ThermoFun library from its source code change folder to `~/gitTHERMOFUN/build/release` and execute:
+In the terminal ```~/gitTHERMOFUN/thermofun$```, execute the following commands:
 
-~~~
-cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Release
-~~~
+```
+#!bash
+cd ../build/release && \
+cmake ../../thermofun && \
+make
+``` 
 
-This will start the building process, first the JSONIO third party library, followed by the ThermoFun library. 
+To take advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
 
-* For a global installation of the compiled libraries in your system, execute:
+For a global installation of the compiled libraries in your system, execute:
 
-~~~
-make install
-~~~
+```
+#!bash
+sudo make install 
+```
 
-This will install ThermoFun's header files and libraries in the default installation directory of your system (e.g, /usr/local/ or /opt/local/). 
-Note that this installation mode might require administrator rights, so that you would need to execute 
-~~~
-sudo make install
-~~~
-instead.
+This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` ).
 
-* For a local installation, you can specify a directory path for the installed files as:
+For a local installation, you can specify a directory path for the installed files as follows:
 
-~~~
-cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
-make install
-~~~
+```
+#!bash
+cmake ../../thermofun -DCMAKE_INSTALL_PREFIX=/home/username/local/
+```
+then execute:
 
-The above call to cmake will reconfigure the build process, but it will not require recompilation if ThermoFun's libraries have already been compiled.
+```
+sudo make install 
+```
 
+To compile ThermoFun library in debug mode change directory to ```~/gitTHERMOFUN/build/debug``` and:
+
+```
+#!bash
+cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
+```
+then execute:
+
+```
+sudo make install 
+```
 
 ### Build and run ThermoFun GUI Demo
 
 To be able to build and run the ThemroFun GUI (graphical user interface) application demo, Qt needs to be installed.
 
-* Download and install Qt 5.11.0 (https://www1.qt.io/download/). In the "Select components to install" menu select: Qt 5.11.0 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
+* Download and install Qt 5.11.0 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.11.0 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
 
-* in addition libgl-dev is required
-~~~
-$ sudo apt-get install libgl-dev
-~~~
+### Install Dependencies
 
-ThermoFun GUI demo uses the JSONUI as a thrid party library (https://bitbucket.org/gems4/jsonui) 
+Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in the terminal go in ```~/gitTHERMOFUN/thermofun$``` and execute the following: 
 
-* Before installing the thirparty libraries, Apache Thrift and Lua need to be installed
+```
+#!bash
+sudo ./install-dependencies-gui.sh $HOME/Qt/5.11.0/gcc_64
+```
 
-* Install the Lua embedded scripts interpreter (on ubuntu linux):
-~~~
-sudo apt-get install lua5.3 lua5.3-dev
-~~~
+This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 
+To reinstall dependencies open `install-dependencies.sh` and/or `install-dependencies-gui.sh` files with a text editor. At the beginning of the script file commands for removing dependency library files are present but they are commented out with `#` symbol. Remove `#` for each dependency you wish to be reinstalled. 
 
-* Before building Apache Thrift
-~~~
-sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
-~~~
+### Compiling the ThermoFun GUI demo
 
-* Build and install the 0.11.0 version of the Apache Thrift by cloning it with git:
-~~~
-sudo apt-get install libssl-dev libtool byacc automake bison flex pkg-config libboost-all-dev
+In the terminal at ```~/gitTHERMOFUN/thermofun$```, execute the following commands:
 
-cd ~
-mkdir thrift
-cd thrift
-git clone http://github.com/apache/thrift . -b 0.11.0
-./bootstrap.sh
-./configure --without-lua
-sudo make install
-sudo ldconfig
-~~~
+```
+#!bash
+cd .. && mkdir build-gui \
+cd build-gui && mkdir release && cd release && \
+cmake ../../thermofun/fungui -DBUILD_FUNGUI=ON -DBUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.0/gcc_64 && \
+make
+``` 
 
-* To install the thirdparty libraries in a linux terminal, cd inside `~/gitTHERMOFUN/thermofun/DemoGUI` and type
+The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "ThermoFun-config.json" is present and contains the arangodb database connection preferences. 
 
-~~~
-$ ./install-thirdparty.sh /home/your_user/Qt/5.11.0/gcc_64
-~~~
+To run the ThermoFun GUI demo in the terminal at ```~/gitTHERMOFUN/build-gui$``` execute:
 
-* This step will download, configure, build, and install all third-party libraries (JSONIO, JSONUI, JSONIMPEX, YAML-CPP, and pugixml) into build/{debug,release}/thirdparty. The build script will check if the libraries are already installed and only build and install them if not found in  /usr/local/. If the thirdparty libraries need to be refreshed/updated in the file `install-thirdparty.sh` change `-DREFRESH_THIRDPARTY=OFF` to `-DREFRESH_THIRDPARTY=ON`
+```
+./guidemo.sh
+```
 
-* Now in QtCreator, build the ThermoFunDemoGUI.pro project using the same Qt version as was used for building thirdpary (i.e. Qt 5.11.0) and then run the DemoGUI code. 
-
-* Before running DemoGUI copy the Resources folder found in thermofun/DemoGUI in the build folder
-
-The ThermoFunDemoGUI.json file contains the settings for connecting to the local or remote ArangoDB server. To use the local server set `"CurrentDBConnection" :   1` to use the remote server set `"CurrentDBConnection" :   0`
-
-### Automatic Test for comparing GEMS4 and ThermoFun calculations (OUTDATED - Under Construction / Update)
-
-#### Build autoTest
-
-Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
-
-* Let us call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
-~~~
-~/gitThermoFun
-    /thermofun
-    /gems4r
-~~~
-
-* In a terminal, run the following commands to clone the ThermoFun library:
-~~~
-$ cd ~/gitThermoFun/thermofun
-$ git clone https://<your_user>@bitbucket.org/gems4/thermofun.git .
-~~~
-
-* In a terminal, run the following commands to clone the GEMS4R library:
-~~~
-$ cd ~/gitThermoFun/gems4r
-$ git clone https://<your_user>@bitbucket.org/gems4/gems4r.git .
-~~~
-
-* In a linux terminal, cd inside ~/gitThermoFun/thermofun/tests/autoTest and type
-~~~
-$ ./install-thirdparty.sh
-~~~
-
-* If Qt5 libraries are installed locally (for instance in /home/your_user/Qt5/5.5/gcc64) then use the path to Qt libraries, as shown below:
-~~~
-$ ./install-thirdparty.sh /home/your_user/Qt5/5.5/gcc64
-~~~
-
-* This step will download, configure, build, and install all third-party libraries (bsonio, bsonui, EJDB, YAML-CPP, and pugixml) in build/{debug,release}/thirdparty.
-
-* After this, headers and libraries of the third-party libraries can be found in build-auto-test/{debug,release}/thirdparty/{include,lib}. The .pro file of master project has already been adjusted to find these dependencies.
-
-* Copy the Resources into the debug and release build folders 
-~~~
-~/gitThermoFun/thermofun/tests/autoTest/Resources
-~~~
-
-* Start QtCreator and configure autoTest (from: ~/gitThermoFun/thermofun/tests/autoTest/autoTest.pro) to build debug and release binaries respectively into
-~~~
-~/gitThermoFun/build-auto-test/debug
-~/gitThermoFun/build-auto-test/release
-~~~
-
-* Now in QtCreator, build the *.pro project and then run autoTest code.
-
-#### INPUT in the Test
-
-* Resources/test_multi.VertexSubstance.json - list of substances exported from PMATCH++
-* Resources/TestMulti - GEMS4R exported files containing the same sbustances as in the above list
-* The test reads the list of substances exported from PMATCH++ and loads them in the TCorrPT internal data structure (Database)
-* A GEMS node is initialized using the exported GEMS4R system files
-
-#### OUTPUT from the Test
-
-* writes warning messages in the terminal, if there is a relative difference between GEMS and TCorrPT calculated properties larger than tolerance = 1e-05
-* writes calculation results in *.csv files. GEMS4 and TCorrPT calculated properties at different T and P  
+* For building using Qt Creator, use the ThermoFunDemoGUI.pro project file found in  ```~/gitTHERMOFUN/thermofun/fungui```.
 
 
-### Simple API example (OUTDATED)
+### Simple API example
+
+* Using a json database file
 
 ```
 #!c++
-int main(int argc, char const *argv[])
+using namespace ThermoFun;
+int main()
 {
-    Database database("database-name.json/xml/yaml");
+   // Create the interface object using a database file in JSON
+   Interface interface("aq17.json");
 
-    Thermo thermo(database);
+   // Optional: set the solvent symbol used for calculating properties of aqueous species
+   interface.setSolventSymbol("H2O@");
 
-    ThermoPropertiesSubstance tps;
-    ThermoPropertiesReaction tpr;
+   // Optional: change default units
+   interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
-    tps = thermo.thermoPropertiesSubstance("Substance Symbol", P, T);
-    tpr = thermo.thermoPropertiesReaction("Reaction Symbol", P, T);
+   // Optional: change default digits
+   interface.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
 
-    return 0;
+   // Retrieve the entropy of H2O
+   double H2Oentropy = interface.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+
+   // Retrieve the derivative of G with respect to T
+   double H2OdGdT = interface.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
+
+   // Write results to a comma separate files for a list of T-P pairs, substances, and properties
+   interface.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
+                                        {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
+                                        {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
+                                      ).toCSV("results.csv");                            // output
 }
 ```
 
-### What is this repository for? ###
+* Using the database client and retrieving a ThermoDataSet from the remote database
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+```
+#!c++
+using namespace ThermoFun;
+int main()
+{
+   // Set the file path to the database connection and preferences file
+   setDatabaseConnectionFilePath("dbclient-config.json");
 
-### How do I get set up? ###
+   // Initialize a database client object
+   DatabaseClient dbc;
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+   // Retrieve list of records given a ThermoDataSet symbol
+   auto records = dbc.recordsFromThermoDataSet("PSINagra07"); 
 
-### Contribution guidelines ###
+   // Create a ThermoFun database using the records list
+   Database db = databaseFromRecordList(dbc, records);
 
-* Writing tests
-* Code review
-* Other guidelines
+   // Initialize an interface object using the database
+   ThermoFun::Interface interface (db);
 
-### Who do I talk to? ###
+   // Optional: set the solvent symbol used for calculating properties of aqueous species
+   interface.setSolventSymbol("H2O@");
 
-* Repo owner or admin
-* Other community or team contact
+   // Optional set calculation and output preferences
+   ThermoFun::OutputSettings op;
+   op.isFixed = true;
+   op.outSolventProp       = true;
+   op.calcReactFromSubst   = false;
+   op.calcSubstFromReact   = false;
+   interface.setOutputSettings(op);
+
+   // Optional set units and significant digits
+   interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+   interface.setPropertiesDigits({"reaction_gibbs_energy","reaction_entropy", "reaction_volume",
+                                  "reaction_enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0});
+
+   interface.thermoPropertiesReaction({{25,1}}, {"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                      "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
+
+   interface.thermoPropertiesReaction({0,20,50,75},{0,0,0,0},{"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                      "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
+}
+
+```

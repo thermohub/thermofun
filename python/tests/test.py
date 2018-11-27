@@ -42,5 +42,39 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
 
 PyThermoFun.setDatabaseConnectionFilePath("Resources/ThermoFunGUI-config.json")
 
+# Initialize a database client object
 dbc = PyThermoFun.DatabaseClient()
+
+# Retrieve list of records given a ThermoDataSet symbol
+records = dbc.recordsFromThermoDataSet("PSINagra07") 
+
+# Create a ThermoFun database using the records list
+db = databaseFromRecordList(dbc, records)
+
+# Initialize an interface object using the database
+batch2 = PyThermoFun.ThermoBatch(db)
+
+# Optional: set the solvent symbol used for calculating properties of aqueous species
+batch2.setSolventSymbol("H2O@")
+
+# Optional set calculation and output preferences
+#   ThermoFun::OutputSettings op;
+#   op.isFixed = true;
+#   op.outSolventProp       = true;
+#   op.calcReactFromSubst   = false;
+#   op.calcSubstFromReact   = false;
+#   interface.setOutputSettings(op);
+
+# Optional set units and significant digits
+batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"})
+
+batch.setPropertiesDigits({"reaction_gibbs_energy","reaction_entropy", "reaction_volume",
+                            "reaction_enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0})
+
+# Do calculations and write output
+batch.thermoPropertiesReaction({{25,1}}, {"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv")
+
+batch.thermoPropertiesReaction({0,20,50,75},{0,0,0,0},{"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv")
 

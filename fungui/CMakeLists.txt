@@ -52,7 +52,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 
 # Set the thermofun source directory path
-set(THERMOFUNGUI_SOURCE_DIR ${CMAKE_SOURCE_DIR}/DemoGUI/src)
+set(THERMOFUNGUI_SOURCE_DIR ${CMAKE_SOURCE_DIR}/fungui/src)
 
 # Set the directory where the third-party libraries are temporarily installed before installed to CMAKE_INSTALL_PREFIX
 #set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)
@@ -73,4 +73,8 @@ include_directories(${THERMOFUNGUI_SOURCE_DIR})
 
 # Build thermofun library
 add_subdirectory(src)
+
+if(BUILD_DEMO)
+	add_subdirectory(demo)
+endif()
 

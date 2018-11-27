@@ -3,10 +3,10 @@
     using namespace std;
     using namespace ThermoFun;
 
-    int main(int argc, char *argv[])
+    int main()
     {
-      // Create the engine object using a database file in JSON
-      ThermoBatch batch("Resources/aq17new-format.json");
+      // Create the interface object using a database file in JSON
+      ThermoBatch batch("aq17.json");
 
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       batch.setSolventSymbol("H2O@");

@@ -92,12 +92,12 @@ RESOURCES += \
 #thrift -r -v --gen cpp
 
 SOURCES += \
-    test/main.cpp \
-    test/ThermoFunMainWindow.cpp
+    demo/main.cpp \
+    demo/ThermoFunMainWindow.cpp
 
 HEADERS += \
-    test/ThermoFunMainWindow.h
+    demo/ThermoFunMainWindow.h
 
 FORMS += \
-    test/ThermoFunMainWindow.ui
+    demo/ThermoFunMainWindow.ui
 

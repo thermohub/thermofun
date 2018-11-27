@@ -38,12 +38,10 @@ INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"
 
-LIBS += -ljsonio -lyaml-cpp -lejdb -lpugixml
+LIBS += -ljsonio
 #-lReaktoro
-LIBS += -lthrift -lboost_regex -lboost_system -lboost_filesystem
+LIBS += -lboost_regex -lboost_system -lboost_filesystem
 LIBS +=  -lcurl  -lvelocypack
-!macx-clang:LIBS += -llua5.3
-macx-clang:LIBS += -llua
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)

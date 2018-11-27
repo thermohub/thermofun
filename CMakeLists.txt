@@ -114,8 +114,8 @@ else()
 endif()
 
 # Build the tests
-if(BUILD_DEMOGUI)
-    add_subdirectory(DemoGUI)
+if(BUILD_FUNGUI)
+    add_subdirectory(fungui)
 else()
 #    add_subdirectory(DemoGUI EXCLUDE_FROM_ALL)
 endif()
