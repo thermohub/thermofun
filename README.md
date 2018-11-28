@@ -252,6 +252,8 @@ int main()
 
 ### Simple Python API example
 
+* Using a json database file
+
 ```
 #!Python
 import PyThermoFun
@@ -284,10 +286,6 @@ batch.setPropertiesDigits(["gibbs_energy","entropy", "volume", "enthalpy", "temp
 H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble()
 print(H2Oentropy)
 
-entro = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "entropy").toThermoScalar()
-G1 = batch.thermoPropertiesSubstance( 25, 1000, "H2O@", "gibbs_energy").toThermoScalar()
-G2 = batch.thermoPropertiesSubstance( 25, 1, "H2O@", "gibbs_energy").toThermoScalar()
-# G= G1-G2; - no overloaded opreations for python - for now
 V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar()
 
 # Write results to a comma separate files for a list of T-P pairs, substances, and properties
@@ -297,7 +295,7 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
                                ).toCSV("results.csv")                               # // output
 ```
 
-* Using the database client module to retrieve data from arangodb database 
+* Using the database client and retrieving a ThermoDataSet from the remote database
 
 ```
 #!Python
