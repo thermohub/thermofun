@@ -63,9 +63,6 @@ target_link_libraries (guidemo jsonio jsonui Qt5::Widgets Qt5::Core Qt5::WebEngi
 target_link_libraries (guidemo THERMOFUNGUI_STATIC)
 target_link_libraries (guidemo THERMOFUN_STATIC)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources
-        DESTINATION ${CMAKE_BINARY_DIR})
-
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/guidemo.sh
         DESTINATION ${CMAKE_BINARY_DIR})
 

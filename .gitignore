@@ -49,6 +49,8 @@ python/tests/H2OWP95reaktoro.csv
 python/tests/PyThermoFun.cpython-36m-x86_64-linux-gnu.so
 python/tests/parseBsonDatalogfile.txt
 python/tests/results.csv
+python/tests/results_dbc.csv
+python/pyThermoFun/CMakeLists_old.txt
 
 
 

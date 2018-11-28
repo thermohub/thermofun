@@ -110,6 +110,19 @@ then execute:
 sudo make install 
 ```
 
+* Compiling the Python interface
+
+```
+#!bash
+cmake ../../thermofun/ -DTFUN_BUILD_PYTHON=ON
+```
+
+After compilation, you should find the shared library PyThermoFun inside the directory ```lib``` in the build directory. This library is also a Python module, which can be imported from Python as:
+
+```
+from thermofun import *
+```
+
 ### Build and run ThermoFun GUI Demo
 
 To be able to build and run the ThemroFun GUI (graphical user batch) application demo, Qt needs to be installed.
@@ -136,7 +149,7 @@ In the terminal at ```~/gitTHERMOFUN/thermofun$```, execute the following comman
 #!bash
 cd .. && mkdir build-gui && \
 cd build-gui && mkdir release && cd release && \
-cmake ../../thermofun -DBUILD_FUNGUI=ON -DBUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
+cmake ../../thermofun cmake -DTFUN_BUILD_FUNGUI=ON -DTFUN_BUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
 make
 ``` 
 

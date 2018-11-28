@@ -549,7 +549,7 @@ void ThermoFunWidgetNew::CmShowResult()
 {
    try {
         // define new dialog
-        ThermoFun::OutputSettings op;
+        ThermoFun::BatchPreferences op;
         string fileName = op.fileName;
         if(!_csvWin)
         {

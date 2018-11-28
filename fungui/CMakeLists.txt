@@ -48,8 +48,8 @@ endif()
 include(GNUInstallDirs)
 
 # Define which types of libraries to build
-option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(BUILD_STATIC_LIBS "Build static libraries." ON)
+option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 
 # Set the thermofun source directory path
 set(THERMOFUNGUI_SOURCE_DIR ${CMAKE_SOURCE_DIR}/fungui/src)
@@ -74,7 +74,8 @@ include_directories(${THERMOFUNGUI_SOURCE_DIR})
 # Build thermofun library
 add_subdirectory(src)
 
-if(BUILD_DEMO)
+if(TFUN_BUILD_DEMO)
 	add_subdirectory(demo)
+#else()
+#	add_subdirectory(demo EXCLUDE_FROM_ALL)
 endif()
-

@@ -570,7 +570,7 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
     ThermoFun::ThermoBatch batchCalc (tdb_);
     batchCalc.setSolventSymbol(solventSymbol);
 
-    ThermoFun::OutputSettings op;
+    ThermoFun::BatchPreferences op;
     if( FormatBox )
     {
       op.isFixed = true;
@@ -580,7 +580,7 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
     op.outSolventProp       = true;
     op.calcReactFromSubst   = calcReactFromSubst;
     op.calcSubstFromReact   = calcSubstFromReact;
-    batchCalc.setOutputSettings(op);
+    batchCalc.setBatchPreferences(op);
 
     batchCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
