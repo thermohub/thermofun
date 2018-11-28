@@ -1,5 +1,6 @@
 #include "ThermoSetData.h"
 #include "jsonio/jsondomfree.h"
+#include <algorithm>
 
 using namespace jsonio;
 
@@ -122,10 +123,14 @@ ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
 {
-    vector<string> ids;
     string qrJson = "FOR u  IN thermodatasets ";
            qrJson += "FILTER u.properties.symbol == \""+symbol+"\" ";
            qrJson += "RETURN u._id";
+
+    vector<string> ids = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
+    for (auto &i:ids)
+        while (std::find(i.begin(), i.end(), '"') != i.end())
+            i.erase(std::find(i.begin(), i.end(), '"'));
     if ( ids.size() == 1)
         return ids[0];
     else return "";

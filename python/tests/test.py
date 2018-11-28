@@ -40,7 +40,7 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
                                ).toCSV("results.csv")                               # // output
 
-PyThermoFun.setDatabaseConnectionFilePath("Resources/ThermoFun-config.json")
+PyThermoFun.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
 
 # Initialize a database client object
 dbc = PyThermoFun.DatabaseClient()
@@ -49,13 +49,13 @@ dbc = PyThermoFun.DatabaseClient()
 records = dbc.recordsFromThermoDataSet("Cemdata18") 
 
 # Create a ThermoFun database using the records list
-#db = PyThermoFun.databaseFromRecordList(dbc, records)
+db = PyThermoFun.databaseFromRecordList(dbc, records)
 
 # Initialize an interface object using the database
-#batch2 = PyThermoFun.ThermoBatch(db)
+batch2 = PyThermoFun.ThermoBatch(db)
 
 # Optional: set the solvent symbol used for calculating properties of aqueous species
-#batch2.setSolventSymbol("H2O@")
+batch2.setSolventSymbol("H2O@")
 
 # Optional set calculation and output preferences
 #   ThermoFun::OutputSettings op;
@@ -66,14 +66,14 @@ records = dbc.recordsFromThermoDataSet("Cemdata18")
 #   interface.setOutputSettings(op);
 
 # Optional set units and significant digits
-#batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"})
+batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"})
 
-#batch.setPropertiesDigits({"gibbs_energy","entropy", "volume",
-#                            "enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0})
+batch.setPropertiesDigits({"gibbs_energy","entropy", "volume",
+                            "enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0})
 
 # Do calculations and write output
-#batch.thermoPropertiesReaction({{25,1}}, {"Na(CO3)-", "Mg+2"}, {"gibbs_energy", "entropy",
-#                                "volume", "enthalpy", "logKr"}).toCSV("results.csv")
+batch.thermoPropertiesReaction({{25,1}}, {"Na(CO3)-", "Mg+2"}, {"gibbs_energy", "entropy",
+                                "volume", "enthalpy", "logKr"}).toCSV("results.csv")
 
 #batch.thermoPropertiesReaction({0,20,50,75},{0,0,0,0},{"Na(CO3)-", "Mg+2"}, {"reaction_gibbs_energy", "reaction_entropy",
 #                                "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv")
