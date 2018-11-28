@@ -74,7 +74,7 @@ include_directories(${THERMOFUNGUI_SOURCE_DIR})
 # Build thermofun library
 add_subdirectory(src)
 
-if(TFUN_BUILD_DEMO)
+if(TFUN_BUILD_DEMOGUI)
 	add_subdirectory(demo)
 #else()
 #	add_subdirectory(demo EXCLUDE_FROM_ALL)
