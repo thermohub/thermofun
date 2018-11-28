@@ -110,11 +110,20 @@ then execute:
 sudo make install 
 ```
 
-* Compiling the Python interface
+### Compiling the Python interface
+
+In the terminal ~/gitTHERMOFUN/thermofun$, execute the following commands:
 
 ```
 #!bash
 cmake ../../thermofun/ -DTFUN_BUILD_PYTHON=ON
+```
+
+then execute:
+
+```
+#!bash
+make
 ```
 
 After compilation, you should find the shared library PyThermoFun inside the directory ```lib``` in the build directory. This library is also a Python module, which can be imported from Python as:
@@ -122,6 +131,8 @@ After compilation, you should find the shared library PyThermoFun inside the dir
 ```
 from thermofun import *
 ```
+
+In the build folder a test file text.py can be found, this can be run by executing ```python test.py``` . If succesful in addition to on screen output, two files, results.csv and results_dbc.csv files containing calculation results will be created. 
 
 If compilation was successful the /Resources folder will be copied to the build folder. In this folder the necessary test files, connection to the arangodb database preferences, and data schemas are present. To change database connection without using the GUI, make changes in the ```Resources/fun-dbclient-config.json``` file.
 
