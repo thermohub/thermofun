@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
     ThermoFun::ThermoBatch interface (db);
     interface.setSolventSymbol("H2O@");
 
-    ThermoFun::OutputSettings op;
+    ThermoFun::BatchPreferences op;
     op.isFixed = true;
     op.outSolventProp       = true;
     op.calcReactFromSubst   = false;

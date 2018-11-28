@@ -18,7 +18,7 @@ struct ThermoBatch::Impl
     /// The thermo instance
     ThermoEngine                        thermo;
 
-    OutputSettings                      outSettings;
+    BatchPreferences                      outSettings;
 
 //    BatchCalculationSettings            calcSettings;
 
@@ -413,7 +413,7 @@ auto ThermoBatch::setPropertyUnitDigit(const std::string &property, const std::s
     setPropertyDigit(property, digit);
 }
 
-auto ThermoBatch::setOutputSettings(const OutputSettings &value) -> void
+auto ThermoBatch::setOutputSettings(const BatchPreferences &value) -> void
 {
     pimpl->outSettings = value;
 }
@@ -430,7 +430,7 @@ auto ThermoBatch::symbols() -> const vstr
     return pimpl->symbols;
 }
 
-auto ThermoBatch::outputSettings() -> const OutputSettings
+auto ThermoBatch::outputSettings() -> const BatchPreferences
 {
     return pimpl->outSettings;
 }

@@ -28,7 +28,7 @@ typedef std::vector<ThermoPropertiesReaction>  vtpr;
 /**
  * @brief The OutputOptions struct holds the options for outputing results
  */
-struct OutputSettings
+struct BatchPreferences
 {
     /// using fixed-point notation: the value is represented with exactly as many digits in the decimal part as specified by the precision field
     bool isFixed = true;
@@ -118,7 +118,7 @@ public:
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output;
 
-    auto setOutputSettings          (const OutputSettings &value) -> void;
+    auto setOutputSettings          (const BatchPreferences &value) -> void;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
 
 private:
@@ -133,7 +133,7 @@ private:
     auto properties     () -> const vstr;
     auto units          () -> const std::map<std::string, std::string>;
     auto digits         () -> const std::map<std::string, int>;
-    auto outputSettings () -> const OutputSettings;
+    auto outputSettings () -> const BatchPreferences;
 };
 
 const std::map<std::string, const std::string> defaultPropertyNames =
