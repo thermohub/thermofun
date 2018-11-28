@@ -32,6 +32,7 @@ namespace ThermoFun {
     // Core module
     void exportThermoEngine(py::module& m);
     void exportThermoBatch(py::module& m);
+    void exportBatchPreferences(py::module& m);
     void exportOutput(py::module& m);
     // Data
     void exportDatabase(py::module& m);

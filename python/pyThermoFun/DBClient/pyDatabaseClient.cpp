@@ -31,13 +31,17 @@ namespace ThermoFun {
 
 void exportDatabaseClient(py::module& m)
 {
+//    auto databaseFromRecordList1 = static_cast<Database(Database::*)(DatabaseClient, List_VertexId_VertexType)>
+//                                        (&databaseFromRecordList);
     py::class_<DatabaseClient>(m, "DatabaseClient")
         .def(py::init<>())
         .def("recordsFromThermoDataSet", &DatabaseClient::recordsFromThermoDataSet,"Get database records belonging to given ThermoDataSet symbol")
         ;
 
     m.def("setDatabaseConnectionFilePath", &setDatabaseConnectionFilePath,"Set path to the database connection preferences file.");
-    m.def("databaseFromRecordList", &databaseFromRecordList,"Returns a ThermoFun database given a record list and database client");  
-}
+//    m.def("databaseFromRecordList", &databaseFromRecordList,"Returns a ThermoFun database given a record list and database client");
 
+    m.def("databaseFromRecordList", (Database (*)(DatabaseClient, List_VertexId_VertexType) ) &databaseFromRecordList,
+    "Returns a ThermoFun database given a record list and database client", pybind11::arg("databaseclient"), pybind11::arg("records"));
+}
 }

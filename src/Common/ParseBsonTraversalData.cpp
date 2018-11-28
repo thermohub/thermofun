@@ -73,11 +73,6 @@ auto readValueError(const jsonio::JsonDom *object, string propPath, double &val,
     return status;
 }
 
-auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_VertexType &recordList ) -> Database
-{
-    return databaseFromRecordList(dbc, recordList, DefinesSubstLevelOptions());
-}
-
 auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_VertexType &recordList, DefinesSubstLevelOptions levelOptions ) -> Database
 {
     string _idSubst, _idReact, substSymb;

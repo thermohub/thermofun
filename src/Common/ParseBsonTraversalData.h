@@ -84,7 +84,6 @@ auto thermoParamReac (const jsonio::JsonDom *object, std::string name, ThermoPar
 auto thermoRefPropReac (const jsonio::JsonDom *object, std::string name) -> ThermoPropertiesReaction;
 
 auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_VertexType &recordList, DefinesSubstLevelOptions levelOptions = DefinesSubstLevelOptions()) -> Database;
-auto databaseFromRecordList(const DatabaseClient &dbc, const List_VertexId_VertexType &recordList, DefinesSubstLevelOptions) -> Database;
 
 auto getTPMethods(const std::vector<std::string>& vkbuf) -> std::vector<std::pair<std::string, Method>>;
 auto getTPMethods(const jsonio::JsonDom *object, const std::vector<std::string>& vkbuf, Substance& s) -> void;

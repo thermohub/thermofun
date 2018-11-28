@@ -67,8 +67,26 @@ void exportThermoBatch(py::module& m)
         .def("thermoPropertiesReaction", thermoPropertiesReaction2)  
         .def("thermoPropertiesReaction", thermoPropertiesReaction3)  
         .def("thermoPropertiesReaction", thermoPropertiesReaction4)  
-        .def("setOutputSettings", &ThermoBatch::setOutputSettings)         
+        .def("setBatchPreferences", &ThermoBatch::setBatchPreferences)         
         .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)          
         ;
 }
+
+void exportBatchPreferences(py::module& m)
+{
+    py::class_<BatchPreferences>(m, "BatchPreferences")
+        .def(py::init<>())
+        .def_readwrite("isFixed", &BatchPreferences::isFixed)
+        .def_readwrite("isFloating", &BatchPreferences::isFloating)
+        .def_readwrite("isScientific", &BatchPreferences::isScientific)
+        .def_readwrite("separator", &BatchPreferences::separator)
+        .def_readwrite("fileName", &BatchPreferences::fileName)
+        .def_readwrite("solventFileName", &BatchPreferences::solventFileName)
+        .def_readwrite("outSolventProp", &BatchPreferences::outSolventProp)
+        .def_readwrite("calcSubstFromReact", &BatchPreferences::calcSubstFromReact)
+        .def_readwrite("calcReactFromSubst", &BatchPreferences::calcReactFromSubst)
+        .def_readwrite("loopOverTPpairsFirst", &BatchPreferences::loopOverTPpairsFirst)
+        ;
+}
+
 }

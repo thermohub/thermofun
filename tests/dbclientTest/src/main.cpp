@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
     op.outSolventProp       = true;
     op.calcReactFromSubst   = false;
     op.calcSubstFromReact   = false;
-    interface.setOutputSettings(op);
+    interface.setBatchPreferences(op);
 
     interface.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
     interface.setPropertiesDigits({"reaction_gibbs_energy","reaction_entropy", "reaction_volume",
