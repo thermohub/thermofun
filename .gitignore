@@ -3,7 +3,7 @@ docs/devel.txt
 docs/info.txt
 docs/unknowns.txt
 gui/ThermoFun-gui.pro.user
-DemoGUI/ThermoFunDemoGUI.pro.user
+fungui/ThermoFunDemoGUI.pro.user
 tests/unit01/ThermoFun-test.pro.user
 tests/unit02/HKF-test.pro.user
 tests/unit03/AD-test.pro.user

@@ -23,6 +23,8 @@ namespace py = pybind11;
 
 // ThermoFun includes
 #include <thermofun/DBClient/DatabaseClient.h>
+#include <thermofun/Common/ParseBsonTraversalData.h>
+#include <thermofun/Database.h>
 
 
 namespace ThermoFun {
@@ -31,9 +33,11 @@ void exportDatabaseClient(py::module& m)
 {
     py::class_<DatabaseClient>(m, "DatabaseClient")
         .def(py::init<>())
+        .def("recordsFromThermoDataSet", &DatabaseClient::recordsFromThermoDataSet,"Get database records belonging to given ThermoDataSet symbol")
         ;
 
     m.def("setDatabaseConnectionFilePath", &setDatabaseConnectionFilePath,"Set path to the database connection preferences file.");
+    m.def("databaseFromRecordList", &databaseFromRecordList,"Returns a ThermoFun database given a record list and database client");  
 }
 
 }

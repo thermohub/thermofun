@@ -26,15 +26,9 @@
                "DBRootPassword" :   ""
           }
      },
-     "jsonimpex" :   {
-          "ImpexScriptsDirectory" :   "Resources/data/impex",
-          "ImpexScriptsInDB" :   true,
-          "ThriftDBSocketHost" :   "localhost",
-          "ThriftDBSocketPort" :   9090
-     },
      "jsonui" :   {
           "CurrentDBConnection" :   "ArangoDBRemote",
-          "ViewOnlyMode" :   false,
+          "ViewOnlyMode" :   true,
           "CanEdit_id" :   false,
           "KeepExpanded" :   true,
           "ShowComments" :   true,
