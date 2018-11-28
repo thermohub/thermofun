@@ -151,7 +151,7 @@ In the terminal at ```~/gitTHERMOFUN/thermofun$```, execute the following comman
 #!bash
 cd .. && mkdir build-gui && \
 cd build-gui && mkdir release && cd release && \
-cmake ../../thermofun cmake -DTFUN_BUILD_FUNGUI=ON -DTFUN_BUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
+cmake ../../thermofun -DTFUN_BUILD_FUNGUI=ON -DTFUN_BUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
 make
 ``` 
 
