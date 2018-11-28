@@ -413,7 +413,7 @@ auto ThermoBatch::setPropertyUnitDigit(const std::string &property, const std::s
     setPropertyDigit(property, digit);
 }
 
-auto ThermoBatch::setOutputSettings(const BatchPreferences &value) -> void
+auto ThermoBatch::setBatchPreferences(const BatchPreferences &value) -> void
 {
     pimpl->outSettings = value;
 }

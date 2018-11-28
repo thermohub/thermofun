@@ -118,7 +118,7 @@ public:
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output;
 
-    auto setOutputSettings          (const BatchPreferences &value) -> void;
+    auto setBatchPreferences          (const BatchPreferences &value) -> void;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
 
 private:
