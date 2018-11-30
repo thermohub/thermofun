@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_AUTORCC ON)
 
+add_definitions(-DFROM_SRC)
+
 project(guidemo)
 
 find_package(Qt5Widgets REQUIRED)
