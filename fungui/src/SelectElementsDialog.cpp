@@ -74,7 +74,7 @@ struct SelectElementsDialogPrivate
      rcsetModel->resetMatrixData();
      if( !idReactopnSet.empty() )
      {
-       for( uint ii=1; ii<matr.size(); ii++)
+       for( unsigned int ii=1; ii<matr.size(); ii++)
         if( idReactopnSet == matr[ii][4] )
          return ii;
      }

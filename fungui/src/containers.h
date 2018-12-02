@@ -40,7 +40,7 @@ public:
    vector<string> symbolsList(  ) const
    {
      vector<string> lst;
-     for (uint i = 0; i < elements_.size(); i++)
+     for (unsigned int i = 0; i < elements_.size(); i++)
      {
          lst.push_back(elements_[i].getSymbol());
      }
@@ -227,7 +227,7 @@ struct ReactData
     string reaction()
     {
        string reactR;
-       for( uint jj = 0; jj <symbols.size(); jj++)
+       for( unsigned int jj = 0; jj <symbols.size(); jj++)
        {
          if( jj > 0 )
            reactR += " + ";
@@ -281,7 +281,7 @@ struct ReactData
        vector<double> errors(8);
        vector<Reaktoro_::Status> status(8);
 
-       for( uint jj = 0; jj <symbols.size(); jj++)
+       for( unsigned int jj = 0; jj <symbols.size(); jj++)
        {
           ThermoFun::ThermoPropertiesSubstance tps = vTps[jj];
           values[0] = coeffs[jj];
@@ -339,7 +339,7 @@ struct ISOCReactData
        vector<double> errors(1);
        vector<Reaktoro_::Status> status(1);
 
-       for( uint jj = 0; jj <symbols.size(); jj++)
+       for( unsigned int jj = 0; jj <symbols.size(); jj++)
        {
           values[0] = coeffs[jj];
           newChild = new ReactionTree( jj+first, symbols[jj], values, errors, status, parent );
@@ -354,7 +354,7 @@ struct ISOCReactData
        vector<double> errors(8);
        vector<Reaktoro_::Status> status(8);
 
-       for( uint jj = 0; jj <symbols.size(); jj++)
+       for( unsigned int jj = 0; jj <symbols.size(); jj++)
        {
           ThermoFun::ThermoPropertiesReaction tpr = vTpr[jj];
           values[0] = coeffs[jj];

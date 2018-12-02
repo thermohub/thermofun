@@ -97,7 +97,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
   // TEST OUTPUT
   //cout << "Formula " << form_str << " ZZ " << charge_str << endl;
-  //   for( uint ii=0; ii<ict_.GetCount(); ii++)
+  //   for( unsigned int ii=0; ii<ict_.GetCount(); ii++)
   //cout << ict_[ii].ick << " " << ict_[ii].val << "  " << ict_[ii].stoc << endl;
   return newtt;
 }
@@ -280,7 +280,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
  // <icsymb>    ::= <Capital_letter> \ <icsymb><lcase_letter> \ <icsymb>_
  void ChemicalFormulaParser::scanICsymb( string& icName, string& cur)
  {
-     uint i=1;
+     unsigned int i=1;
 
      xblanc( cur );
      if( cur.empty() )

@@ -1,6 +1,3 @@
-# Require a certain version of cmake
-cmake_minimum_required(VERSION 2.8)
-
 # Recursively collect all header files from the current directory
 file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 
@@ -20,7 +17,14 @@ add_library(THERMOFUN_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 
 # Check if a shared library is to be built
 if(TFUN_BUILD_SHARED_LIBS)
-    add_library(THERMOFUN_SHARED SHARED $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
+    add_library(thermofun_sh SHARED $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	set(CMAKE_PREFIX_PATH /usr/local/lib/)
+	add_compile_options(-std=c++11 -fPIC -Wall -Wno-misleading-indentation -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+	add_definitions(-D_WIN32)
+	target_link_libraries(thermofun_sh jsonio boost_regex-mt boost_system-mt boost_filesystem-mt curl velocypack_sh )
+endif()
+else() # linux library
     target_link_libraries(THERMOFUN_SHARED ${THIRDPARTY_LIBS} )
     set_target_properties(THERMOFUN_SHARED PROPERTIES OUTPUT_NAME thermofun)
     install(TARGETS THERMOFUN_SHARED DESTINATION lib)

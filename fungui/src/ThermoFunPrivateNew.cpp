@@ -67,7 +67,7 @@ void ThermoFunData::resetSchemaName( const string& newSchemaName )
 
 void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
 {
-    uint ii;
+    unsigned int ii;
     object->appendString( "Name", name );
     object->appendString( "Description", comment );
     object->appendString( "SchemaName", schemaName );
@@ -210,7 +210,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
      jsonio::ThriftEnumDef* enumdef =  jsonio::ioSettings().Schema()->getEnum( "SourceTDB" );
      if(enumdef != nullptr )
      {
-      for( uint ii=0; ii<sourceTDBs.size(); ii++ )
+      for( unsigned int ii=0; ii<sourceTDBs.size(); ii++ )
               output += enumdef->getNamebyId(sourceTDBs[ii]) + "  ";
      }
      output +=  "\n";
@@ -327,7 +327,7 @@ void ThermoFunPrivateNew::updateSelectMessage()
 void ThermoFunPrivateNew::reallocTP( int newsize )
 {
   _data.tppairs.clear();
-   for (uint i = 0; i<newsize; i++ )
+   for (unsigned int i = 0; i<newsize; i++ )
        _data.tppairs.push_back({0,0});
   _TPlistModel->resetMatrixData();
 }
@@ -423,7 +423,7 @@ void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
     substancesSymbols.resize(selNdx.size());
     substancesClass.resize(selNdx.size());
 
-    for( uint ii=0; ii<selNdx.size(); ii++ )
+    for( unsigned int ii=0; ii<selNdx.size(); ii++ )
      {
         auto itValues = values[selNdx[ii]];
         substancesSymbols[ii] = itValues[0];
@@ -440,7 +440,7 @@ void ThermoFunPrivateNew::loadReactData( const vector<int>& selNdx,
     const jsonio::ValuesTable& values= reactModel->getValues();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
-    for( uint ii=0; ii<selNdx.size(); ii++ )
+    for( unsigned int ii=0; ii<selNdx.size(); ii++ )
     {
         auto itValues = values[selNdx[ii]];
         reactionsSymbols[ii] = itValues[0];
@@ -598,7 +598,7 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
 //    tpCalc.addSolventProperties(solventPropNames);
 
     std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
-    for (uint jj = 0; jj <_data.properties.size(); jj++)
+    for (unsigned int jj = 0; jj <_data.properties.size(); jj++)
     {
         precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
     }

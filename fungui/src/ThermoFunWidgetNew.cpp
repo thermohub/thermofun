@@ -326,7 +326,7 @@ void ThermoFunWidgetNew::CmReallocTP()
 {
   try{
         bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
+        unsigned int size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
                  "Array size ", pdata->data().tppairs.size(), 0, 999, 1, &ok );
         if(ok)
           pdata->reallocTP( size );
@@ -592,7 +592,7 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
           return;
 
      selNdx =  selDlg.allSelected();
-     for( uint ii=0; ii<selNdx.size(); ii++ )
+     for( unsigned int ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord( true, aKeyList[selNdx[ii]]);
 
    }
@@ -625,7 +625,7 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
           return;
 
      selNdx =  selDlg.allSelected();
-     for( uint ii=0; ii<selNdx.size(); ii++ )
+     for( unsigned int ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord(false, aKeyList[selNdx[ii]]);
 
    }

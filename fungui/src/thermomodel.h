@@ -73,7 +73,7 @@ public:
         loadModeRecords(newmatr );
     }
 
-    vector<string> getColumn( uint column, const vector<int>& selrows ) const
+    vector<string> getColumn( unsigned int column, const vector<int>& selrows ) const
     {
         vector<string> keys;
         const jsonio::ValuesTable&  matrix = getValues();
@@ -88,10 +88,10 @@ public:
         return keys;
     }
 
-    int findRow( uint column, const string& value ) const
+    int findRow( unsigned int column, const string& value ) const
     {
         const jsonio::ValuesTable&  matrix = getValues();
-        for( uint ii=0; ii<matrix.size(); ii++ )
+        for( unsigned int ii=0; ii<matrix.size(); ii++ )
         {
           if( column >= matrix[ii].size())
               continue;

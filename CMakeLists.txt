@@ -1,15 +1,22 @@
 # Require a certain version of cmake
 cmake_minimum_required(VERSION 2.8)
 
-# Set the name of the project
-project(thermofun)
+if (BUILD_WINDOWS)
+set(CMAKE_CXX_STANDARD 11)
+# the name of the target operating system
+SET(CMAKE_SYSTEM_NAME Windows)
 
-# Set the cmake module path of the project
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
-#set(CMAKE_PREFIX_PATH /usr/local/lib/)
+# which compilers to use for C and C++
+SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
 
-set(CMAKE_MACOSX_RPATH ON)
+# here is the target environment located
+SET(CMAKE_FIND_ROOT_PATH  /usr/x86_64-w64-mingw32)
 
+include_directories("/usr/local/include")
+link_directories("/usr/local/lib")
+
+else() # build for linux
 find_library(BOOSTRE_LIB boost_regex)
 if(NOT BOOSTRE_LIB)
   message(FATAL_ERROR "boost_regex library not found")
@@ -35,6 +42,22 @@ if(NOT JSONIO_LIB)
   message(FATAL_ERROR "jsonio library not found")
 endif()
 
+endif()
+
+# Set the cmake module path of the project
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
+set(CMAKE_MACOSX_RPATH ON)
+
+# Set the name of the project
+project(thermofun)
+
+# Set the default build type to Release
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
@@ -61,13 +84,6 @@ endif()
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(BUILD_SHARED_LIBS OFF)
-endif()
-
-# Set the default build type to Release
-if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "Setting build type to 'Release' as none was specified.")
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)

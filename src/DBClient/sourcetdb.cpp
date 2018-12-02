@@ -26,7 +26,7 @@ auto sourceTDB_from_indexes( std::vector<int> ndx, jsonio::JsonDom *arr ) -> voi
     ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     jsonio::JsonDom *object;
 
-    for(uint ii=0; ii<ndx.size(); ii++)
+    for(unsigned int ii=0; ii<ndx.size(); ii++)
     {
         object = arr->appendObject( std::to_string(ii) );
         object->appendString( std::to_string(ndx[ii]), enumdef->getNamebyId(ndx[ii]) );
@@ -38,7 +38,7 @@ auto sourceTDB_from_names(std::vector<std::string> names,  jsonio::JsonDom *arr 
     ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     jsonio::JsonDom *object;
 
-    for(uint ii=0; ii<names.size(); ii++)
+    for(unsigned int ii=0; ii<names.size(); ii++)
     {
         object = arr->appendObject( std::to_string(ii) );
         object->appendString( std::to_string(enumdef->getId(names[ii])), names[ii] );
@@ -46,7 +46,7 @@ auto sourceTDB_from_names(std::vector<std::string> names,  jsonio::JsonDom *arr 
 }
 
 
-auto sourceTDB_from_index(uint ndx) -> std::string
+auto sourceTDB_from_index(unsigned int ndx) -> std::string
 {
     std::string _sourcetdb = "{\"";
     _sourcetdb += std::to_string(ndx);
@@ -61,7 +61,7 @@ auto sourceTDB_from_name(std::string name) -> std::string
 {
     ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     std::string _sourcetdb = "{\"";
-    uint ndx = enumdef->getId(name);
+    unsigned int ndx = enumdef->getId(name);
     _sourcetdb += std::to_string(ndx);
     _sourcetdb += "\":\"";
     _sourcetdb += name;

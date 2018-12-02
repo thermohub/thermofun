@@ -49,7 +49,7 @@ void ElementsWidget::CmResetACT()
 
 void ElementsWidget::allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const
 {
-    uint ii;
+    unsigned int ii;
     elementKeys.clear();
     for( ii=0; ii<aBtmId1.size(); ii++ )
     {

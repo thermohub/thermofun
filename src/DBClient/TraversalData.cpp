@@ -140,14 +140,14 @@ auto TraversalData::getResult(vector<string> idList, vector<int> selNdx) -> Vert
 
     if (selNdx.size() == 0)
     {
-        for (uint ii=0; ii<idList.size(); ii++)
+        for (unsigned int ii=0; ii<idList.size(); ii++)
         {
             r = linkedDataFromId(idList[ii]);
             result.insert(r.begin(), r.end());
         }
     } else
     {
-        for( uint ii=0; ii<selNdx.size(); ii++ )
+        for( unsigned int ii=0; ii<selNdx.size(); ii++ )
         {
             r = linkedDataFromId(idList[selNdx[ii]]);
             result.insert(r.begin(), r.end());
@@ -236,7 +236,7 @@ void TraversalData::followIncomingEdgeDefines(std::string _idSubst, VertexId_Ver
     string  _resultDataReac;
     vector<string> _resultDataEdge = pimpl->substData->queryInEdgesDefines(_idSubst, level_ );
 
-    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    for(unsigned int i = 0; i < _resultDataEdge.size(); i++)
     {
 
         _idReact = _resultDataEdge[i];
@@ -257,7 +257,7 @@ void TraversalData::followIncomingEdgeTakes(std::string _idReact, VertexId_Verte
     string _resultDataSubst;
     vector<string> _resultDataEdge  = pimpl->reactData->queryInEdgesTakes(_idReact );
 
-    for(uint i = 0; i < _resultDataEdge.size(); i++)
+    for(unsigned int i = 0; i < _resultDataEdge.size(); i++)
     {
         _idSubst = extractStringField("_from", _resultDataEdge[i]);
         _resultDataSubst = pimpl->substData->getJsonRecordVertex(_idSubst);

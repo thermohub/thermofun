@@ -24,10 +24,10 @@ using namespace jsonio;
 namespace ThermoFun
 {
 
-using QuerySubstancesFunction = std::function<std::vector<std::string>(uint)>;
-using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
-using AvailableElementsSet    = std::function<set<Element>(uint)>;
-using AvailableElementsKey    = std::function<std::vector<ElementKey>(uint)>;
+using QuerySubstancesFunction = std::function<std::vector<std::string>(unsigned int)>;
+using QueryReactionsFunction  = std::function<std::vector<std::string>(unsigned int)>;
+using AvailableElementsSet    = std::function<set<Element>(unsigned int)>;
+using AvailableElementsKey    = std::function<std::vector<ElementKey>(unsigned int)>;
 
 //std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
 //std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
@@ -82,22 +82,22 @@ struct DatabaseClient::Impl
 
     auto setFunctions() -> void
     {
-        query_substances_fn = [=](uint sourcetdb) {
+        query_substances_fn = [=](unsigned int sourcetdb) {
             return querySubstances(sourcetdb);
         };
         query_substances_fn = memoize(query_substances_fn);
 
-        query_reactions_fn = [=](uint sourcetdb) {
+        query_reactions_fn = [=](unsigned int sourcetdb) {
             return queryReactions(sourcetdb);
         };
         query_reactions_fn = memoize(query_reactions_fn);
 
-        available_elements_key_fn = [=](uint sourcetdb) {
+        available_elements_key_fn = [=](unsigned int sourcetdb) {
             return availableElementsKey(sourcetdb);
         };
         available_elements_key_fn = memoize(available_elements_key_fn);
 
-        available_elements_set_fn = [=](uint sourcetdb) {
+        available_elements_set_fn = [=](unsigned int sourcetdb) {
             return availableElementsSet(sourcetdb);
         };
         available_elements_set_fn = memoize(available_elements_set_fn);
@@ -140,7 +140,7 @@ struct DatabaseClient::Impl
         return set;
     }
 
-    auto availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>
+    auto availableElementsKey(unsigned int sourcetdb) -> std::vector<ElementKey>
     {
         std::set<ElementKey> elements;
         std::vector<ElementKey> set;
@@ -169,7 +169,7 @@ struct DatabaseClient::Impl
         return set;
     }
 
-    auto querySubstances(uint sourcetdb) -> std::vector<std::string>
+    auto querySubstances(unsigned int sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += sourceTDB_from_index(sourcetdb);
@@ -178,7 +178,7 @@ struct DatabaseClient::Impl
         return _resultData;
     }
 
-    auto queryReactions(uint sourcetdb) -> std::vector<std::string>
+    auto queryReactions(unsigned int sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += sourceTDB_from_index(sourcetdb);
@@ -214,12 +214,12 @@ DatabaseClient::~DatabaseClient()
 {
 }
 
-auto DatabaseClient::availableSubstances(uint sourcetdb) -> std::vector<std::string>
+auto DatabaseClient::availableSubstances(unsigned int sourcetdb) -> std::vector<std::string>
 {
     return extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdb), "symbol");
 }
 
-auto DatabaseClient::availableReactions(uint sourcetdb) -> std::vector<std::string>
+auto DatabaseClient::availableReactions(unsigned int sourcetdb) -> std::vector<std::string>
 {
     return extractFieldValuesFromQueryResult(pimpl->query_reactions_fn(sourcetdb), "symbol");
 }
@@ -234,7 +234,7 @@ auto DatabaseClient::extractFieldValuesFromQueryResult(std::vector<std::string> 
     return values;
 }
 
-auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
+auto DatabaseClient::thermoFunDatabase(unsigned int sourcetdbIndex) -> Database
 {
     // get substances ids
     auto substKeyList = extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdbIndex), "_id");
@@ -264,15 +264,15 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Ele
 
 }
 
-auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
+auto DatabaseClient::sourcetdbIndexes() -> std::set<unsigned int>
 {
 
-    set<uint> _sourcetdb;
+    set<unsigned int> _sourcetdb;
     vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
-    for (uint ii = 0; ii < _resultData.size(); ii++)
+    for (unsigned int ii = 0; ii < _resultData.size(); ii++)
     {
-        uint first  = _resultData[ii].find("\"");
-        uint second = _resultData[ii].find("\"", first+1);
+        unsigned int first  = _resultData[ii].find("\"");
+        unsigned int second = _resultData[ii].find("\"", first+1);
         string strNew   = _resultData[ii].substr (first+1,second-(first+1));
         int asourcetdb = stoi(strNew);
         _sourcetdb.insert(asourcetdb);
@@ -280,10 +280,10 @@ auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
     return _sourcetdb;
 }
 
-auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexes) -> std::map<string, uint>
+auto DatabaseClient::sourcetdbNamesIndexes(const std::set<unsigned int> &sourcetdbIndexes) -> std::map<string, unsigned int>
 {
     // set lists
-    std::map<string, uint> namesIndexes;
+    std::map<string, unsigned int> namesIndexes;
     ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
@@ -296,7 +296,7 @@ auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexe
     return namesIndexes;
 }
 
-auto DatabaseClient::sourcetdbNamesComments(const std::set<uint> &sourcetdbIndexes) -> std::map<string, string>
+auto DatabaseClient::sourcetdbNamesComments(const std::set<unsigned int> &sourcetdbIndexes) -> std::map<string, string>
 {
     // set lists
     std::map<string, string> namesComments;
@@ -335,7 +335,7 @@ auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
     return pimpl->available_elements_set_fn(sourcetdb);
 }
 
-auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
+auto DatabaseClient::availableElements(unsigned int sourcetdb) -> std::set<string>
 {
     std::set<string> set;
 
@@ -348,7 +348,7 @@ auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
     return set;
 }
 
-auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>
+auto DatabaseClient::availableElementsKey(unsigned int sourcetdb) -> std::vector<ElementKey>
 {
     return pimpl->available_elements_key_fn(sourcetdb);
 }
