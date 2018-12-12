@@ -39,12 +39,14 @@ namespace jsonui {
 class TableEditWidget;
 }
 
+
 namespace Ui {
 class ThermoFunWidget;
 }
 
 class ThermoFunData;
 class ThermoFunPrivateNew;
+class WaitingSpinnerWidget;
 
 /// Widget to work with CorrPT data
 class ThermoFunWidgetNew : public jsonui::JSONUIBase
@@ -100,6 +102,7 @@ private:
     std::unique_ptr<ThermoFunPrivateNew> pdata;
     // Extern windows
     jsonui::TableEditWidget* _csvWin = 0;
+    WaitingSpinnerWidget *waitDialog;
 
     bool calcSubstFromReact() const;
     bool calcReactFromSubst() const;

@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QInputDialog>
+#include <QtConcurrent>
 #include <sys/time.h>
 #include "ThermoFunPrivateNew.h"
 #include "ui_ThermoFunWidget.h"
@@ -40,6 +41,7 @@
 #include "SelectThermoDataDialog.h"
 #include "jsonui/TableEditWindow.h"
 #include "jsonui/SchemaSelectDialog.h"
+#include "jsonui/waitingspinnerwidget.h"
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/ReactionData.h"
@@ -73,6 +75,7 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
 
     // define menu
     setActions();
+    waitDialog = new WaitingSpinnerWidget(this, Qt::ApplicationModal, true);
 
     //show();
     //CmSelectThermoDataSet();
@@ -93,6 +96,9 @@ void ThermoFunWidgetNew::closeEvent(QCloseEvent* e)
 {
     if( _csvWin )
      _csvWin->close();
+
+    if( waitDialog )
+        delete waitDialog;
 
     if( !onCloseEvent(this) )
            e->ignore();
@@ -448,17 +454,28 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
 
             struct timeval start;
             gettimeofday(&start, NULL);
-            // load data
+
             vector<string> substKeys, reactKeys;
             vector<string> substancesSymbols, substancesClass, reactionsSymbols;
-
-            if( pdata->isSubstances() )
-                pdata->loadSubstData( selNdx, substKeys, substancesSymbols, substancesClass );
-            else
-                pdata->loadReactData( selNdx, reactKeys, reactionsSymbols );
-
             vector<string> linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds;
-            pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
+
+            // load data
+            QFuture<double> futureLoad = QtConcurrent::run([&]() {
+                cout<< "futureLoad run([=]()" << endl;
+
+                if( pdata->isSubstances() )
+                    pdata->loadSubstData( selNdx, substKeys, substancesSymbols, substancesClass );
+                else
+                    pdata->loadReactData( selNdx, reactKeys, reactionsSymbols );
+
+                pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
+                return 20.; //time load
+            });
+
+            waitDialog->start();
+            futureLoad.waitForFinished();
+            waitDialog->stop();
+            cout<< "futureLoad Finished()" << endl;
 
             if (calcReactFromSubst() && calcSubstFromReact()) // check - reaction with substance dependent on another reaction
             {
@@ -505,12 +522,26 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
             }
 
             // calculate task
+            QFuture<double> futureCalc = QtConcurrent::run([&]() {
+                cout<< "futureCalc run([&]()" << endl;
+                return pdata->calcData( substKeys, reactKeys,
+                       substancesSymbols,  reactionsSymbols, solventSymbol,
+                       ui->actionFixed_output_number_format->isChecked(), calcSubstFromReact(), calcReactFromSubst(), start );
+            });
+
+            waitDialog->start();
+            futureCalc.waitForFinished();
+            //waitDialog->stop();
+            cout<< "futureCalc Finished()" << endl;
+            string status = "Calculation finished ("+ to_string(futureLoad.result()+futureCalc.result()) + "s). Click view results.";
+            /*
+
             double delta_calc = pdata->calcData( substKeys, reactKeys,
                substancesSymbols,  reactionsSymbols, solventSymbol,
                ui->actionFixed_output_number_format->isChecked(), calcSubstFromReact(), calcReactFromSubst(), start );
 
            string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
-
+            */
             ui->calcStatus->setText(status.c_str());
             ui->actionShow_Results->setEnabled(true);
 
