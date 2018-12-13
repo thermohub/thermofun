@@ -547,95 +547,125 @@ ThermoFun::Database setSubstanceCalcType_ (ThermoFun::Database tdb, ThermoFun::S
 //    return react.recordsMapLevelTakesSubstances();
 //}
 
-double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vector<string>& reactKeys,
-  const vector<string>& substancesSymbols,  const vector<string>& reactionsSymbols,
-  const string& solventSymbol, bool FormatBox , bool calcSubstFromReact, bool calcReactFromSubst, struct timeval start)
+ThermoLoadData ThermoFunPrivateNew::loadData( vector<int> selNdx )
 {
-    vector<string> keys; keys.insert(keys.end(), substKeys.begin(), substKeys.end());
-                         keys.insert(keys.end(), reactKeys.begin(), reactKeys.end());
+    ThermoLoadData data;
 
-    auto tr = dbclient.getTraversal();
+    try{
 
-    ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
-    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
+        if( isSubstances() )
+            loadSubstData( selNdx, data.substKeys, data.substancesSymbols, data.substancesClass );
+        else
+            loadReactData( selNdx, data.reactKeys, data.reactionsSymbols );
 
-//    ThermoFun::Traversal tr(subst.getDB());
-//    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
-//    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, subst.mapSymbolLevel());
-
-    if (!calcSubstFromReact) // make all reactions to be calculated using the method in the record
-        tdb_ = setSubstanceCalcType_(tdb_, ThermoFun::SubstanceThermoCalculationType::type::DCOMP);
-
-
-    ThermoFun::ThermoBatch batchCalc (tdb_);
-    batchCalc.setSolventSymbol(solventSymbol);
-
-    ThermoFun::BatchPreferences op;
-    if( FormatBox )
-    {
-      op.isFixed = true;
-    } else
-        op.isFixed = false;
-
-    op.outSolventProp       = true;
-    op.calcReactFromSubst   = calcReactFromSubst;
-    op.calcSubstFromReact   = calcSubstFromReact;
-    batchCalc.setBatchPreferences(op);
-
-    batchCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
-
-    if (_data.unitsP == "B kbar")
-        batchCalc.setPropertyUnit("pressure","kbar");
-    if (_data.unitsP == "p Pa")
-        batchCalc.setPropertyUnit("pressure","Pa");
-    if (_data.unitsP == "P MPa")
-        batchCalc.setPropertyUnit("pressure","MPa");
-    if (_data.unitsP == "A Atm")
-        batchCalc.setPropertyUnit("pressure","atm");
-
-    /// check !!!
-    vector<string> solventPropNames = {"density", "alpha", "beta", "alphaT", "epsilon", "bornZ", "bornY", "bornQ", "bornX"};
-//    tpCalc.addSolventProperties(solventPropNames);
-
-    std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
-    for (uint jj = 0; jj <_data.properties.size(); jj++)
-    {
-        precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
+        retrieveConnectedDataSymbols( data.substKeys, data.reactKeys, data.linkedSubstSymbols,
+                                      data.linkedReactSymbols, data.linkedSubstClasses, data.linkedSubstIds);
     }
-
-    precision.at("temperature") = _data.tPrecision;
-    precision.at("pressure")    = _data.pPrecision;
-
-    batchCalc.setDigits(precision);
-
-    if (_data.schemaName == "VertexReaction")
+    catch(std::exception& e)
     {
-        batchCalc.thermoPropertiesReaction(_data.tppairs, reactionsSymbols, _data.properties/*, calcReactFromSubst*/).toCSV(op.fileName);
+        data.errorMessage = e.what();
+    }
+    return std::move(data);
+}
 
-        vector<string> reactionsEquations;
-        for (auto symb : reactionsSymbols)
+string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventSymbol,
+                                      bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst )
+{
+    string returnMessage;
+    QTime time;
+    time.start();
+
+    try{
+
+        vector<string> keys;
+
+        keys.insert(keys.end(), loadedData.substKeys.begin(), loadedData.substKeys.end());
+        keys.insert(keys.end(), loadedData.reactKeys.begin(), loadedData.reactKeys.end());
+
+        auto tr = dbclient.getTraversal();
+
+        ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
+        ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
+
+        //    ThermoFun::Traversal tr(subst.getDB());
+        //    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
+        //    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, subst.mapSymbolLevel());
+
+        if (!calcSubstFromReact) // make all reactions to be calculated using the method in the record
+            tdb_ = setSubstanceCalcType_(tdb_, ThermoFun::SubstanceThermoCalculationType::type::DCOMP);
+
+
+        ThermoFun::ThermoBatch batchCalc (tdb_);
+        batchCalc.setSolventSymbol(solventSymbol);
+
+        ThermoFun::BatchPreferences op;
+        if( FormatBox )
         {
-            reactionsEquations.push_back(tdb_.getReaction(symb).equation());
-        }
+            op.isFixed = true;
+        } else
+            op.isFixed = false;
+
+        op.outSolventProp       = true;
+        op.calcReactFromSubst   = calcReactFromSubst;
+        op.calcSubstFromReact   = calcSubstFromReact;
+        batchCalc.setBatchPreferences(op);
+
+        batchCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+
+        if (_data.unitsP == "B kbar")
+            batchCalc.setPropertyUnit("pressure","kbar");
+        if (_data.unitsP == "p Pa")
+            batchCalc.setPropertyUnit("pressure","Pa");
+        if (_data.unitsP == "P MPa")
+            batchCalc.setPropertyUnit("pressure","MPa");
+        if (_data.unitsP == "A Atm")
+            batchCalc.setPropertyUnit("pressure","atm");
 
         /// check !!!
-//        tpCalc.clearReactions();
-//        tpCalc.addReactions(reactionsEquations);
+        vector<string> solventPropNames = {"density", "alpha", "beta", "alphaT", "epsilon", "bornZ", "bornY", "bornQ", "bornX"};
+        //    tpCalc.addSolventProperties(solventPropNames);
 
-//        ThermoFun::Output (tpCalc).toCSV("equations.csv");
+        std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
+        for (uint jj = 0; jj <_data.properties.size(); jj++)
+        {
+            precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
+        }
+
+        precision.at("temperature") = _data.tPrecision;
+        precision.at("pressure")    = _data.pPrecision;
+
+        batchCalc.setDigits(precision);
+
+        if (_data.schemaName == "VertexReaction")
+        {
+            batchCalc.thermoPropertiesReaction(_data.tppairs, loadedData.reactionsSymbols,
+                                               _data.properties/*, calcReactFromSubst*/).toCSV(op.fileName);
+
+            vector<string> reactionsEquations;
+            for (auto symb : loadedData.reactionsSymbols)
+            {
+                reactionsEquations.push_back(tdb_.getReaction(symb).equation());
+            }
+
+            /// check !!!
+            //        tpCalc.clearReactions();
+            //        tpCalc.addReactions(reactionsEquations);
+
+            //        ThermoFun::Output (tpCalc).toCSV("equations.csv");
+        }
+
+        if (_data.schemaName == "VertexSubstance")
+            batchCalc.thermoPropertiesSubstance( _data.tppairs, loadedData.substancesSymbols,
+                                                 _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
+
+        double delta_calc = time.elapsed()+ loadedData.time;
+        returnMessage = "Calculation finished ("+ to_string(delta_calc/1000) + "s). Click view results.";
     }
-
-
-    if (_data.schemaName == "VertexSubstance")
-        batchCalc.thermoPropertiesSubstance( _data.tppairs, substancesSymbols, _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
-
-    struct timeval end;
-    gettimeofday(&end, NULL);
-    double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
-                     end.tv_usec - start.tv_usec) / 1.e6;
-
-     return delta_calc;
-
+    catch(std::exception& e)
+    {
+        returnMessage = string("Calculation finished with error: \n") + e.what();
+    }
+    return returnMessage;
 }
 
 //-----------------------------------------------------------------------

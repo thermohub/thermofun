@@ -234,9 +234,10 @@ public:
 
    void setSubstanceLevel(string substSymbol, string level);
 
-   double calcData(const vector<string>& substKeys, const vector<string>& reactKeys,
-     const vector<string>& substancesSymbols,  const vector<string>& reactionsSymbols,
-     const string& solventSymbol, bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst , struct timeval start);
+   ThermoLoadData loadData( std::vector<int> selNdx );
+
+   std::string calcData( ThermoLoadData loadedData, string solventSymbol,
+                    bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst );
 
    // temporaly functions
    void resetElementsintoRecord( bool isreact, const string& aKey );
