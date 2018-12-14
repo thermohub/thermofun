@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QButtonGroup>
 #ifdef FROM_SRC
-#include "../src/DBClient/formuladata.h"
+#include "../../src/DBClient/formuladata.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/DBClient/formuladata.h"

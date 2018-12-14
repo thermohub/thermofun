@@ -23,6 +23,8 @@ build/
 python/pyThermoFun/build/
 .vscode/
 python/tests/PyThermoFun.so
+fungui/ThermoFunDemoGUI.pro.user.4.8-pre1
+tests/interfaceTest/interfaceTest.pro.user.4.8-pre1
 
 tests/autoTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
 tests/autoTest/install-thirdparty-old.sh
