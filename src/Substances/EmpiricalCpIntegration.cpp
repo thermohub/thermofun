@@ -106,6 +106,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
             for (unsigned i=0; i<thermo_parameters.Cp_coeff[j].size(); i++)
             {
+                if (i== 16) break;
                 ac[i] = thermo_parameters.Cp_coeff[j][i];
             }
 
