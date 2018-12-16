@@ -39,7 +39,7 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro_::Temperature T, const WaterTher
     state.heat_capacity_cp = Cp;
     state.heat_capacity_cv = Cv;
 
-#ifdef OUTPUT_STEAM_CONVENTION
+#ifdef OutputSTEAM_CONVENTION
     OutputSteamConventionH2OProp("H2OWP95reaktoro.csv", wt);
 #endif
 

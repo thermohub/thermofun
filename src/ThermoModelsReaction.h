@@ -8,9 +8,9 @@
 
 namespace ThermoFun {
 
-class PropertiesSolvent;
+struct PropertiesSolvent;
 class Reaction;
-class ThermoPropertiesReaction;
+struct ThermoPropertiesReaction;
 
 /**
  * @brief The ThermoModelsReaction class

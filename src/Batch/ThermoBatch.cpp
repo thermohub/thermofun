@@ -9,6 +9,11 @@
 #include "ThermoEngine.h"
 #include "Common/Units.hpp"
 
+#ifdef _WIN32
+#include <array>
+#else
+#endif
+
 namespace ThermoFun {
 
 enum Calculation {forSUBSTANCE, forREACTION, forSOLVENT};
@@ -18,7 +23,7 @@ struct ThermoBatch::Impl
     /// The thermo instance
     ThermoEngine                        thermo;
 
-    BatchPreferences                      outSettings;
+    BatchPreferences                    outSettings;
 
 //    BatchCalculationSettings            calcSettings;
 
@@ -183,7 +188,7 @@ struct ThermoBatch::Impl
 
     auto calculate(Calculation calculation) -> void
     {
-        double T, P; string symbol; unsigned j_size, i_size;
+        double T, P; string symbol; size_t j_size, i_size;
         auto defUnitT = defaultPropertyUnits.at("temperature");
         auto unitT    =   givenPropertyUnits.at("temperature");
         auto defUnitP = defaultPropertyUnits.at("pressure");
@@ -277,7 +282,7 @@ auto ThermoBatch::thermoPropertiesSubstance(double T, double P, std::string symb
 
     pimpl->calculate(forSUBSTANCE);
 
-    return Output (*this);
+    return Output(*this);
 }
 
 auto ThermoBatch::thermoPropertiesSubstance(double T, double P, vstr symbols, vstr properties) -> Output

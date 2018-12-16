@@ -33,7 +33,11 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QInputDialog>
+#ifdef _WIN32
+#include <chrono>
+#else
 #include <sys/time.h>
+#endif
 #include "ThermoFunPrivateNew.h"
 #include "ui_ThermoFunWidget.h"
 #include "TPSetDialog.h"
@@ -446,8 +450,12 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
 
 //            MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
 
-            struct timeval start;
-            gettimeofday(&start, NULL);
+           struct timeval start;
+#ifdef _WIN32
+           auto start_ = std::chrono::high_resolution_clock::now();
+#else
+    gettimeofday(&end, NULL);
+#endif
             // load data
             vector<string> substKeys, reactKeys;
             vector<string> substancesSymbols, substancesClass, reactionsSymbols;
@@ -507,10 +515,15 @@ void ThermoFunWidgetNew::CmCalcMTPARM()
             // calculate task
             double delta_calc = pdata->calcData( substKeys, reactKeys,
                substancesSymbols,  reactionsSymbols, solventSymbol,
-               ui->actionFixed_output_number_format->isChecked(), calcSubstFromReact(), calcReactFromSubst(), start );
+               ui->actionFixed_Outputnumber_format->isChecked(), calcSubstFromReact(), calcReactFromSubst(), start );
 
-           string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
-
+#ifdef _WIN32
+           auto finish = std::chrono::high_resolution_clock::now();
+           std::chrono::duration<double> elapsed = finish - start_;
+           string status = "Calculation finished ("+ to_string(elapsed.count())+ "s). Click view results."; // status
+#else
+            string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
+#endif
             ui->calcStatus->setText(status.c_str());
             ui->actionShow_Results->setEnabled(true);
 

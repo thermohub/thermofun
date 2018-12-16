@@ -425,7 +425,7 @@
     <addaction name="actionCalculate_Substances_Records_from_Dependent_Reactions"/>
     <addaction name="actionCalculate_Reactions_Records_from_Reactants"/>
     <addaction name="separator"/>
-    <addaction name="actionFixed_output_number_format"/>
+    <addaction name="actionFixed_Outputnumber_format"/>
    </widget>
    <widget class="QMenu" name="menuSelect">
     <property name="title">
@@ -719,7 +719,7 @@
     <string>Select Reactions ...</string>
    </property>
   </action>
-  <action name="actionFixed_output_number_format">
+  <action name="actionFixed_Outputnumber_format">
    <property name="checkable">
     <bool>true</bool>
    </property>

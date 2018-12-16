@@ -12,7 +12,7 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-#define OUTPUT_STEAM_CONVENTION
+#define OutputSTEAM_CONVENTION
 
 using namespace std;
 
@@ -45,7 +45,7 @@ static const double R_CONSTANT = 8.31451,
 /// The molar mass of water in units of g/mol
 static const double H2OMolarMass = 18.015268;
 
-static const std::string output_path = "/Output/";
+static const std::string Outputpath = "/Output/";
 
 static const std::string parsinglogfile = "parseBsonDatalogfile.txt";
 

@@ -1,4 +1,7 @@
+#ifdef _WIN32
+#else
 #include <sys/time.h>
+#endif
 #include <QScrollBar>
 #include <QHeaderView>
 #include "ThermoFunPrivateNew.h"
@@ -630,7 +633,11 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
         batchCalc.thermoPropertiesSubstance( _data.tppairs, substancesSymbols, _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
 
     struct timeval end;
+#ifdef _WIN32
+#else
     gettimeofday(&end, NULL);
+#endif
+
     double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
                      end.tv_usec - start.tv_usec) / 1.e6;
 

@@ -159,7 +159,7 @@ string ElementsToJson( const set<ElementKey>& elements );
 bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements );
 bool ElementsFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements );
 
-struct Element;
+class Element;
 
 class ChemicalFormula
 {

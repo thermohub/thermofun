@@ -57,23 +57,28 @@ macx-clang {
   LIBS += -llua
 }
 else{
+!win32 {
   LIBS += -llua5.3
 }
-
+}
+!win32 {
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"
+}
 
 # Define the directory where CuteMarkEd code is located
 #INCLUDEPATH   += "/usr/local/include/app-static"
 #DEPENDPATH   += "/usr/local/include/app-static"
 
-
+win32:DEFINES += IMPEX_OFF
+!win32 {
 LIBS +=  -ljsonui -ljsonio -ljsonimpex
 #LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift
+}
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR
@@ -100,4 +105,12 @@ HEADERS += \
 
 FORMS += \
     demo/ThermoFunMainWindow.ui
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../dependencies/lib-dll-release-x64/ -llibcurl
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../dependencies/lib-static-release-x64/ -lvelocypack -llibboost_regex* -llibboost_filesystem-vc-mt* -llibboost_system* -llibjsonio -llibjsonui
+
+win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../dependencies/lib-dll-debug-x64/ -llibcurl_debug
+win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../dependencies/lib-static-debug-x64/ -lvelocypack -llibboost_regex* -llibboost_filesystem* -llibboost_system* -llibjsonio -llibjsonui
+INCLUDEPATH += $$PWD/../../dependencies/include
+DEPENDPATH += $$PWD/../../dependencies/include
 

@@ -9,11 +9,11 @@
 
 namespace ThermoFun {
 
-struct DatabaseClient;
-struct Database;
-struct Substance;
-struct Reaction;
-struct Element;
+class DatabaseClient;
+class Database;
+class Substance;
+class Reaction;
+class Element;
 struct ThermoParametersSubstance;
 struct ThermoPropertiesSubstance;
 struct ThermoParametersReaction;

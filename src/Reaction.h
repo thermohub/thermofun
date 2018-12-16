@@ -10,8 +10,8 @@
 
 namespace ThermoFun {
 
-class ThermoPropertiesReaction;
-class ThermoParametersReaction;
+struct ThermoPropertiesReaction;
+struct ThermoParametersReaction;
 
 /**
  * @brief The Reaction class is a type used to describe a reaction

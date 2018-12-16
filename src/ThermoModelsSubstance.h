@@ -5,7 +5,7 @@
 
 namespace ThermoFun {
 
-struct Substance;
+class Substance;
 struct PropertiesSolvent;
 struct ElectroPropertiesSolvent;
 struct ThermoPropertiesSubstance;

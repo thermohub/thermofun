@@ -12,10 +12,6 @@
 #include "Common/Exception.h"
 #include "OptimizationUtils.h"
 
-#include <sys/time.h>
-
-struct timeval start, end_;
-
 using namespace jsonio;
 
 namespace ThermoFun

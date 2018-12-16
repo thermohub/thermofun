@@ -43,7 +43,7 @@ namespace Ui {
 class ThermoFunWidget;
 }
 
-class ThermoFunData;
+struct ThermoFunData;
 class ThermoFunPrivateNew;
 
 /// Widget to work with CorrPT data

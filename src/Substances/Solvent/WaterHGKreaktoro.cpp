@@ -40,7 +40,7 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, const WaterTherm
     state.heat_capacity_cp = Cp;
     state.heat_capacity_cv = Cv;
 
-#ifdef OUTPUT_STEAM_CONVENTION
+#ifdef OutputSTEAM_CONVENTION
     OutputSteamConventionH2OProp("H2OHGKreaktoro.csv", wt);
 #endif
 

@@ -5,7 +5,7 @@
 
 namespace ThermoFun {
 
-struct Substance;
+class Substance;
 struct ThermoPropertiesSubstance;
 
 /// Returns the correcected (dVdP) themrodynamic properties of a substance (mineral) uisng the using the Birch-Murnaghan EOS
