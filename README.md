@@ -183,7 +183,7 @@ You can change the arango database connection setup using the preferences icon o
 ## Build and Run ThermoFun GUI on Windows 10
 
 * Make sure you have git installed. If not, install it on Windows: https://git-scm.com/download/win.
-* To download ThermoFun source code C:/git/THERMOFUN using a Windows Command Prompt execute
+* To download ThermoFun source code, using Windows Command Prompt go to C:/git/THERMOFUN and execute
 
 ```
 git clone https://bitbucket.org/gems4/thermofun.git
