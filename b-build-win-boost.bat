@@ -88,6 +88,6 @@ For %%# in ("%DEP_DIR%\lib-static-debug-x64\libboost*.lib") Do (
 )
 
 REM Cleanup temporary file/folders
-cd %ROOT_DIR%
-del /F /S /Q tmp_*
-%RM% -rf tmp_*
+REM cd %ROOT_DIR%
+REM del /F /S /Q tmp_*
+REM %RM% -rf tmp_*

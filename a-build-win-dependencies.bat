@@ -33,7 +33,7 @@ set SEVEN_ZIP="%CD%\bin\7-zip\7za.exe"
 set WGET="%CD%\bin\unxutils\wget.exe"
 set XIDEL="%CD%\bin\xidel\xidel.exe"
 set DEP_DIR="%ROOT_DIR%\..\dependencies"
-set QT_LIB="C:\Qt\5.12.0\msvc2017_64\lib"
+set QT_LIB="C:\Qt\5.12.0\msvc2017_64\bin"
 
 REM Housekeeping
 del /F /S /Q tmp_*

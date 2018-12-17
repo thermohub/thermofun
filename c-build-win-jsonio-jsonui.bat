@@ -34,7 +34,7 @@ set WGET="%CD%\bin\unxutils\wget.exe"
 set XIDEL="%CD%\bin\xidel\xidel.exe"
 set DEP_DIR="%ROOT_DIR%\..\dependencies"
 set QMAKE="C:\Qt\5.12.0\msvc2017_64\bin\qmake.exe"
-set JOM="C:/Qt/Tools/QtCreator/bin/jom.exe"
+set JOM="C:\Qt\Tools\QtCreator\bin\jom.exe"
 
 cd ..
 
@@ -59,9 +59,9 @@ cd build-jsonio/release
 echo "%MSVCDIR%\VC\Auxiliary\Build\vcvarsall.bat"
 call %MSVCDIR%\VC\Auxiliary\Build\vcvarsall.bat x64
 
-%QMAKE% %ROOT_DIR%\..\jsonio\jsonio-lib.pro -spec win32-msvc && C:/Qt/Tools/QtCreator/bin/jom.exe qmake_all
+%QMAKE% %ROOT_DIR%\..\jsonio\jsonio-lib.pro -spec win32-msvc && %JOM% qmake_all
 
-%JOM% -j4
+%JOM%
 
 cd release
 
