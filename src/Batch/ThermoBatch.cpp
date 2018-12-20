@@ -18,7 +18,7 @@ struct ThermoBatch::Impl
     /// The thermo instance
     ThermoEngine                        thermo;
 
-    BatchPreferences                      outSettings;
+    BatchPreferences                    outSettings;
 
 //    BatchCalculationSettings            calcSettings;
 

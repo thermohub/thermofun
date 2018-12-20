@@ -482,6 +482,13 @@ struct ThermoEngine::Impl
         case MethodCorrP_Thrift::type::CPM_NUL:
         case MethodCorrP_Thrift::type::CPM_CON:
         {
+            auto Pref = reac.referenceP()/1e5;
+            auto P_ = P/1e5;
+            auto VP = tpr.reaction_volume * (P_-Pref);
+            tpr.reaction_gibbs_energy += VP;
+            tpr.reaction_enthalpy += VP;
+            auto Vref = reac.thermo_ref_prop().reaction_volume;
+            tpr.log_equilibrium_constant -= Vref *(P_-Pref)/(R_CONSTANT*T)/lg_to_ln;
             //    if( CV == CPM_CON || CV == CPM_NUL )
             //    {
             //            P_Pst = aW.twp->P - Pst;
