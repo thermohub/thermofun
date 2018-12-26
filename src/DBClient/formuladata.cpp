@@ -27,8 +27,10 @@ vector<string> ChemicalFormula::queryFields =
 
 auto index_from_map2 (std::string map) -> int
 {
-    unsigned first = map.find("\"");
-    unsigned second = map.find("\"", first+1);
+    auto first = map.find("\"");
+    jsonio::jsonioErrIf( first == string::npos, map, "Illegal class value.");
+    auto second = map.find("\"", first+1);
+    jsonio::jsonioErrIf( second == string::npos, map, "Illegal class value.");
     string strNew = map.substr (first+1,second-(first+1));
     return stoi(strNew);
 }
