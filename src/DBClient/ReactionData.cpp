@@ -166,7 +166,7 @@ set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
     set<ElementKey> elements;
     string jsonrecord = getJsonRecordVertex(idReaction);
     auto domdata = jsonio::unpackJson( jsonrecord );
-    ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
+    ElementsKeysFromJsonDomArray("properties.elements", domdata.get(), elements);
 
     // if user fogot insert elements property
     if (elements.empty())
@@ -187,7 +187,7 @@ void ReactionData_::resetRecordElements(const string& idReact )
         vector<string> formulalst = getReactantsFormulas( _id );
         set<ThermoFun::ElementKey> elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
 
-        string elementsJsonArray = ElementsToJson( elements );
+        string elementsJsonArray = ElementsKeysToJson( elements );
         getDB()->setValue("properties.elements",elementsJsonArray);
         getDB()->UpdateWithTestValues();
     }

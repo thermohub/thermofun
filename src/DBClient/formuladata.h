@@ -28,7 +28,8 @@ struct ElementKey
   string key() const;
   string getSymbol() const;
 
-  void toJsonNode( jsonio::JsonDom *object ) const;
+  void toJsonNode_( jsonio::JsonDom *object ) const;
+  void fromJsonNode_( const jsonio::JsonDom *object );
   void fromJsonNode( const jsonio::JsonDom *object );
   //void toBson( bson *obj ) const;
   //void fromBson( const char* obj );
@@ -155,9 +156,11 @@ public:
 };
 
 vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
-string ElementsToJson( const set<ElementKey>& elements );
-bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements );
-bool ElementsFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements );
+string ElementsKeysToJson( const set<ElementKey>& elements );
+/// Work only with internal elements list (wihout map)
+bool ElementsKeysFromJson( const string elmsjson, set<ElementKey>& elements );
+/// Read elements only from special fields
+bool ElementsKeysFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements );
 
 struct Element;
 
