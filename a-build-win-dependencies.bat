@@ -129,35 +129,35 @@ REM cd %ROOT_DIR%\tmp_libcurl\curl*\builds\libcurl-vc-x86-release-static-ipv6-ss
 REM %MKDIR% -p %ROOT_DIR%\dependencies\lib-static-release-x86
 REM %CP% lib\*.lib %ROOT_DIR%\dependencies\lib-static-release-x86
 
-REM Copy compiled .*lib, *.pdb, *.dll files folder to dependencies\lib\dll-debug folder
+echo Copy compiled .*lib, *.pdb, *.dll files folder to dependencies\lib\dll-debug folder
 cd %ROOT_DIR%\tmp_libcurl\curl*\builds\libcurl-vc-x64-debug-dll-ipv6-sspi-winssl
 %MKDIR% -p %DEP_DIR%\lib-dll-debug-x64
 %CP% lib\*.pdb %DEP_DIR%\lib-dll-debug-x64
 %CP% lib\*.lib %DEP_DIR%\lib-dll-debug-x64
 %CP% bin\*.dll %DEP_DIR%\lib-dll-debug-x64
 
-REM Copy compiled .*lib, *.pdb, *.dll files to dependencies\lib\dll-release folder
+echo Copy compiled .*lib, *.pdb, *.dll files to dependencies\lib\dll-release folder
 cd %ROOT_DIR%\tmp_libcurl\curl*\builds\libcurl-vc-x64-release-dll-ipv6-sspi-winssl
 %MKDIR% -p %DEP_DIR%\lib-dll-release-x64
 %CP% lib\*.pdb %DEP_DIR%\lib-dll-release-x64
 %CP% lib\*.lib %DEP_DIR%\lib-dll-release-x64
 %CP% bin\*.dll %DEP_DIR%\lib-dll-release-x64
 
-REM Copy compiled .*lib file in lib-release folder to dependencies\lib\static-debug folder
+echo Copy compiled .*lib file in lib-release folder to dependencies\lib\static-debug folder
 cd %ROOT_DIR%\tmp_libcurl\curl*\builds\libcurl-vc-x64-debug-static-ipv6-sspi-winssl
 %MKDIR% -p %DEP_DIR%\lib-static-debug-x64
 %CP% lib\*.lib %DEP_DIR%\lib-static-debug-x64
 
-REM Copy compiled .*lib files in lib-release folder to dependencies\lib\static-release folder
+echo Copy compiled .*lib files in lib-release folder to dependencies\lib\static-release folder
 cd %ROOT_DIR%\tmp_libcurl\curl*\builds\libcurl-vc-x64-release-static-ipv6-sspi-winssl
 %MKDIR% -p %DEP_DIR%\lib-static-release-x64
 %CP% lib\*.lib %DEP_DIR%\lib-static-release-x64
 
 
-REM Copy include folder to dependencies folder
+echo Copy include folder to dependencies folder
 %CP% -rf include %DEP_DIR%
 
-REM Cleanup temporary file/folders
+echo Cleanup temporary file/folders
 cd %ROOT_DIR%
 del /F /S /Q tmp_libcurl
 %RM% -rf tmp_libcurl
@@ -212,11 +212,11 @@ cd %ROOT_DIR%\tmp_velo\velo*\build\
 REM %CP% *.lib %ROOT_DIR%\dependencies\lib-static-debug-x64
 %CP% *.lib %DEP_DIR%\lib-static-debug-x64
 
-REM Copy include folder to dependencies folder
+echo Copy include folder to dependencies folder
 cd ..
 %CP% -rf include %DEP_DIR%
 
-REM Cleanup temporary file/folders
+echo Cleanup temporary file/folders
 cd %ROOT_DIR%
 del /F /S /Q tmp_velo
 
@@ -231,7 +231,7 @@ del /F /S /Q tmp_velo
 %CP% %DEP_DIR%\lib-dll-release-x64\libcurl*.dll %ROOT_DIR%\..\build-fun-gui\release
 %CP% %DEP_DIR%\lib-dll-debug-x64\libcurl*.dll %ROOT_DIR%\..\build-fun-gui\debug
 
-REM copy Qt dll files
+echo copy Qt dll files to build-fun-gui\
 
 %CP% %QT_LIB%\Qt5Charts.dll %ROOT_DIR%\..\build-fun-gui\release
 %CP% %QT_LIB%\Qt5Core.dll %ROOT_DIR%\..\build-fun-gui\release
@@ -260,6 +260,8 @@ REM copy Qt dll files
 %CP% %QT_LIB%\Qt5WebEngineCore.dll %ROOT_DIR%\..\build-fun-gui\debug
 %CP% %QT_LIB%\Qt5WebEngineWidgets.dll %ROOT_DIR%\..\build-fun-gui\debug
 %CP% %QT_LIB%\Qt5Widgets.dll %ROOT_DIR%\..\build-fun-gui\debug
+
+echo Finished a-build-win-dependencies.bat scrip! 
 
 :end
 exit /b
