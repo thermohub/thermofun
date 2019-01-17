@@ -56,8 +56,10 @@ cd tmp_libcurl
 echo Get Curl from git...
 
 git clone https://github.com/curl/curl.git
+cd curl*
+git checkout tags/curl-7_62_0
 
-cd curl*\src
+cd src
 
 rename "tool_hugehelp.c.cvs" "tool_hugehelp.c"
 
