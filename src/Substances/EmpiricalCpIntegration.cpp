@@ -52,14 +52,14 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
        }
     }
 
-//    if (k<0)
-//    {
-//        Exception exception;
-//        exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
-//        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
-//        exception.line = __LINE__;
-//        RaiseError(exception);
-//    }
+    if (k<0)
+    {
+        Exception exception;
+        exception.error << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
+        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
@@ -108,6 +108,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
             for (unsigned i=0; i<thermo_parameters.Cp_coeff[j].size(); i++)
             {
+                if (i== 16) break;
                 ac[i] = thermo_parameters.Cp_coeff[j][i];
             }
 

@@ -27,8 +27,10 @@ vector<string> ChemicalFormula::queryFields =
 
 auto index_from_map2 (std::string map) -> int
 {
-    unsigned first = map.find("\"");
-    unsigned second = map.find("\"", first+1);
+    auto first = map.find("\"");
+    jsonio::jsonioErrIf( first == string::npos, map, "Illegal class value.");
+    auto second = map.find("\"", first+1);
+    jsonio::jsonioErrIf( second == string::npos, map, "Illegal class value.");
     string strNew = map.substr (first+1,second-(first+1));
     return stoi(strNew);
 }
@@ -70,9 +72,8 @@ string ElementKey::getSymbol() const
   return _key;
 }
 
-// Writes data to json
-/// NOT CORRECT!!!
-void ElementKey::toJsonNode( jsonio::JsonDom *object ) const
+// Writes data to json (only key)
+void ElementKey::toJsonNode_( jsonio::JsonDom *object ) const
 {
     object->appendString( "symbol", symbol );
     if( isotope != 0 )
@@ -81,7 +82,18 @@ void ElementKey::toJsonNode( jsonio::JsonDom *object ) const
       object->appendInt( "class_", class_ );
 }
 
-// Reads data from JsonDom
+// Reads data from JsonDom (only key)
+void ElementKey::fromJsonNode_( const jsonio::JsonDom *object )
+{
+    if(!object->findValue( "symbol", symbol ) )
+        jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
+    if(!object->findValue( "isotope_mass", isotope ) )
+        isotope = 0;
+    if(!object->findValue("class_", class_ ) )
+        class_ = 0;
+}
+
+// Reads data from JsonDom (fromm real record)
 void ElementKey::fromJsonNode( const jsonio::JsonDom *object )
 {
     if(!object->findValue( "symbol", symbol ) )
@@ -95,33 +107,33 @@ void ElementKey::fromJsonNode( const jsonio::JsonDom *object )
         class_ = atoi(map_.begin()->first.c_str());
 }
 
-void ElementsToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements )
+void ElementsKeysToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements )
 {
   int ndx=0;
   for( auto el: elements)
   {
       auto objel = object->appendObject(to_string(ndx++));
-      el.toJsonNode( objel );
+      el.toJsonNode_( objel );
   }
 }
 
-shared_ptr<jsonio::JsonDomFree> ElementsToJsonArray( const set<ElementKey>& elements )
+shared_ptr<jsonio::JsonDomFree> ElementsKeysToJsonArray( const set<ElementKey>& elements )
 {
     shared_ptr<jsonio::JsonDomFree> domdata(jsonio::JsonDomFree::newArray());
-    ElementsToJsonDom( domdata.get(), elements );
+    ElementsKeysToJsonDom( domdata.get(), elements );
     return domdata;
 }
 
-string ElementsToJson( const set<ElementKey>& elements )
+string ElementsKeysToJson( const set<ElementKey>& elements )
 {
-  auto domarray = ElementsToJsonArray( elements );
+  auto domarray = ElementsKeysToJsonArray( elements );
   string elmsjson;
   printNodeToJson( elmsjson, domarray.get() );
   return elmsjson;
 }
 
-
-void ElementsFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elements )
+/// Work only with internal elements list (wihout map)
+void ElementsKeysFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elements )
 {
     ElementKey elem("");
     int objsize = object->getChildrenCount();
@@ -131,28 +143,28 @@ void ElementsFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elemen
        auto childobj = object->getChild( ii);
        if( childobj->getType() != jsonio::JSON_OBJECT )
             continue;
-        elem.fromJsonNode(childobj);
+        elem.fromJsonNode_(childobj);
         elements.insert(elem);
     }
  }
 
-bool ElementsFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements )
+bool ElementsKeysFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements )
 {
     elements.clear();
     auto elmobj = object->field(keypath);
     if(elmobj==nullptr)
       return false;
-    ElementsFromJsonDom( elmobj, elements );
+    ElementsKeysFromJsonDom( elmobj, elements );
     return true;
  }
 
 
-bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements )
+bool ElementsKeysFromJson( const string elmsjson, set<ElementKey>& elements )
 {
     try{
         auto arrobject = jsonio::unpackJson( elmsjson );
         elements.clear();
-        ElementsFromJsonDom( arrobject.get(), elements );
+        ElementsKeysFromJsonDom( arrobject.get(), elements );
         return true;
     }
     catch(...)

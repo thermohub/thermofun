@@ -38,12 +38,14 @@
 #else
 #include <sys/time.h>
 #endif
+#include <QtConcurrent>
 #include "ThermoFunPrivateNew.h"
 #include "ui_ThermoFunWidget.h"
 #include "TPSetDialog.h"
 #include "SelectThermoDataDialog.h"
 #include "jsonui/TableEditWindow.h"
 #include "jsonui/SchemaSelectDialog.h"
+#include "jsonui/waitingspinnerwidget.h"
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/ReactionData.h"
@@ -77,6 +79,7 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
 
     // define menu
     setActions();
+    waitDialog = new WaitingSpinnerWidget(this, Qt::ApplicationModal, true);
 
     //show();
     //CmSelectThermoDataSet();
@@ -84,11 +87,27 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
 
 ThermoFunWidgetNew::~ThermoFunWidgetNew()
 {
+    // Cancel and wait
+    if (loadingWatcher.isRunning())
+    {
+        loadingWatcher.cancel();
+        loadingWatcher.waitForFinished();
+    }
+
+    if (calcWatcher.isRunning())
+    {
+        calcWatcher.cancel();
+        calcWatcher.waitForFinished();
+    }
+
     if( _csvWin )
     {
        _csvWin->close();
        delete _csvWin;
     }
+    if( waitDialog )
+        delete waitDialog;
+
     delete ui;
     cout << "~ThermoFunWidget" << endl;
 }
@@ -97,6 +116,7 @@ void ThermoFunWidgetNew::closeEvent(QCloseEvent* e)
 {
     if( _csvWin )
      _csvWin->close();
+
 
     if( !onCloseEvent(this) )
            e->ignore();
@@ -146,7 +166,9 @@ void ThermoFunWidgetNew::setActions()
     connect( ui->tPrecision, SIGNAL( valueChanged(int)), pdata.get(), SLOT(tPChanged(int)));
 
     //Calc
-    connect( ui->actionCalculate_Properties, SIGNAL( triggered()), this, SLOT(CmCalcMTPARM()));
+    connect( ui->actionCalculate_Properties, SIGNAL( triggered()), this, SLOT(CmCalcMTPARM_load()));
+    connect(&loadingWatcher, &QFutureWatcher<ThermoLoadData>::finished, this, &ThermoFunWidgetNew::CmCalcMTPARM_calculate );
+    connect(&calcWatcher, &QFutureWatcher<string>::finished, this, &ThermoFunWidgetNew::CmCalcMTPARM_finish );
     connect( ui->actionCalculate_TP, SIGNAL( triggered()), this, SLOT(CmCalcRTParm()));
     connect( ui->actionShow_Results, SIGNAL( triggered()), this, SLOT(CmShowResult()));
 
@@ -437,106 +459,132 @@ void ThermoFunWidgetNew::CmExportCFG()
 }
 
 
-void ThermoFunWidgetNew::CmCalcMTPARM()
+void ThermoFunWidgetNew::CmCalcMTPARM_load()
 {
     try {
-            // select components
-            const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
-            vector<int> selNdx;
-            jsonui::SelectDialog selDlg( this, "Please, select one or more records", values, selNdx );
-            if( !selDlg.exec() )
-                return;
-            selNdx =  selDlg.allSelected();
+        // select components
+        const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
+        vector<int> selNdx;
+        jsonui::SelectDialog selDlg( this, "Please, select one or more records", values, selNdx );
+        if( !selDlg.exec() )
+            return;
+        selNdx =  selDlg.allSelected();
 
-//            MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
+        //          MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
 
-           struct timeval start;
-#ifdef _WIN32
-           auto start_ = std::chrono::high_resolution_clock::now();
-#else
-    gettimeofday(&end, NULL);
-#endif
-            // load data
-            vector<string> substKeys, reactKeys;
-            vector<string> substancesSymbols, substancesClass, reactionsSymbols;
-
-            if( pdata->isSubstances() )
-                pdata->loadSubstData( selNdx, substKeys, substancesSymbols, substancesClass );
-            else
-                pdata->loadReactData( selNdx, reactKeys, reactionsSymbols );
-
-            vector<string> linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds;
-            pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
-
-            if (calcReactFromSubst() && calcSubstFromReact()) // check - reaction with substance dependent on another reaction
-            {
-                MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(linkedSubstIds, linkedSubstSymbols);
-                for (auto substSymbol : linkedSubstSymbols)
-                {
-                    MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];
-                    if (levelReaction.size() == 0)
-                        continue;
-                    if (levelReaction.size() == 1)
-                    {
-                        pdata->setSubstanceLevel(substSymbol, levelReaction.begin()->first);
-                    }
-                    if (levelReaction.size() > 1)
-                    {
-                        jsonio::ValuesTable values_;
-                        vector<string> levels;
-                        for (auto react : levelReaction)
-                        {
-                            vector<string> symbolEq;
-                            symbolEq.push_back(react.second.symbol());
-                            symbolEq.push_back(react.second.equation());
-                            levels.push_back(react.first);
-                            values_.push_back(symbolEq);
-                        }
-
-                        jsonui::SelectDialog selDlg_lvl( this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
-                        if( !selDlg_lvl.exec() )
-                            return;
-                        int solvNdx =  selDlg_lvl.selIndex();
-
-                        pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
-                    }
-                }
-            }
-
-            // check for solvent
-            string solventSymbol = ui->pSolventSymbol->currentText().toStdString();
-            if (solventSymbol != "No solvent!")
-            {
-                auto sId = ui->pSolventSymbol->currentData().toString().toStdString();
-                if (std::find(substKeys.begin(), substKeys.end(), sId) == substKeys.end())
-                    substKeys.push_back(sId);
-            }
-
-            // calculate task
-            double delta_calc = pdata->calcData( substKeys, reactKeys,
-               substancesSymbols,  reactionsSymbols, solventSymbol,
-               ui->actionFixed_Outputnumber_format->isChecked(), calcSubstFromReact(), calcReactFromSubst(), start );
-
-#ifdef _WIN32
-           auto finish = std::chrono::high_resolution_clock::now();
-           std::chrono::duration<double> elapsed = finish - start_;
-           string status = "Calculation finished ("+ to_string(elapsed.count())+ "s). Click view results."; // status
-#else
-            string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
-#endif
-            ui->calcStatus->setText(status.c_str());
-            ui->actionShow_Results->setEnabled(true);
-
+        // Run into other thread
+        loadingWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::loadData, selNdx));
+        waitDialog->start();
     }
     catch(jsonio::jsonio_exception& e)
     {
         QMessageBox::critical( this, e.title(), e.what() );
-        ui->calcStatus->setText(e.what());
     }
     catch(std::exception& e)
     {
         QMessageBox::critical( this, "std::exception", e.what() );
-        ui->calcStatus->setText(e.what());
+    }
+}
+
+
+void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
+{
+    try {
+        waitDialog->stop();
+        cout<< "Load Finished" << endl;
+
+        auto loadData = loadingWatcher.result();
+
+        // test error when loading
+        if( !loadData.errorMessage.empty() )
+        {
+            ui->calcStatus->setText("Data loading error.");
+            QMessageBox::critical( this, "Data loading error", loadData.errorMessage.c_str() );
+            return;
+        }
+
+        if (calcReactFromSubst() && calcSubstFromReact()) // check - reaction with substance dependent on another reaction
+        {
+            MapSymbolMapLevelReaction   levelDefinesReaction  =
+                    pdata->recordsMapLevelDefinesReaction(loadData.linkedSubstIds, loadData.linkedSubstSymbols);
+            for (auto substSymbol : loadData.linkedSubstSymbols)
+            {
+                MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];
+                if (levelReaction.size() == 0)
+                    continue;
+                if (levelReaction.size() == 1)
+                {
+                    pdata->setSubstanceLevel(substSymbol, levelReaction.begin()->first);
+                }
+                if (levelReaction.size() > 1)
+                {
+                    jsonio::ValuesTable values_;
+                    vector<string> levels;
+                    for (auto react : levelReaction)
+                    {
+                        vector<string> symbolEq;
+                        symbolEq.push_back(react.second.symbol());
+                        symbolEq.push_back(react.second.equation());
+                        levels.push_back(react.first);
+                        values_.push_back(symbolEq);
+                    }
+
+                    jsonui::SelectDialog selDlg_lvl( this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
+                    if( !selDlg_lvl.exec() )
+                        return;
+                    int solvNdx =  selDlg_lvl.selIndex();
+
+                    pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
+                }
+            }
+        }
+
+        // check for solvent
+        string solventSymbol = ui->pSolventSymbol->currentText().toStdString();
+        if (solventSymbol != "No solvent!")
+        {
+            auto sId = ui->pSolventSymbol->currentData().toString().toStdString();
+            if (std::find(loadData.substKeys.begin(), loadData.substKeys.end(), sId) == loadData.substKeys.end())
+                loadData.substKeys.push_back(sId);
+        }
+
+        // run in other thread
+        calcWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::calcData, std::move(loadData), std::move(solventSymbol),
+                                                 ui->actionFixed_Outputnumber_format->isChecked(), calcSubstFromReact(), calcReactFromSubst() ));
+
+        waitDialog->start();
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+void ThermoFunWidgetNew::CmCalcMTPARM_finish()
+{
+    try {
+            waitDialog->stop();
+
+            auto retMessage = calcWatcher.result();
+            if( retMessage.find("Click view results") == string::npos )
+            {
+                ui->calcStatus->setText("Calculation finished with error.");
+                jsonio::jsonioErr("Calculation finished with error.", retMessage );
+            }
+            ui->calcStatus->setText(retMessage.c_str());
+            ui->actionShow_Results->setEnabled(true);
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
     }
 }
 

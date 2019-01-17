@@ -19,6 +19,7 @@ find_package(Qt5Gui REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 find_package (Qt5WebEngineWidgets REQUIRED )
 find_package (Qt5Charts REQUIRED )
+find_package (Qt5Concurrent REQUIRED )
 # Add the include directories for the Qt 5 Widgets module to
 # the compile lines.
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
@@ -26,6 +27,7 @@ include_directories(${Qt5Core_INCLUDE_DIRS})
 include_directories(${Qt5Gui_INCLUDE_DIRS})
 include_directories(${Qt5PrintSupport_INCLUDE_DIRS})
 include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
+include_directories(${Qt5Concurrent_INCLUDE_DIRS})
 
 find_library(JSONUI_LIB jsonui)
 if(NOT JSONUI_LIB)
