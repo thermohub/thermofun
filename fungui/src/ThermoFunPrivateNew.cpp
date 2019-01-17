@@ -557,10 +557,9 @@ double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vect
     vector<string> keys; keys.insert(keys.end(), substKeys.begin(), substKeys.end());
                          keys.insert(keys.end(), reactKeys.begin(), reactKeys.end());
 
-    auto tr = dbclient.getTraversal();
 
-    ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
-    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
+    ThermoFun::VertexId_VertexType resultTraversal = dbclient.getTraversal().getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
+    ThermoFun::Database tdb_ = dbclient.getTraversal().getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
 
 //    ThermoFun::Traversal tr(subst.getDB());
 //    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());

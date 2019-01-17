@@ -2,6 +2,7 @@
 
 // C++ includes
 //#include <functional>
+#include <algorithm>
 
 // bonio includes
 #include "jsonio/traversal.h"
@@ -266,14 +267,29 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Ele
 
 auto DatabaseClient::sourcetdbIndexes() -> std::set<unsigned int>
 {
-
     set<unsigned int> _sourcetdb;
-    vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
-    for (unsigned int ii = 0; ii < _resultData.size(); ii++)
+//    vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
+
+    string qrJson1 = "FOR e IN elements ";
+    string qrJson2 = "COLLECT s = e.properties.sourcetdb RETURN s";
+    std::vector<string> resultsQuery = pimpl->substData.getDB()->runQuery( DBQueryData(qrJson1+qrJson2, DBQueryData::qAQL ) );
+    qrJson1 = "FOR e IN substances ";
+    std::vector<string> resultsQuery2 = pimpl->substData.getDB()->runQuery( DBQueryData(qrJson1+qrJson2, DBQueryData::qAQL ) );
+    resultsQuery.insert( resultsQuery.end(), resultsQuery2.begin(), resultsQuery2.end() );
+    qrJson1 = "FOR e IN reactions ";
+    resultsQuery2 = pimpl->substData.getDB()->runQuery( DBQueryData(qrJson1+qrJson2, DBQueryData::qAQL ) );
+    resultsQuery.insert( resultsQuery.end(), resultsQuery2.begin(), resultsQuery2.end() );
+
+    // make unique
+    std::sort(resultsQuery.begin(), resultsQuery.end());
+    auto last = std::unique(resultsQuery.begin(), resultsQuery.end());
+    resultsQuery.erase(last, resultsQuery.end());
+
+    for (unsigned int ii = 0; ii < resultsQuery.size(); ii++)
     {
-        unsigned int first  = _resultData[ii].find("\"");
-        unsigned int second = _resultData[ii].find("\"", first+1);
-        string strNew   = _resultData[ii].substr (first+1,second-(first+1));
+        unsigned int first  = resultsQuery[ii].find("\"");
+        unsigned int second = resultsQuery[ii].find("\"", first+1);
+        string strNew   = resultsQuery[ii].substr (first+1,second-(first+1));
         int asourcetdb = stoi(strNew);
         _sourcetdb.insert(asourcetdb);
     }

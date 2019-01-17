@@ -87,18 +87,18 @@ public:
 
 private:
 
-    // follows the incoming Defines edge for substance with _idSubst
-    void followIncomingEdgeDefines(std::string idSubst, VertexId_VertexType &result, std::string level_);
-    // follows the incoming Takes edges for reaction with _idReac
-    void followIncomingEdgeTakes(std::string idReact, VertexId_VertexType &result);
-    // fills the map MapIdType with all vertexes connected to the vertex with id_
-    auto linkedDataFromId(std::string id_) -> VertexId_VertexType;
-    // returns the symbol of the reaction which defines the substance with _idSubst
-    auto level (std::string idSubst) -> std::string;
-    // returns a map of [id, vertex type] with all vertexes connected to the idList
-    auto getResult(std::vector<std::string> idList, std::vector<int> selNdx = {}) -> VertexId_VertexType;
-    // returns a ThermoFun::Database object from a map of [id, vertex type] resulted from traversal (all connected vertexes)
-    auto getDatabase(VertexId_VertexType resultTraversal) -> Database;
+//    // follows the incoming Defines edge for substance with _idSubst
+//    void followIncomingEdgeDefines(std::string idSubst, VertexId_VertexType &result, std::string level_);
+//    // follows the incoming Takes edges for reaction with _idReac
+//    void followIncomingEdgeTakes(std::string idReact, VertexId_VertexType &result);
+//    // fills the map MapIdType with all vertexes connected to the vertex with id_
+//    auto linkedDataFromId(std::string id_) -> VertexId_VertexType;
+//    // returns the symbol of the reaction which defines the substance with _idSubst
+//    auto level (std::string idSubst) -> std::string;
+//    // returns a map of [id, vertex type] with all vertexes connected to the idList
+//    auto getResult(std::vector<std::string> idList, std::vector<int> selNdx = {}) -> VertexId_VertexType;
+//    // returns a ThermoFun::Database object from a map of [id, vertex type] resulted from traversal (all connected vertexes)
+//    auto getDatabase(VertexId_VertexType resultTraversal) -> Database;
 
     //    auto getJsonRecord(string idRecord) -> string;
 

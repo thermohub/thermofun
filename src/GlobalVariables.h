@@ -589,8 +589,9 @@ static const char * substEOSbm              = "eos_birch_murnaghan_coeffs.values
 static const char * substEOScg              = "eos_churakov_gottschalk_coeffs.values"; //
 static const char * substEOSgasCrit         = "eos_gas_crit_props.values"; //
 static const char * substCpParam            = "m_heat_capacity_ft_coeffs.values"; //
-static const char * substTransProp          = "m_landau_phase_trans_props.values"; //
-//static const char * substTransPropBm        = "properties.phase_transition_prop_Berman.values";
+static const char * substTransProp          = "m_phase_trans_props.values"; //
+static const char * substTransPropLa        = "m_landau_phase_trans_props.values"; //
+static const char * substTransPropBm        = "phase_transition_prop_Berman.values";
 
 static const char * lowerT                  = "limitsTP.lowerT";
 static const char * upperT                  = "limitsTP.upperT";
