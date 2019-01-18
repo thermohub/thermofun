@@ -12,7 +12,7 @@ sudo apt-get install -y lua5.3-dev libboost-all-dev libcurl4-openssl-dev libboos
 # Uncomment what is necessary to reinstall by force 
 #sudo rm -f /usr/local/lib/pugixml.so
 #sudo rm -f /usr/local/lib/libyaml-cpp.so
-sudo rm -f /usr/local/lib/libthrift.a
+#sudo rm -f /usr/local/lib/libthrift.a
 ##sudo rm -f /usr/local/lib/libjsonimpex.a
 #sudo rm -f /usr/local/lib/libjsonui.a
 

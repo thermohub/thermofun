@@ -14,7 +14,7 @@
 #include "../src/Reaction.h"
 #include "../src/Substance.h"
 #else
-#include "thermofun/Interfaces/Interface.h"
+#include "thermofun/Batch/ThermoBatch.h"
 #include "thermofun/DBClient/DatabaseClient.h"
 #include "thermofun/DBClient/SubstanceData.h"
 #include "thermofun/Reaction.h"
