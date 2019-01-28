@@ -1022,7 +1022,11 @@
         {
           "key": 1,
           "name": "for_field",
-          "typeId": "string",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
           "doc": "Data field path connected to DS e.g. { \"for_field\": \"properties.entropy.values.0\" }\n",
           "required": "req_out"
         }
