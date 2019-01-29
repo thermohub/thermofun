@@ -1037,7 +1037,7 @@
       "doc": "Edge of type \"citing\" definition\n",
       "isException": false,
       "isUnion": false,
-      "to_select": [ "7", "8.1", "4", "5" ],
+      "to_select": [ "7", "8.1.0", "4", "5" ],
       "fields": [
         {
           "key": 1,
