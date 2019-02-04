@@ -26,22 +26,14 @@ class ElementData_ : public AbstractData
     /// Extract data connected to ThermoDataSet
     virtual  std::vector<std::string> selectGiven( const std::vector<std::string>& idThermoDataSets, bool unique = true );
 
-    std::vector<std::string> selectGivenSubstances( const std::vector<int>& sourcetdbs,
-                       const std::vector<std::string>& substanceSymbols, bool unique = true );
-
-    /// Select reaction sets belonging to sourcetdbs and containing given reaction symbols
-    std::vector<std::string> selectGiven( const std::vector<int>& sourcetdbs,
-                       const std::vector<std::string>& reactionSymbols, bool unique = true );
-
-    /// Extract data connected to ThermoDataSet and containing given reaction symbols
-    std::vector<std::string> selectGiven( const std::string& idThermoDataSet, const std::vector<std::string>& reactionSymbols );
+    /// Extract data defined sourcetdbs and elements
+    std::vector<ElementKey> selectGiven( const std::vector<int>& sourcetdbs, const std::vector<ElementKey>& elements, bool unique = true );
 
     /// Get Elements list from reactions
     virtual std::set<ElementKey> getElementsList(const std::string &id);
 
     /// Link to table of fields values loaded before
     const jsonio::ValuesTable& getValuesTable();
-
 
   private:
 

@@ -42,7 +42,7 @@ struct AbstractData::Impl
     /// Data names which will be used throughout the code
     vector<string> dataNames;
 
-    std::map<std::string, int> dataIndex;
+    std::map<std::string, uint> dataIndex;
     std::map<std::string, std::string> dataPath;
 
     std::map<std::string, std::string> substSymbolLevel;
@@ -515,7 +515,7 @@ auto AbstractData::setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable av
     }
 }
 
-auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, int>
+auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, uint>
 {
     return pimpl->dataIndex;
 }
@@ -551,7 +551,7 @@ auto AbstractData::getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEd
 }
 
 // delete not unique
-void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, int fldtestNdx )
+void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, uint fldtestNdx )
 {
     ValuesTable newMatr;
     for (const auto& subitem : dataMatr)

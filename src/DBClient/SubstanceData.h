@@ -1,5 +1,5 @@
-#ifndef _SUBSTANCEDATA_H
-#define _SUBSTANCEDATA_H
+#ifndef SUBSTANCEDATA_H
+#define SUBSTANCEDATA_H
 
 // C++ includes
 #include <memory>
@@ -117,4 +117,4 @@ private:
 
 
 
-#endif // _SUBSTANCEDATA_H
+#endif // SUBSTANCEDATA_H

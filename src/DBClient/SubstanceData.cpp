@@ -124,7 +124,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
     updateTableByElementsList( substQueryMatr, elements );
     setDefaultLevelForReactionDefinedSubst(substQueryMatr);
     pimpl->valuesTable = substQueryMatr;
-    return               move(substQueryMatr);
+    return    substQueryMatr;
 }
 
 ValuesTable SubstanceData_::loadRecordsValues( const string& idReactionSet )

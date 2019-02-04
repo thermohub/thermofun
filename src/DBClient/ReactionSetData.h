@@ -1,5 +1,5 @@
-#ifndef _REACTIONSETDATA_H
-#define _REACTIONSETDATA_H
+#ifndef REACTIONSETDATA_H
+#define REACTIONSETDATA_H
 
 #include "AbstractData.h"
 
@@ -70,4 +70,4 @@ class ReactionSetData_ : public AbstractData
 
 }
 
-#endif // _REACTIONSETDATA_H
+#endif // REACTIONSETDATA_H

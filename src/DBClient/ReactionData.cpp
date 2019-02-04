@@ -108,7 +108,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
     updateTableByElementsList( reactQueryMatr, elements );
     setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
     pimpl->valuesTable = reactQueryMatr;
-    return move(reactQueryMatr);
+    return reactQueryMatr;
 }
 
 ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )

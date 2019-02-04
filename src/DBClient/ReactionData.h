@@ -1,5 +1,5 @@
-#ifndef _REACTIONDATA_H
-#define _REACTIONDATA_H
+#ifndef REACTIONDATA_H
+#define REACTIONDATA_H
 
 // C++ includes
 #include <memory>
@@ -90,4 +90,4 @@ class ReactionData_ : public AbstractData
 };
 }
 
-#endif // _REACTIONDATA_H
+#endif // REACTIONDATA_H

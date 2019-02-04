@@ -9,12 +9,12 @@ using namespace jsonio;
 namespace ThermoFun
 {
 
-//const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
-const DBQueryData elementQuery("FOR u  IN reactionsets ", DBQueryData::qAQL);
-const vector<string> elementFieldPaths =
-    { "properties.symbol", "properties.name", "properties.stype", "properties.level", "_id"};
-const vector<string> elementDataNames = {"symbol", "name", "type", "level", "_id"};
-const vector<string> elementColumnHeaders = { "symbol", "name", "stype", "level" };
+//const DBQueryData reactQuery( "{\"_label\": \"element\" }", DBQueryData:: qTemplate );
+const DBQueryData elementQuery("FOR u  IN elements ", DBQueryData::qAQL);
+const vector<string> elementFieldPaths = { "properties.symbol",  "properties.class_", "properties.isotope_mass",
+                                           "properties.name", "properties.number", "_id" };;
+const vector<string> elementDataNames = {"symbol",  "class_", "isotope_mass", "name", "number", "_id" };
+const vector<string> elementColumnHeaders = { "symbol",  "class_", "isotope_mass", "name", "number"  };
 
 struct ElementData_::Impl
 {
@@ -51,19 +51,15 @@ const jsonio::ValuesTable&  ElementData_::getValuesTable()
     return pimpl->valuesTable;
 }
 
-set<ThermoFun::ElementKey> ElementData_::getElementsList( const string& idrcset )
+set<ThermoFun::ElementKey> ElementData_::getElementsList( const string& id )
 {
   set<ElementKey> elements;
-  string jsonrecord = getJsonRecordVertex(idrcset);
-  auto domdata = jsonio::unpackJson( jsonrecord );
-  ElementsKeysFromJsonDomArray("properties.elements", domdata.get(), elements);
+  string jsonrecord = getJsonRecordVertex(id);
 
-  // if user fogot tnsert elements property
-  if( elements.empty() )
-  {
-      //vector<string> formulalst = getSubstanceFormulas( idrcset );
-      //elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
-  }
+  ElementKey elem("",0,0);
+  auto node =  jsonio::unpackJson(jsonrecord);
+  elem.fromElementNode( node->field("properties") );
+  elements.insert(elem);
   return elements;
 }
 
@@ -113,77 +109,7 @@ ValuesTable ElementData_::loadRecordsValues( const string& idrcset )
 
 
 
-vector<string> ElementData_::selectGivenSubstances( const vector<int>& sourcetdbs,
-                   const vector<string>& substanceSymbols, bool unique )
-{
-    // define query string
-    string AQLreq = "FOR u IN reactionsets \n"
-                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
-                    "  LET takesreac = ( FOR v,e IN 1..1 INBOUND u._id prodreac  RETURN v.properties.symbol ) \n"
-                    "  FILTER takesreac ALL IN @substanceSymbols \n"
-                    "  SORT u.properties.symbol ";
-           AQLreq += DBQueryData::generateReturn( false, makeQueryFields());
 
-    // generate bind values
-    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    auto arr = domdata->appendArray( "sourcetdbs");
-    sourceTDB_from_indexes( sourcetdbs, arr );
-    domdata->appendArray( "substanceSymbols", substanceSymbols);
-    // make query
-    DBQueryData query( AQLreq, DBQueryData::qAQL );
-    query.setBindVars( domdata.get() );
-    query.setQueryFields( makeQueryFields() );
-
-    ValuesTable reactSetQueryMatr = getDB()->downloadDocuments(query, getDataNames());
-
-    // delete not unique
-    if( unique )
-        deleteNotUnique( reactSetQueryMatr, getDataName_DataIndex()["symbol"] );
-
-    vector<string> reactSetSymbols;
-    for (const auto& subitem : reactSetQueryMatr)
-      reactSetSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
-
-    setDefaultLevelForReactionDefinedSubst(reactSetQueryMatr);
-    pimpl->valuesTable =          move(reactSetQueryMatr);
-    return                reactSetSymbols;
-}
-
-vector<string> ElementData_::selectGiven(const vector<int>& sourcetdbs,
-                   const vector<string>& reactionSymbols, bool unique )
-{
-    // define query string
-    string AQLreq = "FOR u IN reactionsets \n"
-                    "  FILTER u.properties.sourcetdb IN @sourcetdbs\n"
-                    "  LET prodreac = ( FOR v,e IN 1..1 INBOUND u._id prodreac  RETURN v.properties.symbol ) \n"
-                    "  FILTER prodreac ALL IN @reactionSymbols \n"
-                    "  SORT u.properties.symbol ";
-           AQLreq += DBQueryData::generateReturn( false, makeQueryFields());
-
-    // generate bind values
-    shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-    auto arr = domdata->appendArray( "sourcetdbs");
-    sourceTDB_from_indexes( sourcetdbs, arr );
-    domdata->appendArray( "reactionSymbols", reactionSymbols);
-    // make query
-    DBQueryData query( AQLreq, DBQueryData::qAQL );
-    query.setBindVars( domdata.get() );
-    query.setQueryFields( makeQueryFields() );
-
-    ValuesTable reactSetQueryMatr = getDB()->downloadDocuments(query, getDataNames());
-
-    // delete not unique
-    if( unique )
-        deleteNotUnique( reactSetQueryMatr, getDataName_DataIndex()["symbol"] );
-
-    vector<string> reactSetSymbols;
-    for (const auto& subitem : reactSetQueryMatr)
-      reactSetSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
-
-    setDefaultLevelForReactionDefinedSubst(reactSetQueryMatr);
-    pimpl->valuesTable =          move(reactSetQueryMatr);
-    return                reactSetSymbols;
-}
 
 vector<string> ElementData_::selectGiven( const vector<string>& idThermoDataSets, bool unique )
 {
@@ -208,32 +134,6 @@ vector<string> ElementData_::selectGiven( const vector<string>& idThermoDataSets
     return reacSymbols;
 }
 
-vector<string> ElementData_::selectGiven( const string& idThermoDataSet, const vector<string>& reactionSymbols )
-{
-    string qrAQL =  "FOR v  IN 1..5 INBOUND '" + idThermoDataSet + "'\n";
-           qrAQL +=  ThermoDataSetQueryEdges;
-           qrAQL +=  "\n  FILTER v._label == 'reactionset' ";
-           qrAQL +=  "\n  LET prodreac = ( FOR v1 IN 1..1 INBOUND v._id prodreac  RETURN v1.properties.symbol )";
-           qrAQL +=  "\n  FILTER prodreac ALL IN @reactionSymbols";
-           qrAQL +=  "\n  SORT v.properties.symbol ";
-           qrAQL +=  DBQueryData::generateReturn( true, makeQueryFields(), "v");
-
-     // generate bind values
-     shared_ptr<JsonDomFree> domdata(JsonDomFree::newObject());
-     domdata->appendArray( "reactionSymbols", reactionSymbols);
-     // make query
-     DBQueryData query( qrAQL, DBQueryData::qAQL );
-     query.setBindVars( domdata.get() );
-     ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
-
-     vector<string> reacSymbols;
-     for (const auto& subitem : resMatr)
-       reacSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
-
-     setDefaultLevelForReactionDefinedSubst(resMatr);
-     pimpl->valuesTable = move(resMatr);
-     return reacSymbols;
-}
 
 
 }
