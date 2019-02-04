@@ -8,8 +8,8 @@
 namespace ThermoFun {
 
 //struct ThermoDataAbstract;
-using MapLevel_IdReaction                   = map<string, string>;
-using MapSubstSymbol_MapLevel_IdReaction    = map<string, MapLevel_IdReaction>;
+using MapLevel_IdReaction                   = std::map<std::string, std::string>;
+using MapSubstSymbol_MapLevel_IdReaction    = std::map<std::string, MapLevel_IdReaction>;
 
 class SubstanceData_ : public AbstractData
 {
@@ -25,17 +25,17 @@ public:
     virtual ~SubstanceData_();
 
     /// Extract data connected to ReactionSet
-    virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual jsonio::ValuesTable  loadRecordsValues( const std::string& idReactionSet );
     /// Extract data by condition
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
-                                                    const vector<ElementKey>& elements = {} );
+                                                    const std::vector<ElementKey>& elements = {} );
     /// Extract data connected to ThermoDataSet
-    virtual vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
-    vector<string> selectGiven( const vector<int>& sourcetdbs, const vector<ElementKey>& elements, bool unique = true );
-    vector<string> selectGiven( const string& idThermoDataSet,
-                       const vector<ElementKey>& elements, bool unique = true );
+    virtual std::vector<std::string> selectGiven( const std::vector<std::string>& idThermoDataSets, bool unique = true );
+    std::vector<std::string> selectGiven( const std::vector<int>& sourcetdbs, const std::vector<ElementKey>& elements, bool unique = true );
+    std::vector<std::string> selectGiven( const std::string& idThermoDataSet,
+                       const std::vector<ElementKey>& elements, bool unique = true );
     /// Get Elements list from reaction record
-    virtual set<ElementKey> getElementsList( const string& idSubstance );
+    virtual std::set<ElementKey> getElementsList( const std::string& idSubstance );
 
      /// Link to table of fields values loaded before
      const jsonio::ValuesTable& getValuesTable();
@@ -46,7 +46,7 @@ public:
      * @param level level of the edge
      * @return list of ids
      */
-    auto queryInEdgesDefines(string idSubst,  string level) -> vector<string>;
+    auto queryInEdgesDefines(std::string idSubst,  std::string level) -> std::vector<std::string>;
 
     /**
      * @brief definesReactionSymbol returns the reaction symbol which defines a substance
@@ -54,7 +54,7 @@ public:
      * @param level edge defines level
      * @return reaction symbol
      */
-    auto definesReactionSymbol(string idSubst, string level) -> std::string;
+    auto definesReactionSymbol(std::string idSubst, std::string level) -> std::string;
 
     /**
      * @brief querySolvents returns the solvents data
@@ -62,21 +62,21 @@ public:
      * @return solvents data determind by the dataFieldPaths of the object
      * { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
      */
-    auto querySolvents(int sourcetdb) -> vector<vector<string>>;
+    auto querySolvents(int sourcetdb) -> std::vector<std::vector<std::string>>;
 
     /**
      * @brief getSubstanceLevel returns the level which is set for the substance
      * @param substSymbol substance symbol
      * @return level value
      */
-    auto getSubstanceLevel(string substSymbol) const -> string;
+    auto getSubstanceLevel(std::string substSymbol) const -> std::string;
 
     /**
      * @brief setSubstanceLevel
      * @param substSymbol
      * @param level value
      */
-    auto setSubstanceLevel(string substSymbol, string level) -> void;
+    auto setSubstanceLevel(std::string substSymbol, std::string level) -> void;
 
     /**
      * @brief nextValueForDefinesLevel looks through the database for all eges defines incoming towards the substance
@@ -84,7 +84,7 @@ public:
      * @param idSubst substance id
      * @return level value
      */
-    auto nextValueForDefinesLevel (string idSubst) const -> string;
+    auto nextValueForDefinesLevel (std::string idSubst) const -> std::string;
 
     /**
      * @brief recordsMapLevelDefinesReaction returns the map of substances and map of levels and id reactions
@@ -103,14 +103,14 @@ public:
      * @param connectedSubstSymbols list of substances symbols
      * @return
      */
-    MapSubstSymbol_MapLevel_IdReaction recordsMapLevelDefinesReaction(vector<string> connectedSubstIds, vector<string> connectedSubstSymbols );
+    MapSubstSymbol_MapLevel_IdReaction recordsMapLevelDefinesReaction(std::vector<std::string> connectedSubstIds, std::vector<std::string> connectedSubstSymbols );
 
 
 
 private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
-    void updateTableByElementsList( jsonio::ValuesTable& substQueryMatr, const vector<ElementKey>& elements );
+    void updateTableByElementsList( jsonio::ValuesTable& substQueryMatr, const std::vector<ElementKey>& elements );
 };
 
 }

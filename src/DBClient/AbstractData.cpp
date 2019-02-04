@@ -7,6 +7,7 @@
 #include "OptimizationUtils.h"
 #include "sourcetdb.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun {
@@ -582,19 +583,16 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
   DBQueryData query( AQLreq, DBQueryData::qAQL );
   query.setBindVars( domdata.get() );
 
-  vector<ElementKey> elements;
-  ElementKey elkey("");
-
   pimpl->dbvertex->resetMode(true);
   vector<string> resultsQuery = pimpl->dbvertex->runQuery( query );
   pimpl->dbvertex->resetMode(false);
 
+  vector<ElementKey> elements;
+  ElementKey elkey("",0,0);
   for( auto result: resultsQuery )
   {
       auto domdata = jsonio::unpackJson( result );
-      domdata->findValue("symbol" , elkey.symbol );
-      domdata->findValue("class_" , elkey.class_ );
-      domdata->findValue("isotope_mass" , elkey.isotope );
+      elkey.fromElementNode(domdata.get());
       elements.push_back(elkey);
    }
    return elements;

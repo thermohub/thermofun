@@ -3,6 +3,7 @@
 #include "jsonio/jsondomfree.h"
 #include "sourcetdb.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun {

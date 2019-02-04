@@ -150,4 +150,5 @@
     $$PWD/ThermoEngine.cpp \
     $$PWD/Batch/ThermoBatch.cpp \
     $$PWD/Batch/OutputBatch.cpp \
-    $$PWD/DBClient/sourcetdb.cpp
+    $$PWD/DBClient/sourcetdb.cpp \
+    $$PWD/DBClient/ElementData.cpp

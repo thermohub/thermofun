@@ -340,12 +340,12 @@ void TThermoFunMainWin::setAllElements()
         auto itr = elements.begin();
         while( itr != elements.end() )
         {
-            outFile << itr->first.symbol << ","<< itr->first.class_ << ",";
-            outFile << itr->first.isotope << ","<< itr->second.atomic_mass << ",";
+            outFile << itr->first.Symbol() << ","<< itr->first.Class() << ",";
+            outFile << itr->first.Isotope() << ","<< itr->second.atomic_mass << ",";
             outFile << itr->second.entropy << ","<< itr->second.heat_capacity << ",";
             outFile << itr->second.volume << ","<< itr->second.valence << ",";
             outFile << itr->second.number;
-            outFile << endl;
+            outFile << "\n";
             itr++;
         }
 

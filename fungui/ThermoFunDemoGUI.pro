@@ -49,6 +49,10 @@ DEPENDPATH   += $$FUN_DIR
 INCLUDEPATH   += $$FUN_H
 INCLUDEPATH   += $$FUN_DIR
 
+INCLUDEPATH   += "/usr/local/include"
+DEPENDPATH   += "/usr/local/include"
+LIBPATH += "/usr/local/lib/"
+
 #temporary
 macx-clang {
   DEFINES += __APPLE__
@@ -60,20 +64,17 @@ else{
   LIBS += -llua5.3
 }
 
-INCLUDEPATH   += "/usr/local/include"
-DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib/"
-
 # Define the directory where CuteMarkEd code is located
 #INCLUDEPATH   += "/usr/local/include/app-static"
 #DEPENDPATH   += "/usr/local/include/app-static"
 
-
 LIBS +=  -ljsonui -ljsonio -ljsonimpex
-#LIBS +=  -lyaml-cpp  -lpugixml
+LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift
+LIBS += -llua5.3
+
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR

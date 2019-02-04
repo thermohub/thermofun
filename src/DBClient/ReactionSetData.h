@@ -19,25 +19,25 @@ class ReactionSetData_ : public AbstractData
     virtual ~ReactionSetData_();
 
     /// Extract data connected to ReactionSet
-    virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual jsonio::ValuesTable  loadRecordsValues( const std::string& idReactionSet );
     /// Extract data by condition
     virtual jsonio::ValuesTable loadRecordsValues(const jsonio::DBQueryData& query, int sourcetdb,
-                                                  const vector<ElementKey> &elements = {});
+                                                  const std::vector<ElementKey> &elements = {});
     /// Extract data connected to ThermoDataSet
-    virtual  vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+    virtual  std::vector<std::string> selectGiven( const std::vector<std::string>& idThermoDataSets, bool unique = true );
 
-    vector<string> selectGivenSubstances( const vector<int>& sourcetdbs,
-                       const vector<string>& substanceSymbols, bool unique = true );
+    std::vector<std::string> selectGivenSubstances( const std::vector<int>& sourcetdbs,
+                       const std::vector<std::string>& substanceSymbols, bool unique = true );
 
     /// Select reaction sets belonging to sourcetdbs and containing given reaction symbols
-    vector<string> selectGiven( const vector<int>& sourcetdbs,
-                       const vector<string>& reactionSymbols, bool unique = true );
+    std::vector<std::string> selectGiven( const std::vector<int>& sourcetdbs,
+                       const std::vector<std::string>& reactionSymbols, bool unique = true );
 
     /// Extract data connected to ThermoDataSet and containing given reaction symbols
-    vector<string> selectGiven( const string& idThermoDataSet, const vector<string>& reactionSymbols );
+    std::vector<std::string> selectGiven( const std::string& idThermoDataSet, const std::vector<std::string>& reactionSymbols );
 
     /// Get Elements list from reactions
-    virtual set<ElementKey> getElementsList(const string &id);
+    virtual std::set<ElementKey> getElementsList(const std::string &id);
 
     /// Link to table of fields values loaded before
     const jsonio::ValuesTable& getValuesTable();
@@ -46,23 +46,23 @@ class ReactionSetData_ : public AbstractData
      * @brief resetRecordElements resets elements list in record
      * @param aKey record key
      */
-    void resetRecordElements( const string& aKey );
+    void resetRecordElements( const std::string& aKey );
 
     /// Return all ids from all connected substances
-    vector<string> getSubstanceIds( const string& idrcset );
+    std::vector<std::string> getSubstanceIds( const std::string& idrcset );
 
     /// Return all formulas from all connected substances
-    vector<string> getSubstanceFormulas( const string& idreaction );
+    std::vector<std::string> getSubstanceFormulas( const std::string& idreaction );
 
     /// Read species map from record
-    bool getSpeciesMap( const string& RcSid, std::map<string, int>& specmap );
+    bool getSpeciesMap( const std::string& RcSid, std::map<std::string, int>& specmap );
 
   private:
 
 
     /// Test record all elements exist into list
-    bool testElements( const string& idrecord,
-                       const vector<ElementKey>& elements );
+    bool testElements( const std::string& idrecord,
+                       const std::vector<ElementKey>& elements );
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;

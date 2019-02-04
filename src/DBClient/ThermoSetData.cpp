@@ -2,6 +2,7 @@
 #include "jsonio/jsondomfree.h"
 #include <algorithm>
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun {
@@ -60,12 +61,11 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
 
     jElements =  getDB()->runQuery( DBQueryData( qrAQL, DBQueryData::qAQL ) );
 
-    string prop;
+    ElementKey elem("",0,0);
     for (auto jel : jElements)
     {
-        ElementKey elem("");
-        jsonio::unpackJson(jel)->findValue("properties", prop);
-        elem.fromJsonNode(jsonio::unpackJson(prop).get());
+        auto node =  jsonio::unpackJson(jel);
+        elem.fromElementNode( node->field("properties"));
         elements.insert(elem);
     }
     //ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);

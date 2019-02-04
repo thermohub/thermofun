@@ -47,7 +47,7 @@ void ElementsWidget::CmResetACT()
          bgElem->button(ii)->setChecked ( true );
 }
 
-void ElementsWidget::allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const
+void ElementsWidget::allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const
 {
     uint ii;
     elementKeys.clear();
@@ -64,7 +64,7 @@ void ElementsWidget::allSelected( vector<ThermoFun::ElementKey>& elementKeys ) c
     }
 }
 
-void ElementsWidget::setElementList(const vector<ThermoFun::ElementKey> &elements )
+void ElementsWidget::setElementList(const std::vector<ThermoFun::ElementKey> &elements )
 {
     ResetData();
     EmptyData();
@@ -84,7 +84,7 @@ void ElementsWidget::setElementList(const vector<ThermoFun::ElementKey> &element
       if( eldata ==  ThermoFun::ChemicalFormula::getDBElements().end() )
          continue;
 
-      string  name =elkey.symbol;
+      std::string  name =elkey.Symbol();
       int aIndMT = eldata->second.number;
       if( aIndMT == -1 || aIndMT > 101 ) // additional
       {
@@ -107,7 +107,7 @@ void ElementsWidget::setElementList(const vector<ThermoFun::ElementKey> &element
   }
 }
 
-void ElementsWidget::selectElementList( const vector<ThermoFun::ElementKey>& elements )
+void ElementsWidget::selectElementList( const std::vector<ThermoFun::ElementKey>& elements )
 {
    for(auto const &elkey : elements)
    {
@@ -115,7 +115,7 @@ void ElementsWidget::selectElementList( const vector<ThermoFun::ElementKey>& ele
       if( eldata ==  ThermoFun::ChemicalFormula::getDBElements().end() )
          continue;
 
-      string  name =elkey.symbol;
+      std::string  name =elkey.Symbol();
       int aIndMT = eldata->second.number;
       if( aIndMT == -1 || aIndMT > 101 ) // additional
       {

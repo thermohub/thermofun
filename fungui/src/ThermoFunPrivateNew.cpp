@@ -81,9 +81,9 @@ void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
     for( ii=0; ii<elements.size(); ii++)
     {
         auto arr2 = arr->appendArray( to_string(ii) );
-        arr2->appendString( "0", elements[ii].symbol );
-        arr2->appendInt( "1", elements[ii].class_ );
-        arr2->appendInt( "2", elements[ii].isotope );
+        arr2->appendString( "0", elements[ii].Symbol() );
+        arr2->appendInt( "1", elements[ii].Class() );
+        arr2->appendInt( "2", elements[ii].Isotope() );
     }
 
     object->appendDouble("TemperaturePrecision", tPrecision );

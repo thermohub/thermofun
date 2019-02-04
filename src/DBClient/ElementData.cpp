@@ -1,4 +1,4 @@
-#include "ReactionSetData.h"
+#include "ElementData.h"
 #include "jsonio/io_settings.h"
 #include "jsonio/jsondomfree.h"
 #include "sourcetdb.h"
@@ -10,13 +10,13 @@ namespace ThermoFun
 {
 
 //const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
-const DBQueryData reactQuery("FOR u  IN reactionsets ", DBQueryData::qAQL);
-const vector<string> reactFieldPaths =
+const DBQueryData elementQuery("FOR u  IN reactionsets ", DBQueryData::qAQL);
+const vector<string> elementFieldPaths =
     { "properties.symbol", "properties.name", "properties.stype", "properties.level", "_id"};
-const vector<string> reactDataNames = {"symbol", "name", "type", "level", "_id"};
-const vector<string> reactColumnHeaders = { "symbol", "name", "stype", "level" };
+const vector<string> elementDataNames = {"symbol", "name", "type", "level", "_id"};
+const vector<string> elementColumnHeaders = { "symbol", "name", "stype", "level" };
 
-struct ReactionSetData_::Impl
+struct ElementData_::Impl
 {
     ValuesTable valuesTable;
 
@@ -26,32 +26,32 @@ struct ReactionSetData_::Impl
 
 };
 
-ReactionSetData_::ReactionSetData_(const TDataBase* dbconnect)
-    : AbstractData(  dbconnect, "VertexReactionSet", reactQuery,
-     reactFieldPaths, reactColumnHeaders, reactDataNames), pimpl(new Impl())
+ElementData_::ElementData_(const TDataBase* dbconnect)
+    : AbstractData(  dbconnect, "VertexElement", elementQuery,
+     elementFieldPaths, elementColumnHeaders, elementDataNames), pimpl(new Impl())
 {
 }
 
-ReactionSetData_::ReactionSetData_(const ReactionSetData_& other)
+ElementData_::ElementData_(const ElementData_& other)
 : AbstractData(other), pimpl(new Impl(*other.pimpl))
 {}
 
-auto ReactionSetData_::operator=(ReactionSetData_ other) -> ReactionSetData_ &
+auto ElementData_::operator=(ElementData_ other) -> ElementData_ &
 {
     pimpl = std::move(other.pimpl);
     return *this;
 }
 
-ReactionSetData_::~ReactionSetData_()
+ElementData_::~ElementData_()
 {
 }
 
-const jsonio::ValuesTable&  ReactionSetData_::getValuesTable()
+const jsonio::ValuesTable&  ElementData_::getValuesTable()
 {
     return pimpl->valuesTable;
 }
 
-set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrcset )
+set<ThermoFun::ElementKey> ElementData_::getElementsList( const string& idrcset )
 {
   set<ElementKey> elements;
   string jsonrecord = getJsonRecordVertex(idrcset);
@@ -61,14 +61,14 @@ set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrc
   // if user fogot tnsert elements property
   if( elements.empty() )
   {
-      vector<string> formulalst = getSubstanceFormulas( idrcset );
-      elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
+      //vector<string> formulalst = getSubstanceFormulas( idrcset );
+      //elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
   }
   return elements;
 }
 
 // return all record, no only fields if not default
-ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
+ValuesTable ElementData_::loadRecordsValues( const DBQueryData& aquery,
                 int sourcetdb, const vector<ElementKey>& elements )
 {
     auto fields = getDataFieldPaths();
@@ -97,98 +97,23 @@ ValuesTable ReactionSetData_::loadRecordsValues( const DBQueryData& aquery,
        for( const auto& subitem: reactQueryMatr )
         {
           string idreac = subitem[getDataName_DataIndex()["_id"]];
-          if( testElements( idreac, elements)  )
-               reactMatr.push_back(subitem);
+          //if( testElements( idreac, elements)  )
+          //     reactMatr.push_back(subitem);
         }
     }
     return reactMatr;
 }
 
-ValuesTable ReactionSetData_::loadRecordsValues( const string& idrcset )
+ValuesTable ElementData_::loadRecordsValues( const string& idrcset )
 {
     vector<string> ids;
     ids.push_back(idrcset);
     return getDB()->downloadDocuments(ids, getDataFieldPaths());
 }
 
-vector<string> ReactionSetData_::getSubstanceIds( const string& idrcset )
-{
-    // Select substance ids connected to reactionSet
-    auto subIds = getInVertexIds( "product, master", idrcset );
-    //auto subIds2 = getInVertexIds( "master", idrcset );
-    //subIds.insert(  subIds.end(), subIds2.begin(), subIds2.end() );
-    return subIds;
-}
 
 
-vector<string> ReactionSetData_::getSubstanceFormulas( const string& idrcset )
-{
-    string qrJson = "FOR v,e  IN 1..1 INBOUND '";
-           qrJson += idrcset + "' \n product, master\n";
-           qrJson += "RETURN DISTINCT v.properties.formula";
-
-    vector<string> formulas = getDB()->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
-    return formulas;
-}
-
-bool ReactionSetData_::testElements( const string& idrcset,
-                       const vector<ElementKey>& elements )
-{
-   set<ElementKey> reactelements = getElementsList( idrcset );
-
-   if(reactelements.empty())
-     return false;
-
-   for( auto formelm: reactelements )
-    {
-      auto itr = elements.begin();
-      while( itr != elements.end() )
-      {
-        if( formelm == *itr )
-         break;
-       itr++;
-      }
-      if( itr == elements.end() )
-          return false;
-    }
-    return true;
-}
-
-void ReactionSetData_::resetRecordElements( const string& aKey )
-{
-    string _id;
-    try{
-        auto graphdb = getDB();
-        graphdb->Read( aKey );
-        graphdb->getValue("_id",_id);
-
-        vector<string> formulalst = getSubstanceFormulas( _id );
-        set<ThermoFun::ElementKey> elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
-
-        string elementsJsonArray = ThermoFun::ElementsKeysToJson( elements );
-        graphdb->setValue("properties.elements",elementsJsonArray);
-        graphdb->UpdateWithTestValues();
-    }
-    catch(jsonio_exception& e)
-    {
-        cout << "ResetElementsintoReactionRecord " << e.title() << e.what() << endl;
-    }
-    catch(std::exception& e)
-    {
-        cout << "std::exception" << e.what() << endl;
-    }
-}
-
-bool ReactionSetData_::getSpeciesMap( const string& RcSid, std::map<string, int>& specmap )
-{
-    // extract data from reaction record
-    getDB()->Read( RcSid );
-    bool iret = getDB()->getDom()->findObject(  "properties.species_map", specmap );
-    //bool iret = bson_read_map_path( reobj.data, "properties.species_map", specmap );
-    return iret;
-}
-
-vector<string> ReactionSetData_::selectGivenSubstances( const vector<int>& sourcetdbs,
+vector<string> ElementData_::selectGivenSubstances( const vector<int>& sourcetdbs,
                    const vector<string>& substanceSymbols, bool unique )
 {
     // define query string
@@ -224,7 +149,7 @@ vector<string> ReactionSetData_::selectGivenSubstances( const vector<int>& sourc
     return                reactSetSymbols;
 }
 
-vector<string> ReactionSetData_::selectGiven(const vector<int>& sourcetdbs,
+vector<string> ElementData_::selectGiven(const vector<int>& sourcetdbs,
                    const vector<string>& reactionSymbols, bool unique )
 {
     // define query string
@@ -260,7 +185,7 @@ vector<string> ReactionSetData_::selectGiven(const vector<int>& sourcetdbs,
     return                reactSetSymbols;
 }
 
-vector<string> ReactionSetData_::selectGiven( const vector<string>& idThermoDataSets, bool unique )
+vector<string> ElementData_::selectGiven( const vector<string>& idThermoDataSets, bool unique )
 {
     string qrAQL = "FOR vertex IN " + vectorToJson( idThermoDataSets);
            qrAQL += "\n  FOR v,e  IN 1..5 INBOUND vertex \n";
@@ -283,7 +208,7 @@ vector<string> ReactionSetData_::selectGiven( const vector<string>& idThermoData
     return reacSymbols;
 }
 
-vector<string> ReactionSetData_::selectGiven( const string& idThermoDataSet, const vector<string>& reactionSymbols )
+vector<string> ElementData_::selectGiven( const string& idThermoDataSet, const vector<string>& reactionSymbols )
 {
     string qrAQL =  "FOR v  IN 1..5 INBOUND '" + idThermoDataSet + "'\n";
            qrAQL +=  ThermoDataSetQueryEdges;

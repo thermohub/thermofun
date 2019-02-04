@@ -19,6 +19,7 @@
 #include "thermofun/DBClient/ReactionSetData.h"
 #endif
 
+using namespace std;
 using namespace jsonui;
 
 struct SelectThermoDataDialogPrivate

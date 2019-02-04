@@ -41,7 +41,7 @@ public:
       thermoModel->resetMatrixData();
     }
 
-    void loadModeRecords( const string& idReactionSet )
+    void loadModeRecords( const std::string& idReactionSet )
     {
       auto matr = data_->loadRecordsValues( idReactionSet );
       thermoData->updateValues( matr );
@@ -49,7 +49,7 @@ public:
     }
 
     void loadModeRecords( const jsonio::DBQueryData& query, int sourcetdb,
-                          const vector<ThermoFun::ElementKey>& elements )
+                          const std::vector<ThermoFun::ElementKey>& elements )
     {
       auto matr = data_->loadRecordsValues(  query, sourcetdb, elements );
       thermoData->updateValues( matr );
@@ -63,7 +63,7 @@ public:
     }
 
     /// Resize model to selected
-    void leftOnlySelected(  const vector<int> selrows )
+    void leftOnlySelected(  const std::vector<int> selrows )
     {
         jsonio::ValuesTable newmatr;
         const jsonio::ValuesTable&  oldmatr = getValues();
@@ -73,9 +73,9 @@ public:
         loadModeRecords(newmatr );
     }
 
-    vector<string> getColumn( uint column, const vector<int>& selrows ) const
+    std::vector<std::string> getColumn( uint column, const std::vector<int>& selrows ) const
     {
-        vector<string> keys;
+        std::vector<std::string> keys;
         const jsonio::ValuesTable&  matrix = getValues();
         for( auto rowndx: selrows)
         {
@@ -88,7 +88,7 @@ public:
         return keys;
     }
 
-    int findRow( uint column, const string& value ) const
+    int findRow( uint column, const std::string& value ) const
     {
         const jsonio::ValuesTable&  matrix = getValues();
         for( uint ii=0; ii<matrix.size(); ii++ )
@@ -133,12 +133,12 @@ protected:
        thermoModel.reset( new jsonui::TMatrixModel( thermoData.get() ) );
     }
 
-    void setHeader( vector<string> heads)
+    void setHeader( std::vector<std::string> heads)
     {
       data_->setDataHeaders(heads);
     }
 
-    void setFields( vector<string> fields)
+    void setFields( std::vector<std::string> fields)
     {
       return data_->setDataFieldPaths(fields);
     }

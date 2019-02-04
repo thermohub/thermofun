@@ -20,6 +20,7 @@
 #include "Element.h"
 #include "OptimizationUtils.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun
@@ -134,7 +135,7 @@ struct DatabaseClient::Impl
         {
             auto itrdb = ChemicalFormula::getDBElements().find(el);
             if (itrdb == ChemicalFormula::getDBElements().end())
-                jsonioErr("E37FPrun: Invalid symbol ", el.symbol);
+                jsonioErr("E37FPrun: Invalid symbol ", el.Symbol());
             Element e = elementKeyToElement(el);
             set.insert(e);
         }
@@ -164,7 +165,7 @@ struct DatabaseClient::Impl
         {
             auto itrdb = ChemicalFormula::getDBElements().find(element);
             if (itrdb == ChemicalFormula::getDBElements().end())
-                jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+                jsonioErr("E37FPrun: Invalid symbol ", element.Symbol());
             set.push_back(element);
         }
         return set;
@@ -376,7 +377,7 @@ auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std
     {
         auto itrdb = ChemicalFormula::getDBElements().find(element);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            jsonioErr("E37FPrun: Invalid symbol ", element.Symbol());
         elmIds.push_back(itrdb->second.recid);
     }
     return elmIds;
