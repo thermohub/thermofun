@@ -48,7 +48,7 @@ class DatabaseClient
     /// \param sourceTDB data set index
     /// \return returns a ThermoFun Database structure containing the substances and reactions maps
     ///
-    auto thermoFunDatabase(uint sourcetdbIndex) -> Database;
+    auto thermoFunDatabase(int sourcetdbIndex) -> Database;
 
     /**
      * @brief parseSubstanceFormula parses a substance formula in GEMS format
@@ -61,14 +61,14 @@ class DatabaseClient
      * @brief getSourcetdbIndexes returns the indexes of all available thermodynamic data sets
      * @return a set of indexes
      */
-    auto sourcetdbIndexes() -> std::set<uint>;
+    auto sourcetdbIndexes() -> std::set<int>;
 
     /**
      * @brief sourcetdbNamesIndexes returns a map with all available thermodynamic data sets names and their indexes
      * @param sourcetdbIndexes set of thermodynamic data sets indexes
      * @return map of thermodynamic data sets names and indexes
      */
-    auto sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexes) -> std::map<std::string, uint>;
+    auto sourcetdbNamesIndexes(const std::set<int> &sourcetdbIndexes) -> std::map<std::string, int>;
 
     /**
      * @brief sourcetdbNamesComments returns a map with all available thermodynamic data sets names and associated comments
@@ -76,7 +76,7 @@ class DatabaseClient
      * @param sourcetdbIndexes set of thermodynamic data sets indexes
      * @return map of thermodynamic data sets names and comments
      */
-    auto sourcetdbNamesComments(const std::set<uint> &sourcetdbIndexes) -> std::map<std::string, std::string>;
+    auto sourcetdbNamesComments(const std::set<int> &sourcetdbIndexes) -> std::map<std::string, std::string>;
 
     /**
      * @brief sourcetdbListAll returns the indexes and name of all available thermodynamic data sets
@@ -88,7 +88,7 @@ class DatabaseClient
      * @brief sourcetdbNamesIndexes returns a map with all available thermodynamic data sets names and their indexes
      * @return  map of thermodynamic data sets names and indexes
      */
-    auto sourcetdbNamesIndexes() -> std::map<std::string, uint>
+    auto sourcetdbNamesIndexes() -> std::map<std::string, int>
     {
         return sourcetdbNamesIndexes(sourcetdbIndexes());
     }
@@ -98,14 +98,14 @@ class DatabaseClient
      * @param sourcetdb thermodynamic data set index
      * @return set of element symbols
      */
-    auto availableElements(uint sourcetdb) -> std::set<std::string>;
+    auto availableElements(int sourcetdb) -> std::set<std::string>;
 
     /**
      * @brief availableElementsKey returns a vector of all available elements (ElementKey object), for a given thermodynamic data set index
      * @param sourcetdb thermodynamic data set index
      * @return vector of ElementKey objects
      */
-    auto availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>;
+    auto availableElementsKey(int sourcetdb) -> std::vector<ElementKey>;
 
     /**
      * @brief availableElementsSet returns a set of all available elements (Element object), for a given thermodynamic data set index
@@ -127,14 +127,14 @@ class DatabaseClient
      * @param sourcetdb thermodynamic data set index
      * @return vector of substance symbols
      */
-    auto availableSubstances(uint sourcetdb) -> std::vector<std::string>;
+    auto availableSubstances(int sourcetdb) -> std::vector<std::string>;
 
     /**
      * @brief availableReactions returns the list of available reaction symbols
      * @param sourcetdb thermodynamic data set index
      * @return vector of reaction symbols
      */
-    auto availableReactions(uint sourcetdb) -> std::vector<std::string>;
+    auto availableReactions(int sourcetdb) -> std::vector<std::string>;
 
     /**
      * @brief substData returns a SubstanceData object for reading substance data from the database

@@ -119,7 +119,7 @@ protected:
 public:
 
     ChemicalFormulaParser(){}
-    ~ChemicalFormulaParser(){}
+    ~ChemicalFormulaParser();
 
     std::list<ICTERM> parse( const std::string& formula );
 
@@ -156,7 +156,7 @@ class MoityParser : public BaseParser
 public:
 
     MoityParser(){}
-    ~MoityParser(){}
+    ~MoityParser();
 
    int parse( const std::string& aformula, std::vector<MOITERM>&  moit_ );
 

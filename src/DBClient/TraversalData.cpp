@@ -14,16 +14,16 @@
 
 #include <sys/time.h>
 
-struct timeval start, end_;
+static struct timeval start, end_;
 
 using namespace jsonio;
 
 namespace ThermoFun
 {
 
-std::vector<std::string> queryFieldsVertex       = {"_id", "_label", "_type", "properties.symbol"};
-std::vector<std::string> queryFieldsEdgeDefines  = { "_from", "_label"};
-std::vector<std::string> queryFieldsEdgeTakes    = { "_from", "_label", "properties.stoi_coeff" };
+//const std::vector<std::string> queryFieldsVertex       = {"_id", "_label", "_type", "properties.symbol"};
+//const std::vector<std::string> queryFieldsEdgeDefines  = { "_from", "_label"};
+//const std::vector<std::string> queryFieldsEdgeTakes    = { "_from", "_label", "properties.stoi_coeff" };
 
 using GetlinkedDataFromId  = std::function<VertexId_VertexType(std::string)>;
 
@@ -180,7 +180,7 @@ struct TraversalData::Impl
         }
     }
 
-    auto getResult(vector<string> idList, vector<int> selNdx ={}) -> VertexId_VertexType
+    auto getResult(vector<string> idList, vector<std::size_t> selNdx ={}) -> VertexId_VertexType
     {
         VertexId_VertexType result, r;
 
@@ -193,7 +193,7 @@ struct TraversalData::Impl
             }
         } else
         {
-            for( uint ii=0; ii<selNdx.size(); ii++ )
+            for( size_t ii=0; ii<selNdx.size(); ii++ )
             {
                 r = get_linked_data_from_id_fn(idList[selNdx[ii]]);
                 result.insert(r.begin(), r.end());
@@ -287,7 +287,7 @@ TraversalData::~TraversalData()
 { }
 
 // Public
-auto TraversalData::getMapOfConnectedIds(vector<int> selNdx, vector<string> idsList, string level_) -> VertexId_VertexType
+auto TraversalData::getMapOfConnectedIds(vector<std::size_t> selNdx, vector<string> idsList, string level_) -> VertexId_VertexType
 {
     pimpl->level = level_;
     pimpl->definesLevelMode = DefinesLevelMode::single;

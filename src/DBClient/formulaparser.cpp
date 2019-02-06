@@ -39,6 +39,9 @@ void BaseParser::getReal( double& valReal, std::string& parsedstr )
 
 // --------------------------------------------------------------
 
+ChemicalFormulaParser::~ChemicalFormulaParser()
+{}
+
 //add component to sorted list
 void ChemicalFormulaParser::icadd(  std::list<ICTERM>& itt_, ICTERM& it )
 {
@@ -300,6 +303,9 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
  }
 
  //------------------------------------------------------------------
+
+ MoityParser::~MoityParser()
+ {}
 
  // <fterm>  ::= <site_term> : | <fterm> <site_term>:
  // <site_term> ::= <moiety>   | <moiety><moiety>

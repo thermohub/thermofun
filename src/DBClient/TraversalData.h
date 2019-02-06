@@ -34,7 +34,7 @@ public:
     /// \param level of edge defines
     /// \return a map of [id, vertex type]
     ///
-    auto getMapOfConnectedIds(std::vector<int> selNdx, std::vector<std::string> idsList, std::string level_) -> VertexId_VertexType;
+    auto getMapOfConnectedIds(std::vector<std::size_t> selNdx, std::vector<std::string> idsList, std::string level_) -> VertexId_VertexType;
 
     ///
     /// \brief getLinkedBsonFromIdList returns a map of vertex ids and vertex type which is linked to the idList, for a given level

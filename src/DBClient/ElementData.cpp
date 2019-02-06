@@ -63,6 +63,14 @@ set<ThermoFun::ElementKey> ElementData_::getElementsList( const string& id )
   return elements;
 }
 
+
+
+
+
+
+
+
+
 // return all record, no only fields if not default
 ValuesTable ElementData_::loadRecordsValues( const DBQueryData& aquery,
                 int sourcetdb, const vector<ElementKey>& elements )

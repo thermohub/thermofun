@@ -152,9 +152,9 @@ string ElementsKeysToJson( const set<ElementKey>& elements )
 void ElementsKeysFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elements )
 {
     ElementKey elem("",0,0);
-    int objsize = object->getChildrenCount();
+    size_t objsize = object->getChildrenCount();
 
-    for( int ii=0; ii<objsize; ii++ )
+    for( size_t ii=0; ii<objsize; ii++ )
     {
        auto childobj = object->getChild( ii);
        if( childobj->getType() != jsonio::JSON_OBJECT )
