@@ -27,7 +27,7 @@ class ElementData_ : public AbstractData
     virtual  std::vector<std::string> selectGiven( const std::vector<std::string>& idThermoDataSets, bool unique = true );
 
     /// Extract data defined sourcetdbs and elements
-    std::vector<ElementKey> selectGiven( const std::vector<int>& sourcetdbs, const std::vector<ElementKey>& elements, bool unique = true );
+    std::vector<ElementKey> selectGiven( const std::vector<int>& sourcetdbs, const std::vector<ElementKey>& elements );
 
     /// Get Elements list from reactions
     virtual std::set<ElementKey> getElementsList(const std::string &id);
@@ -39,6 +39,8 @@ class ElementData_ : public AbstractData
 
     struct Impl;
     std::shared_ptr<Impl> pimpl;
+
+    void updateTableByElementsList( jsonio::ValuesTable& dataQueryMatr, const std::vector<ElementKey>& elements );
 };
 
 }

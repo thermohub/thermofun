@@ -635,7 +635,10 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
 {
    try {
 
-     auto graphdb = pdata->dbclient.reactData().getDB();
+     //auto graphdb = pdata->dbclient.reactData().getDB();
+     std::unique_ptr<jsonio::TDBVertexDocument> graphdb( jsonio::TDBVertexDocument::newVertexDocumentQuery(
+                                       jsonui::uiSettings().database(), "VertexReaction" ));
+
      // Select keys to delete
      vector<string> aKeyList;
      vector<vector<string>> aValList;
@@ -668,7 +671,10 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
 {
    try {
 
-     auto graphdb = pdata->dbclient.reactSetData().getDB();
+     //auto graphdb = pdata->dbclient.reactSetData().getDB();
+     std::unique_ptr<jsonio::TDBVertexDocument> graphdb( jsonio::TDBVertexDocument::newVertexDocumentQuery(
+                                       jsonui::uiSettings().database(), "VertexReactionSet" ));
+
      // Select keys to delete
      vector<string> aKeyList;
      vector<vector<string>> aValList;

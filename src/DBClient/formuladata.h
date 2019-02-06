@@ -21,10 +21,10 @@ class ElementKey
   int isotope;
 
   void classIsotopeFrom(const std::string& line );
-  int index_from_map(std::string map) const;
 
 public:
 
+  static int index_from_map(std::string map);
 
   /// Construct key from elements document
   ElementKey( jsonio::TDBVertexDocument* elementDB )

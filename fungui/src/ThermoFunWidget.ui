@@ -425,6 +425,7 @@
     <addaction name="actionCalculate_Substances_Records_from_Dependent_Reactions"/>
     <addaction name="actionCalculate_Reactions_Records_from_Reactants"/>
     <addaction name="separator"/>
+    <addaction name="action_Set_Elemets_to_reactionsets"/>
     <addaction name="actionFixed_output_number_format"/>
    </widget>
    <widget class="QMenu" name="menuSelect">

@@ -42,7 +42,9 @@ ElementKey::ElementKey( jsonio::TDBVertexDocument* elementDB )
 ElementKey::ElementKey( const std::string& asymbol, const std::string& aclass_, const std::string& aisotope  ):
     symbol(asymbol)
 {
-    jsonio::TArray2Base::string2value( aisotope, isotope );
+    isotope = 0;
+    if( !aisotope.empty() )
+           jsonio::TArray2Base::string2value( aisotope, isotope );
     class_ = index_from_map( aclass_ );
 }
 
@@ -77,8 +79,10 @@ string ElementKey::formulaKey() const
  return _key;
 }
 
-int ElementKey::index_from_map(std::string map) const
+int ElementKey::index_from_map(std::string map)
 {
+    if( map.empty() )
+       return 0;
     auto first = map.find("\"");
     jsonio::jsonioErrIf( first == string::npos, map, "Illegal class value.");
     auto second = map.find("\"", first+1);
