@@ -53,7 +53,7 @@
 
 ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
     JSONUIBase( "", parent),
-    ui(new Ui::ThermoFunWidget), _csvWin(0)
+    ui(new Ui::ThermoFunWidget), _csvWin(nullptr)
 {
     // set up widget data
     ui->setupUi(this);
@@ -460,11 +460,10 @@ void ThermoFunWidgetNew::CmCalcMTPARM_load()
     try {
         // select components
         const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
-        vector<int> selNdx;
-        jsonui::SelectDialog selDlg( this, "Please, select one or more records", values, selNdx );
+        jsonui::SelectDialog selDlg( true, this, "Please, select one or more records", values );
         if( !selDlg.exec() )
             return;
-        selNdx =  selDlg.allSelected();
+        vector<int> selNdx =  selDlg.allSelected();
 
         //          MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
 
@@ -525,10 +524,10 @@ void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
                         values_.push_back(symbolEq);
                     }
 
-                    jsonui::SelectDialog selDlg_lvl( this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
+                    jsonui::SelectDialog selDlg_lvl( false, this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
                     if( !selDlg_lvl.exec() )
                         return;
-                    int solvNdx =  selDlg_lvl.selIndex();
+                    auto solvNdx =  selDlg_lvl.selIndexSize_t();
 
                     pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
                 }
@@ -642,17 +641,16 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
      // Select keys to delete
      vector<string> aKeyList;
      vector<vector<string>> aValList;
-     vector<int> selNdx;
      graphdb->lastQueryData()->getKeyValueList( aKeyList, aValList );
      if( aKeyList.empty() )
        return;
 
-     jsonui::SelectDialog selDlg( this, "Please, select a record to update", aValList, selNdx );
+     jsonui::SelectDialog selDlg( true, this, "Please, select a record to update", aValList );
       if( !selDlg.exec() )
           return;
 
-     selNdx =  selDlg.allSelected();
-     for( uint ii=0; ii<selNdx.size(); ii++ )
+     vector<size_t> selNdx =  selDlg.allSelectedSize_t();
+     for( size_t ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord( true, aKeyList[selNdx[ii]]);
 
    }
@@ -678,17 +676,16 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
      // Select keys to delete
      vector<string> aKeyList;
      vector<vector<string>> aValList;
-     vector<int> selNdx;
      graphdb->lastQueryData()->getKeyValueList( aKeyList, aValList );
      if( aKeyList.empty() )
        return;
 
-     jsonui::SelectDialog selDlg( this, "Please, select a record to update", aValList, selNdx );
+     jsonui::SelectDialog selDlg( true, this, "Please, select a record to update", aValList );
       if( !selDlg.exec() )
           return;
 
-     selNdx =  selDlg.allSelected();
-     for( uint ii=0; ii<selNdx.size(); ii++ )
+     auto selNdx =  selDlg.allSelectedSize_t();
+     for( size_t ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord(false, aKeyList[selNdx[ii]]);
 
    }
