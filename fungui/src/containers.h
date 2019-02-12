@@ -233,7 +233,7 @@ struct ReactData
            reactR += " + ";
          if( coeffs[jj] != 1)
          {
-             long intPart = (long) coeffs[jj];
+             long intPart = coeffs[jj];
              double fractionalPart = fabs(coeffs[jj] - intPart);
              if (fractionalPart == 0)
                  reactR += std::to_string( intPart );

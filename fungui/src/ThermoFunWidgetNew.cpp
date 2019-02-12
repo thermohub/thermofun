@@ -527,7 +527,7 @@ void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
                     jsonui::SelectDialog selDlg_lvl( false, this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
                     if( !selDlg_lvl.exec() )
                         return;
-                    auto solvNdx =  selDlg_lvl.selIndexSize_t();
+                    auto solvNdx =  selDlg_lvl.getSelectedIndex();
 
                     pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
                 }
@@ -649,7 +649,8 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
       if( !selDlg.exec() )
           return;
 
-     vector<size_t> selNdx =  selDlg.allSelectedSize_t();
+     vector<size_t> selNdx;
+     selDlg.getSelection(selNdx);
      for( size_t ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord( true, aKeyList[selNdx[ii]]);
 
@@ -684,7 +685,8 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
       if( !selDlg.exec() )
           return;
 
-     auto selNdx =  selDlg.allSelectedSize_t();
+      vector<size_t> selNdx;
+      selDlg.getSelection(selNdx);
      for( size_t ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord(false, aKeyList[selNdx[ii]]);
 
