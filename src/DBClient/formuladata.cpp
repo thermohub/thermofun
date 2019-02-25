@@ -120,7 +120,7 @@ void ElementKey::fromElementNode( const jsonio::JsonDom *object )
     if(!object->findValue( "isotope_mass", isotope ) )
         isotope = 0;
     std::map<std::string, int> map_;
-    if(!object->findObject("class_", map_ ) )
+    if(!object->findObject("class_", map_ ) ||  map_.size() < 1 )
         class_ = 0;
     else
         class_ = atoi(map_.begin()->first.c_str());
