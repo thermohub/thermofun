@@ -56,6 +56,13 @@ public:
       thermoModel->resetMatrixData();
     }
 
+    void loadModeRecords( const std::vector<std::string>& ids )
+    {
+        auto matr = data_->loadRecords(  ids );
+        thermoData->updateValues( matr );
+        thermoModel->resetMatrixData();
+    }
+
     void loadModeRecords(const jsonio::ValuesTable&  matr )
     {
       thermoData->updateValues( matr );
@@ -88,20 +95,20 @@ public:
         return keys;
     }
 
-    std::vector<std::string> getColumn( int column ) const
+    std::vector<std::string> getColumn( size_t column ) const
     {
        return thermoData->getColumn(column);
     }
 
     template< class T >
-    void fillColumn( int column, const T& ndxs, const std::string& value )
+    void fillColumn( size_t column, const T& ndxs, const std::string& value )
     {
         for( size_t ii=0; ii<ndxs.size(); ii++)
           if( ndxs[ii] < thermoData->rowCount() )
               thermoData->setData( ndxs[ii], column, value.c_str() );
     }
 
-    void fillColumn( int column, const std::string& value )
+    void fillColumn( size_t column, const std::string& value )
     {
         for( int ii=0; ii< thermoData->rowCount(); ii++)
             thermoData->setData( ii, column, value.c_str() );
@@ -154,7 +161,7 @@ public:
 
 
     /// Gen indexes of record with value into column
-    std::vector<size_t> recordToValues( uint column, const std::vector<std::string>& values ) const
+    std::vector<size_t> recordToValues( size_t column, const std::vector<std::string>& values ) const
     {
       std::vector<size_t> rowndxs;
       const jsonio::ValuesTable&  matrix = getValues();
