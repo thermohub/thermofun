@@ -88,6 +88,25 @@ public:
         return keys;
     }
 
+    std::vector<std::string> getColumn( int column ) const
+    {
+       return thermoData->getColumn(column);
+    }
+
+    template< class T >
+    void fillColumn( int column, const T& ndxs, const std::string& value )
+    {
+        for( size_t ii=0; ii<ndxs.size(); ii++)
+          if( ndxs[ii] < thermoData->rowCount() )
+              thermoData->setData( ndxs[ii], column, value.c_str() );
+    }
+
+    void fillColumn( int column, const std::string& value )
+    {
+        for( int ii=0; ii< thermoData->rowCount(); ii++)
+            thermoData->setData( ii, column, value.c_str() );
+    }
+
     int findRow( uint column, const std::string& value ) const
     {
         const jsonio::ValuesTable&  matrix = getValues();
@@ -102,6 +121,53 @@ public:
         return -1;
     }
 
+    /// Move record with values up
+    void moveUpByOrder(  uint column, const std::set<std::string>& values )
+    {
+        jsonio::ValuesTable newmatr;
+        const jsonio::ValuesTable&  matrix = getValues();
+
+        // copy lines from values
+        for( auto val: values)
+         for( auto row: matrix )
+            if( row[column] == val  )
+              newmatr.push_back( row );
+
+        // copy other record
+        for( auto row: matrix )
+          if( values.find( row[column]) == values.end() )
+              newmatr.push_back( row );
+
+        loadModeRecords(std::move( newmatr ) );
+    }
+
+    /// Gen indexes of record with value into column
+    std::vector<size_t> recordToValue( size_t column, const std::string& value ) const
+    {
+      std::vector<size_t> rowndxs;
+      const jsonio::ValuesTable&  matrix = getValues();
+      for(size_t ii=0; ii<matrix.size(); ii++ )
+          if(  matrix[ii][column] == value )
+                rowndxs.push_back(ii);
+      return rowndxs;
+    }
+
+
+    /// Gen indexes of record with value into column
+    std::vector<size_t> recordToValues( uint column, const std::vector<std::string>& values ) const
+    {
+      std::vector<size_t> rowndxs;
+      const jsonio::ValuesTable&  matrix = getValues();
+      for( size_t ii=0; ii<matrix.size(); ii++ )
+      {
+         for( auto val: values )
+            if(  matrix[ii][column] == val )
+            {    rowndxs.push_back(ii);
+                 break;
+            }
+      }
+      return rowndxs;
+    }
 
 
     /*const jsonio::DBQueryDef& getQuery( ) const
