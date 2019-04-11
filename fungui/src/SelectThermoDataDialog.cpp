@@ -121,7 +121,7 @@ struct SelectThermoDataDialogPrivate
      substModel->loadModeRecords( subData );
    }
 
-   void loadReactionRecords( bool typeA, const std::vector<int>& substSelectedRows, bool unique )
+   void loadReactionRecords( bool typeA, const std::vector<size_t>& substSelectedRows, bool unique )
    {
      vector<string> reactSymbols;
      auto substanceSymbols = substModel->getColumn( _dbclient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
@@ -133,7 +133,7 @@ struct SelectThermoDataDialogPrivate
      reactModel->loadModeRecords( _dbclient.reactData().getValuesTable() );
    }
 
-   void loadReacSetRecords( bool typeA, const std::vector<int>& reactSelectedRows, bool unique )
+   void loadReacSetRecords( bool typeA, const std::vector<size_t>& reactSelectedRows, bool unique )
    {
      vector<string> scsetSymbols;
      auto reactSymbols = reactModel->getColumn( _dbclient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
@@ -541,9 +541,9 @@ void   SelectThermoDataDialog::updateReactionSets()
     updateFrom = 5;
 }
 
-std::vector<int> SelectThermoDataDialog::allSelectedRows( jsonui::TMatrixTable *dataTable )
+std::vector<size_t> SelectThermoDataDialog::allSelectedRows( jsonui::TMatrixTable *dataTable )
 {
-    std::vector<int> rows;
+    std::vector<size_t> rows;
     QModelIndexList indexList = dataTable->selectionModel()->selectedIndexes();
     foreach (QModelIndex index, indexList)
     {

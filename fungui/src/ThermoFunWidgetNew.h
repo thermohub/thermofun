@@ -45,7 +45,7 @@ namespace Ui {
 class ThermoFunWidget;
 }
 
-class ThermoFunData;
+struct ThermoFunData;
 class ThermoFunPrivateNew;
 class WaitingSpinnerWidget;
 
@@ -111,7 +111,7 @@ public slots:
 
 public:
 
-    explicit ThermoFunWidgetNew( QWidget *parent = 0);
+    explicit ThermoFunWidgetNew( QWidget *parent = nullptr);
     ~ThermoFunWidgetNew();
 
     void setQuery( jsonui::QueryWidget*   ) {}
@@ -127,7 +127,7 @@ private:
 
 
     // Extern windows
-    jsonui::TableEditWidget* _csvWin = 0;
+    jsonui::TableEditWidget* _csvWin = nullptr;
     WaitingSpinnerWidget *waitDialog;
 
     bool calcSubstFromReact() const;

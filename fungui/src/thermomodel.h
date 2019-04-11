@@ -25,7 +25,7 @@ class ThermoViewModel: public QObject
 
 public:
 
-    ThermoViewModel( ThermoFun::AbstractData *data, QObject* parent = 0 ):
+    ThermoViewModel( ThermoFun::AbstractData *data, QObject* parent = nullptr ):
         QObject(parent), data_(data)
       {
          defineModels();
@@ -63,7 +63,7 @@ public:
     }
 
     /// Resize model to selected
-    void leftOnlySelected(  const std::vector<int> selrows )
+    void leftOnlySelected(  const std::vector<size_t> selrows )
     {
         jsonio::ValuesTable newmatr;
         const jsonio::ValuesTable&  oldmatr = getValues();
@@ -73,7 +73,7 @@ public:
         loadModeRecords(newmatr );
     }
 
-    std::vector<std::string> getColumn( uint column, const std::vector<int>& selrows ) const
+    std::vector<std::string> getColumn( size_t column, const std::vector<size_t>& selrows ) const
     {
         std::vector<std::string> keys;
         const jsonio::ValuesTable&  matrix = getValues();
@@ -107,10 +107,10 @@ public:
             thermoData->setData( ii, column, value.c_str() );
     }
 
-    int findRow( uint column, const std::string& value ) const
+    int findRow( size_t column, const std::string& value ) const
     {
         const jsonio::ValuesTable&  matrix = getValues();
-        for( uint ii=0; ii<matrix.size(); ii++ )
+        for( size_t ii=0; ii<matrix.size(); ii++ )
         {
           if( column >= matrix[ii].size())
               continue;
@@ -122,7 +122,7 @@ public:
     }
 
     /// Move record with values up
-    void moveUpByOrder(  uint column, const std::set<std::string>& values )
+    void moveUpByOrder(  size_t column, const std::set<std::string>& values )
     {
         jsonio::ValuesTable newmatr;
         const jsonio::ValuesTable&  matrix = getValues();

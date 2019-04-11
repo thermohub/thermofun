@@ -105,21 +105,21 @@ class ThermoFunPrivateNew: public QObject
 
    // keys list data
    /// Selected data view
-   jsonui::TMatrixTable* valuesTable = 0;
+   jsonui::TMatrixTable* valuesTable = nullptr;
 
    // define  ELEMENTS table model
-   ElementsDataContainer *elementContainer = 0;
-   jsonui::TMatrixTable *elementTable = 0;
-   jsonui::TMatrixModel* elementModel = 0;
+   ElementsDataContainer *elementContainer = nullptr;
+   jsonui::TMatrixTable *elementTable = nullptr;
+   jsonui::TMatrixModel* elementModel = nullptr;
 
    //ThermoFun data to edit;
-   TPContainer* _TPContainer = 0;
-   jsonui::TMatrixTable*  _TPlistTable = 0;
-   jsonui::TMatrixModel*  _TPlistModel = 0;
+   TPContainer* _TPContainer = nullptr;
+   jsonui::TMatrixTable*  _TPlistTable = nullptr;
+   jsonui::TMatrixModel*  _TPlistModel = nullptr;
 
-   TPropertyContainer* _PropertyContainer = 0;
-   jsonui::TMatrixTable*  _PropertyTable = 0;
-   jsonui::TMatrixModel*  _PropertyModel = 0;
+   TPropertyContainer* _PropertyContainer = nullptr;
+   jsonui::TMatrixTable*  _PropertyTable = nullptr;
+   jsonui::TMatrixModel*  _PropertyModel = nullptr;
 
    // internal functions
    void initWindow();
@@ -214,10 +214,10 @@ public:
    void typeChanged(const string& newSchemaName);
 
    // calc functions
-   void loadSubstData( const vector<int>& selNdx,
+   void loadSubstData( const vector<size_t>& selNdx,
      vector<string>& aKeyList, vector<string>& substancesSymbols,
      vector<string>& substancesClass );
-   void loadReactData( const vector<int>& selNdx,
+   void loadReactData( const vector<size_t>& selNdx,
      vector<string>& aKeyList, vector<string>& reactionsSymbols );
 
    std::map<std::string, uint>  getSubstDataIndex()
@@ -234,7 +234,7 @@ public:
 
    void setSubstanceLevel(string substSymbol, string level);
 
-   ThermoLoadData loadData( std::vector<int> selNdx );
+   ThermoLoadData loadData( std::vector<size_t> selNdx );
 
    std::string calcData( ThermoLoadData loadedData, string solventSymbol,
                     bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst );

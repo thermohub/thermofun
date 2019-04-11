@@ -116,7 +116,7 @@ private:
 
     void  resetButtons();
     void  setModel( jsonui::TMatrixTable* table, jsonui::TMatrixModel* model );
-    std::vector<int> allSelectedRows( jsonui::TMatrixTable *dataTable );
+    std::vector<size_t> allSelectedRows( jsonui::TMatrixTable *dataTable );
     void selectRows( jsonui::TMatrixTable *dataTable, const std::vector<int>& rows  );
 
     // define windows

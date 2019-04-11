@@ -348,7 +348,7 @@ void ThermoFunWidgetNew::CmReallocTP()
 {
   try{
         bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
+        auto size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
                  "Array size ", pdata->data().tppairs.size(), 0, 999, 1, &ok );
         if(ok)
           pdata->reallocTP( size );
@@ -463,7 +463,8 @@ void ThermoFunWidgetNew::CmCalcMTPARM_load()
         jsonui::SelectDialog selDlg( true, this, "Please, select one or more records", values );
         if( !selDlg.exec() )
             return;
-        vector<int> selNdx =  selDlg.allSelected();
+        vector<size_t> selNdx;// =  selDlg.allSelected();
+        selDlg.getSelection( selNdx );
 
         //          MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
 

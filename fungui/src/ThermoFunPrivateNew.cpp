@@ -327,7 +327,7 @@ void ThermoFunPrivateNew::updateSelectMessage()
 void ThermoFunPrivateNew::reallocTP( int newsize )
 {
   _data.tppairs.clear();
-   for (uint i = 0; i<newsize; i++ )
+   for (int i = 0; i<newsize; i++ )
        _data.tppairs.push_back({0,0});
   _TPlistModel->resetMatrixData();
 }
@@ -411,7 +411,7 @@ void ThermoFunPrivateNew::newThermoFunData( const ThermoFunData& newdata )
 // Calc part ------------------------------
 
 // extract init for calculation data
-void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
+void ThermoFunPrivateNew::loadSubstData( const vector<size_t>& selNdx,
   vector<string>& aKeyList, vector<string>& substancesSymbols,
   vector<string>& substancesClass )
 {
@@ -432,7 +432,7 @@ void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
      }
 }
 
-void ThermoFunPrivateNew::loadReactData( const vector<int>& selNdx,
+void ThermoFunPrivateNew::loadReactData( const vector<size_t>& selNdx,
   vector<string>& aKeyList, vector<string>& reactionsSymbols )
 {
     //if (_data.schemaName != "VertexReaction")
@@ -547,7 +547,7 @@ ThermoFun::Database setSubstanceCalcType_ (ThermoFun::Database tdb, ThermoFun::S
 //    return react.recordsMapLevelTakesSubstances();
 //}
 
-ThermoLoadData ThermoFunPrivateNew::loadData( vector<int> selNdx )
+ThermoLoadData ThermoFunPrivateNew::loadData( vector<size_t> selNdx )
 {
     ThermoLoadData data;
 
@@ -565,7 +565,7 @@ ThermoLoadData ThermoFunPrivateNew::loadData( vector<int> selNdx )
     {
         data.errorMessage = e.what();
     }
-    return std::move(data);
+    return data;
 }
 
 string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventSymbol,
