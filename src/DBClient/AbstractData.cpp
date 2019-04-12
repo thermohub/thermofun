@@ -164,6 +164,7 @@ struct AbstractData::Impl
     auto loadRecords(const vector<string>& idRecords) -> jsonio::ValuesTable
     {
         cout << "dbvertex->downloadDocuments " << idRecords.size() << endl;
+        dbvertex->resetSchema(name, false);
         return dbvertex->downloadDocuments(idRecords, fieldPaths);
     }
 
