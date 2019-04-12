@@ -22,17 +22,17 @@ class ReactionTree
 
 public:
 
-    ReactionTree( int andx, const string& aname, vector<double>& avalues, vector<double>& aerrors, vector<Reaktoro_::Status>& astatus, ReactionTree* aparent ):
+    ReactionTree( uint andx, const string& aname, vector<double>& avalues, vector<double>& aerrors, vector<Reaktoro_::Status>& astatus, ReactionTree* aparent ):
        ndx(andx), rsnames(aname), values(avalues), errors(aerrors), status(astatus), parent(aparent)
     {}
 
-    ReactionTree( int andx, const string& aname, ReactionTree* aparent = 0 ):
+    ReactionTree( uint andx, const string& aname, ReactionTree* aparent = nullptr ):
         ndx(andx), rsnames(aname), parent(aparent)
     {}
 
     ~ReactionTree(){}
 
-    int ndx;
+    uint ndx;
     string rsnames;         // name of field
     vector<double> values;  // values of field
     vector<double> errors;  // errors of field
@@ -86,7 +86,7 @@ class TReactionModel: public QAbstractItemModel
 
  public:
 	  
-  TReactionModel(  ReactionTree* newRoot, QObject* parent = 0 );
+  TReactionModel(  ReactionTree* newRoot, QObject* parent = nullptr );
   ~TReactionModel(){}
 	 
   QModelIndex index(int row, int column, const QModelIndex& parent) const;
@@ -146,7 +146,7 @@ class TReactionView: public QTreeView
 
  public:
 
-    TReactionView( QWidget * parent = 0 );
+    TReactionView( QWidget * parent = nullptr );
 
 };
 

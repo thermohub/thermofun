@@ -274,7 +274,7 @@ struct ReactData
        return reactR;
     }
 
-    void buildList( ReactionTree* parent, int first, std::vector<ThermoFun::ThermoPropertiesSubstance> vTps )
+    void buildList( ReactionTree* parent, uint first, std::vector<ThermoFun::ThermoPropertiesSubstance> vTps )
     {
        ReactionTree* newChild;
        std::vector<double> values(8);
