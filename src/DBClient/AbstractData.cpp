@@ -161,9 +161,8 @@ struct AbstractData::Impl
         return dbvertex->loadRecordFields(idRecord, queryFields);
     }
 
-    auto loadRecords(const vector<string>& idRecords) -> jsonio::ValuesTable
+    auto loadRecords( vector<string> idRecords) -> jsonio::ValuesTable
     {
-        cout << "dbvertex->downloadDocuments " << idRecords.size() << endl;
         dbvertex->resetSchema(name, false);
         return dbvertex->downloadDocuments(idRecords, fieldPaths);
     }
@@ -288,11 +287,10 @@ auto AbstractData::loadRecord( const string id, const vector<string> queryFields
     return pimpl->load_record_fn( id, queryFields );
 }
 /// Build table of fields values by ids list
-auto AbstractData::loadRecords(const vector<string>& ids ) -> jsonio::ValuesTable
+auto AbstractData::loadRecords(const vector<string> ids ) -> jsonio::ValuesTable
 {
-    cout << "loadRecords " << ids.size();
-    return pimpl->loadRecords(ids);
-    //return pimpl->load_records_fn(ids);
+    //return pimpl->loadRecords(ids);
+    return pimpl->load_records_fn(ids);
 }
 
 auto AbstractData::getName() const -> string

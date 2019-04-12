@@ -84,7 +84,7 @@ public:
     auto loadRecord( const std::string id, const std::vector<std::string> queryFields ) -> jsonio::FieldSetMap;
 
     /// Build table of fields values by ids list
-    auto loadRecords( const std::vector<std::string>& ids ) -> jsonio::ValuesTable;
+    auto loadRecords( const std::vector<std::string> ids ) -> jsonio::ValuesTable;
 
 
     /// Build ids list connected to idVertex by incoming edge,
