@@ -288,7 +288,7 @@ auto AbstractData::loadRecord( const string id, const vector<string> queryFields
 /// Build table of fields values by ids list
 auto AbstractData::loadRecords(const vector<string> ids ) -> jsonio::ValuesTable
 {
-    return loadRecords(ids);
+    return pimpl->loadRecords(ids);
     //return pimpl->load_records_fn(ids);
 }
 
