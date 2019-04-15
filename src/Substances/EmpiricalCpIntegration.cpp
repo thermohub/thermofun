@@ -92,6 +92,16 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
             // going trough the phase transitions parameters in FtP
 //            for (unsigned ft = 0; ft < thermo_parameters.phase_transition_prop.size(); ft++)
+
+            if (j && thermo_parameters.phase_transition_prop.size() == 0)
+            {
+                Exception exception;
+                exception.error << "No phase transition properties present in the record.";
+                exception.reason << "For substance "<< substance.symbol() << ".";
+                exception.line = __LINE__;
+                RaiseError(exception);
+            }
+
             if ( j && thermo_parameters.phase_transition_prop[ft][0] <= TrK/*-C_to_K*/ )
             {   // Adding parameters of phase transition
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 1 )  // dS
