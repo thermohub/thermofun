@@ -179,6 +179,28 @@ void ThermoSetData::traverceEdges( const string& idThermoDataSet, jsonio::GraphE
         afunc( false, result );
 }
 
+std::vector<int> ThermoSetData::sourceTDBs(const string &idThermoDataSet) const
+{
+   std::vector<int> srcs;
+   string qrAQL = "FOR u  IN thermodatasets ";
+          qrAQL += "\nFILTER u._id == \""+idThermoDataSet+"\" ";;
+          qrAQL +=  "\nRETURN u.properties.sourcetdbs";
+
+   DBQueryData query( qrAQL, DBQueryData::qAQL );
+   vector<string> resultsQuery = getDB()->runQuery( query );
+
+   if( resultsQuery.size() > 0)
+   {
+      //cout << resultsQuery[0] << endl;
+      auto domdata = jsonio::unpackJson( resultsQuery[0] );
+      std::map<std::string,std::string> newmap;
+      domdata->findObject( "", newmap );
+      for( auto row: newmap )
+        srcs.push_back( stoi(row.first) );
+   }
+   return srcs;
+}
+
 
 
 }

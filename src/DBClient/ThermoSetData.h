@@ -44,6 +44,9 @@ public:
     /// Visit  all linked Edges
     void traverceEdges( const std::string& idThermoDataSet, jsonio::GraphElementFunction afunc );
 
+    /// Get all sourceTDBs from record
+    std::vector<int> sourceTDBs(const std::string& idThermoDataSet) const;
+
 private:
 
     struct Impl;

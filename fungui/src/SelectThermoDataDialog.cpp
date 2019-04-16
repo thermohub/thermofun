@@ -80,6 +80,7 @@ struct SelectThermoDataDialogPrivate
        elementsAll.clear();
        if( !elmnts.empty() )
        {    idThermoDataSet = idThermo;
+            sourceTDBs  = _dbclient.thermoDataSet().sourceTDBs(idThermoDataSet);
             elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
        }
      return true;
