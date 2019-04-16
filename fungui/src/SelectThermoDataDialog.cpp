@@ -242,6 +242,7 @@ std::string SelectThermoDataDialog::idThermoDataSet() const
 //  Selection of data starting from sourceTDBs
 const std::vector<int>& SelectThermoDataDialog::sourceTDBs() const
 {
+    cout<< "pdata->sourceTDBs" << pdata->sourceTDBs.size() << endl;
   return pdata->sourceTDBs;
 }
 

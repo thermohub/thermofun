@@ -290,7 +290,7 @@ void ThermoFunWidgetNew::CmSelectThermoDataSet()
         vector<ThermoFun::ElementKey> elKeys;
         dlg.allSelected( elKeys );
         // Reset internal data
-        pdata->updateData( dlg.idThermoDataSet(), {}, elKeys,
+        pdata->updateData( dlg.idThermoDataSet(), dlg.sourceTDBs(), elKeys,
                            dlg.getSubstanceValues(), dlg.getReactionValues() );
         resetSolvents( dlg.getSolventValues() );
 
