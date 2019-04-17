@@ -65,7 +65,7 @@ struct SelectThermoDataDialogPrivate
         rcsetModel.reset(new ThermoViewModel( &_dbclient.reactSetData(), _window ));
     }
 
-    virtual ~SelectThermoDataDialogPrivate()
+    ~SelectThermoDataDialogPrivate()
     { }
 
     vector<string> getSourcetdbList()
@@ -73,14 +73,15 @@ struct SelectThermoDataDialogPrivate
         return _dbclient.sourcetdbListAll();
     }
 
-    bool makeAvailableElementsListA( int selrow )
+    bool makeAvailableElementsListA( size_t selrow )
     {
         auto matr = thermoModel->getValues();
         string idThermo = matr[selrow][_dbclient.thermoDataSet().getDataName_DataIndex()["_id"]];
         auto elmnts = _dbclient.thermoDataSet().getElementsList(idThermo);
         elementsAll.clear();
         if( !elmnts.empty() )
-        {    idThermoDataSet = idThermo;
+        {
+            idThermoDataSet = idThermo;
             sourceTDBs  = _dbclient.thermoDataSet().sourceTDBs(idThermoDataSet);
             elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
         }
@@ -123,7 +124,7 @@ struct SelectThermoDataDialogPrivate
         substModel->loadModeRecords( subData );
     }
 
-    void loadReactionRecords( bool typeA, const std::vector<size_t>& substSelectedRows, bool unique )
+    void loadReactionRecords( bool typeA, const std::set<size_t>& substSelectedRows, bool unique )
     {
         vector<string> reactSymbols;
         auto substanceSymbols = substModel->getColumn( _dbclient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
@@ -135,7 +136,7 @@ struct SelectThermoDataDialogPrivate
         reactModel->loadModeRecords( _dbclient.reactData().getValuesTable() );
     }
 
-    void loadReacSetRecords( bool typeA, const std::vector<size_t>& reactSelectedRows, bool unique )
+    void loadReacSetRecords( bool typeA, const std::set<size_t>& reactSelectedRows, bool unique )
     {
         vector<string> scsetSymbols;
         auto reactSymbols = reactModel->getColumn( _dbclient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
@@ -420,12 +421,7 @@ void SelectThermoDataDialog::defineSourceTDB()
 
 void  SelectThermoDataDialog::setModel( TMatrixTable* table, TMatrixModel* model )
 {
-    //new
-    TSortFilterProxyModel *proxyModel = new TSortFilterProxyModel();
-    proxyModel->setSourceModel( model );
-    table->setModel(proxyModel);
-    //old
-    //table->setModel(model);
+    table->setModel(model);
     table->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -435,7 +431,7 @@ void  SelectThermoDataDialog::setModel( TMatrixTable* table, TMatrixModel* model
 
 void  SelectThermoDataDialog::defineTermodata()
 {
-    thermoTable = new TMatrixTable( this, TMatrixTable::tbSort );
+    thermoTable = new TMatrixTableProxy( this, TMatrixTable::tbSort );
     setModel( thermoTable, pdata->thermoModel->getModel() );
     thermoTable->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->verticalLayout_3->addWidget(thermoTable);
@@ -446,7 +442,7 @@ void  SelectThermoDataDialog::defineTermodata()
 
 void  SelectThermoDataDialog::defineSubstance()
 {
-    substTable = new TMatrixTable( this, TMatrixTable::tbSort );
+    substTable = new TMatrixTableProxy( this, TMatrixTable::tbSort );
     setModel( substTable, pdata->substModel->getModel() );
     ui->verticalLayout->addWidget(substTable);
     connect( substTable->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -455,7 +451,7 @@ void  SelectThermoDataDialog::defineSubstance()
 
 void  SelectThermoDataDialog::defineReaction()
 {
-    reactTable = new TMatrixTable( this, TMatrixTable::tbSort );
+    reactTable = new TMatrixTableProxy( this, TMatrixTable::tbSort );
     setModel( reactTable, pdata->reactModel->getModel() );
     ui->verticalLayout_5->addWidget(reactTable);
     connect( reactTable->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -464,7 +460,7 @@ void  SelectThermoDataDialog::defineReaction()
 
 void  SelectThermoDataDialog::defineReactionSets()
 {
-    rcsetTable = new TMatrixTable( this, TMatrixTable::tbSort );
+    rcsetTable = new TMatrixTableProxy( this, TMatrixTable::tbSort );
     setModel( rcsetTable, pdata->rcsetModel->getModel() );
     ui->verticalLayout_6->addWidget(rcsetTable);
 }
@@ -474,19 +470,7 @@ void  SelectThermoDataDialog::updateElementsThermo()
     if( updateFrom > 1) // nothing change on page 0
         return;
 
-    int ndxthermo = 0;
-    // new
-    TSortFilterProxyModel *proxyModel = dynamic_cast<TSortFilterProxyModel *>(thermoTable->model());
-    if( proxyModel )
-    {
-        ndxthermo = proxyModel->mapToSource(thermoTable->currentIndex()).row();
-    }
-    else
-    {
-        // old
-        ndxthermo = thermoTable->currentIndex().row();
-    }
-
+    auto ndxthermo = thermoTable->getCurrentRow();
     if( pdata->makeAvailableElementsListA(ndxthermo))
     {
         const vector<ThermoFun::ElementKey>& elements = pdata->allAvailableElementsList();
@@ -542,7 +526,7 @@ void   SelectThermoDataDialog::updateReaction()
     if( updateFrom > 3 ) // nothing change on pages 0-3
         return;
 
-    auto substsel = allSelectedRows( substTable );
+    auto substsel = substTable->allSelectedRows();
     pdata->loadReactionRecords( (useCase=='A'),  substsel, ui->checkUnique->isChecked() );
     reactTable->selectAll();
 
@@ -555,40 +539,19 @@ void   SelectThermoDataDialog::updateReactionSets()
     if( updateFrom > 4 ) // nothing change on pages 0-4
         return;
 
-    auto reactsel = allSelectedRows( reactTable );
+    auto reactsel = reactTable->allSelectedRows();
     pdata->loadReacSetRecords( (useCase=='A'),  reactsel, ui->checkUnique->isChecked() );
     rcsetTable->selectAll();
-
     updateFrom = 5;
 }
 
-std::vector<size_t> SelectThermoDataDialog::allSelectedRows( jsonui::TMatrixTable *dataTable )
-{
-    std::vector<size_t> rows;
-    QItemSelection selitems = dataTable->selectionModel()->selection();
-    // new
-    TSortFilterProxyModel *proxyModel = dynamic_cast<TSortFilterProxyModel *>(dataTable->model());
-    if( proxyModel )
-        selitems =  proxyModel->mapSelectionToSource(selitems);
-    QModelIndexList indexList = selitems.indexes();
-    // old
-    // QModelIndexList indexList = dataTable->selectionModel()->selectedIndexes();
-    foreach (QModelIndex index, indexList)
-    {
-        if(index.column() == 0 )
-            rows.push_back( index.row() );
-    }
-    return rows;
-}
+
 
 void SelectThermoDataDialog::leftOnlySelected()
 {
-    auto substsel = allSelectedRows( substTable );
-    pdata->substModel->leftOnlySelected(substsel);
-    auto reactsel = allSelectedRows( reactTable );
-    pdata->reactModel->leftOnlySelected(reactsel);
-    auto rcsetsel = allSelectedRows( rcsetTable );
-    pdata->rcsetModel->leftOnlySelected(rcsetsel);
+    pdata->substModel->leftOnlySelected( substTable->allSelectedRows());
+    pdata->reactModel->leftOnlySelected(reactTable->allSelectedRows());
+    pdata->rcsetModel->leftOnlySelected(rcsetTable->allSelectedRows());
 }
 
 void SelectThermoDataDialog::selectRows( jsonui::TMatrixTable *dataTable, const std::vector<int>& rows  )
@@ -604,15 +567,7 @@ void SelectThermoDataDialog::selectA( const std::string& aThermoDataSet, const s
 {
     auto row = pdata->thermoModel->findRow( pdata->_dbclient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet );
     row = max( row, 0 );
-    if( thermoTable->model()->rowCount() > 0 )
-    {
-
-        TSortFilterProxyModel *proxyModel = dynamic_cast<TSortFilterProxyModel *>(thermoTable->model());
-        if( proxyModel )
-            thermoTable->setCurrentIndex(  proxyModel->mapFromSource( proxyModel->sourceModel()->index(row,0) ) );
-        else // old
-            thermoTable->setCurrentIndex( thermoTable->model()->index(row,0) );
-    }
+    thermoTable->setCurrentRow( row );
     pdata->elementsSelected = elementKeys;
 }
 

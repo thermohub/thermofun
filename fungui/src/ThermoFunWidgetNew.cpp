@@ -545,8 +545,12 @@ void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
         }
 
         // run in other thread
+        bool calcSubstFromReact_= calcSubstFromReact();
+        bool calcReactFromSubst_= calcReactFromSubst();
+        bool output_number_format= ui->actionFixed_output_number_format->isChecked();
+
         calcWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::calcData, std::move(loadData), std::move(solventSymbol),
-                                                 ui->actionFixed_output_number_format->isChecked(), calcSubstFromReact(), calcReactFromSubst() ));
+                                                 output_number_format, calcSubstFromReact_, calcReactFromSubst() ));
 
         waitDialog->start();
     }

@@ -70,7 +70,7 @@ public:
     }
 
     /// Resize model to selected
-    void leftOnlySelected(  const std::vector<size_t> selrows )
+    void leftOnlySelected(  const std::set<size_t> selrows )
     {
         jsonio::ValuesTable newmatr;
         const jsonio::ValuesTable&  oldmatr = getValues();
@@ -80,7 +80,7 @@ public:
         loadModeRecords(newmatr );
     }
 
-    std::vector<std::string> getColumn( size_t column, const std::vector<size_t>& selrows ) const
+    std::vector<std::string> getColumn( size_t column, const std::set<size_t>& selrows ) const
     {
         std::vector<std::string> keys;
         const jsonio::ValuesTable&  matrix = getValues();
