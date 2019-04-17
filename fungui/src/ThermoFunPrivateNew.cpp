@@ -241,7 +241,7 @@ void ThermoFunPrivateNew::initWindow()
     valuesTable = new jsonui::TMatrixTable( window );
     valuesTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
     valuesTable->setEditTriggers( QAbstractItemView::AnyKeyPressed );
-    valuesTable->setSortingEnabled(true);
+    //valuesTable->setSortingEnabled(true);
     QObject::disconnect( valuesTable, SIGNAL(customContextMenuRequested(QPoint)),
            valuesTable, SLOT(slotPopupContextMenu(QPoint)));
     window->ui->keySplitter->insertWidget(0, valuesTable);
