@@ -79,6 +79,9 @@ public:
     /// Get Solvent substances container
     const jsonio::ValuesTable&  getSolventValues() const;
 
+    /// Get the selected reactions container
+    const jsonio::ValuesTable&  getReactionSetValues() const;
+
 
 private:
 

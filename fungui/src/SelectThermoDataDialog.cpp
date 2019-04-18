@@ -265,6 +265,11 @@ const jsonio::ValuesTable&  SelectThermoDataDialog::getSolventValues() const
     return pdata->solventValues;
 }
 
+const jsonio::ValuesTable &SelectThermoDataDialog::getReactionSetValues() const
+{
+  return pdata->rcsetModel->getValues();
+}
+
 //------------------- Actions
 
 void SelectThermoDataDialog::CmBack()
