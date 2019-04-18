@@ -91,6 +91,8 @@ public slots:
     //Edit
     void CmSelectThermoDataSet();
     void CmSelectSourceTDBs();
+    void CmSelectSubstances();
+    void CmSelectReactions();
     void CmResetTP();
     void CmReallocTP();
     void CmResetProperty();

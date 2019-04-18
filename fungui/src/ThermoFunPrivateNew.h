@@ -88,6 +88,8 @@ class ThermoFunPrivateNew: public QObject
 
     Q_OBJECT
 
+    friend class ThermoFunWidgetNew;
+
     ThermoFunWidgetNew* window;
 
    // Internal data
@@ -100,6 +102,11 @@ class ThermoFunPrivateNew: public QObject
    std::shared_ptr<ThermoViewModel>  substModel;
    /// Selected reactions
    std::shared_ptr<ThermoViewModel>  reactModel;
+
+   /// Selected substances all
+   jsonio::ValuesTable  substValues;
+   /// Selected reactions all
+   jsonio::ValuesTable  reactValues;
 
    // Window data  ------------------------------------
 

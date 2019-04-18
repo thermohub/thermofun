@@ -298,6 +298,8 @@ void ThermoFunPrivateNew::updateData( const std::string& aThermoDataSet,
    _data.idThermoDataSet = aThermoDataSet;
    _data.sourceTDBs = move(sourcetdbs);
    _data.elements  = elementKeys;
+   substValues = substanceValues;
+   reactValues = reactionValues;
     substModel->loadModeRecords( substanceValues );
     reactModel->loadModeRecords( reactionValues );
     updateElementsModel();

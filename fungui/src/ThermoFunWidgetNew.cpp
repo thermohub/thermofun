@@ -144,6 +144,10 @@ void ThermoFunWidgetNew::setActions()
     connect(ui->actionChange_Property_list, SIGNAL(triggered()), this, SLOT(CmResetProperty()));
     connect(ui->actionSelect_ThermoDataSet, SIGNAL(triggered()), this, SLOT(CmSelectThermoDataSet()));
     connect(ui->actionSelect_Elements, SIGNAL(triggered()), this, SLOT(CmSelectSourceTDBs()));
+    connect(ui->actionSelect_Substances, SIGNAL(triggered()), this, SLOT(CmSelectSubstances()));
+    connect(ui->actionSelect_Reactions, SIGNAL(triggered()), this, SLOT(CmSelectReactions()));
+
+
     connect(ui->action_Set_Elemets_to_reactions, SIGNAL(triggered()), this, SLOT(CmSetElementsReactions()));
     connect(ui->action_Set_Elemets_to_reactionsets, SIGNAL(triggered()), this, SLOT(CmSetElementsReactionSets()));
 
@@ -178,6 +182,7 @@ void ThermoFunWidgetNew::setActions()
     ui->actionShow_Results->setEnabled(false);
 
     ui->nameToolBar->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    typeChanged(ui->typeBox->currentText());
 }
 
 
@@ -261,6 +266,8 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(true);
             ui->actionCalculate_Reactions_Records_from_Reactants->setChecked(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(false);
+            ui->actionSelect_Substances->setEnabled(true);
+            ui->actionSelect_Reactions->setEnabled(false);
         }
         if (newname == "Reactions")
         {
@@ -268,6 +275,8 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setChecked(false);
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(true);
+            ui->actionSelect_Substances->setEnabled(false);
+            ui->actionSelect_Reactions->setEnabled(true);
         }
     }
    catch(jsonio::jsonio_exception& e)
@@ -458,16 +467,13 @@ void ThermoFunWidgetNew::CmExportCFG()
 void ThermoFunWidgetNew::CmCalcMTPARM_load()
 {
     try {
+        //          MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
+        // Now we use all into window
         // select components
         const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
-        jsonui::SelectDialog selDlg( true, this, "Please, select one or more records", values );
-        if( !selDlg.exec() )
-            return;
-        vector<size_t> selNdx;// =  selDlg.allSelected();
-        selDlg.getSelection( selNdx );
-
-        //          MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
-
+        vector<size_t> selNdx;
+        for(size_t ii=0; ii< values.size(); ii++)
+            selNdx.push_back(ii);
         // Run into other thread
         loadingWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::loadData, selNdx));
         waitDialog->start();
@@ -703,6 +709,70 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
    catch(std::exception& e)
     {
        QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+
+void ThermoFunWidgetNew::CmSelectSubstances()
+{
+    try{
+        uint colId = pdata->dbclient.substData().getDataName_DataIndex()["_id"];
+        vector<string> oldids = pdata->substModel->getColumn( colId );
+        // read full list
+        pdata->substModel->loadModeRecords( pdata->substValues );
+
+        // select components
+        const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
+        vector<size_t> selNdx = pdata->substModel->recordToValues( colId, oldids );
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
+        selDlg.setSelection(selNdx);
+        if( !selDlg.exec() )
+            return;
+        auto selNdx2= selDlg.allSelected();
+        pdata->substModel->leftOnlySelected( selNdx2 );
+        ui->calcStatus->setText("Please, click the select master substances or the generate reactions icon");
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+}
+
+
+void ThermoFunWidgetNew::CmSelectReactions()
+{
+    try{
+        uint colId = pdata->dbclient.reactData().getDataName_DataIndex()["_id"];
+        vector<string> oldids = pdata->reactModel->getColumn( colId );
+        // read full list
+        pdata->reactModel->loadModeRecords( pdata->reactValues );
+
+        // select components
+        jsonio::ValuesTable values= pdata->reactModel->getValues();
+        vector<size_t> selNdx = pdata->reactModel->recordToValues( colId, oldids );
+
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
+        selDlg.setSelection(selNdx);
+        if( !selDlg.exec() )
+            return;
+        auto selNdx2= selDlg.allSelected();
+        pdata->reactModel->leftOnlySelected( selNdx2 );
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+        ui->calcStatus->setText(e.what());
     }
 }
 
