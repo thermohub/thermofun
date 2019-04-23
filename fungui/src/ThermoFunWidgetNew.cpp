@@ -724,7 +724,8 @@ void ThermoFunWidgetNew::CmSelectSubstances()
         // select components
         const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
         vector<size_t> selNdx = pdata->substModel->recordToValues( colId, oldids );
-        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.substData().getDataHeaders(),
+                                     jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
         if( !selDlg.exec() )
             return;
@@ -757,7 +758,8 @@ void ThermoFunWidgetNew::CmSelectReactions()
         jsonio::ValuesTable values= pdata->reactModel->getValues();
         vector<size_t> selNdx = pdata->reactModel->recordToValues( colId, oldids );
 
-        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.reactData().getDataHeaders(),
+                                     jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
         if( !selDlg.exec() )
             return;
