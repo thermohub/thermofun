@@ -298,7 +298,7 @@ void TThermoFunMainWin::CmThermoFun()
         //testWidget->setShowWidgetFunction(showWidget);
         bsonuiWindows.push_back(testWidget);
         testWidget->show();
-        //testWidget->CmSelectThermoDataSet();
+        testWidget->CmSelectThermoDataSet();
 
     }
    catch(jsonio::jsonio_exception& e)

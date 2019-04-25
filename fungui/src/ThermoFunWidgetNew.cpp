@@ -78,7 +78,7 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
     waitDialog = new WaitingSpinnerWidget(this, Qt::ApplicationModal, true);
 
     //show();
-    //CmSelectThermoDataSet();
+//    CmSelectThermoDataSet();
 }
 
 ThermoFunWidgetNew::~ThermoFunWidgetNew()
@@ -180,9 +180,11 @@ void ThermoFunWidgetNew::setActions()
     ui->actionChange_Property_list->setEnabled(false);
     ui->actionCalculate_Properties->setEnabled(false);
     ui->actionShow_Results->setEnabled(false);
+    ui->actionSelect_Substances->setEnabled(false);
+    ui->actionSelect_Reactions->setEnabled(false);
+    ui->actionSelect_ReactionSets->setEnabled(false);
 
     ui->nameToolBar->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-    typeChanged(ui->typeBox->currentText());
 }
 
 
@@ -215,6 +217,8 @@ void ThermoFunWidgetNew::resetThermoFunData( const ThermoFunData& newdata )
     ui->actionChange_Property_list->setEnabled(false);
     ui->typeBox->setEnabled(false);
     ui->actionReset_TP->setEnabled(false);
+    ui->actionSelect_Substances->setEnabled(false);
+    ui->actionSelect_Reactions->setEnabled(false);
     ui->pSolventSymbol->clear();
     resetTypeBox( newdata.schemaName.c_str() );
 }
@@ -264,16 +268,17 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
         {
             pdata->typeChanged( "VertexSubstance" );
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(true);
-            ui->actionCalculate_Reactions_Records_from_Reactants->setChecked(false);
+//            ui->actionCalculate_Reactions_Records_from_Reactants->setChecked(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(false);
+
             ui->actionSelect_Substances->setEnabled(true);
             ui->actionSelect_Reactions->setEnabled(false);
         }
         if (newname == "Reactions")
         {
             pdata->typeChanged( "VertexReaction" );
-            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setChecked(false);
-            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(false);
+//            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setChecked(false);
+//            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(true);
             ui->actionSelect_Substances->setEnabled(false);
             ui->actionSelect_Reactions->setEnabled(true);
@@ -303,13 +308,26 @@ void ThermoFunWidgetNew::CmSelectThermoDataSet()
                            dlg.getSubstanceValues(), dlg.getReactionValues() );
         resetSolvents( dlg.getSolventValues() );
 
-        ui->actionReset_TP->setEnabled(true);
-        ui->actionRealloc_TP->setEnabled(true);
-        ui->actionChange_Property_list->setEnabled(true);
-        ui->actionCalculate_Properties->setEnabled(true);
+//        ui->actionReset_TP->setEnabled(true);
+//        ui->actionRealloc_TP->setEnabled(true);
+//        ui->actionChange_Property_list->setEnabled(true);
+//        ui->actionCalculate_Properties->setEnabled(true);
         ui->typeBox->setEnabled(true);
-        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate."); // status
+//        ui->actionSelect_Substances->setEnabled(true);
+//        ui->actionSelect_ThermoDataSet->setEnabled(true);
+        ui->calcStatus->setText("Select substances or reactions, set temperature and pressure points, properties to calculate, and click calculate."); // status
+        typeChanged(ui->typeBox->currentText());
       }
+//      else {
+//          ui->actionRealloc_TP->setEnabled(false);
+//          ui->actionChange_Property_list->setEnabled(false);
+//          ui->actionCalculate_Properties->setEnabled(false);
+//          ui->typeBox->setEnabled(false);
+//          pdata->
+//          ui->actionSelect_Substances->setEnabled(false);
+//          ui->actionSelect_Reactions->setEnabled(false);
+//          ui->actionSelect_ThermoDataSet->setEnabled(true);
+//      }
     }
    catch(jsonio::jsonio_exception& e)
    {
@@ -583,6 +601,7 @@ void ThermoFunWidgetNew::CmCalcMTPARM_finish()
             }
             ui->calcStatus->setText(retMessage.c_str());
             ui->actionShow_Results->setEnabled(true);
+            CmShowResult();
     }
     catch(jsonio::jsonio_exception& e)
     {
@@ -731,7 +750,7 @@ void ThermoFunWidgetNew::CmSelectSubstances()
             return;
         auto selNdx2= selDlg.allSelected();
         pdata->substModel->leftOnlySelected( selNdx2 );
-        ui->calcStatus->setText("Please, click the select master substances or the generate reactions icon");
+        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate. (see preferences)"); // status
     }
     catch(jsonio::jsonio_exception& e)
     {
@@ -765,6 +784,7 @@ void ThermoFunWidgetNew::CmSelectReactions()
             return;
         auto selNdx2= selDlg.allSelected();
         pdata->reactModel->leftOnlySelected( selNdx2 );
+        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate. (see preferences)"); // status
     }
     catch(jsonio::jsonio_exception& e)
     {

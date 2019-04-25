@@ -39,6 +39,14 @@ ThermoFunData::ThermoFunData()
   propertyUnits.push_back("J/mol");
   propertyPrecision.push_back(0);
 
+  propertiesS.push_back("gibbs_energy");
+  propertyUnitsS.push_back("J/mol");
+  propertyPrecisionS.push_back(0);
+
+  propertiesR.push_back("reaction_gibbs_energy");
+  propertyUnitsR.push_back("J/mol");
+  propertyPrecisionR.push_back(0);
+
   // old
   _query = jsonio::emptyQuery;
   _idReactionSet = "";
@@ -48,18 +56,19 @@ ThermoFunData::ThermoFunData()
 void ThermoFunData::resetSchemaName( const string& newSchemaName )
 {
     schemaName = newSchemaName;
-    properties.resize(1);
-    propertyUnits.resize(1);
-    propertyPrecision.resize(1);
 
     if (schemaName == "VertexSubstance")
-        properties[0] = "gibbs_energy";
+    {
+        properties = propertiesS;
+        propertyUnits = propertyUnitsS;
+        propertyPrecision = propertyPrecisionS;
+    }
     if (schemaName == "VertexReaction")
-        properties[0] = "reaction_gibbs_energy";
-
-    propertyUnits[0] = mapUnits[ properties[0]];
-    propertyPrecision[0] = mapPrecision[ properties[0]];
-
+    {
+        properties = propertiesR;
+        propertyUnits = propertyUnitsR;
+        propertyPrecision = propertyPrecisionR;
+    }
     // old
     _query = jsonio::emptyQuery;
 }
@@ -300,8 +309,8 @@ void ThermoFunPrivateNew::updateData( const std::string& aThermoDataSet,
    _data.elements  = elementKeys;
    substValues = substanceValues;
    reactValues = reactionValues;
-    substModel->loadModeRecords( substanceValues );
-    reactModel->loadModeRecords( reactionValues );
+//    substModel->loadModeRecords( substanceValues );
+//    reactModel->loadModeRecords( reactionValues );
     updateElementsModel();
 
 }
@@ -382,6 +391,26 @@ void ThermoFunPrivateNew::typeChanged(const string& newSchemaName)
 {
   if( newSchemaName != _curSchemaName )
   {
+      if (_curSchemaName == "VertexSubstance")
+      {
+          _data.propertiesS = _data.properties;
+          _data.propertyUnitsS = _data.propertyUnits;
+          _data.propertyPrecisionS = _data.propertyPrecision;
+
+          _data.properties = _data.propertiesR;
+          _data.propertyUnits = _data.propertyUnitsR;
+          _data.propertyPrecision = _data.propertyPrecisionR;
+      }
+      else
+      {
+          _data.propertiesR = _data.properties;
+          _data.propertyUnitsR = _data.propertyUnits;
+          _data.propertyPrecisionR = _data.propertyPrecision;
+
+          _data.properties = _data.propertiesS;
+          _data.propertyUnits = _data.propertyUnitsS;
+          _data.propertyPrecision = _data.propertyPrecisionS;
+      }
      _curSchemaName = newSchemaName;
      _data.resetSchemaName( _curSchemaName );
      _PropertyModel->resetMatrixData();
@@ -424,13 +453,14 @@ void ThermoFunPrivateNew::loadSubstData( const vector<size_t>& selNdx,
     aKeyList.resize(selNdx.size());
     substancesSymbols.resize(selNdx.size());
     substancesClass.resize(selNdx.size());
+    auto name_ndx = dbclient.substData().getDataName_DataIndex();
 
     for( uint ii=0; ii<selNdx.size(); ii++ )
      {
         auto itValues = values[selNdx[ii]];
-        substancesSymbols[ii] = itValues[0];
-        substancesClass[ii] = itValues[4];
-        aKeyList[ii] = itValues[3];
+        substancesSymbols[ii] = itValues[name_ndx["symbol"]];
+        substancesClass[ii] = itValues[name_ndx["class_"]];
+        aKeyList[ii] = itValues[name_ndx["_id"]];
      }
 }
 
@@ -440,13 +470,14 @@ void ThermoFunPrivateNew::loadReactData( const vector<size_t>& selNdx,
     //if (_data.schemaName != "VertexReaction")
     //  return;
     const jsonio::ValuesTable& values= reactModel->getValues();
+    auto name_ndx = dbclient.reactData().getDataName_DataIndex();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
     for( uint ii=0; ii<selNdx.size(); ii++ )
     {
         auto itValues = values[selNdx[ii]];
-        reactionsSymbols[ii] = itValues[0];
-        aKeyList[ii] = itValues[3];
+        reactionsSymbols[ii] = itValues[name_ndx["symbol"]];
+        aKeyList[ii] = itValues[name_ndx["_id"]];
     }
 }
 

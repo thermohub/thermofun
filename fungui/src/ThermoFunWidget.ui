@@ -384,7 +384,7 @@
      <x>0</x>
      <y>0</y>
      <width>872</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -433,9 +433,9 @@
      <string>Se&amp;lect</string>
     </property>
     <addaction name="actionSelect_ThermoDataSet"/>
-    <addaction name="actionSelect_Elements"/>
     <addaction name="actionSelect_Substances"/>
     <addaction name="actionSelect_Reactions"/>
+    <addaction name="actionSelect_Elements"/>
    </widget>
    <widget class="QMenu" name="menuSet">
     <property name="title">
@@ -479,6 +479,9 @@
    <addaction name="actionImport_CfgFile"/>
   </widget>
   <widget class="QToolBar" name="nameToolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -489,8 +492,12 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSelect_ThermoDataSet"/>
+   <addaction name="actionSelect_Substances"/>
+   <addaction name="actionSelect_Reactions"/>
+   <addaction name="separator"/>
    <addaction name="actionReset_TP"/>
    <addaction name="actionChange_Property_list"/>
+   <addaction name="separator"/>
    <addaction name="actionCalculate_Properties"/>
    <addaction name="actionShow_Results"/>
   </widget>
@@ -574,6 +581,9 @@
    </property>
   </action>
   <action name="actionCalculate_Properties">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../ThermoFunDemoGUI.qrc">
      <normaloff>:/Icons/CalculateRecordDataIcon24.png</normaloff>:/Icons/CalculateRecordDataIcon24.png</iconset>
@@ -607,6 +617,9 @@
    </property>
   </action>
   <action name="actionChange_Property_list">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../ThermoFunDemoGUI.qrc">
      <normaloff>:/Icons/DocumentsPileIcon24.png</normaloff>:/Icons/DocumentsPileIcon24.png</iconset>
@@ -627,6 +640,9 @@
    </property>
   </action>
   <action name="actionReset_TP">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../ThermoFunDemoGUI.qrc">
      <normaloff>:/Icons/SelectTP24.png</normaloff>:/Icons/SelectTP24.png</iconset>
@@ -651,9 +667,12 @@
    </property>
   </action>
   <action name="actionSelect_ThermoDataSet">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../ThermoFunDemoGUI.qrc">
-     <normaloff>:/Icons/ICompModuleIcon24.png</normaloff>:/Icons/ICompModuleIcon24.png</iconset>
+     <normaloff>:/Icons/ThermoDatabasesIcon24.png</normaloff>:/Icons/ThermoDatabasesIcon24.png</iconset>
    </property>
    <property name="text">
     <string>Select &amp;ThermoDataSet ...</string>
@@ -669,6 +688,9 @@
   </action>
   <action name="actionCalculate_Substances_Records_from_Dependent_Reactions">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -693,7 +715,7 @@
   </action>
   <action name="actionSelect_Elements">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Select &amp;Elements ...</string>
@@ -701,7 +723,11 @@
   </action>
   <action name="actionSelect_Substances">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../ThermoFunDemoGUI.qrc">
+     <normaloff>:/Icons/DCompModuleIcon24.png</normaloff>:/Icons/DCompModuleIcon24.png</iconset>
    </property>
    <property name="text">
     <string>Select &amp;Substances ...</string>
@@ -714,7 +740,11 @@
   </action>
   <action name="actionSelect_Reactions">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../ThermoFunDemoGUI.qrc">
+     <normaloff>:/Icons/ReacDCModuleIcon24.png</normaloff>:/Icons/ReacDCModuleIcon24.png</iconset>
    </property>
    <property name="text">
     <string>Select Reactions ...</string>

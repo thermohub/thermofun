@@ -57,9 +57,9 @@ struct ThermoFunData
     std::vector<std::vector<double>> tppairs;
 
     // Properties data
-    vector<string> properties;    ///< Properties names list
-    vector<string> propertyUnits; ///< Units of property
-    vector<int>    propertyPrecision; ///< Units of property
+    vector<string> properties, propertiesS, propertiesR;    ///< Properties names list
+    vector<string> propertyUnits, propertyUnitsS, propertyUnitsR; ///< Units of property
+    vector<int>    propertyPrecision, propertyPrecisionS, propertyPrecisionR; ///< Units of property
     int pPrecision, tPrecision;
 
     // work data
