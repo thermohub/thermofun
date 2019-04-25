@@ -10,10 +10,9 @@ namespace ThermoFun {
 
 //const DBQueryData substQuery("{\"_label\": \"substance\" }", DBQueryData::qTemplate);
 const DBQueryData substQuery("FOR u  IN substances ", DBQueryData::qAQL);
-const vector<string> substFieldPaths =
-   { "properties.symbol","properties.name","properties.formula","_id", "properties.class_", "properties.sourcetdb"};
-const vector<string> datsetColumnHeaders = { "symbol", "name", "formula" };
-const vector<string> substDataNames  = { "symbol", "name", "formula", "_id", "class_", "sourcetdb" };
+const vector<string> substFieldPaths = { "properties.symbol", "properties.formula", "properties.class_", "properties.sourcetdb", "properties.name", "_id"};
+const vector<string> substDataNames  = { "symbol",                  "formula",              "class_",           "sourcetdb",                "name", "_id" }; // should have the same size as FieldPaths !!
+const vector<string> datsetColumnHeaders = { "symbol",  "formula", "class" };
 
 struct SubstanceData_::Impl
 {

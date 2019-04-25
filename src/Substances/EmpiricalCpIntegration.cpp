@@ -3,6 +3,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Substance.h"
+#include <iomanip>
 
 namespace ThermoFun {
 
@@ -57,7 +58,9 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
         Exception exception;
         exception.error << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
         exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
+        exception.file = __FILE__;
         exception.line = __LINE__;
+//        throw (exception);
         RaiseError(exception);
     }
 

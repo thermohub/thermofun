@@ -12,10 +12,9 @@ namespace ThermoFun
 
 //const DBQueryData reactQuery( "{\"_label\": \"element\" }", DBQueryData:: qTemplate );
 const DBQueryData elementQuery("FOR u  IN elements ", DBQueryData::qAQL);
-const vector<string> elementFieldPaths = { "properties.symbol",  "properties.class_", "properties.isotope_mass",
-                                           "properties.name", "properties.number", "_id" };
-const vector<string> elementDataNames = {"symbol",  "class_", "isotope_mass", "name", "number", "_id" };
-const vector<string> elementColumnHeaders = { "symbol",  "class_", "isotope_mass", "name", "number"  };
+const vector<string> elementFieldPaths = { "properties.symbol", "properties.name", "properties.number", "properties.sourcetdb", "properties.class_", "properties.isotope_mass", "_id" };
+const vector<string> elementDataNames = {"symbol",               "name",                "number",           "sourcetdb",            "class_",                    "mass", "_id" }; // should have the same size as FieldPaths !!
+const vector<string> elementColumnHeaders = { "symbol",          "name",                "number"/*,    "sourcetdb" */ };
 
 struct ElementData_::Impl
 {

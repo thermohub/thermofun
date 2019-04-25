@@ -9,9 +9,9 @@ namespace ThermoFun {
 
 //const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
 const DBQueryData datsetQuery("FOR u  IN thermodatasets ", DBQueryData::qAQL);
-const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.stype","_id"};
+const vector<string> datsetFieldPaths       = {"properties.symbol", "properties.name", "properties.stype","_id"};
+const vector<string> datsetDataNames        = {"symbol",            "name",                  "stype", "_id"}; // should have the same size as FieldPaths !!
 const vector<string> datsetColumnHeaders    = {"symbol", "name", "stype"};
-const vector<string> datsetDataNames        = {"symbol", "name", "stype", "_id"};
 
 struct ThermoSetData::Impl
 {

@@ -11,10 +11,9 @@ namespace ThermoFun
 
 //const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
 const DBQueryData reactQuery("FOR u  IN reactionsets ", DBQueryData::qAQL);
-const vector<string> reactFieldPaths =
-    { "properties.symbol", "properties.name", "properties.stype", "properties.level", "_id"};
-const vector<string> reactDataNames = {"symbol", "name", "type", "level", "_id"};
-const vector<string> reactColumnHeaders = { "symbol", "name", "stype", "level" };
+const vector<string> reactFieldPaths = {"properties.symbol", "properties.name", "properties.stype", "properties.sourcetdb", "properties.level", "_id"};
+const vector<string> reactDataNames = {"symbol",                "name",                 "type"  ,       "sourcetdb",                "level", "_id"}; // should have the same size as FieldPaths !!
+const vector<string> reactColumnHeaders = { "symbol",           "name",                 "type"/*,             "sourcetdb",            "level", "_id"*/ };
 
 struct ReactionSetData_::Impl
 {

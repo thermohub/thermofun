@@ -17,10 +17,9 @@ namespace ThermoFun
 
 //const DBQueryData reactQuery("{\"_label\": \"reaction\" }", DBQueryData::qTemplate);
 const DBQueryData reactQuery("FOR u  IN reactions ", DBQueryData::qAQL);
-const vector<string> reactFieldPaths =
-    {"properties.symbol", "properties.name", "properties.equation", "_id", "properties.level", "properties.sourcetdb"};
-const vector<string> reactColumnHeaders = {"symbol", "name", "equation"};
-const vector<string> reactDataNames = {"symbol", "name", "equation", "_id", "level", "sourcetdb"};
+const vector<string> reactFieldPaths = {"properties.symbol", "properties.equation", "properties.reactyp", "properties.sourcetdb", "properties.level", "properties.name", "_id" };
+const vector<string> reactDataNames =     {"symbol",            "equation",             "type",        "sourcetdb",                         "level",              "name", "_id"}; // should have the same size as FieldPaths !!
+const vector<string> reactColumnHeaders = {"symbol",            "equation"/*,             "type",             "sourcetdb",            "level"*/};
 
 using QueryVertexReaction  = std::function<string(string, vector<string>)>;
 
