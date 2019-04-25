@@ -750,6 +750,12 @@ void ThermoFunWidgetNew::CmSelectSubstances()
             return;
         auto selNdx2= selDlg.allSelected();
         pdata->substModel->leftOnlySelected( selNdx2 );
+
+        ui->actionReset_TP->setEnabled(true);
+        ui->actionRealloc_TP->setEnabled(true);
+        ui->actionChange_Property_list->setEnabled(true);
+        ui->actionCalculate_Properties->setEnabled(true);
+
         ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate. (see preferences)"); // status
     }
     catch(jsonio::jsonio_exception& e)
@@ -784,6 +790,12 @@ void ThermoFunWidgetNew::CmSelectReactions()
             return;
         auto selNdx2= selDlg.allSelected();
         pdata->reactModel->leftOnlySelected( selNdx2 );
+
+        ui->actionReset_TP->setEnabled(true);
+        ui->actionRealloc_TP->setEnabled(true);
+        ui->actionChange_Property_list->setEnabled(true);
+        ui->actionCalculate_Properties->setEnabled(true);
+
         ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate. (see preferences)"); // status
     }
     catch(jsonio::jsonio_exception& e)
