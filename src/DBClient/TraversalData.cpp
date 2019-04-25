@@ -67,7 +67,7 @@ struct TraversalData::Impl
         get_linked_data_from_id_fn = memoize(get_linked_data_from_id_fn);
     }
 
-    auto getlevel (std::string idSubst) -> std::string
+    auto getDefinesLevel (std::string jsonrecord) -> std::string
     {
         std::string level_;
 
@@ -79,9 +79,9 @@ struct TraversalData::Impl
             break;
         case DefinesLevelMode::multiple    : {
             std::string substSymb;
-            std::string key = idSubst;
+//            std::string key = idSubst;
 
-            string jsonrecord = substData->getJsonRecordVertex(key);
+//            string jsonrecord = substData->getJsonRecordVertex(key);
             auto domdata = jsonio::unpackJson( jsonrecord );
             domdata->findValue("properties.symbol", substSymb);
 
@@ -100,15 +100,15 @@ struct TraversalData::Impl
 
     auto getlinkedDataFromId(std::string id_) -> VertexId_VertexType
     {
-        string _idRecord, _label, _type, _symbol, level_;
+        string _idRecord, _label, /*_type, _symbol,*/ level_;
         VertexId_VertexType result;
 
         string jsonrecord =  substData->getJsonRecordVertex(id_);
         auto domdata = jsonio::unpackJson( jsonrecord );
         domdata->findValue("_id",    _idRecord);
         domdata->findValue("_label", _label);
-        domdata->findValue("_type",  _type);
-        domdata->findValue("properties.symbol",  _symbol);
+//        domdata->findValue("_type",  _type);
+//        domdata->findValue("properties.symbol",  _symbol);
 
         // get recrod
         //record = pimpl->substData->getJsonBsonRecordVertex(id_).second;
@@ -119,14 +119,13 @@ struct TraversalData::Impl
         //bsonio::bson_to_key( record.data, "_type",  _type);
         //bsonio::bson_to_key( record.data, "properties.symbol",  _symbol);
 
-        // get level mode
-        level_ = getlevel(_idRecord);
-
         // if not in the database proceed
         if (!result.count(_idRecord))
         {
             if (_label == "substance")
             {
+                // get level mode
+                level_ = getDefinesLevel(jsonrecord);
                 result.insert(std::pair<std::string,std::string>(_idRecord, "substance"));
                 followIncomingEdgeDefines(_idRecord, result, level_);
             }
@@ -144,6 +143,8 @@ struct TraversalData::Impl
         string _idReact = "";
         string  _resultDataReac;
         vector<string> _resultDataEdge = substData->queryInEdgesDefines(_idSubst, level_ );
+
+        std::cout << "incoming defines: "<< _idSubst << endl;
 
         for(uint i = 0; i < _resultDataEdge.size(); i++)
         {
@@ -165,6 +166,8 @@ struct TraversalData::Impl
         string _resultDataSubst;
         vector<string> _resultDataEdge  = reactData->queryInEdgesTakes(_idReact );
 
+        std::cout << "incoming takes: "<< _idReact << endl;
+
         for(uint i = 0; i < _resultDataEdge.size(); i++)
         {
             _idSubst = extractStringField("_from", _resultDataEdge[i]);
@@ -173,7 +176,7 @@ struct TraversalData::Impl
             // if not in the database
             if (!result.count(_idSubst))
             {
-                level_ = getlevel(_idSubst);
+                level_ = getDefinesLevel(_resultDataSubst);
                 result.insert((std::pair<std::string,std::string>(_idSubst, "substance")));
                 followIncomingEdgeDefines(_idSubst, result, level_);
             }
@@ -227,7 +230,7 @@ struct TraversalData::Impl
                 //record = pimpl->substData->getJsonBsonRecordVertex(_idSubst).second;
                 //bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
-                level_ = getlevel(_idSubst);
+                level_ = getDefinesLevel(jsonrecord);
                 Substance substance = parseSubstance(domdata.get());
 
                 // get reaction symbol which define substance with _idSubst
