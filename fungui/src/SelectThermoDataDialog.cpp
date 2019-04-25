@@ -107,12 +107,11 @@ struct SelectThermoDataDialogPrivate
     {
         elementsSelected = elements;
         vector<string> substanceSymbols;
-        if( typeA )
-            substanceSymbols = _dbclient.substData().selectGiven( idThermoDataSet, elements, false );
-        else
-            substanceSymbols = _dbclient.substData().selectGiven( sourceTDBs, elements, unique );
 
+        // search for solvent in all ThermoDataSet
+        substanceSymbols = _dbclient.substData().selectGiven( {idThermoDataSet}, false );
         const jsonio::ValuesTable& subData = _dbclient.substData().getValuesTable();
+        substModel->loadModeRecords( subData );
 
         // build solvents table
         solventValues.clear();
@@ -121,7 +120,15 @@ struct SelectThermoDataDialogPrivate
             if( subRecord[_dbclient.substData().getDataName_DataIndex()["class_"]]  == "{\"3\":\"SC_AQSOLVENT\"}" )
                 solventValues.push_back(subRecord);
         }
-        substModel->loadModeRecords( subData );
+
+        if( typeA )
+            substanceSymbols = _dbclient.substData().selectGiven( idThermoDataSet, elements, false );
+        else
+            substanceSymbols = _dbclient.substData().selectGiven( sourceTDBs, elements, unique );
+
+        const jsonio::ValuesTable& subData2 = _dbclient.substData().getValuesTable();
+
+        substModel->loadModeRecords( subData2 );
     }
 
     void loadReactionRecords( bool typeA, const std::set<size_t>& substSelectedRows, bool unique )
