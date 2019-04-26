@@ -570,8 +570,7 @@ void SelectThermoDataDialog::selectRows( jsonui::TMatrixTable *dataTable, const 
 
 void SelectThermoDataDialog::selectA( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys  )
 {
-    auto row = pdata->thermoModel->findRow( pdata->_dbclient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet );
-    row = max( row, 0 );
+    auto row = pdata->thermoModel->findRow( pdata->_dbclient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet, true );
     thermoTable->setCurrentRow( row );
     pdata->elementsSelected = elementKeys;
 }
