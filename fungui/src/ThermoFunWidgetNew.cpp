@@ -746,9 +746,15 @@ void ThermoFunWidgetNew::CmSelectSubstances()
         jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.substData().getDataHeaders(),
                                      jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
-        if( !selDlg.exec() )
-            return;
-        auto selNdx2= selDlg.allSelected();
+        std::set<size_t> selNdx2;
+        if( selDlg.exec() )
+        {
+          selNdx2 = selDlg.allSelected();
+        }
+        else
+        {
+           selNdx2.insert(selNdx.begin(), selNdx.end());
+        }
         pdata->substModel->leftOnlySelected( selNdx2 );
 
         ui->actionReset_TP->setEnabled(true);
@@ -786,9 +792,15 @@ void ThermoFunWidgetNew::CmSelectReactions()
         jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.reactData().getDataHeaders(),
                                      jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
-        if( !selDlg.exec() )
-            return;
-        auto selNdx2= selDlg.allSelected();
+        std::set<size_t> selNdx2;
+        if( selDlg.exec() )
+        {
+          selNdx2 = selDlg.allSelected();
+        }
+        else
+        {
+           selNdx2.insert(selNdx.begin(), selNdx.end());
+        }
         pdata->reactModel->leftOnlySelected( selNdx2 );
 
         ui->actionReset_TP->setEnabled(true);

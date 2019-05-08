@@ -114,7 +114,7 @@ public:
             thermoData->setData( ii, column, value.c_str() );
     }
 
-    int findRow( size_t column, const std::string& value ) const
+    size_t findRow( size_t column, const std::string& value, bool first = false ) const
     {
         const jsonio::ValuesTable&  matrix = getValues();
         for( size_t ii=0; ii<matrix.size(); ii++ )
@@ -125,7 +125,8 @@ public:
              if( matrix[ii][column] == value )
               return ii;
         }
-        return -1;
+        jsonio::jsonioErrIf( !first,  "ThermoViewModel",  "Value " + value + " not exists" );
+        return 0;
     }
 
     /// Move record with values up
