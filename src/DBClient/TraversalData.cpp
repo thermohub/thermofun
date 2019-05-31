@@ -8,9 +8,11 @@
 #include "Database.h"
 #include "Substance.h"
 #include "Reaction.h"
-#include "Common/ParseBsonTraversalData.h"
+//#include "Common/ParseBsonTraversalData.h"
 #include "Common/Exception.h"
 #include "OptimizationUtils.h"
+
+#include "Common/ParseJsonToData.h"
 
 #include <sys/time.h>
 
@@ -231,7 +233,7 @@ struct TraversalData::Impl
                 //bsonio::bson_to_key( record.data, "properties.symbol", substSymb );
 
                 level_ = getDefinesLevel(jsonrecord);
-                Substance substance = parseSubstance(domdata.get());
+                Substance substance = parseSubstance(jsonrecord);
 
                 // get reaction symbol which define substance with _idSubst
                 string definesReactSymb = substData->definesReactionSymbol(_idSubst, level_);
@@ -254,7 +256,7 @@ struct TraversalData::Impl
                     auto domdata = jsonio::unpackJson( jsonrecord, "VertexReaction" ); // with default values
                     //record = pimpl->reactData->getJsonBsonRecordVertex(_idReact).second;
 
-                    Reaction reaction = ThermoFun::parseReaction(domdata.get());
+                    Reaction reaction = ThermoFun::parseReaction(jsonrecord);
 
                     // get reactants by following reaction incoming takes edge
                     reaction.setReactants(reactData->reactantsCoeff(_idReact));

@@ -5,8 +5,8 @@
 sudo apt-get install -y libboost-all-dev libcurl4-openssl-dev
 
 # Uncomment what is necessary to reinstall by force 
-#sudo rm -f /usr/local/lib/libvelocypack.a
-#sudo rm -f /usr/local/lib/libjsonio.a
+sudo rm -f /usr/local/lib/libvelocypack.a
+sudo rm -f /usr/local/lib/libjsonio.a
 
 threads=3
 #QT_PATH=/home/dmiron/Qt/5.11.0/gcc_64
@@ -21,6 +21,7 @@ test -f /usr/local/lib/libvelocypack.a || {
 		cd ~/code && \
 		git clone https://github.com/arangodb/velocypack.git && \
 		cd velocypack && \
+		git checkout ce7c5fec3ec54c46ff4adbadfd4519540895e096 && \
 		mkdir -p build && \
 		cd build && \
 		cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF && \

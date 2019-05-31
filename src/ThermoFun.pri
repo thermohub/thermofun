@@ -1,4 +1,5 @@
     HEADERS	 += $$PWD/GlobalVariables.h \
+    $$PWD/Common/ParseJsonToData.h \
     $$PWD/Common/ThermoScalar.hpp \
     $$PWD/Common/ScalarTypes.hpp \
     $$PWD/Common/Units.hpp \
@@ -63,7 +64,6 @@
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
     $$PWD/Common/OutputToCSV.h \
-    $$PWD/Common/ParseBsonTraversalData.h \
 # Interface
 # DBClient
     $$PWD/DBClient/formuladata.h \
@@ -82,6 +82,7 @@
     $$PWD/DBClient/sourcetdb.h
 
     SOURCES	 += $$PWD/Database.cpp \
+    $$PWD/Common/ParseJsonToData.cpp \
     $$PWD/Common/Units.cpp \
 # ThermoFun
     $$PWD/Element.cpp \
@@ -135,7 +136,6 @@
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Common/OutputToCSV.cpp \
-    $$PWD/Common/ParseBsonTraversalData.cpp \
 # Interface
 # DBClient
     $$PWD/DBClient/formuladata.cpp \

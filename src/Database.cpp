@@ -2,7 +2,7 @@
 
 // ThermoFun includes
 #include "Common/Exception.h"
-#include "Common/ParseBsonTraversalData.h"
+//#include "Common/ParseBsonTraversalData.h"
 #include "DBClient/formuladata.h"
 #include "Substance.h"
 #include "Reaction.h"
@@ -13,11 +13,13 @@
 // jsonio includes
 #include "jsonio/json2file.h"
 
+#include "nlohmann/json.hpp"
+#include "Common/ParseJsonToData.h"
+
+
+using json = nlohmann::json;
+
 namespace ThermoFun {
-
-namespace {
-
-}
 
 auto errorNonExistent(std::string type, std::string name, int line) -> void
 {
@@ -57,9 +59,9 @@ struct Database::Impl
     Impl (DatabaseClient &dbc, const string &ThermoDataSetSymbol)
     {
         auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
-        auto db = databaseFromRecordList(dbc, recordList);
-        substances_map = db.mapSubstances();
-        reactions_map  = db.mapReactions();
+//        auto db = databaseFromRecordList(dbc, recordList);
+//        substances_map = db.mapSubstances();
+//        reactions_map  = db.mapReactions();
     }
 
     Impl(vector<string> jsons)
@@ -70,13 +72,13 @@ struct Database::Impl
         for (int i=0; i<jsons.size(); i++)
         {
             auto domdata = jsonio::unpackJson( jsons[i] );
-            domdata->findValue(label, kbuf );
+            domdata->findValue(label, kbuf);
             //bsonio::bson_to_key( bsons[i].data, label, kbuf );
 
             if (kbuf == "substance")
             {
-                Substance substance = parseSubstance(domdata.get());
-                substances_map[substance.symbol()] = substance;
+//                Substance substance = parseSubstance(domdata.get());
+//                substances_map[substance.symbol()] = substance;
             } else
             if (kbuf == "reaction")
             {
@@ -85,8 +87,8 @@ struct Database::Impl
             } else
             if (kbuf == "element")
             {
-                Element element = parseElement(domdata.get());
-                elements_map[element.symbol()] = element;
+//                Element element = parseElement(domdata.get());
+//                elements_map[element.symbol()] = element;
             } else
             {
                 Exception exception;
@@ -256,39 +258,38 @@ struct Database::Impl
 
         try
         {
-            // Reading work structure from json text file
-            jsonio::FJsonArray file(filename);
-            //type_ = file.Type();
-            file.Open( jsonio::OpenModeTypes::ReadOnly );
+            std::ifstream ifs(filename);
+            json j = json::parse(ifs);
 
-            // iterate by readed dom array
-            jsonio::JsonDom* curRecord = nullptr;
-            while( (curRecord = file.LoadNext()) !=nullptr   )
+            for(auto it = j.begin(); it != j.end(); ++it)
             {
-                 curRecord->findValue( label, kbuf );
-                 if (kbuf == "substance")
+                auto properties = it.value()["properties"];
+                auto _label = it.value()["_label"].get<std::string>();
+
+                if (_label == "substance")
+                {
+                    Substance substance = parseSubstance(properties.dump());
+                    substances_map[substance.symbol()] = substance;
+                } else
+                    if (_label == "reaction")
                     {
-                        Substance substance = parseSubstance(curRecord);
-                        substances_map[substance.symbol()] = substance;
-                    } else
-                  if (kbuf == "reaction")
-                    {
-                        Reaction reaction = parseReaction(curRecord);
+                        Reaction reaction = parseReaction(properties.dump());
                         reactions_map[reaction.symbol()] = reaction;
                     } else
-                  if (kbuf == "element")
-                    {
-                        Element element = parseElement(curRecord);
-                        elements_map[element.symbol()] = element;
-                    }
-                   else
-                    {
-                        Exception exception;
-                        exception.error << "Unknown JSON type " << kbuf << " ";
-                        exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
-                        exception.line = __LINE__;
-                        RaiseError(exception);
-                    }
+                        if (_label == "element")
+                        {
+                            Element element = parseElement(properties.dump());
+                            elements_map[element.symbol()] = element;
+                        }
+                        else
+                        {
+                            Exception exception;
+                            exception.error << "Unknown JSON type " << _label << " ";
+                            exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
+                            exception.line = __LINE__;
+                            RaiseError(exception);
+                        }
+
             }
         }
         catch (jsonio::jsonio_exception e)
