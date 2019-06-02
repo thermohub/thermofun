@@ -24,8 +24,8 @@ auto getTPMethods(const json &j, Reaction& r) -> void;
 auto thermoParamSubst (const json& j, std::string prop_name, ThermoParametersSubstance& ps) -> void;
 auto thermoParamReac (const json& j, ThermoParametersReaction& pr) -> void;
 
-auto thermoRefPropSubst (const json &j, std::string name) -> ThermoPropertiesSubstance;
-auto thermoRefPropReac (const json &j, std::string name) -> ThermoPropertiesReaction;
+auto thermoRefPropSubst (const json &j) -> ThermoPropertiesSubstance;
+auto thermoRefPropReac (const json &j) -> ThermoPropertiesReaction;
 
 //auto index_from_map (std::string map) -> int
 //{
@@ -317,7 +317,7 @@ auto thermoParamReac (const json &j, ThermoParametersReaction& pr) -> void
 
 }
 
-auto thermoRefPropSubst (const json& j, string name) -> ThermoPropertiesSubstance
+auto thermoRefPropSubst (const json& j) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
     string idSubst, message;
@@ -327,16 +327,16 @@ auto thermoRefPropSubst (const json& j, string name) -> ThermoPropertiesSubstanc
 
     //if (!parseIssues(idSubst, name, _id)) message = "_id : " + idSubst;
 
-    tps.heat_capacity_cp.sta = readValueError(j, "sm_gibbs_energy", tps.heat_capacity_cp.val, tps.heat_capacity_cp.err,  message);
-    tps.gibbs_energy.sta     = readValueError(j, "sm_entropy_abs",  tps.gibbs_energy.val,     tps.gibbs_energy.err,      message);
+    tps.heat_capacity_cp.sta = readValueError(j, "sm_heat_capacity_p" , tps.heat_capacity_cp.val, tps.heat_capacity_cp.err,  message);
+    tps.gibbs_energy.sta     = readValueError(j, "sm_gibbs_energy",  tps.gibbs_energy.val,     tps.gibbs_energy.err,      message);
     tps.enthalpy.sta         = readValueError(j, "sm_enthalpy",  tps.enthalpy.val,         tps.enthalpy.err,          message);
-    tps.entropy.sta          = readValueError(j, "sm_volume",  tps.entropy.val,          tps.entropy.err,           message);
-    tps.volume.sta           = readValueError(j, "sm_heat_capacity_p",  tps.volume.val,           tps.volume.err,            message);
+    tps.entropy.sta          = readValueError(j, "sm_entropy_abs",  tps.entropy.val,          tps.entropy.err,           message);
+    tps.volume.sta           = readValueError(j, "sm_volume",  tps.volume.val,           tps.volume.err,            message);
 
     return tps;
 }
 
-auto thermoRefPropReac (const json &j, string name) -> ThermoPropertiesReaction
+auto thermoRefPropReac (const json &j) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
     string message, idReac;
@@ -346,12 +346,12 @@ auto thermoRefPropReac (const json &j, string name) -> ThermoPropertiesReaction
 
     //if (!parseIssues(idReac, name, _id)) message = "_id : " + idReac;
 
-    tpr.log_equilibrium_constant.sta  = readValueError(j, reacRefLogK0_, tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  message);
-    tpr.reaction_heat_capacity_cp.sta = readValueError(j, reacRefCp0_,   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, message);
-    tpr.reaction_gibbs_energy.sta     = readValueError(j, reacRefG0_,    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     message);
-    tpr.reaction_enthalpy.sta         = readValueError(j, reacRefH0_,    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         message);
-    tpr.reaction_entropy.sta          = readValueError(j, reacRefS0_,    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          message);
-    tpr.reaction_volume.sta           = readValueError(j, reacRefV0_,    tpr.reaction_volume.val,           tpr.reaction_volume.err,           message);
+    tpr.log_equilibrium_constant.sta  = readValueError(j, "logKr", tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  message);
+    tpr.reaction_heat_capacity_cp.sta = readValueError(j, "drsm_heat_capacity_p",   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, message);
+    tpr.reaction_gibbs_energy.sta     = readValueError(j, "drsm_gibbs_energy",    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     message);
+    tpr.reaction_enthalpy.sta         = readValueError(j, "drsm_enthalpy",    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         message);
+    tpr.reaction_entropy.sta          = readValueError(j, "drsm_entropy",    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          message);
+    tpr.reaction_volume.sta           = readValueError(j, "drsm_volume",    tpr.reaction_volume.val,           tpr.reaction_volume.err,           message);
 
     return tpr;
 }
@@ -392,7 +392,6 @@ auto parseSubstance (const std::string& data) -> Substance
     Substance s;
     vector<string> vkbuf;
     string kbuf;
-    string name;
     json j = json::parse(data);
 
     if (j.contains("name"))
@@ -447,7 +446,7 @@ auto parseSubstance (const std::string& data) -> Substance
     // get thermodynamic parameters
 //    s.setThermoParameters(thermoParamSubst (object, name));
     // get reference thermodynamic properties
-    s.setThermoReferenceProperties(thermoRefPropSubst (j, name));
+    s.setThermoReferenceProperties(thermoRefPropSubst (j));
 
     return s;
 }
@@ -458,7 +457,6 @@ auto parseReaction (const std::string& data) -> Reaction
     Reaction r;
     string kbuf;
     vector<string> vkbuf;
-    string name;
     json j = json::parse(data);
 
     if (j.contains("name"))
@@ -499,7 +497,7 @@ auto parseReaction (const std::string& data) -> Reaction
     // get thermodynamic parameters
 //    r.setThermoParameters(thermoParamReac (object, name));
     // get reference thermodynamic properties
-    r.setThermoReferenceProperties(thermoRefPropReac(j, name));
+    r.setThermoReferenceProperties(thermoRefPropReac(j));
 
     return r;
 }
