@@ -10,32 +10,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_MACOSX_RPATH ON)
 
-find_library(BOOSTRE_LIB boost_regex)
-if(NOT BOOSTRE_LIB)
-  message(FATAL_ERROR "boost_regex library not found")
-endif()
-
-find_library(BOOSTFILE_LIB boost_filesystem)
-if(NOT BOOSTFILE_LIB)
-  message(FATAL_ERROR "boost_filesystem library not found")
-endif()
-
-find_library(CURL_LIB curl)
-if(NOT CURL_LIB)
-  message(FATAL_ERROR "curl library not found")
-endif()
-
-find_library(VELOCYPACK_LIB velocypack)
-if(NOT VELOCYPACK_LIB)
-  message(FATAL_ERROR "velocypack library not found")
-endif()
-
-find_library(JSONIO_LIB jsonio)
-if(NOT JSONIO_LIB)
-  message(FATAL_ERROR "jsonio library not found")
-endif()
-
-
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
 
@@ -44,6 +18,7 @@ option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
+option(TFUN_BUILD_DBCLIENT "Build ThermoFun with DBClient." OFF)
 option(TFUN_BUILD_DEMOGUI "Build ThermoFunGui demo." OFF)
 option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
@@ -54,8 +29,13 @@ if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_STATIC_LIBS          ON)
 #    set(TFUN_BUILD_TESTS                ON)
     set(TFUN_BUILD_GUI                  ON)
+    set(TFUN_BUILD_DBCLIENT             ON)
     set(TFUN_BUILD_DEMOGUI              ON)
     set(TFUN_BUILD_PYTHON               ON)
+endif()
+
+if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_DEMOGUI MATCHES ON)
+    set(TFUN_BUILD_DBCLIENT             ON)
 endif()
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
@@ -96,23 +76,8 @@ endif()
 # Set the thermofun source directory path
 set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-# Set the directory where the third-party libraries are temporarily installed before installed to CMAKE_INSTALL_PREFIX
-#set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)
-
-# Set the include and library directories where the third party libraries were installed
-#set(THIRDPARTY_INCLUDE_DIR ${THIRDPARTY_DIR}/include)
-#set(THIRDPARTY_LIBRARY_DIR ${THIRDPARTY_DIR}/lib)
-
 # Set the include directories
 include_directories(${THERMOFUN_SOURCE_DIR})
-#include_directories(${THIRDPARTY_INCLUDE_DIR})
-include_directories(${BOOST_INCLUDE_DIR})
-
-# Install the third-party libraries first
-#include(InstallThirdPartyLibs)
-
-# Set the lib directory of the third party libraries installed automatically
-#link_directories(${THIRDPARTY_LIBRARY_DIR})
 
 # Build thermofun library
 add_subdirectory(src)
@@ -127,6 +92,13 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 #else()
 #    add_subdirectory(tests EXCLUDE_FROM_ALL)
 #endif()
+
+# Build ThermoFunGui library
+if(TFUN_BUILD_DBCLIENT)
+    add_subdirectory(DBClient)
+#else()
+#    add_subdirectory(fungui EXCLUDE_FROM_ALL)
+endif()
 
 # Build ThermoFunGui library
 if(TFUN_BUILD_GUI)

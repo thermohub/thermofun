@@ -5,7 +5,11 @@
 #include <memory>
 
 // ThermoFun includes
-#include "formuladata.h"
+#ifdef FROM_SRC
+#include "../src/Common/formuladata.h"
+#else
+#include "thermofun/Common/formuladata.h"
+#endif
 #include "jsonio/dbconnect.h"
 #include "jsonio/dbedgedoc.h"
 

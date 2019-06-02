@@ -14,7 +14,7 @@ sudo apt-get install -y lua5.3-dev libboost-all-dev libcurl4-openssl-dev libboos
 #sudo rm -f /usr/local/lib/libyaml-cpp.so
 #sudo rm -f /usr/local/lib/libthrift.a
 #sudo rm -f /usr/local/lib/libjsonimpex.a
-#sudo rm -f /usr/local/lib/libjsonui.a
+sudo rm -f /usr/local/lib/libjsonui.a
 
 threads=3
 QT_PATH=$1
@@ -110,7 +110,7 @@ test -f /usr/local/lib/libjsonui.a || {
 		cd jsonui && \
 		mkdir -p build && \
 		cd build && \
-		cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$QT_PATH && \
+		cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=Release -DJSONUI_NO_IMPEX=ON -DCMAKE_PREFIX_PATH=$QT_PATH && \
 		make -j $threads && \
 		sudo make install
 

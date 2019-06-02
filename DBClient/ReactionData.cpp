@@ -1,4 +1,5 @@
 #include "ReactionData.h"
+#include "sourcetdb.h"
 
 // C++ includes
 #include <functional>
@@ -6,8 +7,11 @@
 #include "jsonio/jsondomfree.h"
 
 // ThermoFun includes
-#include "OptimizationUtils.h"
-#include "sourcetdb.h"
+#ifdef FROM_SRC
+#include "../src/OptimizationUtils.h"
+#else
+#include "thermofun/OptimizationUtils.h"
+#endif
 
 using namespace std;
 using namespace jsonio;

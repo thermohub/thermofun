@@ -44,11 +44,11 @@
 #include "jsonui/waitingspinnerwidget.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/DBClient/ReactionData.h"
-#include "../src/DBClient/ReactionSetData.h"
+#include "../DBClient/ReactionData.h"
+#include "../DBClient/ReactionSetData.h"
 #else
-#include "thermofun/DBClient/ReactionData.h"
-#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermodbclient/ReactionData.h"
+#include "thermodbclient/ReactionSetData.h"
 #endif
 
 ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :

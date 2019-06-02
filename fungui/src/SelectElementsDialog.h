@@ -7,20 +7,17 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/DBClient/formuladata.h"
-#include "../src/DBClient/DatabaseClient.h"
-#include "../src/DBClient/ReactionSetData.h"
-#include "../src/DBClient/SubstanceData.h"
+#include "../src/Common/formuladata.h"
+#include "../DBClient/DatabaseClient.h"
+#include "../DBClient/ReactionSetData.h"
+#include "../DBClient/SubstanceData.h"
 #endif
 #ifndef FROM_SRC
-#include "thermofun/DBClient/formuladata.h"
-#include "thermofun/DBClient/DatabaseClient.h"
-#include "thermofun/DBClient/ReactionSetData.h"
-#include "thermofun/DBClient/SubstanceData.h"
+#include "thermofun/Common/formuladata.h"
+#include "thermodbclient/DatabaseClient.h"
+#include "thermodbclient/ReactionSetData.h"
+#include "thermodbclient/SubstanceData.h"
 #endif
-
-
-
 
 namespace Ui {
 class SelectElements;

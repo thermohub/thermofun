@@ -11,21 +11,27 @@ CONFIG += c++11
 
 TARGET = dbclientTest
 
+DEFINES += FROM_SRC
+
 #DEFINES += IPMGEMPLUGIN
 ##DEFINES += NODEARRAYLEVEL
 #DEFINES += NOPARTICLEARRAY
 
 ThermoFun_TEST_CPP = ./src
+ThermoDBClient_CPP = ../../DBClient
 ThermoFun_CPP   =  ../../src
 
 ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
+ThermoDBClient_H = $$ThermoDBClient_CPP
 ThermoFun_H     =   $$ThermoFun_CPP
 
 DEPENDPATH   += $$ThermoFun_TEST_H
 DEPENDPATH   += $$ThermoFun_H
+DEPENDPATH   += $$ThermoDBClient_H
 
 INCLUDEPATH  += $$ThermoFun_TEST_H
 INCLUDEPATH  += $$ThermoFun_H
+INCLUDEPATH  += $$ThermoDBClient_H
 
 QMAKE_LFLAGS +=
 OBJECTS_DIR = obj
@@ -58,6 +64,7 @@ LIBS +=  -lcurl  -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
+include($$ThermoDBClient_CPP/ThermoDBClient.pri)
 #include(Modules/GEMS4R/GEMS4R.pri)
 
 

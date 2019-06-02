@@ -57,12 +57,14 @@ qt5_add_resources(guidemo_SRCS ${RESOURCE})
 
 include_directories(${CMAKE_BINARY_DIR}/fungui/demo)
 include_directories(${CMAKE_SOURCE_DIR}/../src/)
+include_directories(${CMAKE_BINARY_DIR}/../../DBClient/)
 #include_directories(${CMAKE_BINARY_DIR}/../)
 
 add_executable(guidemo ${guidemo_SOURCES} ${guidemo_HEADERS_MOC} ${guidemo_FORMS_HEADERS} ${guidemo_SRCS})
 
 target_link_libraries (guidemo jsonio jsonui Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts boost_regex boost_system boost_filesystem curl velocypack thrift)
 target_link_libraries (guidemo THERMOFUNGUI_STATIC)
+target_link_libraries (guidemo THERMODBCLIENT_STATIC)
 target_link_libraries (guidemo THERMOFUN_STATIC)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/guidemo.sh

@@ -393,6 +393,8 @@ auto parseSubstance (const std::string& data) -> Substance
     vector<string> vkbuf;
     string kbuf;
     json j = json::parse(data);
+    if (j.contains("properties"))
+        j = j["properties"];
 
     if (j.contains("name"))
         s.setName(j["name"]);
@@ -458,6 +460,8 @@ auto parseReaction (const std::string& data) -> Reaction
     string kbuf;
     vector<string> vkbuf;
     json j = json::parse(data);
+    if (j.contains("properties"))
+        j = j["properties"];
 
     if (j.contains("name"))
         r.setName(j["name"]);

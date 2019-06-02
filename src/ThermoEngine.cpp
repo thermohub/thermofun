@@ -1,6 +1,6 @@
 // ThermoFun includes
 #include "Common/Exception.h"
-#include "DBClient/formuladata.h"
+#include "Common/formuladata.h"
 #include "ThermoEngine.h"
 #include "Database.h"
 #include "Reaction.h"

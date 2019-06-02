@@ -34,6 +34,9 @@ FUN_H         = $$FUN_DIR
 GUI_DIR       = ./src
 GUI_CPP       = $$GUI_DIR
 GUI_H         = $$GUI_DIR
+CLIENT_DIR = ../DBClient
+CLIENT_CPP = $$CLIENT_DIR
+CLIENT_H   = $$CLIENT_DIR
 #GUI_CPP       =  ./GUI
 #GUI_H         =  $$GUI_CPP
 
@@ -48,6 +51,12 @@ DEPENDPATH   += $$FUN_DIR
 
 INCLUDEPATH   += $$FUN_H
 INCLUDEPATH   += $$FUN_DIR
+
+DEPENDPATH   += $$CLIENT_H
+DEPENDPATH   += $$CLIENT_DIR
+
+INCLUDEPATH   += $$CLIENT_H
+INCLUDEPATH   += $$CLIENT_DIR
 
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
@@ -85,6 +94,7 @@ OBJECTS_DIR   = obj
 #include($$THRIFT_DIR/thrift.pri)
 #include($$GEN_DIR/generator.pri)
 include($$GUI_DIR/ThermoFunGUI.pri)
+include($$CLIENT_DIR/ThermoDBClient.pri)
 include($$FUN_DIR/ThermoFun.pri)
 
 RESOURCES += \

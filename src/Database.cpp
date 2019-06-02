@@ -2,19 +2,16 @@
 
 // ThermoFun includes
 #include "Common/Exception.h"
-//#include "Common/ParseBsonTraversalData.h"
-#include "DBClient/formuladata.h"
+#include "Common/formuladata.h"
+#include "Common/ParseJsonToData.h"
 #include "Substance.h"
 #include "Reaction.h"
 #include "Element.h"
-#include "DBClient/DatabaseClient.h"
-//#include "DBClient/ThermoSetData.h"
-
 // jsonio includes
 #include "jsonio/json2file.h"
 
 #include "nlohmann/json.hpp"
-#include "Common/ParseJsonToData.h"
+
 
 
 using json = nlohmann::json;
@@ -58,7 +55,7 @@ struct Database::Impl
 
     Impl (DatabaseClient &dbc, const string &ThermoDataSetSymbol)
     {
-        auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
+//        auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
 //        auto db = databaseFromRecordList(dbc, recordList);
 //        substances_map = db.mapSubstances();
 //        reactions_map  = db.mapReactions();
@@ -67,7 +64,7 @@ struct Database::Impl
     Impl(vector<string> jsons)
     {
         string kbuf;
-//        flog.open(parsinglogfile, ios::trunc); flog.close();
+        flog.open(parsinglogfile, ios::trunc); flog.close();
 
         for (int i=0; i<jsons.size(); i++)
         {

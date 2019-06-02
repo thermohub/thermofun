@@ -9,16 +9,22 @@
 #include "jsonio/io_settings.h"
 
 // ThermoFun includes
+#ifdef FROM_SRC
+#include "../src/OptimizationUtils.h"
+#include "../src/Database.h"
+#include "../src/Element.h"
+#else
+#include "thermofun/OptimizationUtils.h"
+#include "thermofun/Database.h"
+#include "thermofun/Element.h"
+#endif
+
 #include "SubstanceData.h"
 #include "ReactionData.h"
 #include "ReactionSetData.h"
 #include "ThermoSetData.h"
 #include "TraversalData.h"
 #include "sourcetdb.h"
-
-#include "Database.h"
-#include "Element.h"
-#include "OptimizationUtils.h"
 
 using namespace std;
 using namespace jsonio;

@@ -5,11 +5,12 @@
 sudo apt-get install -y libboost-all-dev libcurl4-openssl-dev
 
 # Uncomment what is necessary to reinstall by force 
-sudo rm -f /usr/local/lib/libvelocypack.a
-sudo rm -f /usr/local/lib/libjsonio.a
+#sudo rm -f /usr/local/lib/libvelocypack.a
+#sudo rm -f /usr/local/lib/libjsonio.a
 
 threads=3
 #QT_PATH=/home/dmiron/Qt/5.11.0/gcc_64
+BRANCH_JSON=master
 git status
 
 # Velocypack from ArangoDB (added for installing JSONIO database client)
@@ -40,7 +41,7 @@ test -f /usr/local/lib/libjsonio.a || {
 	# Building jsonio library
 	mkdir -p ~/code && \
 		cd ~/code && \
-		git clone https://bitbucket.org/gems4/jsonio.git && \
+		git clone https://bitbucket.org/gems4/jsonio.git -b $BRANCH_JSON && \
 		cd jsonio && \
 		mkdir -p build && \
 		cd build && \

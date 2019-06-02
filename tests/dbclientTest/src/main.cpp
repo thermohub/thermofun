@@ -3,13 +3,14 @@
 #include "jsonio/io_settings.h"
 #include "jsonio/nservice.h"
 
-#include "DBClient/DatabaseClient.h"
-#include "DBClient/ReactionData.h"
-#include "DBClient/AbstractData.h"
-#include "DBClient/SubstanceData.h"
-#include "DBClient/ReactionSetData.h"
-#include "DBClient/ThermoSetData.h"
-#include "Common/ParseBsonTraversalData.h"
+#include "DatabaseClient.h"
+#include "ReactionData.h"
+#include "AbstractData.h"
+#include "SubstanceData.h"
+#include "ReactionSetData.h"
+#include "ThermoSetData.h"
+#include "ParseDbcToData.h"
+//#include "Common/ParseBsonTraversalData.h"
 
 #include <sys/time.h>
 

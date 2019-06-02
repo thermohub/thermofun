@@ -9,15 +9,15 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/DBClient/ThermoSetData.h"
-#include "../src/DBClient/SubstanceData.h"
-#include "../src/DBClient/ReactionData.h"
-#include "../src/DBClient/ReactionSetData.h"
+#include "../DBClient/ThermoSetData.h"
+#include "../DBClient/SubstanceData.h"
+#include "../DBClient/ReactionData.h"
+#include "../DBClient/ReactionSetData.h"
 #else
-#include "thermofun/DBClient/ThermoSetData.h"
-#include "thermofun/DBClient/SubstanceData.h"
-#include "thermofun/DBClient/ReactionData.h"
-#include "thermofun/DBClient/ReactionSetData.h"
+#include "thermodbclient/ThermoSetData.h"
+#include "thermodbclient/SubstanceData.h"
+#include "thermodbclient/ReactionData.h"
+#include "tthermodbclient/ReactionSetData.h"
 #endif
 
 using namespace std;

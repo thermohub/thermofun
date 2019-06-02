@@ -10,9 +10,9 @@
 #include "ui_ThermoFunMainWindow.h"
 #include "ThermoFunWidgetNew.h"
 #ifdef FROM_SRC
-#include "../src/DBClient/formuladata.h"
+#include "../src/Common/formuladata.h"
 #else
-#include "thermofun/DBClient/formuladata.h"
+#include "thermofun/Common/formuladata.h"
 #endif
 
 TThermoFunMainWin::TThermoFunMainWin(QWidget *parent) :

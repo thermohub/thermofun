@@ -5,9 +5,9 @@
 #include "jsonui/model_table.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/DBClient/AbstractData.h"
+#include "../DBClient/AbstractData.h"
 #else
-#include "thermofun/DBClient/AbstractData.h"
+#include "thermodbclient/AbstractData.h"
 #endif
 
 class ThermoViewModel: public QObject

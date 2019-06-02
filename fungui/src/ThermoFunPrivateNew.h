@@ -9,14 +9,14 @@
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/Batch/ThermoBatch.h"
-#include "../src/DBClient/DatabaseClient.h"
-#include "../src/DBClient/SubstanceData.h"
+#include "../DBClient/DatabaseClient.h"
+#include "../DBClient/SubstanceData.h"
 #include "../src/Reaction.h"
 #include "../src/Substance.h"
 #else
 #include "thermofun/Batch/ThermoBatch.h"
-#include "thermofun/DBClient/DatabaseClient.h"
-#include "thermofun/DBClient/SubstanceData.h"
+#include "thermodbclient/DatabaseClient.h"
+#include "thermodbclient/SubstanceData.h"
 #include "thermofun/Reaction.h"
 #include "thermofun/Substance.h"
 #endif
