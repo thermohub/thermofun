@@ -67,7 +67,7 @@ struct Database::Impl
     Impl(vector<string> jsons)
     {
         string kbuf;
-        flog.open(parsinglogfile, ios::trunc); flog.close();
+//        flog.open(parsinglogfile, ios::trunc); flog.close();
 
         for (int i=0; i<jsons.size(); i++)
         {

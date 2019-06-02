@@ -6,7 +6,7 @@
     int main()
     {
       // Create the interface object using a database file in JSON
-      ThermoBatch batch("aq17.json");
+      ThermoBatch batch("aq17_.json");
 
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       batch.setSolventSymbol("H2O@");
@@ -27,10 +27,17 @@
       Reaktoro_::ThermoScalar V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar();
 
       // Write results to a comma separate files for a list of T-P pairs, substances, and properties
-      batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
-                                           {"Al+3", "OH-", "SiO2@"},                        // list of substance symbols
+      batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}, {600, 4100}}, // list of T-P pairs
+                                           {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
                                            {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
-                                          ).toCSV("results.csv");                           // output
+                                          ).toCSV("results_after.csv");                           // output
+
+
+      // Test
+      ThermoEngine engine("aq17.json");
+
+      auto elements = engine.parseSubstanceFormula("H2O@");
+
       return 0;
     }
 

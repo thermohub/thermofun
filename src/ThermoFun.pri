@@ -79,7 +79,8 @@
     $$PWD/ThermoEngine.h \
     $$PWD/Batch/ThermoBatch.h \
     $$PWD/Batch/OutputBatch.h \
-    $$PWD/DBClient/sourcetdb.h
+    $$PWD/DBClient/sourcetdb.h \
+    $$PWD/DBClient/ParseDbcToData.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$PWD/Common/ParseJsonToData.cpp \
@@ -151,4 +152,5 @@
     $$PWD/Batch/ThermoBatch.cpp \
     $$PWD/Batch/OutputBatch.cpp \
     $$PWD/DBClient/sourcetdb.cpp \
-    $$PWD/DBClient/ElementData.cpp
+    $$PWD/DBClient/ElementData.cpp \
+    $$PWD/DBClient/ParseDbcToData.cpp
