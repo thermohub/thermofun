@@ -151,4 +151,20 @@ auto errorNotMatchingLevel(std::string type, std::string name, int line, std::st
     RaiseError(exception);
 }
 
+auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void
+{
+    Exception exception;
+    exception.error << error;
+    exception.reason << reason;
+    exception.line = line;
+    exception.file = file;
+    RaiseError(exception);
+}
+
+auto funErrorIf(bool condition, const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void
+{
+    if (condition)
+        funError(error, reason, line, file);
+}
+
 } // namespace ThermoFun

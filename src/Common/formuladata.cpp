@@ -1,30 +1,36 @@
 #include <math.h>
-#include "jsonio/jsondomfree.h"
 #include "formuladata.h"
 #include "formulaparser.h"
 #include "Element.h"
+#include "Exception.h"
+// JSON
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
+
 using namespace  std;
 
 namespace ThermoFun {
 using ElementsMap   = std::map<std::string, Element>;
+const short SHORT_EMPTY_  = -32768;
 
 DBElementsData ChemicalFormula::dbElements= DBElementsData();
-vector<string> ChemicalFormula::queryFields =
-{
-      "_id",
-      "_type",
-      "_label",
-      "properties.symbol",
-      "properties.class_" ,
-      "properties.isotope_mass",
-      "properties.atomic_mass.values.0",
-      "properties.entropy.values.0",
-      "properties.heat_capacity.values.0",
-      "properties.volume.values.0",
-      "properties.valences.0",
-      "properties.number",
-      "properties.name"
-};
+//vector<string> ChemicalFormula::queryFields =
+//{
+//      "_id",
+//      "_type",
+//      "_label",
+//      "properties.symbol",
+//      "properties.class_" ,
+//      "properties.isotope_mass",
+//      "properties.atomic_mass.values.0",
+//      "properties.entropy.values.0",
+//      "properties.heat_capacity.values.0",
+//      "properties.volume.values.0",
+//      "properties.valences.0",
+//      "properties.number",
+//      "properties.name"
+//};
 
 
 /* Construct key from elements document
@@ -39,14 +45,14 @@ ElementKey::ElementKey( jsonio::TDBVertexDocument* elementDB )
 }*/
 
 // Construct key from elements document values
-ElementKey::ElementKey( const std::string& asymbol, const std::string& aclass_, const std::string& aisotope  ):
-    symbol(asymbol)
-{
-    isotope = 0;
-    if( !aisotope.empty() )
-           jsonio::TArray2Base::string2value( aisotope, isotope );
-    class_ = index_from_map( aclass_ );
-}
+//ElementKey::ElementKey( const std::string& asymbol, const int& aclass_, const std::string& aisotope  ):
+//    symbol(asymbol)
+//{
+//    isotope = 0;
+//    if( !aisotope.empty() )
+//           isotope = stoi(aisotope);
+//    class_ = index_from_map( aclass_ );
+//}
 
 void ElementKey::classIsotopeFrom(const string& typeline)
 {
@@ -61,11 +67,12 @@ void ElementKey::classIsotopeFrom(const string& typeline)
 
       }
       else
-          if( jsonio::is<int>( isotope, typeline.c_str()) )
-             class_ = 1; // ElementClass::ISOTOPE schema.enumdef->getId( "ISOTOPE" );
-          else
+//          if( jsonio::is<int>( isotope, typeline.c_str()) )
+//             class_ = 1; // ElementClass::ISOTOPE schema.enumdef->getId( "ISOTOPE" );
+//          else
              isotope = 0;
   //cout << typeline << " class_ " << class_ << " isotope " << isotope << endl;
+
 }
 
 string ElementKey::formulaKey() const
@@ -79,133 +86,138 @@ string ElementKey::formulaKey() const
  return _key;
 }
 
-int ElementKey::index_from_map(std::string map)
-{
-    if( map.empty() )
-       return 0;
-    auto first = map.find("\"");
-    jsonio::jsonioErrIf( first == string::npos, map, "Illegal class value.");
-    auto second = map.find("\"", first+1);
-    jsonio::jsonioErrIf( second == string::npos, map, "Illegal class value.");
-    string strNew = map.substr (first+1,second-(first+1));
-    return stoi(strNew);
-}
+//int ElementKey::index_from_map(std::string map)
+//{
+//    if( map.empty() )
+//       return 0;
+//    auto first = map.find("\"");
+//    jsonio::jsonioErrIf( first == string::npos, map, "Illegal class value.");
+//    auto second = map.find("\"", first+1);
+//    jsonio::jsonioErrIf( second == string::npos, map, "Illegal class value.");
+//    string strNew = map.substr (first+1,second-(first+1));
+//    return stoi(strNew);
+//}
 
-// Writes data to json (only key)
-void ElementKey::toKeyNode( jsonio::JsonDom *object ) const
-{
-    object->appendString( "symbol", symbol );
-    if( isotope != 0 )
-      object->appendInt( "isotope_mass", isotope );
-    if( class_ != 0 )
-      object->appendInt( "class_", class_ );
-}
+//// Writes data to json (only key)
+//void ElementKey::toKeyNode( jsonio::JsonDom *object ) const
+//{
+//    object->appendString( "symbol", symbol );
+//    if( isotope != 0 )
+//      object->appendInt( "isotope_mass", isotope );
+//    if( class_ != 0 )
+//      object->appendInt( "class_", class_ );
+//}
 
-// Reads data from JsonDom (only key)
-void ElementKey::fromKeyNode( const jsonio::JsonDom *object )
-{
-    if(!object->findValue( "symbol", symbol ) )
-        jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
-    if(!object->findValue( "isotope_mass", isotope ) )
-        isotope = 0;
-    if(!object->findValue("class_", class_ ) )
-        class_ = 0;
-}
+//// Reads data from JsonDom (only key)
+//void ElementKey::fromKeyNode( const jsonio::JsonDom *object )
+//{
+//    if(!object->findValue( "symbol", symbol ) )
+//        jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
+//    if(!object->findValue( "isotope_mass", isotope ) )
+//        isotope = 0;
+//    if(!object->findValue("class_", class_ ) )
+//        class_ = 0;
+//}
 
 // Reads data from JsonDom (fromm real record)
-void ElementKey::fromElementNode( const jsonio::JsonDom *object )
+void ElementKey::fromElementNode( const std::string& element )
 {
-    if(!object->findValue( "symbol", symbol ) )
-        jsonio::jsonioErr( "ElementKey: ", "Undefined symbol.");
-    if(!object->findValue( "isotope_mass", isotope ) )
-        isotope = 0;
-    std::map<std::string, int> map_;
-    if(!object->findObject("class_", map_ ) ||  map_.size() < 1 )
-        class_ = 0;
-    else
-        class_ = atoi(map_.begin()->first.c_str());
+  json j = json::parse(element);
+
+  if (j.contains("symbol"))
+    symbol = j["symbol"].get<string>();
+  else
+    funError("Undefined symbol.", "Element ", __LINE__, __FILE__ );
+  if (j.contains("isotope_mass"))
+    isotope = j["isotope_mass"].get<int>();
+  else
+    isotope = 0;
+  if (j.contains("class_"))
+    class_ = stoi(j["class_"].begin().key());
+  else
+    class_ = 0;
 }
 
 
-void ElementsKeysToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements )
-{
-  int ndx=0;
-  for( auto el: elements)
-  {
-      auto objel = object->appendObject(to_string(ndx++));
-      el.toKeyNode( objel );
-  }
-}
+//void ElementsKeysToJsonDom( jsonio::JsonDom *object, const set<ElementKey>& elements )
+//{
+//  int ndx=0;
+//  for( auto el: elements)
+//  {
+//      auto objel = object->appendObject(to_string(ndx++));
+//      el.toKeyNode( objel );
+//  }
+//}
 
-shared_ptr<jsonio::JsonDomFree> ElementsKeysToJsonArray( const set<ElementKey>& elements )
-{
-    shared_ptr<jsonio::JsonDomFree> domdata(jsonio::JsonDomFree::newArray());
-    ElementsKeysToJsonDom( domdata.get(), elements );
-    return domdata;
-}
+//shared_ptr<jsonio::JsonDomFree> ElementsKeysToJsonArray( const set<ElementKey>& elements )
+//{
+//    shared_ptr<jsonio::JsonDomFree> domdata(jsonio::JsonDomFree::newArray());
+//    ElementsKeysToJsonDom( domdata.get(), elements );
+//    return domdata;
+//}
 
-string ElementsKeysToJson( const set<ElementKey>& elements )
-{
-  auto domarray = ElementsKeysToJsonArray( elements );
-  string elmsjson;
-  printNodeToJson( elmsjson, domarray.get() );
-  return elmsjson;
-}
+//string ElementsKeysToJson( const set<ElementKey>& elements )
+//{
+//  auto domarray = ElementsKeysToJsonArray( elements );
+//  string elmsjson;
+//  printNodeToJson( elmsjson, domarray.get() );
+//  return elmsjson;
+//}
 
-// Work only with internal elements list (wihout map)
-void ElementsKeysFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elements )
-{
-    ElementKey elem("",0,0);
-    size_t objsize = object->getChildrenCount();
+//// Work only with internal elements list (wihout map)
+//void ElementsKeysFromJsonDom( const jsonio::JsonDom *object, set<ElementKey>& elements )
+//{
+//    ElementKey elem("",0,0);
+//    size_t objsize = object->getChildrenCount();
 
-    for( size_t ii=0; ii<objsize; ii++ )
-    {
-       auto childobj = object->getChild( ii);
-       if( childobj->getType() != jsonio::JSON_OBJECT )
-            continue;
-        elem.fromKeyNode(childobj);
-        elements.insert(elem);
-    }
- }
+//    for( size_t ii=0; ii<objsize; ii++ )
+//    {
+//       auto childobj = object->getChild( ii);
+//       if( childobj->getType() != jsonio::JSON_OBJECT )
+//            continue;
+//        elem.fromKeyNode(childobj);
+//        elements.insert(elem);
+//    }
+// }
 
-bool ElementsKeysFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements )
-{
-    elements.clear();
-    auto elmobj = object->field(keypath);
-    if(elmobj==nullptr)
-      return false;
-    ElementsKeysFromJsonDom( elmobj, elements );
-    return true;
- }
-
-
-bool ElementsKeysFromJson( const string elmsjson, set<ElementKey>& elements )
-{
-    try{
-        auto arrobject = jsonio::unpackJson( elmsjson );
-        elements.clear();
-        ElementsKeysFromJsonDom( arrobject.get(), elements );
-        return true;
-    }
-    catch(...)
-      {
-        return false;
-      }
-}
+//bool ElementsKeysFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements )
+//{
+//    elements.clear();
+//    auto elmobj = object->field(keypath);
+//    if(elmobj==nullptr)
+//      return false;
+//    ElementsKeysFromJsonDom( elmobj, elements );
+//    return true;
+// }
 
 
-vector<ElementKey> getElementKeys( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
-{
-  vector<ElementKey> elements;
+//bool ElementsKeysFromJson( const string elmsjson, set<ElementKey>& elements )
+//{
+//    try{
+//        auto arrobject = jsonio::unpackJson( elmsjson );
+//        elements.clear();
+//        ElementsKeysFromJsonDom( arrobject.get(), elements );
+//        return true;
+//    }
+//    catch(...)
+//      {
+//        return false;
+//      }
+//}
 
-  for(uint ii=0; ii<idList.size(); ii++ )
-  {
-    elementDB->Read( idList[ii] );
-    elements.push_back(ElementKey(elementDB));
-  }
 
-  return elements;
-}
+//vector<ElementKey> getElementKeys( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
+//{
+//  vector<ElementKey> elements;
+
+//  for(uint ii=0; ii<idList.size(); ii++ )
+//  {
+//    elementDB->Read( idList[ii] );
+//    elements.push_back(ElementKey(elementDB));
+//  }
+
+//  return elements;
+//}
 
 
 bool operator <( const ElementKey& iEl,  const ElementKey& iEr)
@@ -256,7 +268,7 @@ void FormulaToken::setFormula( const string& aformula )
 {
   clear();
   formula = aformula;
-  jsonio::strip_all( formula , "\"");
+  formula.erase(std::remove(formula.begin(), formula.end(), '\"'), formula.end());
   ChemicalFormulaParser formparser;
   list<ICTERM> icterms = formparser.parse( formula );
   unpack( icterms );
@@ -273,7 +285,7 @@ void FormulaToken::unpack( list<ICTERM>& itt_ )
     {
         ElementKey key( itr->ick, itr->ick_iso );
 
-        if( itr->val == jsonio::SHORT_EMPTY )
+        if( itr->val == SHORT_EMPTY_ )
         {    auto itrdb = ChemicalFormula::getDBElements().find(key);
              if( itrdb !=  ChemicalFormula::getDBElements().end() )
                 itr->val = itrdb->second.valence;
@@ -293,7 +305,7 @@ double FormulaToken::calculateCharge()
     while( itr != datamap.end() )
     {
       if( itr->key.Class() !=  4 /*CHARGE*/ &&
-          itr->valence != jsonio::SHORT_EMPTY )
+          itr->valence != SHORT_EMPTY_ )
          Zz += itr->stoichCoef * itr->valence;
       itr++;
     }
@@ -325,7 +337,7 @@ void FormulaToken::exeptionCheckElements( const string& subreacKey, const string
       msg += notPresent;
       msg += "\n in formula in record: \n";
       msg += subreacKey;
-      jsonio::jsonioErr( "E37FPrun: Invalid symbol ", msg );
+      funError("Invalid symbol", msg, __LINE__, __FILE__);
   }
 }
 
@@ -359,7 +371,7 @@ void FormulaToken::calcFormulaProperites( FormulaProperites& propert )
     {
       auto itrdb = ChemicalFormula::getDBElements().find(itr->key);
       if( itrdb ==  ChemicalFormula::getDBElements().end() )
-          jsonio::jsonioErr( "E37FPrun: Invalid symbol ", itr->key.Symbol() );
+          funError("Invalid symbol", itr->key.Symbol(), __LINE__, __FILE__);
 
       Sc = itr->stoichCoef;
       propert.atoms_formula_unit += Sc;
@@ -367,7 +379,7 @@ void FormulaToken::calcFormulaProperites( FormulaProperites& propert )
       propert.elemental_entropy += Sc * itrdb->second.entropy;
 
       valence = itr->valence;
-      if( valence == jsonio::SHORT_EMPTY )
+      if( valence == SHORT_EMPTY_ )
           valence = itrdb->second.valence;
       if( itr->key.Class() !=  4 /*CHARGE*/ )
           propert.charge += Sc * valence;
@@ -441,7 +453,7 @@ void FormulaToken::exeptionCargeImbalance()
                 str +=  formula + "\n calculated charge: ";
                 str +=  to_string(aZ) + " != " + to_string(Zzval);
                 //aSC[ii] = aZ;  // KD 03.01.04  - temporary workaround (adsorption)
-                jsonio::jsonioErr(  "W34FPrun: Charge imbalance ", str);
+                funError("Charge imbalance", str, __LINE__, __FILE__);
             }
             break;
         }
@@ -548,29 +560,29 @@ void ChemicalFormula::setDBElements(ElementsMap elements )
         addOneElement(e.second);
 }
 
-void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const jsonio::DBQueryData& query )
-{
-    vector<string> resultData = elementDB->runQuery( query );
+//void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const jsonio::DBQueryData& query )
+//{
+//    vector<string> resultData = elementDB->runQuery( query );
 
-    dbElements.clear();
-    for(uint ii=0; ii<resultData.size(); ii++ )
-    {
-//       cout << resultData[ii] << endl;
-      elementDB->SetJson(resultData[ii]);
-      addOneElement( elementDB );
-    }
-}
+//    dbElements.clear();
+//    for(uint ii=0; ii<resultData.size(); ii++ )
+//    {
+////       cout << resultData[ii] << endl;
+//      elementDB->SetJson(resultData[ii]);
+//      addOneElement( elementDB );
+//    }
+//}
 
-void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& keyList )
-{
-  dbElements.clear();
+//void ChemicalFormula::setDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& keyList )
+//{
+//  dbElements.clear();
 
-  for(uint ii=0; ii<keyList.size(); ii++ )
-  {
-    elementDB->Read( keyList[ii] );
-    addOneElement( elementDB );
-  }
-}
+//  for(uint ii=0; ii<keyList.size(); ii++ )
+//  {
+//    elementDB->Read( keyList[ii] );
+//    addOneElement( elementDB );
+//  }
+//}
 
 
 
@@ -591,29 +603,29 @@ void ChemicalFormula::addOneElement(Element e)
     dbElements[elkey] = eldata;
 }
 
-void ChemicalFormula::addOneElement( jsonio::TDBVertexDocument* elementDB )
-{
-    ElementKey elkey(elementDB);
-    ElementValues eldata;
+//void ChemicalFormula::addOneElement( jsonio::TDBVertexDocument* elementDB )
+//{
+//    ElementKey elkey(elementDB);
+//    ElementValues eldata;
 
-    elementDB->getValue( "_id" , eldata.recid );
-    elementDB->getValue( "properties.atomic_mass.values.0" , eldata.atomic_mass );
-    elementDB->getValue( "properties.entropy.values.0" , eldata.entropy );
-    elementDB->getValue( "properties.heat_capacity.values.0" , eldata.heat_capacity );
-    elementDB->getValue( "properties.volume.values.0" , eldata.volume );
-    elementDB->getValue( "properties.valences.0" , eldata.valence );
-    elementDB->getValue( "properties.number" , eldata.number );
-    elementDB->getValue( "properties.name" , eldata.name );
+//    elementDB->getValue( "_id" , eldata.recid );
+//    elementDB->getValue( "properties.atomic_mass.values.0" , eldata.atomic_mass );
+//    elementDB->getValue( "properties.entropy.values.0" , eldata.entropy );
+//    elementDB->getValue( "properties.heat_capacity.values.0" , eldata.heat_capacity );
+//    elementDB->getValue( "properties.volume.values.0" , eldata.volume );
+//    elementDB->getValue( "properties.valences.0" , eldata.valence );
+//    elementDB->getValue( "properties.number" , eldata.number );
+//    elementDB->getValue( "properties.name" , eldata.name );
 
-    dbElements[elkey] = eldata;
-}
+//    dbElements[elkey] = eldata;
+//}
 
 auto elementKeyToElement(ElementKey elementKey) -> Element
 {
     Element e;
     auto itrdb = ChemicalFormula::getDBElements().find(elementKey);
     if (itrdb == ChemicalFormula::getDBElements().end())
-        jsonio::jsonioErr("E37FPrun: Invalid symbol ", elementKey.Symbol());
+        funError("Invalid symbol", elementKey.Symbol(), __LINE__, __FILE__);
 
     e.setClass(elementKey.Class());
     e.setIsotopeMass(elementKey.Isotope());

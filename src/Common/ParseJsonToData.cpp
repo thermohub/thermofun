@@ -362,6 +362,8 @@ auto parseElement (const std::string& data) -> Element
     string kbuf;
     string name;
     json j = json::parse(data);
+    if (j.contains("properties"))
+        j = j["properties"];
 
     if (j.contains("name"))
          {e.setName(j["name"]); name = j["name"];}

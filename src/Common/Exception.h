@@ -88,6 +88,10 @@ auto setMessage(Reaktoro_::Status sta, std::string message , ThermoPropertiesSub
 
 auto setMessage(Reaktoro_::Status sta, std::string message, ThermoPropertiesReaction &tpr ) -> void;
 
+auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
+
+auto funErrorIf(bool condition, const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
+
 } // namespace ThermoFun
 
 #endif // EXCEPTION_H

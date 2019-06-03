@@ -1,12 +1,12 @@
 #include "formulaparser.h"
-#include "jsonio/ar2base.h"
-
+#include "Exception.h"
 namespace ThermoFun {
 
 const int MAXICNAME = 10;
 const char* NOISOTOPE_CLASS  ="n";
 const char* CHARGE_CLASS   ="z";
 const char* CHARGE_NAME   ="Zz";
+const short SHORT_EMPTY_  = -32768;
 
 
 void BaseParser::xblanc( std::string& str )
@@ -199,17 +199,17 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
 
      case   LBRACKET1: startPos = startPos.substr(1);
                        scanFterm( itt_, startPos, RBRACKET1 );
-                       jsonio::jsonioErrIf( startPos[0]!=RBRACKET1, "TFormula","Must be )");
+                       funErrorIf(startPos[0]!=RBRACKET1, "Formula", "Must be )", __LINE__, __FILE__ );
                        startPos = startPos.substr(1);
                        break;
      case   LBRACKET2: startPos = startPos.substr(1);
                        scanFterm( itt_, startPos, RBRACKET2 );
-                       jsonio::jsonioErrIf( startPos[0]!=RBRACKET2, "TFormula","Must be ]");
+                       funErrorIf(startPos[0]!=RBRACKET2, "Formula", "Must be ]", __LINE__, __FILE__ );
                        startPos = startPos.substr(1);
                        break;
      case   LBRACKET3: startPos = startPos.substr(1);
                        scanFterm( itt_, startPos, RBRACKET3 );
-                       jsonio::jsonioErrIf( startPos[0]!=RBRACKET3, "TFormula","Must be }");
+                       funErrorIf(startPos[0]!=RBRACKET3, "Formula", "Must be }", __LINE__, __FILE__ );
                        startPos = startPos.substr(1);
                        break;
      case   PSUR_L_PLUS: startPos = startPos.substr(1);
@@ -222,7 +222,7 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
          {
            std::string isotop = std::string(NOISOTOPE_CLASS);
            std::string icName = "";
-           int val = jsonio::SHORT_EMPTY;;
+           int val = SHORT_EMPTY_;
 
            scanIsotope( isotop, startPos);
            scanICsymb( icName, startPos);
@@ -247,14 +247,14 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
 
      cur = cur.substr(1);
      if(cur.empty())
-         jsonio::jsonioErr( cur,  "Term valence scan error");
+         funError("Valence", "Term valence scan error", __LINE__, __FILE__ );
 
      size_t ti = cur.find_first_of(B_VALENT);
      if( ti >= 3 || ti==std::string::npos )
-         jsonio::jsonioErr( cur,  "Term valence scan error");
+         funError("Valence", "Term valence scan error", __LINE__, __FILE__ );
 
      if( !sscanf( cur.c_str(), " %d", &val ))
-         jsonio::jsonioErr( cur, "Integer number scan error");
+         funError("Valence","Integer number scan error", __LINE__, __FILE__ );
      cur = cur.substr(ti+1);
  }
 
@@ -271,11 +271,11 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
 
      cur = cur.substr(1);
      if(cur.empty())
-         jsonio::jsonioErr( cur,  "Term isotope scan error");
+         funError("Isotope","Term isotope scan error", __LINE__, __FILE__ );
 
      size_t ti = cur.find_first_of(B_ISOTOPE);
      if( ti >= MAXICNAME || ti==std::string::npos )
-         jsonio::jsonioErr( cur,  "Term isotope scan error");
+         funError("Isotope","Term isotope scan error", __LINE__, __FILE__ );
 
      isotop = std::string( cur, 0, ti );  // test please
      cur = cur.substr(ti+1);
@@ -291,12 +291,12 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
          return;
 
      if( !iscapl( cur[0] ))
-         jsonio::jsonioErr( cur, " E30FPrun: A symbol of element expected here!");
+         funError("Fromula Parser"," A symbol of element expected here!", __LINE__, __FILE__ );
 
      for( i=1; i<=MAXICNAME+2; i++ )
         if( !islowl( cur[i]))
             break;
-     jsonio::jsonioErrIf(  i>=MAXICNAME, cur,  "IC Symbol scan error");
+     funErrorIf(i>=MAXICNAME, "Fromula Parser","IC Symbol scan error", __LINE__, __FILE__ );
 
      icName = std::string( cur, 0, i ); //  strncpy( ic, aFa.cur, len );
      cur = cur.substr(i);
@@ -329,10 +329,10 @@ int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::strin
         case LBRACKET3: {
                        cur_ = cur_.substr(1);
                        if( cur_.empty() )
-                           jsonio::jsonioErr( "scanMoiety","Must be }");
+                           funError("scanMoiety","Must be }", __LINE__, __FILE__ );
                        endmoi =  cur_.find_first_of( RBRACKET3 );
                        if( endmoi == std::string::npos )
-                           jsonio::jsonioErr( "scanMoiety","Must be }");
+                           funError("scanMoiety","Must be }", __LINE__, __FILE__ );
                        moiName = std::string( cur_, 0, endmoi );
                        //  moiName = std::string( cur_, 0, endmoi-1 );
                        cur_ = cur_.substr(endmoi+1);

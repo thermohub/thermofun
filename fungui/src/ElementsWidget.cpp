@@ -1,5 +1,6 @@
 #include "ElementsWidget.h"
 #include "ui_ElementsWidget.h"
+#include "jsonio/ar2base.h"
 
 ElementsWidget::ElementsWidget(QWidget *parent) :
     QWidget(parent),
@@ -80,8 +81,9 @@ void ElementsWidget::setElementList(const std::vector<ThermoFun::ElementKey> &el
 
    for(auto const &elkey : elements)
    {
-      auto  eldata = ThermoFun::ChemicalFormula::getDBElements().find(elkey);
-      if( eldata ==  ThermoFun::ChemicalFormula::getDBElements().end() )
+      auto dbelements = ThermoFun::ChemicalFormula::getDBElements();
+      auto  eldata = dbelements.find(elkey);
+      if( eldata ==  dbelements.end() )
          continue;
 
       std::string  name =elkey.Symbol();

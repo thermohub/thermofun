@@ -34,7 +34,7 @@
 
 
       // Test
-      ThermoEngine engine("aq17.json");
+      ThermoEngine engine("aq17_.json");
 
       auto elements = engine.parseSubstanceFormula("H2O@");
 

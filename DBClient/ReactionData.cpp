@@ -1,4 +1,5 @@
 #include "ReactionData.h"
+#include "ElementData.h"
 #include "sourcetdb.h"
 
 // C++ includes

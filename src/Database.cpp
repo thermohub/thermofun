@@ -8,7 +8,7 @@
 #include "Reaction.h"
 #include "Element.h"
 // jsonio includes
-#include "jsonio/json2file.h"
+//#include "jsonio/json2file.h"
 
 #include "nlohmann/json.hpp"
 
@@ -53,43 +53,43 @@ struct Database::Impl
             ChemicalFormula::setDBElements( elements_map );
     }
 
-    Impl (DatabaseClient &dbc, const string &ThermoDataSetSymbol)
-    {
-//        auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
-//        auto db = databaseFromRecordList(dbc, recordList);
-//        substances_map = db.mapSubstances();
-//        reactions_map  = db.mapReactions();
-    }
+//    Impl (DatabaseClient &dbc, const string &ThermoDataSetSymbol)
+//    {
+////        auto recordList = dbc.recordsFromThermoDataSet(ThermoDataSetSymbol);
+////        auto db = databaseFromRecordList(dbc, recordList);
+////        substances_map = db.mapSubstances();
+////        reactions_map  = db.mapReactions();
+//    }
 
     Impl(vector<string> jsons)
     {
-        string kbuf;
+        string _label;
         flog.open(parsinglogfile, ios::trunc); flog.close();
 
         for (int i=0; i<jsons.size(); i++)
         {
-            auto domdata = jsonio::unpackJson( jsons[i] );
-            domdata->findValue(label, kbuf);
-            //bsonio::bson_to_key( bsons[i].data, label, kbuf );
+            json j = json::parse(jsons[i]);
+            auto properties = j["properties"];
+            _label = j["_label"].get<std::string>();
 
-            if (kbuf == "substance")
+            if (_label == "substance")
             {
-//                Substance substance = parseSubstance(domdata.get());
-//                substances_map[substance.symbol()] = substance;
+                Substance substance = parseSubstance(properties.dump());
+                substances_map[substance.symbol()] = substance;
             } else
-            if (kbuf == "reaction")
+            if (_label == "reaction")
             {
-                    //                      Reaction reaction = parseReaction(bso);
-                    //                      reactions_map[reaction.symbol()] = reaction;
+               Reaction reaction = parseReaction(properties.dump());
+               reactions_map[reaction.symbol()] = reaction;
             } else
-            if (kbuf == "element")
+            if (_label == "element")
             {
-//                Element element = parseElement(domdata.get());
-//                elements_map[element.symbol()] = element;
+                Element element = parseElement(properties.dump());
+                elements_map[element.symbol()] = element;
             } else
             {
                 Exception exception;
-                exception.error << "Unknown JSON type " << kbuf << " ";
+                exception.error << "Unknown JSON type " << _label << " ";
                 exception.reason << "The JSON object needs to be a substance or reaction.";
                 exception.line = __LINE__;
                 RaiseError(exception);
@@ -98,7 +98,6 @@ struct Database::Impl
                 ChemicalFormula::setDBElements( elements_map );
         }
     }
-
 
     template<typename Key, typename Value>
     auto collectValues(const std::map<Key, Value>& map) -> std::vector<Value>
@@ -249,53 +248,40 @@ struct Database::Impl
     /// @param filename name of the file (in the working directory)
     auto parseJson(std::string filename) -> void
     {
-        string kbuf;
-        flog.open(parsinglogfile, ios::trunc);
-        flog.close();
+        std::ifstream ifs(filename);
+        if (!ifs.good())
+            funError("File reading error", "Database file not found!", __LINE__, __FILE__);
+        json j = json::parse(ifs);
 
-        try
+        for(auto it = j.begin(); it != j.end(); ++it)
         {
-            std::ifstream ifs(filename);
-            json j = json::parse(ifs);
+            auto properties = it.value()["properties"];
+            auto _label = it.value()["_label"].get<std::string>();
 
-            for(auto it = j.begin(); it != j.end(); ++it)
+            if (_label == "substance")
             {
-                auto properties = it.value()["properties"];
-                auto _label = it.value()["_label"].get<std::string>();
-
-                if (_label == "substance")
+                Substance substance = parseSubstance(properties.dump());
+                substances_map[substance.symbol()] = substance;
+            } else
+                if (_label == "reaction")
                 {
-                    Substance substance = parseSubstance(properties.dump());
-                    substances_map[substance.symbol()] = substance;
+                    Reaction reaction = parseReaction(properties.dump());
+                    reactions_map[reaction.symbol()] = reaction;
                 } else
-                    if (_label == "reaction")
+                    if (_label == "element")
                     {
-                        Reaction reaction = parseReaction(properties.dump());
-                        reactions_map[reaction.symbol()] = reaction;
-                    } else
-                        if (_label == "element")
-                        {
-                            Element element = parseElement(properties.dump());
-                            elements_map[element.symbol()] = element;
-                        }
-                        else
-                        {
-                            Exception exception;
-                            exception.error << "Unknown JSON type " << _label << " ";
-                            exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
-                            exception.line = __LINE__;
-                            RaiseError(exception);
-                        }
+                        Element element = parseElement(properties.dump());
+                        elements_map[element.symbol()] = element;
+                    }
+                    else
+                    {
+                        Exception exception;
+                        exception.error << "Unknown JSON type " << _label << " ";
+                        exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
+                        exception.line = __LINE__;
+                        RaiseError(exception);
+                    }
 
-            }
-        }
-        catch (jsonio::jsonio_exception e)
-        {
-            Exception exception;
-            exception.error << e.title_;
-            exception.reason << e.mess_;
-            exception.line = __LINE__;
-            RaiseError(exception);
         }
     }
 };
@@ -312,9 +298,9 @@ Database::Database(vector<string> jsonSubstances)
 : pimpl(new Impl(jsonSubstances))
 {}
 
-Database::Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol)
-: pimpl(new Impl(dbc, thermoDataSetSymbol))
-{}
+//Database::Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol)
+//: pimpl(new Impl(dbc, thermoDataSetSymbol))
+//{}
 
 Database::Database(const Database& other)
 : pimpl(new Impl(*other.pimpl))

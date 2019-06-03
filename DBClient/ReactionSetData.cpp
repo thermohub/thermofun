@@ -2,6 +2,7 @@
 #include "jsonio/io_settings.h"
 #include "jsonio/jsondomfree.h"
 #include "sourcetdb.h"
+#include "ElementData.h"
 
 using namespace std;
 using namespace jsonio;

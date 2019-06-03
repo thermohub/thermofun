@@ -11,8 +11,10 @@
 #include "ThermoFunWidgetNew.h"
 #ifdef FROM_SRC
 #include "../src/Common/formuladata.h"
+#include "../DBClient/ElementData.h"
 #else
 #include "thermofun/Common/formuladata.h"
+#include "thermodbclient/ElementData.h"
 #endif
 
 TThermoFunMainWin::TThermoFunMainWin(QWidget *parent) :
@@ -325,8 +327,7 @@ void TThermoFunMainWin::setAllElements()
          if(elementDB.get() == nullptr )
            return;
 
-         ThermoFun::ChemicalFormula::setDBElements( elementDB.get(),
-                                        ThermoFun::ChemicalFormula::getDefaultQuery() );;
+         ThermoFun::setDBElements(elementDB.get());
          // test
          const ThermoFun::DBElementsData& elements = ThermoFun::ChemicalFormula::getDBElements();
 

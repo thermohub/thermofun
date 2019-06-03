@@ -19,6 +19,7 @@
 #include "thermofun/Element.h"
 #endif
 
+#include "ElementData.h"
 #include "SubstanceData.h"
 #include "ReactionData.h"
 #include "ReactionSetData.h"
@@ -113,7 +114,7 @@ struct DatabaseClient::Impl
         auto elementVertex = unique_ptr<TDBVertexDocument> (
                     TDBVertexDocument::newVertexDocument( _dbconnect.get(),  "VertexElement" ));
         // load all elements into system
-        ChemicalFormula::setDBElements( elementVertex.get(), ChemicalFormula::getDefaultQuery() );
+        setDBElements( elementVertex.get(), jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate ) );
     }
 
     auto availableElementsSet(int sourcetdb) -> set<Element>

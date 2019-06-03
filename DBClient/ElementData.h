@@ -43,6 +43,14 @@ class ElementData_ : public AbstractData
     void updateTableByElementsList( jsonio::ValuesTable& dataQueryMatr, const std::vector<ElementKey>& elements );
 };
 
+auto fromElementNode( const jsonio::JsonDom *object ) -> ElementKey;
+bool ElementsKeysFromJson( const std::string elmsjson, std::set<ElementKey>& elements );
+auto index_from_map(std::string map) -> int;
+bool ElementsKeysFromJsonDomArray( const std::string& keypath, const jsonio::JsonDom *object, std::set<ElementKey>& elements );
+auto ElementsKeysToJson( const std::set<ElementKey>& elements ) -> std::string;
+void setDBElements( jsonio::TDBVertexDocument* elementDB,
+                             const jsonio::DBQueryData& query =  jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate ) );
+
 }
 
 #endif // ELEMENTDATA_H

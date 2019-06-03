@@ -1,4 +1,5 @@
 #include "AbstractData.h"
+#include "ElementData.h"
 
 // C++ includes
 #include <functional>
@@ -598,7 +599,7 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
   for( auto result: resultsQuery )
   {
       auto domdata = jsonio::unpackJson( result );
-      elkey.fromElementNode(domdata.get());
+      elkey = fromElementNode(domdata.get());
       elements.push_back(elkey);
    }
    return elements;

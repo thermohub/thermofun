@@ -7,15 +7,12 @@
 #include <vector>
 #include <map>
 
-//#include "ejdb/bson.h"
-
 namespace ThermoFun {
 
 // Forward declarations
 class Substance;
 class Reaction;
 class Element;
-class DatabaseClient;
 
 using ElementsMap   = std::map<std::string, Element>;
 using SubstancesMap = std::map<std::string, Substance>;
@@ -49,7 +46,7 @@ public:
      * @param dbc database client server connection
      * @param recordList record list retrieved from the
      */
-    Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol);
+//    Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol);
 
     /// Assign a Database instance to this instance
     auto operator=(Database other) -> Database&;

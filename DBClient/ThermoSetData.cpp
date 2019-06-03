@@ -1,4 +1,5 @@
 #include "ThermoSetData.h"
+#include "ElementData.h"
 #include "jsonio/jsondomfree.h"
 #include <algorithm>
 
@@ -65,7 +66,7 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
     for (auto jel : jElements)
     {
         auto node =  jsonio::unpackJson(jel);
-        elem.fromElementNode( node->field("properties"));
+        elem = fromElementNode( node->field("properties"));
         elements.insert(elem);
     }
     //ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
