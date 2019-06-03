@@ -371,6 +371,9 @@ auto parseElement (const std::string& data) -> Element
     if (j.contains("symbol"))
           e.setSymbol(j["symbol"]);
 
+    if (j.contains("number"))
+          e.setNumber(j["number"].get<int>());
+
     if (j.contains("entropy"))
           e.setEntropy(j["entropy"]["values"][0].get<double>());
 
@@ -379,6 +382,9 @@ auto parseElement (const std::string& data) -> Element
 
     if (j.contains("atomic_mass"))
          e.setMolarMass(j["atomic_mass"]["values"][0].get<double>());
+
+    if (j.contains("volume"))
+          e.setVolume(j["volume"]["values"][0].get<double>());
 
     if (j.contains("class_"))
          e.setClass(stoi(j["class_"].begin().key()));

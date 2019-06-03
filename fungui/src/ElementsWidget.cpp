@@ -81,9 +81,8 @@ void ElementsWidget::setElementList(const std::vector<ThermoFun::ElementKey> &el
 
    for(auto const &elkey : elements)
    {
-      auto dbelements = ThermoFun::ChemicalFormula::getDBElements();
-      auto  eldata = dbelements.find(elkey);
-      if( eldata ==  dbelements.end() )
+      auto  eldata = ThermoFun::ChemicalFormula::getDBElements().find(elkey);
+      if( eldata ==  ThermoFun::ChemicalFormula::getDBElements().end() )
          continue;
 
       std::string  name =elkey.Symbol();

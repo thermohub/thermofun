@@ -30,6 +30,9 @@ struct Element::Impl
 
     /// Element isotope (isotope mass, rounded)
     int isotopeMass;
+
+    /// Element Mendeleev table number
+    int number;
 };
 
 Element::Element()
@@ -81,6 +84,11 @@ auto Element::setIsotopeMass(int value) -> void
     pimpl->isotopeMass = value;
 }
 
+auto Element::setNumber(int value) -> void
+{
+    pimpl->number = value;
+}
+
 auto Element::name() const -> std::string
 {
     return pimpl->name;
@@ -124,6 +132,11 @@ auto Element::class_() const -> int
 auto Element::isotopeMass() const -> int
 {
     return pimpl->isotopeMass;
+}
+
+auto Element::number() const -> int
+{
+    return pimpl->number;
 }
 
 auto operator<(const Element& lhs, const Element& rhs) -> bool

@@ -595,9 +595,9 @@ void ChemicalFormula::addOneElement(Element e)
     eldata.atomic_mass = e.molarMass();
     eldata.entropy = e.entropy();
     eldata.heat_capacity = e.heatCapacity();
-//    eldata.volume =;
-//    eldata.valence =;
-//    eldata.number =;
+    eldata.volume = e.volume();
+    eldata.valence = e.valence();
+    eldata.number = e.number();
     eldata.name = e.name();
 
     dbElements[elkey] = eldata;
@@ -636,6 +636,7 @@ auto elementKeyToElement(ElementKey elementKey) -> Element
     e.setHeatCapacity(itrdb->second.heat_capacity);
     e.setVolume(itrdb->second.volume);
     e.setValence(itrdb->second.valence);
+    e.setNumber(itrdb->second.number);
 
     return e;
 }

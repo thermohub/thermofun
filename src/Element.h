@@ -41,6 +41,9 @@ public:
     /// Set the rounded isotopic mass of the element
     auto setIsotopeMass(int value) -> void;
 
+    /// Set the element Mendeleev table number
+    auto setNumber(int value) -> void;
+
     /// Return the name of the element
     auto name() const -> std::string;
 
@@ -67,6 +70,9 @@ public:
 
     /// Return the rounded isotopic mass of the element
     auto isotopeMass() const -> int;
+
+    /// Return the Mendeleev table number of the element
+    auto number() const -> int;
 
 private:
     struct Impl;
