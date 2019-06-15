@@ -5,7 +5,7 @@
 #include "model_reactions.h"
 
 #ifdef FROM_SRC
-#include "../src/Common/formuladata.h"
+#include "../thermofun/Common/formuladata.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/Common/formuladata.h"

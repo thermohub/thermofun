@@ -10,9 +10,9 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/OptimizationUtils.h"
-#include "../src/Database.h"
-#include "../src/Element.h"
+#include "../thermofun/OptimizationUtils.h"
+#include "../thermofun/Database.h"
+#include "../thermofun/Element.h"
 #else
 #include "thermofun/OptimizationUtils.h"
 #include "thermofun/Database.h"

@@ -9,7 +9,7 @@ file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 # Set the list of names of the third-party targets and libraries
 #set(THIRDPARTY_LIBS jsonio boost_regex boost_filesystem curl velocypack)
-set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/)
+set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/thermofun/)
 
 # Create the shared library using the collected source files
 add_library(THERMOFUN_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES})

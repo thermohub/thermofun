@@ -87,8 +87,5 @@ if(THERMODBCLIENT_BUILD_STATIC_LIBS)
 endif()
 
 # Install the header files preserving the directory hierarchy
-install(DIRECTORY ${THERMODBCLIENT_SOURCE_DIR}
-    DESTINATION include/thermodbclient
-    FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h")
-
-
+install(FILES ${HEADER_FILES}
+        DESTINATION include/thermodbclient )

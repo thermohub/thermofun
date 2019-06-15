@@ -28,7 +28,7 @@ macx-g++ {
 
 # Define the directory where source code is located
 #THRIFT_DIR    = ./thrift
-FUN_DIR       = ../src
+FUN_DIR       = ../thermofun
 FUN_CPP       = $$FUN_DIR
 FUN_H         = $$FUN_DIR
 GUI_DIR       = ./src

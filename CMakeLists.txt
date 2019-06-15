@@ -27,13 +27,14 @@ option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun
 if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_SHARED_LIBS          ON)
     set(TFUN_BUILD_STATIC_LIBS          ON)
-#    set(TFUN_BUILD_TESTS                ON)
+#   set(TFUN_BUILD_TESTS                ON)
     set(TFUN_BUILD_GUI                  ON)
     set(TFUN_BUILD_DBCLIENT             ON)
     set(TFUN_BUILD_DEMOGUI              ON)
     set(TFUN_BUILD_PYTHON               ON)
 endif()
 
+# DBClient is necessary when building the GUI DEMO
 if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_DEMOGUI MATCHES ON)
     set(TFUN_BUILD_DBCLIENT             ON)
 endif()
@@ -55,7 +56,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    add_compile_options(-std=c++11 -Wall -Wno-misleading-indentation -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-std=c++11 -Wall -Wno-misleading-indentation -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated -Wmaybe-uninitialized)
 endif()
 
 # Set the list of compiler flags for Clang compiler
@@ -74,13 +75,13 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 # Set the thermofun source directory path
-set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/thermofun)
 
 # Set the include directories
 include_directories(${THERMOFUN_SOURCE_DIR})
 
 # Build thermofun library
-add_subdirectory(src)
+add_subdirectory(thermofun)
 
 # Copy Resources folder
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources

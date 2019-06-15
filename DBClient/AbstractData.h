@@ -6,7 +6,7 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Common/formuladata.h"
+#include "../thermofun/Common/formuladata.h"
 #else
 #include "thermofun/Common/formuladata.h"
 #endif

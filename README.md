@@ -2,8 +2,6 @@
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
-## Build and Run Tests on Linux
-
 ## Prepare building tools
 
 * Make sure you have g++, cmake and git installed. If not, install them (on Ubuntu Linux):
@@ -13,26 +11,107 @@ A code for calculating the standard state thermodynamic properties at a given te
 sudo apt-get install g++ cmake git
 ```
 
-## Prepare folder structure and download ThermoFun source code
+## Download ThermoFun source code using git clone
 
 * In a terminal, at the home directory level e.g. ```<user>@ubuntu:~$``` copy-paste and run the following code:
 
 ```
 #!bash
-mkdir gitTHERMOFUN && cd gitTHERMOFUN && \
-mkdir build && cd build && \
-mkdir release && mkdir debug && cd .. && \
-git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
+git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun 
 ```
 
-* In the terminal you should be in ```~/gitTHERMOFUN/thermofun$``` and the directory structure should now look like this:
+* In the terminal you should be in ```~/thermofun$```.
+
+## (A) Build and install ThermoFun library (working with json database files)
+
+This option allows the user to build thermofun library that works with a user provided thermodynamic database file in json format and has only one thirdpary library dependency. To build thermofun with access to the thermohub thermodynamic database cloud and local server see bellow. 
+
+### Install Dependencies
+
+The thermofun library uses nlohmann/json.hpp as thirdparty dependency to parse database files in json format. To install the header only json library in a terminal ```~/thermofun$``` execute the following: 
 
 ```
-~/gitTHERMOFUN
-    /build
-        /debug
-        /release
-    /thermofun
+#!bash
+sudo ./install-dependencies.sh
+```
+
+### Compiling the C++ library
+
+In the terminal ```~/thermofun$```, execute the following commands:
+
+```
+#!bash
+mkdir build && \
+cd build && \
+cmake .. && \
+make
+``` 
+
+To take advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
+
+For a global installation of the compiled libraries in your system, execute:
+
+```
+#!bash
+sudo make install 
+```
+
+This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` ).
+
+For a local installation, you can specify a directory path for the installed files as follows:
+
+```
+#!bash
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/username/local/
+```
+then execute:
+
+```
+sudo make install 
+```
+
+To compile ThermoFun library in debug mode:
+
+```
+#!bash
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+```
+then execute:
+
+```
+sudo make install 
+```
+
+## (B) Build and install ThermoFun library (working with access to the local and cloud ThemroHub database)
+
+This option builds thermofun library together with the dbclient, which provides access to the local and cloud thermohub databases, allowing specific a ThermoDataSet to be used or a selection on elements of the thermodynamic data.
+
+### Install Dependencies
+
+Installing dependencies needed to build ThermoFun/dbclient on (k)ubuntu linux 16.04 or 18.04, in a terminal ```~/thermofun/build$``` execute the following: 
+
+```
+#!bash
+sudo ./install-dependencies-dbclient.sh
+```
+
+### Compiling the C++ library
+
+In the terminal ```~/thermofun/build$```, execute the following commands:
+
+```
+#!bash
+cmake .. -DTFUN_BUILD_DBCLIENT=ON && \
+make
+``` 
+
+To take advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
+
+For a global installation of the compiled libraries in your system, execute:
+
+```
+#!bash
+sudo make install 
 ```
 
 ### Install the current version of ArangoDB server locally (if not yet installed)
@@ -53,72 +132,74 @@ sudo apt-get install arangodb3=3.4.4-1
 
 The updates will come together with other ubuntu packages that you have installed.
 
-## Build and install ThermoFun library 
 
-Buil and ThermoFun library for use in C++ or python thirdparty codes.
+## (C) Build and run ThermoFun GUI Demo
+
+To be able to build and run the ThemroFun GUI (graphical user batch) application demo, Qt needs to be installed.
+
+* Download and install Qt 5.12.2 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.12.2 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
 
 ### Install Dependencies
 
-Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in a terminal ```~/gitTHERMOFUN/thermofun$``` execute the following: 
+Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in the terminal go in ```~/thermofun$``` and execute the following: 
 
 ```
 #!bash
-sudo ./install-dependencies.sh
+sudo ./install-dependencies-gui.sh $HOME/Qt/5.12.2/gcc_64
 ```
 
-### Compiling the C++ library
+This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`. The script will check if the dependencies are not already present at the default installation path ```/usr/local/``` and will only install them if not found. 
+To reinstall dependencies open `install-dependencies.sh` and/or `install-dependencies-gui.sh` files with a text editor. At the beginning of the script file commands for removing dependency library files are present but they are commented out with `#` symbol. Remove `#` for each dependency you wish to be reinstalled. 
 
-In the terminal ```~/gitTHERMOFUN/thermofun$```, execute the following commands:
+### Compiling the ThermoFun GUI demo
+
+In the terminal at ```~/thermofun/build$```, execute the following commands:
 
 ```
 #!bash
-cd ../build/release && \
-cmake ../../thermofun && \
+cmake .. -DTFUN_BUILD_DBCLIENT=ON -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
 make
 ``` 
 
-To take advantage of parallel compilation use ```make -j3```. 3 representing the number of threads. 
+-DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON options trigger the compilation of ThermoFunGui library and the gui demo widget. 
 
-For a global installation of the compiled libraries in your system, execute:
+The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "fun-dbclient-config.json" is present and contains the arangodb database connection preferences. 
+
+To run the ThermoFun GUI demo in the terminal at ```~/build$``` execute:
+
+```
+./guidemo.sh
+```
+
+You can change the arango database connection setup using the preferences icon on the start widget, or by making changes in ```Resources/fun-dbclient-config.json``` file.
+
+* For building using Qt Creator, use the ThermoFunDemoGUI.pro project file found in  ```~/thermofun/fungui```.
+
+## (D) Build and install the Python interface
+
+### Install Dependencies
+
+The thermofun python api uses pybind11 as thirdparty dependency. To install the header only json library in a terminal ```~/thermofun$``` execute the following: 
 
 ```
 #!bash
-sudo make install 
+sudo ./install-dependencies-py.sh
 ```
 
-This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` ).
+## Compiling the Python interface
 
-For a local installation, you can specify a directory path for the installed files as follows:
-
-```
-#!bash
-cmake ../../thermofun -DCMAKE_INSTALL_PREFIX=/home/username/local/
-```
-then execute:
-
-```
-sudo make install 
-```
-
-To compile ThermoFun library in debug mode change directory to ```~/gitTHERMOFUN/build/debug``` and:
+In the terminal ~/thermofun/build$, execute the following commands:
 
 ```
 #!bash
-cmake ../../thermofun/ -DCMAKE_BUILD_TYPE=Debug
-```
-then execute:
-
-```
-sudo make install 
+cmake .. -DTFUN_BUILD_PYTHON=ON
 ```
 
-### Compiling the Python interface
-
-In the terminal ~/gitTHERMOFUN/thermofun$, execute the following commands:
+with DBClient
 
 ```
 #!bash
-cmake ../../thermofun/ -DTFUN_BUILD_PYTHON=ON
+cmake .. -DTFUN_BUILD_DBCLIENT=ON -DTFUN_BUILD_PYTHON=ON
 ```
 
 then execute:
@@ -134,53 +215,10 @@ After compilation, you should find the shared library PyThermoFun inside the dir
 from thermofun import *
 ```
 
-In the build folder a test file text.py can be found, this can be run by executing ```python test.py``` . If succesful in addition to on screen output, two files, results.csv and results_dbc.csv files containing calculation results will be created. 
+In the build folder a test file text.py can be found, this can be run by executing ```python test.py``` and ```python test-dbc.py``` . If successful in addition to on screen output, two files, results.csv and results_dbc.csv files containing calculation results will be created. 
 
 If compilation was successful the /Resources folder will be copied to the build folder. In this folder the necessary test files, connection to the arangodb database preferences, and data schemas are present. To change database connection without using the GUI, make changes in the ```Resources/fun-dbclient-config.json``` file.
 
-### Build and run ThermoFun GUI Demo
-
-To be able to build and run the ThemroFun GUI (graphical user batch) application demo, Qt needs to be installed.
-
-* Download and install Qt 5.12.2 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.12.2 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
-
-### Install Dependencies
-
-Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04, in the terminal go in ```~/gitTHERMOFUN/thermofun$``` and execute the following: 
-
-```
-#!bash
-sudo ./install-dependencies-gui.sh $HOME/Qt/5.12.2/gcc_64
-```
-
-This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 
-To reinstall dependencies open `install-dependencies.sh` and/or `install-dependencies-gui.sh` files with a text editor. At the beginning of the script file commands for removing dependency library files are present but they are commented out with `#` symbol. Remove `#` for each dependency you wish to be reinstalled. 
-
-### Compiling the ThermoFun GUI demo
-
-In the terminal at ```~/gitTHERMOFUN/thermofun$```, execute the following commands:
-
-```
-#!bash
-cd .. && mkdir build-gui && \
-cd build-gui && mkdir release && cd release && \
-cmake ../../thermofun -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
-make
-``` 
-
--DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON options trigger the compilation of ThermoFunGui library and the gui demo widget. 
-
-The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "fun-dbclient-config.json" is present and contains the arangodb database connection preferences. 
-
-To run the ThermoFun GUI demo in the terminal at ```~/gitTHERMOFUN/build-gui$``` execute:
-
-```
-./guidemo.sh
-```
-
-You can change the arango database connection setup using the preferences icon on the start widget, or by making changes in ```Resources/fun-dbclient-config.json``` file.
-
-* For building using Qt Creator, use the ThermoFunDemoGUI.pro project file found in  ```~/gitTHERMOFUN/thermofun/fungui```.
 
 ### Simple C++ API example
 
@@ -270,6 +308,7 @@ int main()
 ```
 #!Python
 import PyThermoFun
+import PyThermoDBClient
 
 properties = PyThermoFun.ThermoPropertiesSubstance
 
@@ -312,16 +351,16 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
 
 ```
 #!Python
-PyThermoFun.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
+PyThermoDBClient.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
 
 print("\n# Initialize a database client object\n")
-dbc = PyThermoFun.DatabaseClient()
+dbc = PyThermoDBClient.DatabaseClient()
 
 print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
 records = dbc.recordsFromThermoDataSet("Cemdata18") 
 
 print("\n# Create a ThermoFun database using the records list\n")
-db = PyThermoFun.databaseFromRecordList(dbc, records)
+db = PyThermoDBClient.databaseFromRecordList(dbc, records)
 
 print("\n# Initialize an interface object using the database\n")
 batch2 = PyThermoFun.ThermoBatch(db)
