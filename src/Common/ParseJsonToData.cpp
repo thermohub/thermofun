@@ -262,24 +262,16 @@ auto thermoParamSubst (const json& j, std::string prop_name, ThermoParametersSub
     }
 
     if (j.contains("m_heat_capacity_ft_coeffs"))
-    {
         ps.Cp_coeff.push_back(j["m_heat_capacity_ft_coeffs"]["values"].get<vector<double>>());
-    }
 
     if (j.contains("m_phase_trans_props"))
-    {
         ps.phase_transition_prop.push_back(j["m_phase_trans_props"]["values"].get<vector<double>>());
-    }
 
     if (j.contains("m_landau_phase_trans_props"))
-    {
         ps.phase_transition_prop.push_back(j["m_landau_phase_trans_props"]["values"].get<vector<double>>());
-    }
 
     if (j.contains("phase_transition_prop_Berman"))
-    {
         ps.phase_transition_prop_Berman.push_back(j["phase_transition_prop_Berman"]["values"].get<vector<double>>());
-    }
 }
 
 auto thermoParamReac (const json &j, ThermoParametersReaction& pr) -> void
@@ -320,18 +312,17 @@ auto thermoParamReac (const json &j, ThermoParametersReaction& pr) -> void
 auto thermoRefPropSubst (const json& j) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
-    string idSubst, message;
+    string message;
 
-    if (j.contains("_id"))
-        idSubst = j["_id"];
-
-    //if (!parseIssues(idSubst, name, _id)) message = "_id : " + idSubst;
-
-    tps.heat_capacity_cp.sta = readValueError(j, "sm_heat_capacity_p" , tps.heat_capacity_cp.val, tps.heat_capacity_cp.err,  message);
-    tps.gibbs_energy.sta     = readValueError(j, "sm_gibbs_energy",  tps.gibbs_energy.val,     tps.gibbs_energy.err,      message);
-    tps.enthalpy.sta         = readValueError(j, "sm_enthalpy",  tps.enthalpy.val,         tps.enthalpy.err,          message);
-    tps.entropy.sta          = readValueError(j, "sm_entropy_abs",  tps.entropy.val,          tps.entropy.err,           message);
-    tps.volume.sta           = readValueError(j, "sm_volume",  tps.volume.val,           tps.volume.err,            message);
+    if (j.contains("sm_heat_capacity_p"))    
+        tps.heat_capacity_cp.sta = readValueError(j, "sm_heat_capacity_p" , tps.heat_capacity_cp.val, tps.heat_capacity_cp.err,  message);
+    if (j.contains("sm_gibbs_energy"))
+        tps.gibbs_energy.sta     = readValueError(j, "sm_gibbs_energy",  tps.gibbs_energy.val,     tps.gibbs_energy.err,      message);
+    if (j.contains("sm_enthalpy"))
+        tps.enthalpy.sta         = readValueError(j, "sm_enthalpy",  tps.enthalpy.val,         tps.enthalpy.err,          message);
+    if (j.contains("sm_entropy_abs"))
+        tps.entropy.sta          = readValueError(j, "sm_entropy_abs",  tps.entropy.val,          tps.entropy.err,           message);
+    if (j.contains("sm_volume"))tps.volume.sta           = readValueError(j, "sm_volume",  tps.volume.val,           tps.volume.err,            message);
 
     return tps;
 }
@@ -339,19 +330,19 @@ auto thermoRefPropSubst (const json& j) -> ThermoPropertiesSubstance
 auto thermoRefPropReac (const json &j) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
-    string message, idReac;
+    string message;
 
-    if (j.contains("_id"))
-        idReac = j["_id"];
-
-    //if (!parseIssues(idReac, name, _id)) message = "_id : " + idReac;
-
-    tpr.log_equilibrium_constant.sta  = readValueError(j, "logKr", tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  message);
-    tpr.reaction_heat_capacity_cp.sta = readValueError(j, "drsm_heat_capacity_p",   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, message);
-    tpr.reaction_gibbs_energy.sta     = readValueError(j, "drsm_gibbs_energy",    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     message);
-    tpr.reaction_enthalpy.sta         = readValueError(j, "drsm_enthalpy",    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         message);
-    tpr.reaction_entropy.sta          = readValueError(j, "drsm_entropy",    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          message);
-    tpr.reaction_volume.sta           = readValueError(j, "drsm_volume",    tpr.reaction_volume.val,           tpr.reaction_volume.err,           message);
+    if (j.contains("logKr"))    
+        tpr.log_equilibrium_constant.sta  = readValueError(j, "logKr", tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  message);
+    if (j.contains("drsm_heat_capacity_p"))
+        tpr.reaction_heat_capacity_cp.sta = readValueError(j, "drsm_heat_capacity_p",   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, message);
+    if (j.contains("drsm_gibbs_energy"))
+        tpr.reaction_gibbs_energy.sta     = readValueError(j, "drsm_gibbs_energy",    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     message);
+    if (j.contains("drsm_enthalpy"))
+        tpr.reaction_enthalpy.sta         = readValueError(j, "drsm_enthalpy",    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         message);
+    if (j.contains("drsm_entropy"))
+        tpr.reaction_entropy.sta          = readValueError(j, "drsm_entropy",    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          message);
+    if (j.contains("drsm_volume"))tpr.reaction_volume.sta           = readValueError(j, "drsm_volume",    tpr.reaction_volume.val,           tpr.reaction_volume.err,           message);
 
     return tpr;
 }
