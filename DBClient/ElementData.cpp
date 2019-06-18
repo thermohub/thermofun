@@ -6,10 +6,10 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Common/formuladata.h"
-#include "../src/Element.h"
-#include "../src/Database.h"
-#include "../src/Common/ParseJsonToData.h"
+#include "../thermofun/Common/formuladata.h"
+#include "../thermofun/Element.h"
+#include "../thermofun/Database.h"
+#include "../thermofun/Common/ParseJsonToData.h"
 #else
 #include "thermofun/Common/formuladata.h"
 #include "thermofun/Element.h"
@@ -282,14 +282,14 @@ bool ElementsKeysFromJsonDomArray( const string& keypath, const jsonio::JsonDom 
 
 auto ElementKeyFromDB( jsonio::TDBVertexDocument* elementDB ) -> ElementKey
 {
-    std::string symbol; int isotope_, class_;
+    std::string symbol; int isotope, class_;
     fromElementNode(elementDB->getDom());
     elementDB->getValue( "properties.symbol" , symbol );
     std::string class_str;
     elementDB->getValue( "properties.class_" , class_str );
     class_ = index_from_map(class_str);
-    elementDB->getValue( "properties.isotope_mass" , isotope_ );
-    return ElementKey(symbol,class_,isotope_);
+    elementDB->getValue( "properties.isotope_mass" , isotope );
+    return ElementKey(symbol,class_,isotope);
 }
 
 // Writes data to json (only key)

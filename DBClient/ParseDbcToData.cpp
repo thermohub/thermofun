@@ -5,11 +5,11 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Common/ParseJsonToData.h"
-#include "../src/Common/Exception.h"
-#include "../src/Database.h"
-#include "../src/Substance.h"
-#include "../src/Reaction.h"
+#include "../thermofun/Common/ParseJsonToData.h"
+#include "../thermofun/Common/Exception.h"
+#include "../thermofun/Database.h"
+#include "../thermofun/Substance.h"
+#include "../thermofun/Reaction.h"
 #else
 #include "thermofun/Common/ParseJsonToData.h"
 #include "thermofun/Common/Exception.h"

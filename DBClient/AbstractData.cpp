@@ -6,7 +6,7 @@
 #include "jsonio/jsondomfree.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/OptimizationUtils.h"
+#include "../thermofun/OptimizationUtils.h"
 #else
 #include "thermofun/OptimizationUtils.h"
 #endif

@@ -9,7 +9,7 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/ThermoProperties.h"
+#include "../thermofun/ThermoProperties.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/ThermoProperties.h"

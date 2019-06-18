@@ -21,22 +21,6 @@
 namespace py = pybind11;
 
 namespace ThermoFun {
-    // Common module
-    void exportThermoScalar(py::module& m);
-    void exportStatus(py::module& m);
-    // Properties
-    void exportThermoPropertiesSubstance(py::module& m);
-    void exportThermoPropertiesReaction(py::module& m);
-    void exportElectroPropertiesSolvent(py::module& m);
-    void exportPropertiesSolvent(py::module& m);
-    // Core module
-    void exportThermoEngine(py::module& m);
-    void exportThermoBatch(py::module& m);
-    void exportBatchPreferences(py::module& m);
-    void exportOutput(py::module& m);
-    // Data
-    void exportDatabase(py::module& m);
-    void exportSubstance(py::module& m);
-    void exportReaction(py::module& m);
-    void exportElement(py::module& m);
+    // Database Client
+    void exportDatabaseClient(py::module& m);
 } // namespace ThermoFun

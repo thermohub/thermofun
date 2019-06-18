@@ -7,7 +7,7 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Common/formuladata.h"
+#include "../thermofun/Common/formuladata.h"
 #include "../DBClient/DatabaseClient.h"
 #include "../DBClient/ReactionSetData.h"
 #include "../DBClient/SubstanceData.h"

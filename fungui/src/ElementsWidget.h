@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QButtonGroup>
 #ifdef FROM_SRC
-#include "../../src/Common/formuladata.h"
+#include "../../thermofun/Common/formuladata.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/Common/formuladata.h"

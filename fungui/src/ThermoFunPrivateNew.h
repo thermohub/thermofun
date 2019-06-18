@@ -8,11 +8,11 @@
 #include "containers.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Batch/ThermoBatch.h"
+#include "../thermofun/Batch/ThermoBatch.h"
 #include "../DBClient/DatabaseClient.h"
 #include "../DBClient/SubstanceData.h"
-#include "../src/Reaction.h"
-#include "../src/Substance.h"
+#include "../thermofun/Reaction.h"
+#include "../thermofun/Substance.h"
 #else
 #include "thermofun/Batch/ThermoBatch.h"
 #include "thermodbclient/DatabaseClient.h"

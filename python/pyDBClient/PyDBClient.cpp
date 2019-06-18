@@ -16,27 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
-// pybind11 includes
-#include <pybind11/pybind11.h>
-namespace py = pybind11;
+#include "PyDBClient.hpp"
+using namespace ThermoFun;
 
-namespace ThermoFun {
-    // Common module
-    void exportThermoScalar(py::module& m);
-    void exportStatus(py::module& m);
-    // Properties
-    void exportThermoPropertiesSubstance(py::module& m);
-    void exportThermoPropertiesReaction(py::module& m);
-    void exportElectroPropertiesSolvent(py::module& m);
-    void exportPropertiesSolvent(py::module& m);
-    // Core module
-    void exportThermoEngine(py::module& m);
-    void exportThermoBatch(py::module& m);
-    void exportBatchPreferences(py::module& m);
-    void exportOutput(py::module& m);
-    // Data
-    void exportDatabase(py::module& m);
-    void exportSubstance(py::module& m);
-    void exportReaction(py::module& m);
-    void exportElement(py::module& m);
-} // namespace ThermoFun
+PYBIND11_MODULE(PyThermoDBClient, m)
+{
+    // Database Client
+    exportDatabaseClient(m);
+}

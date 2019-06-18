@@ -19,7 +19,7 @@ DEFINES += FROM_SRC
 
 ThermoFun_TEST_CPP = ./src
 ThermoDBClient_CPP = ../../DBClient
-ThermoFun_CPP   =  ../../src
+ThermoFun_CPP   =  ../../thermofun
 
 ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
 ThermoDBClient_H = $$ThermoDBClient_CPP
