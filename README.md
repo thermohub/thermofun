@@ -208,16 +208,16 @@ C:\git\THERMOFUN\thermofun>a-build-win-dependencies.bat
 * This script builds curl and velocypack libraries, copies then in the C:\git\THERMOFUN\dependencies folder, creates buil-fun-gui folder and copies there the necessary resources files
 
 ```
-C:\git\THERMOFUN\thermofun>b-build-win-boost.bat
+C:\git\THERMOFUN\thermofun>b-build-win-boost.bat 
 ```
 
 * This script builds the necessary boost libraries and copies then in the C:\git\THERMOFUN\dependencies folder
 
 ```
-C:\git\THERMOFUN\thermofun>c-build-win-jsonio-jsonui.bat
+C:\git\THERMOFUN\thermofun>c-build-win-jsonio-jsonui.bat C:\Qt\5.12.3\msvc2017_64\bin
 ```
 
-* This script builds jsonio and jsonui libraries, copies then in the C:\git\THERMOFUN\dependencies folder
+* This script builds jsonio and jsonui libraries, copies then in the C:\git\THERMOFUN\dependencies folder. Don't forget to use the corect Qt installation path.
 
 ### Compiling and the ThermoFun GUI demo in Qt Creator
 

@@ -16,7 +16,15 @@ CONFIG += thread
 CONFIG += c++11
 CONFIG += warn_on
 
+#QMAKE_CXXFLAGS_RELEASE = -Wpedantic
+#QMAKE_CFLAGS_RELEASE = -Wno-unknown-pragmas -Wpedantic
+
+
 DEFINES += FROM_SRC
+
+win32 {
+QMAKE_CXXFLAGS_WARN_ON = -wd4068 -wd4138
+}
 
 !win32 {
   DEFINES += __unix
