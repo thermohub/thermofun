@@ -5,7 +5,7 @@
 
 namespace ThermoFun
 {
-auto sourceTDB_from_index(unsigned int ndx) -> std::string;
+auto sourceTDB_from_index(int ndx) -> std::string;
 
 auto sourceTDB_from_name(std::string name) -> std::string;
 

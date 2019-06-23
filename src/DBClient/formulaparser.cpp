@@ -9,12 +9,12 @@ const char* CHARGE_CLASS   ="z";
 const char* CHARGE_NAME   ="Zz";
 
 
-void BaseParser::xblanc( string& str )
+void BaseParser::xblanc( std::string& str )
 {
     if(str.empty())
       return;
     size_t ti = str.find_first_not_of(" \n\t\r");
-    if( ti == string::npos )
+    if( ti == std::string::npos )
        str = "";
     else
        str = str.substr(ti);
@@ -22,7 +22,7 @@ void BaseParser::xblanc( string& str )
 
 
 //  <elem_st_coef>  ::= <double>
-void BaseParser::getReal( double& valReal, string& parsedstr )
+void BaseParser::getReal( double& valReal, std::string& parsedstr )
 {
    xblanc( parsedstr );
    if( parsedstr.empty() )
@@ -30,7 +30,7 @@ void BaseParser::getReal( double& valReal, string& parsedstr )
 
    if( isdigit( parsedstr[0] )  || parsedstr[0]=='.' || parsedstr[0]=='e'  )
    {
-         string::size_type sz;
+         std::string::size_type sz;
          valReal = stod(parsedstr,&sz);
          parsedstr = parsedstr.substr(sz);
    }
@@ -39,11 +39,14 @@ void BaseParser::getReal( double& valReal, string& parsedstr )
 
 // --------------------------------------------------------------
 
+ChemicalFormulaParser::~ChemicalFormulaParser()
+{}
+
 //add component to sorted list
-void ChemicalFormulaParser::icadd(  list<ICTERM>& itt_, ICTERM& it )
+void ChemicalFormulaParser::icadd(  std::list<ICTERM>& itt_, ICTERM& it )
 {
     int iRet;
-    list<ICTERM>::iterator itr;
+    std::list<ICTERM>::iterator itr;
     itr = itt_.begin();
 
     // test for setting element before
@@ -62,14 +65,14 @@ void ChemicalFormulaParser::icadd(  list<ICTERM>& itt_, ICTERM& it )
     itt_.insert( itr, ICTERM( it ) );
 }
 
-void ChemicalFormulaParser::icadd(  list<ICTERM>& itt_, const char *icn,
+void ChemicalFormulaParser::icadd(  std::list<ICTERM>& itt_, const char *icn,
                       const char *iso, int val, double csto )
 {
     ICTERM term( icn, iso, val, csto );
     icadd( itt_, term );
 }
 
-int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, int val )
+int ChemicalFormulaParser::ictcomp( std::list<ICTERM>::iterator& itr, std::string& ick, int val )
 {
     if( itr->ick < ick ) return(-1);
     if( itr->ick > ick ) return(1);
@@ -79,16 +82,16 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 }
 
 //get <formula>  ::= <fterm> | <fterm><charge>
- list<ICTERM> ChemicalFormulaParser::parse( const string& aformula )
+ std::list<ICTERM> ChemicalFormulaParser::parse( const std::string& aformula )
 {
   formula = aformula;
   charge = "";
-  list<ICTERM> newtt;
+  std::list<ICTERM> newtt;
 
   scanCharge();
 
   // cout << formula.c_str() << charge.c_str() << endl;
-  string term = formula;
+  std::string term = formula;
   scanFterm( newtt, term, '\0');
 
   // added charge item
@@ -105,25 +108,25 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
  void ChemicalFormulaParser::scanCharge( )
  {
    size_t ti = formula.find_last_of(CHARGE_TOK );
-   if( ti == string::npos ) // no charge token
+   if( ti == std::string::npos ) // no charge token
       return;
 
    size_t pp = formula.find( B_VALENT, ti);
-   if( pp != string::npos )   // no charge (this is valence)
+   if( pp != std::string::npos )   // no charge (this is valence)
        return;
 
-   // get charge string
+   // get charge std::string
    charge = formula.substr(ti);
    formula = formula.substr(0,ti);
  }
 
  // read charge
- void ChemicalFormulaParser::addCharge( list<ICTERM>& tt )
+ void ChemicalFormulaParser::addCharge( std::list<ICTERM>& tt )
  {
   double cha = 1.0;
   int sign = 1;
   double aZ = 0.0;
-  string chan = charge;
+  std::string chan = charge;
   //char *chan = (char *)charge_str.c_str();
 
   switch( chan[0] )
@@ -134,6 +137,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
                          chan = chan.substr(1);
                          getReal( cha, chan );
                          aZ = cha * sign;
+                         break;
      default:            break;
   }
   icadd( tt, CHARGE_NAME, CHARGE_CLASS, 1, aZ );
@@ -141,12 +145,12 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
  //get <fterm>  ::= <icterm> | <icterm><icterm>
  //    <icterm> ::= <elem>   | <elem>< elem_st_coef>
- void ChemicalFormulaParser::scanFterm( list<ICTERM>& itt_, string& startPos, char endSimb )
+ void ChemicalFormulaParser::scanFterm( std::list<ICTERM>& itt_, std::string& startPos, char endSimb )
  {
    //char *cur_ = startPos;
    double st_coef;
-   list<ICTERM> elt_;
-   list<ICTERM>::iterator ite;
+   std::list<ICTERM> elt_;
+   std::list<ICTERM>::iterator ite;
 
    while( startPos[0] != endSimb && !startPos.empty())  // list of <elem>< elem_st_coef>
    {
@@ -184,7 +188,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
  //                   <isotope_mass><icsymb><valence> |
  //                   <isotope_mass><icsymb> |
  //                   <icsymb><valence> | <icsymb>
- void ChemicalFormulaParser::scanElem( list<ICTERM>& itt_, string& startPos )
+ void ChemicalFormulaParser::scanElem( std::list<ICTERM>& itt_, std::string& startPos )
  {
    xblanc( startPos );
    if( startPos.empty() )
@@ -216,8 +220,8 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
                        } // else goto default - other <icsymb>
      default: // <isotope_mass><icsymb><valence>
          {
-           string isotop = string(NOISOTOPE_CLASS);
-           string icName = "";
+           std::string isotop = std::string(NOISOTOPE_CLASS);
+           std::string icName = "";
            int val = jsonio::SHORT_EMPTY;;
 
            scanIsotope( isotop, startPos);
@@ -232,7 +236,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
  // get <valence>   ::= |-<integer>| \ |+<integer>| \ |<integer>|
  //  <integer>    ::= <num>
- void ChemicalFormulaParser::scanValence( int& val, string& cur)
+ void ChemicalFormulaParser::scanValence( int& val, std::string& cur)
  {
      xblanc( cur );
      if( cur.empty() )
@@ -246,7 +250,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
          jsonio::jsonioErr( cur,  "Term valence scan error");
 
      size_t ti = cur.find_first_of(B_VALENT);
-     if( ti >= 3 || ti==string::npos )
+     if( ti >= 3 || ti==std::string::npos )
          jsonio::jsonioErr( cur,  "Term valence scan error");
 
      if( !sscanf( cur.c_str(), " %d", &val ))
@@ -256,7 +260,7 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
 
  // /3/H2/18/O             isotopic form of water.
  //  get <isotope_mass>  ::= /<integer>/
- void ChemicalFormulaParser::scanIsotope( string& isotop, string& cur)
+ void ChemicalFormulaParser::scanIsotope( std::string& isotop, std::string& cur)
  {
      xblanc( cur );
      if( cur.empty() )
@@ -270,15 +274,15 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
          jsonio::jsonioErr( cur,  "Term isotope scan error");
 
      size_t ti = cur.find_first_of(B_ISOTOPE);
-     if( ti >= MAXICNAME || ti==string::npos )
+     if( ti >= MAXICNAME || ti==std::string::npos )
          jsonio::jsonioErr( cur,  "Term isotope scan error");
 
-     isotop = string( cur, 0, ti );  // test please
+     isotop = std::string( cur, 0, ti );  // test please
      cur = cur.substr(ti+1);
  }
 
  // <icsymb>    ::= <Capital_letter> \ <icsymb><lcase_letter> \ <icsymb>_
- void ChemicalFormulaParser::scanICsymb( string& icName, string& cur)
+ void ChemicalFormulaParser::scanICsymb( std::string& icName, std::string& cur)
  {
      unsigned int i=1;
 
@@ -294,21 +298,24 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
             break;
      jsonio::jsonioErrIf(  i>=MAXICNAME, cur,  "IC Symbol scan error");
 
-     icName = string( cur, 0, i ); //  strncpy( ic, aFa.cur, len );
+     icName = std::string( cur, 0, i ); //  strncpy( ic, aFa.cur, len );
      cur = cur.substr(i);
  }
 
  //------------------------------------------------------------------
 
+ MoityParser::~MoityParser()
+ {}
+
  // <fterm>  ::= <site_term> : | <fterm> <site_term>:
  // <site_term> ::= <moiety>   | <moiety><moiety>
  // <moiety>    ::= {<elem>}   | {<elem>} <elem_st_coef> | Va
- int MoityParser::parse( const string& aformula, vector<MOITERM>&  moit_ )
+ int MoityParser::parse( const std::string& aformula, std::vector<MOITERM>&  moit_ )
  {
    formula = aformula;
-   string cur_ = formula;
+   std::string cur_ = formula;
    size_t endmoi;
-   string moiName;
+   std::string moiName;
    double nj;   // moiety-site occupancy.
    moit_.clear();
 
@@ -324,10 +331,10 @@ int ChemicalFormulaParser::ictcomp( list<ICTERM>::iterator& itr, string& ick, in
                        if( cur_.empty() )
                            jsonio::jsonioErr( "scanMoiety","Must be }");
                        endmoi =  cur_.find_first_of( RBRACKET3 );
-                       if( endmoi == string::npos )
+                       if( endmoi == std::string::npos )
                            jsonio::jsonioErr( "scanMoiety","Must be }");
-                       moiName = string( cur_, 0, endmoi );
-                       //  moiName = string( cur_, 0, endmoi-1 );
+                       moiName = std::string( cur_, 0, endmoi );
+                       //  moiName = std::string( cur_, 0, endmoi-1 );
                        cur_ = cur_.substr(endmoi+1);
                        nj = 1.;
                        getReal( nj, cur_ );

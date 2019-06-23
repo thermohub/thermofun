@@ -6,6 +6,7 @@
 #include "jsonui/VertexWidget.h"
 #include "jsonui/EdgesWidget.h"
 #include "jsonui/HelpMainWindow.h"
+#include "jsonui/helpBrowser.h"
 #include "ThermoFunMainWindow.h"
 #include "ui_ThermoFunMainWindow.h"
 #include "ThermoFunWidgetNew.h"
@@ -298,7 +299,7 @@ void TThermoFunMainWin::CmThermoFun()
         //testWidget->setShowWidgetFunction(showWidget);
         bsonuiWindows.push_back(testWidget);
         testWidget->show();
-        //testWidget->CmSelectThermoDataSet();
+        testWidget->CmSelectThermoDataSet();
 
     }
    catch(jsonio::jsonio_exception& e)
@@ -340,12 +341,12 @@ void TThermoFunMainWin::setAllElements()
         auto itr = elements.begin();
         while( itr != elements.end() )
         {
-            outFile << itr->first.symbol << ","<< itr->first.class_ << ",";
-            outFile << itr->first.isotope << ","<< itr->second.atomic_mass << ",";
+            outFile << itr->first.Symbol() << ","<< itr->first.Class() << ",";
+            outFile << itr->first.Isotope() << ","<< itr->second.atomic_mass << ",";
             outFile << itr->second.entropy << ","<< itr->second.heat_capacity << ",";
             outFile << itr->second.volume << ","<< itr->second.valence << ",";
             outFile << itr->second.number;
-            outFile << endl;
+            outFile << "\n";
             itr++;
         }
 

@@ -20,6 +20,7 @@ tests/unit01/src/*.autosave
 .directory
 /DemoGUI/.directory
 build/
+build-gui/
 python/pyThermoFun/build/
 .vscode/
 python/tests/PyThermoFun.so
@@ -47,6 +48,8 @@ temp*
 
 .vscode/
 tests/PyThermoFun.so
+d-*
+e-*
 
 python/tests/H2OWP95reaktoro.csv
 python/tests/PyThermoFun.cpython-36m-x86_64-linux-gnu.so

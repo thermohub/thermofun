@@ -2,15 +2,16 @@
 #include "jsonio/jsondomfree.h"
 #include <algorithm>
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun {
 
 //const DBQueryData datsetQuery( "{\"_label\": \"thermodataset\" }", DBQueryData::qTemplate );
 const DBQueryData datsetQuery("FOR u  IN thermodatasets ", DBQueryData::qAQL);
-const vector<string> datsetFieldPaths       = {"properties.symbol","properties.name", "properties.stype","_id"};
+const vector<string> datsetFieldPaths       = {"properties.symbol", "properties.name", "properties.stype","_id"};
+const vector<string> datsetDataNames        = {"symbol",            "name",                  "stype", "_id"}; // should have the same size as FieldPaths !!
 const vector<string> datsetColumnHeaders    = {"symbol", "name", "stype"};
-const vector<string> datsetDataNames        = {"symbol", "name", "stype", "_id"};
 
 struct ThermoSetData::Impl
 {
@@ -60,12 +61,11 @@ set<ElementKey> ThermoSetData::getElementsList( const string& idthermo )
 
     jElements =  getDB()->runQuery( DBQueryData( qrAQL, DBQueryData::qAQL ) );
 
-    string prop;
+    ElementKey elem("",0,0);
     for (auto jel : jElements)
     {
-        ElementKey elem("");
-        jsonio::unpackJson(jel)->findValue("properties", prop);
-        elem.fromJsonNode(jsonio::unpackJson(prop).get());
+        auto node =  jsonio::unpackJson(jel);
+        elem.fromElementNode( node->field("properties"));
         elements.insert(elem);
     }
     //ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
@@ -112,13 +112,13 @@ ValuesTable ThermoSetData::loadRecordsValues( const DBQueryData& aquery,
     // get record by elements list
     //updateTableByElementsList( substQueryMatr, elements );
     pimpl->valuesTable = substQueryMatr;
-    return   move(substQueryMatr);
+    return   substQueryMatr;
 }
 
 ValuesTable ThermoSetData::loadRecordsValues( const string& idReactionSet )
 {
     ValuesTable substQueryMatr;
-    return   move(substQueryMatr);
+    return   substQueryMatr;
 }
 
 auto ThermoSetData::idRecordFromSymbol (const string &symbol) -> string
@@ -177,6 +177,28 @@ void ThermoSetData::traverceEdges( const string& idThermoDataSet, jsonio::GraphE
 
     for( auto result: resultsQuery )
         afunc( false, result );
+}
+
+std::vector<int> ThermoSetData::sourceTDBs(const string &idThermoDataSet) const
+{
+   std::vector<int> srcs;
+   string qrAQL = "FOR u  IN thermodatasets ";
+          qrAQL += "\nFILTER u._id == \""+idThermoDataSet+"\" ";;
+          qrAQL +=  "\nRETURN u.properties.sourcetdbs";
+
+   DBQueryData query( qrAQL, DBQueryData::qAQL );
+   vector<string> resultsQuery = getDB()->runQuery( query );
+
+   if( resultsQuery.size() > 0)
+   {
+      //cout << resultsQuery[0] << endl;
+      auto domdata = jsonio::unpackJson( resultsQuery[0] );
+      std::map<std::string,std::string> newmap;
+      domdata->findObject( "", newmap );
+      for( auto row: newmap )
+        srcs.push_back( stoi(row.first) );
+   }
+   return srcs;
 }
 
 

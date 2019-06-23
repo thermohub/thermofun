@@ -7,6 +7,7 @@
 #include "OptimizationUtils.h"
 #include "sourcetdb.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun {
@@ -41,7 +42,7 @@ struct AbstractData::Impl
     /// Data names which will be used throughout the code
     vector<string> dataNames;
 
-    std::map<std::string, int> dataIndex;
+    std::map<std::string, uint> dataIndex;
     std::map<std::string, std::string> dataPath;
 
     std::map<std::string, std::string> substSymbolLevel;
@@ -160,8 +161,9 @@ struct AbstractData::Impl
         return dbvertex->loadRecordFields(idRecord, queryFields);
     }
 
-    auto loadRecords(vector<string> idRecords) -> jsonio::ValuesTable
+    auto loadRecords( vector<string> idRecords) -> jsonio::ValuesTable
     {
+        dbvertex->resetSchema(name, false);
         return dbvertex->downloadDocuments(idRecords, fieldPaths);
     }
 
@@ -287,6 +289,7 @@ auto AbstractData::loadRecord( const string id, const vector<string> queryFields
 /// Build table of fields values by ids list
 auto AbstractData::loadRecords(const vector<string> ids ) -> jsonio::ValuesTable
 {
+    //return pimpl->loadRecords(ids);
     return pimpl->load_records_fn(ids);
 }
 
@@ -514,7 +517,7 @@ auto AbstractData::setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable av
     }
 }
 
-auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, int>
+auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, uint>
 {
     return pimpl->dataIndex;
 }
@@ -550,7 +553,7 @@ auto AbstractData::getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEd
 }
 
 // delete not unique
-void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, int fldtestNdx )
+void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, uint fldtestNdx )
 {
     ValuesTable newMatr;
     for (const auto& subitem : dataMatr)
@@ -582,19 +585,16 @@ auto AbstractData::selectElementsGiven( const vector<int>& sourcetdbs, bool uniq
   DBQueryData query( AQLreq, DBQueryData::qAQL );
   query.setBindVars( domdata.get() );
 
-  vector<ElementKey> elements;
-  ElementKey elkey("");
-
   pimpl->dbvertex->resetMode(true);
   vector<string> resultsQuery = pimpl->dbvertex->runQuery( query );
   pimpl->dbvertex->resetMode(false);
 
+  vector<ElementKey> elements;
+  ElementKey elkey("",0,0);
   for( auto result: resultsQuery )
   {
       auto domdata = jsonio::unpackJson( result );
-      domdata->findValue("symbol" , elkey.symbol );
-      domdata->findValue("class_" , elkey.class_ );
-      domdata->findValue("isotope_mass" , elkey.isotope );
+      elkey.fromElementNode(domdata.get());
       elements.push_back(elkey);
    }
    return elements;

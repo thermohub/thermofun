@@ -20,29 +20,32 @@ public:
     virtual ~ThermoSetData();
 
     /// Extract data connected to ReactionSet
-    virtual jsonio::ValuesTable  loadRecordsValues( const string& idReactionSet );
+    virtual jsonio::ValuesTable  loadRecordsValues( const std::string& idReactionSet );
     /// Extract data by condition
     virtual jsonio::ValuesTable  loadRecordsValues( const jsonio::DBQueryData& query, int sourcetdb,
-                                                    const vector<ElementKey>& elements = {} );
+                                                    const std::vector<ElementKey>& elements = {} );
     /// Extract data connected to ThermoDataSet
-    virtual vector<string> selectGiven( const vector<string>& idThermoDataSets, bool unique = true );
+    virtual std::vector<std::string> selectGiven( const std::vector<std::string>& idThermoDataSets, bool unique = true );
 
     /// Get Elements list from reaction record
-    virtual set<ElementKey> getElementsList( const string& idThermoDataSet);
+    virtual std::set<ElementKey> getElementsList( const std::string& idThermoDataSet);
 
     /// Link to table of fields values loaded before
     const jsonio::ValuesTable& getValuesTable();
 
     /// Return all formulas from all connected substances
-    vector<string> getSubstanceFormulas( const string& idThermoDataSet );
+    std::vector<std::string> getSubstanceFormulas( const std::string& idThermoDataSet );
 
 
-    auto idRecordFromSymbol (const string &symbol) -> string;
+    auto idRecordFromSymbol (const std::string &symbol) -> std::string;
 
     /// Visit  all linked Vertexes
-    void traverceVertexes( const string& idThermoDataSet, jsonio::GraphElementFunction afunc );
+    void traverceVertexes( const std::string& idThermoDataSet, jsonio::GraphElementFunction afunc );
     /// Visit  all linked Edges
-    void traverceEdges( const string& idThermoDataSet, jsonio::GraphElementFunction afunc );
+    void traverceEdges( const std::string& idThermoDataSet, jsonio::GraphElementFunction afunc );
+
+    /// Get all sourceTDBs from record
+    std::vector<int> sourceTDBs(const std::string& idThermoDataSet) const;
 
 private:
 

@@ -45,7 +45,7 @@ bool extractMapFirst( const jsonio::JsonDomFree* domData,
 
 auto parseIssues(std::string data, string name, string prop) -> bool
 {
-    if ((data == "*") || (data == ""))
+    if ((data == "*") || (data == "" ) || (data == "{}"))
     {
         flog.open(parsinglogfile, ios::app);
         flog << "Could not parse " << prop << " for "<< name << ", using default value! " << endl;
@@ -482,6 +482,26 @@ auto thermoParamSubst (const jsonio::JsonDom *object, std::string name, std::str
 //        ps.phase_transition_prop.resize(1); ps.phase_transition_prop[0].resize(vkbuf.size());
 //        std::transform(vkbuf.begin(), vkbuf.end(), ps.phase_transition_prop[0].begin(), [](const std::string& val)
 //        { return std::stod(val); });
+    }
+
+    if (object->findArray(substTransPropLa, vkbuf))
+        if ((vkbuf.size() > 0)) if (!parseIssues(vkbuf[0], name, substTransPropLa))
+    {
+        std::vector<double> ph_prop;
+        ph_prop.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), ph_prop.begin(), [](const std::string& val)
+        { return std::stod(val); });
+        ps.phase_transition_prop.push_back(ph_prop);
+    }
+
+    if (object->findArray(substTransPropBm, vkbuf))
+        if ((vkbuf.size() > 0)) if (!parseIssues(vkbuf[0], name, substTransPropBm))
+    {
+        std::vector<double> ph_prop;
+        ph_prop.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), ph_prop.begin(), [](const std::string& val)
+        { return std::stod(val); });
+        ps.phase_transition_prop_Berman.push_back(ph_prop);
     }
 
 //    bsonio::bson_read_array_path(data, substTransProp, vkbuf); ps.phase_transition_prop_Berman.resize(1); ps.phase_transition_prop_Berman[0].resize(vkbuf.size());

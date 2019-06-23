@@ -35,21 +35,23 @@ git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
     /thermofun
 ```
 
-## Install ArangoDB local
+### Install the current version of ArangoDB server locally (if not yet installed)
 
-* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the installation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
-* In a terminal copy-paste and run to flowing code: (for possibly newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recommend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
+For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the installation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
+In a terminal copy-paste and run to flowing code: (for possibly newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recommend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
 
-```
-#!bash
-sudo apt-get install curl && \
-curl -OL https://download.arangodb.com/arangodb33/xUbuntu_17.04/Release.key && \
-sudo apt-key add - < Release.key && \
-echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list && \
-sudo apt-get install apt-transport-https && \
-sudo apt-get update && \
-sudo apt-get install arangodb3=3.3.19
-```
+On (K)Ubuntu linux, install the current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/) by using a terminal to copy-paste and run the following commands:
+
+~~~
+curl -OL https://download.arangodb.com/arangodb34/DEBIAN/Release.key
+sudo apt-key add - < Release.key
+echo 'deb https://download.arangodb.com/arangodb34/DEBIAN/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt-get install arangodb3=3.4.4-1
+~~~
+
+The updates will come together with other ubuntu packages that you have installed.
 
 ## Build and install ThermoFun library 
 
@@ -140,7 +142,7 @@ If compilation was successful the /Resources folder will be copied to the build 
 
 To be able to build and run the ThemroFun GUI (graphical user batch) application demo, Qt needs to be installed.
 
-* Download and install Qt 5.11.2 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.11.2 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
+* Download and install Qt 5.12.2 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.12.2 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
 
 ### Install Dependencies
 
@@ -148,7 +150,7 @@ Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18
 
 ```
 #!bash
-sudo ./install-dependencies-gui.sh $HOME/Qt/5.11.2/gcc_64
+sudo ./install-dependencies-gui.sh $HOME/Qt/5.12.2/gcc_64
 ```
 
 This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 

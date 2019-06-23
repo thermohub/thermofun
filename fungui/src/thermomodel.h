@@ -25,7 +25,7 @@ class ThermoViewModel: public QObject
 
 public:
 
-    ThermoViewModel( ThermoFun::AbstractData *data, QObject* parent = 0 ):
+    ThermoViewModel( ThermoFun::AbstractData *data, QObject* parent = nullptr ):
         QObject(parent), data_(data)
       {
          defineModels();
@@ -41,7 +41,7 @@ public:
       thermoModel->resetMatrixData();
     }
 
-    void loadModeRecords( const string& idReactionSet )
+    void loadModeRecords( const std::string& idReactionSet )
     {
       auto matr = data_->loadRecordsValues( idReactionSet );
       thermoData->updateValues( matr );
@@ -49,11 +49,18 @@ public:
     }
 
     void loadModeRecords( const jsonio::DBQueryData& query, int sourcetdb,
-                          const vector<ThermoFun::ElementKey>& elements )
+                          const std::vector<ThermoFun::ElementKey>& elements )
     {
       auto matr = data_->loadRecordsValues(  query, sourcetdb, elements );
       thermoData->updateValues( matr );
       thermoModel->resetMatrixData();
+    }
+
+    void loadModeRecords( const std::vector<std::string>& ids )
+    {
+        auto matr = data_->loadRecords(  ids );
+        thermoData->updateValues( matr );
+        thermoModel->resetMatrixData();
     }
 
     void loadModeRecords(const jsonio::ValuesTable&  matr )
@@ -63,7 +70,7 @@ public:
     }
 
     /// Resize model to selected
-    void leftOnlySelected(  const vector<int> selrows )
+    void leftOnlySelected(  const std::set<size_t> selrows )
     {
         jsonio::ValuesTable newmatr;
         const jsonio::ValuesTable&  oldmatr = getValues();
@@ -73,9 +80,9 @@ public:
         loadModeRecords(newmatr );
     }
 
-    vector<string> getColumn( unsigned int column, const vector<int>& selrows ) const
+    std::vector<std::string> getColumn( size_t column, const std::set<size_t>& selrows ) const
     {
-        vector<string> keys;
+        std::vector<std::string> keys;
         const jsonio::ValuesTable&  matrix = getValues();
         for( auto rowndx: selrows)
         {
@@ -88,10 +95,29 @@ public:
         return keys;
     }
 
-    int findRow( unsigned int column, const string& value ) const
+    std::vector<std::string> getColumn( size_t column ) const
+    {
+       return thermoData->getColumn(column);
+    }
+
+    template< class T >
+    void fillColumn( size_t column, const T& ndxs, const std::string& value )
+    {
+        for( size_t ii=0; ii<ndxs.size(); ii++)
+          if( ndxs[ii] < thermoData->rowCount() )
+              thermoData->setData( ndxs[ii], column, value.c_str() );
+    }
+
+    void fillColumn( size_t column, const std::string& value )
+    {
+        for( int ii=0; ii< thermoData->rowCount(); ii++)
+            thermoData->setData( ii, column, value.c_str() );
+    }
+
+    size_t findRow( size_t column, const std::string& value, bool first = false ) const
     {
         const jsonio::ValuesTable&  matrix = getValues();
-        for( unsigned int ii=0; ii<matrix.size(); ii++ )
+        for( size_t ii=0; ii<matrix.size(); ii++ )
         {
           if( column >= matrix[ii].size())
               continue;
@@ -99,9 +125,57 @@ public:
              if( matrix[ii][column] == value )
               return ii;
         }
-        return -1;
+        jsonio::jsonioErrIf( !first,  "ThermoViewModel",  "Value " + value + " not exists" );
+        return 0;
     }
 
+    /// Move record with values up
+    void moveUpByOrder(  size_t column, const std::set<std::string>& values )
+    {
+        jsonio::ValuesTable newmatr;
+        const jsonio::ValuesTable&  matrix = getValues();
+
+        // copy lines from values
+        for( auto val: values)
+         for( auto row: matrix )
+            if( row[column] == val  )
+              newmatr.push_back( row );
+
+        // copy other record
+        for( auto row: matrix )
+          if( values.find( row[column]) == values.end() )
+              newmatr.push_back( row );
+
+        loadModeRecords(std::move( newmatr ) );
+    }
+
+    /// Gen indexes of record with value into column
+    std::vector<size_t> recordToValue( size_t column, const std::string& value ) const
+    {
+      std::vector<size_t> rowndxs;
+      const jsonio::ValuesTable&  matrix = getValues();
+      for(size_t ii=0; ii<matrix.size(); ii++ )
+          if(  matrix[ii][column] == value )
+                rowndxs.push_back(ii);
+      return rowndxs;
+    }
+
+
+    /// Gen indexes of record with value into column
+    std::vector<size_t> recordToValues( size_t column, const std::vector<std::string>& values ) const
+    {
+      std::vector<size_t> rowndxs;
+      const jsonio::ValuesTable&  matrix = getValues();
+      for( size_t ii=0; ii<matrix.size(); ii++ )
+      {
+         for( auto val: values )
+            if(  matrix[ii][column] == val )
+            {    rowndxs.push_back(ii);
+                 break;
+            }
+      }
+      return rowndxs;
+    }
 
 
     /*const jsonio::DBQueryDef& getQuery( ) const
@@ -133,12 +207,12 @@ protected:
        thermoModel.reset( new jsonui::TMatrixModel( thermoData.get() ) );
     }
 
-    void setHeader( vector<string> heads)
+    void setHeader( std::vector<std::string> heads)
     {
       data_->setDataHeaders(heads);
     }
 
-    void setFields( vector<string> fields)
+    void setFields( std::vector<std::string> fields)
     {
       return data_->setDataFieldPaths(fields);
     }

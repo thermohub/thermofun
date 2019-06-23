@@ -15,8 +15,19 @@ if exist %MSVCDIR% (
   )
 )
 
+REM Check if Visual Studio 2019 comunity is installed
+set MSVCDIR="%PROGFILES%\Microsoft Visual Studio\2019\Community"
+set VCVARSALLPATH="%PROGFILES%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"        
+if exist %MSVCDIR% (
+  if exist %VCVARSALLPATH% (
+   	set COMPILER_VER="2019"
+        echo Using Visual Studio 2019 Community
+	goto setup_env
+  )
+)
 
-echo No compiler : Microsoft Visual Studio 2017 Community is not installed.
+
+echo No compiler : Microsoft Visual Studio 2017 or 2019 Community is not installed.
 goto end
 
 :setup_env
@@ -33,7 +44,6 @@ set SEVEN_ZIP="%CD%\bin\7-zip\7za.exe"
 set WGET="%CD%\bin\unxutils\wget.exe"
 set XIDEL="%CD%\bin\xidel\xidel.exe"
 set DEP_DIR="%ROOT_DIR%\..\dependencies"
-set QT_LIB="C:\Qt\5.12.0\msvc2017_64\bin"
 
 REM Housekeeping
 del /F /S /Q tmp_*
@@ -178,6 +188,9 @@ cd tmp_velo
 echo Get velocypack from git...
 
 git clone https://github.com/arangodb/velocypack.git
+cd velo*
+git checkout ce7c5fec3ec54c46ff4adbadfd4519540895e096 
+cd ..
 
 echo Setting velocypack build examples and tests OFF
 %FART% -w "%ROOT_DIR%\tmp_velo\velocypack\CMakeLists.txt" ON OFF
@@ -187,6 +200,7 @@ echo Setting linker settings from /MT to /MD
 %FART% "%ROOT_DIR%\tmp_velo\velocypack\cmake\Modules\AR_CompilerSettings.cmake" MT MD
 
 cd velo*
+git checkout ce7c5fec3ec54c46ff4adbadfd4519540895e096 
 mkdir build 
 cd build
 
@@ -232,36 +246,6 @@ del /F /S /Q tmp_velo
 
 %CP% %DEP_DIR%\lib-dll-release-x64\libcurl*.dll %ROOT_DIR%\..\build-fun-gui\release
 %CP% %DEP_DIR%\lib-dll-debug-x64\libcurl*.dll %ROOT_DIR%\..\build-fun-gui\debug
-
-echo copy Qt dll files to build-fun-gui\
-
-%CP% %QT_LIB%\Qt5Charts.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Core.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Gui.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Network.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Positioning.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5PrintSupport.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Qml.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Quick.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5QuickWidgets.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5WebChannel.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5WebEngineCore.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5WebEngineWidgets.dll %ROOT_DIR%\..\build-fun-gui\release
-%CP% %QT_LIB%\Qt5Widgets.dll %ROOT_DIR%\..\build-fun-gui\release
-
-%CP% %QT_LIB%\Qt5Charts.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Core.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Gui.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Network.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Positioning.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5PrintSupport.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Qml.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Quick.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5QuickWidgets.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5WebChannel.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5WebEngineCore.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5WebEngineWidgets.dll %ROOT_DIR%\..\build-fun-gui\debug
-%CP% %QT_LIB%\Qt5Widgets.dll %ROOT_DIR%\..\build-fun-gui\debug
 
 echo Finished a-build-win-dependencies.bat scrip! 
 

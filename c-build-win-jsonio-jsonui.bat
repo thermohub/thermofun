@@ -15,8 +15,19 @@ if exist %MSVCDIR% (
   )
 )
 
+REM Check if Visual Studio 2019 comunity is installed
+set MSVCDIR="%PROGFILES%\Microsoft Visual Studio\2019\Community"
+set VCVARSALLPATH="%PROGFILES%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"        
+if exist %MSVCDIR% (
+  if exist %VCVARSALLPATH% (
+   	set COMPILER_VER="2019"
+        echo Using Visual Studio 2019 Community
+	goto setup_env
+  )
+)
 
-echo No compiler : Microsoft Visual Studio 2017 Community is not installed.
+
+echo No compiler : Microsoft Visual Studio 2017 or 2019 Community is not installed.
 goto end
 
 :setup_env
@@ -33,7 +44,7 @@ set SEVEN_ZIP="%CD%\bin\7-zip\7za.exe"
 set WGET="%CD%\bin\unxutils\wget.exe"
 set XIDEL="%CD%\bin\xidel\xidel.exe"
 set DEP_DIR="%ROOT_DIR%\..\dependencies"
-set QMAKE="C:\Qt\5.12.0\msvc2017_64\bin\qmake.exe"
+set QT_LIB=%1
 set JOM="C:\Qt\Tools\QtCreator\bin\jom.exe"
 
 cd ..
@@ -59,7 +70,15 @@ cd build-jsonio/release
 echo "%MSVCDIR%\VC\Auxiliary\Build\vcvarsall.bat"
 call %MSVCDIR%\VC\Auxiliary\Build\vcvarsall.bat x64
 
-%QMAKE% %ROOT_DIR%\..\jsonio\jsonio-lib.pro -spec win32-msvc && %JOM% qmake_all
+if exist %QT_LIB% ( goto :build_jsonio)
+
+echo %QT_LIB% not found
+goto end
+
+:build_jsonio
+
+echo building jsonio
+%QT_LIB%\qmake.exe %ROOT_DIR%\..\jsonio\jsonio-lib.pro -spec win32-msvc && %JOM% qmake_all 
 
 %JOM%
 
@@ -70,7 +89,7 @@ cd release
 cd ..\..
 cd debug
 
-%QMAKE% %ROOT_DIR%\..\jsonio\jsonio-lib.pro -spec win32-msvc "CONFIG+=debug" && C:/Qt/Tools/QtCreator/bin/jom.exe qmake_all
+%QT_LIB%\qmake.exe %ROOT_DIR%\..\jsonio\jsonio-lib.pro -spec win32-msvc "CONFIG+=debug" && %JOM% qmake_all
 
 %JOM% -j4
 
@@ -103,7 +122,7 @@ cd build-jsonui/release
 echo "%MSVCDIR%\VC\Auxiliary\Build\vcvarsall.bat"
 call %MSVCDIR%\VC\Auxiliary\Build\vcvarsall.bat x64
 
-%QMAKE% %ROOT_DIR%\..\jsonui\jsonui-lib.pro -spec win32-msvc && C:/Qt/Tools/QtCreator/bin/jom.exe qmake_all
+%QT_LIB%\qmake.exe %ROOT_DIR%\..\jsonui\jsonui-lib.pro -spec win32-msvc && C:/Qt/Tools/QtCreator/bin/jom.exe qmake_all
 
 %JOM% -j2
 
@@ -114,13 +133,44 @@ cd release
 cd ..\..
 cd debug
 
-%QMAKE% %ROOT_DIR%\..\jsonui\jsonui-lib.pro -spec win32-msvc "CONFIG+=debug" && C:/Qt/Tools/QtCreator/bin/jom.exe qmake_all
+%QT_LIB%\qmake.exe %ROOT_DIR%\..\jsonui\jsonui-lib.pro -spec win32-msvc "CONFIG+=debug" && C:/Qt/Tools/QtCreator/bin/jom.exe qmake_all
 
 %JOM% -j2
 
 cd debug
 
 %CP% *.lib %DEP_DIR%\lib-static-debug-x64
+
+
+echo copy Qt dll files to build-fun-gui\
+
+%CP% %QT_LIB%\Qt5Charts.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Core.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Gui.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Network.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Positioning.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5PrintSupport.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Qml.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Quick.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5QuickWidgets.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5WebChannel.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5WebEngineCore.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5WebEngineWidgets.dll %ROOT_DIR%\..\build-fun-gui\release
+%CP% %QT_LIB%\Qt5Widgets.dll %ROOT_DIR%\..\build-fun-gui\release
+
+%CP% %QT_LIB%\Qt5Charts.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Core.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Gui.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Network.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Positioning.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5PrintSupport.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Qml.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Quick.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5QuickWidgets.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5WebChannel.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5WebEngineCore.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5WebEngineWidgets.dll %ROOT_DIR%\..\build-fun-gui\debug
+%CP% %QT_LIB%\Qt5Widgets.dll %ROOT_DIR%\..\build-fun-gui\debug
 
 REM %MKDIR% -p %DEP_DIR%\lib-static-release-x64
 REM REM %CP% *.lib %DEP_DIR%\lib-static-release-x64

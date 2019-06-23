@@ -6,6 +6,14 @@
 #include "ui_SelectElementsDialog.h"
 #include "jsonui/preferences.h"
 
+// ThermoFun includes
+#ifdef FROM_SRC
+#include "../src/DBClient/DatabaseClient.h"
+#else
+#include "thermofun/DBClient/DatabaseClient.h"
+#endif
+
+using namespace std;
 using namespace jsonui;
 
 

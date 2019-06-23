@@ -57,6 +57,10 @@ DEPENDPATH   += $$FUN_DIR
 INCLUDEPATH   += $$FUN_H
 INCLUDEPATH   += $$FUN_DIR
 
+INCLUDEPATH   += "/usr/local/include"
+DEPENDPATH   += "/usr/local/include"
+LIBPATH += "/usr/local/lib/"
+
 #temporary
 macx-clang {
   DEFINES += __APPLE__
@@ -82,7 +86,7 @@ LIBPATH += "/usr/local/lib/"
 win32:DEFINES += IMPEX_OFF
 !win32 {
 LIBS +=  -ljsonui -ljsonio -ljsonimpex
-#LIBS +=  -lyaml-cpp  -lpugixml
+LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift

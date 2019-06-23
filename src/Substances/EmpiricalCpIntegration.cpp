@@ -3,6 +3,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Substance.h"
+#include <iomanip>
 
 namespace ThermoFun {
 
@@ -57,7 +58,9 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
         Exception exception;
         exception.error << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
         exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
+        exception.file = __FILE__;
         exception.line = __LINE__;
+//        throw (exception);
         RaiseError(exception);
     }
 
@@ -92,6 +95,16 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
             // going trough the phase transitions parameters in FtP
 //            for (unsigned ft = 0; ft < thermo_parameters.phase_transition_prop.size(); ft++)
+
+            if (j && thermo_parameters.phase_transition_prop.size() == 0)
+            {
+                Exception exception;
+                exception.error << "No phase transition properties present in the record.";
+                exception.reason << "For substance "<< substance.symbol() << ".";
+                exception.line = __LINE__;
+                RaiseError(exception);
+            }
+
             if ( j && thermo_parameters.phase_transition_prop[ft][0] <= TrK/*-C_to_K*/ )
             {   // Adding parameters of phase transition
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 1 )  // dS

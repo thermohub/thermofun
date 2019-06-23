@@ -11,14 +11,23 @@ if exist %MSVCDIR% (
   if exist %VCVARSALLPATH% (
    	set COMPILER_VER="2017"
         echo Using Visual Studio 2017 Community
-        Set "Pattern=-vc-"
-        Set "Replace=-vc141-"
+	goto setup_env
+  )
+)
+
+REM Check if Visual Studio 2019 comunity is installed
+set MSVCDIR="%PROGFILES%\Microsoft Visual Studio\2019\Community"
+set VCVARSALLPATH="%PROGFILES%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"        
+if exist %MSVCDIR% (
+  if exist %VCVARSALLPATH% (
+   	set COMPILER_VER="2019"
+        echo Using Visual Studio 2019 Community
 	goto setup_env
   )
 )
 
 
-echo No compiler : Microsoft Visual Studio 2017 Community is not installed.
+echo No compiler : Microsoft Visual Studio 2017 or 2019 Community is not installed.
 goto end
 
 :setup_env

@@ -175,7 +175,7 @@ QMenu* TReactionView::contextMenu(const QModelIndex& /*index*/)
 {
     const TReactionModel* model_ =dynamic_cast<const TReactionModel*>(model());
     if( !model_ )
-        return 0;
+        return nullptr;
     QMenu *menu = new QMenu(this);
     QAction* act;
 

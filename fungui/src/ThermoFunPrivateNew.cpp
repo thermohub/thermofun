@@ -42,6 +42,14 @@ ThermoFunData::ThermoFunData()
   propertyUnits.push_back("J/mol");
   propertyPrecision.push_back(0);
 
+  propertiesS.push_back("gibbs_energy");
+  propertyUnitsS.push_back("J/mol");
+  propertyPrecisionS.push_back(0);
+
+  propertiesR.push_back("reaction_gibbs_energy");
+  propertyUnitsR.push_back("J/mol");
+  propertyPrecisionR.push_back(0);
+
   // old
   _query = jsonio::emptyQuery;
   _idReactionSet = "";
@@ -51,18 +59,19 @@ ThermoFunData::ThermoFunData()
 void ThermoFunData::resetSchemaName( const string& newSchemaName )
 {
     schemaName = newSchemaName;
-    properties.resize(1);
-    propertyUnits.resize(1);
-    propertyPrecision.resize(1);
 
     if (schemaName == "VertexSubstance")
-        properties[0] = "gibbs_energy";
+    {
+        properties = propertiesS;
+        propertyUnits = propertyUnitsS;
+        propertyPrecision = propertyPrecisionS;
+    }
     if (schemaName == "VertexReaction")
-        properties[0] = "reaction_gibbs_energy";
-
-    propertyUnits[0] = mapUnits[ properties[0]];
-    propertyPrecision[0] = mapPrecision[ properties[0]];
-
+    {
+        properties = propertiesR;
+        propertyUnits = propertyUnitsR;
+        propertyPrecision = propertyPrecisionR;
+    }
     // old
     _query = jsonio::emptyQuery;
 }
@@ -84,9 +93,9 @@ void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
     for( ii=0; ii<elements.size(); ii++)
     {
         auto arr2 = arr->appendArray( to_string(ii) );
-        arr2->appendString( "0", elements[ii].symbol );
-        arr2->appendInt( "1", elements[ii].class_ );
-        arr2->appendInt( "2", elements[ii].isotope );
+        arr2->appendString( "0", elements[ii].Symbol() );
+        arr2->appendInt( "1", elements[ii].Class() );
+        arr2->appendInt( "2", elements[ii].Isotope() );
     }
 
     object->appendDouble("TemperaturePrecision", tPrecision );
@@ -244,7 +253,7 @@ void ThermoFunPrivateNew::initWindow()
     valuesTable = new jsonui::TMatrixTable( window );
     valuesTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
     valuesTable->setEditTriggers( QAbstractItemView::AnyKeyPressed );
-    valuesTable->setSortingEnabled(true);
+    //valuesTable->setSortingEnabled(true);
     QObject::disconnect( valuesTable, SIGNAL(customContextMenuRequested(QPoint)),
            valuesTable, SLOT(slotPopupContextMenu(QPoint)));
     window->ui->keySplitter->insertWidget(0, valuesTable);
@@ -301,8 +310,10 @@ void ThermoFunPrivateNew::updateData( const std::string& aThermoDataSet,
    _data.idThermoDataSet = aThermoDataSet;
    _data.sourceTDBs = move(sourcetdbs);
    _data.elements  = elementKeys;
-    substModel->loadModeRecords( substanceValues );
-    reactModel->loadModeRecords( reactionValues );
+   substValues = substanceValues;
+   reactValues = reactionValues;
+//    substModel->loadModeRecords( substanceValues );
+//    reactModel->loadModeRecords( reactionValues );
     updateElementsModel();
 
 }
@@ -383,6 +394,26 @@ void ThermoFunPrivateNew::typeChanged(const string& newSchemaName)
 {
   if( newSchemaName != _curSchemaName )
   {
+      if (_curSchemaName == "VertexSubstance")
+      {
+          _data.propertiesS = _data.properties;
+          _data.propertyUnitsS = _data.propertyUnits;
+          _data.propertyPrecisionS = _data.propertyPrecision;
+
+          _data.properties = _data.propertiesR;
+          _data.propertyUnits = _data.propertyUnitsR;
+          _data.propertyPrecision = _data.propertyPrecisionR;
+      }
+      else
+      {
+          _data.propertiesR = _data.properties;
+          _data.propertyUnitsR = _data.propertyUnits;
+          _data.propertyPrecisionR = _data.propertyPrecision;
+
+          _data.properties = _data.propertiesS;
+          _data.propertyUnits = _data.propertyUnitsS;
+          _data.propertyPrecision = _data.propertyPrecisionS;
+      }
      _curSchemaName = newSchemaName;
      _data.resetSchemaName( _curSchemaName );
      _PropertyModel->resetMatrixData();
@@ -414,7 +445,7 @@ void ThermoFunPrivateNew::newThermoFunData( const ThermoFunData& newdata )
 // Calc part ------------------------------
 
 // extract init for calculation data
-void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
+void ThermoFunPrivateNew::loadSubstData( const vector<size_t>& selNdx,
   vector<string>& aKeyList, vector<string>& substancesSymbols,
   vector<string>& substancesClass )
 {
@@ -425,29 +456,31 @@ void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
     aKeyList.resize(selNdx.size());
     substancesSymbols.resize(selNdx.size());
     substancesClass.resize(selNdx.size());
+    auto name_ndx = dbclient.substData().getDataName_DataIndex();
 
     for( unsigned int ii=0; ii<selNdx.size(); ii++ )
      {
         auto itValues = values[selNdx[ii]];
-        substancesSymbols[ii] = itValues[0];
-        substancesClass[ii] = itValues[4];
-        aKeyList[ii] = itValues[3];
+        substancesSymbols[ii] = itValues[name_ndx["symbol"]];
+        substancesClass[ii] = itValues[name_ndx["class_"]];
+        aKeyList[ii] = itValues[name_ndx["_id"]];
      }
 }
 
-void ThermoFunPrivateNew::loadReactData( const vector<int>& selNdx,
+void ThermoFunPrivateNew::loadReactData( const vector<size_t>& selNdx,
   vector<string>& aKeyList, vector<string>& reactionsSymbols )
 {
     //if (_data.schemaName != "VertexReaction")
     //  return;
     const jsonio::ValuesTable& values= reactModel->getValues();
+    auto name_ndx = dbclient.reactData().getDataName_DataIndex();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
     for( unsigned int ii=0; ii<selNdx.size(); ii++ )
     {
         auto itValues = values[selNdx[ii]];
-        reactionsSymbols[ii] = itValues[0];
-        aKeyList[ii] = itValues[3];
+        reactionsSymbols[ii] = itValues[name_ndx["symbol"]];
+        aKeyList[ii] = itValues[name_ndx["_id"]];
     }
 }
 
@@ -550,7 +583,7 @@ ThermoFun::Database setSubstanceCalcType_ (ThermoFun::Database tdb, ThermoFun::S
 //    return react.recordsMapLevelTakesSubstances();
 //}
 
-ThermoLoadData ThermoFunPrivateNew::loadData( vector<int> selNdx )
+ThermoLoadData ThermoFunPrivateNew::loadData( vector<size_t> selNdx )
 {
     ThermoLoadData data;
 
@@ -568,7 +601,7 @@ ThermoLoadData ThermoFunPrivateNew::loadData( vector<int> selNdx )
     {
         data.errorMessage = e.what();
     }
-    return std::move(data);
+    return data;
 }
 
 string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventSymbol,
