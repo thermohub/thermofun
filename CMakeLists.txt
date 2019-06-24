@@ -1,8 +1,8 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project
-project(thermofun)
+project(ThermoFun VERSION 0.1.0 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
@@ -81,13 +81,13 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 # Set the thermofun source directory path
-set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/thermofun)
+set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/ThermoFun)
 
 # Set the include directories
 include_directories(${THERMOFUN_SOURCE_DIR})
 
 # Build thermofun library
-add_subdirectory(thermofun)
+add_subdirectory(ThermoFun)
 
 # Copy Resources folder
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
@@ -120,3 +120,6 @@ if(TFUN_BUILD_PYTHON)
 #else()
 #    add_subdirectory(python EXCLUDE_FROM_ALL)
 endif()
+
+# Install the cmake config files that permit users to use find_package(ThermoFun)
+include(ThermoFunInstallCMakeConfigFiles)
