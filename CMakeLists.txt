@@ -10,8 +10,14 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_MACOSX_RPATH ON)
 
+# Use ccache to speed up repeated compilations
+include(CCache)
+
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
+
+# Ensure proper configuration if in a conda environment
+include(CondaAware)
 
 # Define which types of libraries to build
 option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
