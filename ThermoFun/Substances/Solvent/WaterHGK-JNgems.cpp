@@ -2,6 +2,7 @@
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
 #include "ThermoProperties.h"
+using namespace std;
 
 namespace ThermoFun {
 

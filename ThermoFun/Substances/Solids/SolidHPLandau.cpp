@@ -3,6 +3,7 @@
 #include "Substance.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
+using namespace std;
 
 namespace ThermoFun {
 
