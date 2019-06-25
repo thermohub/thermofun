@@ -387,13 +387,13 @@ auto ThermoBatch::setUnits(const std::map<std::string, std::string> &units)-> vo
 
 auto ThermoBatch::setPropertiesUnits(const vstr &properties, const vstr &units)-> void
 {
-    for (uint i=0; i<properties.size(); i++)
+    for (std::size_t i=0; i<properties.size(); i++)
         setPropertyUnit(properties[i], units[i]);
 }
 
 auto ThermoBatch::setPropertiesDigits(const vstr &properties, const std::vector<int> &propDigits)-> void
 {
-    for (uint i=0; i<properties.size(); i++)
+    for (std::size_t i=0; i<properties.size(); i++)
         setPropertyDigit(properties[i], propDigits[i]);
 }
 

@@ -47,7 +47,7 @@ struct AbstractData::Impl
     /// Data names which will be used throughout the code
     vector<string> dataNames;
 
-    std::map<std::string, uint> dataIndex;
+    std::map<std::string, std::size_t> dataIndex;
     std::map<std::string, std::string> dataPath;
 
     std::map<std::string, std::string> substSymbolLevel;
@@ -183,7 +183,7 @@ struct AbstractData::Impl
 
         vector<string> resultsEdgeIds =  dbedge_all->runQuery( DBQueryData( qrJson, DBQueryData::qAQL ) );
 
-        for( uint ii=0; ii<resultsEdgeIds.size(); ii++  )
+        for( std::size_t ii=0; ii<resultsEdgeIds.size(); ii++  )
             jsonio::strip_all( resultsEdgeIds[ii] , "\"");
 
         return resultsEdgeIds;
@@ -370,7 +370,7 @@ auto AbstractData::setDataNamesHeadersFieldpaths(const vector<string> &names, co
 auto AbstractData::makeQueryFields() const -> jsonio::QueryFields
 {
    jsonio::QueryFields fldsMap;
-   for(uint ii=0; ii<pimpl->fieldPaths.size() ; ii++ )
+   for(std::size_t ii=0; ii<pimpl->fieldPaths.size() ; ii++ )
    {
       auto fieldpath = replace(pimpl->fieldPaths[ii], "values.0", "values[0]");
       fldsMap[pimpl->dataNames[ii]] = fieldpath;
@@ -391,7 +391,7 @@ auto AbstractData::CreateRecord( const jsonio::FieldSetMap& fldvalues, bool test
 auto AbstractData::resetDataPathIndex() -> void
 {
     pimpl->dataIndex.clear(); pimpl->dataPath.clear();
-    for (uint i = 0; i<getDataNames().size(); i++)
+    for (std::size_t i = 0; i<getDataNames().size(); i++)
     {
         pimpl->dataIndex[getDataNames()[i]] = i;
         pimpl->dataPath[getDataNames()[i]] = getDataFieldPaths()[i];
@@ -522,7 +522,7 @@ auto AbstractData::setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable av
     }
 }
 
-auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, uint>
+auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, std::size_t>
 {
     return pimpl->dataIndex;
 }
@@ -558,7 +558,7 @@ auto AbstractData::getDB_edgeAccessMode() const -> std::shared_ptr<jsonio::TDBEd
 }
 
 // delete not unique
-void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, uint fldtestNdx )
+void AbstractData::deleteNotUnique(jsonio::ValuesTable& dataMatr, std::size_t fldtestNdx )
 {
     ValuesTable newMatr;
     for (const auto& subitem : dataMatr)

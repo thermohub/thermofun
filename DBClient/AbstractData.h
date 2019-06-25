@@ -54,7 +54,7 @@ public:
     auto getDataNames() const -> std::vector<std::string>;
     auto getDataHeaders() const -> std::vector<std::string>;
     auto getDataFieldPaths() const -> std::vector<std::string>;
-    auto getDataName_DataIndex() const -> std::map<std::string, uint>;
+    auto getDataName_DataIndex() const -> std::map<std::string, std::size_t>;
     auto getDataName_DataFieldPath() const -> std::map<std::string, std::string>;
     auto getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>;
 
@@ -140,7 +140,7 @@ protected:
     // sets the level
     auto setSubstanceLevel_(std::string substSymbol, std::string level) -> void;
 
-    void deleteNotUnique(jsonio::ValuesTable& dataMatr, uint fldtestNdx );
+    void deleteNotUnique(jsonio::ValuesTable& dataMatr, std::size_t fldtestNdx );
 
 private:
     struct Impl;

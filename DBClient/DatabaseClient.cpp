@@ -293,7 +293,7 @@ auto DatabaseClient::sourcetdbIndexes() -> std::set<int>
     auto last = std::unique(resultsQuery.begin(), resultsQuery.end());
     resultsQuery.erase(last, resultsQuery.end());
 
-    for (uint ii = 0; ii < resultsQuery.size(); ii++)
+    for (std::size_t ii = 0; ii < resultsQuery.size(); ii++)
     {
         auto first  = resultsQuery[ii].find("\"");
         auto second = resultsQuery[ii].find("\"", first+1);

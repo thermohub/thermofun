@@ -148,7 +148,7 @@ struct TraversalData::Impl
 
         std::cout << "incoming defines: "<< _idSubst << endl;
 
-        for(uint i = 0; i < _resultDataEdge.size(); i++)
+        for(std::size_t i = 0; i < _resultDataEdge.size(); i++)
         {
             _idReact = _resultDataEdge[i];
             _resultDataReac = reactData->getJsonRecordVertex(_idReact);
@@ -170,7 +170,7 @@ struct TraversalData::Impl
 
         std::cout << "incoming takes: "<< _idReact << endl;
 
-        for(uint i = 0; i < _resultDataEdge.size(); i++)
+        for(std::size_t i = 0; i < _resultDataEdge.size(); i++)
         {
             _idSubst = extractStringField("_from", _resultDataEdge[i]);
             _resultDataSubst = substData->getJsonRecordVertex(_idSubst);
@@ -191,7 +191,7 @@ struct TraversalData::Impl
 
         if (selNdx.size() == 0)
         {
-            for (uint ii=0; ii<idList.size(); ii++)
+            for (std::size_t ii=0; ii<idList.size(); ii++)
             {
                 r = get_linked_data_from_id_fn(idList[ii]);
                 result.insert(r.begin(), r.end());

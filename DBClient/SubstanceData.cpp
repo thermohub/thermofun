@@ -159,7 +159,7 @@ auto SubstanceData_::nextValueForDefinesLevel (string idSubst) const -> string
     auto queryJson = getDB_edgeAccessMode()->inEdgesQuery( "defines", idSubst);
     queryJson.setQueryFields( {{ "level", "properties.level" }} );
     levelQueryMatr = getDB_edgeAccessMode()->downloadDocuments( queryJson, {"level"} );
-    for (uint i = 0; i < levelQueryMatr.size(); i++)
+    for (std::size_t i = 0; i < levelQueryMatr.size(); i++)
     {
         levels.push_back(std::stoi(levelQueryMatr[i][0]));
     }
@@ -201,7 +201,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
     string level, idreact, idsub;
     MapSubstSymbol_MapLevel_IdReaction recordsLevelReact;
 
-    for (uint i = 0; i < connectedSubstIds.size(); i++)
+    for (std::size_t i = 0; i < connectedSubstIds.size(); i++)
     {
         MapLevel_IdReaction levelReact;
         idsub = connectedSubstIds[i];

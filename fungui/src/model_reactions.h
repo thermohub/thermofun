@@ -22,17 +22,17 @@ class ReactionTree
 
 public:
 
-    ReactionTree( uint andx, const string& aname, vector<double>& avalues, vector<double>& aerrors, vector<Reaktoro_::Status>& astatus, ReactionTree* aparent ):
+    ReactionTree( std::size_t andx, const string& aname, vector<double>& avalues, vector<double>& aerrors, vector<Reaktoro_::Status>& astatus, ReactionTree* aparent ):
        ndx(andx), rsnames(aname), values(avalues), errors(aerrors), status(astatus), parent(aparent)
     {}
 
-    ReactionTree( uint andx, const string& aname, ReactionTree* aparent = nullptr ):
+    ReactionTree( std::size_t andx, const string& aname, ReactionTree* aparent = nullptr ):
         ndx(andx), rsnames(aname), parent(aparent)
     {}
 
     ~ReactionTree(){}
 
-    uint ndx;
+    std::size_t ndx;
     string rsnames;         // name of field
     vector<double> values;  // values of field
     vector<double> errors;  // errors of field
@@ -85,19 +85,19 @@ class TReactionModel: public QAbstractItemModel
     ReactionTree* rootNode;
 
  public:
-	  
+
   TReactionModel(  ReactionTree* newRoot, QObject* parent = nullptr );
   ~TReactionModel(){}
-	 
+
   QModelIndex index(int row, int column, const QModelIndex& parent) const;
   QModelIndex parent(const QModelIndex& child) const;
   int rowCount ( const QModelIndex& parent ) const;     //ok
   int columnCount ( const QModelIndex& parent  ) const; // ok
   QVariant data ( const QModelIndex& index, int role ) const;
   //bool setData ( const QModelIndex& index, const QVariant& value, int role );
-  QVariant headerData ( int section, Qt::Orientation orientation, int role ) const; 
+  QVariant headerData ( int section, Qt::Orientation orientation, int role ) const;
   Qt::ItemFlags flags ( const QModelIndex& index ) const;
-	 
+
   ReactionTree* lineFromIndex(const QModelIndex& index) const;
 
   void setModelData(ReactionTree* newRoot )
@@ -112,15 +112,15 @@ class TReactionModel: public QAbstractItemModel
 
 /*!
   \ class TReactionView implements a tree view of reactions structure
-  \ that displays items from a model. This class is used to 
-  \ provide standard tree views that were previously provided by 
-  \ the QTree class, but using the more flexible approach 
-  \ provided by Qt's model/view architecture. 
+  \ that displays items from a model. This class is used to
+  \ provide standard tree views that were previously provided by
+  \ the QTree class, but using the more flexible approach
+  \ provided by Qt's model/view architecture.
 */
 class TReactionView: public QTreeView
 {
 	Q_OBJECT
-	
+
 	void keyPressEvent(QKeyEvent* e);
     QMenu* contextMenu(const QModelIndex &index);
 

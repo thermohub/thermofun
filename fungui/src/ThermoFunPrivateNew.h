@@ -227,7 +227,7 @@ public:
    void loadReactData( const vector<size_t>& selNdx,
      vector<string>& aKeyList, vector<string>& reactionsSymbols );
 
-   std::map<std::string, uint>  getSubstDataIndex()
+   std::map<std::string, std::size_t>  getSubstDataIndex()
    {
        return dbclient.substData().getDataName_DataIndex();
    }

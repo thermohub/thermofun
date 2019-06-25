@@ -78,7 +78,7 @@ void ThermoFunData::resetSchemaName( const string& newSchemaName )
 
 void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
 {
-    uint ii;
+    std::size_t ii;
     object->appendString( "Name", name );
     object->appendString( "Description", comment );
     object->appendString( "SchemaName", schemaName );
@@ -221,7 +221,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
      jsonio::ThriftEnumDef* enumdef =  jsonio::ioSettings().Schema()->getEnum( "SourceTDB" );
      if(enumdef != nullptr )
      {
-      for( uint ii=0; ii<sourceTDBs.size(); ii++ )
+      for( std::size_t ii=0; ii<sourceTDBs.size(); ii++ )
               output += enumdef->getNamebyId(sourceTDBs[ii]) + "  ";
      }
      output +=  "\n";
@@ -457,7 +457,7 @@ void ThermoFunPrivateNew::loadSubstData( const vector<size_t>& selNdx,
     substancesClass.resize(selNdx.size());
     auto name_ndx = dbclient.substData().getDataName_DataIndex();
 
-    for( uint ii=0; ii<selNdx.size(); ii++ )
+    for( std::size_t ii=0; ii<selNdx.size(); ii++ )
      {
         auto itValues = values[selNdx[ii]];
         substancesSymbols[ii] = itValues[name_ndx["symbol"]];
@@ -475,7 +475,7 @@ void ThermoFunPrivateNew::loadReactData( const vector<size_t>& selNdx,
     auto name_ndx = dbclient.reactData().getDataName_DataIndex();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
-    for( uint ii=0; ii<selNdx.size(); ii++ )
+    for( std::size_t ii=0; ii<selNdx.size(); ii++ )
     {
         auto itValues = values[selNdx[ii]];
         reactionsSymbols[ii] = itValues[name_ndx["symbol"]];
@@ -661,7 +661,7 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
         //    tpCalc.addSolventProperties(solventPropNames);
 
         std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
-        for (uint jj = 0; jj <_data.properties.size(); jj++)
+        for (std::size_t jj = 0; jj <_data.properties.size(); jj++)
         {
             precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
         }

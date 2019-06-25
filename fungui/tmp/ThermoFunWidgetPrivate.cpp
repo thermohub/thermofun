@@ -73,7 +73,7 @@ void ThermoFunData::resetSchemaName( const string& newSchemaName )
 
 void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
 {
-    uint ii;
+    std::size_t ii;
     object->appendString( "Name", name );
     object->appendString( "Description", comment );
     object->appendString( "SchemaName", schemaName );
@@ -268,7 +268,7 @@ void ThermoFunWidgetPrivate::updateElementsModel()
 void ThermoFunWidgetPrivate::reallocTP( int newsize )
 {
   _data.tppairs.clear();
-   for (uint i = 0; i<newsize; i++ )
+   for (std::size_t i = 0; i<newsize; i++ )
        _data.tppairs.push_back({0,0});
   _TPlistModel->resetMatrixData();
 }
@@ -369,7 +369,7 @@ void ThermoFunWidgetPrivate::loadSubstData( const vector<int>& selNdx,
     substancesSymbols.resize(selNdx.size());
     substancesClass.resize(selNdx.size());
 
-    for( uint ii=0; ii<selNdx.size(); ii++ )
+    for( std::size_t ii=0; ii<selNdx.size(); ii++ )
      {
         auto itValues = values[selNdx[ii]];
         substancesSymbols[ii] = itValues[0];
@@ -386,7 +386,7 @@ void ThermoFunWidgetPrivate::loadReactData( const vector<int>& selNdx,
     const jsonio::ValuesTable& values= tableModel->getValues();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
-    for( uint ii=0; ii<selNdx.size(); ii++ )
+    for( std::size_t ii=0; ii<selNdx.size(); ii++ )
     {
         auto itValues = values[selNdx[ii]];
         reactionsSymbols[ii] = itValues[0];
@@ -543,7 +543,7 @@ double ThermoFunWidgetPrivate::calcData(const vector<string>& substKeys, const v
 //    tpCalc.addSolventProperties(solventPropNames);
 
     std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
-    for (uint jj = 0; jj <_data.properties.size(); jj++)
+    for (std::size_t jj = 0; jj <_data.properties.size(); jj++)
     {
         precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
     }

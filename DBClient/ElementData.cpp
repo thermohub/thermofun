@@ -332,7 +332,7 @@ void setDBElements( jsonio::TDBVertexDocument* elementDB, const jsonio::DBQueryD
     vector<string> resultData = elementDB->runQuery( query );
 
     ElementsMap elements_map;
-    for(uint ii=0; ii<resultData.size(); ii++ )
+    for(std::size_t ii=0; ii<resultData.size(); ii++ )
     {
 //       cout << resultData[ii] << endl;
       auto e = parseElement(resultData[ii]);

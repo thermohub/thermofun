@@ -50,7 +50,7 @@ void ElementsWidget::CmResetACT()
 
 void ElementsWidget::allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const
 {
-    uint ii;
+    std::size_t ii;
     elementKeys.clear();
     for( ii=0; ii<aBtmId1.size(); ii++ )
     {
