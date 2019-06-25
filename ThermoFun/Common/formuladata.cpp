@@ -133,7 +133,7 @@ void ElementKey::fromElementNode( const std::string& element )
   else
     isotope = 0;
   if (j.contains("class_"))
-    class_ = stoi(j["class_"].begin().key());
+    class_ = j["class_"].get<int>();
   else
     class_ = 0;
 }

@@ -198,7 +198,7 @@ auto getTPMethods(const json &j, Reaction& r) -> void
 
     for(auto it = methods.begin(); it != methods.end(); ++it)
     {
-        int key = stoi(it.value()["method"].begin().key());
+        int key = it.value()["method"].get<int>();
         std::string name = it.value()["method"].begin().value();
         setTPMethods_old(ReactionTPMethodType(key), r);
         thermoParamReac(it.value(), pr);
@@ -213,7 +213,7 @@ auto getTPMethods(const json& j, Substance &s) -> void
 
     for(auto it = methods.begin(); it != methods.end(); ++it)
     {
-        int key = stoi(it.value()["method"].begin().key());
+        int key = it.value()["method"].get<int>();
         std::string name = it.value()["method"].begin().value();
         setTPMethods_old(SubstanceTPMethodType(key), s);
         thermoParamSubst(it.value(), name, ps);
@@ -378,7 +378,7 @@ auto parseElement (const std::string& data) -> Element
           e.setVolume(j["volume"]["values"][0].get<double>());
 
     if (j.contains("class_"))
-         e.setClass(stoi(j["class_"].begin().key()));
+         e.setClass(j["class_"].get<int>());
 
     if (j.contains("isotope_mass"))
          e.setIsotopeMass(j["isotope_mass"].get<int>());
@@ -412,11 +412,11 @@ auto parseSubstance (const std::string& data) -> Substance
 
     if (j.contains("aggregate_state"))
         s.setAggregateState(
-                    static_cast<AggregateState::type>(stoi(j["aggregate_state"].begin().key())));
+                    static_cast<AggregateState::type>(j["aggregate_state"].get<int>()));
 
     if (j.contains("class_"))
         s.setSubstanceClass(
-                    static_cast<SubstanceClass::type>(stoi(j["class_"].begin().key())));
+                    static_cast<SubstanceClass::type>(j["class_"].get<int>()));
 
     if (j.contains("limitsTP"))
         if (j["limitsTP"].contains("lowerT"))
