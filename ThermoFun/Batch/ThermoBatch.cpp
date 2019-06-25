@@ -1,9 +1,12 @@
 #include "ThermoBatch.h"
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
 
+// C++ includes
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+
+// ThermoFun includes
 #include "ThermoProperties.h"
 #include "Database.h"
 #include "ThermoEngine.h"

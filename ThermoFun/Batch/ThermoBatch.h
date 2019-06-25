@@ -1,10 +1,12 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <string>
-#include <vector>
+// C++ includes
+#include <array>
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "../Common/ThermoScalar.hpp"
 #include "OutputBatch.h"

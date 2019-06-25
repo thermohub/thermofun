@@ -21,6 +21,9 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
+// C++ includes
+#include <array>
+
 // ThermoFun includes
 #include <ThermoFun/Batch/ThermoBatch.h>
 #include <ThermoFun/Batch/OutputBatch.h>
