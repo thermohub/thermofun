@@ -5,7 +5,7 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 # Create a library using the collected source files
-add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
+add_library(ThermoFun SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
@@ -15,7 +15,9 @@ find_package(Boost 1.70.0 REQUIRED)
 find_package(nlohmann_json 3.6.1 REQUIRED)
 
 # Specify the dependency libraries to link against
-target_link_libraries(ThermoFun PUBLIC Boost::boost)
+target_link_libraries(ThermoFun
+    PRIVATE Boost::boost
+    PRIVATE nlohmann_json::nlohmann_json)
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
