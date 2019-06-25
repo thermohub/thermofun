@@ -2,11 +2,10 @@
 cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.1.0 LANGUAGES CXX)
+project(ThermoFun VERSION 0.1.3 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
-#set(CMAKE_PREFIX_PATH /usr/local/lib/)
 
 set(CMAKE_MACOSX_RPATH ON)
 
@@ -56,6 +55,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
+
+# Define if shared library should be build instead of static.
+option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

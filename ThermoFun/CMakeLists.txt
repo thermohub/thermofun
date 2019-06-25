@@ -5,7 +5,7 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 # Create a library using the collected source files
-add_library(ThermoFun SHARED ${HEADER_FILES} ${SOURCE_FILES})
+add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
