@@ -12,7 +12,9 @@ auto OutputSteamConventionH2OProp (std::string filename, const WaterThermoState 
     myfile.open (filename, std::ios::app);
     string c=",";
 
-    if ( myfile.tellp() == 0 )
+    int res = myfile.tellp();
+
+    if ( res == 0 )
     {
         myfile <<"T,P,Cp,Cv,RHO,H,S,G,A,U,V\n";
     }
@@ -21,7 +23,6 @@ auto OutputSteamConventionH2OProp (std::string filename, const WaterThermoState 
               wt.enthalpy << c << wt.entropy << c << wt.gibbs << c << wt.helmholtz << c <<
               wt.internal_energy << c << wt.volume << endl;
     myfile.close();
-
 }
 
 }
