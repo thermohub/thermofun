@@ -13,7 +13,7 @@
 #include "Common/Exception.h"
 
 // JSON
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
@@ -80,7 +80,7 @@ auto readValueError(const json& j, string propPath, double &val, double &err, st
     {
         err = j[propPath]["errors"][0].get<double>();
     }
-        
+
     return status;
 }
 
@@ -280,7 +280,7 @@ auto thermoParamReac (const json &j, ThermoParametersReaction& pr) -> void
     string kbuf;
 
     if (j.contains("logk_ft_coeffs"))
-        pr.reaction_logK_fT_coeff = j["logk_ft_coeffs"]["values"].get<vector<double>>();    
+        pr.reaction_logK_fT_coeff = j["logk_ft_coeffs"]["values"].get<vector<double>>();
 //    if (j.contains("logk_pt_values"))  // static const char * reacLogKPT             = "logk_pt_values.pptv"; //
 //        pr.logK_TP_array = j["logk_pt_values"]["values"].get<vector<double>>();
     if (j.contains("dr_heat_capacity_ft_coeffs"))
@@ -314,7 +314,7 @@ auto thermoRefPropSubst (const json& j) -> ThermoPropertiesSubstance
     ThermoPropertiesSubstance tps;
     string message;
 
-    if (j.contains("sm_heat_capacity_p"))    
+    if (j.contains("sm_heat_capacity_p"))
         tps.heat_capacity_cp.sta = readValueError(j, "sm_heat_capacity_p" , tps.heat_capacity_cp.val, tps.heat_capacity_cp.err,  message);
     if (j.contains("sm_gibbs_energy"))
         tps.gibbs_energy.sta     = readValueError(j, "sm_gibbs_energy",  tps.gibbs_energy.val,     tps.gibbs_energy.err,      message);
@@ -332,7 +332,7 @@ auto thermoRefPropReac (const json &j) -> ThermoPropertiesReaction
     ThermoPropertiesReaction tpr;
     string message;
 
-    if (j.contains("logKr"))    
+    if (j.contains("logKr"))
         tpr.log_equilibrium_constant.sta  = readValueError(j, "logKr", tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  message);
     if (j.contains("drsm_heat_capacity_p"))
         tpr.reaction_heat_capacity_cp.sta = readValueError(j, "drsm_heat_capacity_p",   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, message);
