@@ -4,6 +4,9 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
+# Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
 # Create a library using the collected source files
 add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 
