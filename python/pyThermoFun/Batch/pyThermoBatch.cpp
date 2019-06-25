@@ -1,7 +1,7 @@
 // This file is part of ThermoFun https://bitbucket.org/gems4/thermofun/
 // ThermoFun is a framework for delivering standard state thermodynamic data.
 //
-// Copyright (c) 2016-2018 G.D.Miron, D.A.Kulik, A.Leal 
+// Copyright (c) 2016-2018 G.D.Miron, D.A.Kulik, A.Leal
 //
 // ThermoFun is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as
@@ -22,10 +22,10 @@
 namespace py = pybind11;
 
 // ThermoFun includes
-#include <thermofun/Batch/ThermoBatch.h>
-#include <thermofun/Batch/OutputBatch.h>
-#include <thermofun/Database.h>
-#include <thermofun/ThermoProperties.h>
+#include <ThermoFun/Batch/ThermoBatch.h>
+#include <ThermoFun/Batch/OutputBatch.h>
+#include <ThermoFun/Database.h>
+#include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
 
@@ -52,23 +52,23 @@ void exportThermoBatch(py::module& m)
     py::class_<ThermoBatch>(m, "ThermoBatch")
         .def(py::init<const std::string>())
         .def(py::init<const Database&>())
-        .def("setUnits", &ThermoBatch::setUnits)                   
-        .def("setDigits", &ThermoBatch::setDigits)                
+        .def("setUnits", &ThermoBatch::setUnits)
+        .def("setDigits", &ThermoBatch::setDigits)
         .def("setPropertiesUnits", &ThermoBatch::setPropertiesUnits)
-        .def("setPropertiesDigits", &ThermoBatch::setPropertiesDigits)         
-        .def("setPropertyUnit", &ThermoBatch::setPropertyUnit)            
-        .def("setPropertyDigit", &ThermoBatch::setPropertyDigit)           
-        .def("setPropertyUnitDigit", &ThermoBatch::setPropertyUnitDigit)       
-        .def("thermoPropertiesSubstance", thermoPropertiesSubstance1) 
+        .def("setPropertiesDigits", &ThermoBatch::setPropertiesDigits)
+        .def("setPropertyUnit", &ThermoBatch::setPropertyUnit)
+        .def("setPropertyDigit", &ThermoBatch::setPropertyDigit)
+        .def("setPropertyUnitDigit", &ThermoBatch::setPropertyUnitDigit)
+        .def("thermoPropertiesSubstance", thermoPropertiesSubstance1)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance2)
-        .def("thermoPropertiesSubstance", thermoPropertiesSubstance3) 
+        .def("thermoPropertiesSubstance", thermoPropertiesSubstance3)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance4)
-        .def("thermoPropertiesReaction", thermoPropertiesReaction1)  
-        .def("thermoPropertiesReaction", thermoPropertiesReaction2)  
-        .def("thermoPropertiesReaction", thermoPropertiesReaction3)  
-        .def("thermoPropertiesReaction", thermoPropertiesReaction4)  
-        .def("setBatchPreferences", &ThermoBatch::setBatchPreferences)         
-        .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)          
+        .def("thermoPropertiesReaction", thermoPropertiesReaction1)
+        .def("thermoPropertiesReaction", thermoPropertiesReaction2)
+        .def("thermoPropertiesReaction", thermoPropertiesReaction3)
+        .def("thermoPropertiesReaction", thermoPropertiesReaction4)
+        .def("setBatchPreferences", &ThermoBatch::setBatchPreferences)
+        .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)
         ;
 }
 
