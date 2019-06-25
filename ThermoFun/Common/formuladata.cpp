@@ -210,7 +210,7 @@ void ElementKey::fromElementNode( const std::string& element )
 //{
 //  vector<ElementKey> elements;
 
-//  for(std::size_t ii=0; ii<idList.size(); ii++ )
+//  for(uint ii=0; ii<idList.size(); ii++ )
 //  {
 //    elementDB->Read( idList[ii] );
 //    elements.push_back(ElementKey(elementDB));
@@ -402,7 +402,7 @@ vector<double> FormulaToken::makeStoichiometryRowOld( const vector<ElementKey>& 
       const ElementKey& elkey = *itel;
       if( elements.find(elkey) != elements.end() )
       {
-          for(std::size_t ii=0; ii<datamap.size(); ii++ )
+          for(uint ii=0; ii<datamap.size(); ii++ )
               if( elkey == datamap[ii].key )
                  ai += datamap[ii].stoichCoef;
       }
@@ -418,13 +418,13 @@ vector<double> FormulaToken::makeStoichiometryRowOld( const vector<ElementKey>& 
 //    double ai = 0;
 //    Eigen::VectorXd rowA(sysElemens.size());
 
-//    for( std::size_t ii=0; ii<sysElemens.size(); ii++ )
+//    for( uint ii=0; ii<sysElemens.size(); ii++ )
 //    {
 //      ai=0.;
 //      const ElementKey& elkey = sysElemens[ii];
 //      if( elements.find(elkey) != elements.end() )
 //      {
-//          for(std::size_t ii=0; ii<datamap.size(); ii++ )
+//          for(uint ii=0; ii<datamap.size(); ii++ )
 //              if( elkey == datamap[ii].key )
 //                 ai += datamap[ii].stoichCoef;
 //      }
@@ -478,7 +478,7 @@ map<ElementKey, double> ChemicalFormula::extractElements_map(  const vector<stri
    map<ElementKey, double> elements_map;
    FormulaToken formula("");
 
-   for(std::size_t ii=0; ii<formulalist.size(); ii++ )
+   for(uint ii=0; ii<formulalist.size(); ii++ )
    {
      formula.setFormula(  formulalist[ii] );
      elements_map.insert( formula.getElements_map().begin(), formula.getElements_map().end());
@@ -491,7 +491,7 @@ set<ElementKey> ChemicalFormula::extractElements(  const vector<string>& formula
    set<ElementKey> elements;
    FormulaToken formula("");
 
-   for(std::size_t ii=0; ii<formulalist.size(); ii++ )
+   for(uint ii=0; ii<formulalist.size(); ii++ )
    {
      formula.setFormula(  formulalist[ii] );
      elements.insert( formula.getElements().begin(), formula.getElements().end());
@@ -505,7 +505,7 @@ vector<FormulaProperites> ChemicalFormula::calcThermo(  const vector<string>& fo
    FormulaToken formula("");
    FormulaProperites val;
 
-   for(std::size_t ii=0; ii<formulalist.size(); ii++ )
+   for(uint ii=0; ii<formulalist.size(); ii++ )
    {
      formula.setFormula(  formulalist[ii] );
      formula.calcFormulaProperites( val );
@@ -530,7 +530,7 @@ vector<vector<double>> ChemicalFormula::calcStoichiometryMatrixOld(  const vecto
    vector<ElementKey> sysElemens = elementsRow();
    FormulaToken formula("");
 
-   for(std::size_t ii=0; ii<formulalist.size(); ii++ )
+   for(uint ii=0; ii<formulalist.size(); ii++ )
    {
      formula.setFormula( formulalist[ii] );
      matrA.push_back( formula.makeStoichiometryRowOld( sysElemens ) );
@@ -545,7 +545,7 @@ vector<vector<double>> ChemicalFormula::calcStoichiometryMatrixOld(  const vecto
 //   Eigen::MatrixXd matrA(formulalist.size(), sysElemens.size());
 //   FormulaToken formula("");
 
-//   for(std::size_t ii=0; ii<formulalist.size(); ii++ )
+//   for(uint ii=0; ii<formulalist.size(); ii++ )
 //   {
 //     formula.setFormula( formulalist[ii] );
 //     matrA.row(ii) = formula.makeStoichiometryRow( sysElemens );
@@ -565,7 +565,7 @@ void ChemicalFormula::setDBElements(ElementsMap elements )
 //    vector<string> resultData = elementDB->runQuery( query );
 
 //    dbElements.clear();
-//    for(std::size_t ii=0; ii<resultData.size(); ii++ )
+//    for(uint ii=0; ii<resultData.size(); ii++ )
 //    {
 ////       cout << resultData[ii] << endl;
 //      elementDB->SetJson(resultData[ii]);
@@ -577,7 +577,7 @@ void ChemicalFormula::setDBElements(ElementsMap elements )
 //{
 //  dbElements.clear();
 
-//  for(std::size_t ii=0; ii<keyList.size(); ii++ )
+//  for(uint ii=0; ii<keyList.size(); ii++ )
 //  {
 //    elementDB->Read( keyList[ii] );
 //    addOneElement( elementDB );
