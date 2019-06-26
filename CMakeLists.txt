@@ -85,6 +85,10 @@ set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/ThermoFun)
 
 # Set the include directories
 include_directories(${THERMOFUN_SOURCE_DIR})
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    include_directories("/usr/local/include")
+    link_directories("/usr/local/lib")
+endif()
 
 # Build thermofun library
 add_subdirectory(ThermoFun)
