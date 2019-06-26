@@ -4,10 +4,6 @@
 #
 #-------------------------------------------------
 
-QT  += widgets svg
-QT  += core gui printsupport concurrent
-QT  += charts webenginewidgets
-#QT  += webkitwidgets
 
 TARGET = ThermoFunDemoGUI
 TEMPLATE = app
@@ -18,13 +14,28 @@ CONFIG += warn_on
 
 DEFINES += FROM_SRC
 
+#internal help configuraion
+#DEFINES  +=  NO_QWEBENGINE
+#DEFINES  +=  USE_MARKDOWN
+#win32:DEFINES += IMPEX_OFF
+#DEFINES += IMPEX_OFF
+
 !win32 {
   DEFINES += __unix
+}else
+{
+# DEFINES  +=  IMPEX_OFF
+ DEFINES  +=  NO_QWEBENGINE
 }
 
-macx-g++ {
-  DEFINES += __APPLE__
+QT   += core gui widgets
+QT   += svg printsupport concurrent
+QT   += charts
+
+!contains(DEFINES, NO_QWEBENGINE) {
+    QT   += webenginewidgets
 }
+
 
 # Define the directory where source code is located
 #THRIFT_DIR    = ./thrift
@@ -62,27 +73,33 @@ INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"
 
-#temporary
 macx-clang {
   DEFINES += __APPLE__
   CONFIG -= warn_on
   CONFIG += warn_off
-  LIBS += -llua
-}
-else{
-  LIBS += -llua5.3
+  INCLUDEPATH   += "/usr/local/include"
+  DEPENDPATH   += "/usr/local/include"
+  LIBPATH += "/usr/local/lib/"
 }
 
-# Define the directory where CuteMarkEd code is located
-#INCLUDEPATH   += "/usr/local/include/app-static"
-#DEPENDPATH   += "/usr/local/include/app-static"
+
+## Markdown editor
+contains(DEFINES, USE_MARKDOWN) {
+  LIBS +=  -lmarkdown
+}
+else
+{
+  contains(DEFINES, NO_QWEBENGINE) {
+  LIBS +=  -lmarkdown
+ }
+
+}
+## end markdown
+
 
 LIBS +=  -ljsonui -ljsonio -ljsonimpex
-LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
-#LIBS += -lapp-static -lhunspell -lmarkdown
-LIBS +=  -lcurl  -lvelocypack -lthrift
-LIBS += -llua5.3
+LIBS +=  -lcurl  -lvelocypack
 
 
 MOC_DIR = tmp
