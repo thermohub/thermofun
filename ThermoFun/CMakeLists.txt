@@ -13,14 +13,17 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
-# Find library and software dependencies
-find_package(Boost 1.70.0 REQUIRED)
-find_package(nlohmann_json 3.6.1 REQUIRED)
+if( NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+  # Find library and software dependencies
+  find_package(Boost 1.70.0 REQUIRED)
+  find_package(nlohmann_json 3.6.1 REQUIRED)
+
 
 # Specify the dependency libraries to link against
 target_link_libraries(ThermoFun
     PRIVATE Boost::boost
     PRIVATE nlohmann_json::nlohmann_json)
+endif()
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
