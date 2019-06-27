@@ -107,6 +107,12 @@ set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 include_directories(${THERMOFUN_SOURCE_DIR})
 #include_directories(${THIRDPARTY_INCLUDE_DIR})
 include_directories(${BOOST_INCLUDE_DIR})
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    include_directories("/usr/local/include")
+    link_directories("/usr/local/lib")
+endif()
+
+
 
 # Install the third-party libraries first
 #include(InstallThirdPartyLibs)
