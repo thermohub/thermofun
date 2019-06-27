@@ -1,5 +1,5 @@
 #include "WaterElectroSverjensky2014.h"
-#include "Thermo.h"
+#include "ThermoEngine.h"
 #include "Database.h"
 #include "Substance.h"
 #include "ThermoProperties.h"
@@ -32,7 +32,7 @@ auto electroPropertiesWaterSverjensky2014(/*PropertiesSolvent ps,*/ Reaktoro_::T
     ElectroPropertiesSolvent wep;
 
     Database db; db.addSubstance(substance);
-    Thermo   th(db);
+    ThermoEngine   th(db);
 
     Reaktoro_::Temperature TK(TC.val + 273.15);
     Reaktoro_::Pressure P(Pbar.val * 1e05);

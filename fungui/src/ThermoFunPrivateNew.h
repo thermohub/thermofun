@@ -8,13 +8,13 @@
 #include "containers.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Interfaces/Interface.h"
+#include "../src/Batch/ThermoBatch.h"
 #include "../src/DBClient/DatabaseClient.h"
 #include "../src/DBClient/SubstanceData.h"
 #include "../src/Reaction.h"
 #include "../src/Substance.h"
 #else
-#include "thermofun/Interfaces/Interface.h"
+#include "thermofun/Batch/ThermoBatch.h"
 #include "thermofun/DBClient/DatabaseClient.h"
 #include "thermofun/DBClient/SubstanceData.h"
 #include "thermofun/Reaction.h"
@@ -57,9 +57,9 @@ struct ThermoFunData
     std::vector<std::vector<double>> tppairs;
 
     // Properties data
-    vector<string> properties;    ///< Properties names list
-    vector<string> propertyUnits; ///< Units of property
-    vector<int>    propertyPrecision; ///< Units of property
+    vector<string> properties, propertiesS, propertiesR;    ///< Properties names list
+    vector<string> propertyUnits, propertyUnitsS, propertyUnitsR; ///< Units of property
+    vector<int>    propertyPrecision, propertyPrecisionS, propertyPrecisionR; ///< Units of property
     int pPrecision, tPrecision;
 
     // work data
@@ -88,6 +88,8 @@ class ThermoFunPrivateNew: public QObject
 
     Q_OBJECT
 
+    friend class ThermoFunWidgetNew;
+
     ThermoFunWidgetNew* window;
 
    // Internal data
@@ -101,25 +103,30 @@ class ThermoFunPrivateNew: public QObject
    /// Selected reactions
    std::shared_ptr<ThermoViewModel>  reactModel;
 
+   /// Selected substances all
+   jsonio::ValuesTable  substValues;
+   /// Selected reactions all
+   jsonio::ValuesTable  reactValues;
+
    // Window data  ------------------------------------
 
    // keys list data
    /// Selected data view
-   jsonui::TMatrixTable* valuesTable = 0;
+   jsonui::TMatrixTable* valuesTable = nullptr;
 
    // define  ELEMENTS table model
-   ElementsDataContainer *elementContainer = 0;
-   jsonui::TMatrixTable *elementTable = 0;
-   jsonui::TMatrixModel* elementModel = 0;
+   ElementsDataContainer *elementContainer = nullptr;
+   jsonui::TMatrixTable *elementTable = nullptr;
+   jsonui::TMatrixModel* elementModel = nullptr;
 
    //ThermoFun data to edit;
-   TPContainer* _TPContainer = 0;
-   jsonui::TMatrixTable*  _TPlistTable = 0;
-   jsonui::TMatrixModel*  _TPlistModel = 0;
+   TPContainer* _TPContainer = nullptr;
+   jsonui::TMatrixTable*  _TPlistTable = nullptr;
+   jsonui::TMatrixModel*  _TPlistModel = nullptr;
 
-   TPropertyContainer* _PropertyContainer = 0;
-   jsonui::TMatrixTable*  _PropertyTable = 0;
-   jsonui::TMatrixModel*  _PropertyModel = 0;
+   TPropertyContainer* _PropertyContainer = nullptr;
+   jsonui::TMatrixTable*  _PropertyTable = nullptr;
+   jsonui::TMatrixModel*  _PropertyModel = nullptr;
 
    // internal functions
    void initWindow();
@@ -214,13 +221,13 @@ public:
    void typeChanged(const string& newSchemaName);
 
    // calc functions
-   void loadSubstData( const vector<int>& selNdx,
+   void loadSubstData( const vector<size_t>& selNdx,
      vector<string>& aKeyList, vector<string>& substancesSymbols,
      vector<string>& substancesClass );
-   void loadReactData( const vector<int>& selNdx,
+   void loadReactData( const vector<size_t>& selNdx,
      vector<string>& aKeyList, vector<string>& reactionsSymbols );
 
-   std::map<std::string, int>  getSubstDataIndex()
+   std::map<std::string, uint>  getSubstDataIndex()
    {
        return dbclient.substData().getDataName_DataIndex();
    }
@@ -234,9 +241,10 @@ public:
 
    void setSubstanceLevel(string substSymbol, string level);
 
-   double calcData(const vector<string>& substKeys, const vector<string>& reactKeys,
-     const vector<string>& substancesSymbols,  const vector<string>& reactionsSymbols,
-     const string& solventSymbol, bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst , struct timeval start);
+   ThermoLoadData loadData( std::vector<size_t> selNdx );
+
+   std::string calcData( ThermoLoadData loadedData, string solventSymbol,
+                    bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst );
 
    // temporaly functions
    void resetElementsintoRecord( bool isreact, const string& aKey );

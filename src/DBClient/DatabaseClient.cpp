@@ -2,6 +2,7 @@
 
 // C++ includes
 //#include <functional>
+#include <algorithm>
 
 // bonio includes
 #include "jsonio/traversal.h"
@@ -19,18 +20,24 @@
 #include "Element.h"
 #include "OptimizationUtils.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun
 {
 
-using QuerySubstancesFunction = std::function<std::vector<std::string>(uint)>;
-using QueryReactionsFunction  = std::function<std::vector<std::string>(uint)>;
-using AvailableElementsSet    = std::function<set<Element>(uint)>;
-using AvailableElementsKey    = std::function<std::vector<ElementKey>(uint)>;
+using QuerySubstancesFunction = std::function<std::vector<std::string>(int)>;
+using QueryReactionsFunction  = std::function<std::vector<std::string>(int)>;
+using AvailableElementsSet    = std::function<set<Element>(int)>;
+using AvailableElementsKey    = std::function<std::vector<ElementKey>(int)>;
 
 //std::vector<std::string> queryFieldsSubstance    = {"_id", "properties.formula", "properties.symbol", "properties.sourcetdb"};
 //std::vector<std::string> queryFieldsReaction     = {"_id", "properties.equation", "properties.symbol", "properties.sourcetdb"};
+
+auto setDatabaseConnectionFilePath(const std::string &filePath) -> void
+{
+    jsonio::JsonioSettings::settingsFileName = filePath;
+}
 
 struct DatabaseClient::Impl
 {
@@ -77,22 +84,22 @@ struct DatabaseClient::Impl
 
     auto setFunctions() -> void
     {
-        query_substances_fn = [=](uint sourcetdb) {
+        query_substances_fn = [=](int sourcetdb) {
             return querySubstances(sourcetdb);
         };
         query_substances_fn = memoize(query_substances_fn);
 
-        query_reactions_fn = [=](uint sourcetdb) {
+        query_reactions_fn = [=](int sourcetdb) {
             return queryReactions(sourcetdb);
         };
         query_reactions_fn = memoize(query_reactions_fn);
 
-        available_elements_key_fn = [=](uint sourcetdb) {
+        available_elements_key_fn = [=](int sourcetdb) {
             return availableElementsKey(sourcetdb);
         };
         available_elements_key_fn = memoize(available_elements_key_fn);
 
-        available_elements_set_fn = [=](uint sourcetdb) {
+        available_elements_set_fn = [=](int sourcetdb) {
             return availableElementsSet(sourcetdb);
         };
         available_elements_set_fn = memoize(available_elements_set_fn);
@@ -128,14 +135,14 @@ struct DatabaseClient::Impl
         {
             auto itrdb = ChemicalFormula::getDBElements().find(el);
             if (itrdb == ChemicalFormula::getDBElements().end())
-                jsonioErr("E37FPrun: Invalid symbol ", el.symbol);
+                jsonioErr("E37FPrun: Invalid symbol ", el.Symbol());
             Element e = elementKeyToElement(el);
             set.insert(e);
         }
         return set;
     }
 
-    auto availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>
+    auto availableElementsKey(int sourcetdb) -> std::vector<ElementKey>
     {
         std::set<ElementKey> elements;
         std::vector<ElementKey> set;
@@ -158,13 +165,13 @@ struct DatabaseClient::Impl
         {
             auto itrdb = ChemicalFormula::getDBElements().find(element);
             if (itrdb == ChemicalFormula::getDBElements().end())
-                jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+                jsonioErr("E37FPrun: Invalid symbol ", element.Symbol());
             set.push_back(element);
         }
         return set;
     }
 
-    auto querySubstances(uint sourcetdb) -> std::vector<std::string>
+    auto querySubstances(int sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += sourceTDB_from_index(sourcetdb);
@@ -173,7 +180,7 @@ struct DatabaseClient::Impl
         return _resultData;
     }
 
-    auto queryReactions(uint sourcetdb) -> std::vector<std::string>
+    auto queryReactions(int sourcetdb) -> std::vector<std::string>
     {
         string query = "{ \"_label\" : \"substance\", \"_type\" : \"vertex\", \"properties.sourcetdb\" : ";
         query += sourceTDB_from_index(sourcetdb);
@@ -209,12 +216,12 @@ DatabaseClient::~DatabaseClient()
 {
 }
 
-auto DatabaseClient::availableSubstances(uint sourcetdb) -> std::vector<std::string>
+auto DatabaseClient::availableSubstances(int sourcetdb) -> std::vector<std::string>
 {
     return extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdb), "symbol");
 }
 
-auto DatabaseClient::availableReactions(uint sourcetdb) -> std::vector<std::string>
+auto DatabaseClient::availableReactions(int sourcetdb) -> std::vector<std::string>
 {
     return extractFieldValuesFromQueryResult(pimpl->query_reactions_fn(sourcetdb), "symbol");
 }
@@ -229,7 +236,7 @@ auto DatabaseClient::extractFieldValuesFromQueryResult(std::vector<std::string> 
     return values;
 }
 
-auto DatabaseClient::thermoFunDatabase(uint sourcetdbIndex) -> Database
+auto DatabaseClient::thermoFunDatabase(int sourcetdbIndex) -> Database
 {
     // get substances ids
     auto substKeyList = extractFieldValuesFromQueryResult(pimpl->query_substances_fn(sourcetdbIndex), "_id");
@@ -259,26 +266,41 @@ auto DatabaseClient::parseSubstanceFormula(std::string formula_) -> std::map<Ele
 
 }
 
-auto DatabaseClient::sourcetdbIndexes() -> std::set<uint>
+auto DatabaseClient::sourcetdbIndexes() -> std::set<int>
 {
+    set<int> _sourcetdb;
+//    vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
 
-    set<uint> _sourcetdb;
-    vector<string> _resultData = pimpl->substData.getDB()->fieldValues("properties.sourcetdb");
-    for (uint ii = 0; ii < _resultData.size(); ii++)
+    string qrJson1 = "FOR e IN elements ";
+    string qrJson2 = "COLLECT s = e.properties.sourcetdb RETURN s";
+    std::vector<string> resultsQuery = pimpl->substData.getDB()->runQuery( DBQueryData(qrJson1+qrJson2, DBQueryData::qAQL ) );
+    qrJson1 = "FOR e IN substances ";
+    std::vector<string> resultsQuery2 = pimpl->substData.getDB()->runQuery( DBQueryData(qrJson1+qrJson2, DBQueryData::qAQL ) );
+    resultsQuery.insert( resultsQuery.end(), resultsQuery2.begin(), resultsQuery2.end() );
+    qrJson1 = "FOR e IN reactions ";
+    resultsQuery2 = pimpl->substData.getDB()->runQuery( DBQueryData(qrJson1+qrJson2, DBQueryData::qAQL ) );
+    resultsQuery.insert( resultsQuery.end(), resultsQuery2.begin(), resultsQuery2.end() );
+
+    // make unique
+    std::sort(resultsQuery.begin(), resultsQuery.end());
+    auto last = std::unique(resultsQuery.begin(), resultsQuery.end());
+    resultsQuery.erase(last, resultsQuery.end());
+
+    for (uint ii = 0; ii < resultsQuery.size(); ii++)
     {
-        uint first  = _resultData[ii].find("\"");
-        uint second = _resultData[ii].find("\"", first+1);
-        string strNew   = _resultData[ii].substr (first+1,second-(first+1));
+        auto first  = resultsQuery[ii].find("\"");
+        auto second = resultsQuery[ii].find("\"", first+1);
+        string strNew   = resultsQuery[ii].substr (first+1,second-(first+1));
         int asourcetdb = stoi(strNew);
         _sourcetdb.insert(asourcetdb);
     }
     return _sourcetdb;
 }
 
-auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexes) -> std::map<string, uint>
+auto DatabaseClient::sourcetdbNamesIndexes(const std::set<int> &sourcetdbIndexes) -> std::map<string, int>
 {
     // set lists
-    std::map<string, uint> namesIndexes;
+    std::map<string, int> namesIndexes;
     ThriftEnumDef *enumdef = ioSettings().Schema()->getEnum("SourceTDB");
     if (enumdef != nullptr)
     {
@@ -291,7 +313,7 @@ auto DatabaseClient::sourcetdbNamesIndexes(const std::set<uint> &sourcetdbIndexe
     return namesIndexes;
 }
 
-auto DatabaseClient::sourcetdbNamesComments(const std::set<uint> &sourcetdbIndexes) -> std::map<string, string>
+auto DatabaseClient::sourcetdbNamesComments(const std::set<int> &sourcetdbIndexes) -> std::map<string, string>
 {
     // set lists
     std::map<string, string> namesComments;
@@ -330,7 +352,7 @@ auto DatabaseClient::availableElementsSet(int sourcetdb) -> set<Element>
     return pimpl->available_elements_set_fn(sourcetdb);
 }
 
-auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
+auto DatabaseClient::availableElements(int sourcetdb) -> std::set<string>
 {
     std::set<string> set;
 
@@ -343,7 +365,7 @@ auto DatabaseClient::availableElements(uint sourcetdb) -> std::set<string>
     return set;
 }
 
-auto DatabaseClient::availableElementsKey(uint sourcetdb) -> std::vector<ElementKey>
+auto DatabaseClient::availableElementsKey(int sourcetdb) -> std::vector<ElementKey>
 {
     return pimpl->available_elements_key_fn(sourcetdb);
 }
@@ -355,7 +377,7 @@ auto DatabaseClient::elementIds( const std::vector<ElementKey>& elements) -> std
     {
         auto itrdb = ChemicalFormula::getDBElements().find(element);
         if (itrdb == ChemicalFormula::getDBElements().end())
-            jsonioErr("E37FPrun: Invalid symbol ", element.symbol);
+            jsonioErr("E37FPrun: Invalid symbol ", element.Symbol());
         elmIds.push_back(itrdb->second.recid);
     }
     return elmIds;

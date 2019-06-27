@@ -10,7 +10,7 @@
 #include "../src/DBClient/TraversalData.h"
 #include "../src/DBClient/ReactionData.h"
 #include "../src/DBClient/ReactionSetData.h"
-#include "../src/Interfaces/Output.h"
+#include "../src/Batch/OutputBatch.h"
 #include "../src/Common/ParseBsonTraversalData.h"
 #else
 #include "thermofun/Database.h"
@@ -39,6 +39,14 @@ ThermoFunData::ThermoFunData()
   propertyUnits.push_back("J/mol");
   propertyPrecision.push_back(0);
 
+  propertiesS.push_back("gibbs_energy");
+  propertyUnitsS.push_back("J/mol");
+  propertyPrecisionS.push_back(0);
+
+  propertiesR.push_back("reaction_gibbs_energy");
+  propertyUnitsR.push_back("J/mol");
+  propertyPrecisionR.push_back(0);
+
   // old
   _query = jsonio::emptyQuery;
   _idReactionSet = "";
@@ -48,18 +56,19 @@ ThermoFunData::ThermoFunData()
 void ThermoFunData::resetSchemaName( const string& newSchemaName )
 {
     schemaName = newSchemaName;
-    properties.resize(1);
-    propertyUnits.resize(1);
-    propertyPrecision.resize(1);
 
     if (schemaName == "VertexSubstance")
-        properties[0] = "gibbs_energy";
+    {
+        properties = propertiesS;
+        propertyUnits = propertyUnitsS;
+        propertyPrecision = propertyPrecisionS;
+    }
     if (schemaName == "VertexReaction")
-        properties[0] = "reaction_gibbs_energy";
-
-    propertyUnits[0] = mapUnits[ properties[0]];
-    propertyPrecision[0] = mapPrecision[ properties[0]];
-
+    {
+        properties = propertiesR;
+        propertyUnits = propertyUnitsR;
+        propertyPrecision = propertyPrecisionR;
+    }
     // old
     _query = jsonio::emptyQuery;
 }
@@ -81,9 +90,9 @@ void ThermoFunData::toJsonNode( jsonio::JsonDom *object ) const
     for( ii=0; ii<elements.size(); ii++)
     {
         auto arr2 = arr->appendArray( to_string(ii) );
-        arr2->appendString( "0", elements[ii].symbol );
-        arr2->appendInt( "1", elements[ii].class_ );
-        arr2->appendInt( "2", elements[ii].isotope );
+        arr2->appendString( "0", elements[ii].Symbol() );
+        arr2->appendInt( "1", elements[ii].Class() );
+        arr2->appendInt( "2", elements[ii].Isotope() );
     }
 
     object->appendDouble("TemperaturePrecision", tPrecision );
@@ -241,7 +250,7 @@ void ThermoFunPrivateNew::initWindow()
     valuesTable = new jsonui::TMatrixTable( window );
     valuesTable->horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
     valuesTable->setEditTriggers( QAbstractItemView::AnyKeyPressed );
-    valuesTable->setSortingEnabled(true);
+    //valuesTable->setSortingEnabled(true);
     QObject::disconnect( valuesTable, SIGNAL(customContextMenuRequested(QPoint)),
            valuesTable, SLOT(slotPopupContextMenu(QPoint)));
     window->ui->keySplitter->insertWidget(0, valuesTable);
@@ -298,8 +307,10 @@ void ThermoFunPrivateNew::updateData( const std::string& aThermoDataSet,
    _data.idThermoDataSet = aThermoDataSet;
    _data.sourceTDBs = move(sourcetdbs);
    _data.elements  = elementKeys;
-    substModel->loadModeRecords( substanceValues );
-    reactModel->loadModeRecords( reactionValues );
+   substValues = substanceValues;
+   reactValues = reactionValues;
+//    substModel->loadModeRecords( substanceValues );
+//    reactModel->loadModeRecords( reactionValues );
     updateElementsModel();
 
 }
@@ -327,7 +338,7 @@ void ThermoFunPrivateNew::updateSelectMessage()
 void ThermoFunPrivateNew::reallocTP( int newsize )
 {
   _data.tppairs.clear();
-   for (uint i = 0; i<newsize; i++ )
+   for (int i = 0; i<newsize; i++ )
        _data.tppairs.push_back({0,0});
   _TPlistModel->resetMatrixData();
 }
@@ -380,6 +391,26 @@ void ThermoFunPrivateNew::typeChanged(const string& newSchemaName)
 {
   if( newSchemaName != _curSchemaName )
   {
+      if (_curSchemaName == "VertexSubstance")
+      {
+          _data.propertiesS = _data.properties;
+          _data.propertyUnitsS = _data.propertyUnits;
+          _data.propertyPrecisionS = _data.propertyPrecision;
+
+          _data.properties = _data.propertiesR;
+          _data.propertyUnits = _data.propertyUnitsR;
+          _data.propertyPrecision = _data.propertyPrecisionR;
+      }
+      else
+      {
+          _data.propertiesR = _data.properties;
+          _data.propertyUnitsR = _data.propertyUnits;
+          _data.propertyPrecisionR = _data.propertyPrecision;
+
+          _data.properties = _data.propertiesS;
+          _data.propertyUnits = _data.propertyUnitsS;
+          _data.propertyPrecision = _data.propertyPrecisionS;
+      }
      _curSchemaName = newSchemaName;
      _data.resetSchemaName( _curSchemaName );
      _PropertyModel->resetMatrixData();
@@ -411,7 +442,7 @@ void ThermoFunPrivateNew::newThermoFunData( const ThermoFunData& newdata )
 // Calc part ------------------------------
 
 // extract init for calculation data
-void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
+void ThermoFunPrivateNew::loadSubstData( const vector<size_t>& selNdx,
   vector<string>& aKeyList, vector<string>& substancesSymbols,
   vector<string>& substancesClass )
 {
@@ -422,29 +453,31 @@ void ThermoFunPrivateNew::loadSubstData( const vector<int>& selNdx,
     aKeyList.resize(selNdx.size());
     substancesSymbols.resize(selNdx.size());
     substancesClass.resize(selNdx.size());
+    auto name_ndx = dbclient.substData().getDataName_DataIndex();
 
     for( uint ii=0; ii<selNdx.size(); ii++ )
      {
         auto itValues = values[selNdx[ii]];
-        substancesSymbols[ii] = itValues[0];
-        substancesClass[ii] = itValues[4];
-        aKeyList[ii] = itValues[3];
+        substancesSymbols[ii] = itValues[name_ndx["symbol"]];
+        substancesClass[ii] = itValues[name_ndx["class_"]];
+        aKeyList[ii] = itValues[name_ndx["_id"]];
      }
 }
 
-void ThermoFunPrivateNew::loadReactData( const vector<int>& selNdx,
+void ThermoFunPrivateNew::loadReactData( const vector<size_t>& selNdx,
   vector<string>& aKeyList, vector<string>& reactionsSymbols )
 {
     //if (_data.schemaName != "VertexReaction")
     //  return;
     const jsonio::ValuesTable& values= reactModel->getValues();
+    auto name_ndx = dbclient.reactData().getDataName_DataIndex();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
     for( uint ii=0; ii<selNdx.size(); ii++ )
     {
         auto itValues = values[selNdx[ii]];
-        reactionsSymbols[ii] = itValues[0];
-        aKeyList[ii] = itValues[3];
+        reactionsSymbols[ii] = itValues[name_ndx["symbol"]];
+        aKeyList[ii] = itValues[name_ndx["_id"]];
     }
 }
 
@@ -547,95 +580,125 @@ ThermoFun::Database setSubstanceCalcType_ (ThermoFun::Database tdb, ThermoFun::S
 //    return react.recordsMapLevelTakesSubstances();
 //}
 
-double ThermoFunPrivateNew::calcData(const vector<string>& substKeys, const vector<string>& reactKeys,
-  const vector<string>& substancesSymbols,  const vector<string>& reactionsSymbols,
-  const string& solventSymbol, bool FormatBox , bool calcSubstFromReact, bool calcReactFromSubst, struct timeval start)
+ThermoLoadData ThermoFunPrivateNew::loadData( vector<size_t> selNdx )
 {
-    vector<string> keys; keys.insert(keys.end(), substKeys.begin(), substKeys.end());
-                         keys.insert(keys.end(), reactKeys.begin(), reactKeys.end());
+    ThermoLoadData data;
 
-    auto tr = dbclient.getTraversal();
+    try{
 
-    ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
-    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
+        if( isSubstances() )
+            loadSubstData( selNdx, data.substKeys, data.substancesSymbols, data.substancesClass );
+        else
+            loadReactData( selNdx, data.reactKeys, data.reactionsSymbols );
 
-//    ThermoFun::Traversal tr(subst.getDB());
-//    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
-//    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, subst.mapSymbolLevel());
-
-    if (!calcSubstFromReact) // make all reactions to be calculated using the method in the record
-        tdb_ = setSubstanceCalcType_(tdb_, ThermoFun::SubstanceThermoCalculationType::type::DCOMP);
-
-
-    ThermoFun::Interface tpCalc (tdb_);
-    tpCalc.setSolventSymbol(solventSymbol);
-
-    ThermoFun::OutputSettings op;
-    if( FormatBox )
-    {
-      op.isFixed = true;
-    } else
-        op.isFixed = false;
-
-    op.outSolventProp       = true;
-    op.calcReactFromSubst   = calcReactFromSubst;
-    op.calcSubstFromReact   = calcSubstFromReact;
-    tpCalc.setOutputSettings(op);
-
-    tpCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
-
-    if (_data.unitsP == "B kbar")
-        tpCalc.setPropertyUnit("pressure","kbar");
-    if (_data.unitsP == "p Pa")
-        tpCalc.setPropertyUnit("pressure","Pa");
-    if (_data.unitsP == "P MPa")
-        tpCalc.setPropertyUnit("pressure","MPa");
-    if (_data.unitsP == "A Atm")
-        tpCalc.setPropertyUnit("pressure","atm");
-
-    /// check !!!
-    vector<string> solventPropNames = {"density", "alpha", "beta", "alphaT", "epsilon", "bornZ", "bornY", "bornQ", "bornX"};
-//    tpCalc.addSolventProperties(solventPropNames);
-
-    std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
-    for (uint jj = 0; jj <_data.properties.size(); jj++)
-    {
-        precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
+        retrieveConnectedDataSymbols( data.substKeys, data.reactKeys, data.linkedSubstSymbols,
+                                      data.linkedReactSymbols, data.linkedSubstClasses, data.linkedSubstIds);
     }
-
-    precision.at("temperature") = _data.tPrecision;
-    precision.at("pressure")    = _data.pPrecision;
-
-    tpCalc.setDigits(precision);
-
-    if (_data.schemaName == "VertexReaction")
+    catch(std::exception& e)
     {
-        tpCalc.thermoPropertiesReaction(_data.tppairs, reactionsSymbols, _data.properties/*, calcReactFromSubst*/).toCSV(op.fileName);
+        data.errorMessage = e.what();
+    }
+    return data;
+}
 
-        vector<string> reactionsEquations;
-        for (auto symb : reactionsSymbols)
+string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventSymbol,
+                                      bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst )
+{
+    string returnMessage;
+    QTime time;
+    time.start();
+
+    try{
+
+        vector<string> keys;
+
+        keys.insert(keys.end(), loadedData.substKeys.begin(), loadedData.substKeys.end());
+        keys.insert(keys.end(), loadedData.reactKeys.begin(), loadedData.reactKeys.end());
+
+        auto tr = dbclient.getTraversal();
+
+        ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
+        ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
+
+        //    ThermoFun::Traversal tr(subst.getDB());
+        //    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
+        //    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, subst.mapSymbolLevel());
+
+        if (!calcSubstFromReact) // make all reactions to be calculated using the method in the record
+            tdb_ = setSubstanceCalcType_(tdb_, ThermoFun::SubstanceThermoCalculationType::type::DCOMP);
+
+
+        ThermoFun::ThermoBatch batchCalc (tdb_);
+        batchCalc.setSolventSymbol(solventSymbol);
+
+        ThermoFun::BatchPreferences op;
+        if( FormatBox )
         {
-            reactionsEquations.push_back(tdb_.getReaction(symb).equation());
-        }
+            op.isFixed = true;
+        } else
+            op.isFixed = false;
+
+        op.outSolventProp       = true;
+        op.calcReactFromSubst   = calcReactFromSubst;
+        op.calcSubstFromReact   = calcSubstFromReact;
+        batchCalc.setBatchPreferences(op);
+
+        batchCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+
+        if (_data.unitsP == "B kbar")
+            batchCalc.setPropertyUnit("pressure","kbar");
+        if (_data.unitsP == "p Pa")
+            batchCalc.setPropertyUnit("pressure","Pa");
+        if (_data.unitsP == "P MPa")
+            batchCalc.setPropertyUnit("pressure","MPa");
+        if (_data.unitsP == "A Atm")
+            batchCalc.setPropertyUnit("pressure","atm");
 
         /// check !!!
-//        tpCalc.clearReactions();
-//        tpCalc.addReactions(reactionsEquations);
+        vector<string> solventPropNames = {"density", "alpha", "beta", "alphaT", "epsilon", "bornZ", "bornY", "bornQ", "bornX"};
+        //    tpCalc.addSolventProperties(solventPropNames);
 
-//        ThermoFun::Output (tpCalc).toCSV("equations.csv");
+        std::map<std::string, int> precision = ThermoFun::defaultPropertyDigits;
+        for (uint jj = 0; jj <_data.properties.size(); jj++)
+        {
+            precision.at(_data.properties[jj]) = _data.propertyPrecision[jj];
+        }
+
+        precision.at("temperature") = _data.tPrecision;
+        precision.at("pressure")    = _data.pPrecision;
+
+        batchCalc.setDigits(precision);
+
+        if (_data.schemaName == "VertexReaction")
+        {
+            batchCalc.thermoPropertiesReaction(_data.tppairs, loadedData.reactionsSymbols,
+                                               _data.properties/*, calcReactFromSubst*/).toCSV(op.fileName);
+
+            vector<string> reactionsEquations;
+            for (auto symb : loadedData.reactionsSymbols)
+            {
+                reactionsEquations.push_back(tdb_.getReaction(symb).equation());
+            }
+
+            /// check !!!
+            //        tpCalc.clearReactions();
+            //        tpCalc.addReactions(reactionsEquations);
+
+            //        ThermoFun::Output (tpCalc).toCSV("equations.csv");
+        }
+
+        if (_data.schemaName == "VertexSubstance")
+            batchCalc.thermoPropertiesSubstance( _data.tppairs, loadedData.substancesSymbols,
+                                                 _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
+
+        double delta_calc = time.elapsed()+ loadedData.time;
+        returnMessage = "Calculation finished ("+ to_string(delta_calc/1000) + "s). Click view results.";
     }
-
-
-    if (_data.schemaName == "VertexSubstance")
-        tpCalc.thermoPropertiesSubstance( _data.tppairs, substancesSymbols, _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
-
-    struct timeval end;
-    gettimeofday(&end, NULL);
-    double delta_calc = ((end.tv_sec  - start.tv_sec) * 1000000u +
-                     end.tv_usec - start.tv_usec) / 1.e6;
-
-     return delta_calc;
-
+    catch(std::exception& e)
+    {
+        returnMessage = string("Calculation finished with error: \n") + e.what();
+    }
+    return returnMessage;
 }
 
 //-----------------------------------------------------------------------

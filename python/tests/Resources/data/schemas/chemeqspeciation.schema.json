@@ -1,0 +1,242 @@
+{
+  "name": "chemeqspeciation",
+  "doc": "Apache Thrift IDL definition for the chemical system (partial) equilibrium speciation\n",
+  "namespaces": {
+    "*": "chemeqspeciation"
+  },
+  "includes": [
+"prop",
+"chemeqsysdef",
+"chemeqsysrecipe"
+  ],
+  "enums": [
+    {
+      "name": "ChemEqSpeciationType",
+      "members": [
+        {
+          "name": "EQS_COMPLETE",
+          "value": 0,
+          "doc": "Complete equilibrium state - no kinetic controls\n"
+        },
+        {
+          "name": "EQS_PARTIAL",
+          "value": 1,
+          "doc": "Partial equilibrium state - some species and phases under kinetic control\n"
+        },
+        {
+          "name": "EQS_LOCAL",
+          "value": 2,
+          "doc": "Local partial equilibrium state from reactive transport simulation\n"
+        },
+        {
+          "name": "EQS_OTHER",
+          "value": 101,
+          "doc": "Other types of equilibrium state\n"
+        }
+      ]
+    }
+  ],
+  "typedefs": [
+  ],
+  "structs": [
+    {
+      "name": "ChemEqSpeciation",
+      "doc": "and to its parent ChemEqSysDef record via the edge \"Belongs\"\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 1,
+          "name": "symbol",
+          "typeId": "string",
+          "doc": "Unique name\/ID of this speciation e.g. \"eqs_in_pw+bentonite\"\n",
+          "required": "required"
+        },
+        {
+          "key": 2,
+          "name": "comment",
+          "typeId": "string",
+          "doc": "Name comment of the recipe (e.g. \"equilibrium speciation for bentonite+porewater\")\n",
+          "required": "req_out"
+        },
+        {
+          "key": 3,
+          "name": "csdtype",
+          "class": "csdType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of this chemical equilibrium calculation\n",
+          "required": "req_out",
+          "default": {
+            "0": "CSD_GEM"
+          }
+        },
+        {
+          "key": 4,
+          "name": "cestype",
+          "class": "ChemEqSpeciationType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of this chemical equilibrium speciation\n",
+          "required": "req_out",
+          "default": {
+            "0": "EQS_COMPLETE"
+          }
+        },
+        {
+          "key": 5,
+          "name": "chemeqsysdef",
+          "typeId": "string",
+          "doc": "Symbol of chemeqsysdef to which this speciation belongs - via \"belongs\" link\n",
+          "required": "req_out"
+        },
+        {
+          "key": 6,
+          "name": "chemeqsysrecipe",
+          "typeId": "string",
+          "doc": "Symbol of chemeqsysrecipe that yileds this speciation via \"yields\" link\n",
+          "required": "req_out"
+        },
+        {
+          "key": 7,
+          "name": "initialGuess",
+          "class": "InitialGuessType",
+          "typeId": "map",
+          "type": {
+            "typeId": "map",
+            "keyTypeId": "i32",
+            "valueTypeId": "string"
+          },
+          "doc": "Type of the initial guess used\n",
+          "required": "req_out"
+        },
+        {
+          "key": 8,
+          "name": "Temperature",
+          "typeId": "double",
+          "doc": "Temperature, degK\n",
+          "required": "req_out"
+        },
+        {
+          "key": 9,
+          "name": "Pressure",
+          "typeId": "double",
+          "doc": "Pressure, Pa\n",
+          "required": "req_out"
+        },
+        {
+          "key": 10,
+          "name": "Volume",
+          "typeId": "double",
+          "doc": "Volume (constraining the system), m^3\n",
+          "required": "req_out"
+        },
+        {
+          "key": 11,
+          "name": "system",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TDSProperties"
+          },
+          "doc": "Properties of the whole system\n",
+          "required": "req_out"
+        },
+        {
+          "key": 12,
+          "name": "phases",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "prop.TDSProperties"
+            }
+          },
+          "doc": "Properties of phases-solutions\n",
+          "required": "req_out"
+        },
+        {
+          "key": 21,
+          "name": "masters",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "string"
+          },
+          "doc": "List of symbols of master species (from chemsysdef)\n",
+          "required": "req_out"
+        },
+        {
+          "key": 22,
+          "name": "nmsp",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "double"
+          },
+          "doc": "Bulk composition in moles of master species\n",
+          "required": "req_out"
+        },
+        {
+          "key": 25,
+          "name": "dataSources",
+          "typeId": "set",
+          "type": {
+            "typeId": "set",
+            "elemTypeId": "string"
+          },
+          "doc": "labels of datasource DB objects\n",
+          "required": "optional"
+        },
+        {
+          "key": 26,
+          "name": "timeStamp",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.TimeStamp"
+          },
+          "doc": "timestamp\n",
+          "required": "optional"
+        }
+      ]
+    },
+    {
+      "name": "ChemEqSpeciations",
+      "doc": "Definition of an array of calculated speciations\n",
+      "isException": false,
+      "isUnion": false,
+      "fields": [
+        {
+          "key": 2,
+          "name": "speciations",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "ChemEqSpeciation"
+            }
+          },
+          "doc": "List of CemGEMS chemical system speciations\n",
+          "required": "req_out"
+        }
+      ]
+    }
+  ],
+  "constants": [
+  ],
+  "services": [
+  ]
+}

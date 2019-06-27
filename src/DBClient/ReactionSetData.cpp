@@ -3,6 +3,7 @@
 #include "jsonio/jsondomfree.h"
 #include "sourcetdb.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun
@@ -10,10 +11,9 @@ namespace ThermoFun
 
 //const DBQueryData reactQuery( "{\"_label\": \"reactionset\" }", DBQueryData:: qTemplate );
 const DBQueryData reactQuery("FOR u  IN reactionsets ", DBQueryData::qAQL);
-const vector<string> reactFieldPaths =
-    { "properties.symbol", "properties.name", "properties.stype", "properties.level", "_id"};
-const vector<string> reactDataNames = {"symbol", "name", "type", "level", "_id"};
-const vector<string> reactColumnHeaders = { "symbol", "name", "stype", "level" };
+const vector<string> reactFieldPaths = {"properties.symbol", "properties.name", "properties.stype", "properties.sourcetdb", "properties.level", "_id"};
+const vector<string> reactDataNames = {"symbol",                "name",                 "type"  ,       "sourcetdb",                "level", "_id"}; // should have the same size as FieldPaths !!
+const vector<string> reactColumnHeaders = { "symbol",           "name",                 "type"/*,             "sourcetdb",            "level", "_id"*/ };
 
 struct ReactionSetData_::Impl
 {
@@ -55,7 +55,7 @@ set<ThermoFun::ElementKey> ReactionSetData_::getElementsList( const string& idrc
   set<ElementKey> elements;
   string jsonrecord = getJsonRecordVertex(idrcset);
   auto domdata = jsonio::unpackJson( jsonrecord );
-  ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
+  ElementsKeysFromJsonDomArray("properties.elements", domdata.get(), elements);
 
   // if user fogot tnsert elements property
   if( elements.empty() )
@@ -164,7 +164,7 @@ void ReactionSetData_::resetRecordElements( const string& aKey )
         vector<string> formulalst = getSubstanceFormulas( _id );
         set<ThermoFun::ElementKey> elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
 
-        string elementsJsonArray = ThermoFun::ElementsToJson( elements );
+        string elementsJsonArray = ThermoFun::ElementsKeysToJson( elements );
         graphdb->setValue("properties.elements",elementsJsonArray);
         graphdb->UpdateWithTestValues();
     }

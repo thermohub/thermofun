@@ -18,7 +18,7 @@ std::string location(const std::string& file, int line)
     //    auto pos = std::find_end(file.begin(), file.end(), str.begin(), str.end()) - file.begin();
     std::stringstream ss;
     if (file.size() > 45)
-        ss << "..."<< file.substr(file.size() - 45) << ":" << line;
+        ss << "..."<< file.substr(file.size() - 45, 45) << ":" << line;
     else
         ss << file << ":" << line;
     return ss.str();

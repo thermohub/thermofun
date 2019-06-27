@@ -15,7 +15,7 @@ namespace Ui {
 class SelectThermoData;
 }
 
-class SelectThermoDataDialogPrivate;
+struct SelectThermoDataDialogPrivate;
 class ElementsWidget;
 
 class SelectThermoDataDialog : public QDialog
@@ -52,12 +52,12 @@ protected slots:
 
 public:
 
-    explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
+    explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent = nullptr);
 
     SelectThermoDataDialog( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys,
-                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
+                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = nullptr);
     SelectThermoDataDialog( const std::vector<int>& sourcetdbs, const std::vector<ThermoFun::ElementKey>& elementKeys,
-                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = 0);
+                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = nullptr);
 
     ~SelectThermoDataDialog();
 
@@ -79,6 +79,9 @@ public:
     /// Get Solvent substances container
     const jsonio::ValuesTable&  getSolventValues() const;
 
+    /// Get the selected reactions container
+    const jsonio::ValuesTable&  getReactionSetValues() const;
+
 
 private:
 
@@ -93,30 +96,29 @@ private:
 
     // StepA
     /// ThermoDataSet selection table
-    jsonui::TMatrixTable *thermoTable = 0;
+    jsonui::TMatrixTableProxy *thermoTable = nullptr;
     // StepB
     /// Selection of data starting from sourcetdb list
-    jsonui::SelectTable  *data = 0;
-    jsonui::TMatrixTable *sourceDBTable = 0;
+    jsonui::SelectTable  *data = nullptr;
+    jsonui::TMatrixTable *sourceDBTable = nullptr;
     // Step2
     /// Widget to selection of elements
     ElementsWidget* elmsWidget;
     // Step3
     /// SubstanceData::ValuesTable selection table
-    jsonui::TMatrixTable* substTable = 0;
+    jsonui::TMatrixTableProxy* substTable = nullptr;
     // Step4
     /// ReactionData::ValuesTable selection table
-    jsonui::TMatrixTable* reactTable = 0;
+    jsonui::TMatrixTableProxy* reactTable = nullptr;
     // Step5
     /// ReactionSetData::ValuesTable selection table
-    jsonui::TMatrixTable* rcsetTable = 0;
+    jsonui::TMatrixTableProxy* rcsetTable = nullptr;
 
     /// Internal Data
     std::unique_ptr<SelectThermoDataDialogPrivate> pdata;
 
     void  resetButtons();
     void  setModel( jsonui::TMatrixTable* table, jsonui::TMatrixModel* model );
-    std::vector<int> allSelectedRows( jsonui::TMatrixTable *dataTable );
     void selectRows( jsonui::TMatrixTable *dataTable, const std::vector<int>& rows  );
 
     // define windows

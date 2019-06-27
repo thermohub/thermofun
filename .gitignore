@@ -1,4 +1,3 @@
-build/
 ThermoFun_lib/ThermoFun.pro.user
 docs/devel.txt
 docs/info.txt
@@ -23,7 +22,13 @@ tests/unit01/src/*.autosave
 /DemoGUI/.directory
 *.pro.user
 */*.pro.user
-
+build/
+build-gui/
+python/pyThermoFun/build/
+.vscode/
+python/tests/PyThermoFun.so
+fungui/ThermoFunDemoGUI.pro.user.4.8-pre1
+tests/interfaceTest/interfaceTest.pro.user.4.8-pre1
 tests/autoTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
 tests/autoTest/install-thirdparty-old.sh
 tests/dbclientTest/ThirdParty/modules/InstallThirdPartyLibs-old.cmake
@@ -43,6 +48,14 @@ tests/interfaceTest/lib/
 tests/interfaceTest/thirdparty/
 
 .vscode/
-python/
 tests/PyThermoFun.so
+
+python/tests/H2OWP95reaktoro.csv
+python/tests/PyThermoFun.cpython-36m-x86_64-linux-gnu.so
+python/tests/parseBsonDatalogfile.txt
+python/tests/results.csv
+python/tests/results_dbc.csv
+python/pyThermoFun/CMakeLists_old.txt
+
+
 

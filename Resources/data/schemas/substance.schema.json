@@ -385,6 +385,17 @@
           },
           "doc": "Properties of lambda transition for minerals Smax, Tlt \"Lamtrp\"\n",
           "required": "optional"
+        },
+        {
+          "key": 23,
+          "name": "m_phase_trans_props",
+          "typeId": "struct",
+          "type": {
+            "typeId": "struct",
+            "class": "prop.Item"
+          },
+          "doc": "Properties of phase transitions for minerals T, dS, dH, dV, and dT_dP (slope)\n",
+          "required": "optional"
         }
       ]
     },
@@ -671,6 +682,21 @@
             "class": "prop.TimeStamp"
           },
           "doc": "Timestamp when the record was created or modified\n",
+          "required": "optional"
+        },
+        {
+          "key": 2001,
+          "name": "temp_import",
+          "typeId": "list",
+          "type": {
+            "typeId": "list",
+            "elemTypeId": "struct",
+            "elemType": {
+              "typeId": "struct",
+              "class": "prop.Item"
+            }
+          },
+          "doc": "Field for storing temporary values needed during import script\n",
           "required": "optional"
         }
       ]

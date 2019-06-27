@@ -19,6 +19,7 @@ find_package(Qt5Gui REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 find_package (Qt5WebEngineWidgets REQUIRED )
 find_package (Qt5Charts REQUIRED )
+find_package (Qt5Concurrent REQUIRED )
 # Add the include directories for the Qt 5 Widgets module to
 # the compile lines.
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
@@ -26,6 +27,7 @@ include_directories(${Qt5Core_INCLUDE_DIRS})
 include_directories(${Qt5Gui_INCLUDE_DIRS})
 include_directories(${Qt5PrintSupport_INCLUDE_DIRS})
 include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
+include_directories(${Qt5Concurrent_INCLUDE_DIRS})
 
 find_library(JSONUI_LIB jsonui)
 if(NOT JSONUI_LIB)
@@ -48,8 +50,8 @@ endif()
 include(GNUInstallDirs)
 
 # Define which types of libraries to build
-option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(BUILD_STATIC_LIBS "Build static libraries." ON)
+option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 
 # Set the thermofun source directory path
 set(THERMOFUNGUI_SOURCE_DIR ${CMAKE_SOURCE_DIR}/fungui/src)
@@ -74,7 +76,8 @@ include_directories(${THERMOFUNGUI_SOURCE_DIR})
 # Build thermofun library
 add_subdirectory(src)
 
-if(BUILD_DEMO)
+if(TFUN_BUILD_DEMOGUI)
 	add_subdirectory(demo)
+#else()
+#	add_subdirectory(demo EXCLUDE_FROM_ALL)
 endif()
-

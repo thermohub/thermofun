@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_AUTORCC ON)
 
+add_definitions(-DFROM_SRC)
+
 project(guidemo)
 
 find_package(Qt5Widgets REQUIRED)
@@ -62,9 +64,6 @@ add_executable(guidemo ${guidemo_SOURCES} ${guidemo_HEADERS_MOC} ${guidemo_FORMS
 target_link_libraries (guidemo jsonio jsonui Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts boost_regex boost_system boost_filesystem curl velocypack thrift)
 target_link_libraries (guidemo THERMOFUNGUI_STATIC)
 target_link_libraries (guidemo THERMOFUN_STATIC)
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources
-        DESTINATION ${CMAKE_BINARY_DIR})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/guidemo.sh
         DESTINATION ${CMAKE_BINARY_DIR})

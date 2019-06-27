@@ -3,6 +3,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Substance.h"
+#include <iomanip>
 
 namespace ThermoFun {
 
@@ -16,6 +17,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     Reaktoro_::ThermoScalar V;
     int k=-1;
     vector<double> ac;
+    auto TK_=TK;
     for (unsigned i = 0; i <16; i++)
     {
         ac.push_back(0.0);
@@ -51,14 +53,16 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
        }
     }
 
-//    if (k<0)
-//    {
-//        Exception exception;
-//        exception.error << "The given temperature: "<< T <<" is not inside the specified interval/s for the Cp calculation.";
-//        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
-//        exception.line = __LINE__;
-//        RaiseError(exception);
-//    }
+    if (k<0)
+    {
+        Exception exception;
+        exception.error << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
+        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
+        exception.file = __FILE__;
+        exception.line = __LINE__;
+//        throw (exception);
+        RaiseError(exception);
+    }
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {
@@ -74,10 +78,10 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     // Phase transitions
     if (fabs(TK.val-TrK) > TEMPER_PREC)
     {
-        for (unsigned j=0; j<=k; j++)
+        for (unsigned j=0, ft = 0; j<=k; j++)
         {
             if ( j == k )
-                TK = TK.val/* + C_to_K*/;     // current T is the end T for phase transition Cp calculations
+                TK = TK_.val/* + C_to_K*/;     // current T is the end T for phase transition Cp calculations
             else TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/;        // takes the upper bound from the j-th Tinterval
 
             if( !j )
@@ -90,8 +94,18 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
             auto Tst05 = std::sqrt( TrK );
 
             // going trough the phase transitions parameters in FtP
-            for (unsigned ft = 0; ft < thermo_parameters.phase_transition_prop.size(); ft++)
-            if ( j && thermo_parameters.phase_transition_prop[ft][0] <= TrK-C_to_K )
+//            for (unsigned ft = 0; ft < thermo_parameters.phase_transition_prop.size(); ft++)
+
+            if (j && thermo_parameters.phase_transition_prop.size() == 0)
+            {
+                Exception exception;
+                exception.error << "No phase transition properties present in the record.";
+                exception.reason << "For substance "<< substance.symbol() << ".";
+                exception.line = __LINE__;
+                RaiseError(exception);
+            }
+
+            if ( j && thermo_parameters.phase_transition_prop[ft][0] <= TrK/*-C_to_K*/ )
             {   // Adding parameters of phase transition
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 1 )  // dS
                     S += thermo_parameters.phase_transition_prop[ft][1];
@@ -100,12 +114,14 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
                 if ( thermo_parameters.phase_transition_prop[ft].size() > 3 )  // dV
                     V += thermo_parameters.phase_transition_prop[ft][3];
                 // More to be added ?
+                ft++;
             }
 
             G -= S * (TK - TrK);
 
             for (unsigned i=0; i<thermo_parameters.Cp_coeff[j].size(); i++)
             {
+                if (i== 16) break;
                 ac[i] = thermo_parameters.Cp_coeff[j][i];
             }
 

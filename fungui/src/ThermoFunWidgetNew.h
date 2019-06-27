@@ -33,18 +33,36 @@
 #ifndef ThermoFunWIDGETNEW_H
 #define ThermoFunWIDGETNEW_H
 
+#include <QtCore/QFutureWatcher>
 #include "jsonui/JSONUIBase.h"
 
 namespace jsonui {
 class TableEditWidget;
 }
 
+
 namespace Ui {
 class ThermoFunWidget;
 }
 
-class ThermoFunData;
+struct ThermoFunData;
 class ThermoFunPrivateNew;
+class WaitingSpinnerWidget;
+
+struct ThermoLoadData
+{
+    std::vector<std::string> substKeys;
+    std::vector<std::string> reactKeys;
+    std::vector<std::string> substancesSymbols;
+    std::vector<std::string> substancesClass;
+    std::vector<std::string> reactionsSymbols;
+    std::vector<std::string> linkedSubstSymbols;
+    std::vector<std::string> linkedReactSymbols;
+    std::vector<std::string> linkedSubstClasses;
+    std::vector<std::string> linkedSubstIds;
+    double time = 0.;
+    std::string errorMessage;
+};
 
 /// Widget to work with CorrPT data
 class ThermoFunWidgetNew : public jsonui::JSONUIBase
@@ -73,6 +91,8 @@ public slots:
     //Edit
     void CmSelectThermoDataSet();
     void CmSelectSourceTDBs();
+    void CmSelectSubstances();
+    void CmSelectReactions();
     void CmResetTP();
     void CmReallocTP();
     void CmResetProperty();
@@ -81,7 +101,11 @@ public slots:
     void CmSetElementsReactionSets();
 
     // Calc
-    void CmCalcMTPARM();
+    //void CmCalcMTPARM();
+    void CmCalcMTPARM_load();
+    void CmCalcMTPARM_calculate();
+    void CmCalcMTPARM_finish();
+
     void CmCalcRTParm();
 
     //Result
@@ -89,7 +113,7 @@ public slots:
 
 public:
 
-    explicit ThermoFunWidgetNew( QWidget *parent = 0);
+    explicit ThermoFunWidgetNew( QWidget *parent = nullptr);
     ~ThermoFunWidgetNew();
 
     void setQuery( jsonui::QueryWidget*   ) {}
@@ -98,8 +122,15 @@ private:
 
     Ui::ThermoFunWidget *ui;
     std::unique_ptr<ThermoFunPrivateNew> pdata;
+    // The future watcher that provides monitoring for the currently loading
+    QFutureWatcher<ThermoLoadData> loadingWatcher;
+    // The future watcher that provides monitoring for the currently calculating
+    QFutureWatcher<std::string> calcWatcher;
+
+
     // Extern windows
-    jsonui::TableEditWidget* _csvWin = 0;
+    jsonui::TableEditWidget* _csvWin = nullptr;
+    WaitingSpinnerWidget *waitDialog;
 
     bool calcSubstFromReact() const;
     bool calcReactFromSubst() const;

@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QInputDialog>
+#include <QtConcurrent>
 #include <sys/time.h>
 #include "ThermoFunPrivateNew.h"
 #include "ui_ThermoFunWidget.h"
@@ -40,6 +41,7 @@
 #include "SelectThermoDataDialog.h"
 #include "jsonui/TableEditWindow.h"
 #include "jsonui/SchemaSelectDialog.h"
+#include "jsonui/waitingspinnerwidget.h"
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../src/DBClient/ReactionData.h"
@@ -51,7 +53,7 @@
 
 ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
     JSONUIBase( "", parent),
-    ui(new Ui::ThermoFunWidget), _csvWin(0)
+    ui(new Ui::ThermoFunWidget), _csvWin(nullptr)
 {
     // set up widget data
     ui->setupUi(this);
@@ -73,18 +75,35 @@ ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
 
     // define menu
     setActions();
+    waitDialog = new WaitingSpinnerWidget(this, Qt::ApplicationModal, true);
 
     //show();
-    //CmSelectThermoDataSet();
+//    CmSelectThermoDataSet();
 }
 
 ThermoFunWidgetNew::~ThermoFunWidgetNew()
 {
+    // Cancel and wait
+    if (loadingWatcher.isRunning())
+    {
+        loadingWatcher.cancel();
+        loadingWatcher.waitForFinished();
+    }
+
+    if (calcWatcher.isRunning())
+    {
+        calcWatcher.cancel();
+        calcWatcher.waitForFinished();
+    }
+
     if( _csvWin )
     {
        _csvWin->close();
        delete _csvWin;
     }
+    if( waitDialog )
+        delete waitDialog;
+
     delete ui;
     cout << "~ThermoFunWidget" << endl;
 }
@@ -93,6 +112,7 @@ void ThermoFunWidgetNew::closeEvent(QCloseEvent* e)
 {
     if( _csvWin )
      _csvWin->close();
+
 
     if( !onCloseEvent(this) )
            e->ignore();
@@ -124,6 +144,10 @@ void ThermoFunWidgetNew::setActions()
     connect(ui->actionChange_Property_list, SIGNAL(triggered()), this, SLOT(CmResetProperty()));
     connect(ui->actionSelect_ThermoDataSet, SIGNAL(triggered()), this, SLOT(CmSelectThermoDataSet()));
     connect(ui->actionSelect_Elements, SIGNAL(triggered()), this, SLOT(CmSelectSourceTDBs()));
+    connect(ui->actionSelect_Substances, SIGNAL(triggered()), this, SLOT(CmSelectSubstances()));
+    connect(ui->actionSelect_Reactions, SIGNAL(triggered()), this, SLOT(CmSelectReactions()));
+
+
     connect(ui->action_Set_Elemets_to_reactions, SIGNAL(triggered()), this, SLOT(CmSetElementsReactions()));
     connect(ui->action_Set_Elemets_to_reactionsets, SIGNAL(triggered()), this, SLOT(CmSetElementsReactionSets()));
 
@@ -142,7 +166,9 @@ void ThermoFunWidgetNew::setActions()
     connect( ui->tPrecision, SIGNAL( valueChanged(int)), pdata.get(), SLOT(tPChanged(int)));
 
     //Calc
-    connect( ui->actionCalculate_Properties, SIGNAL( triggered()), this, SLOT(CmCalcMTPARM()));
+    connect( ui->actionCalculate_Properties, SIGNAL( triggered()), this, SLOT(CmCalcMTPARM_load()));
+    connect(&loadingWatcher, &QFutureWatcher<ThermoLoadData>::finished, this, &ThermoFunWidgetNew::CmCalcMTPARM_calculate );
+    connect(&calcWatcher, &QFutureWatcher<string>::finished, this, &ThermoFunWidgetNew::CmCalcMTPARM_finish );
     connect( ui->actionCalculate_TP, SIGNAL( triggered()), this, SLOT(CmCalcRTParm()));
     connect( ui->actionShow_Results, SIGNAL( triggered()), this, SLOT(CmShowResult()));
 
@@ -154,6 +180,9 @@ void ThermoFunWidgetNew::setActions()
     ui->actionChange_Property_list->setEnabled(false);
     ui->actionCalculate_Properties->setEnabled(false);
     ui->actionShow_Results->setEnabled(false);
+    ui->actionSelect_Substances->setEnabled(false);
+    ui->actionSelect_Reactions->setEnabled(false);
+    ui->actionSelect_ReactionSets->setEnabled(false);
 
     ui->nameToolBar->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 }
@@ -188,6 +217,8 @@ void ThermoFunWidgetNew::resetThermoFunData( const ThermoFunData& newdata )
     ui->actionChange_Property_list->setEnabled(false);
     ui->typeBox->setEnabled(false);
     ui->actionReset_TP->setEnabled(false);
+    ui->actionSelect_Substances->setEnabled(false);
+    ui->actionSelect_Reactions->setEnabled(false);
     ui->pSolventSymbol->clear();
     resetTypeBox( newdata.schemaName.c_str() );
 }
@@ -237,15 +268,20 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
         {
             pdata->typeChanged( "VertexSubstance" );
             ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(true);
-            ui->actionCalculate_Reactions_Records_from_Reactants->setChecked(false);
+//            ui->actionCalculate_Reactions_Records_from_Reactants->setChecked(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(false);
+
+            ui->actionSelect_Substances->setEnabled(true);
+            ui->actionSelect_Reactions->setEnabled(false);
         }
         if (newname == "Reactions")
         {
             pdata->typeChanged( "VertexReaction" );
-            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setChecked(false);
-            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(false);
+//            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setChecked(false);
+//            ui->actionCalculate_Substances_Records_from_Dependent_Reactions->setEnabled(false);
             ui->actionCalculate_Reactions_Records_from_Reactants->setEnabled(true);
+            ui->actionSelect_Substances->setEnabled(false);
+            ui->actionSelect_Reactions->setEnabled(true);
         }
     }
    catch(jsonio::jsonio_exception& e)
@@ -268,17 +304,30 @@ void ThermoFunWidgetNew::CmSelectThermoDataSet()
         vector<ThermoFun::ElementKey> elKeys;
         dlg.allSelected( elKeys );
         // Reset internal data
-        pdata->updateData( dlg.idThermoDataSet(), {}, elKeys,
+        pdata->updateData( dlg.idThermoDataSet(), dlg.sourceTDBs(), elKeys,
                            dlg.getSubstanceValues(), dlg.getReactionValues() );
         resetSolvents( dlg.getSolventValues() );
 
-        ui->actionReset_TP->setEnabled(true);
-        ui->actionRealloc_TP->setEnabled(true);
-        ui->actionChange_Property_list->setEnabled(true);
-        ui->actionCalculate_Properties->setEnabled(true);
+//        ui->actionReset_TP->setEnabled(true);
+//        ui->actionRealloc_TP->setEnabled(true);
+//        ui->actionChange_Property_list->setEnabled(true);
+//        ui->actionCalculate_Properties->setEnabled(true);
         ui->typeBox->setEnabled(true);
-        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate."); // status
+//        ui->actionSelect_Substances->setEnabled(true);
+//        ui->actionSelect_ThermoDataSet->setEnabled(true);
+        ui->calcStatus->setText("Select substances or reactions, set temperature and pressure points, properties to calculate, and click calculate."); // status
+        typeChanged(ui->typeBox->currentText());
       }
+//      else {
+//          ui->actionRealloc_TP->setEnabled(false);
+//          ui->actionChange_Property_list->setEnabled(false);
+//          ui->actionCalculate_Properties->setEnabled(false);
+//          ui->typeBox->setEnabled(false);
+//          pdata->
+//          ui->actionSelect_Substances->setEnabled(false);
+//          ui->actionSelect_Reactions->setEnabled(false);
+//          ui->actionSelect_ThermoDataSet->setEnabled(true);
+//      }
     }
    catch(jsonio::jsonio_exception& e)
    {
@@ -326,7 +375,7 @@ void ThermoFunWidgetNew::CmReallocTP()
 {
   try{
         bool ok = 0;
-        uint size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
+        auto size = QInputDialog::getInt( this, "Please, select new TP pairs array size",
                  "Array size ", pdata->data().tppairs.size(), 0, 999, 1, &ok );
         if(ok)
           pdata->reallocTP( size );
@@ -433,97 +482,134 @@ void ThermoFunWidgetNew::CmExportCFG()
 }
 
 
-void ThermoFunWidgetNew::CmCalcMTPARM()
+void ThermoFunWidgetNew::CmCalcMTPARM_load()
 {
     try {
-            // select components
-            const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
-            vector<int> selNdx;
-            jsonui::SelectDialog selDlg( this, "Please, select one or more records", values, selNdx );
-            if( !selDlg.exec() )
-                return;
-            selNdx =  selDlg.allSelected();
-
-//            MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
-
-            struct timeval start;
-            gettimeofday(&start, NULL);
-            // load data
-            vector<string> substKeys, reactKeys;
-            vector<string> substancesSymbols, substancesClass, reactionsSymbols;
-
-            if( pdata->isSubstances() )
-                pdata->loadSubstData( selNdx, substKeys, substancesSymbols, substancesClass );
-            else
-                pdata->loadReactData( selNdx, reactKeys, reactionsSymbols );
-
-            vector<string> linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds;
-            pdata->retrieveConnectedDataSymbols(substKeys, reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
-
-            if (calcReactFromSubst() && calcSubstFromReact()) // check - reaction with substance dependent on another reaction
-            {
-                MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(linkedSubstIds, linkedSubstSymbols);
-                for (auto substSymbol : linkedSubstSymbols)
-                {
-                    MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];
-                    if (levelReaction.size() == 0)
-                        continue;
-                    if (levelReaction.size() == 1)
-                    {
-                        pdata->setSubstanceLevel(substSymbol, levelReaction.begin()->first);
-                    }
-                    if (levelReaction.size() > 1)
-                    {
-                        jsonio::ValuesTable values_;
-                        vector<string> levels;
-                        for (auto react : levelReaction)
-                        {
-                            vector<string> symbolEq;
-                            symbolEq.push_back(react.second.symbol());
-                            symbolEq.push_back(react.second.equation());
-                            levels.push_back(react.first);
-                            values_.push_back(symbolEq);
-                        }
-
-                        jsonui::SelectDialog selDlg_lvl( this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
-                        if( !selDlg_lvl.exec() )
-                            return;
-                        int solvNdx =  selDlg_lvl.selIndex();
-
-                        pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
-                    }
-                }
-            }
-
-            // check for solvent
-            string solventSymbol = ui->pSolventSymbol->currentText().toStdString();
-            if (solventSymbol != "No solvent!")
-            {
-                auto sId = ui->pSolventSymbol->currentData().toString().toStdString();
-                if (std::find(substKeys.begin(), substKeys.end(), sId) == substKeys.end())
-                    substKeys.push_back(sId);
-            }
-
-            // calculate task
-            double delta_calc = pdata->calcData( substKeys, reactKeys,
-               substancesSymbols,  reactionsSymbols, solventSymbol,
-               ui->actionFixed_output_number_format->isChecked(), calcSubstFromReact(), calcReactFromSubst(), start );
-
-           string status = "Calculation finished ("+ to_string(delta_calc) + "s). Click view results."; // status
-
-            ui->calcStatus->setText(status.c_str());
-            ui->actionShow_Results->setEnabled(true);
-
+        //          MapSymbolMapLevelReaction   levelDefinesReaction  = pdata->recordsMapLevelDefinesReaction(/*3, 0*/);
+        // Now we use all into window
+        // select components
+        const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
+        vector<size_t> selNdx;
+        for(size_t ii=0; ii< values.size(); ii++)
+            selNdx.push_back(ii);
+        // Run into other thread
+        loadingWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::loadData, selNdx));
+        waitDialog->start();
     }
     catch(jsonio::jsonio_exception& e)
     {
         QMessageBox::critical( this, e.title(), e.what() );
-        ui->calcStatus->setText(e.what());
     }
     catch(std::exception& e)
     {
         QMessageBox::critical( this, "std::exception", e.what() );
-        ui->calcStatus->setText(e.what());
+    }
+}
+
+
+void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
+{
+    try {
+        waitDialog->stop();
+        cout<< "Load Finished" << endl;
+
+        auto loadData = loadingWatcher.result();
+
+        // test error when loading
+        if( !loadData.errorMessage.empty() )
+        {
+            ui->calcStatus->setText("Data loading error.");
+            QMessageBox::critical( this, "Data loading error", loadData.errorMessage.c_str() );
+            return;
+        }
+
+        if (calcReactFromSubst() && calcSubstFromReact()) // check - reaction with substance dependent on another reaction
+        {
+            MapSymbolMapLevelReaction   levelDefinesReaction  =
+                    pdata->recordsMapLevelDefinesReaction(loadData.linkedSubstIds, loadData.linkedSubstSymbols);
+            for (auto substSymbol : loadData.linkedSubstSymbols)
+            {
+                MapLevelReaction    levelReaction   = levelDefinesReaction[substSymbol];
+                if (levelReaction.size() == 0)
+                    continue;
+                if (levelReaction.size() == 1)
+                {
+                    pdata->setSubstanceLevel(substSymbol, levelReaction.begin()->first);
+                }
+                if (levelReaction.size() > 1)
+                {
+                    jsonio::ValuesTable values_;
+                    vector<string> levels;
+                    for (auto react : levelReaction)
+                    {
+                        vector<string> symbolEq;
+                        symbolEq.push_back(react.second.symbol());
+                        symbolEq.push_back(react.second.equation());
+                        levels.push_back(react.first);
+                        values_.push_back(symbolEq);
+                    }
+
+                    jsonui::SelectDialog selDlg_lvl( false, this, ("Please, select the reaction which defines substance: "+substSymbol).c_str(), values_ );
+                    if( !selDlg_lvl.exec() )
+                        return;
+                    auto solvNdx =  selDlg_lvl.getSelectedIndex();
+
+                    pdata->setSubstanceLevel(substSymbol, levels[solvNdx]);
+                }
+            }
+        }
+
+        // check for solvent
+        string solventSymbol = ui->pSolventSymbol->currentText().toStdString();
+        if (solventSymbol != "No solvent!")
+        {
+            auto sId = ui->pSolventSymbol->currentData().toString().toStdString();
+            if (std::find(loadData.substKeys.begin(), loadData.substKeys.end(), sId) == loadData.substKeys.end())
+                loadData.substKeys.push_back(sId);
+        }
+
+        // run in other thread
+        bool calcSubstFromReact_= calcSubstFromReact();
+        bool calcReactFromSubst_= calcReactFromSubst();
+        bool output_number_format= ui->actionFixed_output_number_format->isChecked();
+
+        calcWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::calcData, std::move(loadData), std::move(solventSymbol),
+                                                 output_number_format, calcSubstFromReact_, calcReactFromSubst() ));
+
+        waitDialog->start();
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+void ThermoFunWidgetNew::CmCalcMTPARM_finish()
+{
+    try {
+            waitDialog->stop();
+
+            auto retMessage = calcWatcher.result();
+            if( retMessage.find("Click view results") == string::npos )
+            {
+                ui->calcStatus->setText("Calculation finished with error.");
+                jsonio::jsonioErr("Calculation finished with error.", retMessage );
+            }
+            ui->calcStatus->setText(retMessage.c_str());
+            ui->actionShow_Results->setEnabled(true);
+            CmShowResult();
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
     }
 }
 
@@ -549,7 +635,7 @@ void ThermoFunWidgetNew::CmShowResult()
 {
    try {
         // define new dialog
-        ThermoFun::OutputSettings op;
+        ThermoFun::BatchPreferences op;
         string fileName = op.fileName;
         if(!_csvWin)
         {
@@ -578,21 +664,24 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
 {
    try {
 
-     auto graphdb = pdata->dbclient.reactData().getDB();
+     //auto graphdb = pdata->dbclient.reactData().getDB();
+     std::unique_ptr<jsonio::TDBVertexDocument> graphdb( jsonio::TDBVertexDocument::newVertexDocumentQuery(
+                                       jsonui::uiSettings().database(), "VertexReaction" ));
+
      // Select keys to delete
      vector<string> aKeyList;
      vector<vector<string>> aValList;
-     vector<int> selNdx;
      graphdb->lastQueryData()->getKeyValueList( aKeyList, aValList );
      if( aKeyList.empty() )
        return;
 
-     jsonui::SelectDialog selDlg( this, "Please, select a record to update", aValList, selNdx );
+     jsonui::SelectDialog selDlg( true, this, "Please, select a record to update", aValList );
       if( !selDlg.exec() )
           return;
 
-     selNdx =  selDlg.allSelected();
-     for( uint ii=0; ii<selNdx.size(); ii++ )
+     vector<size_t> selNdx;
+     selDlg.getSelection(selNdx);
+     for( size_t ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord( true, aKeyList[selNdx[ii]]);
 
    }
@@ -611,21 +700,24 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
 {
    try {
 
-     auto graphdb = pdata->dbclient.reactSetData().getDB();
+     //auto graphdb = pdata->dbclient.reactSetData().getDB();
+     std::unique_ptr<jsonio::TDBVertexDocument> graphdb( jsonio::TDBVertexDocument::newVertexDocumentQuery(
+                                       jsonui::uiSettings().database(), "VertexReactionSet" ));
+
      // Select keys to delete
      vector<string> aKeyList;
      vector<vector<string>> aValList;
-     vector<int> selNdx;
      graphdb->lastQueryData()->getKeyValueList( aKeyList, aValList );
      if( aKeyList.empty() )
        return;
 
-     jsonui::SelectDialog selDlg( this, "Please, select a record to update", aValList, selNdx );
+     jsonui::SelectDialog selDlg( true, this, "Please, select a record to update", aValList );
       if( !selDlg.exec() )
           return;
 
-     selNdx =  selDlg.allSelected();
-     for( uint ii=0; ii<selNdx.size(); ii++ )
+      vector<size_t> selNdx;
+      selDlg.getSelection(selNdx);
+     for( size_t ii=0; ii<selNdx.size(); ii++ )
        pdata->resetElementsintoRecord(false, aKeyList[selNdx[ii]]);
 
    }
@@ -636,6 +728,97 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
    catch(std::exception& e)
     {
        QMessageBox::critical( this, "std::exception", e.what() );
+    }
+}
+
+
+void ThermoFunWidgetNew::CmSelectSubstances()
+{
+    try{
+        uint colId = pdata->dbclient.substData().getDataName_DataIndex()["_id"];
+        vector<string> oldids = pdata->substModel->getColumn( colId );
+        // read full list
+        pdata->substModel->loadModeRecords( pdata->substValues );
+
+        // select components
+        const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
+        vector<size_t> selNdx = pdata->substModel->recordToValues( colId, oldids );
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.substData().getDataHeaders(),
+                                     jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
+        selDlg.setSelection(selNdx);
+        std::set<size_t> selNdx2;
+        if( selDlg.exec() )
+        {
+          selNdx2 = selDlg.allSelected();
+        }
+        else
+        {
+           selNdx2.insert(selNdx.begin(), selNdx.end());
+        }
+        pdata->substModel->leftOnlySelected( selNdx2 );
+
+        ui->actionReset_TP->setEnabled(true);
+        ui->actionRealloc_TP->setEnabled(true);
+        ui->actionChange_Property_list->setEnabled(true);
+        ui->actionCalculate_Properties->setEnabled(true);
+
+        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate. (see preferences)"); // status
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+}
+
+
+void ThermoFunWidgetNew::CmSelectReactions()
+{
+    try{
+        uint colId = pdata->dbclient.reactData().getDataName_DataIndex()["_id"];
+        vector<string> oldids = pdata->reactModel->getColumn( colId );
+        // read full list
+        pdata->reactModel->loadModeRecords( pdata->reactValues );
+
+        // select components
+        jsonio::ValuesTable values= pdata->reactModel->getValues();
+        vector<size_t> selNdx = pdata->reactModel->recordToValues( colId, oldids );
+
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.reactData().getDataHeaders(),
+                                     jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
+        selDlg.setSelection(selNdx);
+        std::set<size_t> selNdx2;
+        if( selDlg.exec() )
+        {
+          selNdx2 = selDlg.allSelected();
+        }
+        else
+        {
+           selNdx2.insert(selNdx.begin(), selNdx.end());
+        }
+        pdata->reactModel->leftOnlySelected( selNdx2 );
+
+        ui->actionReset_TP->setEnabled(true);
+        ui->actionRealloc_TP->setEnabled(true);
+        ui->actionChange_Property_list->setEnabled(true);
+        ui->actionCalculate_Properties->setEnabled(true);
+
+        ui->calcStatus->setText("Set temperature and pressure points, set properties to calculate, and click calculate. (see preferences)"); // status
+    }
+    catch(jsonio::jsonio_exception& e)
+    {
+        QMessageBox::critical( this, e.title(), e.what() );
+        ui->calcStatus->setText(e.what());
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox::critical( this, "std::exception", e.what() );
+        ui->calcStatus->setText(e.what());
     }
 }
 

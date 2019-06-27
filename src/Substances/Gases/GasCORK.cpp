@@ -27,11 +27,11 @@ auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     myCORK.CORKCalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
 
     // increment thermodynamic properties
-    tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
+    tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] ); // from ideal gas at 1 bar and givent T to pure real gas/fluid at T and P
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
     tps.volume        = FugProps[4];
-    auto Fug = FugProps[0] * (Pbar);
+    auto Fug = FugProps[0] * (Pbar); //FugProps[0] - fugacity coefficient
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
 
     subst.checkCalcMethodBounds("CORK compensated-Redlich-Kwong fluid model", TK.val, Pbar.val*bar_to_Pa, tps);

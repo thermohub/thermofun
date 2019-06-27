@@ -35,21 +35,23 @@ git clone https://bitbucket.org/gems4/thermofun.git && cd thermofun
     /thermofun
 ```
 
-## Install ArangoDB local
+### Install the current version of ArangoDB server locally (if not yet installed)
 
-* For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the installation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
-* In a terminal copy-paste and run to flowing code: (for possibly newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recommend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
+For using ThermoFun with a local arangodb client. If only the remote db.thermohub.net database will be used, the installation of a local arangodb client is not necessary. Proceed to the next section Install Dependencies
+In a terminal copy-paste and run to flowing code: (for possibly newer versions of arangodb check [click here](https://www.arangodb.com/download-major/ubuntu/). In the arangodb packedge configuration we recommend to leave ```root``` password empty, and click enter for the following questions, using default selections. For Backup database files before upgrading select "Yes".
 
-```
-#!bash
-sudo apt-get install curl && \
-curl -OL https://download.arangodb.com/arangodb33/xUbuntu_17.04/Release.key && \
-sudo apt-key add - < Release.key && \
-echo 'deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list && \
-sudo apt-get install apt-transport-https && \
-sudo apt-get update && \
-sudo apt-get install arangodb3=3.3.19
-```
+On (K)Ubuntu linux, install the current version of ArangoDB server locally [from here](https://www.arangodb.com/download-major/ubuntu/) by using a terminal to copy-paste and run the following commands:
+
+~~~
+curl -OL https://download.arangodb.com/arangodb34/DEBIAN/Release.key
+sudo apt-key add - < Release.key
+echo 'deb https://download.arangodb.com/arangodb34/DEBIAN/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt-get install arangodb3=3.4.4-1
+~~~
+
+The updates will come together with other ubuntu packages that you have installed.
 
 ## Build and install ThermoFun library 
 
@@ -110,11 +112,37 @@ then execute:
 sudo make install 
 ```
 
+### Compiling the Python interface
+
+In the terminal ~/gitTHERMOFUN/thermofun$, execute the following commands:
+
+```
+#!bash
+cmake ../../thermofun/ -DTFUN_BUILD_PYTHON=ON
+```
+
+then execute:
+
+```
+#!bash
+make
+```
+
+After compilation, you should find the shared library PyThermoFun inside the directory ```lib``` in the build directory. This library is also a Python module, which can be imported from Python as:
+
+```
+from thermofun import *
+```
+
+In the build folder a test file text.py can be found, this can be run by executing ```python test.py``` . If succesful in addition to on screen output, two files, results.csv and results_dbc.csv files containing calculation results will be created. 
+
+If compilation was successful the /Resources folder will be copied to the build folder. In this folder the necessary test files, connection to the arangodb database preferences, and data schemas are present. To change database connection without using the GUI, make changes in the ```Resources/fun-dbclient-config.json``` file.
+
 ### Build and run ThermoFun GUI Demo
 
-To be able to build and run the ThemroFun GUI (graphical user interface) application demo, Qt needs to be installed.
+To be able to build and run the ThemroFun GUI (graphical user batch) application demo, Qt needs to be installed.
 
-* Download and install Qt 5.11.0 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.11.0 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
+* Download and install Qt 5.12.2 (https://www1.qt.io/download/) in your home directory ```~/Qt```. In the "Select components to install" menu select: Qt 5.12.2 with Desktop gcc 64-bit, Qt Charts, and Qt WebEngine
 
 ### Install Dependencies
 
@@ -122,7 +150,7 @@ Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18
 
 ```
 #!bash
-sudo ./install-dependencies-gui.sh $HOME/Qt/5.11.0/gcc_64
+sudo ./install-dependencies-gui.sh $HOME/Qt/5.12.2/gcc_64
 ```
 
 This step will download, configure, build, and install all dependencies: `lua5.3-dev`, `libboost-all-dev`, `libcurl4-openssl-dev`, `libboost-test-dev`, `automake`, `flex`, `bison`, `libssl-dev`, `pugixml`, `yaml-cpp`,  `thrift`, `velocypack`, `jsonio`, `jsonimpex`, `jsonui`. The script will check if the dependencies are not already present at the defalut instalation path ```/usr/local/``` and will only install them if not found. 
@@ -134,13 +162,15 @@ In the terminal at ```~/gitTHERMOFUN/thermofun$```, execute the following comman
 
 ```
 #!bash
-cd .. && mkdir build-gui \
+cd .. && mkdir build-gui && \
 cd build-gui && mkdir release && cd release && \
-cmake ../../thermofun/fungui -DBUILD_FUNGUI=ON -DBUILD_DEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.0/gcc_64 && \
+cmake ../../thermofun -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
 make
 ``` 
 
-The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "ThermoFun-config.json" is present and contains the arangodb database connection preferences. 
+-DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON options trigger the compilation of ThermoFunGui library and the gui demo widget. 
+
+The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "fun-dbclient-config.json" is present and contains the arangodb database connection preferences. 
 
 To run the ThermoFun GUI demo in the terminal at ```~/gitTHERMOFUN/build-gui$``` execute:
 
@@ -148,116 +178,172 @@ To run the ThermoFun GUI demo in the terminal at ```~/gitTHERMOFUN/build-gui$```
 ./guidemo.sh
 ```
 
+You can change the arango database connection setup using the preferences icon on the start widget, or by making changes in ```Resources/fun-dbclient-config.json``` file.
+
 * For building using Qt Creator, use the ThermoFunDemoGUI.pro project file found in  ```~/gitTHERMOFUN/thermofun/fungui```.
 
+### Simple C++ API example
 
-### Automatic Test for comparing GEMS4 and ThermoFun calculations (OUTDATED - Under Construction / Update)
-
-#### Build autoTest
-
-Requires [CMake](http://www.cmake.org/) and [Qt5](http:/www.qt.io/) installed
-
-* Let us call gitThermoFun and GEMS4R the directories where ThermoFun and gems4r repositories were cloned:
-~~~
-~/gitThermoFun
-    /thermofun
-    /gems4r
-~~~
-
-* In a terminal, run the following commands to clone the ThermoFun library:
-~~~
-$ cd ~/gitThermoFun/thermofun
-$ git clone https://<your_user>@bitbucket.org/gems4/thermofun.git .
-~~~
-
-* In a terminal, run the following commands to clone the GEMS4R library:
-~~~
-$ cd ~/gitThermoFun/gems4r
-$ git clone https://<your_user>@bitbucket.org/gems4/gems4r.git .
-~~~
-
-* In a linux terminal, cd inside ~/gitThermoFun/thermofun/tests/autoTest and type
-~~~
-$ ./install-thirdparty.sh
-~~~
-
-* If Qt5 libraries are installed locally (for instance in /home/your_user/Qt5/5.5/gcc64) then use the path to Qt libraries, as shown below:
-~~~
-$ ./install-thirdparty.sh /home/your_user/Qt5/5.5/gcc64
-~~~
-
-* This step will download, configure, build, and install all third-party libraries (bsonio, bsonui, EJDB, YAML-CPP, and pugixml) in build/{debug,release}/thirdparty.
-
-* After this, headers and libraries of the third-party libraries can be found in build-auto-test/{debug,release}/thirdparty/{include,lib}. The .pro file of master project has already been adjusted to find these dependencies.
-
-* Copy the Resources into the debug and release build folders 
-~~~
-~/gitThermoFun/thermofun/tests/autoTest/Resources
-~~~
-
-* Start QtCreator and configure autoTest (from: ~/gitThermoFun/thermofun/tests/autoTest/autoTest.pro) to build debug and release binaries respectively into
-~~~
-~/gitThermoFun/build-auto-test/debug
-~/gitThermoFun/build-auto-test/release
-~~~
-
-* Now in QtCreator, build the *.pro project and then run autoTest code.
-
-#### INPUT in the Test
-
-* Resources/test_multi.VertexSubstance.json - list of substances exported from PMATCH++
-* Resources/TestMulti - GEMS4R exported files containing the same sbustances as in the above list
-* The test reads the list of substances exported from PMATCH++ and loads them in the TCorrPT internal data structure (Database)
-* A GEMS node is initialized using the exported GEMS4R system files
-
-#### OUTPUT from the Test
-
-* writes warning messages in the terminal, if there is a relative difference between GEMS and TCorrPT calculated properties larger than tolerance = 1e-05
-* writes calculation results in *.csv files. GEMS4 and TCorrPT calculated properties at different T and P  
-
-
-### Simple API example (OUTDATED)
+* Using a json database file
 
 ```
 #!c++
-int main(int argc, char const *argv[])
+int main()
 {
-    Database database("database-name.json/xml/yaml");
+    // Create the batch object using a database file in JSON
+    ThermoFun::Batch batch("aq17.json");
 
-    Thermo thermo(database);
+    // Optional: set the solvent symbol used for calculating properties of aqueous species
+    batch.setSolventSymbol("H2O@");
 
-    ThermoPropertiesSubstance tps;
-    ThermoPropertiesReaction tpr;
+    // Optional: change default units
+    batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
-    tps = thermo.thermoPropertiesSubstance("Substance Symbol", P, T);
-    tpr = thermo.thermoPropertiesReaction("Reaction Symbol", P, T);
+    // Optional: change default digits
+    batch.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
 
+    // Retrieve the entropy of H2O
+    double H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
+
+    // Retrieve the derivative of G with respect to T
+    double H2OdGdT = batch.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
+
+    // Write results to a comma separate files for a list of T-P pairs, substances, and properties
+    batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
+                                    {"Al+3", "OH-", "SiO2@"},                         // list of substance symbols
+                                    {"gibbs_energy","entropy", "volume", "enthalpy"}  // list of properties
+                                   ).toCSV("results.csv");                            // output
     return 0;
 }
 ```
 
-### What is this repository for? ###
+* Using the database client and retrieving a ThermoDataSet from the remote database
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+```
+#!c++
+int main()
+{
+    // Set the file path to the database connection and preferences file (provided in the Resources/ folder)
+    setDatabaseConnectionFilePath("fun-dbclient-config.json");
 
-### How do I get set up? ###
+    // Initialize a database client object
+    ThermoFun::DatabaseClient dbc;
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+    // Retrieve list of records given a ThermoDataSet symbol
+    auto records = dbc.recordsFromThermoDataSet("PSINagra07"); 
 
-### Contribution guidelines ###
+    // Create a ThermoFun database using the records list
+    ThermoFun::Database db = databaseFromRecordList(dbc, records);
 
-* Writing tests
-* Code review
-* Other guidelines
+    // Initialize an batch object using the database
+    ThermoFun::Batch batch (db);
 
-### Who do I talk to? ###
+    // Optional: set the solvent symbol used for calculating properties of aqueous species
+    batch.setSolventSymbol("H2O@");
 
-* Repo owner or admin
-* Other community or team contact
+    // Optional set calculation and output preferences
+    ThermoFun::OutputSettings op;
+    op.isFixed = true;
+    op.outSolventProp       = true;
+    op.calcReactFromSubst   = false;
+    op.calcSubstFromReact   = false;
+    batch.setOutputSettings(op);
+
+    // Optional set units and significant digits
+    batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+    batch.setPropertiesDigits({ "reaction_gibbs_energy","reaction_entropy", "reaction_volume",
+                                "reaction_enthalpy","logKr", "temperature", "pressure"}, {0, 4, 4, 4, 4, 0, 0});
+
+    batch.thermoPropertiesReaction({{25,1}}, {"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                    "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
+
+    batch.thermoPropertiesReaction({0,20,50,75},{0,0,0,0},{"AmSO4+", "MgSiO3@"}, {"reaction_gibbs_energy", "reaction_entropy",
+                                    "reaction_volume", "reaction_enthalpy", "logKr"}).toCSV("results.csv");
+}
+
+```
+
+### Simple Python API example
+
+* Using a json database file
+
+```
+#!Python
+import PyThermoFun
+
+properties = PyThermoFun.ThermoPropertiesSubstance
+
+engine = PyThermoFun.ThermoEngine("Resources/aq17new-format.json")
+
+prop = engine.thermoPropertiesSubstance(373.15, 100000000, "H2O@")
+
+print(prop.gibbs_energy.val)
+print(prop.gibbs_energy.ddt)
+print(prop.entropy.val)
+print(prop.gibbs_energy.ddp)
+print(prop.gibbs_energy.err)
+print(prop.gibbs_energy.sta)
+
+# Create the engine object using a database file in JSON
+batch = PyThermoFun.ThermoBatch("Resources/aq17new-format.json")
+
+# Optional: set the solvent symbol used for claulating properties of aqueous species
+batch.setSolventSymbol("H2O@")
+
+# Optional: change default units
+batch.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
+
+# Optional: change default digits
+batch.setPropertiesDigits(["gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"], [0, 1, 2, 0, 0, 0])
+
+H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble()
+print(H2Oentropy)
+
+V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar()
+
+# Write results to a comma separate files for a list of T-P pairs, substances, and properties
+batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]],  # // list of T-P pairs
+                                 ["Al+3", "OH-", "SiO2@"],                          # // list of substance symbols
+                                 ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
+                               ).toCSV("results.csv")                               # // output
+```
+
+* Using the database client and retrieving a ThermoDataSet from the remote database
+
+```
+#!Python
+PyThermoFun.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
+
+print("\n# Initialize a database client object\n")
+dbc = PyThermoFun.DatabaseClient()
+
+print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
+records = dbc.recordsFromThermoDataSet("Cemdata18") 
+
+print("\n# Create a ThermoFun database using the records list\n")
+db = PyThermoFun.databaseFromRecordList(dbc, records)
+
+print("\n# Initialize an interface object using the database\n")
+batch2 = PyThermoFun.ThermoBatch(db)
+
+print("\n# Optional: set the solvent symbol used for calculating properties of aqueous species\n")
+batch2.setSolventSymbol("H2O@")
+
+print("\n# Optional set calculation and output preferences\n")
+op = PyThermoFun.BatchPreferences()
+op.isFixed = True
+op.outSolventProp       = True
+op.calcReactFromSubst   = False
+op.calcSubstFromReact   = False
+batch2.setBatchPreferences(op)
+
+print("\n# Optional set units and significant digits\n")
+batch2.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
+
+batch2.setPropertiesDigits(["gibbs_energy","entropy", "volume",
+                            "enthalpy","logKr", "temperature", "pressure"], [0, 4, 4, 4, 4, 0, 0])
+
+print("\n# Do calculations and write output\n")
+batch2.thermoPropertiesSubstance([[25,1]], ["Na(CO3)-", "Mg+2"], ["gibbs_energy", "entropy",
+                                "volume", "enthalpy"]).toCSV("results_dbc.csv")
+```

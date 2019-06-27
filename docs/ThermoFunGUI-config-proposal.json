@@ -4,14 +4,14 @@
 	     "ArangoDBName" :   "hub_work",
 	     "ArangoDBUser" :   "funloc",
 	     "ArangoDBUserPassword" :   "ThermoFun@Local",
-	     "editId" :   false,
+	     "editId" :   false
 	},
 	"remotedb" : {
 	     "ArangoDBUrl" :   "https://db.thermohub.net",
 	     "ArangoDBName" :   "hub_main",
 	     "ArangoDBUser" :   "adminrem",
 	     "ArangoDBUserPassword" :   "Administrator@Remote-ThermoHub-Server",
-	     "editId" :   false,
+	     "editId" :   false
 	},
 	"client_options" : {
 	     "ResourcesDirectory" :   "Resources",
@@ -28,7 +28,7 @@
 	     "FormatUseDB" :   false,
 	     "ReactionSetName" :   "cemdata18",
 	     "InputOutputFilePath" :   "",
-	     "PhreeqcElementsFormatTable" :   "/Resources/files/TestPhreeqc/Export/concrOut/export_I_IElements.FormatTableFile.json",
+	     "PhreeqcElementsFormatTable" :   "/Resources/files/TestPhreeqc/Export/concrOut/export_I_IElements.FormatTableFile.json"
 	},
 	"gui_options" : {
 	     "KeepExpanded" :   true,
@@ -42,6 +42,5 @@
 	     "LocalDBDirectory" :   "",
 	     "UseThriftServer" :   false
 	}
-
 }
 

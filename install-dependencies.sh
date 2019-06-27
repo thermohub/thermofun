@@ -10,6 +10,7 @@ sudo apt-get install -y libboost-all-dev libcurl4-openssl-dev
 
 threads=3
 #QT_PATH=/home/dmiron/Qt/5.11.0/gcc_64
+git status
 
 # Velocypack from ArangoDB (added for installing JSONIO database client)
 # if no VPack installed in /usr/local/lib/libvelocypack.a (/usr/local/include/velocypack)
@@ -50,5 +51,4 @@ test -f /usr/local/lib/libjsonio.a || {
 	cd ~ && \
 		 rm -rf ~/code
 }
-
-sudo ldconfig
+sudo ldconfig 

@@ -6,6 +6,7 @@
 #include "ui_SelectElementsDialog.h"
 #include "jsonui/preferences.h"
 
+using namespace std;
 using namespace jsonui;
 
 

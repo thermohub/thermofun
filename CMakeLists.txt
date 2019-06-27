@@ -40,11 +40,23 @@ endif()
 include(GNUInstallDirs)
 
 # Define which types of libraries to build
-option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(BUILD_STATIC_LIBS "Build static libraries." ON)
-option(BUILD_TESTS "Build tests." OFF)
-option(BUILD_DEMOGUI "Build ThermoFun GUI DEMO." OFF)
+option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
+#option(TFUN_BUILD_TESTS "Build tests." OFF)
+option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
+option(TFUN_BUILD_DEMOGUI "Build ThermoFunGui demo." OFF)
+option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
+
+# Modify the TFUN_BUILD_* variables accordingly to BUILD_ALL
+if(TFUN_BUILD_ALL MATCHES ON)
+    set(TFUN_BUILD_SHARED_LIBS          ON)
+    set(TFUN_BUILD_STATIC_LIBS          ON)
+#    set(TFUN_BUILD_TESTS                ON)
+    set(TFUN_BUILD_GUI                  ON)
+    set(TFUN_BUILD_DEMOGUI              ON)
+    set(TFUN_BUILD_PYTHON               ON)
+endif()
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -81,7 +93,6 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_compile_options("/W0 -D_SCL_SECURE_NO_WARNINGS /MP4")
 endif()
 
-
 # Set the thermofun source directory path
 set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
@@ -96,6 +107,12 @@ set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 include_directories(${THERMOFUN_SOURCE_DIR})
 #include_directories(${THIRDPARTY_INCLUDE_DIR})
 include_directories(${BOOST_INCLUDE_DIR})
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    include_directories("/usr/local/include")
+    link_directories("/usr/local/lib")
+endif()
+
+
 
 # Install the third-party libraries first
 #include(InstallThirdPartyLibs)
@@ -106,16 +123,27 @@ include_directories(${BOOST_INCLUDE_DIR})
 # Build thermofun library
 add_subdirectory(src)
 
-# Build the tests
-if(BUILD_TESTS)
-    add_subdirectory(tests)
-else()
-#    add_subdirectory(tests EXCLUDE_FROM_ALL)
-endif()
+# Copy Resources folder
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+        DESTINATION ${CMAKE_BINARY_DIR})
 
 # Build the tests
-if(BUILD_FUNGUI)
+#if(BUILD_TESTS)
+#    add_subdirectory(tests)
+#else()
+#    add_subdirectory(tests EXCLUDE_FROM_ALL)
+#endif()
+
+# Build ThermoFunGui library
+if(TFUN_BUILD_GUI)
     add_subdirectory(fungui)
-else()
-#    add_subdirectory(DemoGUI EXCLUDE_FROM_ALL)
+#else()
+#    add_subdirectory(fungui EXCLUDE_FROM_ALL)
+endif()
+
+# Build python wraper
+if(TFUN_BUILD_PYTHON)
+    add_subdirectory(python)
+#else()
+#    add_subdirectory(python EXCLUDE_FROM_ALL)
 endif()

@@ -4,7 +4,6 @@
     $$PWD/Common/Units.hpp \
 # ThermoFun
     $$PWD/ThermoFun.h \
-    $$PWD/Thermo.h \
     $$PWD/Database.h \
     $$PWD/Element.h \
     $$PWD/Substance.h \
@@ -66,8 +65,6 @@
     $$PWD/Common/OutputToCSV.h \
     $$PWD/Common/ParseBsonTraversalData.h \
 # Interface
-    $$PWD/Interfaces/Interface.h \
-    $$PWD/Interfaces/Output.h \
 # DBClient
     $$PWD/DBClient/formuladata.h \
     $$PWD/DBClient/formulaparser.h \
@@ -79,12 +76,14 @@
     $$PWD/DBClient/AbstractData.h \
     $$PWD/DBClient/ThermoSetData.h \
     $$PWD/DBClient/ReactionSetData.h \
+    $$PWD/ThermoEngine.h \
+    $$PWD/Batch/ThermoBatch.h \
+    $$PWD/Batch/OutputBatch.h \
     $$PWD/DBClient/sourcetdb.h
 
     SOURCES	 += $$PWD/Database.cpp \
     $$PWD/Common/Units.cpp \
 # ThermoFun
-    $$PWD/Thermo.cpp \
     $$PWD/Element.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
@@ -138,8 +137,6 @@
     $$PWD/Common/OutputToCSV.cpp \
     $$PWD/Common/ParseBsonTraversalData.cpp \
 # Interface
-    $$PWD/Interfaces/Interface.cpp \
-    $$PWD/Interfaces/Output.cpp \
 # DBClient
     $$PWD/DBClient/formuladata.cpp \
     $$PWD/DBClient/formulaparser.cpp \
@@ -150,4 +147,8 @@
     $$PWD/DBClient/TraversalData.cpp \
     $$PWD/DBClient/DatabaseClient.cpp \
     $$PWD/DBClient/ThermoSetData.cpp \
-    $$PWD/DBClient/sourcetdb.cpp
+    $$PWD/ThermoEngine.cpp \
+    $$PWD/Batch/ThermoBatch.cpp \
+    $$PWD/Batch/OutputBatch.cpp \
+    $$PWD/DBClient/sourcetdb.cpp \
+    $$PWD/DBClient/ElementData.cpp

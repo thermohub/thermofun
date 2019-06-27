@@ -16,13 +16,12 @@
 // E-mail: gems2.support@psi.ch
 //-------------------------------------------------------------------
 //
-#ifndef _FORMULAPARSER_H
-#define _FORMULAPARSER_H
+#ifndef FORMULAPARSER_H
+#define FORMULAPARSER_H
 
 #include <string>
 #include <list>
 #include <vector>
-using namespace std;
 
 namespace ThermoFun {
 
@@ -57,10 +56,10 @@ protected:
     }
 
     /// Skip escape sequences  (" \n\t\r")
-    void xblanc( string& str );
+    virtual void xblanc( std::string& str );
 
     /// Read next real from string
-    void getReal( double& real, string& cur);
+    virtual void getReal( double& real, std::string& cur);
 
 public:
 
@@ -72,8 +71,8 @@ public:
 /// Description of parsed element
 struct ICTERM
 {
-    string ick;
-    string ick_iso;
+    std::string ick;
+    std::string ick_iso;
     int val;              // valence IC
     double stoich;          // stoich. coef.
 
@@ -91,8 +90,8 @@ struct ICTERM
 /// Parser for Chemical Formula
 class ChemicalFormulaParser : public BaseParser
 {
-    string formula;
-    string charge;
+    std::string formula;
+    std::string charge;
 
     const char* CHARGE_TOK    ="+-@";
 
@@ -105,24 +104,24 @@ class ChemicalFormulaParser : public BaseParser
 
 protected:
 
-    void icadd(  list<ICTERM>& itt_, const char *icn,
+    void icadd(  std::list<ICTERM>& itt_, const char *icn,
                  const char *iso, int val, double csto );
-    void icadd(  list<ICTERM>& itt_, ICTERM& it );
-    int  ictcomp( list<ICTERM>::iterator& it, string& ick, int val );
-    void addCharge(list<ICTERM>& tt);
+    void icadd(  std::list<ICTERM>& itt_, ICTERM& it );
+    int  ictcomp( std::list<ICTERM>::iterator& it, std::string& ick, int val );
+    void addCharge(std::list<ICTERM>& tt);
     void scanCharge();
-    void scanFterm( list<ICTERM>& itt_, string& startPos, char endSimb );
-    void scanElem( list<ICTERM>& itt_, string& cur );
-    void scanValence( int& val, string& cur);
-    void scanIsotope( string& isotop, string& cur);
-    void scanICsymb(  string& icName, string& cur);
+    void scanFterm( std::list<ICTERM>& itt_, std::string& startPos, char endSimb );
+    void scanElem( std::list<ICTERM>& itt_, std::string& cur );
+    void scanValence( int& val, std::string& cur);
+    void scanIsotope( std::string& isotop, std::string& cur);
+    void scanICsymb(  std::string& icName, std::string& cur);
 
 public:
 
     ChemicalFormulaParser(){}
-    ~ChemicalFormulaParser(){}
+    ~ChemicalFormulaParser();
 
-    list<ICTERM> parse( const string& formula );
+    std::list<ICTERM> parse( const std::string& formula );
 
 };
 
@@ -130,14 +129,14 @@ public:
 /// Description of Moiety element
 struct MOITERM
 {
-    string name;
+    std::string name;
     int  site;          // sublattice site
     double nj;          // moiety-site occupancy.
 
     MOITERM( const char* aName, int aSite, double aNj ):
        site(aSite), nj(aNj)
     {
-       name = "{" + string(aName) + "}" + to_string(site);
+       name = "{" + std::string(aName) + "}" + std::to_string(site);
     }
 
     MOITERM( const MOITERM& data ):
@@ -151,18 +150,18 @@ struct MOITERM
 /// Parser for Moity
 class MoityParser : public BaseParser
 {
-    string formula;
+    std::string formula;
     int nSites;             // number of sites in formula
 
 public:
 
     MoityParser(){}
-    ~MoityParser(){}
+    ~MoityParser();
 
-   int parse( const string& aformula, vector<MOITERM>&  moit_ );
+   int parse( const std::string& aformula, std::vector<MOITERM>&  moit_ );
 
 };
 
 }
 
-#endif // _FORMULAPARSER_H
+#endif // FORMULAPARSER_H

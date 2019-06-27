@@ -8,14 +8,14 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Interfaces/Output.h"
+#include "../src/Batch/ThermoBatch.h"
 #include "../src/Database.h"
 #include "../src/Substance.h"
 #include "../src/DBClient/TraversalData.h"
 #include "../src/Common/ParseBsonTraversalData.h"
 #endif
 #ifndef FROM_SRC
-#include "thermofun/Interfaces/Output.h"
+#include "thermofun/Batch/ThermoBatch.h"
 #include "thermofun/Database.h"
 #include "thermofun/Substance.h"
 #include "thermofun/DBClient/TraversalData.h"
@@ -512,7 +512,7 @@ double ThermoFunWidgetPrivate::calcData(const vector<string>& substKeys, const v
         tdb_ = setSubstanceCalcType_(tdb_, ThermoFun::SubstanceThermoCalculationType::type::DCOMP);
 
 
-    ThermoFun::Interface tpCalc (tdb_);
+    ThermoFun::ThermoBatch tpCalc (tdb_);
     tpCalc.setSolventSymbol(solventSymbol);
 
     ThermoFun::OutputSettings op;

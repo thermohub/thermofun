@@ -46,18 +46,18 @@ add_library(THERMOFUNGUI_OBJECTS OBJECT ${thermofungui_HEADERS} ${thermofungui_S
 #add_dependencies(thermofungui_OBJECTS ${THIRDPARTY_TARGETS})
 
 # Check if a shared library is to be built
-if(BUILD_SHARED_LIBS)
+if(TFUN_BUILD_SHARED_LIBS)
     add_library(THERMOFUNGUI_SHARED SHARED $<TARGET_OBJECTS:THERMOFUNGUI_OBJECTS>)
     target_link_libraries(THERMOFUNGUI_SHARED ${THIRDPARTY_LIBS} )
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-  target_link_libraries(THERMOFUNGUI_SHARED Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts thrift  )
+    target_link_libraries(THERMOFUNGUI_SHARED Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts thrift jsonui ThermoFun )
 endif()
     set_target_properties(THERMOFUNGUI_SHARED PROPERTIES OUTPUT_NAME thermofungui)
     install(TARGETS THERMOFUNGUI_SHARED DESTINATION lib)
 endif()
 
 # Check if a static library is to be built
-if(BUILD_STATIC_LIBS)
+if(TFUN_BUILD_STATIC_LIBS)
     add_library(THERMOFUNGUI_STATIC STATIC $<TARGET_OBJECTS:THERMOFUNGUI_OBJECTS>)
     target_link_libraries(THERMOFUNGUI_STATIC ${THIRDPARTY_LIBS} )
     set_target_properties(THERMOFUNGUI_STATIC PROPERTIES OUTPUT_NAME thermofungui)

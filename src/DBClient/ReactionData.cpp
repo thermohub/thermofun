@@ -9,6 +9,7 @@
 #include "OptimizationUtils.h"
 #include "sourcetdb.h"
 
+using namespace std;
 using namespace jsonio;
 
 namespace ThermoFun
@@ -16,10 +17,9 @@ namespace ThermoFun
 
 //const DBQueryData reactQuery("{\"_label\": \"reaction\" }", DBQueryData::qTemplate);
 const DBQueryData reactQuery("FOR u  IN reactions ", DBQueryData::qAQL);
-const vector<string> reactFieldPaths =
-    {"properties.symbol", "properties.name", "properties.equation", "_id", "properties.level", "properties.sourcetdb"};
-const vector<string> reactColumnHeaders = {"symbol", "name", "equation"};
-const vector<string> reactDataNames = {"symbol", "name", "equation", "_id", "level", "sourcetdb"};
+const vector<string> reactFieldPaths = {"properties.symbol", "properties.equation", "properties.reactyp", "properties.sourcetdb", "properties.level", "properties.name", "_id" };
+const vector<string> reactDataNames =     {"symbol",            "equation",             "type",        "sourcetdb",                         "level",              "name", "_id"}; // should have the same size as FieldPaths !!
+const vector<string> reactColumnHeaders = {"symbol",            "equation"/*,             "type",             "sourcetdb",            "level"*/};
 
 using QueryVertexReaction  = std::function<string(string, vector<string>)>;
 
@@ -107,7 +107,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
     updateTableByElementsList( reactQueryMatr, elements );
     setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
     pimpl->valuesTable = reactQueryMatr;
-    return move(reactQueryMatr);
+    return reactQueryMatr;
 }
 
 ValuesTable ReactionData_::loadRecordsValues( const string& idReactionSet )
@@ -166,7 +166,7 @@ set<ElementKey> ReactionData_::getElementsList(const string &idReaction)
     set<ElementKey> elements;
     string jsonrecord = getJsonRecordVertex(idReaction);
     auto domdata = jsonio::unpackJson( jsonrecord );
-    ElementsFromJsonDomArray("properties.elements", domdata.get(), elements);
+    ElementsKeysFromJsonDomArray("properties.elements", domdata.get(), elements);
 
     // if user fogot insert elements property
     if (elements.empty())
@@ -187,7 +187,7 @@ void ReactionData_::resetRecordElements(const string& idReact )
         vector<string> formulalst = getReactantsFormulas( _id );
         set<ThermoFun::ElementKey> elements = ThermoFun::ChemicalFormula::extractElements(formulalst );
 
-        string elementsJsonArray = ElementsToJson( elements );
+        string elementsJsonArray = ElementsKeysToJson( elements );
         getDB()->setValue("properties.elements",elementsJsonArray);
         getDB()->UpdateWithTestValues();
     }

@@ -14,11 +14,11 @@
 /// Class  Elements table data container
 class ElementsDataContainer : public jsonui::TAbstractDataContainer
 {
-    const vector<ThermoFun::ElementKey>& elements_;
+    const std::vector<ThermoFun::ElementKey>& elements_;
 
 public:
 
-   ElementsDataContainer( const vector<ThermoFun::ElementKey>& elements ):
+   ElementsDataContainer( const std::vector<ThermoFun::ElementKey>& elements ):
       TAbstractDataContainer("ElementsDataContainer"),
       elements_( elements )
       { resetData(); }
@@ -33,16 +33,16 @@ public:
 
    QVariant data( int /*line*/, int column ) const
    {
-     string key_ = elements_[column].key();
+     std::string key_ = elements_[column].formulaKey();
      return key_.c_str();
    }
 
-   vector<string> symbolsList(  ) const
+   std::vector<std::string> symbolsList(  ) const
    {
-     vector<string> lst;
+     std::vector<std::string> lst;
      for (uint i = 0; i < elements_.size(); i++)
      {
-         lst.push_back(elements_[i].getSymbol());
+         lst.push_back(elements_[i].Symbol());
      }
      return lst;
    }
@@ -71,15 +71,15 @@ public:
 
 };
 
-/// Class for double T P vector container
+/// Class for double T P std::vector container
 class TPContainer : public jsonui::TAbstractDataContainer
 {
-    vector<string>  _keys;
-    vector<vector<double>>& _fields;
+    std::vector<std::string>  _keys;
+    std::vector<std::vector<double>>& _fields;
 
  public:
 
-   TPContainer( const char * aname, const vector<string>& akeys, vector<vector<double>>& afields ):
+   TPContainer( const char * aname, const std::vector<std::string>& akeys, std::vector<std::vector<double>>& afields ):
       TAbstractDataContainer(aname),
       _keys(akeys),_fields( afields ) {}
 
@@ -120,7 +120,7 @@ class TPContainer : public jsonui::TAbstractDataContainer
 
    virtual QString getToolTip( int line, int column ) const
    {
-       return (_keys[column]+" "+to_string(line)).c_str();
+       return (_keys[column]+" "+std::to_string(line)).c_str();
    }
 
    void resetData()
@@ -128,16 +128,16 @@ class TPContainer : public jsonui::TAbstractDataContainer
 };
 
 
-/// Class for double T P vector container
+/// Class for double T P std::vector container
 class TPropertyContainer : public jsonui::TAbstractDataContainer
 {
-    vector<string>& _properties;      ///< Properties names list
-    vector<string>& _propertyUnits;   ///< Units of property
-    vector<int>& _propertyPrecision; ///< Output formats of property
+    std::vector<std::string>& _properties;      ///< Properties names list
+    std::vector<std::string>& _propertyUnits;   ///< Units of property
+    std::vector<int>& _propertyPrecision; ///< Output formats of property
 
  public:
 
-   TPropertyContainer( const char * aname, vector<string>& aProperties, vector<string>& aPUnits, vector<int>& aPPrecision ):
+   TPropertyContainer( const char * aname, std::vector<std::string>& aProperties, std::vector<std::string>& aPUnits, std::vector<int>& aPPrecision ):
       TAbstractDataContainer(aname),
       _properties(aProperties),_propertyUnits( aPUnits ), _propertyPrecision( aPPrecision ) {}
 
@@ -162,7 +162,7 @@ class TPropertyContainer : public jsonui::TAbstractDataContainer
 
    bool setData( int line, int column, const QVariant &value )
    {
-       string val = value.toString().toUtf8().data();
+       std::string val = value.toString().toUtf8().data();
        int    vali= value.toInt();
        if(column == 0)
           _properties[line] = val;
@@ -218,28 +218,28 @@ struct ReactData
       coeffs.clear();
     }
 
-    void add( const string& name, double acoef )
+    void add( const std::string& name, double acoef )
     {
       symbols.push_back(name);
       coeffs.push_back(std::fabs(acoef));
     }
 
-    string reaction()
+    std::string reaction()
     {
-       string reactR;
+       std::string reactR;
        for( uint jj = 0; jj <symbols.size(); jj++)
        {
          if( jj > 0 )
            reactR += " + ";
          if( coeffs[jj] != 1)
          {
-             long intPart = (long) coeffs[jj];
+             long intPart = coeffs[jj];
              double fractionalPart = fabs(coeffs[jj] - intPart);
              if (fractionalPart == 0)
-                 reactR += to_string( intPart );
+                 reactR += std::to_string( intPart );
              else
              {
-                 auto str = to_string( coeffs[jj] );
+                 auto str = std::to_string( coeffs[jj] );
                  str.erase ( str.find_last_not_of('0') + 1, std::string::npos );
                  reactR += str;
              }
@@ -249,9 +249,9 @@ struct ReactData
        return reactR;
     }
 
-    string reaction_rev()
+    std::string reaction_rev()
     {
-       string reactR;
+       std::string reactR;
        for(size_t jj = symbols.size(); jj --> 0 ;)
        {
          if( jj < symbols.size()-1 )
@@ -261,10 +261,10 @@ struct ReactData
              long intPart = (long) coeffs[jj];
              double fractionalPart = fabs(coeffs[jj] - intPart);
              if (fractionalPart == 0)
-                 reactR += to_string( intPart );
+                 reactR += std::to_string( intPart );
              else
              {
-                 auto str = to_string( coeffs[jj] );
+                 auto str = std::to_string( coeffs[jj] );
                  str.erase ( str.find_last_not_of('0') + 1, std::string::npos );
                  reactR += str;
              }
@@ -274,12 +274,12 @@ struct ReactData
        return reactR;
     }
 
-    void buildList( ReactionTree* parent, int first, std::vector<ThermoFun::ThermoPropertiesSubstance> vTps )
+    void buildList( ReactionTree* parent, uint first, std::vector<ThermoFun::ThermoPropertiesSubstance> vTps )
     {
        ReactionTree* newChild;
-       vector<double> values(8);
-       vector<double> errors(8);
-       vector<Reaktoro_::Status> status(8);
+       std::vector<double> values(8);
+       std::vector<double> errors(8);
+       std::vector<Reaktoro_::Status> status(8);
 
        for( uint jj = 0; jj <symbols.size(); jj++)
        {
@@ -326,7 +326,7 @@ struct ISOCReactData
       coeffs.clear();
     }
 
-    void add( const string& name, double acoef )
+    void add( const std::string& name, double acoef )
     {
       symbols.push_back(name);
       coeffs.push_back(acoef);
@@ -335,9 +335,9 @@ struct ISOCReactData
     void buildList( ReactionTree* parent, int first )
     {
        ReactionTree* newChild;
-       vector<double> values(1);
-       vector<double> errors(1);
-       vector<Reaktoro_::Status> status(1);
+       std::vector<double> values(1);
+       std::vector<double> errors(1);
+       std::vector<Reaktoro_::Status> status(1);
 
        for( uint jj = 0; jj <symbols.size(); jj++)
        {
@@ -350,9 +350,9 @@ struct ISOCReactData
     void buildList( ReactionTree* parent, int first, std::vector<ThermoFun::ThermoPropertiesReaction> vTpr )
     {
        ReactionTree* newChild;
-       vector<double> values(8);
-       vector<double> errors(8);
-       vector<Reaktoro_::Status> status(8);
+       std::vector<double> values(8);
+       std::vector<double> errors(8);
+       std::vector<Reaktoro_::Status> status(8);
 
        for( uint jj = 0; jj <symbols.size(); jj++)
        {

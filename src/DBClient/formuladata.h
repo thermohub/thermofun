@@ -1,5 +1,5 @@
-#ifndef _FORMULADATA_H
-#define _FORMULADATA_H
+﻿#ifndef FORMULADATA_H
+#define FORMULADATA_H
 
 #include <iostream>
 #include <map>
@@ -9,41 +9,102 @@
 
 namespace ThermoFun {
 
+struct Element;
+
+
 /// Key fields of Element vertex
-struct ElementKey
+class ElementKey
 {
-  string symbol;
+
+  std::string symbol;
   int class_;
   int isotope;
 
-  ElementKey( const string& asymbol, int aclass = 0 /*ELEMENT*/, int aisotope = 0 ):
+  void classIsotopeFrom(const std::string& line );
+
+public:
+
+  static int index_from_map(std::string map);
+
+  /// Construct key from elements document
+  ElementKey( jsonio::TDBVertexDocument* elementDB )
+  {
+      auto propnode = elementDB->getDom()->field("properties");
+      fromElementNode(propnode);
+  }
+
+  /// Construct key from elements document fields values
+  ElementKey( const std::string& asymbol, const std::string& aclass_, const std::string& aisotope  );
+
+  /// Construct key from element description json string
+  //ElementKey(  const std::string& elementjson );
+
+  /// Constructor
+  ElementKey( const std::string& asymbol, int aclass /*ELEMENT*/, int aisotope ):
    symbol(asymbol), class_(aclass), isotope(aisotope)
   { }
 
-  ElementKey( const string& asymbol, const string& typeline ):
+  /// Construct key from formula parser
+  ElementKey( const std::string& asymbol, const std::string& typeline ):
       symbol(asymbol)
   { classIsotopeFrom(typeline); }
 
-  void classIsotopeFrom(const string& line );
-  string key() const;
-  string getSymbol() const;
 
-  void toJsonNode( jsonio::JsonDom *object ) const;
-  void fromJsonNode( const jsonio::JsonDom *object );
-  //void toBson( bson *obj ) const;
-  //void fromBson( const char* obj );
+  const std::string& Symbol() const
+  {
+    return symbol;
+  }
+
+  int Class() const
+  {
+    return class_;
+  }
+
+  int Isotope() const
+  {
+    return isotope;
+  }
+
+  /// Generate subset of formula
+  std::string formulaKey() const;
+
+  /// ElementKey to json data
+  void toKeyNode( jsonio::JsonDom *object ) const;
+  /// ElementKey from json data
+  void fromKeyNode( const jsonio::JsonDom *object );
+  /// ElementKey from element record
+  void fromElementNode( const jsonio::JsonDom *object );
+
+  friend bool operator <( const ElementKey&,  const ElementKey& );
+  friend bool operator >( const ElementKey&,  const ElementKey& );
+  friend bool operator==( const ElementKey&,  const ElementKey& );
+  friend bool operator!=( const ElementKey&,  const ElementKey& );
 
 };
 
-bool operator <( const ElementKey&,  const ElementKey& );
-bool operator >( const ElementKey&,  const ElementKey& );
-bool operator==( const ElementKey&,  const ElementKey& );
-bool operator!=( const ElementKey&,  const ElementKey& );
+
+/// Add element keys list to jsondom array object
+void ElementsKeysToJsonDom( jsonio::JsonDom *object, const std::set<ElementKey>& elements );
+
+/// Generate json string with element keys list
+std::string ElementsKeysToJson( const std::set<ElementKey>& elements );
+
+/// Read element keys list from json string
+bool ElementsKeysFromJson( const std::string elmsjson, std::set<ElementKey>& elements );
+
+/// Read element keys list from field of jsondom object
+bool ElementsKeysFromJsonDomArray( const std::string& keypath, const jsonio::JsonDom *object, std::set<ElementKey>& elements );
+
+auto elementKeyToElement(ElementKey elementKey) -> Element;
+
+/// Make element keys list from elements ids list
+std::vector<ElementKey> getElementKeys( jsonio::TDBVertexDocument* elementDB, const std::vector<std::string>& idList );
+
 
 /// Elements values, loaded from Database
 struct ElementValues
 {
-  string recid;            // Record id
+  std::string recid;            // Record id
   double atomic_mass;   // "Atomic (molar) mass, g/atom (g/mole)"
   double entropy;   // "Atomic entropy S0 at standard state, J/mole/K"
   double heat_capacity;   // "Atomic heat capacity Cp0 at standard state, J/mole/K"
@@ -56,16 +117,16 @@ struct ElementValues
 
 ///     Loading from Database a map of element symbol,
 /// valence, entropy and other
-using DBElementsData = map<ElementKey, ElementValues >;
+using DBElementsData = std::map<ElementKey, ElementValues >;
 
 /// Values extracted from chemical formulae
 struct FormulaValues
 {
     ElementKey key;
-    short   valence;
+    int   valence;
     double  stoichCoef;
 
-    FormulaValues( const ElementKey& akey, double  astoichCoef, short  avalence ):
+    FormulaValues( const ElementKey& akey, double  astoichCoef, int  avalence ):
       key(akey), valence(avalence), stoichCoef(astoichCoef)
     { }
 };
@@ -74,7 +135,7 @@ struct FormulaValues
 /// vectors of molar masses, entropies and charges of substances.
 struct FormulaProperites
 {
-    string formula;
+    std::string formula;
     double charge;
     double atomic_mass;
     double elemental_entropy;
@@ -82,26 +143,26 @@ struct FormulaProperites
 };
 
 /// Internal parsed data
-using FormulaElementsData = vector<FormulaValues>;
+using FormulaElementsData = std::vector<FormulaValues>;
 
 /// Description of disassembled formula token
 class FormulaToken
 {
-    string formula;
+    std::string formula;
     FormulaElementsData datamap;  ///< List of tokens
-    map<ElementKey, double>  elements_map;
-    set<ElementKey>  elements;    ///< Set of existed elements
+    std::map<ElementKey, double>  elements_map;
+    std::set<ElementKey>  elements;    ///< Set of existed elements
 //    std::map<std::string, double> mapElementsCoeff; ///< Map of elements symbols and coefficients
     double aZ;                    ///< Calculated charge in Mol
 
 protected:
 
     void clear();
-    void unpack( list<ICTERM>& itt_ );
+    void unpack( std::list<ICTERM>& itt_ );
 
 public:
 
-    FormulaToken( const string& aformula ):aZ(0)
+    FormulaToken( const std::string& aformula ):aZ(0)
     {
       setFormula(aformula);
     }
@@ -110,8 +171,8 @@ public:
 
     //--- Selectors
 
-    void setFormula( const string& aformula );
-    const string& getFormula() const
+    void setFormula( const std::string& aformula );
+    const std::string& getFormula() const
     {
       return formula;
     }
@@ -125,11 +186,11 @@ public:
     //--- Value manipulation
 
     /// Return true if all elements from formula present into system
-    bool checkElements( const string& aformula );
+    bool checkElements( const std::string& aformula );
     /// Throw exeption if in formula have element not present into system
-    void exeptionCheckElements( const string& subreacKey, const string& aformula );
+    void exeptionCheckElements( const std::string& subreacKey, const std::string& aformula );
     /// Build list of elements not present into system
-    string testElements( const string& aformula );
+    std::string testElements( const std::string& aformula );
 
     /// Calculate charge, molar mass, elemental entropy, atoms per formula unit
     /// from chemical formulae
@@ -137,16 +198,16 @@ public:
 
     /// Get a row of stoichiometry matrix from the unpacked formula,
     /// sysElemens - list of element keys
-    vector<double> makeStoichiometryRowOld(const vector<ElementKey>& sysElemens );
+    std::vector<double> makeStoichiometryRowOld(const std::vector<ElementKey>& sysElemens );
 //    Eigen::VectorXd makeStoichiometryRow(const vector<ElementKey>& sysElemens );
 
    /// Throw exeption if charge imbalance
     void exeptionCargeImbalance();
 
     /// Get of existed elements
-    const map<ElementKey, double>& getElements_map() const
+    const std::map<ElementKey, double>& getElements_map() const
     { return elements_map; }
-    const set<ElementKey>& getElements() const
+    const std::set<ElementKey>& getElements() const
     { return elements; }
 
 //    const std::vector<double>& getCoefficients() const
@@ -154,19 +215,13 @@ public:
 
 };
 
-vector<ElementKey> getDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList );
-string ElementsToJson( const set<ElementKey>& elements );
-bool ElementsFromJson( const string elmsjson, set<ElementKey>& elements );
-bool ElementsFromJsonDomArray( const string& keypath, const jsonio::JsonDom *object, set<ElementKey>& elements );
-
-struct Element;
 
 class ChemicalFormula
 {
 
   /// Loading from database elements
   static  DBElementsData dbElements;
-  static  vector<string> queryFields;
+  static  std::vector<std::string> queryFields;
 
   static void addOneElement( jsonio::TDBVertexDocument* elementDB );
   static void addOneElement(Element element);
@@ -187,16 +242,16 @@ class ChemicalFormula
 
   static void setDBElements( jsonio::TDBVertexDocument* elementDB,
                              const jsonio::DBQueryData& query =  ChemicalFormula::getDefaultQuery() );
-  static void setDBElements( jsonio::TDBVertexDocument* elementDB, const vector<string>& keyList );
+  static void setDBElements( jsonio::TDBVertexDocument* elementDB, const std::vector<std::string>& keyList );
   static void setDBElements(std::map<std::string, Element> elements );
 
-  static vector<ElementKey> elementsRow();
+  static std::vector<ElementKey> elementsRow();
 
-  static map<ElementKey, double> extractElements_map(  const vector<string>& formulalist );
-  static set<ElementKey>         extractElements(  const vector<string>& formulalist );
-  static FormulaProperites         calcThermo(  const string formula_ );
-  static vector<FormulaProperites> calcThermo(  const vector<string>& formulalist );
-  static vector<vector<double>> calcStoichiometryMatrixOld(  const vector<string>& formulalist );
+  static std::map<ElementKey, double> extractElements_map(  const std::vector<std::string>& formulalist );
+  static std::set<ElementKey>         extractElements(  const std::vector<std::string>& formulalist );
+  static FormulaProperites         calcThermo(  const std::string formula_ );
+  static std::vector<FormulaProperites> calcThermo(  const std::vector<std::string>& formulalist );
+  static std::vector<std::vector<double>> calcStoichiometryMatrixOld(  const std::vector<std::string>& formulalist );
 //  static Eigen::MatrixXd calcStoichiometryMatrix(  const vector<string>& formulalist );
 
   static const ElementValues& elementProperites( const ElementKey& elementKey )
@@ -210,8 +265,6 @@ class ChemicalFormula
 
 };
 
-auto elementKeyToElement(ElementKey elementKey) -> Element;
-
 }
 
-#endif // _FORMULADATA_H
+#endif // FORMULADATA_H

@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QButtonGroup>
 #ifdef FROM_SRC
-#include "../src/DBClient/formuladata.h"
+#include "../../src/DBClient/formuladata.h"
 #endif
 #ifndef FROM_SRC
 #include "thermofun/DBClient/formuladata.h"
@@ -33,20 +33,20 @@ public slots:
     void SetIsotopes();
 
 public:
-    explicit ElementsWidget(QWidget *parent = 0);
+    explicit ElementsWidget(QWidget *parent = nullptr);
     ~ElementsWidget();
 
-    void  setElementList( const vector<ThermoFun::ElementKey>& elements );
-    void  selectElementList( const vector<ThermoFun::ElementKey>& elements );
-    void allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const;
+    void  setElementList( const std::vector<ThermoFun::ElementKey>& elements );
+    void  selectElementList( const std::vector<ThermoFun::ElementKey>& elements );
+    void allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const;
 
 private:
     Ui::ElementsWidget *ui;
 
-    vector<int> aBtmId1;         // lists correspondanse betvin bgElem
-    vector<ThermoFun::ElementKey> aICkey1;  // buttons and IComp records
-    vector<int> aBtmId2;         // lists correspondanse betvin bgOther
-    vector<ThermoFun::ElementKey> aICkey2;  // buttons and IComp records
+    std::vector<int> aBtmId1;         // lists correspondanse betvin bgElem
+    std::vector<ThermoFun::ElementKey> aICkey1;  // buttons and IComp records
+    std::vector<int> aBtmId2;         // lists correspondanse betvin bgOther
+    std::vector<ThermoFun::ElementKey> aICkey2;  // buttons and IComp records
     QButtonGroup* bgElem;
     QButtonGroup* bgOther;
 

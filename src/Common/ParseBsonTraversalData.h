@@ -65,7 +65,7 @@ auto parseSubstance (const jsonio::JsonDom *object) -> Substance;
 /// Parses a bson object and loads the parameters into the internal sturcture
 /// @param bso bson object
 auto thermoParamSubst (const jsonio::JsonDom *object, std::string name) -> ThermoParametersSubstance;
-auto thermoParamSubst (const jsonio::JsonDom *object, std::string name, ThermoParametersSubstance& ps) -> void;
+auto thermoParamSubst (const jsonio::JsonDom *object, std::string name, std::string prop_name, ThermoParametersSubstance& ps) -> void;
 
 /// Parses a bson object and loads reference thermodynamic properties into the internal sturcture
 /// @param bso bson object

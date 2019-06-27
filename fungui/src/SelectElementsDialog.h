@@ -57,10 +57,10 @@ public:
     explicit SelectElementsDialog(ThermoFun::DatabaseClient dbclient, QWidget *parent = 0);
     ~SelectElementsDialog();
 
-    void setData( int sourcetdb, const vector<ThermoFun::ElementKey>& elementKeys, const string& idRcSet );
-    void allSelected( vector<ThermoFun::ElementKey>& elementKeys ) const;
+    void setData( int sourcetdb, const std::vector<ThermoFun::ElementKey>& elementKeys, const std::string& idRcSet );
+    void allSelected( std::vector<ThermoFun::ElementKey>& elementKeys ) const;
     int sourceTDB() const;
-    string idReactionSet() const;
+    std::string idReactionSet() const;
 
 private:
 

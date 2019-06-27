@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 //        tdb2.addSubstance(vSubst[i]);
 //    }
 
-    Thermo thermo (tdb);
+    ThermoEngine thermo (tdb);
 //    auto test = thermo.thermoPropertiesSubstance(10,10,"what");
 
     ThermoPropertiesSubstance result_tcorrpt, tps_gems, result_tcorrpt_, test2;

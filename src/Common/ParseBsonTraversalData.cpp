@@ -45,7 +45,7 @@ bool extractMapFirst( const jsonio::JsonDomFree* domData,
 
 auto parseIssues(std::string data, string name, string prop) -> bool
 {
-    if ((data == "*") || (data == ""))
+    if ((data == "*") || (data == "" ) || (data == "{}"))
     {
         flog.open(parsinglogfile, ios::app);
         flog << "Could not parse " << prop << " for "<< name << ", using default value! " << endl;
@@ -389,7 +389,7 @@ auto getTPMethods(const jsonio::JsonDom *object, const std::vector<std::string> 
         int key; std::string name;
         extractMapFirst(jmethod.get(), "method", key, name);
         setTPMethods_old(SubstanceTPMethodType(key), s);
-        thermoParamSubst(jmethod.get(), s.name(), ps);
+        thermoParamSubst(jmethod.get(), s.name(), name, ps);
     }
     string expans = substExpans_ ; expans += ".values.0";
     string compres = substCompres_ ; compres += ".values.0";
@@ -404,7 +404,7 @@ auto getTPMethods(const jsonio::JsonDom *object, const std::vector<std::string> 
     s.setThermoParameters(ps);
 }
 
-auto thermoParamSubst (const jsonio::JsonDom *object, std::string name, ThermoParametersSubstance& ps) -> void
+auto thermoParamSubst (const jsonio::JsonDom *object, std::string name, std::string prop_name, ThermoParametersSubstance& ps) -> void
 {
     vector<string> vkbuf;
     string kbuf;
@@ -446,22 +446,62 @@ auto thermoParamSubst (const jsonio::JsonDom *object, std::string name, ThermoPa
     }
 
     // temporary fix - need to think how to handle more than 1 TP interval
-    ps.temperature_intervals.push_back({273.15, 2273.15});
+    if (prop_name == "cp_ft_equation")
+    {
+        std::vector<double> low_up;
+        if (object->findValue( lowerT, kbuf ))
+            if (!parseIssues(kbuf, name, lowerT)) low_up.push_back(std::stod(kbuf.c_str()));
+
+        if (object->findValue( upperT, kbuf ))
+            if (!parseIssues(kbuf, name, upperT)) low_up.push_back(std::stod(kbuf.c_str()));
+        ps.temperature_intervals.push_back(low_up);
+    }
 
     if (object->findArray( substCpParam, vkbuf))
-        if ((vkbuf.size() > 0) && (ps.Cp_coeff.size()==0)) if (!parseIssues(vkbuf[0], name, substCpParam))
+        if ((vkbuf.size() > 0)) if (!parseIssues(vkbuf[0], name, substCpParam))
     {
-        ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
-        std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_coeff[0].begin(), [](const std::string& val)
+        std::vector<double> cp_coeff;
+        cp_coeff.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), cp_coeff.begin(), [](const std::string& val)
         { return std::stod(val); });
+        ps.Cp_coeff.push_back(cp_coeff);
+
+//        ps.Cp_coeff.resize(1); ps.Cp_coeff[0].resize(vkbuf.size());
+//        std::transform(vkbuf.begin(), vkbuf.end(), ps.Cp_coeff[0].begin(), [](const std::string& val)
+//        { return std::stod(val); });
     }
 
     if (object->findArray( substTransProp, vkbuf))
-        if ((vkbuf.size() > 0) && (ps.phase_transition_prop.size()==0)) if (!parseIssues(vkbuf[0], name, substTransProp))
+        if ((vkbuf.size() > 0)) if (!parseIssues(vkbuf[0], name, substTransProp))
     {
-        ps.phase_transition_prop.resize(1); ps.phase_transition_prop[0].resize(vkbuf.size());
-        std::transform(vkbuf.begin(), vkbuf.end(), ps.phase_transition_prop[0].begin(), [](const std::string& val)
+        std::vector<double> ph_prop;
+        ph_prop.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), ph_prop.begin(), [](const std::string& val)
         { return std::stod(val); });
+        ps.phase_transition_prop.push_back(ph_prop);
+//        ps.phase_transition_prop.resize(1); ps.phase_transition_prop[0].resize(vkbuf.size());
+//        std::transform(vkbuf.begin(), vkbuf.end(), ps.phase_transition_prop[0].begin(), [](const std::string& val)
+//        { return std::stod(val); });
+    }
+
+    if (object->findArray(substTransPropLa, vkbuf))
+        if ((vkbuf.size() > 0)) if (!parseIssues(vkbuf[0], name, substTransPropLa))
+    {
+        std::vector<double> ph_prop;
+        ph_prop.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), ph_prop.begin(), [](const std::string& val)
+        { return std::stod(val); });
+        ps.phase_transition_prop.push_back(ph_prop);
+    }
+
+    if (object->findArray(substTransPropBm, vkbuf))
+        if ((vkbuf.size() > 0)) if (!parseIssues(vkbuf[0], name, substTransPropBm))
+    {
+        std::vector<double> ph_prop;
+        ph_prop.resize(vkbuf.size());
+        std::transform(vkbuf.begin(), vkbuf.end(), ph_prop.begin(), [](const std::string& val)
+        { return std::stod(val); });
+        ps.phase_transition_prop_Berman.push_back(ph_prop);
     }
 
 //    bsonio::bson_read_array_path(data, substTransProp, vkbuf); ps.phase_transition_prop_Berman.resize(1); ps.phase_transition_prop_Berman[0].resize(vkbuf.size());

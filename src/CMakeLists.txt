@@ -19,7 +19,7 @@ add_library(THERMOFUN_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 #add_dependencies(THERMOFUN_OBJECTS ${THIRDPARTY_TARGETS})
 
 # Check if a shared library is to be built
-if(BUILD_SHARED_LIBS)
+if(TFUN_BUILD_SHARED_LIBS)
     add_library(THERMOFUN_SHARED SHARED $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
     target_link_libraries(THERMOFUN_SHARED ${THIRDPARTY_LIBS} )
     set_target_properties(THERMOFUN_SHARED PROPERTIES OUTPUT_NAME thermofun)
@@ -27,7 +27,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # Check if a static library is to be built
-if(BUILD_STATIC_LIBS)
+if(TFUN_BUILD_STATIC_LIBS)
     add_library(THERMOFUN_STATIC STATIC $<TARGET_OBJECTS:THERMOFUN_OBJECTS>)
     target_link_libraries(THERMOFUN_STATIC ${THIRDPARTY_LIBS} )
     set_target_properties(THERMOFUN_STATIC PROPERTIES OUTPUT_NAME thermofun)

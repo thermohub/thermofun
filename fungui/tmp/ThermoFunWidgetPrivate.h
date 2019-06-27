@@ -8,7 +8,7 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../src/Interfaces/Interface.h"
+#include "../src/Batch/ThermoBatch.h"
 #include "../src/DBClient/ReactionData.h"
 #include "../src/DBClient/ReactionSetData.h"
 #include "../src/DBClient/SubstanceData.h"
@@ -16,7 +16,7 @@
 #include "../src/Substance.h"
 #endif
 #ifndef FROM_SRC
-#include "thermofun/Interfaces/Interface.h"
+#include "thermofun/Batch/ThermoBatch.h"
 #include "thermofun/DBClient/ReactionData.h"
 #include "thermofun/DBClient/ReactionSetData.h"
 #include "thermofun/DBClient/SubstanceData.h"
