@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <array>
 
 #include "ThermoProperties.h"
 #include "Database.h"

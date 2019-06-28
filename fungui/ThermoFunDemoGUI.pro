@@ -51,7 +51,7 @@ INCLUDEPATH   += $$FUN_DIR
 
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib/"
+LIBPATH += "/usr/local/lib"
 
 #temporary
 macx-clang {
@@ -73,7 +73,7 @@ LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 #LIBS += -lapp-static -lhunspell -lmarkdown
 LIBS +=  -lcurl  -lvelocypack -lthrift
-LIBS += -llua5.3
+#LIBS += -llua5.3
 
 
 MOC_DIR = tmp
