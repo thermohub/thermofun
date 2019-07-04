@@ -23,11 +23,7 @@ class TThermoFunMainWin : public QMainWindow
     /// Open new JSONUIWidget window
     void newSchemaWin(const char* testschema );
 
-    void closeEvent(QCloseEvent* e)
-    {
-      closeAll();
-      QWidget::closeEvent(e);
-    }
+    void closeEvent(QCloseEvent* e);
 
 
 public slots:

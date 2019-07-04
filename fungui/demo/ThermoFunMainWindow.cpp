@@ -150,9 +150,17 @@ void TThermoFunMainWin::newSchemaWin(const char* testschema )
     }
 }
 
+void TThermoFunMainWin::closeEvent(QCloseEvent *e)
+{
+    if( HelpMainWindow::pDia )
+       delete HelpMainWindow::pDia;
+    closeAll();
+    QWidget::closeEvent(e);
+}
+
 void TThermoFunMainWin::CmHelpContens()
 {
-  helpWin( "ThermoFun", "" );
+    helpWin( "ThermoFun", "" );
 }
 
 void TThermoFunMainWin::CmHelpAbout()
