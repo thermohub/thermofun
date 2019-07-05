@@ -115,9 +115,11 @@ struct SelectThermoDataDialogPrivate
 
         // build solvents table
         solventValues.clear();
+        std::map<std::string, std::size_t> name_datindex = _dbclient.substData().getDataName_DataIndex();
         for( auto subRecord: subData )
         {
-            if( subRecord[_dbclient.substData().getDataName_DataIndex()["class_"]]  == "{\"3\":\"SC_AQSOLVENT\"}" )
+            size_t x = name_datindex["class_"];
+            if( subRecord[x]  == "{\"3\":\"SC_AQSOLVENT\"}" )
                 solventValues.push_back(subRecord);
         }
 

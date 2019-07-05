@@ -6,15 +6,15 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../thermofun/Common/formuladata.h"
-#include "../thermofun/Element.h"
-#include "../thermofun/Database.h"
-#include "../thermofun/Common/ParseJsonToData.h"
+#include "../ThermoFun/Common/formuladata.h"
+#include "../ThermoFun/Element.h"
+#include "../ThermoFun/Database.h"
+#include "../ThermoFun/Common/ParseJsonToData.h"
 #else
-#include "thermofun/Common/formuladata.h"
-#include "thermofun/Element.h"
-#include "thermofun/Common/ParseJsonToData.h"
-#include "thermofun/Database.h"
+#include "ThermoFun/Common/formuladata.h"
+#include "ThermoFun/Element.h"
+#include "ThermoFun/Common/ParseJsonToData.h"
+#include "ThermoFun/Database.h"
 #endif
 
 using namespace std;
@@ -340,6 +340,19 @@ void setDBElements( jsonio::TDBVertexDocument* elementDB, const jsonio::DBQueryD
     }
     if (elements_map.size()>0)
         ChemicalFormula::setDBElements( elements_map );
+}
+
+vector<ElementKey> getElementKeys( jsonio::TDBVertexDocument* elementDB, const vector<string>& idList )
+{
+  vector<ElementKey> elements;
+
+  for(uint ii=0; ii<idList.size(); ii++ )
+  {
+    elementDB->Read( idList[ii] );
+    elements.push_back(ElementKeyFromDB(elementDB));
+  }
+
+  return elements;
 }
 
 }

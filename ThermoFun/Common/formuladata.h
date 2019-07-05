@@ -32,7 +32,7 @@ public:
   }
 
   /// Construct key from elements document fields values
-//  ElementKey( const std::string& asymbol, const std::string& aclass_, const std::string& aisotope  );
+  ElementKey( const std::string& asymbol, const std::string& aclass_, const std::string& aisotope  );
 
   /// Construct key from element description json string
   //ElementKey(  const std::string& elementjson );

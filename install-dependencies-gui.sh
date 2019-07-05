@@ -7,7 +7,7 @@
 chmod u+x install-dependencies.sh
 ./install-dependencies.sh
 
-sudo apt-get install -y lua5.3-dev libboost-all-dev libcurl4-openssl-dev libboost-test-dev automake flex bison libssl-dev libgl-dev
+sudo apt-get install -y lua5.3-dev libboost-all-dev libcurl4-openssl-dev libboost-test-dev automake flex bison libssl-dev libgl-dev libmarkdown2-dev
 
 # Uncomment what is necessary to reinstall by force 
 #sudo rm -f /usr/local/lib/pugixml.so

@@ -9,9 +9,9 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../thermofun/OptimizationUtils.h"
+#include "../ThermoFun/OptimizationUtils.h"
 #else
-#include "thermofun/OptimizationUtils.h"
+#include "ThermoFun/OptimizationUtils.h"
 #endif
 
 using namespace std;

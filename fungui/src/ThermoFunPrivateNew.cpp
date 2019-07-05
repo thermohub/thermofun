@@ -6,21 +6,21 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../thermofun/Database.h"
+#include "../ThermoFun/Database.h"
 #include "../DBClient/TraversalData.h"
 #include "../DBClient/ReactionData.h"
 #include "../DBClient/ReactionSetData.h"
-#include "../thermofun/Batch/OutputBatch.h"
-//#include "../thermofun/Common/ParseBsonTraversalData.h"
-#include "../thermofun/Common/ParseJsonToData.h"
+#include "../ThermoFun/Batch/OutputBatch.h"
+//#include "../ThermoFun/Common/ParseBsonTraversalData.h"
+#include "../ThermoFun/Common/ParseJsonToData.h"
 #else
-#include "thermofun/Database.h"
+#include "ThermoFun/Database.h"
 #include "thermodbclient/TraversalData.h"
 #include "thermodbclient/ReactionData.h"
 #include "thermodbclient/ReactionSetData.h"
-#include "thermofun/Interfaces/Output.h"
-//#include "thermofun/Common/ParseBsonTraversalData.h"
-#include "thermofun/Common/ParseJsonToData.h"
+#include "ThermoFun/Interfaces/Output.h"
+//#include "ThermoFun/Common/ParseBsonTraversalData.h"
+#include "ThermoFun/Common/ParseJsonToData.h"
 #endif
 
 ThermoFunData::ThermoFunData()

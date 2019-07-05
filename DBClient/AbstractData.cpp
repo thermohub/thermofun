@@ -6,9 +6,9 @@
 #include "jsonio/jsondomfree.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../thermofun/OptimizationUtils.h"
+#include "../ThermoFun/OptimizationUtils.h"
 #else
-#include "thermofun/OptimizationUtils.h"
+#include "ThermoFun/OptimizationUtils.h"
 #endif
 #include "sourcetdb.h"
 
@@ -247,7 +247,9 @@ AbstractData::AbstractData( const jsonio::TDataBase* dbconnect, const string &na
 
 AbstractData::AbstractData(const AbstractData& other)
     : pimpl(new Impl(*other.pimpl))
-{}
+{
+    resetDataPathIndex();
+}
 
 AbstractData::~AbstractData()
 { }

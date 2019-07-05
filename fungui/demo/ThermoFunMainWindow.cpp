@@ -10,10 +10,10 @@
 #include "ui_ThermoFunMainWindow.h"
 #include "ThermoFunWidgetNew.h"
 #ifdef FROM_SRC
-#include "../thermofun/Common/formuladata.h"
+#include "../ThermoFun/Common/formuladata.h"
 #include "../DBClient/ElementData.h"
 #else
-#include "thermofun/Common/formuladata.h"
+#include "ThermoFun/Common/formuladata.h"
 #include "thermodbclient/ElementData.h"
 #endif
 

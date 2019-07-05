@@ -1,8 +1,8 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project
-project(thermodbclient)
+project(thermodbclient VERSION 0.1.5 LANGUAGES CXX)
 
 find_library(BOOSTRE_LIB boost_regex)
 if(NOT BOOSTRE_LIB)

@@ -50,7 +50,7 @@ bool ElementsKeysFromJsonDomArray( const std::string& keypath, const jsonio::Jso
 auto ElementsKeysToJson( const std::set<ElementKey>& elements ) -> std::string;
 void setDBElements( jsonio::TDBVertexDocument* elementDB,
                              const jsonio::DBQueryData& query =  jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate ) );
-
+auto getElementKeys( jsonio::TDBVertexDocument* elementDB, const std::vector<std::string>& idList ) -> std::vector<ElementKey>;
 }
 
 #endif // ELEMENTDATA_H

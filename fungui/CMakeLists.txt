@@ -1,13 +1,13 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
+
+# Set the name of the project
+project(thermofungui VERSION 0.1.5 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 #set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 #set(CMAKE_MACOSX_RPATH ON)
-
-# Set the name of the project
-project(thermofungui)
 
 find_package(Qt5Widgets REQUIRED)
 if ( NOT Qt5Widgets_FOUND )

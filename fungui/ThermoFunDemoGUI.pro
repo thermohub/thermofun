@@ -25,7 +25,7 @@ DEFINES += FROM_SRC
 }else
 {
 # DEFINES  +=  IMPEX_OFF
- DEFINES  +=  NO_QWEBENGINE
+#DEFINES  +=  NO_QWEBENGINE
 }
 
 QT   += core gui widgets
@@ -39,7 +39,7 @@ QT   += charts
 
 # Define the directory where source code is located
 #THRIFT_DIR    = ./thrift
-FUN_DIR       = ../thermofun
+FUN_DIR       = ../ThermoFun
 FUN_CPP       = $$FUN_DIR
 FUN_H         = $$FUN_DIR
 GUI_DIR       = ./src
@@ -98,8 +98,11 @@ else
 
 
 LIBS +=  -ljsonui -ljsonio -ljsonimpex
+LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
-LIBS +=  -lcurl  -lvelocypack
+LIBS +=  -lcurl  -lvelocypack -lthrift
+!macx-clang:LIBS += -llua5.3
+
 
 
 MOC_DIR = tmp

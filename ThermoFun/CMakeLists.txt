@@ -15,7 +15,7 @@ add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
 if( NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
   # Find library and software dependencies
-  find_package(Boost 1.70.0 REQUIRED)
+  find_package(Boost 1.65.1 REQUIRED)
   find_package(nlohmann_json 3.6.1 REQUIRED)
 
 

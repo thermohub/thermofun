@@ -8,17 +8,17 @@
 #include "containers.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../thermofun/Batch/ThermoBatch.h"
+#include "../ThermoFun/Batch/ThermoBatch.h"
 #include "../DBClient/DatabaseClient.h"
 #include "../DBClient/SubstanceData.h"
-#include "../thermofun/Reaction.h"
-#include "../thermofun/Substance.h"
+#include "../ThermoFun/Reaction.h"
+#include "../ThermoFun/Substance.h"
 #else
-#include "thermofun/Batch/ThermoBatch.h"
+#include "ThermoFun/Batch/ThermoBatch.h"
 #include "thermodbclient/DatabaseClient.h"
 #include "thermodbclient/SubstanceData.h"
-#include "thermofun/Reaction.h"
-#include "thermofun/Substance.h"
+#include "ThermoFun/Reaction.h"
+#include "ThermoFun/Substance.h"
 #endif
 
 using MapLevelReaction             = map<string, ThermoFun::Reaction>;

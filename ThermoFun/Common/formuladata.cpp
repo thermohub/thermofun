@@ -45,14 +45,15 @@ ElementKey::ElementKey( jsonio::TDBVertexDocument* elementDB )
 }*/
 
 // Construct key from elements document values
-//ElementKey::ElementKey( const std::string& asymbol, const int& aclass_, const std::string& aisotope  ):
-//    symbol(asymbol)
-//{
-//    isotope = 0;
-//    if( !aisotope.empty() )
-//           isotope = stoi(aisotope);
-//    class_ = index_from_map( aclass_ );
-//}
+ElementKey::ElementKey(const std::string& asymbol, const string &aclass_, const std::string& aisotope  ):
+    symbol(asymbol)
+{
+    json j = json::parse(aclass_);
+    isotope = 0;
+    if( !aisotope.empty() )
+           isotope = stoi(aisotope);
+    class_ = class_ = stoi(j.begin().key());
+}
 
 void ElementKey::classIsotopeFrom(const string& typeline)
 {
@@ -133,7 +134,7 @@ void ElementKey::fromElementNode( const std::string& element )
   else
     isotope = 0;
   if (j.contains("class_"))
-    class_ = j["class_"].get<int>();
+    class_ = stoi(j["class_"].begin().key());
   else
     class_ = 0;
 }

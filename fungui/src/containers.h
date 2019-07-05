@@ -5,10 +5,10 @@
 #include "model_reactions.h"
 
 #ifdef FROM_SRC
-#include "../thermofun/Common/formuladata.h"
+#include "../ThermoFun/Common/formuladata.h"
 #endif
 #ifndef FROM_SRC
-#include "thermofun/Common/formuladata.h"
+#include "ThermoFun/Common/formuladata.h"
 #endif
 
 /// Class  Elements table data container

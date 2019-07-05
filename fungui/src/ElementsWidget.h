@@ -4,10 +4,10 @@
 #include <QWidget>
 #include <QButtonGroup>
 #ifdef FROM_SRC
-#include "../../thermofun/Common/formuladata.h"
+#include "../../ThermoFun/Common/formuladata.h"
 #endif
 #ifndef FROM_SRC
-#include "thermofun/Common/formuladata.h"
+#include "ThermoFun/Common/formuladata.h"
 #endif
 
 namespace Ui {

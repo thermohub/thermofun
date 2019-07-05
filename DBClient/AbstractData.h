@@ -6,9 +6,9 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../thermofun/Common/formuladata.h"
+#include "../ThermoFun/Common/formuladata.h"
 #else
-#include "thermofun/Common/formuladata.h"
+#include "ThermoFun/Common/formuladata.h"
 #endif
 #include "jsonio/dbconnect.h"
 #include "jsonio/dbedgedoc.h"
