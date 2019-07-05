@@ -20,40 +20,40 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "C
 endif()
 
 
-# Set some necessary definitions to compile BSONUI
+# Set some necessary definitions to compile JSONUI
 add_definitions(-DFROM_SRC)
 
-set(thermofungui_SOURCES ${SOURCE_FILES} )
-set(thermofungui_HEADERS ${HEADER_FILES} )
-set(thermofungui_FORMS ${UI_FILES})
+set(ThermoFunGui_SOURCES ${SOURCE_FILES} )
+set(ThermoFunGui_HEADERS ${HEADER_FILES} )
+set(ThermoFunGui_FORMS ${UI_FILES})
 
-qt5_wrap_cpp(thermofungui_HEADERS_MOC ${thermofungui_HEADERS})
-qt5_wrap_ui(thermofungui_FORMS_HEADERS ${thermofungui_FORMS})
+qt5_wrap_cpp(ThermoFunGui_HEADERS_MOC ${ThermoFunGui_HEADERS})
+qt5_wrap_ui(ThermoFunGui_FORMS_HEADERS ${ThermoFunGui_FORMS})
 
 set(RESOURCE ${QRC_FILES})
-qt5_add_resources(thermofungui_SRCS ${RESOURCE})
+qt5_add_resources(ThermoFunGui_SRCS ${RESOURCE})
 #qt5_add_binary_resources(target inputfile ... OPTIONS ... DESTINATION ...)
 
-include_directories(${CMAKE_BINARY_DIR}/fungui/src)
-include_directories(${CMAKE_BINARY_DIR}/../DBClient)
+include_directories(${CMAKE_BINARY_DIR}/ThermoFunGui/src)
+include_directories(${CMAKE_BINARY_DIR}/../ThermoHubClient)
 # access to thirdpary includes
 include_directories(${CMAKE_BINARY_DIR}/../../../include)
 
 # Create the shared library using the collected source files
-add_library(THERMOFUNGUI_OBJECTS OBJECT ${thermofungui_HEADERS} ${thermofungui_SOURCES} ${thermofungui_HEADERS_MOC} ${thermofungui_FORMS_HEADERS} ${thermofungui_SRCS} )
+add_library(THERMOFUNGUI_OBJECTS OBJECT ${ThermoFunGui_HEADERS} ${ThermoFunGui_SOURCES} ${ThermoFunGui_HEADERS_MOC} ${ThermoFunGui_FORMS_HEADERS} ${ThermoFunGui_SRCS} )
 #target_link_libraries(BSONUI_OBJECTS Qt5::Widgets Qt5::Core Qt5::Gui)
 
 # Specify the dependencies of BSONIO to ensure proper build sequence
-#add_dependencies(thermofungui_OBJECTS ${THIRDPARTY_TARGETS})
+#add_dependencies(ThermoFunGui_OBJECTS ${THIRDPARTY_TARGETS})
 
 # Check if a shared library is to be built
 if(TFUN_BUILD_SHARED_LIBS)
     add_library(THERMOFUNGUI_SHARED SHARED $<TARGET_OBJECTS:THERMOFUNGUI_OBJECTS>)
     target_link_libraries(THERMOFUNGUI_SHARED ${THIRDPARTY_LIBS} )
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    target_link_libraries(THERMOFUNGUI_SHARED Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts thrift jsonio jsonui ThermoFun thermodbclient )
+    target_link_libraries(THERMOFUNGUI_SHARED Qt5::Widgets Qt5::Core Qt5::WebEngineWidgets Qt5::Gui Qt5::PrintSupport Qt5::Charts thrift jsonio jsonui ThermoFun::ThermoFun ThermoHubClient )
 endif()
-    set_target_properties(THERMOFUNGUI_SHARED PROPERTIES OUTPUT_NAME thermofungui)
+    set_target_properties(THERMOFUNGUI_SHARED PROPERTIES OUTPUT_NAME ThermoFunGui)
     install(TARGETS THERMOFUNGUI_SHARED DESTINATION lib)
 endif()
 
@@ -61,10 +61,10 @@ endif()
 if(TFUN_BUILD_STATIC_LIBS)
     add_library(THERMOFUNGUI_STATIC STATIC $<TARGET_OBJECTS:THERMOFUNGUI_OBJECTS>)
     target_link_libraries(THERMOFUNGUI_STATIC ${THIRDPARTY_LIBS} )
-    set_target_properties(THERMOFUNGUI_STATIC PROPERTIES OUTPUT_NAME thermofungui)
+    set_target_properties(THERMOFUNGUI_STATIC PROPERTIES OUTPUT_NAME ThermoFunGui)
     install(TARGETS THERMOFUNGUI_STATIC DESTINATION lib)
 endif()
 
 # Install the header files preserving the directory hierarchy
 install(FILES ${HEADER_FILES}
-        DESTINATION include/thermofungui )
+        DESTINATION include/ThermoFunGui )

@@ -1,5 +1,5 @@
 import PyThermoFun
-import PyThermoDBClient
+import PyThermoHubClient
 
 properties = PyThermoFun.ThermoPropertiesSubstance
 
@@ -41,16 +41,16 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
                                ).toCSV("results.csv")                               # // output
 
-PyThermoDBClient.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
+PyThermoHubClient.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
 
 print("\n# Initialize a database client object\n")
-dbc = PyThermoDBClient.DatabaseClient()
+dbc = PyThermoHubClient.DatabaseClient()
 
 print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
 records = dbc.recordsFromThermoDataSet("Cemdata18") 
 
 print("\n# Create a ThermoFun database using the records list\n")
-db = PyThermoDBClient.databaseFromRecordList(dbc, records)
+db = PyThermoHubClient.databaseFromRecordList(dbc, records)
 
 print("\n# Initialize an interface object using the database\n")
 batch2 = PyThermoFun.ThermoBatch(db)

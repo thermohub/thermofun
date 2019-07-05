@@ -8,15 +8,15 @@
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../ThermoFun/Common/formuladata.h"
-#include "../DBClient/DatabaseClient.h"
-#include "../DBClient/ReactionSetData.h"
-#include "../DBClient/SubstanceData.h"
+#include "../ThermoHubClient/DatabaseClient.h"
+#include "../ThermoHubClient/ReactionSetData.h"
+#include "../ThermoHubClient/SubstanceData.h"
 #endif
 #ifndef FROM_SRC
 #include "ThermoFun/Common/formuladata.h"
-#include "thermodbclient/DatabaseClient.h"
-#include "thermodbclient/ReactionSetData.h"
-#include "thermodbclient/SubstanceData.h"
+#include "ThermoHubClient/DatabaseClient.h"
+#include "ThermoHubClient/ReactionSetData.h"
+#include "ThermoHubClient/SubstanceData.h"
 #endif
 
 namespace Ui {
@@ -51,7 +51,7 @@ protected slots:
 
 public:
 
-    explicit SelectElementsDialog(ThermoFun::DatabaseClient dbclient, QWidget *parent = 0);
+    explicit SelectElementsDialog(ThermoFun::DatabaseClient ThermoHubClient, QWidget *parent = 0);
     ~SelectElementsDialog();
 
     void setData( int sourcetdb, const std::vector<ThermoFun::ElementKey>& elementKeys, const std::string& idRcSet );

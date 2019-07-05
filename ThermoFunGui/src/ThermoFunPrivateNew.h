@@ -9,14 +9,14 @@
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../ThermoFun/Batch/ThermoBatch.h"
-#include "../DBClient/DatabaseClient.h"
-#include "../DBClient/SubstanceData.h"
+#include "../ThermoHubClient/DatabaseClient.h"
+#include "../ThermoHubClient/SubstanceData.h"
 #include "../ThermoFun/Reaction.h"
 #include "../ThermoFun/Substance.h"
 #else
 #include "ThermoFun/Batch/ThermoBatch.h"
-#include "thermodbclient/DatabaseClient.h"
-#include "thermodbclient/SubstanceData.h"
+#include "ThermoHubClient/DatabaseClient.h"
+#include "ThermoHubClient/SubstanceData.h"
 #include "ThermoFun/Reaction.h"
 #include "ThermoFun/Substance.h"
 #endif
@@ -170,7 +170,7 @@ public slots:
 
 public:
 
-   ThermoFun::DatabaseClient dbclient;
+   ThermoFun::DatabaseClient ThermoHubClient;
 
    ThermoFunPrivateNew( ThermoFunWidgetNew* awindow );
 
@@ -229,7 +229,7 @@ public:
 
    std::map<std::string, std::size_t>  getSubstDataIndex()
    {
-       return dbclient.substData().getDataName_DataIndex();
+       return ThermoHubClient.substData().getDataName_DataIndex();
    }
 
    void retrieveConnectedDataSymbols(const vector<string>& substKeys, const vector<string>& reactKeys,

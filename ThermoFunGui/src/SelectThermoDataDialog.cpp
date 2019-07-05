@@ -9,15 +9,15 @@
 
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../DBClient/ThermoSetData.h"
-#include "../DBClient/SubstanceData.h"
-#include "../DBClient/ReactionData.h"
-#include "../DBClient/ReactionSetData.h"
+#include "../ThermoHubClient/ThermoSetData.h"
+#include "../ThermoHubClient/SubstanceData.h"
+#include "../ThermoHubClient/ReactionData.h"
+#include "../ThermoHubClient/ReactionSetData.h"
 #else
-#include "thermodbclient/ThermoSetData.h"
-#include "thermodbclient/SubstanceData.h"
-#include "thermodbclient/ReactionData.h"
-#include "tthermodbclient/ReactionSetData.h"
+#include "ThermoHubClient/ThermoSetData.h"
+#include "ThermoHubClient/SubstanceData.h"
+#include "ThermoHubClient/ReactionData.h"
+#include "tThermoHubClient/ReactionSetData.h"
 #endif
 
 using namespace std;
@@ -30,7 +30,7 @@ struct SelectThermoDataDialogPrivate
     /// Link to top level widget
     SelectThermoDataDialog* _window;
     /// Connect to DatabaseClient for requests
-    ThermoFun::DatabaseClient& _dbclient;
+    ThermoFun::DatabaseClient& _ThermoHubClient;
 
     // Thermodata selection containers
     std::shared_ptr<ThermoViewModel>  thermoModel;
@@ -55,14 +55,14 @@ struct SelectThermoDataDialogPrivate
 
     // ---------------------------------------------
 
-    SelectThermoDataDialogPrivate(SelectThermoDataDialog* awindow, ThermoFun::DatabaseClient& adbclient):
-        _window(awindow), _dbclient( adbclient ), idThermoDataSet("")
+    SelectThermoDataDialogPrivate(SelectThermoDataDialog* awindow, ThermoFun::DatabaseClient& aThermoHubClient):
+        _window(awindow), _ThermoHubClient( aThermoHubClient ), idThermoDataSet("")
     {
         sourceTDBs.clear();
-        thermoModel.reset(new ThermoViewModel( &_dbclient.thermoDataSet() , _window ));
-        substModel.reset(new ThermoViewModel( &_dbclient.substData(), _window ));
-        reactModel.reset(new ThermoViewModel( &_dbclient.reactData(), _window ));
-        rcsetModel.reset(new ThermoViewModel( &_dbclient.reactSetData(), _window ));
+        thermoModel.reset(new ThermoViewModel( &_ThermoHubClient.thermoDataSet() , _window ));
+        substModel.reset(new ThermoViewModel( &_ThermoHubClient.substData(), _window ));
+        reactModel.reset(new ThermoViewModel( &_ThermoHubClient.reactData(), _window ));
+        rcsetModel.reset(new ThermoViewModel( &_ThermoHubClient.reactSetData(), _window ));
     }
 
     ~SelectThermoDataDialogPrivate()
@@ -70,19 +70,19 @@ struct SelectThermoDataDialogPrivate
 
     vector<string> getSourcetdbList()
     {
-        return _dbclient.sourcetdbListAll();
+        return _ThermoHubClient.sourcetdbListAll();
     }
 
     bool makeAvailableElementsListA( size_t selrow )
     {
         auto matr = thermoModel->getValues();
-        string idThermo = matr[selrow][_dbclient.thermoDataSet().getDataName_DataIndex()["_id"]];
-        auto elmnts = _dbclient.thermoDataSet().getElementsList(idThermo);
+        string idThermo = matr[selrow][_ThermoHubClient.thermoDataSet().getDataName_DataIndex()["_id"]];
+        auto elmnts = _ThermoHubClient.thermoDataSet().getElementsList(idThermo);
         elementsAll.clear();
         if( !elmnts.empty() )
         {
             idThermoDataSet = idThermo;
-            sourceTDBs  = _dbclient.thermoDataSet().sourceTDBs(idThermoDataSet);
+            sourceTDBs  = _ThermoHubClient.thermoDataSet().sourceTDBs(idThermoDataSet);
             elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
         }
         return true;
@@ -91,7 +91,7 @@ struct SelectThermoDataDialogPrivate
     bool makeAvailableElementsListB( const vector<int>& sourcetdbs )
     {
         sourceTDBs  = sourcetdbs;
-        auto elmnts = _dbclient.thermoDataSet().selectElementsFromSubstancesGiven( sourceTDBs );
+        auto elmnts = _ThermoHubClient.thermoDataSet().selectElementsFromSubstancesGiven( sourceTDBs );
         elementsAll.clear();
         if( !elmnts.empty() )
             elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
@@ -109,13 +109,13 @@ struct SelectThermoDataDialogPrivate
         vector<string> substanceSymbols;
 
         // search for solvent in all ThermoDataSet
-        substanceSymbols = _dbclient.substData().selectGiven( {idThermoDataSet}, false );
-        const jsonio::ValuesTable& subData = _dbclient.substData().getValuesTable();
+        substanceSymbols = _ThermoHubClient.substData().selectGiven( {idThermoDataSet}, false );
+        const jsonio::ValuesTable& subData = _ThermoHubClient.substData().getValuesTable();
         substModel->loadModeRecords( subData );
 
         // build solvents table
         solventValues.clear();
-        std::map<std::string, std::size_t> name_datindex = _dbclient.substData().getDataName_DataIndex();
+        std::map<std::string, std::size_t> name_datindex = _ThermoHubClient.substData().getDataName_DataIndex();
         for( auto subRecord: subData )
         {
             size_t x = name_datindex["class_"];
@@ -124,11 +124,11 @@ struct SelectThermoDataDialogPrivate
         }
 
         if( typeA )
-            substanceSymbols = _dbclient.substData().selectGiven( idThermoDataSet, elements, false );
+            substanceSymbols = _ThermoHubClient.substData().selectGiven( idThermoDataSet, elements, false );
         else
-            substanceSymbols = _dbclient.substData().selectGiven( sourceTDBs, elements, unique );
+            substanceSymbols = _ThermoHubClient.substData().selectGiven( sourceTDBs, elements, unique );
 
-        const jsonio::ValuesTable& subData2 = _dbclient.substData().getValuesTable();
+        const jsonio::ValuesTable& subData2 = _ThermoHubClient.substData().getValuesTable();
 
         substModel->loadModeRecords( subData2 );
     }
@@ -136,34 +136,34 @@ struct SelectThermoDataDialogPrivate
     void loadReactionRecords( bool typeA, const std::set<size_t>& substSelectedRows, bool unique )
     {
         vector<string> reactSymbols;
-        auto substanceSymbols = substModel->getColumn( _dbclient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
+        auto substanceSymbols = substModel->getColumn( _ThermoHubClient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
         if( typeA )
-            reactSymbols = _dbclient.reactData().selectGiven( idThermoDataSet, substanceSymbols );
+            reactSymbols = _ThermoHubClient.reactData().selectGiven( idThermoDataSet, substanceSymbols );
         else
-            reactSymbols = _dbclient.reactData().selectGiven( sourceTDBs, substanceSymbols, unique );
+            reactSymbols = _ThermoHubClient.reactData().selectGiven( sourceTDBs, substanceSymbols, unique );
 
-        reactModel->loadModeRecords( _dbclient.reactData().getValuesTable() );
+        reactModel->loadModeRecords( _ThermoHubClient.reactData().getValuesTable() );
     }
 
     void loadReacSetRecords( bool typeA, const std::set<size_t>& reactSelectedRows, bool unique )
     {
         vector<string> scsetSymbols;
-        auto reactSymbols = reactModel->getColumn( _dbclient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
+        auto reactSymbols = reactModel->getColumn( _ThermoHubClient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
         if( typeA )
-            scsetSymbols = _dbclient.reactSetData().selectGiven( idThermoDataSet, reactSymbols );
+            scsetSymbols = _ThermoHubClient.reactSetData().selectGiven( idThermoDataSet, reactSymbols );
         else
-            scsetSymbols = _dbclient.reactSetData().selectGiven( sourceTDBs, reactSymbols, unique );
+            scsetSymbols = _ThermoHubClient.reactSetData().selectGiven( sourceTDBs, reactSymbols, unique );
 
-        rcsetModel->loadModeRecords( _dbclient.reactSetData().getValuesTable() );
+        rcsetModel->loadModeRecords( _ThermoHubClient.reactSetData().getValuesTable() );
     }
 
 };
 
 //===========================================================================
 
-SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent) :
+SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& ThermoHubClient, QWidget *parent) :
     QDialog(parent), useCase(acase),
-    ui(new Ui::SelectThermoData), pdata(new SelectThermoDataDialogPrivate( this, dbclient))
+    ui(new Ui::SelectThermoData), pdata(new SelectThermoDataDialogPrivate( this, ThermoHubClient))
 {
     updateFrom = 0;
     ui->setupUi(this);
@@ -202,8 +202,8 @@ SelectThermoDataDialog::SelectThermoDataDialog( char acase, ThermoFun::DatabaseC
 
 SelectThermoDataDialog::SelectThermoDataDialog( const std::string& aThermoDataSet,
                                                 const std::vector<ThermoFun::ElementKey>& elementKeys,
-                                                ThermoFun::DatabaseClient& dbclient, QWidget *parent ):
-    SelectThermoDataDialog('A', dbclient, parent )
+                                                ThermoFun::DatabaseClient& ThermoHubClient, QWidget *parent ):
+    SelectThermoDataDialog('A', ThermoHubClient, parent )
 {
     // set old selection
     selectA( aThermoDataSet, elementKeys  );
@@ -211,8 +211,8 @@ SelectThermoDataDialog::SelectThermoDataDialog( const std::string& aThermoDataSe
 
 SelectThermoDataDialog::SelectThermoDataDialog( const std::vector<int>& sourcetdbs,
                                                 const std::vector<ThermoFun::ElementKey>& elementKeys,
-                                                ThermoFun::DatabaseClient& dbclient, QWidget *parent ):
-    SelectThermoDataDialog('B', dbclient, parent )
+                                                ThermoFun::DatabaseClient& ThermoHubClient, QWidget *parent ):
+    SelectThermoDataDialog('B', ThermoHubClient, parent )
 {
     // set old selection
     selectB( sourcetdbs, elementKeys  );
@@ -579,7 +579,7 @@ void SelectThermoDataDialog::selectRows( jsonui::TMatrixTable *dataTable, const 
 
 void SelectThermoDataDialog::selectA( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys  )
 {
-    auto row = pdata->thermoModel->findRow( pdata->_dbclient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet, true );
+    auto row = pdata->thermoModel->findRow( pdata->_ThermoHubClient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet, true );
     thermoTable->setCurrentRow( row );
     pdata->elementsSelected = elementKeys;
 }

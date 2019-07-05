@@ -9,7 +9,7 @@ include_directories(${PROJECT_SOURCE_DIR}/python)
 pybind11_add_module(PyThermoHubClient ${SOURCE_FILES} NO_EXTRAS) # NO_EXTRAS used to decrease linking time, but causes larger module file size
 
 # Link PyThermoFun against ThermoFun library
-target_link_libraries(PyThermoHubClient LINK_PRIVATE THERMOFUN_SHARED)
+target_link_libraries(PyThermoHubClient LINK_PRIVATE ThermoFun::ThermoFun)
 # Link PyThermoFun against ThermoFun library
 target_link_libraries(PyThermoHubClient LINK_PRIVATE THERMOHUBCLIENT_SHARED)
 

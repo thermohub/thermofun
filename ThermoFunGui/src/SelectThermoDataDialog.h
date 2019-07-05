@@ -6,9 +6,9 @@
 #include "jsonui/SelectDialog.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../DBClient/DatabaseClient.h"
+#include "../ThermoHubClient/DatabaseClient.h"
 #else
-#include "thermodbclient/DatabaseClient.h"
+#include "ThermoHubClient/DatabaseClient.h"
 #endif
 
 namespace Ui {
@@ -52,12 +52,12 @@ protected slots:
 
 public:
 
-    explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& dbclient, QWidget *parent = nullptr);
+    explicit SelectThermoDataDialog( char acase, ThermoFun::DatabaseClient& ThermoHubClient, QWidget *parent = nullptr);
 
     SelectThermoDataDialog( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys,
-                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = nullptr);
+                            ThermoFun::DatabaseClient& ThermoHubClient, QWidget *parent = nullptr);
     SelectThermoDataDialog( const std::vector<int>& sourcetdbs, const std::vector<ThermoFun::ElementKey>& elementKeys,
-                            ThermoFun::DatabaseClient& dbclient, QWidget *parent = nullptr);
+                            ThermoFun::DatabaseClient& ThermoHubClient, QWidget *parent = nullptr);
 
     ~SelectThermoDataDialog();
 

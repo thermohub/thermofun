@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 
-TARGET = ThermoFunDemoGUI
+TARGET = ThermoFunDemoGui
 TEMPLATE = app
 
 CONFIG += thread
@@ -45,7 +45,7 @@ FUN_H         = $$FUN_DIR
 GUI_DIR       = ./src
 GUI_CPP       = $$GUI_DIR
 GUI_H         = $$GUI_DIR
-CLIENT_DIR = ../DBClient
+CLIENT_DIR = ../ThermoHubClient
 CLIENT_CPP = $$CLIENT_DIR
 CLIENT_H   = $$CLIENT_DIR
 #GUI_CPP       =  ./GUI
@@ -113,12 +113,12 @@ OBJECTS_DIR   = obj
 
 #include($$THRIFT_DIR/thrift.pri)
 #include($$GEN_DIR/generator.pri)
-include($$GUI_DIR/ThermoFunGUI.pri)
-include($$CLIENT_DIR/ThermoDBClient.pri)
+include($$GUI_DIR/ThermoFunGui.pri)
+include($$CLIENT_DIR/ThermoHubClient.pri)
 include($$FUN_DIR/ThermoFun.pri)
 
 RESOURCES += \
-    ThermoFunDemoGUI.qrc
+    ThermoFunGuiDemo.qrc
 
 #thrift -r -v --gen cpp
 

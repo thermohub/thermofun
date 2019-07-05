@@ -24,7 +24,7 @@ option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
 option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." ON)
-option(TFUN_BUILD_DEMOGUI "Build ThermoFunGui demo." OFF)
+option(TFUN_BUILD_GUIDEMO "Build ThermoFunGui demo." OFF)
 option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
@@ -35,12 +35,12 @@ if(TFUN_BUILD_ALL MATCHES ON)
 #   set(TFUN_BUILD_TESTS                ON)
     set(TFUN_BUILD_GUI                  ON)
     set(TFUN_BUILD_HUBCLIENT            ON)
-    set(TFUN_BUILD_DEMOGUI              ON)
+    set(TFUN_BUILD_GUIDEMO              ON)
     set(TFUN_BUILD_PYTHON               ON)
 endif()
 
 # DBClient is necessary when building the GUI DEMO
-if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_DEMOGUI MATCHES ON)
+if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_GUIDEMO MATCHES ON)
     set(TFUN_BUILD_HUBCLIENT             ON)
 endif()
 
@@ -106,16 +106,16 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 
 # Build ThermoFunGui library
 if(TFUN_BUILD_HUBCLIENT)
-    add_subdirectory(DBClient)
+    add_subdirectory(ThermoHubClient)
 #else()
-#    add_subdirectory(fungui EXCLUDE_FROM_ALL)
+#    add_subdirectory(ThermoHubClient EXCLUDE_FROM_ALL)
 endif()
 
 # Build ThermoFunGui library
 if(TFUN_BUILD_GUI)
-    add_subdirectory(fungui)
+    add_subdirectory(ThermoFunGui)
 #else()
-#    add_subdirectory(fungui EXCLUDE_FROM_ALL)
+#    add_subdirectory(ThermoFunGui EXCLUDE_FROM_ALL)
 endif()
 
 # Build python wraper

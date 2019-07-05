@@ -7,17 +7,17 @@
 // ThermoFun includes
 #ifdef FROM_SRC
 #include "../ThermoFun/Database.h"
-#include "../DBClient/TraversalData.h"
-#include "../DBClient/ReactionData.h"
-#include "../DBClient/ReactionSetData.h"
+#include "../ThermoHubClient/TraversalData.h"
+#include "../ThermoHubClient/ReactionData.h"
+#include "../ThermoHubClient/ReactionSetData.h"
 #include "../ThermoFun/Batch/OutputBatch.h"
 //#include "../ThermoFun/Common/ParseBsonTraversalData.h"
 #include "../ThermoFun/Common/ParseJsonToData.h"
 #else
 #include "ThermoFun/Database.h"
-#include "thermodbclient/TraversalData.h"
-#include "thermodbclient/ReactionData.h"
-#include "thermodbclient/ReactionSetData.h"
+#include "ThermoHubClient/TraversalData.h"
+#include "ThermoHubClient/ReactionData.h"
+#include "ThermoHubClient/ReactionSetData.h"
 #include "ThermoFun/Interfaces/Output.h"
 //#include "ThermoFun/Common/ParseBsonTraversalData.h"
 #include "ThermoFun/Common/ParseJsonToData.h"
@@ -231,7 +231,7 @@ void ThermoFunData::fromJsonNode( const jsonio::JsonDom *object )
 // ThermoFunPrivateNew ------------------------------------------------------------------
 
 ThermoFunPrivateNew::ThermoFunPrivateNew( ThermoFunWidgetNew* awindow ):
- QObject(awindow), window(awindow), dbclient( jsonui::uiSettings().dbclient() )
+ QObject(awindow), window(awindow), ThermoHubClient( jsonui::uiSettings().dbclient() )
 {
     initWindow();
 }
@@ -257,8 +257,8 @@ void ThermoFunPrivateNew::initWindow()
            valuesTable, SLOT(slotPopupContextMenu(QPoint)));
     window->ui->keySplitter->insertWidget(0, valuesTable);
     window->ui->keySplitter->setStretchFactor(0, 4);
-    substModel.reset(new ThermoViewModel( &dbclient.substData(), window ));
-    reactModel.reset(new ThermoViewModel( &dbclient.reactData(), window ));
+    substModel.reset(new ThermoViewModel( &ThermoHubClient.substData(), window ));
+    reactModel.reset(new ThermoViewModel( &ThermoHubClient.reactData(), window ));
     substModel->updateModel(valuesTable);
 
     // Elements list
@@ -455,7 +455,7 @@ void ThermoFunPrivateNew::loadSubstData( const vector<size_t>& selNdx,
     aKeyList.resize(selNdx.size());
     substancesSymbols.resize(selNdx.size());
     substancesClass.resize(selNdx.size());
-    auto name_ndx = dbclient.substData().getDataName_DataIndex();
+    auto name_ndx = ThermoHubClient.substData().getDataName_DataIndex();
 
     for( std::size_t ii=0; ii<selNdx.size(); ii++ )
      {
@@ -472,7 +472,7 @@ void ThermoFunPrivateNew::loadReactData( const vector<size_t>& selNdx,
     //if (_data.schemaName != "VertexReaction")
     //  return;
     const jsonio::ValuesTable& values= reactModel->getValues();
-    auto name_ndx = dbclient.reactData().getDataName_DataIndex();
+    auto name_ndx = ThermoHubClient.reactData().getDataName_DataIndex();
     aKeyList.resize(selNdx.size());
     reactionsSymbols.resize(selNdx.size());
     for( std::size_t ii=0; ii<selNdx.size(); ii++ )
@@ -493,21 +493,21 @@ void ThermoFunPrivateNew::retrieveConnectedData(ThermoFun::VertexId_VertexType m
         if (idType.second == "reaction")
         {
             string symbol;
-            string jsonrecord = dbclient.reactData().getJsonRecordVertex(idType.first);
+            string jsonrecord = ThermoHubClient.reactData().getJsonRecordVertex(idType.first);
             auto domdata = jsonio::unpackJson( jsonrecord );
             domdata->findValue("properties.symbol",  symbol);
-            // record = dbclient.reactData().getJsonRecordVertex(idType.first).second;
+            // record = ThermoHubClient.reactData().getJsonRecordVertex(idType.first).second;
             // jsonio::bson_to_key( record.data, "properties.symbol",  symbol);
             linkedReactSymbols.push_back(symbol);
         }
         if (idType.second == "substance")
         {
             string symbol, class_;
-            string jsonrecord = dbclient.substData().getJsonRecordVertex(idType.first);
+            string jsonrecord = ThermoHubClient.substData().getJsonRecordVertex(idType.first);
             auto domdata = jsonio::unpackJson( jsonrecord );
             domdata->findValue("properties.symbol",  symbol);
             domdata->findValue("properties.class_",  class_);
-            //  record = dbclient.substData().getJsonBsonRecordVertex(idType.first).second;
+            //  record = ThermoHubClient.substData().getJsonBsonRecordVertex(idType.first).second;
             //  jsonio::bson_to_key( record.data, "properties.symbol",  symbol);
             //  jsonio::bson_to_key( record.data, "properties.class_",  class_);
             /// !!!! class now struct
@@ -523,15 +523,15 @@ void ThermoFunPrivateNew::retrieveConnectedDataSymbols( const vector<string>& su
 {
     linkedReactSymbols.clear(); linkedSubstSymbols.clear(); linkedSubstClasses.clear();
 
-    retrieveConnectedData(dbclient.getTraversal().getMapOfConnectedIds(substKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
-    retrieveConnectedData(dbclient.getTraversal().getMapOfConnectedIds(reactKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
+    retrieveConnectedData(ThermoHubClient.getTraversal().getMapOfConnectedIds(substKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
+    retrieveConnectedData(ThermoHubClient.getTraversal().getMapOfConnectedIds(reactKeys), linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses, linkedSubstIds);
 //    react.getLinkedDataSymbols(reactKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
 //    subst.getLinkedDataSymbols(substKeys, linkedSubstSymbols, linkedReactSymbols, linkedSubstClasses);
 }
 
 void ThermoFunPrivateNew::setSubstanceLevel(string substSymbol, string level)
 {
-    dbclient.substData().setSubstanceLevel(substSymbol, level);
+    ThermoHubClient.substData().setSubstanceLevel(substSymbol, level);
 }
 
 //void ThermoFunWidgetPrivate::setReactionLevel(string reactSymbol, string level)
@@ -549,7 +549,7 @@ MapSymbolMapLevelReaction ThermoFunPrivateNew::recordsMapLevelDefinesReaction_(T
         for (auto level_idReact : symbol_Level_idReact.second)
         {
             levelReact[level_idReact.first] = ThermoFun::parseReaction(
-                        dbclient.reactData().getJsonRecordVertex(level_idReact.second) );
+                        ThermoHubClient.reactData().getJsonRecordVertex(level_idReact.second) );
         }
         recordsLevelReact[symbol_Level_idReact.first] = levelReact;
     }
@@ -558,12 +558,12 @@ MapSymbolMapLevelReaction ThermoFunPrivateNew::recordsMapLevelDefinesReaction_(T
 
 MapSymbolMapLevelReaction ThermoFunPrivateNew::recordsMapLevelDefinesReaction()
 {
-    return recordsMapLevelDefinesReaction_(dbclient.substData().recordsMapLevelDefinesReaction());
+    return recordsMapLevelDefinesReaction_(ThermoHubClient.substData().recordsMapLevelDefinesReaction());
 }
 
 MapSymbolMapLevelReaction ThermoFunPrivateNew::recordsMapLevelDefinesReaction(vector<string> connectedSubstIds , vector<string> connectedSubstSymbols)
 {
-    return recordsMapLevelDefinesReaction_(dbclient.substData().recordsMapLevelDefinesReaction(connectedSubstIds, connectedSubstSymbols));
+    return recordsMapLevelDefinesReaction_(ThermoHubClient.substData().recordsMapLevelDefinesReaction(connectedSubstIds, connectedSubstSymbols));
 }
 
 ThermoFun::Database setSubstanceCalcType_ (ThermoFun::Database tdb, ThermoFun::SubstanceThermoCalculationType::type type_)
@@ -617,10 +617,10 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
         keys.insert(keys.end(), loadedData.substKeys.begin(), loadedData.substKeys.end());
         keys.insert(keys.end(), loadedData.reactKeys.begin(), loadedData.reactKeys.end());
 
-        auto tr = dbclient.getTraversal();
+        auto tr = ThermoHubClient.getTraversal();
 
-        ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, dbclient.substData().getSubstSymbol_DefinesLevel());
-        ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, dbclient.substData().getSubstSymbol_DefinesLevel());
+        ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, ThermoHubClient.substData().getSubstSymbol_DefinesLevel());
+        ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, ThermoHubClient.substData().getSubstSymbol_DefinesLevel());
 
         //    ThermoFun::Traversal tr(subst.getDB());
         //    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
@@ -709,8 +709,8 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
 void ThermoFunPrivateNew::resetElementsintoRecord( bool isreact, const string& aKey )
 {
   if(isreact)
-   dbclient.reactData().resetRecordElements( aKey );
+   ThermoHubClient.reactData().resetRecordElements( aKey );
   else
-   dbclient.reactSetData().resetRecordElements( aKey );
+   ThermoHubClient.reactSetData().resetRecordElements( aKey );
 }
 

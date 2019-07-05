@@ -19,7 +19,7 @@ struct SelectElementsDialogPrivate
    /// Define ELEMENTS table data
    vector<ThermoFun::ElementKey> elementsRow;
    /// Connect to ReactionSet record
-   ThermoFun::DatabaseClient dbclient;
+   ThermoFun::DatabaseClient ThermoHubClient;
 //   ReactionSetData rcSetData;
    std::shared_ptr<jsonui::StringTable> rcsetData;
    std::shared_ptr<jsonui::TMatrixModel>  rcsetModel;
@@ -29,10 +29,10 @@ struct SelectElementsDialogPrivate
 
 // ---------------------------------------------
 
-   SelectElementsDialogPrivate(SelectElementsDialog* awindow, ThermoFun::DatabaseClient dbclient_):
-    window(awindow), dbclient( dbclient_ )
+   SelectElementsDialogPrivate(SelectElementsDialog* awindow, ThermoFun::DatabaseClient ThermoHubClient_):
+    window(awindow), ThermoHubClient( ThermoHubClient_ )
    {
-       rcsetData.reset( new jsonui::StringTable( "records", dbclient.reactSetData().getDataHeaders()) );
+       rcsetData.reset( new jsonui::StringTable( "records", ThermoHubClient.reactSetData().getDataHeaders()) );
        rcsetModel.reset( new jsonui::TMatrixModel( rcsetData.get() ) );
    }
 
@@ -46,14 +46,14 @@ struct SelectElementsDialogPrivate
 
    vector<string> getSourcetdbList()
    {
-       return dbclient.sourcetdbListAll();
+       return ThermoHubClient.sourcetdbListAll();
    }
 
    bool makeAvailableElementsList( int sourcendx )
    {
       if( sourceTDB == sourcendx ) // Source did not chaged
           return false;
-      elementsRow = dbclient.availableElementsKey(sourcendx);
+      elementsRow = ThermoHubClient.availableElementsKey(sourcendx);
       sourceTDB = sourcendx;
       return true;
    }
@@ -65,10 +65,10 @@ struct SelectElementsDialogPrivate
 
    int loadReacSetRecords( const vector<ThermoFun::ElementKey>& elements )
    {
-     jsonio::ValuesTable matr = dbclient.reactSetData().loadRecordsValues(  jsonio::emptyQuery, sourceTDB, elements );
+     jsonio::ValuesTable matr = ThermoHubClient.reactSetData().loadRecordsValues(  jsonio::emptyQuery, sourceTDB, elements );
 
 // here
-  ///  auto jsonT = dbclient.substData().getJsonBsonRecordVertex("59a7dcedf3830548000000e7:").first;
+  ///  auto jsonT = ThermoHubClient.substData().getJsonBsonRecordVertex("59a7dcedf3830548000000e7:").first;
 // here
      matr.insert( matr.begin(), {"All","", "", "",""});
      rcsetData->updateValues( matr );
@@ -96,10 +96,10 @@ struct SelectElementsDialogPrivate
 //===========================================================================
 
 
-SelectElementsDialog::SelectElementsDialog(ThermoFun::DatabaseClient dbclient, QWidget *parent) :
+SelectElementsDialog::SelectElementsDialog(ThermoFun::DatabaseClient ThermoHubClient, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SelectElements), data(0), pTable(0),
-    pdata(new SelectElementsDialogPrivate(this, dbclient))
+    pdata(new SelectElementsDialogPrivate(this, ThermoHubClient))
 {
     ui->setupUi(this);
 
@@ -254,7 +254,7 @@ void SelectElementsDialog::allSelected( vector<ThermoFun::ElementKey>& elementKe
     string idrc = idReactionSet();
     if( !idrc.empty() )
     {
-       auto ellst = pdata->dbclient.reactSetData().getElementsList(idrc);
+       auto ellst = pdata->ThermoHubClient.reactSetData().getElementsList(idrc);
        elementKeys.insert( elementKeys.end(), ellst.begin(), ellst.end() );
        return;
     }

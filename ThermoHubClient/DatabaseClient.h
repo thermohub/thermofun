@@ -30,7 +30,7 @@ class DatabaseClient
 {
   public:
     ///
-    /// \brief DBClient creates a DBClient instance
+    /// \brief ThermoHubClient creates a ThermoHubClient instance
     /// \param settingsFile path to the ThermoFun.ini file
     ///
     explicit DatabaseClient( const std::shared_ptr<jsonio::TDataBase>& otherdb );

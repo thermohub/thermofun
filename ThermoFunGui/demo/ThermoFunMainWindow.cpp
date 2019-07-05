@@ -11,10 +11,10 @@
 #include "ThermoFunWidgetNew.h"
 #ifdef FROM_SRC
 #include "../ThermoFun/Common/formuladata.h"
-#include "../DBClient/ElementData.h"
+#include "../ThermoHubClient/ElementData.h"
 #else
 #include "ThermoFun/Common/formuladata.h"
-#include "thermodbclient/ElementData.h"
+#include "ThermoHubClient/ElementData.h"
 #endif
 
 TThermoFunMainWin::TThermoFunMainWin(QWidget *parent) :

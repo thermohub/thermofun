@@ -44,11 +44,11 @@
 #include "jsonui/waitingspinnerwidget.h"
 // ThermoFun includes
 #ifdef FROM_SRC
-#include "../DBClient/ReactionData.h"
-#include "../DBClient/ReactionSetData.h"
+#include "../ThermoHubClient/ReactionData.h"
+#include "../ThermoHubClient/ReactionSetData.h"
 #else
-#include "thermodbclient/ReactionData.h"
-#include "thermodbclient/ReactionSetData.h"
+#include "ThermoHubClient/ReactionData.h"
+#include "ThermoHubClient/ReactionSetData.h"
 #endif
 
 ThermoFunWidgetNew::ThermoFunWidgetNew( QWidget *parent) :
@@ -297,7 +297,7 @@ void ThermoFunWidgetNew::typeChanged(const QString& text)
 void ThermoFunWidgetNew::CmSelectThermoDataSet()
 {
   try {
-       SelectThermoDataDialog dlg( pdata->data().idThermoDataSet, pdata->data().elements, pdata->dbclient, this);
+       SelectThermoDataDialog dlg( pdata->data().idThermoDataSet, pdata->data().elements, pdata->ThermoHubClient, this);
 
       if( dlg.exec() )
       {
@@ -342,7 +342,7 @@ void ThermoFunWidgetNew::CmSelectThermoDataSet()
 void ThermoFunWidgetNew::CmSelectSourceTDBs()
 {
   try {
-       SelectThermoDataDialog dlg( pdata->data().sourceTDBs, pdata->data().elements, pdata->dbclient, this);
+       SelectThermoDataDialog dlg( pdata->data().sourceTDBs, pdata->data().elements, pdata->ThermoHubClient, this);
 
       if( dlg.exec() )
       {
@@ -664,7 +664,7 @@ void ThermoFunWidgetNew::CmSetElementsReactions()
 {
    try {
 
-     //auto graphdb = pdata->dbclient.reactData().getDB();
+     //auto graphdb = pdata->ThermoHubClient.reactData().getDB();
      std::unique_ptr<jsonio::TDBVertexDocument> graphdb( jsonio::TDBVertexDocument::newVertexDocumentQuery(
                                        jsonui::uiSettings().database(), "VertexReaction" ));
 
@@ -700,7 +700,7 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
 {
    try {
 
-     //auto graphdb = pdata->dbclient.reactSetData().getDB();
+     //auto graphdb = pdata->ThermoHubClient.reactSetData().getDB();
      std::unique_ptr<jsonio::TDBVertexDocument> graphdb( jsonio::TDBVertexDocument::newVertexDocumentQuery(
                                        jsonui::uiSettings().database(), "VertexReactionSet" ));
 
@@ -735,7 +735,7 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
 void ThermoFunWidgetNew::CmSelectSubstances()
 {
     try{
-        std::size_t colId = pdata->dbclient.substData().getDataName_DataIndex()["_id"];
+        std::size_t colId = pdata->ThermoHubClient.substData().getDataName_DataIndex()["_id"];
         vector<string> oldids = pdata->substModel->getColumn( colId );
         // read full list
         pdata->substModel->loadModeRecords( pdata->substValues );
@@ -743,7 +743,7 @@ void ThermoFunWidgetNew::CmSelectSubstances()
         // select components
         const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
         vector<size_t> selNdx = pdata->substModel->recordToValues( colId, oldids );
-        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.substData().getDataHeaders(),
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->ThermoHubClient.substData().getDataHeaders(),
                                      jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
         std::set<size_t> selNdx2;
@@ -780,7 +780,7 @@ void ThermoFunWidgetNew::CmSelectSubstances()
 void ThermoFunWidgetNew::CmSelectReactions()
 {
     try{
-        std::size_t colId = pdata->dbclient.reactData().getDataName_DataIndex()["_id"];
+        std::size_t colId = pdata->ThermoHubClient.reactData().getDataName_DataIndex()["_id"];
         vector<string> oldids = pdata->reactModel->getColumn( colId );
         // read full list
         pdata->reactModel->loadModeRecords( pdata->reactValues );
@@ -789,7 +789,7 @@ void ThermoFunWidgetNew::CmSelectReactions()
         jsonio::ValuesTable values= pdata->reactModel->getValues();
         vector<size_t> selNdx = pdata->reactModel->recordToValues( colId, oldids );
 
-        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->dbclient.reactData().getDataHeaders(),
+        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->ThermoHubClient.reactData().getDataHeaders(),
                                      jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
         std::set<size_t> selNdx2;

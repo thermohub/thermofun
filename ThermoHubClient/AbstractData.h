@@ -46,7 +46,7 @@ public:
     /// Link to table of fields values loaded before
     virtual const jsonio::ValuesTable& getValuesTable() = 0;
 
-    auto updateDBClient( const jsonio::TDataBase* newdbconnect ) -> void;
+    auto updateThermoHubClient( const jsonio::TDataBase* newdbconnect ) -> void;
 
     auto getDB() const -> std::shared_ptr<jsonio::TDBVertexDocument>;
     auto getName() const -> std::string;

@@ -504,7 +504,7 @@ auto AbstractData::getOutVertexIds(const string &edgeCollections, const string& 
 }
 
 // Connect to new Data Base
-auto AbstractData::updateDBClient( const jsonio::TDataBase* newdbconnect ) -> void
+auto AbstractData::updateThermoHubClient( const jsonio::TDataBase* newdbconnect ) -> void
 {
     try{
         pimpl->changeDataBase(newdbconnect);

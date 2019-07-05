@@ -157,11 +157,11 @@ In the terminal at ```~/thermofun/build$```, execute the following commands:
 
 ```
 #!bash
-cmake .. -DTFUN_BUILD_HUBCLIENT=ON -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
+cmake .. -DTFUN_BUILD_HUBCLIENT=ON -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_GUIDEMO=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
 make
 ``` 
 
--DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON options trigger the compilation of ThermoFunGui library and the gui demo widget. 
+-DTFUN_BUILD_GUI=ON -DTFUN_BUILD_GUIDEMO=ON options trigger the compilation of ThermoFunGui library and the gui demo widget. 
 
 The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "fun-dbclient-config.json" is present and contains the arangodb database connection preferences. 
 

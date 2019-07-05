@@ -3,7 +3,7 @@ environment.yml
 docs/devel.txt
 docs/info.txt
 docs/unknowns.txt
-gui/ThermoFun-gui.pro.user*
+ThermoFunGui/ThermoFunGuiDemo.pro.*
 fungui/ThermoFunDemoGUI.pro.user*
 tests/unit01/ThermoFun-test.pro.user*
 tests/unit02/HKF-test.pro.user*

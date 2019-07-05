@@ -1,5 +1,5 @@
 #!/bin/bash
-appname=guidemo
+appname=ThermoFunGuiDemo
 dirname=`dirname $0`
 if [ "${dirname:0:1}" != "/" ]; then
    dirname=$PWD/$dirname
