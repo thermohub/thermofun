@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project
-project(thermofungui VERSION 0.1.5 LANGUAGES CXX)
+project(ThermoFunGui VERSION 0.1.5 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 #set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
@@ -54,7 +54,7 @@ option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 
 # Set the thermofun source directory path
-set(THERMOFUNGUI_SOURCE_DIR ${CMAKE_SOURCE_DIR}/fungui/src)
+set(THERMOFUNGUI_SOURCE_DIR ${CMAKE_SOURCE_DIR}/ThermoFunGui/src)
 
 # Set the directory where the third-party libraries are temporarily installed before installed to CMAKE_INSTALL_PREFIX
 #set(THIRDPARTY_DIR ${CMAKE_BINARY_DIR}/thirdparty)

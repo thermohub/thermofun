@@ -23,7 +23,7 @@ option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
-option(TFUN_BUILD_DBCLIENT "Build ThermoFun with DBClient." ON)
+option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." ON)
 option(TFUN_BUILD_DEMOGUI "Build ThermoFunGui demo." OFF)
 option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
@@ -34,14 +34,14 @@ if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_STATIC_LIBS          ON)
 #   set(TFUN_BUILD_TESTS                ON)
     set(TFUN_BUILD_GUI                  ON)
-    set(TFUN_BUILD_DBCLIENT             ON)
+    set(TFUN_BUILD_HUBCLIENT            ON)
     set(TFUN_BUILD_DEMOGUI              ON)
     set(TFUN_BUILD_PYTHON               ON)
 endif()
 
 # DBClient is necessary when building the GUI DEMO
 if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_DEMOGUI MATCHES ON)
-    set(TFUN_BUILD_DBCLIENT             ON)
+    set(TFUN_BUILD_HUBCLIENT             ON)
 endif()
 
 # ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
@@ -105,7 +105,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 #endif()
 
 # Build ThermoFunGui library
-if(TFUN_BUILD_DBCLIENT)
+if(TFUN_BUILD_HUBCLIENT)
     add_subdirectory(DBClient)
 #else()
 #    add_subdirectory(fungui EXCLUDE_FROM_ALL)

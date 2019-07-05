@@ -101,7 +101,7 @@ In the terminal ```~/thermofun/build$```, execute the following commands:
 
 ```
 #!bash
-cmake .. -DTFUN_BUILD_DBCLIENT=ON && \
+cmake .. -DTFUN_BUILD_HUBCLIENT=ON && \
 make
 ``` 
 
@@ -157,7 +157,7 @@ In the terminal at ```~/thermofun/build$```, execute the following commands:
 
 ```
 #!bash
-cmake .. -DTFUN_BUILD_DBCLIENT=ON -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
+cmake .. -DTFUN_BUILD_HUBCLIENT=ON -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_DEMOGUI=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/5.11.2/gcc_64 && \
 make
 ``` 
 
@@ -199,7 +199,7 @@ with DBClient
 
 ```
 #!bash
-cmake .. -DTFUN_BUILD_DBCLIENT=ON -DTFUN_BUILD_PYTHON=ON
+cmake .. -DTFUN_BUILD_HUBCLIENT=ON -DTFUN_BUILD_PYTHON=ON
 ```
 
 then execute:

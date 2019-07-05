@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
-#include "PyDBClient.hpp"
+#include "PyThermoHubClient.hpp"
 using namespace ThermoFun;
 
-PYBIND11_MODULE(PyThermoDBClient, m)
+PYBIND11_MODULE(PyThermoHubClient, m)
 {
     // Database Client
     exportDatabaseClient(m);
