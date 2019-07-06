@@ -7,7 +7,6 @@ TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++11
 
 CONFIG += c++11
-QT += widgets
 
 TARGET = interfaceTest
 
@@ -16,7 +15,7 @@ DEFINES += IPMGEMPLUGIN
 DEFINES += NOPARTICLEARRAY
 
 ThermoFun_TEST_CPP = ./src
-ThermoFun_CPP   =  ../../../thermofun/src
+ThermoFun_CPP   =  ../../../thermofun/thermofun
 
 ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
 ThermoFun_H     =   $$ThermoFun_CPP
@@ -32,16 +31,10 @@ OBJECTS_DIR = obj
 
 # Define the directory where the gui, third-party libs, resources are located
 BUILD_DIR = $$OUT_PWD/..
-THRIFT_DIR    = ./thrift
 
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"
-
-LIBS += -ljsonio
-#-lReaktoro
-LIBS += -lboost_regex -lboost_system -lboost_filesystem
-LIBS +=  -lcurl  -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
