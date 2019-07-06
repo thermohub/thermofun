@@ -71,7 +71,7 @@ INCLUDEPATH   += $$CLIENT_DIR
 
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib/"
+LIBPATH += "/usr/local/lib"
 
 macx-clang {
   DEFINES += __APPLE__
@@ -102,7 +102,6 @@ LIBS +=  -lyaml-cpp  -lpugixml
 LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
 LIBS +=  -lcurl  -lvelocypack -lthrift
 !macx-clang:LIBS += -llua5.3
-
 
 
 MOC_DIR = tmp
