@@ -1,7 +1,7 @@
 // This file is part of ThermoFun https://bitbucket.org/gems4/thermofun/
 // ThermoFun is a framework for delivering standard state thermodynamic data.
 //
-// Copyright (c) 2016-2018 G.D.Miron, D.A.Kulik, A.Leal 
+// Copyright (c) 2016-2018 G.D.Miron, D.A.Kulik, A.Leal
 //
 // ThermoFun is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as
@@ -20,8 +20,8 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-#include <thermofun/Common/ThermoScalar.hpp>
-#include <thermofun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoScalar.hpp>
+#include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
 

@@ -39,7 +39,4 @@ namespace ThermoFun {
     void exportSubstance(py::module& m);
     void exportReaction(py::module& m);
     void exportElement(py::module& m);
-
-    // Database Client
-    void exportDatabaseClient(py::module& m);
 } // namespace ThermoFun

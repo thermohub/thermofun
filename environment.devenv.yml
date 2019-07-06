@@ -1,0 +1,14 @@
+name: thermofun
+
+dependencies:
+  - gxx_linux-64=7.3.0  # [linux]
+  - cmake>=3.13
+  - ninja
+  - ccache  # [unix]
+  - boost>=1.70.0
+  - pybind11>=2.3.0
+  - nlohmann_json>=3.6.1
+  - pip:
+    - mkdocs
+    - mkdocs-material
+    - mkdocs-macros-plugin

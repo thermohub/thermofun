@@ -39,39 +39,3 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
                                  ["Al+3", "OH-", "SiO2@"],                          # // list of substance symbols
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
                                ).toCSV("results.csv")                               # // output
-
-PyThermoFun.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
-
-print("\n# Initialize a database client object\n")
-dbc = PyThermoFun.DatabaseClient()
-
-print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
-records = dbc.recordsFromThermoDataSet("Cemdata18") 
-
-print("\n# Create a ThermoFun database using the records list\n")
-db = PyThermoFun.databaseFromRecordList(dbc, records)
-
-print("\n# Initialize an interface object using the database\n")
-batch2 = PyThermoFun.ThermoBatch(db)
-
-print("\n# Optional: set the solvent symbol used for calculating properties of aqueous species\n")
-batch2.setSolventSymbol("H2O@")
-
-print("\n# Optional set calculation and output preferences\n")
-op = PyThermoFun.BatchPreferences()
-op.isFixed = True
-op.outSolventProp       = True
-op.calcReactFromSubst   = False
-op.calcSubstFromReact   = False
-batch2.setBatchPreferences(op)
-
-print("\n# Optional set units and significant digits\n")
-batch2.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
-
-batch2.setPropertiesDigits(["gibbs_energy","entropy", "volume",
-                            "enthalpy","logKr", "temperature", "pressure"], [0, 4, 4, 4, 4, 0, 0])
-
-print("\n# Do calculations and write output\n")
-batch2.thermoPropertiesSubstance([[25,1]], ["Na(CO3)-", "Mg+2"], ["gibbs_energy", "entropy",
-                                "volume", "enthalpy"]).toCSV("results_dbc.csv")
-

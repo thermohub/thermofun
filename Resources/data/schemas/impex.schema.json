@@ -585,6 +585,22 @@
         },
         {
           "key": 5,
+          "name": "rows_one_block",
+          "typeId": "i32",
+          "doc": "Number of lines in one block (could be more than one)\n",
+          "required": "req_out",
+          "default": 1
+        },
+        {
+          "key": 6,
+          "name": "row_header_regexp",
+          "typeId": "string",
+          "doc": "Regular expression:  next block head in case the number of lines in one block is not fixed\n",
+          "required": "req_out",
+          "default": ""
+        },
+        {
+          "key": 7,
           "name": "colends",
           "typeId": "string",
           "doc": "Columns delimiters\n",
@@ -592,7 +608,7 @@
           "default": "\t "
         },
         {
-          "key": 6,
+          "key": 8,
           "name": "usequotes",
           "typeId": "bool",
           "doc": "Quoted field as text\n",
@@ -600,7 +616,7 @@
           "default": 1
         },
         {
-          "key": 7,
+          "key": 9,
           "name": "usemore",
           "typeId": "bool",
           "doc": "Can be more than one delimiter between columns\n",
@@ -608,14 +624,22 @@
           "default": 0
         },
         {
-          "key": 8,
+          "key": 10,
           "name": "comment_regexp",
           "typeId": "string",
           "doc": "Regular Expression for skip comments\n",
           "required": "optional"
         },
         {
-          "key": 9,
+          "key": 11,
+          "name": "row_size",
+          "typeId": "i32",
+          "doc": "Row size in case of using fixed colsizes\n",
+          "required": "optional",
+          "default": 0
+        },
+        {
+          "key": 12,
           "name": "colsizes",
           "typeId": "list",
           "type": {
@@ -626,7 +650,7 @@
           "required": "optional"
         },
         {
-          "key": 10,
+          "key": 13,
           "name": "value_regexp",
           "typeId": "list",
           "type": {

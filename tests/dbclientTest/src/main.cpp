@@ -3,13 +3,14 @@
 #include "jsonio/io_settings.h"
 #include "jsonio/nservice.h"
 
-#include "DBClient/DatabaseClient.h"
-#include "DBClient/ReactionData.h"
-#include "DBClient/AbstractData.h"
-#include "DBClient/SubstanceData.h"
-#include "DBClient/ReactionSetData.h"
-#include "DBClient/ThermoSetData.h"
-#include "Common/ParseBsonTraversalData.h"
+#include "DatabaseClient.h"
+#include "ReactionData.h"
+#include "AbstractData.h"
+#include "SubstanceData.h"
+#include "ReactionSetData.h"
+#include "ThermoSetData.h"
+#include "ParseDbcToData.h"
+//#include "Common/ParseBsonTraversalData.h"
 
 #include <sys/time.h>
 
@@ -172,17 +173,17 @@ int main(int argc, char *argv[])
 
 //        ThermoPropertiesSubstance MgSi, CaSi, FeHSi, RaC, RaS, SiO, CaSi_FM, SiOaq;
 
-//    //    for (uint i = 0; i <150000; i++)
+//    //    for (std::size_t i = 0; i <150000; i++)
 //    //    {
 //    //        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
 //    //    }
 
-//    //    for (uint i = 0; i <150000; i++)
+//    //    for (std::size_t i = 0; i <150000; i++)
 //    //    {
 //    ////        SiOaq = th.thermoPropertiesSubstanceF(T, P, "SiO2@");
 //    //    }
 
-//    //    for (uint i = 0; i <150000; i++)
+//    //    for (std::size_t i = 0; i <150000; i++)
 //    //    {
 //    //        SiOaq = th.thermoPropertiesSubstance(T, P, "SiO2@");
 //    //    }
@@ -212,7 +213,7 @@ int main(int argc, char *argv[])
 
 //    auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
 
-    setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json");
+    setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json");
 
     DatabaseClient dbc;
 
