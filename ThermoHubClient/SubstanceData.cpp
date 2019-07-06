@@ -76,7 +76,7 @@ set<ElementKey> SubstanceData_::getElementsList( const string& idSubstance )
   auto domdata = jsonio::unpackJson( jsonrecord );
 
   // Extract data from fields
-  domdata->findValue(getDataName_DataFieldPath()["formula"], formula);
+  domdata->findValue(getDataName_DataFieldPath().at("formula"), formula);
   //bsonio::bson_to_key( record.data, getDataName_DataFieldPath()["formula"], formula);
 
   FormulaToken parser(formula);
@@ -91,7 +91,7 @@ void SubstanceData_::updateTableByElementsList( ValuesTable& substQueryMatr, con
         ValuesTable substMatr;
         for (const auto& subitem : substQueryMatr)
         {
-         string formula = subitem[getDataName_DataIndex()["formula"]];
+         string formula = subitem[getDataName_DataIndex().at("formula")];
          if (testElementsFormula(formula, elements))
               substMatr.push_back(subitem);
         }
@@ -115,7 +115,7 @@ ValuesTable SubstanceData_::loadRecordsValues( const DBQueryData& aquery,
         fields = getDataNames();
     }
     //if (!elements.empty())
-      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath()["sourcetdb"]), sourceTDB_from_index(sourcetdb)) } );
+      addFieldsToQueryAQL( query, { make_pair( string(getDataName_DataFieldPath().at("sourcetdb")), sourceTDB_from_index(sourcetdb)) } );
 
     ValuesTable substQueryMatr = getDB()->downloadDocuments(query, fields);
 
@@ -175,7 +175,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
     for (auto value : pimpl->valuesTable)
     {
         MapLevel_IdReaction levelReact;
-        idsub = value[getDataName_DataIndex()["_id"]];
+        idsub = value[getDataName_DataIndex().at("_id")];
         string qrJson = "FOR v,e  IN 1..1 INBOUND '";
                qrJson += idsub + "' \n defines\n";
                qrJson += "RETURN { 'level': e.properties.level, 'reaction': v._id }";
@@ -190,7 +190,7 @@ MapSubstSymbol_MapLevel_IdReaction SubstanceData_::recordsMapLevelDefinesReactio
             levelReact[level] = idreact;
         }
 //        if (!levelReact.empty())
-        recordsLevelReact[value[getDataName_DataIndex()["symbol"]]] = levelReact;
+        recordsLevelReact[value[getDataName_DataIndex().at("symbol")]] = levelReact;
     }
     return recordsLevelReact;
 }
@@ -245,13 +245,13 @@ vector<string> SubstanceData_::selectGiven( const vector<int>& sourcetdbs,
 
     // delete not unique
     if( unique )
-        deleteNotUnique( substQueryMatr, getDataName_DataIndex()["symbol"] );
+        deleteNotUnique( substQueryMatr, getDataName_DataIndex().at("symbol"));
 
     updateTableByElementsList( substQueryMatr, elements );
 
     vector<string> substanceSymbols;
     for (const auto& subitem : substQueryMatr)
-      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      substanceSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(substQueryMatr);
     pimpl->valuesTable =          move(substQueryMatr);
@@ -270,11 +270,11 @@ vector<string> SubstanceData_::selectGiven( const vector<string>& idThermoDataSe
     ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
-        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+        deleteNotUnique( resMatr, getDataName_DataIndex().at("symbol") );
 
     vector<string> substanceSymbols;
     for (const auto& subitem : resMatr)
-      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      substanceSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable = move(resMatr);
@@ -294,13 +294,13 @@ vector<string> SubstanceData_::selectGiven( const string& idThermoDataSet,
     ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
-        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+        deleteNotUnique( resMatr, getDataName_DataIndex().at("symbol") );
 
     updateTableByElementsList( resMatr, elements );
 
     vector<string> substanceSymbols;
     for (const auto& subitem : resMatr)
-      substanceSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      substanceSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable =   move(resMatr);

@@ -300,12 +300,12 @@ auto AbstractData::loadRecords(const vector<string> ids ) -> jsonio::ValuesTable
     return pimpl->load_records_fn(ids);
 }
 
-auto AbstractData::getName() const -> string
+auto AbstractData::getName() const -> const string&
 {
     return pimpl->name;
 }
 
-auto AbstractData::getQuery() const -> DBQueryData
+auto AbstractData::getQuery() const -> const DBQueryData&
 {
     return pimpl->query;
 }
@@ -316,7 +316,7 @@ auto  AbstractData::loadQueryData() -> void
    pimpl->loadQuery();
 }
 
-auto AbstractData::getDataFieldPaths() const -> vector<string>
+auto AbstractData::getDataFieldPaths() const -> const vector<string>&
 {
     return pimpl->fieldPaths;
 }
@@ -327,7 +327,7 @@ auto AbstractData::setDataFieldPaths(const vector<string> &value) -> void
     pimpl->fieldPaths = value;
 }
 
-auto AbstractData::getDataHeaders() const -> vector<string>
+auto AbstractData::getDataHeaders() const -> const vector<string>&
 {
     return pimpl->dataHeaders;
 }
@@ -337,7 +337,7 @@ auto AbstractData::setDataHeaders(const vector<string> &value) -> void
     pimpl->dataHeaders = value;
 }
 
-auto AbstractData::getDataNames() const -> vector<string>
+auto AbstractData::getDataNames() const -> const vector<string>&
 {
     return pimpl->dataNames;
 }
@@ -347,7 +347,7 @@ auto AbstractData::getDataNames() const -> vector<string>
     pimpl->dataNames = value;
 }*/
 
-auto AbstractData::getDB() const -> std::shared_ptr<jsonio::TDBVertexDocument>
+auto AbstractData::getDB() const -> const std::shared_ptr<jsonio::TDBVertexDocument>&
 {
     return pimpl->dbvertex;
 }
@@ -520,21 +520,21 @@ auto AbstractData::setDefaultLevelForReactionDefinedSubst(jsonio::ValuesTable av
 {
     for( const auto& subitem : avaluesTable )
     {
-        pimpl->substSymbolLevel[subitem[getDataName_DataIndex()["symbol"]]] = "0";
+        pimpl->substSymbolLevel[subitem[getDataName_DataIndex().at("symbol")]] = "0";
     }
 }
 
-auto AbstractData::getDataName_DataIndex() const -> std::map<std::string, std::size_t>
+auto AbstractData::getDataName_DataIndex() const -> const std::map<std::string, std::size_t>&
 {
     return pimpl->dataIndex;
 }
 
-auto AbstractData::getDataName_DataFieldPath() const -> std::map<std::string, std::string>
+auto AbstractData::getDataName_DataFieldPath() const -> const std::map<std::string, std::string>&
 {
     return pimpl->dataPath;
 }
 
-auto AbstractData::getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>
+auto AbstractData::getSubstSymbol_DefinesLevel() const -> const std::map<std::string, std::string>&
 {
     return pimpl->substSymbolLevel;
 }
@@ -544,12 +544,12 @@ auto AbstractData::setSubstSymbol_DefinesLevel(const std::map<std::string, std::
     pimpl->substSymbolLevel = value;
 }
 
-auto AbstractData::getSubstanceLevel_(string substSymbol) const -> string
+auto AbstractData::getSubstanceLevel_(const string& substSymbol) const -> const string&
 {
     return pimpl->substSymbolLevel[substSymbol];
 }
 
-auto AbstractData::setSubstanceLevel_(string substSymbol, string level) -> void
+auto AbstractData::setSubstanceLevel_(const string &substSymbol, const string &level) -> void
 {
     pimpl->substSymbolLevel[substSymbol] = level;
 }

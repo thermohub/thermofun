@@ -22,8 +22,8 @@
 namespace py = pybind11;
 
 // ThermoFun includes
-#include <thermodbclient/DatabaseClient.h>
-#include <thermodbclient/ParseDbcToData.h>
+#include <ThermoHubClient/DatabaseClient.h>
+#include <ThermoHubClient/ParseDbcToData.h>
 #include <ThermoFun/Database.h>
 
 

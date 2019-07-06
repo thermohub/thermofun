@@ -735,7 +735,7 @@ void ThermoFunWidgetNew::CmSetElementsReactionSets()
 void ThermoFunWidgetNew::CmSelectSubstances()
 {
     try{
-        std::size_t colId = pdata->ThermoHubClient.substData().getDataName_DataIndex()["_id"];
+        std::size_t colId = pdata->ThermoHubClient.substData().getDataName_DataIndex().at("_id");
         vector<string> oldids = pdata->substModel->getColumn( colId );
         // read full list
         pdata->substModel->loadModeRecords( pdata->substValues );
@@ -780,7 +780,7 @@ void ThermoFunWidgetNew::CmSelectSubstances()
 void ThermoFunWidgetNew::CmSelectReactions()
 {
     try{
-        std::size_t colId = pdata->ThermoHubClient.reactData().getDataName_DataIndex()["_id"];
+        std::size_t colId = pdata->ThermoHubClient.reactData().getDataName_DataIndex().at("_id");
         vector<string> oldids = pdata->reactModel->getColumn( colId );
         // read full list
         pdata->reactModel->loadModeRecords( pdata->reactValues );

@@ -83,9 +83,9 @@ void ElementData_::updateTableByElementsList( jsonio::ValuesTable& dataQueryMatr
         jsonio::ValuesTable dataMatr;
         for (const auto& subitem : dataQueryMatr)
         {
-         ElementKey elkey( subitem[getDataName_DataIndex()["symbol"]],
-                           stoi(subitem[getDataName_DataIndex()["class_"]]),
-                           stoi(subitem[getDataName_DataIndex()["isotope_mass"]])  );
+         ElementKey elkey( subitem[getDataName_DataIndex().at("symbol")],
+                           stoi(subitem[getDataName_DataIndex().at("class_")]),
+                           stoi(subitem[getDataName_DataIndex().at("isotope_mass")]) );
          if( std::find( elements.begin(), elements.end(), elkey) != elements.end() )
               dataMatr.push_back(subitem);
         }
@@ -169,9 +169,9 @@ std::vector<ElementKey> ElementData_::selectGiven( const std::vector<int>& sourc
     vector<ElementKey> elmKeys;
     for (const auto& elitem : elmQueryMatr)
     {
-        elmKeys.push_back( ElementKey( elitem[getDataName_DataIndex()["symbol"]],
-                                       stoi(elitem[getDataName_DataIndex()["class_"]]),
-                                       stoi(elitem[getDataName_DataIndex()["isotope_mass"]]) ));
+        elmKeys.push_back( ElementKey( elitem[getDataName_DataIndex().at("symbol")],
+                                       stoi(elitem[getDataName_DataIndex().at("class_")]),
+                                       stoi(elitem[getDataName_DataIndex().at("isotope_mass")])));
     }
 
     pimpl->valuesTable =          move(elmQueryMatr);
@@ -192,7 +192,7 @@ vector<string> ElementData_::selectGiven( const vector<string>& idThermoDataSets
 
     vector<string> elmSymbols;
     for (const auto& subitem : resMatr)
-       elmSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+       elmSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable = move(resMatr);

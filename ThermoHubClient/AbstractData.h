@@ -48,16 +48,16 @@ public:
 
     auto updateThermoHubClient( const jsonio::TDataBase* newdbconnect ) -> void;
 
-    auto getDB() const -> std::shared_ptr<jsonio::TDBVertexDocument>;
-    auto getName() const -> std::string;
-    auto getQuery() const -> jsonio::DBQueryData;
-    auto getDataNames() const -> std::vector<std::string>;
-    auto getDataHeaders() const -> std::vector<std::string>;
-    auto getDataFieldPaths() const -> std::vector<std::string>;
-    auto getDataName_DataIndex() const -> std::map<std::string, std::size_t>;
-    auto getDataName_DataFieldPath() const -> std::map<std::string, std::string>;
-    auto getSubstSymbol_DefinesLevel() const -> std::map<std::string, std::string>;
-
+    auto getDB() const -> const std::shared_ptr<jsonio::TDBVertexDocument>&;
+    auto getName() const -> const std::string&;
+    auto getQuery() const -> const jsonio::DBQueryData&;
+    auto getDataNames() const -> const std::vector<std::string>&;
+    auto getDataHeaders() const -> const std::vector<std::string>&;
+    auto getDataFieldPaths() const -> const std::vector<std::string>&;
+    auto getDataName_DataIndex() const -> const std::map<std::string, std::size_t>&;
+    auto getDataName_DataFieldPath() const -> const std::map<std::string, std::string>&;
+    auto getSubstSymbol_DefinesLevel() const -> const std::map<std::string, std::string>&;
+     
     auto makeQueryFields() const -> jsonio::QueryFields;
 
 ///    auto setDB(const std::shared_ptr<bsonio::TDBVertexDocument> &value) -> void;
@@ -136,9 +136,9 @@ protected:
     // returns the map of reactants symbols and coefficients
     auto reactantsCoeff_(std::string idReact) -> std::map<std::string, double>;
     // returns the level which is set for the substance
-    auto getSubstanceLevel_(std::string substSymbol) const -> std::string;
+    auto getSubstanceLevel_(const std::string &substSymbol) const -> const std::string&;
     // sets the level
-    auto setSubstanceLevel_(std::string substSymbol, std::string level) -> void;
+    auto setSubstanceLevel_(const std::string &substSymbol, const std::string &level) -> void;
 
     void deleteNotUnique(jsonio::ValuesTable& dataMatr, std::size_t fldtestNdx );
 

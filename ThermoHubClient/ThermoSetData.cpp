@@ -143,7 +143,7 @@ vector<string> ThermoSetData::selectGiven( const vector<string>& idThermoDataSet
 
     vector<string> thermoSymbols;
     for (const auto& subitem : resMatr)
-      thermoSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      thermoSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     pimpl->valuesTable = move(resMatr);
     return thermoSymbols;

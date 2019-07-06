@@ -76,7 +76,7 @@ struct SelectThermoDataDialogPrivate
     bool makeAvailableElementsListA( size_t selrow )
     {
         auto matr = thermoModel->getValues();
-        string idThermo = matr[selrow][_ThermoHubClient.thermoDataSet().getDataName_DataIndex()["_id"]];
+        string idThermo = matr[selrow][_ThermoHubClient.thermoDataSet().getDataName_DataIndex().at("_id")];
         auto elmnts = _ThermoHubClient.thermoDataSet().getElementsList(idThermo);
         elementsAll.clear();
         if( !elmnts.empty() )
@@ -136,7 +136,7 @@ struct SelectThermoDataDialogPrivate
     void loadReactionRecords( bool typeA, const std::set<size_t>& substSelectedRows, bool unique )
     {
         vector<string> reactSymbols;
-        auto substanceSymbols = substModel->getColumn( _ThermoHubClient.substData().getDataName_DataIndex()["symbol"], substSelectedRows );
+        auto substanceSymbols = substModel->getColumn( _ThermoHubClient.substData().getDataName_DataIndex().at("symbol"), substSelectedRows );
         if( typeA )
             reactSymbols = _ThermoHubClient.reactData().selectGiven( idThermoDataSet, substanceSymbols );
         else
@@ -148,7 +148,7 @@ struct SelectThermoDataDialogPrivate
     void loadReacSetRecords( bool typeA, const std::set<size_t>& reactSelectedRows, bool unique )
     {
         vector<string> scsetSymbols;
-        auto reactSymbols = reactModel->getColumn( _ThermoHubClient.reactData().getDataName_DataIndex()["symbol"], reactSelectedRows );
+        auto reactSymbols = reactModel->getColumn( _ThermoHubClient.reactData().getDataName_DataIndex().at("symbol"), reactSelectedRows );
         if( typeA )
             scsetSymbols = _ThermoHubClient.reactSetData().selectGiven( idThermoDataSet, reactSymbols );
         else
@@ -579,7 +579,7 @@ void SelectThermoDataDialog::selectRows( jsonui::TMatrixTable *dataTable, const 
 
 void SelectThermoDataDialog::selectA( const std::string& aThermoDataSet, const std::vector<ThermoFun::ElementKey>& elementKeys  )
 {
-    auto row = pdata->thermoModel->findRow( pdata->_ThermoHubClient.thermoDataSet().getDataName_DataIndex()["_id"], aThermoDataSet, true );
+    auto row = pdata->thermoModel->findRow( pdata->_ThermoHubClient.thermoDataSet().getDataName_DataIndex().at("_id"), aThermoDataSet, true );
     thermoTable->setCurrentRow( row );
     pdata->elementsSelected = elementKeys;
 }

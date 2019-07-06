@@ -81,7 +81,7 @@ void ReactionData_::updateTableByElementsList( ValuesTable& reactQueryMatr, cons
         ValuesTable reactMatr;
         for (const auto& subitem : reactQueryMatr)
         {
-            string idreac = subitem[getDataName_DataIndex()["_id"]];
+            string idreac = subitem[getDataName_DataIndex().at("_id")];
             if (testElements(idreac, elements))
                 reactMatr.push_back(subitem);
         }
@@ -105,7 +105,7 @@ ValuesTable ReactionData_::loadRecordsValues(const DBQueryData& aquery,
         fields = getDataNames();
     }
     //if (!elements.empty())
-        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath()["sourcetdb"]), sourceTDB_from_index(sourcetdb))});
+        addFieldsToQueryAQL(query, {make_pair(string(getDataName_DataFieldPath().at("sourcetdb")), sourceTDB_from_index(sourcetdb))});
     ValuesTable reactQueryMatr = getDB()->downloadDocuments(query, fields);
 
     // get record by elements list
@@ -278,11 +278,11 @@ vector<string> ReactionData_::selectGiven( const vector<int>& sourcetdbs,
 
     // delete not unique
     if( unique )
-        deleteNotUnique( reactQueryMatr, getDataName_DataIndex()["symbol"] );
+        deleteNotUnique( reactQueryMatr, getDataName_DataIndex().at("symbol") );
 
     vector<string> reactSymbols;
     for (const auto& subitem : reactQueryMatr)
-      reactSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      reactSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(reactQueryMatr);
     pimpl->valuesTable =          move(reactQueryMatr);
@@ -301,11 +301,11 @@ vector<string> ReactionData_::selectGiven( const vector<string>& idThermoDataSet
     ValuesTable resMatr =  getDB()->downloadDocuments( query, getDataNames());
 
     if( unique )
-        deleteNotUnique( resMatr, getDataName_DataIndex()["symbol"] );
+        deleteNotUnique( resMatr, getDataName_DataIndex().at("symbol") );
 
     vector<string> reacSymbols;
     for (const auto& subitem : resMatr)
-      reacSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      reacSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable = move(resMatr);
@@ -337,7 +337,7 @@ vector<string> ReactionData_::selectGiven( const string& idThermoDataSet,
 
     vector<string> reacSymbols;
     for (const auto& subitem : resMatr)
-      reacSymbols.push_back(subitem[getDataName_DataIndex()["symbol"]]);
+      reacSymbols.push_back(subitem[getDataName_DataIndex().at("symbol")]);
 
     setDefaultLevelForReactionDefinedSubst(resMatr);
     pimpl->valuesTable = move(resMatr);
