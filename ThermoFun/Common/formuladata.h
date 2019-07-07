@@ -34,9 +34,6 @@ public:
   /// Construct key from elements document fields values
   ElementKey( const std::string& asymbol, const std::string& aclass_, const std::string& aisotope  );
 
-  /// Construct key from element description json string
-  //ElementKey(  const std::string& elementjson );
-
   /// Constructor
   ElementKey( const std::string& asymbol, int aclass /*ELEMENT*/, int aisotope ):
    symbol(asymbol), class_(aclass), isotope(aisotope)
@@ -66,10 +63,6 @@ public:
   /// Generate subset of formula
   std::string formulaKey() const;
 
-//  /// ElementKey to json data
-//  void toKeyNode( jsonio::JsonDom *object ) const;
-//  /// ElementKey from json data
-//  void fromKeyNode( const jsonio::JsonDom *object );
   /// ElementKey from element record
   void fromElementNode( const std::string& element );
 
@@ -80,24 +73,7 @@ public:
 
 };
 
-
-/// Add element keys list to jsondom array object
-//void ElementsKeysToJsonDom( jsonio::JsonDom *object, const std::set<ElementKey>& elements );
-
-/// Generate json string with element keys list
-//std::string ElementsKeysToJson( const std::set<ElementKey>& elements );
-
-/// Read element keys list from json string
-//bool ElementsKeysFromJson( const std::string elmsjson, std::set<ElementKey>& elements );
-
-/// Read element keys list from field of jsondom object
-//bool ElementsKeysFromJsonDomArray( const std::string& keypath, const jsonio::JsonDom *object, std::set<ElementKey>& elements );
-
 auto elementKeyToElement(ElementKey elementKey) -> Element;
-
-/// Make element keys list from elements ids list
-//std::vector<ElementKey> getElementKeys( jsonio::TDBVertexDocument* elementDB, const std::vector<std::string>& idList );
-
 
 /// Elements values, loaded from Database
 struct ElementValues
@@ -220,8 +196,6 @@ class ChemicalFormula
   /// Loading from database elements
   static  DBElementsData dbElements;
   static  std::vector<std::string> queryFields;
-
-//  static void addOneElement( jsonio::TDBVertexDocument* elementDB );
   static void addOneElement(Element element);
 
  public:
@@ -233,18 +207,8 @@ class ChemicalFormula
      return dbElements;
   }
 
-//  static jsonio::DBQueryData getDefaultQuery()
-//  {
-//      return jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate );
-//  }
-
-//  static void setDBElements( jsonio::TDBVertexDocument* elementDB,
-//                             const jsonio::DBQueryData& query =  ChemicalFormula::getDefaultQuery() );
-//  static void setDBElements( jsonio::TDBVertexDocument* elementDB, const std::vector<std::string>& keyList );
   static void setDBElements(std::map<std::string, Element> elements );
-
   static std::vector<ElementKey> elementsRow();
-
   static std::map<ElementKey, double> extractElements_map(  const std::vector<std::string>& formulalist );
   static std::set<ElementKey>         extractElements(  const std::vector<std::string>& formulalist );
   static FormulaProperites         calcThermo(  const std::string formula_ );
