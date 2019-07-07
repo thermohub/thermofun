@@ -7,6 +7,14 @@ project(ThermoFun VERSION 0.1.5 LANGUAGES CXX)
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+
+include_directories("${CMAKE_SOURCE_DIR}/../dependencies/include")
+
+else() # build for linux
+
+endif()
+
 if (BUILD_WINDOWS)
 set(CMAKE_CXX_STANDARD 11)
 # the name of the target operating system
@@ -39,7 +47,7 @@ option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
-option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." ON)
+option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." OFF)
 option(TFUN_BUILD_GUIDEMO "Build ThermoFunGui demo." OFF)
 option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)

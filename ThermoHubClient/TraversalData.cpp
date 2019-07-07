@@ -11,12 +11,7 @@
 //#include "Common/ParseBsonTraversalData.h"
 #include "Common/Exception.h"
 #include "OptimizationUtils.h"
-
 #include "Common/ParseJsonToData.h"
-
-#include <sys/time.h>
-
-static struct timeval start, end_;
 
 using namespace jsonio;
 

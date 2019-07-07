@@ -128,6 +128,7 @@ FORMS += \
     demo/ThermoFunMainWindow.ui
 
 win32 {
+    QT   += webenginewidgets
     QMAKE_CXXFLAGS_WARN_ON = -wd4068 -wd4138
 }
 
@@ -137,6 +138,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../dependencies/lib-sta
 
 win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../dependencies/lib-dll-debug-x64/ -llibcurl_debug
 win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../dependencies/lib-static-debug-x64/ -lvelocypack -llibboost_regex* -llibboost_filesystem* -llibboost_system* -llibjsonio -llibjsonui
-win32:CONFIG(debug, debug|release): INCLUDEPATH += $$PWD/../../dependencies/include
-win32:CONFIG(debug, debug|release): DEPENDPATH += $$PWD/../../dependencies/include
+win32:INCLUDEPATH += $$PWD/../../dependencies/include
+win32:DEPENDPATH += $$PWD/../../dependencies/include
 
