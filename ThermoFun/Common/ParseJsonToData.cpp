@@ -122,6 +122,7 @@ auto setTPMethods_old(const ReactionTPMethodType &type, Reaction &r) -> void
         case ReactionTPMethodType::logk_lagrange_interp:
         case ReactionTPMethodType::logk_marshall_frank78:
         case ReactionTPMethodType::solute_eos_ryzhenko_gems:
+        case ReactionTPMethodType::logk_dolejs_manning10:
             r.setMethod_T(MethodCorrT_Thrift::type(new_old_r_methodtype.at(type)));
             break;
         case ReactionTPMethodType::dr_volume_fpt:
@@ -291,6 +292,8 @@ auto thermoParamReac (const json &j, ThermoParametersReaction& pr) -> void
         pr.reaction_RB_coeff = j["dr_ryzhenko_coeffs"]["values"].get<vector<double>>();
     if (j.contains("dr_marshall_franck_coeffs"))
         pr.reaction_FM_coeff = j["dr_marshall_franck_coeffs"]["values"].get<vector<double>>();
+    if (j.contains("dr_dolejs_manning10_coeffs"))
+        pr.reaction_DM10_coeff = j["dr_dolejs_manning10_coeffs"]["values"].get<vector<double>>();
 
 
 //    double lT = 0.0; double uT = 0.0;

@@ -142,6 +142,9 @@ struct ThermoParametersReaction
 
     /// Coefficients of Frantz & Marshall density model
     vd reaction_FM_coeff;
+
+    /// Coefficients of Dolejs and Maning 2010 density model
+    vd reaction_DM10_coeff;
 };
 
 /// Describes the thermodynamic parameters of a solvent used in specific models to calculate

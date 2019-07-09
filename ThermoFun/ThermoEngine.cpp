@@ -449,6 +449,11 @@ struct ThermoEngine::Impl
             tpr = Reaction_LogK_fT(reac).thermoProperties(T, P, methodT);
             break;
         }
+        case MethodCorrT_Thrift::type::CTM_DMD: // Dolejs-Maning 2010 density model
+        {
+            tpr = ReactionDolejsManning10(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
+            break;
+        }
         case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
         {
             tpr = ReactionFrantzMarshall(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));

@@ -110,7 +110,8 @@ enum ReactionTPMethodType {
     solute_eos_ryzhenko_gems = 10,
     dr_heat_capacity_ft = 11,
     dr_volume_fpt = 12,
-    dr_volume_constant = 13
+    dr_volume_constant = 13,
+    logk_dolejs_manning10 = 14
 };
 
 const std::map<const SubstanceTPMethodType, const std::vector<std::string>> method_parameters = {
@@ -239,6 +240,7 @@ typedef struct {
     CTM_WAR = 221,
     CTM_WWP = 222,
     CTM_WZD = 223,
+    CTM_DMD = 224,
   };
 } MethodCorrT_Thrift;
 static const int MethodCorrT_ndxThrift[] = {
@@ -265,7 +267,8 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_DAS,
   MethodCorrT_Thrift::CTM_WAR,      /// calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
   MethodCorrT_Thrift::CTM_WWP,      /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
-  MethodCorrT_Thrift::CTM_WZD       /// calculation of water proeprties using the Zhang and Duan (2005) EOS
+  MethodCorrT_Thrift::CTM_WZD,       /// calculation of water proeprties using the Zhang and Duan (2005) EOS
+  MethodCorrT_Thrift::CTM_DMD
 };
 /// Codes for temperature correction methods used in GEMS
 //static const char* MethodCorrT_GEMS[] = {
@@ -284,6 +287,7 @@ static const int MethodCorrT_ndxThrift[] = {
 //  "3",            ///< CTM_EK3 three-term extrapolation assuming dCpr=const; ReacDC
 //  "Z",            ///< CTM_IKZ Lagrange polynomial interpolation over logK(TP) array; ReacDC
 //  "R",            ///< CTM_DKR calculation of logK=f(T,P) from density equation (Marshall and Franck, 1978); ReacDC
+//  "M",            ///< CTM_DMD
 //  "E",            ///< CTM_PPE prediction of properties of aqueous hydroxides using Pronsprep-OH (Shock et al. 1997)
 //  "Y",            ///< CTM_MRB calculation of logK=f(T,P) with modified Ryzhenko-Bryzgalin model
 //  "C",            ///< CTM_CPG reserved (FGL)

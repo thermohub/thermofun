@@ -17,12 +17,13 @@ CONFIG += warn_on
 
 DEFINES += FROM_SRC
 
+win32:DEFINES  +=  NO_QWEBENGINE
+
 !win32 {
     DEFINES += __unix
 } else
 {
     DEFINES  +=  IMPEX_OFF
-    DEFINES  +=  NO_QWEBENGINE
 }
 
 QT   += core gui widgets

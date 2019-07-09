@@ -62,6 +62,7 @@
     $$PWD/Reactions/RyzhenkoBryzgalyn.h \
     $$PWD/Reactions/LogK_function_of_T.h \
     $$PWD/Reactions/Volume_function_of_T.h \
+    $$PWD/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
@@ -124,6 +125,7 @@
     $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
     $$PWD/Reactions/LogK_function_of_T.cpp \
     $$PWD/Reactions/Volume_function_of_T.cpp \
+    $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
