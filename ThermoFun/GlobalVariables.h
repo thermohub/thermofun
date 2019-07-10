@@ -424,7 +424,8 @@ static const std::map<const ReactionTPMethodType, const int> new_old_r_methodtyp
   {ReactionTPMethodType::logk_marshall_frank78, 214},
   {ReactionTPMethodType::solute_eos_ryzhenko_gems, 216},
   {ReactionTPMethodType::dr_volume_fpt, 306},
-  {ReactionTPMethodType::dr_volume_constant, 305 }
+  {ReactionTPMethodType::dr_volume_constant, 305 },
+  {ReactionTPMethodType::logk_dolejs_manning10, 306 }
 };
 
 typedef struct {
