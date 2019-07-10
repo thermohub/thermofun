@@ -18,7 +18,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
 else() # build for linux
   # Find library and software dependencies
-  find_package(Boost 1.65.1 REQUIRED)
+  find_package(Boost 1.58.0 REQUIRED)
   find_package(nlohmann_json 3.6.1 REQUIRED)
 
 
