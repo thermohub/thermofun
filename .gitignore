@@ -16,6 +16,7 @@ tests/unit06/H2OZD2005-test.pro.user*
 tests/gUnitTest/gUnitTest.pro.user*
 tests/interfaceTest/interfaceTest.pro.user*
 tests/dbclientTest/dbclientTest.pro.user*
+examples/build/
 src/*.autosave
 tests/unit01/src/*.autosave
 .directory
