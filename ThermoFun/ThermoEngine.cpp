@@ -126,7 +126,6 @@ struct ThermoEngine::Impl
         FormulaProperites prop = ThermoFun::ChemicalFormula::calcThermo(subst.formula());
         const auto entropyElements = prop.elemental_entropy;
         tps.gibbs_energy -= (Tr*entropyElements);
-        tps.enthalpy     -= (Tr*entropyElements);
     }
 
     auto getThermoPreferences(std::string substance) -> ThermoPreferences
