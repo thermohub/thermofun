@@ -113,6 +113,9 @@ struct ThermoParametersSubstance
 
     /// Array of empirical EOS coefficients (CG EOS: MAXCGPARAM = 13)
     vd empirical_coeff;
+
+    /// coefficients for Holland and Powell 1998 aq solute model
+    vd solute_holland_powell98_coeff; //
 };
 
 /// Describes the thermodynamic parameters of a reaction used in specific models to calculate

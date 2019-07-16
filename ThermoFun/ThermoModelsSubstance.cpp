@@ -7,6 +7,7 @@
 #include "Substances/Solute/SoluteHKFgems.h"
 #include "Substances/Solvent/WaterIdealGasWolley.h"
 #include "Substances/Solute/SoluteADgems.h"
+#include "Substances/Solute/SoluteHollandPowell98.h"
 #include "Substances/Solids/SolidMurnaghanHP98.h"
 #include "Substances/Solids/SolidBerman88.h"
 #include "Substances/Solids/SolidBMGottschalk.h"
@@ -229,6 +230,41 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
     ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, pimpl->substance);
 
     return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wes, wp);
+}
+
+
+//=======================================================================================================
+// Holland and Powell (1998) modified density model for aqueous species
+// References: Holland and Powell (1998)
+// Added: DM 16.07.2019
+//=======================================================================================================
+
+struct SoluteHollandPowell98::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+SoluteHollandPowell98::SoluteHollandPowell98(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto SoluteHollandPowell98::thermoProperties(double T, double P, const PropertiesSolvent& wpr, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T); // K
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa; // bar
+
+////    checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
+
+    return thermoPropertiesAqSoluteHP98(t, p, pimpl->substance, wpr, wp);
 }
 
 //=======================================================================================================

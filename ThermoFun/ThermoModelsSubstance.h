@@ -149,6 +149,33 @@ private:
 };
 
 /**
+ * @brief The SoluteHollandPowell98 class calculates the thermodynamic properties of aqueous species using the modified
+ * Holland and Powell (1998) density model
+ * References: Holland T.J.B. and Powell R. (1998) An internally consistent thermodynamic data set for phases of
+ * petrological interest. J. Metamorph. Geol. 16, 309-343.
+ */
+class SoluteHollandPowell98
+{
+public:
+    /// Construct a default AqueousSpecies instance
+    SoluteHollandPowell98();
+
+    /// Construct an AqueousSpecies instance from a Species instance
+    explicit SoluteHollandPowell98(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    /// @param wp structure holding the water solvent porperties
+    auto thermoProperties (double T, double P,  const PropertiesSolvent& wpr, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
  * @brief The MinMurnaghanEOSHP98 class
  */
 class MinMurnaghanEOSHP98
