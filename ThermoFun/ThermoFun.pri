@@ -6,6 +6,7 @@
     $$PWD/Common/formuladata.h \
     $$PWD/Common/formulaparser.h \
 # ThermoFun
+    $$PWD/Substances/Solute/SoluteAnderson91.h \
     $$PWD/Substances/Solute/SoluteHollandPowell98.h \
     $$PWD/ThermoFun.h \
     $$PWD/Database.h \
@@ -82,6 +83,7 @@
     $$PWD/Element.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
+    $$PWD/Substances/Solute/SoluteAnderson91.cpp \
     $$PWD/Substances/Solute/SoluteHollandPowell98.cpp \
     $$PWD/ThermoModelsSolvent.cpp \
     $$PWD/ElectroModelsSolvent.cpp \

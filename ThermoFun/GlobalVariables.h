@@ -94,7 +94,8 @@ enum SubstanceTPMethodType {
     mv_eos_murnaghan_hp98 = 38,
     mv_eos_tait_hp11 = 39,
     mv_pvnrt = 40,
-    solute_holland_powell98 = 41
+    solute_holland_powell98 = 41,
+    solute_anderson91 = 42
 };
 
 enum ReactionTPMethodType {
@@ -145,7 +146,8 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 {SubstanceTPMethodType::fluid_peng_robinson78, {""} },
 {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, {""} },
 {SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} },
-{SubstanceTPMethodType::solute_holland_powell98, {"solute_holland_powell98_coeffs"} }
+{SubstanceTPMethodType::solute_holland_powell98, {"solute_holland_powell98_coeffs"} },
+{SubstanceTPMethodType::solute_anderson91, {"solute_anderson91_coeffs"} }
 };
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
@@ -173,7 +175,8 @@ typedef struct {
     CTPM_HKFR  = 119, /// HKFreaktoro
     CTPM_WSV14 = 120, /// calculation of dielectric constant using the model of Sverjensky (2014)
     CTPM_WF97  = 121, /// calculation of dielectric constant using the model of Fernandez et al. (1997)
-    CTPM_HP98 = 122 /// HP98 aq
+    CTPM_HP98 = 122, /// HP98 aq
+    CTPM_AN91 = 123 /// AN91 aq
   };
 }  MethodGenEoS_Thrift;
 static const int MethodGenEoS_ndxThrift[] = {

@@ -41,7 +41,7 @@ public:
     /// Construct a default SoluteAkinfievDiamondEOS instance
     SoluteAkinfievDiamondEOS();
 
-    /// Construct a SoluteAkinfievDiamondEOS instance from a Species instance
+    /// Construct a SoluteAkinfievDiamondEOS instance from a Substance
     explicit SoluteAkinfievDiamondEOS(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
@@ -67,10 +67,10 @@ private:
 class WaterIdealGasWoolley
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default AqueousSubstance
     WaterIdealGasWoolley();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct a Model instance from a Substance
     explicit WaterIdealGasWoolley(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
@@ -97,10 +97,10 @@ private:
 class SoluteHKFgems
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default AqueousSubstance
     SoluteHKFgems();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct a Model instance from a Substance
     explicit SoluteHKFgems(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
@@ -129,10 +129,10 @@ private:
 class SoluteHKFreaktoro
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default AqueousSubstance
     SoluteHKFreaktoro();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct a Model instance from a Substance
     explicit SoluteHKFreaktoro(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
@@ -157,10 +157,10 @@ private:
 class SoluteHollandPowell98
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default AqueousSubstance
     SoluteHollandPowell98();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct a Model instance from a Substance
     explicit SoluteHollandPowell98(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.
@@ -176,15 +176,42 @@ private:
 };
 
 /**
+ * @brief The SoluteAnderson91 class calculates the thermodynamic properties of aqueous species using the modified
+ * Anderson et al. (1991) density model
+ * References:
+ */
+class SoluteAnderson91
+{
+public:
+    /// Construct a default AqueousSubstance
+    SoluteAnderson91();
+
+    /// Construct a Model instance from a Substance
+    explicit SoluteAnderson91(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    /// @param wpr structure holding the water solvent porperties at reference T and P
+    /// @param wp structure holding the water solvent porperties
+    auto thermoProperties (double T, double P,  const PropertiesSolvent& wpr, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
  * @brief The MinMurnaghanEOSHP98 class
  */
 class MinMurnaghanEOSHP98
 {
 public:
-    /// Construct a default AqueousSpecies instance
+    /// Construct a default AqueousSubstance
     MinMurnaghanEOSHP98();
 
-    /// Construct an AqueousSpecies instance from a Species instance
+    /// Construct a Model instance from a Substance
     explicit MinMurnaghanEOSHP98(const Substance& substance);
 
     /// Returns the thermodynamic properties of the substance.

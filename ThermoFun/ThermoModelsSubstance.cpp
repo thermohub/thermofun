@@ -8,6 +8,7 @@
 #include "Substances/Solvent/WaterIdealGasWolley.h"
 #include "Substances/Solute/SoluteADgems.h"
 #include "Substances/Solute/SoluteHollandPowell98.h"
+#include "Substances/Solute/SoluteAnderson91.h"
 #include "Substances/Solids/SolidMurnaghanHP98.h"
 #include "Substances/Solids/SolidBerman88.h"
 #include "Substances/Solids/SolidBMGottschalk.h"
@@ -78,7 +79,7 @@ auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoProper
         {
             EmpiricalCpIntegration CpInt ( pimpl->substance);
             return CpInt.thermoProperties(T, P);
-            break;
+//            break;
         }
     }
 
@@ -265,6 +266,40 @@ auto SoluteHollandPowell98::thermoProperties(double T, double P, const Propertie
 ////    checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
 
     return thermoPropertiesAqSoluteHP98(t, p, pimpl->substance, wpr, wp);
+}
+
+//=======================================================================================================
+// Anderson et al. (1991) density model for aqueous species
+// References: Anderson et al. (1991)
+// Added: DM 17.07.2019
+//=======================================================================================================
+
+struct SoluteAnderson91::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+SoluteAnderson91::SoluteAnderson91(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+
+auto SoluteAnderson91::thermoProperties(double T, double P, const PropertiesSolvent& wpr, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T); // K
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa; // bar
+
+////    checkModelValidity(t.val, p.val, 1000, 5000, pimpl->substance, "HKFgems");
+
+    return thermoPropertiesAqSoluteAN91(t, p, pimpl->substance, wpr, wp);
 }
 
 //=======================================================================================================

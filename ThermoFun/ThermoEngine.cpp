@@ -209,6 +209,13 @@ struct ThermoEngine::Impl
                     tps = SoluteHollandPowell98(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol), properties_solvent_fn(T, P, P, solventSymbol));
                     break;
                 }
+                case MethodGenEoS_Thrift::type::CTPM_AN91:
+                {
+                    double Pr = database.getSubstance(solventSymbol).referenceP();
+                    double Tr = database.getSubstance(solventSymbol).referenceT();
+                    tps = SoluteAnderson91(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol), properties_solvent_fn(T, P, P, solventSymbol));
+                    break;
+                }
                     //                default:
                     //                // Exception
                     //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
