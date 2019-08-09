@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.1.5 LANGUAGES CXX)
+project(ThermoFun VERSION 0.1.10 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
@@ -23,7 +23,7 @@ option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
-option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." ON)
+option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." OFF)
 option(TFUN_BUILD_GUIDEMO "Build ThermoFunGui demo." OFF)
 option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
