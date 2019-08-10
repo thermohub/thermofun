@@ -12,17 +12,16 @@ pipelines:
           - apt-get update
           - apt-get install -y cmake
           - mkdir code
-	  - cd code
-	  - git clone https://github.com/nlohmann/json.git
-	  - cd json
-	  - mkdir -p build
-	  - cd build
-	  - cmake .. -DJSON_BuildTests=OFF
-	  - make
-	  - make install
-	# Removing generated build files
-	  - cd ..
-	  - rm -rf code
+				  - cd code
+				  - git clone https://github.com/nlohmann/json.git
+				  - cd json
+	  			- mkdir -p build
+	  			- cd build
+	  			- cmake .. -DJSON_BuildTests=OFF
+	  			- make
+	  			- make install
+	  			- cd ..
+	  			- rm -rf code
           - mkdir build
           - cd build
           - cmake .. 
