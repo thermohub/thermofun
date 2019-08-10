@@ -9,7 +9,20 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
-          - ./install-dependencies.sh
+          - apt-get update
+          - apt-get install -y cmake
+          - mkdir code
+	  - cd code
+	  - git clone https://github.com/nlohmann/json.git
+	  - cd json
+	  - mkdir -p build
+	  - cd build
+	  - cmake .. -DJSON_BuildTests=OFF
+	  - make
+	  - make install
+	# Removing generated build files
+	  - cd ..
+	  - rm -rf code
           - mkdir build
           - cd build
           - cmake .. 
