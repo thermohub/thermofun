@@ -9,6 +9,8 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
-          - ./configure
+          - ./install-dependencies.sh
+          - mkdir build
+          - cd build
+          - cmake .. 
           - make
-          - make test
