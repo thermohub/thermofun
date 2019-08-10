@@ -1,4 +1,7 @@
+#ifdef _WIN32
+#else
 #include <sys/time.h>
+#endif
 #include <QScrollBar>
 #include <QHeaderView>
 #include "ThermoFunPrivateNew.h"
@@ -340,7 +343,7 @@ void ThermoFunPrivateNew::updateSelectMessage()
 void ThermoFunPrivateNew::reallocTP( int newsize )
 {
   _data.tppairs.clear();
-   for (int i = 0; i<newsize; i++ )
+   for (unsigned int i = 0; i<newsize; i++ )
        _data.tppairs.push_back({0,0});
   _TPlistModel->resetMatrixData();
 }

@@ -94,7 +94,9 @@ struct SelectThermoDataDialogPrivate
         auto elmnts = _ThermoHubClient.thermoDataSet().selectElementsFromSubstancesGiven( sourceTDBs );
         elementsAll.clear();
         if( !elmnts.empty() )
-            elementsAll.insert( elementsAll.begin(), elmnts.begin(), elmnts.end() );
+            for(auto s : elmnts) {
+              elementsAll.push_back(s);
+            }
         return true;
     }
 

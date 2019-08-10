@@ -16,15 +16,19 @@ struct Output::Impl
     std::string                         header = "";
     std::ofstream                       fProperties;
 
-    Impl(const ThermoBatch& interface)
-    : api(ThermoBatch(interface))
+    Impl(const ThermoBatch& batch_)
+    : api(ThermoBatch(batch_))
     {}
 
 };
 
-Output::Output(const ThermoBatch& interface)
-: pimpl(new Impl(interface))
+Output::Output(const ThermoBatch& batch)
+: pimpl(new Impl(batch))
 {}
+
+//Output::Output(const void *a)
+//: pimpl(new Impl(*(ThermoBatch*)a))
+//{}
 
 auto find_and_replace(std::string source, std::string const& find, std::string const& replace) -> std::string
 {

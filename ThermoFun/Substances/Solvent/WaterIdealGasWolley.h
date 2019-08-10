@@ -6,7 +6,7 @@
 namespace ThermoFun {
 
 // Forward declarations
-struct Substance;
+class Substance;
 struct ThermoPropertiesSubstance;
 
 /**

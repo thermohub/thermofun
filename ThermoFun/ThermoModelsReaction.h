@@ -8,9 +8,9 @@
 
 namespace ThermoFun {
 
-class PropertiesSolvent;
+struct PropertiesSolvent;
 class Reaction;
-class ThermoPropertiesReaction;
+struct ThermoPropertiesReaction;
 
 /**
  * @brief The ThermoModelsReaction class
@@ -20,6 +20,26 @@ class ThermoModelsReaction
 public:
     ThermoModelsReaction();
 
+};
+
+class ReactionDolejsManning10
+{
+public:
+    /// Construct a default ReactionDolejsManning10 instance
+    ReactionDolejsManning10();
+
+    /// Construct a ReactionDolejsManning10 instance from a reaction instance
+    explicit ReactionDolejsManning10(const Reaction& reaction);
+
+    /// Returns the thermodynamic properties of the reaction.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    auto thermoProperties (double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
 };
 
 class ReactionFrantzMarshall

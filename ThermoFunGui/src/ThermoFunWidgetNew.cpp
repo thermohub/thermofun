@@ -33,8 +33,12 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QInputDialog>
-#include <QtConcurrent>
+#ifdef _WIN32
+#include <chrono>
+#else
 #include <sys/time.h>
+#endif
+#include <QtConcurrent>
 #include "ThermoFunPrivateNew.h"
 #include "ui_ThermoFunWidget.h"
 #include "TPSetDialog.h"
@@ -571,7 +575,7 @@ void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
         // run in other thread
         bool calcSubstFromReact_= calcSubstFromReact();
         bool calcReactFromSubst_= calcReactFromSubst();
-        bool output_number_format= ui->actionFixed_output_number_format->isChecked();
+        bool output_number_format= ui->actionFixed_Outputnumber_format->isChecked();
 
         calcWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::calcData, std::move(loadData), std::move(solventSymbol),
                                                  output_number_format, calcSubstFromReact_, calcReactFromSubst() ));

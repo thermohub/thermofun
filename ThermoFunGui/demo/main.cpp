@@ -6,9 +6,11 @@
 
 int main(int argc, char *argv[])
 {
-
-    //jsonio::JsonioSettings::settingsFileName = "Resources/fun-ThermoHubClient-config.json";
-    jsonio::JsonioSettings::settingsFileName = "fun-ThermoHubClient-config.json";
+#ifdef _WIN32
+    jsonio::JsonioSettings::settingsFileName = "Resources/fun-hubclient-config-win.json";
+#else
+    jsonio::JsonioSettings::settingsFileName = "Resources/fun-hubclient-config.json";
+#endif
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/Icons/thermofun-logo-icon.png"));
 

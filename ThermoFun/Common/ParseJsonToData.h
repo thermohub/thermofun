@@ -2,9 +2,9 @@
 
 namespace ThermoFun {
 
-struct Substance;
-struct Reaction;
-struct Element;
+class Substance;
+class Reaction;
+class Element;
 
 //DefinesSubstLevelOptions levelOptionsDefault;
 /// Parses an element bson object and loads its data into the element structure

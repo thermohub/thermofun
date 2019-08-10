@@ -6,13 +6,14 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <string>
 
 namespace ThermoFun
 {
 
-struct Database;
-struct SubstanceData_;
-struct ReactionData_;
+class Database;
+class SubstanceData_;
+class ReactionData_;
 
 using  VertexId_VertexType = std::map<std::string, std::string>;
 using  VertexId_DefinesLevel = std::map<std::string, std::vector<std::string>>;

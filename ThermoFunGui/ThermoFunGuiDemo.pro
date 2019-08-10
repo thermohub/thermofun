@@ -12,20 +12,18 @@ CONFIG += thread
 CONFIG += c++11
 CONFIG += warn_on
 
+#QMAKE_CXXFLAGS_RELEASE = -Wpedantic
+#QMAKE_CFLAGS_RELEASE = -Wno-unknown-pragmas -Wpedantic
+
 DEFINES += FROM_SRC
 
-#internal help configuraion
-#DEFINES  +=  NO_QWEBENGINE
-#DEFINES  +=  USE_MARKDOWN
-#win32:DEFINES += IMPEX_OFF
-#DEFINES += IMPEX_OFF
+win32:DEFINES  +=  NO_QWEBENGINE
 
 !win32 {
-  DEFINES += __unix
-}else
+    DEFINES += __unix
+} else
 {
-# DEFINES  +=  IMPEX_OFF
-#DEFINES  +=  NO_QWEBENGINE
+    DEFINES  +=  IMPEX_OFF
 }
 
 QT   += core gui widgets
@@ -69,10 +67,6 @@ DEPENDPATH   += $$CLIENT_DIR
 INCLUDEPATH   += $$CLIENT_H
 INCLUDEPATH   += $$CLIENT_DIR
 
-INCLUDEPATH   += "/usr/local/include"
-DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib"
-
 macx-clang {
   DEFINES += __APPLE__
   CONFIG -= warn_on
@@ -82,27 +76,30 @@ macx-clang {
   LIBPATH += "/usr/local/lib/"
 }
 
+!win32 {
 
-## Markdown editor
-contains(DEFINES, USE_MARKDOWN) {
-  LIBS +=  -lmarkdown
+    INCLUDEPATH   += "/usr/local/include"
+    DEPENDPATH   += "/usr/local/include"
+    LIBPATH += "/usr/local/lib"
+
+    ## Markdown editor
+    contains(DEFINES, USE_MARKDOWN) {
+        LIBS +=  -lmarkdown
+    }
+    else
+    {
+        contains(DEFINES, NO_QWEBENGINE) {
+        LIBS +=  -lmarkdown
+        }
+    }
+
+    LIBS +=  -ljsonui -ljsonio -ljsonimpex
+    LIBS +=  -lyaml-cpp  -lpugixml
+    LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
+    LIBS +=  -lcurl  -lvelocypack -lthrift
+
+    !macx-clang:LIBS += -llua5.3
 }
-else
-{
-  contains(DEFINES, NO_QWEBENGINE) {
-  LIBS +=  -lmarkdown
- }
-
-}
-## end markdown
-
-
-LIBS +=  -ljsonui -ljsonio -ljsonimpex
-LIBS +=  -lyaml-cpp  -lpugixml
-LIBS +=  -lboost_regex -lboost_system -lboost_filesystem
-LIBS +=  -lcurl  -lvelocypack -lthrift
-!macx-clang:LIBS += -llua5.3
-
 
 MOC_DIR = tmp
 UI_DIR        = $$MOC_DIR
@@ -130,4 +127,18 @@ HEADERS += \
 
 FORMS += \
     demo/ThermoFunMainWindow.ui
+
+win32 {
+    QT   += webenginewidgets
+    QMAKE_CXXFLAGS_WARN_ON = -wd4068 -wd4138
+}
+
+win32:DEFINES += IMPEX_OFF
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../dependencies/lib-dll-release-x64/ -llibcurl
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../dependencies/lib-static-release-x64/ -lvelocypack -llibboost_regex* -llibboost_filesystem-vc-mt* -llibboost_system* -llibjsonio -llibjsonui
+
+win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../dependencies/lib-dll-debug-x64/ -llibcurl_debug
+win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../dependencies/lib-static-debug-x64/ -lvelocypack -llibboost_regex* -llibboost_filesystem* -llibboost_system* -llibjsonio -llibjsonui
+win32:INCLUDEPATH += $$PWD/../../dependencies/include
+win32:DEPENDPATH += $$PWD/../../dependencies/include
 

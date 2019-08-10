@@ -1,7 +1,7 @@
 #!/bin/bash
 # Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04
 
-sudo rm -f /usr/local/include/nlohmann/json.hpp
+#sudo rm -f /usr/local/include/nlohmann/json.hpp
 
 workfolder=${PWD}
 

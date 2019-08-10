@@ -11,16 +11,16 @@
 namespace ThermoFun
 {
 
-struct Database;
-//struct Reaction;
-//struct Substance;
-struct Element;
-struct SubstanceData_;
-struct ReactionData_;
-struct ReactionSetData_;
-struct ThermoSetData;
-struct ElementKey;
-struct TraversalData;
+class Database;
+//class Reaction;
+//class Substance;
+class Element;
+class SubstanceData_;
+class ReactionData_;
+class ReactionSetData_;
+class ThermoSetData;
+class ElementKey;
+class TraversalData;
 
 using List_VertexId_VertexType    = std::vector< std::pair<std::string, std::string> >;
 

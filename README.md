@@ -163,7 +163,7 @@ make
 
 -DTFUN_BUILD_GUI=ON -DTFUN_BUILD_GUIDEMO=ON options trigger the compilation of ThermoFunGui library and the gui demo widget. 
 
-The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "fun-dbclient-config.json" is present and contains the arangodb database connection preferences. 
+The build script will also copy into the build folder the necessary /Resources folder. In the Resources folder a file named "fun-hubclient-config.json" is present and contains the arangodb database connection preferences. 
 
 To run the ThermoFun GUI demo in the terminal at ```~/build$``` execute:
 
@@ -171,7 +171,7 @@ To run the ThermoFun GUI demo in the terminal at ```~/build$``` execute:
 ./guidemo.sh
 ```
 
-You can change the arango database connection setup using the preferences icon on the start widget, or by making changes in ```Resources/fun-dbclient-config.json``` file.
+You can change the arango database connection setup using the preferences icon on the start widget, or by making changes in ```Resources/fun-hubclient-config.json``` file.
 
 * For building using Qt Creator, use the ThermoFunDemoGUI.pro project file found in  ```~/thermofun/fungui```.
 
@@ -217,10 +217,57 @@ from thermofun import *
 
 In the build folder a test file text.py can be found, this can be run by executing ```python test.py``` and ```python test-dbc.py``` . If successful in addition to on screen output, two files, results.csv and results_dbc.csv files containing calculation results will be created. 
 
-If compilation was successful the /Resources folder will be copied to the build folder. In this folder the necessary test files, connection to the arangodb database preferences, and data schemas are present. To change database connection without using the GUI, make changes in the ```Resources/fun-dbclient-config.json``` file.
+If compilation was successful the /Resources folder will be copied to the build folder. In this folder the necessary test files, connection to the arangodb database preferences, and data schemas are present. To change database connection without using the GUI, make changes in the ```Resources/fun-hubclient-config.json``` file.
 
 
-### Simple C++ API example
+## Build and Run ThermoFun GUI on Windows 10
+
+* Make sure you have git installed. If not, install it on Windows: https://git-scm.com/download/win.
+* To download ThermoFun source code, using Windows Command Prompt go to C:/git/THERMOFUN and execute
+
+```
+git clone https://bitbucket.org/gems4/thermofun.git
+```
+
+## Prepare building tools
+
+* ThermoFun GUI dependencies will be compiled using MSVC 2017 64 bit compiler. For this Visual Studio Community (2017) needs to be installed: 
+https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio?view=vs-2017
+At Step 4 - Select workloads, select Desktop development with C++ to be installed. On the individual components page check that also Windows 10 SDK is selected to be installed.
+* In addition to MSVC 2017, Qt needs to be installed: https://www.qt.io/download in C:/Qt folder (Qt installation folder is used in further scripts, please use C:/Qt)!
+Select with Qt 5.12.0 MSVC 2017 64-bit with Qt Charts, and Qt WebEngine.
+
+### Install Dependencies
+
+* For compiling the libraries that ThermoFun GUI is dependent on, three .bat scripts can be found in /thermofun. The process will several minutes. In a windows Command Prompt terminal go to C:/git/THERMOFUN/thermofun and run:
+
+```
+C:\git\THERMOFUN\thermofun>a-build-win-dependencies.bat
+```
+
+* This script builds curl and velocypack libraries, copies then in the C:\git\THERMOFUN\dependencies folder, creates buil-fun-gui folder and copies there the necessary resources files
+
+```
+C:\git\THERMOFUN\thermofun>b-build-win-boost.bat 
+```
+
+* This script builds the necessary boost libraries and copies then in the C:\git\THERMOFUN\dependencies folder
+
+```
+C:\git\THERMOFUN\thermofun>c-build-win-jsonio-jsonui.bat C:\Qt\5.12.3\msvc2017_64\bin
+```
+
+* This script builds jsonio and jsonui libraries, copies then in the C:\git\THERMOFUN\dependencies folder. Don't forget to use the corect Qt installation path.
+
+### Compiling and the ThermoFun GUI demo in Qt Creator
+
+* In Qt Creator open C:\git\THERMOFUN\thermofun\fungui\ThermoFunDemoGUI.pro
+* Set the build folder to C:\git\THERMOFUN\build-fun-gui (release mode). NOT! C:\git\THERMOFUN\build-fun-gui\release 
+* After the successful compilation try to run ThermoFun GUI from Qt Creator. All necessary dependencies and Resources should be already set in the right place. 
+
+* Unsuccessful attempts could be due to unsuccesful compilation of dependences, missing or not correctly copied lib or Resources files, etc. 
+
+## Simple C++ API example
 
 * Using a json database file
 
@@ -262,7 +309,7 @@ int main()
 int main()
 {
     // Set the file path to the database connection and preferences file (provided in the Resources/ folder)
-    setDatabaseConnectionFilePath("fun-dbclient-config.json");
+    setDatabaseConnectionFilePath("fun-hubclient-config.json");
 
     // Initialize a database client object
     ThermoFun::DatabaseClient dbc;
@@ -351,7 +398,7 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
 
 ```
 #!Python
-PyThermoDBClient.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
+PyThermoDBClient.setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json")
 
 print("\n# Initialize a database client object\n")
 dbc = PyThermoDBClient.DatabaseClient()

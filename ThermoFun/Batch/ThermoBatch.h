@@ -13,7 +13,7 @@
 
 namespace ThermoFun {
 
-struct Database;
+class Database;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;
 struct PropertiesSolvent;

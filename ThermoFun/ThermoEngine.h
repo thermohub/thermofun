@@ -8,10 +8,10 @@
 namespace ThermoFun {
 
 // Forward declarations
-struct Database;
-struct Solvent;
-struct Substance;
-struct Element;
+class Database;
+class Solvent;
+class Substance;
+class Element;
 struct ThermoPreferences;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;

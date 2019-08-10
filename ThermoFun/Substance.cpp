@@ -24,11 +24,11 @@ struct Substance::Impl
     /// The molar mass of the chemical Substance (in units of g/mol)
     double molar_mass;
 
-    /// Reference temperature (in K)
-    double reference_T;
+    /// Reference temperature (in K, 298.15 default)
+    double reference_T = 298.15;
 
-    /// Reference pressure (in Pa)
-    double reference_P;
+    /// Reference pressure (in Pa, 1e5 Pa default)
+    double reference_P = 1e5;
 
     /// Lower temperature limit (in K)
     double lower_T;

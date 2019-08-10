@@ -750,7 +750,7 @@
     <string>Select Reactions ...</string>
    </property>
   </action>
-  <action name="actionFixed_output_number_format">
+  <action name="actionFixed_Outputnumber_format">
    <property name="checkable">
     <bool>true</bool>
    </property>

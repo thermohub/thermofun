@@ -19,7 +19,7 @@ public:
     /// \brief Output constructor
     /// \param interface
     ///
-    Output(const ThermoBatch & interface);
+    Output(const ThermoBatch& batch);
 
     auto toCSV                  (std::string filename) -> void;
     auto toCSVTransposed        (std::string filename) -> void;

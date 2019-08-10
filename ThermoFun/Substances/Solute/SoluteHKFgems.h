@@ -10,7 +10,7 @@ struct ThermoPropertiesSubstance;
 struct ElectroPropertiesSolvent;
 struct PropertiesSolvent;
 struct FunctionG;
-struct Substance;
+class Substance;
 
 /// Returns the thermodynamic properties of a substance using the HKF EOS
 /// @ref Tanger and Helgeson (1988)

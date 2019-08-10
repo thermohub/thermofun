@@ -6,6 +6,7 @@
 #include "jsonui/VertexWidget.h"
 #include "jsonui/EdgesWidget.h"
 #include "jsonui/HelpMainWindow.h"
+#include "jsonui/helpBrowser.h"
 #include "ThermoFunMainWindow.h"
 #include "ui_ThermoFunMainWindow.h"
 #include "ThermoFunWidgetNew.h"

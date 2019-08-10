@@ -13,9 +13,12 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
-if( NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  #link_directories("/usr/local/lib")
+
+else() # build for linux
   # Find library and software dependencies
-  find_package(Boost 1.65.1 REQUIRED)
+  find_package(Boost 1.58.0 REQUIRED)
   find_package(nlohmann_json 3.6.1 REQUIRED)
 
 

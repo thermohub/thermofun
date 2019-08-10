@@ -6,6 +6,8 @@
     $$PWD/Common/formuladata.h \
     $$PWD/Common/formulaparser.h \
 # ThermoFun
+    $$PWD/Substances/Solute/SoluteAnderson91.h \
+    $$PWD/Substances/Solute/SoluteHollandPowell98.h \
     $$PWD/ThermoFun.h \
     $$PWD/Database.h \
     $$PWD/Element.h \
@@ -62,6 +64,7 @@
     $$PWD/Reactions/RyzhenkoBryzgalyn.h \
     $$PWD/Reactions/LogK_function_of_T.h \
     $$PWD/Reactions/Volume_function_of_T.h \
+    $$PWD/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
@@ -80,6 +83,8 @@
     $$PWD/Element.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
+    $$PWD/Substances/Solute/SoluteAnderson91.cpp \
+    $$PWD/Substances/Solute/SoluteHollandPowell98.cpp \
     $$PWD/ThermoModelsSolvent.cpp \
     $$PWD/ElectroModelsSolvent.cpp \
     $$PWD/ThermoModelsReaction.cpp \
@@ -124,6 +129,7 @@
     $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
     $$PWD/Reactions/LogK_function_of_T.cpp \
     $$PWD/Reactions/Volume_function_of_T.cpp \
+    $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \

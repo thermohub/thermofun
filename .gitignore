@@ -16,6 +16,7 @@ tests/unit06/H2OZD2005-test.pro.user*
 tests/gUnitTest/gUnitTest.pro.user*
 tests/interfaceTest/interfaceTest.pro.user*
 tests/dbclientTest/dbclientTest.pro.user*
+examples/build/
 src/*.autosave
 tests/unit01/src/*.autosave
 .directory
@@ -44,9 +45,12 @@ tests/interfaceTest/include/
 tests/interfaceTest/install_manifest.txt
 tests/interfaceTest/lib/
 tests/interfaceTest/thirdparty/
+temp*
 
 .vscode/
 tests/PyThermoFun.so
+d-*
+e-*
 
 python/tests/H2OWP95reaktoro.csv
 python/tests/PyThermoFun.cpython-36m-x86_64-linux-gnu.so
@@ -54,6 +58,7 @@ python/tests/parseBsonDatalogfile.txt
 python/tests/results.csv
 python/tests/results_dbc.csv
 python/pyThermoFun/CMakeLists_old.txt
+
 
 
 

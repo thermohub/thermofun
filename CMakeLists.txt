@@ -7,7 +7,31 @@ project(ThermoFun VERSION 0.1.10 LANGUAGES CXX)
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-set(CMAKE_MACOSX_RPATH ON)
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+
+include_directories("${CMAKE_SOURCE_DIR}/../dependencies/include")
+
+else() # build for linux
+
+endif()
+
+if (BUILD_WINDOWS)
+set(CMAKE_CXX_STANDARD 11)
+# the name of the target operating system
+SET(CMAKE_SYSTEM_NAME Windows)
+
+# which compilers to use for C and C++
+SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+
+# here is the target environment located
+SET(CMAKE_FIND_ROOT_PATH  /usr/x86_64-w64-mingw32)
+
+include_directories("/usr/local/include")
+link_directories("/usr/local/lib")
+
+else() # build for linux
+endif()
 
 # Use ccache to speed up repeated compilations
 include(CCache)

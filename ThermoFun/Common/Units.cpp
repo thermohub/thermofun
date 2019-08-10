@@ -515,7 +515,7 @@ struct Node
     std::shared_ptr<Node> right;
 };
 
-std::size_t findMatchedParenthesisFromRight(const string& str, unsigned pos)
+std::size_t findMatchedParenthesisFromRight(const string& str, size_t pos)
 {
     int level = 0;
     for(int iter = pos-1; iter >= 0; --iter)
@@ -533,7 +533,7 @@ inline void unmatchedParenthesisError()
     throw std::runtime_error("*** Error *** there is unmatched parenthesis in the unit string.");
 }
 
-std::shared_ptr<Node> parseUnit(const string& symbol, unsigned pos)
+std::shared_ptr<Node> parseUnit(const string& symbol, size_t pos)
 {
     if(symbol.empty()) return nullptr;
 

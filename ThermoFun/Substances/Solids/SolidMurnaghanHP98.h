@@ -5,7 +5,7 @@
 
 namespace ThermoFun {
 
-struct Substance;
+class Substance;
 struct ThermoPropertiesSubstance;
 
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Murnaghan EoS (Holland and Powell, 1998)

@@ -11,12 +11,7 @@
 //#include "Common/ParseBsonTraversalData.h"
 #include "Common/Exception.h"
 #include "OptimizationUtils.h"
-
 #include "Common/ParseJsonToData.h"
-
-#include <sys/time.h>
-
-static struct timeval start, end_;
 
 using namespace jsonio;
 
@@ -146,7 +141,7 @@ struct TraversalData::Impl
         string  _resultDataReac;
         vector<string> _resultDataEdge = substData->queryInEdgesDefines(_idSubst, level_ );
 
-        std::cout << "incoming defines: "<< _idSubst << endl;
+        //std::cout << "incoming defines: "<< _idSubst << endl;
 
         for(std::size_t i = 0; i < _resultDataEdge.size(); i++)
         {
@@ -168,7 +163,7 @@ struct TraversalData::Impl
         string _resultDataSubst;
         vector<string> _resultDataEdge  = reactData->queryInEdgesTakes(_idReact );
 
-        std::cout << "incoming takes: "<< _idReact << endl;
+        //std::cout << "incoming takes: "<< _idReact << endl;
 
         for(std::size_t i = 0; i < _resultDataEdge.size(); i++)
         {
@@ -345,7 +340,6 @@ auto TraversalData::getDatabaseFromMapOfIds(VertexId_VertexType resultTraversal,
 VertexId_VertexType TraversalData::getMapOfConnectedIds( vector<string> idList )
 {
     pimpl->definesLevelMode = DefinesLevelMode::all;
-
     return pimpl->getResult(idList);
 }
 

@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
 //    auto list = dbc_.TraverseAllIncomingEdges("thermodatasets/Aq17_2_1");
 
-    setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json");
+    setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json");
 
     DatabaseClient dbc;
 

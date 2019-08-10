@@ -41,7 +41,7 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
                                ).toCSV("results.csv")                               # // output
 
-PyThermoHubClient.setDatabaseConnectionFilePath("Resources/fun-dbclient-config.json")
+PyThermoHubClient.setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json")
 
 print("\n# Initialize a database client object\n")
 dbc = PyThermoHubClient.DatabaseClient()

@@ -12,7 +12,7 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-#define OUTPUT_STEAM_CONVENTION
+#define OutputSTEAM_CONVENTION
 
 using namespace std;
 
@@ -45,7 +45,7 @@ static const double R_CONSTANT = 8.31451,
 /// The molar mass of water in units of g/mol
 static const double H2OMolarMass = 18.015268;
 
-static const std::string output_path = "/Output/";
+static const std::string Outputpath = "/Output/";
 
 static const std::string parsinglogfile = "parseBsonDatalogfile.txt";
 
@@ -93,7 +93,9 @@ enum SubstanceTPMethodType {
     mv_eos_birch_murnaghan_gott97 = 37,
     mv_eos_murnaghan_hp98 = 38,
     mv_eos_tait_hp11 = 39,
-    mv_pvnrt = 40
+    mv_pvnrt = 40,
+    solute_holland_powell98 = 41,
+    solute_anderson91 = 42
 };
 
 enum ReactionTPMethodType {
@@ -110,7 +112,8 @@ enum ReactionTPMethodType {
     solute_eos_ryzhenko_gems = 10,
     dr_heat_capacity_ft = 11,
     dr_volume_fpt = 12,
-    dr_volume_constant = 13
+    dr_volume_constant = 13,
+    logk_dolejs_manning10 = 14
 };
 
 const std::map<const SubstanceTPMethodType, const std::vector<std::string>> method_parameters = {
@@ -142,7 +145,9 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 {SubstanceTPMethodType::fluid_sterner_pitzer, {""} },
 {SubstanceTPMethodType::fluid_peng_robinson78, {""} },
 {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, {""} },
-{SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} } 
+{SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} },
+{SubstanceTPMethodType::solute_holland_powell98, {"solute_holland_powell98_coeffs"} },
+{SubstanceTPMethodType::solute_anderson91, {"solute_anderson91_coeffs"} }
 };
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
@@ -169,7 +174,9 @@ typedef struct {
     CTPM_WJNG  = 118,  /// calculation of the electro-chemical properties of H2O using the Johnson-Norton 1991 model as implemented in GEMS
     CTPM_HKFR  = 119, /// HKFreaktoro
     CTPM_WSV14 = 120, /// calculation of dielectric constant using the model of Sverjensky (2014)
-    CTPM_WF97  = 121 /// calculation of dielectric constant using the model of Fernandez et al. (1997)
+    CTPM_WF97  = 121, /// calculation of dielectric constant using the model of Fernandez et al. (1997)
+    CTPM_HP98 = 122, /// HP98 aq
+    CTPM_AN91 = 123 /// AN91 aq
   };
 }  MethodGenEoS_Thrift;
 static const int MethodGenEoS_ndxThrift[] = {
@@ -239,6 +246,7 @@ typedef struct {
     CTM_WAR = 221,
     CTM_WWP = 222,
     CTM_WZD = 223,
+    CTM_DMD = 224,
   };
 } MethodCorrT_Thrift;
 static const int MethodCorrT_ndxThrift[] = {
@@ -265,7 +273,8 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_DAS,
   MethodCorrT_Thrift::CTM_WAR,      /// calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
   MethodCorrT_Thrift::CTM_WWP,      /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
-  MethodCorrT_Thrift::CTM_WZD       /// calculation of water proeprties using the Zhang and Duan (2005) EOS
+  MethodCorrT_Thrift::CTM_WZD,       /// calculation of water proeprties using the Zhang and Duan (2005) EOS
+  MethodCorrT_Thrift::CTM_DMD
 };
 /// Codes for temperature correction methods used in GEMS
 //static const char* MethodCorrT_GEMS[] = {
@@ -284,6 +293,7 @@ static const int MethodCorrT_ndxThrift[] = {
 //  "3",            ///< CTM_EK3 three-term extrapolation assuming dCpr=const; ReacDC
 //  "Z",            ///< CTM_IKZ Lagrange polynomial interpolation over logK(TP) array; ReacDC
 //  "R",            ///< CTM_DKR calculation of logK=f(T,P) from density equation (Marshall and Franck, 1978); ReacDC
+//  "M",            ///< CTM_DMD
 //  "E",            ///< CTM_PPE prediction of properties of aqueous hydroxides using Pronsprep-OH (Shock et al. 1997)
 //  "Y",            ///< CTM_MRB calculation of logK=f(T,P) with modified Ryzhenko-Bryzgalin model
 //  "C",            ///< CTM_CPG reserved (FGL)
@@ -420,7 +430,8 @@ static const std::map<const ReactionTPMethodType, const int> new_old_r_methodtyp
   {ReactionTPMethodType::logk_marshall_frank78, 214},
   {ReactionTPMethodType::solute_eos_ryzhenko_gems, 216},
   {ReactionTPMethodType::dr_volume_fpt, 306},
-  {ReactionTPMethodType::dr_volume_constant, 305 }
+  {ReactionTPMethodType::dr_volume_constant, 305 },
+  {ReactionTPMethodType::logk_dolejs_manning10, 224 }
 };
 
 typedef struct {

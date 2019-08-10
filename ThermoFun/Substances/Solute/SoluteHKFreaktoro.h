@@ -11,7 +11,7 @@ struct ElectroPropertiesSolvent;
 struct ThermoPropertiesSubstance;
 struct PropertiesSolvent;
 struct FunctionG;
-struct Substance;
+class Substance;
 
 /// Returns the G function and its derivatives
 /// @ref Shock et al. (1991)
