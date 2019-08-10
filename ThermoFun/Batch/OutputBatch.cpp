@@ -22,7 +22,7 @@ struct Output::Impl
 
 };
 
-Output::Output(const ThermoBatch & batch)
+Output::Output(const ThermoBatch& batch)
 : pimpl(new Impl(batch))
 {}
 
