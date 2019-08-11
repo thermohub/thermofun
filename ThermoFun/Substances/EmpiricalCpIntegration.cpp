@@ -44,13 +44,17 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 //    }
 
     // get Cp interval -> this has to go!!!!
-    for (unsigned i=0; i<thermo_parameters.temperature_intervals.size(); i++)
+    for (size_t i=0; i<thermo_parameters.temperature_intervals.size(); i++)
     {
-       if ((thermo_parameters.temperature_intervals[i][0] <= TK) && (thermo_parameters.temperature_intervals[i][1] > TK))
-       {
-           k = i;
-           break;
-       }
+        if (thermo_parameters.temperature_intervals[i].size() > 0) {
+            if ((thermo_parameters.temperature_intervals[i][0] <= TK) && (thermo_parameters.temperature_intervals[i][1] > TK))
+            {
+                k = i;
+                break;
+            } }
+        else {
+                k = 0;
+             }
     }
 
     if (k<0)
