@@ -100,27 +100,44 @@ QVariant TReactionModel::data( const QModelIndex& index, int role ) const
    if(!index.isValid())
 	 return QVariant();	
 
+   auto ret = QVariant();
+
+   ret = "--";
+
    switch( role )
    { case Qt::DisplayRole:
      case Qt::EditRole:
             {  ReactionTree *item = lineFromIndex( index );
                if( index.column() == 0 )
-                   return item->rsnames.c_str();
+               {
+                   ret = item->rsnames.c_str();
+                   return ret;
+               }
                else
                    if ( index.column() == 2 ) // ISOC
                    {
                       if  (item->values[index.column()-1] == 1)
-                          return "+";
+                      {
+                          ret = "+";
+                          return ret;
+                      } else return ret;
                    }
                else
                    if( index.column() < item->values.size()+1 )
                    {
                        if ((item->values[index.column()-1] != 0) && (index.column()<4))
-                           return toPrecision(item->values[index.column()-1], numDigits);
+                       {
+                           ret = toPrecision(item->values[index.column()-1], numDigits);
+                           return ret;
+                       } else
                        if (((item->status[index.column()-1] == Reaktoro_::Status::calculated) || (item->status[index.column()-1] == Reaktoro_::Status::read)
                             || (item->status[index.column()-1] == Reaktoro_::Status::assigned))
                                && (index.column()>3))
-                           return toPrecision(item->values[index.column()-1], numDigits);
+                       {
+                           ret = toPrecision(item->values[index.column()-1], numDigits);
+                           return ret;
+                       } else return ret;
+
                    }
            }
       default: break;
