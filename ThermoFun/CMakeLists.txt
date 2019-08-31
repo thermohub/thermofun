@@ -41,9 +41,9 @@ target_include_directories(ThermoFun
 # Create install target for library
 install(TARGETS ThermoFun
     EXPORT ThermoFunTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libraries)
 
 # Install the header files preserving the directory hierarchy
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
