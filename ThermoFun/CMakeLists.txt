@@ -4,6 +4,10 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
+# The name of the shared and static libraries
+set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
+set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
+
 # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
