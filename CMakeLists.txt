@@ -100,7 +100,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 # Set the thermofun source directory path
-#set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/ThermoFun)
+set(THERMOFUN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/ThermoFun)
 
 # Set the include directories
 include_directories(${THERMOFUN_SOURCE_DIR})
