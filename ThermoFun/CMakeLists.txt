@@ -44,6 +44,16 @@ install(TARGETS ThermoFun
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libraries)
+    
+# Install debug symbols
+if(MSVC)
+    install(
+        FILES $<TARGET_PDB_FILE:ThermoFun>
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT libraries
+        OPTIONAL
+    )
+endif()
 
 # Install the header files preserving the directory hierarchy
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
