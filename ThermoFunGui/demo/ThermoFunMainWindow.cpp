@@ -322,6 +322,9 @@ void TThermoFunMainWin::CmThermoFun()
     }
 }
 
+#include "ThermoFun/Database.h"
+#include "ThermoFun/Element.h"
+
 /// Set up all elements to formula parser
 void TThermoFunMainWin::setAllElements()
 {
@@ -336,7 +339,15 @@ void TThermoFunMainWin::setAllElements()
          if(elementDB.get() == nullptr )
            return;
 
+         // <<<<<<<<<< from ThermoMatch
+         auto resultData = elementDB->runQuery( jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate ) );
+
+         ThermoFun::Database fundb(resultData);
+
+         ThermoFun::ChemicalFormula::setDBElements(fundb.mapElements());
+         /* >>>>>>> test old
          ThermoFun::setDBElements(elementDB.get());
+         >>>>>>>>>> */
          // test
          const ThermoFun::DBElementsData& elements = ThermoFun::ChemicalFormula::getDBElements();
 

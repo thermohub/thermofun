@@ -380,8 +380,13 @@ auto parseElement (const std::string& data) -> Element
     if (j.contains("volume"))
           e.setVolume(j["volume"]["values"][0].get<double>());
 
-    if (j.contains("class_"))
-         e.setClass(stoi(j["class_"].begin().key()));
+    //if (j.contains("class_"))
+    //     e.setClass(stoi(j["class_"].begin().key()));
+
+    if (j.contains("class_") && j["class_"].is_object() )
+      e.setClass(stoi(j["class_"].begin().key()));
+    else
+      e.setClass(0);
 
     if (j.contains("isotope_mass"))
          e.setIsotopeMass(j["isotope_mass"].get<int>());
