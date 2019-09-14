@@ -49,7 +49,7 @@ option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
 option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." OFF)
 option(TFUN_BUILD_GUIDEMO "Build ThermoFunGui demo." OFF)
-option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
+option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
 # Modify the TFUN_BUILD_* variables accordingly to BUILD_ALL
