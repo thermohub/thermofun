@@ -596,8 +596,8 @@ ThermoLoadData ThermoFunPrivateNew::loadData( vector<size_t> selNdx )
         else
             loadReactData( selNdx, data.reactKeys, data.reactionsSymbols );
 
-        retrieveConnectedDataSymbols( data.substKeys, data.reactKeys, data.linkedSubstSymbols,
-                                      data.linkedReactSymbols, data.linkedSubstClasses, data.linkedSubstIds);
+//        retrieveConnectedDataSymbols( data.substKeys, data.reactKeys, data.linkedSubstSymbols,
+//                                      data.linkedReactSymbols, data.linkedSubstClasses, data.linkedSubstIds);
     }
     catch(std::exception& e)
     {
@@ -622,8 +622,8 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
 
         auto tr = ThermoHubClient.getTraversal();
 
-        ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, ThermoHubClient.substData().getSubstSymbol_DefinesLevel());
-        ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, ThermoHubClient.substData().getSubstSymbol_DefinesLevel());
+//        ThermoFun::VertexId_VertexType resultTraversal = tr.getMapOfConnectedIds(keys, ThermoHubClient.substData().getSubstSymbol_DefinesLevel());
+        ThermoFun::Database tdb_ = tr.getDatabase(keys);// tr.getDatabaseFromMapOfIds(resultTraversal, ThermoHubClient.substData().getSubstSymbol_DefinesLevel());
 
         //    ThermoFun::Traversal tr(subst.getDB());
         //    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
