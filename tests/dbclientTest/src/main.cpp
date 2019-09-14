@@ -217,9 +217,10 @@ int main(int argc, char *argv[])
 
     DatabaseClient dbc;
 
-    auto records = dbc.recordsFromThermoDataSet("Cemdata18");
+//    auto records = dbc.recordsFromThermoDataSet("PSI-Nagra-12-07");
 
-    Database db = databaseFromRecordList(dbc, records);
+//    Database db = databaseFromRecordList(dbc, records);
+    Database db = dbc.databaseFromThermoDataSet("PSI-Nagra-12-07");
 
     ThermoFun::ThermoBatch interface (db);
     interface.setSolventSymbol("H2O@");

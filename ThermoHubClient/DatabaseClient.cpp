@@ -201,6 +201,22 @@ struct DatabaseClient::Impl
         GraphTraversal travel( _dbconnect.get() );
         travel.Traversal( true, ids, afunc, GraphTraversal::trIn );
     }
+
+    // Collect record and all incoming _ids
+    auto TraverseAllIncomingEdges( const string& id ) -> std::vector<std::string>
+    {
+        std::vector<std::string> list;
+        GraphElementFunction afunc =  [&list]( bool vert, const string& jsondata )
+                {
+                  if( vert)
+                  {
+                      string id = extractStringField( "_id", jsondata );
+                      list.push_back(id);
+                  }
+                };
+        executeIncomingTraversal( {id}, afunc );
+        return list;
+    }
 };
 
 DatabaseClient::DatabaseClient(const std::shared_ptr<TDataBase>& otherdb)
@@ -458,6 +474,12 @@ auto DatabaseClient::recordsFromThermoDataSet( const string& ThermoDataSetSymbol
 {
     auto idThermoDataSet = thermoDataSet().idRecordFromSymbol(ThermoDataSetSymbol);
     return TraverseAllIncomingEdges(idThermoDataSet);
+}
+
+auto DatabaseClient::databaseFromThermoDataSet( const string& ThermoDataSetSymbol ) -> Database
+{
+    auto idThermoDataSet = thermoDataSet().idRecordFromSymbol(ThermoDataSetSymbol);
+    return getTraversal().getDatabase(pimpl->TraverseAllIncomingEdges(idThermoDataSet));
 }
 
 }

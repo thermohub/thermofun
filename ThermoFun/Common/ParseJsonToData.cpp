@@ -352,6 +352,19 @@ auto thermoRefPropReac (const json &j) -> ThermoPropertiesReaction
     return tpr;
 }
 
+auto getReactants (const json &r) -> std::map<std::string, double>
+{
+    std::map<std::string, double> reactants;
+    for (auto it = r.begin(); it != r.end(); ++it)
+    {
+        json j = it.value();
+        if (j.contains("symbol") && !j["symbol"].is_null())
+            if (j.contains("coefficient") && !j["coefficient"].is_null())
+                reactants[j["symbol"]] = j["coefficient"].get<double>();
+    }
+    return reactants;
+}
+
 auto parseElement (const std::string& data) -> Element
 {
     Element e;
@@ -497,6 +510,9 @@ auto parseReaction (const std::string& data) -> Reaction
 
     if (j.contains("Pst") && !j["Pst"].is_null())
         r.setReferenceP(j["Pst"].get<double>());
+
+    if (j.contains("reactants") && !j["reactants"].is_null())
+        r.setReactants(getReactants(j["reactants"]));
 
     // get temperature and pressure correction methods
     if (j.contains("TPMethods") && !j["TPMethods"].is_null())
