@@ -7,6 +7,6 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 )
 
 echo "Configuring..."
-cmake -S . -B build
+cmake -S . -B -G"Visual Studio 15 2017" -A x64 build
 echo "Building..."
 cmake --build build --config %CONFIGURATION% --target install
