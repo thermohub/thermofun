@@ -18,8 +18,8 @@ DEFINES += FROM_SRC
 #DEFINES += NOPARTICLEARRAY
 
 ThermoFun_TEST_CPP = ./src
-ThermoDBClient_CPP = ../../DBClient
-ThermoFun_CPP   =  ../../thermofun
+ThermoDBClient_CPP = ../../ThermoHubClient
+ThermoFun_CPP   =  ../../ThermoFun
 
 ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
 ThermoDBClient_H = $$ThermoDBClient_CPP
@@ -64,7 +64,7 @@ LIBS +=  -lcurl  -lvelocypack
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
-include($$ThermoDBClient_CPP/ThermoDBClient.pri)
+include($$ThermoDBClient_CPP/ThermoHubClient.pri)
 #include(Modules/GEMS4R/GEMS4R.pri)
 
 
