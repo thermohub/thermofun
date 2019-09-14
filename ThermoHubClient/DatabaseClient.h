@@ -21,6 +21,7 @@ class ReactionSetData_;
 class ThermoSetData;
 class ElementKey;
 class TraversalData;
+class Database;
 
 using List_VertexId_VertexType    = std::vector< std::pair<std::string, std::string> >;
 
@@ -173,6 +174,8 @@ class DatabaseClient
     auto TraverseAllIncomingEdges( const std::string& id ) -> List_VertexId_VertexType;
 
     auto recordsFromThermoDataSet(const std::string& ThermoDataSetSymbol ) -> List_VertexId_VertexType;
+
+    auto databaseFromThermoDataSet( const std::string& ThermoDataSetSymbol ) -> Database;
 
 private:
 

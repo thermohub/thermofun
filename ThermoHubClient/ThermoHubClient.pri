@@ -1,4 +1,5 @@
 HEADERS +=  $$PWD/SubstanceData.h \
+    $$PWD/AQLqueries.h \
     $$PWD/DatabaseClient.h \
     $$PWD/ReactionData.h \
     $$PWD/TraversalData.h \
