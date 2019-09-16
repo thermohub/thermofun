@@ -23,10 +23,10 @@ else() # build for linux
 
 
 # Specify the dependency libraries to link against
-target_link_libraries(ThermoFun
+#target_link_libraries(ThermoFun
 #    PRIVATE Boost::boost
-    PRIVATE nlohmann_json::nlohmann_json)
-endif()
+#    PRIVATE nlohmann_json::nlohmann_json)
+#endif()
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
