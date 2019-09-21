@@ -395,7 +395,7 @@ auto parseElement (const std::string& data) -> Element
     if (j.contains("volume") && !j["volume"]["values"][0].is_null())
           e.setVolume(j["volume"]["values"][0].get<double>());
 
-    if (j.contains("class_") && !j["class_"].is_null())
+    if (j.contains("class_") && !j["class_"].is_null() && !j["class_"].empty())
          e.setClass(stoi(j["class_"].begin().key()));
 
     if (j.contains("isotope_mass") && !j["isotope_mass"].is_null())
@@ -428,11 +428,11 @@ auto parseSubstance (const std::string& data) -> Substance
     if (j.contains("mass_per_mole") && !j["mass_per_mole"].is_null())
         s.setMolarMass(j["mass_per_mole"].get<double>());
 
-    if (j.contains("aggregate_state"))
+    if (j.contains("aggregate_state") && !j["aggregate_state"].is_null() && !j["aggregate_state"].empty())
         s.setAggregateState(
                     static_cast<AggregateState::type>(stoi(j["aggregate_state"].begin().key())));
 
-    if (j.contains("class_") && !j["aggregate_state"].is_null())
+    if (j.contains("class_") && !j["class_"].is_null() && !j["class_"].empty())
         s.setSubstanceClass(
                     static_cast<SubstanceClass::type>(stoi(j["class_"].begin().key())));
 
