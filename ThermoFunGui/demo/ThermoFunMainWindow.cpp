@@ -11,9 +11,13 @@
 #include "ui_ThermoFunMainWindow.h"
 #include "ThermoFunWidgetNew.h"
 #ifdef FROM_SRC
+#include "../ThermoFun/Database.h"
+#include "../ThermoFun/Element.h"
 #include "../ThermoFun/Common/formuladata.h"
 #include "../ThermoHubClient/ElementData.h"
 #else
+#include "ThermoFun/Database.h"
+#include "ThermoFun/Element.h"
 #include "ThermoFun/Common/formuladata.h"
 #include "ThermoHubClient/ElementData.h"
 #endif
@@ -321,9 +325,6 @@ void TThermoFunMainWin::CmThermoFun()
        QMessageBox::critical( this, "std::exception", e.what() );
     }
 }
-
-#include "ThermoFun/Database.h"
-#include "ThermoFun/Element.h"
 
 /// Set up all elements to formula parser
 void TThermoFunMainWin::setAllElements()
