@@ -49,7 +49,7 @@ option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 option(TFUN_BUILD_GUI "Build ThermoFunGui library." OFF)
 option(TFUN_BUILD_HUBCLIENT "Build ThermoFun with ThermoHubClient." OFF)
 option(TFUN_BUILD_GUIDEMO "Build ThermoFunGui demo." OFF)
-option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
+option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
 # Modify the TFUN_BUILD_* variables accordingly to BUILD_ALL
@@ -66,11 +66,6 @@ endif()
 # DBClient is necessary when building the GUI DEMO
 if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_GUIDEMO MATCHES ON)
     set(TFUN_BUILD_HUBCLIENT             ON)
-endif()
-
-# ThermoFun currently is not setup to produce a dynamic library using MSVC, only static
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    set(BUILD_SHARED_LIBS OFF)
 endif()
 
 # Set the default build type to Release

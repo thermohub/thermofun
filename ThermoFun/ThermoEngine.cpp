@@ -16,9 +16,18 @@
 
 #include <functional>
 
-#include <boost/algorithm/string/predicate.hpp>
-
 namespace ThermoFun {
+
+bool iequals(const string& a, const string& b)
+{
+    size_t sz = a.size();
+    if (b.size() != sz)
+        return false;
+    for (size_t i = 0; i < sz; ++i)
+        if (tolower(a[i]) != tolower(b[i]))
+            return false;
+    return true;
+}
 
 const std::map<const std::string, const std::string> implemented_conventions = {
 {"Benson-Helgeson",  "aparent-properties"   },
@@ -353,11 +362,11 @@ struct ThermoEngine::Impl
 
             /// Convetion convert
             if (pref.isH2OSolvent) {
-                if (boost::iequals(conventions.at("water-properties"),"steam-tables")) {
+                if (iequals(conventions.at("water-properties"),"steam-tables")) {
                     toSteamTables(tps);
                 }
             } else {
-                if (boost::iequals(conventions.at("aparent-properties"),"Berman-Brown")) {
+                if (iequals(conventions.at("aparent-properties"),"Berman-Brown")) {
                     toBermanBrown(tps, pref.workSubstance);
                 }
             }

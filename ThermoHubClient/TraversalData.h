@@ -61,8 +61,15 @@ public:
      */
     auto getMapOfConnectedIds(std::vector<std::string> idList) -> VertexId_VertexType;
 
+    /**
+     * @brief getDatabase returns a ThermoFun Database from a pre selected list of ids or hub record keys
+     * @param idList list of record keys
+     * @return ThermoFun::Database object
+     */
+    auto getDatabase(const std::vector<std::string> &idList) -> Database;
+
     ///
-    /// \brief getDatabaseFromTraversal returns a TfermoFun::Database object from a map of [vertex id, vertex type], for a given level
+    /// \brief getDatabaseFromTraversal returns a ThermoFun::Database object from a map of [vertex id, vertex type], for a given level
     /// \param resultTraversal the map of [id, vertex type] resulted from traversal (all connected vertexes)
     /// \param level of edge defines
     /// \return ThermoFun::Database object
@@ -70,7 +77,7 @@ public:
     auto getDatabaseFromMapOfIds(VertexId_VertexType resultTraversal, std::string level_) -> Database;
 
     /**
-     * @brief getDatabaseFromMapOfIds returns a TfermoFun::Database object from a map of [vertex id, vertex type], following the level specified for
+     * @brief getDatabaseFromMapOfIds returns a ThermoFun::Database object from a map of [vertex id, vertex type], following the level specified for
      * individual substances defined by a reaction
      * @param resultTraversal the map of [id, vertex type] resulted from traversal (all connected vertexes)
      * @param substSymbolLevel_ map of substance symbol and level

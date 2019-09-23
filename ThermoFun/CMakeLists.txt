@@ -4,6 +4,10 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
+# The name of the shared and static libraries
+set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
+set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
+
 # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
@@ -16,9 +20,9 @@ add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #link_directories("/usr/local/lib")
 
-else() # build for linux
+#else() # build for linux
   # Find library and software dependencies
-  find_package(Boost 1.58.0 REQUIRED)
+#  find_package(Boost 1.58.0 REQUIRED)
 #  find_package(nlohmann_json 3.6.1 REQUIRED)
 
 
@@ -37,9 +41,19 @@ target_include_directories(ThermoFun
 # Create install target for library
 install(TARGETS ThermoFun
     EXPORT ThermoFunTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libraries)
+    
+# Install debug symbols
+if(MSVC)
+    install(
+        FILES $<TARGET_PDB_FILE:ThermoFun>
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT libraries
+        OPTIONAL
+    )
+endif()
 
 # Install the header files preserving the directory hierarchy
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun

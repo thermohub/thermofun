@@ -70,13 +70,13 @@ auto readValueError(const json& j, string propPath, double &val, double &err, st
     string sval, serr;
     Reaktoro_::StatusMessage status = {Reaktoro_::Status::notdefined, message};
 
-    if (j[propPath].contains("values"))
+    if (j[propPath].contains("values") && !j[propPath]["values"][0].is_null())
     {
         val = j[propPath]["values"][0].get<double>();
         status = {Reaktoro_::Status::read, message};
     }
 
-    if (j[propPath].contains("errors"))
+    if (j[propPath].contains("errors") && !j[propPath]["errors"][0].is_null())
     {
         err = j[propPath]["errors"][0].get<double>();
     }
@@ -220,10 +220,10 @@ auto getTPMethods(const json& j, Substance &s) -> void
         thermoParamSubst(it.value(), name, ps);
     }
 
-    if (j.contains("m_expansivity"))
+    if (j.contains("m_expansivity") && !j["m_expansivity"]["values"][0].is_null())
         ps.isobaric_expansivity = j["m_expansivity"]["values"][0].get<double>();
 
-    if (j.contains("m_compressibility"))
+    if (j.contains("m_compressibility") && !j["m_compressibility"]["values"][0].is_null())
         ps.isothermal_compresibility = j["m_compressibility"]["values"][0].get<double>();
 
     s.setThermoParameters(ps);
@@ -234,18 +234,18 @@ auto thermoParamSubst (const json& j, std::string prop_name, ThermoParametersSub
     vector<string> vkbuf;
     string kbuf;
 
-    if (j.contains("eos_akinfiev_diamond_coeffs"))
+    if (j.contains("eos_akinfiev_diamond_coeffs") && !j["eos_akinfiev_diamond_coeffs"]["values"].is_null())
         ps.Cp_nonElectrolyte_coeff = j["eos_akinfiev_diamond_coeffs"]["values"].get<vector<double>>();
 
-    if (j.contains("eos_birch_murnaghan_coeffs"))
+    if (j.contains("eos_birch_murnaghan_coeffs") && !j["eos_birch_murnaghan_coeffs"]["values"].is_null())
         ps.volume_BirchM_coeff = j["eos_birch_murnaghan_coeffs"]["values"].get<vector<double>>();
 
 //    if (j.contains("eos_churakov_gottschalk_coeffs"))s.resize(vkbuf.size());
 
-    if (j.contains("eos_gas_crit_props"))
+    if (j.contains("eos_gas_crit_props") && !j["eos_gas_crit_props"]["values"].is_null())
         ps.critical_parameters = j["eos_gas_crit_props"]["values"].get<vector<double>>();
 
-    if (j.contains("eos_hkf_coeffs"))
+    if (j.contains("eos_hkf_coeffs") && !j["eos_hkf_coeffs"]["values"].is_null())
         ps.HKF_parameters = j["eos_hkf_coeffs"]["values"].get<vector<double>>();
 
     // temporary fix - need to think how to handle more than 1 TP interval - for new structure - simplified
@@ -254,24 +254,24 @@ auto thermoParamSubst (const json& j, std::string prop_name, ThermoParametersSub
         std::vector<double> low_up;
         if (j.contains("limitsTP"))
         {
-            if (j["limitsTP"].contains("lowerT"))
+            if (j["limitsTP"].contains("lowerT") && !j["limitsTP"]["lowerT"].is_null())
                 low_up.push_back(j["limitsTP"]["lowerT"].get<double>());
-            if (j["limitsTP"].contains("upperT"))
+            if (j["limitsTP"].contains("upperT") && !j["limitsTP"]["upperT"].is_null())
                 low_up.push_back(j["limitsTP"]["upperT"].get<double>());
         }
         ps.temperature_intervals.push_back(low_up);
     }
 
-    if (j.contains("m_heat_capacity_ft_coeffs"))
+    if (j.contains("m_heat_capacity_ft_coeffs") && !j["m_heat_capacity_ft_coeffs"]["values"].is_null())
         ps.Cp_coeff.push_back(j["m_heat_capacity_ft_coeffs"]["values"].get<vector<double>>());
 
-    if (j.contains("m_phase_trans_props"))
+    if (j.contains("m_phase_trans_props") && !j["m_phase_trans_props"]["values"].is_null())
         ps.phase_transition_prop.push_back(j["m_phase_trans_props"]["values"].get<vector<double>>());
 
-    if (j.contains("m_landau_phase_trans_props"))
+    if (j.contains("m_landau_phase_trans_props") && !j["m_landau_phase_trans_props"]["values"].is_null())
         ps.phase_transition_prop.push_back(j["m_landau_phase_trans_props"]["values"].get<vector<double>>());
 
-    if (j.contains("phase_transition_prop_Berman"))
+    if (j.contains("phase_transition_prop_Berman") && !j["phase_transition_prop_Berman"]["values"].is_null())
         ps.phase_transition_prop_Berman.push_back(j["phase_transition_prop_Berman"]["values"].get<vector<double>>());
 }
 
@@ -280,19 +280,19 @@ auto thermoParamReac (const json &j, ThermoParametersReaction& pr) -> void
     vector<string> vkbuf;
     string kbuf;
 
-    if (j.contains("logk_ft_coeffs"))
+    if (j.contains("logk_ft_coeffs") && !j["logk_ft_coeffs"]["values"].is_null())
         pr.reaction_logK_fT_coeff = j["logk_ft_coeffs"]["values"].get<vector<double>>();
-//    if (j.contains("logk_pt_values"))  // static const char * reacLogKPT             = "logk_pt_values.pptv"; //
+//    if (j.contains("logk_pt_values") && !j["logk_pt_values"]["values"].is_null())  // static const char * reacLogKPT             = "logk_pt_values.pptv"; //
 //        pr.logK_TP_array = j["logk_pt_values"]["values"].get<vector<double>>();
-    if (j.contains("dr_heat_capacity_ft_coeffs"))
+    if (j.contains("dr_heat_capacity_ft_coeffs") && !j["dr_heat_capacity_ft_coeffs"]["values"].is_null())
         pr.reaction_Cp_fT_coeff = j["dr_heat_capacity_ft_coeffs"]["values"].get<vector<double>>();
-    if (j.contains("dr_volume_fpt_coeffs"))
+    if (j.contains("dr_volume_fpt_coeffs") && !j["dr_volume_fpt_coeffs"]["values"].is_null())
         pr.reaction_V_fT_coeff = j["dr_volume_fpt_coeffs"]["values"].get<vector<double>>();
-    if (j.contains("dr_ryzhenko_coeffs"))
+    if (j.contains("dr_ryzhenko_coeffs") && !j["dr_ryzhenko_coeffs"]["values"].is_null())
         pr.reaction_RB_coeff = j["dr_ryzhenko_coeffs"]["values"].get<vector<double>>();
-    if (j.contains("dr_marshall_franck_coeffs"))
+    if (j.contains("dr_marshall_franck_coeffs") && !j["dr_marshall_franck_coeffs"]["values"].is_null())
         pr.reaction_FM_coeff = j["dr_marshall_franck_coeffs"]["values"].get<vector<double>>();
-    if (j.contains("dr_dolejs_manning10_coeffs"))
+    if (j.contains("dr_dolejs_manning10_coeffs") && !j["dr_dolejs_manning10_coeffs"]["values"].is_null())
         pr.reaction_DM10_coeff = j["dr_dolejs_manning10_coeffs"]["values"].get<vector<double>>();
 
 
@@ -317,15 +317,16 @@ auto thermoRefPropSubst (const json& j) -> ThermoPropertiesSubstance
     ThermoPropertiesSubstance tps;
     string message;
 
-    if (j.contains("sm_heat_capacity_p"))
+    if (j.contains("sm_heat_capacity_p") && !j["sm_heat_capacity_p"].is_null())
         tps.heat_capacity_cp.sta = readValueError(j, "sm_heat_capacity_p" , tps.heat_capacity_cp.val, tps.heat_capacity_cp.err,  message);
-    if (j.contains("sm_gibbs_energy"))
+    if (j.contains("sm_gibbs_energy") && !j["sm_gibbs_energy"].is_null())
         tps.gibbs_energy.sta     = readValueError(j, "sm_gibbs_energy",  tps.gibbs_energy.val,     tps.gibbs_energy.err,      message);
-    if (j.contains("sm_enthalpy"))
+    if (j.contains("sm_enthalpy") && !j["sm_enthalpy"].is_null())
         tps.enthalpy.sta         = readValueError(j, "sm_enthalpy",  tps.enthalpy.val,         tps.enthalpy.err,          message);
-    if (j.contains("sm_entropy_abs"))
+    if (j.contains("sm_entropy_abs") && !j["sm_entropy_abs"].is_null())
         tps.entropy.sta          = readValueError(j, "sm_entropy_abs",  tps.entropy.val,          tps.entropy.err,           message);
-    if (j.contains("sm_volume"))tps.volume.sta           = readValueError(j, "sm_volume",  tps.volume.val,           tps.volume.err,            message);
+    if (j.contains("sm_volume") && !j["sm_volume"].is_null())
+        tps.volume.sta           = readValueError(j, "sm_volume",  tps.volume.val,           tps.volume.err,            message);
 
     return tps;
 }
@@ -335,19 +336,33 @@ auto thermoRefPropReac (const json &j) -> ThermoPropertiesReaction
     ThermoPropertiesReaction tpr;
     string message;
 
-    if (j.contains("logKr"))
+    if (j.contains("logKr") && !j["logKr"].is_null())
         tpr.log_equilibrium_constant.sta  = readValueError(j, "logKr", tpr.log_equilibrium_constant.val,  tpr.log_equilibrium_constant.err,  message);
-    if (j.contains("drsm_heat_capacity_p"))
+    if (j.contains("drsm_heat_capacity_p") && !j["drsm_heat_capacity_p"].is_null())
         tpr.reaction_heat_capacity_cp.sta = readValueError(j, "drsm_heat_capacity_p",   tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, message);
-    if (j.contains("drsm_gibbs_energy"))
+    if (j.contains("drsm_gibbs_energy") && !j["drsm_gibbs_energy"].is_null())
         tpr.reaction_gibbs_energy.sta     = readValueError(j, "drsm_gibbs_energy",    tpr.reaction_gibbs_energy.val,     tpr.reaction_gibbs_energy.err,     message);
-    if (j.contains("drsm_enthalpy"))
+    if (j.contains("drsm_enthalpy") && !j["drsm_enthalpy"].is_null())
         tpr.reaction_enthalpy.sta         = readValueError(j, "drsm_enthalpy",    tpr.reaction_enthalpy.val,         tpr.reaction_enthalpy.err,         message);
-    if (j.contains("drsm_entropy"))
+    if (j.contains("drsm_entropy") && !j["drsm_entropy"].is_null())
         tpr.reaction_entropy.sta          = readValueError(j, "drsm_entropy",    tpr.reaction_entropy.val,          tpr.reaction_entropy.err,          message);
-    if (j.contains("drsm_volume"))tpr.reaction_volume.sta           = readValueError(j, "drsm_volume",    tpr.reaction_volume.val,           tpr.reaction_volume.err,           message);
+    if (j.contains("drsm_volume") && !j["drsm_volume"].is_null())
+        tpr.reaction_volume.sta           = readValueError(j, "drsm_volume",    tpr.reaction_volume.val,           tpr.reaction_volume.err,           message);
 
     return tpr;
+}
+
+auto getReactants (const json &r) -> std::map<std::string, double>
+{
+    std::map<std::string, double> reactants;
+    for (auto it = r.begin(); it != r.end(); ++it)
+    {
+        json j = it.value();
+        if (j.contains("symbol") && !j["symbol"].is_null())
+            if (j.contains("coefficient") && !j["coefficient"].is_null())
+                reactants[j["symbol"]] = j["coefficient"].get<double>();
+    }
+    return reactants;
 }
 
 auto parseElement (const std::string& data) -> Element
@@ -355,41 +370,48 @@ auto parseElement (const std::string& data) -> Element
     Element e;
     string kbuf;
     string name;
-    json j = json::parse(data);
-    if (j.contains("properties"))
-        j = j["properties"];
 
-    if (j.contains("name"))
-         {e.setName(j["name"]); name = j["name"];}
+    try
+    {
+        json j = json::parse(data);
+        if (j.contains("properties") && !j["properties"].is_null())
+            j = j["properties"];
 
-    if (j.contains("symbol"))
-          e.setSymbol(j["symbol"]);
+        if (j.contains("name") && !j["name"].is_null())
+             {e.setName(j["name"]); name = j["name"];}
 
-    if (j.contains("number"))
-          e.setNumber(j["number"].get<int>());
+        if (j.contains("symbol") && !j["symbol"].is_null())
+              e.setSymbol(j["symbol"]);
 
-    if (j.contains("entropy"))
-          e.setEntropy(j["entropy"]["values"][0].get<double>());
+        if (j.contains("number") && !j["number"].is_null())
+              e.setNumber(j["number"].get<int>());
 
-    if (j.contains("heat_capacity"))
-          e.setHeatCapacity(j["heat_capacity"]["values"][0].get<double>());
+        if (j.contains("entropy") && !j["entropy"]["values"][0].is_null())
+              e.setEntropy(j["entropy"]["values"][0].get<double>());
 
-    if (j.contains("atomic_mass"))
-         e.setMolarMass(j["atomic_mass"]["values"][0].get<double>());
+        if (j.contains("heat_capacity") && !j["heat_capacity"]["values"][0].is_null())
+              e.setHeatCapacity(j["heat_capacity"]["values"][0].get<double>());
 
-    if (j.contains("volume"))
-          e.setVolume(j["volume"]["values"][0].get<double>());
+        if (j.contains("atomic_mass") && !j["atomic_mass"]["values"][0].is_null())
+              e.setMolarMass(j["atomic_mass"]["values"][0].get<double>());
 
-    //if (j.contains("class_"))
-    //     e.setClass(stoi(j["class_"].begin().key()));
+        if (j.contains("volume") && !j["volume"]["values"][0].is_null())
+            e.setVolume(j["volume"]["values"][0].get<double>());
 
-    if (j.contains("class_") && j["class_"].is_object() )
-      e.setClass(stoi(j["class_"].begin().key()));
-    else
-      e.setClass(0);
+        if (j.contains("class_") && j["class_"].is_object() )
+            e.setClass(stoi(j["class_"].begin().key()));
+        else
+            e.setClass(0);
 
-    if (j.contains("isotope_mass"))
-         e.setIsotopeMass(j["isotope_mass"].get<int>());
+        if (j.contains("isotope_mass") && !j["isotope_mass"].is_null())
+            e.setIsotopeMass(j["isotope_mass"].get<int>());
+    }
+    catch (json::exception& e)
+    {
+        // output exception information
+        std::cout << "message: " << e.what() << '\n'
+                  << "exception id: " << e.id << std::endl;
+    }
 
     return e;
 }
@@ -399,63 +421,72 @@ auto parseSubstance (const std::string& data) -> Substance
     Substance s;
     vector<string> vkbuf;
     string kbuf;
-    json j = json::parse(data);
-    if (j.contains("properties"))
-        j = j["properties"];
 
-    if (j.contains("name"))
-        s.setName(j["name"]);
+    try {
+        json j = json::parse(data);
+        if (j.contains("properties") && !j["properties"].is_null())
+            j = j["properties"];
 
-    if (j.contains("symbol"))
-        s.setSymbol(j["symbol"]);
+        if (j.contains("name") && !j["name"].is_null())
+            s.setName(j["name"]);
 
-    if (j.contains("formula"))
-        s.setFormula(j["formula"]);
+        if (j.contains("symbol") && !j["symbol"].is_null())
+            s.setSymbol(j["symbol"]);
 
-    if (j.contains("formula_charge"))
-        s.setCharge(j["formula_charge"].get<int>());
+        if (j.contains("formula") && !j["formula"].is_null())
+            s.setFormula(j["formula"]);
 
-    if (j.contains("mass_per_mole"))
-        s.setMolarMass(j["mass_per_mole"].get<double>());
+        if (j.contains("formula_charge") && !j["formula_charge"].is_null())
+            s.setCharge(j["formula_charge"].get<int>());
 
-    if (j.contains("aggregate_state"))
-        s.setAggregateState(
-                    static_cast<AggregateState::type>(stoi(j["aggregate_state"].begin().key())));
+        if (j.contains("mass_per_mole") && !j["mass_per_mole"].is_null())
+            s.setMolarMass(j["mass_per_mole"].get<double>());
 
-    if (j.contains("class_"))
-        s.setSubstanceClass(
-                    static_cast<SubstanceClass::type>(stoi(j["class_"].begin().key())));
+        if (j.contains("aggregate_state") && !j["aggregate_state"].is_null() && !j["aggregate_state"].empty())
+            s.setAggregateState(
+                        static_cast<AggregateState::type>(stoi(j["aggregate_state"].begin().key())));
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("lowerT"))
-            s.setLowerT(j["limitsTP"]["lowerT"].get<double>());
+        if (j.contains("class_") && !j["class_"].is_null() && !j["class_"].empty())
+            s.setSubstanceClass(
+                        static_cast<SubstanceClass::type>(stoi(j["class_"].begin().key())));
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("upperT"))
-            s.setUpperT(j["limitsTP"]["upperT"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("lowerT") && !j["limitsTP"]["lowerT"].is_null())
+                s.setLowerT(j["limitsTP"]["lowerT"].get<double>());
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("lowerP"))
-            s.setLowerP(j["limitsTP"]["lowerP"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("upperT") && !j["limitsTP"]["upperT"].is_null())
+                s.setUpperT(j["limitsTP"]["upperT"].get<double>());
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("upperP"))
-            s.setUpperP(j["limitsTP"]["upperP"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("lowerP") && !j["limitsTP"]["lowerP"].is_null())
+                s.setLowerP(j["limitsTP"]["lowerP"].get<double>());
 
-    if (j.contains("Tst"))
-        s.setReferenceT(j["Tst"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("upperP") && !j["limitsTP"]["upperP"].is_null())
+                s.setUpperP(j["limitsTP"]["upperP"].get<double>());
 
-    if (j.contains("Pst"))
-        s.setReferenceP(j["Pst"].get<double>());
+        if (j.contains("Tst") && !j["Tst"].is_null())
+            s.setReferenceT(j["Tst"].get<double>());
 
-    // get temperature and pressure correction methods
-    if (j.contains("TPMethods"))
-        getTPMethods(j, s);
+        if (j.contains("Pst") && !j["Pst"].is_null())
+            s.setReferenceP(j["Pst"].get<double>());
 
-    // get thermodynamic parameters
-//    s.setThermoParameters(thermoParamSubst (object, name));
-    // get reference thermodynamic properties
-    s.setThermoReferenceProperties(thermoRefPropSubst (j));
+        // get temperature and pressure correction methods
+        if (j.contains("TPMethods") && !j["TPMethods"].is_null())
+            getTPMethods(j, s);
+
+        // get thermodynamic parameters
+    //    s.setThermoParameters(thermoParamSubst (object, name));
+        // get reference thermodynamic properties
+        s.setThermoReferenceProperties(thermoRefPropSubst (j));
+    }
+    catch (json::exception& e)
+    {
+        // output exception information
+        std::cout << "message: " << e.what() << '\n'
+                  << "exception id: " << e.id << std::endl;
+    }
 
     return s;
 }
@@ -466,49 +497,61 @@ auto parseReaction (const std::string& data) -> Reaction
     Reaction r;
     string kbuf;
     vector<string> vkbuf;
-    json j = json::parse(data);
-    if (j.contains("properties"))
-        j = j["properties"];
 
-    if (j.contains("name"))
-        r.setName(j["name"]);
+    try {
+        json j = json::parse(data);
+        if (j.contains("properties") && !j["properties"].is_null())
+            j = j["properties"];
 
-    if (j.contains("symbol"))
-        r.setSymbol(j["symbol"]);
+        if (j.contains("name") && !j["name"].is_null())
+            r.setName(j["name"]);
 
-    if (j.contains("equation"))
-        r.setEquation(j["equation"]);
+        if (j.contains("symbol") && !j["symbol"].is_null())
+            r.setSymbol(j["symbol"]);
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("lowerT"))
-            r.setLowerT(j["limitsTP"]["lowerT"].get<double>());
+        if (j.contains("equation") && !j["equation"].is_null())
+            r.setEquation(j["equation"]);
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("upperT"))
-            r.setUpperT(j["limitsTP"]["upperT"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("lowerT") && !j["limitsTP"]["lowerT"].is_null())
+                r.setLowerT(j["limitsTP"]["lowerT"].get<double>());
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("lowerP"))
-            r.setLowerP(j["limitsTP"]["lowerP"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("upperT") && !j["limitsTP"]["upperT"].is_null())
+                r.setUpperT(j["limitsTP"]["upperT"].get<double>());
 
-    if (j.contains("limitsTP"))
-        if (j["limitsTP"].contains("upperP"))
-            r.setUpperP(j["limitsTP"]["upperP"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("lowerP") && !j["limitsTP"]["lowerP"].is_null())
+                r.setLowerP(j["limitsTP"]["lowerP"].get<double>());
 
-    if (j.contains("Tst"))
-        r.setReferenceT(j["Tst"].get<double>());
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+            if (j["limitsTP"].contains("upperP") && !j["limitsTP"]["upperP"].is_null())
+                r.setUpperP(j["limitsTP"]["upperP"].get<double>());
 
-    if (j.contains("Pst"))
-        r.setReferenceP(j["Pst"].get<double>());
+        if (j.contains("Tst") && !j["Tst"].is_null())
+            r.setReferenceT(j["Tst"].get<double>());
 
-    // get temperature and pressure correction methods
-    if (j.contains("TPMethods"))
-        getTPMethods(j, r);
+        if (j.contains("Pst") && !j["Pst"].is_null())
+            r.setReferenceP(j["Pst"].get<double>());
 
-    // get thermodynamic parameters
-//    r.setThermoParameters(thermoParamReac (object, name));
-    // get reference thermodynamic properties
-    r.setThermoReferenceProperties(thermoRefPropReac(j));
+        if (j.contains("reactants") && !j["reactants"].is_null())
+            r.setReactants(getReactants(j["reactants"]));
+
+        // get temperature and pressure correction methods
+        if (j.contains("TPMethods") && !j["TPMethods"].is_null())
+            getTPMethods(j, r);
+
+        // get thermodynamic parameters
+    //    r.setThermoParameters(thermoParamReac (object, name));
+        // get reference thermodynamic properties
+        r.setThermoReferenceProperties(thermoRefPropReac(j));
+    }
+    catch (json::exception& e)
+    {
+        // output exception information
+        std::cout << "message: " << e.what() << '\n'
+                  << "exception id: " << e.id << std::endl;
+    }
 
     return r;
 }
