@@ -282,14 +282,15 @@ bool ElementsKeysFromJsonDomArray( const string& keypath, const jsonio::JsonDom 
 
 auto ElementKeyFromDB( jsonio::TDBVertexDocument* elementDB ) -> ElementKey
 {
-    std::string symbol; int isotope, class_;
-    fromElementNode(elementDB->getDom());
-    elementDB->getValue( "properties.symbol" , symbol );
+    //std::string symbol; int isotope, class_;
+
+    return fromElementNode(elementDB->getDom()->field("properties"));
+    /*elementDB->getValue( "properties.symbol" , symbol );
     std::string class_str;
     elementDB->getValue( "properties.class_" , class_str );
     class_ = index_from_map(class_str);
     elementDB->getValue( "properties.isotope_mass" , isotope );
-    return ElementKey(symbol,class_,isotope);
+    return ElementKey(symbol,class_,isotope);*/
 }
 
 // Writes data to json (only key)

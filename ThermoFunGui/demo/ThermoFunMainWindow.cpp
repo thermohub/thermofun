@@ -11,9 +11,13 @@
 #include "ui_ThermoFunMainWindow.h"
 #include "ThermoFunWidgetNew.h"
 #ifdef FROM_SRC
+#include "../ThermoFun/Database.h"
+#include "../ThermoFun/Element.h"
 #include "../ThermoFun/Common/formuladata.h"
 #include "../ThermoHubClient/ElementData.h"
 #else
+#include "ThermoFun/Database.h"
+#include "ThermoFun/Element.h"
 #include "ThermoFun/Common/formuladata.h"
 #include "ThermoHubClient/ElementData.h"
 #endif
@@ -336,7 +340,15 @@ void TThermoFunMainWin::setAllElements()
          if(elementDB.get() == nullptr )
            return;
 
+         // <<<<<<<<<< from ThermoMatch
+         auto resultData = elementDB->runQuery( jsonio::DBQueryData("{\"_label\": \"element\" }",jsonio::DBQueryData::qTemplate ) );
+
+         ThermoFun::Database fundb(resultData);
+
+         ThermoFun::ChemicalFormula::setDBElements(fundb.mapElements());
+         /* >>>>>>> test old
          ThermoFun::setDBElements(elementDB.get());
+         >>>>>>>>>> */
          // test
          const ThermoFun::DBElementsData& elements = ThermoFun::ChemicalFormula::getDBElements();
 
