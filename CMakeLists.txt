@@ -126,22 +126,18 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 # Build ThermoFunGui library
 if(TFUN_BUILD_HUBCLIENT)
     add_subdirectory(ThermoHubClient)
-#else()
-#    add_subdirectory(ThermoHubClient EXCLUDE_FROM_ALL)
 endif()
 
 # Build ThermoFunGui library
 if(TFUN_BUILD_GUI)
     add_subdirectory(ThermoFunGui)
-#else()
-#    add_subdirectory(ThermoFunGui EXCLUDE_FROM_ALL)
 endif()
 
 # Build python wraper
 if(TFUN_BUILD_PYTHON)
     add_subdirectory(python)
-#else()
-#    add_subdirectory(python EXCLUDE_FROM_ALL)
+else()
+    add_subdirectory(python EXCLUDE_FROM_ALL)
 endif()
 
 # Install the cmake config files that permit users to use find_package(ThermoFun)
