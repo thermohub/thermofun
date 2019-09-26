@@ -9,5 +9,5 @@ setup(name='thermofun',
       license='GPLv3',
       package_dir={'thermofun': ''},
       packages=['thermofun'],
-      package_data={'thermofun': ['@THERMOFUN_PYTHON_MODULE_FILENAME@']}
+      package_data={'thermofun': ['@THERMOFUN_PYTHON_MODULE_FILENAME@', '*.pdb']}
 ) 
