@@ -1,4 +1,5 @@
 # Collect the source files of PyThermoFun
+file(GLOB_RECURSE HEADER_FILES *.hpp)
 file(GLOB_RECURSE SOURCE_FILES *.cpp)
 
 # Include the ThermoFun/python directory

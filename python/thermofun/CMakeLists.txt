@@ -6,11 +6,10 @@ set(THERMOFUN_PYTHON_MODULE_FILENAME PyThermoFun${PYTHON_MODULE_EXTENSION})
 
 # Configure the setup.py file
 set(SETUP_PY_IN ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in)
-#set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 
 # Configure the setup.py script with the provided CMake variables
-#configure_file(${SETUP_PY_IN} ${SETUP_PY})
-configure_file(${SETUP_PY_IN})
+configure_file(${SETUP_PY_IN} ${SETUP_PY})
 
 # Create a custom target to build thermofun python package during build stage
 add_custom_target(thermofun ALL
@@ -26,12 +25,23 @@ add_dependencies(thermofun PyThermoFun)
 if(NOT DEFINED THERMOFUN_PYTHON_INSTALL_PREFIX)
     set(THERMOFUN_PYTHON_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 endif()
+# If the path is already in Windows format (with backslashes), it can't be added directly
+# to the string below, otherwise CMake will later complain about "Invalid escape sequence".
+file(TO_CMAKE_PATH "${THERMOFUN_PYTHON_INSTALL_PREFIX}" THERMOFUN_PYTHON_INSTALL_PREFIX)
 
 # Install the thermofun python package using setuptools
 install(CODE
 "
-	file(TO_NATIVE_PATH \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\" THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE)
-	   
+    file(TO_NATIVE_PATH \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\" THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE)
+
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb)
+        string(REPLACE .pyd .pdb THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
+
+        execute_process(
+            COMMAND \${CMAKE_COMMAND} -E copy ../../lib/PyThermoFun.pdb \${THERMOFUN_PDB_FILENAME}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+
     execute_process(
         COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=\${THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

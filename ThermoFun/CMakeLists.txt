@@ -18,18 +18,20 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  #link_directories("/usr/local/lib")
-
-else() # build for linux
-  # Find library and software dependencies
-#  find_package(Boost 1.58.0 REQUIRED)
-  find_package(nlohmann_json 3.6.1 REQUIRED)
-
-
+    #link_directories("/usr/local/lib")
+else() 
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+# build options for MacOS
+    else() 
+# build options for Linux
+# Find library and software dependencies
+        #find_package(Boost 1.58.0 REQUIRED)
+        find_package(nlohmann_json 3.6.1 REQUIRED)
 # Specify the dependency libraries to link against
-target_link_libraries(ThermoFun
-#    PRIVATE Boost::boost
-    PRIVATE nlohmann_json::nlohmann_json)
+        target_link_libraries(ThermoFun
+#        PRIVATE Boost::boost
+         PRIVATE nlohmann_json::nlohmann_json)
+    endif()
 endif()
 
 # Specify the include directories of the library target

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.1.10 LANGUAGES CXX)
+project(ThermoFun VERSION 0.2.0 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
@@ -126,22 +126,18 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 # Build ThermoFunGui library
 if(TFUN_BUILD_HUBCLIENT)
     add_subdirectory(ThermoHubClient)
-#else()
-#    add_subdirectory(ThermoHubClient EXCLUDE_FROM_ALL)
 endif()
 
 # Build ThermoFunGui library
 if(TFUN_BUILD_GUI)
     add_subdirectory(ThermoFunGui)
-#else()
-#    add_subdirectory(ThermoFunGui EXCLUDE_FROM_ALL)
 endif()
 
 # Build python wraper
 if(TFUN_BUILD_PYTHON)
     add_subdirectory(python)
-#else()
-#    add_subdirectory(python EXCLUDE_FROM_ALL)
+else()
+    add_subdirectory(python EXCLUDE_FROM_ALL)
 endif()
 
 # Install the cmake config files that permit users to use find_package(ThermoFun)
