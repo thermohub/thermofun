@@ -11,3 +11,18 @@ dependencies:
     - mkdocs
     - mkdocs-material
     - mkdocs-macros-plugin
+
+environment:
+
+  PYTHONPATH:
+    - {{ root }}/artifacts/python/lib/python{{ python_version }}/site-packages   # [unix]
+    - {{ root }}/build/lib/python{{ python_version }}/site-packages              # [unix]
+    - {{ root }}/build/lib64/python{{ python_version }}/site-packages            # [unix]
+    - {{ root }}\artifacts\python\Lib\site-packages                              # [win]
+    - {{ root }}\build\lib\python{{ python_version }}\site-packages              # [win]
+
+  LD_LIBRARY_PATH:                                                   # [unix]
+    - {{ root }}/artifacts/lib                                       # [unix]
+
+  PATH:                                                              # [win]
+    - {{ root }}\artifacts\bin                                       # [win]
