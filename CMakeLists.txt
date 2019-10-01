@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.0)
 project(ThermoFun VERSION 0.2.0 LANGUAGES CXX)
 
 # Set the cmake module path of the project
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
@@ -108,6 +108,9 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     include_directories("/usr/local/include")
     link_directories("/usr/local/lib")
 endif()
+
+# Find all Reaktoro dependencies
+include(ThermoFunFindDeps)
 
 # Build thermofun library
 add_subdirectory(ThermoFun)
