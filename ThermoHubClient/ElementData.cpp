@@ -182,8 +182,8 @@ std::vector<ElementKey> ElementData_::selectGiven( const std::vector<int>& sourc
         if (!j.is_null() && !j.empty() && j.is_object())
             class_ =  stoi(j.begin().key());
         elmKeys.push_back( ElementKey( elitem[getDataName_DataIndex().at("symbol")],
-                                       stoi(elitem[getDataName_DataIndex().at("class_")]),
-                                       stoi(elitem[getDataName_DataIndex().at("isotope_mass")])));
+                                       class_,
+                                       0));
     }
 
     pimpl->valuesTable =          move(elmQueryMatr);
