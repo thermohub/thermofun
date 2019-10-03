@@ -6,7 +6,7 @@ dependencies:
   - ninja
   - ccache  # [unix]
   - pybind11>=2.3.0
-  - nlohmann_json>=3.7.0
+  - nlohmann_json>=3.6.1
   - pip:
     - mkdocs
     - mkdocs-material
