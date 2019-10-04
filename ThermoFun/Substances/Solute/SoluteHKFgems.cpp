@@ -32,7 +32,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
         exception.error << "Error in HKFgems EOS";
         exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
-        RaiseError(exception);
+        RaiseError(exception)
     }
 //    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
 //    {

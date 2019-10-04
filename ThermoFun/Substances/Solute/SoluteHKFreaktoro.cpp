@@ -54,7 +54,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature TK, Reaktoro_::P
         exception.error << "Error in HKFreaktoro EOS";
         exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
-        RaiseError(exception);
+        RaiseError(exception)
     }
 //    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
 //    {
@@ -201,12 +201,14 @@ auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const Properties
 
     if (ps.density >= 1400)
     {
-        Exception exception;
-        exception.error << "Error in functionG";
-        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
-            << ps.density / 1000 << "g*cm-3.";
-        exception.line = __LINE__;
-        RaiseError(exception);
+        std::cout << "water density higher than 1.4 g*cm-3, Dw = "
+            << ps.density / 1000 << "g*cm-3." << std::endl << __FILE__ << std::endl << __LINE__;
+//        Exception exception;
+//        exception.error << "Error in functionG";
+//        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
+//            << ps.density / 1000 << "g*cm-3.";
+//        exception.line = __LINE__;
+//        RaiseError(exception)
     }
 
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
