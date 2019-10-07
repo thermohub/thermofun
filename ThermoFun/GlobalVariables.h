@@ -95,7 +95,8 @@ enum SubstanceTPMethodType {
     mv_eos_tait_hp11 = 39,
     mv_pvnrt = 40,
     solute_holland_powell98 = 41,
-    solute_anderson91 = 42
+    solute_anderson91 = 42,
+    standard_entropy_cp_integration = 43
 };
 
 enum ReactionTPMethodType {
@@ -147,7 +148,8 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, {""} },
 {SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} },
 {SubstanceTPMethodType::solute_holland_powell98, {"solute_holland_powell98_coeffs"} },
-{SubstanceTPMethodType::solute_anderson91, {"solute_anderson91_coeffs"} }
+{SubstanceTPMethodType::solute_anderson91, {"solute_anderson91_coeffs"} },
+{SubstanceTPMethodType::standard_entropy_cp_integration, {""} }
 };
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
@@ -413,7 +415,8 @@ static const std::map<const SubstanceTPMethodType, const int> new_old_s_methodty
   {SubstanceTPMethodType::fluid_peng_robinson78, 316},
   {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, 317},
   {SubstanceTPMethodType::solute_aknifiev_diamond03, 320},
-  {SubstanceTPMethodType::mv_pvnrt, 300}
+  {SubstanceTPMethodType::mv_pvnrt, 300},
+  {SubstanceTPMethodType::standard_entropy_cp_integration, 200}
 };
 
 static const std::map<const ReactionTPMethodType, const int> new_old_r_methodtype = {

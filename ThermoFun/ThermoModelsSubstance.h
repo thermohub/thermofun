@@ -278,7 +278,7 @@ private:
 
 
 /**
- * @brief The EmpiricalCpIntegration class calculates the head capacity using an empirical
+ * @brief The EmpiricalCpIntegration class calculates the heat capacity using an empirical
  * heat capacity equation Cp=f(T);
  */
 class EmpiricalCpIntegration
@@ -293,6 +293,30 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
+ * @brief The EntropyCpIntegration class the thermodynamic proeprties using the standard
+ * entropy and constant heat capacity integration;
+ */
+class EntropyCpIntegration
+{
+public:
+    /// Construct a default EntropyCpIntegration instance
+    EntropyCpIntegration();
+
+    /// Construct an EntropyCpIntegration instance from a Substance instance
+    explicit EntropyCpIntegration(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa), not used
     auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
 
 private:
