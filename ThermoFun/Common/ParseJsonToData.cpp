@@ -155,6 +155,7 @@ auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
     case SubstanceTPMethodType::water_eos_hgk84_reaktoro:
     case SubstanceTPMethodType::water_eos_iapws95_reaktoro:
     case SubstanceTPMethodType::water_pvt_zhang_duan05:
+    case SubstanceTPMethodType::standard_entropy_cp_integration:
         s.setMethod_T(MethodCorrT_Thrift::type(new_old_s_methodtype.at(type)));
         break;
     case SubstanceTPMethodType::mv_constant:

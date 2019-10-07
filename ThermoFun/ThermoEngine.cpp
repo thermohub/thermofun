@@ -238,6 +238,11 @@ struct ThermoEngine::Impl
                     tps = HPLandau(pref.workSubstance).thermoProperties(T, P, tps);
                     break;
                 }
+                case MethodCorrT_Thrift::type::CTM_CST:
+                {
+                    tps = EntropyCpIntegration(pref.workSubstance).thermoProperties(T, P);
+                    break;
+                }
                     //                default:
                     //               // Exception
                     //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
