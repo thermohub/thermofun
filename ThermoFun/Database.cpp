@@ -68,9 +68,14 @@ struct Database::Impl
 
         for (int i=0; i<jsons.size(); i++)
         {
-            json j = json::parse(jsons[i]);
-            auto properties = j["properties"];
-            _label = j["_label"].get<std::string>();
+            json j = json::parse(jsons[i]); auto properties = j;
+
+            if (j.contains("properties"))
+                if (!j["properties"].is_null())
+                    properties = j["properties"];
+            if (j.contains("_label"))
+                if (!j["_label"].is_null())
+                    _label = j["_label"].get<std::string>();
 
             if (_label == "substance")
             {
@@ -252,11 +257,17 @@ struct Database::Impl
         if (!ifs.good())
             funError("File reading error", "Database file not found!", __LINE__, __FILE__);
         json j = json::parse(ifs);
+        std::string _label;
 
         for(auto it = j.begin(); it != j.end(); ++it)
         {
-            auto properties = it.value()["properties"];
-            auto _label = it.value()["_label"].get<std::string>();
+            auto properties = it.value();
+            if (it.value().contains("properties"))
+                if (!it.value()["properties"].is_null())
+                    properties = it.value()["properties"];
+            if (it.value().contains("_label"))
+                if (!it.value()["_label"].is_null())
+                    _label = it.value()["_label"].get<std::string>();
 
             if (_label == "substance")
             {
@@ -277,7 +288,7 @@ struct Database::Impl
                     {
                         Exception exception;
                         exception.error << "Unknown JSON type " << _label << " ";
-                        exception.reason << "The JSON object needs to be a substance or reaction, file " << filename << ".";
+                        exception.reason << "The JSON object needs to be an element, a substance or a reaction file " << filename << ".";
                         exception.line = __LINE__;
                         RaiseError(exception);
                     }
