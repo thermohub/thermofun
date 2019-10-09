@@ -303,7 +303,7 @@ auto ThermoBatch::thermoPropertiesSubstance(std::array<double,3> aT, std::array<
 {
     pimpl->addSymbolsProperties(symbols, properties);
 
-    pimpl->addTPpairs(aT[1], aT[2], aT[3], aP[1], aP[2], aP[3]);
+    pimpl->addTPpairs(aT[0], aT[1], aT[2], aP[0], aP[1], aP[2]);
 
     pimpl->calculate(forSUBSTANCE);
 
