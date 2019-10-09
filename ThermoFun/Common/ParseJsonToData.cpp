@@ -75,13 +75,15 @@ auto readValueError(const json &j, string propPath, double &val, double &err, st
 
     if (j[propPath].contains("/values/0"_json_pointer))
     {
-        val = j[propPath]["values"][0].get<double>();
+        if (!j[propPath]["values"][0].is_null())
+            val = j[propPath]["values"][0].get<double>();
         status = {Reaktoro_::Status::read, message};
     }
 
     if (j[propPath].contains("/errors/0"_json_pointer))
     {
-        err = j[propPath]["errors"][0].get<double>();
+        if (!j[propPath]["errors"][0].is_null())
+            err = j[propPath]["errors"][0].get<double>();
     }
 
     return status;
@@ -203,10 +205,13 @@ auto getTPMethods(const json &j, Reaction &r) -> void
 
     for (auto it = methods.begin(); it != methods.end(); ++it)
     {
-        int key = stoi(it.value()["method"].begin().key());
-        std::string name = it.value()["method"].begin().value();
-        setTPMethods_old(ReactionTPMethodType(key), r);
-        thermoParamReac(it.value(), pr);
+        if (!it.value()["method"].begin()->is_null())
+        {
+            int key = stoi(it.value()["method"].begin().key());
+            std::string name = it.value()["method"].begin().value();
+            setTPMethods_old(ReactionTPMethodType(key), r);
+            thermoParamReac(it.value(), pr);
+        }
     }
     r.setThermoParameters(pr);
 }
@@ -218,16 +223,21 @@ auto getTPMethods(const json &j, Substance &s) -> void
 
     for (auto it = methods.begin(); it != methods.end(); ++it)
     {
-        int key = stoi(it.value()["method"].begin().key());
-        std::string name = it.value()["method"].begin().value();
-        setTPMethods_old(SubstanceTPMethodType(key), s);
-        thermoParamSubst(it.value(), name, ps);
+        if (!it.value()["method"].begin()->is_null())
+        {
+            int key = stoi(it.value()["method"].begin().key());
+            std::string name = it.value()["method"].begin().value();
+            setTPMethods_old(SubstanceTPMethodType(key), s);
+            thermoParamSubst(it.value(), name, ps);
+        }
     }
 
     if (j.contains("/m_expansivity/values/0"_json_pointer))
-        ps.isobaric_expansivity = j["m_expansivity"]["values"][0].get<double>();
+        if (!j["m_expansivity"]["values"][0].is_null())
+            ps.isobaric_expansivity = j["m_expansivity"]["values"][0].get<double>();
     if (j.contains("/m_compressibility/values/0"_json_pointer))
-        ps.isothermal_compresibility = j["m_compressibility"]["values"][0].get<double>();
+        if (!j["m_compressibility"]["values"][0].is_null())
+            ps.isothermal_compresibility = j["m_compressibility"]["values"][0].get<double>();
 
     s.setThermoParameters(ps);
 }
@@ -238,18 +248,22 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
     string kbuf;
 
     if (j.contains("/eos_akinfiev_diamond_coeffs/values"_json_pointer))
-        ps.Cp_nonElectrolyte_coeff = j["eos_akinfiev_diamond_coeffs"]["values"].get<vector<double>>();
+        if (!j["eos_akinfiev_diamond_coeffs"]["values"].is_null())
+            ps.Cp_nonElectrolyte_coeff = j["eos_akinfiev_diamond_coeffs"]["values"].get<vector<double>>();
 
     if (j.contains("/eos_birch_murnaghan_coeffs/values"_json_pointer))
-        ps.volume_BirchM_coeff = j["eos_birch_murnaghan_coeffs"]["values"].get<vector<double>>();
+        if (!j["eos_birch_murnaghan_coeffs"]["values"].is_null())
+            ps.volume_BirchM_coeff = j["eos_birch_murnaghan_coeffs"]["values"].get<vector<double>>();
 
     //    if (j.contains("eos_churakov_gottschalk_coeffs"))s.resize(vkbuf.size());
 
     if (j.contains("/eos_gas_crit_props/values"_json_pointer))
-        ps.critical_parameters = j["eos_gas_crit_props"]["values"].get<vector<double>>();
+        if (!j["eos_gas_crit_props"]["values"].is_null())
+            ps.critical_parameters = j["eos_gas_crit_props"]["values"].get<vector<double>>();
 
     if (j.contains("/eos_hkf_coeffs/values"_json_pointer))
-        ps.HKF_parameters = j["eos_hkf_coeffs"]["values"].get<vector<double>>();
+        if (!j["eos_hkf_coeffs"]["values"].is_null())
+            ps.HKF_parameters = j["eos_hkf_coeffs"]["values"].get<vector<double>>();
 
     // temporary fix - need to think how to handle more than 1 TP interval - for new structure - simplified
     if (prop_name == "cp_ft_equation")
@@ -258,24 +272,30 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
         if (j.contains("limitsTP"))
         {
             if (j["limitsTP"].contains("lowerT"))
-                low_up.push_back(j["limitsTP"]["lowerT"].get<double>());
+                if (!j["limitsTP"]["lowerT"].is_null())
+                    low_up.push_back(j["limitsTP"]["lowerT"].get<double>());
             if (j["limitsTP"].contains("upperT"))
-                low_up.push_back(j["limitsTP"]["upperT"].get<double>());
+                if (!j["limitsTP"]["upperT"].is_null())
+                    low_up.push_back(j["limitsTP"]["upperT"].get<double>());
         }
         ps.temperature_intervals.push_back(low_up);
     }
 
     if (j.contains("/m_heat_capacity_ft_coeffs/values"_json_pointer))
-        ps.Cp_coeff.push_back(j["m_heat_capacity_ft_coeffs"]["values"].get<vector<double>>());
+        if (!j["m_heat_capacity_ft_coeffs"]["values"].is_null())
+            ps.Cp_coeff.push_back(j["m_heat_capacity_ft_coeffs"]["values"].get<vector<double>>());
 
     if (j.contains("/m_phase_trans_props/values"_json_pointer))
-        ps.phase_transition_prop.push_back(j["m_phase_trans_props"]["values"].get<vector<double>>());
+        if (!j["m_phase_trans_props"]["values"].is_null())
+            ps.phase_transition_prop.push_back(j["m_phase_trans_props"]["values"].get<vector<double>>());
 
     if (j.contains("/m_landau_phase_trans_props/values"_json_pointer))
-        ps.phase_transition_prop.push_back(j["m_landau_phase_trans_props"]["values"].get<vector<double>>());
+        if (!j["m_landau_phase_trans_props"]["values"].is_null())
+            ps.phase_transition_prop.push_back(j["m_landau_phase_trans_props"]["values"].get<vector<double>>());
 
     if (j.contains("/phase_transition_prop_Berman/values"_json_pointer))
-        ps.phase_transition_prop_Berman.push_back(j["phase_transition_prop_Berman"]["values"].get<vector<double>>());
+        if (!j["phase_transition_prop_Berman"]["values"].is_null())
+            ps.phase_transition_prop_Berman.push_back(j["phase_transition_prop_Berman"]["values"].get<vector<double>>());
 }
 
 auto thermoParamReac(const json &j, ThermoParametersReaction &pr) -> void
@@ -284,33 +304,25 @@ auto thermoParamReac(const json &j, ThermoParametersReaction &pr) -> void
     string kbuf;
 
     if (j.contains("/logk_ft_coeffs/values"_json_pointer))
-        pr.reaction_logK_fT_coeff = j["logk_ft_coeffs"]["values"].get<vector<double>>();
+        if (!j["logk_ft_coeffs"]["values"].is_null())
+            pr.reaction_logK_fT_coeff = j["logk_ft_coeffs"]["values"].get<vector<double>>();
     //    if (j.contains("logk_pt_values") && !j["logk_pt_values"]["values"].is_null())  // static const char * reacLogKPT             = "logk_pt_values.pptv"; //
     //        pr.logK_TP_array = j["logk_pt_values"]["values"].get<vector<double>>();
     if (j.contains("/dr_heat_capacity_ft_coeffs/values"_json_pointer))
-        pr.reaction_Cp_fT_coeff = j["dr_heat_capacity_ft_coeffs"]["values"].get<vector<double>>();
+        if (!j["dr_heat_capacity_ft_coeffs"]["values"].is_null())
+            pr.reaction_Cp_fT_coeff = j["dr_heat_capacity_ft_coeffs"]["values"].get<vector<double>>();
     if (j.contains("/dr_volume_fpt_coeffs/values"_json_pointer))
-        pr.reaction_V_fT_coeff = j["dr_volume_fpt_coeffs"]["values"].get<vector<double>>();
+        if (!j["dr_volume_fpt_coeffs"]["values"].is_null())
+            pr.reaction_V_fT_coeff = j["dr_volume_fpt_coeffs"]["values"].get<vector<double>>();
     if (j.contains("/dr_ryzhenko_coeffs/values"_json_pointer))
-        pr.reaction_RB_coeff = j["dr_ryzhenko_coeffs"]["values"].get<vector<double>>();
+        if (!j["dr_ryzhenko_coeffs"]["values"].is_null())
+            pr.reaction_RB_coeff = j["dr_ryzhenko_coeffs"]["values"].get<vector<double>>();
     if (j.contains("/dr_marshall_franck_coeffs/values"_json_pointer))
-        pr.reaction_FM_coeff = j["dr_marshall_franck_coeffs"]["values"].get<vector<double>>();
+        if (!j["dr_marshall_franck_coeffs"]["values"].is_null())
+            pr.reaction_FM_coeff = j["dr_marshall_franck_coeffs"]["values"].get<vector<double>>();
     if (j.contains("/dr_dolejs_manning10_coeffs/values"_json_pointer))
-        pr.reaction_DM10_coeff = j["dr_dolejs_manning10_coeffs"]["values"].get<vector<double>>();
-
-    //    double lT = 0.0; double uT = 0.0;
-    //    double lP = 0.0; double uP = 0.0;
-    //    if (object->findValue( lowerT, kbuf ))
-    //        if (!parseIssues(kbuf, name, lowerT)) lT = std::stod(kbuf.c_str());
-    //    if (object->findValue( upperT, kbuf ))
-    //        if (!parseIssues(kbuf, name, upperT)) uT = std::stod(kbuf.c_str());
-    //    pr.temperature_intervals.push_back({lT, uT});
-
-    //    if (object->findValue( lowerP, kbuf ))
-    //        if (!parseIssues(kbuf, name, lowerP)) lT = std::stod(kbuf.c_str());
-    //    if (object->findValue( upperP, kbuf ))
-    //        if (!parseIssues(kbuf, name, upperP)) uT = std::stod(kbuf.c_str());
-    //    pr.pressure_intervals.push_back({lT, uT});
+        if (!j["dr_dolejs_manning10_coeffs"]["values"].is_null())
+            pr.reaction_DM10_coeff = j["dr_dolejs_manning10_coeffs"]["values"].get<vector<double>>();
 }
 
 auto thermoRefPropSubst(const json &j) -> ThermoPropertiesSubstance
@@ -361,7 +373,8 @@ auto getReactants(const json &r) -> std::map<std::string, double>
         json j = it.value();
         if (j.contains("symbol"))
             if (j.contains("coefficient"))
-                reactants[j["symbol"]] = j["coefficient"].get<double>();
+                if (!j["symbol"].is_null() && !j["coefficient"].is_null())
+                    reactants[j["symbol"]] = j["coefficient"].get<double>();
     }
     return reactants;
 }
@@ -376,31 +389,39 @@ auto parseElement(const std::string &data) -> Element
     {
         json j = json::parse(data);
         if (j.contains("properties"))
-            j = j["properties"];
+            if (!j["properties"].is_null())
+                j = j["properties"];
 
         if (j.contains("name"))
-        {
-            e.setName(j["name"]);
-            name = j["name"];
-        }
+            if (!j["name"].is_null())
+            {
+                e.setName(j["name"]);
+                name = j["name"];
+            }
 
         if (j.contains("symbol"))
-            e.setSymbol(j["symbol"]);
+            if (!j["symbol"].is_null())
+                e.setSymbol(j["symbol"]);
 
         if (j.contains("number"))
-            e.setNumber(j["number"].get<int>());
+            if (!j["number"].is_null())
+                e.setNumber(j["number"].get<int>());
 
         if (j.contains("/entropy/values/0"_json_pointer))
-            e.setEntropy(j["entropy"]["values"][0].get<double>());
+            if (!j["entropy"]["values"][0].is_null())
+                e.setEntropy(j["entropy"]["values"][0].get<double>());
 
         if (j.contains("/heat_capacity/values/0"_json_pointer))
-            e.setHeatCapacity(j["heat_capacity"]["values"][0].get<double>());
+            if (!j["heat_capacity"]["values"][0].is_null())
+                e.setHeatCapacity(j["heat_capacity"]["values"][0].get<double>());
 
         if (j.contains("/atomic_mass/values/0"_json_pointer))
-            e.setMolarMass(j["atomic_mass"]["values"][0].get<double>());
+            if (!j["atomic_mass"]["values"][0].is_null())
+                e.setMolarMass(j["atomic_mass"]["values"][0].get<double>());
 
         if (j.contains("/volume/values/0"_json_pointer))
-            e.setVolume(j["volume"]["values"][0].get<double>());
+            if (!j["volume"]["values"][0].is_null())
+                e.setVolume(j["volume"]["values"][0].get<double>());
 
         if (j.contains("class_"))
             if (!j["class_"].is_null() && !j["class_"].empty() && j["class_"].is_object())
@@ -409,7 +430,8 @@ auto parseElement(const std::string &data) -> Element
                 e.setClass(0);
 
         if (j.contains("isotope_mass") && !j["isotope_mass"].is_null())
-            e.setIsotopeMass(j["isotope_mass"].get<int>());
+            if (!j["isotope_mass"].is_null())
+                e.setIsotopeMass(j["isotope_mass"].get<int>());
     }
     catch (json::exception &e)
     {
@@ -493,7 +515,7 @@ auto parseSubstance(const std::string &data) -> Substance
                 getTPMethods(j, s);
         // if no TPMethod is given but there is a reaction which defines the properties of the given substance
         if (!j.contains("TPMethods") && j.contains("reaction"))
-            if (!j["reaction"].is_null)
+            if (!j["reaction"].is_null())
                 s.setThermoCalculationType(SubstanceThermoCalculationType::REACDC);
 
         // get thermodynamic parameters
