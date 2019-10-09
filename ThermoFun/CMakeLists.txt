@@ -26,7 +26,7 @@ else()
 # build options for Linux
 # Find library and software dependencies
         #find_package(Boost 1.58.0 REQUIRED)
-        find_package(nlohmann_json 3.6.1 REQUIRED)
+        find_package(nlohmann_json 3.7.0 REQUIRED)
 # Specify the dependency libraries to link against
         target_link_libraries(ThermoFun
 #        PRIVATE Boost::boost
