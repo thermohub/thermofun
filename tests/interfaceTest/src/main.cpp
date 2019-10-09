@@ -1,12 +1,12 @@
     #include "ThermoFun.h"
-#include "thermofun/Common/ThermoScalar.hpp"
+//#include "ThermoFun/Common/ThermoScalar.hpp"
     using namespace std;
     using namespace ThermoFun;
 
     int main()
     {
       // Create the interface object using a database file in JSON
-      ThermoBatch batch("aq17_.json");
+      ThermoBatch batch("aq17-fun.json");
 
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       batch.setSolventSymbol("H2O@");
