@@ -2,7 +2,8 @@
 #include "ThermoProperties.h"
 #include "Substance.h"
 
-#include "Substances//EmpiricalCpIntegration.h"
+#include "Substances/EmpiricalCpIntegration.h"
+#include "Substances/StandardEntropyCpIntegration.h"
 #include "Substances/Solute/SoluteHKFreaktoro.h"
 #include "Substances/Solute/SoluteHKFgems.h"
 #include "Substances/Solvent/WaterIdealGasWolley.h"
@@ -428,6 +429,38 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
     return thermoPropertiesEmpCpIntegration(t, p, pimpl->substance);
+}
+
+//=======================================================================================================
+// Standard entropy and constant heat capacity integration
+// References:
+// Added: DM 08.10.2019
+//=======================================================================================================
+
+struct EntropyCpIntegration::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+EntropyCpIntegration::EntropyCpIntegration(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+// calculation
+auto EntropyCpIntegration::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    auto t = Reaktoro_::Temperature(T);
+    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
+
+    return thermoPropertiesEntropyCpIntegration(t, p, pimpl->substance);
 }
 
 //=======================================================================================================

@@ -747,7 +747,7 @@ void ThermoFunWidgetNew::CmSelectSubstances()
         // select components
         const jsonio::ValuesTable& values= pdata->getValues( pdata->isSubstances() );
         vector<size_t> selNdx = pdata->substModel->recordToValues( colId, oldids );
-        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->ThermoHubClient.substData().getDataHeaders(),
+        jsonui::SelectDialog selDlg( true, this, "Please, select records for calculating their properties", values, pdata->ThermoHubClient.substData().getDataHeaders(),
                                      jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
         std::set<size_t> selNdx2;
@@ -793,7 +793,7 @@ void ThermoFunWidgetNew::CmSelectReactions()
         jsonio::ValuesTable values= pdata->reactModel->getValues();
         vector<size_t> selNdx = pdata->reactModel->recordToValues( colId, oldids );
 
-        jsonui::SelectDialog selDlg( true, this, "Please, select  records", values, pdata->ThermoHubClient.reactData().getDataHeaders(),
+        jsonui::SelectDialog selDlg( true, this, "Please, select records for calculating their properties", values, pdata->ThermoHubClient.reactData().getDataHeaders(),
                                      jsonui::TMatrixTable::tbNoMenu|jsonui::TMatrixTable::tbSort );
         selDlg.setSelection(selNdx);
         std::set<size_t> selNdx2;

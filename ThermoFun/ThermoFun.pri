@@ -8,6 +8,7 @@
 # ThermoFun
     $$PWD/Substances/Solute/SoluteAnderson91.h \
     $$PWD/Substances/Solute/SoluteHollandPowell98.h \
+    $$PWD/Substances/StandardEntropyCpIntegration.h \
     $$PWD/ThermoFun.h \
     $$PWD/Database.h \
     $$PWD/Element.h \
@@ -85,6 +86,7 @@
     $$PWD/Reaction.cpp \
     $$PWD/Substances/Solute/SoluteAnderson91.cpp \
     $$PWD/Substances/Solute/SoluteHollandPowell98.cpp \
+    $$PWD/Substances/StandardEntropyCpIntegration.cpp \
     $$PWD/ThermoModelsSolvent.cpp \
     $$PWD/ElectroModelsSolvent.cpp \
     $$PWD/ThermoModelsReaction.cpp \

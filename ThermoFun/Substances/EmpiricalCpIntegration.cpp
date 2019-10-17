@@ -31,7 +31,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     if (thermo_parameters.Cp_coeff.size() == 0)
     {
-///        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__, __FILE__);
+        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__, __FILE__);
         return thermo_properties_PrTr;
     }
 
@@ -46,27 +46,39 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     // get Cp interval -> this has to go!!!!
     for (size_t i=0; i<thermo_parameters.temperature_intervals.size(); i++)
     {
-        if (thermo_parameters.temperature_intervals[i].size() > 0) {
+        if (thermo_parameters.temperature_intervals[i].size() > 0)
+        {
             if ((thermo_parameters.temperature_intervals[i][0] <= TK) && (thermo_parameters.temperature_intervals[i][1] > TK))
             {
                 k = i;
                 break;
-            } }
-        else {
-                k = 0;
-             }
+            }
+        }
+        else
+        {
+            k = 0;
+        }
     }
 
     if (k<0)
     {
-        Exception exception;
-        exception.error << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
-        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
-        exception.file = __FILE__;
-        exception.line = __LINE__;
-//        throw (exception);
-        RaiseError(exception);
+        if (TK_ < thermo_parameters.temperature_intervals[0][0])
+            k = 0;
+        if (TK_ > thermo_parameters.temperature_intervals[thermo_parameters.temperature_intervals.size()-1][1])
+            k = thermo_parameters.temperature_intervals.size()-1;
+        std::cout << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
+        std::cout << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << "." << std::endl << __FILE__ << std::endl << __LINE__;
+//        Exception exception;
+//        exception.error << "The given temperature: "<< TK_ <<" is not inside the specified interval/s for the Cp calculation.";
+//        exception.reason << "The temperature is not inside the specified interval for the substance "<< substance.symbol() << ".";
+//        exception.file = __FILE__;
+//        exception.line = __LINE__;
+//        RaiseError(exception)
     }
+
+
+
+    k=0;
 
     for (unsigned i=0; i<thermo_parameters.Cp_coeff[k].size(); i++)
     {

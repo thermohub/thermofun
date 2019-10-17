@@ -17,6 +17,10 @@
 #include "ThermoFun/Database.h"
 #endif
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 using namespace std;
 using namespace jsonio;
 
@@ -83,11 +87,15 @@ void ElementData_::updateTableByElementsList( jsonio::ValuesTable& dataQueryMatr
         jsonio::ValuesTable dataMatr;
         for (const auto& subitem : dataQueryMatr)
         {
-         ElementKey elkey( subitem[getDataName_DataIndex().at("symbol")],
-                           stoi(subitem[getDataName_DataIndex().at("class_")]),
-                           stoi(subitem[getDataName_DataIndex().at("isotope_mass")]) );
-         if( std::find( elements.begin(), elements.end(), elkey) != elements.end() )
-              dataMatr.push_back(subitem);
+            int class_ = 0;
+            json j = json::parse(subitem[getDataName_DataIndex().at("class_")]);
+            if (!j.is_null() && !j.empty() && j.is_object())
+                class_ =  stoi(j.begin().key());
+            ElementKey elkey( subitem[getDataName_DataIndex().at("symbol")],
+                    class_,
+                    0 );
+            if( std::find( elements.begin(), elements.end(), elkey) != elements.end() )
+                dataMatr.push_back(subitem);
         }
         dataQueryMatr = move(dataMatr);
     }
@@ -169,9 +177,13 @@ std::vector<ElementKey> ElementData_::selectGiven( const std::vector<int>& sourc
     vector<ElementKey> elmKeys;
     for (const auto& elitem : elmQueryMatr)
     {
+        int class_ = 0;
+        json j = json::parse(elitem[getDataName_DataIndex().at("class_")]);
+        if (!j.is_null() && !j.empty() && j.is_object())
+            class_ =  stoi(j.begin().key());
         elmKeys.push_back( ElementKey( elitem[getDataName_DataIndex().at("symbol")],
-                                       stoi(elitem[getDataName_DataIndex().at("class_")]),
-                                       stoi(elitem[getDataName_DataIndex().at("isotope_mass")])));
+                                       class_,
+                                       0));
     }
 
     pimpl->valuesTable =          move(elmQueryMatr);
