@@ -32,6 +32,10 @@ struct ThermoBatch::Impl
 
     vvd                                 tpPairs;
 
+    std::vector <double>                temperatures;
+
+    std::vector <double>                pressures;
+
     vstr                                properties;
 
     std::map<std::string, std::string>  givenPropertyUnits  = defaultPropertyUnits;
@@ -87,6 +91,11 @@ struct ThermoBatch::Impl
     auto addTPpair (const double &T, const double &P) -> void
     {
         std::vector<double> one_pair = {T, P};
+        if ( std::find(temperatures.begin(), temperatures.end(), T) == temperatures.end() )
+           temperatures.push_back(T);
+        if ( std::find(pressures.begin(), pressures.end(), P) == pressures.end() )
+           pressures.push_back(P);
+
         tpPairs.push_back(one_pair);
     }
 
@@ -447,6 +456,16 @@ auto ThermoBatch::outputSettings() -> const BatchPreferences
 auto ThermoBatch::TPpairs() -> const vvd
 {
     return pimpl->tpPairs;
+}
+
+auto ThermoBatch::Temperatures() -> const std::vector <double>
+{
+    return pimpl->temperatures;
+}
+
+auto ThermoBatch::Pressures() -> const std::vector <double>
+{
+    return pimpl->pressures;
 }
 
 auto ThermoBatch::properties() -> const vstr

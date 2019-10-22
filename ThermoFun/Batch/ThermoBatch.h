@@ -131,6 +131,8 @@ private:
     auto results        () -> const vvThScalar;
 
     auto TPpairs        () -> const vvd;
+    auto Temperatures   () -> const std::vector <double>;
+    auto Pressures      () -> const std::vector <double>;
     auto properties     () -> const vstr;
     auto units          () -> const std::map<std::string, std::string>;
     auto digits         () -> const std::map<std::string, int>;

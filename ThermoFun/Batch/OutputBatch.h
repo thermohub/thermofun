@@ -23,6 +23,7 @@ public:
 
     auto toCSV                  (std::string filename) -> void;
     auto toCSVTransposed        (std::string filename) -> void;
+    auto toCSVPTgrid            (std::string filename) -> void;
     auto toDouble               () -> double;
     auto toThermoScalar         () -> Reaktoro_::ThermoScalar;
     auto to2DVectorDouble       () -> std::vector<std::vector<double>>;
@@ -33,8 +34,10 @@ private:
 
     auto CSVHeader            () -> std::string;
     auto CSVHeaderTransposed  () -> std::string;
+    auto CSVHeaderPTgrid      () -> std::string;
     auto foutResults          () -> void;
     auto foutResultsTransposed() -> void;
+    auto foutPropertyPTgrid    (const std::string &property, const size_t &index_property) -> void;
 };
 
 }
