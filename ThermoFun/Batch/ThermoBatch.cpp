@@ -110,6 +110,7 @@ struct ThermoBatch::Impl
                 p = p + Pstep;
                 addTPpair(t,p);
             } while (p < Pmax);
+            p = Pmin-Pstep;
         } while (t < Tmax);
     }
 
