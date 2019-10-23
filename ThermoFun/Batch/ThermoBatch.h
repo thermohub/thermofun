@@ -55,6 +55,13 @@ struct BatchPreferences
     bool calcReactFromSubst = false;
 
     bool loopOverTPpairsFirst = true;
+
+    /**
+     * @brief TthenPincrements
+     * @value True generate T-P pairs by first incrementing temperature
+     * @value False generate T-P pairs by first incrementing temperature
+     */
+    bool TthenPincrements = true;
 };
 
 struct BatchCalculationSettings
@@ -108,18 +115,20 @@ public:
     // claculate functions substances
     auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
-    auto thermoPropertiesSubstance  (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesSubstance  (std::map<std::string, double> Tincrement, std::map<std::string, double> Pincrement, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output;
+    auto thermoPropertiesSubstance  (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
 
     // claculate functions reactions
     auto thermoPropertiesReaction   (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesReaction   (double T, double P, vstr        symbols, vstr        properties) -> Output;
-    auto thermoPropertiesReaction   (std::array<double,3> aT, std::array<double,3> aP, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesReaction   (std::map<std::string, double> Tincrement, std::map<std::string, double> Pincrement, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output;
+    auto thermoPropertiesReaction   (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
 
-    auto setBatchPreferences          (const BatchPreferences &value) -> void;
+    auto setBatchPreferences        (const BatchPreferences &value) -> void;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
 
 private:
@@ -289,6 +298,20 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"reaction_heat_capacity_cv",      0               },
     {"logKr",                          0               },
     {"lnK0",                           0               }
+};
+
+const std::map<std::string, double> defaultTemperatureIncrement =
+{
+    {"Tmin", 25.},
+    {"Tmax", 300.},
+    {"Tstep", 25.}
+};
+
+const std::map<std::string, double> defaultPressureIncrement =
+{
+    {"Pmin", 0.},
+    {"Pmax", 0.},
+    {"Pstep", 0.}
 };
 
 
