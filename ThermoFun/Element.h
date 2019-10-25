@@ -44,6 +44,12 @@ public:
     /// Set the element Mendeleev table number
     auto setNumber(int value) -> void;
 
+    /**
+     * @brief setJsonString stores the json object of the record
+     * @param jString
+     */
+    auto setJsonString(const std::string &jString) ->void;
+
     /// Return the name of the element
     auto name() const -> std::string;
 
@@ -73,6 +79,12 @@ public:
 
     /// Return the Mendeleev table number of the element
     auto number() const -> int;
+
+    /**
+     * @brief jonString
+     * @return record in json string
+     */
+    auto jonString() const -> std::string;
 
 private:
     struct Impl;

@@ -61,6 +61,7 @@ struct Reaction::Impl
     /// Upper pressure limit (in Pa)
     double upper_P;
 
+    std::string jString;
 };
 
 Reaction::Reaction()
@@ -155,6 +156,11 @@ auto Reaction::setEquation(std::string equation) -> void
     pimpl->equation = equation;
 }
 
+auto Reaction::setJsonString(const std::string &jString) ->void
+{
+    pimpl->jString = jString;
+}
+
 auto Reaction::name() const -> std::string
 {
     return pimpl->name;
@@ -228,6 +234,11 @@ auto Reaction::method_P() const -> MethodCorrP_Thrift::type
 auto Reaction::equation() const -> std::string
 {
     return pimpl->equation;
+}
+
+auto Reaction::jonString() const -> std::string
+{
+    return pimpl->jString;
 }
 
 auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void

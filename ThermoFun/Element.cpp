@@ -33,6 +33,8 @@ struct Element::Impl
 
     /// Element Mendeleev table number
     int number;
+
+    std::string jString;
 };
 
 Element::Element()
@@ -89,6 +91,11 @@ auto Element::setNumber(int value) -> void
     pimpl->number = value;
 }
 
+auto Element::setJsonString(const std::string &jString) ->void
+{
+    pimpl->jString = jString;
+}
+
 auto Element::name() const -> std::string
 {
     return pimpl->name;
@@ -137,6 +144,11 @@ auto Element::isotopeMass() const -> int
 auto Element::number() const -> int
 {
     return pimpl->number;
+}
+
+auto Element::jonString() const -> std::string
+{
+    return pimpl->jString;
 }
 
 auto operator<(const Element& lhs, const Element& rhs) -> bool

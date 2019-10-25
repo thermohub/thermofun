@@ -170,7 +170,8 @@ struct ThermoEngine::Impl
             preferences.solventState = 0;  // liquid
 
         // check if the substance is reaction dependent
-        if (preferences.workSubstance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC)
+        if ((preferences.workSubstance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC) ||
+             (!preferences.method_genEOS && !preferences.method_P && !preferences.method_T))
             preferences.isReacDC = true;
         else
             preferences.isReacDC = false;

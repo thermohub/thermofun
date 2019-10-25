@@ -18,13 +18,13 @@ using json = nlohmann::json;
 
 namespace ThermoFun {
 
-auto errorNonExistent(std::string type, std::string name, int line) -> void
+[[ noreturn ]] auto errorNonExistent(std::string type, std::string name, int line) -> void
 {
     Exception exception;
     exception.error << "Cannot get an instance of the " << type << " `" << name << "` in the database.";
     exception.reason << "There is no such " << type << " in the database.";
     exception.line = line;
-    RaiseError(exception);
+    RaiseError(exception)
 }
 
 
@@ -66,7 +66,7 @@ struct Database::Impl
         string _label;
         flog.open(parsinglogfile, ios::trunc); flog.close();
 
-        for (int i=0; i<jsons.size(); i++)
+        for (size_t i=0; i<jsons.size(); i++)
         {
             json j = json::parse(jsons[i]); auto properties = j;
 
@@ -77,19 +77,24 @@ struct Database::Impl
                 if (!j["_label"].is_null())
                     _label = j["_label"].get<std::string>();
 
+            auto props = properties.dump();
+
             if (_label == "substance")
             {
-                Substance substance = parseSubstance(properties.dump());
+                Substance substance = parseSubstance(props);
+                substance.setJsonString(props);
                 substances_map[substance.symbol()] = substance;
             } else
             if (_label == "reaction")
             {
-               Reaction reaction = parseReaction(properties.dump());
+               Reaction reaction = parseReaction(props);
+               reaction.setJsonString(props);
                reactions_map[reaction.symbol()] = reaction;
             } else
             if (_label == "element")
             {
-                Element element = parseElement(properties.dump());
+                Element element = parseElement(props);
+                element.setJsonString(props);
                 elements_map[element.symbol()] = element;
             } else
             {
@@ -97,7 +102,7 @@ struct Database::Impl
                 exception.error << "Unknown JSON type " << _label << " ";
                 exception.reason << "The JSON object needs to be a substance or reaction.";
                 exception.line = __LINE__;
-                RaiseError(exception);
+                RaiseError(exception)
             }
             if (elements_map.size()>0)
                 ChemicalFormula::setDBElements( elements_map );
@@ -180,17 +185,17 @@ struct Database::Impl
 //            reaction.second.calcParameters();
 //    }
 
-    auto numberOfElements() -> int
+    auto numberOfElements() -> size_t
     {
         return collectValues(elements_map).size();
     }
 
-    auto numberOfSubstances() -> int
+    auto numberOfSubstances() -> size_t
     {
         return collectValues(substances_map).size();
     }
 
-    auto numberOfReactions() -> int
+    auto numberOfReactions() -> size_t
     {
         return collectValues(reactions_map).size();
     }
@@ -255,7 +260,7 @@ struct Database::Impl
     {
         std::ifstream ifs(filename);
         if (!ifs.good())
-            funError("File reading error", "Database file not found!", __LINE__, __FILE__);
+            funError("File reading error", std::string("Database file "+ filename +" not found!"), __LINE__, __FILE__);
         json j = json::parse(ifs);
         std::string _label;
 
@@ -269,19 +274,24 @@ struct Database::Impl
                 if (!it.value()["_label"].is_null())
                     _label = it.value()["_label"].get<std::string>();
 
+            auto props = properties.dump();
+
             if (_label == "substance")
             {
-                Substance substance = parseSubstance(properties.dump());
+                Substance substance = parseSubstance(props);
+                substance.setJsonString(props);
                 substances_map[substance.symbol()] = substance;
             } else
                 if (_label == "reaction")
                 {
-                    Reaction reaction = parseReaction(properties.dump());
+                    Reaction reaction = parseReaction(props);
+                    reaction.setJsonString(props);
                     reactions_map[reaction.symbol()] = reaction;
                 } else
                     if (_label == "element")
                     {
-                        Element element = parseElement(properties.dump());
+                        Element element = parseElement(props);
+                        element.setJsonString(props);
                         elements_map[element.symbol()] = element;
                     }
                     else
@@ -290,7 +300,7 @@ struct Database::Impl
                         exception.error << "Unknown JSON type " << _label << " ";
                         exception.reason << "The JSON object needs to be an element, a substance or a reaction file " << filename << ".";
                         exception.line = __LINE__;
-                        RaiseError(exception);
+                        RaiseError(exception)
                     }
 
         }
@@ -418,17 +428,17 @@ auto Database::getReactions() -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
-auto Database::numberOfElements() -> int
+auto Database::numberOfElements() -> size_t
 {
     return pimpl->numberOfElements();
 }
 
-auto Database::numberOfSubstances() -> int
+auto Database::numberOfSubstances() -> size_t
 {
     return pimpl->numberOfSubstances();
 }
 
-auto Database::numberOfReactions() -> int
+auto Database::numberOfReactions() -> size_t
 {
     return pimpl->numberOfReactions();
 }

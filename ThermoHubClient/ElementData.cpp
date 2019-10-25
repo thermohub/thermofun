@@ -308,7 +308,7 @@ auto ElementKeyFromDB( jsonio::TDBVertexDocument* elementDB ) -> ElementKey
 // Writes data to json (only key)
 void toKeyNode(  Element el, jsonio::JsonDom *object )
 {
-    object->appendString( "symbol", el.name() );
+    object->appendString( "symbol", el.symbol() );
     if( el.isotopeMass() != 0 )
         object->appendInt( "isotope_mass", el.isotopeMass() );
     if( el.class_()!= 0 )
