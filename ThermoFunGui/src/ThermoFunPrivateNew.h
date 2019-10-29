@@ -55,6 +55,8 @@ struct ThermoFunData
     string unitsT;          ///< Current units of T
     string unitsP;          ///< Current units of P
     std::vector<std::vector<double>> tppairs;
+    std::string output;
+    std::string resultsFile;
 
     // Properties data
     vector<string> properties, propertiesS, propertiesR;    ///< Properties names list
@@ -155,6 +157,10 @@ public slots:
     {
       _data.unitsP = text.toStdString();
     }
+    void POutputChanged(const QString& text)
+    {
+      _data.output = text.toStdString();
+    }
     void nameChanged(const QString& text)
     {
       _data.name = text.toStdString();
@@ -243,8 +249,8 @@ public:
 
    ThermoLoadData loadData( std::vector<size_t> selNdx );
 
-   std::string calcData( ThermoLoadData loadedData, string solventSymbol,
-                    bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst );
+   std::string calcData(ThermoLoadData loadedData, string solventSymbol,
+                    OutputOptions options);
 
    // temporaly functions
    void resetElementsintoRecord( bool isreact, const string& aKey );

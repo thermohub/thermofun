@@ -607,7 +607,7 @@ ThermoLoadData ThermoFunPrivateNew::loadData( vector<size_t> selNdx )
 }
 
 string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventSymbol,
-                                      bool FormatBox, bool calcSubstFromReact, bool calcReactFromSubst )
+                                      OutputOptions options )
 {
     string returnMessage;
     QTime time;
@@ -629,7 +629,7 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
         //    ThermoFun::MapIdType resultTraversal = tr.getMapOfConnectedIds(keys, subst.mapSymbolLevel());
         //    ThermoFun::Database tdb_ = tr.getDatabaseFromMapOfIds(resultTraversal, subst.mapSymbolLevel());
 
-        if (!calcSubstFromReact) // make all reactions to be calculated using the method in the record
+        if (!options.calcSubstFromReact) // make all reactions to be calculated using the method in the record
             tdb_ = setSubstanceCalcType_(tdb_, ThermoFun::SubstanceThermoCalculationType::type::DCOMP);
 
 
@@ -637,15 +637,15 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
         batchCalc.setSolventSymbol(solventSymbol);
 
         ThermoFun::BatchPreferences op;
-        if( FormatBox )
+        if( options.output_number_format )
         {
             op.isFixed = true;
         } else
             op.isFixed = false;
 
-        op.outSolventProp       = true;
-        op.calcReactFromSubst   = calcReactFromSubst;
-        op.calcSubstFromReact   = calcSubstFromReact;
+        op.outSolventProp       = options.outSolventProp;
+        op.calcReactFromSubst   = options.calcReactFromSubst;
+        op.calcSubstFromReact   = options.calcSubstFromReact;
         batchCalc.setBatchPreferences(op);
 
         batchCalc.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
@@ -676,8 +676,19 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
 
         if (_data.schemaName == "VertexReaction")
         {
-            batchCalc.thermoPropertiesReaction(_data.tppairs, loadedData.reactionsSymbols,
-                                               _data.properties/*, calcReactFromSubst*/).toCSV(op.fileName);
+            switch(options.out) {
+            case outType::csv : batchCalc.thermoPropertiesReaction(_data.tppairs, loadedData.reactionsSymbols,
+                                                                   _data.properties/*, calcReactFromSubst*/).toCSV(op.fileName);
+                break;
+            case outType::transposed : batchCalc.thermoPropertiesReaction(_data.tppairs, loadedData.reactionsSymbols,
+                                                                          _data.properties/*, calcReactFromSubst*/).toCSVTransposed(op.fileName);
+                break;
+            case outType::propertygrid : batchCalc.thermoPropertiesReaction(_data.tppairs, loadedData.reactionsSymbols,
+                                                                            _data.properties/*, calcReactFromSubst*/).toCSVPropertyGrid(op.fileName);
+                op.fileName = std::string(_data.properties[0]+"_"+op.fileName);
+                break;
+            }
+
 
             vector<string> reactionsEquations;
             for (auto symb : loadedData.reactionsSymbols)
@@ -693,8 +704,20 @@ string ThermoFunPrivateNew::calcData( ThermoLoadData loadedData, string solventS
         }
 
         if (_data.schemaName == "VertexSubstance")
-            batchCalc.thermoPropertiesSubstance( _data.tppairs, loadedData.substancesSymbols,
-                                                 _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
+            switch(options.out) {
+            case outType::csv : batchCalc.thermoPropertiesSubstance( _data.tppairs, loadedData.substancesSymbols,
+                                                                                 _data.properties/*, calcSubstFromReact*/).toCSV(op.fileName);
+                break;
+            case outType::transposed : batchCalc.thermoPropertiesSubstance( _data.tppairs, loadedData.substancesSymbols,
+                                                                                        _data.properties/*, calcSubstFromReact*/).toCSVTransposed(op.fileName);
+                break;
+            case outType::propertygrid : batchCalc.thermoPropertiesSubstance( _data.tppairs, loadedData.substancesSymbols,
+                                                                                          _data.properties/*, calcSubstFromReact*/).toCSVPropertyGrid(op.fileName);
+                op.fileName = std::string(_data.properties[0]+"_"+op.fileName);
+                break;
+            }
+
+        _data.resultsFile = op.fileName;
 
         double delta_calc = time.elapsed()+ loadedData.time;
         returnMessage = "Calculation finished ("+ to_string(delta_calc/1000) + "s). Click view results.";

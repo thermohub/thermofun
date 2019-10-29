@@ -64,6 +64,22 @@ struct ThermoLoadData
     std::string errorMessage;
 };
 
+enum outType
+{
+    csv = 0,
+    transposed,
+    propertygrid
+};
+
+struct OutputOptions
+{
+    bool calcSubstFromReact = false;
+    bool calcReactFromSubst = false;
+    bool output_number_format = false;
+    bool outSolventProp = false;
+    outType out = outType::csv;
+};
+
 /// Widget to work with CorrPT data
 class ThermoFunWidgetNew : public jsonui::JSONUIBase
 {
