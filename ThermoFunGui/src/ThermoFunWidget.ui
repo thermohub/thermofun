@@ -99,17 +99,40 @@
           </property>
           <widget class="QWidget" name="inWidget" native="true">
            <layout class="QGridLayout" name="gridLayout">
-            <item row="3" column="2">
-             <widget class="QLabel" name="label_5">
+            <item row="4" column="5">
+             <widget class="QLabel" name="label_12">
+              <property name="toolTip">
+               <string>Number of digits after decimal point</string>
+              </property>
+              <property name="statusTip">
+               <string>Precision of pressure values</string>
+              </property>
               <property name="text">
-               <string>Units</string>
+               <string>Precision</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="4" column="5">
+            <item row="1" column="0" alignment="Qt::AlignLeft">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Task Name</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="7">
+             <widget class="QLineEdit" name="pComment">
+              <property name="toolTip">
+               <string>Calculation task comment</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="6">
              <widget class="QSpinBox" name="pPrecision">
               <property name="toolTip">
                <string extracomment="Output precision / digits after decimal point (in Fixed Format)">Number of digits after decimal point for pressure</string>
@@ -122,66 +145,79 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="2" alignment="Qt::AlignLeft">
-             <widget class="QLabel" name="label">
+            <item row="3" column="0" alignment="Qt::AlignLeft">
+             <widget class="QLabel" name="label_3">
               <property name="text">
-               <string>Data type</string>
+               <string>Temperature Units</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="1" column="2" colspan="4">
-             <widget class="QLineEdit" name="pName">
-              <property name="toolTip">
-               <string>Calculation task name</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="4" colspan="2">
-             <widget class="QComboBox" name="pSolventSymbol">
+            <item row="5" column="2" colspan="3">
+             <widget class="QComboBox" name="pOutput">
               <property name="enabled">
                <bool>true</bool>
               </property>
               <property name="toolTip">
                <string>Symbol of the solvent used for calculating properties of disolved solute species</string>
               </property>
+              <item>
+               <property name="text">
+                <string extracomment="comma separated value">properties on columns</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>properties on rows</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>property grid </string>
+               </property>
+              </item>
              </widget>
             </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="enabled">
-               <bool>true</bool>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Data type</string>
               </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="7">
+             <widget class="QLabel" name="label_9">
               <property name="maximumSize">
                <size>
-                <width>120</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
               <property name="text">
-               <string>Pressure</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <string>Properties table</string>
               </property>
              </widget>
             </item>
-            <item row="3" column="4">
-             <widget class="QLabel" name="label_10">
-              <property name="toolTip">
-               <string>Number of digits after decimal point</string>
+            <item row="3" column="2" colspan="3">
+             <widget class="QComboBox" name="pTunit">
+              <property name="currentText">
+               <string>C Celsius</string>
               </property>
-              <property name="statusTip">
-               <string>Precision of temperature values</string>
-              </property>
-              <property name="text">
-               <string>Precision</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
+              <item>
+               <property name="text">
+                <string>C Celsius</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>K Kelvin</string>
+               </property>
+              </item>
              </widget>
             </item>
-            <item row="4" column="3">
+            <item row="4" column="2" colspan="3">
              <widget class="QComboBox" name="pPunit">
               <item>
                <property name="text">
@@ -210,53 +246,69 @@
               </item>
              </widget>
             </item>
-            <item row="4" column="2">
-             <widget class="QLabel" name="label_6">
+            <item row="4" column="0" alignment="Qt::AlignLeft">
+             <widget class="QLabel" name="label_7">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>120</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="text">
-               <string>Units</string>
+               <string>Pressure Units</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="3" column="3">
-             <widget class="QComboBox" name="pTunit">
-              <property name="currentText">
-               <string>C Celsius</string>
+            <item row="1" column="1" colspan="6">
+             <widget class="QLineEdit" name="pName">
+              <property name="toolTip">
+               <string>Calculation task name</string>
               </property>
-              <item>
-               <property name="text">
-                <string>C Celsius</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>K Kelvin</string>
-               </property>
-              </item>
              </widget>
             </item>
-            <item row="7" column="0" colspan="8">
-             <widget class="QLabel" name="label_9">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
+            <item row="5" column="5">
+             <widget class="QLabel" name="label_13">
+              <property name="toolTip">
+               <string>Symbol of the solvent used for calculating properties of disolved solute species</string>
               </property>
               <property name="text">
-               <string>Properties table</string>
+               <string>Solvent </string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="4" column="4">
-             <widget class="QLabel" name="label_12">
+            <item row="0" column="1" colspan="6">
+             <widget class="QComboBox" name="typeBox">
+              <property name="toolTip">
+               <string>Type of data to calculate properties for</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="6">
+             <widget class="QComboBox" name="pSolventSymbol">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Symbol of the solvent used for calculating properties of disolved solute species</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="5">
+             <widget class="QLabel" name="label_10">
               <property name="toolTip">
                <string>Number of digits after decimal point</string>
               </property>
               <property name="statusTip">
-               <string>Precision of pressure values</string>
+               <string>Precision of temperature values</string>
               </property>
               <property name="text">
                <string>Precision</string>
@@ -266,54 +318,7 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="2" alignment="Qt::AlignLeft">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Task Name</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2" colspan="2">
-             <widget class="QComboBox" name="typeBox">
-              <property name="toolTip">
-               <string>Type of data to calculate properties for</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="3">
-             <widget class="QLabel" name="label_13">
-              <property name="toolTip">
-               <string>Symbol of the solvent used for calculating properties of disolved solute species</string>
-              </property>
-              <property name="text">
-               <string>Solvent Symbol</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" colspan="6">
-             <widget class="QLineEdit" name="pComment">
-              <property name="toolTip">
-               <string>Calculation task comment</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Temperature</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="5">
+            <item row="3" column="6">
              <widget class="QSpinBox" name="tPrecision">
               <property name="toolTip">
                <string extracomment="Output precision / digits after decimal point (in Fixed Format)">Number of digits after decimal point for temperature</string>
@@ -323,6 +328,19 @@
               </property>
               <property name="value">
                <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" alignment="Qt::AlignLeft">
+             <widget class="QLabel" name="label_14">
+              <property name="toolTip">
+               <string>Symbol of the solvent used for calculating properties of disolved solute species</string>
+              </property>
+              <property name="text">
+               <string>Output</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -426,7 +444,6 @@
     <addaction name="actionCalculate_Reactions_Records_from_Reactants"/>
     <addaction name="separator"/>
     <addaction name="action_Set_Elemets_to_reactionsets"/>
-    <addaction name="actionFixed_output_number_format"/>
    </widget>
    <widget class="QMenu" name="menuSelect">
     <property name="title">
@@ -520,7 +537,7 @@
   </action>
   <action name="actionImport_CfgFile">
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/ShowFilesIcon24.png</normaloff>:/Icons/ShowFilesIcon24.png</iconset>
    </property>
    <property name="text">
@@ -535,7 +552,7 @@
   </action>
   <action name="actionExport_CfgFile">
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/SaveCurrentRecordIcon24.png</normaloff>:/Icons/SaveCurrentRecordIcon24.png</iconset>
    </property>
    <property name="text">
@@ -550,7 +567,7 @@
   </action>
   <action name="action_Help_About">
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/QuestionMessageIcon24.png</normaloff>:/Icons/QuestionMessageIcon24.png</iconset>
    </property>
    <property name="text">
@@ -585,7 +602,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/CalculateRecordDataIcon24.png</normaloff>:/Icons/CalculateRecordDataIcon24.png</iconset>
    </property>
    <property name="text">
@@ -597,7 +614,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/RTparmModuleIcon24.png</normaloff>:/Icons/RTparmModuleIcon24.png</iconset>
    </property>
    <property name="text">
@@ -609,7 +626,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/ShowGEMResultsIcon24.png</normaloff>:/Icons/ShowGEMResultsIcon24.png</iconset>
    </property>
    <property name="text">
@@ -621,7 +638,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/DocumentsPileIcon24.png</normaloff>:/Icons/DocumentsPileIcon24.png</iconset>
    </property>
    <property name="text">
@@ -644,7 +661,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/SelectTP24.png</normaloff>:/Icons/SelectTP24.png</iconset>
    </property>
    <property name="text">
@@ -656,7 +673,7 @@
   </action>
   <action name="actionNew_Reset_Task_Definition">
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/NewCreateRecordIcon24.png</normaloff>:/Icons/NewCreateRecordIcon24.png</iconset>
    </property>
    <property name="text">
@@ -671,7 +688,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/ThermoDatabasesIcon24.png</normaloff>:/Icons/ThermoDatabasesIcon24.png</iconset>
    </property>
    <property name="text">
@@ -726,7 +743,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/DCompModuleIcon24.png</normaloff>:/Icons/DCompModuleIcon24.png</iconset>
    </property>
    <property name="text">
@@ -743,7 +760,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../ThermoFunDemoGUI.qrc">
+    <iconset resource="../ThermoFunGuiDemo.qrc">
      <normaloff>:/Icons/ReacDCModuleIcon24.png</normaloff>:/Icons/ReacDCModuleIcon24.png</iconset>
    </property>
    <property name="text">
@@ -767,7 +784,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../ThermoFunDemoGUI.qrc"/>
+  <include location="../ThermoFunGuiDemo.qrc"/>
  </resources>
  <connections/>
 </ui>

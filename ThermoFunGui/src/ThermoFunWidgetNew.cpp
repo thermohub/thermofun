@@ -166,6 +166,7 @@ void ThermoFunWidgetNew::setActions()
     connect( ui->pComment, SIGNAL( textEdited(const QString&)), pdata.get(), SLOT(commentChanged(const QString&)));
     connect( ui->pTunit, SIGNAL( currentIndexChanged(const QString&)), pdata.get(), SLOT(TUnitsChanged(const QString&)));
     connect( ui->pPunit, SIGNAL( currentIndexChanged(const QString&)), pdata.get(), SLOT(PUnitsChanged(const QString&)));
+    connect( ui->pOutput, SIGNAL( currentIndexChanged(const QString&)), pdata.get(), SLOT(POutputChanged(const QString&)));
     connect( ui->pPrecision, SIGNAL( valueChanged(int)), pdata.get(), SLOT(pPChanged(int)));
     connect( ui->tPrecision, SIGNAL( valueChanged(int)), pdata.get(), SLOT(tPChanged(int)));
 
@@ -213,6 +214,7 @@ void ThermoFunWidgetNew::resetThermoFunData( const ThermoFunData& newdata )
     ui->pComment->setText(newdata.comment.c_str());
     ui->pTunit->setCurrentText( newdata.unitsT.c_str());
     ui->pPunit->setCurrentText(newdata.unitsP.c_str());
+    ui->pOutput->setCurrentText(newdata.output.c_str());
     ui->pPrecision->setValue(newdata.pPrecision);
     ui->tPrecision->setValue(newdata.tPrecision);
     ui->calcStatus->setText(newdata.calcStatus.c_str());
@@ -572,13 +574,17 @@ void ThermoFunWidgetNew::CmCalcMTPARM_calculate()
                 loadData.substKeys.push_back(sId);
         }
 
+
+
         // run in other thread
-        bool calcSubstFromReact_= calcSubstFromReact();
-        bool calcReactFromSubst_= calcReactFromSubst();
-        bool output_number_format= ui->actionFixed_Outputnumber_format->isChecked();
+        OutputOptions options;
+        options.out = static_cast<outType>(ui->pOutput->currentIndex());
+        options.calcReactFromSubst = calcSubstFromReact();
+        options.calcReactFromSubst = calcReactFromSubst();
+        options.output_number_format = ui->actionFixed_Outputnumber_format->isChecked();
 
         calcWatcher.setFuture(QtConcurrent::run( pdata.get(), &ThermoFunPrivateNew::calcData, std::move(loadData), std::move(solventSymbol),
-                                                 output_number_format, calcSubstFromReact_, calcReactFromSubst() ));
+                                                 options ));
 
         waitDialog->start();
     }
@@ -639,8 +645,7 @@ void ThermoFunWidgetNew::CmShowResult()
 {
    try {
         // define new dialog
-        ThermoFun::BatchPreferences op;
-        string fileName = op.fileName;
+        string fileName = pdata->data().resultsFile;
         if(!_csvWin)
         {
             _csvWin = new jsonui::TableEditWidget("CSV editor ", fileName,
