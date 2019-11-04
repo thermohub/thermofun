@@ -433,11 +433,11 @@ auto parseElement(const std::string &data) -> Element
             if (!j["isotope_mass"].is_null())
                 e.setIsotopeMass(j["isotope_mass"].get<int>());
     }
-    catch (json::exception &e)
+    catch (json::exception &ex)
     {
         // output exception information
-        std::cout << "message: " << e.what() << '\n'
-                  << "exception id: " << e.id << std::endl;
+        std::cout << "message: " << ex.what() << '\n'
+                  << "exception id: " << ex.id << std::endl;
     }
 
     return e;
