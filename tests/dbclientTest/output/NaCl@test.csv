@@ -1,3 +1,0 @@
-Symbol,T(degC),P(bar),reaction_gibbs_energy(J/mol),reaction_entropy(J/mol),reaction_volume(J/bar),reaction_enthalpy(J/mol),logKr(1)
-NaCl@,25,1,-4336,4.3137,-0.7866,-3050.0000,0.7597
-H2O@,25,1,79898,-80.6340,-2.2776,55857.0000,-13.9975
