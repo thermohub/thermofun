@@ -21,7 +21,6 @@ option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
 option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
-#option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 
 # Modify the TFUN_BUILD_* variables accordingly to BUILD_ALL
 if(TFUN_BUILD_ALL MATCHES ON)
@@ -31,10 +30,6 @@ if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_PYTHON               ON)
 endif()
 
-# DBClient is necessary when building the GUI DEMO
-if(TFUN_BUILD_GUI MATCHES ON OR TFUN_BUILD_GUIDEMO MATCHES ON)
-    set(TFUN_BUILD_HUBCLIENT             ON)
-endif()
 
 # Set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -97,8 +92,6 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 # Build python wraper
 if(TFUN_BUILD_PYTHON)
     add_subdirectory(python)
-else()
-    add_subdirectory(python EXCLUDE_FROM_ALL)
 endif()
 
 # Install the cmake config files that permit users to use find_package(ThermoFun)
