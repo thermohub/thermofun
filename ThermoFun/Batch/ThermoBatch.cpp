@@ -65,11 +65,6 @@ struct ThermoBatch::Impl
         properties.clear();
     }
 
-    auto clearTPpairs () -> void
-    {
-        tpPairs.clear();
-    }
-
     auto clearTemperatures () -> void
     {
         Ts.clear();
@@ -78,6 +73,13 @@ struct ThermoBatch::Impl
     auto clearPressures () -> void
     {
         Ps.clear();
+    }
+
+    auto clearTPpairs () -> void
+    {
+        tpPairs.clear();
+        clearTemperatures();
+        clearPressures();
     }
 
     auto clearAll() -> void
@@ -120,6 +122,7 @@ struct ThermoBatch::Impl
 
     auto addTPpairs (const std::vector<double> &temperatures, const std::vector<double> &pressures) -> void
     {
+        clearTPpairs();
         std::vector<double> xs, ys;
         if (outSettings.TthenPincrements)
         { xs = pressures; ys = temperatures; }
@@ -137,6 +140,7 @@ struct ThermoBatch::Impl
     auto addTPpairs (const double &Tmin, const double &Tmax, const double &Tstep,
                      const double &Pmin, const double &Pmax, const double &Pstep) -> void
     {
+        clearTPpairs();
         double t = Tmin-Tstep;
         double p = Pmin-Pstep;
         std::vector<double> temperatures;
@@ -155,20 +159,11 @@ struct ThermoBatch::Impl
         } while (t < Tmax);
 
         addTPpairs(temperatures, pressures);
-
-//        do
-//        {   t = t + Tstep;
-//            do
-//            {
-//                p = p + Pstep;
-//                addTPpair(t,p);
-//            } while (p < Pmax);
-//            p = Pmin-Pstep;
-//        } while (t < Tmax);
     }
 
     auto addTPpairs (const vvd &tpPairs) -> void
     {
+        clearTPpairs();
         for (unsigned i=0; i <tpPairs.size(); i++)
         {
             addTPpair(tpPairs[i][0], tpPairs[i][1]);
@@ -280,8 +275,21 @@ struct ThermoBatch::Impl
                 case forREACTION: calculateReactProp (T, P, symbol, (j_size*i)+(j)); break;
                 case forSOLVENT: calculateSolventProp(T, P, symbol, (j_size*i)+(j)); break;
                 }
+
+                // in case of Psat = 0 updating with real value
+                if (outSettings.loopOverTPpairsFirst)
+                {
+                    tpPairs[j][1] = units::convert(P, defUnitP, unitP);
+                    symbol = symbols[i];
+                } else
+                {
+                    tpPairs[i][1] = units::convert(P, defUnitP, unitP);
+                    symbol = symbols[j];
+                }
             }
         }
+        auto tpp = tpPairs;
+        addTPpairs(tpp);
     }
 
     auto selectProvidedSubstancesProperties(vtps vTps) -> void
@@ -303,12 +311,12 @@ struct ThermoBatch::Impl
     }
 
     // Calculate functions
-    auto calculateSubstProp( double T, double P, string symbol, unsigned index ) -> void
+    auto calculateSubstProp( double T, double &P, string symbol, unsigned index ) -> void
     {
         results[index] = selectResultsSubst(thermo.thermoPropertiesSubstance(T, P, symbol));
     }
 
-    auto calculateReactProp( double T, double P, string symbol, unsigned index ) -> void
+    auto calculateReactProp( double T, double &P, string symbol, unsigned index ) -> void
     {
         if (outSettings.calcReactFromSubst)
             results[index] = selectResultsReact(thermo.thermoPropertiesReactionFromReactants(T, P, symbol));
@@ -316,7 +324,7 @@ struct ThermoBatch::Impl
             results[index] = selectResultsReact(thermo.thermoPropertiesReaction(T, P, symbol));
     }
 
-    auto calculateSolventProp( double T, double P, string symbol, unsigned index ) -> void
+    auto calculateSolventProp( double T, double &P, string symbol, unsigned index ) -> void
     {
         results[index] = selectResultsSolvent(thermo.propertiesSolvent(T, P, symbol),
                                               thermo.electroPropertiesSolvent(T, P, symbol));

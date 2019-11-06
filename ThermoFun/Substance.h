@@ -179,7 +179,7 @@ public:
      * @brief jonString
      * @return record in json string
      */
-    auto jonString() const -> std::string;
+    auto jsonString() const -> std::string;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status

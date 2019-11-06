@@ -146,7 +146,7 @@ auto Element::number() const -> int
     return pimpl->number;
 }
 
-auto Element::jonString() const -> std::string
+auto Element::jsonString() const -> std::string
 {
     return pimpl->jString;
 }
