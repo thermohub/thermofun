@@ -28,6 +28,7 @@ namespace py = pybind11;
 #include <ThermoFun/Batch/ThermoBatch.h>
 #include <ThermoFun/Batch/OutputBatch.h>
 #include <ThermoFun/Database.h>
+#include <ThermoFun/ThermoEngine.h>
 #include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
