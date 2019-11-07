@@ -54,6 +54,10 @@ struct ThermoBatch::Impl
     : thermo(filename)
     {}
 
+    Impl(const ThermoEngine& engine)
+    : thermo(engine)
+    {}
+
     // clear functions
     auto clearSymbols () -> void
     {
@@ -123,18 +127,18 @@ struct ThermoBatch::Impl
     auto addTPpairs (const std::vector<double> &temperatures, const std::vector<double> &pressures) -> void
     {
         clearTPpairs();
-        std::vector<double> xs, ys;
+        std::vector<double> rows, columns;
         if (outSettings.TthenPincrements)
-        { xs = pressures; ys = temperatures; }
+        { rows = temperatures; columns = pressures; }
         else
-        { xs = temperatures; ys = pressures; }
+        { rows = pressures; columns = temperatures; }
 
-        for (auto x : xs)
-            for (auto y : ys)
+        for (auto r : rows)
+            for (auto c : columns)
                 if (outSettings.TthenPincrements)
-                    addTPpair(y,x);
+                    addTPpair(r,c);
                 else
-                    addTPpair(x,y);
+                    addTPpair(c,r);
     }
 
     auto addTPpairs (const double &Tmin, const double &Tmax, const double &Tstep,
@@ -335,6 +339,10 @@ ThermoBatch::ThermoBatch(const Database& database)
     : pimpl(new Impl(database))
 {}
 
+ThermoBatch::ThermoBatch(const ThermoEngine& engine)
+    : pimpl(new Impl(engine))
+{}
+
 ThermoBatch::ThermoBatch(std::string filename)
     : pimpl(new Impl(filename))
 {}
@@ -379,6 +387,20 @@ auto ThermoBatch::thermoPropertiesSubstance(std::vector<double> temperatures, st
     pimpl->addTPpairs(temperatures, pressures);
 
     pimpl->calculate(forSUBSTANCE);
+
+    return Output (*this);
+}
+
+auto ThermoBatch::thermoPropertiesSubstance(std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtps vTps) -> Output
+{
+    pimpl->addSymbolsProperties(symbols, properties);
+
+    pimpl->addTPpairs(temperatures, pressures);
+
+    if (vTps.empty())
+        pimpl->calculate(forSUBSTANCE);
+    else
+        pimpl->selectProvidedSubstancesProperties(vTps);
 
     return Output (*this);
 }
@@ -443,6 +465,20 @@ auto ThermoBatch::thermoPropertiesReaction(std::vector<double> temperatures, std
     pimpl->addTPpairs(temperatures, pressures);
 
     pimpl->calculate(forREACTION);
+
+    return Output (*this);
+}
+
+auto ThermoBatch::thermoPropertiesReaction(std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtpr vTpr) -> Output
+{
+    pimpl->addSymbolsProperties(symbols, properties);
+
+    pimpl->addTPpairs(temperatures, pressures);
+
+    if (vTpr.empty())
+        pimpl->calculate(forREACTION);
+    else
+        pimpl->selectProvidedReactionsProperties(vTpr);
 
     return Output (*this);
 }
