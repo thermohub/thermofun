@@ -175,12 +175,14 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
 
     if (D.val >= 1.4)
     {
-        Exception exception;
-        exception.error << "Error in gShock2";
-        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
-            << D.val << "g*cm-3.";
-        exception.line = __LINE__;
-        RaiseError(exception);
+        std::cout << "water density higher than 1.4 g*cm-3, Dw = "
+            << ps.density / 1000 << "g*cm-3." << std::endl << __FILE__ << std::endl << __LINE__;
+//        Exception exception;
+//        exception.error << "Error in gShock2";
+//        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
+//            << D.val << "g*cm-3.";
+//        exception.line = __LINE__;
+//        RaiseError(exception);
     }
 
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
