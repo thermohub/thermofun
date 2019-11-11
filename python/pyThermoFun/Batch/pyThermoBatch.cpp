@@ -39,7 +39,7 @@ void exportThermoBatch(py::module& m)
                                         (&ThermoBatch::thermoPropertiesSubstance);
     auto thermoPropertiesSubstance2 = static_cast<Output(ThermoBatch::*)(double, double, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesSubstance);
-    auto thermoPropertiesSubstance3 = static_cast<Output(ThermoBatch::*)(std::map<std::string, double>, std::map<std::string, double>, std::vector<std::string>, std::vector<std::string>)>
+    auto thermoPropertiesSubstance3 = static_cast<Output(ThermoBatch::*)(std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesSubstance);
     auto thermoPropertiesSubstance4 = static_cast<Output(ThermoBatch::*)(std::vector<std::vector<double>>, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesSubstance);
@@ -54,7 +54,7 @@ void exportThermoBatch(py::module& m)
                                         (&ThermoBatch::thermoPropertiesReaction);
     auto thermoPropertiesReaction2 = static_cast<Output(ThermoBatch::*)(double, double, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesReaction);
-    auto thermoPropertiesReaction3 = static_cast<Output(ThermoBatch::*)(std::map<std::string, double>, std::map<std::string, double>, std::vector<std::string>, std::vector<std::string>)>
+    auto thermoPropertiesReaction3 = static_cast<Output(ThermoBatch::*)(std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesReaction);
     auto thermoPropertiesReaction4 = static_cast<Output(ThermoBatch::*)(std::vector<std::vector<double>>, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesReaction);
@@ -76,6 +76,8 @@ void exportThermoBatch(py::module& m)
         .def("setPropertyUnit", &ThermoBatch::setPropertyUnit)
         .def("setPropertyDigit", &ThermoBatch::setPropertyDigit)
         .def("setPropertyUnitDigit", &ThermoBatch::setPropertyUnitDigit)
+        .def("setTemperatureIncrement", &ThermoBatch::setTemperatureIncrement)
+        .def("setPressureIncrement", &ThermoBatch::setPressureIncrement)        
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance2)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance3)

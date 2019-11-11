@@ -111,11 +111,13 @@ public:
     auto setPropertyUnit            (const std::string &property, const std::string &unit)-> void;
     auto setPropertyDigit           (const std::string &property, const int &digit)-> void;
     auto setPropertyUnitDigit       (const std::string &property, const std::string &unit, const int &digit)-> void;
+    auto setTemperatureIncrement    (const double& Tmin, const double& Tmax, const double& Tstep) -> void;
+    auto setPressureIncrement       (const double& Pmin, const double& Pmax, const double& Pstep) -> void;
 
     // claculate functions substances
     auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
-    auto thermoPropertiesSubstance  (std::map<std::string, double> Tincrement, std::map<std::string, double> Pincrement, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesSubstance  (vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output;
     auto thermoPropertiesSubstance  (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
@@ -124,7 +126,7 @@ public:
     // claculate functions reactions
     auto thermoPropertiesReaction   (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesReaction   (double T, double P, vstr        symbols, vstr        properties) -> Output;
-    auto thermoPropertiesReaction   (std::map<std::string, double> Tincrement, std::map<std::string, double> Pincrement, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesReaction   (vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output;
     auto thermoPropertiesReaction   (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
