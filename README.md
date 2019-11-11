@@ -1,8 +1,18 @@
 # ThermoFun
+[![Build Status](https://travis-ci.com/thermomod/thermofun.svg?branch=master)](https://travis-ci.com/thermomod/thermofun)
+[![Build status](https://ci.appveyor.com/api/projects/status/13098q3j713uo06v/branch/master?svg=true)](https://ci.appveyor.com/project/gdmiron/thermofun-44e8m/branch/master)
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
 ## Try ThermoFun in your browser using Jupyter Notebooks and Binder
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master)
+
+Please wait until the Jupyter Notebook server starts (~1 min) then click on `tutorial-thermo-batch-calculations.ipynb ` 
+
+More information on Jupyter Notebooks: [Jupyter Documentation](https://jupyter.readthedocs.io/en/latest/index.html)
+
+## Prepare building tools
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermomod/thermofun-jupyter/master)
 
