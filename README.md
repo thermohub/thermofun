@@ -99,8 +99,8 @@ int main()
 
 ```
 #!Python
-import PyThermoFun
-import PyThermoDBClient
+import thermofun.PyThermoFun as PyThermoFun
+import thermofbclient.PyThermoDBClient as PyThermoDBClient
 
 properties = PyThermoFun.ThermoPropertiesSubstance
 
