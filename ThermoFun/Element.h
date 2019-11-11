@@ -84,7 +84,7 @@ public:
      * @brief jonString
      * @return record in json string
      */
-    auto jonString() const -> std::string;
+    auto jsonString() const -> std::string;
 
 private:
     struct Impl;

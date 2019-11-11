@@ -48,6 +48,7 @@ void exportReaction(py::module& m)
         .def("setMethod_P", &Reaction::setMethod_P,"Set the code for the pressure correction method")
         .def("setThermoReferenceProperties", &Reaction::setThermoReferenceProperties,"Set the references proeprties of reaction")
         .def("setThermoParameters", &Reaction::setThermoParameters,"Set the parameters used for calculating the proeprties of reaction at T and P")
+        .def("setJsonString", &Reaction::setJsonString, "Set the record as a json string")
         .def("name", &Reaction::name,"Returns the name of the chemical Reaction")
         .def("symbol", &Reaction::symbol,"Returns the symbol of the Reaction")
         .def("equation", &Reaction::equation,"Returns the equation of the Reaction")
@@ -63,6 +64,7 @@ void exportReaction(py::module& m)
         .def("methodGenEOS", &Reaction::methodGenEOS,"Return the general EOS method code")
         .def("method_T", &Reaction::method_T,"Return the temperature correction method code")
         .def("method_P", &Reaction::method_P,"Return the pressure correction method code")
+        .def("jsonString", &Reaction::jsonString, "Return the record as a json string")
         ;
 }
 

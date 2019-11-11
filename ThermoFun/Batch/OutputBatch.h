@@ -38,8 +38,8 @@ public:
     /**
      * @brief toCSVPropertyGrid write results to CSV file in a property grid format
      * one file will be created for each property
-     * if TthenPincrements in BatchPreferences is True the grid will have T in horizontal and P in vertical
-     * if TthenPincrements in BatchPreferences is False the grid will have P in horizontal and T in vertical
+     * if loopTemperatureThenPressure in BatchPreferences is True the grid will have T in horizontal and P in vertical
+     * if loopTemperatureThenPressure in BatchPreferences is False the grid will have P in horizontal and T in vertical
      * @param filename will be modified to include the property name
      */
     auto toCSVPropertyGrid      (std::string filename) -> void;

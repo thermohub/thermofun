@@ -14,6 +14,7 @@
 namespace ThermoFun {
 
 class Database;
+class ThermoEngine;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;
 struct PropertiesSolvent;
@@ -48,27 +49,20 @@ struct BatchPreferences
     std::string solventFileName = "tpSolventResults.csv";
 
     /// write solvent properties
-    bool outSolventProp = false;
+    bool outputSolventProperties = false;
 
-    bool calcSubstFromReact = false;
+    bool substancePropertiesFromReaction = false;
 
-    bool calcReactFromSubst = false;
+    bool reactionPropertiesFromReactants = false;
 
     bool loopOverTPpairsFirst = true;
 
     /**
-     * @brief TthenPincrements
+     * @brief loopTemperatureThenPressure
      * @value True generate T-P pairs by first incrementing temperature
-     * @value False generate T-P pairs by first incrementing temperature
+     * @value False generate T-P pairs by first incrementing pressure
      */
-    bool TthenPincrements = true;
-};
-
-struct BatchCalculationSettings
-{
-    bool dependentSubstancesFromReactions = false;
-
-    bool reactionsFromSubstances = false;
+    bool loopTemperatureThenPressure = true;
 };
 
 ///
@@ -104,6 +98,12 @@ public:
     ///
     ThermoBatch(std::string filename);
 
+    ///
+    /// \brief ThermoBatch
+    /// \param engine
+    ///
+    ThermoBatch(const ThermoEngine &engine);
+
     auto setUnits                   (const std::map<std::string, std::string> &units)-> void;
     auto setDigits                  (const std::map<std::string, int> &digits)-> void;
     auto setPropertiesUnits         (const vstr &properties, const vstr &units)-> void;
@@ -111,22 +111,26 @@ public:
     auto setPropertyUnit            (const std::string &property, const std::string &unit)-> void;
     auto setPropertyDigit           (const std::string &property, const int &digit)-> void;
     auto setPropertyUnitDigit       (const std::string &property, const std::string &unit, const int &digit)-> void;
+    auto setTemperatureIncrement    (const double& Tmin, const double& Tmax, const double& Tstep) -> void;
+    auto setPressureIncrement       (const double& Pmin, const double& Pmax, const double& Pstep) -> void;
 
     // claculate functions substances
     auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
-    auto thermoPropertiesSubstance  (std::map<std::string, double> Tincrement, std::map<std::string, double> Pincrement, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesSubstance  (vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (vvd tpPairs, vstr symbols, vstr properties, vtps vTps) -> Output;
     auto thermoPropertiesSubstance  (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesSubstance  (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtps vTps) -> Output;
 
     // claculate functions reactions
     auto thermoPropertiesReaction   (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesReaction   (double T, double P, vstr        symbols, vstr        properties) -> Output;
-    auto thermoPropertiesReaction   (std::map<std::string, double> Tincrement, std::map<std::string, double> Pincrement, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesReaction   (vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesReaction   (vvd tpPairs, vstr symbols, vstr properties, vtpr vTpr) -> Output;
     auto thermoPropertiesReaction   (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
+    auto thermoPropertiesReaction   (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtpr vTpr) -> Output;
 
     auto setBatchPreferences        (const BatchPreferences &value) -> void;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;

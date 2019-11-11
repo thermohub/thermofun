@@ -145,27 +145,27 @@ auto Output::CSVHeaderPropertyGrid() -> std::string
     auto temperatures = pimpl->api.Temperatures();
     auto pressures    = pimpl->api.Pressures();
     std::string header = "";
-    std::vector<double> Ys;
-    std::string Ydata = "";
+    std::vector<double> columns;
+    std::string ColData = "";
 
-    if (pimpl->api.outputSettings().TthenPincrements)
+    if (pimpl->api.outputSettings().loopTemperatureThenPressure)
     {
-        Ys = temperatures; Ydata = "temperature";
-        header = header + "Symbol" + s + "P" + "(" + units.at("pressure") + ")" + "_" + "T" + "(" + units.at("temperature") + ")";
+        columns = pressures; ColData = "pressure";
+        header = header + "Symbol" + s + "T" + "(" + units.at("temperature") + ")" + "_" + "P" + "(" + units.at("pressure") + ")";
     }
     else
     {
-        Ys = pressures; Ydata = "pressure";
-        header = header + "Symbol" + s + "T" + "(" + units.at("temperature") + ")" + "_" + "P" + "(" + units.at("pressure") + ")";
+        columns = temperatures; ColData = "temperature";
+        header = header + "Symbol" + s + "P" + "(" + units.at("pressure") + ")" + "_" + "T" + "(" + units.at("temperature") + ")";
     }
 
-    for (auto y : Ys)
+    for (auto col : columns)
     {
         std::ostringstream out;
-        out.precision(digits.at(Ydata));
+        out.precision(digits.at(ColData));
         if (pimpl->api.outputSettings().isFixed) out << std::fixed;
         if (pimpl->api.outputSettings().isScientific) out << std::scientific;
-        out << y;
+        out << col;
         header = header + s + out.str();
     }
 
@@ -301,10 +301,10 @@ auto Output::foutPropertyGrid(const std::string &property, const size_t &index_p
     auto symbols        = pimpl->api.symbols();
     auto temperatures   = pimpl->api.Temperatures();
     auto pressures      = pimpl->api.Pressures();
-    auto Ys             = temperatures;
-    auto Xs             = pressures;
-    auto xData          = "pressure";
-    auto yData          = "temperature";
+    auto columns        = temperatures;
+    auto rows           = pressures;
+    auto rowData        = "pressure";
+    auto colData        = "temperature";
 
     if (!outSettings.loopOverTPpairsFirst)
     {
@@ -317,22 +317,24 @@ auto Output::foutPropertyGrid(const std::string &property, const size_t &index_p
 
     size_t count = 0;
 
-    if (!outSettings.TthenPincrements)
+    if (outSettings.loopTemperatureThenPressure)
     {
-        Ys             = pressures;
-        Xs             = temperatures;
-        xData          = "temperature";
-        yData          = "pressure";
+        columns          = pressures;
+        rows             = temperatures;
+        rowData          = "temperature";
+        colData          = "pressure";
     }
 
     for (unsigned i=0; i<symbols.size(); i++)
-        for (auto x : Xs)
+        for (auto r : rows)
         {
+            if (count == results.size())
+                break;
             pimpl->fProperties << find_and_replace(symbols[i], s, "_");
-            pimpl->fProperties << std::setprecision(digits.at(xData));
-            pimpl->fProperties << s << x;
+            pimpl->fProperties << std::setprecision(digits.at(rowData));
+            pimpl->fProperties << s << r;
 
-            for(auto y : Ys)
+            for(auto c : columns)
             {
                 pimpl->fProperties << std::setprecision(digits.at(property));
                 pimpl->fProperties << s << units::convert(results[count][index_property].val,

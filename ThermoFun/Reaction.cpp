@@ -236,7 +236,7 @@ auto Reaction::equation() const -> std::string
     return pimpl->equation;
 }
 
-auto Reaction::jonString() const -> std::string
+auto Reaction::jsonString() const -> std::string
 {
     return pimpl->jString;
 }

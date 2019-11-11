@@ -38,6 +38,8 @@ void exportElement(py::module& m)
         .def("setValence", &Element::setValence, "Set the valence of the element")
         .def("setClass", &Element::setClass, "Set the class_ of the element (as in element.thrift)")
         .def("setIsotopeMass", &Element::setIsotopeMass, "Set the rounded isotopic mass of the element")
+        .def("setNumber", &Element::setNumber, "Return the Mendeleev table number of the element")
+        .def("setJsonString", &Element::setJsonString, "Set the record as a json string")
         .def("name", &Element::name, "Return the name of the element")
         .def("symbol", &Element::symbol, "Return the symbol of the element")
         .def("molarMass", &Element::molarMass, "Return the molar mass of the element (in units of g/mol)")
@@ -47,6 +49,8 @@ void exportElement(py::module& m)
         .def("valence", &Element::valence, "Return the valence of the element")
         .def("class_", &Element::class_, "Return the class of the element (as in element.thrift)")
         .def("isotopeMass", &Element::isotopeMass, "Return the rounded isotopic mass of the element")
+        .def("number", &Element::number, "Return the Mendeleev table number of the element")
+        .def("jsonString", &Element::jsonString, "Return the record as a json string")
         ;
 }
 

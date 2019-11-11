@@ -621,6 +621,10 @@ ThermoEngine::ThermoEngine(const Database& database)
 : pimpl(new Impl(database))
 {}
 
+ThermoEngine::ThermoEngine(const ThermoEngine& other)
+: pimpl(new Impl(*other.pimpl))
+{}
+
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
 {
     return pimpl->thermo_properties_substance_fn(T, P, P, substance);

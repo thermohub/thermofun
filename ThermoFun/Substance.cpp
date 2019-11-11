@@ -307,7 +307,7 @@ auto Substance::charge() const -> int
     return pimpl->charge;
 }
 
-auto Substance::jonString() const -> std::string
+auto Substance::jsonString() const -> std::string
 {
     return pimpl->jString;
 }
