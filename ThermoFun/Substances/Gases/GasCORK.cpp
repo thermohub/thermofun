@@ -9,7 +9,7 @@ namespace ThermoFun {
 auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     double FugProps[6];
-    char Eos_Code;
+    char Eos_Code = 'G';
     if (Pbar.val == 0.0)
         Pbar += 1e-5;
 

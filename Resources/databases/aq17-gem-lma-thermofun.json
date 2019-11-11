@@ -2187,6 +2187,68 @@
         "_label": "substance"
       },
       {
+        "name": "H4SiO4 (aq)",
+        "symbol": "H4SiO4@",
+        "formula": "H4SiO4@",
+        "formula_charge": 0,
+        "reaction": "H4SiO4@",
+        "aggregate_state": {
+          "4": "AS_AQUEOUS"
+        },
+        "class_": {
+          "2": "SC_AQSOLUTE"
+        },
+        "Tst": 298.15,
+        "Pst": 100000,
+        "sm_heat_capacity_p": {
+          "values": [
+            -167.762
+          ],
+          "errors": [
+            0
+          ],
+          "units": [
+            "J/(mol*K)"
+          ]
+        },
+        "sm_gibbs_energy": {
+          "values": [
+            -1308407
+          ],
+          "units": [
+            "J/mol"
+          ]
+        },
+        "sm_enthalpy": {
+          "values": [
+            -1450119
+          ],
+          "units": [
+            "J/mol"
+          ]
+        },
+        "sm_entropy_abs": {
+          "values": [
+            215.158
+          ],
+          "units": [
+            "J/(mol*K)"
+          ]
+        },
+        "sm_volume": {
+          "values": [
+            5.22
+          ],
+          "errors": [
+            0
+          ],
+          "units": [
+            "J/bar"
+          ]
+        },
+        "_label": "substance"
+      },
+      {
         "name": "HCl (aq)",
         "symbol": "HCl@",
         "formula": "HCl@",
@@ -20413,34 +20475,28 @@
         "symbol": "Meionite-Ca",
         "reactants": [
           {
+            "symbol": "H4SiO4@",
+            "coefficient": 6
+          },
+          {
             "symbol": "Meionite-Ca",
-            "coefficient": -1,
-            "id": "substances/Meionite-Ca;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 4,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
             "symbol": "H+",
-            "coefficient": -25,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 6,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -25
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 6,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 6
           }
         ],
         "limitsTP": {
@@ -20541,29 +20597,24 @@
         "symbol": "Gedrite-Mg",
         "reactants": [
           {
-            "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Gedrite-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -22,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -22
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 4
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 5,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 5
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 6,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Gedrite-Mg",
-            "coefficient": -1,
-            "id": "substances/Gedrite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 6
           }
         ],
         "limitsTP": {
@@ -20665,33 +20716,27 @@
         "reactants": [
           {
             "symbol": "Tschermakite-Mg",
-            "coefficient": -1,
-            "id": "substances/Tschermakite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -22,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -22
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 6,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 6
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 4
           }
         ],
         "limitsTP": {
@@ -20792,39 +20837,32 @@
         "symbol": "Pargasite-Mg",
         "reactants": [
           {
-            "symbol": "Pargasite-Mg",
-            "coefficient": -1,
-            "id": "substances/Pargasite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 6,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -22,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 4
           },
           {
             "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 4,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 6
+          },
+          {
+            "symbol": "Pargasite-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -22
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Na+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -20925,29 +20963,24 @@
         "symbol": "Pyrope",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -12,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -12
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "Pyrope",
-            "coefficient": -1,
-            "id": "substances/Pyrope;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -21048,29 +21081,24 @@
         "symbol": "Spurrite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -9,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 5,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Spurrite",
+            "coefficient": -1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Spurrite",
-            "coefficient": -1,
-            "id": "substances/Spurrite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 5
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -9
           }
         ],
         "limitsTP": {
@@ -21171,29 +21199,24 @@
         "symbol": "Merwinite",
         "reactants": [
           {
-            "symbol": "Ca+2",
-            "coefficient": 3,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Merwinite",
-            "coefficient": -1,
-            "id": "substances/Merwinite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -8
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Merwinite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -21294,29 +21317,24 @@
         "symbol": "Grossular",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Grossular",
-            "coefficient": -1,
-            "id": "substances/Grossular;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 3,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -12,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -12
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Grossular",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -21417,29 +21435,24 @@
         "symbol": "Ttalc-Mg",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Ttalc-Mg",
-            "coefficient": -1,
-            "id": "substances/Ttalc-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -10
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Ttalc-Mg",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -21540,34 +21553,28 @@
         "symbol": "Phlogopite-Na",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Phlogopite-Na",
-            "coefficient": -1,
-            "id": "substances/Phlogopite-Na;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -10
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Phlogopite-Na",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -21668,34 +21675,28 @@
         "symbol": "Cceladonite-Mg",
         "reactants": [
           {
-            "symbol": "Cceladonite-Mg",
-            "coefficient": -1,
-            "id": "substances/Cceladonite-Mg;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -10
+          },
+          {
+            "symbol": "Cceladonite-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -21796,34 +21797,28 @@
         "symbol": "Phlogopite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -10
           },
           {
             "symbol": "Phlogopite",
-            "coefficient": -1,
-            "id": "substances/Phlogopite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "K+",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -21924,29 +21919,24 @@
         "symbol": "Prehnite",
         "reactants": [
           {
-            "symbol": "Prehnite",
-            "coefficient": -1,
-            "id": "substances/Prehnite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -10
+          },
+          {
+            "symbol": "Prehnite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -22047,29 +22037,24 @@
         "symbol": "Anorthite",
         "reactants": [
           {
-            "symbol": "Anorthite",
-            "coefficient": -1,
-            "id": "substances/Anorthite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -8
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Anorthite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -22170,29 +22155,24 @@
         "symbol": "Paragonite",
         "reactants": [
           {
-            "symbol": "Paragonite",
-            "coefficient": -1,
-            "id": "substances/Paragonite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -10
+          },
+          {
+            "symbol": "Paragonite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -22293,24 +22273,20 @@
         "symbol": "Larnite",
         "reactants": [
           {
+            "symbol": "Larnite",
+            "coefficient": -1
+          },
+          {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Larnite",
-            "coefficient": -1,
-            "id": "substances/Larnite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -22411,29 +22387,24 @@
         "symbol": "Muscovite",
         "reactants": [
           {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -10
           },
           {
-            "symbol": "Muscovite",
-            "coefficient": -1,
-            "id": "substances/Muscovite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "K+",
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
+          },
+          {
+            "symbol": "Muscovite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -22534,24 +22505,20 @@
         "symbol": "Forsterite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 2
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -4
           },
           {
             "symbol": "Forsterite",
-            "coefficient": -1,
-            "id": "substances/Forsterite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -22652,29 +22619,24 @@
         "symbol": "Monticellite",
         "reactants": [
           {
+            "symbol": "H+",
+            "coefficient": -4
+          },
+          {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Monticellite",
-            "coefficient": -1,
-            "id": "substances/Monticellite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Monticellite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -22775,29 +22737,24 @@
         "symbol": "Laumontite",
         "reactants": [
           {
-            "symbol": "Laumontite",
-            "coefficient": -1,
-            "id": "substances/Laumontite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -8
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
+          },
+          {
+            "symbol": "Laumontite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -22898,29 +22855,24 @@
         "symbol": "Nepheline",
         "reactants": [
           {
-            "symbol": "Nepheline",
-            "coefficient": -1,
-            "id": "substances/Nepheline;0:SC_COMPONENT;19:AQ17"
+            "symbol": "Na+",
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Nepheline",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -23021,29 +22973,24 @@
         "symbol": "Kalsilite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Kalsilite",
+            "coefficient": -1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Kalsilite",
-            "coefficient": -1,
-            "id": "substances/Kalsilite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -4
+          },
+          {
+            "symbol": "K+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -23144,29 +23091,24 @@
         "symbol": "Dolomite",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Dolomite",
-            "coefficient": -1,
-            "id": "substances/Dolomite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 2,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Dolomite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "HCO3-",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -23267,24 +23209,20 @@
         "symbol": "AlH3SiO4+2",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "AlH3SiO4+2",
-            "coefficient": -1,
-            "id": "substances/AlH3SiO4+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -23385,24 +23323,20 @@
         "symbol": "Magnesite",
         "reactants": [
           {
-            "symbol": "Magnesite",
-            "coefficient": -1,
-            "id": "substances/Magnesite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "Magnesite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -23503,24 +23437,20 @@
         "symbol": "CaCO3@",
         "reactants": [
           {
-            "symbol": "CaCO3@",
-            "coefficient": -1,
-            "id": "substances/CaCO3@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "CaCO3@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "HCO3-",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -23621,24 +23551,20 @@
         "symbol": "NaCO3-",
         "reactants": [
           {
-            "symbol": "NaCO3-",
-            "coefficient": -1,
-            "id": "substances/NaCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "NaCO3-",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -23739,29 +23665,24 @@
         "symbol": "Dolomite-od",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 0.5,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Dolomite-od",
-            "coefficient": -1,
-            "id": "substances/Dolomite-od;0:SC_COMPONENT;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 0.5
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 0.5
           },
           {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Ca+2",
-            "coefficient": 0.5,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Dolomite-od",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -23863,23 +23784,19 @@
         "reactants": [
           {
             "symbol": "Calcite",
-            "coefficient": -1,
-            "id": "substances/Calcite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -23980,24 +23897,20 @@
         "symbol": "Aragonite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "Aragonite",
-            "coefficient": -1,
-            "id": "substances/Aragonite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -24098,19 +24011,16 @@
         "symbol": "MgCl2@",
         "reactants": [
           {
-            "symbol": "Cl-",
-            "coefficient": 2,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
           },
           {
             "symbol": "MgCl2@",
-            "coefficient": -1,
-            "id": "substances/MgCl2@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Cl-",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -24211,24 +24121,20 @@
         "symbol": "MgCO3@",
         "reactants": [
           {
+            "symbol": "Mg+2",
+            "coefficient": 1
+          },
+          {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "MgCO3@",
-            "coefficient": -1,
-            "id": "substances/MgCO3@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -24329,19 +24235,16 @@
         "symbol": "CaCl2@",
         "reactants": [
           {
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
             "symbol": "Cl-",
-            "coefficient": 2,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "CaCl2@",
-            "coefficient": -1,
-            "id": "substances/CaCl2@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -24442,24 +24345,20 @@
         "symbol": "KCO3-",
         "reactants": [
           {
-            "symbol": "KCO3-",
-            "coefficient": -1,
-            "id": "substances/KCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "KCO3-",
+            "coefficient": -1
+          },
+          {
+            "symbol": "K+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -24560,19 +24459,16 @@
         "symbol": "CO3-2",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -1
           },
           {
             "symbol": "CO3-2",
-            "coefficient": -1,
-            "id": "substances/CO3-2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -24673,19 +24569,16 @@
         "symbol": "KCl@",
         "reactants": [
           {
+            "symbol": "Cl-",
+            "coefficient": 1
+          },
+          {
             "symbol": "KCl@",
-            "coefficient": -1,
-            "id": "substances/KCl@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -24787,13 +24680,11 @@
         "reactants": [
           {
             "symbol": "O2",
-            "coefficient": -1,
-            "id": "substances/O2;1:SC_GASFLUID;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "O2@",
-            "coefficient": 1,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -24894,19 +24785,16 @@
         "symbol": "KHCO3@",
         "reactants": [
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "KHCO3@",
-            "coefficient": -1,
-            "id": "substances/KHCO3@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "HCO3-",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25007,19 +24895,16 @@
         "symbol": "NaCl@",
         "reactants": [
           {
+            "symbol": "Cl-",
+            "coefficient": 1
+          },
+          {
             "symbol": "NaCl@",
-            "coefficient": -1,
-            "id": "substances/NaCl@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25120,19 +25005,16 @@
         "symbol": "CaHCO3+",
         "reactants": [
           {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
             "symbol": "CaHCO3+",
-            "coefficient": -1,
-            "id": "substances/CaHCO3+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25233,19 +25115,16 @@
         "symbol": "NaHCO3@",
         "reactants": [
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "NaHCO3@",
-            "coefficient": -1,
-            "id": "substances/NaHCO3@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "HCO3-",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25346,19 +25225,16 @@
         "symbol": "MgHCO3+",
         "reactants": [
           {
+            "symbol": "HCO3-",
+            "coefficient": 1
+          },
+          {
             "symbol": "MgHCO3+",
-            "coefficient": -1,
-            "id": "substances/MgHCO3+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25459,19 +25335,16 @@
         "symbol": "MgCl+",
         "reactants": [
           {
+            "symbol": "Cl-",
+            "coefficient": 1
+          },
+          {
             "symbol": "MgCl+",
-            "coefficient": -1,
-            "id": "substances/MgCl+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25572,19 +25445,16 @@
         "symbol": "CaCl+",
         "reactants": [
           {
-            "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "CaCl+",
+            "coefficient": -1
           },
           {
-            "symbol": "CaCl+",
-            "coefficient": -1,
-            "id": "substances/CaCl+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Cl-",
+            "coefficient": 1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25685,19 +25555,16 @@
         "symbol": "Halite",
         "reactants": [
           {
-            "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Halite",
+            "coefficient": -1
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "Halite",
-            "coefficient": -1,
-            "id": "substances/Halite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "Cl-",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25798,19 +25665,16 @@
         "symbol": "HCl@",
         "reactants": [
           {
-            "symbol": "HCl@",
-            "coefficient": -1,
-            "id": "substances/HCl@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "HCl@",
+            "coefficient": -1
           },
           {
             "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -25911,19 +25775,16 @@
         "symbol": "Sylvite",
         "reactants": [
           {
+            "symbol": "K+",
+            "coefficient": 1
+          },
+          {
             "symbol": "Cl-",
-            "coefficient": 1,
-            "id": "substances/Cl-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "Sylvite",
-            "coefficient": -1,
-            "id": "substances/Sylvite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -26024,29 +25885,24 @@
         "symbol": "CH4",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
             "symbol": "CH4",
-            "coefficient": -1,
-            "id": "substances/CH4;1:SC_GASFLUID;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "O2@",
-            "coefficient": -2,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "O2@",
+            "coefficient": -2
           }
         ],
         "limitsTP": {
@@ -26147,29 +26003,24 @@
         "symbol": "CH4@",
         "reactants": [
           {
-            "symbol": "O2@",
-            "coefficient": -2,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "CH4@",
-            "coefficient": -1,
-            "id": "substances/CH4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "HCO3-",
+            "coefficient": 1
+          },
+          {
+            "symbol": "O2@",
+            "coefficient": -2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -26270,34 +26121,28 @@
         "symbol": "Hcordierite-Mg",
         "reactants": [
           {
+            "symbol": "Hcordierite-Mg",
+            "coefficient": -1
+          },
+          {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
             "symbol": "H+",
-            "coefficient": -16,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -16
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 5,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Hcordierite-Mg",
-            "coefficient": -1,
-            "id": "substances/Hcordierite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 5
           }
         ],
         "limitsTP": {
@@ -26398,34 +26243,28 @@
         "symbol": "Clinozoisite",
         "reactants": [
           {
+            "symbol": "H+",
+            "coefficient": -13
+          },
+          {
             "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Clinozoisite",
-            "coefficient": -1,
-            "id": "substances/Clinozoisite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H+",
-            "coefficient": -13,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Clinozoisite",
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -26526,34 +26365,28 @@
         "symbol": "Zoisite",
         "reactants": [
           {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "Zoisite",
-            "coefficient": -1,
-            "id": "substances/Zoisite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H+",
-            "coefficient": -13,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -13
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -26654,29 +26487,24 @@
         "symbol": "Diamond",
         "reactants": [
           {
-            "symbol": "O2@",
-            "coefficient": -1,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
             "symbol": "Diamond",
-            "coefficient": -1,
-            "id": "substances/Diamond;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "O2@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -26777,29 +26605,24 @@
         "symbol": "Graphite",
         "reactants": [
           {
-            "symbol": "Graphite",
-            "coefficient": -1,
-            "id": "substances/Graphite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "O2@",
-            "coefficient": -1,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "Graphite",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -26900,34 +26723,28 @@
         "symbol": "Tilleyite",
         "reactants": [
           {
-            "symbol": "HCO3-",
-            "coefficient": 2,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Tilleyite",
-            "coefficient": -1,
-            "id": "substances/Tilleyite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -8
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 5,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 5
           },
           {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "HCO3-",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Tilleyite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -27028,34 +26845,28 @@
         "symbol": "Akermanite",
         "reactants": [
           {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Akermanite",
-            "coefficient": -1,
-            "id": "substances/Akermanite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Akermanite",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -6
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -27156,29 +26967,24 @@
         "symbol": "Rankinite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Rankinite",
-            "coefficient": -1,
-            "id": "substances/Rankinite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 3
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Ca+2",
-            "coefficient": 3,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Rankinite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -6
           }
         ],
         "limitsTP": {
@@ -27279,29 +27085,24 @@
         "symbol": "CO",
         "reactants": [
           {
-            "symbol": "O2@",
-            "coefficient": -0.5,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "O2@",
+            "coefficient": -0.5
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "CO",
-            "coefficient": -1,
-            "id": "substances/CO;1:SC_GASFLUID;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -27402,19 +27203,16 @@
         "symbol": "H2",
         "reactants": [
           {
+            "symbol": "H2O@",
+            "coefficient": 1
+          },
+          {
             "symbol": "H2",
-            "coefficient": -1,
-            "id": "substances/H2;1:SC_GASFLUID;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "O2@",
-            "coefficient": -0.5,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -0.5
           }
         ],
         "limitsTP": {
@@ -27515,29 +27313,24 @@
         "symbol": "CO@",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "CO@",
-            "coefficient": -1,
-            "id": "substances/CO@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "O2@",
+            "coefficient": -0.5
           },
           {
             "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "O2@",
-            "coefficient": -0.5,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "CO@",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -27638,19 +27431,16 @@
         "symbol": "H2@",
         "reactants": [
           {
-            "symbol": "H2@",
-            "coefficient": -1,
-            "id": "substances/H2@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "O2@",
+            "coefficient": -0.5
           },
           {
-            "symbol": "O2@",
-            "coefficient": -0.5,
-            "id": "substances/O2@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2@",
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -27751,29 +27541,24 @@
         "symbol": "Chrysotile",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 1
           },
           {
             "symbol": "Chrysotile",
-            "coefficient": -1,
-            "id": "substances/Chrysotile;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 3
           },
           {
             "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -6
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -27874,29 +27659,24 @@
         "symbol": "Sillimanite",
         "reactants": [
           {
-            "symbol": "Sillimanite",
-            "coefficient": -1,
-            "id": "substances/Sillimanite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Sillimanite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -6
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -27997,29 +27777,24 @@
         "symbol": "Andalusite",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Andalusite",
-            "coefficient": -1,
-            "id": "substances/Andalusite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -6
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Andalusite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -28120,29 +27895,24 @@
         "symbol": "Kyanite",
         "reactants": [
           {
-            "symbol": "Kyanite",
-            "coefficient": -1,
-            "id": "substances/Kyanite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -6
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Kyanite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -28244,23 +28014,19 @@
         "reactants": [
           {
             "symbol": "Lime",
-            "coefficient": -1,
-            "id": "substances/Lime;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -28361,24 +28127,20 @@
         "symbol": "Periclase",
         "reactants": [
           {
-            "symbol": "Periclase",
-            "coefficient": -1,
-            "id": "substances/Periclase;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Periclase",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -28479,29 +28241,24 @@
         "symbol": "Kaolinite",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -6
           },
           {
             "symbol": "Kaolinite",
-            "coefficient": -1,
-            "id": "substances/Kaolinite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -28603,23 +28360,19 @@
         "reactants": [
           {
             "symbol": "CaOH+",
-            "coefficient": -1,
-            "id": "substances/CaOH+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -28721,28 +28474,23 @@
         "reactants": [
           {
             "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "Pseudowoll",
-            "coefficient": -1,
-            "id": "substances/Pseudowoll;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -28843,34 +28591,28 @@
         "symbol": "Analcite",
         "reactants": [
           {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Analcite",
-            "coefficient": -1,
-            "id": "substances/Analcite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -4
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Analcite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -28971,29 +28713,24 @@
         "symbol": "MgSiO3@",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "MgSiO3@",
-            "coefficient": -1,
-            "id": "substances/MgSiO3@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -2
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -29094,29 +28831,24 @@
         "symbol": "CaSiO3@",
         "reactants": [
           {
+            "symbol": "H+",
+            "coefficient": -2
+          },
+          {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "CaSiO3@",
-            "coefficient": -1,
-            "id": "substances/CaSiO3@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -29217,29 +28949,24 @@
         "symbol": "Wollastonite",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           },
           {
             "symbol": "Wollastonite",
-            "coefficient": -1,
-            "id": "substances/Wollastonite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -2
           }
         ],
         "limitsTP": {
@@ -29340,24 +29067,20 @@
         "symbol": "MgOH+",
         "reactants": [
           {
-            "symbol": "MgOH+",
-            "coefficient": -1,
-            "id": "substances/MgOH+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "MgOH+",
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -29458,24 +29181,20 @@
         "symbol": "KOH@",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
             "symbol": "KOH@",
-            "coefficient": -1,
-            "id": "substances/KOH@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -29576,24 +29295,20 @@
         "symbol": "NaOH@",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "NaOH@",
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "NaOH@",
-            "coefficient": -1,
-            "id": "substances/NaOH@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -29694,19 +29409,16 @@
         "symbol": "OH-",
         "reactants": [
           {
-            "symbol": "OH-",
-            "coefficient": -1,
-            "id": "substances/OH-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "OH-",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -29807,24 +29519,20 @@
         "symbol": "AlOH+2",
         "reactants": [
           {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "AlOH+2",
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "AlOH+2",
-            "coefficient": -1,
-            "id": "substances/AlOH+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -29926,13 +29634,11 @@
         "reactants": [
           {
             "symbol": "H2O",
-            "coefficient": -1,
-            "id": "substances/H2O;1:SC_GASFLUID;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -30033,29 +29739,24 @@
         "symbol": "CaHSiO3+",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -1
           },
           {
             "symbol": "CaHSiO3+",
-            "coefficient": -1,
-            "id": "substances/CaHSiO3+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -30156,24 +29857,20 @@
         "symbol": "HSiO3-",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -1
           },
           {
             "symbol": "HSiO3-",
-            "coefficient": -1,
-            "id": "substances/HSiO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -30274,29 +29971,24 @@
         "symbol": "MgHSiO3+",
         "reactants": [
           {
-            "symbol": "MgHSiO3+",
-            "coefficient": -1,
-            "id": "substances/MgHSiO3+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "MgHSiO3+",
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -30397,24 +30089,20 @@
         "symbol": "CO2",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": 1
           },
           {
             "symbol": "CO2",
-            "coefficient": -1,
-            "id": "substances/CO2;1:SC_GASFLUID;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -30515,29 +30203,24 @@
         "symbol": "NaHSiO3@",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Na+",
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -1
           },
           {
             "symbol": "NaHSiO3@",
-            "coefficient": -1,
-            "id": "substances/NaHSiO3@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -30638,24 +30321,20 @@
         "symbol": "CO2@",
         "reactants": [
           {
+            "symbol": "HCO3-",
+            "coefficient": 1
+          },
+          {
             "symbol": "H2O@",
-            "coefficient": -1,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": 1,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "CO2@",
-            "coefficient": -1,
-            "id": "substances/CO2@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -30756,29 +30435,24 @@
         "symbol": "Clinohumite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -18,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 9,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 4
           },
           {
             "symbol": "Clinohumite",
-            "coefficient": -1,
-            "id": "substances/Clinohumite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -18
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 9
           }
         ],
         "limitsTP": {
@@ -30879,34 +30553,28 @@
         "symbol": "Cordierite-Mg",
         "reactants": [
           {
-            "symbol": "Cordierite-Mg",
-            "coefficient": -1,
-            "id": "substances/Cordierite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 5,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -16
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H+",
-            "coefficient": -16,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 4
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -2
+          },
+          {
+            "symbol": "Cordierite-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 5
           }
         ],
         "limitsTP": {
@@ -31007,29 +30675,24 @@
         "symbol": "Chlorite-Mg",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 6,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -12
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
             "symbol": "Chlorite-Mg",
-            "coefficient": -1,
-            "id": "substances/Chlorite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H+",
-            "coefficient": -12,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 6
           }
         ],
         "limitsTP": {
@@ -31130,34 +30793,28 @@
         "symbol": "Tschermak-Mg",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Tschermak-Mg",
-            "coefficient": -1,
-            "id": "substances/Tschermak-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Tschermak-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -8
           }
         ],
         "limitsTP": {
@@ -31258,34 +30915,28 @@
         "symbol": "Tschermak-Ca",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 1
           },
           {
             "symbol": "Tschermak-Ca",
-            "coefficient": -1,
-            "id": "substances/Tschermak-Ca;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -8
           }
         ],
         "limitsTP": {
@@ -31386,34 +31037,28 @@
         "symbol": "Carpholite-Mg",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -8
           },
           {
             "symbol": "Carpholite-Mg",
-            "coefficient": -1,
-            "id": "substances/Carpholite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -31514,34 +31159,28 @@
         "symbol": "Lawsonite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Lawsonite",
-            "coefficient": -1,
-            "id": "substances/Lawsonite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Lawsonite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -8
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -31642,29 +31281,24 @@
         "symbol": "KAlO2@",
         "reactants": [
           {
-            "symbol": "KAlO2@",
-            "coefficient": -1,
-            "id": "substances/KAlO2@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "K+",
+            "coefficient": 1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "KAlO2@",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -31765,29 +31399,24 @@
         "symbol": "Topaz-OH",
         "reactants": [
           {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
             "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -6
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "Topaz-OH",
-            "coefficient": -1,
-            "id": "substances/Topaz-OH;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -31888,34 +31517,28 @@
         "symbol": "Wairakite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Wairakite",
-            "coefficient": -1,
-            "id": "substances/Wairakite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 4
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -8
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Wairakite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -32016,29 +31639,24 @@
         "symbol": "Enstatite",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 2
           },
           {
             "symbol": "Enstatite",
-            "coefficient": -1,
-            "id": "substances/Enstatite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -2
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -4
           }
         ],
         "limitsTP": {
@@ -32139,34 +31757,28 @@
         "symbol": "Diopside",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Diopside",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -2
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Diopside",
-            "coefficient": -1,
-            "id": "substances/Diopside;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -32267,24 +31879,20 @@
         "symbol": "Portlandite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 2
           },
           {
             "symbol": "Portlandite",
-            "coefficient": -1,
-            "id": "substances/Portlandite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -2
           }
         ],
         "limitsTP": {
@@ -32385,24 +31993,20 @@
         "symbol": "Brucite",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Brucite",
-            "coefficient": -1,
-            "id": "substances/Brucite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Brucite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -32503,24 +32107,20 @@
         "symbol": "Al(OH)2+",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -2,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
             "symbol": "Al(OH)2+",
-            "coefficient": -1,
-            "id": "substances/Al(OH)2+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -2
           }
         ],
         "limitsTP": {
@@ -32622,23 +32222,19 @@
         "reactants": [
           {
             "symbol": "Diaspore",
-            "coefficient": -1,
-            "id": "substances/Diaspore;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -3,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -3
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -32739,44 +32335,36 @@
         "symbol": "Omphacite-Mg",
         "reactants": [
           {
-            "symbol": "Omphacite-Mg",
-            "coefficient": -1,
-            "id": "substances/Omphacite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 0.5,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Na+",
+            "coefficient": 0.5
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 0.5,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 0.5
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 0.5
+          },
+          {
+            "symbol": "Omphacite-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -2
           },
           {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 0.5,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Na+",
-            "coefficient": 0.5,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 0.5
           }
         ],
         "limitsTP": {
@@ -32877,34 +32465,28 @@
         "symbol": "Leucite",
         "reactants": [
           {
-            "symbol": "Leucite",
-            "coefficient": -1,
-            "id": "substances/Leucite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Leucite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -4
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -33005,34 +32587,28 @@
         "symbol": "Jadeite",
         "reactants": [
           {
-            "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 1
           },
           {
             "symbol": "Jadeite",
-            "coefficient": -1,
-            "id": "substances/Jadeite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -2
+          },
+          {
+            "symbol": "Na+",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -4
           }
         ],
         "limitsTP": {
@@ -33133,19 +32709,16 @@
         "symbol": "Stishovite",
         "reactants": [
           {
-            "symbol": "Stishovite",
-            "coefficient": -1,
-            "id": "substances/Stishovite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -2
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Stishovite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -33242,23 +32815,130 @@
         "_label": "reaction"
       },
       {
+        "name": "H4SiO4@",
+        "symbol": "H4SiO4@",
+        "reactants": [
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": -1
+          },
+          {
+            "symbol": "SiO2@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 2
+          }
+        ],
+        "limitsTP": {
+          "range": false,
+          "lowerP": 0.1,
+          "lowerT": 273.15,
+          "upperP": 5000000000,
+          "upperT": 1073.15
+        },
+        "TPMethods": [
+          {
+            "method": {
+              "4": "logk_1_term_extrap0"
+            },
+            "logk_ft_coeffs": {
+              "values": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "logKr": {
+          "values": [
+            0
+          ],
+          "status": [
+            {}
+          ],
+          "errors": [
+            0.035038
+          ]
+        },
+        "drsm_heat_capacity_p": {
+          "values": [
+            0
+          ],
+          "status": [
+            {}
+          ],
+          "errors": [
+            0
+          ]
+        },
+        "drsm_gibbs_energy": {
+          "values": [
+            0
+          ],
+          "status": [
+            {}
+          ],
+          "errors": [
+            200
+          ]
+        },
+        "drsm_enthalpy": {
+          "values": [
+            0
+          ],
+          "status": [
+            {}
+          ],
+          "errors": [
+            400
+          ]
+        },
+        "drsm_entropy": {
+          "values": [
+            0
+          ],
+          "status": [
+            {}
+          ],
+          "errors": [
+            0.2
+          ]
+        },
+        "drsm_volume": {
+          "values": [
+            0
+          ],
+          "status": [
+            {}
+          ],
+          "errors": [
+            0
+          ]
+        },
+        "_label": "reaction"
+      },
+      {
         "name": "Coesite",
         "symbol": "Coesite",
         "reactants": [
           {
             "symbol": "Coesite",
-            "coefficient": -1,
-            "id": "substances/Coesite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -33360,18 +33040,15 @@
         "reactants": [
           {
             "symbol": "Cristobalite",
-            "coefficient": -1,
-            "id": "substances/Cristobalite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -33472,19 +33149,16 @@
         "symbol": "Tridymite",
         "reactants": [
           {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
             "symbol": "Tridymite",
-            "coefficient": -1,
-            "id": "substances/Tridymite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -2
           }
         ],
         "limitsTP": {
@@ -33585,19 +33259,16 @@
         "symbol": "Quartz",
         "reactants": [
           {
-            "symbol": "Quartz",
-            "coefficient": -1,
-            "id": "substances/Quartz;0:SC_COMPONENT;19:AQ17"
-          },
-          {
             "symbol": "H2O@",
-            "coefficient": -2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -2
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Quartz",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -33698,34 +33369,28 @@
         "symbol": "Gehlenite",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 3,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Gehlenite",
-            "coefficient": -1,
-            "id": "substances/Gehlenite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -10
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "H+",
-            "coefficient": -10,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Gehlenite",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -33826,34 +33491,28 @@
         "symbol": "Chloritoid-Mg",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 3,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
             "symbol": "Chloritoid-Mg",
-            "coefficient": -1,
-            "id": "substances/Chloritoid-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 3
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -8
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -33954,24 +33613,20 @@
         "symbol": "Corundum",
         "reactants": [
           {
+            "symbol": "H2O@",
+            "coefficient": 3
+          },
+          {
             "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -6
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "Corundum",
-            "coefficient": -1,
-            "id": "substances/Corundum;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 3,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -34072,24 +33727,20 @@
         "symbol": "Al(OH)3@",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 3,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -3
           },
           {
             "symbol": "Al(OH)3@",
-            "coefficient": -1,
-            "id": "substances/Al(OH)3@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H+",
-            "coefficient": -3,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -34190,34 +33841,28 @@
         "symbol": "Stilbite",
         "reactants": [
           {
-            "symbol": "Stilbite",
-            "coefficient": -1,
-            "id": "substances/Stilbite;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -8
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -3,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 7,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 7
+          },
+          {
+            "symbol": "Stilbite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -3
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -34318,39 +33963,32 @@
         "symbol": "Pumpellyite-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -25,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 5,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 6,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Pumpellyite-Mg",
-            "coefficient": -1,
-            "id": "substances/Pumpellyite-Mg;0:SC_COMPONENT;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
           },
           {
             "symbol": "Ca+2",
-            "coefficient": 4,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Pumpellyite-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -25
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 6
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 5
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 4
           }
         ],
         "limitsTP": {
@@ -34451,44 +34089,36 @@
         "symbol": "Mizzonite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -21,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -4
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 7,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 7
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -21
           },
           {
             "symbol": "Mizzonite",
-            "coefficient": -1,
-            "id": "substances/Mizzonite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 3,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 5,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 5
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -34589,44 +34219,36 @@
         "symbol": "Edenite-Mg",
         "reactants": [
           {
-            "symbol": "Edenite-Mg",
-            "coefficient": -1,
-            "id": "substances/Edenite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 5,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Na+",
+            "coefficient": 1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 7,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 7
+          },
+          {
+            "symbol": "Edenite-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 5
           },
           {
             "symbol": "H+",
-            "coefficient": -18,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -18
           },
           {
-            "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -4
           }
         ],
         "limitsTP": {
@@ -34727,39 +34349,32 @@
         "symbol": "Eastonite",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Eastonite",
-            "coefficient": -1,
-            "id": "substances/Eastonite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -14,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 4
+          },
+          {
+            "symbol": "Eastonite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 3
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -14
           }
         ],
         "limitsTP": {
@@ -34860,34 +34475,28 @@
         "symbol": "Margarite",
         "reactants": [
           {
-            "symbol": "Margarite",
-            "coefficient": -1,
-            "id": "substances/Margarite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -14,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -14
           },
           {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Margarite",
+            "coefficient": -1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 4
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -34988,29 +34597,24 @@
         "symbol": "Spinel",
         "reactants": [
           {
-            "symbol": "Spinel",
-            "coefficient": -1,
-            "id": "substances/Spinel;0:SC_COMPONENT;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 4
+          },
+          {
+            "symbol": "Spinel",
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -8
           },
           {
             "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -35111,29 +34715,24 @@
         "symbol": "NaAl(OH)4@",
         "reactants": [
           {
-            "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "NaAl(OH)4@",
-            "coefficient": -1,
-            "id": "substances/NaAl(OH)4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 1
           },
           {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 4
+          },
+          {
+            "symbol": "Na+",
+            "coefficient": 1
+          },
+          {
+            "symbol": "NaAl(OH)4@",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -35234,24 +34833,20 @@
         "symbol": "Al(OH)4-",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 1
           },
           {
             "symbol": "Al(OH)4-",
-            "coefficient": -1,
-            "id": "substances/Al(OH)4-;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -4
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 4
           }
         ],
         "limitsTP": {
@@ -35352,29 +34947,24 @@
         "symbol": "Talc-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Talc-Mg",
-            "coefficient": -1,
-            "id": "substances/Talc-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 4
           },
           {
             "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -4
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -6
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Talc-Mg",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -35475,39 +35065,32 @@
         "symbol": "Nceladonite-Mg",
         "reactants": [
           {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Nceladonite-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Nceladonite-Mg",
-            "coefficient": -1,
-            "id": "substances/Nceladonite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -6
           },
           {
             "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -4
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -35608,29 +35191,24 @@
         "symbol": "Pyrophyllite",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Pyrophyllite",
-            "coefficient": -1,
-            "id": "substances/Pyrophyllite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
           },
           {
             "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -4
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -6
+          },
+          {
+            "symbol": "Pyrophyllite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 4
           }
         ],
         "limitsTP": {
@@ -35731,39 +35309,32 @@
         "symbol": "Celadonite-Mg",
         "reactants": [
           {
-            "symbol": "Celadonite-Mg",
-            "coefficient": -1,
-            "id": "substances/Celadonite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 4,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 1,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -6
           },
           {
             "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -4
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Celadonite-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": -6,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 4
           }
         ],
         "limitsTP": {
@@ -35864,34 +35435,28 @@
         "symbol": "Albite high",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Albite high",
-            "coefficient": -1,
-            "id": "substances/Albitehigh;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -4
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -4
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Albite high",
+            "coefficient": -1
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -35992,34 +35557,28 @@
         "symbol": "Albite",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Albite",
-            "coefficient": -1,
-            "id": "substances/Albite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -4
           },
           {
             "symbol": "Na+",
-            "coefficient": 1,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 1
           },
           {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -4
+          },
+          {
+            "symbol": "Albite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -36120,34 +35679,28 @@
         "symbol": "Heulandite",
         "reactants": [
           {
-            "symbol": "Heulandite",
-            "coefficient": -1,
-            "id": "substances/Heulandite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 7
           },
           {
             "symbol": "H+",
-            "coefficient": -8,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -8
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 7,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Heulandite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -4
           }
         ],
         "limitsTP": {
@@ -36248,34 +35801,28 @@
         "symbol": "Sanidine",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 1
           },
           {
             "symbol": "Sanidine",
-            "coefficient": -1,
-            "id": "substances/Sanidine;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -4
           },
           {
             "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -4
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "K+",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -36376,34 +35923,28 @@
         "symbol": "Microcline",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": -4,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -4,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
             "symbol": "Microcline",
-            "coefficient": -1,
-            "id": "substances/Microcline;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -4
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -4
+          },
+          {
+            "symbol": "K+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -36504,39 +36045,32 @@
         "symbol": "Vesuvianite",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 6,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Vesuvianite",
-            "coefficient": -1,
-            "id": "substances/Vesuvianite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 19,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -75
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -75,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "Al+3",
-            "coefficient": 11,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 11
+          },
+          {
+            "symbol": "Vesuvianite",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 6
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 18,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 18
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 19
           }
         ],
         "limitsTP": {
@@ -36637,34 +36171,28 @@
         "symbol": "Clinochlore",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Clinochlore",
-            "coefficient": -1,
-            "id": "substances/Clinochlore;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 6,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -16,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -16
           },
           {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 6
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 5,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 5
+          },
+          {
+            "symbol": "Clinochlore",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -36765,34 +36293,28 @@
         "symbol": "Sudoite-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -16,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 3,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 6
           },
           {
             "symbol": "Sudoite-Mg",
-            "coefficient": -1,
-            "id": "substances/Sudoite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 6,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -16
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 4
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 3
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -36893,24 +36415,20 @@
         "symbol": "Gibbsite",
         "reactants": [
           {
+            "symbol": "Gibbsite",
+            "coefficient": -1
+          },
+          {
             "symbol": "H+",
-            "coefficient": -3,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -3
           },
           {
             "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Gibbsite",
-            "coefficient": -1,
-            "id": "substances/Gibbsite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 3,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -37011,29 +36529,24 @@
         "symbol": "Cummingtonite",
         "reactants": [
           {
+            "symbol": "H+",
+            "coefficient": -14
+          },
+          {
             "symbol": "Cummingtonite",
-            "coefficient": -1,
-            "id": "substances/Cummingtonite;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 7,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -8,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 8,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 8
           },
           {
-            "symbol": "H+",
-            "coefficient": -14,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 7
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -8
           }
         ],
         "limitsTP": {
@@ -37134,29 +36647,24 @@
         "symbol": "Anthophyll-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -14,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Anthophyll-Mg",
-            "coefficient": -1,
-            "id": "substances/Anthophyll-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 7,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 8
           },
           {
             "symbol": "H2O@",
-            "coefficient": -8,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -8
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 8,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 7
+          },
+          {
+            "symbol": "Anthophyll-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -14
           }
         ],
         "limitsTP": {
@@ -37257,34 +36765,28 @@
         "symbol": "Tremolite-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -14,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Ca+2",
+            "coefficient": 2
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 5,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Tremolite-Mg",
-            "coefficient": -1,
-            "id": "substances/Tremolite-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 8,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 5
           },
           {
             "symbol": "H2O@",
-            "coefficient": -8,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -8
           },
           {
-            "symbol": "Ca+2",
-            "coefficient": 2,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 8
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -14
+          },
+          {
+            "symbol": "Tremolite-Mg",
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -37385,39 +36887,32 @@
         "symbol": "Glaucophane-Mg",
         "reactants": [
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 8,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -14,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 2,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Na+",
-            "coefficient": 2,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": -8
           },
           {
             "symbol": "Glaucophane-Mg",
-            "coefficient": -1,
-            "id": "substances/Glaucophane-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
-            "symbol": "H2O@",
-            "coefficient": -8,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Na+",
+            "coefficient": 2
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -14
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 8
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 2
           }
         ],
         "limitsTP": {
@@ -37518,34 +37013,28 @@
         "symbol": "Amesite-Mg",
         "reactants": [
           {
-            "symbol": "H2O@",
-            "coefficient": 10,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -20,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 4,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 4,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Amesite-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
-            "symbol": "Amesite-Mg",
-            "coefficient": -1,
-            "id": "substances/Amesite-Mg;0:SC_COMPONENT;19:AQ17"
+            "symbol": "H+",
+            "coefficient": -20
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 10
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 4
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 4
           }
         ],
         "limitsTP": {
@@ -37646,39 +37135,32 @@
         "symbol": "Osumilite1-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -20,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Osumilite1-Mg",
-            "coefficient": -1,
-            "id": "substances/Osumilite1-Mg;0:SC_COMPONENT;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 5
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 10,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -10,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 5,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 10
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 2,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -10
+          },
+          {
+            "symbol": "Osumilite1-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -20
+          },
+          {
+            "symbol": "K+",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -37779,24 +37261,20 @@
         "symbol": "Boehmite",
         "reactants": [
           {
+            "symbol": "Al+3",
+            "coefficient": 1
+          },
+          {
             "symbol": "Boehmite",
-            "coefficient": -1,
-            "id": "substances/Boehmite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
             "symbol": "H2O@",
-            "coefficient": 2,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 1,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 2
           },
           {
             "symbol": "H+",
-            "coefficient": -3,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -3
           }
         ],
         "limitsTP": {
@@ -37897,29 +37375,24 @@
         "symbol": "Antigorite",
         "reactants": [
           {
+            "symbol": "H4SiO4@",
+            "coefficient": 34
+          },
+          {
             "symbol": "H+",
-            "coefficient": -96,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -96
           },
           {
             "symbol": "H2O@",
-            "coefficient": 11,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 11
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 48,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 34,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 48
           },
           {
             "symbol": "Antigorite",
-            "coefficient": -1,
-            "id": "substances/Antigorite;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           }
         ],
         "limitsTP": {
@@ -38020,34 +37493,28 @@
         "symbol": "Sapphirine4-Mg",
         "reactants": [
           {
-            "symbol": "Sapphirine4-Mg",
-            "coefficient": -1,
-            "id": "substances/Sapphirine4-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": 12,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -32,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 8,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 2
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 4,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 4
           },
           {
-            "symbol": "H4SiO4@",
-            "coefficient": 2,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 8
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -32
+          },
+          {
+            "symbol": "Sapphirine4-Mg",
+            "coefficient": -1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": 12
           }
         ],
         "limitsTP": {
@@ -38148,44 +37615,36 @@
         "symbol": "Meionite-Na",
         "reactants": [
           {
-            "symbol": "Meionite-Na",
-            "coefficient": -1,
-            "id": "substances/Meionite-Na;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "Ca+2",
-            "coefficient": 1,
-            "id": "substances/Ca+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Na+",
-            "coefficient": 3,
-            "id": "substances/Na+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H2O@",
-            "coefficient": -12,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "HCO3-",
+            "coefficient": 1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
-            "symbol": "HCO3-",
-            "coefficient": 1,
-            "id": "substances/HCO3-;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Na+",
+            "coefficient": 3
           },
           {
             "symbol": "H+",
-            "coefficient": -13,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": -13
+          },
+          {
+            "symbol": "Ca+2",
+            "coefficient": 1
+          },
+          {
+            "symbol": "H2O@",
+            "coefficient": -12
+          },
+          {
+            "symbol": "Meionite-Na",
+            "coefficient": -1
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 9,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 9
           }
         ],
         "limitsTP": {
@@ -38286,39 +37745,32 @@
         "symbol": "Osumilite2-Mg",
         "reactants": [
           {
+            "symbol": "Osumilite2-Mg",
+            "coefficient": -1
+          },
+          {
             "symbol": "Al+3",
-            "coefficient": 3,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 3
           },
           {
             "symbol": "H2O@",
-            "coefficient": -14,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H+",
-            "coefficient": -16,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 1,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Osumilite2-Mg",
-            "coefficient": -1,
-            "id": "substances/Osumilite2-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -14
           },
           {
             "symbol": "H4SiO4@",
-            "coefficient": 11,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 11
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -16
+          },
+          {
+            "symbol": "K+",
+            "coefficient": 1
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 3
           }
         ],
         "limitsTP": {
@@ -38419,39 +37871,32 @@
         "symbol": "Stilpnomelane-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -116,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "K+",
-            "coefficient": 5,
-            "id": "substances/K+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Stilpnomelane-Mg",
-            "coefficient": -1,
-            "id": "substances/Stilpnomelane-Mg;0:SC_COMPONENT;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 67,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Mg+2",
+            "coefficient": 48
           },
           {
             "symbol": "H2O@",
-            "coefficient": -16,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": -16
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -116
+          },
+          {
+            "symbol": "Stilpnomelane-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "Al+3",
-            "coefficient": 5,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "coefficient": 5
           },
           {
-            "symbol": "Mg+2",
-            "coefficient": 48,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H4SiO4@",
+            "coefficient": 67
+          },
+          {
+            "symbol": "K+",
+            "coefficient": 5
           }
         ],
         "limitsTP": {
@@ -38552,34 +37997,28 @@
         "symbol": "Sapphirine5-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -36,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 10,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Mg+2",
-            "coefficient": 3,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 1,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "H2O@",
+            "coefficient": 16
           },
           {
             "symbol": "Sapphirine5-Mg",
-            "coefficient": -1,
-            "id": "substances/Sapphirine5-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": -1
           },
           {
-            "symbol": "H2O@",
-            "coefficient": 16,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "symbol": "Al+3",
+            "coefficient": 10
+          },
+          {
+            "symbol": "Mg+2",
+            "coefficient": 3
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -36
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 1
           }
         ],
         "limitsTP": {
@@ -38680,34 +38119,28 @@
         "symbol": "Staurolite-Mg",
         "reactants": [
           {
-            "symbol": "H+",
-            "coefficient": -62,
-            "id": "substances/H+;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Al+3",
-            "coefficient": 18,
-            "id": "substances/Al+3;2:SC_AQSOLUTE;19:AQ17"
+            "symbol": "Staurolite-Mg",
+            "coefficient": -1
           },
           {
             "symbol": "Mg+2",
-            "coefficient": 4,
-            "id": "substances/Mg+2;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "H4SiO4@",
-            "coefficient": 7.5,
-            "id": "substances/H4SiO4@;2:SC_AQSOLUTE;19:AQ17"
-          },
-          {
-            "symbol": "Staurolite-Mg",
-            "coefficient": -1,
-            "id": "substances/Staurolite-Mg;0:SC_COMPONENT;19:AQ17"
+            "coefficient": 4
           },
           {
             "symbol": "H2O@",
-            "coefficient": 18,
-            "id": "substances/H2O@;3:SC_AQSOLVENT;19:AQ17"
+            "coefficient": 18
+          },
+          {
+            "symbol": "Al+3",
+            "coefficient": 18
+          },
+          {
+            "symbol": "H4SiO4@",
+            "coefficient": 7.5
+          },
+          {
+            "symbol": "H+",
+            "coefficient": -62
           }
         ],
         "limitsTP": {
