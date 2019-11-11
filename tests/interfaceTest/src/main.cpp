@@ -1,4 +1,5 @@
     #include "ThermoFun.h"
+#include "ThermoFun/Common/formuladata.h"
 //#include "ThermoFun/Common/ThermoScalar.hpp"
     using namespace std;
     using namespace ThermoFun;
@@ -8,6 +9,8 @@
       // Create the interface object using a database file in JSON
       ThermoBatch batch("aq17-fun.json");
 
+      auto elements1 = ThermoFun::ChemicalFormula::extractElements({"H4SiO2@"} );
+
       // Optional: set the solvent symbol used for claulating properties of aqueous species
       batch.setSolventSymbol("H2O@");
 
@@ -15,7 +18,12 @@
       batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
       // Optional: change default digits
-      batch.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
+      batch.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 4});
+
+      ThermoEngine en("cemdata18-thermofun.json");
+
+      double P =1;
+      auto pros5CA = en.thermoPropertiesSubstance(25, P, "5CA");
 
       // Retrieve the entropy of H2O
       double H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
@@ -27,10 +35,26 @@
       Reaktoro_::ThermoScalar V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar();
 
       // Write results to a comma separate files for a list of T-P pairs, substances, and properties
-      batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}, {600, 4100}}, // list of T-P pairs
+      batch.thermoPropertiesSubstance({{25, 0},{40, 0}}, // list of T-P pairs
                                            {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
                                            {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
-                                          ).toCSV("results_after.csv");                           // output
+                                          ).toCSV("results_after_2.csv");                           // output
+
+      BatchPreferences pref;
+      pref.loopTemperatureThenPressure = true;
+      batch.setBatchPreferences(pref);
+      batch.thermoPropertiesSubstance({ {"Tmin", 0.}, {"Tmax", 150.}, {"Tstep", 5.} }, { {"Pmin", 0.}, {"Pmax", 1000.}, {"Pstep", 100.} }, // list of T-P pairs
+                                           {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
+                                           {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
+                                          ).toCSV("test_2.csv");                           // output
+
+      batch.thermoPropertiesSubstance(  { 0.01,  25,  50,  75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
+                                        400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560,
+                                        570, 580, 590, 600 },
+                                        { 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000}, // list of T-P pairs
+                                        {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
+                                        {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
+                                          ).toCSVPropertyGrid("grid.csv");                           // output
 
 
       // Test

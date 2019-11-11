@@ -28,6 +28,7 @@ namespace py = pybind11;
 #include <ThermoFun/Batch/ThermoBatch.h>
 #include <ThermoFun/Batch/OutputBatch.h>
 #include <ThermoFun/Database.h>
+#include <ThermoFun/ThermoEngine.h>
 #include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
@@ -38,23 +39,36 @@ void exportThermoBatch(py::module& m)
                                         (&ThermoBatch::thermoPropertiesSubstance);
     auto thermoPropertiesSubstance2 = static_cast<Output(ThermoBatch::*)(double, double, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesSubstance);
-    auto thermoPropertiesSubstance3 = static_cast<Output(ThermoBatch::*)(std::array<double,3>, std::array<double,3>, std::vector<std::string>, std::vector<std::string>)>
+    auto thermoPropertiesSubstance3 = static_cast<Output(ThermoBatch::*)(std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesSubstance);
     auto thermoPropertiesSubstance4 = static_cast<Output(ThermoBatch::*)(std::vector<std::vector<double>>, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesSubstance);
+    auto thermoPropertiesSubstance5 = static_cast<Output(ThermoBatch::*)(std::vector<std::vector<double>>, std::vector<std::string>, std::vector<std::string>, std::vector<ThermoPropertiesSubstance>)>
+                                        (&ThermoBatch::thermoPropertiesSubstance);
+    auto thermoPropertiesSubstance6 = static_cast<Output(ThermoBatch::*)(std::vector<double>, std::vector<double>, std::vector<std::string>, std::vector<std::string>)>
+                                        (&ThermoBatch::thermoPropertiesSubstance);
+    auto thermoPropertiesSubstance7 = static_cast<Output(ThermoBatch::*)(std::vector<double>, std::vector<double>, std::vector<std::string>, std::vector<std::string>, std::vector<ThermoPropertiesSubstance>)>
+                                        (&ThermoBatch::thermoPropertiesSubstance);                  
 
     auto thermoPropertiesReaction1 = static_cast<Output(ThermoBatch::*)(double, double, std::string, std::string)>
                                         (&ThermoBatch::thermoPropertiesReaction);
     auto thermoPropertiesReaction2 = static_cast<Output(ThermoBatch::*)(double, double, std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesReaction);
-    auto thermoPropertiesReaction3 = static_cast<Output(ThermoBatch::*)(std::array<double,3>, std::array<double,3>, std::vector<std::string>, std::vector<std::string>)>
+    auto thermoPropertiesReaction3 = static_cast<Output(ThermoBatch::*)(std::vector<std::string>, std::vector<std::string>)>
                                         (&ThermoBatch::thermoPropertiesReaction);
     auto thermoPropertiesReaction4 = static_cast<Output(ThermoBatch::*)(std::vector<std::vector<double>>, std::vector<std::string>, std::vector<std::string>)>
+                                        (&ThermoBatch::thermoPropertiesReaction);
+    auto thermoPropertiesReaction5 = static_cast<Output(ThermoBatch::*)(std::vector<std::vector<double>>, std::vector<std::string>, std::vector<std::string>, std::vector<ThermoPropertiesReaction>)>
+                                        (&ThermoBatch::thermoPropertiesReaction);
+    auto thermoPropertiesReaction6 = static_cast<Output(ThermoBatch::*)(std::vector<double>, std::vector<double>, std::vector<std::string>, std::vector<std::string>)>
+                                        (&ThermoBatch::thermoPropertiesReaction);
+    auto thermoPropertiesReaction7 = static_cast<Output(ThermoBatch::*)(std::vector<double>, std::vector<double>, std::vector<std::string>, std::vector<std::string>, std::vector<ThermoPropertiesReaction>)>
                                         (&ThermoBatch::thermoPropertiesReaction);
 
     py::class_<ThermoBatch>(m, "ThermoBatch")
         .def(py::init<const std::string>())
         .def(py::init<const Database&>())
+        .def(py::init<const ThermoEngine&>())
         .def("setUnits", &ThermoBatch::setUnits)
         .def("setDigits", &ThermoBatch::setDigits)
         .def("setPropertiesUnits", &ThermoBatch::setPropertiesUnits)
@@ -62,14 +76,22 @@ void exportThermoBatch(py::module& m)
         .def("setPropertyUnit", &ThermoBatch::setPropertyUnit)
         .def("setPropertyDigit", &ThermoBatch::setPropertyDigit)
         .def("setPropertyUnitDigit", &ThermoBatch::setPropertyUnitDigit)
+        .def("setTemperatureIncrement", &ThermoBatch::setTemperatureIncrement)
+        .def("setPressureIncrement", &ThermoBatch::setPressureIncrement)        
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance2)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance3)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance4)
+        .def("thermoPropertiesSubstance", thermoPropertiesSubstance5)
+        .def("thermoPropertiesSubstance", thermoPropertiesSubstance6)
+        .def("thermoPropertiesSubstance", thermoPropertiesSubstance7)
         .def("thermoPropertiesReaction", thermoPropertiesReaction1)
         .def("thermoPropertiesReaction", thermoPropertiesReaction2)
         .def("thermoPropertiesReaction", thermoPropertiesReaction3)
         .def("thermoPropertiesReaction", thermoPropertiesReaction4)
+        .def("thermoPropertiesReaction", thermoPropertiesReaction5)
+        .def("thermoPropertiesReaction", thermoPropertiesReaction6)
+        .def("thermoPropertiesReaction", thermoPropertiesReaction7)
         .def("setBatchPreferences", &ThermoBatch::setBatchPreferences)
         .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)
         ;
@@ -85,10 +107,11 @@ void exportBatchPreferences(py::module& m)
         .def_readwrite("separator", &BatchPreferences::separator)
         .def_readwrite("fileName", &BatchPreferences::fileName)
         .def_readwrite("solventFileName", &BatchPreferences::solventFileName)
-        .def_readwrite("outSolventProp", &BatchPreferences::outSolventProp)
-        .def_readwrite("calcSubstFromReact", &BatchPreferences::calcSubstFromReact)
-        .def_readwrite("calcReactFromSubst", &BatchPreferences::calcReactFromSubst)
+        .def_readwrite("outputSolventProperties", &BatchPreferences::outputSolventProperties)
+        .def_readwrite("substancePropertiesFromReaction", &BatchPreferences::substancePropertiesFromReaction)
+        .def_readwrite("reactionPropertiesFromReactants", &BatchPreferences::reactionPropertiesFromReactants)
         .def_readwrite("loopOverTPpairsFirst", &BatchPreferences::loopOverTPpairsFirst)
+        .def_readwrite("loopTemperatureThenPressure", &BatchPreferences::loopTemperatureThenPressure)
         ;
 }
 

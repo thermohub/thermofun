@@ -36,6 +36,9 @@ public:
     /// Construct a Thermo instance with given Database instance
     ThermoEngine(const Database& database);
 
+    /// Construct a copy of an ThermoEngine instance
+    ThermoEngine(const ThermoEngine& other);
+
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
     auto setSolventSymbol(const std::string solvent_symbol) -> void;
 

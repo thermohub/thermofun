@@ -77,6 +77,12 @@ public:
     /// Set the parameters used for calculating the proeprties of reaction at T and P
     auto setThermoParameters(ThermoParametersReaction param) -> void;
 
+    /**
+     * @brief setJsonString stores the json object of the record
+     * @param jString
+     */
+    auto setJsonString(const std::string &jString) ->void;
+
 //    /// Set the formula of the Reaction.
 //    auto setFormula(std::string formula) -> void;
 
@@ -128,6 +134,12 @@ public:
 
     /// Return the pressure correction method code
     auto method_P() const  -> MethodCorrP_Thrift::type;
+
+    /**
+     * @brief jonString
+     * @return record in json string
+     */
+    auto jsonString() const -> std::string;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status

@@ -74,6 +74,8 @@ struct Substance::Impl
 
     int charge;
 
+    std::string jString;
+
 //    /// Concentration scale used in defining the properties of the substance
 //    ConcentrationScales::type StdConcentration_scale;
 };
@@ -195,6 +197,11 @@ auto Substance::setMolarMass(double molar_mass) -> void
     pimpl->molar_mass = molar_mass;
 }
 
+auto Substance::setJsonString(const std::string &jString) ->void
+{
+    pimpl->jString = jString;
+}
+
 auto Substance::name() const -> std::string
 {
     return pimpl->name;
@@ -298,6 +305,11 @@ auto Substance::aggregateState() const -> AggregateState::type
 auto Substance::charge() const -> int
 {
     return pimpl->charge;
+}
+
+auto Substance::jsonString() const -> std::string
+{
+    return pimpl->jString;
 }
 
 auto Substance::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void

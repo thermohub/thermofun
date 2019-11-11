@@ -34,11 +34,14 @@ void exportThermoEngine(py::module& m)
 //        .def(py::init<>())
         .def(py::init<const std::string>())
         .def(py::init<const Database&>())
+        .def(py::init<const ThermoEngine&>())
+        .def("setSolventSymbol", &ThermoEngine::setSolventSymbol)
+        .def("solventSymbol", &ThermoEngine::solventSymbol)
         .def("thermoPropertiesSubstance", &ThermoEngine::thermoPropertiesSubstance, (py::arg("T"), py::arg("P"), "substance"))
         .def("electroPropertiesSolvent", &ThermoEngine::electroPropertiesSolvent, (py::arg("T"), py::arg("P"), "solvent"))
         .def("propertiesSolvent", &ThermoEngine::propertiesSolvent, (py::arg("T"), py::arg("P"), "solvent"))
         .def("thermoPropertiesReaction", &ThermoEngine::thermoPropertiesReaction, (py::arg("T"), py::arg("P"), "reaction"))
-        .def("thermoPropertiesReactionFromReactants", &ThermoEngine::thermoPropertiesReaction, (py::arg("T"), py::arg("P"), "symbol"))
+        .def("thermoPropertiesReactionFromReactants", &ThermoEngine::thermoPropertiesReactionFromReactants, (py::arg("T"), py::arg("P"), "symbol"))
         ;
 }
 

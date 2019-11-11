@@ -98,6 +98,12 @@ public:
      * @param P pressure in Pa
      */
     auto setReferenceP(double P) -> void;
+
+    /**
+     * @brief setJsonString stores the json object of the record
+     * @param jString
+     */
+    auto setJsonString(const std::string &jString) ->void;
     
     // Get functions
     /// Return the name of the chemical Substance
@@ -168,6 +174,12 @@ public:
      * @return substance charge
      */
     auto charge() const -> int;
+
+    /**
+     * @brief jonString
+     * @return record in json string
+     */
+    auto jsonString() const -> std::string;
 
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status

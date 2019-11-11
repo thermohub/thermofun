@@ -103,13 +103,13 @@ public:
     auto mapReactions() const -> const ReactionsMap&;
 
     /// Returns the number of elements in the databse
-    auto numberOfElements() -> int;
+    auto numberOfElements() -> size_t;
 
     /// Returns the number of substances in the databse
-    auto numberOfSubstances() -> int;
+    auto numberOfSubstances() -> size_t;
 
     /// Returns the number of reactions in the database
-    auto numberOfReactions() -> int;
+    auto numberOfReactions() -> size_t;
 
     /// Return a element in the database
     auto getElement(std::string symbol) const -> const Element&;
