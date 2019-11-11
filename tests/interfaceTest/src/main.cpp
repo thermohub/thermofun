@@ -41,7 +41,7 @@
                                           ).toCSV("results_after_2.csv");                           // output
 
       BatchPreferences pref;
-      pref.TthenPincrements = true;
+      pref.loopTemperatureThenPressure = true;
       batch.setBatchPreferences(pref);
       batch.thermoPropertiesSubstance({ {"Tmin", 0.}, {"Tmax", 150.}, {"Tstep", 5.} }, { {"Pmin", 0.}, {"Pmax", 1000.}, {"Pstep", 100.} }, // list of T-P pairs
                                            {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols

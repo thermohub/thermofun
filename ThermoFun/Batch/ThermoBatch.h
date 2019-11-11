@@ -49,27 +49,20 @@ struct BatchPreferences
     std::string solventFileName = "tpSolventResults.csv";
 
     /// write solvent properties
-    bool outSolventProp = false;
+    bool outputSolventProperties = false;
 
-    bool calcSubstFromReact = false;
+    bool substancePropertiesFromReaction = false;
 
-    bool calcReactFromSubst = false;
+    bool reactionPropertiesFromReactants = false;
 
     bool loopOverTPpairsFirst = true;
 
     /**
-     * @brief TthenPincrements
+     * @brief loopTemperatureThenPressure
      * @value True generate T-P pairs by first incrementing temperature
      * @value False generate T-P pairs by first incrementing pressure
      */
-    bool TthenPincrements = true;
-};
-
-struct BatchCalculationSettings
-{
-    bool dependentSubstancesFromReactions = false;
-
-    bool reactionsFromSubstances = false;
+    bool loopTemperatureThenPressure = true;
 };
 
 ///

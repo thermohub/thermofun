@@ -57,8 +57,8 @@
       ThermoBatch batch(engine);
 
       BatchPreferences prefs;
-      prefs.TthenPincrements = false;
-      prefs.calcReactFromSubst = true;
+      prefs.loopTemperatureThenPressure = false;
+      prefs.reactionPropertiesFromReactants = true;
 
       batch.setBatchPreferences(prefs);
 

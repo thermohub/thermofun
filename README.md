@@ -72,9 +72,9 @@ int main()
     // Optional set calculation and output preferences
     ThermoFun::OutputSettings op;
     op.isFixed = true;
-    op.outSolventProp       = true;
-    op.calcReactFromSubst   = false;
-    op.calcSubstFromReact   = false;
+    op.outputSolventProperties       = true;
+    op.reactionPropertiesFromReactants   = false;
+    op.substancePropertiesFromReaction   = false;
     batch.setOutputSettings(op);
 
     // Optional set units and significant digits
@@ -161,9 +161,9 @@ batch2.setSolventSymbol("H2O@")
 print("\n# Optional set calculation and output preferences\n")
 op = PyThermoFun.BatchPreferences()
 op.isFixed = True
-op.outSolventProp       = True
-op.calcReactFromSubst   = False
-op.calcSubstFromReact   = False
+op.outputSolventProperties       = True
+op.reactionPropertiesFromReactants   = False
+op.substancePropertiesFromReaction   = False
 batch2.setBatchPreferences(op)
 
 print("\n# Optional set units and significant digits\n")

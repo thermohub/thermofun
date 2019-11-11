@@ -148,7 +148,7 @@ auto Output::CSVHeaderPropertyGrid() -> std::string
     std::vector<double> columns;
     std::string ColData = "";
 
-    if (pimpl->api.outputSettings().TthenPincrements)
+    if (pimpl->api.outputSettings().loopTemperatureThenPressure)
     {
         columns = pressures; ColData = "pressure";
         header = header + "Symbol" + s + "T" + "(" + units.at("temperature") + ")" + "_" + "P" + "(" + units.at("pressure") + ")";
@@ -317,7 +317,7 @@ auto Output::foutPropertyGrid(const std::string &property, const size_t &index_p
 
     size_t count = 0;
 
-    if (outSettings.TthenPincrements)
+    if (outSettings.loopTemperatureThenPressure)
     {
         columns          = pressures;
         rows             = temperatures;

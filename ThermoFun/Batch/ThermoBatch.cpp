@@ -128,14 +128,14 @@ struct ThermoBatch::Impl
     {
         clearTPpairs();
         std::vector<double> rows, columns;
-        if (outSettings.TthenPincrements)
+        if (outSettings.loopTemperatureThenPressure)
         { rows = temperatures; columns = pressures; }
         else
         { rows = pressures; columns = temperatures; }
 
         for (auto r : rows)
             for (auto c : columns)
-                if (outSettings.TthenPincrements)
+                if (outSettings.loopTemperatureThenPressure)
                     addTPpair(r,c);
                 else
                     addTPpair(c,r);
@@ -317,12 +317,12 @@ struct ThermoBatch::Impl
     // Calculate functions
     auto calculateSubstProp( double T, double &P, string symbol, unsigned index ) -> void
     {
-        results[index] = selectResultsSubst(thermo.thermoPropertiesSubstance(T, P, symbol));
+            results[index] = selectResultsSubst(thermo.thermoPropertiesSubstance(T, P, symbol));
     }
 
     auto calculateReactProp( double T, double &P, string symbol, unsigned index ) -> void
     {
-        if (outSettings.calcReactFromSubst)
+        if (outSettings.reactionPropertiesFromReactants)
             results[index] = selectResultsReact(thermo.thermoPropertiesReactionFromReactants(T, P, symbol));
         else
             results[index] = selectResultsReact(thermo.thermoPropertiesReaction(T, P, symbol));
