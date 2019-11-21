@@ -2,6 +2,7 @@
 #define WATERHGKREAKTORO
 
 #include "Common/ScalarTypes.hpp"
+#include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {
 
@@ -20,7 +21,7 @@ struct WaterThermoState;
 
 /// Calculate the water saturated vapor pressure using the HGK model (from GEMS)
 /// @param t temperature (K)
-auto saturatedWaterVaporPressureHGK(double t) -> double;
+auto saturatedWaterVaporPressureHGK(Reaktoro_::Temperature TK) -> Reaktoro_::ThermoScalar;
 
 /// Return the thermodynamic properties of water
 /// @param T temparature (K)
