@@ -12,11 +12,6 @@
 
 namespace ThermoFun {
 
-//namespace {
-//using SubstancesMap = std::map<std::string, Substance>;
-//using ReactionsMap = std::map<std::string, Reaction>;
-//}
-
 struct Reaction::Impl
 {
     /// The name of the chemical Reaction

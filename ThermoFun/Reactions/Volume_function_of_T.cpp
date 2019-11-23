@@ -48,31 +48,31 @@ auto thermoPropertiesReaction_Vol_fT(Reaktoro_::Temperature TK, Reaktoro_::Press
         {
         case 0:
             tpr.reaction_volume += a[i] * VT;
-            // aW.twp->dS  -= a * VP;
-            // aW.twp->dG += a * T_Tst * VP;
-            // aW.twp->dH -= a * Tst * VP;
+            // tpr.reaction_entropy -= a[i] * VP;
+            // tpr.reaction_gibbs_energy += a[i] * T_Tst * VP;
+            // tpr.reaction_enthalpy -= a[i] * Tst * VP;
             break;
         case 1:
             tpr.reaction_volume += a[i] * VT * (TK-Tst);
-            // aW.twp->dS  -= a * VP * 2. * T_Tst;
-            // aW.twp->dG += a * VP * Ts2;
-            // aW.twp->dH -= a * VP * ( T + Tst ) * T_Tst;
+            // tpr.reaction_entropy  -= a[i] * VP * 2. * T_Tst;
+            // tpr.reaction_gibbs_energy += a[i] * VP * Ts2;
+            // tpr.reaction_enthalpy -= a[i] * VP * ( T + Tst ) * T_Tst;
             break;
         case 2:
             tpr.reaction_volume += a[i] * VT * (TK-Tst)*(TK-Tst);
-            // aW.twp->dS  -= a * VP * 3.* Ts2;
-            // aW.twp->dG += a * VP * Ts2 * T_Tst;
-            // aW.twp->dH += a * VP * Ts2 * ( 2.*T + Tst );
+            // tpr.reaction_entropy  -= a[i] * VP * 3.* Ts2;
+            // tpr.reaction_gibbs_energy += a[i] * VP * Ts2 * T_Tst;
+            // tpr.reaction_enthalpy -= a[i] * VP * Ts2 * ( 2.*T + Tst );
             break;
         case 3:
             tpr.reaction_volume += a[i] * VP;
-            // aW.twp->dG += a * VP * P_Pst / 2.;
-            // aW.twp->dH += a * VP * P_Pst / 2.;
+            // atpr.reaction_gibbs_energy += a[i] * VP * P_Pst / 2.;
+            // tpr.reaction_enthalpy -= a[i] * VP * P_Pst / 2.;
             break;
         case 4:
             tpr.reaction_volume += a[i] * VP * (Pbar-Pst);
-            // aW.twp->dG += a * VP * ( aW.twp->P*aW.twp->P - Pst*Pst ) / 3.;
-            // aW.twp->dH += a * VP * ( aW.twp->P*aW.twp->P - Pst*Pst ) / 3.;
+            // tpr.reaction_gibbs_energy += a[i] * VP * ( Pbar*Pbar - Pst*Pst ) / 3.;
+            // tpr.reaction_enthalpy -= a[i] * VP * ( Pbar*Pbar - Pst*Pst ) / 3.;
             break;
         }
     }
@@ -80,6 +80,10 @@ auto thermoPropertiesReaction_Vol_fT(Reaktoro_::Temperature TK, Reaktoro_::Press
 //    aW.twp->Alp = aC;
 //    aW.twp->Bet = aE;
     tpr.ln_equilibrium_constant -= tpr.reaction_volume * (Pbar - Pst) / (R_CONSTANT*TK);
+    tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant/lg_to_ln;
+    tpr.reaction_entropy = tpr.reaction_gibbs_energy - TK*tpr.reaction_entropy;
+    tpr.reaction_internal_energy  = tpr.reaction_enthalpy - Pbar*tpr.reaction_volume;
+    tpr.reaction_helmholtz_energy = tpr.reaction_internal_energy - TK*tpr.reaction_entropy;
 
 return tpr;
 

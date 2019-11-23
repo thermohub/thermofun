@@ -275,7 +275,7 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"reaction_heat_capacity_cp",      "J/K/mol"       },
     {"reaction_heat_capacity_cv",      "J/K/mol"       },
     {"logKr",                          "1"             },
-    {"lnK0",                           "1"             }
+    {"lnKr",                           "1"             }
 };
 
 const std::map<std::string, int> defaultPropertyDigits =
@@ -301,7 +301,7 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"reaction_heat_capacity_cp",      0               },
     {"reaction_heat_capacity_cv",      0               },
     {"logKr",                          0               },
-    {"lnK0",                           0               }
+    {"lnKr",                           0               }
 };
 
 const std::map<std::string, double> defaultTemperatureIncrement =

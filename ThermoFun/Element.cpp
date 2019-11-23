@@ -34,12 +34,26 @@ struct Element::Impl
     /// Element Mendeleev table number
     int number;
 
+    /// Record in JSON string
     std::string jString;
 };
 
 Element::Element()
 : pimpl(new Impl())
 {}
+
+Element::Element(const Element& other)
+: pimpl(new Impl(*other.pimpl))
+{}
+
+Element::~Element()
+{}
+
+auto Element::operator=(Element other) -> Element&
+{
+    pimpl = std::move(other.pimpl);
+    return *this;
+}
 
 auto Element::setName(std::string name) -> void
 {

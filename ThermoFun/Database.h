@@ -31,7 +31,7 @@ public:
 
     /// Construct a database instance by parsing a "json", "yam", "xml" file
     /// containg the exported substances and reactions
-    /*explicit*/ Database(std::string filename);
+    explicit Database(std::string filename);
 
     /**
      * @brief Database constructs a database instace from a vector of substances in bson format
@@ -39,20 +39,24 @@ public:
      * see BSONIO
      */
     Database(std::vector<std::string> jsonSubstances);
-//    Database(std::vector<bson> bsonSubstances);
-
-    /**
-     * @brief Database constructs a database instace from a database client server connection and a record list
-     * @param dbc database client server connection
-     * @param recordList record list retrieved from the
-     */
-//    Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol);
 
     /// Assign a Database instance to this instance
     auto operator=(Database other) -> Database&;
 
     /// Construct a copy of an Database instance
     Database(const Database& other);
+
+    /**
+     * @brief addDatabase append records to the database from a file
+     * @param filename path to the file with recors
+     */
+    auto addDatabase(std::string filename) -> void;
+
+    /**
+     * @brief addDatabase append records to the database from a vector of JSON strings
+     * @param jsonSubstances vector of records in JSON string format
+     */
+    auto addDatabase(std::vector<std::string> jsonRecords) -> void;
 
     /// Add an Element instance in the database.
     auto addElement(const Element& element) -> void;

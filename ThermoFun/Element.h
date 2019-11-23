@@ -14,6 +14,15 @@ public:
     /// Construct a default Element instance
     Element();
 
+    /// Construct a copy of an Element instance
+    Element(const Element& other);
+
+    /// Assign an Element instance to this instance
+    auto operator=(Element other) -> Element&;
+
+    /// Destroy this instance
+    virtual ~Element();
+
     /// Set the name of the element
     auto setName(std::string name) -> void;
 
