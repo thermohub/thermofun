@@ -9,9 +9,4 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 echo "Configuring..."
 cmake -G"Visual Studio 15 2017" -A x64 -S . -B build
 echo "Building..."
-cmake -G Ninja ^
-    -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%PREFIX%" ^
-    -DCMAKE_BUILD_TYPE=Release ^
-    ..
-echo "Installing..."    
-ninja install
+cmake --build build --config %CONFIGURATION% --target install
