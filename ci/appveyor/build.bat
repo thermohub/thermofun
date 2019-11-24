@@ -7,6 +7,11 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 )
 
 echo "Configuring..."
+for /f "usebackq skip=1" %%i in (`where python`) do (
+  set PREFIX=%%i
+  goto :done
+  )
+:done
 echo "%PREFIX%"
 cmake -G"Visual Studio 15 2017" -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%PREFIX%" -A x64 -S . -B build
 echo "Building..."
