@@ -13,18 +13,22 @@ configuration:
 
 environment:
   CONDA_DIR: C:\Miniconda36-x64
-
-matrix:
-  fast_finish: true
+  matrix:
+  - CONFIG: Release
+    PY_VER: 3.7
+    TEST_DIR: .
 
 init:
   - set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
 
 install:
-  - call ci\appveyor\install.bat
-
+  - conda config --system --set always_yes yes --set changeps1 no
+  - conda config --system --append channels conda-forge
+  - conda install -n base conda-devenv
+  - conda devenv
+  - call activate reaktoro
+  - conda list
 build_script:
-  - call ci\appveyor\build.bat
-
+  - inv -e compile --config=%CONFIG% --verbose
 test_script:
-  - call ci\appveyor\test.bat
+  - pytest -n auto -ra -vv %TEST_DIR% --color=yes
