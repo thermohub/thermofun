@@ -7,6 +7,6 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 )
 
 echo "Configuring..."
-cmake -G"Visual Studio 15 2017" -A x64 -S . -B build
+cmake -G"Visual Studio 15 2017" -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%PREFIX%" -A x64 -S . -B build
 echo "Building..."
 cmake --build build --config %CONFIGURATION% --target install
