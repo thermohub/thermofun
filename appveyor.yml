@@ -27,4 +27,4 @@ build_script:
   - call ci\appveyor\build.bat
 
 test_script:
-  - pytest -n auto -ra -vv %TEST_DIR% --color=yes
+  - pytest -ra -vv %TEST_DIR% --color=yes

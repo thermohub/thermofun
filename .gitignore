@@ -52,6 +52,8 @@ tests/PyThermoFun.so
 d-*
 e-*
 
+*pycache*
+
 python/tests/H2OWP95reaktoro.csv
 python/tests/PyThermoFun.cpython-36m-x86_64-linux-gnu.so
 python/tests/parseBsonDatalogfile.txt

@@ -156,7 +156,7 @@ tps_3kbar_sio2_thermofun = [
 class TestHKFGems(unittest.TestCase):
 
     def setUp(self):
-        self.engine = thermofun.ThermoEngine('database-thermofun.json')
+        self.engine = thermofun.ThermoEngine('pytests/Substances/Solute/database-thermofun.json')
     
     def almost_equal(self, table, substance, dif):
         results = []
