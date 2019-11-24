@@ -1,4 +1,3 @@
-import numpy
 import thermofun as thermofun
 import pytest as pytest
 import unittest
