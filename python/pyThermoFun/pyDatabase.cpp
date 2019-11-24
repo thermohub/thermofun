@@ -31,10 +31,15 @@ namespace ThermoFun {
 
 void exportDatabase(py::module& m)
 {
+    auto appendData1 = static_cast<void(Database::*)(std::string)>(&Database::appendData);
+    auto appendData2 = static_cast<void(Database::*)(std::vector<std::string>)>(&Database::appendData);
+
     py::class_<Database>(m, "Database")
         .def(py::init<>())
         .def(py::init<const std::string>())
         .def(py::init<const Database&>())
+        .def("appendData", appendData1, "Append records to the database from a file.")
+        .def("appendData", appendData2, "Append records to the database from a list of JSON strings.")
         .def("addElement", &Database::addElement, "Add an Element instance in the database.")
         .def("setElement", &Database::setElement, "Sets a Element in the database. If substance exists the record will be overwriten")
         .def("addMapElements", &Database::addMapElements, "Add a map of Elements in the database.")

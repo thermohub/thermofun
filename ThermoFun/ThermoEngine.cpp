@@ -724,6 +724,16 @@ auto ThermoEngine::database() -> const Database
     return pimpl->database;
 }
 
+auto ThermoEngine::appendData(std::string filename) -> void
+{
+    pimpl->database.appendData(filename);
+}
+
+auto ThermoEngine::appendData(std::vector<std::string> jsonRecords) -> void
+{
+    pimpl->database.appendData(jsonRecords);
+}
+
 auto ThermoEngine::parseSubstanceFormula(std::string formula) -> std::map<Element, double>
 {
     return pimpl->database.parseSubstanceFormula(formula);

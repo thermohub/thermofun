@@ -47,16 +47,16 @@ public:
     Database(const Database& other);
 
     /**
-     * @brief addDatabase append records to the database from a file
+     * @brief appendData append records to the database from a file
      * @param filename path to the file with recors
      */
-    auto addDatabase(std::string filename) -> void;
+    auto appendData(std::string filename) -> void;
 
     /**
-     * @brief addDatabase append records to the database from a vector of JSON strings
-     * @param jsonSubstances vector of records in JSON string format
+     * @brief appendData append records to the database from a vector of JSON strings
+     * @param jsonRecords vector of records in JSON string format
      */
-    auto addDatabase(std::vector<std::string> jsonRecords) -> void;
+    auto appendData(std::vector<std::string> jsonRecords) -> void;
 
     /// Add an Element instance in the database.
     auto addElement(const Element& element) -> void;

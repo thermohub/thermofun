@@ -299,12 +299,12 @@ auto Database::operator=(Database other) -> Database&
     return *this;
 }
 
-auto Database::addDatabase(std::string filename) -> void
+auto Database::appendData(std::string filename) -> void
 {
     pimpl->fromFile(filename);
 }
 
-auto Database::addDatabase(vector<string> jsonRecords) -> void
+auto Database::appendData(vector<string> jsonRecords) -> void
 {
     pimpl->fromJSONs(jsonRecords);
 }

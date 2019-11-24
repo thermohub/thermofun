@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <vector>
 
 namespace ThermoFun {
 
@@ -45,6 +46,18 @@ public:
 
     /// Returns the instance of the database present inside thermo
     auto database() -> const Database;
+
+    /**
+     * @brief appendData append records to the database from a file
+     * @param filename path to the file with recors
+     */
+    auto appendData(std::string filename) -> void;
+
+    /**
+     * @brief appendData append records to the database from a vector of JSON strings
+     * @param jsonRecords vector of records in JSON string format
+     */
+    auto appendData(std::vector<std::string> jsonRecords) -> void;
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.
