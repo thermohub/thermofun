@@ -28,4 +28,4 @@ build_script:
 
 test_script:
   - conda list
-#  - call ci\appveyor\test.bat
+  - call ci\appveyor\test.bat

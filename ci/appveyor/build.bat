@@ -13,6 +13,15 @@ for /f "usebackq skip=1" %%i in (`where python`) do (
   )
 :done
 echo "%PREFIX%"
-cmake -G"Visual Studio 15 2017" -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="C:/Miniconda36-x64/envs/thermofun/" -A x64 -S . -B build
+
+set path=%PREFIX%
+call :SETPATH %path%
+goto:eof 
+
+:SETPATH
+set path=%~dp1
+echo %path%
+
+cmake -G"Visual Studio 15 2017" -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH=%path% -A x64 -S . -B build
 echo "Building..."
 cmake --build build --config %CONFIGURATION% --target install
