@@ -19,8 +19,5 @@ conda devenv
 source activate thermofun
 mkdir build
 cd build
-cmake .. 
-make -j${CPU_COUNT}
-make install
-cd ..
-pytest -ra -vv .
+cmake .. -GNinja
+ninja
