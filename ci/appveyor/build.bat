@@ -1,18 +1,3 @@
-for /f "usebackq skip=1" %%i in (`where python`) do (
-  set PREFIX=%%i
-  goto :done
-  )
-:done
-echo "%PREFIX%"
-
-set path=%PREFIX%
-call :SETPATH %path%
-goto:eof 
-
-:SETPATH
-set path=%~dp1
-echo %path%
-
 if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" (
     call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 )
@@ -22,6 +7,6 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 )
 
 echo "Configuring..."
-cmake -G"Visual Studio 15 2017" -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH=%path% -A x64 -S . -B build
+cmake -G"Visual Studio 15 2017" -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="C:/Miniconda36-x64/envs/thermofun/" -A x64 -S . -B build
 echo "Building..."
 cmake --build build --config %CONFIGURATION% --target install
