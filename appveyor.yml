@@ -13,20 +13,18 @@ configuration:
 
 environment:
   CONDA_DIR: C:\Miniconda36-x64
-  matrix:
-  - CONFIG: Release
-    PY_VER: 3.7
-    TEST_DIR: .
+
+matrix:
+  fast_finish: true
+
 init:
   - set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
+
 install:
-  - conda config --system --set always_yes yes --set changeps1 no
-  - conda config --system --append channels conda-forge
-  - conda install -n base conda-devenv
-  - conda devenv
-  - call activate thermofun
-  - conda list
+  - call ci\appveyor\install.bat
+
 build_script:
-  - inv -e compile --config=%CONFIG% --verbose
+  - call ci\appveyor\build.bat
+
 test_script:
-  - pytest -ra -vv %TEST_DIR% --color=yes
+  - call ci\appveyor\test.bat
