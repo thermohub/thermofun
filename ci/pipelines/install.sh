@@ -28,3 +28,4 @@ cmake -GNinja \
     ..
 ninja install
 conda list
+pytest -ra -vv .
