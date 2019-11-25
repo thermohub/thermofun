@@ -1,5 +1,5 @@
 # ThermoFun
-[![Build Status](https://travis-ci.com/thermomod/thermofun.svg?branch=master)](https://travis-ci.com/thermomod/thermofun)
+[![Build Status](https://travis-ci.com/thermohub/thermofun.svg?branch=master)](https://travis-ci.com/thermohub/thermofun)
 [![Build status](https://ci.appveyor.com/api/projects/status/13098q3j713uo06v/branch/master?svg=true)](https://ci.appveyor.com/project/gdmiron/thermofun-44e8m/branch/master)
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
@@ -99,8 +99,8 @@ int main()
 
 ```
 #!Python
-import PyThermoFun
-import PyThermoDBClient
+import thermofun.PyThermoFun as PyThermoFun
+import thermofbclient.PyThermoDBClient as PyThermoDBClient
 
 properties = PyThermoFun.ThermoPropertiesSubstance
 
