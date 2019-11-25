@@ -12,7 +12,7 @@ install:
   - bash ci/travis/install.sh
 
 script:
-  - pytest -ra -vv .
+  - bash ci/travis/test.sh
 
 before_cache:
   - rm -f $HOME/miniconda/envs/thermofun/conda-meta/history*  # Delete these history files to prevent a new cache upload step.
