@@ -10,5 +10,5 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - bash ci/pipelines/install.sh
-          - pytest -ra -vv .
+          #- pytest -ra -vv .
           #- bash ci/pipelines/test.sh
