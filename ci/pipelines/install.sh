@@ -29,4 +29,4 @@ cmake -GNinja \
 ninja install
 conda list
 cd ..
-pytest -ra -vv .
+pytest -ra -vv --color=yes .

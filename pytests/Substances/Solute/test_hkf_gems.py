@@ -180,19 +180,19 @@ class TestHKFGems(unittest.TestCase):
 
     def test_psat_al_ion(self):
         self.almost_equal(tps_psat_al_ion_gems, "Al+3", {'G': 12, 'H': 12, 'S': 0.2, 'Cp': 0.1, 'V': 0.1})
-        self.almost_equal(tps_psat_al_ion_thermofun, "Al+3", {'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5})
+        self.almost_equal(tps_psat_al_ion_thermofun, "Al+3", {'G': 0., 'H': 0., 'S': 0., 'Cp': 0., 'V': 0.})
 
     def test_3kbar_al_ion(self):
         self.almost_equal(tps_3kbar_al_ion_gems, "Al+3", {'G': 30, 'H': 45, 'S': 0.2, 'Cp': 2, 'V': 0.1})
-        self.almost_equal(tps_3kbar_al_ion_thermofun, "Al+3", {'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5})
+        self.almost_equal(tps_3kbar_al_ion_thermofun, "Al+3", {'G': 0., 'H': 0., 'S': 0., 'Cp': 0., 'V': 0.})
 
     def test_psat_sio2(self):
         self.almost_equal(tps_psat_sio2_gems, "SiO2@", {'G': 2., 'H': 10., 'S': 0.05, 'Cp': 0.5, 'V': 0.01})
-        self.almost_equal(tps_psat_sio2_thermofun, "SiO2@", {'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5})
+        self.almost_equal(tps_psat_sio2_thermofun, "SiO2@", {'G': 0., 'H': 0., 'S': 0., 'Cp': 0., 'V': 0.})
 
     def test_3kbar_sio2(self):
         self.almost_equal(tps_3kbar_sio2_gems, "SiO2@", {'G': 2., 'H': 1., 'S': 0.002, 'Cp': 0.001, 'V': 0.001})
-        self.almost_equal(tps_3kbar_sio2_thermofun, "SiO2@", {'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5})
+        self.almost_equal(tps_3kbar_sio2_thermofun, "SiO2@", {'G': 0., 'H': 0., 'S': 0., 'Cp': 0., 'V': 0.})
         
 
 
