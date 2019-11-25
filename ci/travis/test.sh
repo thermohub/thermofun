@@ -1,3 +1,3 @@
 # ./build/test/tests
-conda activate thermofun
-pytest -ra -vv .
+#conda activate thermofun
+#pytest -ra -vv .
