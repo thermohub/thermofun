@@ -27,4 +27,5 @@ build_script:
   - call ci\appveyor\build.bat
 
 test_script:
+  - conda list
   - call ci\appveyor\test.bat

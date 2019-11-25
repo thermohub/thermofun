@@ -76,21 +76,24 @@ auto propertiesWaterHGKreaktoro(const WaterThermoState& wt) -> PropertiesSolvent
     return state;
 }
 
-auto saturatedWaterVaporPressureHGK(double t) -> double
+auto saturatedWaterVaporPressureHGK(Reaktoro_::Temperature TK) -> Reaktoro_::ThermoScalar
 {
-    double  pl, psHGK, v, w, b, q, z;
+    Reaktoro_::ThermoScalar  pl, psHGK, v, w, b, q, z;
     int i=-1;
     double a[8] ={ -.78889166e1,  .25514255e1, -.6716169e1,  .33239495e2,
                    -.10538479e3,  .17435319e3, -.14839348e3, .48631602e2};
-    if (t <= 314.0e0)
+    if (TK.val <= 314.0e0)
     {
-        pl    = 6.3573118e0 - 8858.843e0 / t + 607.56335e0 * pow(t,-0.6e0);
+        pl    = 6.3573118e0 - 8858.843e0 / TK + 607.56335e0 * pow(TK,-0.6e0);
         psHGK = 0.1e0 * exp(pl);
     }
     else
     {
-        v = t / 647.25e0;
-        w = fabs(1.0e0 - v);
+        v = TK / 647.25e0;
+        w = 1.0e0 - v;
+        if (w.val<0)
+            w=w*-1;
+
         b = 0.0e0;
         while (++i <= 7)
         {

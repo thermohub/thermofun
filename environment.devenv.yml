@@ -2,11 +2,13 @@ name: thermofun
 
 dependencies:
   - gxx_linux-64=7.3.0  # [linux]
+  - invoke
   - cmake>=3.13
   - ninja
   - ccache  # [unix]
   - pybind11>=2.3.0
   - nlohmann_json>=3.7.0
+  - pytest
   - pip:
     - mkdocs
     - mkdocs-material

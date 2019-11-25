@@ -242,7 +242,7 @@ struct ThermoBatch::Impl
             if (name == "reaction_heat_capacity_cp")   {resultsReac.push_back(tpr.reaction_heat_capacity_cp);}
             if (name == "reaction_heat_capacity_cv")   {resultsReac.push_back(tpr.reaction_heat_capacity_cv);}
             if (name == "logKr")                       {resultsReac.push_back(tpr.log_equilibrium_constant);}
-            if (name == "lnK0")                        {resultsReac.push_back(tpr.ln_equilibrium_constant);}
+            if (name == "lnKr")                        {resultsReac.push_back(tpr.ln_equilibrium_constant);}
         }
         return resultsReac;
     }

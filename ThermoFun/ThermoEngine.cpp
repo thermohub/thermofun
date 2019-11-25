@@ -51,6 +51,7 @@ struct ThermoPreferences
     bool isH2Ovapor     = false;
     bool isH2OSolvent   = false;
     bool isReacDC       = false;
+    bool isReacFromReactants = false;
 };
 
 using ThermoPropertiesSubstanceFunction =
@@ -137,7 +138,22 @@ struct ThermoEngine::Impl
         tps.gibbs_energy -= (Tr*entropyElements);
     }
 
-    auto getThermoPreferences(std::string substance) -> ThermoPreferences
+    auto getThermoPreferencesReaction(std::string symbolReaction) -> ThermoPreferences
+    {
+        ThermoPreferences preferences;
+        preferences.workReaction    = database.getReaction(symbolReaction);
+        preferences.method_genEOS    = preferences.workReaction.methodGenEOS();
+        preferences.method_T         = preferences.workReaction.method_T();
+        preferences.method_P         = preferences.workReaction.method_P();
+
+        // if no method is present try to calculate properties of reaction from reactants
+        if ((!preferences.method_genEOS && !preferences.method_P && !preferences.method_T))
+            preferences.isReacFromReactants = true;
+
+        return preferences;
+    }
+
+    auto getThermoPreferencesSubstance(std::string substance) -> ThermoPreferences
     {
         ThermoPreferences preferences;
         preferences.workSubstance    = database.getSubstance(substance);
@@ -182,7 +198,7 @@ struct ThermoEngine::Impl
 
     auto thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
     {
-        ThermoPreferences         pref = getThermoPreferences(substance);
+        ThermoPreferences         pref = getThermoPreferencesSubstance(substance);
         ThermoPropertiesSubstance tps;
 
         if (pref.isHydrogen)
@@ -385,7 +401,7 @@ struct ThermoEngine::Impl
 
     auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent
     {
-        ThermoPreferences        pref = getThermoPreferences(solvent);
+        ThermoPreferences        pref = getThermoPreferencesSubstance(solvent);
         PropertiesSolvent        ps = properties_solvent_fn(T, P, P, solvent); /*propertiesSolvent(T, P, solvent);*/
         ElectroPropertiesSolvent eps;
 
@@ -423,7 +439,7 @@ struct ThermoEngine::Impl
 
     auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent
     {
-        ThermoPreferences pref = getThermoPreferences(solvent);
+        ThermoPreferences pref = getThermoPreferencesSubstance(solvent);
         PropertiesSolvent ps;
 
         if (pref.isH2OSolvent)
@@ -456,99 +472,6 @@ struct ThermoEngine::Impl
             }
         }
         return ps;
-    }
-
-    auto thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction
-    {
-        ThermoPropertiesReaction tpr;
-        auto reac    = database.getReaction(reaction);
-        auto methodT = reac.method_T();
-        auto methodP = reac.method_P();
-
-        switch (methodT)
-        {
-        case MethodCorrT_Thrift::type::CTM_LGX:
-        case MethodCorrT_Thrift::type::CTM_LGK:
-        case MethodCorrT_Thrift::type::CTM_EK0:
-        case MethodCorrT_Thrift::type::CTM_EK1:
-        case MethodCorrT_Thrift::type::CTM_EK3:
-        case MethodCorrT_Thrift::type::CTM_EK2:
-        {
-            tpr = Reaction_LogK_fT(reac).thermoProperties(T, P, methodT);
-            break;
-        }
-        case MethodCorrT_Thrift::type::CTM_DMD: // Dolejs-Maning 2010 density model
-        {
-            tpr = ReactionDolejsManning10(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
-            break;
-        }
-        case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
-        {
-            tpr = ReactionFrantzMarshall(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
-            break;
-        }
-        case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
-        {
-            return ReactionRyzhenkoBryzgalin(reac).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol)); // NOT TESTED!!!
-        }
-        case MethodCorrT_Thrift::type::CTM_IKZ:
-        {
-            // calc_r_interp( q, p, CE, CV );
-            break;
-        }
-    //    default:
-    //        // Exception
-    //        errorMethodNotFound("reaction", reac.name(), __LINE__);
-        }
-
-
-        switch (methodP)
-        {
-
-        case MethodCorrP_Thrift::type::CPM_VKE:
-        case MethodCorrP_Thrift::type::CPM_VBE:
-
-        {
-            tpr = Reaction_Vol_fT(reac).thermoProperties(T, P);
-            break;
-        }
-        case MethodCorrP_Thrift::type::CPM_NUL:
-        case MethodCorrP_Thrift::type::CPM_CON:
-        {
-            auto Pref = reac.referenceP()/1e5;
-            auto P_ = P/1e5;
-            auto VP = tpr.reaction_volume * (P_-Pref);
-            tpr.reaction_gibbs_energy += VP;
-            tpr.reaction_enthalpy += VP;
-            auto Vref = reac.thermo_ref_prop().reaction_volume;
-            tpr.log_equilibrium_constant -= Vref *(P_-Pref)/(R_CONSTANT*T)/lg_to_ln;
-            //    if( CV == CPM_CON || CV == CPM_NUL )
-            //    {
-            //            P_Pst = aW.twp->P - Pst;
-            //            VP = Vst * P_Pst;
-            //				// VT = Vst * T_Tst;
-            //            aW.twp->dG += VP;
-            //            aW.twp->dH += VP;
-            //    }
-            //    // Calculating pressure correction to logK
-            //    aW.twp->lgK -= aW.twp->dV * (aW.twp->P - aW.twp->Pst) / aW.twp->RT / lg_to_ln;
-            break;
-        }
-    //    default:
-    //    // Exception
-    //    errorMethodNotFound("reaction", reac.name(), __LINE__);
-        }
-
-    // make a new method P ???
-    // line 1571 m_reac2.cpp
-    //    if(( rc[q].pstate[0] == CP_GAS || rc[q].pstate[0] == CP_GASI ) && aW.twp->P > 0.0 )
-    //    { // molar volume from the ideal gas law
-    //        aW.twp->dV = T / aW.twp->P * R_CONSTANT;
-    //    }
-        //     // Calculating pressure correction to logK
-    //    aW.twp->lgK -= aW.twp->dV * (aW.twp->P - aW.twp->Pst) / aW.twp->RT / lg_to_ln;
-
-        return tpr;
     }
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) -> ThermoPropertiesSubstance
@@ -607,14 +530,149 @@ struct ThermoEngine::Impl
 
         return tps;
     }
+
+    auto thermoPropertiesReaction (double T, double &P, std::string reaction) -> ThermoPropertiesReaction
+    {
+        ThermoPropertiesReaction tpr;
+        ThermoPreferences pref = getThermoPreferencesReaction(reaction);
+//        auto reac    = database.getReaction(reaction);
+//        auto methodT = reac.method_T();
+//        auto methodP = reac.method_P();
+        if (!pref.isReacFromReactants)
+        {
+            switch (pref.method_T)
+            {
+            case MethodCorrT_Thrift::type::CTM_LGX:
+            case MethodCorrT_Thrift::type::CTM_LGK:
+            case MethodCorrT_Thrift::type::CTM_EK0:
+            case MethodCorrT_Thrift::type::CTM_EK1:
+            case MethodCorrT_Thrift::type::CTM_EK3:
+            case MethodCorrT_Thrift::type::CTM_EK2:
+            {
+                tpr = Reaction_LogK_fT(pref.workReaction).thermoProperties(T, P, pref.method_T);
+                break;
+            }
+            case MethodCorrT_Thrift::type::CTM_DMD: // Dolejs-Maning 2010 density model
+            {
+                tpr = ReactionDolejsManning10(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
+                break;
+            }
+            case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
+            {
+                tpr = ReactionFrantzMarshall(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
+                break;
+            }
+            case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
+            {
+                return ReactionRyzhenkoBryzgalin(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol)); // NOT TESTED!!!
+            }
+            case MethodCorrT_Thrift::type::CTM_IKZ:
+            {
+                // calc_r_interp( q, p, CE, CV );
+                break;
+            }
+        //    default:
+        //        // Exception
+        //        errorMethodNotFound("reaction", reac.name(), __LINE__);
+            }
+
+
+            switch (pref.method_P)
+            {
+
+            case MethodCorrP_Thrift::type::CPM_VKE:
+            case MethodCorrP_Thrift::type::CPM_VBE:
+
+            {
+                tpr = Reaction_Vol_fT(pref.workReaction).thermoProperties(T, P);
+                break;
+            }
+            case MethodCorrP_Thrift::type::CPM_NUL:
+            case MethodCorrP_Thrift::type::CPM_CON:
+            {
+                auto Pref = pref.workReaction.referenceP()/1e5;
+                auto P_ = P/1e5;
+                auto VP = tpr.reaction_volume * (P_-Pref);
+                tpr.reaction_gibbs_energy += VP;
+                tpr.reaction_enthalpy += VP;
+                auto Vref = pref.workReaction.thermo_ref_prop().reaction_volume;
+                tpr.log_equilibrium_constant -= Vref *(P_-Pref)/(R_CONSTANT*T)/lg_to_ln;
+                tpr.reaction_entropy = tpr.reaction_gibbs_energy - T*tpr.reaction_entropy;
+                tpr.reaction_internal_energy  = tpr.reaction_enthalpy - P_*tpr.reaction_volume;
+                tpr.reaction_helmholtz_energy = tpr.reaction_internal_energy - T*tpr.reaction_entropy;
+
+                //dU/dT=C (v)
+
+                break;
+            }
+        //    default:
+        //    // Exception
+        //    errorMethodNotFound("reaction", reac.name(), __LINE__);
+            }
+
+        // make a new method P ???
+        // line 1571 m_reac2.cpp
+        //    if(( rc[q].pstate[0] == CP_GAS || rc[q].pstate[0] == CP_GASI ) && aW.twp->P > 0.0 )
+        //    { // molar volume from the ideal gas law
+        //        aW.twp->dV = T / aW.twp->P * R_CONSTANT;
+        //    }
+            //     // Calculating pressure correction to logK
+        //    aW.twp->lgK -= aW.twp->dV * (aW.twp->P - aW.twp->Pst) / aW.twp->RT / lg_to_ln;
+        } else
+            tpr = thermoPropertiesReactionFromReactants(T, P, reaction);
+
+        return tpr;
+    }
+
+    auto thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction
+    {
+        ThermoPropertiesReaction  tpr;
+        tpr.reaction_heat_capacity_cp   = 0.0;
+        tpr.reaction_gibbs_energy       = 0.0;
+        tpr.reaction_enthalpy           = 0.0;
+        tpr.reaction_entropy            = 0.0;
+        tpr.reaction_volume             = 0.0;
+        tpr.ln_equilibrium_constant     = 0.0;
+        tpr.log_equilibrium_constant    = 0.0;
+        tpr.reaction_heat_capacity_cv = 0.0;
+        tpr.reaction_internal_energy  = 0.0;
+        tpr.reaction_helmholtz_energy = 0.0;
+
+
+        Reaction reaction   = database.getReaction(symbol);
+        string message      = "Calculated from the reaction components: " + reaction.symbol() + "; ";
+
+        for (auto &reactant : reaction.reactants())
+        {
+            auto coeff      = reactant.second;
+            auto substance  = reactant.first;
+            auto tps        = thermo_properties_substance_fn(T, P,P, substance); /*thermoPropertiesSubstance(T, P, substance);*/
+
+            tpr.reaction_heat_capacity_cp   += tps.heat_capacity_cp*coeff;
+            tpr.reaction_gibbs_energy       += tps.gibbs_energy*coeff;
+            tpr.reaction_enthalpy           += tps.enthalpy*coeff;
+            tpr.reaction_entropy            += tps.entropy*coeff;
+            tpr.reaction_volume             += tps.volume*coeff;
+            tpr.ln_equilibrium_constant     = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T));
+            tpr.log_equilibrium_constant    = tpr.ln_equilibrium_constant * ln_to_lg;
+            tpr.reaction_heat_capacity_cv = tps.heat_capacity_cv*coeff;
+            tpr.reaction_internal_energy  = tps.internal_energy*coeff;
+            tpr.reaction_helmholtz_energy = tps.helmholtz_energy*coeff;
+
+            setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
+            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);
+            setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message+tps.enthalpy.sta.second,         tpr.reaction_enthalpy.sta.second);
+            setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message+tps.entropy.sta.second,          tpr.reaction_entropy.sta.second);
+            setMessage(tps.volume.sta.first,           "V0 of component " + substance, message+tps.volume.sta.second,           tpr.reaction_volume.sta.second);
+            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.log_equilibrium_constant.sta.second);
+            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
+        }
+        return tpr;
+    }
 };
 
-//ThermoEngine::ThermoEngine()
-//: pimpl(new Impl())
-//{}
-
-ThermoEngine::ThermoEngine(const std::string dataset)
-: pimpl(new Impl(*(new const Database(dataset))))
+ThermoEngine::ThermoEngine(const std::string filename)
+: pimpl(new Impl(*(new const Database(filename))))
 {}
 
 ThermoEngine::ThermoEngine(const Database& database)
@@ -648,41 +706,7 @@ auto ThermoEngine::thermoPropertiesReaction (double T, double &P, std::string re
 
 auto ThermoEngine::thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction
 {
-    ThermoPropertiesReaction  tpr;
-    tpr.reaction_heat_capacity_cp   = 0.0;
-    tpr.reaction_gibbs_energy       = 0.0;
-    tpr.reaction_enthalpy           = 0.0;
-    tpr.reaction_entropy            = 0.0;
-    tpr.reaction_volume             = 0.0;
-    tpr.ln_equilibrium_constant     = 0.0;
-    tpr.log_equilibrium_constant    = 0.0;
-
-    Reaction reaction   = pimpl->database.getReaction(symbol);
-    string message      = "Calculated from the reaction components: " + reaction.symbol() + "; ";
-
-    for (auto &reactant : reaction.reactants())
-    {
-        auto coeff      = reactant.second;
-        auto substance  = reactant.first;
-        auto tps        = pimpl->thermo_properties_substance_fn(T, P,P, substance); /*thermoPropertiesSubstance(T, P, substance);*/
-
-        tpr.reaction_heat_capacity_cp   += tps.heat_capacity_cp*coeff;
-        tpr.reaction_gibbs_energy       += tps.gibbs_energy*coeff;
-        tpr.reaction_enthalpy           += tps.enthalpy*coeff;
-        tpr.reaction_entropy            += tps.entropy*coeff;
-        tpr.reaction_volume             += tps.volume*coeff;
-        tpr.ln_equilibrium_constant     = tpr.reaction_gibbs_energy / -(R_CONSTANT*(T));
-        tpr.log_equilibrium_constant    = tpr.ln_equilibrium_constant * ln_to_lg;
-
-        setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
-        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);
-        setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message+tps.enthalpy.sta.second,         tpr.reaction_enthalpy.sta.second);
-        setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message+tps.entropy.sta.second,          tpr.reaction_entropy.sta.second);
-        setMessage(tps.volume.sta.first,           "V0 of component " + substance, message+tps.volume.sta.second,           tpr.reaction_volume.sta.second);
-        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.log_equilibrium_constant.sta.second);
-        setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
-    }
-    return tpr;
+    return pimpl->thermoPropertiesReactionFromReactants(T, P, symbol);
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
@@ -698,6 +722,16 @@ auto ThermoEngine::solventSymbol( ) const -> std::string
 auto ThermoEngine::database() -> const Database
 {
     return pimpl->database;
+}
+
+auto ThermoEngine::appendData(std::string filename) -> void
+{
+    pimpl->database.appendData(filename);
+}
+
+auto ThermoEngine::appendData(std::vector<std::string> jsonRecords) -> void
+{
+    pimpl->database.appendData(jsonRecords);
 }
 
 auto ThermoEngine::parseSubstanceFormula(std::string formula) -> std::map<Element, double>

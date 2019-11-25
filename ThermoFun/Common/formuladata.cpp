@@ -40,7 +40,7 @@ ElementKey::ElementKey(const std::string& asymbol, const string &aclass_, const 
     isotope = 0;
     if( !aisotope.empty() )
            isotope = stoi(aisotope);
-    class_ = class_ = stoi(j.begin().key());
+    class_  = stoi(j.begin().key());
 }
 
 void ElementKey::classIsotopeFrom(const string& typeline)
