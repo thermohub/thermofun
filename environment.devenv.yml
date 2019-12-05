@@ -1,13 +1,16 @@
 name: thermofun
 
+{% set python_version = os.environ.get("PY_VER", "3.7") %}
+
 dependencies:
+  - pip
   - gxx_linux-64=7.3.0  # [linux]
-  - invoke
   - cmake>=3.13
   - ninja
   - ccache  # [unix]
-  - pybind11>=2.3.0
+  - pybind11=2.3.0
   - nlohmann_json>=3.7.0
+  - python={{ python_version }}
   - pytest
   - pip:
     - mkdocs
