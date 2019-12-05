@@ -68,21 +68,25 @@ struct Database::Impl
 
     auto addElement(const Element& element) -> void
     {
+        checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map.insert({element.symbol(), element});
     }
 
     auto setElement(const Element& element) -> void
     {
+        checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map[element.symbol()] = element;
     }
 
     auto addSubstance(const Substance& substance) -> void
     {
+        checkIfSymbolExists(substances_map, "substance", substance.symbol());
         substances_map.insert({substance.symbol(), substance});
     }
 
     auto setSubstance(const Substance& substance) -> void
     {
+        checkIfSymbolExists(substances_map, "substance", substance.symbol());
         substances_map[substance.symbol()] = substance;
     }
 
@@ -98,11 +102,13 @@ struct Database::Impl
 
     auto addReaction(const Reaction& reaction) -> void
     {
+        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
         reactions_map.insert({reaction.symbol(), reaction});
     }
 
     auto setReaction(const Reaction& reaction) -> void
     {
+        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
         reactions_map[reaction.symbol()] = reaction;
     }
 
@@ -195,6 +201,16 @@ struct Database::Impl
         return reactions_map.count(symbol) != 0;
     }
 
+    template<class T>
+    auto checkIfSymbolExists(std::map<std::string, T> map_, std::string record_type, std::string symbol) -> void
+    {
+        auto it = map_.find(symbol);
+        if (it != map_.end())
+            cout << "The "<< record_type <<" with the symbol " << symbol
+                 << " is already in the database. Overwriting ..." << endl
+                 << "To add it to the database assing it a different symbol." << endl;
+    }
+
     auto addRecord(json j) -> void
     {
         auto properties = j;
@@ -213,18 +229,21 @@ struct Database::Impl
         {
             Substance substance = parseSubstance(props);
             substance.setJsonString(props);
+            checkIfSymbolExists(substances_map, "substance", substance.symbol());
             substances_map[substance.symbol()] = substance;
         } else
         if (_label == "reaction")
         {
            Reaction reaction = parseReaction(props);
            reaction.setJsonString(props);
+           checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
            reactions_map[reaction.symbol()] = reaction;
         } else
         if (_label == "element")
         {
             Element element = parseElement(props);
             element.setJsonString(props);
+            checkIfSymbolExists(elements_map, "element", element.symbol());
             elements_map[element.symbol()] = element;
         } else
         {

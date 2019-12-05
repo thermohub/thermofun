@@ -99,12 +99,12 @@ int main()
 
 ```
 #!Python
-import thermofun.PyThermoFun as PyThermoFun
-import thermofbclient.PyThermoDBClient as PyThermoDBClient
+import thermofun as fun
+import thermohubclient as hubclient
 
-properties = PyThermoFun.ThermoPropertiesSubstance
+properties = fun.ThermoPropertiesSubstance
 
-engine = PyThermoFun.ThermoEngine("Resources/aq17new-format.json")
+engine = fun.ThermoEngine("Resources/aq17new-format.json")
 
 prop = engine.thermoPropertiesSubstance(373.15, 100000000, "H2O@")
 
@@ -116,7 +116,7 @@ print(prop.gibbs_energy.err)
 print(prop.gibbs_energy.sta)
 
 # Create the engine object using a database file in JSON
-batch = PyThermoFun.ThermoBatch("Resources/aq17new-format.json")
+batch = fun.ThermoBatch("Resources/aq17new-format.json")
 
 # Optional: set the solvent symbol used for claulating properties of aqueous species
 batch.setSolventSymbol("H2O@")
@@ -143,25 +143,25 @@ batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]
 
 ```
 #!Python
-PyThermoDBClient.setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json")
+hubclient.setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json")
 
 print("\n# Initialize a database client object\n")
-dbc = PyThermoDBClient.DatabaseClient()
+dbc = hubclient.DatabaseClient()
 
 print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
 records = dbc.recordsFromThermoDataSet("Cemdata18") 
 
 print("\n# Create a ThermoFun database using the records list\n")
-db = PyThermoDBClient.databaseFromRecordList(dbc, records)
+db = hubclient.databaseFromRecordList(dbc, records)
 
 print("\n# Initialize an interface object using the database\n")
-batch2 = PyThermoFun.ThermoBatch(db)
+batch2 = fun.ThermoBatch(db)
 
 print("\n# Optional: set the solvent symbol used for calculating properties of aqueous species\n")
 batch2.setSolventSymbol("H2O@")
 
 print("\n# Optional set calculation and output preferences\n")
-op = PyThermoFun.BatchPreferences()
+op = fun.BatchPreferences()
 op.isFixed = True
 op.outputSolventProperties       = True
 op.reactionPropertiesFromReactants   = False
