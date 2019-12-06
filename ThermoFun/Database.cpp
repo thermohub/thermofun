@@ -281,7 +281,8 @@ struct Database::Impl
     auto fromJSONs(vector<string> jsons) -> void
     {
         try {
-//            flog.open(parsinglogfile, ios::trunc); flog.close();
+            if (jsons.size()>0) // bugfix for unknown json parse crash, DM 06.12.2019
+                    json j = json::parse(jsons[0]);
             for (size_t i=0; i<jsons.size(); i++)
             {
                 json j = json::parse(jsons[i]);
