@@ -4,11 +4,11 @@
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
-## Try ThermoFun in your browser using Jupyter Notebooks and Binder
+## Try ThermoFun in your browser click lunch binder
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/)
 
-Please wait until the Jupyter Notebook server starts (~1 min) then click on `tutorial-thermo-batch-calculations.ipynb ` 
+Wait until the Jupyter Lab Notebook server starts (~1 min) then double click on any `how-to-...` tutorial notebook.
 
 More information on Jupyter Notebooks: [Jupyter Documentation](https://jupyter.readthedocs.io/en/latest/index.html)
 
@@ -21,15 +21,12 @@ More information on Jupyter Notebooks: [Jupyter Documentation](https://jupyter.r
 int main()
 {
     // Create the batch object using a database file in JSON
-    ThermoFun::Batch batch("aq17.json");
+    ThermoFun::Batch batch("Resources/Databases/aq17-thermofun.json");
 
-    // Optional: set the solvent symbol used for calculating properties of aqueous species
-    batch.setSolventSymbol("H2O@");
-
-    // Optional: change default units
+    // Optional: set units, default units are in SI
     batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
 
-    // Optional: change default digits
+    // Optional: change default significant digits
     batch.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"}, {0, 1, 2, 0, 0, 0});
 
     // Retrieve the entropy of H2O
@@ -60,7 +57,7 @@ int main()
     ThermoFun::DatabaseClient dbc;
 
     // Retrieve list of records given a ThermoDataSet symbol
-    auto records = dbc.recordsFromThermoDataSet("PSINagra07"); 
+    auto records = dbc.recordsFromThermoDataSet("psinagra07"); 
 
     // Create a ThermoFun database using the records list
     ThermoFun::Database db = databaseFromRecordList(dbc, records);
@@ -68,8 +65,6 @@ int main()
     // Initialize an batch object using the database
     ThermoFun::Batch batch (db);
 
-    // Optional: set the solvent symbol used for calculating properties of aqueous species
-    batch.setSolventSymbol("H2O@");
 
     // Optional set calculation and output preferences
     ThermoFun::OutputSettings op;
@@ -104,7 +99,7 @@ import thermohubclient as hubclient
 
 properties = fun.ThermoPropertiesSubstance
 
-engine = fun.ThermoEngine("Resources/aq17new-format.json")
+engine = fun.ThermoEngine("Resources/Databases/aq17-thermofun.json")
 
 prop = engine.thermoPropertiesSubstance(373.15, 100000000, "H2O@")
 
@@ -118,13 +113,10 @@ print(prop.gibbs_energy.sta)
 # Create the engine object using a database file in JSON
 batch = fun.ThermoBatch("Resources/aq17new-format.json")
 
-# Optional: set the solvent symbol used for claulating properties of aqueous species
-batch.setSolventSymbol("H2O@")
-
 # Optional: change default units
 batch.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
 
-# Optional: change default digits
+# Optional: change default significant digits
 batch.setPropertiesDigits(["gibbs_energy","entropy", "volume", "enthalpy", "temperature", "pressure"], [0, 1, 2, 0, 0, 0])
 
 H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble()
@@ -149,7 +141,7 @@ print("\n# Initialize a database client object\n")
 dbc = hubclient.DatabaseClient()
 
 print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
-records = dbc.recordsFromThermoDataSet("Cemdata18") 
+records = dbc.recordsFromThermoDataSet("cemdata18") 
 
 print("\n# Create a ThermoFun database using the records list\n")
 db = hubclient.databaseFromRecordList(dbc, records)
