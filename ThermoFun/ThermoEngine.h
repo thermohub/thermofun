@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <vector>
 
 namespace ThermoFun {
 
@@ -28,10 +29,8 @@ class ThermoEngine
     friend class Interface;
 public:
 
-    //ThermoEngine();
-
     /// Construct a Thermo instance with given dataset file
-    ThermoEngine(const std::string dataset);
+    explicit ThermoEngine(const std::string filename);
 
     /// Construct a Thermo instance with given Database instance
     ThermoEngine(const Database& database);
@@ -47,6 +46,18 @@ public:
 
     /// Returns the instance of the database present inside thermo
     auto database() -> const Database;
+
+    /**
+     * @brief appendData append records to the database from a file
+     * @param filename path to the file with recors
+     */
+    auto appendData(std::string filename) -> void;
+
+    /**
+     * @brief appendData append records to the database from a vector of JSON strings
+     * @param jsonRecords vector of records in JSON string format
+     */
+    auto appendData(std::vector<std::string> jsonRecords) -> void;
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.
@@ -67,54 +78,6 @@ public:
     /// @param solvent The symbol of the solvent
     auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
 
-//    /// Calculate the apparent standard molar Gibbs free energy of a substance (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarGibbsEnergy(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the apparent standard molar Helmholtz free energy of a substance (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarHelmholtzEnergy(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the apparent standard molar internal energy of a substance (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarInternalEnergy(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the apparent standard molar enthalpy of a substance (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarEnthalpy(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the standard molar entropies of a substance (in units of J/K).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarEntropy(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the standard molar volume of a substance (in units of m3/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarVolume(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the standard molar isobaric heat capacity of a substance (in units of J/(mol*K)).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarHeatCapacityConstP(double T, double P, std::string substance) const -> double;
-
-//    /// Calculate the standard molar isochoric heat capacity of a substance (in units of J/(mol*K)).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param substance The name of the substance
-//    auto standardPartialMolarHeatCapacityConstV(double T, double P, std::string substance) const -> double;
-
     // Reaction
     /// Calculate the thermodynamic properties of a reaction.
     /// @param T The temperature value (in units of K)
@@ -127,65 +90,6 @@ public:
     /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
     auto thermoPropertiesReactionFromReactants (double T, double &P, std::string symbol) -> ThermoPropertiesReaction;
-//    /// Calculate the ln equilibrium constant of a reaction.
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The reaction equation
-//    auto lnEquilibriumConstant(double T, double P, std::string reaction) -> double;
-
-//    /// Calculate the log equilibrium constant of a reaction.
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The reaction equation
-//    auto logEquilibriumConstant(double T, double P, std::string reaction) -> double;
-
-//    /// Calculate the apparent standard molar Gibbs free energy of a reaction (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarGibbsEnergyOfReaction(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the apparent standard molar Helmholtz free energy of a reaction (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarHelmholtzEnergyOfReaction(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the apparent standard molar internal energy of a reaction (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarInternalEnergyOfReaction(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the apparent standard molar enthalpy of a reaction (in units of J/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarEnthalpyOfReaction(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the standard molar entropies of a reaction (in units of J/K).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarEntropyOfReaction(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the standard molar volumes of a reaction (in units of m3/mol).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarVolumeOfReaction(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the standard molar isobaric heat capacity of a reaction (in units of J/(mol*K)).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarHeatCapacityOfReactionConstP(double T, double P, std::string reaction) const -> double;
-
-//    /// Calculate the standard molar isochoric heat capacity of a reaction (in units of J/(mol*K)).
-//    /// @param T The temperature value (in units of K)
-//    /// @param P The pressure value (in units of Pa)
-//    /// @param reaction The name of the reaction
-//    auto standardPartialMolarHeatCapacityOfReactionConstV(double T, double P, std::string reaction) const -> double;
 
     /// Pareses a given substance formula present in the database
     /// @param formula

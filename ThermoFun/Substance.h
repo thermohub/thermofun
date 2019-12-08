@@ -184,8 +184,8 @@ public:
     /// Checks if the method of clauclation is out of provided T and P bounds. If out of bounds sets the corresponding message
     /// inside the property status
     /// @param modelName Given model name
-    /// @param T temparature in bar
-    /// @param P pressure in C
+    /// @param T temparature in Pa
+    /// @param P pressure in K
     /// @param tps calculated properties of the substance, their status message is changed is T and P is out of bounds
     auto checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void;
     

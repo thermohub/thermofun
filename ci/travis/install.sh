@@ -20,5 +20,14 @@ conda devenv
 source activate thermofun
 mkdir build
 cd build
-cmake .. -GNinja
-ninja
+python_path=$(which python)
+# Configure step
+cmake -GNinja \
+    -DPYTHON_EXECUTABLE:FILEPATH=$python_path \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    ..
+ninja install
+conda list
+cd ..
+#pytest -ra -vv --color=yes .

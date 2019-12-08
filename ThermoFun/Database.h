@@ -20,8 +20,8 @@ using ReactionsMap  = std::map<std::string, Reaction>;
 
 
 /**
- * @brief The Database class stores maps of substances and reactions. A database instance can be used to create a themro instance
- * which can be further used to calculate the standard themrodynamic properties of substances and reactions at T and P
+ * @brief The Database class stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance
+ * which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P
  */
 class Database
 {
@@ -31,7 +31,7 @@ public:
 
     /// Construct a database instance by parsing a "json", "yam", "xml" file
     /// containg the exported substances and reactions
-    /*explicit*/ Database(std::string filename);
+    explicit Database(std::string filename);
 
     /**
      * @brief Database constructs a database instace from a vector of substances in bson format
@@ -39,14 +39,6 @@ public:
      * see BSONIO
      */
     Database(std::vector<std::string> jsonSubstances);
-//    Database(std::vector<bson> bsonSubstances);
-
-    /**
-     * @brief Database constructs a database instace from a database client server connection and a record list
-     * @param dbc database client server connection
-     * @param recordList record list retrieved from the
-     */
-//    Database(DatabaseClient &dbc, const std::string &thermoDataSetSymbol);
 
     /// Assign a Database instance to this instance
     auto operator=(Database other) -> Database&;
@@ -54,28 +46,40 @@ public:
     /// Construct a copy of an Database instance
     Database(const Database& other);
 
+    /**
+     * @brief appendData append records to the database from a file. Records with the same symbol will be overwritten!
+     * @param filename path to the file with recors
+     */
+    auto appendData(std::string filename) -> void;
+
+    /**
+     * @brief appendData append records to the database from a vector of JSON strings
+     * @param jsonRecords vector of records in JSON string format
+     */
+    auto appendData(std::vector<std::string> jsonRecords) -> void;
+
     /// Add an Element instance in the database.
     auto addElement(const Element& element) -> void;
 
-    /// Sets a Element in the database. If substance exists the record will be overwriten
+    /// Sets an Element in the database. If the element exists the record will be overwriten
     auto setElement(const Element& element) -> void;
 
-    /// Add a map of Elements in the database.
+    /// Add a map of Elements in the database. If the element exists the record will be overwriten
     auto addMapElements(const ElementsMap& elements) -> void;
 
-    /// Add an Substance instance in the database.
+    /// Add an Substance instance in the database. If the substance exists the record will be overwriten
     auto addSubstance(const Substance& substance) -> void;
 
-    /// Sets a substance in the database. If substance exists the record will be overwriten
+    /// Sets a substance in the database. If the substance exists the record will be overwriten
     auto setSubstance(const Substance& substance) -> void;
 
     /// Add a map of Substances in the database.
     auto addMapSubstances(const SubstancesMap& substances) -> void;
 
-    /// Add an Reaction instance in the database.
+    /// Add an Reaction instance in the database. If the reaction exists the record will be overwriten
     auto addReaction(const Reaction& reaction) -> void;
 
-    /// Sets a reaction in the database. If reaction exists the record will be overwriten
+    /// Sets a reaction in the database. If the reaction exists the record will be overwriten
     auto setReaction(const Reaction& reaction) -> void;
 
     /// Calculates the reaction record parameters, based on the defined method and available data

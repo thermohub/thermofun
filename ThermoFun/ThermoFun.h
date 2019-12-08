@@ -1,11 +1,5 @@
 #include "Batch/ThermoBatch.h"
 #include "Batch/OutputBatch.h"
-//#include "ThermoHubClient/DatabaseClient.h"
-//#include "ThermoHubClient/ReactionData.h"
-//#include "ThermoHubClient/SubstanceData.h"
-//#include "ThermoHubClient/TraversalData.h"
-//#include "Common/formuladata.h"
-//#include "Common/ThermoData.h"
 #include "Common/ParseJsonToData.h"
 #include "ThermoEngine.h"
 #include "Database.h"
@@ -15,5 +9,4 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "GlobalVariables.h"
-//#include "ThermoHubClient/DatabaseClient.h"
 

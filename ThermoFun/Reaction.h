@@ -83,12 +83,6 @@ public:
      */
     auto setJsonString(const std::string &jString) ->void;
 
-//    /// Set the formula of the Reaction.
-//    auto setFormula(std::string formula) -> void;
-
-//    /// Set the name of the reaction that defines the Reaction properties.
-//    auto setReaction(std::string reaction) -> void;
-
     // Get functions
     /// Returns the name of the chemical Reaction
     auto name() const -> std::string;
@@ -148,12 +142,6 @@ public:
     /// @param P pressure in C
     /// @param tpr calculated properties of the reaction, their status message is changed is T and P is out of bounds
     auto checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void;
-
-//    /// Return the formula of the chemical Reaction
-//    auto formula() const -> std::string;
-
-//    /// Calculates record parameters based on the defined method and available data
-//    auto calcParameters () -> void;
 
     /// Returns the vector of logK as a function of T coefficients calculated based on the defined method and the available data
     auto calc_logK_fT_coefficients() -> vd;
