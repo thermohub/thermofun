@@ -156,8 +156,9 @@ class TestHKFGems(unittest.TestCase):
 
     def setUp(self):
         self.engine = thermofun.ThermoEngine('pytests/Substances/Solute/database-thermofun.json')
+        self.tolRel = {'G': 1e-14, 'H': 1e-14, 'S': 1e-14, 'Cp': 1e-14, 'V': 1e-14}
     
-    def almost_equal(self, table, substance, dif):
+    def almost_equal(self, table, substance, tolAbs, tolRel):
         results = []
         for row in table:
             T, P, G, H, S, Cp, V = row 
@@ -165,11 +166,13 @@ class TestHKFGems(unittest.TestCase):
             P = P*1e5
 
             tps = self.engine.thermoPropertiesSubstance(T,P, substance)
-            self.assertAlmostEqual(tps.gibbs_energy.val, G, delta=dif['G'])
-            self.assertAlmostEqual(tps.enthalpy.val, H, delta=dif['H'])
-            self.assertAlmostEqual(tps.entropy.val, S, delta=dif['S'])
-            self.assertAlmostEqual(tps.heat_capacity_cp.val, Cp, delta=dif['Cp'])
-            self.assertAlmostEqual(tps.volume.val, V, delta=dif['V'])
+
+            assert tps.gibbs_energy.val == pytest.approx(G, abs=tolAbs['G'], rel=tolRel['G'])
+            assert tps.enthalpy.val == pytest.approx(H, abs=tolAbs['H'], rel=tolRel['H'])
+            assert tps.entropy.val == pytest.approx(S, abs=tolAbs['S'], rel=tolRel['S'])
+            assert tps.heat_capacity_cp.val == pytest.approx(Cp, abs=tolAbs['Cp'], rel=tolRel['Cp'])
+            assert tps.volume.val == pytest.approx(V, abs=tolAbs['V'], rel=tolRel['V'])
+
 
         #     row1 = T-273.15, P/1e5, tps.gibbs_energy.val, tps.enthalpy.val, tps.entropy.val, tps.heat_capacity_cp.val, tps.volume.val
         #     results.append(row1)
@@ -177,22 +180,21 @@ class TestHKFGems(unittest.TestCase):
         # print(results)
         # assert False
 
-
     def test_psat_al_ion(self):
-        self.almost_equal(tps_psat_al_ion_gems, "Al+3", {'G': 12, 'H': 12, 'S': 0.2, 'Cp': 0.1, 'V': 0.1})
-        self.almost_equal(tps_psat_al_ion_thermofun, "Al+3", {'G': 1e-13, 'H': 1e-13, 'S': 1e-13, 'Cp': 1e-13, 'V': 1e-13})
+        self.almost_equal(tps_psat_al_ion_gems, "Al+3", tolAbs={'G': 12, 'H': 12, 'S': 0.2, 'Cp': 0.1, 'V': 0.1}, tolRel=self.tolRel)
+        self.almost_equal(tps_psat_al_ion_thermofun, "Al+3", tolAbs={'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5}, tolRel=self.tolRel)
 
     def test_3kbar_al_ion(self):
-        self.almost_equal(tps_3kbar_al_ion_gems, "Al+3", {'G': 30, 'H': 45, 'S': 0.2, 'Cp': 2, 'V': 0.1})
-        self.almost_equal(tps_3kbar_al_ion_thermofun, "Al+3", {'G': 1e-13, 'H': 1e-13, 'S': 1e-13, 'Cp': 1e-13, 'V': 1e-13})
+        self.almost_equal(tps_3kbar_al_ion_gems, "Al+3", tolAbs={'G': 30, 'H': 45, 'S': 0.2, 'Cp': 2, 'V': 0.1}, tolRel=self.tolRel)
+        self.almost_equal(tps_3kbar_al_ion_thermofun, "Al+3",  tolAbs={'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5}, tolRel=self.tolRel)
 
     def test_psat_sio2(self):
-        self.almost_equal(tps_psat_sio2_gems, "SiO2@", {'G': 2., 'H': 10., 'S': 0.05, 'Cp': 0.5, 'V': 0.01})
-        self.almost_equal(tps_psat_sio2_thermofun, "SiO2@", {'G': 1e-13, 'H': 1e-13, 'S': 1e-13, 'Cp': 1e-13, 'V': 1e-13})
-
+        self.almost_equal(tps_psat_sio2_gems, "SiO2@", tolAbs={'G': 2., 'H': 10., 'S': 0.05, 'Cp': 0.5, 'V': 0.01}, tolRel=self.tolRel)
+        self.almost_equal(tps_psat_sio2_thermofun, "SiO2@",  tolAbs={'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5}, tolRel=self.tolRel)
+    
     def test_3kbar_sio2(self):
-        self.almost_equal(tps_3kbar_sio2_gems, "SiO2@", {'G': 2., 'H': 1., 'S': 0.002, 'Cp': 0.001, 'V': 0.001})
-        self.almost_equal(tps_3kbar_sio2_thermofun, "SiO2@", {'G': 1e-13, 'H': 1e-13, 'S': 1e-13, 'Cp': 1e-13, 'V': 1e-13})
+        self.almost_equal(tps_3kbar_sio2_gems, "SiO2@", tolAbs={'G': 2., 'H': 1., 'S': 0.002, 'Cp': 0.001, 'V': 0.001}, tolRel=self.tolRel)
+        self.almost_equal(tps_3kbar_sio2_thermofun, "SiO2@",  tolAbs={'G': 1e-5, 'H': 1e-5, 'S': 1e-5, 'Cp': 1e-5, 'V': 1e-5}, tolRel=self.tolRel)
         
 
 
