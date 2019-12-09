@@ -7,7 +7,7 @@
     int main()
     {
       // Create the interface object using a database file in JSON
-      ThermoBatch batch("aq17-fun.json");
+      ThermoBatch batch("aq17-thermofun-new.json");
 
       auto elements1 = ThermoFun::ChemicalFormula::extractElements({"H4SiO2@"} );
 
@@ -43,10 +43,11 @@
       BatchPreferences pref;
       pref.loopTemperatureThenPressure = true;
       batch.setBatchPreferences(pref);
-      batch.thermoPropertiesSubstance({ {"Tmin", 0.}, {"Tmax", 150.}, {"Tstep", 5.} }, { {"Pmin", 0.}, {"Pmax", 1000.}, {"Pstep", 100.} }, // list of T-P pairs
-                                           {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
-                                           {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
-                                          ).toCSV("test_2.csv");                           // output
+      batch.setTemperatureIncrement(0, 150, 5);
+      batch.setPressureIncrement(0, 1000, 100);
+      batch.thermoPropertiesSubstance({"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
+                                      {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
+                                     ).toCSV("test_2.csv");                           // output
 
       batch.thermoPropertiesSubstance(  { 0.01,  25,  50,  75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
                                         400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560,

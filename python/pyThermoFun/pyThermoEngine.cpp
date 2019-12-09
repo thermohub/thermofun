@@ -31,7 +31,7 @@ namespace ThermoFun {
 void exportThermoEngine(py::module& m)
 {
     auto appendData1 = static_cast<void(ThermoEngine::*)(std::string)>(&ThermoEngine::appendData);
-    auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>)>(&ThermoEngine::appendData);
+    auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>, std::string)>(&ThermoEngine::appendData);
 
     py::class_<ThermoEngine>(m, "ThermoEngine")
 //        .def(py::init<>())
@@ -39,7 +39,7 @@ void exportThermoEngine(py::module& m)
         .def(py::init<const Database&>())
         .def(py::init<const ThermoEngine&>())
         .def("appendData", appendData1, "Append records to the database from a file.")
-        .def("appendData", appendData2, "Append records to the database from a list of JSON strings.")
+        .def("appendData", appendData2, "Append records of given type (elements, substances, reactions) to the database from a list of JSON strings.")
         .def("setSolventSymbol", &ThermoEngine::setSolventSymbol)
         .def("solventSymbol", &ThermoEngine::solventSymbol)
         .def("thermoPropertiesSubstance", &ThermoEngine::thermoPropertiesSubstance, (py::arg("T"), py::arg("P"), "substance"))
