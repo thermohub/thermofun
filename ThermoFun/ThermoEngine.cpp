@@ -729,9 +729,9 @@ auto ThermoEngine::appendData(std::string filename) -> void
     pimpl->database.appendData(filename);
 }
 
-auto ThermoEngine::appendData(std::vector<std::string> jsonRecords) -> void
+auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
-    pimpl->database.appendData(jsonRecords);
+    pimpl->database.appendData(jsonRecords, _label);
 }
 
 auto ThermoEngine::parseSubstanceFormula(std::string formula) -> std::map<Element, double>
