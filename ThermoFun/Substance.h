@@ -128,16 +128,16 @@ public:
     auto referenceP() const -> double;
 
     /// Return upper temperature limit of the correction method (K)
-    auto lowerT( ) const -> double;
+    auto lowerT() const -> double;
 
     /// Return upper presure limit of the correction method (Pa)
-    auto lowerP( ) const -> double;
+    auto lowerP() const -> double;
 
     /// Return lower temperature limit of the correction method (K)
-    auto upperT( ) const -> double;
+    auto upperT() const -> double;
 
     /// Return lower pressure limit for the correction method (Pa)
-    auto upperP( ) const -> double;
+    auto upperP() const -> double;
 
     /// Return the thermodynamic data of the substance.
     auto thermoProperties() const -> ThermoPropertiesSubstance;
