@@ -74,6 +74,7 @@ struct Database::Impl
 
     auto setElement(const Element& element) -> void
     {
+        checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map[element.symbol()] = element;
     }
 
@@ -85,6 +86,7 @@ struct Database::Impl
 
     auto setSubstance(const Substance& substance) -> void
     {
+        checkIfSymbolExists(substances_map, "substance", substance.symbol());
         substances_map[substance.symbol()] = substance;
     }
 
@@ -106,6 +108,7 @@ struct Database::Impl
 
     auto setReaction(const Reaction& reaction) -> void
     {
+        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
         reactions_map[reaction.symbol()] = reaction;
     }
 
