@@ -26,7 +26,8 @@ class TestDatabase(unittest.TestCase):
         assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().heat_capacity_cp.val == 40.865230560303 # J/(mol*K)
         assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().volume.val == 0.38507527112961 # J/bar
 
-
-
-
-
+    def test_append_data(self):
+        self.database.appendData('pytests/Substances/Solute/test-hkf-thermofun.json')
+        assert self.database.getSubstance("SiO2@").name() == "SiO2 (aq)"
+        assert self.database.getSubstance("SiO2@").thermoReferenceProperties().gibbs_energy.val == -833411
+        assert self.database.numberOfSubstances() == 6
