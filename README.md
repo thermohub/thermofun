@@ -4,11 +4,11 @@
 
 A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
 
-## Try ThermoFun in your browser click lunch binder
+## Try ThermoFun in your browser click launch binder
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/)
 
-Wait until the Jupyter Lab Notebook server starts (~1 min) then double click on any `how-to-...` tutorial notebook.
+Wait until the Jupyter Lab Notebook server starts (~1 min) then double click on any `how-to-...` tutorial notebook. Binder is a free service and not using the browser tab for more than a few miuntes will turn off the virutal server. To restart the Jupyter Lab Notebook server click again on the launch binder icon above. Refreshing the webpage will not help restarting the  server. 
 
 More information on Jupyter Notebooks: [Jupyter Documentation](https://jupyter.readthedocs.io/en/latest/index.html)
 
