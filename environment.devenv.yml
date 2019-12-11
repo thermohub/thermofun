@@ -8,8 +8,8 @@ dependencies:
   - cmake>=3.13
   - ninja
   - ccache  # [unix]
-  - pybind11=2.3.0
-  - nlohmann_json>=3.7.0
+  - pybind11
+  - nlohmann_json
   - python={{ python_version }}
   - pytest
   - pip:
