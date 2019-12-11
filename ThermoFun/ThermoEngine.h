@@ -55,9 +55,12 @@ public:
 
     /**
      * @brief appendData append records to the database from a vector of JSON strings
+     * Records with the same symbol will be overwritten!
      * @param jsonRecords vector of records in JSON string format
+     * @param _label, optional, (element, substance, reactions),
+     * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
-    auto appendData(std::vector<std::string> jsonRecords) -> void;
+    auto appendData(std::vector<std::string> jsonRecords, std::string _label) -> void;
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.

@@ -29,16 +29,18 @@ public:
     /// Construct default database instance
     Database();
 
-    /// Construct a database instance by parsing a "json", "yam", "xml" file
+    /// Construct a database instance by parsing a "json" file
     /// containg the exported substances and reactions
     explicit Database(std::string filename);
 
     /**
-     * @brief Database constructs a database instace from a vector of substances in bson format
-     * @param bsonSubstances vector of substances in bson format
-     * see BSONIO
+     * @brief Database constructs a database instace from a vector of records in json format
+     * Records with the same symbol will be overwritten!
+     * @param jsonRecords vector of records in JSON string format
+     * @param _label, oprional, (element, substance, reactions),
+     * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
-    Database(std::vector<std::string> jsonSubstances);
+    Database(std::vector<std::string> jsonRecords, std::string _label);
 
     /// Assign a Database instance to this instance
     auto operator=(Database other) -> Database&;
@@ -47,21 +49,25 @@ public:
     Database(const Database& other);
 
     /**
-     * @brief appendData append records to the database from a file. Records with the same symbol will be overwritten!
+     * @brief appendData append records to the database from a file.
+     * Records with the same symbol will be overwritten!
      * @param filename path to the file with recors
      */
     auto appendData(std::string filename) -> void;
 
     /**
      * @brief appendData append records to the database from a vector of JSON strings
+     * Records with the same symbol will be overwritten!
      * @param jsonRecords vector of records in JSON string format
+     * @param _label, oprional, (element, substance, reactions),
+     * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
-    auto appendData(std::vector<std::string> jsonRecords) -> void;
+    auto appendData(std::vector<std::string> jsonRecords, std::string _label) -> void;
 
     /// Add an Element instance in the database.
     auto addElement(const Element& element) -> void;
 
-    /// Sets an Element in the database. If the element exists the record will be overwriten
+    /// Sets an Element in the database.
     auto setElement(const Element& element) -> void;
 
     /// Add a map of Elements in the database. If the element exists the record will be overwriten
@@ -70,7 +76,7 @@ public:
     /// Add an Substance instance in the database. If the substance exists the record will be overwriten
     auto addSubstance(const Substance& substance) -> void;
 
-    /// Sets a substance in the database. If the substance exists the record will be overwriten
+    /// Sets a substance in the database.
     auto setSubstance(const Substance& substance) -> void;
 
     /// Add a map of Substances in the database.
@@ -79,7 +85,7 @@ public:
     /// Add an Reaction instance in the database. If the reaction exists the record will be overwriten
     auto addReaction(const Reaction& reaction) -> void;
 
-    /// Sets a reaction in the database. If the reaction exists the record will be overwriten
+    /// Sets a reaction in the database.
     auto setReaction(const Reaction& reaction) -> void;
 
     /// Calculates the reaction record parameters, based on the defined method and available data

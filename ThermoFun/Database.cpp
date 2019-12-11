@@ -49,9 +49,9 @@ struct Database::Impl
             ChemicalFormula::setDBElements( elements_map );
     }
 
-    Impl(vector<string> jsons)
+    Impl(vector<string> jsons, std::string _label)
     {
-        fromJSONs(jsons);
+        fromJSONs(jsons, _label);
         if (elements_map.size()>0)
             ChemicalFormula::setDBElements( elements_map );
     }
@@ -74,7 +74,6 @@ struct Database::Impl
 
     auto setElement(const Element& element) -> void
     {
-        checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map[element.symbol()] = element;
     }
 
@@ -86,7 +85,6 @@ struct Database::Impl
 
     auto setSubstance(const Substance& substance) -> void
     {
-        checkIfSymbolExists(substances_map, "substance", substance.symbol());
         substances_map[substance.symbol()] = substance;
     }
 
@@ -108,7 +106,6 @@ struct Database::Impl
 
     auto setReaction(const Reaction& reaction) -> void
     {
-        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
         reactions_map[reaction.symbol()] = reaction;
     }
 
@@ -207,14 +204,13 @@ struct Database::Impl
         auto it = map_.find(symbol);
         if (it != map_.end())
             cout << "The "<< record_type <<" with the symbol " << symbol
-                 << " is already in the database. Overwriting ..." << endl
-                 << "To add it to the database assing it a different symbol." << endl;
+                 << " is already in the database. Overwritting ..." << endl
+                 << "To add it to the database assign it a different symbol." << endl;
     }
 
-    auto addRecord(json j) -> void
+    auto addRecord(json j, std::string _label) -> void
     {
         auto properties = j;
-        std::string _label;
 
         if (j.contains("properties"))
             if (!j["properties"].is_null())
@@ -255,6 +251,14 @@ struct Database::Impl
         }
     }
 
+    auto addRecords(json j, std::string _label = "unknown label") -> void
+    {
+        for(auto it = j.begin(); it != j.end(); ++it)
+        {
+            addRecord(it.value(), _label);
+        }
+    }
+
     /// Parses the JSON file and puts the data into the internal data structure
     /// @param filename name of the file (in the working directory)
     auto fromFile(std::string filename) -> void
@@ -263,12 +267,19 @@ struct Database::Impl
             std::ifstream ifs(filename);
             if (!ifs.good())
                 funError("File reading error", std::string("Database file "+ filename +" not found!"), __LINE__, __FILE__);
+
             json j = json::parse(ifs);
 
-            for(auto it = j.begin(); it != j.end(); ++it)
-            {
-                addRecord(it.value());
-            }
+            if (j.contains("elements"))
+                addRecords(j["elements"], "element");
+            if (j.contains("substances"))
+                addRecords(j["substances"], "substance");
+            if (j.contains("reactions"))
+                addRecords(j["reactions"], "reaction");
+
+            // if the file just contains an array of records containing key "_label" on on the type of record
+            if (j.is_array())
+                addRecords(j);
         }     catch (json::exception &ex)
         {
             // output exception information
@@ -278,15 +289,16 @@ struct Database::Impl
 
     }
 
-    auto fromJSONs(vector<string> jsons) -> void
+    auto fromJSONs(vector<string> jsons, std::string _label) -> void
     {
         try {
+
             if (jsons.size()>0) // bugfix for unknown json parse crash, DM 06.12.2019
-                    json j = json::parse(jsons[0]);
+                json j = json::parse(jsons[0]);
             for (size_t i=0; i<jsons.size(); i++)
             {
                 json j = json::parse(jsons[i]);
-                addRecord(j);
+                addRecord(j, _label);
             }
         }      catch (json::exception &ex)
         {
@@ -305,8 +317,8 @@ Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
 
-Database::Database(vector<string> jsonSubstances)
-: pimpl(new Impl(jsonSubstances))
+Database::Database(vector<string> jsonRecords, std::string _label="unknown label")
+: pimpl(new Impl(jsonRecords, _label))
 {}
 
 Database::Database(const Database& other)
@@ -324,9 +336,9 @@ auto Database::appendData(std::string filename) -> void
     pimpl->fromFile(filename);
 }
 
-auto Database::appendData(vector<string> jsonRecords) -> void
+auto Database::appendData(vector<string> jsonRecords, std::string _label = "unknown label") -> void
 {
-    pimpl->fromJSONs(jsonRecords);
+    pimpl->fromJSONs(jsonRecords, _label);
 }
 
 auto Database::addElement(const Element& element) -> void

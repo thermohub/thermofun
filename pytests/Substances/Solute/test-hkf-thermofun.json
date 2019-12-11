@@ -1,0 +1,295 @@
+{
+    "thermodataset": "slop98-test",
+    "datasources": [
+        "file with substance records used in pytests",
+        "Slop98_dat:1998:data:"
+    ],
+    "date": "09.12.2019 13:03:05",
+    "substances": [
+        {
+            "name": "Water HGK",
+            "symbol": "H2O@",
+            "formula": "H2O@",
+            "formula_charge": 0,
+            "aggregate_state": {
+                "4": "AS_AQUEOUS"
+            },
+            "class_": {
+                "3": "SC_AQSOLVENT"
+            },
+            "Tst": 298.15,
+            "Pst": 100000,
+            "TPMethods": [
+                {
+                    "method": {
+                        "29": "water_eos_hgk84_lvs83_gems"
+                    }
+                },
+                {
+                    "method": {
+                        "26": "water_diel_jnort91_gems"
+                    }
+                }
+            ],
+            "sm_heat_capacity_p": {
+                "values": [
+                    75.360527038574
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_gibbs_energy": {
+                "values": [
+                    -237183
+                ],
+                "errors": [
+                    100
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_enthalpy": {
+                "values": [
+                    -285881
+                ],
+                "errors": [
+                    200
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_entropy_abs": {
+                "values": [
+                    69.922996520996
+                ],
+                "errors": [
+                    0.10000000149012
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_volume": {
+                "values": [
+                    1.8068397045136
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/bar"
+                ]
+            },
+            "_label": "substance",
+            "references": [
+                "Slop98_dat:1998:data:"
+            ]
+        },
+        {
+            "name": "Al+3 ion",
+            "symbol": "Al+3",
+            "formula": "Al+3",
+            "formula_charge": 3,
+            "aggregate_state": {
+                "4": "AS_AQUEOUS"
+            },
+            "class_": {
+                "2": "SC_AQSOLUTE"
+            },
+            "Tst": 298.15,
+            "Pst": 100000,
+            "TPMethods": [
+                {
+                    "method": {
+                        "3": "solute_hkf88_gems"
+                    },
+                    "eos_hkf_coeffs": {
+                        "values": [
+                            -0.33802,
+                            -1700.71,
+                            14.5185,
+                            -20758,
+                            10.7,
+                            -80600,
+                            275300,
+                            0
+                        ],
+                        "units": [
+                            "cal/(mol*bar)",
+                            "cal/mol",
+                            "(cal*K)/mol",
+                            "cal/(mol*K)",
+                            "(cal*K)/mol",
+                            "cal/mol"
+                        ],
+                        "names": [
+                            "a1",
+                            "a2",
+                            "a3",
+                            "a4",
+                            "c1",
+                            "c2",
+                            "wref"
+                        ]
+                    }
+                }
+            ],
+            "sm_heat_capacity_p": {
+                "values": [
+                    -128.696
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_gibbs_energy": {
+                "values": [
+                    -483708
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_enthalpy": {
+                "values": [
+                    -530673
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_entropy_abs": {
+                "values": [
+                    -325.097
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_volume": {
+                "values": [
+                    -4.5243
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/bar"
+                ]
+            },
+            "_label": "substance",
+            "references": [
+                "Slop98_dat:1998:data:"
+            ]
+        },
+        {
+            "name": "SiO2 (aq)",
+            "symbol": "SiO2@",
+            "formula": "SiO2@",
+            "formula_charge": 0,
+            "aggregate_state": {
+                "4": "AS_AQUEOUS"
+            },
+            "class_": {
+                "2": "SC_AQSOLUTE"
+            },
+            "Tst": 298.15,
+            "Pst": 100000,
+            "TPMethods": [
+                {
+                    "method": {
+                        "3": "solute_hkf88_gems"
+                    },
+                    "eos_hkf_coeffs": {
+                        "values": [
+                            0.19,
+                            170,
+                            20,
+                            -27000,
+                            29.1,
+                            -512000,
+                            12910,
+                            0
+                        ],
+                        "units": [
+                            "cal/(mol*bar)",
+                            "cal/mol",
+                            "(cal*K)/mol",
+                            "cal/(mol*K)",
+                            "(cal*K)/mol",
+                            "cal/mol"
+                        ],
+                        "names": [
+                            "a1",
+                            "a2",
+                            "a3",
+                            "a4",
+                            "c1",
+                            "c2",
+                            "wref"
+                        ]
+                    }
+                }
+            ],
+            "sm_heat_capacity_p": {
+                "values": [
+                    -318.48
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_gibbs_energy": {
+                "values": [
+                    -833411
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_enthalpy": {
+                "values": [
+                    -877699
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_entropy_abs": {
+                "values": [
+                    75.312
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_volume": {
+                "values": [
+                    1.6063
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/bar"
+                ]
+            },
+            "_label": "substance",
+            "references": [
+                "Slop98_dat:1998:data:"
+            ]
+        }
+    ]
+}
