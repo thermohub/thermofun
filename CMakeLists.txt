@@ -20,7 +20,7 @@ include(CondaAware)
 option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
 #option(TFUN_BUILD_TESTS "Build tests." OFF)
-option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
+option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." OFF)
 
 # Modify the TFUN_BUILD_* variables accordingly to BUILD_ALL
 if(TFUN_BUILD_ALL MATCHES ON)
