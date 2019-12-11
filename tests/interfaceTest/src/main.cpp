@@ -63,6 +63,15 @@
 
       auto elements = engine.parseSubstanceFormula("H2O@");
 
+      Reaction reac;
+
+      reac.fromEquation("H2O@ = H+ + OH-");
+
+      P = 1e5;
+      auto waterprop = engine.thermoPropertiesReaction(298.15, P, "H2O@ = H+ + OH-");
+
+      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
+
       return 0;
     }
 

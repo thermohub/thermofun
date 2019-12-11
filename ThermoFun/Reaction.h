@@ -83,6 +83,12 @@ public:
      */
     auto setJsonString(const std::string &jString) ->void;
 
+    /**
+     * @brief fromEquation initialize the reaction using a reaction equation
+     * @param reactionEquation e.g. Calcite = Ca+2 + CO3-2 (use the symbols of substances!)
+     */
+    auto fromEquation(const std::string &reactionEquation) ->void;
+
     // Get functions
     /// Returns the name of the chemical Reaction
     auto name() const -> std::string;

@@ -141,6 +141,14 @@ struct ThermoEngine::Impl
     auto getThermoPreferencesReaction(std::string symbolReaction) -> ThermoPreferences
     {
         ThermoPreferences preferences;
+
+        // if the thermoPropertiesReacton function is called using a reaction equation
+        if (!database.containsReaction(symbolReaction) && (symbolReaction.find("=") != std::string::npos))
+        {
+            Reaction reaction;
+            reaction.fromEquation(symbolReaction);
+            database.addReaction(reaction);
+        }
         preferences.workReaction    = database.getReaction(symbolReaction);
         preferences.method_genEOS    = preferences.workReaction.methodGenEOS();
         preferences.method_T         = preferences.workReaction.method_T();
