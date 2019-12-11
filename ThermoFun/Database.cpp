@@ -317,7 +317,7 @@ Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
 
-Database::Database(vector<string> jsonRecords, std::string _label )
+Database::Database(vector<string> jsonRecords, std::string _label="unknown label")
 : pimpl(new Impl(jsonRecords, _label))
 {}
 
