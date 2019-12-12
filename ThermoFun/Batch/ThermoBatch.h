@@ -270,7 +270,7 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"reaction_helmholtz_energy",      "J/mol"         },
     {"reaction_internal_energy",       "J/mol"         },
     {"reaction_enthalpy",              "J/mol"         },
-    {"reaction_entropy",               "J/mol"         },
+    {"reaction_entropy",               "J/K/mol"       },
     {"reaction_volume",                "J/bar"         },
     {"reaction_heat_capacity_cp",      "J/K/mol"       },
     {"reaction_heat_capacity_cv",      "J/K/mol"       },
