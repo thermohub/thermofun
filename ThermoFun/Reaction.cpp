@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <algorithm>
 
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
@@ -67,6 +68,9 @@ struct Reaction::Impl
       std::string::size_type pos2 = str.find_last_not_of(valof);
       str = str.substr( (pos1 == std::string::npos ? 0 : pos1),
         (pos2 == std::string::npos ? str.length() - 1 : pos2 - pos1 + 1));
+      str.erase(remove(str.begin(), str.end(), ' '), str.end());
+      str.erase(remove(str.begin(), str.end(), '\n'), str.end());
+      str.erase(remove(str.begin(), str.end(), '\t'), str.end());
     }
 
     //  Function that can be used to split text using regexp
@@ -82,7 +86,7 @@ struct Reaction::Impl
       while (iter != end)
       {
         lst.push_back(*iter);
-        strip_all(lst.back(), " \t\n");
+        strip_all(lst.back(), "\u0020\t\n");
         ++iter;
       }
 

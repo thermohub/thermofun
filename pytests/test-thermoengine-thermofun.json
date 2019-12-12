@@ -706,6 +706,153 @@
       "datasources": [
         "[1998SHO/EA]"
       ]
+    },
+    {
+      "name": "Al+3 ion",
+      "symbol": "Al+3",
+      "formula": "Al+3",
+      "formula_charge": 3,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "Tst": 298.15,
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "method": {
+            "3": "solute_hkf88_reaktoro"
+          },
+          "eos_hkf_coeffs": {
+            "values": [
+              -0.33801999688148,
+              -1700.7099609375,
+              14.518500328064,
+              -20758,
+              10.699999809265,
+              -80600.0078125,
+              275300,
+              0
+            ],
+            "units": [
+              "cal/(mol*bar)",
+              "cal/mol",
+              "(cal*K)/mol",
+              "cal/(mol*K)",
+              "(cal*K)/mol",
+              "cal/mol"
+            ],
+            "names": [
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "c1",
+              "c2",
+              "wref"
+            ]
+          }
+        }
+      ],
+      "sm_heat_capacity_p": {
+        "values": [
+          -128.69636535644
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_gibbs_energy": {
+        "values": [
+          -483708
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_enthalpy": {
+        "values": [
+          -530673
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_entropy_abs": {
+        "values": [
+          -325.09680175781
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_volume": {
+        "values": [
+          -4.5243000984192
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ]
+      },
+      "datasources": [
+        "[1998SHO/EA]"
+      ]
+    },
+    {
+      "name": "H+",
+      "symbol": "H+",
+      "formula": "H+",
+      "formula_charge": 1,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "Tst": 298.15,
+      "Pst": 100000,
+      "sm_heat_capacity_p": {
+        "values": [
+          0
+        ],
+        "errors": [
+          0
+        ]
+      },
+      "sm_gibbs_energy": {
+        "values": [
+          0
+        ]
+      },
+      "sm_enthalpy": {
+        "values": [
+          0
+        ]
+      },
+      "sm_entropy_abs": {
+        "values": [
+          0
+        ]
+      },
+      "sm_volume": {
+        "values": [
+          0
+        ],
+        "errors": [
+          0
+        ]
+      },
+      "datasources": [
+        "[1998SHO/EA]"
+      ]
     }
   ],
   "reactions": [
