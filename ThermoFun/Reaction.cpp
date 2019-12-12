@@ -5,6 +5,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <regex>
+#include <algorithm>
 
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
@@ -57,6 +59,88 @@ struct Reaction::Impl
     double upper_P;
 
     std::string jString;
+
+    void strip_all(std::string& str, const std::string& valof  )
+    {
+      if( str.empty())
+       return;
+      string::size_type pos1 = str.find_first_not_of(valof);
+      std::string::size_type pos2 = str.find_last_not_of(valof);
+      str = str.substr( (pos1 == std::string::npos ? 0 : pos1),
+        (pos2 == std::string::npos ? str.length() - 1 : pos2 - pos1 + 1));
+      str.erase(remove(str.begin(), str.end(), ' '), str.end());
+      str.erase(remove(str.begin(), str.end(), '\n'), str.end());
+      str.erase(remove(str.begin(), str.end(), '\t'), str.end());
+    }
+
+    //  Function that can be used to split text using regexp
+    std::vector<std::string> regexp_split(const std::string& str, std::string rgx_str)
+    {
+      std::vector<std::string> lst;
+
+      std::regex rgx(rgx_str);
+
+      std::sregex_token_iterator iter(str.begin(), str.end(), rgx, -1);
+      std::sregex_token_iterator end;
+
+      while (iter != end)
+      {
+        lst.push_back(*iter);
+        strip_all(lst.back(), "\u0020\t\n");
+        ++iter;
+      }
+
+      return lst;
+    }
+
+    // Extract coefficient from strings like +10.7H2O
+    std::string extractCoef( const std::string& data, double& coef )
+    {
+      //cout << "data " << data << endl;
+      coef = 1.;
+      if( data.empty() || isalpha( data[0] ) || data[0] == '('  )
+       return data;
+      if( data[0] == '+' && ( isalpha( data[1] ) || data[1] == '(')  )
+       return data.substr(1);
+      if( data[0] == '-' && ( isalpha( data[1] ) || data[1] == '(')  )
+      {  coef = -1.; return data.substr(1); }
+
+      std::string::size_type sz;
+      coef = stod(data,&sz);
+      return data.substr(sz);
+    }
+
+    auto fromEquation(const std::string &reactionEquation) -> void
+    {
+        equation = reactionEquation;
+
+        if (symbol.empty())
+            symbol = reactionEquation;
+
+        std::size_t eqpos = equation.find("=");
+        std::string  str_reactants = equation.substr(0, eqpos);
+        std::string  str_products = equation.substr( eqpos+1);
+        double coef = 1.;
+        std::string reactant;
+
+        std::vector<std::string> parts = regexp_split(str_reactants,  "\\s+\\+\\s+" /*"\\s+"*/ );
+        for( auto el: parts)
+        {
+            reactant = extractCoef( el, coef );
+            //cout << reactant << " " << coef << " ; ";
+            if(!reactant.empty())
+                reactants[reactant] = coef*(-1.);
+        }
+
+        parts = regexp_split(str_products, "\\s+\\+\\s+" /*"\\s+"*/ );
+        for( auto el: parts)
+        {
+            reactant = extractCoef( el, coef );
+            //cout << reactant << " " << coef << " ; ";
+            if(!reactant.empty())
+                reactants[reactant] = coef;
+        }
+    }
 };
 
 Reaction::Reaction()
@@ -234,6 +318,11 @@ auto Reaction::equation() const -> std::string
 auto Reaction::jsonString() const -> std::string
 {
     return pimpl->jString;
+}
+
+auto Reaction::fromEquation(const std::string &reactionEquation) -> void
+{
+    pimpl->fromEquation(reactionEquation);
 }
 
 auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void

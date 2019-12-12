@@ -40,7 +40,7 @@ public:
      * @param _label, oprional, (element, substance, reactions),
      * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
-    Database(std::vector<std::string> jsonRecords, std::string _label="unknown label");
+    Database(std::vector<std::string> jsonRecords, std::string _label);
 
     /// Assign a Database instance to this instance
     auto operator=(Database other) -> Database&;
