@@ -29,15 +29,18 @@ public:
     /// Construct default database instance
     Database();
 
-    /// Construct a database instance by parsing a "json" file
-    /// containg the exported substances and reactions
+    /**
+     * @brief Construct a new Database object
+     * 
+     * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
+     */
     explicit Database(std::string filename);
 
     /**
      * @brief Database constructs a database instace from a vector of records in json format
      * Records with the same symbol will be overwritten!
      * @param jsonRecords vector of records in JSON string format
-     * @param _label, oprional, (element, substance, reactions),
+     * @param _label, optional, (element, substance, reactions),
      * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
     Database(std::vector<std::string> jsonRecords, std::string _label);
@@ -51,7 +54,7 @@ public:
     /**
      * @brief appendData append records to the database from a file.
      * Records with the same symbol will be overwritten!
-     * @param filename path to the file with recors
+     * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
      */
     auto appendData(std::string filename) -> void;
 

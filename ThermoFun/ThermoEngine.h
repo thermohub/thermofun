@@ -29,7 +29,11 @@ class ThermoEngine
     friend class Interface;
 public:
 
-    /// Construct a Thermo instance with given dataset file
+    /**
+     * @brief Construct a new Thermo Engine object
+     * 
+     * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
+     */
     explicit ThermoEngine(const std::string filename);
 
     /// Construct a Thermo instance with given Database instance
@@ -49,7 +53,7 @@ public:
 
     /**
      * @brief appendData append records to the database from a file
-     * @param filename path to the file with recors
+     * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
      */
     auto appendData(std::string filename) -> void;
 
