@@ -6,7 +6,7 @@
 
     int main()
     {
-      // Create the interface object using a database file in JSON
+/*      // Create the interface object using a database file in JSON
       ThermoBatch batch("aq17-thermofun-new.json");
 
       auto elements1 = ThermoFun::ChemicalFormula::extractElements({"H4SiO2@"} );
@@ -55,11 +55,15 @@
                                         { 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000}, // list of T-P pairs
                                         {"Al+3", "OH-", "SiO2@", "H2O@", "CO2@", "CO2"},                        // list of substance symbols
                                         {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
-                                          ).toCSVPropertyGrid("grid.csv");                           // output
+                                          ).toCSVPropertyGrid("grid.csv");    */                       // output
 
 
       // Test
-      ThermoEngine engine("aq17_.json");
+      ThermoEngine engine("slop98-thermofun.json");
+
+      auto P = 1e5;
+
+      auto tpr = engine.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
 
       auto elements = engine.parseSubstanceFormula("H2O@");
 
@@ -67,11 +71,11 @@
 
       reac.fromEquation("H2O@ = H+ + OH-");
 
-      P = 1e5;
+
       auto waterprop = engine.thermoPropertiesReaction(298.15, P, "H2O@ = H+ + OH-");
 
-      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
-      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");
+//      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
+//      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");
 
       return 0;
     }
