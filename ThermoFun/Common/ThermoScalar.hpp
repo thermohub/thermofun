@@ -403,7 +403,7 @@ inline auto sqrt(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
     const double tmp1 = std::sqrt(l.val);
     const double tmp2 = 0.5 * tmp1/l.val;
     if (l.val == 0)
-        return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0, status(l)};
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/ 0.0,0.0,0.0, status(l)};
     return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.5*(l.err/l.val), status(l)};
 }
 
@@ -414,7 +414,7 @@ inline auto pow(const ThermoScalarBase<V>& l, double power) -> ThermoScalarBase<
     const double tmp1 = std::pow(l.val, power);
     const double tmp2 = power * tmp1/l.val;
     if (l.val == 0)
-        return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.0, status(l)};
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/0.0,0.0, 0.0, status(l)};
     return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, std::fabs(power)*(l.err/l.val), status(l)};
 }
 
@@ -426,7 +426,7 @@ inline auto pow(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& power
     const double powl = std::pow(l.val, power.val);
     const double tmp = power.val/l.val;
     if (l.val == 0)
-        return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), 0.0, status(l,power)};
+        return {powl, powl * (logl * power.ddt + /*tmp * l.ddt*/0.0), powl * (logl * power.ddp + /*tmp * l.ddp*/0.0), 0.0, status(l,power)};
     return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), powl*(l.err/l.val), status(l,power)};
 }
 
@@ -445,7 +445,7 @@ inline auto log(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
     const double tmp1 = std::log(l.val);
     const double tmp2 = 1.0/l.val;
     if (l.val == 0)
-        return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.0, status(l)};
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/ 0.0,0.0, 0.0, status(l)};
     return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.434*(l.err/l.val), status(l)};
 }
 

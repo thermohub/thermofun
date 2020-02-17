@@ -259,16 +259,26 @@ struct Database::Impl
         }
     }
 
-    /// Parses the JSON file and puts the data into the internal data structure
+    /// Parses the JSON file (or string) and puts the data into the internal data structure
     /// @param filename name of the file (in the working directory)
     auto fromFile(std::string filename) -> void
     {
         try {
-            std::ifstream ifs(filename);
-            if (!ifs.good())
-                funError("File reading error", std::string("Database file "+ filename +" not found!"), __LINE__, __FILE__);
 
-            json j = json::parse(ifs);
+            json j;
+
+            try
+            {
+                // trying to see if the string is a valid json
+                j = json::parse(filename);
+            }
+            catch (json::parse_error &e)
+            {
+                std::ifstream ifs(filename);
+                if (!ifs.good())
+                    funError("File reading error", std::string("Database file " + filename + " not found!"), __LINE__, __FILE__);
+                j = json::parse(ifs);
+            }
 
             if (j.contains("elements"))
                 addRecords(j["elements"], "element");

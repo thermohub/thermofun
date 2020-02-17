@@ -605,7 +605,7 @@ struct ThermoEngine::Impl
                 tpr.reaction_enthalpy += VP;
                 auto Vref = pref.workReaction.thermo_ref_prop().reaction_volume;
                 tpr.log_equilibrium_constant -= Vref *(P_-Pref)/(R_CONSTANT*T)/lg_to_ln;
-                tpr.reaction_entropy = tpr.reaction_gibbs_energy - T*tpr.reaction_entropy;
+                tpr.reaction_entropy = (tpr.reaction_enthalpy - tpr.reaction_gibbs_energy)/T;
                 tpr.reaction_internal_energy  = tpr.reaction_enthalpy - P_*tpr.reaction_volume;
                 tpr.reaction_helmholtz_energy = tpr.reaction_internal_energy - T*tpr.reaction_entropy;
 
