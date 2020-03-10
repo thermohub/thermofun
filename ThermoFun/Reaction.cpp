@@ -41,10 +41,10 @@ struct Reaction::Impl
     MethodCorrP_Thrift::type  method_P;
 
     /// Reference temperature (in K)
-    double reference_T;
+    double reference_T = 298.15;
 
     /// Reference pressure (in Pa)
-    double reference_P;
+    double reference_P = 1e5;
 
     /// Lower temperature limit (in K)
     double lower_T;
@@ -60,7 +60,7 @@ struct Reaction::Impl
 
     std::string jString;
 
-    void strip_all(std::string& str, const std::string& valof  )
+    void strip_all(std::string& str, const std::string& valof)
     {
       if( str.empty())
        return;
