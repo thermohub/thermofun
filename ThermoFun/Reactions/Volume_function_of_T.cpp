@@ -7,11 +7,11 @@ namespace ThermoFun {
 auto thermoPropertiesReaction_Vol_fT(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, ThermoPropertiesReaction tpr) -> ThermoPropertiesReaction
 {
 
-    auto prop_ref = reaction.thermo_ref_prop();
+    auto prop_ref = reaction.thermoReferenceProperties();
     auto Pst = reaction.referenceP();
     auto Vst = prop_ref.reaction_volume;
     auto Tst = reaction.referenceT();
-    auto a = reaction.thermo_parameters().reaction_V_fT_coeff;
+    auto a = reaction.thermoParameters().reaction_V_fT_coeff;
 
 //    if( (methodP == MethodCorrP_Thrift::type::CPM_VKE || methodP == MethodCorrP_Thrift::type::CPM_VBE) && rc[q].DVt )
 //    {  // calc on equation V(P,T)

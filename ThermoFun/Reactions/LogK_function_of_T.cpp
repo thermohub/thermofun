@@ -10,9 +10,9 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     auto Rln10   = R_CONSTANT * lg_to_ln;
     auto R_T     = TK * R_CONSTANT;
-    auto ref_tpr = reaction.thermo_ref_prop();
-    auto A       = reaction.thermo_parameters().reaction_logK_fT_coeff;
-    auto Cp      = reaction.thermo_parameters().reaction_Cp_fT_coeff;
+    auto ref_tpr = reaction.thermoReferenceProperties();
+    auto A       = reaction.thermoParameters().reaction_logK_fT_coeff;
+    auto Cp      = reaction.thermoParameters().reaction_Cp_fT_coeff;
     auto dVr     = ref_tpr.reaction_volume;   //Gr = rc[q].Gs[0];
     auto dHr     = ref_tpr.reaction_enthalpy;
     auto dSr     = ref_tpr.reaction_entropy;

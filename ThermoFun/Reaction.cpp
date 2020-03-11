@@ -255,12 +255,12 @@ auto Reaction::reactants() const -> std::map<std::string, double>
     return pimpl->reactants;
 }
 
-auto Reaction::thermo_ref_prop() const -> ThermoPropertiesReaction
+auto Reaction::thermoReferenceProperties() const -> ThermoPropertiesReaction
 {
     return pimpl->thermo_ref_prop;
 }
 
-auto Reaction::thermo_parameters() const -> ThermoParametersReaction
+auto Reaction::thermoParameters() const -> ThermoParametersReaction
 {
     return pimpl->thermo_parameters;
 }
@@ -376,7 +376,7 @@ auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
          Sr = Rln10 * ( K_fT_Coeff[0] + 2.0*K_fT_Coeff[1]*TK + K_fT_Coeff[3]*(1.0 + log(TK))
             - K_fT_Coeff[4]/TK*TK + 3.0*K_fT_Coeff[5]*TK*TK + 0.5*K_fT_Coeff[6]/pow(TK,0.5) );
 
-    auto th_param = thermo_parameters();
+    auto th_param = thermoParameters();
     th_param.reaction_Cp_fT_coeff   = CpCoeff;
     th_param.reaction_logK_fT_coeff = K_fT_Coeff;
     setThermoParameters(th_param);
@@ -435,7 +435,7 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 
     }
 
-    auto th_param = thermo_parameters();
+    auto th_param = thermoParameters();
     th_param.reaction_Cp_fT_coeff   = CpCoeff;
     th_param.reaction_logK_fT_coeff = K_fT_Coeff;
     setThermoParameters(th_param);
@@ -494,7 +494,7 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
 
     return K_fT_Coeff;
 
-//    auto th_param = thermo_parameters();
+//    auto th_param = thermoParameters();
 //    th_param.reaction_logK_fT_coeff = K_fT_Coeff;
 //    setThermoParameters(th_param);
 }

@@ -7,12 +7,12 @@ auto thermoPropertiesDolejsManning2010(Reaktoro_::Temperature TK, Reaktoro_::Pre
 {
     ThermoPropertiesReaction tpr;
 
-//    auto ref_tpr = reaction.thermo_ref_prop();
+//    auto ref_tpr = reaction.thermoReferenceProperties();
     auto RHOw = wp.density/1000; // in g/cm3
     auto ALPw = wp.Alpha;
     auto BETw = wp.Beta*1e05;
     auto dALPdTw = wp.dAldT;
-    auto DMcoef = reaction.thermo_parameters().reaction_DM10_coeff;
+    auto DMcoef = reaction.thermoParameters().reaction_DM10_coeff;
 
     auto dRHOdT = -ALPw*RHOw;
     auto dRHOdP = BETw*RHOw;
