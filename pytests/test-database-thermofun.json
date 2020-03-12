@@ -88,6 +88,156 @@
             ]
         },
         {
+            "name": "Quartz (q)",
+            "symbol": "Quartz",
+            "formula": "SiO2",
+            "formula_charge": 0,
+            "aggregate_state": {
+                "3": "AS_CRYSTAL"
+            },
+            "class_": {
+                "0": "SC_COMPONENT"
+            },
+            "Tst": 298.15,
+            "Pst": 100000,
+            "TPMethods": [
+                {
+                    "method": {
+                        "0": "cp_ft_equation"
+                    },
+                    "limitsTP": {
+                        "range": true,
+                        "lowerT": 273.15,
+                        "upperT": 2273.15
+                    },
+                    "m_heat_capacity_ft_coeffs": {
+                        "values": [
+                            110.69999694824,
+                            -0.0051890001632273,
+                            0,
+                            -1128.3000488281,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        ],
+                        "units": [
+                            "J/(mol*K)",
+                            "J/(mol*K^2)",
+                            "(J*K)/mol",
+                            "J/(mol*K^0.5)",
+                            "J/(mol*K^3)",
+                            "J/(mol*K^4)",
+                            "J/(mol*K^5)",
+                            "(J*K^2)/mol",
+                            "J/mol",
+                            "J/(mol*K^1.5)",
+                            "J/(mol*K)"
+                        ],
+                        "names": [
+                            "a0",
+                            "a1",
+                            "a2",
+                            "a3",
+                            "a4",
+                            "a5",
+                            "a6",
+                            "a7",
+                            "a8",
+                            "a9",
+                            "a10"
+                        ]
+                    }
+                },
+                {
+                    "method": {
+                        "5": "landau_holland_powell98"
+                    },
+                    "m_landau_phase_trans_props": {
+                        "values": [
+                            573.84997558594,
+                            4.9499998092651,
+                            0.11879999935627
+                        ]
+                    }
+                },
+                {
+                    "method": {
+                        "38": "mv_eos_murnaghan_hp98"
+                    }
+                }
+            ],
+            "sm_heat_capacity_p": {
+                "values": [
+                    44.89091873169
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_gibbs_energy": {
+                "values": [
+                    -856433
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_enthalpy": {
+                "values": [
+                    -910830
+                ],
+                "units": [
+                    "J/mol"
+                ]
+            },
+            "sm_entropy_abs": {
+                "values": [
+                    41.5
+                ],
+                "units": [
+                    "J/(mol*K)"
+                ]
+            },
+            "sm_volume": {
+                "values": [
+                    2.2688000202179
+                ],
+                "errors": [
+                    0
+                ],
+                "units": [
+                    "J/bar"
+                ]
+            },
+            "m_compressibility": {
+                "values": [
+                    750
+                ],
+                "units": [
+                    "1e-05/K"
+                ]
+            },
+            "m_expansivity": {
+                "values": [
+                    0.0000064999999267457
+                ],
+                "units": [
+                    "kbar"
+                ]
+            },
+            "datasources": [
+                "[1998HOL/POW]"
+            ]
+        },
+        {
             "name": "Al(OH)2+",
             "symbol": "Al(OH)2+",
             "formula": "Al(OH)2+",
