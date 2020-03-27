@@ -269,10 +269,11 @@
                         "units": [
                             "cal/(mol*bar)",
                             "cal/mol",
+                            "(cal*K)/(mol*bar)",
                             "(cal*K)/mol",
                             "cal/(mol*K)",
-                            "(cal*K)/mol",
-                            "J/mol"
+                            "(J*K)/mol",
+                            "cal/mol"
                         ],
                         "names": [
                             "a1",

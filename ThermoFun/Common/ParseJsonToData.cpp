@@ -128,12 +128,15 @@ auto read_values_units(const json &j, const std::string &data, std::vector<doubl
     //units
     if (j.contains(data))
     {
-        if (data == "m_landau_phase_trans_props")
-            std::cout << j[data]["values"] << std::endl;
         if (j[data].contains("units"))
         {
             if (!j[data]["units"].is_null())
                 units_from = j[data]["units"].get<vector<string>>();
+            // temporary
+            if (data == "eos_hkf_coeffs")
+                if (units_from.size()>=3)
+                    if (units_from[2]=="(cal*K)/mol")
+                        units_from = units_to;
         }
         else
             units_from = units_to;
@@ -144,7 +147,7 @@ auto read_values_units(const json &j, const std::string &data, std::vector<doubl
     }
 }
 
-auto read_value_unit(const json &j, const std::string &data, double& value, const std::string &unit_to) -> double
+auto read_value_unit(const json &j, const std::string &data, double &value, const std::string &unit_to) -> void
 {
     std::string unit_from;
 
@@ -335,7 +338,7 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
     read_values_units(j, "eos_akinfiev_diamond_coeffs", ps.Cp_nonElectrolyte_coeff, {"1", "(cm^3)/g", "(cm^3*K^0.5)/g"});
     // ps.volume_BirchM_coeff = read_values_units(j, "eos_birch_murnaghan_coeffs", {});
     read_values_units(j, "eos_gas_crit_props", ps.critical_parameters, {"K", "Pa", "1", "1"});
-    read_values_units(j, "eos_hkf_coeffs", ps.HKF_parameters, {"cal/(mol*bar)", "cal/mol", "(cal*K)/mol", "cal/(mol*K)", "(cal*K)/mol", "cal/mol", "1"});
+    read_values_units(j, "eos_hkf_coeffs", ps.HKF_parameters, {"cal/(mol*bar)", "cal/mol", "(cal*K)/(mol*bar)", "(cal*K)/mol", "cal/(mol*K)", "(cal*K)/mol", "cal/mol"});
 
     // temporary fix - need to think how to handle more than 1 TP interval - for new structure - simplified
     if (prop_name == "cp_ft_equation")
@@ -354,11 +357,11 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
     }
     std::vector<double> cp, ph;
     read_values_units(j, "m_heat_capacity_ft_coeffs", cp, {"J/(mol*K)", "J/(mol*K^2)", "(J*K)/mol", "J/(mol*K^0.5)", "J/(mol*K^3)", "J/(mol*K^4)", "J/(mol*K^5)", "(J*K^2)/mol", "J/mol", "J/(mol*K^1.5)", "J/(mol*K)"});
-    if (cp.size()>0)
+    if (cp.size() > 0)
         ps.Cp_coeff.push_back(cp);
     read_values_units(j, "m_phase_trans_props", ph, {"K", "J/(mol*K)", "J/mol", "J/bar", "K/bar"});
-    if (ph.size()>0)
-    ps.phase_transition_prop.push_back(ph);
+    if (ph.size() > 0)
+        ps.phase_transition_prop.push_back(ph);
     read_values_units(j, "m_landau_phase_trans_props", ps.m_landau_phase_trans_props, {"degC", "J/(mol*K)", "J/bar"});
     read_values_units(j, "solute_holland_powell98_coeff", ps.solute_holland_powell98_coeff, {"kJ/(mol*K^2)"});
     // ps.phase_transition_prop_Berman.push_back(read_values_units(j, "", {});
@@ -463,11 +466,11 @@ auto parseElement(const std::string &data) -> Element
         double val;
         read_value_unit(j, "entropy", val, "J/(mol*K)");
         e.setEntropy(val);
-        read_value_unit(j, "heat_capacity",val, "J/(mol*K)");
+        read_value_unit(j, "heat_capacity", val, "J/(mol*K)");
         e.setHeatCapacity(val);
-        read_value_unit(j, "atomic_mass",val, "g/mol");
+        read_value_unit(j, "atomic_mass", val, "g/mol");
         e.setMolarMass(val);
-        read_value_unit(j, "volume",val, "J/bar");
+        read_value_unit(j, "volume", val, "J/bar");
         e.setVolume(val);
 
         if (j.contains("class_"))
