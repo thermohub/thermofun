@@ -447,7 +447,7 @@ typedef struct {
     C_SURFACEFRACTION = 5,
     C_SURFACEDENSITY = 6,
     C_SITEFRACTION = 7,
-    C_OTHER = 8
+    C_OTHER = 1111
   };
 } ConcentrationScales;
 
@@ -483,7 +483,7 @@ typedef struct {
     AQSOLVENT = 3,
     SURFSPECIES = 4,
     SITEMOIETY = 5,
-    OTHER_SC = 6
+    OTHER_SC = 1111
   };
 } SubstanceClass;
 
@@ -509,13 +509,23 @@ static const int SubstanceClass_ndxThrift[] = {
 
 typedef struct {
   enum type {
-    GAS = 0,
-    LIQUID = 1,
-    GLASS = 2,
-    CRYSTAL = 3,
-    AQUEOUS = 4,
-    SURFACE = 5,
-    OTHER_AS = 6
+    GAS = 0,              ///< Gaseous aggregate state (symbol g)
+    LIQUID = 1,           ///< Condensed liquid aggregate state (symbol l)
+    GLASS = 2,            ///< Glass/Vitreous state (symbol vit)
+    CRYSTAL = 3,          ///< Crystalline solid aggregate state (symbol cr)
+    AQUEOUS = 4,          ///< Aqueous electrolyte (symbol aq)
+    SURFACE = 5,          ///< Surface layer, adsorbed species (symbol ads)
+    IONEX = 6,            ///< Ion exchange (Donnan etc.) (eymbol ex)
+    PLASMA = 8,           ///< Plasma (symbol pl)
+    SOLID = 9,            ///< Solid (symbol s)
+    CONDENSED = 10,       ///< CondensedPhase (symbol cd)
+    FLUID = 11,           ///< Fluid (symbol fl)
+    LIQUIDCRYSTAL = 12,   ///< LiquidCrystal (symbol lc)
+    AMORPHOUSSOLID = 13,  ///< AmorphousSolid (symbol am)
+    MONOMERIC = 14,       ///< Monomeric (symbol mon)
+    POLYMERIC = 15,       ///< Polymeric (symbol pol)
+    SOLIDSOLUTION = 16,   ///< SolidSolution (symbol ss)    
+    OTHER_AS = 1111       /// <Other states, undefined
   };
 } AggregateState;
 
@@ -526,6 +536,16 @@ static const int AggregateState_ndxThrift[] = {
   AggregateState::CRYSTAL,
   AggregateState::AQUEOUS,
   AggregateState::SURFACE,
+  AggregateState::IONEX,
+  AggregateState::PLASMA,
+  AggregateState::SOLID,
+  AggregateState::CONDENSED,
+  AggregateState::FLUID,
+  AggregateState::LIQUIDCRYSTAL,
+  AggregateState::AMORPHOUSSOLID,
+  AggregateState::MONOMERIC,
+  AggregateState::POLYMERIC,
+  AggregateState::SOLIDSOLUTION,  
   AggregateState::OTHER_AS
 };
 
@@ -545,7 +565,7 @@ typedef struct {
     REACTANT = 0,           ///< Component properties available
     PRODUCT = 1,            ///< Component properties to be defined via this reaction properties
     CATALYST = 2,           ///< Catalyzes the reaction but is not consumed in it
-    OTHER_RC = 3            ///< Other type of reaction component
+    OTHER_RC = 1111            ///< Other type of reaction component
   };
 } ReactionComponentType;
 
