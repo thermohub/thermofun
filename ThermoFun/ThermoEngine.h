@@ -49,7 +49,7 @@ public:
     auto solventSymbol( ) const -> std::string;
 
     /// Returns the instance of the database present inside thermo
-    auto database() -> const Database;
+    auto database() const -> const Database&;
 
     /**
      * @brief appendData append records to the database from a file
@@ -76,13 +76,13 @@ public:
     /// Calculate the electro-chemical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    /// @param substance The symbol of the substance
+    /// @param solvent The symbol of the substance solvent
     auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    /// @param solvent The symbol of the solvent
+    /// @param solvent The symbol of the substance solvent
     auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
 
     // Reaction

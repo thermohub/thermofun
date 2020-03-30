@@ -525,7 +525,7 @@ typedef struct {
     MONOMERIC = 14,       ///< Monomeric (symbol mon)
     POLYMERIC = 15,       ///< Polymeric (symbol pol)
     SOLIDSOLUTION = 16,   ///< SolidSolution (symbol ss)    
-    OTHER_AS = 1111       /// <Other states, undefined
+    OTHER = 1111          ///< Other states, undefined
   };
 } AggregateState;
 
@@ -546,7 +546,7 @@ static const int AggregateState_ndxThrift[] = {
   AggregateState::MONOMERIC,
   AggregateState::POLYMERIC,
   AggregateState::SOLIDSOLUTION,  
-  AggregateState::OTHER_AS
+  AggregateState::OTHER
 };
 
 //const char* AggregateState_GEMS[] = {
