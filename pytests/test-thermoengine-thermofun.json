@@ -1137,6 +1137,407 @@
       "datasources": [
         "[1998SHO/EA]"
       ]
+    },
+    {
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "eos_hkf_coeffs": {
+            "names": [
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "c1",
+              "c2",
+              "wref"
+            ],
+            "units": [
+              "cal/(mol*bar)",
+              "cal/mol",
+              "(cal*K)/mol",
+              "cal/(mol*K)",
+              "(cal*K)/mol",
+              "cal/mol"
+            ],
+            "values": [
+              0.18999999761581,
+              170,
+              20,
+              -27000,
+              29.10000038147,
+              -512000,
+              12910,
+              0
+            ]
+          },
+          "method": {
+            "3": "solute_hkf88_reaktoro"
+          }
+        }
+      ],
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "datasources": [
+        ""
+      ],
+      "formula": "SiO2@",
+      "formula_charge": 0,
+      "name": "SiO2 (aq)",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -878357
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          75.311996459961
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -834041
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          -318.48419189453
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          1.6063253879547
+        ]
+      },
+      "symbol": "SiO2@"
+    },
+    {
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "eos_hkf_coeffs": {
+            "names": [
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "c1",
+              "c2",
+              "wref"
+            ],
+            "units": [
+              "cal/(mol*bar)",
+              "cal/mol",
+              "(cal*K)/mol",
+              "cal/(mol*K)",
+              "(cal*K)/mol",
+              "cal/mol"
+            ],
+            "values": [
+              0.29936000704765,
+              497.86999511719,
+              23.59049987793,
+              -29848,
+              12.994000434876,
+              -47579,
+              127920,
+              0
+            ]
+          },
+          "method": {
+            "3": "solute_hkf88_reaktoro"
+          }
+        }
+      ],
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "datasources": [
+        ""
+      ],
+      "formula": "HCO3-",
+      "formula_charge": -1,
+      "name": "HCO3- bicarbonate ion",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -690463
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          96.625
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -586855
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          -34.845699310303
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          2.420910358429
+        ]
+      },
+      "symbol": "HCO3-"
+    },
+    {
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "limitsTP": {
+            "lowerT": 273.15,
+            "range": true,
+            "upperT": 2273.15
+          },
+          "m_heat_capacity_ft_coeffs": {
+            "names": [
+              "a0",
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "a6",
+              "a7",
+              "a8",
+              "a9",
+              "a10"
+            ],
+            "units": [
+              "J/(mol*K)",
+              "J/(mol*K^2)",
+              "(J*K)/mol",
+              "J/(mol*K^0.5)",
+              "J/(mol*K^3)",
+              "J/(mol*K^4)",
+              "J/(mol*K^5)",
+              "(J*K^2)/mol",
+              "J/mol",
+              "J/(mol*K^1.5)",
+              "J/(mol*K)"
+            ],
+            "values": [
+              1359,
+              0.036442000418901,
+              -8594700,
+              -9598.2001953125,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "method": {
+            "0": "cp_ft_equation"
+          }
+        },
+        {
+          "method": {
+            "38": "mv_eos_murnaghan_hp98"
+          }
+        }
+      ],
+      "Tst": 298.15,
+      "aggregate_state": {
+        "3": "AS_CRYSTAL"
+      },
+      "class_": {
+        "0": "SC_COMPONENT"
+      },
+      "datasources": [
+        "Holland and Powell (2002)"
+      ],
+      "formula": "Ca4Al6Si6O24(CO3)",
+      "formula_charge": 0,
+      "m_compressibility": {
+        "units": [
+          "1e-05/K"
+        ],
+        "values": [
+          870
+        ]
+      },
+      "m_expansivity": {
+        "units": [
+          "kbar"
+        ],
+        "values": [
+          3.1600000511389e-05
+        ]
+      },
+      "name": "Meionite-Ca (me)",
+      "reaction": "Meionite-Ca",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -13843570
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          752
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -13106507
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          717.31079101562
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          33.985000610352
+        ]
+      },
+      "symbol": "Meionite-Ca"
+    },
+    {
+      "Pst": 100000,
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "datasources": [
+        ""
+      ],
+      "formula": "H4SiO4@",
+      "formula_charge": 0,
+      "name": "H4SiO4 (aq)",
+      "reaction": "H4SiO4@",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -1450119
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          215.158
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -1308407
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          -167.762
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          5.22
+        ]
+      },
+      "symbol": "H4SiO4@"
     }
   ],
   "reactions": [
@@ -1176,24 +1577,6 @@
         "upperP": 1000000,
         "upperT": 298.15
       },
-      "TPMethods": [
-        {
-          "method": {
-            "7": "logk_3_term_extrap"
-          },
-          "logk_ft_coeffs": {
-            "values": [
-              0,
-              0,
-              49480.5741302139,
-              -135.727504800267,
-              0,
-              0,
-              0
-            ]
-          }
-        }
-      ],
       "logKr": {
         "values": [
           80.875017
@@ -1261,6 +1644,116 @@
         ]
       },
       "references": []
+    },
+    {
+      "TPMethods": [
+        {
+          "logk_ft_coeffs": {
+            "values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "method": {
+            "4": "logk_1_term_extrap0"
+          }
+        }
+      ],
+      "datasources": null,
+      "drsm_enthalpy": {
+        "errors": [
+          400
+        ],
+        "status": [
+          {}
+        ],
+        "values": [
+          0
+        ]
+      },
+      "drsm_entropy": {
+        "errors": [
+          0.2
+        ],
+        "status": [
+          {}
+        ],
+        "values": [
+          0
+        ]
+      },
+      "drsm_gibbs_energy": {
+        "errors": [
+          200
+        ],
+        "status": [
+          {}
+        ],
+        "values": [
+          0
+        ]
+      },
+      "drsm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "status": [
+          {}
+        ],
+        "values": [
+          0
+        ]
+      },
+      "drsm_volume": {
+        "errors": [
+          0
+        ],
+        "status": [
+          {}
+        ],
+        "values": [
+          0
+        ]
+      },
+      "equation": "H4SiO4@ = SiO2@ + 2H2O@",
+      "limitsTP": {
+        "lowerP": 0.1,
+        "lowerT": 273.15,
+        "range": false,
+        "upperP": 5000000000,
+        "upperT": 1073.15
+      },
+      "logKr": {
+        "errors": [
+          0.035038
+        ],
+        "status": [
+          {}
+        ],
+        "values": [
+          0
+        ]
+      },
+      "reactants": [
+        {
+          "coefficient": -1,
+          "symbol": "H4SiO4@"
+        },
+        {
+          "coefficient": 1,
+          "symbol": "SiO2@"
+        },
+        {
+          "coefficient": 2,
+          "symbol": "H2O@"
+        }
+      ],
+      "symbol": "H4SiO4@"
     },
     {
       "symbol": "Gedrite-Mg",

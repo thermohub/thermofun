@@ -653,7 +653,7 @@ struct ThermoEngine::Impl
         else
             tpr = thermoPropertiesReactionFromReactants(T, P, reaction);
 
-        return tpr;
+        return tpr; 
     }
 
     auto thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) -> ThermoPropertiesReaction
@@ -736,6 +736,21 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent) -
     return pimpl->properties_solvent_fn(T, P, P, solvent);
 }
 
+auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) -> ThermoPropertiesSubstance
+{
+    return pimpl->thermoPropertiesSubstance(T, P, substance);
+}
+
+auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance&  solvent) -> ElectroPropertiesSolvent
+{
+    return pimpl->electroPropertiesSolvent(T, P, solvent);
+}
+
+auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solvent) -> PropertiesSolvent
+{
+    return pimpl->propertiesSolvent(T, P, solvent);
+}
+
 // Reaction
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string reaction) -> ThermoPropertiesReaction
 {
@@ -745,6 +760,16 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) -> ThermoPropertiesReaction
 {
     return pimpl->thermoPropertiesReactionFromReactants(T, P, symbol);
+}
+
+auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction& reaction) -> ThermoPropertiesReaction
+{
+    return pimpl->thermoPropertiesReaction(T, P, reaction);
+}
+
+auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) -> ThermoPropertiesReaction
+{
+    return pimpl->thermoPropertiesReactionFromReactants(T, P, reaction);
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
