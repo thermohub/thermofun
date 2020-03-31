@@ -259,7 +259,7 @@ auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const Properties
     gPP =  gP * (gP/g + beta + betaP/beta + r*beta/(1 - r));
 
     // Check if the point (T,P) is inside region II, as depicted in Fig. 6 of Shock and others (1992), on page 809
-    if ((TdegC > 155.0 && TdegC < 355.0 && Pbar < 1000.0) || (TdegC>=355 && Pbar >=500 && Pbar < 1000))
+    if ((TdegC > 155.0 && TdegC < 355.0 && Pbar < 1000.0) || (TdegC>=355 && Pbar >=500 && Pbar < 1000) || (TdegC>=355 && Pbar<500))
     {
         // Use equations (32)-(44) of Shock and others (1992) to compute the function g and its partial derivatives on region II
         const auto af1 =  3.666660e+01; // unit: K

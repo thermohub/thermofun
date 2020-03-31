@@ -167,7 +167,7 @@ struct ThermoEngine::Impl
         preferences.method_P = preferences.workSubstance.method_P();
 
         // check for H+
-        if (preferences.workSubstance.name() == "H+")
+        if (preferences.workSubstance.symbol() == "H+")
             preferences.isHydrogen = true;
         else
             preferences.isHydrogen = false;
