@@ -12,7 +12,7 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto R_T     = TK * R_CONSTANT;
     auto ref_tpr = reaction.thermo_ref_prop();
     auto A       = reaction.thermo_parameters().reaction_logK_fT_coeff;
-    auto Cp      = reaction.thermo_parameters().reaction_Cp_fT_coeff;
+    auto CpCoeff = reaction.thermo_parameters().reaction_Cp_fT_coeff;
     auto dVr     = ref_tpr.reaction_volume;   //Gr = rc[q].Gs[0];
     auto dHr     = ref_tpr.reaction_enthalpy;
     auto dSr     = ref_tpr.reaction_entropy;
@@ -22,11 +22,6 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto Tr      = reaction.referenceT();
 
     /// deal with Cp and A parameters conversion
-//    if (A.size() == 0 && Cp.size() > 4)
-
-//    if (Cp.size() == 0 && A.size() > 6)
-//        convert
-
     switch (CE)
     {
         case MethodCorrT_Thrift::type::CTM_EK0: // 1-term lgK = const
@@ -58,6 +53,37 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
           break;
        case MethodCorrT_Thrift::type::CTM_LGK:  // full 7-term logK approx
        case MethodCorrT_Thrift::type::CTM_LGX:  // (derived from dCp=f(T))
+            if (A.size() == 0 && CpCoeff.size() > 0)
+            {
+                //from Cp to A
+                A.resize(7, 0.0);
+                CpCoeff.resize(5, 0.0);
+
+                // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
+                A[0] = (( dSr - CpCoeff[0] - CpCoeff[0]*log(TK) - CpCoeff[1]*TK + CpCoeff[2]/(2.0*TK*TK)
+                              + 2.0*CpCoeff[3]/pow(TK,0.5) - CpCoeff[4]*TK*TK/2.0 ) / Rln10).val;
+                A[1] = CpCoeff[1]/(2.0*Rln10);
+                A[2] = (-( dHr - CpCoeff[0]*TK - CpCoeff[1]*TK*TK/2.0 + CpCoeff[2]/TK
+                           - 2.0*CpCoeff[3]*pow(TK,0.5) - CpCoeff[4]*TK*TK*TK/3.0 ) / Rln10).val;
+                A[3] = CpCoeff[0]/Rln10;
+                A[4] = CpCoeff[2]/(2.0*Rln10);
+                A[5] = CpCoeff[4]/(6.0*Rln10);
+                A[6] = -4.0*CpCoeff[3]/Rln10;
+            }
+
+            if (CpCoeff.size() == 0 && A.size() > 0)
+            {
+                //from A to Cp
+                A.resize(7, 0.0);
+                CpCoeff.resize(5, 0.0);
+
+                CpCoeff[0] = Rln10 * A[3];
+                CpCoeff[1] = Rln10 * 2.0 * A[1];
+                CpCoeff[2] = Rln10 * 2.0 * A[4];
+                CpCoeff[3] = -Rln10 * 0.25 * A[6];
+                CpCoeff[4] = Rln10 * 6.0 * A[5];
+            }
+
             lgK = A[0] + A[1] * TK + A[2]/TK + A[3] * log(TK) + A[4] / (TK*TK) +
                   A[5] * (TK*TK) + A[6] / pow(TK,0.5);
             dHr = Rln10 *( A[1]*(TK*TK) - A[2] + A[3]*TK - 2.0*A[4]/TK
@@ -66,7 +92,7 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
                        A[4]/(TK*TK) + 3.0*A[5]*(TK*TK) + 0.5*A[6]/pow(TK,0.5) );
                 // dGr_d = dHr - dSr * T;
                 // if( rc[q].DCp )
-            dCpr = Cp[0] + Cp[1]*TK + Cp[2]/(TK*TK) + Cp[4]*(TK*TK) + Cp[3]/pow(TK,0.5);
+            dCpr = CpCoeff[0] + CpCoeff[1]*TK + CpCoeff[2]/(TK*TK) + CpCoeff[4]*(TK*TK) + CpCoeff[3]/pow(TK,0.5);
                 // dHr = Rln10 * T_2 * ( A[1] - A[2]/T_2 + A[3]/T -
                 // 2.0*A[4]/T_3 + 2.0*A[5]*T - 0.5*A[6]/T_15 );
                 // dSr = Rln10 * ( A[0] + 2.0*A[1]*T + A[3]*(1.0+lnT) -

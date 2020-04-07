@@ -59,9 +59,14 @@
 
 
       // Test
-      ThermoEngine engine("slop98-thermofun.json");
+      ThermoEngine engine("aq17-thermofun.json");
+
+      engine.appendData("append-thermofun.json");
 
       auto P = 1e5;
+
+      engine.thermoPropertiesReaction(298.15, P, "NaHCO3@");
+      auto tps = engine.thermoPropertiesSubstance(298.15, P, "NaHCO3@");
 
       auto tpr = engine.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
 
