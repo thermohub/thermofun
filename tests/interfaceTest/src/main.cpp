@@ -68,16 +68,20 @@
       engine.thermoPropertiesReaction(298.15, P, "NaHCO3@");
       auto tps = engine.thermoPropertiesSubstance(298.15, P, "NaHCO3@");
 
-      auto tpr = engine.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
+      ThermoEngine engine2("slop98-thermofun.json");
 
-      auto elements = engine.parseSubstanceFormula("H2O@");
+      auto P = 1e5;
+
+      auto tpr = engine2.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
+
+      auto elements = engine2.parseSubstanceFormula("H2O@");
 
       Reaction reac;
 
       reac.fromEquation("H2O@ = H+ + OH-");
 
 
-      auto waterprop = engine.thermoPropertiesReaction(298.15, P, "H2O@ = H+ + OH-");
+      auto waterprop = engine2.thermoPropertiesReaction(298.15, P, "H2O@ = H+ + OH-");
 
 //      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
 //      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");
