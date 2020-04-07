@@ -224,7 +224,7 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
     // Check if the point (T,P) is inside region II, as depicted in Fig. 6 of Shock and others (1992), on page 809
-    if ((TC > 155.0 && TC < 355.0 && Pbar < 1000.0) || (TC>=355 && Pbar >=500 && Pbar < 1000))
+    if ((TC > 155.0 && TC < 355.0 && Pbar < 1000.0) || (TC>=355 && Pbar >=500 && Pbar < 1000) || (TC>=355 && Pbar<500))
     {
         tempy = ((TC - 155.0) / 300.0);
         ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);
