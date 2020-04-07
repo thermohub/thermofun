@@ -170,7 +170,7 @@ struct ThermoEngine::Impl
         preferences.method_P         = preferences.workSubstance.method_P();
 
         // check for H+
-        if (preferences.workSubstance.name() == "H+")
+        if (preferences.workSubstance.symbol() == "H+")
             preferences.isHydrogen = true;
         else
             preferences.isHydrogen = false;
@@ -548,6 +548,13 @@ struct ThermoEngine::Impl
 //        auto methodP = reac.method_P();
         if (!pref.isReacFromReactants)
         {
+            switch (pref.method_genEOS)
+            {
+            case MethodGenEoS_Thrift::type::CTPM_REA:
+                pref.method_T = MethodCorrT_Thrift::type::CTM_LGK;
+
+            }
+
             switch (pref.method_T)
             {
             case MethodCorrT_Thrift::type::CTM_LGX:
@@ -654,6 +661,14 @@ struct ThermoEngine::Impl
         {
             auto coeff      = reactant.second;
             auto substance  = reactant.first;
+            auto s = database.getSubstance(substance);
+
+            // check if substance is correctly defined
+            if (!s.methodGenEOS() && !s.method_P() && !s.method_T() && s.reactionSymbol() == symbol)
+            {
+                errorMethodNotFound("reaction", symbol, __LINE__, __FILE__);
+            }
+
             auto tps        = thermo_properties_substance_fn(T, P,P, substance); /*thermoPropertiesSubstance(T, P, substance);*/
 
             tpr.reaction_heat_capacity_cp   += tps.heat_capacity_cp*coeff;

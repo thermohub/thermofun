@@ -1,0 +1,61 @@
+{
+    "datasources": [
+        "db.thermohub.org"
+    ],
+    "date": "05.03.2020 12:00:00",
+    "elements": [],
+    "reactions": [
+        {
+            "symbol": "NaHCO3@",
+            "equation": "1.000 Na+ + 1.000 HCO3- = NaHCO3@",
+            "reactants": [
+                {
+                    "symbol": "NaHCO3@",
+                    "coefficient": 1
+                },
+                {
+                    "symbol": "Na+",
+                    "coefficient": -1
+                },
+                {
+                    "symbol": "HCO3-",
+                    "coefficient": -1
+                }
+            ],
+            "Tst": 298.15,
+            "Pst": 100000,
+            "TPMethods": [
+                {
+                    "method": {
+                        "0": "logk_fpt_function"
+                    },
+                    "logk_ft_coeffs": {
+                        "values": [
+                            1.8528,
+                            0,
+                            -606.24
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "substances": [
+        {
+            "symbol": "NaHCO3@",
+            "formula": "NaHCO3@",
+            "reaction": "NaHCO3@",
+            "aggregate_state": {
+                "4": "AS_AQUEOUS"
+            },
+            "class_": {
+                "3": "SC_AQSOLVENT"
+            },
+            "Tst": 298.15,
+            "Pst": 100000
+        }
+    ],
+    "thermodataset": [
+        "AQ17"
+    ]
+}
