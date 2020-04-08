@@ -447,7 +447,7 @@ typedef struct {
     C_SURFACEFRACTION = 5,
     C_SURFACEDENSITY = 6,
     C_SITEFRACTION = 7,
-    C_OTHER = 1111
+    C_OTHER = 101
   };
 } ConcentrationScales;
 
@@ -483,7 +483,7 @@ typedef struct {
     AQSOLVENT = 3,
     SURFSPECIES = 4,
     SITEMOIETY = 5,
-    OTHER_SC = 1111
+    OTHER_SC = 101
   };
 } SubstanceClass;
 
@@ -525,7 +525,7 @@ typedef struct {
     MONOMERIC = 14,       ///< Monomeric (symbol mon)
     POLYMERIC = 15,       ///< Polymeric (symbol pol)
     SOLIDSOLUTION = 16,   ///< SolidSolution (symbol ss)    
-    OTHER = 1111          ///< Other states, undefined
+    OTHER = 101           ///< Other states, undefined
   };
 } AggregateState;
 
@@ -565,7 +565,7 @@ typedef struct {
     REACTANT = 0,           ///< Component properties available
     PRODUCT = 1,            ///< Component properties to be defined via this reaction properties
     CATALYST = 2,           ///< Catalyzes the reaction but is not consumed in it
-    OTHER_RC = 1111            ///< Other type of reaction component
+    OTHER_RC = 101            ///< Other type of reaction component
   };
 } ReactionComponentType;
 
