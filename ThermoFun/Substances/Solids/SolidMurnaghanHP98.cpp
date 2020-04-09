@@ -13,7 +13,7 @@ auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature TK, Reaktoro_::P
     auto P_Pst = Pbar - Pst;
     auto T_Tst = TK -Tst;
     auto k0 = subst.thermoParameters().isothermal_compresibility; // bulk modulus k in kbar at 298 K
-    auto a0 = subst.thermoParameters().isobaric_expansivity; // in 1/K
+    auto a0 = subst.thermoParameters().isobaric_expansivity*1e-05; // in 1/K
 
     auto dg  = tps.gibbs_energy;
     auto ds  = tps.entropy;

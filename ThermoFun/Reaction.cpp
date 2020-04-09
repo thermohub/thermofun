@@ -41,10 +41,10 @@ struct Reaction::Impl
     MethodCorrP_Thrift::type  method_P;
 
     /// Reference temperature (in K)
-    double reference_T;
+    double reference_T = 298.15;
 
     /// Reference pressure (in Pa)
-    double reference_P;
+    double reference_P = 1e5;
 
     /// Lower temperature limit (in K)
     double lower_T;
@@ -60,7 +60,7 @@ struct Reaction::Impl
 
     std::string jString;
 
-    void strip_all(std::string& str, const std::string& valof  )
+    void strip_all(std::string& str, const std::string& valof)
     {
       if( str.empty())
        return;
@@ -260,7 +260,13 @@ auto Reaction::thermo_ref_prop() const -> ThermoPropertiesReaction
     return pimpl->thermo_ref_prop;
 }
 
-auto Reaction::thermo_parameters() const -> ThermoParametersReaction
+
+auto Reaction::thermoReferenceProperties() const -> ThermoPropertiesReaction
+{
+    return pimpl->thermo_ref_prop;
+}
+
+auto Reaction::thermoParameters() const -> ThermoParametersReaction
 {
     return pimpl->thermo_parameters;
 }
@@ -376,7 +382,7 @@ auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
          Sr = Rln10 * ( K_fT_Coeff[0] + 2.0*K_fT_Coeff[1]*TK + K_fT_Coeff[3]*(1.0 + log(TK))
             - K_fT_Coeff[4]/TK*TK + 3.0*K_fT_Coeff[5]*TK*TK + 0.5*K_fT_Coeff[6]/pow(TK,0.5) );
 
-    auto th_param = thermo_parameters();
+    auto th_param = thermoParameters();
     th_param.reaction_Cp_fT_coeff   = CpCoeff;
     th_param.reaction_logK_fT_coeff = K_fT_Coeff;
     setThermoParameters(th_param);
@@ -435,7 +441,7 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 
     }
 
-    auto th_param = thermo_parameters();
+    auto th_param = thermoParameters();
     th_param.reaction_Cp_fT_coeff   = CpCoeff;
     th_param.reaction_logK_fT_coeff = K_fT_Coeff;
     setThermoParameters(th_param);
@@ -494,7 +500,7 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
 
     return K_fT_Coeff;
 
-//    auto th_param = thermo_parameters();
+//    auto th_param = thermoParameters();
 //    th_param.reaction_logK_fT_coeff = K_fT_Coeff;
 //    setThermoParameters(th_param);
 }

@@ -29,6 +29,9 @@ namespace ThermoFun {
     void exportThermoPropertiesReaction(py::module& m);
     void exportElectroPropertiesSolvent(py::module& m);
     void exportPropertiesSolvent(py::module& m);
+    // Parameters
+    void exportThermoParametersReaction(py::module& m);
+    void exportThermoParametersSubstance(py::module& m);
     // Core module
     void exportThermoEngine(py::module& m);
     void exportThermoBatch(py::module& m);
