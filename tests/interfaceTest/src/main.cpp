@@ -70,7 +70,7 @@
 
       ThermoEngine engine2("slop98-thermofun.json");
 
-      auto P = 1e5;
+      //auto P = 1e5;
 
       auto tpr = engine2.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
 
