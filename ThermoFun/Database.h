@@ -73,10 +73,10 @@ public:
     /// Sets an Element in the database.
     auto setElement(const Element& element) -> void;
 
-    /// Add a map of Elements in the database. If the element exists the record will be overwriten
+    /// Add a map of Elements in the database. If the element exists the record will be overwritten
     auto addMapElements(const ElementsMap& elements) -> void;
 
-    /// Add an Substance instance in the database. If the substance exists the record will be overwriten
+    /// Add an Substance instance in the database. If the substance exists the record will be overwritten
     auto addSubstance(const Substance& substance) -> void;
 
     /// Sets a substance in the database.
@@ -85,7 +85,7 @@ public:
     /// Add a map of Substances in the database.
     auto addMapSubstances(const SubstancesMap& substances) -> void;
 
-    /// Add an Reaction instance in the database. If the reaction exists the record will be overwriten
+    /// Add an Reaction instance in the database. If the reaction exists the record will be overwritten
     auto addReaction(const Reaction& reaction) -> void;
 
     /// Sets a reaction in the database.

@@ -7,12 +7,12 @@ auto thermoPropertiesRyzhenkoBryzgalin(Reaktoro_::Temperature TK, Reaktoro_::Pre
 
     ThermoPropertiesReaction tpr;
 
-//    auto ref_tpr = reaction.thermo_ref_prop();
+//    auto ref_tpr = reaction.thermoReferenceProperties();
     auto RHO = wp.density / 1000; // check units
     auto ALP = wp.Alpha;
     auto BET = wp.Beta;
     auto dALPdT = wp.dAldT;
-    auto RBcoef = reaction.thermo_parameters().reaction_RB_coeff;
+    auto RBcoef = reaction.thermoParameters().reaction_RB_coeff;
 
     auto dRHOdT = -ALP*RHO;
     auto dRHOdP = BET*RHO;
