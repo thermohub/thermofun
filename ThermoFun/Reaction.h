@@ -103,10 +103,11 @@ public:
     auto reactants() const -> std::map<std::string, double>;
 
     /// Returns the references proeprties of the reaction
-    auto thermo_ref_prop() const  -> ThermoPropertiesReaction;
+    auto thermoReferenceProperties() const  -> ThermoPropertiesReaction;
+    auto thermo_ref_prop() const -> ThermoPropertiesReaction;
 
     /// Returns an instance of the defined parameters of the reaction
-    auto thermo_parameters() const  -> ThermoParametersReaction;
+    auto thermoParameters() const  -> ThermoParametersReaction;
 
     /// Returns the references temperature (K)
     auto referenceT() const -> double;

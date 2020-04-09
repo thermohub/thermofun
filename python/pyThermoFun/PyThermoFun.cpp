@@ -29,6 +29,9 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportThermoPropertiesReaction(m);
     exportElectroPropertiesSolvent(m);
     exportPropertiesSolvent(m);
+    // Parameters
+    exportThermoParametersReaction(m);
+    exportThermoParametersSubstance(m);
     // Core module
     exportThermoEngine(m);
     exportThermoBatch(m);

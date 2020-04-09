@@ -7,12 +7,12 @@ auto thermoPropertiesFrantzMarshall(Reaktoro_::Temperature TK, Reaktoro_::Pressu
 {
     ThermoPropertiesReaction tpr;
 
-//    auto ref_tpr = reaction.thermo_ref_prop();
+//    auto ref_tpr = reaction.thermoReferenceProperties();
     auto RHO = wp.density/1000; // in g/cm3
     auto ALP = wp.Alpha;
     auto BET = wp.Beta*1e05;
     auto dALPdT = wp.dAldT;
-    auto MFcoef = reaction.thermo_parameters().reaction_FM_coeff;
+    auto MFcoef = reaction.thermoParameters().reaction_FM_coeff;
 
     auto dRHOdT = -ALP*RHO;
     auto dRHOdP = BET*RHO;
