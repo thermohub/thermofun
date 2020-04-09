@@ -104,6 +104,7 @@ public:
 
     /// Returns the references proeprties of the reaction
     auto thermoReferenceProperties() const  -> ThermoPropertiesReaction;
+    auto thermo_ref_prop() const -> ThermoPropertiesReaction;
 
     /// Returns an instance of the defined parameters of the reaction
     auto thermoParameters() const  -> ThermoParametersReaction;

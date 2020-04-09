@@ -255,6 +255,12 @@ auto Reaction::reactants() const -> std::map<std::string, double>
     return pimpl->reactants;
 }
 
+auto Reaction::thermo_ref_prop() const -> ThermoPropertiesReaction
+{
+    return pimpl->thermo_ref_prop;
+}
+
+
 auto Reaction::thermoReferenceProperties() const -> ThermoPropertiesReaction
 {
     return pimpl->thermo_ref_prop;
