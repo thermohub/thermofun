@@ -9,12 +9,13 @@ namespace ThermoFun {
 auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     Reaktoro_::ThermoScalar Tcr, Qq, dQq;
-    vector<double> transProp= subst.thermoParameters().phase_transition_prop[0];
+    vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
 //    auto (P/1000) = Reaktoro::Pressure (p.val /1000);  // in kbar
     auto TrK = subst.referenceT();
 
     if (transProp.size() < 3)
     {
+        std::cout << transProp.size() << " " << std::endl;
         errorModelParameters("transition properties", "HP Landau", __LINE__, __FILE__);
     }
 
@@ -24,7 +25,7 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
     auto Vmax = transProp[2];
 
     auto k298 = subst.thermoParameters().isothermal_compresibility; // This is the bulk modulus k in kbar at 298 K!
-    auto a0 = subst.thermoParameters().isobaric_expansivity; // This is the a parameter (at one bar) in 1/K !
+    auto a0 = subst.thermoParameters().isobaric_expansivity*1e-05; // This is the a parameter (at one bar) in 1/K!
 
     if ( Smax <= 0)
         Smax = 1.0e-20;

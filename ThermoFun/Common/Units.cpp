@@ -65,7 +65,7 @@ struct StringUnit
 {
     double factor;
     string symbol;
-    int power;
+    double power;
 };
 
 struct TemperatureUnit
@@ -387,7 +387,20 @@ map<string, DerivedUnit> derivedUnitsMap =
     {"eq"          , {{1, "eq", 1}}},
     {"meq"         , {{milli, "eq", 1}}},
     {"ueq"         , {{micro, "eq", 1}}},
-    {"neq"         , {{nano, "eq", 1}}}
+    {"neq"         , {{nano, "eq", 1}}},
+
+    {"K^2"          , {{1, "K", 2}}},
+    {"K^3"          , {{1, "K", 3}}},
+    {"K^4"          , {{1, "K", 4}}},
+    {"K^5"          , {{1, "K", 5}}},
+    {"K^0.5"        , {{1, "K", 0.5}}},
+    {"K^1.5"        , {{1, "K", 1.5}}},
+
+    {"bar^2"          , {{1, "K", 2}}},
+    {"bar^3"          , {{1, "K", 3}}},
+    {"bar^4"          , {{1, "K", 4}}},
+    {"bar^5"          , {{1, "K", 5}}},
+    {"bar^0.5"        , {{1, "K", 0.5}}}
 };
 
 map<string, TemperatureUnit> temperatureUnitsMap =
@@ -577,7 +590,7 @@ std::shared_ptr<Node> parseUnit(const string& symbol, size_t pos)
     }
 }
 
-void parseUnit(const std::shared_ptr<Node>& root, DerivedUnit& derivedUnit, int sign)
+void parseUnit(const std::shared_ptr<Node>& root, DerivedUnit& derivedUnit, double sign)
 {
     if(root->str == "*")
     {

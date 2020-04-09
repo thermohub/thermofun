@@ -97,6 +97,9 @@ struct ThermoParametersSubstance
     /// Properties of phase transition (Berman): Tr; Tft; tilt; l1,l2 (reserved)
     vvd phase_transition_prop_Berman;
 
+    // HP Landau
+    vd m_landau_phase_trans_props;
+
 //    ParamsHKF HKF_param;
 
     /// Empirical coefficients of HKF EOS (a1, a2, a3, a4, c1, c2, w0)
