@@ -33,7 +33,7 @@ class ThermoEngine
 public:
     /**
      * @brief Construct a new Thermo Engine object
-     * 
+     *
      * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
      */
     explicit ThermoEngine(const std::string filename);
@@ -73,67 +73,67 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param substance The symbol of the substance
-    auto thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance;
 
     /// Calculate the thermodynamic properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param substance substance object
-    auto thermoPropertiesSubstance(double T, double &P, const Substance& substance) -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance;
 
     /// Calculate the electro-chemical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param solvent The symbol of the substance solvent
-    auto electroPropertiesSolvent(double T, double &P, std::string solvent) -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double &P, std::string solvent) const -> ElectroPropertiesSolvent;
 
     /// Calculate the electro-chemical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param solvent substance solvent object
-    auto electroPropertiesSolvent(double T, double &P, const Substance& solvent) -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double &P, const Substance& solvent) const -> ElectroPropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param solvent The symbol of the substance solvent
-    auto propertiesSolvent(double T, double &P, std::string solvent) -> PropertiesSolvent;
+    auto propertiesSolvent(double T, double &P, std::string solvent) const -> PropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param solvent substance solvent object
-    auto propertiesSolvent(double T, double &P, const Substance& solvent) -> PropertiesSolvent;
+    auto propertiesSolvent(double T, double &P, const Substance& solvent) const -> PropertiesSolvent;
 
     // Reaction
     /// Calculate the thermodynamic properties of a reaction.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
-    auto thermoPropertiesReaction(double T, double &P, std::string reaction) -> ThermoPropertiesReaction;
+    auto thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction;
 
     /// Calculate the thermodynamic properties of a reaction.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param reaction the reaction object
-    auto thermoPropertiesReaction(double T, double &P, const Reaction& reaction) -> ThermoPropertiesReaction;
+    auto thermoPropertiesReaction(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
     /// Calculate the thermodynamic properties of a reaction from the substances participating in the reaction.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
-    auto thermoPropertiesReactionFromReactants(double T, double &P, std::string reaction) -> ThermoPropertiesReaction;
+    auto thermoPropertiesReactionFromReactants(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction;
 
     /// Calculate the thermodynamic properties of a reaction from the substances participating in the reaction.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param reaction the reaction object
-    auto thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) -> ThermoPropertiesReaction;
+    auto thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
     /// Pareses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
-    auto parseSubstanceFormula(std::string formula) -> std::map<Element, double>;
+    auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
 
 private:
     struct Impl;
