@@ -57,7 +57,7 @@ struct Database::Impl
     }
 
     template<typename Key, typename Value>
-    auto collectValues(const std::map<Key, Value>& map) -> std::vector<Value>
+    auto collectValues(const std::map<Key, Value>& map) const -> std::vector<Value>
     {
         std::vector<Value> collection;
         collection.reserve(map.size());
@@ -114,34 +114,34 @@ struct Database::Impl
         reactions_map = reactions;
     }
 
-    auto getElements() -> std::vector<Element>
+    auto getElements() const -> std::vector<Element>
     {
         return collectValues(elements_map);
     }
 
-    auto getSubstances() -> std::vector<Substance>
+    auto getSubstances() const -> std::vector<Substance>
     {
         return collectValues(substances_map);
     }
 
-    auto getReactions() -> std::vector<Reaction>
+    auto getReactions() const -> std::vector<Reaction>
     {
         return collectValues(reactions_map);
     }
 
-    auto numberOfElements() -> size_t
+    auto numberOfElements() const -> size_t
     {
-        return collectValues(elements_map).size();
+        return elements_map.size();
     }
 
-    auto numberOfSubstances() -> size_t
+    auto numberOfSubstances() const -> size_t
     {
-        return collectValues(substances_map).size();
+        return substances_map.size();
     }
 
-    auto numberOfReactions() -> size_t
+    auto numberOfReactions() const -> size_t
     {
-        return collectValues(reactions_map).size();
+        return reactions_map.size();
     }
 
     auto getElement(std::string symbol) -> Element&
@@ -426,32 +426,32 @@ auto Database::mapReactions() const -> const ReactionsMap&
     return pimpl->mapReactions();
 }
 
-auto Database::getElements() -> std::vector<Element>
+auto Database::getElements() const -> std::vector<Element>
 {
     return pimpl->getElements();
 }
 
-auto Database::getSubstances() -> std::vector<Substance>
+auto Database::getSubstances() const -> std::vector<Substance>
 {
     return pimpl->getSubstances();
 }
 
-auto Database::getReactions() -> std::vector<Reaction>
+auto Database::getReactions() const -> std::vector<Reaction>
 {
     return pimpl->getReactions();
 }
 
-auto Database::numberOfElements() -> size_t
+auto Database::numberOfElements() const -> size_t
 {
     return pimpl->numberOfElements();
 }
 
-auto Database::numberOfSubstances() -> size_t
+auto Database::numberOfSubstances() const -> size_t
 {
     return pimpl->numberOfSubstances();
 }
 
-auto Database::numberOfReactions() -> size_t
+auto Database::numberOfReactions() const -> size_t
 {
     return pimpl->numberOfReactions();
 }
@@ -471,7 +471,7 @@ auto Database::containsReaction(std::string symbol) const -> bool
     return pimpl->containsReaction(symbol);
 }
 
-auto Database::parseSubstanceFormula(std::string formula_) -> std::map<Element, double>
+auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Element, double>
 {
     std::set<ElementKey> elements;
     std::map<Element, double> map;
