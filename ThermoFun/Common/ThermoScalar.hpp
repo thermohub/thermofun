@@ -64,7 +64,7 @@ public:
     /// Construct a custom ThermoScalarBase instance with given value only.
     /// @param val The value of the thermodynamic property
     explicit ThermoScalarBase(double val)
-        : ThermoScalarBase(val, 0.0, 0.0, 0.0, {Status::initialized, ""}) {}
+        : ThermoScalarBase(val, 0.0, 0.0, 0.0, {Status::notdefined, ""}) {}
 
     /// Construct a custom ThermoScalarBase instance with given value and derivatives.
     /// @param val The value of the thermodynamic property
