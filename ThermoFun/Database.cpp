@@ -68,23 +68,23 @@ struct Database::Impl
 
     auto addElement(const Element& element) -> void
     {
-        checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map.insert({element.symbol(), element});
     }
 
     auto setElement(const Element& element) -> void
     {
+        checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map[element.symbol()] = element;
     }
 
     auto addSubstance(const Substance& substance) -> void
     {
-        checkIfSymbolExists(substances_map, "substance", substance.symbol());
         substances_map.insert({substance.symbol(), substance});
     }
 
     auto setSubstance(const Substance& substance) -> void
     {
+        checkIfSymbolExists(substances_map, "substance", substance.symbol());
         substances_map[substance.symbol()] = substance;
     }
 
@@ -100,12 +100,12 @@ struct Database::Impl
 
     auto addReaction(const Reaction& reaction) -> void
     {
-        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
         reactions_map.insert({reaction.symbol(), reaction});
     }
 
     auto setReaction(const Reaction& reaction) -> void
     {
+        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
         reactions_map[reaction.symbol()] = reaction;
     }
 

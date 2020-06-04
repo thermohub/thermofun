@@ -155,6 +155,7 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+    CTPM_CON = 99, // constant properties from ref T-P
     CTPM_CPT = 100,
     CTPM_HKF = 101,
     CTPM_REA = 102,
@@ -573,9 +574,16 @@ typedef struct {
 typedef struct {
   enum type {
     DCOMP = 0,            ///< Dependent component, properties calculated using a PT model for the substance
-    REACDC = 1            ///< Reaction dependent component, proeprties claculated from the reaction properties
+    REACDC = 1            ///< Reaction dependent component, properties calculated from the reaction properties
   };
 } SubstanceThermoCalculationType;
+
+typedef struct {
+  enum type {
+    REACTION = 0,            ///< Reaction, properties calculated using a PT model for the reaction
+    REACTANTS = 1            ///< Properties calculated from reactants
+  };
+} RectionThermoCalculationType;
 
 
 /// Key for reading substance / reaction data from input files
