@@ -4,18 +4,34 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
-# The name of the shared and static libraries
-set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
-set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
 
-# Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+if(TFUN_BUILD_SHARED_LIBS)
+    set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
+    # Create a library using the collected source files
+    add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
+    # Add aliases for ThermoFun shared and static libraries
+    add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
+    # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    #add_library(XGEMS_SHARED SHARED $<TARGET_OBJECTS:XGEMS_OBJECT>)
+    #target_link_libraries(XGEMS_SHARED GEMS3K-static)
+    #set_target_properties(XGEMS_SHARED PROPERTIES OUTPUT_NAME xGEMS)
+    #install(TARGETS XGEMS_SHARED DESTINATION "lib" COMPONENT libraries)
+endif()
 
-# Create a library using the collected source files
-add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
+# Check if a static library must be built
+if(TFUN_BUILD_STATIC_LIBS)
+    set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
+    # Create a library using the collected source files
+    add_library(ThermoFun STATIC ${HEADER_FILES} ${SOURCE_FILES})
+    # Add aliases for ThermoFun shared and static libraries
+    add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
+    #add_library(XGEMS_STATIC STATIC $<TARGET_OBJECTS:XGEMS_OBJECT>)
+    #target_link_libraries(XGEMS_STATIC GEMS3K-static)
+    #set_target_properties(XGEMS_STATIC PROPERTIES OUTPUT_NAME xGEMS)
+    #install(TARGETS XGEMS_STATIC DESTINATION "lib" COMPONENT libraries)
+endif()
 
-# Add aliases for ThermoFun shared and static libraries
-add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     #link_directories("/usr/local/lib")
