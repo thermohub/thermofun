@@ -210,16 +210,16 @@ struct Database::Impl
 
     auto addRecord(json j, std::string _label) -> void
     {
-        auto properties = j;
+        auto props= j;
 
         if (j.contains("properties"))
             if (!j["properties"].is_null())
-                properties = j["properties"];
+                props = j["properties"];
         if (j.contains("_label"))
             if (!j["_label"].is_null())
                 _label = j["_label"].get<std::string>();
 
-        auto props = properties.dump();
+        // props = props.dump();
 
         if (_label == "substance")
         {
