@@ -219,7 +219,7 @@ struct Database::Impl
             if (!j["_label"].is_null())
                 _label = j["_label"].get<std::string>();
 
-        // props = props.dump();
+        props = props.dump();
 
         if (_label == "substance")
         {
