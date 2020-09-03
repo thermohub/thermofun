@@ -33,7 +33,7 @@ else()
     # Ensure proper configuration if in a conda environment
     include(CondaAware)
     option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
-    option(TFUN_BUILD_STATIC_LIBS "Build static libraries." OFF)
+    option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
     #option(TFUN_BUILD_TESTS "Build tests." OFF)
     option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
     # Define if shared library should be build instead of static.
