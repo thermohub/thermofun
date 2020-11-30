@@ -35,17 +35,17 @@ void exportThermoEngine(py::module& m)
     auto appendData1 = static_cast<void(ThermoEngine::*)(std::string)>(&ThermoEngine::appendData);
     auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>, std::string)>(&ThermoEngine::appendData);
 
-    auto thermoPropertiesSubstance1 = static_cast<ThermoPropertiesSubstance(ThermoEngine::*)(double, double&, std::string)>(&ThermoEngine::thermoPropertiesSubstance);
-    auto electroPropertiesSolvent1 = static_cast<ElectroPropertiesSolvent(ThermoEngine::*)(double, double&, std::string)>(&ThermoEngine::electroPropertiesSolvent);
-    auto propertiesSolvent1 = static_cast<PropertiesSolvent(ThermoEngine::*)(double, double&, std::string)>(&ThermoEngine::propertiesSolvent);
-    auto thermoPropertiesReaction1 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, std::string)>(&ThermoEngine::thermoPropertiesReaction);
-    auto thermoPropertiesReactionFromReactants1 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, std::string)>(&ThermoEngine::thermoPropertiesReactionFromReactants);
+    auto thermoPropertiesSubstance1 = static_cast<ThermoPropertiesSubstance(ThermoEngine::*)(double, double&, std::string) const>(&ThermoEngine::thermoPropertiesSubstance);
+    auto electroPropertiesSolvent1 = static_cast<ElectroPropertiesSolvent(ThermoEngine::*)(double, double&, std::string) const>(&ThermoEngine::electroPropertiesSolvent);
+    auto propertiesSolvent1 = static_cast<PropertiesSolvent(ThermoEngine::*)(double, double&, std::string) const>(&ThermoEngine::propertiesSolvent);
+    auto thermoPropertiesReaction1 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, std::string) const>(&ThermoEngine::thermoPropertiesReaction);
+    auto thermoPropertiesReactionFromReactants1 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, std::string) const>(&ThermoEngine::thermoPropertiesReactionFromReactants);
 
-    auto thermoPropertiesSubstance2 = static_cast<ThermoPropertiesSubstance(ThermoEngine::*)(double, double&, const Substance&)>(&ThermoEngine::thermoPropertiesSubstance);
-    auto electroPropertiesSolvent2 = static_cast<ElectroPropertiesSolvent(ThermoEngine::*)(double, double&, const Substance&)>(&ThermoEngine::electroPropertiesSolvent);
-    auto propertiesSolvent2 = static_cast<PropertiesSolvent(ThermoEngine::*)(double, double&, const Substance&)>(&ThermoEngine::propertiesSolvent);
-    auto thermoPropertiesReaction2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&)>(&ThermoEngine::thermoPropertiesReaction);
-    auto thermoPropertiesReactionFromReactants2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&)>(&ThermoEngine::thermoPropertiesReactionFromReactants);
+    auto thermoPropertiesSubstance2 = static_cast<ThermoPropertiesSubstance(ThermoEngine::*)(double, double&, const Substance&) const>(&ThermoEngine::thermoPropertiesSubstance);
+    auto electroPropertiesSolvent2 = static_cast<ElectroPropertiesSolvent(ThermoEngine::*)(double, double&, const Substance&) const>(&ThermoEngine::electroPropertiesSolvent);
+    auto propertiesSolvent2 = static_cast<PropertiesSolvent(ThermoEngine::*)(double, double&, const Substance&) const>(&ThermoEngine::propertiesSolvent);
+    auto thermoPropertiesReaction2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&) const>(&ThermoEngine::thermoPropertiesReaction);
+    auto thermoPropertiesReactionFromReactants2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&) const>(&ThermoEngine::thermoPropertiesReactionFromReactants);
 
     py::class_<ThermoEngine>(m, "ThermoEngine")
 //        .def(py::init<>())
