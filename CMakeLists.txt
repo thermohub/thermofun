@@ -1,8 +1,8 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.9)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.3.3 LANGUAGES CXX)
+project(ThermoFun VERSION 0.3.5 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -13,15 +13,6 @@ include(CCache)
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
 
-# Ensure proper configuration if in a conda environment
-include(CondaAware)
-
-# Define which types of libraries to build
-option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
-#option(TFUN_BUILD_TESTS "Build tests." OFF)
-option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
-
 # Modify the TFUN_BUILD_* variables accordingly to BUILD_ALL
 if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_SHARED_LIBS          ON)
@@ -30,6 +21,27 @@ if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_PYTHON               ON)
 endif()
 
+if (TFUN_WASM MATCHES ON)
+    # Define which types of libraries to build
+    option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
+    set(TFUN_BUILD_PYTHON               OFF)
+    # Set the list of compiler flags for Clang compiler
+    if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    add_compile_options(-std=c++11 -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated -fcxx-exceptions -frtti)
+    endif()
+else()
+    # Ensure proper configuration if in a conda environment
+    include(CondaAware)
+    option(TFUN_BUILD_SHARED_LIBS "Build shared libraries." ON)
+    option(TFUN_BUILD_STATIC_LIBS "Build static libraries." ON)
+    #option(TFUN_BUILD_TESTS "Build tests." OFF)
+    option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
+    # Define if shared library should be build instead of static.
+    option(BUILD_SHARED_LIBS "Build shared libraries." ON)
+
+    # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 # Set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -39,12 +51,6 @@ if(NOT CMAKE_BUILD_TYPE)
     # The build type options for the project
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release MinSizeRel RelWithDebInfo)
 endif()
-
-# Define if shared library should be build instead of static.
-option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-
-# Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 14)

@@ -1,0 +1,28 @@
+{
+    "thermodataset": "contains only one element Co",
+    "datasources": [],
+    "date": "09.12.2019 13:03:05",
+    "elements": [
+        {
+            "atomic_mass": {
+              "name": "M0i",
+              "values": [
+                58.9332008361816
+              ]
+            },
+            "class_": {
+              "0": "ELEMENT"
+            },
+            "datasources": [
+              "Supcrt-Slop98"
+            ],
+            "entropy": {
+              "name": "S0i",
+              "values": [
+                30.0400009155273
+              ]
+            },
+            "symbol": "Co"
+          }
+    ]
+}

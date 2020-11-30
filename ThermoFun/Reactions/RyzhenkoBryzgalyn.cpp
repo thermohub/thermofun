@@ -71,7 +71,7 @@ auto thermoPropertiesRyzhenkoBryzgalin(Reaktoro_::Temperature TK, Reaktoro_::Pre
     tpr.reaction_entropy           = dSr;
     tpr.reaction_enthalpy          = dHr;
     tpr.reaction_heat_capacity_cp  = dCPr;
-    tpr.reaction_volume            = dVr;
+    tpr.reaction_volume            = dVr*1e5; // to J/bar
     tpr.reaction_helmholtz_energy  = dAr;
     tpr.reaction_internal_energy   = dUr;
 

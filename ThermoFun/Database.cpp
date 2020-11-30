@@ -210,16 +210,16 @@ struct Database::Impl
 
     auto addRecord(json j, std::string _label) -> void
     {
-        auto properties = j;
+        auto props= j;
 
         if (j.contains("properties"))
             if (!j["properties"].is_null())
-                properties = j["properties"];
+                props = j["properties"];
         if (j.contains("_label"))
             if (!j["_label"].is_null())
                 _label = j["_label"].get<std::string>();
 
-        auto props = properties.dump();
+        props = props.dump();
 
         if (_label == "substance")
         {
@@ -343,12 +343,18 @@ auto Database::operator=(Database other) -> Database&
 
 auto Database::appendData(std::string filename) -> void
 {
+    auto elements_number = pimpl->mapElements().size();
     pimpl->fromFile(filename);
+    if (elements_number != pimpl->mapElements().size())
+        ChemicalFormula::setDBElements(pimpl->mapElements());
 }
 
 auto Database::appendData(vector<string> jsonRecords, std::string _label = "unknown label") -> void
 {
+    auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);
+    if (elements_number != pimpl->mapElements().size())
+        ChemicalFormula::setDBElements(pimpl->mapElements());
 }
 
 auto Database::addElement(const Element& element) -> void
