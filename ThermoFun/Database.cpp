@@ -343,12 +343,18 @@ auto Database::operator=(Database other) -> Database&
 
 auto Database::appendData(std::string filename) -> void
 {
+    auto elements_number = pimpl->mapElements().size();
     pimpl->fromFile(filename);
+    if (elements_number != pimpl->mapElements().size())
+        ChemicalFormula::setDBElements(pimpl->mapElements());
 }
 
 auto Database::appendData(vector<string> jsonRecords, std::string _label = "unknown label") -> void
 {
+    auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);
+    if (elements_number != pimpl->mapElements().size())
+        ChemicalFormula::setDBElements(pimpl->mapElements());
 }
 
 auto Database::addElement(const Element& element) -> void
