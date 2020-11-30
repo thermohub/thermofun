@@ -42,3 +42,9 @@ class TestDatabase(unittest.TestCase):
         assert self.database.getSubstance("SiO2@").name() == "SiO2 (aq)"
         assert self.database.getSubstance("SiO2@").thermoReferenceProperties().gibbs_energy.val == -833411
         assert self.database.numberOfSubstances() == 7
+        assert self.database.numberOfElements() == 4
+
+    def test_append_element(self):
+        self.database.appendData('pytests/test-element-Co-thermofun.json')
+        assert self.database.parseSubstanceFormula('Co+2')
+        assert self.database.numberOfElements() == 5

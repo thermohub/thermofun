@@ -40,6 +40,10 @@ struct Reaction::Impl
     /// Method of pressure correction of thermodynamic properties
     MethodCorrP_Thrift::type  method_P;
 
+    /// Type of calculation used for determining the reaction properties
+    /// using a defined PT correction model or from reactants
+    RectionThermoCalculationType::type thermo_calculation_type = RectionThermoCalculationType::type::REACTANTS;
+
     /// Reference temperature (in K)
     double reference_T = 298.15;
 

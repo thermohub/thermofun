@@ -213,6 +213,14 @@ struct ThermoEngine::Impl
 
         if (pref.isHydrogen)
         {
+            tps.volume = 0.0;
+            tps.entropy = 0.0;
+            tps.enthalpy = 0.0;
+            tps.gibbs_energy = 0.0;
+            tps.internal_energy = 0.0;
+            tps.heat_capacity_cp = 0.0;
+            tps.heat_capacity_cv = 0.0;
+            tps.helmholtz_energy = 0.0;
             return tps;
         }
 
@@ -223,6 +231,11 @@ struct ThermoEngine::Impl
                 // metohd EOS
                 switch (pref.method_genEOS)
                 {
+                case MethodGenEoS_Thrift::type::CTPM_CON:
+                {
+                    tps = substance.thermoReferenceProperties();
+                    break;
+                }
                 case MethodGenEoS_Thrift::type::CTPM_CPT:
                 {
                     tps = EmpiricalCpIntegration(pref.workSubstance).thermoProperties(T, P);
@@ -574,9 +587,16 @@ struct ThermoEngine::Impl
         {
             switch (pref.method_genEOS)
             {
+            case MethodGenEoS_Thrift::type::CTPM_CON:
+            {
+                tpr = reaction.thermoReferenceProperties();
+                break;
+            }
             case MethodGenEoS_Thrift::type::CTPM_REA:
+            {
                 pref.method_T = MethodCorrT_Thrift::type::CTM_LGK;
-
+                break;
+            }
             }
 
             switch (pref.method_T)
@@ -660,7 +680,7 @@ struct ThermoEngine::Impl
         else
             tpr = thermoPropertiesReactionFromReactants(T, P, reaction);
 
-        return tpr;
+        return tpr; 
     }
 
     auto thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
