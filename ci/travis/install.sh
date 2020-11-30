@@ -30,4 +30,4 @@ cmake -GNinja \
 ninja install
 conda list
 cd ..
-pytest -ra -vv --color=yes .
+if [ $TRAVIS_OS_NAME = "linux" ]; then pytest -ra -vv --color=yes .; fi 

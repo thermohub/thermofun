@@ -31,7 +31,7 @@ public:
 
     /**
      * @brief Construct a new Database object
-     * 
+     *
      * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
      */
     explicit Database(std::string filename);
@@ -98,13 +98,13 @@ public:
     auto addMapReactions(const ReactionsMap& reactions) -> void;
 
     /// Return all elements in the database
-    auto getElements() -> std::vector<Element>;
+    auto getElements() const -> std::vector<Element>;
 
     /// Return all substances in the database
-    auto getSubstances() -> std::vector<Substance>;
+    auto getSubstances() const -> std::vector<Substance>;
 
     /// Return all reactions in the database
-    auto getReactions() -> std::vector<Reaction>;
+    auto getReactions() const -> std::vector<Reaction>;
 
     /// Returns the map of elements in the database
     auto mapElements() const -> const ElementsMap&;
@@ -116,13 +116,13 @@ public:
     auto mapReactions() const -> const ReactionsMap&;
 
     /// Returns the number of elements in the databse
-    auto numberOfElements() -> size_t;
+    auto numberOfElements() const -> size_t;
 
     /// Returns the number of substances in the databse
-    auto numberOfSubstances() -> size_t;
+    auto numberOfSubstances() const -> size_t;
 
     /// Returns the number of reactions in the database
-    auto numberOfReactions() -> size_t;
+    auto numberOfReactions() const -> size_t;
 
     /// Return a element in the database
     auto getElement(std::string symbol) const -> const Element&;
@@ -148,7 +148,7 @@ public:
     /// Pareses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
-    auto parseSubstanceFormula(std::string formula) -> std::map<Element, double>;
+    auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
 
 private:
     struct Impl;
