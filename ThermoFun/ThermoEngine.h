@@ -93,12 +93,6 @@ public:
     /// @param solvent substance solvent object
     auto electroPropertiesSolvent(double T, double &P, const Substance& solvent) const -> ElectroPropertiesSolvent;
 
-    /// Calculate the electro-chemical properties of a substance.
-    /// @param T The temperature value (in units of K)
-    /// @param P The pressure value (in units of Pa)
-    /// @param solvent substance solvent object
-    auto electroPropertiesSolvent(double T, double &P, const Substance& solvent) -> ElectroPropertiesSolvent;
-
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
@@ -110,12 +104,6 @@ public:
     /// @param P The pressure value (in units of Pa)
     /// @param solvent substance solvent object
     auto propertiesSolvent(double T, double &P, const Substance& solvent) const -> PropertiesSolvent;
-
-    /// Calculate the physical properties of a substance.
-    /// @param T The temperature value (in units of K)
-    /// @param P The pressure value (in units of Pa)
-    /// @param solvent substance solvent object
-    auto propertiesSolvent(double T, double &P, const Substance& solvent) -> PropertiesSolvent;
 
     // Reaction
     /// Calculate the thermodynamic properties of a reaction.
