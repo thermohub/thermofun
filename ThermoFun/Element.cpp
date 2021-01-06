@@ -20,7 +20,7 @@ struct Element::Impl
     double volume;
 
     /// The valence of the element
-    int valence;
+    int valence = 777;
 
     /// The molar mass of the chemical element (in units of g/mol)
     double molarMass;
