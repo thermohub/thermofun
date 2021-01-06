@@ -48,3 +48,15 @@ class TestDatabase(unittest.TestCase):
         self.database.appendData('pytests/test-element-Co-thermofun.json')
         assert self.database.parseSubstanceFormula('Co+2')
         assert self.database.numberOfElements() == 5
+
+    def test_formula_parser(self):
+        self.database.appendData('pytests/Fe-O_system.json')
+        assert self.database.parseSubstanceFormula('FeFe|3|2O4')
+        elements = self.database.parseSubstanceFormula('FeFe|3|2O4')
+        assert len(elements) == 2
+        assert elements[list(elements.keys())[0]] == 3
+        assert elements[list(elements.keys())[1]] == 4
+        elements = self.database.parseSubstanceFormula('C|-4|H4@')
+        assert elements[list(elements.keys())[0]] == 1
+        assert elements[list(elements.keys())[1]] == 4
+        assert elements[list(elements.keys())[2]] == 0
