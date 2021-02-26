@@ -53794,7 +53794,30 @@
               "a8",
               "a9",
               "a10"
-            ]
+            ],
+            "m_phase_trans_props": {
+              "values": [
+                411.00000610352,
+                0,
+                0,
+                0,
+                0
+              ],
+              "units": [
+                "K",
+                "J/(mol*K)",
+                "J/mol",
+                "J/bar",
+                "K/bar"
+              ],
+              "names": [
+                "Temperature",
+                "dS",
+                "dH",
+                "dV",
+                "dT/dP"
+              ]
+            }
           }
         },
         {
@@ -53845,7 +53868,30 @@
               "a8",
               "a9",
               "a10"
-            ]
+            ],
+            "m_phase_trans_props": {
+              "values": [
+                598.00000610352,
+                0,
+                0,
+                0,
+                0
+              ],
+              "units": [
+                "K",
+                "J/(mol*K)",
+                "J/mol",
+                "J/bar",
+                "K/bar"
+              ],
+              "names": [
+                "Temperature",
+                "dS",
+                "dH",
+                "dV",
+                "dT/dP"
+              ]
+            }
           }
         },
         {
