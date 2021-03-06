@@ -485,8 +485,8 @@ auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Ele
 
     formula.setFormula(formula_);
 
-//    FormulaProperites props;
-//    formula.calcFormulaProperites(props);
+    FormulaProperites props;
+    formula.calcFormulaProperites(props);
 
     for (auto element : formula.getElements_map())
     {
