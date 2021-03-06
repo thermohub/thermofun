@@ -337,7 +337,7 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
 
     read_values_units(j, "eos_akinfiev_diamond_coeffs", ps.Cp_nonElectrolyte_coeff, {"1", "(cm^3)/g", "(cm^3*K^0.5)/g"});
     // ps.volume_BirchM_coeff = read_values_units(j, "eos_birch_murnaghan_coeffs", {});
-    read_values_units(j, "eos_gas_crit_props", ps.critical_parameters, {"K", "Pa", "1", "1"});
+    read_values_units(j, "eos_gas_crit_props", ps.critical_parameters, {"K", "bar", "1", "1"});
     read_values_units(j, "eos_hkf_coeffs", ps.HKF_parameters, {"cal/(mol*bar)", "cal/mol", "(cal*K)/(mol*bar)", "(cal*K)/mol", "cal/(mol*K)", "(cal*K)/mol", "cal/mol"});
 
     // temporary fix - need to think how to handle more than 1 TP interval - for new structure - simplified
