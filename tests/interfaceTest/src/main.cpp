@@ -59,6 +59,9 @@
 
 
       // Test
+      Database db("mines16-thermofun.json");
+      auto test = db.getSubstance("O2");
+
       ThermoEngine engine("aq17-thermofun.json");
 
       engine.appendData("append-thermofun.json");
