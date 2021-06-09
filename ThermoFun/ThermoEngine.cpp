@@ -363,6 +363,10 @@ struct ThermoEngine::Impl
 
             if (pref.isH2OSolvent || pref.isH2Ovapor)
             {
+                if (pref.method_genEOS == MethodGenEoS_Thrift::type::CTPM_CON)
+                {
+                    tps = substance.thermoReferenceProperties();
+                } else
                 switch (pref.method_T)
                 {
                 case MethodCorrT_Thrift::type::CTM_WAT:
