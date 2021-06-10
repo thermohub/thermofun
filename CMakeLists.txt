@@ -77,6 +77,10 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     include_directories("/usr/local/include")
     link_directories("/usr/local/lib")
 endif()
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    include_directories("c:/usr/local/include")
+    link_directories("c:/usr/local/lib")
+endif()
 
 # Find all Reaktoro dependencies
 include(ThermoFunFindDeps)
