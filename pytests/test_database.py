@@ -60,3 +60,110 @@ class TestDatabase(unittest.TestCase):
         assert elements[list(elements.keys())[0]] == 1
         assert elements[list(elements.keys())[1]] == 4
         assert elements[list(elements.keys())[2]] == 0
+
+    def test_add_json_reaction_substance(self):
+        reacLit = R'''
+{
+  "TPMethods":[
+    {
+      "dr_ryzhenko_coeffs":{
+        "values":[
+          2.426,
+          2.899,
+          -662.33
+        ]
+      },
+      "method":{
+        "10":"solute_eos_ryzhenko_gems"
+      }
+    }
+  ],
+  "datasources":"Migdisov et al., 2011",
+  "equation":"Co+2 + 4Cl- = CoCl4-2R",
+  "symbol":"CoCl4-2R"
+}
+'''
+        substLit = R'''
+{
+  "Pst": 100000,
+  "TPMethods": [
+    {
+      "eos_hkf_coeffs": {
+        "names": [
+          "a1",
+          "a2",
+          "a3",
+          "a4",
+          "c1",
+          "c2",
+          "wref"
+        ],
+        "units": [
+          "cal/mol/bar",
+          "cal/mol",
+          "cal*K/mol/bar",
+          "cal*K/mol",
+          "cal/K/mol",
+          "cal*K/mol",
+          "cal/mol"
+        ],
+        "values": [
+          -0.12252,
+          -893.56,
+          5.3191,
+          -24095,
+          15.2013,
+          -46234,
+          147690
+        ]
+      },
+      "method": {
+        "3": "solute_hkf88_reaktoro"
+      }
+    }
+  ],
+  "Tst": 298.15,
+  "aggregate_state": {
+    "4": "AS_AQUEOUS"
+  },
+  "class_": {
+    "2": "SC_AQSOLUTE"
+  },
+  "datasources": [
+    "Shock, 1997a"
+  ],
+  "formula": "Co+2",
+  "formula_charge": 2,
+  "name": "Co+2",
+  "reaction": "Co+2",
+  "sm_enthalpy": {
+    "values": [
+      -13900
+    ],
+    "units": [
+      "J/mol"
+    ]
+  },
+  "sm_entropy_abs": {
+    "values": [
+      -27
+    ]
+  },
+  "sm_gibbs_energy": {
+    "values": [
+      -13000
+    ],
+    "units": [
+      "J/mol"
+    ]
+  },
+  "symbol": "Co+2_string_lit"
+}
+'''
+        self.database.addReaction(reacLit)
+        self.database.addSubstance(substLit)
+        subst = thermofun.Substance(substLit)
+        assert self.database.getReaction("CoCl4-2R").equation() == "Co+2 + 4Cl- = CoCl4-2R"
+        assert self.database.getSubstance("Co+2_string_lit").thermoParameters().HKF_parameters[0] == -0.12252 # "cal/(mol*bar)"
+        assert subst.thermoReferenceProperties().gibbs_energy.val == -13000.0 # J/mol
+

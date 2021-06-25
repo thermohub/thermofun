@@ -14,6 +14,9 @@ public:
     /// Construct a default Element instance
     Element();
 
+    /// Constrcut an Element instance from a JSON string
+    Element(std::string jsonElement);
+
     /// Construct a copy of an Element instance
     Element(const Element& other);
 

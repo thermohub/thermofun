@@ -203,9 +203,9 @@ struct Database::Impl
     {
         auto it = map_.find(symbol);
         if (it != map_.end())
-            cout << "The "<< record_type <<" with the symbol " << symbol
+            cout << "The "<< record_type <<" with symbol " << symbol
                  << " is already in the database. Overwritting ..." << endl
-                 << "To add it to the database assign it a different symbol." << endl;
+                 << "To add it to the database as a separate record assign it a different symbol." << endl;
     }
 
     auto addRecord(json j, std::string _label) -> void
@@ -367,6 +367,17 @@ auto Database::setElement(const Element& element) -> void
     pimpl->setElement(element);
 }
 
+auto Database::addElement(const std::string& jsonElement) -> void
+{
+    pimpl->addElement(Element(jsonElement));
+}
+
+auto Database::setElement(const std::string& jsonElement) -> void
+{
+    pimpl->setElement(Element(jsonElement));
+}
+
+
 auto Database::addMapElements(const ElementsMap& elements) -> void
 {
     pimpl->addMapElements(elements);
@@ -382,6 +393,16 @@ auto Database::setSubstance(const Substance& substance) -> void
     pimpl->setSubstance(substance);
 }
 
+auto Database::addSubstance(const std::string &jsonSubstance) -> void
+{
+    pimpl->addSubstance(Substance(jsonSubstance));
+}
+
+auto Database::setSubstance(const std::string &jsonSubstance) -> void
+{
+    pimpl->setSubstance(Substance(jsonSubstance));
+}
+
 auto Database::addMapSubstances(const SubstancesMap& substances) -> void
 {
     pimpl->addMapSubstances(substances);
@@ -395,6 +416,16 @@ auto Database::addReaction(const Reaction& reaction) -> void
 auto Database::setReaction(const Reaction& reaction) -> void
 {
     pimpl->setReaction(reaction);
+}
+
+auto Database::addReaction(const std::string &jsonReaction) -> void
+{
+    pimpl->addReaction(Reaction(jsonReaction));
+}
+
+auto Database::setReaction(const std::string &jsonReaction) -> void
+{
+    pimpl->setReaction(Reaction(jsonReaction));
 }
 
 auto Database::addMapReactions(const ReactionsMap& reactions) -> void

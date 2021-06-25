@@ -11,6 +11,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Common/Exception.h"
+#include "Common/ParseJsonToData.h"
 
 namespace ThermoFun {
 
@@ -150,6 +151,14 @@ struct Reaction::Impl
 Reaction::Reaction()
 : pimpl(new Impl())
 {}
+
+Reaction::Reaction(std::string jsonReaction)
+: pimpl(new Impl())
+{
+    Reaction other = parseReaction(jsonReaction);
+    pimpl = std::move(other.pimpl);
+    setJsonString(jsonReaction);
+}
 
 Reaction::Reaction(const Reaction& other)
 : pimpl(new Impl(*other.pimpl))
@@ -508,6 +517,8 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
 //    th_param.reaction_logK_fT_coeff = K_fT_Coeff;
 //    setThermoParameters(th_param);
 }
+
+
 
 } // namespace ThermoFun
 

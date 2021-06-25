@@ -1,5 +1,6 @@
     #include "ThermoFun.h"
 #include "ThermoFun/Common/formuladata.h"
+#include "GlobalVariables.h"
 //#include "ThermoFun/Common/ThermoScalar.hpp"
     using namespace std;
     using namespace ThermoFun;
@@ -68,23 +69,137 @@
 
       auto P = 1e5;
 
-      engine.thermoPropertiesReaction(298.15, P, "NaHCO3@");
-      auto tps = engine.thermoPropertiesSubstance(298.15, P, "NaHCO3@");
+//      engine.thermoPropertiesReaction(298.15, P, "NaHCO3@");
+//      auto tps = engine.thermoPropertiesSubstance(298.15, P, "NaHCO3@");
 
-      ThermoEngine engine2("slop98-thermofun.json");
+      //ThermoEngine engine2("slop98-thermofun.json");
 
       //auto P = 1e5;
 
-      auto tpr = engine2.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
+     // auto tpr = engine2.thermoPropertiesReaction(298.15, P, "Cal = Ca+2 + CO3-2");
 
-      auto elements = engine2.parseSubstanceFormula("H2O@");
+      //auto elements = engine2.parseSubstanceFormula("H2O@");
 
       Reaction reac;
 
       reac.fromEquation("H2O@ = H+ + OH-");
 
 
-      auto waterprop = engine2.thermoPropertiesReaction(298.15, P, "H2O@ = H+ + OH-");
+      //auto waterprop = engine2.thermoPropertiesReaction(298.15, P, "H2O@ = H+ + OH-");
+
+      availableSubstanceTPMethods();
+
+      std::string substLit = R"(
+                           {
+                             "Pst":100000,
+                             "TPMethods":[
+                               {
+                                 "eos_hkf_coeffs":{
+                                   "names":[
+                                     "a1",
+                                     "a2",
+                                     "a3",
+                                     "a4",
+                                     "c1",
+                                     "c2",
+                                     "wref"
+                                   ],
+                                   "units":[
+                                     "cal/mol/bar",
+                                     "cal/mol",
+                                     "cal*K/mol/bar",
+                                     "cal*K/mol",
+                                     "cal/K/mol",
+                                     "cal*K/mol",
+                                     "cal/mol"
+                                   ],
+                                   "values":[
+                                     -1.2252e-1,
+                                     -8.9356e2,
+                                     5.3191,
+                                     -2.4095e4,
+                                     15.2013,
+                                     -4.6234e4,
+                                     1.4769e5
+                                   ]
+                                 },
+                                 "method":{
+                                   "3":"solute_hkf88_reaktoro"
+                                 }
+                               }
+                             ],
+                             "Tst":298.15,
+                             "aggregate_state":{
+                               "4":"AS_AQUEOUS"
+                             },
+                             "class_":{
+                               "2":"SC_AQSOLUTE"
+                             },
+                             "datasources":[
+                               "Shock, 1997a"
+                             ],
+                             "formula":"Co+2",
+                             "formula_charge":2,
+                             "name":"Co+2",
+                             "reaction":"Co+2",
+                             "sm_enthalpy":{
+                               "values":[
+                                 -13900
+                               ],
+                               "units":[
+                                 "J/mol"
+                               ]
+                             },
+                             "sm_entropy_abs":{
+                               "values":[
+                                 -27.000
+                               ]
+                             },
+                             "sm_gibbs_energy":{
+                               "values":[
+                                 -13000
+                               ],
+                               "units":[
+                                 "J/mol"
+                               ]
+                             },
+                             "symbol":"Co+2_string_lit"
+                           }
+           )";
+
+      std::string reacLit = R"(
+                            {
+                              "TPMethods": [
+                                {
+                                  "dr_ryzhenko_coeffs": {
+                                    "values": [
+                            2.426
+                            2.899,
+                            -662.33
+                                    ]
+                                  },
+                                  "method": {
+                                    "10": "solute_eos_ryzhenko_gems"
+                                  }
+                                }
+                              ],
+                              "datasources": "Migdisov et al., 2011",
+                              "equation": "Co+2 + 4Cl- = CoCl4-2R",
+                              "symbol": "CoCl4-2R"
+                            }
+                            )";
+
+      Substance subst(substLit);
+      availableReactionTPMethods();
+
+      db.addSubstance(substLit);
+      db.addReaction(reacLit);
+
+      P = 800e5;
+
+      ThermoEngine engine3(db);
+      auto res5 = engine3.thermoPropertiesSubstance(473, P, "Co+2_string_lit");
+      auto res6 = engine3.thermoPropertiesReaction(673, P, "CoCl4-2R");
 
 //      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
 //      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");

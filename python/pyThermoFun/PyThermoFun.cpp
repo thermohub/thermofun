@@ -17,6 +17,7 @@
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PyThermoFun.hpp"
+#include "ThermoFun/GlobalVariables.h"
 using namespace ThermoFun;
 
 PYBIND11_MODULE(PyThermoFun, m)
@@ -42,4 +43,7 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportSubstance(m);
     exportReaction(m);
     exportElement(m);
+
+    m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of avialable substance methods.");
+    m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of avialable reaction methods.");
 }
