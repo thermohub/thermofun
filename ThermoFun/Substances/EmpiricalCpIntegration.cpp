@@ -36,7 +36,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     if (thermo_parameters.Cp_coeff.size() == 0)
     {
-        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__, __FILE__);
+        errorModelParameters("Cp empirical coefficients", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
         return thermo_properties_PrTr;
     }
 

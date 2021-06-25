@@ -271,6 +271,7 @@ struct ThermoEngine::Impl
                 }
 
                 // method T
+                if (pref.method_genEOS != MethodGenEoS_Thrift::type::CTPM_CON)
                 switch (pref.method_T)
                 {
                 case MethodCorrT_Thrift::type::CTM_CHP:
@@ -289,6 +290,7 @@ struct ThermoEngine::Impl
                 }
 
                 // method P
+                if (pref.method_genEOS != MethodGenEoS_Thrift::type::CTPM_CON)
                 switch (pref.method_P)
                 {
                 case MethodCorrP_Thrift::type::CPM_AKI:
@@ -361,6 +363,10 @@ struct ThermoEngine::Impl
 
             if (pref.isH2OSolvent || pref.isH2Ovapor)
             {
+                if (pref.method_genEOS == MethodGenEoS_Thrift::type::CTPM_CON)
+                {
+                    tps = substance.thermoReferenceProperties();
+                } else
                 switch (pref.method_T)
                 {
                 case MethodCorrT_Thrift::type::CTM_WAT:
@@ -599,6 +605,7 @@ struct ThermoEngine::Impl
             }
             }
 
+            if (pref.method_genEOS != MethodGenEoS_Thrift::type::CTPM_CON)
             switch (pref.method_T)
             {
             case MethodCorrT_Thrift::type::CTM_LGX:
@@ -635,6 +642,7 @@ struct ThermoEngine::Impl
                 //        errorMethodNotFound("reaction", reac.name(), __LINE__);
             }
 
+            if (pref.method_genEOS != MethodGenEoS_Thrift::type::CTPM_CON)
             switch (pref.method_P)
             {
 
