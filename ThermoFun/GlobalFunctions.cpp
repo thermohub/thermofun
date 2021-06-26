@@ -1,4 +1,5 @@
 #include "GlobalVariables.h"
+#include "Batch/ThermoBatch.h"
 
 namespace ThermoFun {
 
@@ -16,6 +17,30 @@ auto availableSubstanceTPMethods() -> const std::string
             r += "}\n";
     }
     return r;
+}
+
+auto scanProperties(const std::string& what) -> const std::string
+{
+    std::string r = "property (unit)\n---------------\n";
+    for (auto a: defaultPropertyNames)
+    {
+        if (a.second == what)
+        {
+            r += a.first + " (";
+            r += defaultPropertyUnits.at(a.first)+ ")\n";
+        }
+    }
+    return r;
+}
+
+auto availablePropertiesSubstance() -> const std::string
+{
+    return scanProperties("substance");
+}
+
+auto availablePropertiesReaction() -> const std::string
+{
+    return scanProperties("reaction");
 }
 
 auto availableReactionTPMethods() -> const std::string

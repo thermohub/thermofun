@@ -237,9 +237,11 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> subs
 {SubstanceTPMethodType::standard_entropy_cp_integration, {""} }
 };
 
-auto availableSubstanceTPMethods() -> const std::string;
 
+auto availableSubstanceTPMethods() -> const std::string;
 auto availableReactionTPMethods() -> const std::string;
+auto availablePropertiesReaction() -> const std::string;
+auto availablePropertiesSubstance() -> const std::string;
 
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class

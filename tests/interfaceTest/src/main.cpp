@@ -191,6 +191,8 @@
 
       Substance subst(substLit);
       availableReactionTPMethods();
+      std::cout << availablePropertiesReaction()<< endl;
+      std::cout << availablePropertiesSubstance() << endl;
 
       db.addSubstance(substLit);
       db.addReaction(reacLit);

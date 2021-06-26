@@ -46,4 +46,6 @@ PYBIND11_MODULE(PyThermoFun, m)
 
     m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of avialable substance methods.");
     m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of avialable reaction methods.");
+    m.def("availablePropertiesSubstance", availableReactionTPMethods, "list of available properties to calculate for a substance record.");
+    m.def("availablePropertiesReaction", availableReactionTPMethods, "list of available properties to calculate for a reaction record.");
 }
