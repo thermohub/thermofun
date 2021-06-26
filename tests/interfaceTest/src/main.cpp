@@ -173,7 +173,7 @@
                                 {
                                   "dr_ryzhenko_coeffs": {
                                     "values": [
-                            2.426
+                            2.426,
                             2.899,
                             -662.33
                                     ]
@@ -197,11 +197,54 @@
       db.addSubstance(substLit);
       db.addReaction(reacLit);
 
+      std::string reacLit2 = R"(
+                             {
+                               "TPMethods":[
+                                 {
+                                   "dr_ryzhenko_coeffs":{
+                                     "values":[
+                                       3.61,
+                                       1.563,
+                                       -193.7
+                                     ]
+                                   },
+                                   "method":{
+                                     "10":"solute_eos_ryzhenko_gems"
+                                   }
+                                 }
+                               ],
+                               "datasources":"Migdisov et al., 2016",
+                               "equation":"LaSO4+_mi = La+3 + SO4-2",
+                               "symbol":"LaSO4+_mi"
+                             }
+                             )";
+      std::string substLit2 = R"(
+                              {
+                                  "symbol": "LaSO4+_mi",
+                                  "formula": "LaSO4+",
+                                  "reaction": "LaSO4+_mi",
+                                  "aggregate_state": {
+                                      "4": "AS_AQUEOUS"
+                                  },
+                                  "class_": {
+                                      "3": "SC_AQSOLVENT"
+                                  },
+                                  "Tst": 298.15,
+                                  "Pst": 100000
+                              }
+                             )";
+
       P = 800e5;
+
+      db.addReaction(reacLit2);
+      db.addSubstance(substLit2);
 
       ThermoEngine engine3(db);
       auto res5 = engine3.thermoPropertiesSubstance(473, P, "Co+2_string_lit");
       auto res6 = engine3.thermoPropertiesReaction(673, P, "CoCl4-2R");
+
+      auto res7 = engine3.thermoPropertiesSubstance(473, P, "LaSO4+_mi");
+      auto res8 = engine3.thermoPropertiesSubstance(473, P, "La(SO4)+");
 
 //      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
 //      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");

@@ -608,7 +608,10 @@ auto parseReaction(const std::string &data) -> Reaction
 
         if (j.contains("equation"))
             if (!j["equation"].is_null())
+            {
                 r.setEquation(j["equation"]);
+                r.fromEquation(r.equation());
+            }
 
         if (j.contains("limitsTP"))
             if (!j["limitsTP"].is_null())
