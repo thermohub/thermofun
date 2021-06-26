@@ -36,3 +36,35 @@ class TestThermoEngine(unittest.TestCase):
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_volume.val == pytest.approx(-60.00281, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_enthalpy.val == pytest.approx(-1139970.03233, 1e-5, 1e-14)
 
+    def test_properties_substance_from_reaction(self):
+        reacLit2 = '''{
+                               "TPMethods":[
+                                 {
+                                   "dr_ryzhenko_coeffs":{
+                                     "values":[
+                                       3.61,
+                                       1.563,
+                                       -193.7
+                                     ]
+                                   },
+                                   "method":{
+                                     "10":"solute_eos_ryzhenko_gems"
+                                   }
+                                 }
+                               ],
+                               "datasources":"Migdisov et al., 2016",
+                               "equation":"LaSO4+_mi = La+3 + SO4-2",
+                               "symbol":"LaSO4+_mi"
+                             }'''
+        substLit2 = '''{
+                                  "symbol": "LaSO4+_mi",
+                                  "formula": "LaSO4+",
+                                  "reaction": "LaSO4+_mi"
+                              }'''
+        db = thermofun.Database('pytests/mines16-sub-thermofun.json')
+        db.addReaction(reacLit2)
+        db.addSubstance(substLit2)
+        engine3 = thermofun.ThermoEngine(db)
+        assert engine3.thermoPropertiesSubstance(473.15, 0, "LaSO4+_mi").gibbs_energy.val == pytest.approx(-1426099.716850813, 1e-5, 1e-14)
+        assert engine3.thermoPropertiesSubstance(473.15, 0, "LaSO4+_mi").volume.val == pytest.approx(-1.883700250726727, 1e-5, 1e-14)
+        assert engine3.thermoPropertiesSubstance(473.15, 0, "LaSO4+_mi").entropy.val == pytest.approx(-168.47492835119232, 1e-5, 1e-14)
