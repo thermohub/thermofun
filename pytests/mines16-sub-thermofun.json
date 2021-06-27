@@ -1,0 +1,288 @@
+{
+  "datasources": [
+    "db.thermohub.org"
+  ],
+  "date": "06.03.2021 10:44:52",
+  "elements": [
+  ],
+  "reactions": [
+  ],
+  "substances": [
+    {
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "method": {
+            "32": "water_eos_iapws95_reaktoro"
+          }
+        },
+        {
+          "method": {
+            "25": "water_diel_jnort91_reaktoro"
+          }
+        }
+      ],
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "3": "SC_AQSOLVENT"
+      },
+      "datasources": [
+        "SUPCRT:1992:prog:               "
+      ],
+      "formula": "H2O@",
+      "formula_charge": 0,
+      "name": "H2O  l",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -285881
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          69.922996520996
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -237183
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          75.360527038574
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          1.8068397045136
+        ]
+      },
+      "symbol": "H2O@"
+    },
+    {
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "eos_hkf_coeffs": {
+            "names": [
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "c1",
+              "c2",
+              "wref"
+            ],
+            "units": [
+              "cal/(mol*bar)",
+              "cal/mol",
+              "(cal*K)/mol",
+              "cal/(mol*K)",
+              "(cal*K)/mol",
+              "cal/mol"
+            ],
+            "values": [
+              -0.27880001068115,
+              -1438.2399902344,
+              10.960200309753,
+              -21844,
+              4.2393999099731,
+              -106122,
+              215720.015625,
+              0
+            ]
+          },
+          "method": {
+            "3": "solute_hkf88_reaktoro"
+          }
+        }
+      ],
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "datasources": [
+        "Slop98_dat:1998:data:           "
+      ],
+      "formula": "La+3",
+      "formula_charge": 3,
+      "name": "La+3 ion",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -709606
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          -217.57000732422
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -686176
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          -154.7200012207
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          -3.9261000156403
+        ]
+      },
+      "symbol": "La+3"
+    },
+    {
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "eos_hkf_coeffs": {
+            "names": [
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "c1",
+              "c2",
+              "wref"
+            ],
+            "units": [
+              "cal/(mol*bar)",
+              "cal/mol",
+              "(cal*K)/mol",
+              "cal/(mol*K)",
+              "(cal*K)/mol",
+              "cal/mol"
+            ],
+            "values": [
+              0.83013999462128,
+              -198.45999145508,
+              -6.2122001647949,
+              -26970,
+              1.6399999856949,
+              -179979.984375,
+              314630,
+              0
+            ]
+          },
+          "method": {
+            "3": "solute_hkf88_reaktoro"
+          }
+        }
+      ],
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "datasources": [
+        "Slop98_dat:1998:data:           "
+      ],
+      "formula": "SO4-2",
+      "formula_charge": -2,
+      "name": "SO4-2 ion",
+      "sm_enthalpy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -909602
+        ]
+      },
+      "sm_entropy_abs": {
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          18.82799911499
+        ]
+      },
+      "sm_gibbs_energy": {
+        "units": [
+          "J/mol"
+        ],
+        "values": [
+          -744459
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ],
+        "values": [
+          -266.08999633789
+        ]
+      },
+      "sm_volume": {
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ],
+        "values": [
+          1.2918000221252
+        ]
+      },
+      "symbol": "SO4-2"
+    }
+  ],
+  "thermodataset": [
+    "mines16"
+  ]
+}
