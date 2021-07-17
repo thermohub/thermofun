@@ -4,12 +4,15 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
 
 trigger:
-- main
+- master
+- releases/*
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-20.04'
 
-steps:
-- task: Bash@3
-  inputs:
-    filePath: 'ci/pipelines/install.sh'
+  steps:
+  - task: Bash@3
+    inputs:
+      filePath: 'ci/pipelines/install.sh'
