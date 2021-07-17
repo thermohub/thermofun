@@ -26,13 +26,17 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     auto TrK = substance.referenceT() /* + C_to_K*/;
 
+    auto Sr = thermo_properties_PrTr.entropy;
+    auto Gr = thermo_properties_PrTr.gibbs_energy;
+    auto Hr = thermo_properties_PrTr.enthalpy;
+
     auto S = thermo_properties_PrTr.entropy;
     auto G = thermo_properties_PrTr.gibbs_energy;
     auto H = thermo_properties_PrTr.enthalpy;
 
     if (thermo_parameters.Cp_coeff.size() == 0)
     {
-        errorModelParameters("Cp empirical coefficients", "empicrical Cp integration", __LINE__, __FILE__);
+        errorModelParameters("Cp empirical coefficients", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
         return thermo_properties_PrTr;
     }
 
@@ -65,7 +69,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
                   << __LINE__;
     }
 
-    k = 0;
+    //k = 0; fix
 
     for (unsigned i = 0; i < thermo_parameters.Cp_coeff[k].size(); i++)
     {
@@ -179,6 +183,79 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     {
         setMessage(Reaktoro_::Status::calculated, "Empirical Cp integration: Outside temperature bounds", thermo_properties_PT);
     }
+
+
+    /// reaktoro implementation
+    /*
+    // Collect the temperature points used for the integrals along the pressure line P = Pr
+    std::vector<Reaktoro_::Temperature> Ti;
+
+    const auto& Tr   = substance.referenceT();
+
+    std::vector<double> dHt;
+    std::vector<double> dVt;
+
+    Ti.push_back(substance.referenceT());
+
+    for(int i = 0; i < thermo_parameters.phase_transition_prop.size(); ++i)
+    {
+        if(TK_ > thermo_parameters.temperature_intervals[i][1])
+        {Ti.push_back(thermo_parameters.temperature_intervals[i][1]);
+        dHt.push_back(thermo_parameters.phase_transition_prop[i][2]);
+        dVt.push_back(thermo_parameters.phase_transition_prop[i][3]);}
+    }
+
+
+    Ti.push_back(TK_);
+
+    Reaktoro_::ThermoScalar xCp;
+    for(unsigned i = 0; i+1 < Ti.size(); ++i)
+        if(Ti[i] <= TK_ && TK_ <= Ti[i+1])
+            xCp = thermo_parameters.Cp_coeff[i][0] + thermo_parameters.Cp_coeff[i][1]*TK_ + thermo_parameters.Cp_coeff[i][2]/(TK_*TK_);
+
+
+    // Calculate the integrals of the heat capacity function of the mineral from Tr to T at constant pressure Pr
+    Reaktoro_::ThermoScalar CpdT;
+    Reaktoro_::ThermoScalar CpdlnT;
+    for(unsigned i = 0; i+1 < Ti.size(); ++i)
+    {
+        const auto T0 = Ti[i];
+        const auto T1 = Ti[i+1];
+
+        for (unsigned j = 0; j < thermo_parameters.Cp_coeff[i].size(); j++)
+        {
+            if (j == 16)
+                break;
+            ac[j] = thermo_parameters.Cp_coeff[i][j];
+        }
+
+
+        CpdT += ac[0]*(T1 - T0) + 0.5*ac[1]*(T1*T1 - T0*T0) - ac[2]*(1.0/T1 - 1.0/T0);
+        CpdlnT += ac[0]*log(T1/T0) + ac[1]*(T1 - T0) - 0.5*ac[2]*(1.0/(T1*T1) - 1.0/(T0*T0));
+    }
+
+    // Calculate the volume and other auxiliary quantities for the thermodynamic properties of the mineral
+    Reaktoro_::ThermoScalar xV(0.0);
+    Reaktoro_::ThermoScalar GdH;
+    Reaktoro_::ThermoScalar HdH;
+    Reaktoro_::ThermoScalar SdH;
+    for(unsigned i = 1; i+1 < Ti.size(); ++i)
+    {
+        GdH += dHt[i-1]*(TK_ - Ti[i])/Ti[i];
+        HdH += dHt[i-1];
+        SdH += dHt[i-1]/Ti[i];
+
+        xV += dVt[i-1];
+    }
+
+    // Calculate the standard molal thermodynamic properties of the mineral
+    auto xG = Gr - Sr * (TK_ - Tr) + CpdT - TK_ * CpdlnT - GdH; // + VdP
+    auto xH = Hr + CpdT + HdH;  // + VdP
+    auto xS = Sr + CpdlnT + SdH;
+//    auto xU = xH - Pb*V;
+//    auto xA = xU - TK_*S;
+
+    */
 
     return thermo_properties_PT;
 }

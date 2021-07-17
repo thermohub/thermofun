@@ -117,7 +117,91 @@ enum ReactionTPMethodType {
     logk_dolejs_manning10 = 14
 };
 
-const std::map<const SubstanceTPMethodType, const std::vector<std::string>> method_parameters = {
+const std::map<const unsigned int, const std::string> enum_method_substance = {
+{0,"cp_ft_equation"},
+{1,"cp_ft_equation_saxena86"},
+{2,"solute_hkf88_gems"},
+{3,"solute_hkf88_reaktoro"},
+{4,"solute_aknifiev_diamond03"},
+{5,"landau_holland_powell98"},
+{6,"landau_berman88"},
+//{7,"general_equation_of_state"},
+{8,"fug_critical_param"},
+{9,"fluid_prsv"},
+{10,"fluid_churakov_gottschalk"},
+{11,"fluid_soave_redlich_kwong"},
+{12,"fluid_sterner_pitzer"},
+{13,"fluid_peng_robinson78"},
+{14,"fluid_comp_redlich_kwong_hp91"},
+//{15,"fluid_generic"},
+//{16,"fluid_H2O"},
+//{17,"fluid_CO2"},
+//{18,"fluid_CH4"},
+//{19,"fluid_N2"},
+//{20,"fluid_H2"},
+//{21,"fluid_O2"},
+//{22,"fluid_Ar"},
+//{23,"fluid_polar"},
+//{24,"fluid_nonpolar"},
+{25,"water_diel_jnort91_reaktoro"},
+{26,"water_diel_jnort91_gems"},
+{27,"water_diel_sverj14"},
+{28,"water_diel_fern97"},
+{29,"water_eos_hgk84_lvs83_gems"},
+{30,"water_eos_iapws95_gems"},
+{31,"water_eos_hgk84_reaktoro"},
+{32,"water_eos_iapws95_reaktoro"},
+{33,"water_pvt_zhang_duan05"},
+{34,"mv_constant"},
+{35,"mv_equation_dorogokupets88"},
+{36,"mv_equation_berman88"},
+{37,"mv_eos_birch_murnaghan_gott97"},
+{38,"mv_eos_murnaghan_hp98"},
+{39,"mv_eos_tait_hp11"},
+{40,"mv_pvnrt"},
+{41,"solute_holland_powell98"},
+{42,"solute_anderson91"},
+{43,"standard_entropy_cp_integration"}
+};
+
+const std::map<const unsigned int, const std::string> enum_method_reaction = {
+{0,"logk_fpt_function"},
+//{1,"adsor_ion_exchange"},
+//{2,"iso_compounds_grichuk88"},
+{3,"logk_nordstrom_munoz88"},
+{4,"logk_1_term_extrap0"},
+{5,"logk_1_term_extrap1"},
+{6,"logk_2_term_extrap"},
+{7,"logk_3_term_extrap"},
+{8,"logk_lagrange_interp"},
+{9,"logk_marshall_frank78"},
+{10,"solute_eos_ryzhenko_gems"},
+{11,"dr_heat_capacity_ft"},
+{12,"dr_volume_fpt"},
+{13,"dr_volume_constant"},
+{14,"logk_dolejs_manning10"}
+};
+
+const std::map<const ReactionTPMethodType, const std::vector<std::string>> reaction_method_parameters = {
+{ReactionTPMethodType::logk_fpt_function, {"logk_ft_coeffs"}},
+{ReactionTPMethodType::adsor_ion_exchange, {""}},
+{ReactionTPMethodType::iso_compounds_grichuk88, {""}},
+{ReactionTPMethodType::logk_nordstrom_munoz88, {"logk_ft_coeffs"}},
+{ReactionTPMethodType::logk_1_term_extrap0, {"logk_ft_coeffs"}},
+{ReactionTPMethodType::logk_1_term_extrap1, {"logk_ft_coeffs"}},
+{ReactionTPMethodType::logk_2_term_extrap, {"logk_ft_coeffs"}},
+{ReactionTPMethodType::logk_3_term_extrap, {"logk_ft_coeffs"}},
+{ReactionTPMethodType::logk_lagrange_interp, {""}},
+{ReactionTPMethodType::logk_marshall_frank78, {"dr_marshall_franck_coeffs"}},
+{ReactionTPMethodType::solute_eos_ryzhenko_gems, {"dr_ryzhenko_coeffs"}},
+{ReactionTPMethodType::dr_heat_capacity_ft, {"dr_heat_capacity_ft_coeffs"}},
+{ReactionTPMethodType::dr_volume_fpt, {"dr_volume_fpt_coeffs"}},
+{ReactionTPMethodType::dr_volume_constant, {""}},
+{ReactionTPMethodType::logk_dolejs_manning10, {"dr_dolejs_manning10_coeffs"}},
+};
+
+
+const std::map<const SubstanceTPMethodType, const std::vector<std::string>> substance_method_parameters = {
 {SubstanceTPMethodType::cp_ft_equation, {"m_heat_capacity_ft_coeffs"} },
 {SubstanceTPMethodType::solute_hkf88_gems, {"eos_hkf_coeffs"} },
 {SubstanceTPMethodType::solute_hkf88_reaktoro, {"eos_hkf_coeffs"} },
@@ -134,6 +218,7 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 {SubstanceTPMethodType::water_eos_iapws95_reaktoro, {""} },
 {SubstanceTPMethodType::water_pvt_zhang_duan05, {""} },
 {SubstanceTPMethodType::mv_constant, {""} },
+{SubstanceTPMethodType::mv_pvnrt, {""} },
 {SubstanceTPMethodType::mv_equation_dorogokupets88, {"m_volume_fpt_coeffs"} },
 {SubstanceTPMethodType::mv_equation_berman88, {"m_volume_fpt_coeffs"} },
 {SubstanceTPMethodType::mv_eos_birch_murnaghan_gott97, {"eos_birch_murnaghan_coeffs"} },
@@ -151,6 +236,13 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> meth
 {SubstanceTPMethodType::solute_anderson91, {"solute_anderson91_coeffs"} },
 {SubstanceTPMethodType::standard_entropy_cp_integration, {""} }
 };
+
+
+auto availableSubstanceTPMethods() -> const std::string;
+auto availableReactionTPMethods() -> const std::string;
+auto availablePropertiesReaction() -> const std::string;
+auto availablePropertiesSubstance() -> const std::string;
+
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {

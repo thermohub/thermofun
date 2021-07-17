@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.3.5 LANGUAGES CXX)
+project(ThermoFun VERSION 0.3.8 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -76,6 +76,10 @@ include_directories(${THERMOFUN_SOURCE_DIR})
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     include_directories("/usr/local/include")
     link_directories("/usr/local/lib")
+endif()
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    include_directories("c:/usr/local/include")
+    link_directories("c:/usr/local/lib")
 endif()
 
 # Find all Reaktoro dependencies

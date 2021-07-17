@@ -166,7 +166,10 @@ void FormulaToken::unpack( list<ICTERM>& itt_ )
         }
         datamap.push_back( FormulaValues( key, itr->stoich, itr->val ));
         elements.insert(key);
-        elements_map.insert(pair<ElementKey,double>(key,itr->stoich));
+        if (elements_map.find(key) != elements_map.end())
+            elements_map.at(key) += itr->stoich;
+        else
+            elements_map.insert(pair<ElementKey,double>(key,itr->stoich));
 //        coefficients.push_back(itr->stoich);
         itr++;
     }
@@ -407,9 +410,16 @@ void ChemicalFormula::addOneElement(Element e)
     eldata.entropy = e.entropy();
     eldata.heat_capacity = e.heatCapacity();
     eldata.volume = e.volume();
+    if (e.valence()==777)
+    {
+        if (elements_valences.find(e.symbol()) != elements_valences.end())
+            e.setValence(elements_valences.at(e.symbol()));
+        else
+            e.setValence(0);
+    }
     eldata.valence = e.valence();
     eldata.number = e.number();
-    eldata.name = e.name();
+    eldata.name = e.symbol(); // was e.name();
 
     dbElements[elkey] = eldata;
 }

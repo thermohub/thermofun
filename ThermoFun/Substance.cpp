@@ -4,6 +4,7 @@
 #include "Common/Exception.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
+#include "Common/ParseJsonToData.h"
 
 namespace ThermoFun {
 
@@ -83,6 +84,14 @@ struct Substance::Impl
 Substance::Substance()
 : pimpl(new Impl())
 {}
+
+Substance::Substance(std::string jsonSubstance)
+: pimpl(new Impl())
+{
+    Substance other = parseSubstance(jsonSubstance);
+    pimpl = std::move(other.pimpl);
+    setJsonString(jsonSubstance);
+}
 
 Substance::Substance(const Substance& other)
 : pimpl(new Impl(*other.pimpl))

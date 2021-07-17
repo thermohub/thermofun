@@ -1,4 +1,5 @@
 #include "Element.h"
+#include "Common/ParseJsonToData.h"
 
 namespace ThermoFun {
 
@@ -20,7 +21,7 @@ struct Element::Impl
     double volume;
 
     /// The valence of the element
-    int valence;
+    int valence = 777;
 
     /// The molar mass of the chemical element (in units of g/mol)
     double molarMass;
@@ -41,6 +42,14 @@ struct Element::Impl
 Element::Element()
 : pimpl(new Impl())
 {}
+
+Element::Element(std::string jsonElement)
+: pimpl(new Impl())
+{
+    Element other = parseElement(jsonElement);
+    pimpl = std::move(other.pimpl);
+    setJsonString(jsonElement);
+}
 
 Element::Element(const Element& other)
 : pimpl(new Impl(*other.pimpl))

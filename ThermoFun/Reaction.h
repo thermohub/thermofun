@@ -22,6 +22,9 @@ public:
     /// Constrcut a default Reaction instance
     Reaction();
 
+    /// Constrcut a Reaction instance from a JSON string
+    Reaction(std::string jsonReaction);
+
     /// Construct a copy of an Reaction instance
     Reaction(const Reaction& other);
 

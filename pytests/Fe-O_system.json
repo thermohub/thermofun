@@ -1,0 +1,644 @@
+{
+  "elements": [
+    {
+      "symbol": "O",
+      "class_": {
+        "0": "ELEMENT"
+      },
+      "entropy": {
+        "values": [
+          102.569000244141
+        ],
+        "name": "S0i"
+      },
+      "atomic_mass": {
+        "values": [
+          15.999400138855
+        ],
+        "name": "M0i"
+      },
+      "datasources": [
+        "PSI-Nagra-12-07"
+      ]
+    },
+    {
+      "symbol": "Fe",
+      "class_": {
+        "0": "ELEMENT"
+      },
+      "entropy": {
+        "values": [
+          27.2800006866455
+        ],
+        "name": "S0i"
+      },
+      "atomic_mass": {
+        "values": [
+          55.8450012207031
+        ],
+        "name": "M0i"
+      },
+      "datasources": [
+        "PSI-Nagra-12-07"
+      ]
+    }
+],
+  "substances": [
+    {
+      "name": "O2, oxygen",
+      "symbol": "O2",
+      "formula": "O|0|2",
+      "formula_charge": 0,
+      "aggregate_state": {
+        "0": "AS_GAS"
+      },
+      "class_": {
+        "1": "SC_GASFLUID"
+      },
+      "Tst": 298.15,
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "method": {
+            "0": "cp_ft_equation"
+          },
+          "limitsTP": {
+            "range": true,
+            "lowerT": 273.15,
+            "upperT": 1500.15
+          },
+          "m_heat_capacity_ft_coeffs": {
+            "values": [
+              49.987899780273,
+              -0.00086758099496365,
+              572421,
+              -462.03500366211,
+              -2.2271200350588e-7,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "units": [
+              "J/(mol*K)",
+              "J/(mol*K^2)",
+              "(J*K)/mol",
+              "J/(mol*K^0.5)",
+              "J/(mol*K^3)",
+              "J/(mol*K^4)",
+              "J/(mol*K^5)",
+              "(J*K^2)/mol",
+              "J/mol",
+              "J/(mol*K^1.5)",
+              "J/(mol*K)"
+            ],
+            "names": [
+              "a0",
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "a6",
+              "a7",
+              "a8",
+              "a9",
+              "a10"
+            ]
+          }
+        },
+        {
+          "method": {
+            "9": "fluid_prsv"
+          },
+          "eos_gas_crit_props": {
+            "values": [
+              154.77000427246,
+              50.900001525879,
+              0.021279999986291,
+              0.01511999964714,
+              0,
+              0,
+              0
+            ],
+            "units": [
+              "K",
+              "bar",
+              "",
+              ""
+            ],
+            "names": [
+              "Tcr",
+              "Pcr",
+              "W",
+              "k1"
+            ]
+          }
+        }
+      ],
+      "sm_heat_capacity_p": {
+        "values": [
+          29.390605926514
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_gibbs_energy": {
+        "values": [
+          0
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_enthalpy": {
+        "values": [
+          0
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_entropy_abs": {
+        "values": [
+          205.19000244141
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_volume": {
+        "values": [
+          2476.7026367188
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ]
+      },
+      "datasources": [
+        "Frenkel_al:1994:compil:",
+        "Stryjek_Vera:1986:model:"
+      ]
+    },
+    {
+      "name": "Magnetite",
+      "symbol": "Magnetite_charge_specified",
+      "formula": "FeFe|3|2O4",
+      "formula_charge": 0,
+      "aggregate_state": {
+        "3": "AS_CRYSTAL"
+      },
+      "class_": {
+        "0": "SC_COMPONENT"
+      },
+      "Tst": 298.15,
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "method": {
+            "0": "cp_ft_equation"
+          },
+          "limitsTP": {
+            "range": true,
+            "lowerT": 273.15,
+            "upperT": 1273.15
+          },
+          "m_heat_capacity_ft_coeffs": {
+            "values": [
+              262.5,
+              -0.0072039999067783,
+              -1926200,
+              -1655.6999511719,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "units": [
+              "J/(mol*K)",
+              "J/(mol*K^2)",
+              "(J*K)/mol",
+              "J/(mol*K^0.5)",
+              "J/(mol*K^3)",
+              "J/(mol*K^4)",
+              "J/(mol*K^5)",
+              "(J*K^2)/mol",
+              "J/mol",
+              "J/(mol*K^1.5)",
+              "J/(mol*K)"
+            ],
+            "names": [
+              "a0",
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "a6",
+              "a7",
+              "a8",
+              "a9",
+              "a10"
+            ]
+          }
+        },
+        {
+          "method": {
+            "5": "landau_holland_powell98"
+          },
+          "m_landau_phase_trans_props": {
+            "values": [
+              574.84997558594,
+              35,
+              0
+            ]
+          }
+        },
+        {
+          "method": {
+            "38": "mv_eos_murnaghan_hp98"
+          }
+        }
+      ],
+      "sm_heat_capacity_p": {
+        "values": [
+          142.79548645019
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_gibbs_energy": {
+        "values": [
+          -1012310
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_enthalpy": {
+        "values": [
+          -1115550
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_entropy_abs": {
+        "values": [
+          146.10000610352
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_volume": {
+        "values": [
+          4.4520001411438
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ]
+      },
+      "m_compressibility": {
+        "values": [
+          1850
+        ],
+        "units": [
+          "1e-05/K"
+        ]
+      },
+      "m_expansivity": {
+        "values": [
+          0.000069599998823833
+        ],
+        "units": [
+          "kbar"
+        ]
+      },
+      "datasources": [
+        "H&P:1998:phaseq:"
+      ]
+    },
+    {
+      "name": "Magnetite",
+      "symbol": "Magnetite",
+      "formula": "Fe3O4",
+      "formula_charge": 0,
+      "aggregate_state": {
+        "3": "AS_CRYSTAL"
+      },
+      "class_": {
+        "0": "SC_COMPONENT"
+      },
+      "Tst": 298.15,
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "method": {
+            "0": "cp_ft_equation"
+          },
+          "limitsTP": {
+            "range": true,
+            "lowerT": 273.15,
+            "upperT": 1273.15
+          },
+          "m_heat_capacity_ft_coeffs": {
+            "values": [
+              262.5,
+              -0.0072039999067783,
+              -1926200,
+              -1655.6999511719,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "units": [
+              "J/(mol*K)",
+              "J/(mol*K^2)",
+              "(J*K)/mol",
+              "J/(mol*K^0.5)",
+              "J/(mol*K^3)",
+              "J/(mol*K^4)",
+              "J/(mol*K^5)",
+              "(J*K^2)/mol",
+              "J/mol",
+              "J/(mol*K^1.5)",
+              "J/(mol*K)"
+            ],
+            "names": [
+              "a0",
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "a6",
+              "a7",
+              "a8",
+              "a9",
+              "a10"
+            ]
+          }
+        },
+        {
+          "method": {
+            "5": "landau_holland_powell98"
+          },
+          "m_landau_phase_trans_props": {
+            "values": [
+              574.84997558594,
+              35,
+              0
+            ]
+          }
+        },
+        {
+          "method": {
+            "38": "mv_eos_murnaghan_hp98"
+          }
+        }
+      ],
+      "sm_heat_capacity_p": {
+        "values": [
+          142.79548645019
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_gibbs_energy": {
+        "values": [
+          -1012310
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_enthalpy": {
+        "values": [
+          -1115550
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_entropy_abs": {
+        "values": [
+          146.10000610352
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_volume": {
+        "values": [
+          4.4520001411438
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ]
+      },
+      "m_compressibility": {
+        "values": [
+          1850
+        ],
+        "units": [
+          "1e-05/K"
+        ]
+      },
+      "m_expansivity": {
+        "values": [
+          0.000069599998823833
+        ],
+        "units": [
+          "kbar"
+        ]
+      },
+      "datasources": [
+        "H&P:1998:phaseq:"
+      ]
+    },
+    {
+      "name": "Hematite",
+      "symbol": "Hematite",
+      "formula": "Fe|3|2O3",
+      "formula_charge": 0,
+      "aggregate_state": {
+        "3": "AS_CRYSTAL"
+      },
+      "class_": {
+        "0": "SC_COMPONENT"
+      },
+      "Tst": 298.15,
+      "Pst": 100000,
+      "TPMethods": [
+        {
+          "method": {
+            "0": "cp_ft_equation"
+          },
+          "limitsTP": {
+            "range": true,
+            "lowerT": 273.15,
+            "upperT": 1273.15
+          },
+          "m_heat_capacity_ft_coeffs": {
+            "values": [
+              163.89999389648,
+              0,
+              -2257200,
+              -657.59997558594,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "units": [
+              "J/(mol*K)",
+              "J/(mol*K^2)",
+              "(J*K)/mol",
+              "J/(mol*K^0.5)",
+              "J/(mol*K^3)",
+              "J/(mol*K^4)",
+              "J/(mol*K^5)",
+              "(J*K^2)/mol",
+              "J/mol",
+              "J/(mol*K^1.5)",
+              "J/(mol*K)"
+            ],
+            "names": [
+              "a0",
+              "a1",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "a6",
+              "a7",
+              "a8",
+              "a9",
+              "a10"
+            ]
+          }
+        },
+        {
+          "method": {
+            "5": "landau_holland_powell98"
+          },
+          "m_landau_phase_trans_props": {
+            "values": [
+              681.84997558594,
+              15.60000038147,
+              0
+            ]
+          }
+        },
+        {
+          "method": {
+            "38": "mv_eos_murnaghan_hp98"
+          }
+        }
+      ],
+      "sm_heat_capacity_p": {
+        "values": [
+          100.42362976074
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_gibbs_energy": {
+        "values": [
+          -743730
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_enthalpy": {
+        "values": [
+          -825730
+        ],
+        "units": [
+          "J/mol"
+        ]
+      },
+      "sm_entropy_abs": {
+        "values": [
+          87.400001525879
+        ],
+        "units": [
+          "J/(mol*K)"
+        ]
+      },
+      "sm_volume": {
+        "values": [
+          3.0269999504089
+        ],
+        "errors": [
+          0
+        ],
+        "units": [
+          "J/bar"
+        ]
+      },
+      "m_compressibility": {
+        "values": [
+          1996
+        ],
+        "units": [
+          "1e-05/K"
+        ]
+      },
+      "m_expansivity": {
+        "values": [
+          0.000059900001360802
+        ],
+        "units": [
+          "kbar"
+        ]
+      },
+      "datasources": [
+        "H&P:1998:phaseq:"
+      ]
+    }
+  ]
+}
