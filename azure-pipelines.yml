@@ -16,3 +16,12 @@ jobs:
   - task: Bash@3
     inputs:
       filePath: 'ci/pipelines/install.sh'
+
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.15'
+
+  steps:
+  - task: Bash@3
+    inputs:
+      filePath: 'ci/pipelines/install/install-osx.sh'
