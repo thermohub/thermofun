@@ -177,6 +177,11 @@ public:
     /// @return map of Elements and coefficients
     auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
 
+    /// Pareses a given substance formula present in the database
+    /// @param formula
+    /// @return elemental entropy
+    auto elementalEntropyFormula(std::string formula) const -> double;
+
 private:
     struct Impl;
 

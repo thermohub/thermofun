@@ -1,8 +1,8 @@
 #include "Database.h"
 
 // ThermoFun includes
+#include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/Exception.h"
-#include "Common/formuladata.h"
 #include "Common/ParseJsonToData.h"
 #include "Substance.h"
 #include "Reaction.h"
@@ -35,6 +35,8 @@ struct Database::Impl
     /// The map of all elements in the database
     ElementsMap elements_map;
 
+    /// Downloaded elements data for formula parser
+    ChemicalFun::DBElements all_elements;
     //char type_ = jsonio::FileTypes::Undef_;
 
     Impl()
@@ -46,14 +48,14 @@ struct Database::Impl
         //type_ = file.Type();
         fromFile( filename );
         if (elements_map.size()>0)
-            ChemicalFormula::setDBElements( elements_map );
+            setDBElements( elements_map );
     }
 
     Impl(vector<string> jsons, std::string _label)
     {
         fromJSONs(jsons, _label);
         if (elements_map.size()>0)
-            ChemicalFormula::setDBElements( elements_map );
+            setDBElements( elements_map );
     }
 
     template<typename Key, typename Value>
@@ -64,6 +66,24 @@ struct Database::Impl
         for(const auto& pair : map)
             collection.push_back(pair.second);
         return collection;
+    }
+
+    auto setDBElements(ElementsMap elements ) -> void
+    {
+        ChemicalFun::ElementValues eldata;
+        for (auto& e : elements)
+        {
+            auto elkey = e.second.toElementKey(eldata);
+            all_elements.addElement(elkey, eldata);
+        }
+    }
+
+    auto elementKeyToElement(ChemicalFun::ElementKey elementKey) -> Element
+    {
+        auto itrdb = all_elements.getElements().find(elementKey);
+        if (itrdb == all_elements.getElements().end())
+            funError("Invalid symbol", elementKey.Symbol(), __LINE__, __FILE__);
+        return Element( elementKey, itrdb->second);
     }
 
     auto addElement(const Element& element) -> void
@@ -346,7 +366,7 @@ auto Database::appendData(std::string filename) -> void
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromFile(filename);
     if (elements_number != pimpl->mapElements().size())
-        ChemicalFormula::setDBElements(pimpl->mapElements());
+        pimpl->setDBElements(pimpl->mapElements());
 }
 
 auto Database::appendData(vector<string> jsonRecords, std::string _label = "unknown label") -> void
@@ -354,7 +374,7 @@ auto Database::appendData(vector<string> jsonRecords, std::string _label = "unkn
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);
     if (elements_number != pimpl->mapElements().size())
-        ChemicalFormula::setDBElements(pimpl->mapElements());
+        pimpl->setDBElements(pimpl->mapElements());
 }
 
 auto Database::addElement(const Element& element) -> void
@@ -510,22 +530,24 @@ auto Database::containsReaction(std::string symbol) const -> bool
 
 auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Element, double>
 {
-    std::set<ElementKey> elements;
     std::map<Element, double> map;
-    FormulaToken formula("");
+    ChemicalFun::FormulaToken formula(formula_);
+    // ??? Do we need props, do not save
+    auto props = formula.calculateProperites(pimpl->all_elements);
 
-    formula.setFormula(formula_);
-
-    FormulaProperites props;
-    formula.calcFormulaProperites(props);
-
-    for (auto element : formula.getElements_map())
+    for (const auto& element : formula.getStoichCoefficients())
     {
-        Element e = elementKeyToElement(element.first);
+        Element e = pimpl->elementKeyToElement(element.first);
         map[e] = element.second;
     }
 
     return map;
+}
+
+double Database::elementalEntropyFormula(std::string formula) const
+{
+    ChemicalFun::FormulaProperites prop = pimpl->all_elements.calcThermo(formula);
+    return prop.elemental_entropy;
 }
 
 
