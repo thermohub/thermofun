@@ -188,18 +188,6 @@ public:
     /// @return elemental entropy
     auto elementalEntropyFormula(std::string formula) const -> double;
 
-    /**
-     * @brief availableElementsKeys returns a vector of all available elements (ElementKey object)
-     * @return set of ElementKey objects
-     */
-    auto availableElementsKeys() const -> std::vector<ChemicalFun::ElementKey>;
-
-    /**
-     * @brief availableElements returns a map of all available elements values (ElementKey->ElementValue object)
-     * @return set of ElementKey objects
-     */
-    auto availableElements() const -> const std::map<ChemicalFun::ElementKey, ChemicalFun::ElementValues>&;
-
 private:
     struct Impl;
 

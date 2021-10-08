@@ -1,4 +1,4 @@
-#include "Database.h"
+﻿#include "Database.h"
 
 // ThermoFun includes
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
@@ -70,6 +70,7 @@ struct Database::Impl
 
     auto setDBElements(ElementsMap elements ) -> void
     {
+        std::cout << "Database::setDBElements() elements " << elements_map.size() << std::endl;
         ChemicalFun::ElementValues eldata;
         for (auto& e : elements)
         {
@@ -549,17 +550,6 @@ auto Database::elementalEntropyFormula(std::string formula) const -> double
     ChemicalFun::FormulaProperites prop = pimpl->all_elements.calcThermo(formula);
     return prop.elemental_entropy;
 }
-
-auto Database::availableElements() const -> const std::map<ChemicalFun::ElementKey, ChemicalFun::ElementValues>&
-{
-    return pimpl->all_elements.getElements();
-}
-
-auto Database::availableElementsKeys() const -> std::vector<ChemicalFun::ElementKey>
-{
-    return pimpl->all_elements.getElementsKeysList();
-}
-
 
 } // namespace ThermoFun
 
