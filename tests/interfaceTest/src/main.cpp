@@ -1,5 +1,5 @@
     #include "ThermoFun.h"
-#include "ThermoFun/Common/formuladata.h"
+#include "Common/formuladata.h"
 #include "GlobalVariables.h"
 //#include "ThermoFun/Common/ThermoScalar.hpp"
     using namespace std;
