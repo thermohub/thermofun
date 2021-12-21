@@ -1,10 +1,12 @@
+{{ min_conda_devenv_version("1.1") }}
+
 name: thermofun
 
 {% set python_version = os.environ.get("PY_VER", "3.7") %}
 
 dependencies:
-  - pip
   - gxx_linux-64=7.3.0  # [linux]
+  - libstdcxx-ng                   # [linux]
   - cmake>=3.13
   - ninja
   - ccache  # [unix]
@@ -12,10 +14,6 @@ dependencies:
   - nlohmann_json
   - python={{ python_version }}
   - pytest
-  - pip:
-    - mkdocs
-    - mkdocs-material
-    - mkdocs-macros-plugin
 
 environment:
 
