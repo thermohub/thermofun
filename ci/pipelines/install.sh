@@ -24,7 +24,7 @@ python_path=$(which python)
 cmake -GNinja \
     -DPYTHON_EXECUTABLE:FILEPATH=$python_path \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_LIBDIR=lib \   
+    -DCMAKE_INSTALL_LIBDIR=lib \
     ..
 ninja install
 if [ $? -eq 1 ]
