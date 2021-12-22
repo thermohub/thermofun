@@ -16,7 +16,7 @@ conda install conda-devenv
 conda update -q conda
 conda info -a
 conda devenv
-source activate GEMS3K
+source activate thermofun
 mkdir build
 cd build
 # Configure step
