@@ -1,5 +1,3 @@
-{{ min_conda_devenv_version("1.1") }}
-
 name: thermofun
 
 {% set python_version = os.environ.get("PY_VER", "3.7") %}
