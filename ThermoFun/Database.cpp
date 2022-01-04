@@ -81,8 +81,8 @@ struct Database::Impl
 
     auto elementKeyToElement(ChemicalFun::ElementKey elementKey) -> Element
     {
-        auto itrdb = all_elements.getElements().find(elementKey);
-        if (itrdb == all_elements.getElements().end())
+        auto itrdb = all_elements.elements().find(elementKey);
+        if (itrdb == all_elements.elements().end())
             funError("Invalid symbol", elementKey.Symbol(), __LINE__, __FILE__);
         return Element(elementKey, itrdb->second);
     }
@@ -534,7 +534,7 @@ auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Ele
     std::map<Element, double> map;
     ChemicalFun::FormulaToken formula(formula_);
     // ??? Do we need props, do not save
-    auto props = formula.calculateProperites(pimpl->all_elements.getElements());
+    auto props = formula.properties(pimpl->all_elements.elements());
 
     for (const auto& element : formula.getStoichCoefficients())
     {
@@ -547,7 +547,7 @@ auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Ele
 
 auto Database::elementalEntropyFormula(std::string formula) const -> double
 {
-    ChemicalFun::FormulaProperites prop = pimpl->all_elements.calcThermo(formula);
+    ChemicalFun::FormulaProperties prop = pimpl->all_elements.formulasProperties(formula);
     return prop.elemental_entropy;
 }
 
