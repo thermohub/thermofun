@@ -48,12 +48,12 @@ jobs:
       call activate thermofun
     displayName: Create Anaconda environment
 
-  - task: CmdLine@2
+  - task: BatchScript@1
     inputs:
-      filePath: 'ci/pipelines/install.bat'
+      filename: 'ci/pipelines/install.bat'
 
   - script: |
-      call activate thermofun
-      conda list
-      call python -c "import thermofun"
+     call conda activate thermofun
+     call conda list
+     call python -c "import thermofun"
     displayName: Test
