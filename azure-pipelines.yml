@@ -58,7 +58,7 @@ jobs:
      call python -c "import thermofun"
     displayName: Test
 
-- job: win64-VS
+- job: win64_VS
   pool:
     vmImage: 'windows-2019'
   strategy:
