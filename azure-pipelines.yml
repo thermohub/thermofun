@@ -53,7 +53,7 @@ jobs:
       filename: 'ci/pipelines/install.bat'
 
   - script: |
-     call conda activate thermofun
-     call conda list
+     call activate thermofun
+     conda list
      call python -c "import thermofun"
     displayName: Test
