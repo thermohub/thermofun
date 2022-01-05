@@ -21,7 +21,7 @@ cd build
 call activate thermofun
 
 cmake -G Ninja ^
-    -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%PREFIX%" ^
+    -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%CONDA_PREFIX%" ^
     -DCMAKE_BUILD_TYPE=Release ^
     ..
 ninja install
