@@ -57,3 +57,35 @@ jobs:
      conda list
      call python -c "import thermofun"
     displayName: Test
+
+- job: win64-VS
+  pool:
+    vmImage: 'windows-2019'
+  strategy:
+    matrix:
+      Python37:
+        python.version: '3.7'
+
+  steps:
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: Add conda to PATH
+
+  - script: |
+      conda config --system --set always_yes yes --set changeps1 no
+      conda config --system --append channels conda-forge
+      conda install -n base conda-devenv
+      conda update -q conda
+      conda info -a
+      conda devenv
+      call activate thermofun
+    displayName: Create Anaconda environment
+
+  - task: BatchScript@1
+    inputs:
+      filename: 'ci/pipelines/installVS.bat'
+
+  - script: |
+     call activate thermofun
+     conda list
+     call python -c "import thermofun"
+    displayName: Test
