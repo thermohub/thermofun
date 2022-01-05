@@ -15,6 +15,8 @@ rem
 rem You should have received a copy of the GNU General Public License
 rem along with thermofun.  If not, see <http://www.gnu.org/licenses/>.
 
+call activate thermofun
+
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 echo "Configuring..."
