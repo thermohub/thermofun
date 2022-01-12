@@ -10,7 +10,7 @@
 namespace ChemicalFun
 {
 class ElementKey;
-class ElementValues;
+struct ElementValues;
 }
 
 namespace ThermoFun {
