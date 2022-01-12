@@ -29,6 +29,8 @@ void exportElement(py::module& m)
 {
     py::class_<Element>(m, "Element")
         .def(py::init<>())
+        .def(py::init<const Element&>())
+        .def(py::init<std::string>())
         .def("setName", &Element::setName, "Set the name of the element")
         .def("setSymbol", &Element::setSymbol, "Set the symbol of the element")
         .def("setMolarMass", &Element::setMolarMass, "Set the molar mass of the element (in units of g/mol)")

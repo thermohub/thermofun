@@ -34,20 +34,42 @@ void exportDatabase(py::module& m)
     auto appendData1 = static_cast<void(Database::*)(std::string)>(&Database::appendData);
     auto appendData2 = static_cast<void(Database::*)(std::vector<std::string>, std::string)>(&Database::appendData);
 
+    auto addElement1 = static_cast<void(Database::*)(const std::string&)>(&Database::addElement);
+    auto addElement2 = static_cast<void(Database::*)(const Element&)>(&Database::addElement);
+    auto setElement1 = static_cast<void(Database::*)(const std::string&)>(&Database::setElement);
+    auto setElement2 = static_cast<void(Database::*)(const Element&)>(&Database::setElement);
+
+    auto addSubstance1 = static_cast<void(Database::*)(const std::string&)>(&Database::addSubstance);
+    auto addSubstance2 = static_cast<void(Database::*)(const Substance&)>(&Database::addSubstance);
+    auto setSubstance1 = static_cast<void(Database::*)(const std::string&)>(&Database::setSubstance);
+    auto setSubstance2 = static_cast<void(Database::*)(const Substance&)>(&Database::setSubstance);
+
+    auto addReaction1 = static_cast<void(Database::*)(const std::string&)>(&Database::addReaction);
+    auto addReaction2 = static_cast<void(Database::*)(const Reaction&)>(&Database::addReaction);
+    auto setReaction1 = static_cast<void(Database::*)(const std::string&)>(&Database::setReaction);
+    auto setReaction2 = static_cast<void(Database::*)(const Reaction&)>(&Database::setReaction);
+
+
     py::class_<Database>(m, "Database")
         .def(py::init<>())
         .def(py::init<const std::string>())
         .def(py::init<const Database&>())
         .def("appendData", appendData1, "Append records to the database from a file.")
         .def("appendData", appendData2, "Append records of given type (elements, substances, reactions) to the database from a list of JSON strings.")
-        .def("addElement", &Database::addElement, "Add an Element instance in the database.")
-        .def("setElement", &Database::setElement, "Sets a Element in the database. If substance exists the record will be overwritten")
+        .def("addElement", addElement1, "Add an Element instance in the database. If the element with the symbol exists the record will not be added.")
+        .def("setElement", setElement1, "Sets an Element in the database. If the element with the symbol exists the record will be overwritten.")
+        .def("addElement", addElement2, "Add an Element instance in the database from a JSON string. If the element with the symbol exists the record will not be added.")
+        .def("setElement", setElement2, "Sets an Element in the database from a JSON string. If the element with the symbol exists the record will be overwritten.")
         .def("addMapElements", &Database::addMapElements, "Add a map of Elements in the database.")
-        .def("addSubstance", &Database::addSubstance, "Add an Substance instance in the database.")
-        .def("setSubstance", &Database::setSubstance, "Sets a substance in the database. If substance exists the record will be overwritten")
+        .def("addSubstance", addSubstance1, "Add a Substance instance in the database. If the substance with the symbol exists the record will not be added.")
+        .def("setSubstance", setSubstance1, "Sets a substance in the database. If the substance with the symbol exists the record will be overwritten.")
+        .def("addSubstance", addSubstance2, "Add a Substance instance in the database from a JSON string. If the substance with the symbol exists the record will not be added")
+        .def("setSubstance", setSubstance2, "Sets a substance in the database  from a JSON string. If the substance with the symbol exists the record will be overwritten.")
         .def("addMapSubstances", &Database::addMapSubstances, "Add a map of Substances in the database.")
-        .def("addReaction", &Database::addReaction, "Add an Reaction instance in the database.")
-        .def("setReaction", &Database::setReaction, "Sets a reaction in the database. If reaction exists the record will be overwritten")
+        .def("addReaction", addReaction1, "Add a Reaction instance in the database. If the reaction with the symbol exists the record will not be added.")
+        .def("setReaction", setReaction1, "Set a reaction in the database. If the reaction with the symbol exists the record will be overwritten.")
+        .def("addReaction", addReaction2, "Add a Reaction instance in the database from a JSON string. If the reaction with the symbol exists the record will not be added.")
+        .def("setReaction", setReaction2, "Set a reaction in the database from a JSON string. If the reaction with the symbol exists the record will be overwritten.")
         .def("addMapReactions", &Database::addMapReactions, "Add a map pf Reactions in the database.")
         .def("getElements", &Database::getElements, "Return all elements in the database")
         .def("getSubstances", &Database::getSubstances, "Return all substances in the database")

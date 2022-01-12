@@ -1,8 +1,9 @@
 # ThermoFun
-[![Build Status](https://travis-ci.com/thermohub/thermofun.svg?branch=master)](https://travis-ci.com/thermohub/thermofun)
-[![Build status](https://ci.appveyor.com/api/projects/status/j4ex4bwl8u8crg3q/branch/master?svg=true)](https://ci.appveyor.com/project/gdmiron/thermofun-bus2d/branch/master)
+Linux, OSX, Windows
 
-A code for calculating the standard state thermodynamic properties at a given temperature and pressure.
+[![Build Status](https://dev.azure.com/mirondanro/thermohub/_apis/build/status/thermohub.thermofun?branchName=master)](https://dev.azure.com/mirondanro/thermohub/_build/latest?definitionId=9&branchName=master)
+
+A code for calculating the standard state thermodynamic properties of substances and reactions at a given temperature and pressure.
 
 ## Try ThermoFun in your browser click launch binder
 
@@ -173,7 +174,7 @@ batch2.thermoPropertiesSubstance([[25,1]], ["Na(CO3)-", "Mg+2"], ["gibbs_energy"
 
 ## Installation using Conda
 
-ThaemroFun can be easily installed using [Conda](https://conda.io/docs/) package manager. If you have Conda installed, install ThermoFun by executing the following command:
+ThermoFun can be easily installed using [Conda](https://conda.io/docs/) package manager. If you have Conda installed, install ThermoFun by executing the following command:
 
 ```
 #!bash

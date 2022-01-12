@@ -82,6 +82,7 @@
     $$PWD/Common/formulaparser.cpp \
 # ThermoFun
     $$PWD/Element.cpp \
+    $$PWD/GlobalFunctions.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
     $$PWD/Substances/Solute/SoluteAnderson91.cpp \

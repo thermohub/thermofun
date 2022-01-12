@@ -67,35 +67,62 @@ public:
      */
     auto appendData(std::vector<std::string> jsonRecords, std::string _label) -> void;
 
-    /// Add an Element instance in the database.
+    /// Add an Element instance in the database. If the element with the symbol exists the record will not be added.
     auto addElement(const Element& element) -> void;
 
-    /// Sets an Element in the database.
+    /// Sets an Element in the database. If the element with the symbol exists the record will be overwritten.
     auto setElement(const Element& element) -> void;
 
-    /// Add a map of Elements in the database. If the element exists the record will be overwritten
+    /// Add an Element instance in the database from a JSON string. If the element with the symbol exists the record will not be added.
+    auto addElement(const std::string& jsonElement) -> void;
+
+    /// Sets an Element in the database from a JSON string. If the element with the symbol exists the record will be overwritten.
+    auto setElement(const std::string& jsonElement) -> void;
+
+    /// Add a map of Elements in the database. If the element with the symbol exists the record will not be added.
     auto addMapElements(const ElementsMap& elements) -> void;
 
-    /// Add an Substance instance in the database. If the substance exists the record will be overwritten
+    /// Add a map of Elements in the database. If the element with the symbol exists the record will be overwritten.
+    auto setMapElements(const ElementsMap& elements) -> void;
+
+    /// Add a Substance instance in the database. If the substance with the symbol exists the record will not be added.
     auto addSubstance(const Substance& substance) -> void;
 
-    /// Sets a substance in the database.
+    /// Add a Substance instance in the database from a JSON string. If the substance with the symbol exists the record will not be added.
+    auto addSubstance(const std::string& jsonSubstance) -> void;
+
+    /// Sets a substance in the database. If the substance with the symbol exists the record will be overwritten.
     auto setSubstance(const Substance& substance) -> void;
 
-    /// Add a map of Substances in the database.
+    /// Sets a substance in the database  from a JSON string. If the substance with the symbol exists the record will be overwritten.
+    auto setSubstance(const std::string& jsonSubstance) -> void;
+
+    /// Add a map of Substances in the database. If the substance with the symbol exists the record will not be added.
     auto addMapSubstances(const SubstancesMap& substances) -> void;
 
-    /// Add an Reaction instance in the database. If the reaction exists the record will be overwritten
+    /// Set a map of Substances in the database. If the substance with the symbol exists the record will be overwritten.
+    auto setMapSubstances(const SubstancesMap& substances) -> void;
+
+    /// Add a Reaction instance in the database. If the reaction with the symbol exists the record will not be added.
     auto addReaction(const Reaction& reaction) -> void;
 
-    /// Sets a reaction in the database.
+    /// Set a reaction in the database. If the reaction with the symbol exists the record will be overwritten.
     auto setReaction(const Reaction& reaction) -> void;
+
+    /// Add a Reaction instance in the database from a JSON string. If the reaction with the symbol exists the record will not be added.
+    auto addReaction(const std::string& jsonReaction) -> void;
+
+    /// Set a reaction in the database from a JSON string. If the reaction with the symbol exists the record will be overwritten.
+    auto setReaction(const std::string& jsonReaction) -> void;
 
     /// Calculates the reaction record parameters, based on the defined method and available data
 //    auto calcParametersReactions( ) -> void;
 
-    /// Add a map pf Reactions in the database.
+    /// Add a map of Reactions in the database.  If the reaction with the symbol exists the record will not be added.
     auto addMapReactions(const ReactionsMap& reactions) -> void;
+
+    /// Sets a map of Reactions in the database.  If the reaction with the symbol exists the record will be overwritten.
+    auto setMapReactions(const ReactionsMap& reactions) -> void;
 
     /// Return all elements in the database
     auto getElements() const -> std::vector<Element>;
