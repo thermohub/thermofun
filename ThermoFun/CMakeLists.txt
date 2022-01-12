@@ -28,6 +28,9 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
+find_package(ChemicalFun REQUIRED)
+target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     #link_directories("/usr/local/lib")
 else() 
