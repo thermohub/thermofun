@@ -12,3 +12,9 @@ if(TFUN_BUILD_PYTHON)
         message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
     endif()
 endif()
+
+
+find_package(ChemicalFun REQUIRED)
+if(NOT ChemicalFun_FOUND)
+  message(FATAL_ERROR "ChemicalFun library not found")
+endif()

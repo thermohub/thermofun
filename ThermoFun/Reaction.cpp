@@ -475,6 +475,8 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
     auto Hr = ref_prop.reaction_enthalpy;
     auto Cpr = ref_prop.reaction_heat_capacity_cp;
 
+    K_fT_Coeff[0] = ref_prop.log_equilibrium_constant.val;
+
     switch( method_T )
     { // calculation 2- and 3-term param approximation
     case MethodCorrT_Thrift::type::CTM_DKR: // 3-term extrap. from Franck-Marshall density model

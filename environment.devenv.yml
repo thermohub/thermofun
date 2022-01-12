@@ -4,12 +4,14 @@ name: thermofun
 
 dependencies:
   - pip
+  - setuptools=59.7.0
   - gxx_linux-64=7.3.0  # [linux]
   - cmake>=3.13
   - ninja
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
+  - chemicalfun
   - python={{ python_version }}
   - pytest
   - pip:

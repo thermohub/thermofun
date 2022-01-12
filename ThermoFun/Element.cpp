@@ -1,4 +1,5 @@
 #include "Element.h"
+#include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/ParseJsonToData.h"
 
 namespace ThermoFun {
@@ -54,6 +55,22 @@ Element::Element(std::string jsonElement)
 Element::Element(const Element& other)
 : pimpl(new Impl(*other.pimpl))
 {}
+
+Element::Element(const ChemicalFun::ElementKey &elKey,
+                 const ChemicalFun::ElementValues &elValues)
+: pimpl(new Impl())
+{
+    setClass(elKey.Class());
+    setIsotopeMass(elKey.Isotope());
+    setSymbol(elKey.Symbol());
+    setName(elValues.name);
+    setMolarMass(elValues.atomic_mass);
+    setEntropy(elValues.entropy);
+    setHeatCapacity(elValues.heat_capacity);
+    setVolume(elValues.volume);
+    setValence(elValues.valence);
+    setNumber(elValues.number);
+}
 
 Element::~Element()
 {}
@@ -172,6 +189,24 @@ auto Element::number() const -> int
 auto Element::jsonString() const -> std::string
 {
     return pimpl->jString;
+}
+
+ChemicalFun::ElementKey Element::toElementKey(ChemicalFun::ElementValues &eldata)
+{
+    //    eldata.recid =;
+    eldata.atomic_mass = molarMass();
+    eldata.entropy = entropy();
+    eldata.heat_capacity = heatCapacity();
+    eldata.volume = volume();
+    if(valence()==777)
+    {
+        setValence(ChemicalFun::DBElements::defaultValence(symbol()));
+    }
+    eldata.valence = valence();
+    eldata.number = number();
+    eldata.name = symbol(); // was e.name();
+
+    return ChemicalFun::ElementKey(symbol(), class_(), isotopeMass() );
 }
 
 auto operator<(const Element& lhs, const Element& rhs) -> bool
