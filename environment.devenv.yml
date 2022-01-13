@@ -11,6 +11,7 @@ dependencies:
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
+  - chemicalfun
   - python={{ python_version }}
   - pytest
   - pip:

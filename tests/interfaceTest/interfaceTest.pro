@@ -32,6 +32,8 @@ OBJECTS_DIR = obj
 # Define the directory where the gui, third-party libs, resources are located
 BUILD_DIR = $$OUT_PWD/..
 
+LIBS += -lChemicalFun
+
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
 LIBPATH += "/usr/local/lib/"

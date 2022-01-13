@@ -1,5 +1,5 @@
 {
-     "jsonio" :   {
+     "arangodb" :   {
           "UseArangoDBInstance" :   "ArangoDBRemote",
           "UseVelocypackPut" :   true,
           "UseVelocypackGet" :   true,
@@ -26,13 +26,17 @@
                "DBRootPassword" :   ""
           }
      },
+     "jsonio" :   {
+
+     },
      "jsonui" :   {
           "CurrentDBConnection" :   "ArangoDBRemote",
           "ViewOnlyMode" :   true,
           "CanEdit_id" :   false,
           "KeepExpanded" :   true,
           "ShowComments" :   true,
-          "ShowEnumNames" :   true
+          "ShowEnumNames" :   true,
+          "CanEditDocPages" :   false
      },
      "common" :   {
           "UserHomeDirectoryPath" :   "C:/",
