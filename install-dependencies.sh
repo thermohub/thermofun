@@ -17,7 +17,7 @@ test -f /usr/local/include/nlohmann/json.hpp || {
 
 	# Building yaml-cpp library
 	mkdir -p ~/code && \
-                cdEXTN=so ~/code && \
+                cd ~/code && \
 		git clone https://github.com/nlohmann/json.git && \
 		cd json && \
 		mkdir -p build && \
