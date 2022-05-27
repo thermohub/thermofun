@@ -31,7 +31,6 @@
 
 #include <vector>
 #include <cstring>
-#include <iostream>
 using namespace std;
 
 namespace solmod

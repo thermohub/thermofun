@@ -27,8 +27,6 @@
 
 #include <cmath>
 #include <cstdio>
-#include <iostream>
-#include <iomanip>
 #include <fstream>
 using namespace std;
 #include "s_solmod_.h"

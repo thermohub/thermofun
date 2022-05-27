@@ -101,7 +101,6 @@ struct Reaction::Impl
     // Extract coefficient from strings like +10.7H2O
     std::string extractCoef( const std::string& data, double& coef )
     {
-      //cout << "data " << data << endl;
       coef = 1.;
       if( data.empty() || isalpha( data[0] ) || data[0] == '('  )
        return data;
@@ -129,19 +128,19 @@ struct Reaction::Impl
         std::string reactant;
 
         std::vector<std::string> parts = regexp_split(str_reactants,  "\\s+\\+\\s+" /*"\\s+"*/ );
-        for( auto el: parts)
+        for( const auto& el: parts)
         {
             reactant = extractCoef( el, coef );
-            //cout << reactant << " " << coef << " ; ";
+            thfun_logger->trace(" extractCoef data: {} reactant: {} coef: {}", el, reactant, coef);
             if(!reactant.empty())
                 reactants[reactant] = coef*(-1.);
         }
 
         parts = regexp_split(str_products, "\\s+\\+\\s+" /*"\\s+"*/ );
-        for( auto el: parts)
+        for( const auto& el: parts)
         {
             reactant = extractCoef( el, coef );
-            //cout << reactant << " " << coef << " ; ";
+            thfun_logger->trace(" extractCoef data: {} reactant: {} coef: {}", el, reactant, coef);
             if(!reactant.empty())
                 reactants[reactant] = coef;
         }

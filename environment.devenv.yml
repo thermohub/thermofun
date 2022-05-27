@@ -12,6 +12,7 @@ dependencies:
   - pybind11
   - nlohmann_json
   - chemicalfun
+  - spdlog
   - python={{ python_version }}
   - pytest
   - pip:

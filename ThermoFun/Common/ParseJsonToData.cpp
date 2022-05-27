@@ -1,7 +1,6 @@
 // C++ includes
 #include <algorithm>
 #include <stdlib.h>
-#include <iostream>
 #include <regex>
 
 // ThermoFun includes
@@ -193,7 +192,7 @@ auto getParameterCoefficients(/*const std::string& data,*/ const SubstanceTPMeth
         coeffs_name = "";
         break; // and exits the switch
     case SubstanceTPMethodType::solute_hkf88_reaktoro:
-        cout << '2';
+        thfun_logger->info("2");
         break;
     }
     // throw error method not found
@@ -487,9 +486,7 @@ auto parseElement(const std::string &data) -> Element
     }
     catch (json::exception &ex)
     {
-        // output exception information
-        std::cout << "message: " << ex.what() << '\n'
-                  << "exception id: " << ex.id << std::endl;
+        thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
     }
 
     return e;
@@ -575,11 +572,9 @@ auto parseSubstance(const std::string &data) -> Substance
         // get reference thermodynamic properties
         s.setThermoReferenceProperties(thermoRefPropSubst(j));
     }
-    catch (json::exception &e)
+    catch (json::exception &ex)
     {
-        // output exception information
-        std::cout << "message: " << e.what() << '\n'
-                  << "exception id: " << e.id << std::endl;
+        thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
     }
 
     return s;
@@ -646,11 +641,9 @@ auto parseReaction(const std::string &data) -> Reaction
         // get reference thermodynamic properties
         r.setThermoReferenceProperties(thermoRefPropReac(j));
     }
-    catch (json::exception &e)
+    catch (json::exception &ex)
     {
-        // output exception information
-        std::cout << "message: " << e.what() << '\n'
-                  << "exception id: " << e.id << std::endl;
+        thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
     }
 
     return r;

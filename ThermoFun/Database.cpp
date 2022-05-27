@@ -70,7 +70,8 @@ struct Database::Impl
 
     auto setDBElements(ElementsMap elements ) -> void
     {
-        std::cout << "Database::setDBElements() elements " << elements_map.size() << std::endl;
+        thfun_logger->debug("Database::setDBElements() elements {}", elements.size());
+
         ChemicalFun::ElementValues eldata;
         for (auto& e : elements)
         {
@@ -223,10 +224,10 @@ struct Database::Impl
     auto checkIfSymbolExists(std::map<std::string, T> map_, std::string record_type, std::string symbol) -> void
     {
         auto it = map_.find(symbol);
-        if (it != map_.end())
-            cout << "The "<< record_type <<" with symbol " << symbol
-                 << " is already in the database. Overwritting ..." << endl
-                 << "To add it to the database as a separate record assign it a different symbol." << endl;
+        if (it != map_.end()) {
+            thfun_logger->warn("The {} with symbol {} is already in the database. Overwritting ... \n"
+                               "To add it to the database as a separate record assign it a different symbol.", record_type, symbol);
+       }
     }
 
     auto addRecord(json j, std::string _label) -> void
@@ -313,9 +314,7 @@ struct Database::Impl
                 addRecords(j);
         }     catch (json::exception &ex)
         {
-            // output exception information
-            std::cout << "message: " << ex.what() << '\n'
-                      << "exception id: " << ex.id << std::endl;
+            thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
         }
 
     }
@@ -333,9 +332,7 @@ struct Database::Impl
             }
         }      catch (json::exception &ex)
         {
-            // output exception information
-            std::cout << "message: " << ex.what() << '\n'
-                      << "exception id: " << ex.id << std::endl;
+            thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
         }
     }
 };

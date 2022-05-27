@@ -1,7 +1,6 @@
 #include "OutputBatch.h"
 #include "ThermoBatch.h"
 #include <fstream>
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>

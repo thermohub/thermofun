@@ -3,9 +3,6 @@
 // C++ includes
 #include <algorithm>
 #include <fstream>
-#include <iomanip>
-#include <iostream>
-
 // ThermoFun includes
 #include "ThermoProperties.h"
 #include "Database.h"

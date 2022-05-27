@@ -3,7 +3,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Substance.h"
-#include <iomanip>
+//#include <iomanip>
 
 namespace ThermoFun
 {
@@ -63,10 +63,10 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
             k = 0;
         if (TK_ > thermo_parameters.temperature_intervals[thermo_parameters.temperature_intervals.size() - 1][1])
             k = thermo_parameters.temperature_intervals.size() - 1;
-        std::cout << "The given temperature: " << TK_ << " is not inside the specified interval/s for the Cp calculation.";
-        std::cout << "The temperature is not inside the specified interval for the substance " << substance.symbol() << "." << std::endl
-                  << __FILE__ << std::endl
-                  << __LINE__;
+
+        thfun_logger->warn(" {} {}: The given temperature: {} is not inside the specified interval/s for the Cp calculation.\n"
+                           "The temperature is not inside the specified interval for the substance {}.",
+                           __FILE__, __LINE__, static_cast<double>(TK_), substance.symbol());
     }
 
     //k = 0; fix

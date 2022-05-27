@@ -26,6 +26,7 @@
 
 #include <cmath>
 #include "s_solmod_.h"
+#include "Common/Exception.h"
 
 namespace solmod
 {
@@ -478,11 +479,9 @@ void TSolMod::Set_aIPc( const vector<double> aIPc_ )
   long int rc;
   if( (long)aIPc_.size() != (NPar*NPcoef) )
   {
-      cout<<endl;
-      cout<<" TNode::Set_aIPc() error: vector aIPc does not match the dimensions specified in the GEMS4K IPM file (NPar*NPcoef) !!!! "<<endl;
-      cout<<" aIPc.size() = "<<aIPc_.size()<<", NPar*NPcoef = "<<NPar*NPcoef<<endl;
-      cout<<" bailing out now ... "<<endl;
-      cout<<endl;
+      ThermoFun::thfun_logger->critical(
+        "\nTNode::Set_aIPc() error: vector aIPc does not match the dimensions specified in the GEMS4K IPM file (NPar*NPcoef) !!!!"
+        "\n aIPc.size() = {}, NPar*NPcoef = {} bailing out now ... \n", aIPc_.size(), NPar*NPcoef);
       exit(1);
   }
   for ( rc=0; rc<(NPar*NPcoef); rc++ )
@@ -506,11 +505,9 @@ void TSolMod::Set_aDCc( const vector<double> aDCc_ )
   long int rc;
   if( (long)aDCc_.size() != (NComp*NP_DC) )
   {
-      cout<<endl;
-      cout<<"TNode::Set_aDCc() error: vector aDCc does not match the dimensions specified in the GEMS4K IPM file (NComp*NP_DC) !!!! "<<endl;
-      cout<<" aDCc.size() = "<<aDCc_.size()<<", NComp*NP_DC = "<<NComp*NP_DC<<endl;
-      cout<<" bailing out now ... "<<endl;
-      cout<<endl;
+      ThermoFun::thfun_logger->critical(
+        "\nTNode::Set_aDCc() error: vector aDCc does not match the dimensions specified in the GEMS4K IPM file (NComp*NP_DC) !!!!"
+        "\n aDCc.size() = = {}, NComp*NP_DC = {} bailing out now ... \n", aDCc_.size(), NComp*NP_DC);
       exit(1);
   }
   for ( rc=0; rc<(NComp*NP_DC); rc++ )

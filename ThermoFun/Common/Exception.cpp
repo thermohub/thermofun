@@ -3,9 +3,14 @@
 // C++ includes
 #include <algorithm>
 #include <sstream>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include "ThermoProperties.h"
 
 namespace ThermoFun {
+
+// Thread-safe logger to stdout with colors
+std::shared_ptr<spdlog::logger> thfun_logger = spdlog::stdout_color_mt("thermofun");
+
 namespace internal {
 /// Creates the location string from the file name and line number.
 /// The result of this function on the file `/home/user/gitThermoFun/ThermoFun/src/Substance.cpp`
@@ -24,7 +29,7 @@ std::string location(const std::string& file, int line)
     return ss.str();
 }
 
-std::string message(const Exception& exception, const std::string& /*file*/, int /*line*/)
+std::string message(const Exception& exception, const std::string& /*file*/, int line)
 {
     std::string error = exception.error.str();
     std::string reason = exception.reason.str();
@@ -39,6 +44,7 @@ std::string message(const Exception& exception, const std::string& /*file*/, int
     message << "*** Location: " << loc << std::endl;
     message << bar << std::endl;
     message << std::endl;
+    thfun_logger->error(" {} - {} {}", line, error, reason);
     return message.str();
 }
 }

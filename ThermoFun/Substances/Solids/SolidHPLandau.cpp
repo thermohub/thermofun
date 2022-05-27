@@ -15,7 +15,7 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
 
     if (transProp.size() < 3)
     {
-        std::cout << transProp.size() << " " << std::endl;
+        thfun_logger->info(" transition properties size {} ", transProp.size());
         errorModelParameters("transition properties", "HP Landau", __LINE__, __FILE__);
     }
 

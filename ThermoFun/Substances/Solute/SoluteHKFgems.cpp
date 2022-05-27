@@ -175,8 +175,8 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
 
     if (D.val >= 1.4)
     {
-        std::cout << "water density higher than 1.4 g*cm-3, Dw = "
-            << ps.density / 1000 << "g*cm-3." << std::endl << __FILE__ << std::endl << __LINE__;
+        thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3.",
+                           __FILE__, __LINE__, static_cast<double>(ps.density/1000) );
 //        Exception exception;
 //        exception.error << "Error in gShock2";
 //        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
