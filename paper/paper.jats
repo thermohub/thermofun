@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20190208//EN"
+                  "JATS-publishing1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" dtd-version="1.2" article-type="other">
+<front>
+<journal-meta>
+<journal-id></journal-id>
+<journal-title-group>
+<journal-title>Journal of Open Source Software</journal-title>
+<abbrev-journal-title>JOSS</abbrev-journal-title>
+</journal-title-group>
+<issn publication-format="electronic">2475-9066</issn>
+<publisher>
+<publisher-name>Open Journals</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="publisher-id">0</article-id>
+<article-id pub-id-type="doi">N/A</article-id>
+<title-group>
+<article-title>ThermoFun: A library that delivers standard thermodynamic
+properties of substances and reactions at temperature and pressure of
+interest</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">0000-0002-6923-7300</contrib-id>
+<name>
+<surname>Miron</surname>
+<given-names>George Dan</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+<xref ref-type="corresp" rid="cor-1"><sup>*</sup></xref>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Leal</surname>
+<given-names>Allan M. M.</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Dmytrieva</surname>
+<given-names>S. V.</given-names>
+</name>
+<xref ref-type="aff" rid="aff-3"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Kulik</surname>
+<given-names>Dmitrii A.</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<aff id="aff-1">
+<institution-wrap>
+<institution>Laboratory for Waste Management LES, Paul Scherrer
+Institut, 5232 Villigen, Switzerland</institution>
+</institution-wrap>
+</aff>
+<aff id="aff-2">
+<institution-wrap>
+<institution>Geothermal Energy and Geofluids Group, Institute of
+Geophysics, ETH Zurich, Switzerland</institution>
+</institution-wrap>
+</aff>
+<aff id="aff-3">
+<institution-wrap>
+<institution>Cosylab</institution>
+</institution-wrap>
+</aff>
+</contrib-group>
+<author-notes>
+<corresp id="cor-1">* E-mail: <email></email></corresp>
+</author-notes>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2022-05-10">
+<day>10</day>
+<month>5</month>
+<year>2022</year>
+</pub-date>
+<volume>¿VOL?</volume>
+<issue>¿ISSUE?</issue>
+<fpage>¿PAGE?</fpage>
+<permissions>
+<copyright-statement>Authors of papers retain copyright and release the
+work under a Creative Commons Attribution 4.0 International License (CC
+BY 4.0)</copyright-statement>
+<copyright-year>2022</copyright-year>
+<copyright-holder>The article authors</copyright-holder>
+<license license-type="open-access" xlink:href="https://creativecommons.org/licenses/by/4.0/">
+<license-p>Authors of papers retain copyright and release the work under
+a Creative Commons Attribution 4.0 International License (CC BY
+4.0)</license-p>
+</license>
+</permissions>
+<kwd-group kwd-group-type="author">
+<kwd>C++</kwd>
+<kwd>Python</kwd>
+<kwd>thermodynamics</kwd>
+<kwd>equations of state</kwd>
+<kwd>geochemistry</kwd>
+<kwd>materials</kwd>
+</kwd-group>
+</article-meta>
+</front>
+<body>
+<sec id="summary">
+  <title>Summary</title>
+  <p>ThermoFun
+  <ext-link ext-link-type="uri" xlink:href="https://thermohub.org/thermofun">thermohub.org/thermofun</ext-link>
+  open source library provides standard thermodynamic properties of
+  substances and reactions calculated at given temperature and pressure.
+  The library can be used from C++ and Python to do single or bach
+  calculations and can be coupled to to any modeling code which requires
+  thermodynamic data as input or to codes for model parameter fitting.
+  Results can be written to file in a table or other formats or passed
+  in memory to coupled codes that call the library. For its
+  calculations, ThermoFun can use input properties and model parameters
+  of different thermodynamic datasets that are read from local files or
+  are retrieved via remote access to ThermoHub
+  (<ext-link ext-link-type="uri" xlink:href="https://thermohub.org/thermohub">thermohub.org/thermohub</ext-link>).
+  The library contains a comprehensive collection of models and
+  equations of state for: solid, aqueous, gaseous, and melt substances,
+  and their reactions. A certain model or equation of state is not
+  present? ThermoFun library is extendable with new methods and
+  equations of state, taking advantage of the modular structure. The
+  open source code is available at:
+  <ext-link ext-link-type="uri" xlink:href="https://github.com/thermohub/thermofun">https://github.com/thermohub/thermofun</ext-link></p>
+</sec>
+<sec id="statement-of-need">
+  <title>Statement of need</title>
+  <p>Thermodynamic modelling provides valuable insight into chemical
+  systems and allows us to investigate processes that occur under
+  conditions and time scales that cannot be reached in laboratory
+  settings. An unavoidable step in any realistic application of
+  geochemical thermodynamic modelling is the calculation of standard
+  thermodynamic properties of all involved substances and reactions at
+  temperature and pressure of interest
+  (<xref alt="Leal et al., 2017" rid="ref-Leal2017" ref-type="bibr">Leal
+  et al., 2017</xref>). This is done using equations of state that
+  relate thermodynamic properties to temperature and pressure. The
+  quality of thermodynamic modeling results are strongly influenced by
+  the predictive capability of the method and the availability,
+  accuracy, precision and consistency of input parameters in
+  thermodynamic datasets.</p>
+  <p>Many different methods have been developed that allow extrapolation
+  of standard thermodynamic properties over a wide range of conditions.
+  These methods can have complex mathematical formulations, a large
+  number of input parameters, can require iterative numerical procedures
+  or a combination of several methods is be necessary to calculate
+  properties of a certain type of substance. For example, the properties
+  of the solvent are used to calculate the properties of the solutes.
+  Selective implementations of extrapolation methods and equations of
+  state can be found in existing thermodynamic modeling codes or as
+  standalone codes that work with specific thermodynamic datasets and
+  file formats. This makes it difficult to retrieve properties
+  calculated with different methods and use them in different codes, or
+  to investigate, compare and tabulate thermodynamic data coming from
+  different sources. With many existing thermodynamic datasets,
+  equations of state, modeling codes and file formats, it can be
+  difficult and time consuming to collect such data and to apply
+  suitable methods in modeling calculations.</p>
+  <fig>
+    <caption><p>Example of properties of substances and reactions
+    calculated using ThermoFun as function of temperature at saturated
+    water vapor
+    pressure.<styled-content id="figU003Aproperties"></styled-content></p></caption>
+    <graphic mimetype="image" mime-subtype="png" xlink:href="figure1.png" xlink:title="" />
+  </fig>
+  <p>The open-source ThermoFun library, provides standard thermodynamic
+  properties of substances and reactions
+  <xref alt="Figure 1" rid="figU003Aproperties">Figure 1</xref>. These
+  are calculated using the extensive collection of methods available in
+  ThermoFun using input properties and parameters from different
+  thermodynamic datasets retrievable from the ThermoHub online database
+  or provided as local files. The library is extendable with new methods
+  and has access to the evolving collection of thermodynamic datasets
+  from ThermoHub. These datasets contain reference thermodynamic data
+  applicable in various studies on hydrothermal processes, cementitious
+  materials, nuclear engineering, waste incineration management and
+  disposal, and other (geo)chemical environments. Access to many
+  thermodynamic datasets, methods and equations of state, allows for
+  more efficient use of these in modeling codes, or to optimize/fit the
+  methods’s parameters, evaluate its performance, range of applicability
+  and accuracy. ThermoFun provides the flexibility of using
+  thermodynamic datasets and appropriate methods, or a combination of
+  methods that are best suited for different classes of substances
+  necessary in various modeling applications.</p>
+  <p>The library can be linked to any C++ or Python geochemical
+  modelling code and used as source of standard thermodynamic
+  properties, or can be simply used for tabulating thermodynamic
+  properties of substances and reactions. ThermoFun was used to
+  calculate the properties of reactants and reactions at elevated
+  temperatures when evaluating the use of isocolomibc reactions to
+  estimate properties of aqueous complexation reactions for lanthanides
+  and actinides
+  (<xref alt="Miron et al., 2020" rid="ref-Miron2020" ref-type="bibr">Miron
+  et al., 2020</xref>). The library was used to evaluate the effect of
+  using different equations of state for water solvent on the calculated
+  properties of dissolved aqueous
+  species(<xref alt="Miron et al., 2019" rid="ref-Miron2019" ref-type="bibr">Miron
+  et al., 2019</xref>). ThermoFun is already used as a source of
+  thermodynamic data in GEMS codes
+  <ext-link ext-link-type="uri" xlink:href="https://gems.web.psi.ch/">gems.web.psi.ch</ext-link>
+  (<xref alt="Kulik et al., 2013" rid="ref-Kulik2013" ref-type="bibr">Kulik
+  et al., 2013</xref>) and in Reaktoro geochemical modeling framework
+  <ext-link ext-link-type="uri" xlink:href="https://reaktoro.org">reaktoro.org</ext-link>
+  (<xref alt="Leal et al., 2016" rid="ref-Leal2016" ref-type="bibr">Leal
+  et al., 2016</xref>).</p>
+</sec>
+<sec id="features">
+  <title>Features</title>
+  <p>The main classes of ThermoFun are <monospace>Database</monospace>,
+  <monospace>ThermoEngine</monospace>, and
+  <monospace>ThermoBatch</monospace>.
+  <monospace>ThermoEngine</monospace>, and
+  <monospace>ThermoBatch</monospace> are initialized with the
+  <monospace>Database</monospace>. The <monospace>Database</monospace>
+  is initialized with a thermodynamic dataset. A thermodynamic dataset
+  is also known in the (geo)chemical literature as a thermodynamic
+  database with records of elements, substances and reactions that
+  contain various data like symbol, formula, reaction equation their
+  thermodynamic properties and model parameters that are needed in the
+  calculations, etc. Theses data are compiled, critically selected from
+  literature and may be also fitted against experimental data to be used
+  in modeling codes to calculate chemical equilibrium in different
+  chemical systems. Thermodynamic datasets used in ThermoFun can be read
+  locally from files or retrieved via remote access to ThermoHub online
+  database. ThermoHub contains a collection of thermodynamic datasets
+  that are widely used in various modeling applications
+  <ext-link ext-link-type="uri" xlink:href="https://thermohub.org/thermohub/thermohub/#thermodatasets">thermohub.org/thermohub</ext-link>.
+  The online ThermoHub database is actively extended with existing, and
+  newly updated and developed datasets prepared by thermodynamic
+  database experts and thus made available for calculations with
+  ThermoFun. In general, the calculations are done using one consistent
+  dataset but there is also the possibility to use custom datasets,
+  combine them and append additional data from user maintained files.
+  The data format of <monospace>ThermoHub</monospace> is JSON (Java
+  Script Object Notation) and using
+  <monospace>ThermoHubClient</monospace> thermodynamic datasets are
+  retrieved into a simplified <monospace>ThermoFun</monospace> format
+  and saved to text files that can edited and extended.</p>
+  <p>ThermoFun engine class <monospace>ThermoEngine</monospace> contains
+  functions that return the standard state thermodynamic properties of a
+  substance or reaction at the given temperature and pressure. For water
+  solvent, additional specific properties like water density, dielectric
+  constant can be retrieved. A low level fine grained access up to
+  individual methods is also possible.
+  <monospace>ThermoBatch</monospace> class can be used to do batch
+  calculations, for a list of substances, reactions, and temperature and
+  pressure intervals. <monospace>ThermoBatch</monospace> can be also
+  used to output the results in tabulated comma separated values (CSV)
+  or other data formats.</p>
+  <p>Reaction properties can be calculated for reaction records present
+  in the thermodynamic dataset in this case the extrapolation at
+  temperature and pressure is done using the method and input parameters
+  available in the reaction record. Another option is to provide
+  reaction equations written using symbols of substances available in
+  the thermodynamic dataset (e.g., Calcite
+  <inline-formula><alternatives>
+  <tex-math><![CDATA[\leftrightharpoons]]></tex-math>
+  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mo>⇋</mml:mo></mml:math></alternatives></inline-formula>
+  Ca<inline-formula><alternatives>
+  <tex-math><![CDATA[^{2+}]]></tex-math>
+  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:msup><mml:mi></mml:mi><mml:mrow><mml:mn>2</mml:mn><mml:mo>+</mml:mo></mml:mrow></mml:msup></mml:math></alternatives></inline-formula>
+  + CO<inline-formula><alternatives>
+  <tex-math><![CDATA[_{3}^{-2}]]></tex-math>
+  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:msubsup><mml:mi></mml:mi><mml:mn>3</mml:mn><mml:mrow><mml:mo>−</mml:mo><mml:mn>2</mml:mn></mml:mrow></mml:msubsup></mml:math></alternatives></inline-formula>).
+  In this case the properties of the reactions are calculated from the
+  properties of the reactants extrapolated based on the methods defined
+  in their records. Substance properties are calculated using the
+  specified equation of state and the input parameters provided in the
+  dataset record. Another option is to set a reaction that defines the
+  substance properties. In the case of a reaction dependent substance,
+  the properties are calculated from the reaction properties and the
+  properties of the other reactants that take part in the reaction. One
+  dataset can contain a combination of substances, reaction dependent
+  substances and reactions that have their properties calculated
+  consistently calculated using a recursive method.</p>
+</sec>
+<sec id="examples">
+  <title>Examples</title>
+  <p>Loading the <monospace>aq17</monospace> thermodynamic dataset
+  (<xref alt="Miron et al., 2016" rid="ref-Miron2016" ref-type="bibr">Miron
+  et al., 2016</xref>,
+  <xref alt="2017" rid="ref-Miron2017" ref-type="bibr">2017</xref>) and
+  calculating the properties of a substance (calcium aqueous ion
+  <inline-formula><alternatives>
+  <tex-math><![CDATA[Ca^{2+}]]></tex-math>
+  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>C</mml:mi><mml:msup><mml:mi>a</mml:mi><mml:mrow><mml:mn>2</mml:mn><mml:mo>+</mml:mo></mml:mrow></mml:msup></mml:mrow></mml:math></alternatives></inline-formula>):</p>
+  <code language="python">  import thermofun as fun
+  database = fun.Database(&quot;aq17-thermofun.json&quot;)
+  engine = fun.ThermoEngine(database)
+  #                                        T(K)   P(Pa)  symbol
+  Ca_ion = engine.thermoPropertiesSubstance(473, 2000e5, &quot;Ca+2&quot;)
+  print(f'G0 {Ca_ion.gibbs_energy.val} J/mol')</code>
+  <p><monospace>G0 -545301.2878298083 J/mol</monospace></p>
+  <p>Calculating the properties of a reaction given as a reaction
+  equation (calcite dissolution):</p>
+  <code language="python">  #                                    T(K)   P(Pa)  reaction equation
+  R = engine.thermoPropertiesReaction(348.15, 1e5, &quot;Calcite = Ca+2 + CO3-2&quot;)
+  print(f'drS of (Cal = Ca+2 + CO3-2) is {R.reaction_entropy.val}')
+  print(f'drG of (Cal = Ca+2 + CO3-2) is {R.reaction_gibbs_energy.val}')
+  print(f'logK of (Cal = Ca+2 + CO3-2) is {R.log_equilibrium_constant.val}')</code>
+  <preformat>drS of (Cal = Ca+2 + CO3-2) is -259.12288450418015
+drG of (Cal = Ca+2 + CO3-2) is 59914.092580924975
+logK of (Cal = Ca+2 + CO3-2) is -8.988976334909019</preformat>
+  <p>Using the batch class to do sequential calculations and output the
+  results to a CSV file:</p>
+  <code language="python">  batch = fun.ThermoBatch(database)
+  batch.setPropertiesUnits([&quot;temperature&quot;, &quot;pressure&quot;],[&quot;degC&quot;,&quot;bar&quot;])
+  batch.setPressureIncrement(0,0,0)
+  batch.setTemperatureIncrement(0,300, 5)
+  substances = [&quot;Na+&quot;, &quot;Mg+2&quot;, &quot;Ca+2&quot;, &quot;SiO2@&quot;]
+  properties = [&quot;heat_capacity_cp&quot;,&quot;entropy&quot;, &quot;volume&quot;]
+  batch.thermoPropertiesSubstance(substances, properties).toCSV('results.csv')</code>
+  <p>Jupyter notebooks with examples on how to use
+  <monospace>ThermoFun</monospace> can be found here
+  <ext-link ext-link-type="uri" xlink:href="https://github.com/thermohub/thermofun-jupyter">https://github.com/thermohub/thermofun-jupyter</ext-link>.
+  More complex scripts and routines can be coded that call
+  <monospace>ThermoFun</monospace>. For example,
+  <monospace>ThermoFun</monospace> can be coupled to a phase diagram
+  plotter, a chemical equilibrium solver that require properties of all
+  components in the system, or a parameter optimization routine for
+  fitting the parameters of the methods available in ThermoFun.</p>
+</sec>
+</body>
+<back>
+<ref-list>
+  <ref id="ref-Kulik2013">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Kulik</surname><given-names>Dmitrii A.</given-names></name>
+        <name><surname>Wagner</surname><given-names>Thomas</given-names></name>
+        <name><surname>Dmytrieva</surname><given-names>Svitlana V.</given-names></name>
+        <name><surname>Kosakowski</surname><given-names>Georg</given-names></name>
+        <name><surname>Hingerl</surname><given-names>Ferdinand F.</given-names></name>
+        <name><surname>Chudnenko</surname><given-names>Konstantin V.</given-names></name>
+        <name><surname>Berner</surname><given-names>Urs R.</given-names></name>
+      </person-group>
+      <article-title>GEM-selektor geochemical modeling package: Revised algorithm and GEMS3K numerical kernel for coupled simulation codes</article-title>
+      <source>Computational Geosciences</source>
+      <publisher-name>Springer Netherlands</publisher-name>
+      <year iso-8601-date="2013-08">2013</year><month>08</month>
+      <volume>17</volume>
+      <issn>14200597</issn>
+      <uri>http://link.springer.com/10.1007/s10596-012-9310-6</uri>
+      <pub-id pub-id-type="doi">10.1007/s10596-012-9310-6</pub-id>
+      <fpage>1</fpage>
+      <lpage>24</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-Miron2019">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Miron</surname><given-names>G. D.</given-names></name>
+        <name><surname>Leal</surname><given-names>Allan M. M.</given-names></name>
+        <name><surname>Yapparova</surname><given-names>Alina</given-names></name>
+      </person-group>
+      <article-title>Thermodynamic properties of aqueous species calculated using the HKF model: How do different thermodynamic and electrostatic models for solvent water affect calculated aqueous properties?</article-title>
+      <source>Geofluids</source>
+      <publisher-name>Hindawi</publisher-name>
+      <year iso-8601-date="2019-02">2019</year><month>02</month>
+      <volume>2019</volume>
+      <issn>1468-8115</issn>
+      <uri>https://www.hindawi.com/journals/geofluids/2019/5750390/</uri>
+      <pub-id pub-id-type="doi">10.1155/2019/5750390</pub-id>
+      <fpage>1</fpage>
+      <lpage>24</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-Miron2020">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Miron</surname><given-names>G. D.</given-names></name>
+        <name><surname>Kulik</surname><given-names>Dmitrii A.</given-names></name>
+        <name><surname>Thoenen</surname><given-names>Tres</given-names></name>
+      </person-group>
+      <article-title>Generating isocoulombic reactions as a tool for systematic evaluation of temperature trends of thermodynamic properties: Application to aquocomplexes of lanthanides and actinides</article-title>
+      <source>Geochimica et Cosmochimica Acta</source>
+      <publisher-name>Elsevier Ltd</publisher-name>
+      <year iso-8601-date="2020-10">2020</year><month>10</month>
+      <volume>286</volume>
+      <issn>00167037</issn>
+      <pub-id pub-id-type="doi">10.1016/j.gca.2020.07.020</pub-id>
+      <fpage>119</fpage>
+      <lpage>142</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-Leal2017">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Leal</surname><given-names>Allan M. M.</given-names></name>
+        <name><surname>Kulik</surname><given-names>Dmitrii A.</given-names></name>
+        <name><surname>Smith</surname><given-names>William R.</given-names></name>
+        <name><surname>Saar</surname><given-names>Martin O.</given-names></name>
+      </person-group>
+      <article-title>An overview of computational methods for chemical equilibrium and kinetic calculations for geochemical and reactive transport modeling</article-title>
+      <source>Pure and Applied Chemistry</source>
+      <publisher-name>De Gruyter</publisher-name>
+      <year iso-8601-date="2017-01">2017</year><month>01</month>
+      <volume>89</volume>
+      <issn>1365-3075</issn>
+      <uri>http://www.degruyter.com/view/j/pac.2017.89.issue-5/pac-2016-1107/pac-2016-1107.xml</uri>
+      <pub-id pub-id-type="doi">10.1515/pac-2016-1107</pub-id>
+      <fpage>597</fpage>
+      <lpage>643</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-Leal2016">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Leal</surname><given-names>Allan M. M.</given-names></name>
+        <name><surname>Kulik</surname><given-names>Dmitrii A.</given-names></name>
+        <name><surname>Kosakowski</surname><given-names>Georg</given-names></name>
+        <name><surname>Saar</surname><given-names>Martin O.</given-names></name>
+      </person-group>
+      <article-title>Computational methods for reactive transport modeling: An extended law of mass-action, xLMA, method for multiphase equilibrium calculations</article-title>
+      <source>Advances in Water Resources</source>
+      <publisher-name>Elsevier Ltd</publisher-name>
+      <year iso-8601-date="2016-10">2016</year><month>10</month>
+      <volume>96</volume>
+      <issn>03091708</issn>
+      <pub-id pub-id-type="doi">10.1016/j.advwatres.2016.08.008</pub-id>
+      <fpage>405</fpage>
+      <lpage>422</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-Miron2016">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Miron</surname><given-names>G. D.</given-names></name>
+        <name><surname>Wagner</surname><given-names>T.</given-names></name>
+        <name><surname>Kulik</surname><given-names>D. A.</given-names></name>
+        <name><surname>Heinrich</surname><given-names>C. A.</given-names></name>
+      </person-group>
+      <article-title>Internally consistent thermodynamic data for aqueous species in the system na-k-al-si-o-h-cl</article-title>
+      <source>Geochimica et Cosmochimica Acta</source>
+      <year iso-8601-date="2016">2016</year>
+      <volume>187</volume>
+      <issn>00167037</issn>
+      <pub-id pub-id-type="doi">10.1016/j.gca.2016.04.026</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-Miron2017">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Miron</surname><given-names>G. D.</given-names></name>
+        <name><surname>Wagner</surname><given-names>T.</given-names></name>
+        <name><surname>Kulik</surname><given-names>D. A.</given-names></name>
+        <name><surname>Lothenbach</surname><given-names>B.</given-names></name>
+      </person-group>
+      <article-title>An internally consistent thermodynamic dataset for aqueous species in the system ca-mg-na-k-al-si-o-h-c-cl to 800 °c and 5 kbar</article-title>
+      <source>American Journal of Science</source>
+      <year iso-8601-date="2017">2017</year>
+      <volume>317</volume>
+      <issn>00029599</issn>
+      <pub-id pub-id-type="doi">10.2475/07.2017.01</pub-id>
+      <fpage>755</fpage>
+      <lpage>806</lpage>
+    </element-citation>
+  </ref>
+</ref-list>
+</back>
+</article>
