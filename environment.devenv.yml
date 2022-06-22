@@ -11,8 +11,10 @@ dependencies:
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
+  - fmt
+  - spdlog>=1.10.0 # [win]
+  - spdlog # [unix]
   - chemicalfun
-  - spdlog
   - python={{ python_version }}
   - pytest
   - pip:
