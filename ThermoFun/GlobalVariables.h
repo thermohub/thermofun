@@ -7,9 +7,11 @@
 #include <cmath>
 #include <fstream>
 
+#ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wswitch"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 
 #define OutputSTEAM_CONVENTION
 

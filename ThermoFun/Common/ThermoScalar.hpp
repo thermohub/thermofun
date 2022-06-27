@@ -24,6 +24,10 @@
 #include <map>
 #include <string>
 
+#ifdef _WIN32
+#include <corecrt.h>
+#endif
+
 namespace Reaktoro_ {
 
 enum Status {
