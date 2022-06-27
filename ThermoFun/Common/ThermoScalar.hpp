@@ -22,6 +22,7 @@
 // C++ includes
 #include <cmath>
 #include <map>
+#include <string>
 
 namespace Reaktoro_ {
 
