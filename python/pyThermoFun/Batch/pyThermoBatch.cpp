@@ -30,6 +30,7 @@ namespace py = pybind11;
 #include <ThermoFun/Database.h>
 #include <ThermoFun/ThermoEngine.h>
 #include <ThermoFun/ThermoProperties.h>
+using namespace std;
 
 namespace ThermoFun {
 
