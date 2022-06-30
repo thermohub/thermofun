@@ -24,9 +24,6 @@
 #include <map>
 #include <string>
 
-#if _MSC_VER >= 1929
-#include <corecrt.h>
-#endif
 
 namespace Reaktoro_ {
 
