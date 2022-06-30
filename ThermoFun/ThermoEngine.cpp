@@ -18,7 +18,7 @@
 namespace ThermoFun
 {
 
-bool iequals(const string &a, const string &b)
+bool iequals(const std::string &a, const std::string &b)
 {
     size_t sz = a.size();
     if (b.size() != sz)
@@ -515,7 +515,7 @@ struct ThermoEngine::Impl
     {
         ThermoPropertiesSubstance tps, reacTps;
         ThermoPropertiesReaction tpr;
-        string reactionSymbol = subst.reactionSymbol();
+        std::string reactionSymbol = subst.reactionSymbol();
         Reaction reaction;
         std::map<std::string, double> reactants;
 
@@ -708,7 +708,7 @@ struct ThermoEngine::Impl
         tpr.reaction_internal_energy = 0.0;
         tpr.reaction_helmholtz_energy = 0.0;
 
-        string message = "Calculated from the reaction components: " + reaction.symbol() + "; ";
+        std::string message = "Calculated from the reaction components: " + reaction.symbol() + "; ";
 
         for (auto &reactant : reaction.reactants())
         {

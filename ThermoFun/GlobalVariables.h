@@ -15,8 +15,6 @@
 
 #define OutputSTEAM_CONVENTION
 
-using namespace std;
-
 ///@cond INTERNAL
 
 namespace ThermoFun {

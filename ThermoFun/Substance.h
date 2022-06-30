@@ -190,7 +190,7 @@ public:
     /// @param T temparature in Pa
     /// @param P pressure in K
     /// @param tps calculated properties of the substance, their status message is changed is T and P is out of bounds
-    auto checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void;
+    auto checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void;
     
 private:
     struct Impl;

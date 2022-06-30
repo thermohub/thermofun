@@ -17,7 +17,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     Reaktoro_::ThermoScalar V;
     int k = -1;
-    vector<double> ac;
+    std::vector<double> ac;
     auto TK_ = TK;
     for (unsigned i = 0; i < 16; i++)
     {

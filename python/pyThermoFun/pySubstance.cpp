@@ -24,8 +24,6 @@ namespace py = pybind11;
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/ThermoProperties.h>
 #include <ThermoFun/ThermoParameters.h>
-using namespace std;
-
 
 namespace ThermoFun {
 

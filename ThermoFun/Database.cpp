@@ -51,7 +51,7 @@ struct Database::Impl
             setDBElements( elements_map );
     }
 
-    Impl(vector<string> jsons, std::string _label)
+    Impl(std::vector<std::string> jsons, std::string _label)
     {
         fromJSONs(jsons, _label);
         if (elements_map.size()>0)
@@ -319,7 +319,7 @@ struct Database::Impl
 
     }
 
-    auto fromJSONs(vector<string> jsons, std::string _label) -> void
+    auto fromJSONs(std::vector<std::string> jsons, std::string _label) -> void
     {
         try {
 
@@ -345,7 +345,7 @@ Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
 
-Database::Database(vector<string> jsonRecords, std::string _label="unknown label")
+Database::Database(std::vector<std::string> jsonRecords, std::string _label="unknown label")
 : pimpl(new Impl(jsonRecords, _label))
 {}
 
@@ -367,7 +367,7 @@ auto Database::appendData(std::string filename) -> void
         pimpl->setDBElements(pimpl->mapElements());
 }
 
-auto Database::appendData(vector<string> jsonRecords, std::string _label = "unknown label") -> void
+auto Database::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);

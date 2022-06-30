@@ -196,7 +196,7 @@ auto Output::foutResults()-> void
     {
         for (unsigned j=0; j<j_size; j++)
         {
-            double T, P; string symbol;
+            double T, P; std::string symbol;
             if (outSettings.loopOverTPpairsFirst)
             {
                 T = tpPairs[j][0];
@@ -253,7 +253,7 @@ auto Output::foutResultsTransposed()-> void
     {
         for (unsigned j=0; j<j_size; j++)
         {
-            double T, P; string property;
+            double T, P; std::string property;
             if (outSettings.loopOverTPpairsFirst)
             {
                 T = tpPairs[j][0];

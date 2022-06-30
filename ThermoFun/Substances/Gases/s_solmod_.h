@@ -30,8 +30,6 @@
 #define _s_solmod_h_
 
 #include <vector>
-#include <cstring>
-using namespace std;
 
 namespace solmod
  {
@@ -273,13 +271,13 @@ class TSolMod
         void getSolutionData( SolutionData *sd );
 
         // access from node
-        void Set_aIPc( const vector<double> aIPc_ );
-        void Get_aIPc ( vector<double> &aIPc_ );
+        void Set_aIPc( const std::vector<double> aIPc_ );
+        void Get_aIPc ( std::vector<double> &aIPc_ );
 
-        void Set_aDCc( const vector<double> aDCc_ );
-        void Get_aDCc( vector<double> &aDCc_ );
+        void Set_aDCc( const std::vector<double> aDCc_ );
+        void Get_aDCc( std::vector<double> &aDCc_ );
 
-        void Get_aIPx( vector<long int> &aIPx_ );
+        void Get_aIPx( std::vector<long int> &aIPx_ );
 
         void Get_NPar_NPcoef_MaxOrd_NComp_NP_DC ( long int &NPar_, long int &NPcoef_,
                        long int &MaxOrd_,  long int &NComp_, long int &NP_DC_ );
@@ -1292,8 +1290,8 @@ class TSIT: public TSolMod
 	private:
 
         // data objects copied from MULTI
-        double *z;    ///< vector of species charges (for aqueous models)
-        double *m;    ///< vector of species molalities (for aqueous models)
+        double *z;    ///< std::vector of species charges (for aqueous models)
+        double *m;    ///< std::vector of species molalities (for aqueous models)
         double *RhoW;  ///< water density properties
         double *EpsW;  ///< water dielectrical properties
 
@@ -1445,7 +1443,7 @@ private:
 	double lnGammaX( long int X, double DH_term );
 	double lnGammaH2O( double DH_term );
 
-    /// Calc vector of interaction parameters corrected to T,P of interest
+    /// Calc std::vector of interaction parameters corrected to T,P of interest
 	void PTcalc( int Gex_or_Sex );
 
     /// Calculation KCl activity coefficients for McInnes scaling

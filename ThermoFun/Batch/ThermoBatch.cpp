@@ -246,7 +246,7 @@ struct ThermoBatch::Impl
 
     auto calculate(Calculation calculation) -> void
     {
-        double T, P; string symbol; size_t j_size, i_size;
+        double T, P; std::string symbol; size_t j_size, i_size;
         auto defUnitT = defaultPropertyUnits.at("temperature");
         auto unitT    =   givenPropertyUnits.at("temperature");
         auto defUnitP = defaultPropertyUnits.at("pressure");
@@ -317,12 +317,12 @@ struct ThermoBatch::Impl
     }
 
     // Calculate functions
-    auto calculateSubstProp( double T, double &P, string symbol, unsigned index ) -> void
+    auto calculateSubstProp( double T, double &P, std::string symbol, unsigned index ) -> void
     {
             results[index] = selectResultsSubst(thermo.thermoPropertiesSubstance(T, P, symbol));
     }
 
-    auto calculateReactProp( double T, double &P, string symbol, unsigned index ) -> void
+    auto calculateReactProp( double T, double &P, std::string symbol, unsigned index ) -> void
     {
         if (outSettings.reactionPropertiesFromReactants)
             results[index] = selectResultsReact(thermo.thermoPropertiesReactionFromReactants(T, P, symbol));
@@ -330,7 +330,7 @@ struct ThermoBatch::Impl
             results[index] = selectResultsReact(thermo.thermoPropertiesReaction(T, P, symbol));
     }
 
-    auto calculateSolventProp( double T, double &P, string symbol, unsigned index ) -> void
+    auto calculateSolventProp( double T, double &P, std::string symbol, unsigned index ) -> void
     {
         results[index] = selectResultsSolvent(thermo.propertiesSolvent(T, P, symbol),
                                               thermo.electroPropertiesSolvent(T, P, symbol));

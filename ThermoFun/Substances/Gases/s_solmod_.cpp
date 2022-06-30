@@ -474,13 +474,13 @@ double TSolMod::ideal_conf_entropy()
 }
 
 // access from node
-void TSolMod::Set_aIPc( const vector<double> aIPc_ )
+void TSolMod::Set_aIPc( const std::vector<double> aIPc_ )
 {
   long int rc;
   if( (long)aIPc_.size() != (NPar*NPcoef) )
   {
       ThermoFun::thfun_logger->critical(
-        "\nTNode::Set_aIPc() error: vector aIPc does not match the dimensions specified in the GEMS4K IPM file (NPar*NPcoef) !!!!"
+        "\nTNode::Set_aIPc() error: std::vector aIPc does not match the dimensions specified in the GEMS4K IPM file (NPar*NPcoef) !!!!"
         "\n aIPc.size() = {}, NPar*NPcoef = {} bailing out now ... \n", aIPc_.size(), NPar*NPcoef);
       exit(1);
   }
@@ -488,7 +488,7 @@ void TSolMod::Set_aIPc( const vector<double> aIPc_ )
       aIPc[ rc ] = aIPc_[ rc ];		// pointer to list of indices of interaction param coeffs, NPar * MaxOrd
 }
 
-void TSolMod::Get_aIPc ( vector<double> &aIPc_ )
+void TSolMod::Get_aIPc ( std::vector<double> &aIPc_ )
 {
   aIPc_.clear();
   aIPc_.resize( (NPar*NPcoef) );
@@ -500,13 +500,13 @@ void TSolMod::Get_aIPc ( vector<double> &aIPc_ )
   }
 }
 
-void TSolMod::Set_aDCc( const vector<double> aDCc_ )
+void TSolMod::Set_aDCc( const std::vector<double> aDCc_ )
 {
   long int rc;
   if( (long)aDCc_.size() != (NComp*NP_DC) )
   {
       ThermoFun::thfun_logger->critical(
-        "\nTNode::Set_aDCc() error: vector aDCc does not match the dimensions specified in the GEMS4K IPM file (NComp*NP_DC) !!!!"
+        "\nTNode::Set_aDCc() error: std::vector aDCc does not match the dimensions specified in the GEMS4K IPM file (NComp*NP_DC) !!!!"
         "\n aDCc.size() = = {}, NComp*NP_DC = {} bailing out now ... \n", aDCc_.size(), NComp*NP_DC);
       exit(1);
   }
@@ -516,7 +516,7 @@ void TSolMod::Set_aDCc( const vector<double> aDCc_ )
   }
 }
 
-void TSolMod::Get_aDCc( vector<double> &aDCc_ )
+void TSolMod::Get_aDCc( std::vector<double> &aDCc_ )
 {
   aDCc_.clear();
   aDCc_.resize( (NComp*NP_DC) );
@@ -528,7 +528,7 @@ void TSolMod::Get_aDCc( vector<double> &aDCc_ )
   }
 }
 
-void TSolMod::Get_aIPx( vector<long int> &aIPx_ )
+void TSolMod::Get_aIPx( std::vector<long int> &aIPx_ )
 {
   long int i=0;
   aIPx_.clear();

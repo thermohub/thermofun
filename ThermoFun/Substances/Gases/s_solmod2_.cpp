@@ -28,7 +28,7 @@
 #include <cmath>
 #include <cstdio>
 #include <fstream>
-using namespace std;
+
 #include "s_solmod_.h"
 #include "verror.h"
 

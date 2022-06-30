@@ -34,7 +34,7 @@ auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction;
 //{
 //    unsigned first = map.find("\"");
 //    unsigned second = map.find("\"", first+1);
-//    string strNew = map.substr (first+1,second-(first+1));
+//    std::string strNew = map.substr (first+1,second-(first+1));
 //    return stoi(strNew);
 //}
 
@@ -55,7 +55,7 @@ auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction;
 ////    return false;
 //}
 
-//auto parseIssues(std::string data, string name, string prop) -> bool
+//auto parseIssues(std::string data, std::string name, std::string prop) -> bool
 //{
 //    if ((data == "*") || (data == "" ) || (data == "{}"))
 //    {
@@ -68,9 +68,9 @@ auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction;
 //        return false;
 //}
 
-auto readValueErrorUnit(const json &j, string propPath, double &val, double &err, std::string unit, string message) -> Reaktoro_::StatusMessage
+auto readValueErrorUnit(const json &j, std::string propPath, double &val, double &err, std::string unit, std::string message) -> Reaktoro_::StatusMessage
 {
-    string sval, serr, unit_in_record;
+    std::string sval, serr, unit_in_record;
     Reaktoro_::StatusMessage status = {Reaktoro_::Status::notdefined, message};
     unit_in_record = unit;
 
@@ -130,7 +130,7 @@ auto read_values_units(const json &j, const std::string &data, std::vector<doubl
         if (j[data].contains("units"))
         {
             if (!j[data]["units"].is_null())
-                units_from = j[data]["units"].get<vector<string>>();
+                units_from = j[data]["units"].get<std::vector<std::string>>();
             // temporary
             if (data == "eos_hkf_coeffs")
                 if (units_from.size()>=3)
@@ -142,7 +142,7 @@ auto read_values_units(const json &j, const std::string &data, std::vector<doubl
 
         if (j[data].contains("values"))
             if (!j[data]["values"].is_null())
-                values = convert_values_units(j[data]["values"].get<vector<double>>(), units_from, units_to);
+                values = convert_values_units(j[data]["values"].get<std::vector<double>>(), units_from, units_to);
     }
 }
 
@@ -331,8 +331,8 @@ auto getTPMethods(const json &j, Substance &s) -> void
 
 auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubstance &ps) -> void
 {
-    vector<string> vkbuf;
-    string kbuf;
+    std::vector<std::string> vkbuf;
+    std::string kbuf;
 
     read_values_units(j, "eos_akinfiev_diamond_coeffs", ps.Cp_nonElectrolyte_coeff, {"1", "(cm^3)/g", "(cm^3*K^0.5)/g"});
     // ps.volume_BirchM_coeff = read_values_units(j, "eos_birch_murnaghan_coeffs", {});
@@ -368,8 +368,8 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
 
 auto thermoParamReac(const json &j, ThermoParametersReaction &pr) -> void
 {
-    vector<string> vkbuf, units_from, units_to;
-    string kbuf;
+    std::vector<std::string> vkbuf, units_from, units_to;
+    std::string kbuf;
 
     read_values_units(j, "logk_ft_coeffs", pr.reaction_logK_fT_coeff, {"1", "1/K", "K", "1", "K^2", "1/K^2", "K^0.5"});
     //    if (j.contains("logk_pt_values") && !j["logk_pt_values"]["values"].is_null())
@@ -384,7 +384,7 @@ auto thermoParamReac(const json &j, ThermoParametersReaction &pr) -> void
 auto thermoRefPropSubst(const json &j) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
-    string message;
+    std::string message;
 
     if (j.contains("sm_heat_capacity_p"))
         tps.heat_capacity_cp.sta = readValueErrorUnit(j, "sm_heat_capacity_p", tps.heat_capacity_cp.val, tps.heat_capacity_cp.err, "J/K/mol", message);
@@ -403,7 +403,7 @@ auto thermoRefPropSubst(const json &j) -> ThermoPropertiesSubstance
 auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
-    string message;
+    std::string message;
 
     if (j.contains("logKr"))
         tpr.log_equilibrium_constant.sta = readValueErrorUnit(j, "logKr", tpr.log_equilibrium_constant.val, tpr.log_equilibrium_constant.err, "1", message);
@@ -438,8 +438,8 @@ auto getReactants(const json &r) -> std::map<std::string, double>
 auto parseElement(const std::string &data) -> Element
 {
     Element e;
-    string kbuf;
-    string name;
+    std::string kbuf;
+    std::string name;
 
     try
     {
@@ -495,8 +495,8 @@ auto parseElement(const std::string &data) -> Element
 auto parseSubstance(const std::string &data) -> Substance
 {
     Substance s;
-    vector<string> vkbuf;
-    string kbuf;
+    std::vector<std::string> vkbuf;
+    std::string kbuf;
 
     try
     {
@@ -583,8 +583,8 @@ auto parseSubstance(const std::string &data) -> Substance
 auto parseReaction(const std::string &data) -> Reaction
 {
     Reaction r;
-    string kbuf;
-    vector<string> vkbuf;
+    std::string kbuf;
+    std::vector<std::string> vkbuf;
 
     try
     {
