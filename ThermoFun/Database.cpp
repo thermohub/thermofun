@@ -225,7 +225,7 @@ struct Database::Impl
     {
         auto it = map_.find(symbol);
         if (it != map_.end()) {
-            thfun_logger->warn("The {} with symbol {} is already in the database. Overwritting ... \n"
+            thfun_logger->warn("The {} with symbol {} is already in the database. Overwriting ... \n"
                                "To add it to the database as a separate record assign it a different symbol.", record_type, symbol);
        }
     }
@@ -314,7 +314,7 @@ struct Database::Impl
                 addRecords(j);
         }     catch (json::exception &ex)
         {
-            thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
+            thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
         }
 
     }
@@ -332,7 +332,7 @@ struct Database::Impl
             }
         }      catch (json::exception &ex)
         {
-            thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
+            thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
         }
     }
 };

@@ -201,14 +201,8 @@ auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const Properties
 
     if (ps.density >= 1400)
     {
-        thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3.",
+        thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3. Outside the applicability limits of the HKF model.",
                            __FILE__, __LINE__, static_cast<double>(ps.density/1000));
-//        Exception exception;
-//        exception.error << "Error in functionG";
-//        exception.reason << "water density higher than 1.4 g*cm-3, Dw = "
-//            << ps.density / 1000 << "g*cm-3.";
-//        exception.line = __LINE__;
-//        RaiseError(exception)
     }
 
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of

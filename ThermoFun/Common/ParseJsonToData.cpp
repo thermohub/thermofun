@@ -486,7 +486,7 @@ auto parseElement(const std::string &data) -> Element
     }
     catch (json::exception &ex)
     {
-        thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
+        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
     }
 
     return e;
@@ -574,7 +574,7 @@ auto parseSubstance(const std::string &data) -> Substance
     }
     catch (json::exception &ex)
     {
-        thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
+        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
     }
 
     return s;
@@ -643,7 +643,7 @@ auto parseReaction(const std::string &data) -> Reaction
     }
     catch (json::exception &ex)
     {
-        thfun_logger->warn(" exception id:  {} message: {}", ex.id, ex.what());
+        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
     }
 
     return r;
