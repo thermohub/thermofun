@@ -9,7 +9,7 @@
 #include "ThermoEngine.h"
 #include "Common/Units.hpp"
 
-#ifdef _WIN32
+#if _MSC_VER >= 1929
 #include <array>
 #else
 #endif

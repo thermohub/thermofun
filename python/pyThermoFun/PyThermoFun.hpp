@@ -18,7 +18,7 @@
 
 #pragma once
 
-#ifdef _WIN32
+#if _MSC_VER >= 1929
 #include <corecrt.h>
 #endif
 
