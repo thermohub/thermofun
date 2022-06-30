@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
-#if (_MSC_VER > 1929)
+#ifdef _WIN32
 #include <corecrt.h>
 #endif
 
