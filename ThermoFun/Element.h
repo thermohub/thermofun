@@ -5,6 +5,12 @@
 #include <memory>
 #include <string>
 
+namespace ChemicalFun
+{
+class ElementKey;
+struct ElementValues;
+}
+
 namespace ThermoFun {
 
 /// A type used to define a chemical element and its attributes
@@ -20,6 +26,8 @@ public:
     /// Construct a copy of an Element instance
     Element(const Element& other);
 
+    /// Construct from internal elements database
+    Element(const ChemicalFun::ElementKey& elKey, const ChemicalFun::ElementValues& values );
     /// Assign an Element instance to this instance
     auto operator=(Element other) -> Element&;
 
@@ -97,6 +105,8 @@ public:
      * @return record in json string
      */
     auto jsonString() const -> std::string;
+
+    auto toElementKey(ChemicalFun::ElementValues& eldata) -> ChemicalFun::ElementKey;
 
 private:
     struct Impl;

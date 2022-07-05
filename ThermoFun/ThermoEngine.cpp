@@ -1,6 +1,5 @@
 // ThermoFun includes
 #include "Common/Exception.h"
-#include "Common/formuladata.h"
 #include "ThermoEngine.h"
 #include "Database.h"
 #include "Reaction.h"
@@ -137,8 +136,7 @@ struct ThermoEngine::Impl
     auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) -> void
     {
         const auto Tr = subst.referenceT();
-        FormulaProperites prop = ThermoFun::ChemicalFormula::calcThermo(subst.formula());
-        const auto entropyElements = prop.elemental_entropy;
+        const auto entropyElements = database.elementalEntropyFormula(subst.formula());
         tps.gibbs_energy -= (Tr * entropyElements);
     }
 

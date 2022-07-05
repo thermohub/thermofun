@@ -3,8 +3,8 @@
     $$PWD/Common/ThermoScalar.hpp \
     $$PWD/Common/ScalarTypes.hpp \
     $$PWD/Common/Units.hpp \
-    $$PWD/Common/formuladata.h \
-    $$PWD/Common/formulaparser.h \
+#    $$PWD/Common/formuladata.h \
+#    $$PWD/Common/formulaparser.h \
 # ThermoFun
     $$PWD/Substances/Solute/SoluteAnderson91.h \
     $$PWD/Substances/Solute/SoluteHollandPowell98.h \
@@ -78,8 +78,8 @@
     SOURCES	 += $$PWD/Database.cpp \
     $$PWD/Common/ParseJsonToData.cpp \
     $$PWD/Common/Units.cpp \
-    $$PWD/Common/formuladata.cpp \
-    $$PWD/Common/formulaparser.cpp \
+#    $$PWD/Common/formuladata.cpp \
+#    $$PWD/Common/formulaparser.cpp \
 # ThermoFun
     $$PWD/Element.cpp \
     $$PWD/GlobalFunctions.cpp \
