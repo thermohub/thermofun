@@ -1,11 +1,11 @@
 ---
-title: 'ThermoFun: A library that delivers standard thermodynamic properties of substances and reactions at temperature and pressure of interest'
+title: ' ThermoFun: A C++/Python library for computing standard thermodynamic properties of substances and reactions across wide ranges of temperatures and pressures'
 tags:
   - C++
   - Python
   - thermodynamics
+  - standard state thermodynamic properties
   - equations of state
-  - geochemistry
   - materials
 authors:
   - name: George Dan Miron^[corresponding author]
@@ -23,82 +23,94 @@ affiliations:
  - index: 2
    name: Geothermal Energy and Geofluids Group, Institute of Geophysics, ETH Zurich, Switzerland
  - index: 3
-   name: Cosylab 
-date: "10 May 2022"
+   name: Cosylab Switzerland GmbH, Badenerstrasse 13, CH–5200 Brugg, Switzerland
+date: "26 June 2022"
 bibliography: paper.bib
 ---
 
 # Summary
 
-ThermoFun [thermohub.org/thermofun](https://thermohub.org/thermofun) open source library provides standard thermodynamic properties of substances and reactions calculated at given temperature and pressure. The library can be used from C++ and Python to do single or bach calculations and can be coupled to to any modeling code which requires thermodynamic data as input or to codes for model parameter fitting. Results can be written to file in a table or other formats or passed in memory to coupled codes that call the library. For its calculations, ThermoFun can use input properties and model parameters of different thermodynamic datasets that are read from local files or are retrieved via remote access to ThermoHub ([thermohub.org/thermohub](https://thermohub.org/thermohub)). The library contains a comprehensive collection of models and equations of state for: solid, aqueous, gaseous, and melt substances, and their reactions. A certain model or equation of state is not present? ThermoFun library is extendable with new methods and equations of state, taking advantage of the modular structure. The open source code is available at: [https://github.com/thermohub/thermofun](https://github.com/thermohub/thermofun)
+ThermoFun [thermohub.org/thermofun](https://thermohub.org/thermofun) is an open source library that greatly facilitates the computation and retrieval of standard thermodynamic properties of chemical substances, compounds and reactions among them at temperature and pressure ranges of interest. This is done using many thermodynamic models with input standard properties and parameters from various thermodynamic datasets collected and curated in ThermoHub online database [thermohub.org/thermohub](https://thermohub.org/thermohub). The library with its API is developed in C++ for performance reasons. A Python API is maintained for broader and more convenient usage. Both single and batch calculations are possible, as well as coupling ThermoFun with other C++ or Python modelling codes that require standard thermodynamic data as input, e.g., for chemical equilibria calculations, plotting phase diagram plotters, or model parameter fitting. Results can be written to file in tabular or other formats, or passed in memory via the C++ or Python API within a coupled code. For its calculations, ThermoFun can use different thermodynamic datasets that are read from local files (extendable) or are retrieved via remote access to ThermoHub online database. The library contains a comprehensive collection of models and equations of state for solid, aqueous, surface, gaseous, and melt substances, and their reactions, arranged in a modular and extendable way permitting new methods and equations of state to be implemented incrementally. Examples for using ThermoFun are available in its open source code repository [github.com/thermohub/thermofun](https://github.com/thermohub/thermofun). This ensures a broad availability of ThermoFun and of the thermodynamic datasets from ThermoHub in Earth and material science and engineering.
+
+# Benefits of using ThermoFun
+* It facilitates and simplifies the computation of standard thermodynamic properties of substances and reactions at temperature and pressure of interest.
+* It employs many equations of state and other thermodynamic models needed for calculating standard properties at different conditions; the user does not need to implement and test them separately in her own codes or spreadsheets.
+* It uses input standard properties and parameters from various thermodynamic datasets consistently kept in the (online) ThermoHub database, thus removing the burden of collecting all necessary standard thermodynamic data from vast literature or of writing complex scripts for importing these data from different formats.
+* The available thermodynamic models in ThermoFun were implemented and tested based on their original publications; the thermodynamic data found in ThermoHub is curated and documented by experts, allowing the modeler to save time and effort for a more efficient use of geochemical code tools to address scientific problems.
+* It can serve as a common source of thermodynamic models for standard properties of substances and reactions  that can be easily integrated and combined, significantly improving the modeling capabilities for diverse (geo)chemical systems and over wide ranges of conditions.
 
 # Statement of need
 
-Thermodynamic modelling provides valuable insight into chemical systems and allows us to investigate processes that occur under conditions and time scales that cannot be reached in laboratory settings. An unavoidable step in any realistic application of geochemical thermodynamic modelling is the calculation of standard thermodynamic properties of all involved substances and reactions at temperature and pressure of interest [@Leal2017]. This is done using equations of state that relate thermodynamic properties to temperature and pressure. The quality of thermodynamic modeling results are strongly influenced by the predictive capability of the method and the availability, accuracy, precision and consistency of input parameters in thermodynamic datasets.
+Thermodynamic modelling provides a valuable insight into the equilibrium speciation in chemical systems, also allowing for investigation of processes under conditions and time scales that cannot be reached in laboratory settings. Any such calculation requires as input the standard thermodynamic properties of all involved substances (species) or reactions at temperature (T) and pressure (P) of interest. The stability of a substance depends on its standard Gibbs energy function G$^{\circ}_{T}$ (of formation from chemical elements in their standard states), or on the equilibrium constant K$^{\circ}_{T}$ of reaction of its formation from other substances (master species reactants). In thermodynamic databases, usually only G$^{\circ}_{298}$ or K$^{\circ}_{298}$ values at reference temperature 298.15 K (25 $^{\circ}$C) can be found. Other standard properties – absolute entropy S$^{\circ}_{298}$ or enthalpy H$^{\circ}_{298}$ along with the heat capacity C$_{p,298}^{\circ}$ or its function of temperature T, C$_{p,T}^{\circ}$ = f(T) – are needed for G$^{\circ}_{T}$ or K$^{\circ}_{T}$ evaluation. The standard molar volume V$^{\circ}_{298}$ is the minimal data needed to account for the effect of pressure onto G$^{\circ}_{T}$. In chemical equilibrium problems where other conditions are imposed (e.g., internal energy and volume instead of temperature and pressure), other standard thermodynamic properties are additionally (e.g., standard internal energies and standard volumes of the species). Thus, modeling chemically reactive multiphase systems is only possible as long as standard thermodynamic properties of species or reactions can be computed [@Leal2017].
 
-Many different methods have been developed that allow extrapolation of standard thermodynamic properties over a wide range of conditions. These methods can have complex mathematical formulations, a large number of input parameters, can require iterative numerical procedures or a combination of several methods is be necessary to calculate properties of a certain type of substance. For example, the properties of the solvent are used to calculate the properties of the solutes. Selective implementations of extrapolation methods and equations of state can be found in existing thermodynamic modeling codes or as standalone codes that work with specific thermodynamic datasets and file formats. This makes it difficult to retrieve properties calculated with different methods and use them in different codes, or to investigate, compare and tabulate thermodynamic data coming from different sources. With many existing thermodynamic datasets, equations of state, modeling codes and file formats, it can be difficult and time consuming to collect such data and to apply suitable methods in modeling calculations. 
+Equations of state that relate standard thermodynamic properties to temperature and pressure are used for their computation. We call these standard thermodynamic models. The quality of thermodynamic modelling results are strongly influenced by the predictive capability of the model and the availability, accuracy, precision and consistency of model input parameters available in thermodynamic datasets. Different models have been developed for the evaluation of standard thermodynamic properties of substances or reactions over a wide range of temperature and pressure conditions. These models can have complex mathematical formulations, a large number of input parameters, may require iterative numerical procedures, or a combination of several methods may be needed to calculate properties of a certain type of substance. For example, the properties of the solvent (usually water) are used to calculate the properties of the solutes (aqueous species). Specific implementations of extrapolation methods and equations of state can be found in existing thermodynamic modeling codes or as standalone codes that work with given thermodynamic datasets and file formats. Most of them are not directly compatible, which makes it difficult to retrieve the properties calculated with different methods and use them in different codes, or to investigate, compare and tabulate thermodynamic data coming from different sources. With many existing thermodynamic datasets, equations of state, modeling codes and file formats, it may be a difficult, error-prone and time consuming effort to collect such data and to find, implement and apply suitable models in calculations. This calls for efficient automation of these various models and data formats with integration into a consistent service.
 
-![Example of properties of substances and reactions calculated using ThermoFun as function of temperature at saturated water vapor pressure.\label{fig:properties}](figure1.png)
+The ThermoFun library as a service to the community that vastly facilitates the computation of standard thermodynamic properties of substances and reactions \autoref{fig:properties} using an evolving, extensive collection of EoS thermodynamic models and input standard properties and parameters from different thermodynamic datasets retrievable from the ThermoHub online database server or provided as local files. The library is extendable with new models and has remote access to the curated collection of thermodynamic datasets on ThermoHub. These datasets contain reference thermodynamic data applicable in various studies on hydrothermal processes, cementitious materials, nuclear engineering, waste incineration, radioactive and chemical management and disposal, and other (geo)chemical environments. Fast and simple access to many thermodynamic datasets, methods and equations of state allows for more efficient use of these in modeling codes, or to optimize/fit model parameters, evaluate the models performance, range of applicability and accuracy. ThermoFun provides the flexibility of using thermodynamic datasets and appropriate models, or a combination of models that are best suited for different classes of substances necessary in various modeling applications.
 
-The open-source ThermoFun library, provides standard thermodynamic properties of substances and reactions \autoref{fig:properties}. These are calculated using the extensive collection of methods available in ThermoFun using input properties and parameters from different thermodynamic datasets retrievable from the ThermoHub online database or provided as local files. The library is extendable with new methods and has access to the evolving collection of thermodynamic datasets from ThermoHub. These datasets contain reference thermodynamic data applicable in various studies on hydrothermal processes, cementitious materials, nuclear engineering, waste incineration management and disposal, and other (geo)chemical environments. Access to many thermodynamic datasets, methods and equations of state, allows for more efficient use of these in modeling codes, or to optimize/fit the methods’s parameters, evaluate its performance, range of applicability and accuracy. ThermoFun provides the flexibility of using thermodynamic datasets and appropriate methods, or a combination of methods that are best suited for different classes of substances necessary in various modeling applications. 
+![Example of standard thermodynamic properties of substances and reactions calculated using ThermoFun as function of temperature along the saturated water vapor pressure curve (input parameters from `aq17` thermodynamic dataset [@Miron2016;@Miron2017]).\label{fig:properties}](figure1.png)
 
-The library can be linked to any C++ or Python geochemical modelling code and used as source of standard thermodynamic properties, or can be simply used for tabulating thermodynamic properties of substances and reactions. ThermoFun was used to calculate the properties of reactants and reactions at elevated temperatures when evaluating the use of isocolomibc reactions to estimate properties of aqueous complexation reactions for lanthanides and actinides [@Miron2020]. The library was used to evaluate the effect of using different equations of state for water solvent on the calculated properties of dissolved aqueous species[@Miron2019]. 
-ThermoFun is already used as a source of thermodynamic data in GEMS codes [gems.web.psi.ch](https://gems.web.psi.ch/) [@Kulik2013] and in Reaktoro geochemical modeling framework [reaktoro.org](https://reaktoro.org) [@Leal2016]. 
+As a source of standard thermodynamic properties of substances and/or reactions, the ThermoFun library can be linked to any C++ or Python geochemical equilibrium speciation, parameter optimization, or reactive mass-transport code. As a standalone code, ThermoFun can be used simply for searching and tabulating thermodynamic properties of substances and reactions. For example, ThermoFun has been employed to calculate the standard properties of reactants and reactions at elevated temperatures when evaluating the performance of isocoulombic reactions to extrapolate the properties of aqueous complexation reactions involving lanthanides and actinides to elevated temperatures [@Miron2020]. The library was also applied to evaluate the effect of using different equations of state for water-solvent on the calculated properties of dissolved aqueous species [@Miron2019].
+ThermoFun is already adopted as a source of thermodynamic data in GEMS equilibrium speciation codes [gems.web.psi.ch](https://gems.web.psi.ch/) [@Kulik2013] and in Reaktoro chemical modeling framework [reaktoro.org](https://reaktoro.org) [@Leal2016].
 
 # Features
 
-The main classes of ThermoFun are `Database`, `ThermoEngine`, and `ThermoBatch`. `ThermoEngine`, and `ThermoBatch` are initialized with the `Database`. The `Database` is initialized with a thermodynamic dataset. A thermodynamic dataset is also known in the (geo)chemical literature as a thermodynamic database with records of elements, substances and reactions that contain various data like symbol, formula, reaction equation their thermodynamic properties and model parameters that are needed in the calculations, etc. Theses data are compiled, critically selected from literature and may be also fitted against experimental data to be used in modeling codes to calculate chemical equilibrium in different chemical systems. Thermodynamic datasets used in ThermoFun can be read locally from files or retrieved via remote access to ThermoHub online database. ThermoHub contains a collection of thermodynamic datasets that are widely used in various modeling applications [thermohub.org/thermohub](https://thermohub.org/thermohub/thermohub/#thermodatasets). The online ThermoHub database is actively extended with existing, and newly updated and developed datasets prepared by thermodynamic database experts and thus made available for calculations with ThermoFun. In general, the calculations are done using one consistent dataset but there is also the possibility to use custom datasets, combine them and append additional data from user maintained files. The data format of `ThermoHub` is JSON (Java Script Object Notation) and using `ThermoHubClient` thermodynamic datasets are retrieved into a simplified `ThermoFun` format and saved to text files that can edited and extended. 
+ThermoFun is initialized with a thermodynamic dataset, defined as a database consisting of collections of records for chemical elements, substances (species) and optionally reactions between substances, needed to calculate equilibria in chemical systems. These records contain various data like symbol, atomic mass, name, chemical formula, standard thermodynamic properties, equation of state (EoS) parameters, etc. for species; stoichiometry coefficients of involved species, standard thermodynamic effects,  optionally model parameters coefficients, etc. for reactions. Dedicated research and development efforts are devoted to compile, critically select these properties and parameters from literature or to fit them against experimental data. Thermodynamic datasets used in ThermoFun can be read from local files or retrieved via remote access to ThermoHub online database (and saved locally). ThermoHub database contains a collection of thermodynamic datasets that are widely used in various modeling applications [thermohub.org/thermohub](https://thermohub.org/thermohub/thermohub/#thermodatasets).
 
-ThermoFun engine class `ThermoEngine` contains functions that return the standard state thermodynamic properties of a substance or reaction at the given temperature and pressure. For water solvent, additional specific properties like water density, dielectric constant can be retrieved. A low level fine grained access up to individual methods is also possible. 
-`ThermoBatch` class can be used to do batch calculations, for a list of substances, reactions, and temperature and pressure intervals. `ThermoBatch` can be also used to output the results in tabulated comma separated values (CSV) or other data formats. 
+The online ThermoHub database is being actively extended with existing, and newly updated and developed datasets prepared by thermodynamic database experts and thus automatically made available for calculations with ThermoFun. In general, the calculations have to be done using one internally consistent thermodynamic dataset, but it is also possible to use custom datasets, combine them, and append additional data from user-maintained files. Using the `ThermoHubClient` utility code [thermohub.org/thermohub/thermohubclient](https://thermohub.org/thermohub/thermohubclient/), thermodynamic datasets can be retrieved into a simplified `ThermoFun` format and saved to text files that can be edited and extended.
 
-Reaction properties can be calculated for reaction records present in the thermodynamic dataset in this case the extrapolation at temperature and pressure is done using the method and input parameters available in the reaction record. Another option is to provide reaction equations written using symbols of substances available in the thermodynamic dataset (e.g., Calcite $\leftrightharpoons$ Ca$^{2+}$ + CO$_{3}^{-2}$). In this case the properties of the reactions are calculated from the properties of the reactants extrapolated based on the methods defined in their records. Substance properties are calculated using the specified equation of state and the input parameters provided in the dataset record. Another option is to set a reaction that defines the substance properties. In the case of a reaction dependent substance, the properties are calculated from the reaction properties and the properties of the other reactants that take part in the reaction. One dataset can contain a combination of substances, reaction dependent substances and reactions that have their properties calculated consistently calculated using a recursive method.
+The ThermoFun `ThermoEngine` class contains functions that return the standard state thermodynamic properties of a substance or a reaction at the given temperature and pressure. For water solvent, additional properties like water density, dielectric constant can be retrieved. A low-level fine-grained access up to individual methods is also possible.
 
-# Examples
+The `ThermoBatch` class can be used to run batch calculations, for a list of substances, reactions, and temperature and pressure ranges. `ThermoBatch` can be also used for outputting the results in tabulated comma separated values (CSV) or other data formats.
 
-Loading the `aq17` thermodynamic dataset [@Miron2016;@Miron2017] and calculating the properties of a substance (calcium aqueous ion $Ca^{2+}$):
+Reaction properties can be calculated for any `reaction` record present in thermodynamic dataset; the extrapolation to given temperature and pressure is done using the model code and its input parameters available in the record. Another option for the user is to provide strings of reaction equations written using symbols of substances available in the thermodynamic dataset (e.g., Calcite $\leftrightharpoons$ Ca$^{2+}$ + CO$_{3}^{-2}$). In this case, the standard properties of reactions are calculated from properties of reactants, each first computed for T,P of interest using  the models and parameters defined in their respective `substance` records. Yet another option is to set a reaction with known properties to define the properties of a given substance. In this case, the standard properties of the reaction-defined substance at T,P are retrieved from the standard properties of reaction calculated at T,P along with the standard properties of other reactants (substances) that are involved in the reaction. Thus, one thermodynamic dataset can contain a combination of substances, reaction dependent substances and reactions, whose consistent standard properties at T,P of interest are computed recursively.
+
+# Basic examples
+
+Loading the `aq17` thermodynamic dataset [@Miron2016;@Miron2017] and calculating standard properties of a substance (calcium aqueous ion $Ca^{2+}$). Output values are rounded for two decimal places.
 
 ```python
   import thermofun as fun
-  database = fun.Database("aq17-thermofun.json")
+  database = fun.Database('aq17-thermofun.json')
   engine = fun.ThermoEngine(database)
   #                                        T(K)   P(Pa)  symbol
-  Ca_ion = engine.thermoPropertiesSubstance(473, 2000e5, "Ca+2")
+  Ca_ion = engine.thermoPropertiesSubstance(473, 2000e5, 'Ca+2')
   print(f'G0 {Ca_ion.gibbs_energy.val} J/mol')
 ```
 
-  `G0 -545301.2878298083 J/mol`
+  `G0 -545301.29 J/mol`
 
 Calculating the properties of a reaction given as a reaction equation (calcite dissolution):
 
 ```python
   #                                    T(K)   P(Pa)  reaction equation
-  R = engine.thermoPropertiesReaction(348.15, 1e5, "Calcite = Ca+2 + CO3-2")
-  print(f'drS of (Cal = Ca+2 + CO3-2) is {R.reaction_entropy.val}')
-  print(f'drG of (Cal = Ca+2 + CO3-2) is {R.reaction_gibbs_energy.val}')
-  print(f'logK of (Cal = Ca+2 + CO3-2) is {R.log_equilibrium_constant.val}')
+  R = engine.thermoPropertiesReaction(348.15, 1e5, 'Calcite = Ca+2 + CO3-2')
+  print(f'drS0 of (Cal = Ca+2 + CO3-2) is {R.reaction_entropy.val}')
+  print(f'drG0 of (Cal = Ca+2 + CO3-2) is {R.reaction_gibbs_energy.val}')
+  print(f'logK0 of (Cal = Ca+2 + CO3-2) is {R.log_equilibrium_constant.val}')
 ```
 
 ```
-drS of (Cal = Ca+2 + CO3-2) is -259.12288450418015
-drG of (Cal = Ca+2 + CO3-2) is 59914.092580924975
-logK of (Cal = Ca+2 + CO3-2) is -8.988976334909019
+drS0 of (Cal = Ca+2 + CO3-2) is -259.12
+drG0 of (Cal = Ca+2 + CO3-2) is 59914.09
+logK0 of (Cal = Ca+2 + CO3-2) is -8.99
 ```
 
 Using the batch class to do sequential calculations and output the results to a CSV file:
 
 ```python
   batch = fun.ThermoBatch(database)
-  batch.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
+  batch.setPropertiesUnits(['temperature', 'pressure'],['degC','bar'])
   batch.setPressureIncrement(0,0,0)
   batch.setTemperatureIncrement(0,300, 5)
-  substances = ["Na+", "Mg+2", "Ca+2", "SiO2@"]
-  properties = ["heat_capacity_cp","entropy", "volume"]
+  substances = ['Na+', 'Mg+2', 'Ca+2', 'SiO2@']
+  properties = ['heat_capacity_cp','entropy', 'volume']
   batch.thermoPropertiesSubstance(substances, properties).toCSV('results.csv')
 ```
 
-Jupyter notebooks with examples on how to use `ThermoFun` can be found here [https://github.com/thermohub/thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter). More complex scripts and routines can be coded that call `ThermoFun`. For example, `ThermoFun` can be coupled to a phase diagram plotter, a chemical equilibrium solver that require properties of all components in the system, or a parameter optimization routine for fitting the parameters of the methods available in ThermoFun. 
+Jupyter notebooks with examples on how to use `ThermoFun` can be found here [github.com/thermohub/thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter). More complex Python or C++ routines that use `ThermoFun` can be coded. For example, `ThermoFun` can be coupled to a phase diagram plotter, a chemical equilibrium solver, or a parameter optimization routine for fitting the standard properties and model parameters of substances and reactions and their temperature and pressure dependence.
 
-# Acknowledgements 
+# Acknowledgements
+
+Support to G. D. Miron by the German Federal Ministry for Education and Research (BMBF), ThermAc project (02NUK039A) is gratefully acknowledged. D. A. Kulik and G. D. Miron are grateful for the financial support provided by NAGRA. A.M.M. Leal is grateful for the financial support of the Swiss National Science Foundation (SNSF) through the Ambizione grant PZ00P2-179967.
 
 # References
