@@ -13,7 +13,6 @@ namespace ThermoFun {
 
 /// Default logger for ThermoFun library
 extern std::shared_ptr<spdlog::logger> thfun_logger;
-void update_loggers( bool use_cout, const std::string& logfile_name, size_t log_level);
 
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;

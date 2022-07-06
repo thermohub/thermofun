@@ -22,6 +22,7 @@ using namespace ThermoFun;
 
 PYBIND11_MODULE(PyThermoFun, m)
 {
+    update_loggers(false, "chemicalfun.log", 0);
     // Common module
     exportThermoScalar(m);
     exportStatus(m);
@@ -48,4 +49,5 @@ PYBIND11_MODULE(PyThermoFun, m)
     m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of avialable reaction methods.");
     m.def("availablePropertiesSubstance", availablePropertiesSubstance, "list of available properties to calculate for a substance record.");
     m.def("availablePropertiesReaction", availablePropertiesReaction, "list of available properties to calculate for a reaction record.");
+    m.def("update_loggers", &update_loggers);
 }
