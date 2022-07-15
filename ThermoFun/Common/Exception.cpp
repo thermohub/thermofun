@@ -5,6 +5,7 @@
 #include <sstream>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include "ThermoProperties.h"
 
 #define LOG_PATTERN "[%n] [%^%l%$] %v"
@@ -35,9 +36,26 @@ void update_loggers( bool use_cout, const std::string& logfile_name, size_t log_
         console_output->set_pattern(LOG_PATTERN);
         thermofun_logger->sinks().push_back(console_output);
         chemicalfun_logger->sinks().push_back(console_output);
-    }
-    if(!logfile_name.empty()) {
+    } else
+    if (!logfile_name.empty())
+    {
         auto file_output = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logfile_name, 1048576, 3);
+        thermofun_logger->sinks().push_back(file_output);
+        chemicalfun_logger->sinks().push_back(file_output);
+    } 
+}
+
+void clear_loggers( const std::string& logfile_name)
+{
+    auto thermofun_logger = spdlog::get("thermofun");
+    auto chemicalfun_logger = spdlog::get("chemicalfun");
+
+    thermofun_logger->sinks().clear();
+    chemicalfun_logger->sinks().clear();
+
+    if (!logfile_name.empty())
+    {
+        auto file_output = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logfile_name, true);
         thermofun_logger->sinks().push_back(file_output);
         chemicalfun_logger->sinks().push_back(file_output);
     }

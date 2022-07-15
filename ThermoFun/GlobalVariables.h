@@ -20,6 +20,7 @@
 namespace ThermoFun {
 
 void update_loggers( bool use_cout, const std::string& logfile_name, size_t log_level);
+void clear_loggers( const std::string& logfile_name);
 
 typedef std::vector<double> vd;
 typedef std::vector<std::vector<double> > vvd;

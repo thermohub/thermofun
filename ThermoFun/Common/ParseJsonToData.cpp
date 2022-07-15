@@ -192,7 +192,7 @@ auto getParameterCoefficients(/*const std::string& data,*/ const SubstanceTPMeth
         coeffs_name = "";
         break; // and exits the switch
     case SubstanceTPMethodType::solute_hkf88_reaktoro:
-        thfun_logger->info("2");
+        //thfun_logger->info("2");
         break;
     }
     // throw error method not found

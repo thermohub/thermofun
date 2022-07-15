@@ -13,8 +13,9 @@ if(TFUN_BUILD_PYTHON)
     endif()
 endif()
 
-
 find_package(ChemicalFun REQUIRED)
 if(NOT ChemicalFun_FOUND)
   message(FATAL_ERROR "ChemicalFun library not found")
+else()
+  message(STATUS "Found ChemicalFun v${ChemicalFun_VERSION}")
 endif()
