@@ -151,7 +151,7 @@ public:
     /// @param T temparature in bar
     /// @param P pressure in C
     /// @param tpr calculated properties of the reaction, their status message is changed is T and P is out of bounds
-    auto checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void;
+    auto checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void;
 
     /// Returns the vector of logK as a function of T coefficients calculated based on the defined method and the available data
     auto calc_logK_fT_coefficients() -> vd;

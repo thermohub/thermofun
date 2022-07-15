@@ -69,7 +69,7 @@ struct Reaction::Impl
     {
       if( str.empty())
        return;
-      string::size_type pos1 = str.find_first_not_of(valof);
+      std::string::size_type pos1 = str.find_first_not_of(valof);
       std::string::size_type pos2 = str.find_last_not_of(valof);
       str = str.substr( (pos1 == std::string::npos ? 0 : pos1),
         (pos2 == std::string::npos ? str.length() - 1 : pos2 - pos1 + 1));
@@ -101,7 +101,6 @@ struct Reaction::Impl
     // Extract coefficient from strings like +10.7H2O
     std::string extractCoef( const std::string& data, double& coef )
     {
-      //cout << "data " << data << endl;
       coef = 1.;
       if( data.empty() || isalpha( data[0] ) || data[0] == '('  )
        return data;
@@ -129,19 +128,19 @@ struct Reaction::Impl
         std::string reactant;
 
         std::vector<std::string> parts = regexp_split(str_reactants,  "\\s+\\+\\s+" /*"\\s+"*/ );
-        for( auto el: parts)
+        for( const auto& el: parts)
         {
             reactant = extractCoef( el, coef );
-            //cout << reactant << " " << coef << " ; ";
+            thfun_logger->trace(" extractCoef data: {} reactant: {} coef: {}", el, reactant, coef);
             if(!reactant.empty())
                 reactants[reactant] = coef*(-1.);
         }
 
         parts = regexp_split(str_products, "\\s+\\+\\s+" /*"\\s+"*/ );
-        for( auto el: parts)
+        for( const auto& el: parts)
         {
             reactant = extractCoef( el, coef );
-            //cout << reactant << " " << coef << " ; ";
+            thfun_logger->trace(" extractCoef data: {} reactant: {} coef: {}", el, reactant, coef);
             if(!reactant.empty())
                 reactants[reactant] = coef;
         }
@@ -344,14 +343,14 @@ auto Reaction::fromEquation(const std::string &reactionEquation) -> void
     pimpl->fromEquation(reactionEquation);
 }
 
-auto Reaction::checkCalcMethodBounds(string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void
+auto Reaction::checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void
 {
     if (pimpl->upper_P<(P) || pimpl->upper_T<(T) ||
         pimpl->lower_P>(P) || pimpl->lower_T>(T))
     {
-        string message = modelName +": out of "
-                                    "T(" + to_string(pimpl->lower_T) + "-" + to_string(pimpl->upper_T) +" K) and "
-                                    "P(" + to_string(pimpl->lower_P) + "-" + to_string(pimpl->upper_P) +" Pa) bounds";
+        std::string message = modelName +": out of "
+                                    "T(" + std::to_string(pimpl->lower_T) + "-" + std::to_string(pimpl->upper_T) +" K) and "
+                                    "P(" + std::to_string(pimpl->lower_P) + "-" + std::to_string(pimpl->upper_P) +" Pa) bounds";
 
         setMessage(Reaktoro_::Status::calculated, message, tpr );
     }

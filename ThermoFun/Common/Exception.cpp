@@ -3,9 +3,65 @@
 // C++ includes
 #include <algorithm>
 #include <sstream>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include "ThermoProperties.h"
 
+#define LOG_PATTERN "[%n] [%^%l%$] %v"
+
 namespace ThermoFun {
+
+// Thread-safe logger to stdout with colors
+std::shared_ptr<spdlog::logger> thfun_logger = spdlog::stdout_color_mt("thermofun");
+
+void update_loggers( bool use_cout, const std::string& logfile_name, size_t log_level)
+{
+    auto thermofun_logger = spdlog::get("thermofun");
+    auto chemicalfun_logger = spdlog::get("chemicalfun");
+
+    // change level
+    spdlog::level::level_enum log_lev = spdlog::level::info;
+    if( log_level<7 ) {
+        log_lev = static_cast<spdlog::level::level_enum>(log_level);
+    }
+    thermofun_logger->set_level(log_lev);
+    chemicalfun_logger->set_level(log_lev);
+
+    //change sinks
+    thermofun_logger->sinks().clear();
+    chemicalfun_logger->sinks().clear();
+    if(use_cout) {
+        auto console_output = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_output->set_pattern(LOG_PATTERN);
+        thermofun_logger->sinks().push_back(console_output);
+        chemicalfun_logger->sinks().push_back(console_output);
+    } else
+    if (!logfile_name.empty())
+    {
+        auto file_output = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logfile_name, 1048576, 3);
+        thermofun_logger->sinks().push_back(file_output);
+        chemicalfun_logger->sinks().push_back(file_output);
+    } 
+}
+
+void clear_loggers( const std::string& logfile_name)
+{
+    auto thermofun_logger = spdlog::get("thermofun");
+    auto chemicalfun_logger = spdlog::get("chemicalfun");
+
+    thermofun_logger->sinks().clear();
+    chemicalfun_logger->sinks().clear();
+
+    if (!logfile_name.empty())
+    {
+        auto file_output = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logfile_name, true);
+        thermofun_logger->sinks().push_back(file_output);
+        chemicalfun_logger->sinks().push_back(file_output);
+    }
+}
+
+
 namespace internal {
 /// Creates the location string from the file name and line number.
 /// The result of this function on the file `/home/user/gitThermoFun/ThermoFun/src/Substance.cpp`
@@ -24,7 +80,7 @@ std::string location(const std::string& file, int line)
     return ss.str();
 }
 
-std::string message(const Exception& exception, const std::string& /*file*/, int /*line*/)
+std::string message(const Exception& exception, const std::string& /*file*/, int line)
 {
     std::string error = exception.error.str();
     std::string reason = exception.reason.str();
@@ -39,6 +95,7 @@ std::string message(const Exception& exception, const std::string& /*file*/, int
     message << "*** Location: " << loc << std::endl;
     message << bar << std::endl;
     message << std::endl;
+    thfun_logger->error(" {} - {} {}", line, error, reason);
     return message.str();
 }
 }

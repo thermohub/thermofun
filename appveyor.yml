@@ -12,7 +12,7 @@ configuration:
   - Release
 
 environment:
-  CONDA_DIR: C:\Miniconda36-x64
+  CONDA_DIR: C:\Miniconda3-x64
 
 matrix:
   fast_finish: true

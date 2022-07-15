@@ -17,7 +17,7 @@ DEFINES += IPMGEMPLUGIN
 DEFINES += NOPARTICLEARRAY
 
 ThermoFun_TEST_CPP = ./src
-ThermoFun_CPP   =  ../../../thermofun/src
+ThermoFun_CPP   =  ../../ThermoFun
 
 ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
 ThermoFun_H     =   $$ThermoFun_CPP
