@@ -7,8 +7,12 @@
 #include <string>
 #include "ThermoScalar.hpp"
 //#include "ThermoProperties.h"
+#include "spdlog/spdlog.h"
 
 namespace ThermoFun {
+
+/// Default logger for ThermoFun library
+extern std::shared_ptr<spdlog::logger> thfun_logger;
 
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;

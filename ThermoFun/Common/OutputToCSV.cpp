@@ -82,32 +82,32 @@ auto OutputToCSV::openThermoPropertiesSubstanceFile (std::string fileName) ->voi
 {
     fileThermoPropertiesSubstance = fileName;
 
-    string fullPath = outputFolderPath + "/" + fileName;
+    std::string fullPath = outputFolderPath + "/" + fileName;
 
-    fThermoPropertiesSubstance.open( fullPath , ios::trunc );
+    fThermoPropertiesSubstance.open( fullPath , std::ios::trunc );
 }
 
 auto OutputToCSV::openPropertiesSolventFile (std::string fileName) ->void
 {
     filePropertiesSolvent = fileName;
 
-    string fullPath = outputFolderPath + "/" + fileName;
+    std::string fullPath = outputFolderPath + "/" + fileName;
 
-    fPropertiesSolvent.open( fullPath , ios::trunc );
+    fPropertiesSolvent.open( fullPath , std::ios::trunc );
 }
 
 auto OutputToCSV::openElectroPropertiesSolventFile (std::string fileName) ->void
 {
     fileElectroPropertiesSolvent = fileName;
 
-    string fullPath = outputFolderPath + "/" + fileName;
+    std::string fullPath = outputFolderPath + "/" + fileName;
 
-    fElectroPropertiesSolvent.open( fullPath , ios::trunc );
+    fElectroPropertiesSolvent.open( fullPath , std::ios::trunc );
 }
 
 auto OutputToCSV::writeThermoPropertiesSubstance (std::string symbol, double T, double P, ThermoPropertiesSubstance tps ) -> void
 {
-    string c = ",";
+    std::string c = ",";
 
     if (!isHeaderThermoPropSubst)
     {
@@ -118,12 +118,12 @@ auto OutputToCSV::writeThermoPropertiesSubstance (std::string symbol, double T, 
     fThermoPropertiesSubstance << symbol << c << T << c << P << c <<
                                   tps.gibbs_energy     << c << tps.enthalpy         << c << tps.entropy << c <<
                                   tps.heat_capacity_cp << c << tps.heat_capacity_cv << c << tps.volume  << c <<
-                                  tps.helmholtz_energy << c << tps.internal_energy  << endl;
+                                  tps.helmholtz_energy << c << tps.internal_energy  << std::endl;
 }
 
 auto OutputToCSV::writePropertiesSolvent (std::string symbol, double T, double P, PropertiesSolvent ps ) -> void
 {
-    string c = ",";
+    std::string c = ",";
 
     if (!isHeaderPropSolv)
     {
@@ -133,12 +133,12 @@ auto OutputToCSV::writePropertiesSolvent (std::string symbol, double T, double P
 
     fPropertiesSolvent << symbol << c << T << c << P << c <<
                           ps.density   << c << ps.densityT  << c << ps.densityP << c << ps.densityTT << c <<
-                          ps.densityTP << c << ps.densityPP << c << ps.Alpha    << c << ps.dAldT     << c << ps.Beta << endl;
+                          ps.densityTP << c << ps.densityPP << c << ps.Alpha    << c << ps.dAldT     << c << ps.Beta << std::endl;
 }
 
 auto OutputToCSV::writeElectroPropertiesSolvent (std::string symbol, double T, double P, ElectroPropertiesSolvent eps ) -> void
 {
-    string c = ",";
+    std::string c = ",";
 
     if (!isHeaderElectroPropSolv)
     {
@@ -150,7 +150,7 @@ auto OutputToCSV::writeElectroPropertiesSolvent (std::string symbol, double T, d
                                  eps.bornN     << c << eps.bornQ     << c << eps.bornU     << c << eps.bornX     << c <<
                                  eps.bornX     << c << eps.bornY     << c << eps.bornZ     << c << eps.epsilon   << c <<
                                  eps.epsilonP  << c << eps.epsilonPP << c << eps.epsilonT  << c << eps.epsilonTP << c <<
-                                 eps.epsilonTT << endl;
+                                 eps.epsilonTT << std::endl;
 }
 
 }

@@ -65,7 +65,7 @@
 
       ThermoEngine engine("aq17-thermofun.json");
 
-      engine.appendData("append-thermofun.json");
+      //engine.appendData("append-thermofun.json");
 
       auto P = 1e5;
 

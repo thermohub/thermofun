@@ -9,13 +9,13 @@ namespace ThermoFun {
 auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     Reaktoro_::ThermoScalar Tcr, Qq, dQq;
-    vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
+    std::vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
 //    auto (P/1000) = Reaktoro::Pressure (p.val /1000);  // in kbar
     auto TrK = subst.referenceT();
 
     if (transProp.size() < 3)
     {
-        std::cout << transProp.size() << " " << std::endl;
+        thfun_logger->error(" transition properties size {} ", transProp.size());
         errorModelParameters("transition properties", "HP Landau", __LINE__, __FILE__);
     }
 
