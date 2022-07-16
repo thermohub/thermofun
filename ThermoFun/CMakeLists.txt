@@ -32,20 +32,22 @@ if(ChemicalFun_FOUND)
     target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
 endif()
 
-if(spdlog_FOUND)
-    target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
-endif()
-
-if(fmt_FOUND)
-    target_link_libraries(ThermoFun PRIVATE fmt::fmt)
-endif()
+#if(fmt_FOUND)
+#    target_link_libraries(ThermoFun PRIVATE fmt::fmt)
+#endif()
 
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     #link_directories("/usr/local/lib")
+    if(spdlog_FOUND)
+    target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
+    endif()
 else() 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 # build options for MacOS
+    if(spdlog_FOUND)
+    target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
+endif()
     else() 
 # build options for Linux
 # Find library and software dependencies
