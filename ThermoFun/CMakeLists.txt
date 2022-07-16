@@ -32,8 +32,12 @@ if(ChemicalFun_FOUND)
     target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
 endif()
 
-if(ChemicalFun_FOUND)
+if(spdlog_FOUND)
     target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
+endif()
+
+if(fmt_FOUND)
+    target_link_libraries(ThermoFun PRIVATE fmt::fmt)
 endif()
 
 
