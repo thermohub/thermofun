@@ -49,7 +49,7 @@ else()
         target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
     endif()
     if(fmt_FOUND)
-        starget_link_libraries(ThermoFun PRIVATE fmt::fmt)
+        target_link_libraries(ThermoFun PRIVATE fmt::fmt)
     endif()
     else() 
 # build options for Linux
