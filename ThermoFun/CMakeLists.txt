@@ -40,16 +40,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 else() 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 # build options for MacOS
-<<<<<<< HEAD
-=======
-    #if(fmt_FOUND)
-    #target_link_libraries(ThermoFun PRIVATE fmt::fmt)
-    #endif()
-    if(spdlog_FOUND)
-        #set(SPDLOG_FMT_EXTERNAL ON)
-        target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
-    endif()
->>>>>>> b6ea48b96c8a4dffc645dd3828f23022dceebb23
     else() 
 # build options for Linux
 # Find library and software dependencies
