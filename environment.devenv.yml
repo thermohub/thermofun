@@ -11,9 +11,8 @@ dependencies:
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
-  - fmt=8.1.1
   - spdlog=1.10.0
-  - chemicalfun>=0.1.3
+  - chemicalfun=0.1.4
   - python={{ python_version }}
   - pytest
   - pip:
