@@ -19,8 +19,10 @@ conda devenv
 source activate thermofun
 mkdir build
 cd build
+python_path=$(which python)
 # Configure step
 cmake \
+    -DPYTHON_EXECUTABLE:FILEPATH=$python_path \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_LIBDIR=lib \
     ..

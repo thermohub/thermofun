@@ -3,9 +3,9 @@ name: thermofun
 {% set python_version = os.environ.get("PY_VER", "3.7") %}
 
 dependencies:
-  - pip
   - setuptools=59.7.0
-  - gxx_linux-64=7.3.0  # [linux]
+  - pip
+  - gxx_linux-64=9.4.0  # [linux]
   - cmake>=3.13
   - ninja
   - ccache  # [unix]
