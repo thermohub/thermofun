@@ -16,7 +16,7 @@ BUILD_TYPE=Debug
 # nlohmann/json
 test -f /usr/local/include/nlohmann/json.hpp || {
 
-	# Building yaml-cpp library
+	# Building json library
 	mkdir -p ~/code && \
                 cd ~/code && \
 		git clone https://github.com/nlohmann/json.git && \
@@ -55,7 +55,7 @@ test -d /usr/local/include/spdlog || || {
 #Pybind11
 test -d /usr/local/include/pybind11 || {
 
-        # Building yaml-cpp library
+        # Building pybind11 library
         mkdir -p ~/code && \
                 cd ~/code && \
                 git clone https://github.com/pybind/pybind11.git && \
@@ -76,7 +76,7 @@ test -d /usr/local/include/pybind11 || {
 # if not installed in /usr/local/include/eigen3)
 test -d /usr/local/include/eigen3/Eigen || {
 
-        # Building yaml-cpp library
+        # Building eigen library
         mkdir -p ~/code && \
                 cd ~/code && \
                 git clone https://gitlab.com/libeigen/eigen.git -b 3.4.0 && \
@@ -98,7 +98,7 @@ test -d /usr/local/include/eigen3/Eigen || {
 # if no ChemicalFun installed in /usr/local/lib/ (/usr/local/include/ChemicalFun)
 test -f /usr/local/lib/libChemicalFun.$EXTN || {
 
-        # Building thermofun library
+        # Building chemicalfun library
         mkdir -p ~/code && \
                 cd ~/code && \
                 git clone https://bitbucket.org/gems4/chemicalfun.git -b $BRANCH_TFUN  && \
