@@ -8,6 +8,7 @@ dependencies:
   - gxx_linux-64=9.4.0  # [linux]
   - cmake>=3.13
   - ninja
+  - clcache  # [win]
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
