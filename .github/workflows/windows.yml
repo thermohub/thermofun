@@ -65,6 +65,8 @@ jobs:
 
       - name: Building, Testing & Installing ThermoFun
         shell: cmd
+        env:
+          PYTHONPATH: C:\Miniconda\envs\thermofun\Library\Lib\site-packages
         run: |
           call conda activate thermofun || goto :eof
           clcache -s || goto :eof
