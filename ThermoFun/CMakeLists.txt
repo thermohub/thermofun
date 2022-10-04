@@ -25,32 +25,16 @@ endif()
 
 # Create a library using the collected source files
 add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
+
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
-if(ChemicalFun_FOUND)
-    target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
-endif()
-
-target_link_libraries(ThermoFun PRIVATE spdlog::spdlog)
-
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    #link_directories("/usr/local/lib")
-else() 
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-# build options for MacOS
-    else() 
-# build options for Linux
-# Find library and software dependencies
-        #find_package(Boost 1.58.0 REQUIRED)
-        find_package(nlohmann_json REQUIRED)
-# Specify the dependency libraries to link against
-        target_link_libraries(ThermoFun
-#        PRIVATE Boost::boost
-         PRIVATE nlohmann_json::nlohmann_json)
-    endif()
-endif()
+# Link ThermoFun against all required dependencies
+target_link_libraries(ThermoFun
+    PUBLIC ChemicalFun::ChemicalFun
+    PRIVATE spdlog::spdlog
+    PRIVATE nlohmann_json::nlohmann_json
+)
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
@@ -64,7 +48,7 @@ install(TARGETS ThermoFun
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libraries)
-    
+
 # Install debug symbols
 if(MSVC)
     install(
