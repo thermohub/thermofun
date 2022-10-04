@@ -5,16 +5,19 @@ name: thermofun
 dependencies:
   - setuptools=59.7.0
   - pip
-  - gxx_linux-64=9.4.0  # [linux]
+  - gxx_linux-64  # [linux]
   - cmake>=3.13
   - ninja
+  - clcache  # [win]
   - ccache  # [unix]
+  - clangxx_osx-64  # [osx]
   - pybind11
   - nlohmann_json
   - spdlog=1.10.0
   - chemicalfun=0.1.4
   - python={{ python_version }}
   - pytest
+  - vs2019_win-64  # [win]
   - pip:
     - mkdocs
     - mkdocs-material
