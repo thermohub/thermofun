@@ -174,13 +174,21 @@ batch2.thermoPropertiesSubstance([[25,1]], ["Na(CO3)-", "Mg+2"], ["gibbs_energy"
 
 ## Installation using Conda
 
-ThermoFun can be easily installed using [Conda](https://conda.io/docs/) package manager. If you have Conda installed, install ThermoFun by executing the following command:
+ThermoFun can be easily installed using [Conda](https://conda.io/docs/) package manager. If you have Conda installed, first add the conda-forge channel by executing 
+
+```
+#!bash
+conda config --add channels conda-forge
+```
+
+install ThermoFun by executing the following command:
 
 ```
 #!bash
 conda install thermofun
 ```
-Conda can be installed by installing [Miniconda](https://conda.io/miniconda.html).
+
+Conda can be installed from [Miniconda](https://conda.io/miniconda.html).
 
 ## Install ThermoFun using CMake
 
