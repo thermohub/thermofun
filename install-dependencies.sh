@@ -34,7 +34,7 @@ test -f /usr/local/include/nlohmann/json.hpp || {
 
 # spdlog 
 # if no spdlog installed in /usr/local/lib/ (/usr/local/include/spdlog)
-test -d /usr/local/include/spdlog || || {
+test -d /usr/local/include/spdlog || {
 
         # Building thermofun library
         mkdir -p ~/code && \
