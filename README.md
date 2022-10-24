@@ -244,7 +244,7 @@ For a global installation of the compiled libraries in your system, execute:
 sudo make install 
 ```
 
-This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` ).
+This will install Thermofun library and header files in the default installation directory of your system (e.g, ```/usr/local/``` or if conda is active, in the instalation directory of the conda environment).
 
 For a local installation, you can specify a directory path for the installed files as follows:
 
