@@ -6,12 +6,12 @@ EXTN=so
 #sudo rm -f /usr/local/include/nlohmann/json.hpp
 #sudo rm -rf /usr/local/include/eigen3/Eigen
 #sudo rm -rf /usr/local/include/pybind11
-#sudo rm -rf /usr/local/include/spdlog
-#sudo rm -f /usr/local/lib/libChemicalFun.$EXTN
+sudo rm -rf /usr/local/include/spdlog
+sudo rm -f /usr/local/lib/libChemicalFun.$EXTN
 
 workfolder=${PWD}
 BRANCH_TFUN=master
-BUILD_TYPE=Debug
+BUILD_TYPE=Release
 
 # nlohmann/json
 test -f /usr/local/include/nlohmann/json.hpp || {
@@ -43,7 +43,7 @@ test -d /usr/local/include/spdlog || {
                 cd spdlog && \
                 mkdir -p build && \
                 cd build && \
-                cmake .. \
+                cmake .. -DCMAKE_CXX_FLAGS=-fPIC \
                 make && \
                 sudo make install
 
