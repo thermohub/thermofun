@@ -14,7 +14,7 @@ dependencies:
   - pybind11
   - nlohmann_json
   - spdlog=1.10.0
-  - chemicalfun=0.1.4
+  - chemicalfun=0.1.5
   - python={{ python_version }}
   - pytest
   - vs2019_win-64  # [win]

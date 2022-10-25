@@ -7,7 +7,7 @@
 #include <string>
 #include "ThermoScalar.hpp"
 //#include "ThermoProperties.h"
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 namespace ThermoFun {
 
