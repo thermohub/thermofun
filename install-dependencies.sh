@@ -6,8 +6,9 @@ EXTN=so
 #sudo rm -f /usr/local/include/nlohmann/json.hpp
 #sudo rm -rf /usr/local/include/eigen3/Eigen
 #sudo rm -rf /usr/local/include/pybind11
-sudo rm -rf /usr/local/include/spdlog
-sudo rm -f /usr/local/lib/libChemicalFun.$EXTN
+#sudo rm -rf /usr/local/include/spdlog
+#sudo rm -rf /usr/local/include/fmt
+#sudo rm -f /usr/local/lib/libChemicalFun.$EXTN
 
 workfolder=${PWD}
 BRANCH_TFUN=master
@@ -39,11 +40,31 @@ test -d /usr/local/include/spdlog || {
         # Building thermofun library
         mkdir -p ~/code && \
                 cd ~/code && \
-                git clone https://github.com/gabime/spdlog -b v1.10.0  && \
+                git clone https://github.com/gabime/spdlog -b v1.11.0  && \
                 cd spdlog && \
                 mkdir -p build && \
                 cd build && \
-                cmake .. -DCMAKE_CXX_FLAGS=-fPIC \
+                cmake .. -DCMAKE_BUILD_TYPE=Release -DSPDLOG_BUILD_TESTS=OFF -DCMAKE_INSTALL_LIBDIR=lib -DSPDLOG_BUILD_SHARED=ON -DSPDLOG_FMT_EXTERNAL=ON \
+                make && \
+                sudo make install
+
+        # Removing generated build files
+        cd ~ && \
+                 rm -rf ~/code
+}
+
+# fmt 
+# if no spdlog installed in /usr/local/lib/ (/usr/local/include/fmt)
+test -d /usr/local/include/fmt || {
+
+        # Building thermofun library
+        mkdir -p ~/code && \
+                cd ~/code && \
+                git clone hhttps://github.com/fmtlib/fmt.git -b v9.1.0  && \
+                cd fmt && \
+                mkdir -p build && \
+                cd build && \
+                cmake .. \
                 make && \
                 sudo make install
 
