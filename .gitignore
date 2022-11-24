@@ -62,6 +62,8 @@ python/tests/results.csv
 python/tests/results_dbc.csv
 python/pyThermoFun/CMakeLists_old.txt
 
+*.log
+
 
 
 
