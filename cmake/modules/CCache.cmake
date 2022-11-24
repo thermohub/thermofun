@@ -21,17 +21,12 @@
 #     include(CCache)
 #     project(HelloWorld)
 
-# Skip if this file has already been included
-if(CCACHE_INCLUDED)
-    return()
-else()
-    set(CCACHE_INCLUDED TRUE)
-endif()
-
 find_program(CCACHE_PROGRAM ccache)
-
-if(CCACHE_PROGRAM AND NOT CMAKE_CCACHE_IGNORE)
-    message(STATUS "CCache: using ccache to potentially speed up future build tasks.")
-    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
-    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+if(NOT CCACHE_IGNORE AND CCACHE_PROGRAM)
+   message(STATUS "CCache: Found ccache installed.")
+   message(STATUS "CCache: Using ccache to potentially speed up the build operation.")
+   set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+   set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+else()
+   message(STATUS "CCache: Could not find ccache. Install it to speed up similar build operations.")
 endif()

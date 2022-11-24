@@ -51,7 +51,7 @@ struct Database::Impl
             setDBElements( elements_map );
     }
 
-    Impl(vector<string> jsons, std::string _label)
+    Impl(std::vector<std::string> jsons, std::string _label)
     {
         fromJSONs(jsons, _label);
         if (elements_map.size()>0)
@@ -70,7 +70,8 @@ struct Database::Impl
 
     auto setDBElements(ElementsMap elements ) -> void
     {
-        std::cout << "Database::setDBElements() elements " << elements_map.size() << std::endl;
+        thfun_logger->debug("Database::setDBElements() elements {}", elements.size());
+
         ChemicalFun::ElementValues eldata;
         for (auto& e : elements)
         {
@@ -223,10 +224,10 @@ struct Database::Impl
     auto checkIfSymbolExists(std::map<std::string, T> map_, std::string record_type, std::string symbol) -> void
     {
         auto it = map_.find(symbol);
-        if (it != map_.end())
-            cout << "The "<< record_type <<" with symbol " << symbol
-                 << " is already in the database. Overwritting ..." << endl
-                 << "To add it to the database as a separate record assign it a different symbol." << endl;
+        if (it != map_.end()) {
+            thfun_logger->warn("The {} with symbol {} is already in the database. Overwriting ... \n"
+                               "To add it to the database as a separate record assign it a different symbol.", record_type, symbol);
+       }
     }
 
     auto addRecord(json j, std::string _label) -> void
@@ -313,14 +314,12 @@ struct Database::Impl
                 addRecords(j);
         }     catch (json::exception &ex)
         {
-            // output exception information
-            std::cout << "message: " << ex.what() << '\n'
-                      << "exception id: " << ex.id << std::endl;
+            thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
         }
 
     }
 
-    auto fromJSONs(vector<string> jsons, std::string _label) -> void
+    auto fromJSONs(std::vector<std::string> jsons, std::string _label) -> void
     {
         try {
 
@@ -333,9 +332,7 @@ struct Database::Impl
             }
         }      catch (json::exception &ex)
         {
-            // output exception information
-            std::cout << "message: " << ex.what() << '\n'
-                      << "exception id: " << ex.id << std::endl;
+            thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
         }
     }
 };
@@ -348,7 +345,7 @@ Database::Database(std::string filename)
 : pimpl(new Impl(filename))
 {}
 
-Database::Database(vector<string> jsonRecords, std::string _label="unknown label")
+Database::Database(std::vector<std::string> jsonRecords, std::string _label="unknown label")
 : pimpl(new Impl(jsonRecords, _label))
 {}
 
@@ -370,7 +367,7 @@ auto Database::appendData(std::string filename) -> void
         pimpl->setDBElements(pimpl->mapElements());
 }
 
-auto Database::appendData(vector<string> jsonRecords, std::string _label = "unknown label") -> void
+auto Database::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);

@@ -1,7 +1,3 @@
-# Find Boost library
-#find_package(Boost REQUIRED)
-
-
 # Find pybind11 library (if needed)
 if(TFUN_BUILD_PYTHON)
     find_package(pybind11 REQUIRED)
@@ -13,8 +9,17 @@ if(TFUN_BUILD_PYTHON)
     endif()
 endif()
 
+find_package(nlohmann_json REQUIRED)
+if(NOT nlohmann_json_FOUND)
+    message(FATAL_ERROR "nlohmann_json library not found")
+endif()
 
 find_package(ChemicalFun REQUIRED)
 if(NOT ChemicalFun_FOUND)
-  message(FATAL_ERROR "ChemicalFun library not found")
+    message(FATAL_ERROR "ChemicalFun library not found")
+endif()
+
+find_package(spdlog REQUIRED)
+if(NOT spdlog_FOUND)
+    message(FATAL_ERROR "spdlog not found")
 endif()

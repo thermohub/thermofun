@@ -4,21 +4,23 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <iostream>
 #include <cmath>
 #include <fstream>
 
+#ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wswitch"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 
 #define OutputSTEAM_CONVENTION
-
-using namespace std;
 
 ///@cond INTERNAL
 
 namespace ThermoFun {
+
+void update_loggers( bool use_cout, const std::string& logfile_name, size_t log_level);
+void clear_loggers( const std::string& logfile_name);
 
 typedef std::vector<double> vd;
 typedef std::vector<std::vector<double> > vvd;
