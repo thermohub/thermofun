@@ -33,4 +33,4 @@ if [ $? -eq 1 ]
 then
 echo "The install failed" >&2
 exit 1
-
+fi
