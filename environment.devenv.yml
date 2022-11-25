@@ -1,24 +1,27 @@
 name: thermofun
 
-{% set python_version = os.environ.get("PY_VER", "3.7") %}
+{% set python_version = os.environ.get("PY_VER", "3.9") %}
+
+channels:
+  - conda-forge
 
 dependencies:
   - setuptools=59.7.0
   - pip
-  - gxx_linux-64=9.4.0  # [linux]
-  - cmake>=3.13
+  - gxx_linux-64  # [linux]
+  - cmake
   - ninja
+  - clcache  # [win]
   - ccache  # [unix]
+  - clangxx_osx-64  # [osx]
   - pybind11
   - nlohmann_json
-  - spdlog=1.10.0
-  - chemicalfun=0.1.4
+ # - spdlog=1.11.0
+ # - fmt=9.1.0
+  - chemicalfun=0.1.6
   - python={{ python_version }}
   - pytest
-  - pip:
-    - mkdocs
-    - mkdocs-material
-    - mkdocs-macros-plugin
+  - vs2019_win-64  # [win]
 
 environment:
 
