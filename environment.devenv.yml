@@ -4,6 +4,7 @@ name: thermofun
 
 channels:
   - conda-forge
+  - default
 
 dependencies:
   - setuptools=59.7.0
