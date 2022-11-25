@@ -19,7 +19,7 @@ class TestThermoEngine(unittest.TestCase):
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").volume.val == pytest.approx(3.43432, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").entropy.val == pytest.approx(239.07241, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").heat_capacity_cp.val == pytest.approx(71.9893685, 1e-5, 1e-14)
-        assert self.engine.thermoPropertiesSubstance(423.15, 0, "Ca+2").gibbs_energy.val == pytest.approx(-544992.7051, 1e-5, 1e-14)
+        assert self.engine.thermoPropertiesSubstance(423.15, 4.8E5, "Ca+2").gibbs_energy.val == pytest.approx(-544992.793697, 1e-5, 1e-14)
         print(f'Psat {self.Psat}')
     
     def test_properties_reaction_from_equation(self):
