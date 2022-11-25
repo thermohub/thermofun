@@ -8,19 +8,11 @@ if(TFUN_BUILD_SHARED_LIBS)
     set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
     # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    #add_library(XGEMS_SHARED SHARED $<TARGET_OBJECTS:XGEMS_OBJECT>)
-    #target_link_libraries(XGEMS_SHARED GEMS3K-static)
-    #set_target_properties(XGEMS_SHARED PROPERTIES OUTPUT_NAME xGEMS)
-    #install(TARGETS XGEMS_SHARED DESTINATION "lib" COMPONENT libraries)
 endif()
 
 # Check if a static library must be built
 if(TFUN_BUILD_STATIC_LIBS)
     set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
-    #add_library(XGEMS_STATIC STATIC $<TARGET_OBJECTS:XGEMS_OBJECT>)
-    #target_link_libraries(XGEMS_STATIC GEMS3K-static)
-    #set_target_properties(XGEMS_STATIC PROPERTIES OUTPUT_NAME xGEMS)
-    #install(TARGETS XGEMS_STATIC DESTINATION "lib" COMPONENT libraries)
 endif()
 
 # Create a library using the collected source files

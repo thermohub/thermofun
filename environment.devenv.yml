@@ -2,11 +2,14 @@ name: thermofun
 
 {% set python_version = os.environ.get("PY_VER", "3.9") %}
 
+channels:
+  - conda-forge
+
 dependencies:
   - setuptools=59.7.0
   - pip
   - gxx_linux-64  # [linux]
-  - cmake>=3.13
+  - cmake
   - ninja
   - clcache  # [win]
   - ccache  # [unix]
@@ -19,10 +22,6 @@ dependencies:
   - python={{ python_version }}
   - pytest
   - vs2019_win-64  # [win]
-  - pip:
-    - mkdocs
-    - mkdocs-material
-    - mkdocs-macros-plugin
 
 environment:
 
