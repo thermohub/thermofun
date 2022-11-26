@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 include(CCache)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.4.0 LANGUAGES CXX)
+project(ThermoFun VERSION 0.4.1 LANGUAGES CXX)
 
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
