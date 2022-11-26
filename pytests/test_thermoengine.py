@@ -8,6 +8,7 @@ class TestThermoEngine(unittest.TestCase):
     def setUp(self):
         self.engine = thermofun.ThermoEngine('pytests/test-thermoengine-thermofun.json')
         self.engine2 = thermofun.ThermoEngine('pytests/test-aq17-gem-lma-thermofun.json')
+        self.Psat = 0
     
     def test_properties_substance(self):
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").gibbs_energy.val == pytest.approx(-889055.513, 1e-5, 1e-14)
@@ -18,18 +19,20 @@ class TestThermoEngine(unittest.TestCase):
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").volume.val == pytest.approx(3.43432, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").entropy.val == pytest.approx(239.07241, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").heat_capacity_cp.val == pytest.approx(71.9893685, 1e-5, 1e-14)
+        assert self.engine.thermoPropertiesSubstance(423.15, 4.8E5, "Ca+2").gibbs_energy.val == pytest.approx(-544992.793697, 1e-5, 1e-14)
+        print(f'Psat {self.Psat}')
     
     def test_properties_reaction_from_equation(self):
         assert self.engine.thermoPropertiesReaction(298.15, 1e5, "Cal = Ca+2 + CO3-2").log_equilibrium_constant.val == pytest.approx(-8.48014, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesReaction(298.15, 1e5, "Al+3 + 4 H2O@ + 0Ca+2= 1Al(OH)4- + 4 \n H+").log_equilibrium_constant.val == pytest.approx(-22.3085, 1e-5, 1e-14)
-        assert self.engine.thermoPropertiesReaction(423.15, 0, "Cal = Ca+2 + CO3-2").log_equilibrium_constant.val == pytest.approx(-10.10169, 1e-5, 1e-14)
+        assert self.engine.thermoPropertiesReaction(423.15, 4.8E5, "Cal = Ca+2 + CO3-2").log_equilibrium_constant.val == pytest.approx(-10.1016559, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesReaction(873.15, 3000e5, "Cal = Ca+2 + CO3-2").reaction_heat_capacity_cp.val == pytest.approx(-718.75763, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesReaction(348.15, 1e5, "Cal = Ca+2 + CO3-2").reaction_gibbs_energy.ddt == pytest.approx(
               -self.engine.thermoPropertiesReaction(348.15, 1e5, "Cal = Ca+2 + CO3-2").reaction_entropy.val, 1e-5, 1e-14)
 
     def test_properties_reaction(self):
         assert self.engine2.thermoPropertiesReaction(298.15, 1e5, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(80.873916, 1e-5, 1e-14)
-        assert self.engine2.thermoPropertiesReaction(423.15, 0, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(28.243799, 1e-5, 1e-14)
+        assert self.engine2.thermoPropertiesReaction(423.15, 4.8E5, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(28.244026, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(298.15, 0, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").log_equilibrium_constant.val == pytest.approx(80.873916, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_heat_capacity_cp.val == pytest.approx(-1072.969936, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_entropy.val == pytest.approx(-1704.130129, 1e-5, 1e-14)

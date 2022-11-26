@@ -23,3 +23,8 @@ find_package(spdlog REQUIRED)
 if(NOT spdlog_FOUND)
     message(FATAL_ERROR "spdlog not found")
 endif()
+
+find_package(fmt REQUIRED)
+if(NOT fmt_FOUND)
+    message(FATAL_ERROR "fmt not found")
+endif()
