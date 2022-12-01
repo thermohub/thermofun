@@ -54,27 +54,20 @@ int main()
 }
 ```
 
-* Using the database client and retrieving a ThermoDataSet from the remote database
+* Using the database client and retrieving a ThermoDataSet from the remote database. This example uses the [`thermohubclient`](https://github.com/thermohub/thermohubclient)
 
 ```
 #!c++
 int main()
 {
-    // Set the file path to the database connection and preferences file (provided in the Resources/ folder)
-    setDatabaseConnectionFilePath("fun-hubclient-config.json");
-
     // Initialize a database client object
     ThermoFun::DatabaseClient dbc;
 
-    // Retrieve list of records given a ThermoDataSet symbol
-    auto records = dbc.recordsFromThermoDataSet("psinagra07"); 
-
     // Create a ThermoFun database using the records list
-    ThermoFun::Database db = databaseFromRecordList(dbc, records);
+    ThermoFun::Database db(dbc.getDatabase('aq17'));
 
     // Initialize an batch object using the database
     ThermoFun::Batch batch (db);
-
 
     // Optional set calculation and output preferences
     ThermoFun::OutputSettings op;
@@ -109,7 +102,7 @@ import thermohubclient as hubclient
 
 properties = fun.ThermoPropertiesSubstance
 
-engine = fun.ThermoEngine("Resources/Databases/aq17-thermofun.json")
+engine = fun.ThermoEngine("Resources/databases/aq17-thermofun.json")
 
 prop = engine.thermoPropertiesSubstance(373.15, 100000000, "H2O@")
 
@@ -121,7 +114,7 @@ print(prop.gibbs_energy.err)
 print(prop.gibbs_energy.sta)
 
 # Create the engine object using a database file in JSON
-batch = fun.ThermoBatch("Resources/aq17new-format.json")
+batch = fun.ThermoBatch("Resources/databases/aq17-thermofun.json")
 
 # Optional: change default units
 batch.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
@@ -138,26 +131,28 @@ V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar
 batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]],  # // list of T-P pairs
                                  ["Al+3", "OH-", "SiO2@"],                          # // list of substance symbols
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
-                               ).toCSV("results.csv")                               # // output
+                               ).toCSV("results.csv")    
 ```
 
-* Using the database client and retrieving a ThermoDataSet from the remote database
+* Using the database client and retrieving a ThermoDataSet from the remote database. This example uses the `thermohubclient`, that can be installed from conda-forge executing `conda install -c conda-forge thermohubclient`
 
 ```
 #!Python
-hubclient.setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json")
+import thermofun as fun
+import thermohubclient as hubclient
 
 print("\n# Initialize a database client object\n")
 dbc = hubclient.DatabaseClient()
 
-print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
-records = dbc.recordsFromThermoDataSet("cemdata18") 
+print("ThermoDataSets")
+for t in dbc.availableThermoDataSets():
+    print(f'{t}')
+print('\n')
 
-print("\n# Create a ThermoFun database using the records list\n")
-db = hubclient.databaseFromRecordList(dbc, records)
+aq17 = fun.Database(dbc.getDatabase('aq17'))
 
 print("\n# Initialize an interface object using the database\n")
-batch2 = fun.ThermoBatch(db)
+batch2 = fun.ThermoBatch(aq17)
 
 print("\n# Optional: set the solvent symbol used for calculating properties of aqueous species\n")
 batch2.setSolventSymbol("H2O@")
@@ -177,7 +172,7 @@ batch2.setPropertiesDigits(["gibbs_energy","entropy", "volume",
                             "enthalpy","logKr", "temperature", "pressure"], [0, 4, 4, 4, 4, 0, 0])
 
 print("\n# Do calculations and write output\n")
-batch2.thermoPropertiesSubstance([[25,1]], ["Na(CO3)-", "Mg+2"], ["gibbs_energy", "entropy",
+batch2.thermoPropertiesSubstance([[25,1]], ["NaCO3-", "Mg+2"], ["gibbs_energy", "entropy",
                                 "volume", "enthalpy"]).toCSV("results_dbc.csv")
 ```
 
