@@ -5,6 +5,15 @@ Linux, OSX, Windows
 
 A code for calculating the standard state thermodynamic properties of substances and reactions at a given temperature and pressure.
 
+- [Simple C++ API example](#simple-c-api-example)
+- [Try ThermoFun](#try-thermofun-in-your-browser-click-launch-binder)
+- [Python example](#simple-python-api-example)
+- [Install using Conda](#installation-using-conda)
+- [Build and install using cmake](#install-thermofun-using-cmake)
+- [Build and install using cmake and conda](#compile-and-install-thermofun-using-cmake-and-conda)
+- [Reporting bugs](#reporting-bugs)
+- [Contributing](#contributing-with-development)
+
 ## Try ThermoFun in your browser click launch binder
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/)
@@ -45,27 +54,20 @@ int main()
 }
 ```
 
-* Using the database client and retrieving a ThermoDataSet from the remote database
+* Using the database client and retrieving a ThermoDataSet from the remote database. This example uses the [`thermohubclient`](https://github.com/thermohub/thermohubclient)
 
 ```
 #!c++
 int main()
 {
-    // Set the file path to the database connection and preferences file (provided in the Resources/ folder)
-    setDatabaseConnectionFilePath("fun-hubclient-config.json");
-
     // Initialize a database client object
     ThermoFun::DatabaseClient dbc;
 
-    // Retrieve list of records given a ThermoDataSet symbol
-    auto records = dbc.recordsFromThermoDataSet("psinagra07"); 
-
     // Create a ThermoFun database using the records list
-    ThermoFun::Database db = databaseFromRecordList(dbc, records);
+    ThermoFun::Database db(dbc.getDatabase('aq17'));
 
     // Initialize an batch object using the database
     ThermoFun::Batch batch (db);
-
 
     // Optional set calculation and output preferences
     ThermoFun::OutputSettings op;
@@ -89,7 +91,7 @@ int main()
 
 ```
 
-### Simple Python API example
+## Simple Python API example
 
 * Using a json database file
 
@@ -100,7 +102,7 @@ import thermohubclient as hubclient
 
 properties = fun.ThermoPropertiesSubstance
 
-engine = fun.ThermoEngine("Resources/Databases/aq17-thermofun.json")
+engine = fun.ThermoEngine("Resources/databases/aq17-thermofun.json")
 
 prop = engine.thermoPropertiesSubstance(373.15, 100000000, "H2O@")
 
@@ -112,7 +114,7 @@ print(prop.gibbs_energy.err)
 print(prop.gibbs_energy.sta)
 
 # Create the engine object using a database file in JSON
-batch = fun.ThermoBatch("Resources/aq17new-format.json")
+batch = fun.ThermoBatch("Resources/databases/aq17-thermofun.json")
 
 # Optional: change default units
 batch.setPropertiesUnits(["temperature", "pressure"],["degC","bar"])
@@ -129,26 +131,28 @@ V = batch.thermoPropertiesSubstance( 250, 1000, "H2O@", "volume").toThermoScalar
 batch.thermoPropertiesSubstance( [[25, 1],[40, 1],[70, 100],[90, 100],[100, 100]],  # // list of T-P pairs
                                  ["Al+3", "OH-", "SiO2@"],                          # // list of substance symbols
                                  ["gibbs_energy","entropy", "volume", "enthalpy"]   # // list of properties
-                               ).toCSV("results.csv")                               # // output
+                               ).toCSV("results.csv")    
 ```
 
-* Using the database client and retrieving a ThermoDataSet from the remote database
+* Using the database client and retrieving a ThermoDataSet from the remote database. This example uses the `thermohubclient`, that can be installed from conda-forge executing `conda install -c conda-forge thermohubclient`
 
 ```
 #!Python
-hubclient.setDatabaseConnectionFilePath("Resources/fun-hubclient-config.json")
+import thermofun as fun
+import thermohubclient as hubclient
 
 print("\n# Initialize a database client object\n")
 dbc = hubclient.DatabaseClient()
 
-print("\n# Retrieve list of records given a ThermoDataSet symbol\n")
-records = dbc.recordsFromThermoDataSet("cemdata18") 
+print("ThermoDataSets")
+for t in dbc.availableThermoDataSets():
+    print(f'{t}')
+print('\n')
 
-print("\n# Create a ThermoFun database using the records list\n")
-db = hubclient.databaseFromRecordList(dbc, records)
+aq17 = fun.Database(dbc.getDatabase('aq17'))
 
 print("\n# Initialize an interface object using the database\n")
-batch2 = fun.ThermoBatch(db)
+batch2 = fun.ThermoBatch(aq17)
 
 print("\n# Optional: set the solvent symbol used for calculating properties of aqueous species\n")
 batch2.setSolventSymbol("H2O@")
@@ -168,7 +172,7 @@ batch2.setPropertiesDigits(["gibbs_energy","entropy", "volume",
                             "enthalpy","logKr", "temperature", "pressure"], [0, 4, 4, 4, 4, 0, 0])
 
 print("\n# Do calculations and write output\n")
-batch2.thermoPropertiesSubstance([[25,1]], ["Na(CO3)-", "Mg+2"], ["gibbs_energy", "entropy",
+batch2.thermoPropertiesSubstance([[25,1]], ["NaCO3-", "Mg+2"], ["gibbs_energy", "entropy",
                                 "volume", "enthalpy"]).toCSV("results_dbc.csv")
 ```
 
@@ -199,7 +203,7 @@ Conda can be installed from [Miniconda](https://conda.io/miniconda.html).
 sudo apt-get install g++ cmake git
 ```
 
-## Download ThermoFun source code using git clone
+* Download ThermoFun source code using git clone
 
 * In a terminal, at the home directory level e.g. ```<user>@ubuntu:~$``` copy-paste and run the following code:
 
@@ -210,11 +214,11 @@ git clone https://github.com/thermohub/thermofun.git && cd thermofun
 
 * In the terminal you should be in ```~/thermofun$```.
 
-## (A) Build and install ThermoFun library (working with json database files)
+### (A) Build and install ThermoFun library (working with json database files)
 
 This option allows the user to build thermofun library that works with a user provided thermodynamic database file in json format and has only one thirdpary library dependency. To build thermofun with access to the thermohub thermodynamic database cloud and local server see bellow. 
 
-### Install Dependencies (if not using Conda environment)
+#### Install Dependencies (if not using Conda environment)
 
 The thermofun library uses nlohmann/json.hpp as thirdparty dependency to parse database files in json format. To install the header only json library in a terminal ```~/thermofun$``` execute the following: 
 
@@ -223,7 +227,7 @@ The thermofun library uses nlohmann/json.hpp as thirdparty dependency to parse d
 sudo ./install-dependencies.sh
 ```
 
-### Compiling the C++ library
+#### Compiling the C++ library
 
 In the terminal ```~/thermofun$```, execute the following commands:
 
@@ -270,11 +274,11 @@ then execute:
 sudo make install 
 ```
 
-## (B) Build and install ThermoFun library (working with access to the local and cloud ThemroHub database)
+### (B) Build and install ThermoFun library (working with access to the local and cloud ThemroHub database)
 
 This option builds thermofun library together with the dbclient, which provides access to the local and cloud thermohub databases, allowing specific a ThermoDataSet to be used or a selection on elements of the thermodynamic data.
 
-### Install ThermoHubClient
+#### Install ThermoHubClient
 
 Clone and install ThermoHubClient library 
 
@@ -296,7 +300,7 @@ For a global installation of the compiled library in your system, execute:
 sudo make install 
 ```
 
-## Install ThermoFun using CMake and Conda 
+## Compile and install ThermoFun using CMake and Conda 
 
 This procedure uses Conda for handling all the dependencies of ThermoFun and builds ThermoFun for Windows, Mac OS X, and Linux. 
 
@@ -332,3 +336,18 @@ conda activate thermofun
 Remember to always activate thermofun environment whenever you use ThermoFun from C++ or Python. This is because conda will adjust some environment variables in your system. 
 
 Now we can proceed and [build ThermoFun using CMake.](#install-thermofun-using-cmake)
+
+## Reporting bugs
+
+To report a bug, please go to [ThermoFun's Issues](https://github.com/thermohub/thermofun/issues/new) and enter a *descriptive title* and *write your issue with enough details*. Please provide a *minimum reproducible example* to be more efficient in identifying the bug and fixing it. 
+
+For questions and issues don't hesitate to chat with us on [Gitter](https://gitter.im/thermofun/community).
+
+## Contributing with development
+
+The [Fork & Pull Request Workflow](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) is used. Below is a summary of the necessary steps you need to take:
+
+1. Fork this repository
+2. Clone the repository at your machine
+3. Add your changes in a branch named after what's being done (`lower-case-with-hyphens`)
+4. Make a pull request to `thermohub/thermofun`, targeting the `main` branch
