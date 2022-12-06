@@ -1,3 +1,4 @@
+#include <array>
 #include "Substances/Gases/GasCORK.h"
 #include "Substances/Gases/s_solmod_.h"
 #include "Substance.h"
@@ -18,13 +19,13 @@ auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
 
     solmod::TCORKcalc myCORK( 1, Pbar.val, (TK.val), Eos_Code );  // modified 05.11.2010 (TW)
     double TClow = subst.thermoParameters().temperature_intervals[0][0];
-    double * CPg = new double[7];
+    std::array<double, 7> CPg;
     for (unsigned int i = 0; i < 7; i++)
     {
         CPg[i] = subst.thermoParameters().critical_parameters[i];
     }
 
-    myCORK.CORKCalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
+    myCORK.CORKCalcFugPure( (TClow/*+273.15*/), CPg.data(), FugProps );
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] ); // from ideal gas at 1 bar and givent T to pure real gas/fluid at T and P
