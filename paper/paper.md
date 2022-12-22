@@ -110,7 +110,7 @@ Using the batch class to do sequential calculations and output the results to a 
 
 Jupyter notebooks with examples on how to use `ThermoFun` can be found in the [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter) repository. More complex Python or C++ routines that use `ThermoFun` can be coded. For example, `ThermoFun` can be coupled to a phase diagram plotter, a chemical equilibrium solver, or a parameter optimization routine for fitting the standard properties and model parameters of substances and reactions and their temperature and pressure dependence.
 
-# Tools with similar functionalities
+# Codes with similar functionalities
 
 ThermoFun is an open source library that serves as a common source of ever-expanding thermodynamic models for standard properties of substances and reactions. If ThermoFun does not meet your needs, there are other alternatives that offer similar functionality, potentially using different methods, and sometimes embedded in larger applications. The following list is of codes that share some functionality with ThermoFun, but is not exhaustive:
 
