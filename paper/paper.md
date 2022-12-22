@@ -128,9 +128,9 @@ ThermoFun is an open source library that serves as a common source of ever-expan
 | SteamTables | C++, Web | [@megawatsoft] | [Closed](https://www.steamtablesonline.com/steam97web.aspx) |
 | SUPCRT92 | Fortran  |  [@JOHNSON1992] | [Open](https://github.com/justinnhli/supcrt92) |
 | SUPCRTBL | Fortran | [@ZIMMER2016]  | [Closed](https://models.earth.indiana.edu/supcrtbl.php) |
+| TEQP | C++, Python | [@Bell:Deiters:Leal:2022] | [Open](https://github.com/usnistgov/teqp) |
 | Thermo | Python | [@bell] | [Open](https://github.com/CalebBell/thermo)|
 | ThermoEngine | C++, Python | [@thermoengine] | [Open](https://gitlab.com/ENKI-portal/ThermoEngine) |
-| TEQP | C++, Python | [@Bell:Deiters:Leal:2022] | [Open](https://github.com/usnistgov/teqp) |
 
 # Acknowledgements
 
