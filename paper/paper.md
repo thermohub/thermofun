@@ -112,7 +112,7 @@ Jupyter notebooks with examples on how to use `ThermoFun` can be found in the [t
 
 # Codes with similar functionalities
 
-ThermoFun is an open source library that serves as a common source of ever-expanding thermodynamic models for standard properties of substances and reactions. If ThermoFun does not meet your needs, there are other alternatives that offer similar functionality, potentially using different methods, and sometimes embedded in larger applications. The following list is of codes that share some functionality with ThermoFun, but is not exhaustive:
+ThermoFun is an open source library that serves as a common source of ever-expanding thermodynamic models for standard properties of substances and reactions. If ThermoFun does not meet your needs, there are other alternatives offering related functionality, potentially using different methods, and sometimes embedded in larger applications. Below the (not exhaustive) list of codes that share some functionality with ThermoFun:
 
 | Name  | Language  |  Reference |  Source |
 |-------|-----------|------------|-------|
@@ -120,6 +120,7 @@ ThermoFun is an open source library that serves as a common source of ever-expan
 | CHNOSZ | R, Python | [@Dick2019] | [Open](https://chnosz.net/) |
 | coolprop | C++ | [@Bell2014] | [Open](https://github.com/CoolProp/CoolProp)|
 | DEWPython | Python | [@Chan2021] | [Open](https://github.com/chandr3w/DEWPython) |
+| GEM-Selektor | C++ | [@Kulik2013] | [Open](https://gems.web.psi.ch/GEMS3) |
 | GeoTPD | R-Shiny | [@Bastrakov2019] | [Closed](https://geoscienceaustralia.shinyapps.io/GeoTPD/) |
 | PyGCC | Python | [@AWOLAYO2022]  | [Open](https://bitbucket.org/Tutolo-RTG/pygcc/src/master/) |
 | pyromat | Python | [@Martin2022] | [Open](https://github.com/chmarti1/PYroMat)|
