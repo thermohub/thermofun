@@ -25,25 +25,23 @@
 #ifndef _verror_h_
 #define _verror_h_
 
-
 #include <string>
-using namespace std;
 
-static const size_t npos = string::npos;
+static const size_t npos = std::string::npos;
 //   static const size_t npos = static_cast<size_t>(-1);
 //   static  const size_t npos=32767;   /wp sergey 2004 from below assignment
 
-void strip(string& str);
+void strip(std::string& str);
 
 
 struct TError
 {
-    string mess;
-    string title;
+    std::string mess;
+    std::string title;
     TError()
     {}
 
-    TError(const string& titl, const string& msg):
+    TError(const std::string& titl, const std::string& msg):
             mess(msg),
             title(titl)
     {}
@@ -64,7 +62,7 @@ struct TFatalError:
             TError(err)
     {}
 
-    TFatalError(const string& titl, const string& msg):
+    TFatalError(const std::string& titl, const std::string& msg):
             TError( titl, msg )
     {}
 
@@ -72,13 +70,13 @@ struct TFatalError:
 
 
 inline
-void Error(const string& title, const string& message)
+void Error(const std::string& title, const std::string& message)
 {
     throw TError(title, message);
 }
 
 inline
-void ErrorIf(bool error, const string& title, const string& message)
+void ErrorIf(bool error, const std::string& title, const std::string& message)
 {
     if(error)
         throw TError(title, message);

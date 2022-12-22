@@ -1,14 +1,14 @@
 # Require a certain version of cmake
 cmake_minimum_required(VERSION 3.9)
 
-# Set the name of the project
-project(ThermoFun VERSION 0.3.9 LANGUAGES CXX)
-
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # Use ccache to speed up repeated compilations
 include(CCache)
+
+# Set the name of the project
+project(ThermoFun VERSION 0.4.1 LANGUAGES CXX)
 
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
@@ -53,8 +53,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set the list of compiler flags for MSVC compiler
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)

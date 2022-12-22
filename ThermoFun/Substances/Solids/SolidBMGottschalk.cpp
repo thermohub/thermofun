@@ -63,7 +63,7 @@ auto BM_Volume( Reaktoro_::Pressure P, Reaktoro_::ThermoScalar vt, Reaktoro_::Th
 // calculate the integral vdP using the Birch-Murnaghan EOS
 // this function will be incorporated into GEM-Selektor v.2.1.0 code
 auto BirchMurnaghan( double Pref, Reaktoro_::Pressure P, Reaktoro_::Temperature Tref, Reaktoro_::Temperature T, Reaktoro_::ThermoScalar v0,
-          vector<double> BMConst, Reaktoro_::ThermoScalar &vv, Reaktoro_::ThermoScalar &alpha, Reaktoro_::ThermoScalar &beta,
+          std::vector<double> BMConst, Reaktoro_::ThermoScalar &vv, Reaktoro_::ThermoScalar &alpha, Reaktoro_::ThermoScalar &beta,
           Reaktoro_::ThermoScalar &dG, Reaktoro_::ThermoScalar &dH, Reaktoro_::ThermoScalar &dS ) -> void
 {
    Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,

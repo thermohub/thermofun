@@ -80,8 +80,8 @@ auto saturatedWaterVaporPressureHGK(Reaktoro_::Temperature TK) -> Reaktoro_::The
 {
     Reaktoro_::ThermoScalar  pl, psHGK, v, w, b, q, z;
     int i=-1;
-    double a[8] ={ -.78889166e1,  .25514255e1, -.6716169e1,  .33239495e2,
-                   -.10538479e3,  .17435319e3, -.14839348e3, .48631602e2};
+    double a[8] ={ -0.78889166e1,  0.25514255e1, -0.6716169e1,  0.33239495e2,
+                   -0.10538479e3,  0.17435319e3, -0.14839348e3, 0.48631602e2};
     if (TK.val <= 314.0e0)
     {
         pl    = 6.3573118e0 - 8858.843e0 / TK + 607.56335e0 * pow(TK,-0.6e0);

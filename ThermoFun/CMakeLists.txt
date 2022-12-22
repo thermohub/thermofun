@@ -8,46 +8,25 @@ if(TFUN_BUILD_SHARED_LIBS)
     set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
     # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    #add_library(XGEMS_SHARED SHARED $<TARGET_OBJECTS:XGEMS_OBJECT>)
-    #target_link_libraries(XGEMS_SHARED GEMS3K-static)
-    #set_target_properties(XGEMS_SHARED PROPERTIES OUTPUT_NAME xGEMS)
-    #install(TARGETS XGEMS_SHARED DESTINATION "lib" COMPONENT libraries)
 endif()
 
 # Check if a static library must be built
 if(TFUN_BUILD_STATIC_LIBS)
     set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
-    #add_library(XGEMS_STATIC STATIC $<TARGET_OBJECTS:XGEMS_OBJECT>)
-    #target_link_libraries(XGEMS_STATIC GEMS3K-static)
-    #set_target_properties(XGEMS_STATIC PROPERTIES OUTPUT_NAME xGEMS)
-    #install(TARGETS XGEMS_STATIC DESTINATION "lib" COMPONENT libraries)
 endif()
 
 # Create a library using the collected source files
 add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
+
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
-if(ChemicalFun_FOUND)
-    target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
-endif()
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    #link_directories("/usr/local/lib")
-else() 
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-# build options for MacOS
-    else() 
-# build options for Linux
-# Find library and software dependencies
-        #find_package(Boost 1.58.0 REQUIRED)
-        find_package(nlohmann_json REQUIRED)
-# Specify the dependency libraries to link against
-        target_link_libraries(ThermoFun
-#        PRIVATE Boost::boost
-         PRIVATE nlohmann_json::nlohmann_json)
-    endif()
-endif()
+# Link ThermoFun against all required dependencies
+target_link_libraries(ThermoFun
+    PUBLIC ChemicalFun::ChemicalFun
+ #   PUBLIC spdlog::spdlog
+    PRIVATE nlohmann_json::nlohmann_json
+)
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
@@ -61,7 +40,7 @@ install(TARGETS ThermoFun
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libraries)
-    
+
 # Install debug symbols
 if(MSVC)
     install(
