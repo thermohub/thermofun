@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Batch/ThermoBatch.h"
 #include "Batch/OutputBatch.h"
 #include "Common/ParseJsonToData.h"

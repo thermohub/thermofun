@@ -14,7 +14,7 @@
 
 namespace ThermoFun {
 
-auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double Pmax, double Pmin, string model) -> void
+auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double Pmax, double Pmin, std::string model) -> void
 {
     // Check if given temperature is within the allowed range
     if(T < 0 /*Tmin*/ || T > Tmax)

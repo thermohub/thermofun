@@ -15,7 +15,7 @@ DEFINES += IPMGEMPLUGIN
 DEFINES += NOPARTICLEARRAY
 
 ThermoFun_TEST_CPP = ./src
-ThermoFun_CPP   =  ../../../thermofun/ThermoFun
+ThermoFun_CPP   =  ../../ThermoFun
 
 ThermoFun_TEST_H   = $$ThermoFun_TEST_CPP
 ThermoFun_H     =   $$ThermoFun_CPP
@@ -32,7 +32,7 @@ OBJECTS_DIR = obj
 # Define the directory where the gui, third-party libs, resources are located
 BUILD_DIR = $$OUT_PWD/..
 
-LIBS += -lChemicalFun
+LIBS += -lChemicalFun -lfmt
 
 INCLUDEPATH   += "/usr/local/include"
 DEPENDPATH   += "/usr/local/include"
