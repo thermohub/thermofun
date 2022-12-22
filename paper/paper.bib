@@ -30,7 +30,7 @@
 }
 @article{Miron2020,
    abstract = {Most of the available thermodynamic data concerning radioactive waste disposal are restricted to values of reaction equilibrium constants (logK298°) at 25 °C and 1 bar. Simple estimation methods such as isocoulombic reactions can be used for extrapolating the properties of reactions involving aqueous species and minerals to elevated temperatures. The aim of this study was to validate the applicability of various alternative isocoulombic reactions to estimate logKT° values of aqueous complexation reactions for lanthanides and actinides to elevated temperatures while taking advantage of new additional literature data, and to identify criteria for choosing the “best” reactions. For each chemical species of interest, a systematic approach using dedicated software and database allowed us to identify the isocoulombic reactions and types of extrapolation that yield the best estimates of standard thermodynamic properties at elevated temperatures, when very limited or no experimental data are available. We have tested aqueous complexation reactions for selected lanthanides and actinides of different valences with chloride, fluoride, sulfate, carbonate, nitrate, phosphate and silicate ligands. “Model” complexation reactions, having known temperature trends, were systematically combined with complex formation reactions of interest whose temperature trends are unknown, into many alternative isocoulombic reactions. For each ion, we investigated which of the generated isocoulombic reactions provide the best estimates for logeKT° of the reaction of interest at elevated temperatures in order to compile the guidelines for choosing the optimal ones, then applying these guidelines to “prediction” subsets. In most cases, knowing only logeKT° at 25 °C (for the reaction of interest), it was possible to obtain rather accurate estimates of logeKT° values at elevated temperatures using isocoulombic reactions that exchange ions with similar charge and hydration properties (hydrated ionic radius and structure of the hydration shell) and known logmKT° of model reactions. These ions and their complexes interact with the solvent in comparable ways, so that their similar heat capacity and entropy effects largely cancel out on both sides of an “optimal” isocoulombic reaction.},
-   author = {G. D. Miron and Dmitrii A. Kulik and Tres Thoenen},
+   author = {G.bell D. Miron and Dmitrii A. Kulik and Tres Thoenen},
    doi = {10.1016/j.gca.2020.07.020},
    issn = {00167037},
    journal = {Geochimica et Cosmochimica Acta},
@@ -96,6 +96,149 @@
    volume = {317},
    year = {2017},
 }
+@article{JOHNSON1992,
+title = {SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000°C},
+journal = {Computers & Geosciences},
+volume = {18},
+number = {7},
+pages = {899-947},
+year = {1992},
+issn = {0098-3004},
+doi = {https://doi.org/10.1016/0098-3004(92)90029-Q},
+url = {https://www.sciencedirect.com/science/article/pii/009830049290029Q},
+author = {James W. Johnson and Eric H. Oelkers and Harold C. Helgeson},
+keywords = {SUPCRT92, Equations of state, Standard molal thermodynamic properties, Chemical equilibrium, Minerals, Gases, Aqueous species, HO, Thermodynamics, Geochemistry},
+abstract = {Recent advances in theoretical geochemistry permit calculation of the standard molal thermodynamic properties of a wide variety of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000°C. The SUPCRT92 software package facilitates practical application of these recent theories, equations, and data to define equilibrium constraints on geochemical processes in a wide variety of geologic systems. The SUPCRT92 package is composed of three interactive FORTRAN 77 programs, SUPCRT92, MPRONS92, and CPRONS92, and a sequential-access thermodynamic database, SPRONS92.DAT. The SUPCRT92 program reads or permits user-generation of its two input files, CON and RXN, retrieves data from the direct-access equivalent of SPRONS92.DAT, calculates the standard molal Gibbs free energy, enthalpy, entropy, heat capacity, and volume of each reaction specified on the RXN file through a range of conditions specified on the CON file, and writes the calculated reaction properties to the output TAB file and, optionally, to PLT files that facilitate their graphical depiction. Calculations can be performed along the liquid side of the H2O vaporization boundary by specifying either temperature (T) or pressure (P), and in the single-phase regions of fluid H2O by specifying either T and P, T and H2O density, T and log K, or P and log K. SPRONS92.DAT, which contains standard molal thermodynamic properties at 25°C and 1 bar, equation-of-state parameters, heat capacity coefficients, and phase transition data for approximately 500 minerals, gases, and aqueous species, can be augmented or otherwise modified using MPRONS92, and converted to its direct-access equivalent using CPRONS92.}
+}
+@article{ZIMMER2016,
+title = {SUPCRTBL: A revised and extended thermodynamic dataset and software package of SUPCRT92},
+journal = {Computers & Geosciences},
+volume = {90},
+pages = {97-111},
+year = {2016},
+issn = {0098-3004},
+doi = {https://doi.org/10.1016/j.cageo.2016.02.013},
+url = {https://www.sciencedirect.com/science/article/pii/S0098300416300371},
+author = {Kurt Zimmer and Yilun Zhang and Peng Lu and Yanyan Chen and Guanru Zhang and Mehmet Dalkilic and Chen Zhu},
+keywords = {SUPCRT92, Arsenic, Geological carbon sequestration, Thermodynamic properties, Geochemical modeling, Chemical equilibrium},
+abstract = {The computer-enabled thermodynamic database associated with SUPCRT92 (Johnson et al., 1992) enables the calculation of the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions for a wide range of temperatures and pressures. However, new data on the thermodynamic properties of both aqueous species and minerals have become available since the database’s initial release in 1992 and its subsequent updates. In light of these developments, we have expanded SUPCRT92’s thermodynamic dataset and have modified the accompanying computer code for thermodynamic calculations by using newly available properties. The modifications in our new version include: (1) updating the standard state thermodynamic properties for mineral end-members with properties from Holland and Powell (2011) to improve the study of metamorphic petrology and economic geology; (2) adding As-acid, As-metal aqueous species, and As-bearing minerals to improve the study of environmental geology; (3) updating properties for Al-bearing species, SiO2°(aq) and HSiO3-, boehmite, gibbsite, and dawsonite for modeling geological carbon sequestration. The new thermodynamic dataset and the modified SUPCRT92 program were implemented in a software package called SUPCRTBL, which is available online at www.indiana.edu/~hydrogeo/supcrtbl.html.}
+}
+@article{AWOLAYO2022,
+title = {PyGeochemCalc: A Python package for geochemical thermodynamic calculations from ambient to deep Earth conditions},
+journal = {Chemical Geology},
+volume = {606},
+pages = {120984},
+year = {2022},
+issn = {0009-2541},
+doi = {https://doi.org/10.1016/j.chemgeo.2022.120984},
+url = {https://www.sciencedirect.com/science/article/pii/S0009254122002789},
+author = {Adedapo N. Awolayo and Benjamin M. Tutolo},
+keywords = {Helgeson-Kirkham-Flowers equation of state, LogK-density extrapolation, Solid-solutions, IAPWS95 equation of state, DEW model, Thermodynamic properties, Variable-chemistry clays, Geochemical modeling, Thermodynamic database},
+abstract = {Over the past half century, techniques for evaluating the thermodynamics of water-rock interactions from ambient to deep Earth conditions have advanced incredibly and in myriad directions. As these tools for analyzing the thermodynamic states of geochemical species as a function of temperature, pressure, and composition have multiplied, so too have the possibilities for tracing water-rock interaction from ambient to deep conditions on Earth and beyond. Yet, the aqueous geochemical community still lacks a centralized platform for incorporating this constantly updating thermodynamic data into aqueous geochemical models. Here, we introduce PyGeochemCalc (PyGCC), a community-driven, open-source Python package that meets this need by providing a consolidated set of functions for calculating the thermodynamic properties of gas, aqueous, and mineral (including solid solutions and variable-formula clays) species, as well as reactions amongst these species, over a broad range of temperature and pressure conditions. The PyGCC package utilizes the revised Helgeson-Kirkham-Flowers (HKF) equation of state, and newly proposed density-based extrapolations based upon it, to calculate the thermodynamic properties of aqueous species; a choice of equations of state and electrostatic models (including the Deep Earth Water (DEW) model) to calculate thermodynamic and dielectric properties of water; and heat capacity functions to calculate thermodynamic properties of minerals and gases. Additionally, PyGCC integrates these functions to generate thermodynamic databases for various geochemical programs, including the Geochemist's Workbench (GWB), EQ3/6, TOUGHREACT, and PFLOTRAN, with straightforward possibilities for extension to other simulators. The various functions in the package can also be modularly utilized, and introduced into other modeling tools, as desired. In this paper, we detail the capabilities of PyGCC and the equations it relies on for calculating thermodynamic properties of water, aqueous species, and gases. Although the fundamental thermodynamic data necessary for state-of-the-science PyGCC calculations will necessarily evolve as our collective geochemical knowledge base expands, PyGCC's open source, community-driven design will allow for users to keep pace via rapid implementation of these advancements in this modern geochemical tool.}
+}
+@ARTICLE{Dick2019,
+AUTHOR={Dick, Jeffrey M.},   	 
+TITLE={CHNOSZ: Thermodynamic Calculations and Diagrams for Geochemistry},      	
+JOURNAL={Frontiers in Earth Science},      	
+VOLUME={7},           	
+YEAR={2019},      	  
+URL={https://www.frontiersin.org/articles/10.3389/feart.2019.00180},       	
+DOI={10.3389/feart.2019.00180},      	
+ISSN={2296-6463},    
+ABSTRACT={Thermodynamic calculations are an essential tool for many areas of geochemistry. Thermodynamics provides a framework for the quantitative description and prediction of the solubilities and relative stabilities of different minerals, metal transport in hydrothermal fluids, and geobiochemical reactions that drive microbial metabolism and contribute to the compositional variation of proteins. Accessible and up-to-date software and databases are important for the development and reproducible application of thermodynamic models. CHNOSZ is a free package for R that has been frequently updated since its first release in 2008. The package provides an integrated set of functions to calculate the standard molal thermodynamic properties and chemical affinities of reactions. It uses the graphical capabilities of R to produce high-quality chemical activity diagrams for aqueous species and predominance diagrams including Eh-pH (Pourbaix) and logf<sub>O<sub>2</sub></sub> -T diagrams. The extensive database utilizes the well-known revised Helgeson-Kirkham-Flowers (HKF) equations for aqueous species. Recent additions to the database include the Berman equations for minerals, the Deep Earth Water model, which extends the applicability of the HKF equations to higher pressures, and the Akinfiev-Diamond model for aqueous nonelectrolytes. The package comes with many types of documentation, including technical help pages with short code examples, longer code demos, and in-depth vignettes combining code, text and graphics, giving users a wide array of starting points for their own research. This paper provides a concise overview of the package and illustrates the new features using examples selected from the literature. Although the package does not provide a complete chemical speciation model, numerous examples from the package demonstrate the ease of reproducing selected published calculations and sometimes identifying issues with existing datasets and models.}
+}
+@inproceedings{Bastrakov2019,
+author = {Bastrakov, Evgeniy and Dick, Jeffrey},
+year = {2019},
+month = {08},
+pages = {},
+title = {GeoTPD — an interactive online tool for geochemical modelling for the broad geological community. Goldschmidt Abstracts, 2019}
+}
+@misc{Chan2021,
+  doi = {10.48550/ARXIV.2105.14096},
+  url = {https://arxiv.org/abs/2105.14096},
+  author = {Chan, Andrew and Daswani, Mohit Melwani and Vance, Steven},
+  keywords = {Geophysics (physics.geo-ph), FOS: Physical sciences, FOS: Physical sciences},
+  title = {DEWPython: A Python Implementation of the Deep Earth Water Model and Application to Ocean Worlds},
+  publisher = {arXiv},
+  year = {2021},
+  copyright = {Creative Commons Attribution Non Commercial No Derivatives 4.0 International}
+}
+@software{megawatsoft, title={Thermodynamic properties of fluids}, year={2022}, url={https://www.megawatsoft.com/}, author = {megawatsoft}, journal={Thermodynamic Properties of Fluids}}
+﻿@Article{Huber2022,
+author={Huber, Marcia L.
+and Lemmon, Eric W.
+and Bell, Ian H.
+and McLinden, Mark O.},
+title={The NIST REFPROP Database for Highly Accurate Properties of Industrially Important Fluids},
+journal={Industrial {\&} Engineering Chemistry Research},
+year={2022},
+month={Oct},
+day={26},
+publisher={American Chemical Society},
+volume={61},
+number={42},
+pages={15449-15472},
+issn={0888-5885},
+doi={10.1021/acs.iecr.2c01427},
+url={https://doi.org/10.1021/acs.iecr.2c01427}
+}
+@article{Bell2014,
+    author = {Bell, Ian H. and Wronski, Jorrit and Quoilin, Sylvain and Lemort, Vincent},
+    title = {Pure and Pseudo-pure Fluid Thermophysical Property Evaluation and
+             the Open-Source Thermophysical Property Library CoolProp},
+    journal = {Industrial \& Engineering Chemistry Research},
+    volume = {53},
+    number = {6},
+    pages = {2498--2508},
+    year = {2014},
+    doi = {10.1021/ie4033999},
+    URL = {http://pubs.acs.org/doi/abs/10.1021/ie4033999},
+    eprint = {http://pubs.acs.org/doi/pdf/10.1021/ie4033999}
+    }
+@article{Martin2022, doi = {10.21105/joss.04757}, url = {https://doi.org/10.21105/joss.04757}, year = {2022}, publisher = {The Open Journal}, volume = {7}, number = {79}, pages = {4757}, author = {Christopher Martin and Joseph Ranalli and Jacob Moore}, title = {PYroMat: A Python package for thermodynamic properties}, journal = {Journal of Open Source Software} } 
+@software{bell,
+author={Caleb Bell and Contributors},
+year = {2021}, 
+title={Thermo: Chemical properties component of Chemical Engineering Design Library (ChEDL)},
+url = {https://github.com/CalebBell/thermo}
+}
+@article{Leal2017,
+url = {https://doi.org/10.1515/pac-2016-1107},
+title = {An overview of computational methods for chemical equilibrium and kinetic calculations for geochemical and reactive transport modeling},
+title = {},
+author = {Allan M. M. Leal and Dmitrii A. Kulik and William R. Smith and Martin O. Saar},
+pages = {597--643},
+volume = {89},
+number = {5},
+journal = {Pure and Applied Chemistry},
+doi = {doi:10.1515/pac-2016-1107},
+year = {2017},
+lastchecked = {2022-12-16}
+}
+@software{cantera,
+    author = "David G. Goodwin and Harry K. Moffat and Ingmar Schoegl and Raymond L.
+              Speth and Bryan W. Weber",
+    title = "Cantera: An Object-oriented Software Toolkit for Chemical
+             Kinetics, Thermodynamics, and Transport Processes",
+    year = 2022,
+    note = "Version 2.6.0",
+    howpublished = "\url{https://www.cantera.org}",
+    doi = {10.5281/zenodo.6387882}
+}
+@software{thermoengine,
+  author       = {Thermoengine, Code Contributors To},
+  title        = {{ThermoEngine: Software for Model Building and 
+                   Computational Thermodynamics Supporting
+                   Applications in the Earth Sciences}},
+  month        = may,
+  year         = 2022,
+  publisher    = {Zenodo},
+  version      = {1.0.0},
+  doi          = {10.5281/zenodo.6527840},
+  url          = {https://doi.org/10.5281/zenodo.6527840}
+}
+
 
 
 
