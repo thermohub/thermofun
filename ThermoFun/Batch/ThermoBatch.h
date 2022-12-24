@@ -28,7 +28,7 @@ typedef std::vector<ThermoPropertiesSubstance> vtps;
 typedef std::vector<ThermoPropertiesReaction>  vtpr;
 
 /**
- * @brief The OutputOptions struct holds the options for outputing results
+ * @brief The OutputOptions struct holds the options for outputting results
  */
 struct BatchPreferences
 {
@@ -68,17 +68,17 @@ struct BatchPreferences
 ///
 /// \brief The Interface class provides an interface to C++ codes coupled to ThermoFunk library for performing
 /// calculations related to the standard state properties of substances and reactions at different temperatures
-/// and pressures, and retriveve the results as CSV output file, 2D vector (of double or ThrmoScalar types), or
+/// and pressures, and retrieve the results as CSV output file, 2D vector (of double or ThrmoScalar types), or
 /// single value (of double or ThermoScalar types) for one property-substance-T-P calculation.
 ///
-/// The class provides several functions for adding the symbol of the substance or reaction (or lists of symblos)
+/// The class provides several functions for adding the symbol of the substance or reaction (or lists of symbols)
 /// for which the calculations will be performed.
 ///
 /// The class provides several functions for adding the temperature and pressure points at which the calculations
 /// will be performed.
 ///
-/// The class provides several functions for setting the unist in which the results are dysplayed and the
-/// siginifincat digits (or precision) in which the values will be written in the output CSV file.
+/// The class provides several functions for setting the units in which the results are displayed and the
+/// siginificant digits (or precision) in which the values will be written in the output CSV file.
 ///
 /// The input temperature and pressure should be in celsius and bar
 ///
@@ -114,7 +114,7 @@ public:
     auto setTemperatureIncrement    (const double& Tmin, const double& Tmax, const double& Tstep) -> void;
     auto setPressureIncrement       (const double& Pmin, const double& Pmax, const double& Pstep) -> void;
 
-    // claculate functions substances
+    // calculate functions substances
     auto thermoPropertiesSubstance  (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesSubstance  (double T, double P, vstr        symbols, vstr        properties) -> Output;
     auto thermoPropertiesSubstance  (vstr symbols, vstr properties) -> Output;
@@ -123,7 +123,7 @@ public:
     auto thermoPropertiesSubstance  (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties) -> Output;
     auto thermoPropertiesSubstance  (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtps vTps) -> Output;
 
-    // claculate functions reactions
+    // calculate functions reactions
     auto thermoPropertiesReaction   (double T, double P, std::string symbol,  std::string property) -> Output;
     auto thermoPropertiesReaction   (double T, double P, vstr        symbols, vstr        properties) -> Output;
     auto thermoPropertiesReaction   (vstr symbols, vstr properties) -> Output;
@@ -134,6 +134,12 @@ public:
 
     auto setBatchPreferences        (const BatchPreferences &value) -> void;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
+
+    auto temperatureIncrement  () -> const std::map<std::string, double>&;
+    auto pressureIncrement  () -> const std::map<std::string, double>&;
+
+    auto propertyUnits  () -> const std::map<std::string, std::string>&; 
+    auto propertyDigits () -> const std::map<std::string, int>&; 
 
 private:
     struct Impl;
@@ -154,7 +160,7 @@ private:
 
 const std::map<std::string, const std::string> defaultPropertyNames =
 {
-        // Substance propeties
+        // Substance properties
     {"gibbs_energy",                   "substance"     },
     {"enthalpy",                       "substance"     },
     {"entropy",                        "substance"     },
@@ -163,7 +169,7 @@ const std::map<std::string, const std::string> defaultPropertyNames =
     {"volume",                         "substance"     },
     {"helmholtz_energy",               "substance"     },
     {"internal_energy",                "substance"     },
-        // Reaction propeties
+        // Reaction properties
     {"reaction_gibbs_energy",          "reaction"      },
     {"reaction_helmholtz_energy",      "reaction"      },
     {"reaction_internal_energy",       "reaction"      },
@@ -174,7 +180,7 @@ const std::map<std::string, const std::string> defaultPropertyNames =
     {"reaction_heat_capacity_cv",      "reaction"      },
     {"logKr",                          "reaction"      },
     {"lnKr",                           "reaction"      },
-        // Solvent propeties
+        // Solvent properties
     {"density",                        "solvent"      },
     {"densityT",                       "solvent"      },
     {"densityP",                       "solvent"      },

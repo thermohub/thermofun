@@ -31,7 +31,7 @@ namespace ThermoFun {
 
 void exportThermoParametersSubstance(py::module& m)
 {
-    py::class_<ThermoParametersSubstance>(m, "ThermoParametersSubstance")
+    py::class_<ThermoParametersSubstance>(m, "ThermoParametersSubstance", "Parameters of a substance record")
         .def(py::init<>())
         .def_readwrite("isothermal_compresibility", &ThermoParametersSubstance::isothermal_compresibility)
         .def_readwrite("isobaric_expansivity", &ThermoParametersSubstance::isobaric_expansivity)
@@ -53,7 +53,7 @@ void exportThermoParametersSubstance(py::module& m)
 
 void exportThermoParametersReaction(py::module& m)
 {
-    py::class_<ThermoParametersReaction>(m, "ThermoParametersReaction")
+    py::class_<ThermoParametersReaction>(m, "ThermoParametersReaction", "Parameters of a reaction record")
         .def(py::init<>())
         .def_readwrite("temperature_intervals", &ThermoParametersReaction::temperature_intervals)
         .def_readwrite("pressure_intervals", &ThermoParametersReaction::pressure_intervals)
