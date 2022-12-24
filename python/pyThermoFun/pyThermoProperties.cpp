@@ -31,7 +31,7 @@ namespace ThermoFun {
 
 void exportThermoPropertiesSubstance(py::module& m)
 {
-    py::class_<ThermoPropertiesSubstance>(m, "ThermoPropertiesSubstance")
+    py::class_<ThermoPropertiesSubstance>(m, "ThermoPropertiesSubstance", "Standard molar properties of a substance")
         .def(py::init<>())
         .def_readwrite("gibbs_energy", &ThermoPropertiesSubstance::gibbs_energy)
         .def_readwrite("helmholtz_energy", &ThermoPropertiesSubstance::helmholtz_energy)
@@ -46,7 +46,7 @@ void exportThermoPropertiesSubstance(py::module& m)
 
 void exportThermoPropertiesReaction(py::module& m)
 {
-    py::class_<ThermoPropertiesReaction>(m, "ThermoPropertiesReaction")
+    py::class_<ThermoPropertiesReaction>(m, "ThermoPropertiesReaction", "Standard molar properties of a reaction")
         .def(py::init<>())
         .def_readwrite("ln_equilibrium_constant",   &ThermoPropertiesReaction::ln_equilibrium_constant)
         .def_readwrite("log_equilibrium_constant",  &ThermoPropertiesReaction::log_equilibrium_constant)
@@ -63,7 +63,7 @@ void exportThermoPropertiesReaction(py::module& m)
 
 void exportElectroPropertiesSolvent(py::module& m)
 {
-    py::class_<ElectroPropertiesSolvent>(m, "ElectroPropertiesSolvent")
+    py::class_<ElectroPropertiesSolvent>(m, "ElectroPropertiesSolvent", "Dielectric constant, its derivatives  with T and P, and Born functions")
         .def(py::init<>())
         .def_readwrite("epsilon", &ElectroPropertiesSolvent::epsilon)
         .def_readwrite("epsilonT", &ElectroPropertiesSolvent::epsilonT)
@@ -82,7 +82,7 @@ void exportElectroPropertiesSolvent(py::module& m)
 
 void exportPropertiesSolvent(py::module& m)
 {
-    py::class_<PropertiesSolvent>(m, "PropertiesSolvent")
+    py::class_<PropertiesSolvent>(m, "PropertiesSolvent", "Physical properties of water solvent")
         .def(py::init<>())
         .def_readwrite("speed_of_sound", &PropertiesSolvent::speed_of_sound)
         .def_readwrite("dynamic_viscosity", &PropertiesSolvent::dynamic_viscosity)

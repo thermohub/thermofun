@@ -5,6 +5,7 @@ Linux, OSX, Windows
 
 A code for calculating the standard state thermodynamic properties of substances and reactions at a given temperature and pressure.
 
+- [Code documentation](https://docs.hdoc.io/dmiron/thermofun/?target=_blank)
 - [Simple C++ API example](#simple-c-api-example)
 - [Try ThermoFun](#try-thermofun-in-your-browser-click-launch-binder)
 - [Python example](#simple-python-api-example)

@@ -35,14 +35,14 @@ namespace ThermoFun {
 
 void exportOutput(py::module& m)
 {
-    py::class_<Output>(m, "Output")
+    py::class_<Output>(m, "Output", "Type for outputting results to different formats")
         .def(py::init<const ThermoBatch&>())
-        .def("toCSV", &Output::toCSV)
-        .def("toCSVTransposed", &Output::toCSVTransposed)
-        .def("toCSVPropertyGrid", &Output::toCSVPropertyGrid)
+        .def("toCSV", &Output::toCSV, "write results to CSV file with substances/reactions on rows and properties on columns")
+        .def("toCSVTransposed", &Output::toCSVTransposed, "write results to CSV file in a special transposed format with substances/reactions on columns and properties on rows")
+        .def("toCSVPropertyGrid", &Output::toCSVPropertyGrid, "write results to CSV file in a property grid format")
         .def("toDouble", &Output::toDouble)
         .def("toThermoScalar", &Output::toThermoScalar)
-        .def("to2DVectorDouble", &Output::to2DVectorDouble)
+        .def("to2DVectorDouble", &Output::to2DVectorDouble, "returns a list of results")
         ;
 }
 }

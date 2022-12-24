@@ -1,0 +1,32 @@
+[project]
+name = "thermofun"
+version = "0.4.2"
+
+# Optional, adding this will enable direct links from the documentation
+# to your source code.
+git_repo_url = "https://github.com/thermohub/thermofun/"
+git_default_branch = "master"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+# output_dir = "docs/hdoc-output"
+
+[pages]
+homepage = "docs/index.md"
+
+[ignore]
+# Symbols from any of the following path fragments will be ignored
+ignore_private_members = true
+paths = [
+  "/python/",
+  "/pytests/",
+  "/tests/",
+  "/Common/",
+  "OptimizationUtils.h",
+  "/Substances/Solvent/Reaktoro/",
+  "/Substances/Gases/s_solmod_.cpp",
+  "/Substances/Gases/s_solmod_.h",
+  "/Substances/Gases/s_solmod2_.cpp",
+  "/Substances/Gases/verror.h"
+  # more paths can be added as needed
+]
