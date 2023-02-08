@@ -1,3 +1,4 @@
+
 # Recursively collect all header files from the current directory
 file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 
@@ -5,7 +6,7 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 if(TFUN_BUILD_SHARED_LIBS)
-    set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
+    set(THERMOFUN_SHARED_LIB ${PROJECT_NAME} ${SUFFIX_SHARED_LIBS})
     # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
@@ -24,8 +25,6 @@ add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 # Link ThermoFun against all required dependencies
 target_link_libraries(ThermoFun
     PUBLIC ChemicalFun::ChemicalFun
- #   PUBLIC spdlog::spdlog
-    PRIVATE nlohmann_json::nlohmann_json
 )
 
 # Specify the include directories of the library target

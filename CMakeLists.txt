@@ -1,14 +1,14 @@
 # Require a certain version of cmake
 cmake_minimum_required(VERSION 3.9)
 
+# Set the name of the project
+project(ThermoFun VERSION 0.4.0 LANGUAGES CXX)
+
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # Use ccache to speed up repeated compilations
 include(CCache)
-
-# Set the name of the project
-project(ThermoFun VERSION 0.4.0 LANGUAGES CXX)
 
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
@@ -41,6 +41,13 @@ else()
 
     # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
+# Used into conda only
+if(DEFINED ENV{CONDA_PREFIX})
+   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" ON)
+else()
+   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" OFF)
 endif()
 
 # Set the default build type to Release
