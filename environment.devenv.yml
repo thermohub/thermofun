@@ -15,10 +15,7 @@ dependencies:
   - ccache  # [unix]
   - clangxx_osx-64  # [osx]
   - pybind11
-  - nlohmann_json
- # - spdlog=1.11.0
- # - fmt=9.1.0
-  - chemicalfun=0.1.6
+  - chemicalfun>=0.1.6
   - python={{ python_version }}
   - pytest
   - vs2019_win-64  # [win]
