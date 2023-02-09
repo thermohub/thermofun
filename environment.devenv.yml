@@ -15,6 +15,7 @@ dependencies:
   - ccache  # [unix]
   - clangxx_osx-64  # [osx]
   - pybind11
+  - nlohmann_json
   - chemicalfun>=0.1.6
   - python={{ python_version }}
   - pytest
