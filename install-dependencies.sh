@@ -3,14 +3,14 @@
 
 EXTN=so
 
-sudo rm -rf /usr/local/include/nlohmann
-sudo rm -rf /usr/local/include/eigen3/Eigen/Eigen
-sudo rm -rf /usr/local/include/pybind11
-sudo rm -rf /usr/local/include/spdlog
-sudo rm -f /usr/local/lib/libChemicalFun.$EXTN
+#sudo rm -rf /usr/local/include/nlohmann
+#sudo rm -rf /usr/local/include/eigen3/Eigen/Eigen
+#sudo rm -rf /usr/local/include/pybind11
+#sudo rm -rf /usr/local/include/spdlog
+#sudo rm -f /usr/local/lib/libChemicalFun.$EXTN
 
 workfolder=${PWD}
-BRANCH_TFUN=spdlog-221
+BRANCH_TFUN=master
 BUILD_TYPE=Release
 
 # nlohmann/json library v. 3.6.1 or up
