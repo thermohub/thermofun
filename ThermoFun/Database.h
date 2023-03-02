@@ -43,7 +43,7 @@ public:
     explicit Database(std::string filename);
 
     /**
-     * @brief Database constructs a database instace from a vector of records in json format
+     * @brief Database constructs a database instance from a vector of records in json format
      * Records with the same symbol will be overwritten!
      * @param jsonRecords vector of records in JSON string format
      * @param _label, optional, (element, substance, reactions),
@@ -68,7 +68,7 @@ public:
      * @brief appendData append records to the database from a vector of JSON strings
      * Records with the same symbol will be overwritten!
      * @param jsonRecords vector of records in JSON string format
-     * @param _label, oprional, (element, substance, reactions),
+     * @param _label, optional, (element, substance, reactions),
      * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
     auto appendData(std::vector<std::string> jsonRecords, std::string _label) -> void;

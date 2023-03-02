@@ -615,5 +615,24 @@ auto ThermoBatch::results() -> const vvThScalar
     return pimpl->results;
 }
 
+auto ThermoBatch::temperatureIncrement() -> const std::map<std::string, double>&
+{
+    return pimpl->Tincrement;
+}
+
+auto ThermoBatch::pressureIncrement() -> const std::map<std::string, double>&
+{
+    return pimpl->Pincrement;
+}
+
+auto ThermoBatch::propertyUnits () -> const std::map<std::string, std::string>&
+{
+    return pimpl->givenPropertyUnits;
+}
+auto ThermoBatch::propertyDigits() -> const std::map<std::string, int>&
+{
+    return pimpl->givenPropertyDigits;
+}
+
 }
 
