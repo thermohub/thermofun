@@ -19,6 +19,8 @@ void update_loggers( bool use_cout, const std::string& logfile_name, size_t log_
 {
     auto thermofun_logger = spdlog::get("thermofun");
     auto chemicalfun_logger = spdlog::get("chemicalfun");
+    if(!thermofun_logger || !chemicalfun_logger)
+        return;
 
     // change level
     spdlog::level::level_enum log_lev = spdlog::level::info;
@@ -49,6 +51,8 @@ void clear_loggers( const std::string& logfile_name)
 {
     auto thermofun_logger = spdlog::get("thermofun");
     auto chemicalfun_logger = spdlog::get("chemicalfun");
+    if(!thermofun_logger || !chemicalfun_logger)
+        return;
 
     thermofun_logger->sinks().clear();
     chemicalfun_logger->sinks().clear();
