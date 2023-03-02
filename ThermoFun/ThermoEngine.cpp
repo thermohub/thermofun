@@ -87,11 +87,18 @@ struct ThermoEngine::Impl
 
     Impl()
     {
+        set_fn() ;
     }
 
     Impl(const Database &database)
         : database(database)
     {
+        set_fn();
+    }
+
+    void set_fn()
+    {
+
         thermo_properties_substance_fn = [=](double T, double P_, double &P, std::string symbol) {
             auto x = P_;
             return thermoPropertiesSubstance(T, P, symbol);
@@ -748,8 +755,10 @@ struct ThermoEngine::Impl
 };
 
 ThermoEngine::ThermoEngine(const std::string filename)
-    : pimpl(new Impl(*(new const Database(filename))))
+    : pimpl()
 {
+    Database db(filename);
+    pimpl.reset(new Impl(db));
 }
 
 ThermoEngine::ThermoEngine(const Database &database)

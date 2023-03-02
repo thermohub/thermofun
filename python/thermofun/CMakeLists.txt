@@ -11,11 +11,22 @@ set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 # Configure the setup.py script with the provided CMake variables
 configure_file(${SETUP_PY_IN} ${SETUP_PY})
 
+# https://www.scivision.dev/cmake-install-python-package/
+# https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
+# detect virtualenv and set Pip args accordingly
+if(DEFINED ENV{VIRTUAL_ENV} OR DEFINED ENV{CONDA_PREFIX})
+  set(_PIP_ARG)
+else()
+  set(_PIP_ARG "--user")
+endif()
+#message(STATUS "_PIP_ARG: ${_PIP_ARG}")
+
 # Create a custom target to build thermofun python package during build stage
 add_custom_target(thermofun ALL
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:PyThermoFun> 
         ${CMAKE_CURRENT_BINARY_DIR}/$<TARGET_FILE_NAME:PyThermoFun>
-    COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} --quiet install --prefix=${CMAKE_BINARY_DIR}
+    #COMMAND ${PYTHON_EXECUTABLE} -m pip install ${_PIP_ARG} -e ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} -m pip install --prefix ${CMAKE_BINARY_DIR} --ignore-installed .
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # Set dependencies of thermofun target
@@ -43,7 +54,7 @@ install(CODE
     endif()
 
     execute_process(
-        COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=\${THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE}
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install --prefix \${THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE} ${CMAKE_CURRENT_BINARY_DIR}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
 )
