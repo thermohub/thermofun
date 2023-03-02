@@ -22,7 +22,7 @@ struct ElectroPropertiesSolvent;
 struct PropertiesSolvent;
 
 /**
- * @brief The Thermo class mainly calculates the thermodynamic properties of the substances
+ * @brief The ThermoEngine class calculates the thermodynamic properties of the substances
  * from the internal database. It also calculates the electro-chemical and other physico-chemical
  * properties of the solvent
  */

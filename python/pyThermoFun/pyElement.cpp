@@ -31,7 +31,7 @@ namespace ThermoFun {
 
 void exportElement(py::module& m)
 {
-    py::class_<Element>(m, "Element")
+    py::class_<Element>(m, "Element", "A type used to describe an element")
         .def(py::init<>())
         .def(py::init<const Element&>())
         .def(py::init<std::string>())

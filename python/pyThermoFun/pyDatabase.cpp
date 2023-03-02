@@ -54,9 +54,9 @@ void exportDatabase(py::module& m)
     auto setReaction2 = static_cast<void(Database::*)(const Reaction&)>(&Database::setReaction);
 
 
-    py::class_<Database>(m, "Database")
+    py::class_<Database>(m, "Database", "Stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P")
         .def(py::init<>())
-        .def(py::init<const std::string>())
+        .def(py::init<const std::string>(), "constructor using a JSON string with the thermofun database format")
         .def(py::init<const Database&>())
         .def("appendData", appendData1, "Append records to the database from a file.")
         .def("appendData", appendData2, "Append records of given type (elements, substances, reactions) to the database from a list of JSON strings.")
