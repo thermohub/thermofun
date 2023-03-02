@@ -1,3 +1,4 @@
+
 # Recursively collect all header files from the current directory
 file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 
@@ -24,8 +25,6 @@ add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 # Link ThermoFun against all required dependencies
 target_link_libraries(ThermoFun
     PUBLIC ChemicalFun::ChemicalFun
- #   PUBLIC spdlog::spdlog
-    PRIVATE nlohmann_json::nlohmann_json
 )
 
 # Specify the include directories of the library target
