@@ -23,14 +23,14 @@ public:
 
     /**
      * @brief toCSV write results to CSV file
-     * with substances/reactions on rows and proeprties on columns
+     * with substances/reactions on rows and properties on columns
      * @param filename
      */
     auto toCSV                  (std::string filename) -> void;
 
     /**
      * @brief toCSVTransposed write results to CSV file in a special transposed format.
-     * with substances/reactions on columns and proeprties on rows
+     * with substances/reactions on columns and properties on rows
      * @param filename
      */
     auto toCSVTransposed        (std::string filename) -> void;

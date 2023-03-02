@@ -45,10 +45,10 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportReaction(m);
     exportElement(m);
 
-    m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of avialable substance methods.");
-    m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of avialable reaction methods.");
+    m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of available substance methods.");
+    m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of available reaction methods.");
     m.def("availablePropertiesSubstance", availablePropertiesSubstance, "list of available properties to calculate for a substance record.");
     m.def("availablePropertiesReaction", availablePropertiesReaction, "list of available properties to calculate for a reaction record.");
-    m.def("update_loggers", &update_loggers, "update log, default parameters (False, \"thermofun.log\", 2) ");
-    m.def("clear_loggers", &clear_loggers,"clear log, default parameters (False, \"thermofun.log\", 2) ");
+    m.def("update_loggers", &update_loggers, "update log, default parameters (False, \"thermofun.log\", 2), logging levels:  trace = 0, debug = 1, info = 2, warn = 3, err = 4, critical = 5, off = 6 ");
+    m.def("clear_loggers", &clear_loggers,"clear log, default parameters (False, \"thermofun.log\", 2),  trace = 0, debug = 1, info = 2, warn = 3, err = 4, critical = 5, off = 6 ");
 }

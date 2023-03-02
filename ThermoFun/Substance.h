@@ -17,10 +17,10 @@ struct ThermoParametersSubstance;
 class Substance
 {
 public:
-    /// Constrcut a default Substance instance
+    /// Construct a default Substance instance
     Substance();
 
-    /// Constrcut a Substance instance from a JSON string
+    /// Construct a Substance instance from a JSON string
     Substance(std::string jsonSubstance);
     
     /// Construct a copy of an Substance instance
