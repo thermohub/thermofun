@@ -3,7 +3,10 @@ Linux, OSX, Windows
 
 [![Build Status](https://dev.azure.com/mirondanro/thermohub/_apis/build/status/thermohub.thermofun?branchName=master)](https://dev.azure.com/mirondanro/thermohub/_build/latest?definitionId=9&branchName=master)
 
-A code for calculating the standard state thermodynamic properties of substances and reactions at a given temperature and pressure.
+A code for calculating the standard state thermodynamic properties of substances and reactions at a given temperature and pressure. 
+
+If you use it in your work please cite the JOSS publication 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04624/status.svg)](https://doi.org/10.21105/joss.04624)
 
 - [Code documentation](https://docs.hdoc.io/dmiron/thermofun/?target=_blank)
 - [Simple C++ API example](#simple-c-api-example)
