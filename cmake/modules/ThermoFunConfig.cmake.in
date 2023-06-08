@@ -9,5 +9,9 @@ if(NOT TARGET ThermoFun::ThermoFun)
     include("@PACKAGE_THERMOFUN_INSTALL_CONFIGDIR@/ThermoFunTargets.cmake")
 endif()
 
+# Find all dependencies below.
+find_package(ChemicalFun REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+
 # Recommended check at the end of a cmake config file.
 check_required_components(ThermoFun)
