@@ -35,7 +35,7 @@ More information on Jupyter Notebooks: [Jupyter Documentation](https://jupyter.r
 int main()
 {
     // Create the batch object using a database file in JSON
-    ThermoFun::Batch batch("Resources/Databases/aq17-thermofun.json");
+    ThermoFun::ThermoBatch batch("Resources/Databases/aq17-thermofun.json");
 
     // Optional: set units, default units are in SI
     batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
@@ -71,7 +71,7 @@ int main()
     ThermoFun::Database db(dbc.getDatabase('aq17'));
 
     // Initialize an batch object using the database
-    ThermoFun::Batch batch (db);
+    ThermoFun::ThermoBatch batch (db);
 
     // Optional set calculation and output preferences
     ThermoFun::OutputSettings op;
