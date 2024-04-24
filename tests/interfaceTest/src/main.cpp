@@ -1,4 +1,5 @@
-    #include "ThermoFun.h"
+#include <iostream>
+#include "ThermoFun.h"
 #include "ChemicalFun/FormulaParser.h"
 #include "GlobalVariables.h"
 //#include "ThermoFun/Common/ThermoScalar.hpp"

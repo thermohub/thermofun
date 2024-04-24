@@ -46,16 +46,14 @@ struct Database::Impl
     {
         //jsonio::FJson file (filename);
         //type_ = file.Type();
-        fromFile( filename );
-        if (elements_map.size()>0)
-            setDBElements( elements_map );
+        fromFile(filename);
+        setDBElements(elements_map);
     }
 
     Impl(std::vector<std::string> jsons, std::string _label)
     {
         fromJSONs(jsons, _label);
-        if (elements_map.size()>0)
-            setDBElements( elements_map );
+        setDBElements(elements_map);
     }
 
     template<typename Key, typename Value>
@@ -68,15 +66,18 @@ struct Database::Impl
         return collection;
     }
 
-    auto setDBElements(ElementsMap elements ) -> void
+    auto setDBElement(Element& element) -> void
+    {
+        ChemicalFun::ElementValues eldata;
+        auto elkey = element.toElementKey(eldata);
+        all_elements.addElement(elkey, eldata);
+    }
+
+    auto setDBElements(ElementsMap elements) -> void
     {
         thfun_logger->debug("Database::setDBElements() elements {}", elements.size());
-
-        ChemicalFun::ElementValues eldata;
-        for (auto& e : elements)
-        {
-            auto elkey = e.second.toElementKey(eldata);
-            all_elements.addElement(elkey, eldata);
+        for (auto& e : elements) {
+            setDBElement(e.second);
         }
     }
 
@@ -91,12 +92,14 @@ struct Database::Impl
     auto addElement(const Element& element) -> void
     {
         elements_map.insert({element.symbol(), element});
+        setDBElement(elements_map[element.symbol()]);
     }
 
     auto setElement(const Element& element) -> void
     {
         checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map[element.symbol()] = element;
+        setDBElement(elements_map[element.symbol()]);
     }
 
     auto addSubstance(const Substance& substance) -> void
@@ -113,6 +116,7 @@ struct Database::Impl
     auto addMapElements(const ElementsMap& elements) -> void
     {
         elements_map = elements;
+        setDBElements(elements_map);
     }
 
     auto addMapSubstances(const SubstancesMap& substances) -> void
@@ -531,7 +535,7 @@ auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Ele
     std::map<Element, double> map;
     ChemicalFun::FormulaToken formula(formula_);
     // ??? Do we need props, do not save
-    auto props = formula.properties(pimpl->all_elements.elements());
+    //auto props = formula.properties(pimpl->all_elements.elements());
 
     for (const auto& element : formula.getStoichCoefficients())
     {
