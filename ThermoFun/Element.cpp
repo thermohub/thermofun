@@ -206,7 +206,7 @@ ChemicalFun::ElementKey Element::toElementKey(ChemicalFun::ElementValues &eldata
     eldata.number = number();
     eldata.name = symbol(); // was e.name();
 
-    return ChemicalFun::ElementKey(symbol(), class_(), isotopeMass() );
+    return ChemicalFun::ElementKey(symbol(), class_(), isotopeMass());
 }
 
 auto operator<(const Element& lhs, const Element& rhs) -> bool

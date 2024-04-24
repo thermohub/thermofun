@@ -166,6 +166,15 @@ public:
     /// Return a reactions in the database
     auto getReaction(std::string symbol) const -> const Reaction&;
 
+    /// Reference to the element in the database
+    auto element(std::string symbol) -> Element&;
+
+    /// Reference to the substance in the database
+    auto substance(std::string symbol) -> Substance&;
+
+    /// Reference to the reaction in the database
+    auto reaction(std::string symbol) -> Reaction&;
+
     /// Check if the database contains a given element
     /// @param symbol The name of the element
     auto containsElement(std::string symbol) const -> bool;

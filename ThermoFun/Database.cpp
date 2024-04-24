@@ -170,28 +170,70 @@ struct Database::Impl
         return reactions_map.size();
     }
 
-    auto getElement(std::string symbol) -> Element&
+    auto getElement(std::string symbol) -> const Element&
     {
-        if(elements_map.count(symbol) == 0)
+        if(!containsElement(symbol)) {
             errorNonExistent("element", symbol, __LINE__);
-
-        return elements_map.find(symbol)->second;
+        }
+        return elements_map[symbol];
     }
 
-    auto getSubstance(std::string symbol) -> Substance&
+    auto getSubstance(std::string symbol) -> const Substance&
     {
-        if(substances_map.count(symbol) == 0)
+        if(!containsSubstance(symbol)) {
             errorNonExistent("substance", symbol, __LINE__);
-
-        return substances_map.find(symbol)->second;
+        }
+        return substances_map[symbol];
     }
 
-    auto getReaction(std::string symbol) -> Reaction&
+    auto getReaction(std::string symbol) -> const Reaction&
     {
-        if(reactions_map.count(symbol) == 0)
+        if(!containsReaction(symbol)) {
             errorNonExistent("reaction", symbol, __LINE__);
+        }
+        return reactions_map[symbol];
+    }
 
-        return reactions_map.at(symbol);
+    auto element(std::string symbol) -> Element&
+    {
+        if(!containsElement(symbol)) { // try restore data from defaults
+            auto el_key =ChemicalFun::ElementKey(symbol,0);
+            Element empty_element;
+            if( all_elements.elements().find(el_key) != all_elements.elements().end()) {
+                empty_element = elementKeyToElement(el_key);
+            }
+            else {
+                empty_element.setSymbol(symbol);
+                empty_element.setName(symbol);
+            }
+            elements_map[symbol] = empty_element;
+        }
+        return elements_map[symbol];
+    }
+
+    auto substance(std::string symbol) -> Substance&
+    {
+        if(!containsSubstance(symbol)) {
+            Substance empty_subst;
+            empty_subst.setSymbol(symbol);
+            empty_subst.setName(symbol);
+            // ... set other default data
+            substances_map[symbol]=empty_subst;
+        }
+        return substances_map[symbol];
+    }
+
+    auto reaction(std::string symbol) -> Reaction&
+    {
+        if(!containsReaction(symbol))
+        {
+            Reaction empty_react;
+            empty_react.setSymbol(symbol);
+            empty_react.setName(symbol);
+            // ... set other default data
+            reactions_map[symbol]=empty_react;
+        }
+        return reactions_map[symbol];
     }
 
     auto mapElements() -> ElementsMap&
@@ -469,6 +511,22 @@ auto Database::getReaction(std::string symbol) const -> const Reaction&
 {
     return pimpl->getReaction(symbol);
 }
+
+auto Database::element(std::string symbol) -> Element&
+{
+    return pimpl->element(symbol);
+}
+
+auto Database::substance(std::string symbol) -> Substance&
+{
+    return pimpl->substance(symbol);
+}
+
+auto Database::reaction(std::string symbol) -> Reaction&
+{
+    return pimpl->reaction(symbol);
+}
+
 
 auto Database::mapElements() const -> const ElementsMap&
 {
