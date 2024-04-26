@@ -208,6 +208,8 @@ auto operator>(const Substance& lhs, const Substance& rhs) -> bool;
 /// Compare two Substance instances for equality
 auto operator==(const Substance& lhs, const Substance& rhs) -> bool;
 
+auto operator<<(std::ostream& stream, const Substance& subst) -> std::ostream&;
+
 } // namespace ThermoFun
 
 #endif // SUBSTANCE_H

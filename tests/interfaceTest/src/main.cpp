@@ -62,8 +62,23 @@
 
       // Test
       Database db("mines16-thermofun.json");
-      auto test = db.getSubstance("O2");
+      std::cout << "Elements \n" << db.getElementsList() << endl;
+      std::cout << "Substances \n" << db.getSubstancesList() << endl;
+      std::cout << "Reactions \n" << db.getReactionsList() << endl;
 
+      auto elment = db.getElement("O"); // ZrCl+3
+      std::cout << elment << endl;
+
+      auto sbst = db.getSubstance("O2");
+      std::cout << sbst << endl;
+
+      auto react = db.getReaction("ZrCl+3");
+      std::cout << react << endl;
+
+      //std::cout << db.getElements() << endl;
+      //std::cout << db.getSubstances() << endl;
+      //std::cout << db.getReactions() << endl;
+      return 0;
       ThermoEngine engine("aq17-thermofun.json");
 
       //engine.appendData("append-thermofun.json");

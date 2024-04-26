@@ -558,6 +558,38 @@ auto Database::getReactions() const -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
+/// Return all elements in the database
+auto Database::getElementsList() const -> std::vector<std::string>
+{
+   std::vector<std::string> list;
+   for(const auto& item: pimpl->elements_map) {
+      list.push_back(item.first);
+   }
+   return list;
+}
+
+/// Return all substances in the database
+auto Database::getSubstancesList() const -> std::vector<std::string>
+{
+   std::vector<std::string> list;
+   for(const auto& item: pimpl->substances_map) {
+      list.push_back(item.first);
+   }
+   return list;
+}
+
+/// Return all reactions in the database
+auto Database::getReactionsList() const -> std::vector<std::string>
+{
+   std::vector<std::string> list;
+   for(const auto& item: pimpl->reactions_map) {
+      list.push_back(item.first);
+   }
+   return list;
+}
+
+
+
 auto Database::numberOfElements() const -> size_t
 {
     return pimpl->numberOfElements();

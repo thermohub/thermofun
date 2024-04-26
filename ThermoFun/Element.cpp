@@ -1,6 +1,8 @@
 #include "Element.h"
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/ParseJsonToData.h"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 namespace ThermoFun {
 
@@ -264,5 +266,23 @@ auto operator==(const Element& lhs, const Element& rhs) -> bool
            (lhs.class_()        == rhs.class_()) &&
            (lhs.isotopeMass()   == rhs.isotopeMass());
 }
+
+
+auto operator<<(std::ostream& stream, const Element& element) -> std::ostream&
+{
+    stream << "Element(\n";
+    stream << "    name: " << element.name() << "\n";
+    stream << "    symbol: " << element.symbol() << "\n";
+    stream << "    molarMass: " << element.molarMass() << "\n";
+    stream << "    entropy: " << element.entropy() << "\n";
+    stream << "    heatCapacity: " << element.heatCapacity() << "\n";
+    stream << "    volume: " << element.volume() << "\n";
+    stream << "    valence: " << element.valence() << "\n";
+    stream << "    class: " << element.class_() << "\n";
+    stream << "    isotopeMass: " << element.isotopeMass() << "\n";
+    stream << "    number: " << element.number() << "\n)" << std::endl;
+    return stream;
+}
+
 
 } // namespace ThermoFun
