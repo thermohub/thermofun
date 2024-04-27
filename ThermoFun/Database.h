@@ -139,13 +139,13 @@ public:
     /// Return all reactions in the database
     auto getReactions() const -> std::vector<Reaction>;
 
-    /// Return all elements in the database
+    /// Return list of all elements in the database
     auto getElementsList() const -> std::vector<std::string>;
 
-    /// Return all substances in the database
+    /// Return list of all substances in the database
     auto getSubstancesList() const -> std::vector<std::string>;
 
-    /// Return all reactions in the database
+    /// Return list og all reactions in the database
     auto getReactionsList() const -> std::vector<std::string>;
 
     /// Returns the map of elements in the database

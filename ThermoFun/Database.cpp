@@ -558,7 +558,7 @@ auto Database::getReactions() const -> std::vector<Reaction>
     return pimpl->getReactions();
 }
 
-/// Return all elements in the database
+// Return all elements in the database
 auto Database::getElementsList() const -> std::vector<std::string>
 {
    std::vector<std::string> list;
@@ -568,7 +568,7 @@ auto Database::getElementsList() const -> std::vector<std::string>
    return list;
 }
 
-/// Return all substances in the database
+// Return all substances in the database
 auto Database::getSubstancesList() const -> std::vector<std::string>
 {
    std::vector<std::string> list;
@@ -578,7 +578,7 @@ auto Database::getSubstancesList() const -> std::vector<std::string>
    return list;
 }
 
-/// Return all reactions in the database
+// Return all reactions in the database
 auto Database::getReactionsList() const -> std::vector<std::string>
 {
    std::vector<std::string> list;

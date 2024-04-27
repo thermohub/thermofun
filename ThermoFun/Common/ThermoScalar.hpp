@@ -21,7 +21,6 @@
 
 // C++ includes
 #include <cmath>
-#include <vector>
 #include <map>
 #include <string>
 

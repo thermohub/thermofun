@@ -1,8 +1,7 @@
+#include <iostream>
 #include "Element.h"
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/ParseJsonToData.h"
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 namespace ThermoFun {
 

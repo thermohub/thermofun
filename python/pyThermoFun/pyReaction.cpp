@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #if _MSC_VER >= 1929
 #include <corecrt.h>
 #endif
@@ -71,6 +72,7 @@ void exportReaction(py::module& m)
         .def("method_T", &Reaction::method_T,"Return the temperature correction method code")
         .def("method_P", &Reaction::method_P,"Return the pressure correction method code")
         .def("jsonString", &Reaction::jsonString, "Return the record as a json string")
+        .def("__str__", [](const Reaction& self) { std::stringstream ss; ss << self; return ss.str(); })
         ;
 }
 

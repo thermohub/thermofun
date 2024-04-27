@@ -10,9 +10,6 @@ if [ ! -f $HOME/miniconda/bin/conda ]; then
 fi
 bash $HOME/miniconda/etc/profile.d/conda.sh
 export PATH=$HOME/miniconda/bin/:$PATH
-conda config --set ssl_verify False
-# Run conda commands with SSL disabled
-# conda config --set ssl_verify True
 conda config --set always_yes yes --set changeps1 no
 conda config --add channels conda-forge
 conda install conda-devenv

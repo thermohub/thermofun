@@ -63,17 +63,32 @@
       // Test
       Database db("mines16-thermofun.json");
       std::cout << "Elements \n" << db.getElementsList() << endl;
-      std::cout << "Substances \n" << db.getSubstancesList() << endl;
-      std::cout << "Reactions \n" << db.getReactionsList() << endl;
+      //std::cout << "Substances \n" << db.getSubstancesList() << endl;
+      //std::cout << "Reactions \n" << db.getReactionsList() << endl;
 
-      auto elment = db.getElement("O"); // ZrCl+3
+      auto elment = db.getElement("O");
       std::cout << elment << endl;
+      elment.setValence(ChemicalFun::DBElements::defaultValence("O"));
+      std::cout << elment << endl;
+      std::cout << db.getElement("O") << endl;
+
+      auto& elment_ref = db.element("H");
+      std::cout << elment_ref << endl;
+      elment_ref.setValence(ChemicalFun::DBElements::defaultValence("H"));
+      std::cout << elment_ref << endl;
+      std::cout << db.getElement("H") << endl;
+
+      auto& elment_new = db.element("Ir");  // get from defaults
+      std::cout << elment_new << endl;
+
+      auto& elment_empty = db.element("Ac");  // get from defaults
+      std::cout << elment_empty << endl;
 
       auto sbst = db.getSubstance("O2");
-      std::cout << sbst << endl;
+      //std::cout << sbst << endl;
 
       auto react = db.getReaction("ZrCl+3");
-      std::cout << react << endl;
+      //std::cout << react << endl;
 
       //std::cout << db.getElements() << endl;
       //std::cout << db.getSubstances() << endl;
