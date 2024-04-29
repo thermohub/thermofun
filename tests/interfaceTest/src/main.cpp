@@ -77,6 +77,7 @@
       elment_ref.setValence(ChemicalFun::DBElements::defaultValence("H"));
       std::cout << elment_ref << endl;
       std::cout << db.getElement("H") << endl;
+      std::cout << db.getElement("H").valence() << endl;
 
       auto& elment_new = db.element("Ir");  // get from defaults
       std::cout << elment_new << endl;
