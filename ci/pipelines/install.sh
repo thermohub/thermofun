@@ -14,6 +14,7 @@ conda config --set always_yes yes --set changeps1 no
 conda config --add channels conda-forge
 conda install conda-devenv
 conda update -q conda
+conda config --set ssl_verify false || exit 1
 conda info -a
 conda devenv
 source activate thermofun
