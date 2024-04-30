@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #if _MSC_VER >= 1929
 #include <corecrt.h>
 #endif
@@ -78,6 +79,9 @@ void exportDatabase(py::module& m)
         .def("getElements", &Database::getElements, "Return all elements in the database")
         .def("getSubstances", &Database::getSubstances, "Return all substances in the database")
         .def("getReactions", &Database::getReactions, "Return all reactions in the database")
+        .def("getElementsList", &Database::getElementsList, "List of all elements in the database")
+        .def("getSubstancesList", &Database::getSubstancesList, "List of all substances in the database")
+        .def("getReactionsList", &Database::getReactionsList, "List of all reactions in the database")
         .def("mapElements", &Database::mapElements, "Returns the map of elements in the database")
         .def("mapSubstances", &Database::mapSubstances, "Returns the map of substances in the database")
         .def("mapReactions", &Database::mapReactions, "Returns the map of reactions in the database")
@@ -87,10 +91,14 @@ void exportDatabase(py::module& m)
         .def("getElement", &Database::getElement, "Return a element in the database")
         .def("getSubstance", &Database::getSubstance, "Return a substance in the database")
         .def("getReaction", &Database::getReaction, "Return a reactions in the database")
+        .def("element", &Database::element, py::return_value_policy::reference, "Reference to the element in the database")
+        .def("substance", &Database::substance, py::return_value_policy::reference, "Reference to the substance in the database")
+        .def("reaction", &Database::reaction, py::return_value_policy::reference, "Reference to the reaction in the database")
         .def("containsElement", &Database::containsElement, "Check if the database contains a given element")
         .def("containsSubstance", &Database::containsSubstance, "Check if the database contains a given substance")
         .def("containsReaction", &Database::containsReaction, "Check if the database contains a given reaction")
         .def("parseSubstanceFormula", &Database::parseSubstanceFormula, "Parses a given substance formula present in the database")
+        .def("__str__", [](const Database& self) { std::stringstream ss; ss << self.getElements(); ss << self.getSubstances(); ss << self.getReactions(); return ss.str(); })
         ;
 }
 

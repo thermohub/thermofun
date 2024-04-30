@@ -172,6 +172,8 @@ private:
 
 };
 
+auto operator<<(std::ostream& stream, const Reaction& react) -> std::ostream&;
+
 } // namespace ThermoFun
 
 #endif // REACTION_H
