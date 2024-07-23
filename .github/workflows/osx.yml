@@ -18,7 +18,7 @@ jobs:
       fail-fast: true
       max-parallel: 4
       matrix:
-        os: ["macOS-13"]
+        os: ["macos-13"]
         python-version: [3.9]
         config: ["Release"]
 
@@ -46,24 +46,20 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
+          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          miniforge-version: latest
-
-      - shell: bash -el {0}
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+          channels: conda-forge
+          channel-priority: true
 
       - name: Configuring Conda Environment
-        shell: bash -el {0}
+        shell: bash -l {0}
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          mamba install conda-devenv
-          conda devenv -e mamba
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
 
       - name: Building, Testing & Installing ThermoFun
         shell: bash -l {0}
