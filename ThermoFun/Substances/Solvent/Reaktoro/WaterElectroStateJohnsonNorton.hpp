@@ -27,6 +27,6 @@ struct WaterElectroState;
 struct WaterThermoState;
 
 // Calculate the electrostatic state of water using the model of Johnson and Norton (1991)
-auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, const WaterThermoState& wts) -> WaterElectroState;
+auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, const WaterThermoState& wts, int state=-1) -> WaterElectroState;
 
 } // namespace Reaktoro
