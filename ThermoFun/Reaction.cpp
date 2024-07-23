@@ -519,7 +519,73 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
 //    setThermoParameters(th_param);
 }
 
+auto operator<<(std::ostream& stream, const ThermoPropertiesReaction& data) -> std::ostream&
+{
+    stream << "( " << data.ln_equilibrium_constant << ", " << data.log_equilibrium_constant << ", "
+           << data.reaction_gibbs_energy << ", "<< data.reaction_helmholtz_energy << ", "
+           << data.reaction_internal_energy << ", "<< data.reaction_enthalpy << ", "
+           << data.reaction_entropy << ", "<< data.reaction_volume << ", "
+           << data.reaction_heat_capacity_cp << ", "<< data.reaction_heat_capacity_cv << " )";
+    return stream;
+}
 
+auto operator<<(std::ostream& stream, const ThermoParametersReaction& data) -> std::ostream&
+{
+    if( !data.temperature_intervals.empty() ) {
+        stream << "        temperature_intervals: " << data.temperature_intervals << "\n";
+    }
+    if( !data.pressure_intervals.empty() ) {
+        stream << "        pressure_intervals: " << data.pressure_intervals << "\n";
+    }
+    if( !data.reaction_logK_fT_coeff.empty() ) {
+        stream << "        reaction_logK_fT_coeff: " << data.reaction_logK_fT_coeff << "\n";
+    }
+    if( !data.logK_TP_array.empty() ) {
+        stream << "        logK_TP_array: " << data.logK_TP_array << "\n";
+    }
+    if( !data.reaction_Cp_fT_coeff.empty() ) {
+        stream << "        reaction_Cp_fT_coeff: " << data.reaction_Cp_fT_coeff << "\n";
+    }
+    if( !data.reaction_V_fT_coeff.empty() ) {
+        stream << "        reaction_V_fT_coeff: " << data.reaction_V_fT_coeff << "\n";
+    }
+    if( !data.reaction_RB_coeff.empty() ) {
+        stream << "        reaction_RB_coeff: " << data.reaction_RB_coeff << "\n";
+    }
+    if( !data.reaction_RB_coeff.empty() ) {
+        stream << "        reaction_RB_coeff: " << data.reaction_RB_coeff << "\n";
+    }
+    if( !data.reaction_FM_coeff.empty() ) {
+        stream << "        reaction_FM_coeff: " << data.reaction_FM_coeff << "\n";
+    }
+    if( !data.reaction_DM10_coeff.empty() ) {
+        stream << "        reaction_DM10_coeff: " << data.reaction_DM10_coeff << "\n";
+    }
+    return stream;
+}
+
+auto operator<<(std::ostream& stream, const Reaction& react) -> std::ostream&
+{
+    stream << "Reaction(\n";
+    stream << "    name: " << react.name() << "\n";
+    stream << "    symbol: " << react.symbol() << "\n";
+    stream << "    equation: " << react.equation() << "\n";
+    stream << "    reactants: ";
+    stream << std::string("[ ");
+    for(const auto& val: react.reactants()) {
+        stream << "( " << val.first << " : " << val.second << " ) ";
+    }
+    stream << std::string("]\n");
+    stream << "    thermoReferenceProperties: " << react.thermoReferenceProperties() << "\n";
+    stream << "    thermo_ref_prop: " << react.thermo_ref_prop() << "\n";
+    stream << "    thermoParameters: \n" << react.thermoParameters();
+    stream << "    T: ( " << react.referenceT() << ", " << react.lowerT() << ", " << react.upperT() << " )\n";
+    stream << "    P: ( " << react.referenceP() << ", " << react.lowerP() << ", " << react.upperP() << " )\n";
+    stream << "    methodGenEOS: " << react.methodGenEOS() << "\n";
+    stream << "    method_T: " << react.method_T() << "\n";
+    stream << "    method_P: " << react.method_P() << "\n)" << std::endl;
+    return stream;
+}
 
 } // namespace ThermoFun
 

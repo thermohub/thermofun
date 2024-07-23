@@ -120,6 +120,8 @@ auto operator<(const Element& lhs, const Element& rhs) -> bool;
 /// Compare two Element instances for equality
 auto operator==(const Element& lhs, const Element& rhs) -> bool;
 
+auto operator<<(std::ostream& stream, const Element& element) -> std::ostream&;
+
 } // namespace ThermoFun
 
 #endif // ELEMENT_H

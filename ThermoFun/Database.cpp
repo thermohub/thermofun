@@ -46,16 +46,14 @@ struct Database::Impl
     {
         //jsonio::FJson file (filename);
         //type_ = file.Type();
-        fromFile( filename );
-        if (elements_map.size()>0)
-            setDBElements( elements_map );
+        fromFile(filename);
+        setDBElements(elements_map);
     }
 
     Impl(std::vector<std::string> jsons, std::string _label)
     {
         fromJSONs(jsons, _label);
-        if (elements_map.size()>0)
-            setDBElements( elements_map );
+        setDBElements(elements_map);
     }
 
     template<typename Key, typename Value>
@@ -68,15 +66,18 @@ struct Database::Impl
         return collection;
     }
 
-    auto setDBElements(ElementsMap elements ) -> void
+    auto setDBElement(Element& element) -> void
+    {
+        ChemicalFun::ElementValues eldata;
+        auto elkey = element.toElementKey(eldata);
+        all_elements.addElement(elkey, eldata);
+    }
+
+    auto setDBElements(ElementsMap elements) -> void
     {
         thfun_logger->debug("Database::setDBElements() elements {}", elements.size());
-
-        ChemicalFun::ElementValues eldata;
-        for (auto& e : elements)
-        {
-            auto elkey = e.second.toElementKey(eldata);
-            all_elements.addElement(elkey, eldata);
+        for (auto& e : elements) {
+            setDBElement(e.second);
         }
     }
 
@@ -91,12 +92,14 @@ struct Database::Impl
     auto addElement(const Element& element) -> void
     {
         elements_map.insert({element.symbol(), element});
+        setDBElement(elements_map[element.symbol()]);
     }
 
     auto setElement(const Element& element) -> void
     {
         checkIfSymbolExists(elements_map, "element", element.symbol());
         elements_map[element.symbol()] = element;
+        setDBElement(elements_map[element.symbol()]);
     }
 
     auto addSubstance(const Substance& substance) -> void
@@ -113,6 +116,7 @@ struct Database::Impl
     auto addMapElements(const ElementsMap& elements) -> void
     {
         elements_map = elements;
+        setDBElements(elements_map);
     }
 
     auto addMapSubstances(const SubstancesMap& substances) -> void
@@ -166,28 +170,70 @@ struct Database::Impl
         return reactions_map.size();
     }
 
-    auto getElement(std::string symbol) -> Element&
+    auto getElement(std::string symbol) -> const Element&
     {
-        if(elements_map.count(symbol) == 0)
+        if(!containsElement(symbol)) {
             errorNonExistent("element", symbol, __LINE__);
-
-        return elements_map.find(symbol)->second;
+        }
+        return elements_map[symbol];
     }
 
-    auto getSubstance(std::string symbol) -> Substance&
+    auto getSubstance(std::string symbol) -> const Substance&
     {
-        if(substances_map.count(symbol) == 0)
+        if(!containsSubstance(symbol)) {
             errorNonExistent("substance", symbol, __LINE__);
-
-        return substances_map.find(symbol)->second;
+        }
+        return substances_map[symbol];
     }
 
-    auto getReaction(std::string symbol) -> Reaction&
+    auto getReaction(std::string symbol) -> const Reaction&
     {
-        if(reactions_map.count(symbol) == 0)
+        if(!containsReaction(symbol)) {
             errorNonExistent("reaction", symbol, __LINE__);
+        }
+        return reactions_map[symbol];
+    }
 
-        return reactions_map.at(symbol);
+    auto element(std::string symbol) -> Element&
+    {
+        if(!containsElement(symbol)) { // try restore data from defaults
+            auto el_key =ChemicalFun::ElementKey(symbol,0);
+            Element empty_element;
+            if( all_elements.elements().find(el_key) != all_elements.elements().end()) {
+                empty_element = elementKeyToElement(el_key);
+            }
+            else {
+                empty_element.setSymbol(symbol);
+                empty_element.setName(symbol);
+            }
+            elements_map[symbol] = empty_element;
+        }
+        return elements_map[symbol];
+    }
+
+    auto substance(std::string symbol) -> Substance&
+    {
+        if(!containsSubstance(symbol)) {
+            Substance empty_subst;
+            empty_subst.setSymbol(symbol);
+            empty_subst.setName(symbol);
+            // ... set other default data
+            substances_map[symbol]=empty_subst;
+        }
+        return substances_map[symbol];
+    }
+
+    auto reaction(std::string symbol) -> Reaction&
+    {
+        if(!containsReaction(symbol))
+        {
+            Reaction empty_react;
+            empty_react.setSymbol(symbol);
+            empty_react.setName(symbol);
+            // ... set other default data
+            reactions_map[symbol]=empty_react;
+        }
+        return reactions_map[symbol];
     }
 
     auto mapElements() -> ElementsMap&
@@ -466,6 +512,22 @@ auto Database::getReaction(std::string symbol) const -> const Reaction&
     return pimpl->getReaction(symbol);
 }
 
+auto Database::element(std::string symbol) -> Element&
+{
+    return pimpl->element(symbol);
+}
+
+auto Database::substance(std::string symbol) -> Substance&
+{
+    return pimpl->substance(symbol);
+}
+
+auto Database::reaction(std::string symbol) -> Reaction&
+{
+    return pimpl->reaction(symbol);
+}
+
+
 auto Database::mapElements() const -> const ElementsMap&
 {
     return pimpl->mapElements();
@@ -495,6 +557,38 @@ auto Database::getReactions() const -> std::vector<Reaction>
 {
     return pimpl->getReactions();
 }
+
+// Return all elements in the database
+auto Database::getElementsList() const -> std::vector<std::string>
+{
+   std::vector<std::string> list;
+   for(const auto& item: pimpl->elements_map) {
+      list.push_back(item.first);
+   }
+   return list;
+}
+
+// Return all substances in the database
+auto Database::getSubstancesList() const -> std::vector<std::string>
+{
+   std::vector<std::string> list;
+   for(const auto& item: pimpl->substances_map) {
+      list.push_back(item.first);
+   }
+   return list;
+}
+
+// Return all reactions in the database
+auto Database::getReactionsList() const -> std::vector<std::string>
+{
+   std::vector<std::string> list;
+   for(const auto& item: pimpl->reactions_map) {
+      list.push_back(item.first);
+   }
+   return list;
+}
+
+
 
 auto Database::numberOfElements() const -> size_t
 {
@@ -531,7 +625,7 @@ auto Database::parseSubstanceFormula(std::string formula_) const -> std::map<Ele
     std::map<Element, double> map;
     ChemicalFun::FormulaToken formula(formula_);
     // ??? Do we need props, do not save
-    auto props = formula.properties(pimpl->all_elements.elements());
+    //auto props = formula.properties(pimpl->all_elements.elements());
 
     for (const auto& element : formula.getStoichCoefficients())
     {

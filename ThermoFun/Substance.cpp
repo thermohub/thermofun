@@ -364,5 +364,83 @@ auto operator==(const Substance& lhs, const Substance& rhs) -> bool
            (lhs.name()          == rhs.name());
 }
 
+
+auto operator<<(std::ostream& stream, const ThermoPropertiesSubstance& data) -> std::ostream&
+{
+    stream << "( " << data.gibbs_energy << ", " << data.helmholtz_energy << ", "
+           << data.internal_energy << ", "<< data.enthalpy << ", "
+           << data.entropy << ", "<< data.volume << ", "
+           << data.heat_capacity_cp << ", "<< data.heat_capacity_cv << " )";
+    return stream;
+}
+
+auto operator<<(std::ostream& stream, const ThermoParametersSubstance& data) -> std::ostream&
+{
+    stream << "( " << data.isothermal_compresibility << ", " << data.isobaric_expansivity << " )\n";
+    if( !data.temperature_intervals.empty() ) {
+       stream << "        temperature_intervals: " << data.temperature_intervals << "\n";
+    }
+    if( !data.pressure_intervals.empty() ) {
+       stream << "        pressure_intervals: " << data.pressure_intervals << "\n";
+    }
+    if( !data.Cp_coeff.empty() ) {
+       stream << "        Cp_coeff: " << data.Cp_coeff << "\n";
+    }
+    if( !data.Cp_nonElectrolyte_coeff.empty() ) {
+       stream << "        Cp_nonElectrolyte_coeff: " << data.Cp_nonElectrolyte_coeff << "\n";
+    }
+    if( !data.phase_transition_prop.empty() ) {
+       stream << "        phase_transition_prop: " << data.phase_transition_prop << "\n";
+    }
+    if( !data.phase_transition_prop_Berman.empty() ) {
+       stream << "        phase_transition_prop_Berman: " << data.phase_transition_prop_Berman << "\n";
+    }
+    if( !data.m_landau_phase_trans_props.empty() ) {
+       stream << "        m_landau_phase_trans_props: " << data.m_landau_phase_trans_props << "\n";
+    }
+    if( !data.HKF_parameters.empty() ) {
+       stream << "        HKF_parameters: " << data.HKF_parameters << "\n";
+    }
+    if( !data.volume_coeff.empty() ) {
+       stream << "        volume_coeff: " << data.volume_coeff << "\n";
+    }
+    if( !data.critical_parameters.empty() ) {
+       stream << "        critical_parameters: " << data.critical_parameters << "\n";
+    }
+    if( !data.volume_BirchM_coeff.empty() ) {
+       stream << "        volume_BirchM_coeff: " << data.volume_BirchM_coeff << "\n";
+    }
+    if( !data.empirical_coeff.empty() ) {
+       stream << "        empirical_coeff: " << data.empirical_coeff << "\n";
+    }
+    if( !data.solute_holland_powell98_coeff.empty() ) {
+       stream << "        solute_holland_powell98_coeff: " << data.solute_holland_powell98_coeff << "\n";
+    }
+    return stream;
+}
+
+auto operator<<(std::ostream& stream, const Substance& subst) -> std::ostream&
+{
+    stream << "Substance(\n";
+    stream << "    name: " << subst.name() << "\n";
+    stream << "    symbol: " << subst.symbol() << "\n";
+    stream << "    formula: " << subst.formula() << "\n";
+    stream << "    reactionSymbol: " << subst.reactionSymbol() << "\n";
+    stream << "    molarMass: " << subst.molarMass() << "\n";
+    stream << "    T: ( " << subst.referenceT() << ", " << subst.lowerT() << ", " << subst.upperT() << " )\n";
+    stream << "    P: ( " << subst.referenceP() << ", " << subst.lowerP() << ", " << subst.upperP() << " )\n";
+    stream << "    thermoProperties: " << subst.thermoProperties() << "\n";
+    stream << "    thermoParameters: " << subst.thermoParameters();
+    stream << "    thermoReferenceProperties: " << subst.thermoReferenceProperties() << "\n";
+    stream << "    methodGenEOS: " << subst.methodGenEOS() << "\n";
+    stream << "    method_T: " << subst.method_T() << "\n";
+    stream << "    method_P: " << subst.method_P() << "\n";
+    stream << "    substanceClass: " << subst.substanceClass() << "\n";
+    stream << "    thermoCalculationType: " << subst.thermoCalculationType() << "\n";
+    stream << "    aggregateState: " << subst.aggregateState() << "\n";
+    stream << "    charge: " << subst.charge() << "\n)" << std::endl;
+    return stream;
+}
+
 } // namespace ThermoFun
 
