@@ -46,10 +46,8 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          channels: conda-forge
-          channel-priority: true
+          miniforge-version: latest
 
       - name: Configuring Conda Environment
         shell: bash -l {0}
@@ -58,7 +56,7 @@ jobs:
         run: |
           conda config --set always_yes yes --set changeps1 no
           conda config --add channels conda-forge
-          conda install conda-devenv=2
+          conda install conda-devenv
           conda devenv
 
       - name: Building, Testing & Installing ThermoFun
