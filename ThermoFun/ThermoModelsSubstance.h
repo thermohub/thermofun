@@ -47,10 +47,13 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    /// @param tps thermodynamic properties of the substance previosuly corrected with the AD EOS
+    /// @param tps thermodynamic properties of the substance previously corrected with the AD EOS
     /// @param wtp thermodynamic properties of liquid H2O
-    /// @param wigp themrodynamic properties of water in ideal gas state
-    /// @param wp water solvent proeoprties (e.g. density, alpha, beta, etc.)
+    /// @param wigp thermodynamic properties of water in ideal gas state
+    /// @param wp water solvent properties (e.g. density, alpha, beta, etc.)
+    /// @param wtpr thermodynamic properties of liquid H2O at ref T and P
+    /// @param wigpr thermodynamic properties of water in ideal gas state at ref T and P
+    /// @param wpr water solvent properties at ref T and P
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance &wtp, const ThermoPropertiesSubstance &wigp, const PropertiesSolvent& wp, const ThermoPropertiesSubstance &wtpr, const ThermoPropertiesSubstance &wigpr, const PropertiesSolvent &wpr) -> ThermoPropertiesSubstance;
 
 private:

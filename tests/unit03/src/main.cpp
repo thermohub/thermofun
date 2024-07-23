@@ -1,10 +1,15 @@
 #include <iostream>
 #include <fstream>
-#include "Database.h"
-#include "Substance.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoFun_global.h"
-#include "Thermo.h"
+
+#include "ThermoFun/Database.h"
+#include "ThermoFun/Substance.h"
+#include "ThermoFun/ThermoEngine.h"
+#include "ThermoFun/ThermoModelsSubstance.h"
+#include "ThermoFun/ThermoProperties.h"
+#include "ThermoFun/ThermoParameters.h"
+#include "ThermoFun/ThermoModelsSolvent.h"
+#include "ThermoFun/ElectroModelsSolvent.h"
+#include "ThermoFun/GlobalVariables.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -33,7 +38,6 @@ int main(int argc, char *argv[])
     co2.setName("CO2");
     co2.setFormula("CO2@");
     co2.setCharge(0);
-    co2.setSolventSymbol("CO2@");
 
     co2.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     co2.setAggregateState(AggregateState::type::AQUEOUS);
@@ -60,8 +64,9 @@ int main(int argc, char *argv[])
     co2.setThermoParameters(prs);
 
     double T, P;
-    T = 25;
-    P = 1;
+    T = 50+298.15;
+    P = 100*1e5;
+    double Pr = 1e5;
 
     ThermoPropertiesSubstance rCO2, TrPrCO2;
 
@@ -72,8 +77,8 @@ int main(int argc, char *argv[])
     TrPrCO2.heat_capacity_cp = 209.749;
 
     co2.setThermoReferenceProperties(TrPrCO2);
-    co2.setReferenceT(25);
-    co2.setReferenceP(1);
+    co2.setReferenceT(298.15);
+    co2.setReferenceP(1e5);
 
     EmpiricalCpIntegration CpCO2 (co2);
     rCO2 = CpCO2.thermoProperties(T, P);
@@ -81,18 +86,22 @@ int main(int argc, char *argv[])
     WaterIdealGasWoolley wig ( water );
 
     ThermoPropertiesSubstance wigp = wig.thermoProperties(T, P);
+    ThermoPropertiesSubstance wigpr = wig.thermoProperties(298.15, Pr);
 
     PropertiesSolvent wp0 = H2OHGKgems.propertiesSolvent(T, P, 0);
+    PropertiesSolvent wp0r = H2OHGKgems.propertiesSolvent(298.15, Pr, 0);
     PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
 
     ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0);
+ 
+    ThermoPropertiesSubstance wtpr = H2OHGKgems.thermoPropertiesSubstance(298.15, Pr, 0);
 
     SoluteAkinfievDiamondEOS CO2_AD (co2);
 
     ThermoPropertiesSubstance result;
 
-    result = CO2_AD.thermoProperties(T, P, rCO2, wtp, wigp, wp0);
+    result = CO2_AD.thermoProperties(T, P, rCO2, wtp, wigp, wp0, wtpr, wigpr, wp0r );
 
 //    ThermoPropertiesSubstance wp3 = H2OWP95reaktoro.thermoPropertiesSubstance(T, P, 1);
 

@@ -1,11 +1,13 @@
 #include <iostream>
 #include <fstream>
-//#include "tcorrpt.h"
-#include "Database.h"
-#include "Substance.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoFun_global.h"
-#include "Thermo.h"
+#include "ThermoFun/Database.h"
+#include "ThermoFun/Substance.h"
+#include "ThermoFun/ThermoEngine.h"
+#include "ThermoFun/ThermoModelsSubstance.h"
+#include "ThermoFun/ThermoProperties.h"
+#include "ThermoFun/ThermoParameters.h"
+#include "ThermoFun/ThermoModelsSolvent.h"
+#include "ThermoFun/GlobalVariables.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -26,8 +28,8 @@ int main(int argc, char *argv[])
 
     double Tr = 298.15,                  ///< Reference temperature for standard state (usually 298.15 K)
            Pr = 1e05;                  ///< Reference pressure (usually 1 bar or 10^5 Pa, sometimes 1.013 bar = 1 atm)
-    double currentP = 2000,                    ///<
-           currentT = 400;                    ///<
+    double currentP = 2000e5,                    ///<
+           currentT = 473.15;                    ///<
 
    /// END thermo properties ///
 
@@ -88,7 +90,7 @@ int main(int argc, char *argv[])
 
     dtb.addSubstance(corundum);
 
-    Thermo thermo (dtb);
+    ThermoEngine thermo (dtb);
 
     // Test error out of the interval
 //    currentT = 2005;
@@ -101,7 +103,7 @@ int main(int argc, char *argv[])
 // +++ END test CP +++
 
     // +++ Test H2O_HGK +++
-//    #define TEST_H2O_HGK
+    //#define TEST_H2O_HGK
     #ifdef TEST_H2O_HGK
 
     Substance water;
@@ -129,22 +131,23 @@ int main(int argc, char *argv[])
 
     dtb.addSubstance(water);
 
-    Thermo thermo (dtb);
-    result2 = thermo.thermoPropertiesSubstance(25, 1, "water");
+    ThermoEngine thermo (dtb);
+    currentP = 1e5;
+    result2 = thermo.thermoPropertiesSubstance(298.15, currentP, "water");
 
     water.setThermoReferenceProperties(result2);
 
     WaterHGK waterHGK(water);
 
-    result1 = waterHGK.propertiesSolvent(25, 1);
+    result1 = waterHGK.propertiesSolvent(298.15, currentP, 0);
 
-    result3 = thermo.propertiesSolvent(25, 1, "water");
+    result3 = thermo.propertiesSolvent(298.15, currentP, 0);
 
 #endif
 // +++ END test H2O_HGK +++
 
     // +++ Test H2O_HGKreaktoro +++
-//    #define TEST_H2O_HGKreaktoro
+    //#define TEST_H2O_HGKreaktoro
     #ifdef TEST_H2O_HGKreaktoro
 
     Substance water;
@@ -172,8 +175,9 @@ int main(int argc, char *argv[])
 
     dtb.addSubstance(water);
 
-    Thermo thermo (dtb);
-    result2 = thermo.thermoPropertiesSubstance(25, 1, "water");
+    ThermoEngine thermo (dtb);
+    currentP = 1e5;
+    result2 = thermo.thermoPropertiesSubstance(298.15, currentP, "water");
 
     water.setThermoReferenceProperties(result2);
 
@@ -181,7 +185,7 @@ int main(int argc, char *argv[])
 // +++ END test H2O_HGKreaktoro +++
 
     // +++ Test H2O_HGKgems Vs H2O_HGKreaktoro +++
-    #define TEST_H2O_VS
+    //#define TEST_H2O_VS
     #ifdef TEST_H2O_VS
 
     Substance water;
@@ -199,8 +203,8 @@ int main(int argc, char *argv[])
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 100;
-    P = 5000;
+    T = 100+273.15;
+    P = 5000e5;
     ThermoPropertiesSubstance resSubstG, resSubstR;
 
     ElectroPropertiesSolvent resSolvG, resSolvR;
@@ -239,7 +243,7 @@ int main(int argc, char *argv[])
 // +++ END Test H2O_HGKgems Vs H2O_HGKreaktoro +++
 
     // +++ Test H2O_WP95reaktoro Vs H2O_HGKreaktoro +++
-//    #define TEST_H2O_HGK_VS_H2O_WP95
+    //#define TEST_H2O_HGK_VS_H2O_WP95
     #ifdef TEST_H2O_HGK_VS_H2O_WP95
 
     Substance water;
@@ -257,8 +261,8 @@ int main(int argc, char *argv[])
     WaterHGKreaktoro H2OHGKreaktoro ( water );
 
     double T, P;
-    T = 100;
-    P = 5000;
+    T = 100+273.15;
+    P = 5000e5;
     ThermoPropertiesSubstance resWP95, resHGKreak;
 
 //    ElectroPropertiesSolvent resSolvG, resSolvR;

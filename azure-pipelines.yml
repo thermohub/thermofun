@@ -19,7 +19,7 @@ jobs:
 
 - job: macOS
   pool:
-    vmImage: 'macOS-11'
+    vmImage: 'macOS-13'
 
   steps:
   - task: Bash@3

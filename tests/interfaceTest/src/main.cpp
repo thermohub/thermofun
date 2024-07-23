@@ -3,6 +3,9 @@
 #include "ChemicalFun/FormulaParser.h"
 #include "GlobalVariables.h"
 //#include "ThermoFun/Common/ThermoScalar.hpp"
+#include <iostream>
+
+
     using namespace std;
     using namespace ThermoFun;
 
@@ -59,8 +62,33 @@
                                         {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
                                           ).toCSVPropertyGrid("grid.csv");    */                       // output
 
+     // Water solvent
 
-      // Test
+       ThermoEngine engine("aq17-thermofun.json");
+
+       engine.appendData("water-thermofun.json");
+
+       double P = 300e5;
+       double T = 380+273.15;
+
+       auto rho_solvent = engine.propertiesSolvent(T,P, "H2O@", 1).density.val;
+
+       auto eplsilon_solvent = engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val;
+
+       auto rho_solvent2 = engine.propertiesSolvent(T,P, "H2O@", 0).density.val;
+
+       auto eplsilon_solvent2 = engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val;
+
+       auto rho_solvent3 = engine.propertiesSolvent(T,P, "H2O@").density.val;
+
+       auto eplsilon_solvent3 = engine.electroPropertiesSolvent(T,P, "H2O@").epsilon.val;
+
+       std::cout <<"end"<< std::endl;
+
+
+
+      // Test mines add string
+        /*
       Database db("mines16-thermofun.json");
       std::cout << "Elements \n" << db.getElementsList() << endl;
       //std::cout << "Substances \n" << db.getSubstancesList() << endl;
@@ -280,6 +308,8 @@
 
 //      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
 //      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");
+
+*/
 
       return 0;
     }

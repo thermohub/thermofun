@@ -76,7 +76,7 @@ Reaktoro_::ThermoScalar (*k_tt[5])(Reaktoro_::ThermoScalar) = {k0_tt, k1_tt, k2_
 
 } // namespace
 
-auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, /*Pressure P,*/ const WaterThermoState& wt) -> WaterElectroState
+auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, /*Pressure P,*/ const WaterThermoState& wt, int state) -> WaterElectroState
 {
 	WaterElectroState we;
 
