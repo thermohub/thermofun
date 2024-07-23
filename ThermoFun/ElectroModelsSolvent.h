@@ -28,7 +28,8 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param ps structure holding the solvent properties
-    auto electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent;
+    /// @param state The solvent state, 0 liquid, 1 gas/vapor,  default 0
+    auto electroPropertiesSolvent(double T, double P, PropertiesSolvent ps, int state=0) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;
@@ -54,7 +55,8 @@ public:
     /// Return the electro-chemical properties of the solvent.
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
-    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+    /// @param state The solvent state, 0 liquid, 1 gas/vapor,  default 0
+    auto electroPropertiesSolvent(double T, double P, int state=0) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;
@@ -84,7 +86,8 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param ps structure holding the solvent properties
-    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+    /// @param state The solvent state, 0 liquid, 1 gas/vapor,  default -1 determined by the record key "aggregate_state" in the database "4": "AS_AQUEOUS" or "O": "AS_GAS"
+    auto electroPropertiesSolvent(double T, double P, int state = -1) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;
@@ -112,7 +115,8 @@ public:
     /// @param T The temperature value (in units of C)
     /// @param P The pressure value (in units of bar)
     /// @param ps structure holding the solvent properties
-    auto electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent;
+    /// @param state The solvent state, 0 liquid, 1 gas/vapor,  default -1 determined by the record key "aggregate_state" in the database "4": "AS_AQUEOUS" or "O": "AS_GAS"
+    auto electroPropertiesSolvent(double T, double P, int state = -1) -> ElectroPropertiesSolvent;
 
 private:
     struct Impl;

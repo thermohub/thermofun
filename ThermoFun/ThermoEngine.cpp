@@ -14,6 +14,7 @@
 #include "OptimizationUtils.h"
 
 #include <functional>
+#include <iostream>
 
 namespace ThermoFun
 {
@@ -58,10 +59,10 @@ using ThermoPropertiesSubstanceFunction =
     std::function<ThermoPropertiesSubstance(double, double, double &, std::string)>;
 
 using ElectroPropertiesSolventFunction =
-    std::function<ElectroPropertiesSolvent(double, double, double &, std::string)>;
+    std::function<ElectroPropertiesSolvent(double, double, double &, std::string, int)>;
 
 using PropertiesSolventFunction =
-    std::function<PropertiesSolvent(double, double, double &, std::string)>;
+    std::function<PropertiesSolvent(double, double, double &, std::string, int)>;
 
 using ThermoPropertiesReactionFunction =
     std::function<ThermoPropertiesReaction(double, double, double &, std::string)>;
@@ -105,15 +106,15 @@ struct ThermoEngine::Impl
         };
         thermo_properties_substance_fn = memoize(thermo_properties_substance_fn);
 
-        electro_properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol) {
+        electro_properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol, int state) {
             auto x = P_;
-            return electroPropertiesSolvent(T, P, symbol);
+            return electroPropertiesSolvent(T, P, symbol, state);
         };
         electro_properties_solvent_fn = memoize(electro_properties_solvent_fn);
 
-        properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol) {
+        properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol, int state) {
             auto x = P_;
-            return propertiesSolvent(T, P, symbol);
+            return propertiesSolvent(T, P, symbol, state);
         };
         properties_solvent_fn = memoize(properties_solvent_fn);
 
@@ -248,26 +249,26 @@ struct ThermoEngine::Impl
                 }
                 case MethodGenEoS_Thrift::type::CTPM_HKF:
                 {
-                    tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol), electro_properties_solvent_fn(T, P, P, solventSymbol));
+                    tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1), electro_properties_solvent_fn(T, P, P, solventSymbol, -1));
                     break;
                 }
                 case MethodGenEoS_Thrift::type::CTPM_HKFR:
                 {
-                    tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol), electro_properties_solvent_fn(T, P, P, solventSymbol));
+                    tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1), electro_properties_solvent_fn(T, P, P, solventSymbol, -1));
                     break;
                 }
                 case MethodGenEoS_Thrift::type::CTPM_HP98:
                 {
                     double Pr = database.getSubstance(solventSymbol).referenceP();
                     double Tr = database.getSubstance(solventSymbol).referenceT();
-                    tps = SoluteHollandPowell98(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol), properties_solvent_fn(T, P, P, solventSymbol));
+                    tps = SoluteHollandPowell98(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol, -1), properties_solvent_fn(T, P, P, solventSymbol, -1));
                     break;
                 }
                 case MethodGenEoS_Thrift::type::CTPM_AN91:
                 {
                     double Pr = database.getSubstance(solventSymbol).referenceP();
                     double Tr = database.getSubstance(solventSymbol).referenceT();
-                    tps = SoluteAnderson91(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol), properties_solvent_fn(T, P, P, solventSymbol));
+                    tps = SoluteAnderson91(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol, -1), properties_solvent_fn(T, P, P, solventSymbol, -1));
                     break;
                 }
                     //                default:
@@ -302,7 +303,7 @@ struct ThermoEngine::Impl
                 {
                     double Pr = database.getSubstance(solventSymbol).referenceP();
                     double Tr = database.getSubstance(solventSymbol).referenceT();
-                    tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P, solventSymbol), WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P), properties_solvent_fn(T, P, P, solventSymbol), thermo_properties_substance_fn(Tr, Pr, Pr, solventSymbol), WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(Tr, Pr), properties_solvent_fn(Tr, Pr, Pr, solventSymbol));
+                    tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P, solventSymbol), WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P), properties_solvent_fn(T, P, P, solventSymbol, -1), thermo_properties_substance_fn(Tr, Pr, Pr, solventSymbol), WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(Tr, Pr), properties_solvent_fn(Tr, Pr, Pr, solventSymbol, -1));
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CEH:
@@ -433,15 +434,17 @@ struct ThermoEngine::Impl
         return tps;
     }
 
-    auto electroPropertiesSolvent(double T, double &P, std::string solvent) const -> ElectroPropertiesSolvent
+    auto electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
     {
-        return electroPropertiesSolvent(T, P, database.getSubstance(solvent));
+        return electroPropertiesSolvent(T, P, database.getSubstance(solvent), state);
     }
 
-    auto electroPropertiesSolvent(double T, double &P, const Substance &solvent) const -> ElectroPropertiesSolvent
+    auto electroPropertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> ElectroPropertiesSolvent
     {
         ThermoPreferences pref = getThermoPreferencesSubstance(solvent);
-        PropertiesSolvent ps = propertiesSolvent(T, P, solvent);
+        if (state>-1 && state<2)
+            pref.solventState = state;
+        PropertiesSolvent ps = propertiesSolvent(T, P, solvent, pref.solventState);
         ElectroPropertiesSolvent eps;
 
         if (pref.isH2OSolvent)
@@ -450,22 +453,22 @@ struct ThermoEngine::Impl
             {
             case MethodGenEoS_Thrift::type::CTPM_WJNR:
             {
-                eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, ps);
+                eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, ps, pref.solventState);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_WJNG:
             {
-                eps = WaterJNgems(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/);
+                eps = WaterJNgems(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, pref.solventState);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_WSV14:
             {
-                eps = WaterElectroSverjensky2014(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/);
+                eps = WaterElectroSverjensky2014(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, pref.solventState);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_WF97:
             {
-                eps = WaterElectroFernandez1997(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/);
+                eps = WaterElectroFernandez1997(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, pref.solventState);
                 break;
             }
                 //            default:
@@ -476,14 +479,16 @@ struct ThermoEngine::Impl
         return eps;
     }
 
-    auto propertiesSolvent(double T, double &P, std::string solvent) const -> PropertiesSolvent
+    auto propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
     {
-        return propertiesSolvent(T, P, database.getSubstance(solvent));
+        return propertiesSolvent(T, P, database.getSubstance(solvent), state);
     }
 
-    auto propertiesSolvent(double T, double &P, const Substance &solvent) const -> PropertiesSolvent
+    auto propertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> PropertiesSolvent
     {
         ThermoPreferences pref = getThermoPreferencesSubstance(solvent);
+        if (state > -1 && state <2)
+            pref.solventState = state;
         PropertiesSolvent ps;
 
         if (pref.isH2OSolvent)
@@ -625,17 +630,17 @@ struct ThermoEngine::Impl
             }
             case MethodCorrT_Thrift::type::CTM_DMD: // Dolejs-Maning 2010 density model
             {
-                tpr = ReactionDolejsManning10(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
+                tpr = ReactionDolejsManning10(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1));
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
             {
-                tpr = ReactionFrantzMarshall(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol));
+                tpr = ReactionFrantzMarshall(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1));
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
             {
-                return ReactionRyzhenkoBryzgalin(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol)); // NOT TESTED!!!
+                return ReactionRyzhenkoBryzgalin(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1)); // NOT TESTED!!!
             }
             case MethodCorrT_Thrift::type::CTM_IKZ:
             {
@@ -776,14 +781,14 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
     return pimpl->thermo_properties_substance_fn(T, P, P, substance);
 }
 
-auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent) const -> ElectroPropertiesSolvent
+auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
 {
-    return pimpl->electro_properties_solvent_fn(T, P, P, solvent);
+    return pimpl->electro_properties_solvent_fn(T, P, P, solvent, state);
 }
 
-auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent) const -> PropertiesSolvent
+auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
 {
-    return pimpl->properties_solvent_fn(T, P, P, solvent);
+    return pimpl->properties_solvent_fn(T, P, P, solvent, state);
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
@@ -791,14 +796,14 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substanc
     return pimpl->thermoPropertiesSubstance(T, P, substance);
 }
 
-auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance&  solvent) const -> ElectroPropertiesSolvent
+auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> ElectroPropertiesSolvent
 {
-    return pimpl->electroPropertiesSolvent(T, P, solvent);
+    return pimpl->electroPropertiesSolvent(T, P, solvent, state);
 }
 
-auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solvent) const -> PropertiesSolvent
+auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> PropertiesSolvent
 {
-    return pimpl->propertiesSolvent(T, P, solvent);
+    return pimpl->propertiesSolvent(T, P, solvent, state);
 }
 
 // Reaction
