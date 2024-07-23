@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #if _MSC_VER >= 1929
 #include <corecrt.h>
 #endif
@@ -80,6 +81,7 @@ void exportSubstance(py::module& m)
         .def("aggregateState", &Substance::aggregateState, "Return the aggregate state of a substance")
         .def("charge", &Substance::charge, "Return the charge of a substance")
         .def("jsonString", &Substance::jsonString, "Return the record as a json string")
+        .def("__str__", [](const Substance& self) { std::stringstream ss; ss << self; return ss.str(); })
         ;
 }
 

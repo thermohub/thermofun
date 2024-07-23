@@ -139,6 +139,15 @@ public:
     /// Return all reactions in the database
     auto getReactions() const -> std::vector<Reaction>;
 
+    /// Return list of all elements in the database
+    auto getElementsList() const -> std::vector<std::string>;
+
+    /// Return list of all substances in the database
+    auto getSubstancesList() const -> std::vector<std::string>;
+
+    /// Return list og all reactions in the database
+    auto getReactionsList() const -> std::vector<std::string>;
+
     /// Returns the map of elements in the database
     auto mapElements() const -> const ElementsMap&;
 
@@ -165,6 +174,15 @@ public:
 
     /// Return a reactions in the database
     auto getReaction(std::string symbol) const -> const Reaction&;
+
+    /// Reference to the element in the database
+    auto element(std::string symbol) -> Element&;
+
+    /// Reference to the substance in the database
+    auto substance(std::string symbol) -> Substance&;
+
+    /// Reference to the reaction in the database
+    auto reaction(std::string symbol) -> Reaction&;
 
     /// Check if the database contains a given element
     /// @param symbol The name of the element
