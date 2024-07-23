@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.4.3 LANGUAGES CXX)
+project(ThermoFun VERSION 0.4.5 LANGUAGES CXX)
 
 # Set the cmake module path of the project
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -17,7 +17,7 @@ include(GNUInstallDirs)
 if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_SHARED_LIBS          ON)
     set(TFUN_BUILD_STATIC_LIBS          ON)
-#   set(TFUN_BUILD_TESTS                ON)
+    set(TFUN_BUILD_TESTS                OFF)
     set(TFUN_BUILD_PYTHON               ON)
 endif()
 
@@ -100,11 +100,11 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
         DESTINATION ${CMAKE_BINARY_DIR})
 
 # Build the tests
-#if(BUILD_TESTS)
-#    add_subdirectory(tests)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
 #else()
 #    add_subdirectory(tests EXCLUDE_FROM_ALL)
-#endif()
+endif()
 
 # Build python wraper
 if(TFUN_BUILD_PYTHON)

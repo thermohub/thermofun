@@ -42,7 +42,7 @@ auto epsilonF (Reaktoro_::Temperature T, Reaktoro_::ThermoScalar rho) -> Reaktor
 }
 
 
-auto electroPropertiesWaterFernandez1997(/*PropertiesSolvent ps,*/ Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance substance) -> ElectroPropertiesSolvent
+auto electroPropertiesWaterFernandez1997(/*PropertiesSolvent ps,*/ Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance substance, int state) -> ElectroPropertiesSolvent
 {
     ElectroPropertiesSolvent wep;
 
@@ -52,7 +52,7 @@ auto electroPropertiesWaterFernandez1997(/*PropertiesSolvent ps,*/ Reaktoro_::Te
     Reaktoro_::Temperature TK(TC.val + 273.15);
     Reaktoro_::Pressure P(Pbar.val * 1e05);
 
-    auto psol = th.propertiesSolvent(TK.val, P.val, substance.symbol());
+    auto psol = th.propertiesSolvent(TK.val, P.val, substance.symbol(), state);
     const auto RHO = psol.density ;
 
     const auto eps = epsilonF(TK, RHO);
@@ -61,12 +61,12 @@ auto electroPropertiesWaterFernandez1997(/*PropertiesSolvent ps,*/ Reaktoro_::Te
     // numerical approximation of epsilonT and epsilonTT
     Reaktoro_::Temperature T_plus (TC.val+TC.val*0.001);
     Reaktoro_::Temperature TK_plus (T_plus.val + 273.15);
-    auto RHO_plus = th.propertiesSolvent(TK_plus.val, P.val, substance.symbol()).density;
+    auto RHO_plus = th.propertiesSolvent(TK_plus.val, P.val, substance.symbol(), state).density;
     auto eps_plus = epsilonF(TK_plus, RHO_plus);
 
     Reaktoro_::Temperature T_minus (TC.val-TC.val*0.001);
     Reaktoro_::Temperature TK_minus (T_minus.val + 273.15);
-    auto RHO_minus  = th.propertiesSolvent(TK_minus.val, P.val, substance.symbol()).density;
+    auto RHO_minus  = th.propertiesSolvent(TK_minus.val, P.val, substance.symbol(), state).density;
     auto eps_minus = epsilonF(TK_minus, RHO_minus);
 
     const auto epsilonT  = (eps_plus - eps_minus) / ((TK_plus-TK_minus));
@@ -75,12 +75,12 @@ auto electroPropertiesWaterFernandez1997(/*PropertiesSolvent ps,*/ Reaktoro_::Te
     // numerical approximation of epsilonP and epsilonPP
     Reaktoro_::Pressure P_plus (Pbar.val+Pbar.val*0.001);
     Reaktoro_::Pressure P_plusPa (P_plus.val*1e05);
-    RHO_plus = th.propertiesSolvent(TK.val, P_plusPa.val, substance.symbol()).density;
+    RHO_plus = th.propertiesSolvent(TK.val, P_plusPa.val, substance.symbol(), state).density;
     eps_plus = epsilonF(TK, RHO_plus);
 
     Reaktoro_::Pressure P_minus (Pbar.val-Pbar.val*0.001);
     Reaktoro_::Pressure P_minusPa (P_minus.val*1e05);
-    RHO_minus = th.propertiesSolvent(TK.val, P_minusPa.val, substance.symbol()).density;
+    RHO_minus = th.propertiesSolvent(TK.val, P_minusPa.val, substance.symbol(), state).density;
     eps_minus = epsilonF(TK, RHO_minus);
 
     const auto epsilonP  = (eps_plus - eps_minus) / ((P_plus-P_minus));

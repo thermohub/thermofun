@@ -1,11 +1,17 @@
 #include <iostream>
 #include <fstream>
-//#include "tcorrpt.h"
-#include "Database.h"
-#include "Substance.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoFun_global.h"
-#include "Thermo.h"
+
+#include "ThermoFun/Database.h"
+#include "ThermoFun/Substance.h"
+#include "ThermoFun/ThermoEngine.h"
+#include "ThermoFun/ThermoModelsSubstance.h"
+#include "ThermoFun/ThermoProperties.h"
+#include "ThermoFun/ThermoParameters.h"
+#include "ThermoFun/ThermoModelsSolvent.h"
+#include "ThermoFun/ElectroModelsSolvent.h"
+#include "ThermoFun/GlobalVariables.h"
+#include "ThermoFun/Substances/Solute/SoluteHKFreaktoro.h"
+#include "ThermoFun/Substances/Solute/SoluteHKFgems.h"
 
 using namespace std;
 using namespace ThermoFun;
@@ -38,7 +44,6 @@ int main(int argc, char *argv[])
     al3.setName("Al+3");
     al3.setFormula("Al+3");
     al3.setCharge(3);
-    al3.setSolventSymbol("H2O@");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -67,6 +72,8 @@ int main(int argc, char *argv[])
 
     PropertiesSolvent wp = H2OHGKgems.propertiesSolvent(T, P, 0);
 
+    FunctionG g = functionG(T, P, wp);
+
     water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNG);
 
     WaterJNgems H2OJNgems ( water );
@@ -82,7 +89,7 @@ int main(int argc, char *argv[])
 #endif
 
     // +++ Test HKFgems +++
-//    #define TEST_HKFreaktoro
+   // #define TEST_HKFreaktoro
     #ifdef TEST_HKFreaktoro
 
 //    water.setMethod_T(MethodCorrT_Thrift::type::CTM_WAT);
@@ -99,7 +106,6 @@ int main(int argc, char *argv[])
     al3.setName("Al+3");
     al3.setFormula("Al+3");
     al3.setCharge(3);
-    al3.setSolventSymbol("H2O@");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -128,7 +134,7 @@ int main(int argc, char *argv[])
 
     PropertiesSolvent wp = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
 
-    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CEM_WJNG);
+    water.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_WJNR);
 
     WaterJNreaktoro H2OJNreaktoro ( water );
 
@@ -155,7 +161,7 @@ int main(int argc, char *argv[])
     al3.setName("Al+3");
     al3.setFormula("Al+3");
     al3.setCharge(3);
-    al3.setSymbol("H2O@");
+    al3.setSymbol("Al+3");
 
     al3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     al3.setAggregateState(AggregateState::type::AQUEOUS);
@@ -228,7 +234,6 @@ int main(int argc, char *argv[])
     aloh3.setName("Al(OH)3");
     aloh3.setFormula("Al(OH)3@");
     aloh3.setCharge(0);
-    aloh3.setSolventSymbol("H2O@");
 
     aloh3.setSubstanceClass(SubstanceClass::type::AQSOLUTE);
     aloh3.setAggregateState(AggregateState::type::AQUEOUS);
