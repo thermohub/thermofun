@@ -49,15 +49,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           miniforge-version: latest
 
+      - shell: bash -el {0}
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
       - name: Configuring Conda Environment
-        shell: bash -l {0}
+        shell: bash -el {0}
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          conda config --set always_yes yes --set changeps1 no
-          conda config --add channels conda-forge
-          conda install conda-devenv
-          conda devenv
+          mamba install conda-devenv
+          conda devenv -e mamba
 
       - name: Building, Testing & Installing ThermoFun
         shell: bash -l {0}
