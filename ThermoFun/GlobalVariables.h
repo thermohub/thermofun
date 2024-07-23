@@ -775,6 +775,18 @@ static const char * reacFMcoeff            = "dr_marshall_franck_coeffs.values";
 
 //typedef std::vector<struct ReactionData>  Reactions;
 
+/// Output a array instance
+template<typename V>
+auto operator<<(std::ostream& out, const std::vector<V>& array) -> std::ostream&
+{
+    out << std::string("[ ");
+    for(const auto& val: array) {
+      out << val << " ";
+    }
+    out << std::string("]");
+    return out;
+}
+
 }
 ///@endcond
 

@@ -1,7 +1,11 @@
-    #include "ThermoFun.h"
+#include <iostream>
+#include "ThermoFun.h"
 #include "ChemicalFun/FormulaParser.h"
 #include "GlobalVariables.h"
 //#include "ThermoFun/Common/ThermoScalar.hpp"
+#include <iostream>
+
+
     using namespace std;
     using namespace ThermoFun;
 
@@ -58,11 +62,67 @@
                                         {"gibbs_energy","entropy", "volume", "enthalpy"} // list of properties
                                           ).toCSVPropertyGrid("grid.csv");    */                       // output
 
+     // Water solvent
 
-      // Test
+       ThermoEngine engine("aq17-thermofun.json");
+
+       engine.appendData("water-thermofun.json");
+
+       double P = 300e5;
+       double T = 380+273.15;
+
+       auto rho_solvent = engine.propertiesSolvent(T,P, "H2O@", 1).density.val;
+
+       auto eplsilon_solvent = engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val;
+
+       auto rho_solvent2 = engine.propertiesSolvent(T,P, "H2O@", 0).density.val;
+
+       auto eplsilon_solvent2 = engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val;
+
+       auto rho_solvent3 = engine.propertiesSolvent(T,P, "H2O@").density.val;
+
+       auto eplsilon_solvent3 = engine.electroPropertiesSolvent(T,P, "H2O@").epsilon.val;
+
+       std::cout <<"end"<< std::endl;
+
+
+
+      // Test mines add string
+        /*
       Database db("mines16-thermofun.json");
-      auto test = db.getSubstance("O2");
+      std::cout << "Elements \n" << db.getElementsList() << endl;
+      //std::cout << "Substances \n" << db.getSubstancesList() << endl;
+      //std::cout << "Reactions \n" << db.getReactionsList() << endl;
 
+      auto elment = db.getElement("O");
+      std::cout << elment << endl;
+      elment.setValence(ChemicalFun::DBElements::defaultValence("O"));
+      std::cout << elment << endl;
+      std::cout << db.getElement("O") << endl;
+
+      auto& elment_ref = db.element("H");
+      std::cout << elment_ref << endl;
+      elment_ref.setValence(ChemicalFun::DBElements::defaultValence("H"));
+      std::cout << elment_ref << endl;
+      std::cout << db.getElement("H") << endl;
+      std::cout << db.getElement("H").valence() << endl;
+
+      auto& elment_new = db.element("Ir");  // get from defaults
+      std::cout << elment_new << endl;
+
+      auto& elment_empty = db.element("Ac");  // get from defaults
+      std::cout << elment_empty << endl;
+
+      auto sbst = db.getSubstance("O2");
+      //std::cout << sbst << endl;
+
+      auto react = db.getReaction("ZrCl+3");
+      //std::cout << react << endl;
+
+      //std::cout << db.getElements() << endl;
+      //std::cout << db.getSubstances() << endl;
+      //std::cout << db.getReactions() << endl;
+      return 0;
       ThermoEngine engine("aq17-thermofun.json");
 
       //engine.appendData("append-thermofun.json");
@@ -248,6 +308,8 @@
 
 //      batch.thermoPropertiesReaction(25, 1, "H2O@ = H+ + OH-", "logKr").toCSV("test_reac.cvs");
 //      batch.thermoPropertiesReaction(25, 1, "Al+3 + 4H2O@ + 0Ca+2 = 1Al(OH)4- + 4 \nH+", "logKr").toCSV("test_reac2.cvs");
+
+*/
 
       return 0;
     }

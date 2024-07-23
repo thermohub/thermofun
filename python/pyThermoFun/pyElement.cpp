@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ThermoFun code. If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #if _MSC_VER >= 1929
 #include <corecrt.h>
 #endif
@@ -57,6 +58,7 @@ void exportElement(py::module& m)
         .def("isotopeMass", &Element::isotopeMass, "Return the rounded isotopic mass of the element")
         .def("number", &Element::number, "Return the Mendeleev table number of the element")
         .def("jsonString", &Element::jsonString, "Return the record as a json string")
+        .def("__str__", [](const Element& self) { std::stringstream ss; ss << self; return ss.str(); })
         ;
 }
 

@@ -17,6 +17,8 @@ endif()
 find_package(ChemicalFun REQUIRED)
 if(NOT ChemicalFun_FOUND)
     message(FATAL_ERROR "ChemicalFun library not found")
+else()
+    message(STATUS "Found ChemicalFun: ${ChemicalFun_DIR} (found version \"${ChemicalFun_VERSION}\")")
 endif()
 
 if(USE_SPDLOG_PRECOMPILED)

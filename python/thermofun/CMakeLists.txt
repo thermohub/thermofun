@@ -34,8 +34,26 @@ add_dependencies(thermofun PyThermoFun)
 
 # Set the path where the python package is installed to CMAKE_INSTALL_PREFIX if not given
 if(NOT DEFINED THERMOFUN_PYTHON_INSTALL_PREFIX)
-    set(THERMOFUN_PYTHON_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-endif()
+
+# Install the thermofun python package using setuptools
+install(CODE
+"
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb)
+        string(REPLACE .pyd .pdb THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
+
+        execute_process(
+            COMMAND \${CMAKE_COMMAND} -E copy ../../lib/PyThermoFun.pdb \${THERMOFUN_PDB_FILENAME}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+
+    execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install ${CMAKE_CURRENT_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+"
+)
+
+else()
+
 # If the path is already in Windows format (with backslashes), it can't be added directly
 # to the string below, otherwise CMake will later complain about "Invalid escape sequence".
 file(TO_CMAKE_PATH "${THERMOFUN_PYTHON_INSTALL_PREFIX}" THERMOFUN_PYTHON_INSTALL_PREFIX)
@@ -58,3 +76,5 @@ install(CODE
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
 )
+
+endif()

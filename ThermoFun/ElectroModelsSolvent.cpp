@@ -39,7 +39,7 @@ WaterJNreaktoro::WaterJNreaktoro(const Substance &substance)
 {}
 
 // calculation
-auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps) -> ElectroPropertiesSolvent
+auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps, int state) -> ElectroPropertiesSolvent
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
@@ -57,7 +57,7 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     wts.densityTP = ps.densityTP;
     wts.densityPP = ps.densityPP;
 
-    WaterElectroState wes = waterElectroStateJohnsonNorton(t, /*p,*/ wts);
+    WaterElectroState wes = waterElectroStateJohnsonNorton(t, /*p,*/ wts, state);
 
     return electroPropertiesWaterJNreaktoro(wes);
 }
@@ -88,13 +88,13 @@ WaterJNgems::WaterJNgems(const Substance &substance)
 {}
 
 // calculation
-auto WaterJNgems::electroPropertiesSolvent(double T, double P) -> ElectroPropertiesSolvent
+auto WaterJNgems::electroPropertiesSolvent(double T, double P, int state) -> ElectroPropertiesSolvent
 {
     WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
     water_hgk.calculateWaterHGKgems(T, P);
 
-    return water_hgk.electroPropertiesWaterJNgems(0); // state 0 = liquid
+    return water_hgk.electroPropertiesWaterJNgems(state); // state 0 = liquid
 }
 
 //=======================================================================================================
@@ -126,14 +126,14 @@ WaterElectroSverjensky2014::WaterElectroSverjensky2014(const Substance &substanc
 {}
 
 // calculation
-auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/) -> ElectroPropertiesSolvent
+auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/, int state) -> ElectroPropertiesSolvent
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
     auto t = Reaktoro_::Temperature(T); t -= C_to_K;
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return electroPropertiesWaterSverjensky2014(/*ps,*/ t, p, pimpl->substance);
+    return electroPropertiesWaterSverjensky2014(/*ps,*/ t, p, pimpl->substance, state);
 }
 
 //=======================================================================================================
@@ -163,14 +163,14 @@ WaterElectroFernandez1997::WaterElectroFernandez1997(const Substance &substance)
 {}
 
 // calculation
-auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/) -> ElectroPropertiesSolvent
+auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/, int state) -> ElectroPropertiesSolvent
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
     auto t = Reaktoro_::Temperature(T); t -= C_to_K;
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return electroPropertiesWaterFernandez1997(/*ps,*/ t, p, pimpl->substance); // t (celsius), p (bar)
+    return electroPropertiesWaterFernandez1997(/*ps,*/ t, p, pimpl->substance, state); // t (celsius), p (bar)
 }
 
 } // End namespace ThermoFun

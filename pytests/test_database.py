@@ -49,6 +49,55 @@ class TestDatabase(unittest.TestCase):
         assert self.database.parseSubstanceFormula('Co+2')
         assert self.database.numberOfElements() == 5
 
+    def test_reference_element(self):
+        elment_O = self.database.getElement("O")
+        elment_O.setValence(-3)
+        assert self.database.getElement("O").valence() != -3
+        assert elment_O.valence() == -3
+        elment_H = self.database.element("H")
+        elment_H.setValence(1)
+        assert self.database.getElement("H").valence() == 1
+        # new
+        elment_new = self.database.element("Co");  # get from defaults
+        assert self.database.numberOfElements() == 5
+        assert self.database.element("Co").name() == 'Co'
+        assert self.database.element("Co").symbol() == 'Co'
+        assert self.database.element("Co").molarMass() == 58.9332008361816
+        assert self.database.element("Co").entropy() == 30.0400009155273
+        assert self.database.element("Co").heatCapacity() == 24.8099994659424
+        assert self.database.element("Co").volume() == 6.61999988555908
+        assert self.database.element("Co").valence() == 2
+        assert self.database.element("Co").class_() == 0
+        assert self.database.element("Co").isotopeMass() == 0
+        assert self.database.element("Co").number() == 27
+
+    def test_reference_substance(self):
+        subst = self.database.substance("Quartz")
+        subst.setMolarMass(60.084300994873)
+        assert self.database.getSubstance("Quartz").molarMass() == 60.084300994873
+        subst2 = self.database.substance("H2O@")
+        subst2.setMolarMass(18.015300750732)
+        assert self.database.getSubstance("H2O@").molarMass() == 18.015300750732
+        # new empty
+        subst_new = self.database.substance("Co+2");  # zero values
+        assert self.database.numberOfSubstances() == 6
+        assert self.database.getSubstancesList() ==  ['Al(OH)2+', 'Al(OH)3@', 'Al(OH)4-', 'Co+2', 'H2O@', 'Quartz']
+        assert self.database.getSubstance("Co+2").name() == 'Co+2'
+        assert self.database.getSubstance("Co+2").symbol() == 'Co+2'
+        assert self.database.getSubstance("Co+2").molarMass() == 0
+
+    def test_reference_reaction(self):
+        react = self.database.reaction("Gedrite-Mg")
+        react.setUpperP(1e5)
+        assert self.database.getReaction("Gedrite-Mg").upperP() == 1e5
+        # new empty
+        react_new = self.database.reaction("Co+2");  # zero values
+        assert self.database.numberOfReactions() == 5
+        assert self.database.getReactionsList() ==  ['Co+2', 'Gedrite-Mg', 'Meionite-Ca', 'Pargasite-Mg', 'Tschermakite-Mg']
+        assert self.database.getReaction("Co+2").name() == 'Co+2'
+        assert self.database.getReaction("Co+2").symbol() == 'Co+2'
+        assert self.database.getReaction("Co+2").upperP() == 0
+
     def test_formula_parser(self):
         self.database.appendData('pytests/Fe-O_system.json')
         assert self.database.parseSubstanceFormula('FeFe|3|2O4')

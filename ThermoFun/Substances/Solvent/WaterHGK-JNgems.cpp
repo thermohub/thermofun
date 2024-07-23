@@ -390,7 +390,7 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
 
     if( T < 0.01 && T >= 0.0 ) // Deg. C!
         T = 0.01;
-    if( P < 6.11732e-3 ) // 6.11732e-3 is P_sat at triple point of H2O
+    if( P < 6.11732e-3 ) // 6.11732e-3 is P_sat at triple point of H2O in bar
         // At lower pressures HKF/HGK runs unstable or crashes
         P = 0.0;  // 06.12.2006  DK
 
@@ -409,7 +409,7 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
     auto diff = fabs(fabs(P) - fabs(aSta.Psat));
 
     if( (fabs( P ) == 0) || (diff < 1e-14) )
-    { // set only T
+    { // set only T, for Psat
         aSpc.isat=1;
         aSpc.iopt=1;
         aSpc.metastable = 0;
@@ -483,7 +483,10 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
 
         WPROPS tw = wl;
         memcpy(&wl, &wr, sizeof(WPROPS));
-        memcpy(&wr, &tw, sizeof(WPROPS));
+        if (aSta.Temp <= cr->Tc) // only below critical T we have two phases
+            memcpy(&wr, &tw, sizeof(WPROPS));
+        else
+            aSta.Dens[1] = aSta.Dens[0];
 
         //double temp = aSta.Dens[0];
         //aSta.Dens[0] = aSta.Dens[1];

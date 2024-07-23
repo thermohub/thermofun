@@ -63,7 +63,7 @@ python/tests/results_dbc.csv
 python/pyThermoFun/CMakeLists_old.txt
 
 *.log
-
+tests/build*
 
 
 
