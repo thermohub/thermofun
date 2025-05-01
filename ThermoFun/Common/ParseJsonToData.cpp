@@ -68,49 +68,50 @@ auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction;
 //        return false;
 //}
 
-auto readValueErrorUnit(const json &j, std::string propPath, double &val, double &err, std::string unit, std::string message) -> Reaktoro_::StatusMessage
+auto readValueErrorUnit(const json& j, const std::string& propPath, double& val, double& err, const std::string& unit, const std::string& message) -> Reaktoro_::StatusMessage
 {
-    std::string sval, serr, unit_in_record;
     Reaktoro_::StatusMessage status = {Reaktoro_::Status::notdefined, message};
-    unit_in_record = unit;
+    std::string unit_in_record = unit;
 
-    if (j[propPath].contains("/units/0"_json_pointer))
-        if (!j[propPath]["units"][0].is_null())
-            unit_in_record = j[propPath]["units"][0];
-
-    if (j[propPath].contains("/values/0"_json_pointer))
-    {
-        if (!j[propPath]["values"][0].is_null())
-            val = units::convert(j[propPath]["values"][0].get<double>(), unit_in_record, unit);
-        status = {Reaktoro_::Status::read, message};
+    // Check and extract unit
+    if (j.contains(propPath) && j[propPath].contains("units")) {
+        const auto& units = j[propPath]["units"];
+        if (units.is_array() && !units.empty() && !units[0].is_null()) {
+            unit_in_record = units[0].get<std::string>();
+        }
     }
 
-    if (j[propPath].contains("/errors/0"_json_pointer))
-    {
-        if (!j[propPath]["errors"][0].is_null())
-            err = units::convert(j[propPath]["errors"][0].get<double>(), unit_in_record, unit);
+    // Check and extract value
+    if (j.contains(propPath) && j[propPath].contains("values")) {
+        const auto& values = j[propPath]["values"];
+        if (values.is_array() && !values.empty() && !values[0].is_null()) {
+            val = units::convert(values[0].get<double>(), unit_in_record, unit);
+            status = {Reaktoro_::Status::read, message};
+        }
+    }
+
+    // Check and extract error
+    if (j.contains(propPath) && j[propPath].contains("errors")) {
+        const auto& errors = j[propPath]["errors"];
+        if (errors.is_array() && !errors.empty() && !errors[0].is_null()) {
+            err = units::convert(errors[0].get<double>(), unit_in_record, unit);
+        }
     }
 
     return status;
 }
 
-auto convert_values_units(std::vector<double> values, const std::vector<std::string> &units_from, const std::vector<std::string> &units_to) -> std::vector<double>
+auto convert_values_units(std::vector<double> values, const std::vector<std::string>& units_from, const std::vector<std::string>& units_to) -> std::vector<double>
 {
-    for (size_t i = 0; i < values.size(); i++)
+    for (size_t i = 0; i < values.size(); ++i)
     {
-        std::string from = "";
-        std::string to = "";
-        if (i < units_from.size())
-            from = units_from[i];
+        std::string from = (i < units_from.size()) ? units_from[i] : "";
+        std::string to = (i < units_to.size()) ? units_to[i] : "";
 
-        if (i < units_to.size())
-            to = units_to[i];
-
-        if (from == "")
+        if (from.empty())
             from = to;
 
-        if (from == "" || to == "")
-        {
+        if (from.empty() || to.empty()) {
             from = "1";
             to = "1";
         }
@@ -120,66 +121,59 @@ auto convert_values_units(std::vector<double> values, const std::vector<std::str
     return values;
 }
 
-auto read_values_units(const json &j, const std::string &data, std::vector<double> &values, const std::vector<std::string> &units_to) -> void
+auto read_values_units(const json& j, const std::string& data, std::vector<double>& values, const std::vector<std::string>& units_to) -> void
 {
     std::vector<std::string> units_from;
 
-    //units
     if (j.contains(data))
     {
-        if (j[data].contains("units"))
-        {
-            if (!j[data]["units"].is_null())
-                units_from = j[data]["units"].get<std::vector<std::string>>();
-            // temporary
-            if (data == "eos_hkf_coeffs")
-                if (units_from.size()>=3)
-                    if (units_from[2]=="(cal*K)/mol")
-                        units_from = units_to;
-        }
-        else
-            units_from = units_to;
+        const auto& entry = j[data];
 
-        if (j[data].contains("values"))
-            if (!j[data]["values"].is_null())
-                values = convert_values_units(j[data]["values"].get<std::vector<double>>(), units_from, units_to);
+        if (entry.contains("units") && entry["units"].is_array() && !entry["units"].is_null()) {
+            units_from = entry["units"].get<std::vector<std::string>>();
+
+            // Temporary fix for bad data
+            if (data == "eos_hkf_coeffs" && units_from.size() >= 3 && units_from[2] == "(cal*K)/mol")
+                units_from = units_to;
+        }
+        else {
+            units_from = units_to;
+        }
+
+        if (entry.contains("values") && entry["values"].is_array() && !entry["values"].is_null()) {
+            values = convert_values_units(entry["values"].get<std::vector<double>>(), units_from, units_to);
+        }
     }
 }
 
-auto read_value_unit(const json &j, const std::string &data, double &value, const std::string &unit_to) -> void
+auto read_value_unit(const json& j, const std::string& data, double& value, const std::string& unit_to) -> void
 {
-    std::string unit_from;
+    std::string unit_from = unit_to;
+    double factor = 1.0;
 
-    //units
-    if (j.contains(data))
-    {
-        if (j[data].contains("units"))
-        {
-            if (!j[data]["units"][0].is_null())
-                unit_from = j[data]["units"][0];
-        }
-        else
-            unit_from = unit_to;
+    if (j.contains(data)) {
+        const auto& entry = j[data];
 
-        // temporary fix (error in database)
-        double factor = 1.0;
-        if (data == "m_expansivity" && unit_from == "kbar")
-        {
+        if (entry.contains("units") && entry["units"].is_array() && !entry["units"][0].is_null())
+            unit_from = entry["units"][0].get<std::string>();
+
+        // Temporary fixes
+        if (data == "m_expansivity" && unit_from == "kbar") {
             unit_from = "1/K";
             factor = 1e5;
         }
 
-        if (data == "m_compressibility" && unit_from == "1e-05/K")
-        {
+        if (data == "m_compressibility" && unit_from == "1e-05/K") {
             unit_from = "kbar";
             factor = 1;
         }
 
-        if (j[data].contains("values"))
-            if (!j[data]["values"][0].is_null())
-                value = units::convert(j[data]["values"][0].get<double>() * factor, unit_from, unit_to);
+        if (entry.contains("values") && entry["values"].is_array() && !entry["values"][0].is_null()) {
+            value = units::convert(entry["values"][0].get<double>() * factor, unit_from, unit_to);
+        }
     }
 }
+
 
 auto getParameterCoefficients(/*const std::string& data,*/ const SubstanceTPMethodType &type) -> std::unordered_map<std::string, std::vector<double>>
 {
@@ -295,12 +289,18 @@ auto getTPMethods(const json &j, Reaction &r) -> void
 
     for (auto it = methods.begin(); it != methods.end(); ++it)
     {
-        if (!it.value()["method"].begin()->is_null())
-        {
-            int key = stoi(it.value()["method"].begin().key());
-            std::string name = it.value()["method"].begin().value();
-            setTPMethods_old(ReactionTPMethodType(key), r);
-            thermoParamReac(it.value(), pr);
+        const auto& val = it.value();
+        if (val.contains("method")) {
+            const auto& method = val["method"];
+            if ((method.is_object() || method.is_array()) &&
+                method.begin() != method.end() &&
+                !method.begin()->is_null()) {
+
+                int key = stoi(it.value()["method"].begin().key());
+                std::string name = it.value()["method"].begin().value();
+                setTPMethods_old(ReactionTPMethodType(key), r);
+                thermoParamReac(it.value(), pr);
+            }
         }
     }
     r.setThermoParameters(pr);
@@ -314,12 +314,18 @@ auto getTPMethods(const json &j, Substance &s) -> void
 
     for (auto it = methods.begin(); it != methods.end(); ++it)
     {
-        if (!it.value()["method"].begin()->is_null())
-        {
-            int key = stoi(it.value()["method"].begin().key());
-            std::string name = it.value()["method"].begin().value();
-            setTPMethods_old(SubstanceTPMethodType(key), s);
-            thermoParamSubst(it.value(), name, ps);
+        const auto& val = it.value();
+        if (val.contains("method")) {
+            const auto& method = val["method"];
+            if ((method.is_object() || method.is_array()) &&
+                method.begin() != method.end() &&
+                !method.begin()->is_null()) {
+
+                int key = stoi(it.value()["method"].begin().key());
+                std::string name = it.value()["method"].begin().value();
+                setTPMethods_old(SubstanceTPMethodType(key), s);
+                thermoParamSubst(val, name, ps);
+            }
         }
     }
 
