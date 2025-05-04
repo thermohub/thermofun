@@ -75,7 +75,6 @@ install(CODE
         WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
 "
 )
-s
 
 endif()
 
