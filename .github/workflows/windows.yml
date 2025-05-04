@@ -38,8 +38,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            C:\Users\runneradmin\clcache
-            C:\Users\runneradmin\conda_pkgs_dir
+            C:/Users/runneradmin/clcache
+            C:/Users7runneradmin/conda_pkgs_dir
           key:
             ${{ runner.os }}-${{ matrix.config }}-${{ runner.python-version }}-${{ github.ref }}-clcache-${ { steps.timestamp.outputs.now } }
           restore-keys: |
@@ -65,7 +65,7 @@ jobs:
       - name: Building, Testing & Installing ThermoFun
         shell: cmd
         env:
-          PYTHONPATH: C:\Miniconda\envs\thermofun\Library\Lib\site-packages
+          PYTHONPATH: C:/Miniconda/envs/thermofun/Library/Lib/site-packages
         run: |
           call conda activate thermofun || goto :eof
           clcache -s || goto :eof
