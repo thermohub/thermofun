@@ -58,25 +58,18 @@ else()
 # to the string below, otherwise CMake will later complain about "Invalid escape sequence".
 file(TO_CMAKE_PATH "${THERMOFUN_PYTHON_INSTALL_PREFIX}" THERMOFUN_PYTHON_INSTALL_PREFIX)
 
-# Install the thermofun python package using setuptools
 install(CODE
 "
-    # Use the prefix path directly (with forward slashes)
-    set(THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\")
-
-    # Copy PDB file if it exists
-    if(EXISTS \"${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb\")
-        string(REPLACE \".pyd\" \".pdb\" THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
-
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb)
+        string(REPLACE .pyd .pdb THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
         execute_process(
-            COMMAND \"\${CMAKE_COMMAND}\" -E copy \"../../lib/PyThermoFun.pdb\" \"\${THERMOFUN_PDB_FILENAME}\"
-            WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
+            COMMAND \${CMAKE_COMMAND} -E copy ../../lib/PyThermoFun.pdb \${THERMOFUN_PDB_FILENAME}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     endif()
 
-    # Install the Python package
     execute_process(
-        COMMAND \"${PYTHON_EXECUTABLE}\" -m pip install --prefix \"\${THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE}\" \"${CMAKE_CURRENT_BINARY_DIR}\"
-        WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install --prefix ${THERMOFUN_PYTHON_INSTALL_PREFIX} ${CMAKE_CURRENT_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
 )
 
