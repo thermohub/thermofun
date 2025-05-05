@@ -21,7 +21,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary
 
 echo "Configuring..."
 cmake -G"Visual Studio 16 2019" ^
-  -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%CONDA_PREFIX:\=/%" ^
+  -DTHERMOFUN_PYTHON_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" ^
   -A x64 -S . -B build
 echo "Building..."
 cmake --build build --target install
