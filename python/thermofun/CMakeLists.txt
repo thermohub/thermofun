@@ -38,17 +38,17 @@ if(NOT DEFINED THERMOFUN_PYTHON_INSTALL_PREFIX)
 # Install the thermofun python package using setuptools
 install(CODE
 "
-    if(EXISTS \"${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb\")
-        string(REPLACE \".pyd\" \".pdb\" THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb)
+        string(REPLACE .pyd .pdb THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
 
         execute_process(
-            COMMAND \${CMAKE_COMMAND} -E copy \"../../lib/PyThermoFun.pdb\" \"\${THERMOFUN_PDB_FILENAME}\"
-            WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
+            COMMAND \${CMAKE_COMMAND} -E copy ../../lib/PyThermoFun.pdb \${THERMOFUN_PDB_FILENAME}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     endif()
 
     execute_process(
-        COMMAND \"${PYTHON_EXECUTABLE}\" -m pip install \"${CMAKE_CURRENT_BINARY_DIR}\"
-        WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install ${CMAKE_CURRENT_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
 )
 
@@ -56,23 +56,24 @@ else()
 
 # If the path is already in Windows format (with backslashes), it can't be added directly
 # to the string below, otherwise CMake will later complain about "Invalid escape sequence".
-# Convert Windows-style path to CMake-style path with forward slashes
-#file(TO_CMAKE_PATH "${THERMOFUN_PYTHON_INSTALL_PREFIX}" THERMOFUN_PYTHON_INSTALL_PREFIX_CMAKE)
+file(TO_CMAKE_PATH "${THERMOFUN_PYTHON_INSTALL_PREFIX}" THERMOFUN_PYTHON_INSTALL_PREFIX)
 
 # Install the thermofun python package using setuptools
 install(CODE
 "
-    if(EXISTS \"${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb\")
-        string(REPLACE \".pyd\" \".pdb\" THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
+    file(TO_NATIVE_PATH \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\" THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE)
+
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../lib/PyThermoFun.pdb)
+        string(REPLACE .pyd .pdb THERMOFUN_PDB_FILENAME \"${THERMOFUN_PYTHON_MODULE_FILENAME}\")
 
         execute_process(
-            COMMAND \${CMAKE_COMMAND} -E copy \"../../lib/PyThermoFun.pdb\" \"\${THERMOFUN_PDB_FILENAME}\"
-            WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
+            COMMAND \${CMAKE_COMMAND} -E copy ../../lib/PyThermoFun.pdb \${THERMOFUN_PDB_FILENAME}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     endif()
 
     execute_process(
-        COMMAND \"${PYTHON_EXECUTABLE}\" -m pip install --prefix \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_BINARY_DIR}\"
-        WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install --prefix \${THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE} ${CMAKE_CURRENT_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
 )
 
