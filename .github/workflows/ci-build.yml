@@ -1,0 +1,74 @@
+name: ci-build
+on:
+  push:
+    branches:
+      - clear_deploy
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        include:
+          - os: ubuntu-latest
+            conda_platform: linux-64
+          - os: windows-latest
+            conda_platform: win-64
+          - os: macos-latest
+            conda_platform: osx-64
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: false
+          channels: conda-forge, defaults
+          channel-priority: true
+
+      - name: Configuring Conda Environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
+
+      - name: Building, Testing & Installing thermofun
+        if: matrix.os != 'windows-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          mkdir .build && cd .build
+          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release
+          ninja
+          ninja install
+          python -c "import thermofun"
+
+      - name: Building, Testing & Installing thermofun (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          call conda activate thermofun || goto :eof
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" -A x64 -S . -B build  || goto :eof
+          cmake --build build --target install --config Release || goto :eof
+          python -c "import thermofun" || goto :eof
+
+      - name: Check conda
+        run: |
+          conda config --show
+          conda list --show-channel-urls
+
