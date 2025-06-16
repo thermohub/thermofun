@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - clear_deploy
+      - master
   pull_request:
     branches:
       - main
