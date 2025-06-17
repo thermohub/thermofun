@@ -5,16 +5,10 @@ file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp *.h)
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
-if(TFUN_BUILD_SHARED_LIBS)
-    set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
-    # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-endif()
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
-# Check if a static library must be built
-if(TFUN_BUILD_STATIC_LIBS)
-    set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
-endif()
+#set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
+#set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
 
 # Create a library using the collected source files
 add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
@@ -23,9 +17,7 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
 # Link ThermoFun against all required dependencies
-target_link_libraries(ThermoFun
-    PUBLIC ChemicalFun::ChemicalFun
-)
+target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
