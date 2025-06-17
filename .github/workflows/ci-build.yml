@@ -57,8 +57,11 @@ jobs:
           ninja
           ninja install
           python -c "import thermofun"
-          if: matrix.os == 'ubuntu-latest'
-          cd ..
+
+      - name: Running tests
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash -l {0}
+        run: |
           pytest -ra -vv --color=yes .
 
       - name: Building, Testing & Installing thermofun (Windows)
