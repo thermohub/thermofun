@@ -2,6 +2,7 @@
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
 #include "ThermoProperties.h"
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
 
@@ -382,7 +383,7 @@ WaterHGKgems::WaterHGKgems()
     co = &co_;
 }
 
-auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
+auto WaterHGKgems::calculateWaterHGKgems(double T, double &P, WaterTripleProperties wtr) -> void
 {
     int eR;
     double tempy;
@@ -451,7 +452,7 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
     memset( &io, 0, sizeof(IO_Y));
 
     //set local parameters with to fact scales
-    unit(aSpc.it, aSpc.id, aSpc.ip, aSpc.ih, aSpc.itripl);
+    unit(aSpc.it, aSpc.id, aSpc.ip, aSpc.ih, aSpc.itripl, wtr);
 
     // check insert data if Errir that trow
     valid(aSpc.it, aSpc.id, aSpc.ip, aSpc.ih, aSpc.itripl,
@@ -522,7 +523,7 @@ auto WaterHGKgems::calculateWaterHGKgems(double T, double &P) -> void
 
 }
 
-auto WaterHGKgems::unit(int it, int id, int ip, int ih, int itripl) ->void
+auto WaterHGKgems::unit(int it, int id, int ip, int ih, int itripl, WaterTripleProperties wtr) ->void
 {
     double fft[4] =  {1.e0, 1.e0, 0.555555556e0, 0.555555556e0 };
     double ffd[4] = {1.e-3, 1.e0, 1.80152e-2, 1.6018e-2};
@@ -545,7 +546,7 @@ auto WaterHGKgems::unit(int it, int id, int ip, int ih, int itripl) ->void
     un.fst = ffst[id];
     un.fc  = ffcd[id] * ffch[ih];
     if ( itripl == 1 )
-        tpset();
+        tpset(wtr);
 }
 
 //--------------------------------------------------------------------//
@@ -2148,21 +2149,23 @@ auto WaterHGKgems::ideal(double t) -> void
 //--------------------------------------------------------------------//
 // tpset - calculate values U, S, H, A, G in 3-y point (in J/g from
 // Table 2,  Helgeson & Kirkham,  1974a)
-auto WaterHGKgems::tpset() ->void
+auto WaterHGKgems::tpset(WaterTripleProperties wtr) ->void
 {
-    double Utr, Str, Htr, Atr, Gtr;
+//    double Utr, Str, Htr, Atr, Gtr;
 
-    Utr = -15766.0e0;
-    Str =  3.5144e0;
-    Htr = -15971.0e0;
-    Atr = -12870.0e0;
-    Gtr = -13073.0e0;
+    double conv = 4.305816e0*cal_to_J; //ffh[4]; J_g_in_therm_cal_mol
 
-    tt->Utri = Utr * un.fh;
-    tt->Stri = Str * un.fh;
-    tt->Htri = Htr * un.fh;
-    tt->Atri = Atr * un.fh;
-    tt->Gtri = Gtr * un.fh;
+//    Utr = -15766.55e0; //-15766.0e0; /
+//    Str =  3.5158e0;//3.5144e0;
+//    Htr = -15970.6e0; //-15971.0e0;
+//    Atr = -12870.11e0;//-12870.0e0;
+//    Gtr = -13070.67e0;//-13073.0e0;
+
+    tt->Utri = (wtr.Utr/conv) * un.fh;
+    tt->Stri = (wtr.Str/conv) * un.fh;
+    tt->Htri = (wtr.Htr/conv) * un.fh;
+    tt->Atri = (wtr.Atr/conv) * un.fh;
+    tt->Gtri = (wtr.Gtr/conv) * un.fh;
 
 }
 

@@ -51,4 +51,7 @@ PYBIND11_MODULE(PyThermoFun, m)
     m.def("availablePropertiesReaction", availablePropertiesReaction, "list of available properties to calculate for a reaction record.");
     m.def("update_loggers", &update_loggers, "update log, default parameters (False, \"thermofun.log\", 2), logging levels:  trace = 0, debug = 1, info = 2, warn = 3, err = 4, critical = 5, off = 6 ");
     m.def("clear_loggers", &clear_loggers,"clear log, default parameters (False, \"thermofun.log\", 2),  trace = 0, debug = 1, info = 2, warn = 3, err = 4, critical = 5, off = 6 ");
+    m.def("get_water_triple_data", &getWaterTripleData,
+      py::return_value_policy::reference,
+      "Access the full water triple point property table.");
 }

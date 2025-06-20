@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+#include <unordered_map>
 
 #ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wswitch"
@@ -47,12 +48,40 @@ static const double R_CONSTANT = 8.31451,
 /// The molar mass of water in units of g/mol
 static const double H2OMolarMass = 18.015268;
 
-static const std::string Outputpath = "/Output/";
+struct WaterTripleProperties {
+    double Str; // J/(mol*K)
+    double Gtr; // J/mol
+    double Htr; // J/mol
+    double Utr; // J/mol
+    double Atr; // J/mol
+};
 
-static const std::string parsinglogfile = "parseBsonDatalogfile.txt";
-
-static std::ofstream flog;
-
+// Create the map with source labels
+static const std::unordered_map<std::string, WaterTripleProperties> waterTripleData = {
+    // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
+    { "Helgeson_Kirkham_1974", {
+        15.1320 * cal_to_J,
+       -56290.0 * cal_to_J,
+       -68767.0 * cal_to_J,
+       -67887.0 * cal_to_J,
+       -55415.0 * cal_to_J
+    }},
+    { "NEA_HGK", {
+        15.1386 * cal_to_J,
+       -56279.9 * cal_to_J,
+       -68766.44 * cal_to_J,
+       -67921.9 * cal_to_J,
+       -55434.49 * cal_to_J
+    }},
+    { "NEA_IAPWS", {
+        15.1374 * cal_to_J,
+       -56279.9 * cal_to_J,
+       -68766.76 * cal_to_J,
+       -67922.22 * cal_to_J,
+       -55434.49 * cal_to_J
+    }}
+    // Add more sources as needed
+};
 
 enum SubstanceTPMethodType {
     cp_ft_equation = 0,
@@ -244,6 +273,8 @@ auto availableSubstanceTPMethods() -> const std::string;
 auto availableReactionTPMethods() -> const std::string;
 auto availablePropertiesReaction() -> const std::string;
 auto availablePropertiesSubstance() -> const std::string;
+
+const std::unordered_map<std::string, WaterTripleProperties>& getWaterTripleData();
 
 
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class

@@ -53,6 +53,9 @@ struct ThermoPreferences
     bool isH2OSolvent = false;
     bool isReacDC = false;
     bool isReacFromReactants = false;
+    bool isH2ONEA = false;
+
+    std::string waterTripleProperties = "Helgeson_Kirkham_1974";
 };
 
 using ThermoPropertiesSubstanceFunction =
@@ -72,7 +75,7 @@ struct ThermoEngine::Impl
     /// The database instance
     Database database;
 
-    std::string solventSymbol = "H2O@"; // default
+    mutable std::string solventSymbol = "H2O@"; // default
 
     const std::map<const std::string, std::string> conventions = {
         {"aparent-properties", "Benson-Helgeson"},
@@ -125,20 +128,13 @@ struct ThermoEngine::Impl
         thermo_properties_reaction_fn = memoizeN(thermo_properties_reaction_fn,max_cache_size);
     }
 
-    auto toSteamTables(ThermoPropertiesSubstance &tps) -> void
+    auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) -> void
     {
-        // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-        const auto Str = 15.1320 * cal_to_J;  // unit: J/(mol*K)
-        const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
-        const auto Htr = -68767.0 * cal_to_J; // unit: J/mol
-        const auto Utr = -67887.0 * cal_to_J; // unit: J/mol
-        const auto Atr = -55415.0 * cal_to_J; // unit: J/mol
-
-        tps.gibbs_energy -= Gtr;
-        tps.enthalpy -= Htr;
-        tps.entropy -= Str;
-        tps.helmholtz_energy -= Atr;
-        tps.internal_energy -= Utr;
+        tps.gibbs_energy -= wat.Gtr;
+        tps.enthalpy -= wat.Htr;
+        tps.entropy -= wat.Str;
+        tps.helmholtz_energy -= wat.Atr;
+        tps.internal_energy -= wat.Utr;
     }
 
     auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) -> void
@@ -203,7 +199,20 @@ struct ThermoEngine::Impl
         else
             preferences.isReacDC = false;
 
-        // make check if substance is aq solute and needs a solvent
+        // check if substance is aq solute and needs a solvent
+        if (preferences.workSubstance.substanceClass() == SubstanceClass::type::AQSOLUTE)
+        {
+            // see if default solven is in the database if not search for solvent
+            if (!database.containsSubstance(solventSymbol))
+            {
+                for (const auto& pair : database.mapSubstances()) {
+                    if (pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT) {
+                        solventSymbol = pair.first;
+                    }
+                }
+            }
+        }
+
         return preferences;
     }
 
@@ -377,17 +386,17 @@ struct ThermoEngine::Impl
                 {
                 case MethodCorrT_Thrift::type::CTM_WAT:
                 {
-                    tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState, pref.waterTripleProperties);
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WAR:
                 {
-                    tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState, pref.waterTripleProperties);
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WWP:
                 {
-                    tps = WaterWP95reaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterWP95reaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState, pref.waterTripleProperties);
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WZD:
@@ -416,7 +425,7 @@ struct ThermoEngine::Impl
             {
                 if (iequals(conventions.at("water-properties"), "steam-tables"))
                 {
-                    toSteamTables(tps);
+                    toSteamTables(tps, waterTripleData.at(pref.waterTripleProperties));
                 }
             }
             else
@@ -831,6 +840,12 @@ auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
 {
     pimpl->solventSymbol = solvent_symbol;
 }
+
+auto ThermoEngine::setThermoPreferences(const ThermoPreferences prefs) -> void
+{
+    //pimpl->thermoPre = solvent_symbol;
+}
+
 
 auto ThermoEngine::solventSymbol() const -> std::string
 {

@@ -73,16 +73,20 @@ auto WaterHGK::propertiesSolvent(double T, double &P, int state) -> PropertiesSo
 {
     WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
-    water_hgk.calculateWaterHGKgems(T, P); P *= bar_to_Pa;
+    WaterTripleProperties wtr = waterTripleData.at("NEA_HGK");
+
+    water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
 
     return water_hgk.propertiesWaterHGKgems(state);
 }
 
-auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
+auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
     WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
-    water_hgk.calculateWaterHGKgems(T, P); P *= bar_to_Pa;
+    WaterTripleProperties wtr = waterTripleData.at(tripple);
+
+    water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
 
     return  water_hgk.thermoPropertiesWaterHGKgems(state);
 }
@@ -123,7 +127,7 @@ auto WaterHGKreaktoro::propertiesSolvent(double T, double &P, int state) -> Prop
     return propertiesWaterHGKreaktoro(wt);
 }
 
-auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
+auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P);
@@ -131,7 +135,9 @@ auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state)
     if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
     WaterThermoState wt = waterThermoStateHGK(t, p, state); P = p.val;
 
-    return thermoPropertiesWaterHGKreaktoro(t, wt);
+    WaterTripleProperties wtr = waterTripleData.at(tripple);
+
+    return thermoPropertiesWaterHGKreaktoro(t, wt, wtr);
 }
 
 //=======================================================================================================
@@ -172,7 +178,7 @@ auto WaterWP95reaktoro::propertiesSolvent(double T, double &P, int state) -> Pro
     return propertiesWaterWP95reaktoro(wt);
 }
 
-auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double &P, int state) -> ThermoPropertiesSubstance
+auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P);
@@ -181,7 +187,9 @@ auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double &P, int state
 
     WaterThermoState wt = waterThermoStateWagnerPruss(t, p, state); P = p.val;
 
-    return thermoPropertiesWaterWP95reaktoro(t, wt);
+    WaterTripleProperties wtr = waterTripleData.at(tripple);
+
+    return thermoPropertiesWaterWP95reaktoro(t, wt, wtr);
 }
 
 //=======================================================================================================
