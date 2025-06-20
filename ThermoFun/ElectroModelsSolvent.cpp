@@ -92,7 +92,9 @@ auto WaterJNgems::electroPropertiesSolvent(double T, double P, int state) -> Ele
 {
     WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
-    water_hgk.calculateWaterHGKgems(T, P);
+    WaterTripleProperties wtr = waterTripleData.at("NEA_HGK");
+
+    water_hgk.calculateWaterHGKgems(T, P, wtr);
 
     return water_hgk.electroPropertiesWaterJNgems(state); // state 0 = liquid
 }

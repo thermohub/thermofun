@@ -2,7 +2,6 @@
 #define THERMOPROPERTIES_H
 
 // TCorPT includes
-#include "GlobalVariables.h"
 #include "Common/ThermoScalar.hpp"
 
 namespace ThermoFun {

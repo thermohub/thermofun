@@ -6,7 +6,7 @@ namespace ThermoFun {
 auto availableSubstanceTPMethods() -> const std::string
 {
     std::string r;
-    for (auto a : enum_method_substance)
+    for (const auto &a : enum_method_substance)
     {
         r += "{\"method\": {\"" + std::to_string(a.first) + "\": \"" + a.second + "\"}";
         auto type = (SubstanceTPMethodType) a.first;
@@ -22,7 +22,7 @@ auto availableSubstanceTPMethods() -> const std::string
 auto scanProperties(const std::string& what) -> const std::string
 {
     std::string r = "property (unit)\n---------------\n";
-    for (auto a: defaultPropertyNames)
+    for (const auto &a: defaultPropertyNames)
     {
         if (a.second == what)
         {
@@ -46,7 +46,7 @@ auto availablePropertiesReaction() -> const std::string
 auto availableReactionTPMethods() -> const std::string
 {
     std::string r;
-    for (auto a : enum_method_reaction)
+    for (const auto &a : enum_method_reaction)
     {
         r += "{\"method\": {\"" + std::to_string(a.first) + "\": \"" + a.second + "\"}";
         auto type = (ReactionTPMethodType) a.first;
@@ -58,4 +58,9 @@ auto availableReactionTPMethods() -> const std::string
     }
     return r;
 }
+
+const std::unordered_map<std::string, WaterTripleProperties>& getWaterTripleData() {
+    return waterTripleData;
+}
+
 } // namespace ThermoFun

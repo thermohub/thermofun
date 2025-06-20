@@ -11,6 +11,7 @@ struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesSolvent;
 struct ElectroPropertiesSolvent;
+struct WaterTripleProperties;
 
 typedef struct
 { //work structure  t/d properties of water-solution
@@ -294,8 +295,8 @@ private:
     CRITS    *cr;
     COEFS    *co;
 
-    auto unit(int it, int id, int ip, int ih, int itripl) -> void;
-    auto tpset( ) -> void;
+    auto unit(int it, int id, int ip, int ih, int itripl, WaterTripleProperties wtr) -> void;
+    auto tpset(WaterTripleProperties wtr ) -> void;
     auto valid(int it, int id, int ip, int ih, int itripl, int isat,
                int iopt, int useLVS, int epseqn, double Temp, double *Pres,
                double *Dens0, int *eR) -> void;
@@ -365,7 +366,7 @@ private:
 
 public:
 
-    auto calculateWaterHGKgems(double T, double &P) -> void;
+    auto calculateWaterHGKgems(double T, double &P, WaterTripleProperties wtr) -> void;
 
     auto propertiesWaterHGKgems(int state) -> PropertiesSolvent;
 

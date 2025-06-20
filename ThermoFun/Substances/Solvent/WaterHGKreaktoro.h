@@ -3,6 +3,7 @@
 
 #include "Common/ScalarTypes.hpp"
 #include "Common/ThermoScalar.hpp"
+#include "GlobalVariables.h"
 
 namespace ThermoFun {
 
@@ -10,6 +11,7 @@ namespace ThermoFun {
 struct PropertiesSolvent;
 struct ThermoPropertiesSubstance;
 struct WaterThermoState;
+struct WaterTripleProperties;
 
 //auto propertiesSolvent(double T, double P) -> PropertiesSolvent;
 
@@ -26,7 +28,7 @@ auto saturatedWaterVaporPressureHGK(Reaktoro_::Temperature TK) -> Reaktoro_::The
 /// Return the thermodynamic properties of water
 /// @param T temparature (K)
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water
-auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, /*Reaktoro::Pressure P,*/ const WaterThermoState& wt) -> ThermoPropertiesSubstance;
+auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, /*Reaktoro::Pressure P,*/ const WaterThermoState& wt, const WaterTripleProperties& wtr) -> ThermoPropertiesSubstance;
 
 /// Return the physical properties of water
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water

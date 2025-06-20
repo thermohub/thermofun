@@ -93,6 +93,9 @@ void exportThermoEngine(py::module& m)
         .def("appendData", appendData2, "Append records of given label (element, substance, reaction) to the database from a list of JSON strings", py::arg("records_json"), py::arg("label"))
         .def("setSolventSymbol", &ThermoEngine::setSolventSymbol, "Sets the symbol of the solvent record present in the thermodynamic dataset. Will be used to calculate the solvent properties ", py::arg("symbol"))
         .def("solventSymbol", &ThermoEngine::solventSymbol, "Returns the symbol of the solvent record used to calculate the solvent properties")
+        .def("preferences", 
+         static_cast<EnginePreferences& (ThermoEngine::*)()>(&ThermoEngine::preferences),
+         py::return_value_policy::reference_internal)
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1, "Calculate the thermodynamic properties of a substance with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
         .def("electroPropertiesSolvent", electroPropertiesSolvent1, "Calculate the electro-chemical properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
         .def("propertiesSolvent", propertiesSolvent1, "Calculate the properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
@@ -108,6 +111,12 @@ void exportThermoEngine(py::module& m)
         .def("thermoPropertiesReaction", thermoPropertiesReaction2, "Calculate the thermodynamic properties of a given reaction object.", py::arg("temperature"), py::arg("pressure"), py::arg("reaction"))
         .def("thermoPropertiesReactionFromReactants", thermoPropertiesReactionFromReactants2, "Calculate the thermodynamic properties from the reactants of a given reaction object.", py::arg("temperature"), py::arg("pressure"), py::arg("reaction"))
         ;
+
+    py::class_<EnginePreferences>(m, "EnginePreferences")
+    .def(py::init<>())  // default constructor
+    .def_readwrite("solventState", &EnginePreferences::solventState)
+    .def_readwrite("waterTripleProperties", &EnginePreferences::waterTripleProperties)
+    .def_readwrite("solventSymbol", &EnginePreferences::solventSymbol);
 }
 
 }

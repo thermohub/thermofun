@@ -1,6 +1,7 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include <string>
 #include <vector>
 #include <unordered_map>
 typedef std::vector<double> vd;

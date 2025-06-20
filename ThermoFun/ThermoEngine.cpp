@@ -38,15 +38,13 @@ const std::map<const std::string, const std::string> implemented_conventions = {
 ///
 /// \brief The ThermoPreferences struct holds preferences such as the calculation methods for the current substance
 ///
-struct ThermoPreferences
+struct WorkPreferences
 {
     Substance workSubstance;
     Reaction workReaction;
     MethodGenEoS_Thrift::type method_genEOS;
     MethodCorrT_Thrift::type method_T;
     MethodCorrP_Thrift::type method_P;
-
-    int solventState = 0; // 0: liquid; 1: vapor
 
     bool isHydrogen = false;
     bool isH2Ovapor = false;
@@ -72,7 +70,9 @@ struct ThermoEngine::Impl
     /// The database instance
     Database database;
 
-    std::string solventSymbol = "H2O@"; // default
+    mutable EnginePreferences preferences;
+
+    mutable WorkPreferences prefs;
 
     const std::map<const std::string, std::string> conventions = {
         {"aparent-properties", "Benson-Helgeson"},
@@ -125,20 +125,13 @@ struct ThermoEngine::Impl
         thermo_properties_reaction_fn = memoizeN(thermo_properties_reaction_fn,max_cache_size);
     }
 
-    auto toSteamTables(ThermoPropertiesSubstance &tps) -> void
+    auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) -> void
     {
-        // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-        const auto Str = 15.1320 * cal_to_J;  // unit: J/(mol*K)
-        const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
-        const auto Htr = -68767.0 * cal_to_J; // unit: J/mol
-        const auto Utr = -67887.0 * cal_to_J; // unit: J/mol
-        const auto Atr = -55415.0 * cal_to_J; // unit: J/mol
-
-        tps.gibbs_energy -= Gtr;
-        tps.enthalpy -= Htr;
-        tps.entropy -= Str;
-        tps.helmholtz_energy -= Atr;
-        tps.internal_energy -= Utr;
+        tps.gibbs_energy -= wat.Gtr;
+        tps.enthalpy -= wat.Htr;
+        tps.entropy -= wat.Str;
+        tps.helmholtz_energy -= wat.Atr;
+        tps.internal_energy -= wat.Utr;
     }
 
     auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) -> void
@@ -148,9 +141,9 @@ struct ThermoEngine::Impl
         tps.gibbs_energy -= (Tr * entropyElements);
     }
 
-    auto getThermoPreferencesReaction(const Reaction &reaction) const -> ThermoPreferences
+    auto getThermoPreferencesReaction(const Reaction &reaction) const -> WorkPreferences
     {
-        ThermoPreferences preferences;
+        WorkPreferences preferences;
 
         preferences.workReaction = reaction;
         preferences.method_genEOS = preferences.workReaction.methodGenEOS();
@@ -164,47 +157,60 @@ struct ThermoEngine::Impl
         return preferences;
     }
 
-    auto getThermoPreferencesSubstance(const Substance &substance) const -> ThermoPreferences
+    auto getThermoPreferencesSubstance(const Substance &substance) const -> WorkPreferences
     {
-        ThermoPreferences preferences;
-        preferences.workSubstance = substance;
-        preferences.method_genEOS = preferences.workSubstance.methodGenEOS();
-        preferences.method_T = preferences.workSubstance.method_T();
-        preferences.method_P = preferences.workSubstance.method_P();
+        WorkPreferences workPreferences;
+        workPreferences.workSubstance = substance;
+        workPreferences.method_genEOS = workPreferences.workSubstance.methodGenEOS();
+        workPreferences.method_T = workPreferences.workSubstance.method_T();
+        workPreferences.method_P = workPreferences.workSubstance.method_P();
 
         // check for H+
-        if (preferences.workSubstance.symbol() == "H+")
-            preferences.isHydrogen = true;
+        if (workPreferences.workSubstance.symbol() == "H+")
+            workPreferences.isHydrogen = true;
         else
-            preferences.isHydrogen = false;
+            workPreferences.isHydrogen = false;
 
         // check for H2O vapor
-        if (preferences.method_genEOS == MethodGenEoS_Thrift::type::CTPM_HKF && preferences.method_P == MethodCorrP_Thrift::type::CPM_GAS)
-            preferences.isH2Ovapor = true;
+        if (workPreferences.method_genEOS == MethodGenEoS_Thrift::type::CTPM_HKF && workPreferences.method_P == MethodCorrP_Thrift::type::CPM_GAS)
+            workPreferences.isH2Ovapor = true;
         else
-            preferences.isH2Ovapor = false;
+            workPreferences.isH2Ovapor = false;
 
         // check for solvent
-        if (preferences.workSubstance.substanceClass() == SubstanceClass::type::AQSOLVENT /*&& !isH2Ovapor*/)
-            preferences.isH2OSolvent = true;
+        if (workPreferences.workSubstance.substanceClass() == SubstanceClass::type::AQSOLVENT /*&& !isH2Ovapor*/)
+            workPreferences.isH2OSolvent = true;
         else
-            preferences.isH2OSolvent = false;
+            workPreferences.isH2OSolvent = false;
 
         // set solvent state
-        if (preferences.workSubstance.aggregateState() == AggregateState::type::GAS)
+        if (workPreferences.workSubstance.aggregateState() == AggregateState::type::GAS)
             preferences.solventState = 1; // vapor
         else
             preferences.solventState = 0; // liquid
 
         // check if the substance is reaction dependent
-        if ((preferences.workSubstance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC) ||
-            (!preferences.method_genEOS && !preferences.method_P && !preferences.method_T))
-            preferences.isReacDC = true;
+        if ((workPreferences.workSubstance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC) ||
+            (!workPreferences.method_genEOS && !workPreferences.method_P && !workPreferences.method_T))
+            workPreferences.isReacDC = true;
         else
-            preferences.isReacDC = false;
+            workPreferences.isReacDC = false;
 
-        // make check if substance is aq solute and needs a solvent
-        return preferences;
+        // check if substance is aq solute and needs a solvent
+        if (workPreferences.workSubstance.substanceClass() == SubstanceClass::type::AQSOLUTE)
+        {
+            // see if default solven is in the database if not search for solvent
+            if (!database.containsSubstance(preferences.solventSymbol))
+            {
+                for (const auto& pair : database.mapSubstances()) {
+                    if (pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT) {
+                        preferences.solventSymbol = pair.first;
+                    }
+                }
+            }
+        }
+
+        return workPreferences;
     }
 
     auto thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
@@ -214,7 +220,7 @@ struct ThermoEngine::Impl
 
     auto thermoPropertiesSubstance(double T, double &P, const Substance &substance) -> ThermoPropertiesSubstance
     {
-        ThermoPreferences pref = getThermoPreferencesSubstance(substance);
+        WorkPreferences pref = getThermoPreferencesSubstance(substance);
         ThermoPropertiesSubstance tps;
 
         if (pref.isHydrogen)
@@ -249,26 +255,26 @@ struct ThermoEngine::Impl
                 }
                 case MethodGenEoS_Thrift::type::CTPM_HKF:
                 {
-                    tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1), electro_properties_solvent_fn(T, P, P, solventSymbol, -1));
+                    tps = SoluteHKFgems(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, preferences.solventSymbol, -1), electro_properties_solvent_fn(T, P, P, preferences.solventSymbol, -1));
                     break;
                 }
                 case MethodGenEoS_Thrift::type::CTPM_HKFR:
                 {
-                    tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1), electro_properties_solvent_fn(T, P, P, solventSymbol, -1));
+                    tps = SoluteHKFreaktoro(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(T, P, P, preferences.solventSymbol, -1), electro_properties_solvent_fn(T, P, P, preferences.solventSymbol, -1));
                     break;
                 }
                 case MethodGenEoS_Thrift::type::CTPM_HP98:
                 {
-                    double Pr = database.getSubstance(solventSymbol).referenceP();
-                    double Tr = database.getSubstance(solventSymbol).referenceT();
-                    tps = SoluteHollandPowell98(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol, -1), properties_solvent_fn(T, P, P, solventSymbol, -1));
+                    double Pr = database.getSubstance(preferences.solventSymbol).referenceP();
+                    double Tr = database.getSubstance(preferences.solventSymbol).referenceT();
+                    tps = SoluteHollandPowell98(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, preferences.solventSymbol, -1), properties_solvent_fn(T, P, P, preferences.solventSymbol, -1));
                     break;
                 }
                 case MethodGenEoS_Thrift::type::CTPM_AN91:
                 {
-                    double Pr = database.getSubstance(solventSymbol).referenceP();
-                    double Tr = database.getSubstance(solventSymbol).referenceT();
-                    tps = SoluteAnderson91(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, solventSymbol, -1), properties_solvent_fn(T, P, P, solventSymbol, -1));
+                    double Pr = database.getSubstance(preferences.solventSymbol).referenceP();
+                    double Tr = database.getSubstance(preferences.solventSymbol).referenceT();
+                    tps = SoluteAnderson91(pref.workSubstance).thermoProperties(T, P, properties_solvent_fn(Tr, Pr, Pr, preferences.solventSymbol, -1), properties_solvent_fn(T, P, P, preferences.solventSymbol, -1));
                     break;
                 }
                     //                default:
@@ -301,9 +307,14 @@ struct ThermoEngine::Impl
                 {
                 case MethodCorrP_Thrift::type::CPM_AKI:
                 {
-                    double Pr = database.getSubstance(solventSymbol).referenceP();
-                    double Tr = database.getSubstance(solventSymbol).referenceT();
-                    tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P, solventSymbol), WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(T, P), properties_solvent_fn(T, P, P, solventSymbol, -1), thermo_properties_substance_fn(Tr, Pr, Pr, solventSymbol), WaterIdealGasWoolley(database.getSubstance(solventSymbol)).thermoProperties(Tr, Pr), properties_solvent_fn(Tr, Pr, Pr, solventSymbol, -1));
+                    double Pr = database.getSubstance(preferences.solventSymbol).referenceP();
+                    double Tr = database.getSubstance(preferences.solventSymbol).referenceT();
+                    tps = SoluteAkinfievDiamondEOS(pref.workSubstance).thermoProperties(T, P, tps, thermo_properties_substance_fn(T, P, P, preferences.solventSymbol),
+                                                                                        WaterIdealGasWoolley(database.getSubstance(preferences.solventSymbol)).thermoProperties(T, P),
+                                                                                        properties_solvent_fn(T, P, P, preferences.solventSymbol, -1),
+                                                                                        thermo_properties_substance_fn(Tr, Pr, Pr, preferences.solventSymbol),
+                                                                                        WaterIdealGasWoolley(database.getSubstance(preferences.solventSymbol)).thermoProperties(Tr, Pr),
+                                                                                        properties_solvent_fn(Tr, Pr, Pr, preferences.solventSymbol, -1));
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CEH:
@@ -377,22 +388,22 @@ struct ThermoEngine::Impl
                 {
                 case MethodCorrT_Thrift::type::CTM_WAT:
                 {
-                    tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solventState, preferences.waterTripleProperties);
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WAR:
                 {
-                    tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solventState, preferences.waterTripleProperties);
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WWP:
                 {
-                    tps = WaterWP95reaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterWP95reaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solventState, preferences.waterTripleProperties);
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WZD:
                 {
-                    tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, pref.solventState);
+                    tps = WaterZhangDuan2005(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solventState);
                     break;
                 }
                 default:
@@ -416,7 +427,7 @@ struct ThermoEngine::Impl
             {
                 if (iequals(conventions.at("water-properties"), "steam-tables"))
                 {
-                    toSteamTables(tps);
+                    toSteamTables(tps, waterTripleData.at(preferences.waterTripleProperties));
                 }
             }
             else
@@ -441,10 +452,10 @@ struct ThermoEngine::Impl
 
     auto electroPropertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> ElectroPropertiesSolvent
     {
-        ThermoPreferences pref = getThermoPreferencesSubstance(solvent);
+        WorkPreferences pref = getThermoPreferencesSubstance(solvent);
         if (state>-1 && state<2)
-            pref.solventState = state;
-        PropertiesSolvent ps = propertiesSolvent(T, P, solvent, pref.solventState);
+            preferences.solventState = state;
+        PropertiesSolvent ps = propertiesSolvent(T, P, solvent, preferences.solventState);
         ElectroPropertiesSolvent eps;
 
         if (pref.isH2OSolvent)
@@ -453,22 +464,22 @@ struct ThermoEngine::Impl
             {
             case MethodGenEoS_Thrift::type::CTPM_WJNR:
             {
-                eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, ps, pref.solventState);
+                eps = WaterJNreaktoro(pref.workSubstance).electroPropertiesSolvent(T, P, ps, preferences.solventState);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_WJNG:
             {
-                eps = WaterJNgems(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, pref.solventState);
+                eps = WaterJNgems(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, preferences.solventState);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_WSV14:
             {
-                eps = WaterElectroSverjensky2014(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, pref.solventState);
+                eps = WaterElectroSverjensky2014(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, preferences.solventState);
                 break;
             }
             case MethodGenEoS_Thrift::type::CTPM_WF97:
             {
-                eps = WaterElectroFernandez1997(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, pref.solventState);
+                eps = WaterElectroFernandez1997(pref.workSubstance).electroPropertiesSolvent(T, P /*, ps*/, preferences.solventState);
                 break;
             }
                 //            default:
@@ -486,9 +497,9 @@ struct ThermoEngine::Impl
 
     auto propertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> PropertiesSolvent
     {
-        ThermoPreferences pref = getThermoPreferencesSubstance(solvent);
+        WorkPreferences pref = getThermoPreferencesSubstance(solvent);
         if (state > -1 && state <2)
-            pref.solventState = state;
+            preferences.solventState = state;
         PropertiesSolvent ps;
 
         if (pref.isH2OSolvent)
@@ -497,22 +508,22 @@ struct ThermoEngine::Impl
             {
             case MethodCorrT_Thrift::type::CTM_WAT:
             {
-                ps = WaterHGK(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
+                ps = WaterHGK(pref.workSubstance).propertiesSolvent(T, P, preferences.solventState);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WAR:
             {
-                ps = WaterHGKreaktoro(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
+                ps = WaterHGKreaktoro(pref.workSubstance).propertiesSolvent(T, P, preferences.solventState);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WWP:
             {
-                ps = WaterWP95reaktoro(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
+                ps = WaterWP95reaktoro(pref.workSubstance).propertiesSolvent(T, P, preferences.solventState);
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_WZD:
             {
-                ps = WaterZhangDuan2005(pref.workSubstance).propertiesSolvent(T, P, pref.solventState);
+                ps = WaterZhangDuan2005(pref.workSubstance).propertiesSolvent(T, P, preferences.solventState);
                 break;
             }
                 //            default:
@@ -597,7 +608,7 @@ struct ThermoEngine::Impl
     auto thermoPropertiesReaction(double T, double &P, const Reaction &reaction) const -> ThermoPropertiesReaction
     {
         ThermoPropertiesReaction tpr;
-        ThermoPreferences pref = getThermoPreferencesReaction(reaction);
+        WorkPreferences pref = getThermoPreferencesReaction(reaction);
 
         if (!pref.isReacFromReactants)
         {
@@ -630,17 +641,17 @@ struct ThermoEngine::Impl
             }
             case MethodCorrT_Thrift::type::CTM_DMD: // Dolejs-Maning 2010 density model
             {
-                tpr = ReactionDolejsManning10(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1));
+                tpr = ReactionDolejsManning10(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, preferences.solventSymbol, -1));
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_DKR: // Marshall-Franck density model
             {
-                tpr = ReactionFrantzMarshall(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1));
+                tpr = ReactionFrantzMarshall(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, preferences.solventSymbol, -1));
                 break;
             }
             case MethodCorrT_Thrift::type::CTM_MRB: // Calling modified Ryzhenko-Bryzgalin model TW KD 08.2007
             {
-                return ReactionRyzhenkoBryzgalin(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, solventSymbol, -1)); // NOT TESTED!!!
+                return ReactionRyzhenkoBryzgalin(pref.workReaction).thermoProperties(T, P, properties_solvent_fn(T, P, P, preferences.solventSymbol, -1)); // NOT TESTED!!!
             }
             case MethodCorrT_Thrift::type::CTM_IKZ:
             {
@@ -829,12 +840,21 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
 {
-    pimpl->solventSymbol = solvent_symbol;
+    pimpl->preferences.solventSymbol = solvent_symbol;
 }
 
-auto ThermoEngine::solventSymbol() const -> std::string
+auto ThermoEngine::solventSymbol() -> std::string&
 {
-    return pimpl->solventSymbol;
+    return pimpl->preferences.solventSymbol;
+}
+
+auto ThermoEngine::preferences() -> EnginePreferences& {
+    return pimpl->preferences;
+}
+
+auto ThermoEngine::setPreferences(const EnginePreferences preferences) -> void
+{
+    pimpl->preferences = preferences;
 }
 
 auto ThermoEngine::database() const -> const Database &
