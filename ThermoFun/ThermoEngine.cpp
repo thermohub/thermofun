@@ -99,30 +99,29 @@ struct ThermoEngine::Impl
 
     void set_fn()
     {
-        size_t max_cache_size = 1e6;
         thermo_properties_substance_fn = [=](double T, double P_, double &P, std::string symbol) {
             auto x = P_;
             return thermoPropertiesSubstance(T, P, symbol);
         };
-        thermo_properties_substance_fn = memoizeN(thermo_properties_substance_fn,max_cache_size);
+        thermo_properties_substance_fn = memoizeN(thermo_properties_substance_fn, preferences.max_cache_size);
 
         electro_properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol, int state) {
             auto x = P_;
             return electroPropertiesSolvent(T, P, symbol, state);
         };
-        electro_properties_solvent_fn = memoizeN(electro_properties_solvent_fn,max_cache_size);
+        electro_properties_solvent_fn = memoizeN(electro_properties_solvent_fn,preferences.max_cache_size);
 
         properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol, int state) {
             auto x = P_;
             return propertiesSolvent(T, P, symbol, state);
         };
-        properties_solvent_fn = memoizeN(properties_solvent_fn,max_cache_size);
+        properties_solvent_fn = memoizeN(properties_solvent_fn,preferences.max_cache_size);
 
         thermo_properties_reaction_fn = [=](double T, double P_, double &P, std::string symbol) {
             auto x = P_;
             return thermoPropertiesReaction(T, P, symbol);
         };
-        thermo_properties_reaction_fn = memoizeN(thermo_properties_reaction_fn,max_cache_size);
+        thermo_properties_reaction_fn = memoizeN(thermo_properties_reaction_fn,preferences.max_cache_size);
     }
 
     auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) -> void
