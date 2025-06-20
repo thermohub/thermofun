@@ -2,6 +2,7 @@
 #define THERMOMODELSSOLVENT_H
 
 #include <memory>
+#include <string>
 
 namespace ThermoFun {
 
