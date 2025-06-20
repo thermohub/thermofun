@@ -15,11 +15,19 @@ class Solvent;
 class Substance;
 class Reaction;
 class Element;
-struct ThermoPreferences;
+struct WorkPreferences;
 struct ThermoPropertiesSubstance;
 struct ThermoPropertiesReaction;
 struct ElectroPropertiesSolvent;
 struct PropertiesSolvent;
+
+struct EnginePreferences
+{
+    int solventState = 0; // 0: liquid; 1: vapor
+    std::string waterTripleProperties = "Helgeson_Kirkham_1974";
+    std::string solventSymbol = "H2O@"; // default
+};
+
 
 /**
  * @brief The ThermoEngine class calculates the thermodynamic properties of the substances
@@ -47,14 +55,20 @@ public:
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
     auto setSolventSymbol(const std::string solvent_symbol) -> void;
 
+    /// Sets the preferences used by ThermoEngine
+    auto setPreferences(const EnginePreferences preferences) -> void;
+
+    /// Retireves a copy of the curent prefrences
+    auto preferences() -> EnginePreferences&;
+
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
-    auto solventSymbol() const -> std::string;
+    auto solventSymbol() -> std::string&;
 
     /**
      * @brief setThermoPreferences
      * @param prefs
      */
-    auto setThermoPreferences(const ThermoPreferences prefs) -> void;
+    auto setThermoPreferences(const WorkPreferences prefs) -> void;
 
     /// Returns the instance of the database present inside thermo
     auto database() const -> const Database &;
