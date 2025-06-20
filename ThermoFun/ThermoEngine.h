@@ -26,6 +26,7 @@ struct EnginePreferences
     int solventState = 0; // 0: liquid; 1: vapor
     std::string waterTripleProperties = "Helgeson_Kirkham_1974";
     std::string solventSymbol = "H2O@"; // default
+    size_t max_cache_size = 1e6;
 };
 
 
