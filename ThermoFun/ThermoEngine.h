@@ -26,7 +26,7 @@ struct EnginePreferences
     bool enable_memoize = true;
     size_t max_cache_size = 1e6; // if 0 unlimited cache
     int solventState = 0; // 0: liquid; 1: vapor
-    std::string waterTripleProperties = "Helgeson_Kirkham_1974";
+    std::string waterTripleProperties = "Helgeson_Kirkham_1974"; // NEA_HGK or NEA_IAPWS // use NEA_ to be consistent with thier standard themrodynamic properties of H2O ar 25 C and 1 bar.
     std::string solventSymbol = "H2O@"; // default
 };
 
