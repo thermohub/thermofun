@@ -119,8 +119,8 @@ struct ThermoEngine::Impl
             return thermoPropertiesReaction(T, P, symbol);
         };
 
-        if( !preferences.enable_memoize ) {
-            if( !preferences.max_cache_size ) {
+        if( preferences.enable_memoize ) {
+            if( preferences.max_cache_size==0 ) {
                 thermo_properties_substance_fn = memoize(thermo_properties_substance_fn);
                 electro_properties_solvent_fn = memoize(electro_properties_solvent_fn);
                 properties_solvent_fn = memoize(properties_solvent_fn);
