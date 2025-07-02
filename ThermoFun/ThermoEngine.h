@@ -23,10 +23,11 @@ struct PropertiesSolvent;
 
 struct EnginePreferences
 {
+    bool enable_memoize = true;
+    size_t max_cache_size = 1e6; // if 0 unlimited cache
     int solventState = 0; // 0: liquid; 1: vapor
     std::string waterTripleProperties = "Helgeson_Kirkham_1974";
     std::string solventSymbol = "H2O@"; // default
-    size_t max_cache_size = 1e6;
 };
 
 
