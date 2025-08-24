@@ -115,10 +115,10 @@ void exportThermoEngine(py::module& m)
     py::class_<EnginePreferences>(m, "EnginePreferences")
     .def(py::init<>())  // default constructor
     .def_readwrite("enable_memoize", &EnginePreferences::enable_memoize)
-    .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size)
-    .def_readwrite("solventState", &EnginePreferences::solventState)
-    .def_readwrite("waterTripleProperties", &EnginePreferences::waterTripleProperties)
-    .def_readwrite("solventSymbol", &EnginePreferences::solventSymbol);
+    .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size, "size of memoization cache")
+    .def_readwrite("solventState", &EnginePreferences::solventState, "solvent aggregation state (0 liquid, 1 gs/vapour)")
+    .def_readwrite("waterTripleProperties", &EnginePreferences::waterTripleProperties, "water triple properties (Helgeson_Kirkham_1974, NEA_HGK, NEA_IPWS)")
+    .def_readwrite("solventSymbol", &EnginePreferences::solventSymbol, "symbol of solvent use in EoS of solute properties (e.g., H2O@ for HKF model)");
 }
 
 }

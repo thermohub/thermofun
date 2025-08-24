@@ -642,5 +642,37 @@ auto Database::elementalEntropyFormula(std::string formula) const -> double
     return prop.elemental_entropy;
 }
 
+auto Database::setSubstancesChargeFromFromula() -> void
+{
+    for (auto& s: pimpl->substances_map)
+    {
+//        auto js = s.second.jsonString();
+//        if (js != "")
+//        {
+//            json j = json::parse(js);
+//            if (!j.contains("formula_charge"))
+//            {
+//                 ChemicalFun::FormulaToken formula(s.second.formula());
+//                 auto p = formula.properties(pimpl->all_elements.elements());
+//                 s.second.setCharge(p.charge);
+//            } else if (j["formula_charge"].is_null())
+//            {
+//                ChemicalFun::FormulaToken formula(s.second.formula());
+//                auto p = formula.properties(pimpl->all_elements.elements());
+//                s.second.setCharge(p.charge);
+//            }
+//        } else
+        {
+            ChemicalFun::FormulaToken formula(s.second.formula());
+            auto p = formula.properties(pimpl->all_elements.elements());
+            if (s.second.charge() != p.charge)
+            {
+                s.second.setCharge(p.charge);
+                thfun_logger->warn(" for {} the record charge {} was updated to {}, calculated from the formula", s.second.symbol(), s.second.charge(), p.charge );
+            }
+        }
+    }
+}
+
 } // namespace ThermoFun
 
