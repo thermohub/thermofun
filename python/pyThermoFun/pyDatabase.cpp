@@ -98,6 +98,7 @@ void exportDatabase(py::module& m)
         .def("containsSubstance", &Database::containsSubstance, "Check if the database contains a given substance")
         .def("containsReaction", &Database::containsReaction, "Check if the database contains a given reaction")
         .def("parseSubstanceFormula", &Database::parseSubstanceFormula, "Parses a given substance formula present in the database")
+        .def("setSubstancesChargeFromFromula", &Database::setSubstancesChargeFromFromula, "Sets the charge of all substances based in their formulas, uses the formula parser")
         .def("__str__", [](const Database& self) { std::stringstream ss; ss << self.getElements(); ss << self.getSubstances(); ss << self.getReactions(); return ss.str(); })
         ;
 }

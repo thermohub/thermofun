@@ -135,7 +135,7 @@ struct ThermoEngine::Impl
         }
     }
 
-    auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) -> void
+    auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) const -> void
     {
         tps.gibbs_energy -= wat.Gtr;
         tps.enthalpy -= wat.Htr;
@@ -144,7 +144,7 @@ struct ThermoEngine::Impl
         tps.internal_energy -= wat.Utr;
     }
 
-    auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) -> void
+    auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) const -> void
     {
         const auto Tr = subst.referenceT();
         const auto entropyElements = database.elementalEntropyFormula(subst.formula());
@@ -223,12 +223,12 @@ struct ThermoEngine::Impl
         return workPreferences;
     }
 
-    auto thermoPropertiesSubstance(double T, double &P, std::string substance) -> ThermoPropertiesSubstance
+    auto thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
     {
         return thermoPropertiesSubstance(T, P, database.getSubstance(substance));
     }
 
-    auto thermoPropertiesSubstance(double T, double &P, const Substance &substance) -> ThermoPropertiesSubstance
+    auto thermoPropertiesSubstance(double T, double &P, const Substance &substance) const -> ThermoPropertiesSubstance
     {
         WorkPreferences pref = getThermoPreferencesSubstance(substance);
         ThermoPropertiesSubstance tps;
@@ -596,6 +596,8 @@ struct ThermoEngine::Impl
         }
         else
         {
+            subst.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_CON);
+            return thermoPropertiesSubstance(T, P, subst);//thermo_properties_substance_fn(T, P, P, subst.symbol()); //
             errorReactionNotDefined(subst.symbol(), __LINE__, __FILE__);
         }
 

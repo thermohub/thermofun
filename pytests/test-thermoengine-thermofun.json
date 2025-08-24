@@ -1538,6 +1538,72 @@
         ]
       },
       "symbol": "H4SiO4@"
+    },
+                {
+      "Pst": 100000,
+      "Tst": 298.15,
+      "aggregate_state": {
+        "4": "AS_AQUEOUS"
+      },
+      "class_": {
+        "2": "SC_AQSOLUTE"
+      },
+      "datasources": [
+        "PSI2020"
+      ],
+      "formula": "U|+4|+4",
+      "mass_per_mole": {
+        "values": [
+          null
+        ]
+      },
+      "name": "U+4",
+      "sm_enthalpy": {
+        "errors": [
+          3.3
+        ],
+        "units": [
+          "kJ/mol"
+        ],
+        "values": [
+          -591.2
+        ]
+      },
+      "sm_entropy_abs": {
+        "errors": [
+          12.6
+        ],
+        "units": [
+          "J/(K*mol)"
+        ],
+        "values": [
+          -416.9
+        ]
+      },
+      "sm_gibbs_energy": {
+        "errors": [
+          1.8
+        ],
+        "units": [
+          "kJ/mol"
+        ],
+        "values": [
+          -529.9
+        ]
+      },
+      "sm_heat_capacity_p": {
+        "errors": [
+          50
+        ],
+        "units": [
+          "J/(K*mol)"
+        ],
+        "values": [
+          -220
+        ]
+      },
+      "symbol": "U+4",
+      "TPMethods": [ ]
     }
   ],
   "reactions": [
@@ -2206,6 +2272,31 @@
       "references": [
         "[1998SHO/EA]"
       ]
+    },
+    {
+      "atomic_mass": {
+        "values": [
+          238.0289
+        ]
+      },
+      "class_": {
+        "0": "ELEMENT"
+      },
+      "datasources": [
+        "NEA"
+      ],
+      "entropy": {
+        "errors": [
+          0.2
+        ],
+        "units": [
+          "J/(K*mol)"
+        ],
+        "values": [
+          50.2
+        ]
+      },
+      "symbol": "U"
     }
   ]
 }

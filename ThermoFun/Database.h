@@ -206,6 +206,11 @@ public:
     /// @return elemental entropy
     auto elementalEntropyFormula(std::string formula) const -> double;
 
+    /// Checks if charge exists in json, if not uses formula parser to calculate
+    /// and set the substance charge
+    ///
+    auto setSubstancesChargeFromFromula() -> void;
+
 private:
     struct Impl;
 
