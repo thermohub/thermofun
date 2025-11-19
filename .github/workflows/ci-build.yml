@@ -2,7 +2,7 @@ name: ci-build
 on:
   push:
     branches:
-      - clear_deploy
+      - no_aqueous_phase
       - master
       - main
   pull_request:
