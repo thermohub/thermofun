@@ -4,10 +4,12 @@ on:
     branches:
       - clear_deploy
       - master
+      - main
   pull_request:
     branches:
       - main
       - master
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -19,14 +21,17 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
+          - macos-13
           - macos-latest
         include:
           - os: ubuntu-latest
             conda_platform: linux-64
           - os: windows-latest
             conda_platform: win-64
-          - os: macos-latest
+          - os: macos-13
             conda_platform: osx-64
+          - os: macos-latest
+            conda_platform: osx-arm64
 
     steps:
 

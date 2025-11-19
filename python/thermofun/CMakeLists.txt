@@ -25,8 +25,8 @@ endif()
 add_custom_target(thermofun ALL
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:PyThermoFun> 
         ${CMAKE_CURRENT_BINARY_DIR}/$<TARGET_FILE_NAME:PyThermoFun>
-    #COMMAND ${PYTHON_EXECUTABLE} -m pip install ${_PIP_ARG} -e ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${PYTHON_EXECUTABLE} -m pip install --prefix ${CMAKE_BINARY_DIR} --ignore-installed .
+    #COMMAND ${Python3_EXECUTABLE} -m pip install ${_PIP_ARG} -e ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${Python3_EXECUTABLE} -m pip install --prefix ${CMAKE_BINARY_DIR} --ignore-installed .
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # Set dependencies of thermofun target
@@ -47,7 +47,7 @@ install(CODE
     endif()
 
     execute_process(
-        COMMAND \"${PYTHON_EXECUTABLE}\" -m pip install \"${CMAKE_CURRENT_BINARY_DIR}\"
+        COMMAND \"${Python3_EXECUTABLE}\" -m pip install \"${CMAKE_CURRENT_BINARY_DIR}\"
         WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
 "
 )
@@ -71,7 +71,7 @@ install(CODE
     endif()
 
     execute_process(
-        COMMAND \"${PYTHON_EXECUTABLE}\" -m pip install --prefix \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_BINARY_DIR}\"
+        COMMAND \"${Python3_EXECUTABLE}\" -m pip install --prefix \"${THERMOFUN_PYTHON_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_BINARY_DIR}\"
         WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")
 "
 )

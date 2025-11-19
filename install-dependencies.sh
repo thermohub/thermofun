@@ -96,7 +96,7 @@ test -f /usr/local/lib/libChemicalFun.$EXTN || {
         # Building chemicalfun library
         mkdir -p ~/code && \
                 cd ~/code && \
-                git clone https://bitbucket.org/gems4/chemicalfun.git -b $BRANCH_TFUN  && \
+                git clone https://github.com/thermohub/chemicalfun.git -b $BRANCH_TFUN  && \
                 cd chemicalfun && \
                 mkdir -p build && \
                 cd build && \
