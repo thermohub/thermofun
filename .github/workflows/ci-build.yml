@@ -79,6 +79,13 @@ jobs:
           cmake --build build --target install --config Release || goto :eof
           python -c "import thermofun" || goto :eof
 
+      - name: Run tests that read thermofun
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          python -c "import thermofun"
+          conda list
+
       - name: Check conda
         run: |
           conda config --show
