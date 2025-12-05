@@ -1,1 +1,0 @@
-from thermofun.PyThermoFun import *

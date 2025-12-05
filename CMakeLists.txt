@@ -110,7 +110,7 @@ endif()
 
 # Build python wraper
 if(TFUN_BUILD_PYTHON)
-    add_subdirectory(python2)
+    add_subdirectory(python)
 endif()
 
 # Install the cmake config files that permit users to use find_package(ThermoFun)
