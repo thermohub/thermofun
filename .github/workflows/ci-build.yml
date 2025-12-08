@@ -21,15 +21,12 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-13
           - macos-latest
         include:
           - os: ubuntu-latest
             conda_platform: linux-64
           - os: windows-latest
             conda_platform: win-64
-          - os: macos-13
-            conda_platform: osx-64
           - os: macos-latest
             conda_platform: osx-arm64
 
