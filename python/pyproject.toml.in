@@ -1,0 +1,30 @@
+[build-system]
+requires = [
+    "setuptools >= 61.2",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thermofun"
+version= "${PROJECT_VERSION}"
+requires-python = ">= 3.10"
+authors = [
+  {name = "G.D. Miron", email = "dan.miron@psi.ch"}
+]
+maintainers = [
+  {name = "G.D. Miron", email = "dan.miron@psi.ch"}
+]
+description = "The Python interface of the ThermoFun library."
+license = "GPL-3.0-or-later"
+keywords = ["element", "substance", "reaction", "HKF equation", "solvent", "liquid"]
+
+[project.urls]
+Homepage = "https://thermohub.org/"
+Repository = "https://github.com/thermohub/thermofun.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+thermofun = ["PyThermoFun*"]

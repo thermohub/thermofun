@@ -1,5 +1,6 @@
 # Find pybind11 library (if needed)
 if(TFUN_BUILD_PYTHON)
+    find_package (Python3 COMPONENTS Interpreter Development)
     find_package(pybind11 REQUIRED)
     if(NOT pybind11_FOUND)
         message(WARNING "Could not find pybind11 - the Python module `thermofun` will not be built.")

@@ -2,12 +2,14 @@ name: ci-build
 on:
   push:
     branches:
-      - clear_deploy
+      - no_aqueous_phase
       - master
+      - main
   pull_request:
     branches:
       - main
       - master
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -26,7 +28,7 @@ jobs:
           - os: windows-latest
             conda_platform: win-64
           - os: macos-latest
-            conda_platform: osx-64
+            conda_platform: osx-arm64
 
     steps:
 
@@ -73,6 +75,13 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" -A x64 -S . -B build  || goto :eof
           cmake --build build --target install --config Release || goto :eof
           python -c "import thermofun" || goto :eof
+
+      - name: Run tests that read thermofun
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          python -c "import thermofun"
+          conda list
 
       - name: Check conda
         run: |
