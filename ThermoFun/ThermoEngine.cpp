@@ -464,7 +464,7 @@ struct ThermoEngine::Impl
             tps = reacDCthermoProperties(T, P, pref.workSubstance);
         }
 
-        // check properites
+        // check properties
         tps = fallbackThermoPropertiesSubstance(tps, pref.workSubstance);
 
         return tps;
@@ -651,7 +651,7 @@ struct ThermoEngine::Impl
         if ((subst.method_P() == MethodCorrP_Thrift::type::CPM_CON) &&
             (reaction.method_P()== MethodCorrP_Thrift::CPM_OFF || !reaction.method_P()))
         {
-            // check properites
+            // check properties
             tps = fallbackThermoPropertiesSubstance(tps, subst);
             tps = ConMolVol(subst).thermoProperties(T, P, tps);
         }

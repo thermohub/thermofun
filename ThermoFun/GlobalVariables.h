@@ -4,8 +4,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <fstream>
 #include <unordered_map>
 
 #ifndef _WIN32
@@ -280,6 +278,7 @@ const std::unordered_map<std::string, WaterTripleProperties>& getWaterTripleData
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+ //   CTPM_UNSET = 0,
     CTPM_CON = 99, // constant properties from ref T-P
     CTPM_CPT = 100,
     CTPM_HKF = 101,
@@ -350,6 +349,7 @@ static const int MethodGenEoS_ndxThrift[] = {
 /// Indexes for temperature correction methods used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+//    CTM_UNSET = 0,
     CTM_CST = 200,
     CTM_CHP = 201,
     CTM_BER = 202,
@@ -434,6 +434,7 @@ static const int MethodCorrT_ndxThrift[] = {
 /// Indexes for pressure correction methods used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+//    CPM_UNSET = 0,
     CPM_OFF = 300,
     CPM_NUL = 301,
     CPM_ONE = 302,

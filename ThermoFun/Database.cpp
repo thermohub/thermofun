@@ -9,6 +9,7 @@
 #include "Element.h"
 
 #include <nlohmann/json.hpp>
+#include <fstream>
 
 using json = nlohmann::json;
 
