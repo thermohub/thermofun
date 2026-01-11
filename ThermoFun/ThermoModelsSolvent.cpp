@@ -69,22 +69,21 @@ WaterHGK::WaterHGK(const Substance &substance)
 {}
 
 // calculation
-auto WaterHGK::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
+auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string triple) -> PropertiesSolvent
 {
     WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
-    WaterTripleProperties wtr = waterTripleData.at("NEA_HGK");
-
+    WaterTripleProperties wtr = waterTripleData.at(triple);
     water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
 
     return water_hgk.propertiesWaterHGKgems(state);
 }
 
-auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
+auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string triple) -> ThermoPropertiesSubstance
 {
     WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
 
-    WaterTripleProperties wtr = waterTripleData.at(tripple);
+    WaterTripleProperties wtr = waterTripleData.at(triple);
 
     water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
 

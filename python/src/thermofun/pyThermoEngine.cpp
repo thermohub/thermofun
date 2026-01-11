@@ -112,13 +112,25 @@ void exportThermoEngine(py::module& m)
         .def("thermoPropertiesReactionFromReactants", thermoPropertiesReactionFromReactants2, "Calculate the thermodynamic properties from the reactants of a given reaction object.", py::arg("temperature"), py::arg("pressure"), py::arg("reaction"))
         ;
 
-    py::class_<EnginePreferences>(m, "EnginePreferences")
+   py::class_<EnginePreferences>(m, "EnginePreferences")
     .def(py::init<>())  // default constructor
-    .def_readwrite("enable_memoize", &EnginePreferences::enable_memoize)
-    .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size, "size of memoization cache")
-    .def_readwrite("solventState", &EnginePreferences::solventState, "solvent aggregation state (0 liquid, 1 gs/vapour)")
-    .def_readwrite("waterTripleProperties", &EnginePreferences::waterTripleProperties, "water triple properties (Helgeson_Kirkham_1974, NEA_HGK, NEA_IPWS)")
-    .def_readwrite("solventSymbol", &EnginePreferences::solventSymbol, "symbol of solvent use in EoS of solute properties (e.g., H2O@ for HKF model)");
+    .def_readwrite("enable_memoize", &EnginePreferences::enable_memoize,
+                   "enable/disable memoization of calculated properties (default: True)")
+    .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size,
+                   "size of memoization cache, default 1e6 (if 0 unlimited cache)")
+    .def_readwrite("solventState", &EnginePreferences::solventState,
+                   "solvent aggregation state (0 liquid, 1 gas/vapour), default 0")
+    .def_readwrite("waterTripleProperties", &EnginePreferences::waterTripleProperties,
+                   "water triple properties (Helgeson_Kirkham_1974, NEA_HGK, NEA_IAPWS), default Helgeson_Kirkham_1974")
+    .def_readwrite("solventSymbol", &EnginePreferences::solventSymbol,
+                   "symbol of solvent used in EoS of solute properties (e.g., H2O@ for HKF model), default H2O@")
+    .def_readwrite("fallback_to_reference_properties",
+                   &EnginePreferences::fallback_to_reference_properties,
+                   "use reference properties if no calculation functions are available True/False (default: True)")
+    .def_readwrite("apply_pressure_correction_to_gas_props",
+                   &EnginePreferences::apply_pressure_correction_to_gas_props,
+                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)");
+
 }
 
 }

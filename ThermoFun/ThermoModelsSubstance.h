@@ -368,7 +368,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -389,7 +390,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -410,7 +412,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -431,7 +434,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -452,7 +456,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -473,7 +478,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -515,7 +521,8 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+    /// @param apply_p pressure correction to gas properties (volume always)
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;

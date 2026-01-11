@@ -28,6 +28,8 @@ struct EnginePreferences
     int solventState = 0; // 0: liquid; 1: vapor
     std::string waterTripleProperties = "Helgeson_Kirkham_1974"; // NEA_HGK or NEA_IAPWS // use NEA_ to be consistent with thier standard themrodynamic properties of H2O ar 25 C and 1 bar.
     std::string solventSymbol = "H2O@"; // default
+    bool fallback_to_reference_properties = true; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain
+    bool apply_pressure_correction_to_gas_props = false; // making the pressure/fuagcity correction in the G0, H0, ... properties of gases
 };
 
 

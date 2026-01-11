@@ -12,9 +12,7 @@
 #include "ThermoModelsReaction.h"
 
 #include "OptimizationUtils.h"
-
 #include <functional>
-#include <iostream>
 
 namespace ThermoFun
 {
@@ -99,22 +97,22 @@ struct ThermoEngine::Impl
 
     void set_fn()
     {
-        thermo_properties_substance_fn = [=](double T, double P_, double &P, std::string symbol) {
+        thermo_properties_substance_fn = [=, this](double T, double P_, double &P, std::string symbol) {
             auto x = P_;
             return thermoPropertiesSubstance(T, P, symbol);
         };
 
-        electro_properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol, int state) {
+        electro_properties_solvent_fn = [=, this](double T, double P_, double &P, std::string symbol, int state) {
             auto x = P_;
             return electroPropertiesSolvent(T, P, symbol, state);
         };
 
-        properties_solvent_fn = [=](double T, double P_, double &P, std::string symbol, int state) {
+        properties_solvent_fn = [=, this](double T, double P_, double &P, std::string symbol, int state) {
             auto x = P_;
             return propertiesSolvent(T, P, symbol, state);
         };
 
-        thermo_properties_reaction_fn = [=](double T, double P_, double &P, std::string symbol) {
+        thermo_properties_reaction_fn = [=, this](double T, double P_, double &P, std::string symbol) {
             auto x = P_;
             return thermoPropertiesReaction(T, P, symbol);
         };
@@ -199,17 +197,29 @@ struct ThermoEngine::Impl
         else
             preferences.solventState = 0; // liquid
 
-        // check if the substance is reaction dependent
-        if ((workPreferences.workSubstance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC) ||
-            (!workPreferences.method_genEOS && !workPreferences.method_P && !workPreferences.method_T))
+        bool noMethods =
+            !workPreferences.method_genEOS &&
+            !workPreferences.method_P &&
+            !workPreferences.method_T;
+
+        bool constVm =
+            !workPreferences.method_genEOS &&
+            workPreferences.method_P == MethodCorrP_Thrift::CPM_CON &&
+            !workPreferences.method_T;
+
+        if (workPreferences.workSubstance.thermoCalculationType() ==
+                SubstanceThermoCalculationType::type::REACDC
+            || noMethods || constVm)
+        {
             workPreferences.isReacDC = true;
+        }
         else
             workPreferences.isReacDC = false;
 
         // check if substance is aq solute and needs a solvent
         if (workPreferences.workSubstance.substanceClass() == SubstanceClass::type::AQSOLUTE)
         {
-            // see if default solven is in the database if not search for solvent
+            // see if default solvent is in the database if not search for solvent
             if (!database.containsSubstance(preferences.solventSymbol))
             {
                 for (const auto& pair : database.mapSubstances()) {
@@ -303,7 +313,8 @@ struct ThermoEngine::Impl
                 }
                 case MethodCorrT_Thrift::type::CTM_CST:
                 {
-                    tps = EntropyCpIntegration(pref.workSubstance).thermoProperties(T, P);
+                    if (pref.method_genEOS != MethodGenEoS_Thrift::type::CTPM_CPT)
+                        tps = EntropyCpIntegration(pref.workSubstance).thermoProperties(T, P);
                     break;
                 }
                     //                default:
@@ -344,42 +355,42 @@ struct ThermoEngine::Impl
                 }
                 case MethodCorrP_Thrift::type::CPM_CORK:
                 {
-                    tps = GasCORK(pref.workSubstance).thermoProperties(T, P, tps);
+                    tps = GasCORK(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_PRSV:
                 {
-                    tps = GasPRSV(pref.workSubstance).thermoProperties(T, P, tps);
+                    tps = GasPRSV(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_EMP:
                 {
-                    tps = GasCGF(pref.workSubstance).thermoProperties(T, P, tps);
+                    tps = GasCGF(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_SRK:
                 {
-                    tps = GasSRK(pref.workSubstance).thermoProperties(T, P, tps);
+                    tps = GasSRK(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_PR78:
                 {
-                    tps = GasPR78(pref.workSubstance).thermoProperties(T, P, tps);
+                    tps = GasPR78(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_STP:
                 {
-                    tps = GasSTP(pref.workSubstance).thermoProperties(T, P, tps);
+                    tps = GasSTP(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_OFF:
+                {
+                    tps = IdealGasLawVol(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CON: // Molar volume assumed independent of T and P
                 {
                     tps = ConMolVol(pref.workSubstance).thermoProperties(T, P, tps);
-                    break;
-                }
-                case MethodCorrP_Thrift::type::CPM_OFF:
-                {
-                    tps = IdealGasLawVol(pref.workSubstance).thermoProperties(T, P, tps);
                     break;
                 }
                     //                default:
@@ -451,6 +462,36 @@ struct ThermoEngine::Impl
         else // substance properties calculated using the properties of a reaction
         {
             tps = reacDCthermoProperties(T, P, pref.workSubstance);
+        }
+
+        // check properites
+        tps = fallbackThermoPropertiesSubstance(tps, pref.workSubstance);
+
+        return tps;
+    }
+
+    auto fallbackThermoPropertiesSubstance(ThermoPropertiesSubstance tps, Substance subst) const -> ThermoPropertiesSubstance
+    {
+        auto tpref = subst.thermoReferenceProperties();
+        // leave volume as is in substance record if no function to calculate it exists
+        if (preferences.fallback_to_reference_properties)
+        {
+            if (tps.volume.sta.first == Reaktoro_::Status::notdefined)
+                tps.volume = tpref.volume;
+            if (tps.gibbs_energy.sta.first == Reaktoro_::Status::notdefined)
+                tps.gibbs_energy = tpref.gibbs_energy;
+            if (tps.enthalpy.sta.first == Reaktoro_::Status::notdefined)
+                tps.enthalpy = tpref.enthalpy;
+            if (tps.entropy.sta.first == Reaktoro_::Status::notdefined)
+                tps.entropy = tpref.entropy;
+            if (tps.heat_capacity_cp.sta.first == Reaktoro_::Status::notdefined)
+                tps.heat_capacity_cp = tpref.heat_capacity_cp;
+            if (tps.heat_capacity_cv.sta.first == Reaktoro_::Status::notdefined)
+                tps.heat_capacity_cv = tpref.heat_capacity_cv;
+            if (tps.internal_energy.sta.first == Reaktoro_::Status::notdefined)
+                tps.internal_energy = tpref.internal_energy;
+            if (tps.helmholtz_energy.sta.first == Reaktoro_::Status::notdefined)
+                tps.helmholtz_energy = tpref.helmholtz_energy;
         }
         return tps;
     }
@@ -552,6 +593,9 @@ struct ThermoEngine::Impl
         Reaction reaction;
         std::map<std::string, double> reactants;
 
+        // if reaction involves gases we switch on the P correction to the thermo props
+        preferences.apply_pressure_correction_to_gas_props = true;
+
         if (!reactionSymbol.empty())
         {
             reaction = database.getReaction(reactionSymbol);
@@ -569,7 +613,7 @@ struct ThermoEngine::Impl
 
             reactants = reaction.reactants();
 
-            for (auto reactant : reactants)
+            for (const auto& reactant : reactants)
             {
                 if (reactant.first != subst.symbol())
                 {
@@ -599,6 +643,17 @@ struct ThermoEngine::Impl
             subst.setMethodGenEoS(MethodGenEoS_Thrift::type::CTPM_CON);
             return thermoPropertiesSubstance(T, P, subst);//thermo_properties_substance_fn(T, P, P, subst.symbol()); //
             errorReactionNotDefined(subst.symbol(), __LINE__, __FILE__);
+        }
+
+        preferences.apply_pressure_correction_to_gas_props = false;
+
+        // pressure correction on rdc assuming constant molar volume
+        if ((subst.method_P() == MethodCorrP_Thrift::type::CPM_CON) &&
+            (reaction.method_P()== MethodCorrP_Thrift::CPM_OFF || !reaction.method_P()))
+        {
+            // check properites
+            tps = fallbackThermoPropertiesSubstance(tps, subst);
+            tps = ConMolVol(subst).thermoProperties(T, P, tps);
         }
 
         return tps;
@@ -743,6 +798,8 @@ struct ThermoEngine::Impl
         tpr.reaction_internal_energy = 0.0;
         tpr.reaction_helmholtz_energy = 0.0;
 
+        preferences.apply_pressure_correction_to_gas_props = true;
+
         std::string message = "Calculated from the reaction components: " + reaction.symbol() + "; ";
 
         for (auto &reactant : reaction.reactants())
@@ -778,6 +835,8 @@ struct ThermoEngine::Impl
             setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.log_equilibrium_constant.sta.second);
             setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
         }
+
+        preferences.apply_pressure_correction_to_gas_props = false;
         return tpr;
     }
 };

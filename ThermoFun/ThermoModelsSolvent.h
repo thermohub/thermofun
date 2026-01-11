@@ -30,13 +30,15 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param state defines the state of the solvent (liquid 0, vapor 1, below the critical point)
-    auto propertiesSolvent (double T, double &P, int state) -> PropertiesSolvent;
+    /// @param triple defines the source of water triple point properties
+    auto propertiesSolvent (double T, double &P, int state, std::string triple=std::string("NEA_HGK")) -> PropertiesSolvent;
 
-    /// Return the themrodynamic properties of the solvent.
+    /// Return the thermodynamic properties of the solvent.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param state defines the state of the solvent (liquid 0, vapor 1, below the critical point)
-    auto thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance;
+    /// @param triple defines the source of water triple point properties
+    auto thermoPropertiesSubstance(double T, double &P, int state, std::string triple) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;

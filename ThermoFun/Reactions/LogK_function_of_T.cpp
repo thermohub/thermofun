@@ -1,12 +1,59 @@
 #include "LogK_function_of_T.h"
 #include "ThermoParameters.h"
 #include "Reaction.h"
+#include <algorithm>
 
 namespace ThermoFun {
+
+MethodCorrT_Thrift::type determineMethod(const Reaktoro_::ThermoScalar& dGr,
+                                         const Reaktoro_::ThermoScalar& dHr,
+                                         const Reaktoro_::ThermoScalar& dSr,
+                                         const Reaktoro_::ThermoScalar& dCpr)
+{
+    using Status = Reaktoro_::Status;
+
+    const bool has_dHr  = dHr.sta.first  != Status::notdefined;
+    const bool has_dSr  = dSr.sta.first  != Status::notdefined;
+    const bool has_dCpr = dCpr.sta.first != Status::notdefined;
+
+    // --- EK3: any of dCpr, dHr, dSr defined ---
+    if (has_dCpr && has_dHr && has_dSr)
+    {
+        return MethodCorrT_Thrift::type::CTM_EK3;
+    }
+
+    // --- EK2: both dHr and dSr defined ---
+    if (has_dHr && has_dSr)
+    {
+        return MethodCorrT_Thrift::type::CTM_EK2;
+    }
+
+    // --- EK1: one defined AND that one equals zero ---
+    if ((has_dHr && dHr.val == 0.0) ||
+        (has_dSr && dSr.val == 0.0))
+    {
+        return MethodCorrT_Thrift::type::CTM_EK1;
+    }
+
+    // --- EK0: none defined ---
+    return MethodCorrT_Thrift::type::CTM_EK0;
+}
+
+std::vector<Reaktoro_::ThermoScalar>
+makeThermoScalars(const std::vector<double>& values)
+{
+    std::vector<Reaktoro_::ThermoScalar> result(values.size());
+
+    std::transform(values.begin(), values.end(), result.begin(),
+                   [](double v) { return Reaktoro_::ThermoScalar(v); });
+
+    return result;
+}
 
 auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
+    using Status = Reaktoro_::Status;
 
     auto Rln10   = R_CONSTANT * lg_to_ln;
     auto R_T     = TK * R_CONSTANT;
@@ -21,26 +68,38 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto lgK     = ref_tpr.log_equilibrium_constant;
     auto Tr      = reaction.referenceT();
 
+
+    const bool has_dHr  = dHr.sta.first  != Status::notdefined;
+    const bool has_dSr  = dSr.sta.first  != Status::notdefined;
+    const bool has_dGr = dGr.sta.first != Status::notdefined;
+
+    if(has_dSr && has_dGr)
+        dHr = dGr + dSr * TK;
+    if(has_dHr && has_dGr)
+        dSr = (dHr-dGr)/TK;
+
+    if (CE == MethodCorrT_Thrift::type::CTM_EK3)
+        CE = determineMethod(dGr,dHr,dSr,dCpr);
+
     /// deal with Cp and A parameters conversion
     switch (CE)
     {
         case MethodCorrT_Thrift::type::CTM_EK0: // 1-term lgK = const
-                // lgK = A[0];
-            dCpr = 0.0;
-            dHr  = 0.0;
-//            dGr = -dSr * TK;
+        // lgK = A[0];
+        // dCpr = 0.0;
+        // dHr  = 0.0;
             break;
         case MethodCorrT_Thrift::type::CTM_EK1: // 1-term dGr = const
                 // lgK = A[2]/T;
-            dCpr = 0.0;
-            dSr  = 0.0;
+            // dCpr = 0.0;
+            // dSr  = 0.0;
             dHr = dGr;
                 // dGr_d = dHr;
             lgK  = - dHr / TK / Rln10;
           break;
         case MethodCorrT_Thrift::type::CTM_EK2:  // 2-term or 1-term lgK=const at dHr=0
                 // lgK = A[0] + A[2]/T;
-            dCpr = 0.0;
+            // dCpr = 0.0;
                 // dGr_d = dHr - dSr * T;
             lgK  = (dSr - dHr/TK ) / Rln10;
           break;
