@@ -59,7 +59,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     if (k < 0)
     {
-        if (TK_ < thermo_parameters.temperature_intervals[0][0])
+        if (TK_ <= thermo_parameters.temperature_intervals[0][0])
             k = 0;
         if (TK_ > thermo_parameters.temperature_intervals[thermo_parameters.temperature_intervals.size() - 1][1])
             k = thermo_parameters.temperature_intervals.size() - 1;
