@@ -1,0 +1,13 @@
+Symbol,T(degC),P(bar),logKr(1),reaction_gibbs_energy(J/mol),reaction_entropy(J/K/mol),reaction_volume(J/bar),reaction_enthalpy(J/mol),reaction_heat_capacity_cp(J/K/mol)
+Ag(aq),25.0,1.0,-6.400,36531,-9.497,NaN,33700,0.000
+Ag(aq),40.0,1.0,-6.117,36674,-9.497,NaN,33700,0.000
+H3PO4(aq),25.0,1.0,9.352,-53382,195.410,4.262,4880,340.221
+H3PO4(aq),40.0,1.0,9.414,-56439,212.110,4.262,9983,340.221
+(UO2)3(PO4)2w4(cr),25.0,1.0,5.960,-34020,NaN,NaN,NaN,NaN
+(UO2)3(PO4)2w4(cr),40.0,1.0,5.960,-35731,NaN,NaN,NaN,NaN
+(HgOH)3PO4(s),25.0,1.0,14.000,-79913,NaN,NaN,NaN,NaN
+(HgOH)3PO4(s),40.0,1.0,14.000,-83933,NaN,NaN,NaN,NaN
+CaCO3(aragonite),25.0,1.0,8.320,-47491,195.844,NaN,10900,366.000
+CaCO3(aragonite),40.0,1.0,8.434,-50564,213.809,NaN,16390,366.000
+Fe4(OH)8Clwn(s),25.0,1.0,-39.700,226609,NaN,NaN,NaN,NaN
+Fe4(OH)8Clwn(s),40.0,1.0,-39.700,238010,NaN,NaN,NaN,NaN
