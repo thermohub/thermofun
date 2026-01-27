@@ -205,6 +205,13 @@ auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const Properties
                            __FILE__, __LINE__, static_cast<double>(ps.density/1000));
     }
 
+    funcG.g   = 0.0;
+    funcG.gT  = 0.0;
+    funcG.gP  = 0.0;
+    funcG.gTT = 0.0;
+    funcG.gTP = 0.0;
+    funcG.gPP = 0.0;
+
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
     // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
     //if(ps.density > 1000.0 || ps.density < 350.0)

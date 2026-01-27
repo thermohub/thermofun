@@ -2,7 +2,6 @@
 #define INTERFACE_H
 
 // C++ includes
-#include <array>
 #include <map>
 #include <memory>
 #include <string>
@@ -63,6 +62,13 @@ struct BatchPreferences
      * @value False generate T-P pairs by first incrementing pressure
      */
     bool loopTemperatureThenPressure = true;
+
+    /**
+     * @brief writeNaNifNotDefinedValue
+     * @value True writes NaN in csv for not defined values
+     * @value False wrtites the calculated value, danger - this value is probably not correct
+     */
+    bool writeNaNifNotDefinedValue = true;
 };
 
 ///
@@ -133,6 +139,8 @@ public:
     auto thermoPropertiesReaction   (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtpr vTpr) -> Output;
 
     auto setBatchPreferences        (const BatchPreferences &value) -> void;
+    BatchPreferences& preferences();
+    const BatchPreferences& preferences() const;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
 
     auto temperatureIncrement  () -> const std::map<std::string, double>&;

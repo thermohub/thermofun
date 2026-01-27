@@ -550,6 +550,15 @@ auto ThermoBatch::setBatchPreferences(const BatchPreferences &value) -> void
     pimpl->outSettings = value;
 }
 
+BatchPreferences& ThermoBatch::preferences() {
+    return pimpl->outSettings;
+}
+
+const BatchPreferences& ThermoBatch::preferences() const {
+    return pimpl->outSettings;
+}
+
+
 auto ThermoBatch::setSolventSymbol(const std::string solventSymbol) -> void
 {
     pimpl->thermo.setSolventSymbol(solventSymbol);

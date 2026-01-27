@@ -1,3 +1,4 @@
+#include "Database.h"
 #include <string>
 
 namespace ThermoFun {
@@ -5,6 +6,7 @@ namespace ThermoFun {
 class Substance;
 class Reaction;
 class Element;
+struct Conventions;
 
 //DefinesSubstLevelOptions levelOptionsDefault;
 /// Parses an element bson object and loads its data into the element structure
@@ -18,5 +20,7 @@ auto parseSubstance (const std::string &data) -> Substance;
 /// Parses a reaction bson object and loads its data into the reaction structure
 /// @param bso bson object
 auto parseReaction (const std::string &data) -> Reaction;
+
+auto readConventions(const std::string &data) -> DatabaseConventions;
 
 }

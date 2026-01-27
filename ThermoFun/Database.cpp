@@ -24,7 +24,6 @@ namespace ThermoFun {
     RaiseError(exception)
 }
 
-
 struct Database::Impl
 {
     /// The map of all aqueous species in the database
@@ -39,6 +38,9 @@ struct Database::Impl
     /// Downloaded elements data for formula parser
     ChemicalFun::DBElements all_elements;
     //char type_ = jsonio::FileTypes::Undef_;
+
+    /// For calculating and outputting properties of a database e.g., the water triple properties
+    mutable DatabaseConventions conventions;
 
     Impl()
     {}
@@ -349,6 +351,8 @@ struct Database::Impl
                 j = json::parse(ifs);
             }
 
+            if (j.contains("conventions"))
+                conventions = readConventions(j["conventions"].dump());
             if (j.contains("elements"))
                 addRecords(j["elements"], "element");
             if (j.contains("substances"))
@@ -589,7 +593,11 @@ auto Database::getReactionsList() const -> std::vector<std::string>
    return list;
 }
 
+DatabaseConventions& Database::conventions() { 
+    return pimpl->conventions; }
 
+const DatabaseConventions& Database::conventions() const { 
+    return pimpl->conventions; }
 
 auto Database::numberOfElements() const -> size_t
 {

@@ -16,7 +16,8 @@ auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure /*p*/) -> Ther
                    -.56473658748e-6,   .16200446e-7,     -.3303822796e-9,
                    .451916067368e-11,-.370734122708e-13, .137546068238e-15 };
 
-    Reaktoro_::ThermoScalar dH0k;  // enthapy of ideal gas water at 0 K (kJ)
+    Reaktoro_::ThermoScalar dH0k;  // enthalpy of ideal gas water at 0 K (kJ)
+    dH0k = 0.0;
     dH0k += (-182161.88);
 
 //    tt  = t / 1.0e2;

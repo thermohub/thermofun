@@ -24,6 +24,11 @@ using ElementsMap   = std::map<std::string, Element>;
 using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap  = std::map<std::string, Reaction>;
 
+struct DatabaseConventions {
+    // e.g. "NEA_HGK", "NEA_IAPWS" (determines the correct properties of water from EoS to geochemical conventions, e.g. G0 -237140 in NEA_HGK or -237181 in HKF_HGK_1974 supcrt datasets
+    std::string water_triple_point_reference = "HKF_HGK_1974";
+};
+
 
 /**
  * @brief The Database class stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance
@@ -157,10 +162,10 @@ public:
     /// Returns the map of reactions in the database
     auto mapReactions() const -> const ReactionsMap&;
 
-    /// Returns the number of elements in the databse
+    /// Returns the number of elements in the database
     auto numberOfElements() const -> size_t;
 
-    /// Returns the number of substances in the databse
+    /// Returns the number of substances in the database
     auto numberOfSubstances() const -> size_t;
 
     /// Returns the number of reactions in the database
@@ -211,10 +216,16 @@ public:
     ///
     auto setSubstancesChargeFromFromula() -> void;
 
+    /// Return conventions used in the database
+    /// Settings for calculating and outputting properties of a database e.g., the water triple properties
+    DatabaseConventions& conventions();
+    const DatabaseConventions& conventions() const;
+
 private:
     struct Impl;
 
     std::shared_ptr<Impl> pimpl;
+    
 };
 
 } // namespace ThermoFun

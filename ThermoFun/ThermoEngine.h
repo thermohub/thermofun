@@ -25,12 +25,19 @@ struct EnginePreferences
 {
     bool enable_memoize = true;
     size_t max_cache_size = 1e6; // if 0 unlimited cache
-    int solventState = 0; // 0: liquid; 1: vapor
-    std::string waterTripleProperties = "Helgeson_Kirkham_1974"; // NEA_HGK or NEA_IAPWS // use NEA_ to be consistent with their standard thermodynamic properties of H2O ar 25 C and 1 bar.
-    std::string solventSymbol = "H2O@"; // default
-    bool fallback_to_reference_properties = true; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain
+    int solvent_state = 0; // 0: liquid; 1: vapor
+    std::string solvent_symbol = "H2O@"; // default
+    bool fallback_to_reference_properties = false; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain, value undefined only if not present in the database record
     bool apply_pressure_correction_to_gas_props = false; // making the pressure/fugacity correction in the G0, H0, ... properties of gases
 };
+
+struct EngineConventions {
+    // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
+    std::string apparent_properties = "BENSON_HELGESON";
+    // e.g. "STEAM_TABLES"
+    std::string water_properties = "GEOCHEMICAL";
+};
+
 
 
 /**
@@ -62,17 +69,8 @@ public:
     /// Sets the preferences used by ThermoEngine
     auto setPreferences(const EnginePreferences preferences) -> void;
 
-    /// Retireves a copy of the curent prefrences
-    auto preferences() -> EnginePreferences&;
-
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
     auto solventSymbol() -> std::string&;
-
-    /**
-     * @brief setThermoPreferences
-     * @param prefs
-     */
-    auto setThermoPreferences(const WorkPreferences prefs) -> void;
 
     /// Returns the instance of the database present inside thermo
     auto database() const -> const Database &;
@@ -162,6 +160,15 @@ public:
     /// @param formula
     /// @return map of Elements and coefficients
     auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
+
+    /// Return conventions used in the engine
+    /// Settings for calculating and outputting properties of a engine 
+    EngineConventions& conventions();
+    const EngineConventions& conventions() const;
+
+    /// Retrieves a copy of the curent preferences
+    EnginePreferences& preferences();
+    const EnginePreferences& preferences() const;
 
 private:
     struct Impl;

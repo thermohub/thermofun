@@ -16,6 +16,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     ThermoParametersSubstance thermo_parameters = substance.thermoParameters();
 
     Reaktoro_::ThermoScalar V;
+    V = 0.0;
     int k = -1;
     std::vector<double> ac;
     auto TK_ = TK;

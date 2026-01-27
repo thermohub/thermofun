@@ -73,9 +73,9 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     const bool has_dSr  = dSr.sta.first  != Status::notdefined;
     const bool has_dGr = dGr.sta.first != Status::notdefined;
 
-    if(has_dSr && has_dGr)
+    if(has_dSr && has_dGr && !has_dHr)
         dHr = dGr + dSr * TK;
-    if(has_dHr && has_dGr)
+    if(has_dHr && has_dGr && !has_dSr)
         dSr = (dHr-dGr)/TK;
 
     if (CE == MethodCorrT_Thrift::type::CTM_EK3)

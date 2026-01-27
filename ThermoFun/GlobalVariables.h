@@ -57,7 +57,7 @@ struct WaterTripleProperties {
 // Create the map with source labels
 static const std::unordered_map<std::string, WaterTripleProperties> waterTripleData = {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-    { "Helgeson_Kirkham_1974", {
+    { "HKF_HGK_1974", {
         15.1320 * cal_to_J,
        -56290.0 * cal_to_J,
        -68767.0 * cal_to_J,
@@ -78,7 +78,6 @@ static const std::unordered_map<std::string, WaterTripleProperties> waterTripleD
        -67922.22 * cal_to_J,
        -55434.49 * cal_to_J
     }}
-    // Add more sources as needed
 };
 
 enum SubstanceTPMethodType {
