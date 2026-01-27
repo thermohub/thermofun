@@ -93,9 +93,8 @@ void exportThermoEngine(py::module& m)
         .def("appendData", appendData2, "Append records of given label (element, substance, reaction) to the database from a list of JSON strings", py::arg("records_json"), py::arg("label"))
         .def("setSolventSymbol", &ThermoEngine::setSolventSymbol, "Sets the symbol of the solvent record present in the thermodynamic dataset. Will be used to calculate the solvent properties ", py::arg("symbol"))
         .def("solventSymbol", &ThermoEngine::solventSymbol, "Returns the symbol of the solvent record used to calculate the solvent properties")
-        .def("preferences", 
-         static_cast<EnginePreferences& (ThermoEngine::*)()>(&ThermoEngine::preferences),
-         py::return_value_policy::reference_internal)
+        .def_property_readonly( "preferences", [](ThermoEngine& en) -> const EnginePreferences& { return en.preferences(); }, py::return_value_policy::reference_internal, "Access the preferences used in engine calculations" )
+        .def_property_readonly( "conventions", [](ThermoEngine& en) -> const EngineConventions& { return en.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used in engine calculations" )
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1, "Calculate the thermodynamic properties of a substance with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
         .def("electroPropertiesSolvent", electroPropertiesSolvent1, "Calculate the electro-chemical properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
         .def("propertiesSolvent", propertiesSolvent1, "Calculate the properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
@@ -118,19 +117,21 @@ void exportThermoEngine(py::module& m)
                    "enable/disable memoization of calculated properties (default: True)")
     .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size,
                    "size of memoization cache, default 1e6 (if 0 unlimited cache)")
-    .def_readwrite("solventState", &EnginePreferences::solventState,
+    .def_readwrite("solventState", &EnginePreferences::solvent_state,
                    "solvent aggregation state (0 liquid, 1 gas/vapour), default 0")
-    .def_readwrite("waterTripleProperties", &EnginePreferences::waterTripleProperties,
-                   "water triple properties (Helgeson_Kirkham_1974, NEA_HGK, NEA_IAPWS), default Helgeson_Kirkham_1974")
-    .def_readwrite("solventSymbol", &EnginePreferences::solventSymbol,
+    .def_readwrite("solventSymbol", &EnginePreferences::solvent_symbol,
                    "symbol of solvent used in EoS of solute properties (e.g., H2O@ for HKF model), default H2O@")
     .def_readwrite("fallback_to_reference_properties",
                    &EnginePreferences::fallback_to_reference_properties,
-                   "use reference properties if no calculation functions are available True/False (default: True)")
+                   "use reference properties if no calculation functions are available True/False (default: False)")
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
                    "apply pressure/fugacity correction to gas standard properties True/False (default: False)");
 
+    py::class_<EngineConventions>(m, "EngineConventions")
+        .def(py::init<>())
+        .def_readwrite("apparent_properties", &EngineConventions::apparent_properties)
+        .def_readwrite("water_properties", &EngineConventions::water_properties);
 }
 
 }
