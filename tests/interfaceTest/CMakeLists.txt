@@ -2,13 +2,13 @@
 cmake_minimum_required(VERSION 3.16..4.2)
 
 # Specify the name of your project
-project(test01)
+project(interfaceTest)
 
 # Find the ThermoFun dependency.
 find_package(ThermoFun REQUIRED)
 
-# Create an executable named app with source code main.cpp
-add_executable(test01 src/main.cpp)
+# Create an executable named interfaceTest with source code main.cpp
+add_executable(interfaceTest src/main.cpp)
 
 # Link your application against ThermoFun C++ library.
-target_link_libraries(test01 ThermoFun::ThermoFun)
+target_link_libraries(interfaceTest ThermoFun::ThermoFun)
