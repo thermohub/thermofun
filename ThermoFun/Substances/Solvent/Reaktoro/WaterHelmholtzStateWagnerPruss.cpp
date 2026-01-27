@@ -182,6 +182,17 @@ auto waterHelmholtzStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::ThermoS
     Reaktoro_::ThermoScalar phir_dtt;
     Reaktoro_::ThermoScalar phir_ddt;
 
+    phir = 0.0;
+    phir_d = 0.0;
+    phir_t = 0.0;
+    phir_dd = 0.0;
+    phir_tt = 0.0;
+    phir_dt = 0.0;
+    phir_ddd = 0.0;
+    phir_ttt = 0.0;
+    phir_dtt = 0.0;
+    phir_ddt = 0.0;
+
 	for(int i = 1; i <= 7; ++i)
 	{
 		const auto A     = n[i]*pow(delta, d[i])*pow(tau, t[i]);

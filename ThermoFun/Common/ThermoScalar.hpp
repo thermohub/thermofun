@@ -21,9 +21,7 @@
 
 // C++ includes
 #include <cmath>
-#include <map>
 #include <string>
-
 
 namespace Reaktoro_ {
 
@@ -32,7 +30,8 @@ enum Status {
     read,
     calculated,
     assigned,
-    initialized
+    initialized,
+    outofbounds
 };
 
 using StatusMessage = std::pair <Status, std::string>;

@@ -16,7 +16,7 @@
 
       auto elements1 = ThermoFun::ChemicalFormula::extractElements({"H4SiO2@"} );
 
-      // Optional: set the solvent symbol used for claulating properties of aqueous species
+      // Optional: set the solvent symbol used for calculating properties of aqueous species
       batch.setSolventSymbol("H2O@");
 
       // Optional: change default units
@@ -63,7 +63,7 @@
                                           ).toCSVPropertyGrid("grid.csv");    */                       // output
 
      // Water solvent
-
+/*
        ThermoEngine engine("aq17-thermofun.json");
 
        engine.appendData("water-thermofun.json");
@@ -73,17 +73,74 @@
 
        auto rho_solvent = engine.propertiesSolvent(T,P, "H2O@", 1).density.val;
 
-       auto eplsilon_solvent = engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val;
+       auto epsilon_solvent = engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val;
 
        auto rho_solvent2 = engine.propertiesSolvent(T,P, "H2O@", 0).density.val;
 
-       auto eplsilon_solvent2 = engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val;
+       auto epsilon_solvent2 = engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val;
 
        auto rho_solvent3 = engine.propertiesSolvent(T,P, "H2O@").density.val;
 
-       auto eplsilon_solvent3 = engine.electroPropertiesSolvent(T,P, "H2O@").epsilon.val;
+       auto epsilon_solvent3 = engine.electroPropertiesSolvent(T,P, "H2O@").epsilon.val;
 
        std::cout <<"end"<< std::endl;
+
+       */
+/*
+double P = 5000e5;
+
+    //ThermoEngine engine("../../pytests/Reactions/Co_Cu_aq-thermofun.json");
+ThermoEngine engine("../../pytests/test-aq17-gem-lma-thermofun.json");
+auto prop = engine.thermoPropertiesReaction(873.15, P, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3");
+
+*/
+
+
+      // PSI TDB
+
+      
+      ThermoEngine engine("PsiTDB2020-subset-thermofun.json");
+      double P = 1e5;
+      double T = 40+273.15;
+
+      //engine.preferences().waterTripleProperties=  "NEA_HGK";
+      engine.preferences().fallback_to_reference_properties = false;
+
+      ThermoBatch batch = ThermoBatch(engine);
+
+      batch.setPropertiesUnits({"temperature", "pressure"},{"degC","bar"});
+
+      batch.setSolventSymbol("H2O(l)");
+
+      auto prefs = BatchPreferences();
+      prefs.writeNaNifNotDefinedValue = true;
+
+      batch.setBatchPreferences(prefs);
+
+// Optional: change default significant digits
+     // batch.setPropertiesDigits({"gibbs_energy","entropy", "volume", "enthalpy", "heat_capacity_cp", "temperature", "pressure"},  {1, 2, 2, 0, 2, 0, 0});
+
+// Write results to a comma separate files for a list of T-P pairs, substances, and properties
+      batch.thermoPropertiesSubstance( {{25, 1}, {40, 1}}, // # // list of T-P pairs
+                                          {"Ag+","Ag(aq)","H3PO4(aq)","(UO2)3(PO4)2w4(cr)","(HgOH)3PO4(s)", "Ca+2", "CaCO3(aragonite)", "FeOOH(gamma)", "CO2(g)", "Fe4(OH)8Clwn(s)"},                        //  # // list of substance symbols
+                                              {"gibbs_energy","entropy", "volume", "enthalpy", "heat_capacity_cp"} //  # // list of properties
+                                          ).toCSV("results_st2.csv");
+
+      batch.thermoPropertiesSubstance( {{25, 1}, {25, 5000}}, // # // list of T-P pairs
+                                      {"Ag+","Ag(aq)","H3PO4(aq)","(UO2)3(PO4)2w4(cr)","(HgOH)3PO4(s)", "Ca+2", "CaCO3(aragonite)", "FeOOH(gamma)", "CO2(g)", "Fe4(OH)8Clwn(s)"},                        //  # // list of substance symbols
+                                      {"gibbs_energy","entropy", "volume", "enthalpy", "heat_capacity_cp"} //  # // list of properties
+                                      ).toCSV("results_sp2.csv");
+
+      // batch.setPropertiesDigits({"logKr", "reaction_gibbs_energy","reaction_entropy", "reaction_volume", "reaction_enthalpy", "reaction_heat_capacity_cp", "temperature", "pressure"},  {3, 1, 2, 2, 0, 2, 0, 0});
+
+      batch.thermoPropertiesReaction( {{25, 1}, {40, 1}}, // # // list of T-P pairs
+                                      {"Ag(aq)","H3PO4(aq)","(UO2)3(PO4)2w4(cr)","(HgOH)3PO4(s)", "CaCO3(aragonite)", "Fe4(OH)8Clwn(s)"},                        //  # // list of substance symbols
+                                      {"logKr","reaction_gibbs_energy","reaction_entropy", "reaction_volume", "reaction_enthalpy", "reaction_heat_capacity_cp"} //  # // list of properties
+                                      ).toCSV("results_rt2.csv");
+      batch.thermoPropertiesReaction( {{25, 1}, {25, 5000}}, // # // list of T-P pairs
+                                     {"Ag(aq)","H3PO4(aq)","(UO2)3(PO4)2w4(cr)","(HgOH)3PO4(s)", "CaCO3(aragonite)", "Fe4(OH)8Clwn(s)"},                        //  # // list of substance symbols
+                                     {"logKr","reaction_gibbs_energy","reaction_entropy", "reaction_volume", "reaction_enthalpy", "reaction_heat_capacity_cp"} //  # // list of properties
+                                     ).toCSV("results_rp2.csv");
 
 
 
@@ -94,21 +151,21 @@
       //std::cout << "Substances \n" << db.getSubstancesList() << endl;
       //std::cout << "Reactions \n" << db.getReactionsList() << endl;
 
-      auto elment = db.getElement("O");
-      std::cout << elment << endl;
-      elment.setValence(ChemicalFun::DBElements::defaultValence("O"));
-      std::cout << elment << endl;
+      auto element = db.getElement("O");
+      std::cout << element << endl;
+      element.setValence(ChemicalFun::DBElements::defaultValence("O"));
+      std::cout << element << endl;
       std::cout << db.getElement("O") << endl;
 
-      auto& elment_ref = db.element("H");
-      std::cout << elment_ref << endl;
-      elment_ref.setValence(ChemicalFun::DBElements::defaultValence("H"));
-      std::cout << elment_ref << endl;
+      auto& element_ref = db.element("H");
+      std::cout << element_ref << endl;
+      element_ref.setValence(ChemicalFun::DBElements::defaultValence("H"));
+      std::cout << element_ref << endl;
       std::cout << db.getElement("H") << endl;
       std::cout << db.getElement("H").valence() << endl;
 
-      auto& elment_new = db.element("Ir");  // get from defaults
-      std::cout << elment_new << endl;
+      auto& element_new = db.element("Ir");  // get from defaults
+      std::cout << element_new << endl;
 
       auto& elment_empty = db.element("Ac");  // get from defaults
       std::cout << elment_empty << endl;

@@ -217,10 +217,12 @@ auto Output::foutResults()-> void
             for (unsigned k=0; k<results[(j_size*i)+(j)].size(); k++)
             {
                 auto prop = properties[k];
+                auto result = results[(j_size*i)+(j)][k];
                 pimpl->fProperties << std::setprecision(digits.at(prop));
-                pimpl->fProperties << s << units::convert(results[(j_size*i)+(j)][k].val,
-                                                          fromUnits.at(prop),
-                                                            toUnits.at(prop));
+                if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
+                    pimpl->fProperties << s << "NaN";
+                else
+                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(prop), toUnits.at(prop));
             }
             pimpl->fProperties << std::endl;
         }
@@ -274,13 +276,16 @@ auto Output::foutResultsTransposed()-> void
             for (unsigned k=0; k<symbols.size(); k++)  // loops thorugh symbols
             {
                 pimpl->fProperties << std::setprecision(digits.at(property));
-                double result;
+                Reaktoro_::ThermoScalar result;
                 if (outSettings.loopOverTPpairsFirst)
-                    result = results[(tpPairs.size()*k)+j][i].val;
+                    result = results[(tpPairs.size()*k)+j][i];
                 else
-                    result = results[(symbols.size()*i)+k][j].val;
+                    result = results[(symbols.size()*i)+k][j];
 
-                pimpl->fProperties << s << units::convert(result, fromUnits.at(property), toUnits.at(property));
+                if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
+                    pimpl->fProperties << s << "NaN";
+                else
+                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(property), toUnits.at(property));
             }
             pimpl->fProperties << std::endl;
         }
@@ -335,10 +340,14 @@ auto Output::foutPropertyGrid(const std::string &property, const size_t &index_p
 
             for(auto c : columns)
             {
+                auto result = results[count][index_property];
                 pimpl->fProperties << std::setprecision(digits.at(property));
-                pimpl->fProperties << s << units::convert(results[count][index_property].val,
-                                                          fromUnits.at(property),
-                                                          toUnits.at(property));
+
+                if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
+                    pimpl->fProperties << s << "NaN";
+                else
+                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(property), toUnits.at(property));
+                    
                 count++;
             }
             pimpl->fProperties << std::endl;

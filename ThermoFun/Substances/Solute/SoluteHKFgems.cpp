@@ -171,7 +171,7 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
     const auto alpha    = ps.Alpha;
     const auto daldT    = ps.dAldT;
 
-    FunctionG g;
+    FunctionG g; 
 
     if (D.val >= 1.4)
     {
@@ -179,8 +179,16 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
                            __FILE__, __LINE__, static_cast<double>(ps.density/1000) );
     }
 
+    g.g   = 0.0;
+    g.gT  = 0.0;
+    g.gP  = 0.0;
+    g.gTT = 0.0;
+    //    g.gTP = 0.0;
+    //    g.gPP = 0.0;
+
     // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
     // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
+    // this is not done in GEMS therefore is commented out here
 //    if(ps.density > 1000.0 || ps.density < 350.0)
 //        return g;
 
@@ -251,13 +259,14 @@ auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance
     const auto wref = hkf[6] /*hkf.wref*/;
 
     ElectroPropertiesSubstance eps;
+    eps.w   = 0.0;
+    eps.wP  = 0.0;
+    eps.wT  = 0.0;
+    eps.wTT = 0.0;
 
     if( chg == 0.0 )  // neutral aqueous species
     {
         eps.w   = wref;
-        eps.wP  = 0.0;
-        eps.wT  = 0.0;
-        eps.wTT = 0.0;
     }
     else  // charged aqueous species
     {

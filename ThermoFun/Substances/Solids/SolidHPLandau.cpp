@@ -9,6 +9,7 @@ namespace ThermoFun {
 auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     Reaktoro_::ThermoScalar Tcr, Qq, dQq;
+    Tcr = 0.0; Qq = 0.0; dQq = 0.0;
     std::vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
 //    auto (P/1000) = Reaktoro::Pressure (p.val /1000);  // in kbar
     auto TrK = subst.referenceT();

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.16..4.2)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.5.4 LANGUAGES CXX)
+project(ThermoFun VERSION 0.6.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,7 +25,7 @@ include(CondaAware)
 if(TFUN_BUILD_ALL MATCHES ON)
     set(BUILD_SHARED_LIBS          ON)
     set(BUILD_STATIC_LIBS          ON)
-    set(TFUN_BUILD_TESTS           OFF)
+    set(TFUN_BUILD_TESTS           ON)
     set(TFUN_BUILD_PYTHON           ON)
 endif()
 
@@ -37,7 +37,7 @@ else()
     # Ensure proper configuration if in a conda environment
     option(BUILD_SHARED_LIBS "Build shared libraries." ON)
     #option(BUILD_STATIC_LIBS "Build static libraries." ON)
-    #option(TFUN_BUILD_TESTS "Build tests." OFF)
+    #option(TFUN_BUILD_TESTS "Build tests." ON)
     option(TFUN_BUILD_PYTHON "Build the python wrappers and python package thermofun." ON)
     # Define if shared library should be build instead of static.
     
@@ -100,13 +100,6 @@ add_subdirectory(ThermoFun)
 # Copy Resources folder
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
         DESTINATION ${CMAKE_BINARY_DIR})
-
-# Build the tests
-if(BUILD_TESTS)
-    add_subdirectory(tests)
-#else()
-#    add_subdirectory(tests EXCLUDE_FROM_ALL)
-endif()
 
 # Build python wraper
 if(TFUN_BUILD_PYTHON)

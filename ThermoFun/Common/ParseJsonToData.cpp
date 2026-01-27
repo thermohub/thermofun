@@ -1,5 +1,6 @@
 // C++ includes
 #include <algorithm>
+#include <iostream>
 #include <stdlib.h>
 #include <regex>
 
@@ -281,6 +282,25 @@ auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
 //    }
 //    return tpmethods;
 //}
+
+auto readConventions(const std::string &data) -> DatabaseConventions
+{
+    DatabaseConventions c;
+
+    try {
+    const auto& jc = json::parse(data);
+
+    if (jc.contains("water_triple_point_reference") && !jc["water_triple_point_reference"].is_null())
+        c.water_triple_point_reference = jc["water_triple_point_reference"].get<std::string>();
+    }
+    catch (json::exception &ex)
+    {
+        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+    }
+
+    return c;
+}
+
 
 auto getTPMethods(const json &j, Reaction &r) -> void
 {

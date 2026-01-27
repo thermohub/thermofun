@@ -84,6 +84,7 @@ namespace ThermoFun
             .def("thermoPropertiesReaction", thermoPropertiesReaction6, "calculate for given properties, reaction symbols, temperatures and pressures", py::arg("temperatures"), py::arg("pressures"), py::arg("symbols"), py::arg("properties"))
             .def("thermoPropertiesReaction", thermoPropertiesReaction7, "calculate for given properties, reaction symbols, temperatures and pressures", py::arg("temperatures"), py::arg("pressures"), py::arg("symbols"), py::arg("properties"), py::arg("provided_results"))
             .def("setBatchPreferences", &ThermoBatch::setBatchPreferences)
+            .def_property_readonly( "preferences", [](ThermoBatch& b) -> BatchPreferences& { return b.preferences(); }, py::return_value_policy::reference_internal )
             .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)
             .def("temperatureIncrement", &ThermoBatch::temperatureIncrement, "returns the default temperature increment")
             .def("pressureIncrement", &ThermoBatch::pressureIncrement, "returns the default pressure increment")
@@ -118,7 +119,8 @@ namespace ThermoFun
             .def_readwrite("substancePropertiesFromReaction", &BatchPreferences::substancePropertiesFromReaction, "default=False, calculate substance properties from reaction, if provided in the substance record with kez \"reaction\"")
             .def_readwrite("reactionPropertiesFromReactants", &BatchPreferences::reactionPropertiesFromReactants, "default=False, calculate reaction properties from reactants")
             .def_readwrite("loopOverTPpairsFirst", &BatchPreferences::loopOverTPpairsFirst, "default=True, when calculating properties the loop is going for T-P points first and then for substances/reactions list")
-            .def_readwrite("loopTemperatureThenPressure", &BatchPreferences::loopTemperatureThenPressure, "default=True, when calculating properties the loop is going for T and the P");
+            .def_readwrite("loopTemperatureThenPressure", &BatchPreferences::loopTemperatureThenPressure, "default=True, when calculating properties the loop is going for T and the P")
+            .def_readwrite("writeNaNifNotDefinedValue", &BatchPreferences::writeNaNifNotDefinedValue, "default=False, if True write NaN if a property is not defined");
     }
 
 }

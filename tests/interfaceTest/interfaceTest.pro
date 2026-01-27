@@ -32,13 +32,20 @@ OBJECTS_DIR = obj
 # Define the directory where the gui, third-party libs, resources are located
 BUILD_DIR = $$OUT_PWD/..
 
-LIBS += -lChemicalFun -lfmt
+LIBS += -lChemicalFun
 
-INCLUDEPATH   += "/usr/local/include"
-DEPENDPATH   += "/usr/local/include"
-LIBPATH += "/usr/local/lib/"
+INCLUDEPATH   += "/home/dmiron/miniconda3/envs/thermofun/include"
+DEPENDPATH   += "/home/dmiron/miniconda3/envs/thermofun/include"
+LIBPATH += "/home/dmiron/miniconda3/envs/thermofun/lib/"
+
+
 
 include($$ThermoFun_TEST_CPP/ThermoFun-test.pri)
 include($$ThermoFun_CPP/ThermoFun.pri)
 
 
+
+unix:!macx: LIBS += -L$$PWD/../../../../../miniconda3/envs/thermofun/lib/ -lfmt
+
+INCLUDEPATH += $$PWD/../../../../../miniconda3/envs/thermofun/include
+DEPENDPATH += $$PWD/../../../../../miniconda3/envs/thermofun/include

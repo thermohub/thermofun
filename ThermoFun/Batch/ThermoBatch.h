@@ -2,7 +2,6 @@
 #define INTERFACE_H
 
 // C++ includes
-#include <array>
 #include <map>
 #include <memory>
 #include <string>
@@ -63,6 +62,13 @@ struct BatchPreferences
      * @value False generate T-P pairs by first incrementing pressure
      */
     bool loopTemperatureThenPressure = true;
+
+    /**
+     * @brief writeNaNifNotDefinedValue
+     * @value True writes NaN in csv for not defined values
+     * @value False wrtites the calculated value, danger - this value is probably not correct
+     */
+    bool writeNaNifNotDefinedValue = true;
 };
 
 ///
@@ -133,6 +139,8 @@ public:
     auto thermoPropertiesReaction   (std::vector<double> temperatures, std::vector<double> pressures, vstr symbols, vstr properties, vtpr vTpr) -> Output;
 
     auto setBatchPreferences        (const BatchPreferences &value) -> void;
+    BatchPreferences& preferences();
+    const BatchPreferences& preferences() const;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
 
     auto temperatureIncrement  () -> const std::map<std::string, double>&;
@@ -286,15 +294,15 @@ const std::map<std::string, std::string> defaultPropertyUnits =
 
 const std::map<std::string, int> defaultPropertyDigits =
 {
-    {"temperature",                    0               },
-    {"pressure",                       0               },
+    {"temperature",                    1               },
+    {"pressure",                       1               },
 
     {"gibbs_energy",                   0               },
     {"enthalpy",                       0               },
-    {"entropy",                        0               },
-    {"heat_capacity_cp",               0               },
-    {"heat_capacity_cv",               0               },
-    {"volume",                         0               },
+    {"entropy",                        3               },
+    {"heat_capacity_cp",               3               },
+    {"heat_capacity_cv",               3               },
+    {"volume",                         3               },
     {"helmholtz_energy",               0               },
     {"internal_energy",                0               },
 
@@ -302,12 +310,12 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"reaction_helmholtz_energy",      0               },
     {"reaction_internal_energy",       0               },
     {"reaction_enthalpy",              0               },
-    {"reaction_entropy",               0               },
-    {"reaction_volume",                0               },
-    {"reaction_heat_capacity_cp",      0               },
-    {"reaction_heat_capacity_cv",      0               },
-    {"logKr",                          0               },
-    {"lnKr",                           0               }
+    {"reaction_entropy",               3               },
+    {"reaction_volume",                3               },
+    {"reaction_heat_capacity_cp",      3               },
+    {"reaction_heat_capacity_cv",      3               },
+    {"logKr",                          3               },
+    {"lnKr",                           3               }
 };
 
 const std::map<std::string, double> defaultTemperatureIncrement =

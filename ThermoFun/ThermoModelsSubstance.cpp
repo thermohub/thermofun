@@ -495,6 +495,15 @@ auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tp
     return thermoPropertiesHPLandau(TK, Pbar, pimpl->substance, tps);
 }
 
+auto applyPressure(ThermoPropertiesSubstance tps, Reaktoro_::Temperature t, Reaktoro_::Pressure p, double pr) -> ThermoPropertiesSubstance
+{
+    tps.gibbs_energy    += tps.volume * (p - (pr / bar_to_Pa));
+    tps.enthalpy        += tps.volume * (p - (pr / bar_to_Pa));
+    tps.internal_energy  = tps.enthalpy - p*tps.volume;
+    tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
+    return tps;
+}
+
 //=======================================================================================================
 // CORK
 // References:
@@ -519,12 +528,15 @@ GasCORK::GasCORK(const Substance &substance)
 {}
 
 // calculation
-auto GasCORK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto GasCORK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return thermoPropertiesGasCORK(t, p, pimpl->substance, tps);
+    if (apply_p)
+        return applyPressure(thermoPropertiesGasCORK(t, p, pimpl->substance, tps), t, p, pimpl->substance.referenceP());
+    else
+        return thermoPropertiesGasCORK(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -551,12 +563,15 @@ GasPRSV::GasPRSV(const Substance &substance)
 {}
 
 // calculation
-auto GasPRSV::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto GasPRSV::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return thermoPropertiesGasPRSV(t, p, pimpl->substance, tps);
+    if (apply_p)
+        return applyPressure(thermoPropertiesGasPRSV(t, p, pimpl->substance, tps), t,p, pimpl->substance.referenceP());
+    else
+        return thermoPropertiesGasPRSV(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -583,12 +598,15 @@ GasCGF::GasCGF(const Substance &substance)
 {}
 
 // calculation
-auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return thermoPropertiesGasCGF(t, p, pimpl->substance, tps);
+    if (apply_p)
+        return applyPressure(thermoPropertiesGasCGF(t, p, pimpl->substance, tps), t,p, pimpl->substance.referenceP());
+    else
+        return thermoPropertiesGasCGF(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -615,12 +633,15 @@ GasSRK::GasSRK(const Substance &substance)
 {}
 
 // calculation
-auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return thermoPropertiesGasSRK(t, p, pimpl->substance, tps);
+    if (apply_p)
+        return applyPressure(thermoPropertiesGasSRK(t, p, pimpl->substance, tps), t,p, pimpl->substance.referenceP());
+    else
+        return thermoPropertiesGasSRK(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -647,12 +668,15 @@ GasPR78::GasPR78(const Substance &substance)
 {}
 
 // calculation
-auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return thermoPropertiesGasPR78(t, p, pimpl->substance, tps);
+    if (apply_p)
+        return applyPressure(thermoPropertiesGasPR78(t, p, pimpl->substance, tps), t,p, pimpl->substance.referenceP());
+    else
+        return thermoPropertiesGasPR78(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -679,12 +703,15 @@ GasSTP::GasSTP(const Substance &substance)
 {}
 
 // calculation
-auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
-    return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
+    if (apply_p)
+        return applyPressure(thermoPropertiesGasSTP(t, p, pimpl->substance, tps), t,p, pimpl->substance.referenceP());
+    else
+        return thermoPropertiesGasSTP(t, p, pimpl->substance, tps);
 }
 
 //=======================================================================================================
@@ -717,12 +744,15 @@ auto ConMolVol::thermoProperties(double T, double P, ThermoPropertiesSubstance t
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
 
     ThermoPropertiesSubstance rtps = pimpl->substance.thermoReferenceProperties();
-
-    tps.volume           = rtps.volume;
-    tps.gibbs_energy    += rtps.volume * (p - (pimpl->substance.referenceP() / bar_to_Pa));
-    tps.enthalpy        += rtps.volume * (p - (pimpl->substance.referenceP() / bar_to_Pa));
-    tps.internal_energy  = tps.enthalpy - p*tps.volume;
-    tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
+    if (rtps.volume.sta.first != Reaktoro_::notdefined) // do pressure correction only if the molar volume is given
+    {
+        auto dV = rtps.volume * (p - (pimpl->substance.referenceP() / bar_to_Pa));
+        tps.volume           = rtps.volume;
+        tps.gibbs_energy    += dV;
+        tps.enthalpy        += dV;
+        tps.internal_energy  = tps.enthalpy - p*tps.volume;
+        tps.helmholtz_energy = tps.internal_energy - (t)*tps.entropy;
+    }
 
     return tps;
 }
@@ -751,7 +781,7 @@ IdealGasLawVol::IdealGasLawVol(const Substance &substance)
 {}
 
 // calculation
-auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
 {
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
@@ -761,7 +791,10 @@ auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubsta
         tps.volume = (t) / p * R_CONSTANT;
     }
 
-    return tps;
+    if (apply_p)
+        return applyPressure(tps, t,p, pimpl->substance.referenceP());
+    else
+        return tps;
 }
 
 

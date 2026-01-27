@@ -16,6 +16,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     ThermoParametersSubstance thermo_parameters = substance.thermoParameters();
 
     Reaktoro_::ThermoScalar V;
+    V = 0.0;
     int k = -1;
     std::vector<double> ac;
     auto TK_ = TK;
@@ -59,7 +60,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     if (k < 0)
     {
-        if (TK_ < thermo_parameters.temperature_intervals[0][0])
+        if (TK_ <= thermo_parameters.temperature_intervals[0][0])
             k = 0;
         if (TK_ > thermo_parameters.temperature_intervals[thermo_parameters.temperature_intervals.size() - 1][1])
             k = thermo_parameters.temperature_intervals.size() - 1;

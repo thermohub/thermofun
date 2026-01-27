@@ -93,9 +93,9 @@ int main(int argc, char *argv[])
     PropertiesSolvent wp1 = H2OHGKreaktoro.propertiesSolvent(T, P, 0);
     PropertiesSolvent wp2 = H2OWP95reaktoro.propertiesSolvent(T, P, 0);
 
-    ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0);
- 
-    ThermoPropertiesSubstance wtpr = H2OHGKgems.thermoPropertiesSubstance(298.15, Pr, 0);
+    ThermoPropertiesSubstance wtp = H2OHGKgems.thermoPropertiesSubstance(T, P, 0, "NEA_HGK");
+
+    ThermoPropertiesSubstance wtpr = H2OHGKgems.thermoPropertiesSubstance(298.15, Pr, 0, "NEA_HGK");
 
     SoluteAkinfievDiamondEOS CO2_AD (co2);
 

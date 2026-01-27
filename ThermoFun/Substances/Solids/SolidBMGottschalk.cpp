@@ -66,13 +66,17 @@ auto BirchMurnaghan( double Pref, Reaktoro_::Pressure P, Reaktoro_::Temperature 
           std::vector<double> BMConst, Reaktoro_::ThermoScalar &vv, Reaktoro_::ThermoScalar &alpha, Reaktoro_::ThermoScalar &beta,
           Reaktoro_::ThermoScalar &dG, Reaktoro_::ThermoScalar &dH, Reaktoro_::ThermoScalar &dS ) -> void
 {
-   Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
-          /*Volume, IntVol, */ Pincr, Tincr, /*Pplus, Pminus,*/ Tplus, Tminus,
-          vPplus, vPminus, vTplus, vTminus, kt0Tplus, kt0Tminus, kppTplus, kppTminus,
-          vtTplus, vtTminus, dGTplus, dGTminus;
+Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
+         /*Volume, IntVol, */ Pincr, Tincr, /*Pplus, Pminus,*/ Tplus, Tminus,
+         vPplus, vPminus, vTplus, vTminus, kt0Tplus, kt0Tminus, kppTplus, kppTminus,
+         vtTplus, vtTminus, dGTplus, dGTminus;
 
-   Pincr.val = 0.01;
-   Tincr.val = 0.1;
+    vt = a1 = a2 = a3 = kt00 = kt0 = dkdt = kp = kpp = vstart = 0.0;
+    Pincr = Tincr = Tplus = Tminus = vPplus = vPminus = vTplus = vTminus = 0.0;
+    kt0Tplus = kt0Tminus = kppTplus = kppTminus = vtTplus = vtTminus = dGTplus = dGTminus = 0.0;
+
+    Pincr.val = 0.01;
+    Tincr.val = 0.1;
        // v0 = BMConst(1) - in GEMS passed as a separate function parameter
     a1 = BMConst[0];
     a2 = BMConst[1];
@@ -84,8 +88,8 @@ auto BirchMurnaghan( double Pref, Reaktoro_::Pressure P, Reaktoro_::Temperature 
     kp = BMConst[7];
     kpp = BMConst[8];
 
-    auto Pplus = Reaktoro_::Pressure(P.val + Pincr.val);
-    auto Pminus = Reaktoro_::Pressure(P.val - Pincr.val);
+    Reaktoro_::Pressure Pplus = P.val + Pincr.val;
+    Reaktoro_::Pressure Pminus = P.val - Pincr.val;
     Tplus = T + Tincr;
     Tminus = T - Tincr;
 

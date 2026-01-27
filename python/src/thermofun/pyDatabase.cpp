@@ -54,11 +54,11 @@ void exportDatabase(py::module& m)
     auto setReaction1 = static_cast<void(Database::*)(const std::string&)>(&Database::setReaction);
     auto setReaction2 = static_cast<void(Database::*)(const Reaction&)>(&Database::setReaction);
 
-
     py::class_<Database>(m, "Database", "Stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P")
         .def(py::init<>())
         .def(py::init<const std::string>(), "constructor using a JSON string with the thermofun database format")
         .def(py::init<const Database&>())
+        .def_property_readonly( "conventions", [](Database& db) -> const DatabaseConventions& { return db.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used by this database" )
         .def("appendData", appendData1, "Append records to the database from a file.")
         .def("appendData", appendData2, "Append records of given type (elements, substances, reactions) to the database from a list of JSON strings.")
         .def("addElement", addElement1, "Add an Element instance in the database. If the element with the symbol exists the record will not be added.")
@@ -101,6 +101,10 @@ void exportDatabase(py::module& m)
         .def("setSubstancesChargeFromFromula", &Database::setSubstancesChargeFromFromula, "Sets the charge of all substances based in their formulas, uses the formula parser")
         .def("__str__", [](const Database& self) { std::stringstream ss; ss << self.getElements(); ss << self.getSubstances(); ss << self.getReactions(); return ss.str(); })
         ;
+
+    py::class_<DatabaseConventions>(m, "DatabaseConventions")
+        .def(py::init<>())
+        .def_readwrite("water_triple_point_reference", &DatabaseConventions::water_triple_point_reference);
 }
 
 }

@@ -16,6 +16,22 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     Reaktoro_::ThermoScalar Gids, /*Vids,*/ Sids, CPids, Hids;
     Reaktoro_::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
 
+    Geos298 = 0.0;
+    Veos298 = 0.0;
+    Seos298 = 0.0;
+    CPeos298 = 0.0;
+    Heos298 = 0.0;
+    Geos    = 0.0;
+    Veos    = 0.0;
+    Seos    = 0.0;
+    CPeos   = 0.0;
+    Heos    = 0.0;
+    Gids    = 0.0;
+ // Vids    = 0.0;
+    Sids    = 0.0;
+    CPids   = 0.0;
+    Hids    = 0.0;
+
     auto Tr = 298.15;
     auto Pr = 1.0;
 
@@ -96,8 +112,14 @@ void Akinfiev_EOS_increments(Reaktoro_::Temperature Tk, Reaktoro_::Pressure /*P*
     Reaktoro_::ThermoScalar derP, derT, der2T;
     Reaktoro_::ThermoScalar deltaB, lnKH, Nw, xi, aa, bb, RT;
     Reaktoro_::ThermoScalar fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
-    const Reaktoro_::ThermoScalar RR (83.1451); const Reaktoro_::ThermoScalar R_CONST (R_CONSTANT);
-    const Reaktoro_::ThermoScalar MW (18.01528);
+    Reaktoro_::ThermoScalar RR, R_CONST, MW;
+
+    derP = 0.0; derT = 0.0; der2T = 0.0;
+    deltaB = 0.0; lnKH = 0.0; Nw = 0.0; xi = 0.0; aa = 0.0; bb = 0.0; RT = 0.0;
+    fug = 0.0; vol = 0.0; drhoT = 0.0; drhoP = 0.0; d2rhoT = 0.0; lnfug = 0.0; Gres = 0.0; Sres = 0.0; CPres = 0.0;
+    RR = 83.1451;
+    R_CONST = R_CONSTANT;
+    MW = 18.01528;
 
     RT = Tk*R_CONST;
     // EOS coefficients

@@ -4,8 +4,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <fstream>
 #include <unordered_map>
 
 #ifndef _WIN32
@@ -59,7 +57,7 @@ struct WaterTripleProperties {
 // Create the map with source labels
 static const std::unordered_map<std::string, WaterTripleProperties> waterTripleData = {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-    { "Helgeson_Kirkham_1974", {
+    { "HKF_HGK_1974", {
         15.1320 * cal_to_J,
        -56290.0 * cal_to_J,
        -68767.0 * cal_to_J,
@@ -80,7 +78,6 @@ static const std::unordered_map<std::string, WaterTripleProperties> waterTripleD
        -67922.22 * cal_to_J,
        -55434.49 * cal_to_J
     }}
-    // Add more sources as needed
 };
 
 enum SubstanceTPMethodType {
@@ -280,6 +277,7 @@ const std::unordered_map<std::string, WaterTripleProperties>& getWaterTripleData
 /// Indexes for species-dependent EoS subroutines used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+ //   CTPM_UNSET = 0,
     CTPM_CON = 99, // constant properties from ref T-P
     CTPM_CPT = 100,
     CTPM_HKF = 101,
@@ -350,6 +348,7 @@ static const int MethodGenEoS_ndxThrift[] = {
 /// Indexes for temperature correction methods used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+//    CTM_UNSET = 0,
     CTM_CST = 200,
     CTM_CHP = 201,
     CTM_BER = 202,
@@ -434,6 +433,7 @@ static const int MethodCorrT_ndxThrift[] = {
 /// Indexes for pressure correction methods used in thrift DOM and ThermoFun class
 typedef struct {
   enum type {
+//    CPM_UNSET = 0,
     CPM_OFF = 300,
     CPM_NUL = 301,
     CPM_ONE = 302,

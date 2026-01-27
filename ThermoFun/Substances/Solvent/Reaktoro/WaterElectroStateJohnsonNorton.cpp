@@ -80,6 +80,13 @@ auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, /*Pressure P,*/ co
 {
 	WaterElectroState we;
 
+    we.epsilon   = 0.0;
+    we.epsilonT  = 0.0;
+    we.epsilonP  = 0.0;
+    we.epsilonTT = 0.0;
+    we.epsilonTP = 0.0;
+    we.epsilonPP = 0.0;
+
 	const auto alpha  = -wt.densityT/wt.density;
     const auto beta   =  wt.densityP/wt.density;
     const auto alphaT = -wt.densityTT/wt.density + alpha*alpha;

@@ -1,3 +1,4 @@
+#include "Database.h"
 #include <string>
 
 namespace ThermoFun {
@@ -18,5 +19,8 @@ auto parseSubstance (const std::string &data) -> Substance;
 /// Parses a reaction bson object and loads its data into the reaction structure
 /// @param bso bson object
 auto parseReaction (const std::string &data) -> Reaction;
+
+/// Parses object j["conventions"] from database 
+auto readConventions(const std::string &data) -> DatabaseConventions;
 
 }
