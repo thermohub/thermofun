@@ -6,7 +6,6 @@ namespace ThermoFun {
 class Substance;
 class Reaction;
 class Element;
-struct Conventions;
 
 //DefinesSubstLevelOptions levelOptionsDefault;
 /// Parses an element bson object and loads its data into the element structure
@@ -21,6 +20,7 @@ auto parseSubstance (const std::string &data) -> Substance;
 /// @param bso bson object
 auto parseReaction (const std::string &data) -> Reaction;
 
+/// Parses object j["conventions"] from database 
 auto readConventions(const std::string &data) -> DatabaseConventions;
 
 }
