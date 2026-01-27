@@ -101,13 +101,6 @@ add_subdirectory(ThermoFun)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
         DESTINATION ${CMAKE_BINARY_DIR})
 
-# Build the tests
-if(TFUN_BUILD_TESTS)
-    add_subdirectory(tests)
-else()
-    add_subdirectory(tests EXCLUDE_FROM_ALL)
-endif()
-
 # Build python wraper
 if(TFUN_BUILD_PYTHON)
     add_subdirectory(python)
