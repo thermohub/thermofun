@@ -1,4 +1,4 @@
-#include "Database.h"
+//#include "Database.h"
 #include <string>
 
 namespace ThermoFun {
@@ -6,6 +6,7 @@ namespace ThermoFun {
 class Substance;
 class Reaction;
 class Element;
+struct DatabaseConventions;
 
 //DefinesSubstLevelOptions levelOptionsDefault;
 /// Parses an element bson object and loads its data into the element structure
