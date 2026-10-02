@@ -9,6 +9,7 @@
 #include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
+#include "Common/Rounding.hpp"
 #include "ElectroModelsSolvent.h"
 #include "ThermoModelsReaction.h"
 
@@ -900,6 +901,7 @@ struct ThermoEngine::Impl
         impl.preferences = preferences;
         impl.preferences.enable_memoize = false;
         impl.preferences.propagate_parameter_errors = false;
+        impl.preferences.round_to_uncertainty = false;
         impl.conventions = conventions;
         if (reset) impl.set_fn(); // without memoization
         return *perturbed_engine;
@@ -1056,6 +1058,21 @@ struct ThermoEngine::Impl
         for (size_t k = 0; k < fr.size(); ++k) fr[k]->err = std::sqrt(sum2[k]);
     }
 
+    /// Round the values of the properties to the decimals of their uncertainties (NEA TDB rules) if requested
+    template<class Props>
+    auto roundResults(Props& result) const -> void
+    {
+        if (!preferences.round_to_uncertainty) return;
+        for (auto* f : fields(result))
+            if (f->sta.first != Reaktoro_::Status::notdefined)
+            {
+                double value = f->val, error = f->err;
+                rounding::toUncertainty(value, error, preferences.uncertainty_significant_digits);
+                f->val = value;
+                f->err = error;
+            }
+    }
+
     auto recordsOfSubstance(const std::string& symbol) const -> Records { Records r; collectSubstance(r, symbol); return r; }
     auto recordsOfReaction(const std::string& symbol) const -> Records { Records r; collectReaction(r, symbol); return r; }
     auto recordsOfReactants(const Reaction& reaction) const -> Records
@@ -1090,6 +1107,7 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tps, pimpl->recordsOfSubstance(substance), nullptr, nullptr,
             [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, substance); });
+    pimpl->roundResults(tps);
     return tps;
 }
 
@@ -1114,6 +1132,7 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substanc
         pimpl->addParameterErrors(tps, records, &substance, nullptr,
             [&](ThermoEngine& e, const Substance* s, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, *s); });
     }
+    pimpl->roundResults(tps);
     return tps;
 }
 
@@ -1135,6 +1154,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(reaction), nullptr, nullptr,
             [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReaction(T, p, reaction); });
+    pimpl->roundResults(tpr);
     return tpr;
 }
 
@@ -1145,6 +1165,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, st
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(symbol), nullptr, nullptr,
             [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReactionFromReactants(T, p, symbol); });
+    pimpl->roundResults(tpr);
     return tpr;
 }
 
@@ -1155,6 +1176,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction&
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tpr, pimpl->recordsOfReactants(reaction), nullptr, &reaction,
             [&](ThermoEngine& e, const Substance*, const Reaction* r) { double p = P0; return e.thermoPropertiesReaction(T, p, *r); });
+    pimpl->roundResults(tpr);
     return tpr;
 }
 
@@ -1165,6 +1187,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tpr, pimpl->recordsOfReactants(reaction), nullptr, &reaction,
             [&](ThermoEngine& e, const Substance*, const Reaction* r) { double p = P0; return e.thermoPropertiesReactionFromReactants(T, p, *r); });
+    pimpl->roundResults(tpr);
     return tpr;
 }
 

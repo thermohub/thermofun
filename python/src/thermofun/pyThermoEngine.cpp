@@ -27,6 +27,7 @@ namespace py = pybind11;
 
 // ThermoFun includes
 #include <ThermoFun/ThermoEngine.h>
+#include <ThermoFun/Common/Rounding.hpp>
 #include <ThermoFun/Database.h>
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/Reaction.h>
@@ -127,9 +128,25 @@ void exportThermoEngine(py::module& m)
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
                    "apply pressure/fugacity correction to gas standard properties True/False (default: False)")
+    .def_readwrite("round_to_uncertainty",
+                   &EnginePreferences::round_to_uncertainty,
+                   "round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded")
+    .def_readwrite("uncertainty_significant_digits",
+                   &EnginePreferences::uncertainty_significant_digits,
+                   "number of significant digits of the (rounded up) uncertainties if round_to_uncertainty is True (default: 2)")
     .def_readwrite("propagate_parameter_errors",
                    &EnginePreferences::propagate_parameter_errors,
                    "propagate the errors of the reference properties and of the coefficients of the models to the err of the calculated properties True/False (default: False)");
+
+    m.def("round_to_uncertainty",
+          [](double value, double error, int significant_digits) {
+              rounding::toUncertainty(value, error, significant_digits);
+              return py::make_tuple(value, error);
+          },
+          py::arg("value"), py::arg("error"), py::arg("significant_digits") = 2,
+          "Round an uncertainty up to a number of significant digits and the value (half to even) to the same number of decimals (NEA TDB rules); returns (value, error)");
+    m.def("round_half_even", &rounding::roundHalfEven, py::arg("x"), py::arg("decimals"),
+          "Round to a number of decimals with the NEA TDB rule (a 5 not followed by other non-zero digits rounds to the even digit)");
 
     py::class_<EngineConventions>(m, "EngineConventions")
         .def(py::init<>())

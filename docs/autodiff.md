@@ -114,8 +114,25 @@ The error `err` of a property is a first-order (linear) propagation of independe
   are correlated correctly. Cost: two extra calculations per parameter that has an error (none without errors).
   Not covered: the solvent models, correlations between different parameters (no covariance matrices), nonlinear
   models are evaluated at the step `s` (not a Taylor expansion).
+- **Rounding (`preferences.round_to_uncertainty`, default off).** Following TDB-3 (Rounding, Significant digits) the value of
+  every calculated property with an error > 0 is rounded to the number of decimals of its uncertainty, and the
+  uncertainty is rounded up to `uncertainty_significant_digits` significant digits (default 2; the TDB tables use one or
+  two, for example `25.4 +- 1.1`, `3.478 +- 0.008`). Digits are rounded as in TDB-3: a digit < 5 is dropped, > 5 increases
+  the last digit, a 5 not followed by other non-zero digits rounds to the even digit, a 5 followed by other non-zero digits
+  rounds up. As TDB-3 prescribes, the calculation is carried out in full and only the final results returned by
+  `ThermoEngine` (and so `ThermoBatch`) are rounded; derivatives and properties without an error are not rounded. The
+  functions are available in Python as `thermofun.round_to_uncertainty(value, error, significant_digits=2)` and
+  `thermofun.round_half_even(x, decimals)` (C++: `Common/Rounding.hpp`).
 
-## 6. Verification
+## 6. Python interface
+
+The Python package exposes `ThermoEngine.preferences` with `propagate_parameter_errors`, `round_to_uncertainty` and
+`uncertainty_significant_digits`; `ThermoParametersSubstance.coefficient_errors` and
+`ThermoParametersReaction.coefficient_errors`; `ThermoScalar.err` for every property; and the functions
+`thermofun.round_to_uncertainty` and `thermofun.round_half_even`. `ThermoBatch(engine)` uses the preferences of the engine
+it is given. Tests: `pytests/test_errors.py`.
+
+## 7. Verification
 
 - The previous implementation was used as an oracle: values, derivatives, statuses and messages of about 9,900
   evaluations (substances, reactions, solvents) in 8 databases. Values, statuses and messages are identical;
@@ -127,7 +144,7 @@ The error `err` of a property is a first-order (linear) propagation of independe
   constant volume, ideal gas volume, fluids, Frantz-Marshall, Dolejs-Manning, Zhang-Duan) and `interface` (the
   interface of section 2, including `val` and `val()`).
 
-## 7. Known and left unchanged
+## 8. Known and left unchanged
 
 - Quartz `V` has zero `ddt`/`ddp` exactly at the reference state (298.15 K, 1 bar): `SolidMurnaghanHP98.cpp` takes a
   constant-volume branch there. CORK has a branch at 5 kbar.

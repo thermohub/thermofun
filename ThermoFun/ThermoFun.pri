@@ -1,6 +1,7 @@
     HEADERS	 += $$PWD/GlobalVariables.h \
     $$PWD/Common/ParseJsonToData.h \
     $$PWD/Common/ThermoScalar.hpp \
+    $$PWD/Common/Rounding.hpp \
     $$PWD/Common/ThermoProperty.hpp \
     $$PWD/Common/ScalarTypes.hpp \
     $$PWD/Common/Real.hpp \

@@ -150,3 +150,73 @@ def test_nea_tdb_examples(data, tmp_path):
     assert tpr.ln_equilibrium_constant.err == pytest.approx(0.15, abs=0.005)
     assert tpr.log_equilibrium_constant.err == pytest.approx(0.06, abs=0.005)
     assert tpr.log_equilibrium_constant.err == pytest.approx(tpr.ln_equilibrium_constant.err / math.log(10), rel=1e-5)
+
+
+def test_rounding_functions_follow_the_nea_rules():
+    assert tf.round_half_even(2.5, 0) == 2.0 and tf.round_half_even(3.5, 0) == 4.0   # 5 and no digits beyond: to even
+    assert tf.round_half_even(2.45, 1) == pytest.approx(2.4) and tf.round_half_even(2.55, 1) == pytest.approx(2.6)
+    assert tf.round_half_even(0.1251, 2) == pytest.approx(0.13)                      # other non-zero digits follow the 5
+    assert tf.round_half_even(1234.0, -1) == 1230.0
+    # examples of the guidelines: (25.45 +- 1.05) -> (25.4 +- 1.1); 3.478 +- 0.008; 2.8 +- 0.4; 4.85 +- 0.26
+    v, e = tf.round_to_uncertainty(25.45, 1.05, 2)
+    assert (v, e) == (pytest.approx(25.4), pytest.approx(1.1))
+    v, e = tf.round_to_uncertainty(3.478, 0.008, 1)
+    assert (v, e) == (pytest.approx(3.478), pytest.approx(0.008))
+    v, e = tf.round_to_uncertainty(2.8123, 0.4, 1)
+    assert (v, e) == (pytest.approx(2.8), pytest.approx(0.4))
+    v, e = tf.round_to_uncertainty(4.8512, 0.26, 1)
+    assert (v, e) == (pytest.approx(4.9), pytest.approx(0.3))                          # the uncertainty is rounded up
+    v, e = tf.round_to_uncertainty(10.0, 0.96, 1)                                        # 0.96 -> 1
+    assert (v, e) == (pytest.approx(10.0), pytest.approx(1.0))
+    v, e = tf.round_to_uncertainty(1234.567, 0.0, 2)                                     # without uncertainty: unchanged
+    assert (v, e) == (1234.567, 0.0)
+    v, e = tf.round_to_uncertainty(-1129178.3, 100.0, 2)
+    assert (v, e) == (pytest.approx(-1129180.0), pytest.approx(100.0))
+
+
+def test_rounding_preference_of_the_engine(data, tmp_path):
+    eng = make_engine(data, False, tmp_path)
+    prefs = eng.preferences
+    assert prefs.round_to_uncertainty is False and prefs.uncertainty_significant_digits == 2
+    T, P = 400.0, 1e5
+    plain = eng.thermoPropertiesSubstance(T, P, "Cal")
+
+    prefs.round_to_uncertainty = True
+    rounded = eng.thermoPropertiesSubstance(T, P, "Cal")
+    g, e = rounded.gibbs_energy.val, rounded.gibbs_energy.err
+    expected = tf.round_to_uncertainty(plain.gibbs_energy.val, plain.gibbs_energy.err, 2)
+    assert (g, e) == pytest.approx(expected)
+    assert g != plain.gibbs_energy.val
+    # the derivatives and the properties without an error are not rounded
+    assert rounded.gibbs_energy.ddt == plain.gibbs_energy.ddt
+    assert rounded.volume.val == plain.volume.val
+
+    prefs.uncertainty_significant_digits = 1
+    assert eng.thermoPropertiesSubstance(T, P, "Cal").gibbs_energy.err >= e
+
+    # reactions
+    reaction_data(data, {"Ca+2": 2.0, "Cal": -1.0})
+    substance(data, "Ca+2")["sm_gibbs_energy"]["errors"] = [4900.0]
+    eng2 = make_engine(data, False, tmp_path)
+    eng2.preferences.round_to_uncertainty = True
+    tpr = eng2.thermoPropertiesReactionFromReactants(298.15, 1e5, "test-reaction")
+    assert tpr.reaction_gibbs_energy.err > 0
+
+
+def test_python_interface_of_the_uncertainty_options():
+    prefs = tf.EnginePreferences()
+    for name in ("propagate_parameter_errors", "round_to_uncertainty", "uncertainty_significant_digits"):
+        assert hasattr(prefs, name)
+    ps = tf.ThermoParametersSubstance()
+    ps.coefficient_errors = {"eos_hkf_coeffs": [[0.1, 0.2, 0.0]]}
+    assert ps.coefficient_errors["eos_hkf_coeffs"][0][1] == 0.2
+    pr = tf.ThermoParametersReaction()
+    pr.coefficient_errors = {"logk_ft_coeffs": [[0.01]]}
+    assert pr.coefficient_errors["logk_ft_coeffs"][0][0] == 0.01
+
+
+def test_coefficient_errors_are_read_from_the_records(data, tmp_path):
+    make_engine(data, False, tmp_path)
+    cal = tf.Database(str(tmp_path / "db.json")).getSubstance("Cal")
+    errors = cal.thermoParameters().coefficient_errors
+    assert errors["m_heat_capacity_ft_coeffs"][0][:3] == pytest.approx([0.5, 1e-4, 2e4])
