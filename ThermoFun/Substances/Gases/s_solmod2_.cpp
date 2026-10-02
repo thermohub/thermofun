@@ -25,6 +25,7 @@
 // along with GEMS4K code. If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------
 
+#include "CGFexact.hpp"
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -1029,7 +1030,7 @@ long int TCGFcalc::PureSpecies()
         Cf[j][7] = Eos4parPT1[3];
 
         // Calculation of departure functions
-        CGResidualFunct( X, Eos4parPT, Eos4parPT1, 1, roro, Tk );  // changed, 21.06.2008 (TW)
+        CGResidualFunctPure( aDCc+j*NP_DC, roro, Tk );  // exact derivatives, no finite differences
     }  // j
 
 	if ( retCode )
@@ -1265,7 +1266,11 @@ long int TCGFcalc::CGActivCoefPT( real *X,real *param, real *act,
 
 	for ( i=0;i<paar->NCmp();i++)
 	{
-		if ( xtmp[i]>0. )
+		if ( xtmp[i]>0. && paar->NCmp()==1 )
+		{	// a pure fluid: d(nF)/dn = F (exact; the finite difference of the mixture formula gives F with a rounding error)
+			Fx[i] = F0;
+		}
+		else if ( xtmp[i]>0. )
 		{
 			copy(paar->XX0,xtmp,paar->NCmp());
 			dx = xtmp[i]*delta;
@@ -1300,6 +1305,45 @@ long int TCGFcalc::CGActivCoefPT( real *X,real *param, real *act,
 	roro = ro;  // added, 21.06.2008 (TW)
 
 	return 0;  // changed, 21.06.2008 (TW)
+}
+
+
+
+/// calculate the residual functions of a pure fluid from its 12 coefficients, with the exact derivative of the free energy
+/// with respect to T (the parameters of the EoS depend on T)
+long int TCGFcalc::CGResidualFunctPure( const real *coeff, real ro, real T )
+{
+	using namespace ThermoFun::cgf;
+	using M = Up<Dual0>;
+
+	const Dual0 T0 = fromReal(T), ro0 = fromReal(ro);
+	Dual0 c0[12];
+	M cm[12];
+	for ( int i=0; i<12; i++ )
+	{
+		c0[i] = fromReal(coeff[i]);
+		cm[i].val = c0[i];
+		cm[i].grad = Dual0(0.0);
+	}
+
+	// F and dF/dT at constant density (the inner variable is T)
+	M Tm; Tm.val = T0; Tm.grad = Dual0(1.0);
+	const Pure<M> pm = parametersAt<M>(Tm, cm);
+	M roM; roM.val = ro0; roM.grad = Dual0(0.0);
+	const M Fm = FTOTAL<M>(Tm, roM, pm);
+	const real F0 = toReal(Fm.val);
+	const real FT = toReal(Fm.grad);
+
+	const Pure<Dual0> p0 = parametersAt<Dual0>(T0, c0);
+	const real Z = toReal(ZTOTAL<Dual0>(T0, ro0, p0));
+
+	Srs = - ( T*FT + F0 ) * R_CONST;
+	Hrs = (F0*Tk*R_CONST + Tk*Srs) + Z*R_CONST*Tk;
+	Grs = Hrs - Tk*Srs;
+	CPrs = 0.;
+	Vrs = Z*R_CONST*Tk/Pbar;
+
+	return 0;
 }
 
 
@@ -1835,24 +1879,16 @@ real TCGFcalc::FWCA( real T,real ro )
 
 real TCGFcalc::ZWCANum( real T,real ro )
 {
-	real delta = DELTA;
-	real a0,a1;
-	a1 = FWCA(T,ro*(1.+delta));
-	a0 = FWCA(T,ro);
-	return 1.+(a1-a0)/delta;
+	// exact derivative of the free energy: Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
+	return ThermoFun::cgf::toReal(ThermoFun::cgf::ZWCA<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T), ThermoFun::cgf::fromReal(ro)));
 }
 
 
 
 real TCGFcalc::UWCANum( real T,real ro )
 {
-	real delta = DELTA;
-	real a0,a1,beta0,beta1;
-	beta0 = 1./T;
-	beta1 = beta0*(1.+delta);
-	a1 = FWCA(1./beta1,ro);
-	a0 = FWCA(T,ro);
-	return (a1-a0)/(beta1-beta0);
+	// exact derivative of the free energy: U = dF/dbeta (was a finite difference, relative step DELTA)
+	return ThermoFun::cgf::toReal(ThermoFun::cgf::UWCA<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T), ThermoFun::cgf::fromReal(ro)));
 }
 
 
@@ -1885,6 +1921,11 @@ real TCGFcalc::J6LJ( real T,real ro )
 
 real TCGFcalc::FTOTALMIX( real T_Real,real ro_Real,EOSPARAM* param )
 {
+	if ( param->NCmp()==1 )
+	{	// a pure fluid: exact free energy
+		ThermoFun::cgf::Pure<ThermoFun::cgf::Dual0> p{ThermoFun::cgf::fromReal(param->SIG3(0)), ThermoFun::cgf::fromReal(param->EPS(0)), ThermoFun::cgf::fromReal(param->M2R(0)), ThermoFun::cgf::fromReal(param->A(0))};
+		return ThermoFun::cgf::toReal(ThermoFun::cgf::FTOTAL<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T_Real), ThermoFun::cgf::fromReal(ro_Real), p));
+	}
 	real FF,A0,A2,A3,AP,A1;
 	// unsigned iall,inopol;
 	real emix,s3mix,rotmp,T2R;
@@ -2028,6 +2069,11 @@ real TCGFcalc::UTOTALMIX( real T_Real,real ro_Real,EOSPARAM* param )
 
 real TCGFcalc::ZTOTALMIX( real T_Real,real ro_Real,EOSPARAM* param )
  {
+  if ( param->NCmp()==1 )
+  {	// a pure fluid: exact derivative Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
+    ThermoFun::cgf::Pure<ThermoFun::cgf::Dual0> p{ThermoFun::cgf::fromReal(param->SIG3(0)), ThermoFun::cgf::fromReal(param->EPS(0)), ThermoFun::cgf::fromReal(param->M2R(0)), ThermoFun::cgf::fromReal(param->A(0))};
+    return ThermoFun::cgf::toReal(ThermoFun::cgf::ZTOTAL<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T_Real), ThermoFun::cgf::fromReal(ro_Real), p));
+  }
   real delta = DELTA;
   real a0,a1;
   a1 = FTOTALMIX(T_Real,ro_Real*(1.+delta),param);
@@ -2285,8 +2331,7 @@ long int TCGFcalc::CGcalcFugPure(real Tmin, real *Cemp, real *FugProps )
 		FugProps[0] = Fugacity/Pbar;
 		FugProps[1] = 8.31451 * Tk * log( Fugacity / P );
 		FugProps[4] = Volume;
-		retCode = CGFugacityPT( Coeff, Eos4parPT1, Fugacity, Volume, P, T+T*DELTA, roro );
-		CGResidualFunct( X, Eos4parPT, Eos4parPT1, 1, roro, T );
+		CGResidualFunctPure( Coeff, roro, T );
 		FugProps[2] = Hrs;
 		FugProps[3] = Srs;
 		return retCode;

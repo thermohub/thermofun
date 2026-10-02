@@ -151,7 +151,13 @@ int main(int argc, char** argv)
         ThermoParametersSubstance cgfParameters = parameters;
         cgfParameters.critical_parameters = {3.7327, 149.92, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         cgf.setThermoParameters(cgfParameters);
-        gas("CGF", GasCGF(cgf), 450.0, 5e7);
+        // exact derivatives of the free energy (no finite differences): tight tolerance; polar fluid (dipole and induced terms)
+        gas("CGF", GasCGF(cgf), 450.0, 5e7, 2e-5);
+        gas("CGF", GasCGF(cgf), 700.0, 2e8, 2e-5);
+        auto cgfPolar = substance;
+        cgfParameters.critical_parameters = {3.0, 300.0, 1.2, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        cgfPolar.setThermoParameters(cgfParameters);
+        gas("CGF polar", GasCGF(cgfPolar), 600.0, 1e8, 2e-5);
     }
 
     // Reaction models that depend on the properties of the solvent (Frantz-Marshall, Dolejs-Manning)

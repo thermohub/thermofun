@@ -70,24 +70,30 @@ All models, including the GEMS implementations that had zero or incomplete deriv
    by the solvent model; the third-order derivatives (the `ddt`/`ddp` of the second-order ones) are exact too, the mixed
    derivatives are symmetric, and `densityTP`, `epsilonTP` are now calculated. The Zhang-Duan `densityPP` was 1e5 times too large
    (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed.
-9. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
+9. Churakov-Gottschalk fluids (pure fluids): the compressibility `Z = 1 + rho dF/drho`, the internal energy of the Weeks-Chandler-Andersen
+   reference fluid, `U = dF/dbeta`, and the residual entropy (`dF/dT` with the T dependent parameters of the EoS) were finite
+   differences with a relative step of 1e-5. The free energy is now a template on the number type
+   (`Substances/Gases/CGFexact.hpp`) and these derivatives are calculated exactly with nested autodiff numbers. The values change by
+   about 1e-5 (the truncation error of the finite differences): for example the volume of a test fluid by 1e-5, its enthalpy by 4e-5;
+   the derivatives with respect to T and P are exact (tested to 2e-5 against finite differences, including a polar fluid).
+10. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
    calls the Dolejs-Manning function. **Behaviour change**; the units of its first coefficient were not checked
    against the paper.
-10. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
+11. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
    the Gibbs energy below 500 K. `T'` now carries the derivative there. The published `S` and `Cp` were not the
     derivatives of the published `G` (the `ln(rho/rho298)/T'` term of `S` had the opposite sign; `Cp` lacked
     `2 alpha/T'`) and `H` was `G + T S298`. `S`, `V`, `Cp` and `H` are now the exact derivatives of `G`:
     `S = -dG/dT`, `Cp = T dS/dT`, `H = G + T S`. **Behaviour change**: `S`, `Cp`, `H` (and `U`, `A`) of HP98 solutes
     differ from the published formulas (G and V are unchanged).
-11. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
+12. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
     was called by the engine for the volume pressure methods but returned an empty result (which replaced the
     properties), and its dead implementation mixed Pa and bar. It is implemented and wired:
     `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, `dG = int V dP`, `dS = -d(dG)/dT`,
     `dH = dG - T d(dG)/dT`, `dCp = -T d2(dG)/dT2`, `ln K = -G/(RT)`. No database uses it yet (tested in
     `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
-12. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
+13. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
     values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
-13. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
+14. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
     `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
 
 ## 5. Errors (uncertainties)
@@ -159,7 +165,9 @@ it is given. Tests: `pytests/test_errors.py`.
 - Quartz `V` has zero `ddt`/`ddp` exactly at the reference state (298.15 K, 1 bar): `SolidMurnaghanHP98.cpp` takes a
   constant-volume branch there. CORK has a branch at 5 kbar.
 - Near the critical point the derivatives of the HGK/LVS water are more self-consistent than finite differences of the values.
-- The finite difference inside the Churakov-Gottschalk residual enthalpy and entropy (`T + T*DELTA`) is differentiated as written.
+- Churakov-Gottschalk fluid mixtures (more than one component) still use the finite differences of the original code (`DELTA = 1e-5` in
+  the composition derivatives and in the residual functions); the pure fluids used by ThermoFun are exact (section 4). `G` of a CG fluid
+  has no residual contribution (the `back correction` in `GasCGF.cpp` cancels it, as in master); not changed.
 - Reactions from reactants: `Cv`, `U` and `A` are those of the last reactant times its coefficient (as before).
 - Many substances of `psinagra-12-07-thermofun.json` (for example `Pu(OH)+3`) crash the library (segmentation
   fault), before and after this work; not investigated.

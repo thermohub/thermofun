@@ -504,6 +504,8 @@ class TCGFcalc: public TSolMod
 		long int CGActivCoefRhoT( real *X,real *param, real *act, unsigned long int NN,
 				real ro, real T ); // not used
 
+		long int CGResidualFunctPure( const real *coeff, real ro, real T );
+
 		long int CGActivCoefPT(real *X,real *param,real *act, unsigned long int NN,
 				real Pbar, real T, real &roro );
 
