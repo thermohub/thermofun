@@ -1488,11 +1488,11 @@ auto WaterHGKgems::dalLVS(real D, real T, real P, real alpha) -> real
                                      dsdT[i] + s[i] * (1.0 - calpha[i]) *
                                      pow(a2.r,-calpha[i]) * drdT);
         dPdMMT = dPdMMT + k[i] * ((pow(a2.r,(-cgamma[i])) * dudT[i] -
-                                   u[i] * cgamma[i] * pow(a2.r,(-1.0 - cgamma[i]) * drdT)) /
+                                   u[i] * cgamma[i] * pow(a2.r,(-1.0 - cgamma[i])) * drdT) /
                                   a + 2.0 * c * (pow(a2.r,(cbeta[i] - 1.0)) * dvdT[i] +
                                                  v[i] * (cbeta[i] - 1.0) * pow(a2.r,(cbeta[i] - 2.0)) * drdT)
                                   + a * pow(c,2.) * (pow(a2.r,(-calpha[i])) * dwdT[i] -
-                                                     calpha[i] * w[i] * pow(a2.r,(-1.0 - calpha[i]) * drdT)));
+                                                     calpha[i] * w[i] * pow(a2.r,(-1.0 - calpha[i])) * drdT));
         dPdMTT = dPdMTT + k[i] * (pow(a2.r,(cbeta[i] - 1.0)) * dvdT[i] +
                                   v[i] * (cbeta[i] - 1.0) * pow(a2.r,(cbeta[i] - 2.0)) *
                                   drdT + a * c * (pow(a2.r,(-calpha[i])) * dwdT[i] -

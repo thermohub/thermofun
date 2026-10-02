@@ -110,6 +110,10 @@ All models, including the GEMS implementations that had zero or incomplete deriv
     `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
 14. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
     values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
+19. GEMS `dalLVS` (the analytical `dalpha/dT` of the critical-region equation, `dAldT` of the water, used for the dielectric constant
+    derivatives) had two misplaced parentheses, `pow(r, (-1-gamma) * drdT)` instead of `pow(r, -1-gamma) * drdT` (in `dPdMMT`); near the critical
+    point it gave a wrong value and even the wrong sign (647.5 K, 22 MPa: +0.086 instead of -0.172 1/K^2). Fixed (it agrees with the exact
+    derivative `Alpha.ddt` to 1e-5). **Behaviour change** (only the LVS critical region).
 16. `U` and `A` of the HKF solutes (`SoluteHKFgems`, `SoluteHKFreaktoro`) multiplied `P V` by 41.84 (the conversion
     from cal was applied to a quantity already in J). They are `U = H - P V`, `A = U - T S` after the unit conversion.
     **Behaviour change** (U, A of aqueous species).

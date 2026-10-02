@@ -172,7 +172,7 @@ int main(int argc, char** argv)
         auto ps = [&](double t, double p) { double pp = p; return model.propertiesSolvent(t, pp, 0, "NEA_HGK"); };
         // 640 K, 2e7 Pa is in the critical region (LVS equation), the others in the HGK region
         for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(700.0, 3e8), std::make_pair(900.0, 1e9), std::make_pair(640.0, 2e7),
-                        std::make_pair(700.0, 2.3e7)})
+                        std::make_pair(700.0, 2.3e7), std::make_pair(647.5, 2.2e7), std::make_pair(650.0, 2.25e7)})
         {
             const double T = tp.first, P = tp.second, hT = 1e-5 * T, hP = 1e-5 * P;
             const auto x = ps(T, P);
@@ -191,6 +191,8 @@ int main(int argc, char** argv)
             const double fdPPT = (ps(T + hT, P).densityPP.val - ps(T - hT, P).densityPP.val) / (2 * hT);
             expectClose("HGK gems densityPP.ddp", x.densityPP.ddp, fdPPP, 1e-3);
             expectClose("HGK gems densityPP.ddt", x.densityPP.ddt, fdPPT, 1e-3);
+            // dalpha/dT of the critical-region equation (dalLVS) against the exact derivative of alpha
+            expectClose("HGK gems dAldT = Alpha.ddt", x.dAldT.val, x.Alpha.ddt, 1e-3);
         }
     }
 
