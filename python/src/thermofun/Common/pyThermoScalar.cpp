@@ -26,7 +26,7 @@
 namespace py = pybind11;
 
 // thermofun includes
-#include <ThermoFun/Common/ThermoProperty.hpp>
+#include <ThermoFun/Common/ThermoScalar.hpp>
 namespace r_ = Reaktoro_;
 
 namespace ThermoFun {
@@ -44,17 +44,36 @@ auto exportStatus(py::module& m) -> void
 
 void exportThermoScalar(py::module& m)
 {
-    // the thermodynamic property keeps its Python name: value, derivatives with respect to T and P, error and status
-    py::class_<r_::ThermoProperty>(m, "ThermoScalar")
+    py::class_<r_::ThermoScalar>(m, "ThermoScalar")
         .def(py::init<>())
         .def(py::init<double>())
         .def(py::init<double, double, double, double, r_::StatusMessage>())
-        .def_readwrite("val", &r_::ThermoProperty::val)
-        .def_readwrite("ddt", &r_::ThermoProperty::ddt)
-        .def_readwrite("ddp", &r_::ThermoProperty::ddp)
-        .def_readwrite("err", &r_::ThermoProperty::err)
-        .def_readwrite("sta", &r_::ThermoProperty::sta)
+        .def_readwrite("val", &r_::ThermoScalar::val)
+        .def_readwrite("ddt", &r_::ThermoScalar::ddt)
+        .def_readwrite("ddp", &r_::ThermoScalar::ddp)
+        .def_readwrite("err", &r_::ThermoScalar::err)
+        .def_readwrite("sta", &r_::ThermoScalar::sta)
         ;
+}
+
+void exportTemperature(py::module& m)
+{
+    py::class_<r_::Temperature, r_::ThermoScalar>(m, "Temperature")
+        .def(py::init<>())
+        .def(py::init<double>())
+        ;
+
+    py::implicitly_convertible<double, r_::Temperature>();
+}
+
+void exportPressure(py::module& m)
+{
+    py::class_<r_::Pressure, r_::ThermoScalar>(m, "Pressure")
+        .def(py::init<>())
+        .def(py::init<double>())
+        ;
+
+    py::implicitly_convertible<double, r_::Pressure>();
 }
 
 }

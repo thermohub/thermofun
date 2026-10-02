@@ -9,4 +9,10 @@ add_test(NAME autodiff COMMAND test-autodiff)
 add_executable(test-model-derivatives src/models.cpp)
 target_include_directories(test-model-derivatives PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun)
 target_link_libraries(test-model-derivatives PRIVATE ThermoFun autodiff::autodiff)
-add_test(NAME model-derivatives COMMAND test-model-derivatives)
+add_test(NAME model-derivatives COMMAND test-model-derivatives ${CMAKE_SOURCE_DIR}/pytests/test-thermoengine-thermofun.json)
+
+# The interface used by external codes is not changed
+add_executable(test-interface src/interface.cpp)
+target_include_directories(test-interface PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun)
+target_link_libraries(test-interface PRIVATE ThermoFun autodiff::autodiff)
+add_test(NAME interface COMMAND test-interface ${CMAKE_SOURCE_DIR}/pytests/test-thermoengine-thermofun.json)

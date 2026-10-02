@@ -4,6 +4,9 @@
 #include <cstdio>
 #include <functional>
 
+#include "ThermoEngine.h"
+#include "ThermoModelsReaction.h"
+#include "Reaction.h"
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"
@@ -55,7 +58,7 @@ static Substance makeSubstance()
     return substance;
 }
 
-int main()
+int main(int argc, char** argv)
 {
     const double T = 450.0, P = 5e7;
 
@@ -110,6 +113,76 @@ int main()
         checkDerivatives("IdealGasLawVol volume", f(&ThermoPropertiesSubstance::volume), T, P);
         checkDerivatives("IdealGasLawVol gibbs_energy", f(&ThermoPropertiesSubstance::gibbs_energy), T, P);
         checkDerivatives("IdealGasLawVol enthalpy", f(&ThermoPropertiesSubstance::enthalpy), T, P);
+    }
+
+    // Gas and fluid models (fugacity from the equations of state)
+    {
+        auto substance = makeSubstance();
+        substance.setSubstanceClass(SubstanceClass::type::GASFLUID);
+        substance.setFormula("CH4");
+        ThermoParametersSubstance parameters;
+        parameters.temperature_intervals = {{200.0, 2000.0}};
+        parameters.critical_parameters = {190.56, 45.99, 0.0115, 0.0, 0.0, 0.0, 0.0};  // Tcr, Pcr, omega, ...
+        substance.setThermoParameters(parameters);
+        const auto tps = inputProperties();
+
+        auto gas = [&](const char* name, auto&& model, double Tgas, double Pgas, double rel = 2e-3) {
+            for (auto member : {&ThermoPropertiesSubstance::gibbs_energy, &ThermoPropertiesSubstance::enthalpy,
+                                &ThermoPropertiesSubstance::entropy, &ThermoPropertiesSubstance::volume})
+            {
+                auto f = [&](double t, double p) { return (model.thermoProperties(t, p, tps, true)).*member; };
+                checkDerivatives(name, f, Tgas, Pgas, rel);
+            }
+        };
+
+        gas("SRK", GasSRK(substance), 450.0, 5e7);
+        gas("PR78", GasPR78(substance), 450.0, 5e7);
+        gas("PRSV", GasPRSV(substance), 450.0, 5e7);
+
+        auto co2 = substance;
+        co2.setFormula("CO2");
+        gas("STP", GasSTP(co2), 600.0, 5e7);
+        gas("CORK", GasCORK(co2), 600.0, 5e7);
+
+        auto cgf = substance;
+        ThermoParametersSubstance cgfParameters = parameters;
+        cgfParameters.critical_parameters = {3.7327, 149.92, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        cgf.setThermoParameters(cgfParameters);
+        gas("CGF", GasCGF(cgf), 450.0, 5e7);
+    }
+
+    // Reaction models that depend on the properties of the solvent (Frantz-Marshall, Dolejs-Manning)
+    if (argc > 1)
+    {
+        ThermoEngine engine(argv[1]);
+        auto waterProps = [&](double t, double p) { double pp = p; return engine.propertiesSolvent(t, pp, "H2O@"); };
+
+        Reaction reaction;
+        reaction.setReferenceT(298.15);
+        reaction.setReferenceP(1e5);
+
+        {
+            ThermoParametersReaction parameters;
+            parameters.reaction_FM_coeff = {-10.0, -2000.0, 1.0e5, 1.0e7, 3.0, -500.0, 1.0e4};
+            reaction.setThermoParameters(parameters);
+            ReactionFrantzMarshall model(reaction);
+            auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, waterProps(t, p))).*member; }; };
+            checkDerivatives("Frantz-Marshall gibbs_energy", f(&ThermoPropertiesReaction::reaction_gibbs_energy), 573.15, 5e7);
+            checkDerivatives("Frantz-Marshall enthalpy", f(&ThermoPropertiesReaction::reaction_enthalpy), 573.15, 5e7);
+            checkDerivatives("Frantz-Marshall entropy", f(&ThermoPropertiesReaction::reaction_entropy), 573.15, 5e7);
+            checkDerivatives("Frantz-Marshall volume", f(&ThermoPropertiesReaction::reaction_volume), 573.15, 5e7);
+        }
+        {
+            ThermoParametersReaction parameters;
+            parameters.reaction_DM10_coeff = {1.0e5, -200.0, -20.0, 0.01, -5.0e3};
+            reaction.setThermoParameters(parameters);
+            ReactionDolejsManning10 model(reaction);
+            auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, waterProps(t, p))).*member; }; };
+            checkDerivatives("Dolejs-Manning gibbs_energy", f(&ThermoPropertiesReaction::reaction_gibbs_energy), 573.15, 5e7);
+            checkDerivatives("Dolejs-Manning enthalpy", f(&ThermoPropertiesReaction::reaction_enthalpy), 573.15, 5e7);
+            checkDerivatives("Dolejs-Manning entropy", f(&ThermoPropertiesReaction::reaction_entropy), 573.15, 5e7);
+            checkDerivatives("Dolejs-Manning volume", f(&ThermoPropertiesReaction::reaction_volume), 573.15, 5e7);
+        }
     }
 
     // Zhang and Duan (2005) water density

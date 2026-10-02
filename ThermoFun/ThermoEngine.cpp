@@ -769,18 +769,18 @@ struct ThermoEngine::Impl
             case MethodCorrP_Thrift::type::CPM_CON:
             {
                 auto Pref = pref.workReaction.referenceP() / 1e5;
-                auto P_ = P / 1e5;
                 auto Vref = pref.workReaction.thermoReferenceProperties().reaction_volume;
 
                 const auto tprIn = tpr;
                 tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
                     auto a = lift(pass, tprIn);
-                    const real VP = a.reaction_volume * (P_ - Pref);
+                    const real Pbar = pass.P / 1e5; // the pressure of the pass (with its derivative)
+                    const real VP = a.reaction_volume * (Pbar - Pref);
                     a.reaction_gibbs_energy += VP;
                     a.reaction_enthalpy += VP;
-                    a.log_equilibrium_constant -= pass(Vref) * (P_ - Pref) / (R_CONSTANT * pass.T) / lg_to_ln;
+                    a.log_equilibrium_constant -= pass(Vref) * (Pbar - Pref) / (R_CONSTANT * pass.T) / lg_to_ln;
                     a.reaction_entropy = (a.reaction_enthalpy - a.reaction_gibbs_energy) / pass.T;
-                    a.reaction_internal_energy = a.reaction_enthalpy - P_ * a.reaction_volume;
+                    a.reaction_internal_energy = a.reaction_enthalpy - Pbar * a.reaction_volume;
                     a.reaction_helmholtz_energy = a.reaction_internal_energy - pass.T * a.reaction_entropy;
                     return a;
                 });

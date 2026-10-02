@@ -71,23 +71,38 @@ WaterHGK::WaterHGK(const Substance &substance)
 // calculation
 auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string triple) -> PropertiesSolvent
 {
-    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
-
     WaterTripleProperties wtr = waterTripleData.at(triple);
-    water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
 
-    return water_hgk.propertiesWaterHGKgems(state);
+    double Pout = P;
+    auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        WaterHGKgems water_hgk;
+        real t = pass.T - C_to_K;
+        real p = pass.P / bar_to_Pa;
+        water_hgk.calculateWaterHGKgems(t, p, wtr);
+        Pout = p.val() * bar_to_Pa;
+        return water_hgk.propertiesWaterHGKgems(state);
+    });
+    P = Pout;
+
+    return ps;
 }
 
 auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string triple) -> ThermoPropertiesSubstance
 {
-    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
-
     WaterTripleProperties wtr = waterTripleData.at(triple);
 
-    water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
+    double Pout = P;
+    auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        WaterHGKgems water_hgk;
+        real t = pass.T - C_to_K;
+        real p = pass.P / bar_to_Pa;
+        water_hgk.calculateWaterHGKgems(t, p, wtr);
+        Pout = p.val() * bar_to_Pa;
+        return water_hgk.thermoPropertiesWaterHGKgems(state);
+    });
+    P = Pout;
 
-    return  water_hgk.thermoPropertiesWaterHGKgems(state);
+    return tps;
 }
 
 //=======================================================================================================
