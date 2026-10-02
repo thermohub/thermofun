@@ -128,3 +128,25 @@ def test_reaction_from_reactants_errors_are_weighted_by_the_coefficients(data, t
     tpr_on = eng_on.thermoPropertiesReactionFromReactants(T, 1e5, "test-reaction")
     assert tpr_on.reaction_gibbs_energy.err == pytest.approx(expected, rel=1e-6)
     assert tpr_on.reaction_gibbs_energy.val == pytest.approx(tpr.reaction_gibbs_energy.val)
+
+
+def test_nea_tdb_examples(data, tmp_path):
+    """Examples 7 of the NEA TDB-3 guidelines (Wanner 1999): the propagation of the uncertainties in reactions and in
+    ln K, log10 K (the uncertainties are those of the 95 % confidence level and are propagated linearly)."""
+    # Delta_r G = 2 G(Ca+2) - G(Cal) with (-277.4 +- 4.9) and (-467.3 +- 6.2) kJ/mol -> -87.5 +- 11.6 kJ/mol
+    reaction_data(data, {"Ca+2": 2.0, "Cal": -1.0})
+    substance(data, "Ca+2")["sm_gibbs_energy"]["errors"] = [4900.0]
+    substance(data, "Cal")["sm_gibbs_energy"]["errors"] = [6200.0]
+    eng = make_engine(data, False, tmp_path)
+    tpr = eng.thermoPropertiesReactionFromReactants(298.15, 1e5, "test-reaction")
+    assert tpr.reaction_gibbs_energy.err == pytest.approx(math.sqrt((2 * 4900.0) ** 2 + 6200.0 ** 2), rel=1e-9)
+    assert tpr.reaction_gibbs_energy.err / 1000 == pytest.approx(11.6, abs=0.05)
+
+    # Delta_r G = -(39.46 +- 0.36) kJ/mol -> ln K = 15.92 +- 0.15, log10 K = 6.91 +- 0.06
+    data2 = load()
+    reaction_data(data2, {"Cal": 1.0})
+    substance(data2, "Cal")["sm_gibbs_energy"]["errors"] = [360.0]
+    tpr = make_engine(data2, False, tmp_path).thermoPropertiesReactionFromReactants(298.15, 1e5, "test-reaction")
+    assert tpr.ln_equilibrium_constant.err == pytest.approx(0.15, abs=0.005)
+    assert tpr.log_equilibrium_constant.err == pytest.approx(0.06, abs=0.005)
+    assert tpr.log_equilibrium_constant.err == pytest.approx(tpr.ln_equilibrium_constant.err / math.log(10), rel=1e-5)

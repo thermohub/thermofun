@@ -88,6 +88,16 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 The error `err` of a property is a first-order (linear) propagation of independent standard errors,
 `err_y = sqrt(sum (dy/dx_i err_i)^2)`; the status rule (not defined if an input is not defined) is as before.
 
+- **Convention.** The propagation is linear, so the result has the convention of the input: with the uncertainties of the
+  NEA TDB (95 % confidence level, "Guidelines for the assignment of uncertainties", TDB-3, Wanner 1999) as `errors`, the
+  calculated `err` are at the 95 % level too; with standard errors they are standard errors. It follows the TDB-3 rules
+  for propagation of errors (Eqs. 17-22): independent quantities (covariances disregarded), `sigma_X^2 = sum (dX/dY_i
+  sigma_Yi)^2`, reaction sums weighted by the stoichiometric coefficients (Example 7: `2(-277.4 +- 4.9) - (-467.3 +- 6.2) = -87.5
+  +- 11.6` kJ/mol), `sigma(ln K) = sigma(Delta_r G)/(R T)` and `sigma(log10 K) = sigma(ln K)/ln 10` (tested in
+  `pytests/test_errors.py`). The TDB-3 assignment of uncertainties (weighted means, SIT extrapolation) is part of the
+  data evaluation and not done here; as TDB-3 notes, data of a reaction measured directly have smaller
+  uncertainties than those calculated from the formation data of its species, so use the reaction's own reference
+  properties (`thermoPropertiesReaction`) when they are in the database.
 - **Always** (analytic): reactions from reactants (`sqrt(sum nu_i^2 err_i^2)`), `ln K = -G/(R T)` (`err_G/(R T)`, `log K` divided by
   ln 10), `U = H - P V`, `A = U - T S`, `S = (H - G)/T`, the reaction volume and pressure corrections, the Gibbs energy of
   substances from reference properties (`G(T) = G298 - S298 (T - Tr) + ...`: `(T - Tr) err_S298`) and gases with the
