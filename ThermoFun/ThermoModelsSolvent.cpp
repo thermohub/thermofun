@@ -225,7 +225,7 @@ auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int /*state*/) ->
     checkModelValidity(T, P, 2273.15, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
 
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterZhangDuan2005(pass.T, pass.P / bar_to_Pa); // pressure in bar
+        return propertiesWaterZhangDuan2005(pass);
     });
 }
 

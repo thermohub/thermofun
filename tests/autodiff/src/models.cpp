@@ -9,6 +9,8 @@
 #include "Reaction.h"
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
+#include "ElectroModelsSolvent.h"
+#include "Database.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
 #include "Substances/Solute/SoluteHollandPowell98.h"
@@ -267,12 +269,82 @@ int main(int argc, char** argv)
         }
     }
 
-    // Zhang and Duan (2005) water density
+    // Zhang and Duan (2005) water: the derivatives of the density up to the third order are exact (no finite differences)
+    for (auto tp : {std::make_pair(400.0, 3e8), std::make_pair(600.0, 5e8), std::make_pair(800.0, 1e9)})
     {
         auto substance = makeSubstance();
         WaterZhangDuan2005 model(substance);
-        auto f = [&](double t, double p) { return model.propertiesSolvent(t, p, 0).density; };
-        checkDerivatives("Zhang-Duan density", f, 600.0, 5e8, 2e-3);
+        auto ps = [&](double t, double p) { return model.propertiesSolvent(t, p, 0); };
+        auto f = [&](auto member) { return [=](double t, double p) { return ps(t, p).*member; }; };
+        const double t = tp.first, p = tp.second;
+        for (auto m : {&PropertiesSolvent::density, &PropertiesSolvent::densityT, &PropertiesSolvent::densityP,
+                       &PropertiesSolvent::densityTT, &PropertiesSolvent::densityTP, &PropertiesSolvent::densityPP})
+            checkDerivatives("Zhang-Duan density derivative", f(m), t, p, 2e-4);
+        // the first and second derivatives are the derivatives of the density
+        const auto x = ps(t, p);
+        auto close = [](double a, double b, double rel) { return std::fabs(a - b) <= rel * (std::fabs(b) + 1e-300); };
+        if (!close(x.density.ddt, x.densityT.val, 1e-12) || !close(x.density.ddp, x.densityP.val, 1e-12) ||
+            !close(x.densityT.ddt, x.densityTT.val, 1e-12) || !close(x.densityP.ddp, x.densityPP.val, 1e-12) ||
+            // the mixed partial derivatives are symmetric: exact for exact derivatives
+            !close(x.densityT.ddp, x.densityP.ddt, 1e-12) || !close(x.densityTP.val, x.densityT.ddp, 1e-12) ||
+            !close(x.densityTT.ddp, x.densityTP.ddt, 1e-12) || !close(x.densityTP.ddp, x.densityPP.ddt, 1e-12))
+        {
+            std::printf("FAILED: Zhang-Duan derivatives of the density are not exact (T=%g P=%g)\n", t, p);
+            ++failures;
+        }
+    }
+
+    // Dielectric constant of Sverjensky et al. (2014) and Fernandez et al. (1997): exact derivatives of the closed form
+    // function of T and of the density of the solvent, with the derivatives of the density of the solvent model
+    if (argc > 1)
+    {
+        ThermoEngine engine(argv[1]);
+        Database database(argv[1]);
+        const auto water = database.getSubstance("H2O@");
+        WaterElectroSverjensky2014 sverjensky(water);
+        WaterElectroFernandez1997 fernandez(water);
+        for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(650.0, 3e8), std::make_pair(300.0, 1e6)})
+        {
+            const double t = tp.first, p = tp.second;
+            auto check = [&](const char* name, auto& model) {
+                auto e = [&](double tt, double pp) { return model.electroPropertiesSolvent(tt, pp, 0); };
+                auto f = [&](auto member) { return [=](double tt, double pp) { return e(tt, pp).*member; }; };
+                for (auto m : {&ElectroPropertiesSolvent::epsilon, &ElectroPropertiesSolvent::epsilonT, &ElectroPropertiesSolvent::epsilonP,
+                               &ElectroPropertiesSolvent::epsilonTT, &ElectroPropertiesSolvent::epsilonPP})
+                    checkDerivatives(name, f(m), t, p, 2e-4);
+                for (auto m : {&ElectroPropertiesSolvent::bornZ, &ElectroPropertiesSolvent::bornY, &ElectroPropertiesSolvent::bornQ, &ElectroPropertiesSolvent::bornX})
+                    checkDerivatives(name, f(m), t, p, 2e-4);
+                const auto x = e(t, p);
+                auto close = [](double a, double b, double rel) { return std::fabs(a - b) <= rel * (std::fabs(b) + 1e-300); };
+                // epsilonT and epsilonTT are the derivatives of epsilon, epsilonP (per bar) of epsilon (per Pa), the mixed derivatives are symmetric
+                if (!close(x.epsilon.ddt, x.epsilonT.val, 1e-12) || !close(x.epsilon.ddp * 1e5, x.epsilonP.val, 1e-12) ||
+                    !close(x.epsilonT.ddt, x.epsilonTT.val, 1e-12) || !close(x.epsilonP.ddp * 1e5, x.epsilonPP.val, 1e-12) ||
+                    !close(x.epsilonT.ddp * 1e5, x.epsilonP.ddt, 1e-12) || !close(x.epsilonTP.val, x.epsilonP.ddt, 1e-12))
+                {
+                    std::printf("FAILED: %s derivatives of the dielectric constant are not exact (T=%g P=%g)\n", name, t, p);
+                    ++failures;
+                }
+            };
+            check("Sverjensky dielectric constant", sverjensky);
+            check("Fernandez dielectric constant", fernandez);
+
+            // Sverjensky: the closed form chain rule of ln(epsilon) = u(T) + w(T) ln(rho) gives epsilonT and epsilonP
+            double pp = p;
+            const auto rho = engine.propertiesSolvent(t, pp, "H2O@", 0);
+            const double tc = t - 273.15, r = rho.density.val / 1000.0;
+            const double u1 = -8.016651e-05 + 0.5 * -6.871618e-02 / std::sqrt(tc);
+            const double w0 = -1.576377e-03 * tc + 6.810288e-02 * std::sqrt(tc) + 7.548755e-01;
+            const double w1 = -1.576377e-03 + 0.5 * 6.810288e-02 / std::sqrt(tc);
+            const auto s = sverjensky.electroPropertiesSolvent(t, p, 0);
+            const double LT = u1 + w1 * std::log(r) + w0 * rho.densityT.val / rho.density.val;
+            const double LP = w0 * rho.densityP.val / rho.density.val;
+            if (std::fabs(s.epsilonT.val - s.epsilon.val * LT) > 1e-9 * std::fabs(s.epsilonT.val) ||
+                std::fabs(s.epsilonP.val - s.epsilon.val * LP * 1e5) > 1e-9 * std::fabs(s.epsilonP.val))
+            {
+                std::printf("FAILED: Sverjensky epsilonT, epsilonP differ from the closed form chain rule (T=%g P=%g)\n", t, p);
+                ++failures;
+            }
+        }
     }
 
     if (failures == 0) std::printf("All model derivative tests passed\n");

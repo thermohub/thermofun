@@ -63,24 +63,31 @@ All models, including the GEMS implementations that had zero or incomplete deriv
    reactions was 0.
 6. HKF (GEMS) g function: the exponent lost its temperature derivative.
 7. Zhang-Duan water: the pressure derivatives were scaled twice and the finite-difference points were not tied to `T` and `P`.
-8. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
+8. Zhang-Duan water and the Sverjensky and Fernandez dielectric constants calculated the derivatives of the density and of
+   the dielectric constant with finite differences (steps of 0.1 %, four extra evaluations of the solvent). They are exact now:
+   the equation of state is solved with higher-order autodiff numbers (`dual3rd`, `Common/Jets.hpp`) in T and P, and the
+   dielectric constant (a closed form function of T and of the density) is evaluated from the Taylor polynomial of the density given
+   by the solvent model; the third-order derivatives (the `ddt`/`ddp` of the second-order ones) are exact too, the mixed
+   derivatives are symmetric, and `densityTP`, `epsilonTP` are now calculated. The Zhang-Duan `densityPP` was 1e5 times too large
+   (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed.
+9. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
    calls the Dolejs-Manning function. **Behaviour change**; the units of its first coefficient were not checked
    against the paper.
-9. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
+10. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
    the Gibbs energy below 500 K. `T'` now carries the derivative there. The published `S` and `Cp` were not the
     derivatives of the published `G` (the `ln(rho/rho298)/T'` term of `S` had the opposite sign; `Cp` lacked
     `2 alpha/T'`) and `H` was `G + T S298`. `S`, `V`, `Cp` and `H` are now the exact derivatives of `G`:
     `S = -dG/dT`, `Cp = T dS/dT`, `H = G + T S`. **Behaviour change**: `S`, `Cp`, `H` (and `U`, `A`) of HP98 solutes
     differ from the published formulas (G and V are unchanged).
-10. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
+11. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
     was called by the engine for the volume pressure methods but returned an empty result (which replaced the
     properties), and its dead implementation mixed Pa and bar. It is implemented and wired:
     `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, `dG = int V dP`, `dS = -d(dG)/dT`,
     `dH = dG - T d(dG)/dT`, `dCp = -T d2(dG)/dT2`, `ln K = -G/(RT)`. No database uses it yet (tested in
     `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
-11. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
+12. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
     values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
-12. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
+13. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
     `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
 
 ## 5. Errors (uncertainties)

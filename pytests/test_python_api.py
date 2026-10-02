@@ -226,3 +226,30 @@ def test_thermoscalar_arithmetic_and_variables():
     v.temperature = tf.Temperature(300.0)
     v.pressure = tf.Pressure(1e5)
     assert v.temperature.val == 300.0 and v.temperature.ddt == 1.0 and v.pressure.ddp == 1.0
+
+
+# --- exact derivatives of the Zhang-Duan water and of the dielectric models ---------------------------------------
+
+def test_zhang_duan_and_dielectric_models_have_exact_derivatives(database):
+    water = database.getSubstance("H2O@")
+    zd = tf.WaterZhangDuan2005(water)
+    for T, P in ((400.0, 3e8), (700.0, 6e8)):
+        x = zd.propertiesSolvent(T, P, 0)
+        # first and second derivatives are the derivatives of the density; the mixed derivatives are symmetric (to rounding)
+        assert x.density.ddt == pytest.approx(x.densityT.val, rel=1e-12)
+        assert x.density.ddp == pytest.approx(x.densityP.val, rel=1e-12)
+        assert x.densityT.ddt == pytest.approx(x.densityTT.val, rel=1e-12)
+        assert x.densityP.ddp == pytest.approx(x.densityPP.val, rel=1e-12)
+        assert x.densityT.ddp == pytest.approx(x.densityP.ddt, rel=1e-12)
+        assert x.densityTP.val == pytest.approx(x.densityT.ddp, rel=1e-12)
+        h = 1e-3 * T
+        fd = (zd.propertiesSolvent(T + h, P, 0).densityTT.val - zd.propertiesSolvent(T - h, P, 0).densityTT.val) / (2 * h)
+        assert x.densityTT.ddt == pytest.approx(fd, rel=1e-3)
+
+    for model in (tf.WaterElectroSverjensky2014(water), tf.WaterElectroFernandez1997(water)):
+        x = model.electroPropertiesSolvent(500.0, 1e8, 0)
+        assert x.epsilon.ddt == pytest.approx(x.epsilonT.val, rel=1e-12)
+        assert x.epsilonT.ddt == pytest.approx(x.epsilonTT.val, rel=1e-12)
+        assert x.epsilon.ddp * 1e5 == pytest.approx(x.epsilonP.val, rel=1e-12)     # per bar and per Pa
+        assert x.epsilonT.ddp * 1e5 == pytest.approx(x.epsilonP.ddt, rel=1e-12)    # symmetric mixed derivatives
+        assert x.bornY.val == pytest.approx(x.epsilonT.val / x.epsilon.val ** 2, rel=1e-12)
