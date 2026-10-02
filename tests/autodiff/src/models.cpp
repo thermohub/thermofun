@@ -11,6 +11,7 @@
 #include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
+#include "Substances/Solute/SoluteHollandPowell98.h"
 #include "ThermoParameters.h"
 
 using namespace ThermoFun;
@@ -182,6 +183,71 @@ int main(int argc, char** argv)
             checkDerivatives("Dolejs-Manning enthalpy", f(&ThermoPropertiesReaction::reaction_enthalpy), 573.15, 5e7);
             checkDerivatives("Dolejs-Manning entropy", f(&ThermoPropertiesReaction::reaction_entropy), 573.15, 5e7);
             checkDerivatives("Dolejs-Manning volume", f(&ThermoPropertiesReaction::reaction_volume), 573.15, 5e7);
+        }
+
+        // Holland and Powell (1998) aqueous solute model: derivatives of its own values
+        {
+            Substance solute = makeSubstance();
+            ThermoParametersSubstance parameters;
+            parameters.solute_holland_powell98_coeff = {0.2};
+            solute.setThermoParameters(parameters);
+            SoluteHollandPowell98 model(solute);
+            auto f = [&](auto member) {
+                return [=, &model](double t, double p) {
+                    double Tr = 298.15, Pr = 1e5, pp = p;
+                    auto wpr = engine.propertiesSolvent(Tr, Pr, "H2O@");
+                    auto wp = engine.propertiesSolvent(t, pp, "H2O@");
+                    return (model.thermoProperties(t, p, wpr, wp)).*member;
+                };
+            };
+            for (double t : {400.0, 450.0, 520.0})
+                for (auto m : {&ThermoPropertiesSubstance::gibbs_energy, &ThermoPropertiesSubstance::entropy,
+                               &ThermoPropertiesSubstance::volume, &ThermoPropertiesSubstance::heat_capacity_cp})
+                    checkDerivatives("HP98 solute", f(m), t, 5e7, 1e-3);
+        }
+
+        // Reaction volume as a function of T and P: derivatives, thermodynamic relations and the reference state
+        {
+            Reaction rv;
+            rv.setReferenceT(298.15);
+            rv.setReferenceP(1e5);
+            ThermoPropertiesReaction ref;
+            ref.reaction_volume = 3.0; // J/bar
+            rv.setThermoReferenceProperties(ref);
+            ThermoParametersReaction parameters;
+            parameters.reaction_V_fT_coeff = {1.0e-4, 2.0e-7, 1.0e-10, -4.0e-5, 1.0e-9};
+            rv.setThermoParameters(parameters);
+            Reaction_Vol_fT model(rv);
+
+            ThermoPropertiesReaction in;
+            in.reaction_gibbs_energy = -5.0e4; in.reaction_enthalpy = -6.0e4; in.reaction_entropy = 30.0;
+            in.reaction_heat_capacity_cp = 120.0; in.reaction_heat_capacity_cv = 100.0;
+            in.ln_equilibrium_constant = 20.0; in.log_equilibrium_constant = 8.7;
+            in.reaction_internal_energy = -6.0e4; in.reaction_helmholtz_energy = -5.0e4;
+            in.reaction_volume = 3.0;
+            auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, in)).*member; }; };
+            const double tt = 450.0, pp = 5e7;
+            for (auto m : {&ThermoPropertiesReaction::reaction_gibbs_energy, &ThermoPropertiesReaction::reaction_enthalpy,
+                           &ThermoPropertiesReaction::reaction_entropy, &ThermoPropertiesReaction::reaction_volume,
+                           &ThermoPropertiesReaction::reaction_heat_capacity_cp, &ThermoPropertiesReaction::ln_equilibrium_constant})
+                checkDerivatives("Reaction_Vol_fT", f(m), tt, pp);
+
+            const auto x = model.thermoProperties(tt, pp, in);
+            auto rel = [](double a, double b) { return std::fabs(a - b) <= 1e-9 * (std::fabs(b) + 1.0); };
+            // the input has no derivatives: dG/dP = V (J/bar per Pa), dG/dT + S = S(input), H = G + T S - T S(input)
+            if (!rel(x.reaction_gibbs_energy.ddp * 1e5, x.reaction_volume.val) ||
+                !rel(x.reaction_gibbs_energy.ddt + x.reaction_entropy.val, in.reaction_entropy.val) ||
+                !rel(x.reaction_entropy.ddp, -x.reaction_volume.ddt * 1e-5))
+            {
+                std::printf("FAILED: Reaction_Vol_fT thermodynamic relations\n");
+                ++failures;
+            }
+            const auto r = model.thermoProperties(298.15, 1e5, in); // at the reference state nothing changes
+            if (!rel(r.reaction_gibbs_energy.val, in.reaction_gibbs_energy.val) || !rel(r.reaction_volume.val, 3.0))
+            {
+                std::printf("FAILED: Reaction_Vol_fT reference state\n");
+                ++failures;
+            }
         }
     }
 

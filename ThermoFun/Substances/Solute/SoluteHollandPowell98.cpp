@@ -10,7 +10,6 @@ namespace ThermoFun {
 auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     auto T = TK;
-    double Tprime = 0.0;
     ThermoPropertiesSubstanceAD tps;
     auto tpsr = subst.thermoReferenceProperties();
     double T298 = subst.referenceT();
@@ -50,10 +49,8 @@ auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const Pro
     auto BETw = wp.Beta*1e5; // 1/bar
     auto dALPdTw = wp.dAldT;
 
-    if (T <= 500)
-        Tprime = T.val();
-    else
-        Tprime = 500;
+    // T' = T below 500 K (it varies with T, so it carries the derivative), constant 500 K above
+    real Tprime = (T <= 500) ? T : real(500.0);
 
     auto G_bb = H298 - T*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
     auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );

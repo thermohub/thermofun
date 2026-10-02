@@ -66,6 +66,16 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 8. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
    calls the Dolejs-Manning function. **Behaviour change**; the units of its first coefficient were not checked
    against the paper.
+9. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
+   the Gibbs energy below 500 K. `T'` now carries the derivative there (values unchanged).
+10. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
+    was called by the engine for the volume pressure methods but returned an empty result (which replaced the
+    properties), and its dead implementation mixed Pa and bar. It is implemented and wired:
+    `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, `dG = int V dP`, `dS = -d(dG)/dT`,
+    `dH = dG - T d(dG)/dT`, `dCp = -T d2(dG)/dT2`, `ln K = -G/(RT)`. No database uses it yet (tested in
+    `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
+11. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
+    `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
 
 ## 5. Verification
 
@@ -83,11 +93,11 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 
 - Quartz `V` has zero `ddt`/`ddp` exactly at the reference state (298.15 K, 1 bar): `SolidMurnaghanHP98.cpp` takes a
   constant-volume branch there. CORK has a branch at 5 kbar.
-- The Holland-Powell 98 solute model uses `T'` without derivative: its published entropy and volume formulas treat
-  `T'` as a constant.
+- Holland-Powell 98 solute: its published `S` and `Cp` formulas are not the exact derivatives of its `G` (the term in
+  `ln(rho/rho298)` of `S` has the opposite sign of `-dG/dT`; `Cp` lacks `2 alpha/T'`), so `dG/dT != -S` there
+  (`G`, `V` and their derivatives are consistent). The published values are not changed.
 - Near the critical point the derivatives of the HGK/LVS water are more self-consistent than finite differences of the values.
 - The finite difference inside the Churakov-Gottschalk residual enthalpy and entropy (`T + T*DELTA`) is differentiated as written.
-- `Reaction_Vol_fT` and `ReactionFromReactantsProperties` (models returning empty results) are not used by the engine.
 - Reactions from reactants: `Cv`, `U` and `A` are those of the last reactant times its coefficient (as before).
 - Many substances of `psinagra-12-07-thermofun.json` (for example `Pu(OH)+3`) crash the library (segmentation
   fault), before and after this work; not investigated.
