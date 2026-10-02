@@ -71,6 +71,15 @@ struct Pass
     auto operator()(double x) const -> real { return real(x); }
 };
 
+/// A value of the pass with the derivatives dT and dP of that value with respect to T and P (the derivative of the pass is the
+/// one with respect to the variable of the pass)
+inline auto along(const Pass& pass, double v, double dT, double dP) -> real
+{
+    real r(v);
+    r[1] = (pass.wrt == Wrt::T) ? dT : (pass.wrt == Wrt::P) ? dP : 0.0;
+    return r;
+}
+
 /// A property that is known to be constant (e.g. a reference value of the database) as an autodiff number
 inline auto constant(const ThermoProperty& x) -> real { return real(x.val()); }
 

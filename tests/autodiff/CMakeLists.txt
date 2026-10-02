@@ -16,3 +16,9 @@ add_executable(test-interface src/interface.cpp)
 target_include_directories(test-interface PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun)
 target_link_libraries(test-interface PRIVATE ThermoFun autodiff::autodiff)
 add_test(NAME interface COMMAND test-interface ${CMAKE_SOURCE_DIR}/pytests/test-thermoengine-thermofun.json)
+
+# The analytical derivatives against references calculated with higher-order autodiff numbers
+add_executable(test-analytic-derivatives src/reference_derivatives.cpp)
+target_include_directories(test-analytic-derivatives PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(test-analytic-derivatives PRIVATE ThermoFun autodiff::autodiff)
+add_test(NAME analytic-derivatives COMMAND test-analytic-derivatives ${CMAKE_SOURCE_DIR}/pytests/test-thermoengine-thermofun.json)

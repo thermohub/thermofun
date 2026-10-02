@@ -84,6 +84,17 @@ auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string tri
     });
     P = Pout;
 
+    // The GEMS model gives the first derivatives of the density with respect to T and P and the second one with respect to T
+    // (densityT = -alpha rho, densityP = beta rho, densityTT = rho (alpha^2 - dalpha/dT)). The other second derivatives are the
+    // exact derivatives of the analytical alpha and beta of the model with respect to P: densityPP = d(densityP)/dP and
+    // densityTP = d(densityT)/dP (= d(densityP)/dT), that is the derivatives (ddp, ddt) of the first derivatives; the mixed third
+    // derivative is d(densityTT)/dP. The third derivatives with respect to P twice are not available in the GEMS formulation (0).
+    ps.densityPP.val = ps.densityP.ddp;
+    ps.densityPP.sta = ps.densityP.sta;
+    ps.densityTP.val = ps.densityT.ddp;
+    ps.densityTP.ddt = ps.densityTT.ddp;
+    ps.densityTP.sta = ps.densityT.sta;
+
     return ps;
 }
 

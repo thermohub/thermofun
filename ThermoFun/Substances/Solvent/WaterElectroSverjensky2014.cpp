@@ -3,7 +3,7 @@
 #include "Database.h"
 #include "Substance.h"
 #include "ThermoProperties.h"
-#include "Common/Jets.hpp"
+#include "Substances/Solvent/SolventDensityDerivatives.hpp"
 
 namespace ThermoFun {
 
@@ -23,13 +23,13 @@ const double b[] =
      4.747973
 };
 
-/// The dielectric constant as a function of the temperature (deg C) and of the density (g/cm3)
-template<class Number>
-auto epsilonS(Number T, Number RHO) -> Number
-{
-   return exp(b[1]*T + b[2]*pow(T,0.5) + b[3])*pow(RHO,(a[1]*T + a[2]*pow(T,0.5) + a[3]));
-}
-
+/// The dielectric constant of water of Sverjensky et al. (2014): eps = exp(u(T)) rho^w(T), with u = b1 t + b2 sqrt(t) + b3 and
+/// w = a1 t + a2 sqrt(t) + a3 (t in deg C, rho in g/cm3). With L = ln eps = u + w ln(rho) the derivatives are analytical:
+///   L_T = u' + w' ln(rho) + w rho_T/rho,   L_P = w rho_P/rho,
+///   L_TT = u'' + w'' ln(rho) + 2 w' rho_T/rho + w (rho_TT/rho - (rho_T/rho)^2),
+///   L_TP = w' rho_P/rho + w (rho_TP/rho - rho_T rho_P/rho^2),   L_PP = w (rho_PP/rho - (rho_P/rho)^2),
+///   eps_T = eps L_T, eps_P = eps L_P, eps_TT = eps (L_T^2 + L_TT), eps_TP = eps (L_T L_P + L_TP), eps_PP = eps (L_P^2 + L_PP)
+/// where the derivatives of the density are those of the solvent model (their own derivatives are the third-order ones).
 auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, Substance substance, int state) -> ElectroPropertiesSolventAD
 {
     ElectroPropertiesSolventAD wep;
@@ -37,34 +37,39 @@ auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, Substance
     Database db; db.addSubstance(substance);
     ThermoEngine   th(db);
 
-    const double T0 = pass.T.val();   // K
-    const double P0 = pass.P.val();   // Pa
+    double P1 = pass.P.val();  // propertiesSolvent takes the pressure by reference
+    const auto psol = th.propertiesSolvent(pass.T.val(), P1, substance.symbol(), state);
+    const auto r = densityDerivatives(pass, psol);
 
-    double P1 = P0;  // propertiesSolvent takes the pressure by reference
-    const auto psol = th.propertiesSolvent(T0, P1, substance.symbol(), state);
+    const real TC  = pass.T - 273.15;      // temperature in celsius
+    const real sT  = sqrt(TC);
+    const real u   = b[1]*TC + b[2]*sT + b[3];
+    const real up  = b[1] + 0.5*b[2]/sT;
+    const real upp = -0.25*b[2]/(sT*TC);
+    const real w   = a[1]*TC + a[2]*sT + a[3];
+    const real wp  = a[1] + 0.5*a[2]/sT;
+    const real wpp = -0.25*a[2]/(sT*TC);
 
-    // The exact derivatives (no finite differences): the density is the Taylor polynomial of its derivatives given by
-    // the solvent model, and the dielectric constant (a closed form function of T and the density) is evaluated with
-    // higher-order autodiff numbers. The third-order derivatives are the derivatives (ddt, ddp) of the second-order ones.
-    const auto rho = jets::densityJet(psol);
-    auto epsilon = [&](jets::Dual T, jets::Dual P) -> jets::Dual
-    {
-        const jets::Dual density = jets::taylor(rho, T - T0, P - P0) / 1000.0;   // g/cm3
-        return epsilonS<jets::Dual>(T - 273.15, density);                         // T in deg C
-    };
-    const auto e = jets::jet(epsilon, T0, P0);
+    const real lnrho = log(r.rho/1000.0);
+    const real dT  = r.T/r.rho,  dP  = r.P/r.rho;
+    const real dTT = r.TT/r.rho - dT*dT, dTP = r.TP/r.rho - dT*dP, dPP = r.PP/r.rho - dP*dP;
 
-    // the pressure in bar (the derivatives with respect to P in Pa are divided by bar_to_Pa)
-    const double b1 = bar_to_Pa, b2 = bar_to_Pa*bar_to_Pa;
+    const real LT  = up + wp*lnrho + w*dT;
+    const real LP  = w*dP;
+    const real LTT = upp + wpp*lnrho + 2.0*wp*dT + w*dTT;
+    const real LTP = wp*dP + w*dTP;
+    const real LPP = w*dPP;
 
-    const real eps = jets::along(pass, e.f, e.fT, e.fP);
+    const real eps = exp(u + w*lnrho);
     const real epsilon2 = eps * eps;
+
+    // the pressure derivatives per bar (the derivatives with respect to P in Pa multiplied by bar_to_Pa)
     wep.epsilon   = eps;
-    wep.epsilonT  = jets::along(pass, e.fT,       e.fTT,       e.fTP);
-    wep.epsilonP  = jets::along(pass, e.fP*b1,    e.fTP*b1,    e.fPP*b1);
-    wep.epsilonTT = jets::along(pass, e.fTT,      e.fTTT,      e.fTTP);
-    wep.epsilonTP = jets::along(pass, e.fTP*b1,   e.fTTP*b1,   e.fTPP*b1);
-    wep.epsilonPP = jets::along(pass, e.fPP*b2,   e.fTPP*b2,   e.fPPP*b2);
+    wep.epsilonT  = eps*LT;
+    wep.epsilonP  = eps*LP*bar_to_Pa;
+    wep.epsilonTT = eps*(LT*LT + LTT);
+    wep.epsilonTP = eps*(LT*LP + LTP)*bar_to_Pa;
+    wep.epsilonPP = eps*(LP*LP + LPP)*bar_to_Pa*bar_to_Pa;
     wep.bornZ = -1.0/wep.epsilon;
     wep.bornY = wep.epsilonT/epsilon2;
     wep.bornQ = wep.epsilonP/epsilon2*1e-05; // from 1/bar to 1/Pa
