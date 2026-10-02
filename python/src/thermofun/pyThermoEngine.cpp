@@ -126,7 +126,10 @@ void exportThermoEngine(py::module& m)
                    "use reference properties if no calculation functions are available True/False (default: False)")
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
-                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)");
+                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)")
+    .def_readwrite("propagate_parameter_errors",
+                   &EnginePreferences::propagate_parameter_errors,
+                   "propagate the errors of the reference properties and of the coefficients of the models to the err of the calculated properties True/False (default: False)");
 
     py::class_<EngineConventions>(m, "EngineConventions")
         .def(py::init<>())

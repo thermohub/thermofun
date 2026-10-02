@@ -147,7 +147,7 @@ auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::
         return thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, pimpl->reaction, inputs.method);
     });
 
-    setStatusLogK_fT(tpr, inputs);
+    setStatusLogK_fT(tpr, inputs, T, P);
 
     return tpr;
 }
@@ -264,6 +264,36 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
             setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
         }
 
+    // the errors: first-order propagation of the errors of the reactants (independent), weighted by the
+    // stoichiometric coefficients; ln K = -G/(R T)
+    {
+        double cp = 0, g = 0, h = 0, sv = 0, v = 0;
+        for (const auto& component : components)
+        {
+            const auto& tps = component.first;
+            const double nu = component.second;
+            cp += nu*nu*tps.heat_capacity_cp.err*tps.heat_capacity_cp.err;
+            g  += nu*nu*tps.gibbs_energy.err*tps.gibbs_energy.err;
+            h  += nu*nu*tps.enthalpy.err*tps.enthalpy.err;
+            sv += nu*nu*tps.entropy.err*tps.entropy.err;
+            v  += nu*nu*tps.volume.err*tps.volume.err;
+        }
+        tpr.reaction_heat_capacity_cp.setError({{1.0, std::sqrt(cp)}});
+        tpr.reaction_gibbs_energy.setError({{1.0, std::sqrt(g)}});
+        tpr.reaction_enthalpy.setError({{1.0, std::sqrt(h)}});
+        tpr.reaction_entropy.setError({{1.0, std::sqrt(sv)}});
+        tpr.reaction_volume.setError({{1.0, std::sqrt(v)}});
+        tpr.ln_equilibrium_constant.setError({{1.0/(R_CONSTANT*T), std::sqrt(g)}});
+        tpr.log_equilibrium_constant.setError({{ln_to_lg, tpr.ln_equilibrium_constant.err}});
+        if (!components.empty())
+        {
+            const auto& last = components.back();
+            tpr.reaction_heat_capacity_cv.setError({{last.second, last.first.heat_capacity_cv.err}});
+            tpr.reaction_internal_energy.setError({{last.second, last.first.internal_energy.err}});
+            tpr.reaction_helmholtz_energy.setError({{last.second, last.first.helmholtz_energy.err}});
+        }
+    }
+
     return tpr;
 }
 
@@ -310,6 +340,18 @@ auto Reaction_Vol_fT::thermoProperties(double T, double P, const ThermoPropertie
     tpr.log_equilibrium_constant.propagateFrom(tpr.ln_equilibrium_constant);
     tpr.reaction_internal_energy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_volume);
     tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_internal_energy, tpr.reaction_entropy);
+
+    // first-order propagation: the volume model has no uncertainty; the errors of the input are kept, U and A weighted
+    const double Pbar = P / 1e5;
+    auto keepErr = [](Reaktoro_::ThermoProperty& o, const Reaktoro_::ThermoProperty& i) { o.err = i.err; };
+    keepErr(tpr.reaction_gibbs_energy, tprIn.reaction_gibbs_energy);
+    keepErr(tpr.reaction_enthalpy, tprIn.reaction_enthalpy);
+    keepErr(tpr.reaction_entropy, tprIn.reaction_entropy);
+    keepErr(tpr.reaction_heat_capacity_cp, tprIn.reaction_heat_capacity_cp);
+    keepErr(tpr.ln_equilibrium_constant, tprIn.ln_equilibrium_constant);
+    keepErr(tpr.log_equilibrium_constant, tprIn.log_equilibrium_constant);
+    tpr.reaction_internal_energy.setError({{1.0, tpr.reaction_enthalpy.err}, {Pbar, tpr.reaction_volume.err}});
+    tpr.reaction_helmholtz_energy.setError({{1.0, tpr.reaction_internal_energy.err}, {T, tpr.reaction_entropy.err}});
     return tpr;
 }
 

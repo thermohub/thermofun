@@ -21,6 +21,8 @@
 
 // C++ includes
 #include <cmath>
+#include <initializer_list>
+#include <utility>
 #include <string>
 
 namespace Reaktoro_ {
@@ -268,6 +270,17 @@ public:
           error = std::sqrt(error*error + props.err*props.err)), ...);
         sta = status;
         err = error;
+        return *this;
+    }
+
+    /// Set the error of a property y calculated from independent inputs x_i with the sensitivities w_i = dy/dx_i
+    /// (first-order propagation): err = sqrt(sum (w_i err_i)^2). The status is not changed.
+    /// @param terms the pairs {w_i, err_i}
+    ThermoScalarBase& setError(std::initializer_list<std::pair<double, double>> terms)
+    {
+        double sum = 0.0;
+        for (const auto& t : terms) sum += t.first*t.first*t.second*t.second;
+        err = std::sqrt(sum);
         return *this;
     }
 

@@ -26,6 +26,7 @@ struct EnginePreferences
     std::string solvent_symbol = "H2O@"; // default
     bool fallback_to_reference_properties = false; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain, value undefined only if not present in the database record
     bool apply_pressure_correction_to_gas_props = false; // making the pressure/fugacity correction in the G0, H0, ... properties of gases
+    bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
 };
 
 struct EngineConventions {

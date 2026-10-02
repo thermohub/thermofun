@@ -23,7 +23,8 @@ auto prepareLogK_fT(Reaction reaction, double T, MethodCorrT_Thrift::type CE) ->
 auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReactionAD;
 
 /// Set the errors and the statuses of the properties calculated with thermoPropertiesReaction_LogK_fT
-auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& inputs) -> void;
+/// @param T temperature (K), P pressure (Pa)
+auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& inputs, double T, double P) -> void;
 
 }
 

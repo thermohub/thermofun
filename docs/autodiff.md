@@ -78,10 +78,34 @@ All models, including the GEMS implementations that had zero or incomplete deriv
     `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, `dG = int V dP`, `dS = -d(dG)/dT`,
     `dH = dG - T d(dG)/dT`, `dCp = -T d2(dG)/dT2`, `ln K = -G/(RT)`. No database uses it yet (tested in
     `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
-11. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
+11. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
+    values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
+12. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
     `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
 
-## 5. Verification
+## 5. Errors (uncertainties)
+
+The error `err` of a property is a first-order (linear) propagation of independent standard errors,
+`err_y = sqrt(sum (dy/dx_i err_i)^2)`; the status rule (not defined if an input is not defined) is as before.
+
+- **Always** (analytic): reactions from reactants (`sqrt(sum nu_i^2 err_i^2)`), `ln K = -G/(R T)` (`err_G/(R T)`, `log K` divided by
+  ln 10), `U = H - P V`, `A = U - T S`, `S = (H - G)/T`, the reaction volume and pressure corrections, the Gibbs energy of
+  substances from reference properties (`G(T) = G298 - S298 (T - Tr) + ...`: `(T - Tr) err_S298`) and gases with the
+  pressure correction. Before, these used the unweighted quadrature sum of the errors of the inputs. The errors of the
+  reference properties come from the `errors` of the database records.
+- **Optional, `preferences.propagate_parameter_errors = True`** (Python, C++ `EnginePreferences`): the uncertainties of the
+  reference properties and of the **coefficients of the models** are propagated through the whole calculation. The
+  optional `errors` array next to the `values` of a coefficient entry of the record (`eos_hkf_coeffs`,
+  `m_heat_capacity_ft_coeffs`, `m_phase_trans_props`, `m_landau_phase_trans_props`, `logk_ft_coeffs`,
+  `dr_heat_capacity_ft_coeffs`, `dr_volume_fpt_coeffs`, `dr_marshall_franck_coeffs`, `dr_dolejs_manning10_coeffs`, ...) is read
+  with the same units. For every parameter with an error `s` the property is calculated at `p + s` and `p - s` with a copy of
+  the database, and `err = sqrt(sum ((y(p+s) - y(p-s))/2)^2)` for every property. The parameters of the reactants of a
+  reaction and of the reactions of a substance are perturbed together, so parameters shared by several records
+  are correlated correctly. Cost: two extra calculations per parameter that has an error (none without errors).
+  Not covered: the solvent models, correlations between different parameters (no covariance matrices), nonlinear
+  models are evaluated at the step `s` (not a Taylor expansion).
+
+## 6. Verification
 
 - The previous implementation was used as an oracle: values, derivatives, statuses and messages of about 9,900
   evaluations (substances, reactions, solvents) in 8 databases. Values, statuses and messages are identical;
@@ -93,7 +117,7 @@ All models, including the GEMS implementations that had zero or incomplete deriv
   constant volume, ideal gas volume, fluids, Frantz-Marshall, Dolejs-Manning, Zhang-Duan) and `interface` (the
   interface of section 2, including `val` and `val()`).
 
-## 6. Known and left unchanged
+## 7. Known and left unchanged
 
 - Quartz `V` has zero `ddt`/`ddp` exactly at the reference state (298.15 K, 1 bar): `SolidMurnaghanHP98.cpp` takes a
   constant-volume branch there. CORK has a branch at 5 kbar.
@@ -102,5 +126,6 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 - Reactions from reactants: `Cv`, `U` and `A` are those of the last reactant times its coefficient (as before).
 - Many substances of `psinagra-12-07-thermofun.json` (for example `Pu(OH)+3`) crash the library (segmentation
   fault), before and after this work; not investigated.
-- The old multiplicative error rules of `ThermoScalar` are not reproduced for the errors of the calculated
-  properties (quadrature sum); nothing in C++ reads `err`.
+- The errors of properties calculated by models whose uncertainty depends on several parameters (for example HKF or
+  logK(T) conversions) are exact only with `propagate_parameter_errors`; without it the analytic rules above apply to the
+  derived properties and the reference errors are carried.

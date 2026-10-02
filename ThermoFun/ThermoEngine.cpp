@@ -8,11 +8,15 @@
 #include "ThermoModelsSubstance.h"
 #include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"
+#include "ThermoParameters.h"
 #include "ElectroModelsSolvent.h"
 #include "ThermoModelsReaction.h"
 
 #include "OptimizationUtils.h"
 #include <functional>
+#include <cmath>
+#include <set>
+#include <array>
 
 namespace ThermoFun
 {
@@ -798,6 +802,17 @@ struct ThermoEngine::Impl
                 tpr.reaction_internal_energy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_volume);
                 tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_internal_energy, tpr.reaction_entropy);
 
+                // first-order propagation of the errors (independent inputs)
+                {
+                    const double dP = P / 1e5 - Pref;
+                    const double RT = R_CONSTANT * T;
+                    tpr.reaction_gibbs_energy.setError({{1.0, tprIn.reaction_gibbs_energy.err}, {dP, tprIn.reaction_volume.err}});
+                    tpr.reaction_enthalpy.setError({{1.0, tprIn.reaction_enthalpy.err}, {dP, tprIn.reaction_volume.err}});
+                    tpr.log_equilibrium_constant.setError({{1.0, tprIn.log_equilibrium_constant.err}, {dP/(RT*lg_to_ln), Vref.err}});
+                    tpr.reaction_entropy.setError({{1.0/T, tpr.reaction_enthalpy.err}, {1.0/T, tpr.reaction_gibbs_energy.err}});
+                    tpr.reaction_internal_energy.setError({{1.0, tpr.reaction_enthalpy.err}, {P/1e5, tpr.reaction_volume.err}});
+                    tpr.reaction_helmholtz_energy.setError({{1.0, tpr.reaction_internal_energy.err}, {T, tpr.reaction_entropy.err}});
+                }
                 //dU/dT=C (v)
 
                 break;
@@ -868,6 +883,187 @@ struct ThermoEngine::Impl
         preferences.apply_pressure_correction_to_gas_props = false;
         return tpr;
     }
+
+    //=================================================================================================
+    // Propagation of the errors of the reference properties and of the coefficients of the models
+    //=================================================================================================
+
+    /// A copy of the engine used to calculate with perturbed parameters (without memoization and error propagation)
+    mutable std::shared_ptr<ThermoEngine> perturbed_engine;
+
+    auto perturbedEngine() const -> ThermoEngine&
+    {
+        if (!perturbed_engine)
+            perturbed_engine.reset(new ThermoEngine(database));
+        auto& impl = *perturbed_engine->pimpl;
+        const bool reset = impl.preferences.enable_memoize;
+        impl.preferences = preferences;
+        impl.preferences.enable_memoize = false;
+        impl.preferences.propagate_parameter_errors = false;
+        impl.conventions = conventions;
+        if (reset) impl.set_fn(); // without memoization
+        return *perturbed_engine;
+    }
+
+    static auto fields(ThermoPropertiesSubstance& p) -> std::vector<Reaktoro_::ThermoProperty*>
+    {
+        return {&p.gibbs_energy, &p.helmholtz_energy, &p.internal_energy, &p.enthalpy, &p.entropy, &p.volume, &p.heat_capacity_cp, &p.heat_capacity_cv};
+    }
+    static auto fields(ThermoPropertiesReaction& p) -> std::vector<Reaktoro_::ThermoProperty*>
+    {
+        return {&p.reaction_gibbs_energy, &p.reaction_helmholtz_energy, &p.reaction_internal_energy, &p.reaction_enthalpy, &p.reaction_entropy,
+                &p.reaction_volume, &p.reaction_heat_capacity_cp, &p.reaction_heat_capacity_cv, &p.ln_equilibrium_constant, &p.log_equilibrium_constant};
+    }
+    static auto referenceFields(ThermoPropertiesSubstance& p) -> std::vector<Reaktoro_::ThermoProperty*>
+    {
+        return {&p.gibbs_energy, &p.enthalpy, &p.entropy, &p.volume, &p.heat_capacity_cp};
+    }
+    static auto referenceFields(ThermoPropertiesReaction& p) -> std::vector<Reaktoro_::ThermoProperty*>
+    {
+        return {&p.log_equilibrium_constant, &p.reaction_gibbs_energy, &p.reaction_enthalpy, &p.reaction_entropy, &p.reaction_volume, &p.reaction_heat_capacity_cp};
+    }
+
+    /// The records (substances and reactions of the database) a calculation depends on
+    struct Records
+    {
+        std::set<std::string> substances, reactions;
+    };
+
+    auto collectSubstance(Records& r, const std::string& symbol) const -> void
+    {
+        if (r.substances.count(symbol) || !database.containsSubstance(symbol)) return;
+        r.substances.insert(symbol);
+        const auto reaction = database.getSubstance(symbol).reactionSymbol();
+        if (!reaction.empty()) collectReaction(r, reaction);
+    }
+
+    auto collectReaction(Records& r, const std::string& symbol) const -> void
+    {
+        if (r.reactions.count(symbol) || !database.containsReaction(symbol)) return;
+        r.reactions.insert(symbol);
+        for (const auto& reactant : database.getReaction(symbol).reactants())
+            collectSubstance(r, reactant.first);
+    }
+
+    /// One parameter with an uncertainty
+    struct Parameter
+    {
+        int record;           // 0: substance of the database, 1: reaction of the database, 2: given substance, 3: given reaction
+        std::string symbol;
+        int reference;        // index of the reference property, or -1 for a coefficient
+        std::string key;      // the coefficient (see UncertainCoefficient)
+        double sigma;
+    };
+
+    /// Add the effect of the uncertain parameters to the errors of the properties calculated by eval: the standard error
+    /// of a property is the quadrature sum of (y(p+s) - y(p-s))/2 over the parameters p with an error s (first-order
+    /// propagation, independent parameters; parameters shared by several records are perturbed together)
+    template<class Props, class Eval>
+    auto addParameterErrors(Props& result, const Records& records, const Substance* givenS, const Reaction* givenR, Eval eval) const -> void
+    {
+        using Sub = Substance;
+        using Rea = Reaction;
+        std::vector<Parameter> parameters;
+
+        auto listSubstance = [&](Sub s, int kind, const std::string& symbol) {
+            auto ref = s.thermoReferenceProperties();
+            auto refs = referenceFields(ref);
+            for (size_t i = 0; i < refs.size(); ++i)
+                if (refs[i]->err > 0.0) parameters.push_back({kind, symbol, int(i), "", refs[i]->err});
+            auto p = s.thermoParameters();
+            for (const auto& c : uncertainCoefficients(p)) parameters.push_back({kind, symbol, -1, c.key, c.error});
+        };
+        auto listReaction = [&](Rea r, int kind, const std::string& symbol) {
+            auto ref = r.thermoReferenceProperties();
+            auto refs = referenceFields(ref);
+            for (size_t i = 0; i < refs.size(); ++i)
+                if (refs[i]->err > 0.0) parameters.push_back({kind, symbol, int(i), "", refs[i]->err});
+            auto p = r.thermoParameters();
+            for (const auto& c : uncertainCoefficients(p)) parameters.push_back({kind, symbol, -1, c.key, c.error});
+        };
+        for (const auto& symbol : records.substances) listSubstance(database.getSubstance(symbol), 0, symbol);
+        for (const auto& symbol : records.reactions) listReaction(database.getReaction(symbol), 1, symbol);
+        if (givenS) listSubstance(*givenS, 2, givenS->symbol());
+        if (givenR) listReaction(*givenR, 3, givenR->symbol());
+        if (parameters.empty()) return;
+
+        auto& engine = perturbedEngine();
+        auto& db = engine.pimpl->database;
+
+        auto perturb = [&](const Parameter& q, double delta) -> Props {
+            // the value of the parameter is changed in a copy of its record
+            Substance tmpS; Reaction tmpR;
+            const bool isSub = (q.record == 0 || q.record == 2);
+            if (q.record == 0) tmpS = db.getSubstance(q.symbol);
+            if (q.record == 1) tmpR = db.getReaction(q.symbol);
+            if (q.record == 2) tmpS = *givenS;
+            if (q.record == 3) tmpR = *givenR;
+            const Substance origS = tmpS; const Reaction origR = tmpR;
+
+            auto apply = [&](auto& record) {
+                if (q.reference >= 0)
+                {
+                    auto ref = record.thermoReferenceProperties();
+                    referenceFields(ref)[q.reference]->val += delta;
+                    record.setThermoReferenceProperties(ref);
+                }
+                else
+                {
+                    auto par = record.thermoParameters();
+                    for (const auto& c : uncertainCoefficients(par))
+                        if (c.key == q.key) { *c.value += delta; break; }
+                    record.setThermoParameters(par);
+                }
+            };
+            if (isSub) apply(tmpS); else apply(tmpR);
+
+            Props out;
+            try
+            {
+                if (q.record == 0) db.setSubstance(tmpS);
+                if (q.record == 1) db.setReaction(tmpR);
+                out = eval(engine, q.record == 2 ? &tmpS : givenS, q.record == 3 ? &tmpR : givenR);
+            }
+            catch (...)
+            {
+                if (q.record == 0) db.setSubstance(origS);
+                if (q.record == 1) db.setReaction(origR);
+                throw;
+            }
+            if (q.record == 0) db.setSubstance(origS);
+            if (q.record == 1) db.setReaction(origR);
+            return out;
+        };
+
+        std::vector<double> sum2(fields(result).size(), 0.0);
+        for (const auto& q : parameters)
+        {
+            try
+            {
+                auto plus  = perturb(q, +q.sigma);
+                auto minus = perturb(q, -q.sigma);
+                auto fp = fields(plus), fm = fields(minus);
+                for (size_t k = 0; k < fp.size(); ++k)
+                {
+                    if (fp[k]->sta.first == Reaktoro_::Status::notdefined || fm[k]->sta.first == Reaktoro_::Status::notdefined) continue;
+                    const double d = 0.5 * (fp[k]->val - fm[k]->val);
+                    if (std::isfinite(d)) sum2[k] += d * d;
+                }
+            }
+            catch (...) {} // no contribution of a parameter for which the calculation fails
+        }
+        auto fr = fields(result);
+        for (size_t k = 0; k < fr.size(); ++k) fr[k]->err = std::sqrt(sum2[k]);
+    }
+
+    auto recordsOfSubstance(const std::string& symbol) const -> Records { Records r; collectSubstance(r, symbol); return r; }
+    auto recordsOfReaction(const std::string& symbol) const -> Records { Records r; collectReaction(r, symbol); return r; }
+    auto recordsOfReactants(const Reaction& reaction) const -> Records
+    {
+        Records r;
+        for (const auto& reactant : reaction.reactants()) collectSubstance(r, reactant.first);
+        return r;
+    }
 };
 
 ThermoEngine::ThermoEngine(const std::string filename)
@@ -889,7 +1085,12 @@ ThermoEngine::ThermoEngine(const ThermoEngine &other)
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
 {
-    return pimpl->thermo_properties_substance_fn(T, P, P, substance);
+    const double P0 = P;
+    auto tps = pimpl->thermo_properties_substance_fn(T, P, P, substance);
+    if (pimpl->preferences.propagate_parameter_errors)
+        pimpl->addParameterErrors(tps, pimpl->recordsOfSubstance(substance), nullptr, nullptr,
+            [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, substance); });
+    return tps;
 }
 
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
@@ -904,7 +1105,16 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, i
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
 {
-    return pimpl->thermoPropertiesSubstance(T, P, substance);
+    const double P0 = P;
+    auto tps = pimpl->thermoPropertiesSubstance(T, P, substance);
+    if (pimpl->preferences.propagate_parameter_errors)
+    {
+        ThermoEngine::Impl::Records records;
+        if (!substance.reactionSymbol().empty()) pimpl->collectReaction(records, substance.reactionSymbol());
+        pimpl->addParameterErrors(tps, records, &substance, nullptr,
+            [&](ThermoEngine& e, const Substance* s, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, *s); });
+    }
+    return tps;
 }
 
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> ElectroPropertiesSolvent
@@ -920,22 +1130,42 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solv
 // Reaction
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction
 {
-    return pimpl->thermo_properties_reaction_fn(T, P, P, reaction);
+    const double P0 = P;
+    auto tpr = pimpl->thermo_properties_reaction_fn(T, P, P, reaction);
+    if (pimpl->preferences.propagate_parameter_errors)
+        pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(reaction), nullptr, nullptr,
+            [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReaction(T, p, reaction); });
+    return tpr;
 }
 
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
 {
-    return pimpl->thermoPropertiesReactionFromReactants(T, P, symbol);
+    const double P0 = P;
+    auto tpr = pimpl->thermoPropertiesReactionFromReactants(T, P, symbol);
+    if (pimpl->preferences.propagate_parameter_errors)
+        pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(symbol), nullptr, nullptr,
+            [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReactionFromReactants(T, p, symbol); });
+    return tpr;
 }
 
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
-    return pimpl->thermoPropertiesReaction(T, P, reaction);
+    const double P0 = P;
+    auto tpr = pimpl->thermoPropertiesReaction(T, P, reaction);
+    if (pimpl->preferences.propagate_parameter_errors)
+        pimpl->addParameterErrors(tpr, pimpl->recordsOfReactants(reaction), nullptr, &reaction,
+            [&](ThermoEngine& e, const Substance*, const Reaction* r) { double p = P0; return e.thermoPropertiesReaction(T, p, *r); });
+    return tpr;
 }
 
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
-    return pimpl->thermoPropertiesReactionFromReactants(T, P, reaction);
+    const double P0 = P;
+    auto tpr = pimpl->thermoPropertiesReactionFromReactants(T, P, reaction);
+    if (pimpl->preferences.propagate_parameter_errors)
+        pimpl->addParameterErrors(tpr, pimpl->recordsOfReactants(reaction), nullptr, &reaction,
+            [&](ThermoEngine& e, const Substance*, const Reaction* r) { double p = P0; return e.thermoPropertiesReactionFromReactants(T, p, *r); });
+    return tpr;
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
@@ -964,11 +1194,13 @@ auto ThermoEngine::database() const -> const Database &
 auto ThermoEngine::appendData(std::string filename) -> void
 {
     pimpl->database.appendData(filename);
+    pimpl->perturbed_engine.reset();
 }
 
 auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
     pimpl->database.appendData(jsonRecords, _label);
+    pimpl->perturbed_engine.reset();
 }
 
 auto ThermoEngine::parseSubstanceFormula(std::string formula) const -> std::map<Element, double>
