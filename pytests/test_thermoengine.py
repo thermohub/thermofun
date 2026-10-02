@@ -12,7 +12,7 @@ class TestThermoEngine(unittest.TestCase):
     
     def test_properties_substance(self):
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").gibbs_energy.val == pytest.approx(-889055.513, 1e-5, 1e-14)
-        assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").volume.val == pytest.approx(2.3183336, 1e-5, 1e-14)
+        assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").volume.val == pytest.approx(2.3167016, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").entropy.val == pytest.approx(105.5428, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").heat_capacity_cp.val == pytest.approx(75.14837, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(873.15, 5000e5, "CO2@").gibbs_energy.val == pytest.approx(-485154.6363, 1e-5, 1e-14)

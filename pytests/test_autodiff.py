@@ -75,3 +75,10 @@ def test_status_notdefined_is_preserved(engine):
     assert thermofun.ThermoScalar().sta[0] == thermofun.Status.notdefined
     tps = engine.thermoPropertiesSubstance(298.15, 1e5, "Quartz")
     assert tps.gibbs_energy.sta[0] != thermofun.Status.notdefined
+
+
+@pytest.mark.parametrize("T,P", [(423.15, 4.8e5), (600.0, 4.8e5), (873.15, 5000e5), (1000.0, 5000e5)])
+def test_landau_volume_is_pressure_derivative_of_gibbs_energy(engine, T, P):
+    # Quartz (Holland-Powell Landau model): V = dG/dP, below and above the critical temperature
+    tps = engine.thermoPropertiesSubstance(T, P, "Quartz")
+    assert tps.gibbs_energy.ddp * 1e5 == pytest.approx(tps.volume.val, rel=1e-9)
