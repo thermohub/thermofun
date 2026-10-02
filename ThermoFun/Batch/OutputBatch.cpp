@@ -80,7 +80,7 @@ auto Output::toCSVPropertyGrid(std::string filename) -> void
 
 auto Output::toDouble() -> double
 {
-    return pimpl->api.results()[0][0].val;
+    return pimpl->api.results()[0][0].val();
 }
 
 auto Output::toThermoScalar() -> Reaktoro_::ThermoScalar
@@ -100,7 +100,7 @@ auto Output::to2DVectorDouble() -> std::vector<std::vector<double>>
     {
         vectorD[i].resize(vectorTS[i].size());
         for (unsigned j=0; j<vectorTS[i].size(); j++)
-            vectorD[i][j] = vectorTS[i][j].val;
+            vectorD[i][j] = vectorTS[i][j].val();
     }
     return vectorD;
 }
@@ -222,7 +222,7 @@ auto Output::foutResults()-> void
                 if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
                     pimpl->fProperties << s << "NaN";
                 else
-                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(prop), toUnits.at(prop));
+                    pimpl->fProperties << s << units::convert(result.val(), fromUnits.at(prop), toUnits.at(prop));
             }
             pimpl->fProperties << std::endl;
         }
@@ -285,7 +285,7 @@ auto Output::foutResultsTransposed()-> void
                 if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
                     pimpl->fProperties << s << "NaN";
                 else
-                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(property), toUnits.at(property));
+                    pimpl->fProperties << s << units::convert(result.val(), fromUnits.at(property), toUnits.at(property));
             }
             pimpl->fProperties << std::endl;
         }
@@ -346,7 +346,7 @@ auto Output::foutPropertyGrid(const std::string &property, const size_t &index_p
                 if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
                     pimpl->fProperties << s << "NaN";
                 else
-                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(property), toUnits.at(property));
+                    pimpl->fProperties << s << units::convert(result.val(), fromUnits.at(property), toUnits.at(property));
                     
                 count++;
             }

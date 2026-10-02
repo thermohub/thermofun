@@ -24,7 +24,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     auto hkf = subst.thermoParameters().HKF_parameters;
     auto refProp = subst.thermoReferenceProperties();
 
-    auto TK = Reaktoro_::Temperature (TC.val+C_to_K);
+    auto TK = Reaktoro_::Temperature (TC.val()+C_to_K);
 
     if (hkf.size() == 0)
     {
@@ -133,7 +133,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 
-    subst.checkCalcMethodBounds("HKF model", TK.val, Pbar.val*1e05, tps);
+    subst.checkCalcMethodBounds("HKF model", TK.val(), Pbar.val()*1e05, tps);
     if (wp.density >= 1400 || wp.density<=600)
     {
         setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);
@@ -173,7 +173,7 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
 
     FunctionG g; 
 
-    if (D.val >= 1.4)
+    if (D.val() >= 1.4)
     {
         thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3. Outside the applicability limits of the HKF model.",
                            __FILE__, __LINE__, static_cast<double>(ps.density/1000) );
@@ -192,13 +192,13 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
 //    if(ps.density > 1000.0 || ps.density < 350.0)
 //        return g;
 
-    const auto pw = fabs(1.0e0 - D.val); // insert Sveta 19/02/2000
+    const auto pw = fabs(1.0e0 - D.val()); // insert Sveta 19/02/2000
 
     a = C[0] + C[1]*TC + C[2]*pow(TC,2.);
     b = C[3] + C[4]*TC + C[5]*pow(TC,2.);
-    g.g = a * pow(pw, b.val);
+    g.g = a * pow(pw, b.val());
 
-    dgdD = - a*b*pow(pw,(b.val - 1.0e0));
+    dgdD = - a*b*pow(pw,(b.val() - 1.0e0));
     // dgdD2 = a * b * (b - 1.0e0) * pow((1.0e0 - D),(b - 2.0e0));
 
     dadT = C[1] + 2.0*C[2]*TC;
@@ -210,15 +210,15 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
     dDdP = D * beta;
     dDdTT = - D * (daldT - pow(alpha,2.));
         // Db = pow((1.0 - D),b);  Fixed by DAK 01.11.00
-    Db = pow( pw , b.val );
-    dDbdT = -b * pow(pw,(b.val - 1.0)) * dDdT + log(pw) * Db  * dbdT;
+    Db = pow( pw , b.val() );
+    dDbdT = -b * pow(pw,(b.val() - 1.0)) * dDdT + log(pw) * Db  * dbdT;
 
 
-    dDbdTT = -(b * pow(pw,(b.val-1.0)) * dDdTT + pow(pw,(b.val - 1.0)) * dDdT * dbdT
-                + b * dDdT * ( -(b - 1.0) * pow(pw,(b.val - 2.0)) * dDdT
-                + log(pw) * pow(pw,(b.val - 1.0)) * dbdT))
-                + log(pw) * pow(pw,b.val) * dbdTT
-                - pow(pw,b.val) * dbdT * dDdT / (1.0 - D)
+    dDbdTT = -(b * pow(pw,(b.val()-1.0)) * dDdTT + pow(pw,(b.val() - 1.0)) * dDdT * dbdT
+                + b * dDdT * ( -(b - 1.0) * pow(pw,(b.val() - 2.0)) * dDdT
+                + log(pw) * pow(pw,(b.val() - 1.0)) * dbdT))
+                + log(pw) * pow(pw,b.val()) * dbdTT
+                - pow(pw,b.val()) * dbdT * dDdT / (1.0 - D)
                 + log(pw) * dbdT * dDbdT;
 
     g.gP = dgdD * dDdP; // from bar to Pa not necessary!!

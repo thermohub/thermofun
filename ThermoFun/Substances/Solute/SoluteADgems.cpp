@@ -89,8 +89,8 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
 
     // Getting dissolved gas properties corrected for T,P of interest
     // by adding properties of hydration at T,P
-    Gids.ddp = 0.0; Sids.ddp = 0.0; CPids.ddp = 0.0;
-    state.gibbs_energy     = Gids + Geos + Seos298.val*(Tk.val-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
+    Gids.setDdp(0.0); Sids.setDdp(0.0); CPids.setDdp(0.0);
+    state.gibbs_energy     = Gids + Geos + Seos298.val()*(Tk.val()-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
     // aW.twp->V = Vids + Veos;
     state.volume           = Veos;
     state.entropy          = Sids + Seos;
@@ -99,7 +99,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     state.internal_energy  = state.enthalpy - Pbar*state.volume;
     state.helmholtz_energy = state.internal_energy - Tk*state.entropy;
 
-    subst.checkCalcMethodBounds("Akinfiev and Diamond model", Tk.val, Pbar.val*1e5, tps);
+    subst.checkCalcMethodBounds("Akinfiev and Diamond model", Tk.val(), Pbar.val()*1e5, tps);
 
     return state;
 }

@@ -321,8 +321,8 @@ namespace ThermoFun {
                 auto l_pow = pow(lambda_t / lambda, 2);
                 if (l_pow == 0)
                 {
-                    l_pow.ddt = 0;
-                    l_pow.ddp = 0;
+                    l_pow.setDdt(0);
+                    l_pow.setDdp(0);
                 }
                 const auto lambda_rrt = -pow(lambda_r / lambda, 2) * lambda_t + (lambda_rr * lambda_t + lambda_rt * lambda_r) / lambda;
                 const auto lambda_rtt = -l_pow * lambda_r + (lambda_tt * lambda_r + lambda_rt * lambda_t) / lambda;

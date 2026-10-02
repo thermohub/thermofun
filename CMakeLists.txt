@@ -112,6 +112,7 @@ endif()
 if(TFUN_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests/memoization)
+    add_subdirectory(tests/autodiff)
 endif()
 
 # Install the cmake config files that permit users to use find_package(ThermoFun)

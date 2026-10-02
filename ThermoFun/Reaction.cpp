@@ -375,10 +375,10 @@ auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
 
     // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
     K_fT_Coeff[0] = (( Sr - CpCoeff[0] - CpCoeff[0]*log(TK) - CpCoeff[1]*TK + CpCoeff[2]/(2.0*TK*TK)
-                  + 2.0*CpCoeff[3]/pow(TK,0.5) - CpCoeff[4]*TK*TK/2.0 ) / Rln10).val;
+                  + 2.0*CpCoeff[3]/pow(TK,0.5) - CpCoeff[4]*TK*TK/2.0 ) / Rln10).val();
     K_fT_Coeff[1] = CpCoeff[1]/(2.0*Rln10);
     K_fT_Coeff[2] = (-( Hr - CpCoeff[0]*TK - CpCoeff[1]*TK*TK/2.0 + CpCoeff[2]/TK
-               - 2.0*CpCoeff[3]*pow(TK,0.5) - CpCoeff[4]*TK*TK*TK/3.0 ) / Rln10).val;
+               - 2.0*CpCoeff[3]*pow(TK,0.5) - CpCoeff[4]*TK*TK*TK/3.0 ) / Rln10).val();
     K_fT_Coeff[3] = CpCoeff[0]/Rln10;
     K_fT_Coeff[4] = CpCoeff[2]/(2.0*Rln10);
     K_fT_Coeff[5] = CpCoeff[4]/(6.0*Rln10);
@@ -473,7 +473,7 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
     auto Hr = ref_prop.reaction_enthalpy;
     auto Cpr = ref_prop.reaction_heat_capacity_cp;
 
-    K_fT_Coeff[0] = ref_prop.log_equilibrium_constant.val;
+    K_fT_Coeff[0] = ref_prop.log_equilibrium_constant.val();
 
     switch( method_T )
     { // calculation 2- and 3-term param approximation
@@ -485,27 +485,27 @@ auto Reaction::calc_logK_fT_coefficients() -> vd
     case MethodCorrT_Thrift::type::CTM_IKZ:  // Isotopic forms
         return K_fT_Coeff;
     case MethodCorrT_Thrift::type::CTM_EK0: // Generating 1-term extrapolation at logK = const
-        K_fT_Coeff[0]=(Sr/Rln10).val;
+        K_fT_Coeff[0]=(Sr/Rln10).val();
         break;
     case MethodCorrT_Thrift::type::CTM_EK1: // Generating 1-term extrapolation at dGr = const
         K_fT_Coeff[0]=0.0;
         K_fT_Coeff[1]=0.0;
-        K_fT_Coeff[2]=(-Hr/Rln10).val;
+        K_fT_Coeff[2]=(-Hr/Rln10).val();
         break;
     case MethodCorrT_Thrift::type::CTM_EK2: // Generating 2-term (Vant Hoff) extrapolation
-        K_fT_Coeff[0]=(Sr/Rln10).val;
+        K_fT_Coeff[0]=(Sr/Rln10).val();
         K_fT_Coeff[1]=0.0;
-        K_fT_Coeff[2]=(-Hr/Rln10).val;
+        K_fT_Coeff[2]=(-Hr/Rln10).val();
         break;
     case MethodCorrT_Thrift::type::CTM_PPE:
     case MethodCorrT_Thrift::type::CTM_EK3: // Generating 3-term extrapolation at constant dCpr
-        K_fT_Coeff[0]=(( Sr - Cpr*(1.+log(TK)) ) / Rln10).val;
+        K_fT_Coeff[0]=(( Sr - Cpr*(1.+log(TK)) ) / Rln10).val();
         K_fT_Coeff[1]=0.0;
-        K_fT_Coeff[2]=(( Cpr*TK - Hr ) / Rln10).val;
+        K_fT_Coeff[2]=(( Cpr*TK - Hr ) / Rln10).val();
 //        if (lg10) // in phreeqc // lgK = A[0] + A[2]/T + A[3] * logT;
-//            K_fT_Coeff[3]=(Cpr / R_CONSTANT).val;
+//            K_fT_Coeff[3]=(Cpr / R_CONSTANT).val();
 //        else
-            K_fT_Coeff[3]=(Cpr / Rln10).val;
+            K_fT_Coeff[3]=(Cpr / Rln10).val();
         break;
 //    default:
 //        errorMethodNotFound("convert","logKfT to CpfT", __LINE__, __FILE__);

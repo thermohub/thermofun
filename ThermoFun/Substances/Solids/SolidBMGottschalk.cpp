@@ -39,7 +39,7 @@ auto BM_Volume( Reaktoro_::Pressure P, Reaktoro_::ThermoScalar vt, Reaktoro_::Th
       auto vvnew = vvold + 1.;
 
       // Newton iteration (max. 50 iterations)
-      while ( fabs(vvnew.val-vvold.val) > 1e-10 && i++ < 50 )
+      while ( fabs(vvnew.val()-vvold.val()) > 1e-10 && i++ < 50 )
       {
           auto vt23 = pow( vt/vv, 2./3.);
           auto veq  = 3./2.*kt0*(1.+3./4.*(kp-4.)*(vt23-1.)
@@ -75,8 +75,8 @@ Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp
     Pincr = Tincr = Tplus = Tminus = vPplus = vPminus = vTplus = vTminus = 0.0;
     kt0Tplus = kt0Tminus = kppTplus = kppTminus = vtTplus = vtTminus = dGTplus = dGTminus = 0.0;
 
-    Pincr.val = 0.01;
-    Tincr.val = 0.1;
+    Pincr.setVal(0.01);
+    Tincr.setVal(0.1);
        // v0 = BMConst(1) - in GEMS passed as a separate function parameter
     a1 = BMConst[0];
     a2 = BMConst[1];
@@ -88,8 +88,8 @@ Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp
     kp = BMConst[7];
     kpp = BMConst[8];
 
-    Reaktoro_::Pressure Pplus = P.val + Pincr.val;
-    Reaktoro_::Pressure Pminus = P.val - Pincr.val;
+    Reaktoro_::Pressure Pplus = P.val() + Pincr.val();
+    Reaktoro_::Pressure Pminus = P.val() - Pincr.val();
     Tplus = T + Tincr;
     Tminus = T - Tincr;
 
@@ -99,7 +99,7 @@ Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp
     kt0Tminus = kt00 + dkdt*(Tminus - Tref);
 
     // set kpp if not already defined and its T increments
-    if ( fabs(kpp.val) < 1e-20 )
+    if ( fabs(kpp.val()) < 1e-20 )
     {
       kpp = -((35./9.+(3.-kp)*(4.-kp))/kt0);
       kppTplus = -((35./9.+(3.-kp)*(4.-kp))/kt0Tplus);
@@ -152,8 +152,8 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto Pst = 0.1*subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K
     auto Vst = subst.thermoReferenceProperties().volume; // j/bar
-    Reaktoro_::Temperature T ( TK.val );
-    Reaktoro_::Pressure P = Pbar; P*=0.1; /*(0.1*Pbar.val);*/ // in bar
+    Reaktoro_::Temperature T ( TK.val() );
+    Reaktoro_::Pressure P = Pbar; P*=0.1; /*(0.1*Pbar.val());*/ // in bar
     auto P_Pst = P - Pst;
     auto T_Tst = T -Tst;
 
@@ -182,7 +182,7 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pres
 //       aW.twp->Bet = aE;
     }
 
-    subst.checkCalcMethodBounds("BMGottschalk model", TK.val, Pbar.val*1e05, tps);
+    subst.checkCalcMethodBounds("BMGottschalk model", TK.val(), Pbar.val()*1e05, tps);
 
     return tps;
 }

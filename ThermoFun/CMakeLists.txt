@@ -17,7 +17,9 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
 # Link ThermoFun against all required dependencies
-target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
+target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun
+    $<BUILD_INTERFACE:autodiff::autodiff>
+    $<INSTALL_INTERFACE:autodiff::autodiff>)
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun

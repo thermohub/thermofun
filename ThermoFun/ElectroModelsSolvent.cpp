@@ -46,7 +46,7 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
     auto t = Reaktoro_::Temperature(T);
     auto p = Reaktoro_::Pressure(P);
 
-    if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val);
+    if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val());
 
     WaterThermoState wts;
 

@@ -52,6 +52,24 @@ test -d /usr/local/include/eigen3/Eigen || {
                  rm -rf ~/code
 }
 
+# autodiff library (header-only, v1.1.2 or up)
+# if no autodiff installed in /usr/local/include/autodiff
+test -d /usr/local/include/autodiff || {
+
+        mkdir -p ~/code && \
+                cd ~/code && \
+                git clone https://github.com/autodiff/autodiff.git -b v1.1.2 && \
+                cd autodiff && \
+                mkdir -p build && \
+                cd build && \
+                cmake .. -DCMAKE_BUILD_TYPE=Release -DAUTODIFF_BUILD_TESTS=OFF -DAUTODIFF_BUILD_PYTHON=OFF -DAUTODIFF_BUILD_EXAMPLES=OFF -DAUTODIFF_BUILD_DOCS=OFF && \
+                sudo make install
+
+        # Removing generated build files
+        cd ~ && \
+                 rm -rf ~/code
+}
+
 # spdlog 
 # if no spdlog installed in /usr/local/include/spdlog (copy only headers)
 test -d /usr/local/include/spdlog || {

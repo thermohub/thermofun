@@ -28,7 +28,7 @@
               auto pPa = pbar*1e5; // to Pa
               auto tK = tC+273.15; // to K
               ThermoPropertiesReaction tpr;
-              tpr.log_equilibrium_constant.val = 99999.9989;
+              tpr.log_equilibrium_constant.val() = 99999.9989;
               PropertiesSolvent prop_solvent;
               try {
                   if (!(tC>350. && pbar <200.))
@@ -45,11 +45,11 @@
                       if (pPa < psats[tC])
                           prop_solvent.density = 0.0;
                   }
-                  if (prop_solvent.density.val > 350.0)
+                  if (prop_solvent.density.val() > 350.0)
                       tpr = engine.thermoPropertiesReactionFromReactants(tK,pPa, "Calcite");
               } catch (std::runtime_error e) {
                   std::cout << e.what() << std::endl;
-                  tpr.log_equilibrium_constant.val = 99999.9989;
+                  tpr.log_equilibrium_constant.val() = 99999.9989;
               }
               results.push_back(tpr);
           }

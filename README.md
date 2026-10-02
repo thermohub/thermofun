@@ -47,7 +47,7 @@ int main()
     double H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
 
     // Retrieve the derivative of G with respect to T
-    double H2OdGdT = batch.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
+    double H2OdGdT = batch.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt();
 
     // Write results to a comma separate files for a list of T-P pairs, substances, and properties
     batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
@@ -223,6 +223,8 @@ git clone https://github.com/thermohub/thermofun.git && cd thermofun
 This option allows the user to build thermofun library that works with a user provided thermodynamic database file in json format and has only one thirdpary library dependency. To build thermofun with access to the thermohub thermodynamic database cloud and local server see bellow. 
 
 #### Install Dependencies (if not using Conda environment)
+
+ThermoFun computes derivatives of the thermodynamic properties with [autodiff](https://autodiff.github.io/) (`autodiff::real`, header-only). If autodiff is not installed, CMake fetches it automatically. In C++, `ThermoScalar` exposes `val()`, `ddt()`, `ddp()` (and the underlying `autodiff::real` passes with `wrtT()`, `wrtP()`); in Python `val`, `ddt`, `ddp` are properties.
 
 The thermofun library uses nlohmann/json.hpp as thirdparty dependency to parse database files in json format. To install the header only json library in a terminal ```~/thermofun$``` execute the following: 
 

@@ -11,7 +11,7 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
     Reaktoro_::ThermoScalar Tcr, Qq, dQq;
     Tcr = 0.0; Qq = 0.0; dQq = 0.0;
     std::vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
-//    auto (P/1000) = Reaktoro::Pressure (p.val /1000);  // in kbar
+//    auto (P/1000) = Reaktoro::Pressure (p.val() /1000);  // in kbar
     auto TrK = subst.referenceT();
 
     if (transProp.size() < 3)
@@ -85,7 +85,7 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
     tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
     tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
 
-    subst.checkCalcMethodBounds("Holland and Powell Landau model", TK.val, Pbar.val*bar_to_Pa, tps);
+    subst.checkCalcMethodBounds("Holland and Powell Landau model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

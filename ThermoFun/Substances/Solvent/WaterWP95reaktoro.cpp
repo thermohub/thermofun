@@ -76,7 +76,7 @@ auto propertiesWaterWP95reaktoro(const WaterThermoState& wt) -> PropertiesSolven
 //    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
 //    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
 
-//    auto t = Reaktoro::Temperature( wt.temperature.val );
+//    auto t = Reaktoro::Temperature( wt.temperature.val() );
 //    waterIdealGas(t, state);
 
     return state;

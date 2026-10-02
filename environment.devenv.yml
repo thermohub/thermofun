@@ -13,6 +13,7 @@ dependencies:
   - pybind11
   - nlohmann_json
   - chemicalfun
+  - autodiff
   - python>=3.9
   - pytest
 

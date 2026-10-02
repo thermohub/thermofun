@@ -13,16 +13,16 @@ auto thermoPropertiesAqSoluteAN91(Reaktoro_::Temperature TK, Reaktoro_::Pressure
     ThermoPropertiesSubstance tps;
     auto tpsr = subst.thermoReferenceProperties();
     double T298 = subst.referenceT();
-    double G298 = tpsr.gibbs_energy.val;
-    double H298 = tpsr.enthalpy.val;
-    double S298 = tpsr.entropy.val;
-    double V298 = tpsr.volume.val; // J/bar
-    double Cp298 = tpsr.heat_capacity_cp.val;
+    double G298 = tpsr.gibbs_energy.val();
+    double H298 = tpsr.enthalpy.val();
+    double S298 = tpsr.entropy.val();
+    double V298 = tpsr.volume.val(); // J/bar
+    double Cp298 = tpsr.heat_capacity_cp.val();
 
-    double ALPw298 = wpr.Alpha.val;
-    double BETw298 = wpr.Beta.val*1e5; // 1/bar
-    double dALPdTw298 = wpr.dAldT.val;
-    double RHOw298 = wpr.density.val/1000; // g/cm3
+    double ALPw298 = wpr.Alpha.val();
+    double BETw298 = wpr.Beta.val()*1e5; // 1/bar
+    double dALPdTw298 = wpr.dAldT.val();
+    double RHOw298 = wpr.density.val()/1000; // g/cm3
 
     auto RHOw = wp.density/1000; // g/cm3
     auto dRHOdT = wp.densityT/1000;
