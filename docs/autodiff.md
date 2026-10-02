@@ -67,7 +67,11 @@ All models, including the GEMS implementations that had zero or incomplete deriv
    calls the Dolejs-Manning function. **Behaviour change**; the units of its first coefficient were not checked
    against the paper.
 9. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
-   the Gibbs energy below 500 K. `T'` now carries the derivative there (values unchanged).
+   the Gibbs energy below 500 K. `T'` now carries the derivative there. The published `S` and `Cp` were not the
+    derivatives of the published `G` (the `ln(rho/rho298)/T'` term of `S` had the opposite sign; `Cp` lacked
+    `2 alpha/T'`) and `H` was `G + T S298`. `S`, `V`, `Cp` and `H` are now the exact derivatives of `G`:
+    `S = -dG/dT`, `Cp = T dS/dT`, `H = G + T S`. **Behaviour change**: `S`, `Cp`, `H` (and `U`, `A`) of HP98 solutes
+    differ from the published formulas (G and V are unchanged).
 10. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
     was called by the engine for the volume pressure methods but returned an empty result (which replaced the
     properties), and its dead implementation mixed Pa and bar. It is implemented and wired:
@@ -93,9 +97,6 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 
 - Quartz `V` has zero `ddt`/`ddp` exactly at the reference state (298.15 K, 1 bar): `SolidMurnaghanHP98.cpp` takes a
   constant-volume branch there. CORK has a branch at 5 kbar.
-- Holland-Powell 98 solute: its published `S` and `Cp` formulas are not the exact derivatives of its `G` (the term in
-  `ln(rho/rho298)` of `S` has the opposite sign of `-dG/dT`; `Cp` lacks `2 alpha/T'`), so `dG/dT != -S` there
-  (`G`, `V` and their derivatives are consistent). The published values are not changed.
 - Near the critical point the derivatives of the HGK/LVS water are more self-consistent than finite differences of the values.
 - The finite difference inside the Churakov-Gottschalk residual enthalpy and entropy (`T + T*DELTA`) is differentiated as written.
 - Reactions from reactants: `Cv`, `U` and `A` are those of the last reactant times its coefficient (as before).

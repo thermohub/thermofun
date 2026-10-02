@@ -204,6 +204,22 @@ int main(int argc, char** argv)
                 for (auto m : {&ThermoPropertiesSubstance::gibbs_energy, &ThermoPropertiesSubstance::entropy,
                                &ThermoPropertiesSubstance::volume, &ThermoPropertiesSubstance::heat_capacity_cp})
                     checkDerivatives("HP98 solute", f(m), t, 5e7, 1e-3);
+            // exact relations: dG/dT = -S, dG/dP = V, H = G + T S, dH/dT = Cp
+            for (double t : {400.0, 450.0, 520.0})
+            {
+                const auto x = f(&ThermoPropertiesSubstance::gibbs_energy)(t, 5e7);
+                const auto S = f(&ThermoPropertiesSubstance::entropy)(t, 5e7);
+                const auto V = f(&ThermoPropertiesSubstance::volume)(t, 5e7);
+                const auto H = f(&ThermoPropertiesSubstance::enthalpy)(t, 5e7);
+                const auto Cp = f(&ThermoPropertiesSubstance::heat_capacity_cp)(t, 5e7);
+                auto close = [](double a, double b) { return std::fabs(a - b) <= 1e-6 * (std::fabs(b) + 1.0); };
+                if (!close(x.ddt, -S.val) || !close(x.ddp * 1e5, V.val) || !close(H.val, x.val + t * S.val) ||
+                    !close(H.ddt, Cp.val) || !close(t * S.ddt, Cp.val))
+                {
+                    std::printf("FAILED: HP98 solute thermodynamic relations at T=%g\n", t);
+                    ++failures;
+                }
+            }
         }
 
         // Reaction volume as a function of T and P: derivatives, thermodynamic relations and the reference state
