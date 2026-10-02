@@ -1191,6 +1191,13 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
     return tpr;
 }
 
+auto ThermoEngine::setPreferences(const EnginePreferences preferences) -> void
+{
+    pimpl->preferences = preferences;
+    pimpl->perturbed_engine.reset();
+    pimpl->set_fn(); // applies the memoization settings (the caches are cleared)
+}
+
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
 {
     pimpl->preferences.solvent_symbol = solvent_symbol;
