@@ -43,6 +43,22 @@ int main(int argc, char** argv)
     variables.pressure = Reaktoro_::Pressure(1e5);
     check(variables.temperature.val == 350.0 && variables.pressure.ddp == 1.0, "ThermoVariables");
 
+    // Both syntaxes: x.val (ThermoFun) and x.val() (autodiff); also val(x)
+    {
+        Reaktoro_::ThermoScalar z(2.0, 3.0, 4.0, 0.0, {Reaktoro_::Status::assigned, ""});
+        check(z.val == 2.0 && z.val() == 2.0 && z.ddt() == 3.0 && z.ddp() == 4.0 && val(z) == 2.0, "val and val()");
+        z.val = 5.0; z.ddt() = 6.0; z.ddp += 1.0;
+        check(z.val() == 5.0 && z.ddt == 6.0 && z.ddp == 5.0, "assignment through val and val()");
+        double plain = z.val;
+        double& ref = z.val;
+        ref = 7.0;
+        check(plain == 5.0 && z.val() == 7.0, "conversion to double and to double&");
+        check(std::sqrt(z.val) == std::sqrt(7.0), "val as a double argument");
+        check(sizeof(Reaktoro_::ThermoScalar) == sizeof(double) * 4 + sizeof(Reaktoro_::StatusMessage), "layout");
+        const Reaktoro_::ThermoScalar c = z;
+        check(c.val() == 7.0 && c.val == 7.0, "val and val() of a const instance");
+    }
+
     // The properties calculated by the engine
     if (argc > 1)
     {
@@ -50,7 +66,7 @@ int main(int argc, char** argv)
         double P_ = 1e5;
         ThermoFun::ThermoPropertiesSubstance tps = engine.thermoPropertiesSubstance(298.15, P_, "Quartz");
         Reaktoro_::ThermoScalar G = tps.gibbs_energy;
-        check(std::isfinite(G.val) && G.ddt != 0.0, "engine property");
+        check(std::isfinite(G.val()) && G.ddt() != 0.0, "engine property");
         check(close(G.ddt, -tps.entropy.val, 1e-6), "dG/dT = -S");
         check(G.sta.first != Reaktoro_::Status::notdefined, "engine status");
         double inJ = (tps.gibbs_energy + tps.enthalpy * 2.0).val;

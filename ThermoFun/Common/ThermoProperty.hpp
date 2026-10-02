@@ -62,8 +62,8 @@ struct Pass
     /// A property, with the derivative of this pass, as an autodiff number
     auto operator()(const ThermoProperty& x) const -> real
     {
-        real r(x.val);
-        r[1] = (wrt == Wrt::T) ? x.ddt : (wrt == Wrt::P) ? x.ddp : 0.0;
+        real r(x.val());
+        r[1] = (wrt == Wrt::T) ? x.ddt() : (wrt == Wrt::P) ? x.ddp() : 0.0;
         return r;
     }
 
@@ -72,7 +72,7 @@ struct Pass
 };
 
 /// A property that is known to be constant (e.g. a reference value of the database) as an autodiff number
-inline auto constant(const ThermoProperty& x) -> real { return real(x.val); }
+inline auto constant(const ThermoProperty& x) -> real { return real(x.val()); }
 
 /// Combine the autodiff numbers of the pass seeded with temperature and the pass seeded with pressure in a property
 inline auto toProperty(const real& wrtT, const real& wrtP) -> ThermoProperty

@@ -36,6 +36,33 @@ enum Status {
 
 using StatusMessage = std::pair <Status, std::string>;
 
+/// A number that behaves as a double (x.val, x.val = 3.0, x.val += 1, double d = x.val) and can also be called as a
+/// function (x.val(), as autodiff::real and Reaktoro do). It is used for the members val, ddt and ddp of ThermoScalar so
+/// that both syntaxes work: code written for ThermoFun with `.val` is not affected, and code written in the style of
+/// autodiff with `.val()` also works.
+/// Not possible with a class wrapper: taking the address (&x.val is a Num*, not a double*), template argument deduction
+/// mixing it with double (std::max(x.val, 1.0): use std::max<double>) and copy-initialisation of another number type
+/// (`real r = x.val;`: use `real r(x.val);`).
+struct Num
+{
+    double v = 0.0;
+
+    constexpr Num() = default;
+    constexpr Num(double x) : v(x) {}
+
+    constexpr auto operator=(double x) -> Num& { v = x; return *this; }
+
+    constexpr operator double&() noexcept { return v; }
+    constexpr operator const double&() const noexcept { return v; }
+
+    constexpr auto operator()() const noexcept -> double { return v; }
+    constexpr auto operator()() noexcept -> double& { return v; }
+};
+
+/// The type of the members val, ddt and ddp of ThermoScalarBase<V>
+template<typename V> struct ThermoNumber { using type = V; };
+template<> struct ThermoNumber<double> { using type = Num; };
+
 /// A template base class to represent a thermodynamic scalar and its partial derivatives.
 /// A *thermodynamic property* is a quantity that depends on temperature and pressure.
 /// @see ThermoScalar, ChemicalScalar, ThermoVector
@@ -44,13 +71,13 @@ class ThermoScalarBase
 {
 public:
     /// The value of the thermodynamic property.
-    V val;
+    typename ThermoNumber<V>::type val;
 
     /// The partial temperature derivative of the thermodynamic property.
-    V ddt;
+    typename ThermoNumber<V>::type ddt;
 
     /// The partial pressure derivative of the thermodynamic property.
-    V ddp;
+    typename ThermoNumber<V>::type ddp;
 
     /// The error of the value of the thermodynamic property
     V err;
@@ -306,6 +333,13 @@ inline auto status(const ThermoScalarBase<VL>& l) -> StatusMessage
     else
         return {Status::calculated, std::string("")};
 }
+/// The value of a ThermoScalar instance (as val(x) of autodiff)
+template<typename V>
+inline auto val(const ThermoScalarBase<V>& x) -> double
+{
+    return x.val;
+}
+
 /// Unary addition operator for a ThermoScalar instance
 template<typename V>
 inline auto operator+(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
