@@ -12,6 +12,8 @@
 #include "ThermoProperties.h"
 #include "Substance.h"
 #include "reference/Jets.hpp"
+#include "reference/CGFexact.hpp"
+#include "Substances/Gases/CGFpure.hpp"
 
 using namespace ThermoFun;
 
@@ -117,6 +119,49 @@ int main(int argc, char** argv)
             expectClose("ZD densityTT.ddp", x.densityTT.ddp, j.fTTP, tol);
             expectClose("ZD densityTP.ddp", x.densityTP.ddp, j.fTPP, tol);
             expectClose("ZD densityPP.ddp", x.densityPP.ddp, j.fPPP, tol);
+        }
+    }
+
+    // --- Churakov-Gottschalk pure fluid: the analytical free energy and its derivatives (the compressibility factor, the residual entropy)
+    // against the nested autodiff references; with the derivatives along T and along rho (the third-order derivatives)
+    {
+        const double coefficients[][12] = {{3.7327, 149.92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},                       // nonpolar
+                                           {3.0, 300.0, 1.2, 1.5, 0, 0, 0, 0, 0, 0, 0, 0},                       // dipole and induced terms
+                                           {3.0, 300.0, 1.2, 1.5, 0.02, -0.001, 0.5, -0.0005, 3.0, 100.0, 2.0, 50.0}}; // T dependent parameters
+        int set = 0;
+        for (const auto& c : coefficients)
+        {
+            ++set;
+            for (auto state : {std::make_pair(450.0, 0.01), std::make_pair(600.0, 0.02), std::make_pair(800.0, 0.005)})
+                for (int direction = 0; direction < 2; ++direction)   // the derivative of the pass: with respect to T or to rho
+                {
+                    real T(state.first), ro(state.second), cc[12];
+                    T[1] = direction == 0 ? 1.0 : 0.0;
+                    ro[1] = direction == 1 ? 1.0 : 0.0;
+                    for (int i = 0; i < 12; ++i) cc[i] = real(c[i]);
+
+                    cgf::PureFluidDerivatives o;
+                    cgf::pureFluid(T, ro, cc, o);
+
+                    using namespace cgfref;
+                    using M = Up<Dual0>;
+                    Dual0 c0[12]; M cm[12];
+                    for (int i = 0; i < 12; ++i) { c0[i] = fromReal(cc[i]); cm[i].val = c0[i]; cm[i].grad = Dual0(0.0); }
+                    M Tm; Tm.val = fromReal(T); Tm.grad = Dual0(1.0);
+                    M rM; rM.val = fromReal(ro); rM.grad = Dual0(0.0);
+                    const M Fm = FTOTAL<M>(Tm, rM, parametersAt<M>(Tm, cm));      // F and dF/dT with the derivatives of the pass
+                    const Dual0 Z = ZTOTAL<Dual0>(fromReal(T), fromReal(ro), parametersAt<Dual0>(fromReal(T), c0));
+                    char label[200];
+                    auto name = [&](const char* what) { std::snprintf(label, sizeof label, "CGF set %d %s (T=%g rho=%g direction %d)", set, what, state.first, state.second, direction); return label; };
+                    const double tol = 1e-9;
+                    expectClose(name("F"), o.F.val(), Fm.val.val, tol);
+                    expectClose(name("dF/dT"), o.FT.val(), Fm.grad.val, tol);
+                    expectClose(name("Z"), 1.0 + ro.val()*o.Frho.val(), Z.val, tol);
+                    const real Zr = 1.0 + ro*o.Frho;
+                    expectClose(name("F pass derivative"), o.F[1], Fm.val.grad, tol);
+                    expectClose(name("dF/dT pass derivative"), o.FT[1], Fm.grad.grad, tol);
+                    expectClose(name("Z pass derivative"), Zr[1], Z.grad, tol);
+                }
         }
     }
 

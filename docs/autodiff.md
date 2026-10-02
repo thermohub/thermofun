@@ -64,36 +64,44 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 6. HKF (GEMS) g function: the exponent lost its temperature derivative.
 7. Zhang-Duan water: the pressure derivatives were scaled twice and the finite-difference points were not tied to `T` and `P`.
 8. Zhang-Duan water and the Sverjensky and Fernandez dielectric constants calculated the derivatives of the density and of
-   the dielectric constant with finite differences (steps of 0.1 %, four extra evaluations of the solvent). They are exact now:
-   the equation of state is solved with higher-order autodiff numbers (`dual3rd`, `Common/Jets.hpp`) in T and P, and the
-   dielectric constant (a closed form function of T and of the density) is evaluated from the Taylor polynomial of the density given
-   by the solvent model; the third-order derivatives (the `ddt`/`ddp` of the second-order ones) are exact too, the mixed
-   derivatives are symmetric, and `densityTP`, `epsilonTP` are now calculated. The Zhang-Duan `densityPP` was 1e5 times too large
-   (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed.
-9. Churakov-Gottschalk fluids (pure fluids): the compressibility `Z = 1 + rho dF/drho`, the internal energy of the Weeks-Chandler-Andersen
+   the dielectric constant with finite differences (steps of 0.1 %, four extra evaluations of the solvent). They are **analytical**
+   now, hand-derived formulas in `real` arithmetic: the implicit differentiation of the Zhang-Duan EOS (`V_T = -f_T/f_V`, ... with the
+   analytical partial derivatives of the compressibility factor), and the chain rule of the closed form dielectric constants
+   (`eps = exp(u(T)) rho^w(T)` of Sverjensky; the sums of power laws of Fernandez) with the derivatives of the density of the
+   solvent model. The first and second derivatives (`densityT/P/TT/TP/PP`, `epsilonT/P/TT/TP/PP`) are formulas, and their `ddt`/`ddp`
+   (third-order derivatives) are those of the formulas (the same machinery as every other property); the mixed derivatives are
+   symmetric and `densityTP`, `epsilonTP` are calculated. The solvent model is called once. The Zhang-Duan `densityPP` was 1e5 times
+   too large (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed. The analytical results agree to 1e-9 with
+   independent references calculated with autodiff higher-order dual numbers (`tests/autodiff/src/reference`, ctest `analytic-derivatives`).
+9. GEMS HGK water (`water_eos_hgk84_lvs83_gems`) did not set `densityPP` (and `densityTP`). They are the derivatives of the analytical
+   `densityP = beta rho` and `densityT = -alpha rho` with respect to P (and `densityTP.ddt = densityTT.ddp`); the third derivatives
+   with respect to P twice are not available from the GEMS formulation of the critical region and are 0. Tested against finite differences.
+10. Churakov-Gottschalk fluids (pure fluids): the compressibility `Z = 1 + rho dF/drho`, the internal energy of the Weeks-Chandler-Andersen
    reference fluid, `U = dF/dbeta`, and the residual entropy (`dF/dT` with the T dependent parameters of the EoS) were finite
-   differences with a relative step of 1e-5. The free energy is now a template on the number type
-   (`Substances/Gases/CGFexact.hpp`) and these derivatives are calculated exactly with nested autodiff numbers. The values change by
-   about 1e-5 (the truncation error of the finite differences): for example the volume of a test fluid by 1e-5, its enthalpy by 4e-5;
-   the derivatives with respect to T and P are exact (tested to 2e-5 against finite differences, including a polar fluid).
-10. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
+   differences with a relative step of 1e-5. They are **analytical** now: the free energy of the reference fluid and of the pure fluid
+   and their derivatives (the hard-sphere diameter by implicit differentiation of its polynomial, the chain rule through the
+   polar terms and the T dependent parameters) were derived symbolically (sympy,
+   `Substances/Gases/tools/generate_cgf_derivatives.py`) into `Substances/Gases/CGFanalytic.hpp`. The values change by about 1e-5 (the
+   truncation error of the finite differences): the volume of a test fluid by 1e-5, its enthalpy by 4e-5; the derivatives with respect to T
+   and P agree to 2e-5 with finite differences and to 1e-9 with the autodiff reference (nonpolar, polar and T dependent parameters).
+11. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
    calls the Dolejs-Manning function. **Behaviour change**; the units of its first coefficient were not checked
    against the paper.
-11. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
+12. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
    the Gibbs energy below 500 K. `T'` now carries the derivative there. The published `S` and `Cp` were not the
     derivatives of the published `G` (the `ln(rho/rho298)/T'` term of `S` had the opposite sign; `Cp` lacked
     `2 alpha/T'`) and `H` was `G + T S298`. `S`, `V`, `Cp` and `H` are now the exact derivatives of `G`:
     `S = -dG/dT`, `Cp = T dS/dT`, `H = G + T S`. **Behaviour change**: `S`, `Cp`, `H` (and `U`, `A`) of HP98 solutes
     differ from the published formulas (G and V are unchanged).
-12. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
+13. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
     was called by the engine for the volume pressure methods but returned an empty result (which replaced the
     properties), and its dead implementation mixed Pa and bar. It is implemented and wired:
     `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, `dG = int V dP`, `dS = -d(dG)/dT`,
     `dH = dG - T d(dG)/dT`, `dCp = -T d2(dG)/dT2`, `ln K = -G/(RT)`. No database uses it yet (tested in
     `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
-13. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
+14. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
     values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
-14. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
+15. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
     `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
 
 ## 5. Errors (uncertainties)

@@ -25,7 +25,7 @@
 // along with GEMS4K code. If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------
 
-#include "CGFexact.hpp"
+#include "CGFpure.hpp"
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -1313,35 +1313,14 @@ long int TCGFcalc::CGActivCoefPT( real *X,real *param, real *act,
 /// with respect to T (the parameters of the EoS depend on T)
 long int TCGFcalc::CGResidualFunctPure( const real *coeff, real ro, real T )
 {
-	using namespace ThermoFun::cgf;
-	using M = Up<Dual0>;
+	ThermoFun::cgf::PureFluidDerivatives o;
+	ThermoFun::cgf::pureFluid(T, ro, coeff, o);
 
-	const Dual0 T0 = fromReal(T), ro0 = fromReal(ro);
-	Dual0 c0[12];
-	M cm[12];
-	for ( int i=0; i<12; i++ )
-	{
-		c0[i] = fromReal(coeff[i]);
-		cm[i].val = c0[i];
-		cm[i].grad = Dual0(0.0);
-	}
-
-	// F and dF/dT at constant density (the inner variable is T)
-	M Tm; Tm.val = T0; Tm.grad = Dual0(1.0);
-	const Pure<M> pm = parametersAt<M>(Tm, cm);
-	M roM; roM.val = ro0; roM.grad = Dual0(0.0);
-	const M Fm = FTOTAL<M>(Tm, roM, pm);
-	const real F0 = toReal(Fm.val);
-	const real FT = toReal(Fm.grad);
-
-	const Pure<Dual0> p0 = parametersAt<Dual0>(T0, c0);
-	const real Z = toReal(ZTOTAL<Dual0>(T0, ro0, p0));
-
-	Srs = - ( T*FT + F0 ) * R_CONST;
-	Hrs = (F0*Tk*R_CONST + Tk*Srs) + Z*R_CONST*Tk;
+	Srs = - ( T*o.FT + o.F ) * R_CONST;
+	Hrs = (o.F*Tk*R_CONST + Tk*Srs) + (1. + ro*o.Frho)*R_CONST*Tk;
 	Grs = Hrs - Tk*Srs;
 	CPrs = 0.;
-	Vrs = Z*R_CONST*Tk/Pbar;
+	Vrs = (1. + ro*o.Frho)*R_CONST*Tk/Pbar;
 
 	return 0;
 }
@@ -1879,16 +1858,19 @@ real TCGFcalc::FWCA( real T,real ro )
 
 real TCGFcalc::ZWCANum( real T,real ro )
 {
-	// exact derivative of the free energy: Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
-	return ThermoFun::cgf::toReal(ThermoFun::cgf::ZWCA<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T), ThermoFun::cgf::fromReal(ro)));
+	// analytical derivative of the free energy: Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
+	const real beta = 1./T;
+	const auto w = ThermoFun::cgf::wcaAt(beta, ro);
+	return 1. + ro*w.Fr;
 }
 
 
 
 real TCGFcalc::UWCANum( real T,real ro )
 {
-	// exact derivative of the free energy: U = dF/dbeta (was a finite difference, relative step DELTA)
-	return ThermoFun::cgf::toReal(ThermoFun::cgf::UWCA<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T), ThermoFun::cgf::fromReal(ro)));
+	// analytical derivative of the free energy: U = dF/dbeta (was a finite difference, relative step DELTA)
+	const real beta = 1./T;
+	return ThermoFun::cgf::wcaAt(beta, ro).Fb;
 }
 
 
@@ -1922,9 +1904,10 @@ real TCGFcalc::J6LJ( real T,real ro )
 real TCGFcalc::FTOTALMIX( real T_Real,real ro_Real,EOSPARAM* param )
 {
 	if ( param->NCmp()==1 )
-	{	// a pure fluid: exact free energy
-		ThermoFun::cgf::Pure<ThermoFun::cgf::Dual0> p{ThermoFun::cgf::fromReal(param->SIG3(0)), ThermoFun::cgf::fromReal(param->EPS(0)), ThermoFun::cgf::fromReal(param->M2R(0)), ThermoFun::cgf::fromReal(param->A(0))};
-		return ThermoFun::cgf::toReal(ThermoFun::cgf::FTOTAL<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T_Real), ThermoFun::cgf::fromReal(ro_Real), p));
+	{	// a pure fluid: analytical free energy
+		ThermoFun::cgf::PureFluidDerivatives o;
+		ThermoFun::cgf::pureFluid(T_Real, ro_Real, param->SIG(0), param->EPS(0), param->MPAR(0), param->A(0), o);
+		return o.F;
 	}
 	real FF,A0,A2,A3,AP,A1;
 	// unsigned iall,inopol;
@@ -2070,9 +2053,10 @@ real TCGFcalc::UTOTALMIX( real T_Real,real ro_Real,EOSPARAM* param )
 real TCGFcalc::ZTOTALMIX( real T_Real,real ro_Real,EOSPARAM* param )
  {
   if ( param->NCmp()==1 )
-  {	// a pure fluid: exact derivative Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
-    ThermoFun::cgf::Pure<ThermoFun::cgf::Dual0> p{ThermoFun::cgf::fromReal(param->SIG3(0)), ThermoFun::cgf::fromReal(param->EPS(0)), ThermoFun::cgf::fromReal(param->M2R(0)), ThermoFun::cgf::fromReal(param->A(0))};
-    return ThermoFun::cgf::toReal(ThermoFun::cgf::ZTOTAL<ThermoFun::cgf::Dual0>(ThermoFun::cgf::fromReal(T_Real), ThermoFun::cgf::fromReal(ro_Real), p));
+  {	// a pure fluid: analytical derivative Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
+    ThermoFun::cgf::PureFluidDerivatives o;
+    ThermoFun::cgf::pureFluid(T_Real, ro_Real, param->SIG(0), param->EPS(0), param->MPAR(0), param->A(0), o);
+    return 1. + ro_Real*o.Frho;
   }
   real delta = DELTA;
   real a0,a1;

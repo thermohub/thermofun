@@ -1,5 +1,5 @@
-#ifndef THERMOFUN_CGFEXACT_HPP
-#define THERMOFUN_CGFEXACT_HPP
+#ifndef THERMOFUN_CGFREFERENCE_HPP
+#define THERMOFUN_CGFREFERENCE_HPP
 
 // Churakov and Gottschalk (2003) EOS of a pure fluid with exact derivatives. The original implementation (TCGFcalc in
 // s_solmod2_.cpp) calculates the compressibility Z = 1 + rho dF/drho, the internal energy U = dF/dbeta and the entropy
@@ -12,7 +12,7 @@
 #include "Common/Real.hpp"
 
 namespace ThermoFun {
-namespace cgf {
+namespace cgfref {
 
 using Dual0 = autodiff::dual;                         // the derivative of the pass (T or P)
 template<class N> using Up = autodiff::Dual<N, N>;   // one more (inner) derivative variable
@@ -296,7 +296,7 @@ template<class N> auto parametersAt(const N& T, const N* c) -> Pure<N>
     return p;
 }
 
-} // namespace cgf
+} // namespace cgfref
 } // namespace ThermoFun
 
-#endif // THERMOFUN_CGFEXACT_HPP
+#endif // THERMOFUN_CGFREFERENCE_HPP

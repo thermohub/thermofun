@@ -385,6 +385,8 @@ class EOSPARAM
         }
 
                 real SIG3( long int i){ return sig3par[i]; }
+                real SIG( long int i) { return sigpar[i]; }   ///< the diameter
+                real MPAR( long int i){ return mpar[i]; }     ///< the dipole moment
                 real M2R( long int i) { return m2par[i]; }
                 real A( long int i)   { return apar[i]; }
 
