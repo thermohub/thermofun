@@ -141,8 +141,11 @@ it is given. Tests: `pytests/test_errors.py`.
   plus the thermodynamic relations (`dG/dT = -S`, `dH/dT = Cp`, `T dS/dT = Cp`, the Maxwell relation `dS/dP = -dV/dT`).
 - Tests: `pytests/test_autodiff.py` (derivatives, GEMS water, fluids, reactions, Python accessors) and the ctests
   `autodiff` (infrastructure), `model-derivatives` (models not covered by the databases: Berman, Birch-Murnaghan,
-  constant volume, ideal gas volume, fluids, Frantz-Marshall, Dolejs-Manning, Zhang-Duan) and `interface` (the
-  interface of section 2, including `val` and `val()`).
+  constant volume, ideal gas volume, fluids, Frantz-Marshall, Dolejs-Manning, Zhang-Duan, Holland-Powell 98 solute,
+  `Reaction_Vol_fT`) and `interface` (the
+  interface of section 2, including `val` and `val()`); `pytests/test_errors.py` (propagation of errors, the NEA TDB-3
+  examples, parameter uncertainties, rounding, Python options). Values, derivatives and statuses are unchanged by the
+  error options (oracle comparison: 0 differences).
 
 ## 8. Known and left unchanged
 
