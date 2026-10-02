@@ -110,17 +110,11 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
     // GZterm = W * (-Z - 1.0e0);
 
 
-    auto U = H - Pbar*V;
-
-    auto A = U - TK*S;
-
     // Convert the thermodynamic properties of the gas to the standard units
     V  *= 1e-01; // J/bar
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
-    U  *= cal_to_J;
-    A  *= cal_to_J;
     Cp *= cal_to_J;
 
     ThermoPropertiesSubstanceAD tps;
@@ -128,8 +122,8 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
     tps.gibbs_energy     = G;
     tps.enthalpy         = H;
     tps.entropy          = S;
-    tps.internal_energy  = U;
-    tps.helmholtz_energy = A;
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;           // V in J/bar (the term P V was in the wrong units before)
+    tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 

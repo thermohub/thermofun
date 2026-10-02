@@ -202,6 +202,9 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
                 a.reaction_enthalpy = 0.0;
                 a.reaction_entropy = 0.0;
                 a.reaction_volume = 0.0;
+                a.reaction_heat_capacity_cv = 0.0;
+                a.reaction_internal_energy = 0.0;
+                a.reaction_helmholtz_energy = 0.0;
 
                 for (const auto& component : components)
                 {
@@ -213,9 +216,9 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
                     a.reaction_enthalpy         += pass(tps.enthalpy)*coeff;
                     a.reaction_entropy          += pass(tps.entropy)*coeff;
                     a.reaction_volume           += pass(tps.volume)*coeff;
-                    a.reaction_heat_capacity_cv  = pass(tps.heat_capacity_cv)*coeff;
-                    a.reaction_internal_energy   = pass(tps.internal_energy)*coeff;
-                    a.reaction_helmholtz_energy  = pass(tps.helmholtz_energy)*coeff;
+                    a.reaction_heat_capacity_cv += pass(tps.heat_capacity_cv)*coeff;
+                    a.reaction_internal_energy  += pass(tps.internal_energy)*coeff;
+                    a.reaction_helmholtz_energy += pass(tps.helmholtz_energy)*coeff;
                 }
                 a.ln_equilibrium_constant  = a.reaction_gibbs_energy / -(R_CONSTANT*pass.T);
                 a.log_equilibrium_constant = a.ln_equilibrium_constant * ln_to_lg;
@@ -267,7 +270,7 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
     // the errors: first-order propagation of the errors of the reactants (independent), weighted by the
     // stoichiometric coefficients; ln K = -G/(R T)
     {
-        double cp = 0, g = 0, h = 0, sv = 0, v = 0;
+        double cp = 0, g = 0, h = 0, sv = 0, v = 0, cv = 0, u = 0, am = 0;
         for (const auto& component : components)
         {
             const auto& tps = component.first;
@@ -277,6 +280,9 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
             h  += nu*nu*tps.enthalpy.err*tps.enthalpy.err;
             sv += nu*nu*tps.entropy.err*tps.entropy.err;
             v  += nu*nu*tps.volume.err*tps.volume.err;
+            cv += nu*nu*tps.heat_capacity_cv.err*tps.heat_capacity_cv.err;
+            u  += nu*nu*tps.internal_energy.err*tps.internal_energy.err;
+            am += nu*nu*tps.helmholtz_energy.err*tps.helmholtz_energy.err;
         }
         tpr.reaction_heat_capacity_cp.setError({{1.0, std::sqrt(cp)}});
         tpr.reaction_gibbs_energy.setError({{1.0, std::sqrt(g)}});
@@ -285,13 +291,9 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
         tpr.reaction_volume.setError({{1.0, std::sqrt(v)}});
         tpr.ln_equilibrium_constant.setError({{1.0/(R_CONSTANT*T), std::sqrt(g)}});
         tpr.log_equilibrium_constant.setError({{ln_to_lg, tpr.ln_equilibrium_constant.err}});
-        if (!components.empty())
-        {
-            const auto& last = components.back();
-            tpr.reaction_heat_capacity_cv.setError({{last.second, last.first.heat_capacity_cv.err}});
-            tpr.reaction_internal_energy.setError({{last.second, last.first.internal_energy.err}});
-            tpr.reaction_helmholtz_energy.setError({{last.second, last.first.helmholtz_energy.err}});
-        }
+        tpr.reaction_heat_capacity_cv.setError({{1.0, std::sqrt(cv)}});
+        tpr.reaction_internal_energy.setError({{1.0, std::sqrt(u)}});
+        tpr.reaction_helmholtz_energy.setError({{1.0, std::sqrt(am)}});
     }
 
     return tpr;

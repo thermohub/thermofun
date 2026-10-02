@@ -195,6 +195,21 @@ def test_hollandpowell98_solute_relations(engine):
     assert x.gibbs_energy.ddp * 1e5 == pytest.approx(x.volume.val, rel=1e-6)
 
 
+def test_internal_helmholtz_energy_and_cv_are_completed_from_the_other_properties(database, engine):
+    """U = H - P V, A = U - T S and Cv = Cp - T V alpha^2/beta for every substance with a molar volume."""
+    checked = 0
+    for symbol in ["H2O@", "Al(OH)2+", "Al(OH)3@", "Al(OH)4-", "Quartz"]:
+        for T, P in [(298.15, 1e5), (473.15, 5e7)]:
+            x = engine.thermoPropertiesSubstance(T, P, symbol)
+            u = x.enthalpy.val - P / 1e5 * x.volume.val
+            assert x.internal_energy.val == pytest.approx(u, rel=1e-9, abs=1e-6)
+            assert x.helmholtz_energy.val == pytest.approx(u - T * x.entropy.val, rel=1e-9, abs=1e-6)
+            if symbol != "H2O@":
+                assert x.heat_capacity_cv.val <= x.heat_capacity_cp.val + 1e-9
+            checked += 1
+    assert checked == 10
+
+
 # --- batch -------------------------------------------------------------------------------------------------------
 
 def test_batch_units_and_digits(database, tmp_path):

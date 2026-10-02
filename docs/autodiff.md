@@ -101,6 +101,16 @@ All models, including the GEMS implementations that had zero or incomplete deriv
     `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
 14. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
     values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
+16. `U` and `A` of the HKF solutes (`SoluteHKFgems`, `SoluteHKFreaktoro`) multiplied `P V` by 41.84 (the conversion
+    from cal was applied to a quantity already in J). They are `U = H - P V`, `A = U - T S` after the unit conversion.
+    **Behaviour change** (U, A of aqueous species).
+17. `U`, `A` and `Cv` are completed centrally by `ThermoEngine` from the other properties (`completeThermoProperties`):
+    `U = H - P V`, `A = U - T S` (with the derivatives `dU/dT = Cp - P dV/dT`, `dU/dP = V - T dV/dT - P dV/dP`,
+    in J/Pa units, and the errors propagated), and `Cv = Cp - T V alpha^2/beta = Cp - 1e-5 T (dV/dT)^2/(-dV/dP)`
+    for the substances other than the water solvent and vapour. Before, many models left `Cv` = 0 or = `Cp` and `U`, `A` as
+    set by each model. **Behaviour change** (U, A, Cv of substances).
+18. Reactions from reactants: `Cv`, `U` and `A` were those of the last reactant only; they are the sums over all
+    the reactants (as for G, H, S, V, Cp), and so are their errors (in quadrature).
 15. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
     `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
 
@@ -176,7 +186,14 @@ it is given. Tests: `pytests/test_errors.py`.
 - Churakov-Gottschalk fluid mixtures (more than one component) still use the finite differences of the original code (`DELTA = 1e-5` in
   the composition derivatives and in the residual functions); the pure fluids used by ThermoFun are exact (section 4). `G` of a CG fluid
   has no residual contribution (the `back correction` in `GasCGF.cpp` cancels it, as in master); not changed.
-- Reactions from reactants: `Cv`, `U` and `A` are those of the last reactant times its coefficient (as before).
+- `Cv` follows `Cp - T V alpha^2/beta` only where the substance has a molar volume with `dV/dT != 0` and `dV/dP < 0`.
+  For the aqueous ions (partial molar volumes with `dV/dP > 0`, the electrostriction term) the relation has no meaning
+  and `Cv = Cp` is kept; the `ddt` and `ddp` of `Cv` are those of `Cp` (exact only for `dV/dT = 0`).
+- Substances whose own model breaks the thermodynamic relations (checked by the consistency audit: `dG/dP = V`,
+  Maxwell, `dH/dP`, `dH/dT = Cp`): the PRSV and CORK gases (the volume is the real-fluid one, G and H carry the
+  fugacity residual), gases with the ideal-gas volume correction (`CPM_OFF`, `GASFLUID`), the Murnaghan/CEH minerals
+  (for example Albite), `BaI2(g)` (constant Cp with a tabulated H), and the Akinfiev `H2@` `dH/dP`. These are the
+  published/database conventions of the models, not changed.
 - Many substances of `psinagra-12-07-thermofun.json` (for example `Pu(OH)+3`) crash the library (segmentation
   fault), before and after this work; not investigated.
 - The errors of properties calculated by models whose uncertainty depends on several parameters (for example HKF or

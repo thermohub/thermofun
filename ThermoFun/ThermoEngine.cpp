@@ -141,6 +141,45 @@ struct ThermoEngine::Impl
         tps.internal_energy.val -= wat.Utr;
     }
 
+    /// The properties that follow from the others (exact derivatives and propagated errors), for the pressure P (Pa) and the temperature T (K):
+    ///   U = H - P V,  A = U - T S,  Cv = Cp - T V alpha^2/beta = Cp - T V_T^2/(-V_P)
+    /// with V in J/bar (V_T, V_P: the derivatives of V). The derivatives of Cv are those of Cp (the second derivatives of the volume
+    /// are not available): they are exact when the volume does not depend on T (Cv = Cp). Cv of the solvent is the one of its model.
+    auto completeThermoProperties(ThermoPropertiesSubstance &tps, double T, double P, bool calculateCv) const -> void
+    {
+        using Reaktoro_::Status;
+        const double Pbar = P / bar_to_Pa;
+        auto defined = [](const Reaktoro_::ThermoProperty& x) { return x.sta.first != Status::notdefined; };
+
+        auto &H = tps.enthalpy, &V = tps.volume, &S = tps.entropy, &U = tps.internal_energy, &A = tps.helmholtz_energy;
+        if (defined(H) && defined(V))
+        {
+            const double uv = H.val() - Pbar*V.val(), ut = H.ddt() - Pbar*V.ddt(), up = H.ddp() - V.val()/bar_to_Pa - Pbar*V.ddp();
+            const auto sta = U.sta;
+            U.propagateFrom(H, V);
+            U.setError({{1.0, H.err}, {Pbar, V.err}});
+            U.val = uv; U.ddt = ut; U.ddp = up;
+            if (sta.first == Status::notdefined) U.sta = {Status::calculated, std::string("")};
+        }
+        if (defined(U) && defined(S))
+        {
+            const double av = U.val() - T*S.val(), at = U.ddt() - S.val() - T*S.ddt(), ap = U.ddp() - T*S.ddp();
+            A.propagateFrom(U, S);
+            A.setError({{1.0, U.err}, {T, S.err}});
+            A.val = av; A.ddt = at; A.ddp = ap;
+        }
+        auto &Cp = tps.heat_capacity_cp, &Cv = tps.heat_capacity_cv;
+        if (calculateCv && defined(Cp) && defined(V))
+        {
+            double diff = 0.0;                                 // Cp - Cv
+            if (V.ddp() < 0.0 && V.ddt() != 0.0)
+                diff = 1e-5 * T * V.ddt()*V.ddt() / (-V.ddp());
+            Cv.propagateFrom(Cp, V);
+            Cv.setError({{1.0, Cp.err}});
+            Cv.val = Cp.val() - diff; Cv.ddt = Cp.ddt(); Cv.ddp = Cp.ddp();
+        }
+    }
+
     auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) const -> void
     {
         const auto Tr = subst.referenceT();
@@ -444,6 +483,9 @@ struct ThermoEngine::Impl
                 }
             }
 
+            // the properties that follow from the others (U, A, Cv), in the convention of the models
+            completeThermoProperties(tps, T, P, !(pref.isH2OSolvent || pref.isH2Ovapor));
+
             /// Convetion convert
             if (pref.isH2OSolvent)
             {
@@ -463,6 +505,7 @@ struct ThermoEngine::Impl
         else // substance properties calculated using the properties of a reaction
         {
             tps = reacDCthermoProperties(T, P, pref.workSubstance);
+            completeThermoProperties(tps, T, P, !(pref.isH2OSolvent || pref.isH2Ovapor));
         }
 
         // check properties
