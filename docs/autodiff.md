@@ -73,9 +73,18 @@ All models, including the GEMS implementations that had zero or incomplete deriv
    symmetric and `densityTP`, `epsilonTP` are calculated. The solvent model is called once. The Zhang-Duan `densityPP` was 1e5 times
    too large (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed. The analytical results agree to 1e-9 with
    independent references calculated with autodiff higher-order dual numbers (`tests/autodiff/src/reference`, ctest `analytic-derivatives`).
-9. GEMS HGK water (`water_eos_hgk84_lvs83_gems`) did not set `densityPP` (and `densityTP`). They are the derivatives of the analytical
-   `densityP = beta rho` and `densityT = -alpha rho` with respect to P (and `densityTP.ddt = densityTT.ddp`); the third derivatives
-   with respect to P twice are not available from the GEMS formulation of the critical region and are 0. Tested against finite differences.
+9. GEMS HGK water (`water_eos_hgk84_lvs83_gems`) did not set `densityPP` (and `densityTP`). `densityTP` is the derivative of
+   `densityT = -alpha rho` with respect to P (`densityTP.ddt = densityTT.ddp`). `densityPP = -rho beta^2 Gamma` is calculated analytically,
+   with `Gamma = rho P_rhorho/P_rho` at constant T (dimensionless), from the third derivative of the equation of state in both regions:
+   - HGK (Haar-Gallagher-Kell, `WaterHGKgems::resid`/`thmHGK`): `P_rhorho = RT (b1/4)(2 z' + y z'') + q6`, with `z0''` of the
+     base function and `q6`, the second density derivative of the residual pressure `q0` (the terms `rho^2 e^(-a rho)(1-e^(-a rho))^(k-1)`
+     and the Gaussian-like terms `dex tex`, through the derivatives of `ln(dex)`).
+   - LVS (Levelt Sengers et al. 1983 critical region, `WaterHGKgems::dFdMLVS`): `d3P/dM3 = dF/dM` with `F = d2P/dM2 = zz/a + 2c yy + c^2 a ww`
+     (functions of `r, theta`); `d/dM = (1/a) d/dH + c d/dX` with `X = r(1-b^2 th^2)`, `H = r^(beta delta) th(1-th^2)`, Jacobian
+     `J = r^(beta delta) g(th)`, the derivatives of `r, theta` with respect to `X, H` from the inverse Jacobian and the exact `r`, `theta`
+     derivatives of the closed forms of `aux()`; then `Gamma = 1 - rho (dF/dM)/F^2`.
+   Because they are written with `real`, the third-order terms (`ddt`, `ddp` of `densityPP`) are exact too. Checked against the exact
+   derivative of `densityP` (1e-6, limited by the density tolerance of the model) and finite differences (also near the critical point).
 10. Churakov-Gottschalk fluids (pure fluids): the compressibility `Z = 1 + rho dF/drho`, the internal energy of the Weeks-Chandler-Andersen
    reference fluid, `U = dF/dbeta`, and the residual entropy (`dF/dT` with the T dependent parameters of the EoS) were finite
    differences with a relative step of 1e-5. They are **analytical** now: the free energy of the reference fluid and of the pure fluid

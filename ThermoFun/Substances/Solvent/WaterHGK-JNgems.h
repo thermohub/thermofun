@@ -18,6 +18,7 @@ typedef struct
     Betaw, Dielw, Viscw, Tcondw, Surtenw, Tdiffw,
     Prndtlw, Visckw, Albew;
     real ZBorn, YBorn, QBorn, dAldT, XBorn;
+    real Gamw;   // rho (d2P/drho2)/(dP/drho) at constant T (dimensionless), gives d2rho/dP2 = -rho beta^2 Gamw
 }
 WPROPS;
 
@@ -85,14 +86,14 @@ SATUR;
 
 typedef struct
 { /* qqqq */
-    real q0, q5;
+    real q0, q5, q6;   // residual pressure, its first and second derivatives with respect to the density
 }
 QQQQ;
 
 typedef struct
 { /*  fcts  */
     real ad, gd, sd, ud, hd, cvd, cpd,
-    dpdt, dvdt, dpdd, cjtt, cjth;
+    dpdt, dvdt, dpdd, cjtt, cjth, gam;
 }
 FCTS;
 
@@ -225,7 +226,7 @@ HGK_CRT;
 typedef struct
 { /*  therm  */
     real AE, GE, U, H, Entrop, Cp, Cv,
-    betaw, alphw, heat, Speed;
+    betaw, alphw, heat, Speed, gamw;
 }
 THERM;
 
@@ -343,6 +344,7 @@ private:
     auto LVSsat(int iopt, int isat, real *T, real *P, real *D)  -> void;
     auto thmLVS(int isat, real T, real r1, real th1)  -> void;
     auto dalLVS(real D, real T, real P, real alpha) -> real;
+    auto dFdMLVS(real r1, real th1) -> real;
     auto dimLVS(int isat, int itripl, real theta, real T, real *Pbars,
                          real *dL, real *dV, WPROPS *www, int epseqn) -> void;
     auto cpswap() -> void;

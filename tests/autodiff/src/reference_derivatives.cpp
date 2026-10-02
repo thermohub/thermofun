@@ -170,9 +170,11 @@ int main(int argc, char** argv)
         Substance water; water.setSymbol("H2O@");
         WaterHGK model(water);
         auto ps = [&](double t, double p) { double pp = p; return model.propertiesSolvent(t, pp, 0, "NEA_HGK"); };
-        for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(700.0, 3e8), std::make_pair(900.0, 1e9)})
+        // 640 K, 2e7 Pa is in the critical region (LVS equation), the others in the HGK region
+        for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(700.0, 3e8), std::make_pair(900.0, 1e9), std::make_pair(640.0, 2e7),
+                        std::make_pair(700.0, 2.3e7)})
         {
-            const double T = tp.first, P = tp.second, hT = 1e-3 * T, hP = 1e-3 * P;
+            const double T = tp.first, P = tp.second, hT = 1e-5 * T, hP = 1e-5 * P;
             const auto x = ps(T, P);
             const double fdPP = (ps(T, P + hP).densityP.val - ps(T, P - hP).densityP.val) / (2 * hP);
             const double fdTP = (ps(T, P + hP).densityT.val - ps(T, P - hP).densityT.val) / (2 * hP);
@@ -182,6 +184,13 @@ int main(int argc, char** argv)
             expectClose("HGK gems densityTP (dT of densityP)", x.densityTP.val, fdTP2, 1e-4);
             expectClose("HGK gems densityTP.ddt = densityTT.ddp", x.densityTP.ddt, x.densityTT.ddp, 1e-12);
             if (x.densityPP.val == 0.0) { std::printf("FAILED: HGK gems densityPP is not set\n"); ++failures; }
+            // analytical P_rhorho (LVS: d3P/dM3 of the parametric model; HGK: base + residual terms) agrees with the exact derivative
+            // of the analytical densityP, and the third-order terms (ddt, ddp of densityPP) with finite differences of densityPP
+            expectClose("HGK gems densityPP (analytical vs d densityP/dP)", x.densityPP.val, x.densityP.ddp, 1e-4);
+            const double fdPPP = (ps(T, P + hP).densityPP.val - ps(T, P - hP).densityPP.val) / (2 * hP);
+            const double fdPPT = (ps(T + hT, P).densityPP.val - ps(T - hT, P).densityPP.val) / (2 * hT);
+            expectClose("HGK gems densityPP.ddp", x.densityPP.ddp, fdPPP, 1e-3);
+            expectClose("HGK gems densityPP.ddt", x.densityPP.ddt, fdPPT, 1e-3);
         }
     }
 
