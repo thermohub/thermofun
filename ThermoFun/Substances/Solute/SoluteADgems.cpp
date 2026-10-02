@@ -63,6 +63,14 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     Akinfiev_EOS_increments(Tr, Pr, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
                        Geos298, Veos298, Seos298, CPeos298, Heos298 );
 
+    // The reference state increments are constants: they must not carry derivatives
+    // (Tr is seeded as a temperature when passed to the function above)
+    for (auto* x : {&Geos298, &Veos298, &Seos298, &CPeos298, &Heos298})
+    {
+        x->setDdt(0.0);
+        x->setDdp(0.0);
+    }
+
     // Getting back ideal gas properties corrected for T of interest
     // by substracting properties of hydration at Tr, Pr
     Gids    = state.gibbs_energy    -= Geos298;
@@ -90,7 +98,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     // Getting dissolved gas properties corrected for T,P of interest
     // by adding properties of hydration at T,P
     Gids.setDdp(0.0); Sids.setDdp(0.0); CPids.setDdp(0.0);
-    state.gibbs_energy     = Gids + Geos + Seos298.val()*(Tk.val()-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
+    state.gibbs_energy     = Gids + Geos + Seos298*(Tk-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
     // aW.twp->V = Vids + Veos;
     state.volume           = Veos;
     state.entropy          = Sids + Seos;

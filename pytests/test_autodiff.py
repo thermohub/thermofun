@@ -6,12 +6,11 @@ import thermofun as thermofun
 SUBSTANCES = ["Quartz", "CO2@", "Ca+2", "H2O@"]
 REACTION = "Cal = Ca+2 + CO3-2"
 
-# Only the Gibbs energies are checked against finite differences: the derivatives of the other
-# properties are provided by the models themselves and are not all consistent with their values.
-PROPS_SUBSTANCE = ["gibbs_energy"]
-PROPS_REACTION = ["reaction_gibbs_energy"]
+PROPS_SUBSTANCE = ["gibbs_energy", "enthalpy", "entropy", "heat_capacity_cp"]
+PROPS_REACTION = ["reaction_gibbs_energy", "log_equilibrium_constant"]
 
-TP_POINTS = [(298.15, 1e5), (423.15, 4.8e5), (573.15, 1e7), (673.15, 3000e5)]
+# the first point is not the reference state (298.15 K, 1 bar), where some models switch branch
+TP_POINTS = [(300.15, 1e5), (423.15, 4.8e5), (573.15, 1e7), (673.15, 3000e5)]
 
 
 @pytest.fixture(scope="module")
@@ -56,10 +55,12 @@ def test_reaction_derivatives_match_finite_differences(engine, T, P):
 
 @pytest.mark.parametrize("substance", ["Quartz", "CO2@", "Ca+2", "H2O@"])
 def test_thermodynamic_consistency_of_derivatives(engine, substance):
-    # S = -dG/dT must hold through the derivatives
+    # S = -dG/dT, Cp = dH/dT and Cp = T dS/dT must hold through the derivatives
     T, P = 423.15, 4.8e5
     tps = engine.thermoPropertiesSubstance(T, P, substance)
     assert tps.gibbs_energy.ddt == pytest.approx(-tps.entropy.val, rel=1e-5, abs=1e-8)
+    assert tps.enthalpy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-5, abs=1e-8)
+    assert T * tps.entropy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-5, abs=1e-8)
 
 
 def test_scalar_api():
