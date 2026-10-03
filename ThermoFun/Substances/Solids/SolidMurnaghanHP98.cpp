@@ -21,7 +21,7 @@ auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature TK, Reaktoro_::P
     auto dv  = tps.volume;
     auto dcp = tps.heat_capacity_cp;
 
-    if ((P_Pst != 0 || T_Tst !=0 ) && fabs(Vst.val) > 1e-09 && fabs(a0) > 1e-09 && fabs(k0) > 1e-09)
+    if ((P_Pst != 0 || T_Tst !=0 ) && fabs(Vst.val()) > 1e-09 && fabs(a0) > 1e-09 && fabs(k0) > 1e-09)
     {
 //        aW.twp->Alp = a0 * (1. - 10./pow(T,0.5) );  // expansion at T
         auto kap = k0 * ( 1. - (1.5e-4)*(TK-Tst) );
@@ -58,7 +58,7 @@ auto thermoPropertiesMinMurnaghanEOSHP98(Reaktoro_::Temperature TK, Reaktoro_::P
         tps.helmholtz_energy = tps.internal_energy - (TK)*tps.entropy;
     }
 
-    subst.checkCalcMethodBounds("Holland and Powell Murnaghan model", TK.val, Pbar.val*1e05, tps);
+    subst.checkCalcMethodBounds("Holland and Powell Murnaghan model", TK.val(), Pbar.val()*1e05, tps);
 
     return tps;
 }

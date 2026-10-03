@@ -58,7 +58,7 @@ auto waterMolarVolume (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reak
                         * TK/Pbar - Vcr;
         const auto Vr_plus_1 = Vr - f/df;
 
-        if (std::abs(Vr_plus_1.val - Vr.val) < tolerance)
+        if (std::abs(Vr_plus_1.val() - Vr.val()) < tolerance)
         {
 //            const auto Z = 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
 //                           (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2));
@@ -71,7 +71,7 @@ auto waterMolarVolume (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reak
     ThermoFun::Exception exception;
     exception.error << "Unable to calculate the molar volume of water, Zhang and Duan (2005) EOS.";
     exception.reason << "The calculations did not converge at temperature "
-        << TK.val << " K and pressure " << Pbar.val << "Pa.";
+        << TK.val() << " K and pressure " << Pbar.val() << "Pa.";
     exception.line = __LINE__;
     RaiseError(exception);
 
@@ -158,13 +158,13 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
 
     // finite difference T
     Reaktoro_::ThermoScalar Vr_plus;
-    Reaktoro_::Temperature T_plus (T.val+T.val*0.001);
+    Reaktoro_::Temperature T_plus (T.val()+T.val()*0.001);
     Vr_plus = waterMolarVolume(T_plus, P, Vr);
     auto V_plus = Vr_plus * waterCriticalVolume/10;
     auto D_plus = H2OMolarMass/V_plus *100;
 
     Reaktoro_::ThermoScalar Vr_minus;
-    Reaktoro_::Temperature T_minus (T.val-T.val*0.001);
+    Reaktoro_::Temperature T_minus (T.val()-T.val()*0.001);
     Vr_minus = waterMolarVolume(T_minus, P, Vr);
     auto V_minus = Vr_minus * waterCriticalVolume/10;
     auto D_minus = H2OMolarMass/V_minus * 100;
@@ -176,12 +176,12 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
 //    const auto Vd2T = (V_plus + V_minus - 2*V)/pow(((T_plus-T_minus)*0.5),2);
 
     // finite difference P
-    Reaktoro_::Pressure P_plus (P.val + P.val*0.001);
+    Reaktoro_::Pressure P_plus (P.val() + P.val()*0.001);
     Vr_plus = waterMolarVolume(T, P_plus, Vr);
     V_plus = Vr_plus * waterCriticalVolume/10;
     D_plus = H2OMolarMass/V_plus *100;
 
-    Reaktoro_::Pressure P_minus (P.val - P.val*0.001);
+    Reaktoro_::Pressure P_minus (P.val() - P.val()*0.001);
     Vr_minus = waterMolarVolume(T, P_minus, Vr);
     V_minus = Vr_minus * waterCriticalVolume/10;
     D_minus = H2OMolarMass/V_minus *100;
@@ -192,10 +192,10 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     const auto Dd2P = (D_plus + D_minus - 2*D)/pow(((P_plus-P_minus)*0.5),2);
 //    const auto Vd2P = (V_plus + V_minus - 2*V)/pow(((P_plus-P_minus)*0.5),2);
 
-    ps.density   = D /* * 1000*/; ps.density.ddp*=1e-05;
-    ps.densityT  = DdT; ps.densityT.ddp*=1e-05;
+    ps.density   = D /* * 1000*/; ps.density.setDdp(ps.density.ddp()*1e-05);
+    ps.densityT  = DdT; ps.densityT.setDdp(ps.densityT.ddp()*1e-05);
     ps.densityP  = DdP*1e-05;
-    ps.densityTT = Dd2T; ps.densityTT.ddp*=1e-05;
+    ps.densityTT = Dd2T; ps.densityTT.setDdp(ps.densityTT.ddp()*1e-05);
     ps.densityPP = Dd2P*1e-05;
     ps.Alpha     = -ps.densityT/ps.density;
     ps.Beta      = ps.densityP/ps.density/*/1e+05*/; // from 1/bar to 1/Pa

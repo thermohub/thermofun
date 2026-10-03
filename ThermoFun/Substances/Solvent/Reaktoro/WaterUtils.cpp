@@ -37,7 +37,7 @@ auto waterDensity(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int solvent_s
     // Determine the physical state of water, where: 0-liquid, 1-vapour, 2-supercritical
     int state;
 
-    if(T.val <= waterCriticalTemperature)
+    if(T.val() <= waterCriticalTemperature)
     {
         auto p = waterSaturatedPressureWagnerPruss(T);
         state = (P < p) ? 1 : 0; // changed from P <= DM 29.05.2016
@@ -48,7 +48,7 @@ auto waterDensity(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int solvent_s
     // Determine an adequate initial guess for (dimensionless) density based on the physical state of water
     Reaktoro_::ThermoScalar D;
 
-    if ((solvent_state >=0) && (T.val <= waterCriticalTemperature))
+    if ((solvent_state >=0) && (T.val() <= waterCriticalTemperature))
     state = solvent_state;
 
     switch(state)
@@ -66,16 +66,16 @@ auto waterDensity(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int solvent_s
         const auto f  = (D*D*h.helmholtzD - P)/waterCriticalPressure;
         const auto df = (2*D*h.helmholtzD + D*D*h.helmholtzDD)/waterCriticalPressure;
 
-        D = (D.val > f.val/df.val) ? D - f/df : P/(D*h.helmholtzD);
+        D = (D.val() > f.val()/df.val()) ? D - f/df : P/(D*h.helmholtzD);
 
-        if(std::abs(f.val) < tolerance)
+        if(std::abs(f.val()) < tolerance)
             return D;
     }
 
     ThermoFun::Exception exception;
     exception.error << "Unable to calculate the density of water.";
     exception.reason << "The calculations did not converge at temperature "
-        << T.val << " K and pressure " << P.val << "Pa.";
+        << T.val() << " K and pressure " << P.val() << "Pa.";
     exception.line = __LINE__;
     RaiseError(exception);
 
@@ -96,7 +96,7 @@ template<typename HelmholtzModel>
 auto waterPressure(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D, const HelmholtzModel& model) -> Reaktoro_::ThermoScalar
 {
     WaterHelmholtzState h = model(T, D);
-    return D*D*h.helmholtzD.val;
+    return D*D*h.helmholtzD.val();
 }
 
 auto waterPressureHGK(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> Reaktoro_::ThermoScalar

@@ -137,7 +137,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature TK, Reaktoro_::P
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 
-    subst.checkCalcMethodBounds("HKF model", TK.val-C_to_K, Pbar.val, tps);
+    subst.checkCalcMethodBounds("HKF model", TK.val()-C_to_K, Pbar.val(), tps);
     if (wp.density >= 1400 || wp.density<=600)
     {
         setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);

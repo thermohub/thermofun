@@ -14,21 +14,21 @@ auto thermoPropertiesAqSoluteHP98(Reaktoro_::Temperature TK, Reaktoro_::Pressure
     ThermoPropertiesSubstance tps;
     auto tpsr = subst.thermoReferenceProperties();
     double T298 = subst.referenceT();
-    double G298 = tpsr.gibbs_energy.val;
-    double H298 = tpsr.enthalpy.val;
-    double S298 = tpsr.entropy.val;
-    double V298 = tpsr.volume.val; // J/bar
-    double Cp298 = tpsr.heat_capacity_cp.val;
+    double G298 = tpsr.gibbs_energy.val();
+    double H298 = tpsr.enthalpy.val();
+    double S298 = tpsr.entropy.val();
+    double V298 = tpsr.volume.val(); // J/bar
+    double Cp298 = tpsr.heat_capacity_cp.val();
 
 //    // props given in HP98 page 314
 //    ALPw298 = 0.0002593; // 1/K
 //    BETw298 = 0.00004523; // 1/bar
 //    dALPdTw298 = 0.0000095714; // 1/K^2
 //    RHOw298 = 0.997; // g/cm^3
-    double ALPw298 = wpr.Alpha.val;
-    double BETw298 = wpr.Beta.val*1e5; // 1/bar
-    double dALPdTw298 = wpr.dAldT.val;
-    double RHOw298 = wpr.density.val/1000; // g/cm3
+    double ALPw298 = wpr.Alpha.val();
+    double BETw298 = wpr.Beta.val()*1e5; // 1/bar
+    double dALPdTw298 = wpr.dAldT.val();
+    double RHOw298 = wpr.density.val()/1000; // g/cm3
 
     const auto HP98param = subst.thermoParameters().solute_holland_powell98_coeff;
 
@@ -51,7 +51,7 @@ auto thermoPropertiesAqSoluteHP98(Reaktoro_::Temperature TK, Reaktoro_::Pressure
     auto dALPdTw = wp.dAldT;
 
     if (T <= 500)
-        Tprime = T.val;
+        Tprime = T.val();
     else
         Tprime = 500;
 

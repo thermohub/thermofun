@@ -66,6 +66,6 @@ python/pyThermoFun/CMakeLists_old.txt
 tests/build*
 *build*
 
-
+.claude/
 
 CLAUDE.md

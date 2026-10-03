@@ -9,9 +9,9 @@ namespace ThermoFun {
 auto thermoPropertiesGasPRSV(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     double FugProps[6];
-    if (Pbar.val == 0.0)
+    if (Pbar.val() == 0.0)
         Pbar += 1e-5;
-    solmod::TPRSVcalc myPRSV( 1, (Pbar.val), (TK.val) );
+    solmod::TPRSVcalc myPRSV( 1, (Pbar.val()), (TK.val()) );
     double TClow = lowerTemperatureBound(subst, "PRSV Peng-Robinson-Stryjek-Vera fluid model");
     double * CPg = new double[7];
     for (unsigned int i = 0; i < 7; i++)
@@ -29,7 +29,7 @@ auto thermoPropertiesGasPRSV(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     auto Fug = FugProps[0] * (Pbar);
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
 
-    subst.checkCalcMethodBounds("PRSV Peng-Robinson-Stryjek-Vera fluid model", TK.val, Pbar.val*bar_to_Pa, tps);
+    subst.checkCalcMethodBounds("PRSV Peng-Robinson-Stryjek-Vera fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

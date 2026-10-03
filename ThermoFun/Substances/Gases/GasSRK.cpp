@@ -9,9 +9,9 @@ namespace ThermoFun {
 auto thermoPropertiesGasSRK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
 {
     double FugProps[6];
-    if (Pbar.val == 0.0)
+    if (Pbar.val() == 0.0)
         Pbar += 1e-5;
-    solmod::TSRKcalc mySRK( 1, (Pbar.val), (TK.val) );
+    solmod::TSRKcalc mySRK( 1, (Pbar.val()), (TK.val()) );
     double TClow = lowerTemperatureBound(subst, "SRK Soave-Redlich-Kwong fluid model");
     double * CPg = new double[7];
     for (unsigned int i = 0; i < 7; i++)
@@ -30,7 +30,7 @@ auto thermoPropertiesGasSRK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar,
     // back correction
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
 
-    subst.checkCalcMethodBounds("SRK Soave-Redlich-Kwong fluid model", TK.val, Pbar.val*bar_to_Pa, tps);
+    subst.checkCalcMethodBounds("SRK Soave-Redlich-Kwong fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

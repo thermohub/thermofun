@@ -29,8 +29,8 @@ MethodCorrT_Thrift::type determineMethod(const Reaktoro_::ThermoScalar& dGr,
     }
 
     // --- EK1: one defined AND that one equals zero ---
-    if ((has_dHr && dHr.val == 0.0) ||
-        (has_dSr && dSr.val == 0.0))
+    if ((has_dHr && dHr.val() == 0.0) ||
+        (has_dSr && dSr.val() == 0.0))
     {
         return MethodCorrT_Thrift::type::CTM_EK1;
     }
@@ -120,10 +120,10 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
                 // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
                 A[0] = (( dSr - CpCoeff[0] - CpCoeff[0]*log(TK) - CpCoeff[1]*TK + CpCoeff[2]/(2.0*TK*TK)
-                              + 2.0*CpCoeff[3]/pow(TK,0.5) - CpCoeff[4]*TK*TK/2.0 ) / Rln10).val;
+                              + 2.0*CpCoeff[3]/pow(TK,0.5) - CpCoeff[4]*TK*TK/2.0 ) / Rln10).val();
                 A[1] = CpCoeff[1]/(2.0*Rln10);
                 A[2] = (-( dHr - CpCoeff[0]*TK - CpCoeff[1]*TK*TK/2.0 + CpCoeff[2]/TK
-                           - 2.0*CpCoeff[3]*pow(TK,0.5) - CpCoeff[4]*TK*TK*TK/3.0 ) / Rln10).val;
+                           - 2.0*CpCoeff[3]*pow(TK,0.5) - CpCoeff[4]*TK*TK*TK/3.0 ) / Rln10).val();
                 A[3] = CpCoeff[0]/Rln10;
                 A[4] = CpCoeff[2]/(2.0*Rln10);
                 A[5] = CpCoeff[4]/(6.0*Rln10);
@@ -162,9 +162,9 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     }
     // Calculation of dGr
     dGr  = -R_T * lgK * lg_to_ln;
-//    if (dHr.val == 0) dHr = dGr + dSr * TK;
+//    if (dHr.val() == 0) dHr = dGr + dSr * TK;
     Reaktoro_::ThermoScalar dUr, dAr;
-    if (dHr.val != 0)
+    if (dHr.val() != 0)
     {
         dUr  = dHr - Pbar*dVr;
         dAr  = dUr - TK*dSr;
