@@ -24,7 +24,7 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-#include <ThermoFun/Common/ThermoScalar.hpp>
+#include <ThermoFun/ThermoProperties.h>
 #include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {

@@ -82,3 +82,21 @@ def test_landau_volume_is_pressure_derivative_of_gibbs_energy(engine, T, P):
     # Quartz (Holland-Powell Landau model): V = dG/dP, below and above the critical temperature
     tps = engine.thermoPropertiesSubstance(T, P, "Quartz")
     assert tps.gibbs_energy.ddp * 1e5 == pytest.approx(tps.volume.val, rel=1e-9)
+
+
+def test_multi_interval_cp_integration_derivatives():
+    # Pyrrhotite has several Cp temperature intervals (phase transitions): dG/dT = -S, dH/dT = Cp, dS/dT = Cp/T
+    engine = thermofun.ThermoEngine('pytests/mines16-thermofun.json')
+    for T, P in [(423.15, 4.8e5), (573.15, 1e7)]:
+        tps = engine.thermoPropertiesSubstance(T, P, "Pyrrhotite")
+        assert tps.gibbs_energy.ddt == pytest.approx(-tps.entropy.val, rel=1e-6)
+        assert tps.enthalpy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
+        assert T * tps.entropy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
+
+
+def test_reaction_entropy_derivative():
+    # dS/dT = Cp/T for a reaction whose entropy is calculated from its enthalpy and Gibbs energy
+    engine = thermofun.ThermoEngine('pytests/mines16-thermofun.json')
+    T, P = 298.15, 1e5
+    tpr = engine.thermoPropertiesReaction(T, P, "Sn(Cl)+")
+    assert T * tpr.reaction_entropy.ddt == pytest.approx(tpr.reaction_heat_capacity_cp.val, rel=1e-6)
