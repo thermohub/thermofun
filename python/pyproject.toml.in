@@ -16,7 +16,7 @@ maintainers = [
   {name = "G.D. Miron", email = "dan.miron@psi.ch"}
 ]
 description = "The Python interface of the ThermoFun library."
-license = "GPL-3.0-or-later"
+license = "LGPL-3.0-or-later"
 keywords = ["element", "substance", "reaction", "HKF equation", "solvent", "liquid"]
 
 [project.urls]

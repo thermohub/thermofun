@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2024-2026 ThermoFun contributors
+
 """Example script demonstrating ThermoFun database API usage.
 
 This script shows how to access and manipulate elements, substances,

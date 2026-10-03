@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+
 """Generate python/src/thermofun/pyGlobalVariables.cpp (the pybind11 bindings of the enumerations of
 ThermoFun/GlobalVariables.h). Run from the root of the repository after the enumerations changed:
     python3 python/tools/generate_enums.py

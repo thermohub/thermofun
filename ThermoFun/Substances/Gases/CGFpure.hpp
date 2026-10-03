@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 #ifndef THERMOFUN_CGFPURE_HPP
 #define THERMOFUN_CGFPURE_HPP
 

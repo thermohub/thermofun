@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
 #include "Substances/Solute/SoluteHollandPowell98.h"
 
 #include "Common/Exception.h"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // The analytical derivatives of the Zhang-Duan water and of the Sverjensky and Fernandez dielectric constants against independent
 // references: exact derivatives with autodiff higher-order dual numbers (reference/Jets.hpp), which do not share any formula with the
 // analytical ones. Also against central finite differences of the values.

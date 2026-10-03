@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2021-2026 ThermoFun contributors
+
 #include "GlobalVariables.h"
 #include "Batch/ThermoBatch.h"
 
