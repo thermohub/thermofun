@@ -56,11 +56,22 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
         return electroPropertiesWaterJNreaktoro(waterElectroStateJohnsonNorton(pass.T, /*pass.P,*/ wts, state));
     });
 
-    // the calculation only keeps the values and derivatives of the density, so its errors
-    // and statuses are propagated onto every result here
-    for (auto* x : {&eps.epsilon, &eps.epsilonT, &eps.epsilonP, &eps.epsilonTT, &eps.epsilonTP, &eps.epsilonPP,
-                    &eps.bornZ, &eps.bornY, &eps.bornQ, &eps.bornN, &eps.bornU, &eps.bornX})
-        x->propagateFrom(ps.density, ps.densityT, ps.densityP, ps.densityTT, ps.densityTP, ps.densityPP);
+    // the calculation only keeps the values and derivatives of the density, so the errors and statuses of
+    // the density inputs are propagated onto each result, according to the derivatives it is calculated from
+    const auto& d = ps.density; const auto& dT = ps.densityT; const auto& dP = ps.densityP;
+    const auto& dTT = ps.densityTT; const auto& dTP = ps.densityTP; const auto& dPP = ps.densityPP;
+    eps.epsilon.propagateFrom(d);
+    eps.bornZ.propagateFrom(d);
+    eps.epsilonT.propagateFrom(d, dT);
+    eps.bornY.propagateFrom(d, dT);
+    eps.epsilonP.propagateFrom(d, dP);
+    eps.bornQ.propagateFrom(d, dP);
+    eps.epsilonTT.propagateFrom(d, dT, dTT);
+    eps.bornX.propagateFrom(d, dT, dTT);
+    eps.epsilonTP.propagateFrom(d, dT, dP, dTP);
+    eps.bornU.propagateFrom(d, dT, dP, dTP);
+    eps.epsilonPP.propagateFrom(d, dP, dPP);
+    eps.bornN.propagateFrom(d, dP, dPP);
 
     return eps;
 }

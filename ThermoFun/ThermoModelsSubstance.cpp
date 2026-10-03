@@ -55,13 +55,22 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
 
 /// Set the errors and statuses of the properties calculated with the HKF model: each one is not defined if a
 /// property it is calculated from (a reference property of the substance or a solvent property) is not defined
-static auto setStatusHKF(ThermoPropertiesSubstance& tps, const ThermoPropertiesSubstance& ref, const ElectroPropertiesSolvent& wes) -> void
+static auto setStatusHKF(ThermoPropertiesSubstance& tps, const ThermoPropertiesSubstance& ref, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp, bool charged) -> void
 {
     tps.volume.propagateFrom(wes.bornQ, wes.bornZ);
     tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ);
     tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ);
     tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY);
     tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ);
+    // the g function, which sets the effective electrostatic radius of the charged species, is evaluated from the solvent density
+    if (charged)
+    {
+        tps.volume.propagateFrom(wp.density);
+        tps.entropy.propagateFrom(wp.density);
+        tps.gibbs_energy.propagateFrom(wp.density);
+        tps.enthalpy.propagateFrom(wp.density);
+        tps.heat_capacity_cp.propagateFrom(wp.density);
+    }
     tps.internal_energy.propagateFrom(tps.enthalpy, tps.volume);
     tps.helmholtz_energy.propagateFrom(tps.internal_energy, tps.entropy);
     tps.heat_capacity_cv.propagateFrom(tps.heat_capacity_cp);
@@ -255,7 +264,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
         return thermoPropertiesAqSoluteHKFgems(t, p, pimpl->substance, aes, wesAD, wpAD);
     });
 
-    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes);
+    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0);
 
     pimpl->substance.checkCalcMethodBounds("HKF model", T, P, tps);
     if (wp.density.val >= 1400 || wp.density.val <= 600)
@@ -305,7 +314,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
         return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wesAD, wpAD);
     });
 
-    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes);
+    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0);
 
     pimpl->substance.checkCalcMethodBounds("HKF model", T, P, tps);
     if (wp.density.val >= 1400 || wp.density.val <= 600)
