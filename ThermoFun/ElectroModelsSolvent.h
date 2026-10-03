@@ -1,13 +1,12 @@
 #ifndef ELECTROMODELSSOLVENT_H
 #define ELECTROMODELSSOLVENT_H
+#include "ThermoProperties.h"
 
 #include <memory>
 
 namespace ThermoFun {
 
 class Substance;
-struct ElectroPropertiesSolvent;
-struct PropertiesSolvent;
 
 /**
  * @brief The WaterJNreaktoro class calculates the electro-chemical proeprties of water solvent

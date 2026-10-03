@@ -5,17 +5,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "ThermoScalar.hpp"
-//#include "ThermoProperties.h"
+#include "ThermoProperties.h"
 #include <spdlog/spdlog.h>
 
 namespace ThermoFun {
 
 /// Default logger for ThermoFun library
 extern std::shared_ptr<spdlog::logger> thfun_logger;
-
-struct ThermoPropertiesSubstance;
-struct ThermoPropertiesReaction;
 
 /// Provides a convenient way to initialized an exception with helpful error messages.
 struct Exception

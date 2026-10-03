@@ -1,5 +1,6 @@
 #ifndef SUBSTANCE_H
 #define SUBSTANCE_H
+#include "ThermoProperties.h"
 
 // C++ includes
 #include <memory>
@@ -9,8 +10,6 @@
 #include "GlobalVariables.h"
 
 namespace ThermoFun {
-
-struct ThermoPropertiesSubstance;
 struct ThermoParametersSubstance;
 
 /// A type used to describe a chemical substance (species, dependent components) 

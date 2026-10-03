@@ -66,3 +66,6 @@ Try the ThermoFun examples in your browser:
 * [ThermoBatch](https://docs.hdoc.io/dmiron/thermofun/r88DCC0D87A971DFF.html): The Batch class is useful for doing batch calculations for a given list of substances, reactions, properties, and temperature and pressure grid. Options to set the input and output properties units are available.
 
 [![Launch example on doing batch calculations, for a list of substances, T-P intervals](https://img.shields.io/badge/launch-ThermoBatch%20example-brightgreen?style=for-the-badge&logo=jupyter)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/tree/how-to-do-batch-calculations.ipynb)
+
+* [python](python.md): the Python interface: classes, enumerations, models, utilities and what is not exposed.
+* [autodiff](autodiff.md): how the derivatives with respect to temperature and pressure are calculated (autodiff), the interface for other codes, the derivative fixes, the propagation of errors (uncertainties, NEA TDB rounding), the Python interface, and the known limitations.

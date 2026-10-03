@@ -31,21 +31,21 @@
 
 namespace ThermoFun {
 
-auto waterThermoStateHGK(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState
+auto waterThermoStateHGK(real T, real P, int state) -> WaterThermoState
 {
-    const Reaktoro_::ThermoScalar D = waterDensityHGK(T, P, state);
+    const real D = waterDensityHGK(T, P, state);
     const WaterHelmholtzState whs = waterHelmholtzStateHGK(T, D);
     return waterThermoState(T, P, D, whs);
 }
 
-auto waterThermoStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState
+auto waterThermoStateWagnerPruss(real T, real P, int state) -> WaterThermoState
 {
-    const Reaktoro_::ThermoScalar D = waterDensityWagnerPruss(T, P, state);
+    const real D = waterDensityWagnerPruss(T, P, state);
     const WaterHelmholtzState whs = waterHelmholtzStateWagnerPruss(T, D);
     return waterThermoState(T, P, D, whs);
 }
 
-auto waterThermoState(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar D, const WaterHelmholtzState& wh) -> WaterThermoState
+auto waterThermoState(real T, real P, real D, const WaterHelmholtzState& wh) -> WaterThermoState
 {
 	WaterThermoState wt;
 

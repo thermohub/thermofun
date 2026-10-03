@@ -6,9 +6,9 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasSTP(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesGasSTP(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
-    double FugProps[6];
+    real FugProps[6];
     char Eos_Code;
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
@@ -16,15 +16,15 @@ auto thermoPropertiesGasSTP(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar,
     if (subst.formula() == "CO2") Eos_Code = 'C';
     if (subst.formula() == "H2O") Eos_Code = 'V';
 
-    solmod::TSTPcalc mySTP( 1, Pbar.val(), (TK.val()), Eos_Code );  // modified 05.11.2010 (TW)
+    solmod::TSTPcalc mySTP( 1, Pbar, TK, Eos_Code );  // modified 05.11.2010 (TW)
     double TClow = lowerTemperatureBound(subst, "STP Sterner-Pitzer fluid model");
-    double * CPg = new double[7];
+    real CPg[7];
     for (unsigned int i = 0; i < 7; i++)
     {
         CPg[i] = subst.thermoParameters().critical_parameters[i];
     }
 
-    mySTP.STPCalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
+    mySTP.STPCalcFugPure( (TClow/*+273.15*/), CPg, FugProps );
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
@@ -33,8 +33,6 @@ auto thermoPropertiesGasSTP(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar,
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
-
-    subst.checkCalcMethodBounds("STP Sterner-Pitzer fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

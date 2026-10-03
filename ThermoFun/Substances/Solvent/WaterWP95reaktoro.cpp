@@ -6,7 +6,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesWaterWP95reaktoro(Reaktoro_::Temperature T, const WaterThermoState& wt, const WaterTripleProperties& wtr) -> ThermoPropertiesSubstance
+auto thermoPropertiesWaterWP95reaktoro(real T, const WaterThermoState& wt, const WaterTripleProperties& wtr) -> ThermoPropertiesSubstanceAD
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
     const auto Ttr =  273.16;                   // unit: K
@@ -36,7 +36,7 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro_::Temperature T, const WaterTher
     const auto Cp = wt.cp * waterMolarMass;
     const auto Cv = wt.cv * waterMolarMass;
 
-    ThermoPropertiesSubstance state;
+    ThermoPropertiesSubstanceAD state;
     state.entropy          = S;
     state.enthalpy         = H;
     state.internal_energy  = U;
@@ -53,9 +53,9 @@ auto thermoPropertiesWaterWP95reaktoro(Reaktoro_::Temperature T, const WaterTher
     return state;
 }
 
-auto propertiesWaterWP95reaktoro(const WaterThermoState& wt) -> PropertiesSolvent
+auto propertiesWaterWP95reaktoro(const WaterThermoState& wt) -> PropertiesSolventAD
 {
-    PropertiesSolvent state;
+    PropertiesSolventAD state;
 
     state.density    = wt.density;
     state.densityP   = wt.densityP;

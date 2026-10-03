@@ -1,14 +1,11 @@
 #ifndef SOLUTEHKFGEMS
 #define SOLUTEHKFGEMS
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 struct ElectroPropertiesSubstance;
-struct ThermoPropertiesSubstance;
-struct ElectroPropertiesSolvent;
-struct PropertiesSolvent;
 struct FunctionG;
 class Substance;
 
@@ -19,14 +16,14 @@ class Substance;
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD;
 
 /// Returns the G function and its derivatives (gShock2 in gems)
 /// @ref Shock et al. (1991)
 /// @param T temparature (K)
 /// @param P pressure (Pa)
 /// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
-auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const PropertiesSolvent &ps ) -> FunctionG;
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG;
 
 /// Returns the electro-chemical properties of a substance (omeg92 in GEMS)
 /// @ref Johnson et al. (1991)

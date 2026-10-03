@@ -18,7 +18,7 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Common/ScalarTypes.hpp>
+#include <Common/Real.hpp>
 
 namespace ThermoFun {
 
@@ -27,6 +27,6 @@ struct WaterElectroState;
 struct WaterThermoState;
 
 // Calculate the electrostatic state of water using the model of Johnson and Norton (1991)
-auto waterElectroStateJohnsonNorton(Reaktoro_::Temperature T, const WaterThermoState& wts, int state=-1) -> WaterElectroState;
+auto waterElectroStateJohnsonNorton(real T, const WaterThermoState& wts, int state=-1) -> WaterElectroState;
 
 } // namespace Reaktoro

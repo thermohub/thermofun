@@ -21,11 +21,9 @@
 
 // C++ includes
 #include <cmath>
+#include <initializer_list>
+#include <utility>
 #include <string>
-#include <ostream>
-
-// autodiff includes
-#include <autodiff/forward/real.hpp>
 
 namespace Reaktoro_ {
 
@@ -40,197 +38,268 @@ enum Status {
 
 using StatusMessage = std::pair <Status, std::string>;
 
-/// A thermodynamic scalar built on top of autodiff::real.
+/// A number that behaves as a double (x.val, x.val = 3.0, x.val += 1, double d = x.val) and can also be called as a
+/// function (x.val(), as autodiff::real and Reaktoro do). It is used for the members val, ddt and ddp of ThermoScalar so
+/// that both syntaxes work: code written for ThermoFun with `.val` is not affected, and code written in the style of
+/// autodiff with `.val()` also works.
+/// Not possible with a class wrapper: taking the address (&x.val is a Num*, not a double*), template argument deduction
+/// mixing it with double (std::max(x.val, 1.0): use std::max<double>) and copy-initialisation of another number type
+/// (`real r = x.val;`: use `real r(x.val);`).
+struct Num
+{
+    double v = 0.0;
+
+    constexpr Num() = default;
+    constexpr Num(double x) : v(x) {}
+
+    constexpr auto operator=(double x) -> Num& { v = x; return *this; }
+
+    constexpr operator double&() noexcept { return v; }
+    constexpr operator const double&() const noexcept { return v; }
+
+    constexpr auto operator()() const noexcept -> double { return v; }
+    constexpr auto operator()() noexcept -> double& { return v; }
+};
+
+/// The type of the members val, ddt and ddp of ThermoScalarBase<V>
+template<typename V> struct ThermoNumber { using type = V; };
+template<> struct ThermoNumber<double> { using type = Num; };
+
+/// A template base class to represent a thermodynamic scalar and its partial derivatives.
 /// A *thermodynamic property* is a quantity that depends on temperature and pressure.
-/// autodiff::real propagates the derivative along a single seeded direction,
-/// so a ThermoScalar holds two autodiff::real passes: one seeded along temperature
-/// (see wrtT()) and one seeded along pressure (see wrtP()). Both passes carry the same
-/// value. Any operation on a ThermoScalar is applied to both passes, so every function
-/// of autodiff::real can be used, and derivatives with respect to further variables
-/// can be obtained by seeding them in the passes (see autodiff::seed).
-/// In addition, the error and the status of the property are propagated.
-class ThermoScalar
+/// @see ThermoScalar, ChemicalScalar, ThermoVector
+template<typename V>
+class ThermoScalarBase
 {
 public:
+    /// The value of the thermodynamic property.
+    typename ThermoNumber<V>::type val;
+
+    /// The partial temperature derivative of the thermodynamic property.
+    typename ThermoNumber<V>::type ddt;
+
+    /// The partial pressure derivative of the thermodynamic property.
+    typename ThermoNumber<V>::type ddp;
+
     /// The error of the value of the thermodynamic property
-    double err;
+    V err;
 
     /// The status of the themrodyanic property
     StatusMessage sta;
 
     /// Construct a default ThermoScalar instance
-    ThermoScalar()
-    : ThermoScalar(0.0) {}
+    ThermoScalarBase()
+    : ThermoScalarBase(0.0) {}
 
-    /// Construct a custom ThermoScalar instance with given value only.
+    /// Construct a custom ThermoScalarBase instance with given value only.
     /// @param val The value of the thermodynamic property
-    explicit ThermoScalar(double val)
-        : ThermoScalar(val, 0.0, 0.0, 0.0, {Status::notdefined, ""}) {}
+    explicit ThermoScalarBase(double val)
+        : ThermoScalarBase(val, 0.0, 0.0, 0.0, {Status::notdefined, ""}) {}
 
-    /// Construct a custom ThermoScalar instance with given value and derivatives.
+    /// Construct a custom ThermoScalarBase instance with given value and derivatives.
     /// @param val The value of the thermodynamic property
     /// @param ddt The partial temperature derivative of the thermodynamic property
     /// @param ddp The partial pressure derivative of the thermodynamic property
     /// @param err The error of the value of the thermodynamic property
-    ThermoScalar(double val, double ddt, double ddp, double err, const StatusMessage& sta)
-    : err(fabs(err)), sta(sta)
+    ThermoScalarBase(const V& val, const V& ddt, const V& ddp, const V& err, const StatusMessage& sta)
+    : val(val), ddt(ddt), ddp(ddp), err(fabs(err)), sta(sta) {}
+
+    /// Construct a copy of a ThermoScalar instance.
+    template<typename VR>
+    ThermoScalarBase(const ThermoScalarBase<VR>& other)
+    : val(other.val), ddt(other.ddt), ddp(other.ddp), err(other.err), sta(other.sta) {}
+
+    /// Assign another ThermoScalarBase instance to this ThermoScalarBase instance.
+    template<typename VR>
+    ThermoScalarBase& operator=(const ThermoScalarBase<VR>& other)
     {
-        m_t[0] = val; m_t[1] = ddt;
-        m_p[0] = val; m_p[1] = ddp;
+        val = other.val;
+        ddt = other.ddt;
+        ddp = other.ddp;
+        err = other.err;
+        sta = other.sta;
+        return *this;
     }
 
-    /// Construct a ThermoScalar instance from its autodiff::real passes and its error and status.
-    /// @param wrtT The quantity evaluated with temperature seeded
-    /// @param wrtP The quantity evaluated with pressure seeded
-    ThermoScalar(const autodiff::real& wrtT, const autodiff::real& wrtP, double err, const StatusMessage& sta)
-    : err(fabs(err)), sta(sta), m_t(wrtT), m_p(wrtP) {}
-
-    /// The value of the thermodynamic property.
-    auto val() const -> double { return m_t[0]; }
-
-    /// The partial temperature derivative of the thermodynamic property.
-    auto ddt() const -> double { return m_t[1]; }
-
-    /// The partial pressure derivative of the thermodynamic property.
-    auto ddp() const -> double { return m_p[1]; }
-
-    /// Set the value of the thermodynamic property.
-    auto setVal(double v) -> void { m_t[0] = v; m_p[0] = v; }
-
-    /// Set the partial temperature derivative of the thermodynamic property.
-    auto setDdt(double v) -> void { m_t[1] = v; }
-
-    /// Set the partial pressure derivative of the thermodynamic property.
-    auto setDdp(double v) -> void { m_p[1] = v; }
-
-    /// The autodiff::real with the derivative taken along temperature.
-    auto wrtT() const -> const autodiff::real& { return m_t; }
-    auto wrtT() -> autodiff::real& { return m_t; }
-
-    /// The autodiff::real with the derivative taken along pressure.
-    auto wrtP() const -> const autodiff::real& { return m_p; }
-    auto wrtP() -> autodiff::real& { return m_p; }
-
-    /// Assign a scalar to this ThermoScalar instance.
-    ThermoScalar& operator=(double other)
+    /// Assign a scalar to this ThermoScalarBase instance.
+    ThermoScalarBase& operator=(double other)
     {
-        m_t[0] = m_p[0] = other;
-        m_t[1] = m_p[1] = 0.0;
+        val = other;
+        ddt = 0.0;
+        ddp = 0.0;
         err = 0.0;
         sta = {Status::assigned, std::string("")};
         return *this;
     }
 
     /// Assign-addition of a ThermoScalar instance
-    ThermoScalar& operator+=(const ThermoScalar& other)
+    template<typename VR>
+    ThermoScalarBase& operator+=(const ThermoScalarBase<VR>& other)
     {
-        m_t += other.m_t;
-        m_p += other.m_p;
+        val += other.val;
+        ddt += other.ddt;
+        ddp += other.ddp;
         err  = std::sqrt(err*err + other.err*other.err);
-        sta = statusOf(sta, other.sta);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, std::string("")};
+        else
+            sta = {Status::calculated, std::string("")};
+
         return *this;
     }
 
     /// Assign-subtraction of a ThermoScalar instance
-    ThermoScalar& operator-=(const ThermoScalar& other)
+    template<typename VR>
+    ThermoScalarBase& operator-=(const ThermoScalarBase<VR>& other)
     {
-        m_t -= other.m_t;
-        m_p -= other.m_p;
+        val -= other.val;
+        ddt -= other.ddt;
+        ddp -= other.ddp;
         err  = std::sqrt(err*err + other.err*other.err);
-        sta = statusOf(sta, other.sta);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, std::string("")};
+        else
+            sta = {Status::calculated, std::string("")};
+
         return *this;
     }
 
     /// Assign-multiplication of a ThermoScalar instance
-    ThermoScalar& operator*=(const ThermoScalar& other)
+    template<typename VR>
+    ThermoScalarBase& operator*=(const ThermoScalarBase<VR>& other)
     {
-        const double tmp_err = err / val();
-        m_t *= other.m_t;
-        m_p *= other.m_p;
-        if (other.val() == 0)
+        const double tmp_err = err / val;
+        ddt  = ddt * other.val + val * other.ddt;
+        ddp  = ddp * other.val + val * other.ddp;
+        val *= other.val;
+        if (other.val == 0)
             err = 0.0;
         else
-            err  = val()*sqrt(tmp_err*tmp_err + other.err/other.val()*other.err/other.val());
-        sta = statusOf(sta, other.sta);
+            err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, std::string("")};
+        else
+            sta = {Status::calculated, std::string("")};
+
         return *this;
     }
 
     /// Assign-division of a ThermoScalar instance
-    ThermoScalar& operator/=(const ThermoScalar& other)
+    template<typename VR>
+    ThermoScalarBase& operator/=(const ThermoScalarBase<VR>& other)
     {
-        const double tmp_err = err / val();
-        m_t /= other.m_t;
-        m_p /= other.m_p;
-        if (other.val() == 0)
+        const double tmp1 = 1.0/other.val;
+        const double tmp2 = tmp1 * tmp1;
+        const double tmp_err = err / val;
+        ddt  = (ddt * other.val - val * other.ddt) * tmp2;
+        ddp  = (ddp * other.val - val * other.ddp) * tmp2;
+        val *= tmp1;
+        if (other.val == 0)
             err = 0.0;
         else
-            err  = val()*sqrt(tmp_err*tmp_err + other.err/other.val()*other.err/other.val());
-        sta = statusOf(sta, other.sta);
+            err  = val*sqrt(tmp_err*tmp_err + other.err/other.val*other.err/other.val);
+
+        if (sta.first == Status::notdefined || other.sta.first == Status::notdefined)
+            sta = {Status::notdefined, std::string("")};
+        else
+            sta = {Status::calculated, std::string("")};
+
         return *this;
     }
 
     /// Assign-addition of a scalar
-    ThermoScalar& operator+=(double other)
+    ThermoScalarBase& operator+=(double other)
     {
-        m_t[0] += other;
-        m_p[0] += other;
+        val += other;
         return *this;
     }
 
     /// Assign-subtraction of a scalar
-    ThermoScalar& operator-=(double other)
+    ThermoScalarBase& operator-=(double other)
     {
-        m_t[0] -= other;
-        m_p[0] -= other;
+        val -= other;
         return *this;
     }
 
-    /// Assign-multiplication by a scalar
-    ThermoScalar& operator*=(double other)
+    /// Assign-multiplication of a ThermoScalar instance
+    ThermoScalarBase& operator*=(double other)
     {
-        const double tmp_err = err/val()*err/val();
-        m_t *= other;
-        m_p *= other;
-        if (val() == 0)
+        const double tmp_err = err/val*err/val;
+        val *= other;
+        ddt *= other;
+        ddp *= other;
+        if (val == 0)
             err = 0.0;
         else
-            err = val()*std::sqrt(tmp_err);
+            err = val*std::sqrt(tmp_err);
         return *this;
     }
 
-    /// Assign-division by a scalar
-    ThermoScalar& operator/=(double other)
+    /// Assign-division of a ThermoScalar instance
+    ThermoScalarBase& operator/=(double other)
     {
-        const double tmp_err = err/val()*err/val();
+        const double tmp_err = err/val*err/val;
         *this *= 1.0/other;
-        if (val() == 0)
+        if (val == 0)
             err = 0.0;
         else
-            err = val()*std::sqrt(tmp_err);
+            err = val*std::sqrt(tmp_err);
         return *this;
     }
 
     /// Explicitly converts this ThermoScalar instance into a double.
-    explicit operator double() const
+    explicit operator double()
     {
-        return val();
+        return val;
     }
 
-    /// The status resulting from combining two statuses
-    static auto statusOf(const StatusMessage& l, const StatusMessage& r) -> StatusMessage
+    /// Set the error and the status from the properties this one was calculated from (not defined if any of them is not
+    /// defined, otherwise calculated; the error is the quadrature sum of their errors).
+    /// The value and the derivatives are not changed: they are calculated with autodiff by the models.
+    template<typename... Props>
+    ThermoScalarBase& propagateFrom(const Props&... props)
     {
-        if (l.first == Status::notdefined || r.first == Status::notdefined)
-            return {Status::notdefined, std::string("")};
-        return {Status::calculated, std::string("")};
+        StatusMessage status = {Status::calculated, std::string("")};
+        double error = 0.0;
+        ((status = (status.first == Status::notdefined || props.sta.first == Status::notdefined)
+                       ? StatusMessage{Status::notdefined, std::string("")}
+                       : StatusMessage{Status::calculated, std::string("")},
+          error = std::sqrt(error*error + props.err*props.err)), ...);
+        sta = status;
+        err = error;
+        return *this;
     }
 
-private:
-    /// The value and its derivative along temperature
-    autodiff::real m_t;
+    /// Set the error of a property y calculated from independent inputs x_i with the sensitivities w_i = dy/dx_i
+    /// (first-order propagation): err = sqrt(sum (w_i err_i)^2). The status is not changed.
+    /// @param terms the pairs {w_i, err_i}
+    ThermoScalarBase& setError(std::initializer_list<std::pair<double, double>> terms)
+    {
+        double sum = 0.0;
+        for (const auto& t : terms) sum += t.first*t.first*t.second*t.second;
+        err = std::sqrt(sum);
+        return *this;
+    }
 
-    /// The value and its derivative along pressure
-    autodiff::real m_p;
+    /// Set the error and the status as those of a property calculated from constants
+    ThermoScalarBase& asCalculated()
+    {
+        sta = {Status::calculated, std::string("")};
+        err = 0.0;
+        return *this;
+    }
 };
+
+/// A type that defines a scalar thermo property.
+/// A thermo property means here any property that depends on
+/// temperature and pressure. A ThermoScalar instance not only holds
+/// the value of the thermo property, but also is partial
+/// temperature and pressure derivatives.
+/// @see ChemicalVector
+using ThermoScalar = ThermoScalarBase<double>;
 
 /// A type that describes temperature in units of K
 class Temperature : public ThermoScalar
@@ -240,7 +309,10 @@ public:
     Temperature() : Temperature(0.0) {}
 
     /// Construct a Temperature instance with given value
-    Temperature(double val) : ThermoScalar(val, 1.0, 0.0, 0.0, {Status::assigned, std::string("")}) {}
+    Temperature(double val) : ThermoScalarBase(val, 1.0, 0.0, 0.0, {Status::assigned, std::string("")}) {}
+
+    /// Convert this Temperature instance into a double
+//    operator double() { return val; }
 };
 
 /// A type that describes pressure in units of Pa
@@ -251,280 +323,344 @@ public:
     Pressure() : Pressure(0.0) {}
 
     /// Construct a Pressure instance with given value
-    Pressure(double val) : ThermoScalar(val, 0.0, 1.0, 0.0, {Status::assigned, std::string("")}) {}
+    Pressure(double val) : ThermoScalarBase(val, 0.0, 1.0, 0.0, {Status::assigned, std::string("")}) {}
+
+    /// Convert this Pressure instance into a double
+//    operator double() { return val; }
 };
 
 
-inline auto status(const ThermoScalar& l, const ThermoScalar& r) -> StatusMessage
+template<typename VL, typename VR>
+inline auto status(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> StatusMessage
 {
-    return ThermoScalar::statusOf(l.sta, r.sta);
+    if (l.sta.first == Status::notdefined || r.sta.first == Status::notdefined)
+        return {Status::notdefined, std::string("")};
+    else
+        return {Status::calculated, std::string("")};
 }
-
-inline auto status(const ThermoScalar& l) -> StatusMessage
+template<typename VL>
+inline auto status(const ThermoScalarBase<VL>& l) -> StatusMessage
 {
-    return ThermoScalar::statusOf(l.sta, l.sta);
+    if (l.sta.first == Status::notdefined)
+        return {Status::notdefined, std::string("")};
+    else
+        return {Status::calculated, std::string("")};
+}
+/// The value of a ThermoScalar instance (as val(x) of autodiff)
+template<typename V>
+inline auto val(const ThermoScalarBase<V>& x) -> double
+{
+    return x.val;
 }
 
 /// Unary addition operator for a ThermoScalar instance
-inline auto operator+(const ThermoScalar& l) -> ThermoScalar
+template<typename V>
+inline auto operator+(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    return {l.wrtT(), l.wrtP(), l.err, status(l)};
+    l.sta = status(l);
+    return l;
 }
 
 /// Add two ThermoScalar instances
-inline auto operator+(const ThermoScalar& l, const ThermoScalar& r) -> ThermoScalar
+template<typename VL, typename VR>
+inline auto operator+(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    return {l.wrtT() + r.wrtT(), l.wrtP() + r.wrtP(), std::sqrt(l.err*l.err + r.err*r.err), status(l,r)};
+    return {l.val + r.val, l.ddt + r.ddt, l.ddp + r.ddp, std::sqrt(l.err*l.err + r.err*r.err), status(l,r)};
 }
 
-inline auto operator+(double l, const ThermoScalar& r) -> ThermoScalar
+template<typename V>
+inline auto operator+(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    return {l + r.wrtT(), l + r.wrtP(), r.err, status(r)};
+    return {l + r.val, r.ddt, r.ddp, r.err, status(r)};
 }
 
-inline auto operator+(const ThermoScalar& l, double r) -> ThermoScalar
+template<typename V>
+inline auto operator+(const ThermoScalarBase<V>& l, double r) -> ThermoScalarBase<double>
 {
     return r + l;
 }
 
 /// Unary subtraction operator for a ThermoScalar instance
-inline auto operator-(const ThermoScalar& l) -> ThermoScalar
+template<typename V>
+inline auto operator-(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    return {-l.wrtT(), -l.wrtP(), l.err, status(l)};
+    return {-l.val, -l.ddt, -l.ddp, +(std::sqrt(l.err*l.err)), status(l)};
 }
 
 /// Subtract two ThermoScalar instances
-inline auto operator-(const ThermoScalar& l, const ThermoScalar& r) -> ThermoScalar
+template<typename VL, typename VR>
+inline auto operator-(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    return {l.wrtT() - r.wrtT(), l.wrtP() - r.wrtP(), std::sqrt(l.err*l.err + r.err*r.err), status(l, r)};
+    return {l.val - r.val, l.ddt - r.ddt, l.ddp - r.ddp, std::sqrt(l.err*l.err + r.err*r.err), status(l, r)};
 }
 
 /// Right-subtract a ThermoScalar instance by a scalar
-inline auto operator-(const ThermoScalar& l, double r) -> ThermoScalar
+template<typename V>
+inline auto operator-(const ThermoScalarBase<V>& l, double r) -> ThermoScalarBase<double>
 {
-    return {l.wrtT() - r, l.wrtP() - r, l.err, status(l)};
+    return {l.val - r, l.ddt, l.ddp, l.err, status(l)};
 }
 
 /// Left-subtract a ThermoScalar instance by a scalar
-inline auto operator-(double l, const ThermoScalar& r) -> ThermoScalar
+template<typename V>
+inline auto operator-(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    return {l - r.wrtT(), l - r.wrtP(), r.err, status(r)};
+    return {l - r.val, -r.ddt, -r.ddp, r.err, status(r)};
 }
 
 /// Multiply two ThermoScalar instances
-inline auto operator*(const ThermoScalar& l, const ThermoScalar& r) -> ThermoScalar
+template<typename VL, typename VR>
+inline auto operator*(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
     double a = 0.0; double b = 0.0;
-    if (l.val() != 0)
-        a = l.err/l.val()*l.err/l.val();
-    if (r.val() != 0)
-        b = r.err/r.val()*r.err/r.val();
-    return {l.wrtT() * r.wrtT(), l.wrtP() * r.wrtP(), (l.val() * r.val())*std::sqrt(a+b), status(l,r)};
+    if (l.val != 0)
+        a = l.err/l.val*l.err/l.val;
+    if (r.val != 0)
+        b = r.err/r.val*r.err/r.val;
+    return {l.val * r.val, l.val * r.ddt + l.ddt * r.val, l.val * r.ddp + l.ddp * r.val, (l.val * r.val)*std::sqrt(a+b), status(l,r)};
 }
 
 /// Left-multiply a ThermoScalar instance by a scalar
-inline auto operator*(double l, const ThermoScalar& r) -> ThermoScalar
+template<typename V>
+inline auto operator*(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    if (r.val() == 0)
-        return {l * r.wrtT(), l * r.wrtP(), 0.0, status(r)};
-    auto err = (l * r.val())*std::sqrt(r.err/r.val()*r.err/r.val());
-    return {l * r.wrtT(), l * r.wrtP(), err, status(r)};
+    if (r.val == 0)
+        return {l * r.val, l * r.ddt, l * r.ddp, 0.0, status(r)};
+    auto err = (l * r.val)*std::sqrt(r.err/r.val*r.err/r.val);
+    return {l * r.val, l * r.ddt, l * r.ddp, err, status(r)};
 }
 
 /// Right-multiply a ThermoScalar instance by a scalar
-inline auto operator*(const ThermoScalar& l, double r) -> ThermoScalar
+template<typename V>
+inline auto operator*(const ThermoScalarBase<V>& l, double r) -> ThermoScalarBase<double>
 {
     return r * l;
 }
 
 /// Divide a ThermoScalar instance by another
-inline auto operator/(const ThermoScalar& l, const ThermoScalar& r) -> ThermoScalar
+template<typename VL, typename VR>
+inline auto operator/(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> ThermoScalarBase<double>
 {
-    const double tmp1 = 1.0/r.val();
+    const double tmp1 = 1.0/r.val;
+    const double tmp2 = tmp1 * tmp1;
     double a = 0.0; double b = 0.0;
-    if (l.val() != 0)
-        a = l.err/l.val()*l.err/l.val();
-    if (r.val() != 0)
-        b = r.err/r.val()*r.err/r.val();
-    return {l.wrtT() / r.wrtT(), l.wrtP() / r.wrtP(), (tmp1 * l.val())*std::sqrt(a+b), status(l,r)};
+    if (l.val != 0)
+        a = l.err/l.val*l.err/l.val;
+    if (r.val != 0)
+        b = r.err/r.val*r.err/r.val;
+    return {tmp1 * l.val, tmp2 * (l.ddt * r.val - l.val * r.ddt), tmp2 * (l.ddp * r.val - l.val * r.ddp), (tmp1 * l.val)*std::sqrt(a+b), status(l,r)};
 }
 
 /// Left-divide a ThermoScalar instance by a scalar
-inline auto operator/(double l, const ThermoScalar& r) -> ThermoScalar
+template<typename V>
+inline auto operator/(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBase<double>
 {
-    const double tmp1 = 1.0/r.val();
-    if (r.val() == 0)
-        return {l / r.wrtT(), l / r.wrtP(), 0.0, status(r)};
-    return {l / r.wrtT(), l / r.wrtP(), (tmp1 * r.val())*std::sqrt(r.err/r.val()*r.err/r.val()), status(r)};
+    const double tmp1 = 1.0/r.val;
+    const double tmp2 = -l*tmp1*tmp1;
+    if (r.val == 0)
+        return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, 0.0, status(r)};
+    return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, (tmp1 * r.val)*std::sqrt(r.err/r.val*r.err/r.val), status(r)};
 }
 
 /// Right-divide a ThermoScalar instance by a scalar
-inline auto operator/(const ThermoScalar& l, double r) -> ThermoScalar
+template<typename V>
+inline auto operator/(const ThermoScalarBase<V>& l, double r) -> ThermoScalarBase<double>
 {
     return (1.0/r) * l;
 }
 
 /// Return the square root of a ThermoScalar instance
-inline auto sqrt(const ThermoScalar& l) -> ThermoScalar
+template<typename V>
+inline auto sqrt(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    if (l.val() == 0)
-        return {std::sqrt(l.val()), 0.0, 0.0, 0.0, status(l)};
-    return {sqrt(l.wrtT()), sqrt(l.wrtP()), 0.5*(l.err/l.val()), status(l)};
+    const double tmp1 = std::sqrt(l.val);
+    const double tmp2 = 0.5 * tmp1/l.val;
+    if (l.val == 0)
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/ 0.0,0.0,0.0, status(l)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.5*(l.err/l.val), status(l)};
 }
 
 /// Return the power of a ThermoScalar instance
-inline auto pow(const ThermoScalar& l, double power) -> ThermoScalar
+template<typename V>
+inline auto pow(const ThermoScalarBase<V>& l, double power) -> ThermoScalarBase<double>
 {
-    if (l.val() == 0)
-        return {std::pow(l.val(), power), 0.0, 0.0, 0.0, status(l)};
-    return {pow(l.wrtT(), power), pow(l.wrtP(), power), std::fabs(power)*(l.err/l.val()), status(l)};
+    const double tmp1 = std::pow(l.val, power);
+    const double tmp2 = power * tmp1/l.val;
+    if (l.val == 0)
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/0.0,0.0, 0.0, status(l)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, std::fabs(power)*(l.err/l.val), status(l)};
 }
 
 /// Return the power of a ThermoScalar instance
-inline auto pow(const ThermoScalar& l, const ThermoScalar& power) -> ThermoScalar
+template<typename VL, typename VR>
+inline auto pow(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& power) -> ThermoScalarBase<double>
 {
-    const double powl = std::pow(l.val(), power.val());
-    if (l.val() == 0)
-    {
-        // derivatives are not defined at a zero base; evaluating log(0) would give 0*(-inf) = NaN
-        return {powl, 0.0, 0.0, 0.0, status(l,power)};
-    }
-    return {pow(l.wrtT(), power.wrtT()), pow(l.wrtP(), power.wrtP()), powl*(l.err/l.val()), status(l,power)};
+    const double logl = std::log(l.val);
+    const double powl = std::pow(l.val, power.val);
+    const double tmp = power.val/l.val;
+    if (l.val == 0)
+        return {powl, powl * (logl * power.ddt + /*tmp * l.ddt*/0.0), powl * (logl * power.ddp + /*tmp * l.ddp*/0.0), 0.0, status(l,power)};
+    return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), powl*(l.err/l.val), status(l,power)};
 }
 
 /// Return the natural exponential of a ThermoScalar instance
-inline auto exp(const ThermoScalar& l) -> ThermoScalar
+template<typename V>
+inline auto exp(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    return {exp(l.wrtT()), exp(l.wrtP()), l.err*std::exp(l.val()), status(l)};
+    const double tmp = std::exp(l.val);
+    return {tmp, tmp * l.ddt, tmp * l.ddp, l.err*tmp, status(l)};
 }
 
 /// Return the natural log of a ThermoScalar instance
-inline auto log(const ThermoScalar& l) -> ThermoScalar
+template<typename V>
+inline auto log(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    if (l.val() == 0)
-        return {std::log(l.val()), 0.0, 0.0, 0.0, status(l)};
-    return {log(l.wrtT()), log(l.wrtP()), 0.434*(l.err/l.val()), status(l)};
+    const double tmp1 = std::log(l.val);
+    const double tmp2 = 1.0/l.val;
+    if (l.val == 0)
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/ 0.0,0.0, 0.0, status(l)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.434*(l.err/l.val), status(l)};
 }
 
 /// Return the log10 of a ThermoScalar instance
-inline auto log10(const ThermoScalar& l) -> ThermoScalar
+template<typename V>
+inline auto log10(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
     const double ln10 = 2.302585092994046;
     return log(l)/ln10;
 }
 
 /// Return true if a ThermoScalar instance is less than another
-inline auto operator<(const ThermoScalar& l, const ThermoScalar& r) -> bool
+template<typename VL, typename VR>
+inline auto operator<(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> bool
 {
-    return l.val() < r.val();
+    return l.val < r.val;
 }
 
 /// Return true if a ThermoScalar instance is less or equal than another
-inline auto operator<=(const ThermoScalar& l, const ThermoScalar& r) -> bool
+template<typename VL, typename VR>
+inline auto operator<=(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> bool
 {
-    return l.val() <= r.val();
+    return l.val <= r.val;
 }
 
 /// Return true if a ThermoScalar instance is greater than another
-inline auto operator>(const ThermoScalar& l, const ThermoScalar& r) -> bool
+template<typename VL, typename VR>
+inline auto operator>(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> bool
 {
-    return l.val() > r.val();
+    return l.val > r.val;
 }
 
 /// Return true if a ThermoScalar instance is greater or equal than another
-inline auto operator>=(const ThermoScalar& l, const ThermoScalar& r) -> bool
+template<typename VL, typename VR>
+inline auto operator>=(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> bool
 {
-    return l.val() >= r.val();
+    return l.val >= r.val;
 }
 
 /// Return true if a ThermoScalar instance is equal to another
-inline auto operator==(const ThermoScalar& l, const ThermoScalar& r) -> bool
+template<typename VL, typename VR>
+inline auto operator==(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> bool
 {
-    return l.val() == r.val();
+    return l.val == r.val;
 }
 
 /// Return true if a ThermoScalar instance is not equal to another
-inline auto operator!=(const ThermoScalar& l, const ThermoScalar& r) -> bool
+template<typename VL, typename VR>
+inline auto operator!=(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> bool
 {
-    return l.val() != r.val();
+    return l.val != r.val;
 }
 
 /// Return true if a scalar is less than a ThermoScalar instance
-inline auto operator<(double l, const ThermoScalar& r) -> bool
+template<typename V>
+inline auto operator<(double l, const ThermoScalarBase<V>& r) -> bool
 {
-    return l < r.val();
+    return l < r.val;
 }
 
 /// Return true if a ThermoScalar instance is less than a scalar
-inline auto operator<(const ThermoScalar& l, double r) -> bool
+template<typename V>
+inline auto operator<(const ThermoScalarBase<V>& l, double r) -> bool
 {
-    return l.val() < r;
+    return l.val < r;
 }
 
 /// Return true if a scalar is less or equal than a ThermoScalar instance
-inline auto operator<=(double l, const ThermoScalar& r) -> bool
+template<typename V>
+inline auto operator<=(double l, const ThermoScalarBase<V>& r) -> bool
 {
-    return l <= r.val();
+    return l <= r.val;
 }
 
 /// Return true if a ThermoScalar instance is less or equal than a scalar
-inline auto operator<=(const ThermoScalar& l, double r) -> bool
+template<typename V>
+inline auto operator<=(const ThermoScalarBase<V>& l, double r) -> bool
 {
-    return l.val() <= r;
+    return l.val <= r;
 }
 
 /// Return true if a scalar is greater than a ThermoScalar instance
-inline auto operator>(double l, const ThermoScalar& r) -> bool
+template<typename V>
+inline auto operator>(double l, const ThermoScalarBase<V>& r) -> bool
 {
-    return l > r.val();
+    return l > r.val;
 }
 
 /// Return true if a ThermoScalar is greater than a scalar
-inline auto operator>(const ThermoScalar& l, double r) -> bool
+template<typename V>
+inline auto operator>(const ThermoScalarBase<V>& l, double r) -> bool
 {
-    return l.val() > r;
+    return l.val > r;
 }
 
 /// Return true if a scalar is greater or equal than a ThermoScalar instance
-inline auto operator>=(double l, const ThermoScalar& r) -> bool
+template<typename V>
+inline auto operator>=(double l, const ThermoScalarBase<V>& r) -> bool
 {
-    return l >= r.val();
+    return l >= r.val;
 }
 
 /// Return true if a ThermoScalar instance is greater or equal than a scalar
-inline auto operator>=(const ThermoScalar& l, double r) -> bool
+template<typename V>
+inline auto operator>=(const ThermoScalarBase<V>& l, double r) -> bool
 {
-    return l.val() >= r;
+    return l.val >= r;
 }
 
 /// Return true if a scalar is equal to a ThermoScalar instance
-inline auto operator==(double l, const ThermoScalar& r) -> bool
+template<typename V>
+inline auto operator==(double l, const ThermoScalarBase<V>& r) -> bool
 {
-    return l == r.val();
+    return l == r.val;
 }
 
 /// Return true if a ThermoScalar instance is equal to a scalar
-inline auto operator==(const ThermoScalar& l, double r) -> bool
+template<typename V>
+inline auto operator==(const ThermoScalarBase<V>& l, double r) -> bool
 {
-    return l.val() == r;
+    return l.val == r;
 }
 
 /// Return true if a scalar is not equal to a ThermoScalar instance
-inline auto operator!=(double l, const ThermoScalar& r) -> bool
+template<typename V>
+inline auto operator!=(double l, const ThermoScalarBase<V>& r) -> bool
 {
-    return l != r.val();
+    return l != r.val;
 }
 
 /// Return true if a ThermoScalar instance is not equal to a scalar
-inline auto operator!=(const ThermoScalar& l, double r) -> bool
+template<typename V>
+inline auto operator!=(const ThermoScalarBase<V>& l, double r) -> bool
 {
-    return l.val() != r;
+    return l.val != r;
 }
 
 /// Output a ThermoScalar instance
-inline auto operator<<(std::ostream& out, const ThermoScalar& scalar) -> std::ostream&
+template<typename V>
+inline auto operator<<(std::ostream& out, const ThermoScalarBase<V>& scalar) -> std::ostream&
 {
-    out << scalar.val();
+    out << scalar.val;
     return out;
 }
 

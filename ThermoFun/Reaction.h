@@ -1,5 +1,6 @@
 #ifndef REACTION_H
 #define REACTION_H
+#include "ThermoProperties.h"
 
 // C++ includes
 #include <map>
@@ -9,8 +10,6 @@
 #include "GlobalVariables.h"
 
 namespace ThermoFun {
-
-struct ThermoPropertiesReaction;
 struct ThermoParametersReaction;
 
 /**

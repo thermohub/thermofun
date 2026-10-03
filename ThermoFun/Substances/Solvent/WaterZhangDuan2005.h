@@ -1,25 +1,24 @@
 #ifndef WATERZHANGDUAN2005
 #define WATERZHANGDUAN2005
 
-#include "Common/ScalarTypes.hpp"
-#include "Common/ThermoScalar.hpp"
+#include "Common/Real.hpp"
+#include "ThermoProperties.h"
 
 namespace ThermoFun {
 
 //// Forward declarations
-struct PropertiesSolvent;
-struct ThermoPropertiesSubstance;
 
 /// Return the thermodynamic properties of water
 /// @param T temparature (K)
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water
-auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ThermoPropertiesSubstance;
+auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubstanceAD;
 
 /// Return the physical properties of water
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water
-auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> PropertiesSolvent;
+/// The properties of water with the exact derivatives of the density up to the third order (the pressure of the pass in Pa)
+auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass) -> PropertiesSolventAD;
 
-auto waterDensityZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> Reaktoro_::ThermoScalar;
+auto waterDensityZhangDuan2005(real T, real P) -> real;
 
 }
 

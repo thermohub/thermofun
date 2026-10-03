@@ -1,15 +1,12 @@
 #ifndef SOLUTEHKFREAKTORO
 #define SOLUTEHKFREAKTORO
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 // Forward declarations
 struct ElectroPropertiesSubstance;
-struct ElectroPropertiesSolvent;
-struct ThermoPropertiesSubstance;
-struct PropertiesSolvent;
 struct FunctionG;
 class Substance;
 
@@ -18,7 +15,7 @@ class Substance;
 /// @param T temparature (K)
 /// @param P pressure (Pa)
 /// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
-auto functionG(Reaktoro_::Temperature T, Reaktoro_::Pressure P, const PropertiesSolvent &ps) -> FunctionG;
+auto functionG(real T, real P, const PropertiesSolventAD&ps) -> FunctionG;
 
 /// Calculate the electrostatic state of the aqueous species using the g-function state.
 /// @param g structure holding the g function values and its derivatives
@@ -32,7 +29,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFreaktoro(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent &wp) -> ThermoPropertiesSubstance;
+auto thermoPropertiesAqSoluteHKFreaktoro(real T, real P, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD;
 
 //auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void;
 }

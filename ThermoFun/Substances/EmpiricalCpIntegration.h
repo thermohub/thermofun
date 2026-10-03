@@ -1,19 +1,18 @@
 #ifndef EMPIRICALCPINTEGRATION
 #define EMPIRICALCPINTEGRATION
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 class Substance;
-struct ThermoPropertiesSubstance;
 
 /// Returns the temperature correcected themrodynamic properties of a substance uisng the Empicrical Cp integration
 /// @ref --
-/// @param T temparature (K)
-/// @param P pressure (bar)
+/// @param pass the temperature and pressure of the autodiff pass
 /// @param substance substance instance
-auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Substance substance) -> ThermoPropertiesSubstance;
+/// @param outsideBounds set to true if the temperature is outside of the Cp temperature intervals (optional)
+auto thermoPropertiesEmpCpIntegration(const Reaktoro_::Pass& pass, Substance substance, bool* outsideBounds = nullptr) -> ThermoPropertiesSubstanceAD;
 
 }
 

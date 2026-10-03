@@ -2,10 +2,10 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesRyzhenkoBryzgalin(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction
+auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
 {
 
-    ThermoPropertiesReaction tpr;
+    ThermoPropertiesReactionAD tpr;
 
 //    auto ref_tpr = reaction.thermoReferenceProperties();
     auto RHO = wp.density / 1000; // check units

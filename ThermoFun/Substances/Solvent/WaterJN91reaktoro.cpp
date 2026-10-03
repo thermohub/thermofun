@@ -4,9 +4,9 @@
 
 namespace ThermoFun {
 
-auto electroPropertiesWaterJNreaktoro(const WaterElectroState& wts) -> ElectroPropertiesSolvent
+auto electroPropertiesWaterJNreaktoro(const WaterElectroState& wts) -> ElectroPropertiesSolventAD
 {
-    ElectroPropertiesSolvent eps;
+    ElectroPropertiesSolventAD eps;
 
     eps.bornN = wts.bornN;
     eps.bornQ = wts.bornQ;

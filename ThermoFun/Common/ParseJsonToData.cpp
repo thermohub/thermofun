@@ -102,16 +102,6 @@ auto readValueErrorUnit(const json& j, const std::string& propPath, double& val,
     return status;
 }
 
-auto readValueErrorUnit(const json& j, const std::string& propPath, Reaktoro_::ThermoScalar& prop, const std::string& unit, const std::string& message) -> Reaktoro_::StatusMessage
-{
-    double val = prop.val();
-    double err = prop.err;
-    const auto status = readValueErrorUnit(j, propPath, val, err, unit, message);
-    prop.setVal(val);
-    prop.err = err;
-    return status;
-}
-
 auto convert_values_units(std::vector<double> values, const std::vector<std::string>& units_from, const std::vector<std::string>& units_to) -> std::vector<double>
 {
     for (size_t i = 0; i < values.size(); ++i)
@@ -132,7 +122,7 @@ auto convert_values_units(std::vector<double> values, const std::vector<std::str
     return values;
 }
 
-auto read_values_units(const json& j, const std::string& data, std::vector<double>& values, const std::vector<std::string>& units_to) -> void
+auto read_values_units(const json& j, const std::string& data, std::vector<double>& values, const std::vector<std::string>& units_to, std::vector<double>* errors = nullptr) -> void
 {
     std::vector<std::string> units_from;
 
@@ -153,8 +143,36 @@ auto read_values_units(const json& j, const std::string& data, std::vector<doubl
 
         if (entry.contains("values") && entry["values"].is_array() && !entry["values"].is_null()) {
             values = convert_values_units(entry["values"].get<std::vector<double>>(), units_from, units_to);
+
+            // the optional errors of the coefficients are converted as differences (also for units with an offset)
+            if (errors && entry.contains("errors") && entry["errors"].is_array())
+            {
+                const auto raw = entry["values"].get<std::vector<double>>();
+                std::vector<double> e(raw.size(), 0.0);
+                bool any = false;
+                for (size_t i = 0; i < raw.size() && i < entry["errors"].size(); ++i)
+                    if (entry["errors"][i].is_number() && entry["errors"][i].get<double>() > 0.0)
+                    {
+                        auto up = raw; up[i] += entry["errors"][i].get<double>();
+                        e[i] = std::fabs(convert_values_units(up, units_from, units_to)[i] - values[i]);
+                        any = true;
+                    }
+                if (any) *errors = e;
+            }
         }
     }
+}
+
+// Read the coefficients of a model with their optional errors (the errors are stored by key and row)
+static auto readCoefficients(const json& j, const std::string& key, std::vector<double>& values, const std::vector<std::string>& units_to,
+                             std::map<std::string, vvd>& errors, size_t row = 0) -> void
+{
+    std::vector<double> e;
+    read_values_units(j, key, values, units_to, &e);
+    if (e.empty()) return;
+    auto& rows = errors[key];
+    if (rows.size() <= row) rows.resize(row + 1);
+    rows[row] = e;
 }
 
 auto read_value_unit(const json& j, const std::string& data, double& value, const std::string& unit_to) -> void
@@ -370,10 +388,10 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
     std::vector<std::string> vkbuf;
     std::string kbuf;
 
-    read_values_units(j, "eos_akinfiev_diamond_coeffs", ps.Cp_nonElectrolyte_coeff, {"1", "(cm^3)/g", "(cm^3*K^0.5)/g"});
+    readCoefficients(j, "eos_akinfiev_diamond_coeffs", ps.Cp_nonElectrolyte_coeff, {"1", "(cm^3)/g", "(cm^3*K^0.5)/g"}, ps.coefficient_errors);
     // ps.volume_BirchM_coeff = read_values_units(j, "eos_birch_murnaghan_coeffs", {});
-    read_values_units(j, "eos_gas_crit_props", ps.critical_parameters, {"K", "bar", "1", "1"});
-    read_values_units(j, "eos_hkf_coeffs", ps.HKF_parameters, {"cal/(mol*bar)", "cal/mol", "(cal*K)/(mol*bar)", "(cal*K)/mol", "cal/(mol*K)", "(cal*K)/mol", "cal/mol"});
+    readCoefficients(j, "eos_gas_crit_props", ps.critical_parameters, {"K", "bar", "1", "1"}, ps.coefficient_errors);
+    readCoefficients(j, "eos_hkf_coeffs", ps.HKF_parameters, {"cal/(mol*bar)", "cal/mol", "(cal*K)/(mol*bar)", "(cal*K)/mol", "cal/(mol*K)", "(cal*K)/mol", "cal/mol"}, ps.coefficient_errors);
 
     // temporary fix - need to think how to handle more than 1 TP interval - for new structure - simplified
     if (prop_name == "cp_ft_equation")
@@ -391,14 +409,31 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
         ps.temperature_intervals.push_back(low_up);
     }
     std::vector<double> cp, ph;
-    read_values_units(j, "m_heat_capacity_ft_coeffs", cp, {"J/(mol*K)", "J/(mol*K^2)", "(J*K)/mol", "J/(mol*K^0.5)", "J/(mol*K^3)", "J/(mol*K^4)", "J/(mol*K^5)", "(J*K^2)/mol", "J/mol", "J/(mol*K^1.5)", "J/(mol*K)"});
+    std::map<std::string, vvd> rowErrors; // the errors of the coefficients read from this record
+    readCoefficients(j, "m_heat_capacity_ft_coeffs", cp, {"J/(mol*K)", "J/(mol*K^2)", "(J*K)/mol", "J/(mol*K^0.5)", "J/(mol*K^3)", "J/(mol*K^4)", "J/(mol*K^5)", "(J*K^2)/mol", "J/mol", "J/(mol*K^1.5)", "J/(mol*K)"}, rowErrors);
     if (cp.size() > 0)
+    {
         ps.Cp_coeff.push_back(cp);
-    read_values_units(j, "m_phase_trans_props", ph, {"K", "J/(mol*K)", "J/mol", "J/bar", "K/bar"});
+        if (!rowErrors["m_heat_capacity_ft_coeffs"].empty())
+        {
+            auto& rows = ps.coefficient_errors["m_heat_capacity_ft_coeffs"];
+            rows.resize(ps.Cp_coeff.size());
+            rows.back() = rowErrors["m_heat_capacity_ft_coeffs"][0];
+        }
+    }
+    readCoefficients(j, "m_phase_trans_props", ph, {"K", "J/(mol*K)", "J/mol", "J/bar", "K/bar"}, rowErrors);
     if (ph.size() > 0)
+    {
         ps.phase_transition_prop.push_back(ph);
-    read_values_units(j, "m_landau_phase_trans_props", ps.m_landau_phase_trans_props, {"degC", "J/(mol*K)", "J/bar"});
-    read_values_units(j, "solute_holland_powell98_coeff", ps.solute_holland_powell98_coeff, {"kJ/(mol*K^2)"});
+        if (!rowErrors["m_phase_trans_props"].empty())
+        {
+            auto& rows = ps.coefficient_errors["m_phase_trans_props"];
+            rows.resize(ps.phase_transition_prop.size());
+            rows.back() = rowErrors["m_phase_trans_props"][0];
+        }
+    }
+    readCoefficients(j, "m_landau_phase_trans_props", ps.m_landau_phase_trans_props, {"degC", "J/(mol*K)", "J/bar"}, ps.coefficient_errors);
+    readCoefficients(j, "solute_holland_powell98_coeff", ps.solute_holland_powell98_coeff, {"kJ/(mol*K^2)"}, ps.coefficient_errors);
     // ps.phase_transition_prop_Berman.push_back(read_values_units(j, "", {});
 }
 
@@ -407,14 +442,14 @@ auto thermoParamReac(const json &j, ThermoParametersReaction &pr) -> void
     std::vector<std::string> vkbuf, units_from, units_to;
     std::string kbuf;
 
-    read_values_units(j, "logk_ft_coeffs", pr.reaction_logK_fT_coeff, {"1", "1/K", "K", "1", "K^2", "1/K^2", "K^0.5"});
+    readCoefficients(j, "logk_ft_coeffs", pr.reaction_logK_fT_coeff, {"1", "1/K", "K", "1", "K^2", "1/K^2", "K^0.5"}, pr.coefficient_errors);
     //    if (j.contains("logk_pt_values") && !j["logk_pt_values"]["values"].is_null())
     //        pr.logK_TP_array = j["logk_pt_values"]["values"].get<vector<double>>();
-    read_values_units(j, "dr_heat_capacity_ft_coeffs", pr.reaction_Cp_fT_coeff, {"J/(mol*K)", "J/(mol*K^2)", "(J*K)/mol", "J/(mol*K^0.5)", "J/(mol*K^3)"});
-    read_values_units(j, "dr_volume_fpt_coeffs", pr.reaction_V_fT_coeff, {"1/K", "1/K^2", "1/K^3", "1/bar", "1/bar^2"});
-    read_values_units(j, "dr_ryzhenko_coeffs", pr.reaction_RB_coeff, {"1", "1", "1"});
-    read_values_units(j, "dr_marshall_franck_coeffs", pr.reaction_FM_coeff, {"1", "K", "K^2", "K^3", "1", "K", "K^2"});
-    read_values_units(j, "dr_dolejs_manning10_coeffs", pr.reaction_DM10_coeff, {"kJ/mol", "J/(mol*K)", "J/(mol*K)", "J/(mol*K^2)", "J/(mol*K)"});
+    readCoefficients(j, "dr_heat_capacity_ft_coeffs", pr.reaction_Cp_fT_coeff, {"J/(mol*K)", "J/(mol*K^2)", "(J*K)/mol", "J/(mol*K^0.5)", "J/(mol*K^3)"}, pr.coefficient_errors);
+    readCoefficients(j, "dr_volume_fpt_coeffs", pr.reaction_V_fT_coeff, {"1/K", "1/K^2", "1/K^3", "1/bar", "1/bar^2"}, pr.coefficient_errors);
+    readCoefficients(j, "dr_ryzhenko_coeffs", pr.reaction_RB_coeff, {"1", "1", "1"}, pr.coefficient_errors);
+    readCoefficients(j, "dr_marshall_franck_coeffs", pr.reaction_FM_coeff, {"1", "K", "K^2", "K^3", "1", "K", "K^2"}, pr.coefficient_errors);
+    readCoefficients(j, "dr_dolejs_manning10_coeffs", pr.reaction_DM10_coeff, {"kJ/mol", "J/(mol*K)", "J/(mol*K)", "J/(mol*K^2)", "J/(mol*K)"}, pr.coefficient_errors);
 }
 
 auto thermoRefPropSubst(const json &j) -> ThermoPropertiesSubstance
@@ -423,15 +458,15 @@ auto thermoRefPropSubst(const json &j) -> ThermoPropertiesSubstance
     std::string message;
 
     if (j.contains("sm_heat_capacity_p"))
-        tps.heat_capacity_cp.sta = readValueErrorUnit(j, "sm_heat_capacity_p", tps.heat_capacity_cp, "J/K/mol", message);
+        tps.heat_capacity_cp.sta = readValueErrorUnit(j, "sm_heat_capacity_p", tps.heat_capacity_cp.val, tps.heat_capacity_cp.err, "J/K/mol", message);
     if (j.contains("sm_gibbs_energy"))
-        tps.gibbs_energy.sta = readValueErrorUnit(j, "sm_gibbs_energy", tps.gibbs_energy, "J/mol", message);
+        tps.gibbs_energy.sta = readValueErrorUnit(j, "sm_gibbs_energy", tps.gibbs_energy.val, tps.gibbs_energy.err, "J/mol", message);
     if (j.contains("sm_enthalpy"))
-        tps.enthalpy.sta = readValueErrorUnit(j, "sm_enthalpy", tps.enthalpy, "J/mol", message);
+        tps.enthalpy.sta = readValueErrorUnit(j, "sm_enthalpy", tps.enthalpy.val, tps.enthalpy.err, "J/mol", message);
     if (j.contains("sm_entropy_abs"))
-        tps.entropy.sta = readValueErrorUnit(j, "sm_entropy_abs", tps.entropy, "J/K/mol", message);
+        tps.entropy.sta = readValueErrorUnit(j, "sm_entropy_abs", tps.entropy.val, tps.entropy.err, "J/K/mol", message);
     if (j.contains("sm_volume"))
-        tps.volume.sta = readValueErrorUnit(j, "sm_volume", tps.volume, "J/bar", message);
+        tps.volume.sta = readValueErrorUnit(j, "sm_volume", tps.volume.val, tps.volume.err, "J/bar", message);
 
     return tps;
 }
@@ -442,17 +477,17 @@ auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction
     std::string message;
 
     if (j.contains("logKr"))
-        tpr.log_equilibrium_constant.sta = readValueErrorUnit(j, "logKr", tpr.log_equilibrium_constant, "1", message);
+        tpr.log_equilibrium_constant.sta = readValueErrorUnit(j, "logKr", tpr.log_equilibrium_constant.val, tpr.log_equilibrium_constant.err, "1", message);
     if (j.contains("drsm_heat_capacity_p"))
-        tpr.reaction_heat_capacity_cp.sta = readValueErrorUnit(j, "drsm_heat_capacity_p", tpr.reaction_heat_capacity_cp, "J/K/mol", message);
+        tpr.reaction_heat_capacity_cp.sta = readValueErrorUnit(j, "drsm_heat_capacity_p", tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, "J/K/mol", message);
     if (j.contains("drsm_gibbs_energy"))
-        tpr.reaction_gibbs_energy.sta = readValueErrorUnit(j, "drsm_gibbs_energy", tpr.reaction_gibbs_energy, "J/mol", message);
+        tpr.reaction_gibbs_energy.sta = readValueErrorUnit(j, "drsm_gibbs_energy", tpr.reaction_gibbs_energy.val, tpr.reaction_gibbs_energy.err, "J/mol", message);
     if (j.contains("drsm_enthalpy"))
-        tpr.reaction_enthalpy.sta = readValueErrorUnit(j, "drsm_enthalpy", tpr.reaction_enthalpy, "J/mol", message);
+        tpr.reaction_enthalpy.sta = readValueErrorUnit(j, "drsm_enthalpy", tpr.reaction_enthalpy.val, tpr.reaction_enthalpy.err, "J/mol", message);
     if (j.contains("drsm_entropy"))
-        tpr.reaction_entropy.sta = readValueErrorUnit(j, "drsm_entropy", tpr.reaction_entropy, "J/K/mol", message);
+        tpr.reaction_entropy.sta = readValueErrorUnit(j, "drsm_entropy", tpr.reaction_entropy.val, tpr.reaction_entropy.err, "J/K/mol", message);
     if (j.contains("drsm_volume"))
-        tpr.reaction_volume.sta = readValueErrorUnit(j, "drsm_volume", tpr.reaction_volume, "J/bar", message);
+        tpr.reaction_volume.sta = readValueErrorUnit(j, "drsm_volume", tpr.reaction_volume.val, tpr.reaction_volume.err, "J/bar", message);
 
     return tpr;
 }

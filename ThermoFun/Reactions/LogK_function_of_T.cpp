@@ -5,10 +5,10 @@
 
 namespace ThermoFun {
 
-MethodCorrT_Thrift::type determineMethod(const Reaktoro_::ThermoScalar& dGr,
-                                         const Reaktoro_::ThermoScalar& dHr,
-                                         const Reaktoro_::ThermoScalar& dSr,
-                                         const Reaktoro_::ThermoScalar& dCpr)
+MethodCorrT_Thrift::type determineMethod(const Reaktoro_::ThermoProperty& dGr,
+                                         const Reaktoro_::ThermoProperty& dHr,
+                                         const Reaktoro_::ThermoProperty& dSr,
+                                         const Reaktoro_::ThermoProperty& dCpr)
 {
     using Status = Reaktoro_::Status;
 
@@ -29,8 +29,8 @@ MethodCorrT_Thrift::type determineMethod(const Reaktoro_::ThermoScalar& dGr,
     }
 
     // --- EK1: one defined AND that one equals zero ---
-    if ((has_dHr && dHr.val() == 0.0) ||
-        (has_dSr && dSr.val() == 0.0))
+    if ((has_dHr && dHr.val == 0.0) ||
+        (has_dSr && dSr.val == 0.0))
     {
         return MethodCorrT_Thrift::type::CTM_EK1;
     }
@@ -39,20 +39,103 @@ MethodCorrT_Thrift::type determineMethod(const Reaktoro_::ThermoScalar& dGr,
     return MethodCorrT_Thrift::type::CTM_EK0;
 }
 
-std::vector<Reaktoro_::ThermoScalar>
-makeThermoScalars(const std::vector<double>& values)
+auto prepareLogK_fT(Reaction reaction, double T, MethodCorrT_Thrift::type CE) -> LogKInputs
 {
-    std::vector<Reaktoro_::ThermoScalar> result(values.size());
+    using Status = Reaktoro_::Status;
 
-    std::transform(values.begin(), values.end(), result.begin(),
-                   [](double v) { return Reaktoro_::ThermoScalar(v); });
+    auto ref_tpr = reaction.thermoReferenceProperties();
+    LogKInputs in;
+    in.dVr  = ref_tpr.reaction_volume;
+    in.dHr  = ref_tpr.reaction_enthalpy;
+    in.dSr  = ref_tpr.reaction_entropy;
+    in.dCpr = ref_tpr.reaction_heat_capacity_cp;
+    in.dGr  = ref_tpr.reaction_gibbs_energy;
+    in.lgK  = ref_tpr.log_equilibrium_constant;
 
-    return result;
+    const bool has_dHr  = in.dHr.sta.first  != Status::notdefined;
+    const bool has_dSr  = in.dSr.sta.first  != Status::notdefined;
+    const bool has_dGr  = in.dGr.sta.first  != Status::notdefined;
+
+    if(has_dSr && has_dGr && !has_dHr)
+    {
+        in.dHr.val = in.dGr.val + in.dSr.val * T;
+        in.dHr.propagateFrom(in.dGr, in.dSr);
+        in.dHr.setError({{1.0, in.dGr.err}, {T, in.dSr.err}});
+    }
+    if(has_dHr && has_dGr && !has_dSr)
+    {
+        in.dSr.val = (in.dHr.val - in.dGr.val) / T;
+        in.dSr.propagateFrom(in.dHr, in.dGr);
+        in.dSr.setError({{1.0/T, in.dHr.err}, {1.0/T, in.dGr.err}});
+    }
+
+    if (CE == MethodCorrT_Thrift::type::CTM_EK3)
+        CE = determineMethod(in.dGr, in.dHr, in.dSr, in.dCpr);
+
+    in.method = CE;
+    return in;
 }
 
-auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReaction
+auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& in, double T, double P) -> void
 {
-    ThermoPropertiesReaction tpr;
+    Reaktoro_::ThermoProperty H = in.dHr, S = in.dSr, G = in.dGr, Cp = in.dCpr, V = in.dVr, Lg = in.lgK;
+
+    switch (in.method)
+    {
+        case MethodCorrT_Thrift::type::CTM_EK0: // lgK is the reference value
+            break;
+        case MethodCorrT_Thrift::type::CTM_EK1:
+            H = G;
+            Lg.propagateFrom(H);
+            break;
+        case MethodCorrT_Thrift::type::CTM_EK2:
+            Lg.propagateFrom(S, H);
+            break;
+        case MethodCorrT_Thrift::type::CTM_EK3:
+            Lg.propagateFrom(S, H, Cp);
+            S.propagateFrom(S, Cp);
+            H.propagateFrom(H, Cp);
+            break;
+        case MethodCorrT_Thrift::type::CTM_LGK:
+        case MethodCorrT_Thrift::type::CTM_LGX:
+            Lg.asCalculated();
+            H.asCalculated();
+            S.asCalculated();
+            Cp.asCalculated();
+            break;
+        default:
+            ;
+    }
+
+    G.propagateFrom(Lg);
+    G.setError({{R_CONSTANT*T*lg_to_ln, Lg.err}});
+
+    Reaktoro_::ThermoProperty U, A; // not defined
+    if (tpr.reaction_enthalpy.val != 0)
+    {
+        U.propagateFrom(H, V);
+        U.setError({{1.0, H.err}, {P/bar_to_Pa, V.err}});
+        A.propagateFrom(U, S);
+        A.setError({{1.0, U.err}, {T, S.err}});
+    }
+
+    auto set = [](Reaktoro_::ThermoProperty& to, const Reaktoro_::ThermoProperty& from) { to.sta = from.sta; to.err = from.err; };
+    set(tpr.log_equilibrium_constant, Lg);
+    tpr.ln_equilibrium_constant.propagateFrom(Lg);
+    tpr.ln_equilibrium_constant.setError({{lg_to_ln, Lg.err}});
+    set(tpr.reaction_gibbs_energy, G);
+    set(tpr.reaction_enthalpy, H);
+    set(tpr.reaction_entropy, S);
+    set(tpr.reaction_heat_capacity_cp, Cp);
+    set(tpr.reaction_volume, V);
+    set(tpr.reaction_helmholtz_energy, A);
+    set(tpr.reaction_internal_energy, U);
+    tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty(); // not calculated
+}
+
+auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReactionAD
+{
+    ThermoPropertiesReactionAD tpr;
     using Status = Reaktoro_::Status;
 
     auto Rln10   = R_CONSTANT * lg_to_ln;
@@ -60,26 +143,26 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     auto ref_tpr = reaction.thermoReferenceProperties();
     auto A       = reaction.thermoParameters().reaction_logK_fT_coeff;
     auto CpCoeff = reaction.thermoParameters().reaction_Cp_fT_coeff;
-    auto dVr     = ref_tpr.reaction_volume;   //Gr = rc[q].Gs[0];
-    auto dHr     = ref_tpr.reaction_enthalpy;
-    auto dSr     = ref_tpr.reaction_entropy;
-    auto dCpr    = ref_tpr.reaction_heat_capacity_cp;
-    auto dGr     = ref_tpr.reaction_gibbs_energy;
-    auto lgK     = ref_tpr.log_equilibrium_constant;
+    // the reference properties are constants
+    real dVr     = Reaktoro_::constant(ref_tpr.reaction_volume);   //Gr = rc[q].Gs[0];
+    real dHr     = Reaktoro_::constant(ref_tpr.reaction_enthalpy);
+    real dSr     = Reaktoro_::constant(ref_tpr.reaction_entropy);
+    real dCpr    = Reaktoro_::constant(ref_tpr.reaction_heat_capacity_cp);
+    real dGr     = Reaktoro_::constant(ref_tpr.reaction_gibbs_energy);
+    real lgK     = Reaktoro_::constant(ref_tpr.log_equilibrium_constant);
     auto Tr      = reaction.referenceT();
 
 
-    const bool has_dHr  = dHr.sta.first  != Status::notdefined;
-    const bool has_dSr  = dSr.sta.first  != Status::notdefined;
-    const bool has_dGr = dGr.sta.first != Status::notdefined;
+    const bool has_dHr  = ref_tpr.reaction_enthalpy.sta.first  != Status::notdefined;
+    const bool has_dSr  = ref_tpr.reaction_entropy.sta.first  != Status::notdefined;
+    const bool has_dGr  = ref_tpr.reaction_gibbs_energy.sta.first != Status::notdefined;
 
     if(has_dSr && has_dGr && !has_dHr)
         dHr = dGr + dSr * TK;
     if(has_dHr && has_dGr && !has_dSr)
         dSr = (dHr-dGr)/TK;
 
-    if (CE == MethodCorrT_Thrift::type::CTM_EK3)
-        CE = determineMethod(dGr,dHr,dSr,dCpr);
+    // the method CE was determined from the reference properties (see prepareLogK_fT)
 
     /// deal with Cp and A parameters conversion
     switch (CE)
@@ -163,7 +246,7 @@ auto thermoPropertiesReaction_LogK_fT(Reaktoro_::Temperature TK, Reaktoro_::Pres
     // Calculation of dGr
     dGr  = -R_T * lgK * lg_to_ln;
 //    if (dHr.val() == 0) dHr = dGr + dSr * TK;
-    Reaktoro_::ThermoScalar dUr, dAr;
+    real dUr, dAr;
     if (dHr.val() != 0)
     {
         dUr  = dHr - Pbar*dVr;

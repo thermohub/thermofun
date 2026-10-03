@@ -3,9 +3,9 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesFrantzMarshall(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction
+auto thermoPropertiesFrantzMarshall(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
 {
-    ThermoPropertiesReaction tpr;
+    ThermoPropertiesReactionAD tpr;
 
 //    auto ref_tpr = reaction.thermoReferenceProperties();
     auto RHO = wp.density/1000; // in g/cm3

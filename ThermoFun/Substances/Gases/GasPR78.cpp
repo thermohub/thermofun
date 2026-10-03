@@ -6,20 +6,20 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasPR78(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesGasPR78(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
-    double FugProps[6];
+    real FugProps[6];
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
-    solmod::TPR78calc myPR78( 1, (Pbar.val()), (TK.val()) );
+    solmod::TPR78calc myPR78( 1, Pbar, TK );
     double TClow = lowerTemperatureBound(subst, "PR78 Peng-Robinson fluid model");
-    double * CPg = new double[7];
+    real CPg[7];
     for (unsigned int i = 0; i < 7; i++)
     {
         CPg[i] = subst.thermoParameters().critical_parameters[i];
     }
 
-    myPR78.PR78CalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
+    myPR78.PR78CalcFugPure( (TClow/*+273.15*/), CPg, FugProps );
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
@@ -29,8 +29,6 @@ auto thermoPropertiesGasPR78(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     auto Fug = FugProps[0] * (Pbar);
     // back correction
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
-
-    subst.checkCalcMethodBounds("PR78 Peng-Robinson fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

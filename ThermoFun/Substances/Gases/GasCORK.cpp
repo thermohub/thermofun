@@ -7,9 +7,9 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
-    double FugProps[6];
+    real FugProps[6];
     char Eos_Code = 'G';
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
@@ -17,9 +17,9 @@ auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     if (subst.formula() == "CO2") Eos_Code = 'C';
     if (subst.formula() == "H2O") Eos_Code = 'V';
 
-    solmod::TCORKcalc myCORK( 1, Pbar.val(), (TK.val()), Eos_Code );  // modified 05.11.2010 (TW)
+    solmod::TCORKcalc myCORK( 1, Pbar, TK, Eos_Code );  // modified 05.11.2010 (TW)
     double TClow = lowerTemperatureBound(subst, "CORK compensated-Redlich-Kwong fluid model");
-    std::array<double, 7> CPg;
+    std::array<real, 7> CPg;
     for (unsigned int i = 0; i < 7; i++)
     {
         CPg[i] = subst.thermoParameters().critical_parameters[i];
@@ -34,8 +34,6 @@ auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar); //FugProps[0] - fugacity coefficient
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
-
-    subst.checkCalcMethodBounds("CORK compensated-Redlich-Kwong fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

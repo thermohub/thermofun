@@ -6,11 +6,11 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesMinBerman88(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* applied) -> ThermoPropertiesSubstanceAD
 {
     auto Pst = subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K
-    auto Vst = subst.thermoReferenceProperties().volume; // j/bar
+    auto Vst = Reaktoro_::constant(subst.thermoReferenceProperties().volume); // j/bar
     auto T   = TK;
     auto P   = Pbar; // in bar
     auto Ts2   = Tst*Tst;
@@ -27,11 +27,15 @@ auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure 
     auto aC = - vc[3] - vc[4]*2.*P;
 
     // increment thermodynamic properties
-    tps.volume = subst.thermoReferenceProperties().volume;  // added by KD 22.11.04
+    tps.volume = Vst;  // added by KD 22.11.04
+    if (applied)
+        *applied = false;
     if( (P-Pst) != 0.0 ||  (T-Tst) != 0.0 )
     {  // can be calculated
-        Reaktoro_::ThermoScalar VP = Vst * (P - Pst);
-        Reaktoro_::ThermoScalar VT = Vst * (T - Tst);
+        if (applied)
+            *applied = true;
+        real VP = Vst * (P - Pst);
+        real VT = Vst * (T - Tst);
         tps.gibbs_energy += ( VP );
         tps.enthalpy     += ( VP );
         tps.volume       += ( vc[0]*VT + vc[1]*VT*(T-Tst) + vc[2]*VT*Ts2 + vc[3]*VP + vc[4]*VP*(P-Pst) );
@@ -43,8 +47,6 @@ auto thermoPropertiesMinBerman88(Reaktoro_::Temperature TK, Reaktoro_::Pressure 
         tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
         tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
     }
-
-    subst.checkCalcMethodBounds("Berman multisite model", TK.val(), P.val()*1e05, tps);
 
 
     // maybe this should be added back?

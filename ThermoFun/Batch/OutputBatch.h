@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "../Common/ThermoScalar.hpp"
+#include "../Common/ThermoProperty.hpp"
 
 namespace ThermoFun {
 
@@ -54,7 +54,7 @@ public:
      * @brief toThermoScalar
      * @return property in ThermoScalar type
      */
-    auto toThermoScalar         () -> Reaktoro_::ThermoScalar;
+    auto toThermoScalar         () -> Reaktoro_::ThermoProperty;
 
     /**
      * @brief to2DVectorDouble

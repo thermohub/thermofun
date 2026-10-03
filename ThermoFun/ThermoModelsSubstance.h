@@ -1,14 +1,12 @@
 #ifndef THERMOMODELSUBSTANCE_H
 #define THERMOMODELSUBSTANCE_H
+#include "ThermoProperties.h"
 
 #include <memory>
 
 namespace ThermoFun {
 
 class Substance;
-struct PropertiesSolvent;
-struct ElectroPropertiesSolvent;
-struct ThermoPropertiesSubstance;
 
 /**
  * @brief The ThermoModelsSubstance class

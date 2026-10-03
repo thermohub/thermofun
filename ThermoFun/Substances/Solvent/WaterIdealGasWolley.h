@@ -1,13 +1,12 @@
 #ifndef WATERIDEALGASWOLLEY
 #define WATERIDEALGASWOLLEY
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 // Forward declarations
 class Substance;
-struct ThermoPropertiesSubstance;
 
 /**
  * @brief waterIdealGas
@@ -15,7 +14,7 @@ struct ThermoPropertiesSubstance;
  * @param p pressure (units in Pa)
  * @return thermodynamic properties of water in the ideal gas state
  */
-auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure p) -> ThermoPropertiesSubstance;
+auto waterIdealGas (real t, real p) -> ThermoPropertiesSubstanceAD;
 
 }
 

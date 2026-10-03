@@ -7,7 +7,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, const WaterThermoState& wt, const WaterTripleProperties& wtr) -> ThermoPropertiesSubstance
+auto thermoPropertiesWaterHGKreaktoro(real T, const WaterThermoState& wt, const WaterTripleProperties& wtr) -> ThermoPropertiesSubstanceAD
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
     const auto Ttr =  273.15;             // unit: K
@@ -31,7 +31,7 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, const WaterTherm
     const auto Cp = wt.cp * waterMolarMass;
     const auto Cv = wt.cv * waterMolarMass;
 
-    ThermoPropertiesSubstance state;
+    ThermoPropertiesSubstanceAD state;
     state.entropy          = S;
     state.enthalpy         = H;
     state.internal_energy  = U;
@@ -48,9 +48,9 @@ auto thermoPropertiesWaterHGKreaktoro(Reaktoro_::Temperature T, const WaterTherm
     return state;
 }
 
-auto propertiesWaterHGKreaktoro(const WaterThermoState& wt) -> PropertiesSolvent
+auto propertiesWaterHGKreaktoro(const WaterThermoState& wt) -> PropertiesSolventAD
 {
-    PropertiesSolvent state;
+    PropertiesSolventAD state;
 
     state.density    = wt.density;
     state.densityP   = wt.densityP;
@@ -77,9 +77,9 @@ auto propertiesWaterHGKreaktoro(const WaterThermoState& wt) -> PropertiesSolvent
     return state;
 }
 
-auto saturatedWaterVaporPressureHGK(Reaktoro_::Temperature TK) -> Reaktoro_::ThermoScalar
+auto saturatedWaterVaporPressureHGK(real TK) -> real
 {
-    Reaktoro_::ThermoScalar  pl, psHGK, v, w, b, q, z;
+    real  pl, psHGK, v, w, b, q, z;
     int i=-1;
     double a[8] ={ -0.78889166e1,  0.25514255e1, -0.6716169e1,  0.33239495e2,
                    -0.10538479e3,  0.17435319e3, -0.14839348e3, 0.48631602e2};

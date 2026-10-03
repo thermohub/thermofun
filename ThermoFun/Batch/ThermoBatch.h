@@ -1,5 +1,6 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
+#include "ThermoProperties.h"
 
 // C++ includes
 #include <map>
@@ -7,21 +8,17 @@
 #include <string>
 #include <vector>
 
-#include "../Common/ThermoScalar.hpp"
+#include "../Common/ThermoProperty.hpp"
 #include "OutputBatch.h"
 
 namespace ThermoFun {
 
 class Database;
 class ThermoEngine;
-struct ThermoPropertiesSubstance;
-struct ThermoPropertiesReaction;
-struct PropertiesSolvent;
-struct ElectroPropertiesSolvent;
 
 typedef std::vector<std::string> vstr;
 typedef std::vector<std::vector<double>> vvd;
-typedef std::vector<Reaktoro_::ThermoScalar> vThScalar;
+typedef std::vector<Reaktoro_::ThermoProperty> vThScalar;
 typedef std::vector<vThScalar> vvThScalar;
 typedef std::vector<ThermoPropertiesSubstance> vtps;
 typedef std::vector<ThermoPropertiesReaction>  vtpr;

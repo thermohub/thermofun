@@ -18,47 +18,47 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include "Common/ThermoScalar.hpp"
+#include "Common/Real.hpp"
 
 namespace ThermoFun {
 
 struct WaterElectroState
 {
 	/// The dielectric constant of water
-    Reaktoro_::ThermoScalar epsilon;
+    real epsilon;
 
 	/// The first-order partial derivative of the dielectric constant with respect to temperature
-    Reaktoro_::ThermoScalar epsilonT;
+    real epsilonT;
 
 	/// The first-order partial derivative of the dielectric constant with respect to pressure
-    Reaktoro_::ThermoScalar epsilonP;
+    real epsilonP;
 
 	/// The second-order partial derivative of the dielectric constant with respect to temperature
-    Reaktoro_::ThermoScalar epsilonTT;
+    real epsilonTT;
 
 	/// The second-order partial derivative of the dielectric constant with respect to temperature and pressure
-    Reaktoro_::ThermoScalar epsilonTP;
+    real epsilonTP;
 
 	/// The second-order partial derivative of the dielectric constant with respect to pressure
-    Reaktoro_::ThermoScalar epsilonPP;
+    real epsilonPP;
 
 	/// The Born function \f$ Z\equiv-\frac{1}{\epsilon} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro_::ThermoScalar bornZ;
+    real bornZ;
 
 	/// The Born function \f$ Y\equiv\left[\frac{\partial Z}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro_::ThermoScalar bornY;
+    real bornY;
 
 	/// The Born function \f$ Q\equiv\left[\frac{\partial Z}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro_::ThermoScalar bornQ;
+    real bornQ;
 
 	/// The Born function \f$ N\equiv\left[\frac{\partial Q}{\partial P}\right]_{T} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro_::ThermoScalar bornN;
+    real bornN;
 
 	/// The Born function \f$ U\equiv\left[\frac{\partial Q}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro_::ThermoScalar bornU;
+    real bornU;
 
 	/// The Born function \f$ X\equiv\left[\frac{\partial Y}{\partial T}\right]_{P} \f$ (see Helgeson and Kirkham, 1974)
-    Reaktoro_::ThermoScalar bornX;
+    real bornX;
 };
 
 } // namespace Reaktoro

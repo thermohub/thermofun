@@ -1,13 +1,13 @@
 #ifndef DOLEJSMANNING2010_H
 #define DOLEJSMANNING2010_H
 
-#include "Common/ThermoScalar.hpp"
+#include "Common/Real.hpp"
 #include "Reaction.h"
 #include "ThermoProperties.h"
 
 namespace ThermoFun {
 
-auto thermoPropertiesDolejsManning2010(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction;
+auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD;
 
 }
 

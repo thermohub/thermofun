@@ -1,12 +1,11 @@
 #ifndef SOLIDBMGOTTSCHALK
 #define SOLIDBMGOTTSCHALK
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 class Substance;
-struct ThermoPropertiesSubstance;
 
 /// Returns the correcected (dVdP) themrodynamic properties of a substance (mineral) uisng the using the Birch-Murnaghan EOS
 /// @ref Gottschalk M. (1997) Internally consistent thermodynamic data for rock-forming minerals in the system
@@ -15,7 +14,7 @@ struct ThermoPropertiesSubstance;
 /// @param p pressure (bar)
 /// @param subst substance instance
 /// @param tps structure holding the thermodynamicp porperties of the substance (previously) corrected with other models
-auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+auto thermoPropertiesMinBMGottschalk (real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps, bool* applied = nullptr) -> ThermoPropertiesSubstanceAD;
 
 }
 

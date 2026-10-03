@@ -23,9 +23,13 @@ using namespace ThermoFun;
 PYBIND11_MODULE(PyThermoFun, m)
 {
     update_loggers(false, "thermofun.log", 2);
+    // Enumerations (before the classes that use them)
+    exportGlobalVariables(m);
     // Common module
     exportThermoScalar(m);
     exportStatus(m);
+    exportTemperature(m);
+    exportPressure(m);
     // Properties 
     exportThermoPropertiesSubstance(m);
     exportThermoPropertiesReaction(m);
@@ -44,6 +48,9 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportSubstance(m);
     exportReaction(m);
     exportElement(m);
+    // Models, units and parsing
+    exportModels(m);
+    exportUtilities(m);
 
     m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of available substance methods.");
     m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of available reaction methods.");

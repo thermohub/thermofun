@@ -6,15 +6,15 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure Pbar, Substance subst,
-                                ThermoPropertiesSubstance tps, const ThermoPropertiesSubstance& wtp,
-                                const ThermoPropertiesSubstance& wigp, const PropertiesSolvent& wp,
-                                const ThermoPropertiesSubstance& wtpr, const ThermoPropertiesSubstance& wigpr,
-                                const PropertiesSolvent& wpr) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, Substance subst,
+                                ThermoPropertiesSubstanceAD tps, const ThermoPropertiesSubstanceAD& wtp,
+                                const ThermoPropertiesSubstanceAD& wigp, const PropertiesSolventAD& wp,
+                                const ThermoPropertiesSubstanceAD& wtpr, const ThermoPropertiesSubstanceAD& wigpr,
+                                const PropertiesSolventAD& wpr) -> ThermoPropertiesSubstanceAD
 {
-    Reaktoro_::ThermoScalar Geos, Veos, Seos, CPeos, Heos;
-    Reaktoro_::ThermoScalar Gids, /*Vids,*/ Sids, CPids, Hids;
-    Reaktoro_::ThermoScalar Geos298, Veos298, Seos298, CPeos298, Heos298;
+    real Geos, Veos, Seos, CPeos, Heos;
+    real Gids, /*Vids,*/ Sids, CPids, Hids;
+    real Geos298, Veos298, Seos298, CPeos298, Heos298;
 
     Geos298 = 0.0;
     Veos298 = 0.0;
@@ -35,7 +35,7 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     auto Tr = 298.15;
     auto Pr = 1.0;
 
-    ThermoPropertiesSubstance state = tps;
+    ThermoPropertiesSubstanceAD state = tps;
 
     const auto ADparam = subst.thermoParameters().Cp_nonElectrolyte_coeff;
 
@@ -63,14 +63,6 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     Akinfiev_EOS_increments(Tr, Pr, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
                        Geos298, Veos298, Seos298, CPeos298, Heos298 );
 
-    // The reference state increments are constants: they must not carry derivatives
-    // (Tr is seeded as a temperature when passed to the function above)
-    for (auto* x : {&Geos298, &Veos298, &Seos298, &CPeos298, &Heos298})
-    {
-        x->setDdt(0.0);
-        x->setDdp(0.0);
-    }
-
     // Getting back ideal gas properties corrected for T of interest
     // by substracting properties of hydration at Tr, Pr
     Gids    = state.gibbs_energy    -= Geos298;
@@ -97,7 +89,6 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
 
     // Getting dissolved gas properties corrected for T,P of interest
     // by adding properties of hydration at T,P
-    Gids.setDdp(0.0); Sids.setDdp(0.0); CPids.setDdp(0.0);
     state.gibbs_energy     = Gids + Geos + Seos298*(Tk-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
     // aW.twp->V = Vids + Veos;
     state.volume           = Veos;
@@ -107,20 +98,18 @@ auto thermoPropertiesAqSoluteAD(Reaktoro_::Temperature Tk, Reaktoro_::Pressure P
     state.internal_energy  = state.enthalpy - Pbar*state.volume;
     state.helmholtz_energy = state.internal_energy - Tk*state.entropy;
 
-    subst.checkCalcMethodBounds("Akinfiev and Diamond model", Tk.val(), Pbar.val()*1e5, tps);
-
     return state;
 }
 
-void Akinfiev_EOS_increments(Reaktoro_::Temperature Tk, Reaktoro_::Pressure /*P*/, Reaktoro_::ThermoScalar Gig, Reaktoro_::ThermoScalar Sig, Reaktoro_::ThermoScalar CPig,
-        Reaktoro_::ThermoScalar Gw, Reaktoro_::ThermoScalar Sw, Reaktoro_::ThermoScalar CPw, Reaktoro_::ThermoScalar rho, Reaktoro_::ThermoScalar alp, Reaktoro_::ThermoScalar bet, Reaktoro_::ThermoScalar dalpT, vd ADparam,
-        Reaktoro_::ThermoScalar &Geos, Reaktoro_::ThermoScalar &Veos, Reaktoro_::ThermoScalar &Seos, Reaktoro_::ThermoScalar &CPeos, Reaktoro_::ThermoScalar &Heos )
+void Akinfiev_EOS_increments(real Tk, real /*P*/, real Gig, real Sig, real CPig,
+        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, vd ADparam,
+        real &Geos, real &Veos, real &Seos, real &CPeos, real &Heos )
 {
 
-    Reaktoro_::ThermoScalar derP, derT, der2T;
-    Reaktoro_::ThermoScalar deltaB, lnKH, Nw, xi, aa, bb, RT;
-    Reaktoro_::ThermoScalar fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
-    Reaktoro_::ThermoScalar RR, R_CONST, MW;
+    real derP, derT, der2T;
+    real deltaB, lnKH, Nw, xi, aa, bb, RT;
+    real fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
+    real RR, R_CONST, MW;
 
     derP = 0.0; derT = 0.0; der2T = 0.0;
     deltaB = 0.0; lnKH = 0.0; Nw = 0.0; xi = 0.0; aa = 0.0; bb = 0.0; RT = 0.0;

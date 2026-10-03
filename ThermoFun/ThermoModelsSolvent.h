@@ -1,5 +1,6 @@
 #ifndef THERMOMODELSSOLVENT_H
 #define THERMOMODELSSOLVENT_H
+#include "ThermoProperties.h"
 
 #include <memory>
 #include <string>
@@ -8,8 +9,6 @@ namespace ThermoFun {
 
 // forward declarations
 class Substance;
-struct PropertiesSolvent;
-struct ThermoPropertiesSubstance;
 
 /**
  * @brief The WaterHGK class calculates the properties of water using the Haar-Gallagher-Kell (1984)
