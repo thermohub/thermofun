@@ -24,6 +24,21 @@
 namespace ThermoFun
 {
 
+/// Sets a flag and restores its previous value when the scope ends (also if an exception is thrown or the function returns
+/// early); release() restores it before that
+class FlagGuard
+{
+public:
+    FlagGuard(bool& flag, bool value) : flag_(&flag), previous_(flag) { flag = value; }
+    ~FlagGuard() { release(); }
+    auto release() -> void { if (flag_) { *flag_ = previous_; flag_ = nullptr; } }
+    FlagGuard(const FlagGuard&) = delete;
+    FlagGuard& operator=(const FlagGuard&) = delete;
+private:
+    bool* flag_;
+    bool previous_;
+};
+
 bool iequals(const std::string &a, const std::string &b)
 {
     size_t sz = a.size();
@@ -647,7 +662,7 @@ struct ThermoEngine::Impl
         std::map<std::string, double> reactants;
 
         // if reaction involves gases we switch on the P correction to the thermo props
-        preferences.apply_pressure_correction_to_gas_props = true;
+        FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
 
         if (!reactionSymbol.empty())
         {
@@ -726,7 +741,7 @@ struct ThermoEngine::Impl
             errorReactionNotDefined(subst.symbol(), __LINE__, __FILE__);
         }
 
-        preferences.apply_pressure_correction_to_gas_props = false;
+        gas_pressure_correction.release();
 
         // pressure correction on rdc assuming constant molar volume
         if ((subst.method_P() == MethodCorrP_Thrift::type::CPM_CON) &&
@@ -909,7 +924,7 @@ struct ThermoEngine::Impl
         tpr.reaction_internal_energy = 0.0;
         tpr.reaction_helmholtz_energy = 0.0;
 
-        preferences.apply_pressure_correction_to_gas_props = true;
+        FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
 
         // the properties of the reactants
         std::vector<std::pair<ThermoPropertiesSubstance, double>> components;
@@ -933,7 +948,7 @@ struct ThermoEngine::Impl
 
         tpr = ReactionFromReactantsProperties(reaction).thermoProperties(T, P, components, symbols);
 
-        preferences.apply_pressure_correction_to_gas_props = false;
+        gas_pressure_correction.release();
         return tpr;
     }
 

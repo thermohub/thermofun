@@ -113,7 +113,7 @@ the reaction that defines it. Each model reads its coefficients as `{"values": [
 | List the models you can put in a record | `tf.availableSubstanceTPMethods()`, `tf.availableReactionTPMethods()`. |
 | List the properties and units | `tf.availablePropertiesSubstance()`, `tf.availablePropertiesReaction()`. |
 | Add or replace records | `Database.addSubstance`/`setSubstance`/`addMapSubstances`/`setMapSubstances`, and the same for reactions and elements. `set...` overwrites with a warning; `setMap...` overwrites silently. |
-| Give an uncertainty | Add `"errors": [...]` next to `values` of a reference property or of a coefficient entry. |
+| Give an uncertainty | Add `"errors": [...]` next to `values` of a reference property or of a coefficient entry. A coefficient entry has at most 1000 values (the models use up to a few tens; the longest in the test databases has 12): a longer one is refused when the record is read. |
 
 ## Autodiff — derivatives
 

@@ -231,3 +231,20 @@ def test_an_incomplete_parameter_uncertainty_is_not_reported_as_complete(data, t
     assert math.isnan(tps.gibbs_energy.err)
     assert "incomplete" in tps.gibbs_energy.sta[1]
     assert math.isfinite(tps.gibbs_energy.val)
+
+
+def test_too_many_coefficients_are_rejected(data, tmp_path):
+    """A record with an unreasonably long coefficient array is refused (the models use a few tens of values)."""
+    cal = substance(data, "Cal")
+    cal["TPMethods"][0]["m_heat_capacity_ft_coeffs"]["values"] = [0.0] * 1001
+    cal["TPMethods"][0]["m_heat_capacity_ft_coeffs"]["errors"] = [1.0] * 1001
+    with pytest.raises(RuntimeError, match="Too many coefficient values"):
+        make_engine(data, False, tmp_path)
+
+
+def test_the_gas_pressure_correction_flag_is_restored_after_a_failed_calculation(data, tmp_path):
+    reaction_data(data, {"Cal": -1.0, "No-such-substance": 1.0})
+    eng = make_engine(data, False, tmp_path)
+    with pytest.raises(RuntimeError):
+        eng.thermoPropertiesReactionFromReactants(298.15, 1e5, "test-reaction")
+    assert eng.preferences.apply_pressure_correction_to_gas_props is False

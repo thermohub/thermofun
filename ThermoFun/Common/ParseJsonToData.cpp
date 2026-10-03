@@ -102,25 +102,32 @@ auto readValueErrorUnit(const json& j, const std::string& propPath, double& val,
     return status;
 }
 
+/// Convert the i-th value (the units of the values missing in the lists are those of the model)
+static auto convert_value_units(double value, size_t i, const std::vector<std::string>& units_from, const std::vector<std::string>& units_to) -> double
+{
+    std::string from = (i < units_from.size()) ? units_from[i] : "";
+    std::string to = (i < units_to.size()) ? units_to[i] : "";
+
+    if (from.empty())
+        from = to;
+
+    if (from.empty() || to.empty()) {
+        from = "1";
+        to = "1";
+    }
+
+    return units::convert(value, from, to);
+}
+
 auto convert_values_units(std::vector<double> values, const std::vector<std::string>& units_from, const std::vector<std::string>& units_to) -> std::vector<double>
 {
     for (size_t i = 0; i < values.size(); ++i)
-    {
-        std::string from = (i < units_from.size()) ? units_from[i] : "";
-        std::string to = (i < units_to.size()) ? units_to[i] : "";
-
-        if (from.empty())
-            from = to;
-
-        if (from.empty() || to.empty()) {
-            from = "1";
-            to = "1";
-        }
-
-        values[i] = units::convert(values[i], from, to);
-    }
+        values[i] = convert_value_units(values[i], i, units_from, units_to);
     return values;
 }
+
+/// The largest number of values of a coefficient entry accepted (the models use up to a few tens)
+static constexpr size_t max_coefficients = 1000;
 
 auto read_values_units(const json& j, const std::string& data, std::vector<double>& values, const std::vector<std::string>& units_to, std::vector<double>* errors = nullptr) -> void
 {
@@ -141,6 +148,14 @@ auto read_values_units(const json& j, const std::string& data, std::vector<doubl
             units_from = units_to;
         }
 
+        if (entry.contains("values") && entry["values"].is_array() && entry["values"].size() > max_coefficients) {
+            Exception exception;
+            exception.error << "Too many coefficient values in " << data;
+            exception.reason << "The entry has " << entry["values"].size() << " values, the limit is " << max_coefficients << ". ";
+            exception.line = __LINE__;
+            RaiseError(exception)
+        }
+
         if (entry.contains("values") && entry["values"].is_array() && !entry["values"].is_null()) {
             values = convert_values_units(entry["values"].get<std::vector<double>>(), units_from, units_to);
 
@@ -149,22 +164,13 @@ auto read_values_units(const json& j, const std::string& data, std::vector<doubl
             {
                 const auto raw = entry["values"].get<std::vector<double>>();
                 std::vector<double> e(raw.size(), 0.0);
-                // all the values with their errors added are converted in one pass (the conversion is element by element), so the
-                // work is linear in the number of coefficients
-                auto up = raw;
-                std::vector<char> has(raw.size(), 0);
+                // only the coefficients with an error are converted (each one with its own units): the work is linear in
+                // the number of coefficients
                 bool any = false;
                 for (size_t i = 0; i < raw.size() && i < entry["errors"].size(); ++i)
                     if (entry["errors"][i].is_number() && entry["errors"][i].get<double>() > 0.0)
                     {
-                        up[i] += entry["errors"][i].get<double>();
-                        has[i] = 1;
-                    }
-                const auto converted = convert_values_units(up, units_from, units_to);
-                for (size_t i = 0; i < raw.size(); ++i)
-                    if (has[i])
-                    {
-                        const double diff = std::fabs(converted[i] - values[i]);
+                        const double diff = std::fabs(convert_value_units(raw[i] + entry["errors"][i].get<double>(), i, units_from, units_to) - values[i]);
                         if (!std::isfinite(diff)) continue; // an overflowing error cannot be an uncertainty
                         e[i] = diff;
                         any = true;
