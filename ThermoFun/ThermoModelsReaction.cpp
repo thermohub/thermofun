@@ -33,7 +33,7 @@ ReactionDolejsManning10::ReactionDolejsManning10(const Reaction &reaction)
 auto ReactionDolejsManning10::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesFrantzMarshall(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+        return thermoPropertiesDolejsManning2010(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
     });
 
     // the logarithm of the equilibrium constant and the isochoric heat capacity are not calculated

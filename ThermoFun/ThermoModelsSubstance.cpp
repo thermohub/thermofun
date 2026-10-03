@@ -307,7 +307,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
 
     setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes);
 
-    pimpl->substance.checkCalcMethodBounds("HKF model", T - C_to_K, P / bar_to_Pa, tps);
+    pimpl->substance.checkCalcMethodBounds("HKF model", T, P, tps);
     if (wp.density.val >= 1400 || wp.density.val <= 600)
         setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);
 
@@ -733,11 +733,12 @@ static auto gasProperties(double T, double P, const Substance& substance, const 
     out.volume.sta = {Reaktoro_::Status::assigned, ""};
     out.volume.err = 0.0;
 
-    Substance subst = substance;
-    subst.checkCalcMethodBounds(modelName, T, P, out);
-
     if (apply_p)
         applyPressureStatus(out);
+
+    // last, so that the status propagation does not erase the bounds message
+    Substance subst = substance;
+    subst.checkCalcMethodBounds(modelName, T, P, out);
 
     return out;
 }

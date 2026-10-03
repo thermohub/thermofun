@@ -43,7 +43,7 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+    auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         WaterThermoState wts;
 
         wts.density   = pass(ps.density);
@@ -55,6 +55,14 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
 
         return electroPropertiesWaterJNreaktoro(waterElectroStateJohnsonNorton(pass.T, /*pass.P,*/ wts, state));
     });
+
+    // the calculation only keeps the values and derivatives of the density, so its errors
+    // and statuses are propagated onto every result here
+    for (auto* x : {&eps.epsilon, &eps.epsilonT, &eps.epsilonP, &eps.epsilonTT, &eps.epsilonTP, &eps.epsilonPP,
+                    &eps.bornZ, &eps.bornY, &eps.bornQ, &eps.bornN, &eps.bornU, &eps.bornX})
+        x->propagateFrom(ps.density, ps.densityT, ps.densityP, ps.densityTT, ps.densityTP, ps.densityPP);
+
+    return eps;
 }
 
 //=======================================================================================================
