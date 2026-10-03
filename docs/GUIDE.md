@@ -158,7 +158,8 @@ uncertainties in the database, results are at 95 % too.
 | Derived properties | `U = H - P V`, `A = U - T S`, ... analytically. |
 | Coefficients of the models | Only with `propagate_parameter_errors = True`: each coefficient with an error is varied by `+-` its error and half the difference of the results is added in quadrature. |
 
-Not covered: correlations (no covariance matrices) and the solvent models. The assignment of uncertainties
+If the calculation fails for a perturbed parameter, the affected `err` is `NaN` and the message of `sta` says the
+uncertainty is incomplete. Not covered: correlations (no covariance matrices) and the solvent models. The assignment of uncertainties
 (weighted means, SIT extrapolation) is part of data evaluation and is not done here. Details and the
 NEA TDB-3 worked example: [autodiff.md, section 5](autodiff.md#5-errors-uncertainties).
 

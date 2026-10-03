@@ -220,3 +220,14 @@ def test_coefficient_errors_are_read_from_the_records(data, tmp_path):
     cal = tf.Database(str(tmp_path / "db.json")).getSubstance("Cal")
     errors = cal.thermoParameters().coefficient_errors
     assert errors["m_heat_capacity_ft_coeffs"][0][:3] == pytest.approx([0.5, 1e-4, 2e4])
+
+
+def test_an_incomplete_parameter_uncertainty_is_not_reported_as_complete(data, tmp_path):
+    """If the calculation with a perturbed parameter gives no finite result the uncertainty is not a number (with a
+    message in the status), and not a too small error that looks complete."""
+    substance(data, "Cal")["sm_gibbs_energy"]["errors"] = [1e308]    # (y(p+s) - y(p-s))/2 overflows
+    eng = make_engine(data, True, tmp_path)
+    tps = eng.thermoPropertiesSubstance(298.15, 1e5, "Cal")
+    assert math.isnan(tps.gibbs_energy.err)
+    assert "incomplete" in tps.gibbs_energy.sta[1]
+    assert math.isfinite(tps.gibbs_energy.val)

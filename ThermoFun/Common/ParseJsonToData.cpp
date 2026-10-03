@@ -149,12 +149,22 @@ auto read_values_units(const json& j, const std::string& data, std::vector<doubl
             {
                 const auto raw = entry["values"].get<std::vector<double>>();
                 std::vector<double> e(raw.size(), 0.0);
+                // all the values with their errors added are converted in one pass (the conversion is element by element), so the
+                // work is linear in the number of coefficients
+                auto up = raw;
+                std::vector<char> has(raw.size(), 0);
                 bool any = false;
                 for (size_t i = 0; i < raw.size() && i < entry["errors"].size(); ++i)
                     if (entry["errors"][i].is_number() && entry["errors"][i].get<double>() > 0.0)
                     {
-                        auto up = raw; up[i] += entry["errors"][i].get<double>();
-                        const double diff = std::fabs(convert_values_units(up, units_from, units_to)[i] - values[i]);
+                        up[i] += entry["errors"][i].get<double>();
+                        has[i] = 1;
+                    }
+                const auto converted = convert_values_units(up, units_from, units_to);
+                for (size_t i = 0; i < raw.size(); ++i)
+                    if (has[i])
+                    {
+                        const double diff = std::fabs(converted[i] - values[i]);
                         if (!std::isfinite(diff)) continue; // an overflowing error cannot be an uncertainty
                         e[i] = diff;
                         any = true;

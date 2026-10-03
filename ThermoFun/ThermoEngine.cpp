@@ -1,4 +1,6 @@
 // ThermoFun includes
+#include <algorithm>
+#include <limits>
 #include "Common/Exception.h"
 #include "ThermoEngine.h"
 #include "Database.h"
@@ -1087,7 +1089,10 @@ struct ThermoEngine::Impl
             return out;
         };
 
-        std::vector<double> sum2(fields(result).size(), 0.0);
+        auto fr = fields(result);
+        std::vector<double> sum2(fr.size(), 0.0);
+        std::vector<char> incomplete(fr.size(), 0); // a contribution to the error is missing
+        auto defined = [&](size_t k) { return fr[k]->sta.first != Reaktoro_::Status::notdefined; };
         for (const auto& q : parameters)
         {
             try
@@ -1097,15 +1102,31 @@ struct ThermoEngine::Impl
                 auto fp = fields(plus), fm = fields(minus);
                 for (size_t k = 0; k < fp.size(); ++k)
                 {
-                    if (fp[k]->sta.first == Reaktoro_::Status::notdefined || fm[k]->sta.first == Reaktoro_::Status::notdefined) continue;
+                    if (!defined(k)) continue;
+                    if (fp[k]->sta.first == Reaktoro_::Status::notdefined || fm[k]->sta.first == Reaktoro_::Status::notdefined)
+                    {
+                        incomplete[k] = 1;
+                        continue;
+                    }
                     const double d = 0.5 * (fp[k]->val - fm[k]->val);
-                    if (std::isfinite(d)) sum2[k] += d * d;
+                    if (std::isfinite(d)) sum2[k] += d * d; else incomplete[k] = 1;
                 }
             }
-            catch (...) {} // no contribution of a parameter for which the calculation fails
+            catch (...) // the calculation fails for this parameter: the error of every property is incomplete
+            {
+                std::fill(incomplete.begin(), incomplete.end(), 1);
+            }
         }
-        auto fr = fields(result);
-        for (size_t k = 0; k < fr.size(); ++k) fr[k]->err = std::sqrt(sum2[k]);
+        for (size_t k = 0; k < fr.size(); ++k)
+        {
+            if (!defined(k)) { fr[k]->err = std::sqrt(sum2[k]); continue; }
+            if (!incomplete[k]) { fr[k]->err = std::sqrt(sum2[k]); continue; }
+            // not a number instead of an error that is too small (or 0) and looks complete
+            fr[k]->err = std::numeric_limits<double>::quiet_NaN();
+            auto& message = fr[k]->sta.second;
+            message += std::string(message.empty() ? "" : " ") +
+                "The uncertainty from the parameter errors is incomplete (the calculation failed or was not defined for a perturbed parameter): err is not a number.";
+        }
     }
 
     /// Round the values of the properties to the decimals of their uncertainties (NEA TDB rules) if requested

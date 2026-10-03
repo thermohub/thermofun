@@ -164,6 +164,9 @@ The error `err` of a property is a first-order (linear) propagation of independe
   the database, and `err = sqrt(sum ((y(p+s) - y(p-s))/2)^2)` for every property. The parameters of the reactants of a
   reaction and of the reactions of a substance are perturbed together, so parameters shared by several records
   are correlated correctly. Cost: two extra calculations per parameter that has an error (none without errors).
+  If the calculation fails for a perturbed parameter, or gives a property that is not defined or not finite, the
+  uncertainty of the affected properties is incomplete: their `err` is not a number and the message of their status says so (instead of an
+  error that is too small, or 0, and looks complete).
   Not covered: the solvent models, correlations between different parameters (no covariance matrices), nonlinear
   models are evaluated at the step `s` (not a Taylor expansion).
 - **Rounding (`preferences.round_to_uncertainty`, default off).** Following TDB-3 (Rounding, Significant digits) the value of
