@@ -18,6 +18,9 @@
 namespace ThermoFun {
 namespace cgf {
 
+/// pi (pi is not defined by MSVC without _USE_MATH_DEFINES)
+constexpr double pi = 3.14159265358979323846;
+
 /// the WCA free energy and its partial derivatives with respect to beta = 1/T and rho (reduced units), and those of the diameter
 struct WcaDerivatives
 {
@@ -95,7 +98,7 @@ inline auto wcaDerivatives(const real& b, const real& r, const real& d, WcaDeriv
     const auto w29 = b*w28;
     const auto w30 = w29*w8;
     const auto w31 = -3.2898681336964537*w18 + 52.63789013914326*w30 + 7.5467338724534025;
-    const auto w32 = (1.0/((M_PI)));
+    const auto w32 = (1.0/((pi)));
     const auto w33 = (b*b)*w32;
     const auto w34 = w33*w7;
     const auto w35 = b*w7;
@@ -1767,7 +1770,7 @@ inline auto pureFluidDerivatives(const real& T, const real& rho, const real* c, 
         const auto n11 = n10*n9 - n5*rho;
         const auto n12 = n11*n3;
         const auto n13 = (1.0/(n8));
-        const auto n14 = (1.0/((M_PI)));
+        const auto n14 = (1.0/((pi)));
         const auto n15 = T + c9;
         const auto n16 = c2 + c8/n15;
         const auto n17 = (n16*n16);
@@ -1825,11 +1828,11 @@ inline auto pureFluidDerivatives(const real& T, const real& rho, const real* c, 
         const auto p25 = 1.2041344220999999 - 1.0536431417999998*p23;
         const auto p26 = exp(p12*(0.63392363790804*p11*rho - 0.38109727116486*p24 - p25));
         const auto p27 = p19*p21*p22*p26*(rho*rho);
-        const auto p28 = pow(M_PI, 4.5)*p11*p27;
+        const auto p28 = pow(pi, 4.5)*p11*p27;
         const auto p29 = p18*p28*p4 - 1.0;
         const auto p30 = 6868760.802921274*p17;
         const auto p31 = pow(p10, -6);
-        const auto p32 = (1.0/((M_PI)));
+        const auto p32 = (1.0/((pi)));
         const auto p33 = p14*p20;
         const auto p34 = p32*p33;
         const auto p35 = p31*p34;
@@ -1837,7 +1840,7 @@ inline auto pureFluidDerivatives(const real& T, const real& rho, const real* c, 
         const auto p37 = (1.0/(p36));
         const auto p38 = (1.0/(p11));
         const auto p39 = 4137054.6315994826*p32*p33*p38;
-        const auto p40 = pow(M_PI, 3.5);
+        const auto p40 = pow(pi, 3.5);
         const auto p41 = -1.0/p17;
         const auto p42 = 46.041217401388465*p12;
         const auto p43 = pow(T, -3.661046);
