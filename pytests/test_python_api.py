@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+
 """The Python API of ThermoFun: enumerations, models, units, records, database, engine and batch."""
 import json
 import os

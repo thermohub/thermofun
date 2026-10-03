@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
 #ifndef SOLIDMURNAGHANHP98_H
 #define SOLIDMURNAGHANHP98_H
 #include "ThermoProperties.h"

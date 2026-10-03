@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // Python bindings of the calculation models of ThermoFun (the models of the substances, reactions, solvents and of
 // the electro-chemical properties of the solvent). The ThermoEngine selects and calls them from the records of the
 // database; here they can be used directly, with a Substance or a Reaction as the source of the parameters.

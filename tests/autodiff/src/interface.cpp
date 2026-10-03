@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // The interface of ThermoFun used by external codes is not changed by the use of autodiff:
 // the header Common/ThermoScalar.hpp with the types Reaktoro_::ThermoScalar, Temperature and Pressure (with their
 // arithmetic), ThermoVariables, the members val, ddt, ddp, err and sta of the properties, and the ThermoEngine calls.

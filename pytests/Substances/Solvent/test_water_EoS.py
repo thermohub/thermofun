@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2024-2026 ThermoFun contributors
+
 import thermofun as thermofun
 import pytest as pytest
 import unittest

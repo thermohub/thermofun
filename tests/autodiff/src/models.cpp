@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // Tests that the derivatives with respect to temperature and pressure of the properties calculated by models
 // that are not covered by the databases of the tests agree with finite differences of their values.
 #include <cmath>

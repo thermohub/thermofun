@@ -346,6 +346,15 @@ Remember to always activate thermofun environment whenever you use ThermoFun fro
 
 Now we can proceed and [build ThermoFun using CMake.](#install-thermofun-using-cmake)
 
+## License
+
+ThermoFun is free software under the GNU Lesser General Public License, version 3 or (at your option) any later version
+([LICENSE](LICENSE); the GNU GPL v3 it refers to is in [LICENSE.GPL-3.0](LICENSE.GPL-3.0)). Files carry a short
+`SPDX-License-Identifier` line. Some files are derived from other projects (Reaktoro, GEMS3K) and keep the notice of
+their origin: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+The license is compatible with [Reaktoro](https://github.com/reaktoro/reaktoro) (LGPL 2.1 or later), which uses ThermoFun: the files derived from Reaktoro are LGPL-2.1-or-later, and the rest of ThermoFun is LGPL-3.0-or-later, which the "or later" of Reaktoro's license allows to combine.
+
 ## Reporting bugs
 
 To report a bug, please go to [ThermoFun's Issues](https://github.com/thermohub/thermofun/issues/new) and enter a *descriptive title* and *write your issue with enough details*. Please provide a *minimum reproducible example* to be more efficient in identifying the bug and fixing it. 

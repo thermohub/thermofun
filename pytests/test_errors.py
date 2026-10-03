@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+
 """Propagation of the errors (uncertainties) of the properties of substances and reactions."""
 import copy
 import json

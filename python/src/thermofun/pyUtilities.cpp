@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // Python bindings of the utility functions of ThermoFun: units, parsing of JSON records, the thermodynamic variables
 
 #if _MSC_VER >= 1929

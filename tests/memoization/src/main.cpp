@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // Regression tests for the memoization helpers in ThermoFun/OptimizationUtils.h.
 //
 // These pin down the contract that ThermoEngine.cpp relies on for its four

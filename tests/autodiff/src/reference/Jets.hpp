@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 #ifndef THERMOFUN_JETS_HPP
 #define THERMOFUN_JETS_HPP
 

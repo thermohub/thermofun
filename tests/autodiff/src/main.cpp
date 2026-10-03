@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
 // Tests of the autodiff infrastructure: the derivatives with respect to temperature and pressure calculated
 // with autodiff::real in two passes (see Pass), and the explicit propagation of errors and statuses.
 #include <cmath>

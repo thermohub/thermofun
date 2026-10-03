@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2023-2026 ThermoFun contributors
+
 """Plotting functions for thermodynamic substance properties visualization."""
 
 import pandas as pd
