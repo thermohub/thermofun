@@ -135,7 +135,7 @@ properties whose **value** needs a derivative; they are `notdefined`:
 | `heat_capacity_cv` of substances (and `reaction_heat_capacity_cv` of the reactions that use them) | `Cv = Cp - T V alpha^2/beta` needs `dV/dT` and `dV/dP`. The Cv of the water solvent models is analytical and kept. |
 | `densityTP` of the GEMS HGK water | It is `d(densityT)/dP`. `densityT`, `densityP`, `densityTT` and `densityPP` are analytical and kept. |
 
-`thermofun.with_autodiff` is `False` in the Python package of this build, and the derivative tests are skipped.
+(With `fallback_to_reference_properties` on, an undefined property is replaced by the reference value of the record when it has one, as for any property that cannot be calculated, so `Cv` is then the reference `Cv`.) `thermofun.with_autodiff` is `False` in the Python package of this build, and the derivative tests are skipped.
 Projects that use ThermoFun through CMake (`find_package(ThermoFun)`) get the setting from the installed target,
 so they build with plain numbers too.
 

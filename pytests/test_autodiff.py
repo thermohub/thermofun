@@ -180,3 +180,17 @@ def test_gas_derivatives_match_finite_differences():
                     fd = central_difference(fn, prop, T, P, wrt, 1e-4)
                     assert ad == pytest.approx(fd, rel=2e-3, abs=1e-12), f"{symbol} {prop} d/d{wrt}"
 
+
+
+def test_gems_hgk_density_tp_has_exact_third_derivatives():
+    """densityTP = d(density)/dT dP of the GEMS HGK water: its ddt and ddp are the mixed third derivatives."""
+    f = 'pytests/PsiTDB2020-subset-thermofun.json'
+    e = thermofun.ThermoEngine(f)
+    e.setSolventSymbol("H2O(l)")
+    for T, P in [(373.15, 1e7), (573.15, 5e7)]:
+        ps = e.propertiesSolvent(T, P, "H2O(l)")
+        hP, hT = 1e-3 * P, 1e-2
+        fd_p = (e.propertiesSolvent(T, P + hP, "H2O(l)").densityTP.val - e.propertiesSolvent(T, P - hP, "H2O(l)").densityTP.val) / (2 * hP)
+        fd_t = (e.propertiesSolvent(T + hT, P, "H2O(l)").densityTP.val - e.propertiesSolvent(T - hT, P, "H2O(l)").densityTP.val) / (2 * hT)
+        assert ps.densityTP.ddp == pytest.approx(fd_p, rel=1e-4)
+        assert ps.densityTP.ddt == pytest.approx(fd_t, rel=1e-4)
