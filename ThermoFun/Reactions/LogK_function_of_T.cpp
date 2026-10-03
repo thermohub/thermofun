@@ -60,11 +60,13 @@ auto prepareLogK_fT(Reaction reaction, double T, MethodCorrT_Thrift::type CE) ->
     {
         in.dHr.val = in.dGr.val + in.dSr.val * T;
         in.dHr.propagateFrom(in.dGr, in.dSr);
+        in.dHr.setError({{1.0, in.dGr.err}, {T, in.dSr.err}});
     }
     if(has_dHr && has_dGr && !has_dSr)
     {
         in.dSr.val = (in.dHr.val - in.dGr.val) / T;
         in.dSr.propagateFrom(in.dHr, in.dGr);
+        in.dSr.setError({{1.0/T, in.dHr.err}, {1.0/T, in.dGr.err}});
     }
 
     if (CE == MethodCorrT_Thrift::type::CTM_EK3)
@@ -74,7 +76,7 @@ auto prepareLogK_fT(Reaction reaction, double T, MethodCorrT_Thrift::type CE) ->
     return in;
 }
 
-auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& in) -> void
+auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& in, double T, double P) -> void
 {
     Reaktoro_::ThermoProperty H = in.dHr, S = in.dSr, G = in.dGr, Cp = in.dCpr, V = in.dVr, Lg = in.lgK;
 
@@ -106,17 +108,21 @@ auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& in) -> vo
     }
 
     G.propagateFrom(Lg);
+    G.setError({{R_CONSTANT*T*lg_to_ln, Lg.err}});
 
     Reaktoro_::ThermoProperty U, A; // not defined
     if (tpr.reaction_enthalpy.val != 0)
     {
         U.propagateFrom(H, V);
+        U.setError({{1.0, H.err}, {P/bar_to_Pa, V.err}});
         A.propagateFrom(U, S);
+        A.setError({{1.0, U.err}, {T, S.err}});
     }
 
     auto set = [](Reaktoro_::ThermoProperty& to, const Reaktoro_::ThermoProperty& from) { to.sta = from.sta; to.err = from.err; };
     set(tpr.log_equilibrium_constant, Lg);
     tpr.ln_equilibrium_constant.propagateFrom(Lg);
+    tpr.ln_equilibrium_constant.setError({{lg_to_ln, Lg.err}});
     set(tpr.reaction_gibbs_energy, G);
     set(tpr.reaction_enthalpy, H);
     set(tpr.reaction_entropy, S);

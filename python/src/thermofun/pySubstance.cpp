@@ -81,6 +81,10 @@ void exportSubstance(py::module& m)
         .def("aggregateState", &Substance::aggregateState, "Return the aggregate state of a substance")
         .def("charge", &Substance::charge, "Return the charge of a substance")
         .def("jsonString", &Substance::jsonString, "Return the record as a json string")
+        .def("checkCalcMethodBounds",
+             [](Substance& self, std::string modelName, double T, double P, ThermoPropertiesSubstance tps) { self.checkCalcMethodBounds(modelName, T, P, tps); return tps; },
+             py::arg("model_name"), py::arg("T"), py::arg("P"), py::arg("tps"),
+             "Check that T (K) and P (Pa) are within the limits of the method of the substance; returns the properties with the status and the message set if outside the limits (raises an exception for hard limits)")
         .def("__str__", [](const Substance& self) { std::stringstream ss; ss << self; return ss.str(); })
         ;
 }

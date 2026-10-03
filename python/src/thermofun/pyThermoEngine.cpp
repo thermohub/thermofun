@@ -27,6 +27,7 @@ namespace py = pybind11;
 
 // ThermoFun includes
 #include <ThermoFun/ThermoEngine.h>
+#include <ThermoFun/Common/Rounding.hpp>
 #include <ThermoFun/Database.h>
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/Reaction.h>
@@ -91,6 +92,8 @@ void exportThermoEngine(py::module& m)
         .def(py::init<const ThermoEngine&>())
         .def("appendData", appendData1, "Append a json string record to the database from a file", py::arg("record_json_string"))
         .def("appendData", appendData2, "Append records of given label (element, substance, reaction) to the database from a list of JSON strings", py::arg("records_json"), py::arg("label"))
+        .def("setPreferences", &ThermoEngine::setPreferences, "Set the preferences used in the engine calculations", py::arg("preferences"))
+        .def("database", &ThermoEngine::database, py::return_value_policy::reference_internal, "The database of the engine")
         .def("setSolventSymbol", &ThermoEngine::setSolventSymbol, "Sets the symbol of the solvent record present in the thermodynamic dataset. Will be used to calculate the solvent properties ", py::arg("symbol"))
         .def("solventSymbol", &ThermoEngine::solventSymbol, "Returns the symbol of the solvent record used to calculate the solvent properties")
         .def_property_readonly( "preferences", [](ThermoEngine& en) -> const EnginePreferences& { return en.preferences(); }, py::return_value_policy::reference_internal, "Access the preferences used in engine calculations" )
@@ -126,7 +129,26 @@ void exportThermoEngine(py::module& m)
                    "use reference properties if no calculation functions are available True/False (default: False)")
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
-                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)");
+                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)")
+    .def_readwrite("round_to_uncertainty",
+                   &EnginePreferences::round_to_uncertainty,
+                   "round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded")
+    .def_readwrite("uncertainty_significant_digits",
+                   &EnginePreferences::uncertainty_significant_digits,
+                   "number of significant digits of the (rounded up) uncertainties if round_to_uncertainty is True (default: 2)")
+    .def_readwrite("propagate_parameter_errors",
+                   &EnginePreferences::propagate_parameter_errors,
+                   "propagate the errors of the reference properties and of the coefficients of the models to the err of the calculated properties True/False (default: False)");
+
+    m.def("round_to_uncertainty",
+          [](double value, double error, int significant_digits) {
+              rounding::toUncertainty(value, error, significant_digits);
+              return py::make_tuple(value, error);
+          },
+          py::arg("value"), py::arg("error"), py::arg("significant_digits") = 2,
+          "Round an uncertainty up to a number of significant digits and the value (half to even) to the same number of decimals (NEA TDB rules); returns (value, error)");
+    m.def("round_half_even", &rounding::roundHalfEven, py::arg("x"), py::arg("decimals"),
+          "Round to a number of decimals with the NEA TDB rule (a 5 not followed by other non-zero digits rounds to the even digit)");
 
     py::class_<EngineConventions>(m, "EngineConventions")
         .def(py::init<>())

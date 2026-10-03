@@ -71,23 +71,46 @@ WaterHGK::WaterHGK(const Substance &substance)
 // calculation
 auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string triple) -> PropertiesSolvent
 {
-    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
-
     WaterTripleProperties wtr = waterTripleData.at(triple);
-    water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
 
-    return water_hgk.propertiesWaterHGKgems(state);
+    double Pout = P;
+    auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        WaterHGKgems water_hgk;
+        real t = pass.T - C_to_K;
+        real p = pass.P / bar_to_Pa;
+        water_hgk.calculateWaterHGKgems(t, p, wtr);
+        Pout = p.val() * bar_to_Pa;
+        return water_hgk.propertiesWaterHGKgems(state);
+    });
+    P = Pout;
+
+    // The GEMS model gives densityT = -alpha rho, densityP = beta rho, densityTT = rho (alpha^2 - dalpha/dT) and (analytical,
+    // from the third derivative of P with respect to the density in the LVS and HGK regions) densityPP = -rho beta^2 Gamma, with
+    // Gamma = rho P_rhorho/P_rho. The mixed second derivative is the exact derivative of the analytical alpha with respect to P:
+    // densityTP = d(densityT)/dP (= d(densityP)/dT), and the mixed third derivative is d(densityTT)/dP.
+    ps.densityTP.val = ps.densityT.ddp;
+    ps.densityTP.ddt = ps.densityTT.ddp;
+    ps.densityTP.sta = ps.densityT.sta;
+
+    return ps;
 }
 
 auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string triple) -> ThermoPropertiesSubstance
 {
-    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
-
     WaterTripleProperties wtr = waterTripleData.at(triple);
 
-    water_hgk.calculateWaterHGKgems(T, P, wtr); P *= bar_to_Pa;
+    double Pout = P;
+    auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        WaterHGKgems water_hgk;
+        real t = pass.T - C_to_K;
+        real p = pass.P / bar_to_Pa;
+        water_hgk.calculateWaterHGKgems(t, p, wtr);
+        Pout = p.val() * bar_to_Pa;
+        return water_hgk.thermoPropertiesWaterHGKgems(state);
+    });
+    P = Pout;
 
-    return  water_hgk.thermoPropertiesWaterHGKgems(state);
+    return tps;
 }
 
 //=======================================================================================================
@@ -210,7 +233,7 @@ auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int /*state*/) ->
     checkModelValidity(T, P, 2273.15, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
 
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterZhangDuan2005(pass.T, pass.P / bar_to_Pa); // pressure in bar
+        return propertiesWaterZhangDuan2005(pass);
     });
 }
 
