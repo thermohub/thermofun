@@ -435,10 +435,16 @@ inline auto toProperties(const ElectroPropertiesSolventAD& wrtT, const ElectroPr
 }
 
 /// Evaluate f(pass) in the autodiff pass seeded with temperature and in the pass seeded with pressure, and combine
-/// the results in properties with the value and the derivatives with respect to T and P
+/// the results in properties with the value and the derivatives with respect to T and P (only the value, in one pass, if
+/// built without autodiff)
 template<typename F>
 inline auto twoPass(double T, double P, F&& f)
 {
+    if constexpr (!Reaktoro_::kWithAutodiff) // built without autodiff: the values only, in one pass (no derivatives)
+    {
+        const auto values = f(Reaktoro_::Pass(T, P, Reaktoro_::Wrt::None));
+        return toProperties(values, values);
+    }
     const auto wrtT = f(Reaktoro_::Pass(T, P, Reaktoro_::Wrt::T));
     const auto wrtP = f(Reaktoro_::Pass(T, P, Reaktoro_::Wrt::P));
     return toProperties(wrtT, wrtP);

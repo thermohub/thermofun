@@ -402,8 +402,9 @@ print(prop.gibbs_energy.ddp)   # d G / d P
 
 ### Disabling autodiff
 
-autodiff is a core dependency: the models calculate with `autodiff::real`, so there is **no build option that removes it**, and the derivatives are always propagated alongside the values. What you can control:
+By default the models calculate with `autodiff::real` and the derivatives are propagated alongside the values. What you can control:
 
+* **Build without autodiff.** `cmake -DTFUN_USE_AUTODIFF=OFF ...`: the models calculate with plain numbers (`Common/Real.hpp`), autodiff is not needed (not found, not downloaded, not linked) and the calculations are faster (about 1.3 to 1.8 times in a quick measurement). All derivatives `ddt`, `ddp` are 0, the values, errors and statuses are identical to the autodiff build, and the properties whose value needs a derivative (Cv of substances, `densityTP` of the GEMS HGK water) are not defined. `thermofun.with_autodiff` (Python) is `False` in this build; projects that use ThermoFun through CMake get the setting automatically. The derivative tests (`tests/autodiff`, `pytests/test_autodiff.py`) are not built or are skipped.
 * **Ignore the derivatives.** Use only `.val` or `toDouble()` on the batch results. The `ddt`/`ddp` parts are then simply not read.
 * **Do not download it during the build.** If autodiff is found by CMake (`find_package(autodiff 1.1.1)`), it is used and nothing is fetched. Install it beforehand with `sudo ./install-dependencies.sh`, or with conda (`conda install autodiff -c conda-forge`), or point CMake to an existing installation with `-Dautodiff_DIR=<path>`. The fetch from GitHub only happens when no installation is found.
 * **Skip its tests.** The autodiff test in `tests/autodiff` is only built with `-DTFUN_BUILD_TESTS=ON` (or `-DTFUN_BUILD_ALL=ON`), so leave those off.

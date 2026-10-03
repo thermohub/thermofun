@@ -88,9 +88,14 @@ auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string tri
     // from the third derivative of P with respect to the density in the LVS and HGK regions) densityPP = -rho beta^2 Gamma, with
     // Gamma = rho P_rhorho/P_rho. The mixed second derivative is the exact derivative of the analytical alpha with respect to P:
     // densityTP = d(densityT)/dP (= d(densityP)/dT), and the mixed third derivative is d(densityTT)/dP.
-    ps.densityTP.val = ps.densityT.ddp;
-    ps.densityTP.ddt = ps.densityTT.ddp;
-    ps.densityTP.sta = ps.densityT.sta;
+    if (Reaktoro_::kWithAutodiff)
+    {
+        ps.densityTP.val = ps.densityT.ddp;
+        ps.densityTP.ddt = ps.densityTT.ddp;
+        ps.densityTP.sta = ps.densityT.sta;
+    }
+    else
+        ps.densityTP.sta = {Reaktoro_::Status::notdefined, "densityTP is the derivative of densityT: not calculated (built without autodiff)"};
 
     return ps;
 }

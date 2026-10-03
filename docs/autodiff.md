@@ -23,6 +23,14 @@ code that uses ThermoFun, what was fixed on the way, and what is known and left.
   `propagateFrom(inputs...)` (not defined if any input is not defined, otherwise calculated; the error is the
   quadrature sum of the errors of the inputs) or keeps those of its input.
 - **Cost.** About twice per model call (two passes).
+- **Without autodiff.** `-DTFUN_USE_AUTODIFF=OFF` defines `THERMOFUN_NO_AUTODIFF` (public, so it also reaches the projects that
+  use ThermoFun): `real` is then `ThermoFun::PlainReal` (`Common/Real.hpp`), a double with the interface of `autodiff::real` used by
+  the models (`val()`, `[0]`, `[1]` = 0 and not settable, the operators and the math functions), so the models are the same
+  in both builds. `Reaktoro_::kWithAutodiff` is false, `twoPass` runs one pass (no seeded derivative), and the
+  properties whose value needs a derivative are not defined (`Cv` of substances, in `completeThermoProperties`; `densityTP` of the
+  GEMS HGK water). Values, errors and statuses are
+  identical to the autodiff build (bit for bit on 48,664 values in 8 databases). Not built there: `tests/autodiff` and
+  `pytests/test_autodiff.py` (skipped, `thermofun.with_autodiff`).
 - **Build.** autodiff is found with `find_package(autodiff)` or fetched with `FetchContent` (commit `b0a4fef`:
   v1.1.2 plus the change that makes Eigen optional). It is listed in `install-dependencies.sh`,
   `environment.devenv.yml` and `ThermoFunConfig.cmake.in`.

@@ -17,9 +17,15 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
 # Link ThermoFun against all required dependencies
-target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun
-    $<BUILD_INTERFACE:autodiff::autodiff>
-    $<INSTALL_INTERFACE:autodiff::autodiff>)
+target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
+if(TFUN_USE_AUTODIFF)
+    target_link_libraries(ThermoFun PUBLIC
+        $<BUILD_INTERFACE:autodiff::autodiff>
+        $<INSTALL_INTERFACE:autodiff::autodiff>)
+else()
+    # plain numbers instead of autodiff::real (see Common/Real.hpp); also set for the projects that use ThermoFun
+    target_compile_definitions(ThermoFun PUBLIC THERMOFUN_NO_AUTODIFF)
+endif()
 
 # Specify the include directories of the library target
 target_include_directories(ThermoFun

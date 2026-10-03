@@ -2,6 +2,8 @@ import thermofun as thermofun
 import pytest as pytest
 import unittest
 
+needs_autodiff = pytest.mark.skipif(not getattr(thermofun, "with_autodiff", True), reason="built with -DTFUN_USE_AUTODIFF=OFF: the derivatives are 0")
+
 
 class TestThermoEngine(unittest.TestCase):
 
@@ -22,6 +24,8 @@ class TestThermoEngine(unittest.TestCase):
         assert self.engine.thermoPropertiesSubstance(423.15, 4.8E5, "Ca+2").gibbs_energy.val == pytest.approx(-544992.793697, 1e-5, 1e-14)
         assert self.engine.thermoPropertiesSubstance(298.15, 1.0E5, "U+4").gibbs_energy.val == pytest.approx(-529900, 1e-5, 1e-14)
         print(f'Psat {self.Psat}')
+    
+    @needs_autodiff
     
     def test_properties_reaction_from_equation(self):
         assert self.engine.thermoPropertiesReaction(298.15, 1e5, "Cal = Ca+2 + CO3-2").log_equilibrium_constant.val == pytest.approx(-8.48014, 1e-5, 1e-14)

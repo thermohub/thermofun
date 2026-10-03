@@ -119,8 +119,28 @@ the reaction that defines it. Each model reads its coefficients as `{"values": [
 
 The models calculate with [autodiff](https://autodiff.github.io/) in two passes (temperature seeded, then
 pressure seeded), so `ddt` and `ddp` of **every** property are exact, including third-order terms such as the
-derivatives of `densityPP`. There is no option to turn it off; ignore `ddt`/`ddp` if you do not need them. Cost:
-about two model evaluations per call.
+derivatives of `densityPP`. Cost: about two model evaluations per call. If you do not need the derivatives, the library can be
+built without autodiff (below). Churakov–Gottschalk mixture calculations retain finite differences. 
+
+### Building without autodiff
+
+`cmake -DTFUN_USE_AUTODIFF=OFF` builds the models with plain numbers (`Common/Real.hpp`): autodiff is not
+needed (not found, not downloaded, not linked), and the calculations are faster (about 1.3 to 1.8 times in a
+quick measurement). The default is ON. In the plain build every `ddt` and `ddp` is 0, and the values, errors and
+statuses are identical to the autodiff build (compared on 48,000 values in 8 test databases), except for the
+properties whose **value** needs a derivative; they are `notdefined`:
+
+| Property | Why |
+|---|---|
+| `heat_capacity_cv` of substances (and `reaction_heat_capacity_cv` of the reactions that use them) | `Cv = Cp - T V alpha^2/beta` needs `dV/dT` and `dV/dP`. The Cv of the water solvent models is analytical and kept. |
+| `densityTP` of the GEMS HGK water | It is `d(densityT)/dP`. `densityT`, `densityP`, `densityTT` and `densityPP` are analytical and kept. |
+
+`thermofun.with_autodiff` is `False` in the Python package of this build, and the derivative tests are skipped.
+Projects that use ThermoFun through CMake (`find_package(ThermoFun)`) get the setting from the installed target,
+so they build with plain numbers too.
+
+To only avoid the **download** of autodiff in the default build, install it first (`install-dependencies.sh`,
+`conda install autodiff -c conda-forge`, or `-Dautodiff_DIR=<path>`).
 
 Useful as checks: `dG/dT = -S`, `dG/dP = V`, `dH/dT = Cp`. For code that extends ThermoFun
 (how to write a model with `real`, what changed, known limits) see [autodiff.md](autodiff.md).
@@ -160,6 +180,7 @@ tf.round_half_even(2.5, 0)                    # 2.0
 | CMake option | Default | |
 |---|---|---|
 | `TFUN_BUILD_PYTHON` | ON | Builds the Python package `thermofun`. |
+| `TFUN_USE_AUTODIFF` | ON | OFF builds the models with plain numbers: no autodiff dependency, faster, all derivatives are 0 (see [Building without autodiff](#building-without-autodiff)). |
 | `TFUN_BUILD_TESTS` | OFF | Builds the C++ tests (`ctest`): memoization, autodiff, model derivatives, interface, analytical derivatives. |
 | `BUILD_SHARED_LIBS`, `BUILD_STATIC_LIBS` | ON | Library type. |
 

@@ -5,6 +5,8 @@ import os
 import pytest
 import thermofun as tf
 
+needs_autodiff = pytest.mark.skipif(not getattr(tf, "with_autodiff", True), reason="built with -DTFUN_USE_AUTODIFF=OFF: the derivatives are 0")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB = os.path.join(HERE, "test-thermoengine-thermofun.json")
 
@@ -141,6 +143,9 @@ def test_substance_models_agree_with_the_engine(database, engine):
         getattr(tf, name)(database.getReactions()[0])
 
 
+@needs_autodiff
+
+
 def test_solvent_models(database):
     water = database.getSubstance("H2O@")
     for model in (tf.WaterHGKreaktoro(water), tf.WaterWP95reaktoro(water), tf.WaterHGK(water)):
@@ -153,6 +158,9 @@ def test_solvent_models(database):
     eps2 = tf.WaterJNreaktoro(water).electroPropertiesSolvent(298.15, 1e5, ps, 0)
     assert eps2.epsilon.val == pytest.approx(78.4, abs=0.5)
     assert tf.WaterHGKreaktoro(water).thermoPropertiesSubstance(298.15, 1e5, 0, "NEA_HGK").gibbs_energy.val < 0
+
+
+@needs_autodiff
 
 
 def test_reaction_models():
@@ -173,6 +181,9 @@ def test_reaction_models():
     assert at_reference.reaction_volume.val == pytest.approx(3.0)
     high = model.thermoProperties(450.0, 5e7, tpr)
     assert high.reaction_gibbs_energy.ddp * 1e5 == pytest.approx(high.reaction_volume.val, rel=1e-9)
+
+
+@needs_autodiff
 
 
 def test_hollandpowell98_solute_relations(engine):
@@ -253,6 +264,8 @@ def test_thermoscalar_arithmetic_and_variables():
 
 # --- exact derivatives of the Zhang-Duan water and of the dielectric models ---------------------------------------
 
+@needs_autodiff
+
 def test_zhang_duan_and_dielectric_models_have_exact_derivatives(database):
     water = database.getSubstance("H2O@")
     zd = tf.WaterZhangDuan2005(water)
@@ -276,3 +289,15 @@ def test_zhang_duan_and_dielectric_models_have_exact_derivatives(database):
         assert x.epsilon.ddp * 1e5 == pytest.approx(x.epsilonP.val, rel=1e-12)     # per bar and per Pa
         assert x.epsilonT.ddp * 1e5 == pytest.approx(x.epsilonP.ddt, rel=1e-12)    # symmetric mixed derivatives
         assert x.bornY.val == pytest.approx(x.epsilonT.val / x.epsilon.val ** 2, rel=1e-12)
+
+
+@pytest.mark.skipif(getattr(tf, "with_autodiff", True), reason="only for the build without autodiff (-DTFUN_USE_AUTODIFF=OFF)")
+def test_built_without_autodiff_all_the_derivatives_are_zero(engine):
+    """The models calculate with plain numbers: the values are those of the autodiff build, the derivatives are 0 and
+    the properties that need them (Cv) are not defined."""
+    for symbol in ("Quartz", "Ca+2", "CO2@", "H2O@"):
+        tps = engine.thermoPropertiesSubstance(373.15, 1e7, symbol)
+        for p in ("gibbs_energy", "enthalpy", "entropy", "volume", "heat_capacity_cp", "internal_energy", "helmholtz_energy"):
+            x = getattr(tps, p)
+            assert x.sta[0] != tf.Status.notdefined and x.ddt == 0.0 and x.ddp == 0.0, (symbol, p)
+    assert engine.thermoPropertiesSubstance(373.15, 1e7, "Quartz").heat_capacity_cv.sta[0] == tf.Status.notdefined

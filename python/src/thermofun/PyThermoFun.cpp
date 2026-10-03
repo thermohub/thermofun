@@ -18,11 +18,14 @@
 
 #include "PyThermoFun.hpp"
 #include "ThermoFun/GlobalVariables.h"
+#include "ThermoFun/Common/Real.hpp"
 using namespace ThermoFun;
 
 PYBIND11_MODULE(PyThermoFun, m)
 {
     update_loggers(false, "thermofun.log", 2);
+    // False if built with -DTFUN_USE_AUTODIFF=OFF: the derivatives ddt, ddp are then 0
+    m.attr("with_autodiff") = Reaktoro_::kWithAutodiff;
     // Enumerations (before the classes that use them)
     exportGlobalVariables(m);
     // Common module

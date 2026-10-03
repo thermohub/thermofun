@@ -2,6 +2,9 @@ import math
 import pytest
 import thermofun as thermofun
 
+# the derivatives are 0 if built with -DTFUN_USE_AUTODIFF=OFF
+pytestmark = pytest.mark.skipif(not getattr(thermofun, "with_autodiff", True), reason="built with -DTFUN_USE_AUTODIFF=OFF")
+
 # Substances: solid, gas, aqueous (HKF), and water solvent
 SUBSTANCES = ["Quartz", "CO2@", "Ca+2", "H2O@"]
 REACTION = "Cal = Ca+2 + CO3-2"
@@ -173,3 +176,4 @@ def test_gas_derivatives_match_finite_differences():
                 for wrt, ad in (("T", getattr(tps, prop).ddt), ("P", getattr(tps, prop).ddp)):
                     fd = central_difference(fn, prop, T, P, wrt, 1e-4)
                     assert ad == pytest.approx(fd, rel=2e-3, abs=1e-12), f"{symbol} {prop} d/d{wrt}"
+

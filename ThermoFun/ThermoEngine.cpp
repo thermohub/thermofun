@@ -159,6 +159,7 @@ struct ThermoEngine::Impl
             U.propagateFrom(H, V);
             U.setError({{1.0, H.err}, {Pbar, V.err}});
             U.val = uv; U.ddt = ut; U.ddp = up;
+            if (!Reaktoro_::kWithAutodiff) U.ddt = U.ddp = 0.0;
             if (sta.first == Status::notdefined) U.sta = {Status::calculated, std::string("")};
         }
         if (defined(U) && defined(S))
@@ -167,9 +168,15 @@ struct ThermoEngine::Impl
             A.propagateFrom(U, S);
             A.setError({{1.0, U.err}, {T, S.err}});
             A.val = av; A.ddt = at; A.ddp = ap;
+            if (!Reaktoro_::kWithAutodiff) A.ddt = A.ddp = 0.0;
         }
         auto &Cp = tps.heat_capacity_cp, &Cv = tps.heat_capacity_cv;
-        if (calculateCv && defined(Cp) && defined(V))
+        if (calculateCv && !Reaktoro_::kWithAutodiff)
+        {   // Cv needs dV/dT and dV/dP
+            Cv = Reaktoro_::ThermoProperty();
+            Cv.sta = {Status::notdefined, "Cv needs the derivatives of the volume: not calculated (built without autodiff)"};
+        }
+        else if (calculateCv && defined(Cp) && defined(V))
         {
             double diff = 0.0;                                 // Cp - Cv
             if (V.ddp() < 0.0 && V.ddt() != 0.0)
