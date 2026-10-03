@@ -69,21 +69,25 @@ static auto setStatusUA(ThermoPropertiesSubstance& tps, double T, double P) -> v
 /// property it is calculated from (a reference property of the substance or a solvent property) is not defined
 static auto setStatusHKF(ThermoPropertiesSubstance& tps, const ThermoPropertiesSubstance& ref, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp, bool charged, double T, double P, double Tr) -> void
 {
-    tps.volume.propagateFrom(wes.bornQ, wes.bornZ);
-    tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ);
-    tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ);
-    tps.gibbs_energy.setError({{1.0, ref.gibbs_energy.err}, {T - Tr, ref.entropy.err}}); // G = G298 - S298 (T - Tr) + ...
-    tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY);
-    tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ);
-    // the g function, which sets the effective electrostatic radius of the charged species, is evaluated from the solvent density
+    // the g function, which sets the effective electrostatic radius of the charged species, is evaluated from the solvent
+    // density: for those the density is one more input (propagateFrom replaces the error and status, so it cannot be applied afterwards)
     if (charged)
     {
-        tps.volume.propagateFrom(wp.density);
-        tps.entropy.propagateFrom(wp.density);
-        tps.gibbs_energy.propagateFrom(wp.density);
-        tps.enthalpy.propagateFrom(wp.density);
-        tps.heat_capacity_cp.propagateFrom(wp.density);
+        tps.volume.propagateFrom(wes.bornQ, wes.bornZ, wp.density);
+        tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ, wp.density);
+        tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ, wp.density);
+        tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY, wp.density);
+        tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ, wp.density);
     }
+    else
+    {
+        tps.volume.propagateFrom(wes.bornQ, wes.bornZ);
+        tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ);
+        tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ);
+        tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY);
+        tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ);
+    }
+    tps.gibbs_energy.setError({{1.0, ref.gibbs_energy.err}, {T - Tr, ref.entropy.err}}); // G = G298 - S298 (T - Tr) + ...
     setStatusUA(tps, T, P);
     tps.heat_capacity_cv.propagateFrom(tps.heat_capacity_cp);
 }
