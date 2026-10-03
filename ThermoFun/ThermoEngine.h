@@ -1,5 +1,6 @@
 #ifndef THERMO_H
 #define THERMO_H
+#include "ThermoProperties.h"
 
 #include <string>
 #include <memory>
@@ -16,10 +17,6 @@ class Substance;
 class Reaction;
 class Element;
 struct WorkPreferences;
-struct ThermoPropertiesSubstance;
-struct ThermoPropertiesReaction;
-struct ElectroPropertiesSolvent;
-struct PropertiesSolvent;
 
 struct EnginePreferences
 {

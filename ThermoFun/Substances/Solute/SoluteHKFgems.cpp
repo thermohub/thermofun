@@ -18,13 +18,13 @@ ZPrTr = -0.1278034682e-1,
                                                   gref = 0.0e0;
 
 
-auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolvent& wes, const PropertiesSolvent &wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
     auto hkf = subst.thermoParameters().HKF_parameters;
     auto refProp = subst.thermoReferenceProperties();
 
-    auto TK = Reaktoro_::Temperature (TC.val()+C_to_K);
+    auto TK = TC + C_to_K;
 
     if (hkf.size() == 0)
     {
@@ -51,9 +51,9 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
 //    const auto Pr   = referencePressure;
 //    const auto Zr   = referenceBornZ;
 //    const auto Yr   = referenceBornY;
-    const auto Gf   = refProp.gibbs_energy / cal_to_J;
-    const auto Hf   = refProp.enthalpy / cal_to_J;
-    const auto Sr   = refProp.entropy / cal_to_J;
+    const auto Gf   = Reaktoro_::constant(refProp.gibbs_energy) / cal_to_J;
+    const auto Hf   = Reaktoro_::constant(refProp.enthalpy) / cal_to_J;
+    const auto Sr   = Reaktoro_::constant(refProp.entropy) / cal_to_J;
     const auto a1   = hkf[0];
     const auto a2   = hkf[1];
     const auto a3   = hkf[2];
@@ -123,7 +123,7 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     A  *= cal_to_J;
     Cp *= cal_to_J;
 
-    ThermoPropertiesSubstance tps;
+    ThermoPropertiesSubstanceAD tps;
     tps.volume           = V;
     tps.gibbs_energy     = G;
     tps.enthalpy         = H;
@@ -132,12 +132,6 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
     tps.helmholtz_energy = A;
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
-
-    subst.checkCalcMethodBounds("HKF model", TK.val(), Pbar.val()*1e05, tps);
-    if (wp.density >= 1400 || wp.density<=600)
-    {
-        setMessage(Reaktoro_::Status::calculated, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval", tps);
-    }
 
 ///    aW.twp->gfun = g;  // solvent g-function - passed for b_gamma=f(T,P) 07.06.05
 
@@ -148,9 +142,9 @@ auto thermoPropertiesAqSoluteHKFgems(Reaktoro_::Temperature TC, Reaktoro_::Press
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const PropertiesSolvent &ps ) -> FunctionG
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
 {
-    Reaktoro_::ThermoScalar a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
+    real a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
                 f, dfdP, dfdT, d2fdT2, tempy;
 
@@ -176,7 +170,7 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
     if (D.val() >= 1.4)
     {
         thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3. Outside the applicability limits of the HKF model.",
-                           __FILE__, __LINE__, static_cast<double>(ps.density/1000) );
+                           __FILE__, __LINE__, ps.density.val()/1000 );
     }
 
     g.g   = 0.0;
@@ -252,7 +246,7 @@ auto gShok2(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, const Propertie
 
 auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance
 {
-    Reaktoro_::ThermoScalar reref, re, Z3, Z4;
+    real reref, re, Z3, Z4;
     const auto chg = species.charge();
 
     auto hkf = species.thermoParameters().HKF_parameters;

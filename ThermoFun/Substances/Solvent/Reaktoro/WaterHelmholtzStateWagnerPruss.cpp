@@ -18,7 +18,7 @@
 #include "WaterHelmholtzStateWagnerPruss.hpp"
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Common/ScalarTypes.hpp>
+#include <Common/Real.hpp>
 #include <Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp>
 #include <Substances/Solvent/Reaktoro/WaterConstants.hpp>
 #include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
@@ -143,10 +143,10 @@ const double E[] = { 0.3, 0.3 };
 
 } // namespace
 
-auto waterHelmholtzStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> WaterHelmholtzState
+auto waterHelmholtzStateWagnerPruss(real T, real D) -> WaterHelmholtzState
 {
-    const Reaktoro_::ThermoScalar tau   = waterCriticalTemperature/T;
-    const Reaktoro_::ThermoScalar delta = D/waterCriticalDensity;
+    const real tau   = waterCriticalTemperature/T;
+    const real delta = D/waterCriticalDensity;
 
 	auto phio     =  log(delta) + no[1] + no[2]*tau + no[3]*log(tau);
 	auto phio_d   =  1.0/delta;
@@ -171,16 +171,16 @@ auto waterHelmholtzStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::ThermoS
 		phio_ttt += no[i] * ee * (1 + ee) * pow((gammao[j]/(ee - 1)), 3);
 	}
 
-    Reaktoro_::ThermoScalar phir;
-    Reaktoro_::ThermoScalar phir_d;
-    Reaktoro_::ThermoScalar phir_t;
-    Reaktoro_::ThermoScalar phir_dd;
-    Reaktoro_::ThermoScalar phir_tt;
-    Reaktoro_::ThermoScalar phir_dt;
-    Reaktoro_::ThermoScalar phir_ddd;
-    Reaktoro_::ThermoScalar phir_ttt;
-    Reaktoro_::ThermoScalar phir_dtt;
-    Reaktoro_::ThermoScalar phir_ddt;
+    real phir;
+    real phir_d;
+    real phir_t;
+    real phir_dd;
+    real phir_tt;
+    real phir_dt;
+    real phir_ddd;
+    real phir_ttt;
+    real phir_dtt;
+    real phir_ddt;
 
     phir = 0.0;
     phir_d = 0.0;

@@ -43,23 +43,18 @@ auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSol
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P);
+    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        WaterThermoState wts;
 
-    if (P==0) p = Reaktoro_::Pressure(waterSaturatedPressureWagnerPruss(t).val());
+        wts.density   = pass(ps.density);
+        wts.densityT  = pass(ps.densityT);
+        wts.densityP  = pass(ps.densityP);
+        wts.densityTT = pass(ps.densityTT);
+        wts.densityTP = pass(ps.densityTP);
+        wts.densityPP = pass(ps.densityPP);
 
-    WaterThermoState wts;
-
-    wts.density   = ps.density;
-    wts.densityT  = ps.densityT;
-    wts.densityP  = ps.densityP;
-    wts.densityTT = ps.densityTT;
-    wts.densityTP = ps.densityTP;
-    wts.densityPP = ps.densityPP;
-
-    WaterElectroState wes = waterElectroStateJohnsonNorton(t, /*p,*/ wts, state);
-
-    return electroPropertiesWaterJNreaktoro(wes);
+        return electroPropertiesWaterJNreaktoro(waterElectroStateJohnsonNorton(pass.T, /*pass.P,*/ wts, state));
+    });
 }
 
 //=======================================================================================================
@@ -132,10 +127,9 @@ auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, 
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    auto t = Reaktoro_::Temperature(T); t -= C_to_K;
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
-
-    return electroPropertiesWaterSverjensky2014(/*ps,*/ t, p, pimpl->substance, state);
+    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return electroPropertiesWaterSverjensky2014(pass, pimpl->substance, state);
+    });
 }
 
 //=======================================================================================================
@@ -169,10 +163,9 @@ auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, P
 {
 //    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
 
-    auto t = Reaktoro_::Temperature(T); t -= C_to_K;
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
-
-    return electroPropertiesWaterFernandez1997(/*ps,*/ t, p, pimpl->substance, state); // t (celsius), p (bar)
+    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return electroPropertiesWaterFernandez1997(pass, pimpl->substance, state);
+    });
 }
 
 } // End namespace ThermoFun

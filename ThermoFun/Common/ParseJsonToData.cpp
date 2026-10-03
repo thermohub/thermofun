@@ -102,16 +102,6 @@ auto readValueErrorUnit(const json& j, const std::string& propPath, double& val,
     return status;
 }
 
-auto readValueErrorUnit(const json& j, const std::string& propPath, Reaktoro_::ThermoScalar& prop, const std::string& unit, const std::string& message) -> Reaktoro_::StatusMessage
-{
-    double val = prop.val();
-    double err = prop.err;
-    const auto status = readValueErrorUnit(j, propPath, val, err, unit, message);
-    prop.setVal(val);
-    prop.err = err;
-    return status;
-}
-
 auto convert_values_units(std::vector<double> values, const std::vector<std::string>& units_from, const std::vector<std::string>& units_to) -> std::vector<double>
 {
     for (size_t i = 0; i < values.size(); ++i)
@@ -423,15 +413,15 @@ auto thermoRefPropSubst(const json &j) -> ThermoPropertiesSubstance
     std::string message;
 
     if (j.contains("sm_heat_capacity_p"))
-        tps.heat_capacity_cp.sta = readValueErrorUnit(j, "sm_heat_capacity_p", tps.heat_capacity_cp, "J/K/mol", message);
+        tps.heat_capacity_cp.sta = readValueErrorUnit(j, "sm_heat_capacity_p", tps.heat_capacity_cp.val, tps.heat_capacity_cp.err, "J/K/mol", message);
     if (j.contains("sm_gibbs_energy"))
-        tps.gibbs_energy.sta = readValueErrorUnit(j, "sm_gibbs_energy", tps.gibbs_energy, "J/mol", message);
+        tps.gibbs_energy.sta = readValueErrorUnit(j, "sm_gibbs_energy", tps.gibbs_energy.val, tps.gibbs_energy.err, "J/mol", message);
     if (j.contains("sm_enthalpy"))
-        tps.enthalpy.sta = readValueErrorUnit(j, "sm_enthalpy", tps.enthalpy, "J/mol", message);
+        tps.enthalpy.sta = readValueErrorUnit(j, "sm_enthalpy", tps.enthalpy.val, tps.enthalpy.err, "J/mol", message);
     if (j.contains("sm_entropy_abs"))
-        tps.entropy.sta = readValueErrorUnit(j, "sm_entropy_abs", tps.entropy, "J/K/mol", message);
+        tps.entropy.sta = readValueErrorUnit(j, "sm_entropy_abs", tps.entropy.val, tps.entropy.err, "J/K/mol", message);
     if (j.contains("sm_volume"))
-        tps.volume.sta = readValueErrorUnit(j, "sm_volume", tps.volume, "J/bar", message);
+        tps.volume.sta = readValueErrorUnit(j, "sm_volume", tps.volume.val, tps.volume.err, "J/bar", message);
 
     return tps;
 }
@@ -442,17 +432,17 @@ auto thermoRefPropReac(const json &j) -> ThermoPropertiesReaction
     std::string message;
 
     if (j.contains("logKr"))
-        tpr.log_equilibrium_constant.sta = readValueErrorUnit(j, "logKr", tpr.log_equilibrium_constant, "1", message);
+        tpr.log_equilibrium_constant.sta = readValueErrorUnit(j, "logKr", tpr.log_equilibrium_constant.val, tpr.log_equilibrium_constant.err, "1", message);
     if (j.contains("drsm_heat_capacity_p"))
-        tpr.reaction_heat_capacity_cp.sta = readValueErrorUnit(j, "drsm_heat_capacity_p", tpr.reaction_heat_capacity_cp, "J/K/mol", message);
+        tpr.reaction_heat_capacity_cp.sta = readValueErrorUnit(j, "drsm_heat_capacity_p", tpr.reaction_heat_capacity_cp.val, tpr.reaction_heat_capacity_cp.err, "J/K/mol", message);
     if (j.contains("drsm_gibbs_energy"))
-        tpr.reaction_gibbs_energy.sta = readValueErrorUnit(j, "drsm_gibbs_energy", tpr.reaction_gibbs_energy, "J/mol", message);
+        tpr.reaction_gibbs_energy.sta = readValueErrorUnit(j, "drsm_gibbs_energy", tpr.reaction_gibbs_energy.val, tpr.reaction_gibbs_energy.err, "J/mol", message);
     if (j.contains("drsm_enthalpy"))
-        tpr.reaction_enthalpy.sta = readValueErrorUnit(j, "drsm_enthalpy", tpr.reaction_enthalpy, "J/mol", message);
+        tpr.reaction_enthalpy.sta = readValueErrorUnit(j, "drsm_enthalpy", tpr.reaction_enthalpy.val, tpr.reaction_enthalpy.err, "J/mol", message);
     if (j.contains("drsm_entropy"))
-        tpr.reaction_entropy.sta = readValueErrorUnit(j, "drsm_entropy", tpr.reaction_entropy, "J/K/mol", message);
+        tpr.reaction_entropy.sta = readValueErrorUnit(j, "drsm_entropy", tpr.reaction_entropy.val, tpr.reaction_entropy.err, "J/K/mol", message);
     if (j.contains("drsm_volume"))
-        tpr.reaction_volume.sta = readValueErrorUnit(j, "drsm_volume", tpr.reaction_volume, "J/bar", message);
+        tpr.reaction_volume.sta = readValueErrorUnit(j, "drsm_volume", tpr.reaction_volume.val, tpr.reaction_volume.err, "J/bar", message);
 
     return tpr;
 }

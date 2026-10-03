@@ -6,9 +6,9 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesHPLandau(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* subcritical) -> ThermoPropertiesSubstanceAD
 {
-    Reaktoro_::ThermoScalar Tcr, Qq;
+    real Tcr, Qq;
     Tcr = 0.0; Qq = 0.0;
     std::vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
 //    auto (P/1000) = Reaktoro::Pressure (p.val() /1000);  // in kbar
@@ -69,13 +69,14 @@ auto thermoPropertiesHPLandau(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pba
     tps.entropy      += ( Smax * ( pow(Q298,2.) - Qq2 ) - idvdtdp );
     tps.enthalpy     += ( smq - Smax*Tcr*( Qq2 - Qq6/3.) + ivdp - TK*idvdtdp );
     tps.volume        = ( v_bis*pow((1.+4.*(Pbar/1000)/kT),-0.25) + Vmax*(Qq6/3. - Qq2) );  // in J/bar
+    if (subcritical)
+        *subcritical = TK < Tcr;
+
     if( TK<Tcr )  // Cp is corrected at subcritical T only
         tps.heat_capacity_cp += ( TK*Smax/(2.*sqrt(Tcr)*sqrt(Tcr-TK)) );
 
     tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
     tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
-
-    subst.checkCalcMethodBounds("Holland and Powell Landau model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

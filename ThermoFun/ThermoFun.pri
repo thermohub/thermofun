@@ -1,7 +1,7 @@
     HEADERS	 += $$PWD/GlobalVariables.h \
     $$PWD/Common/ParseJsonToData.h \
-    $$PWD/Common/ThermoScalar.hpp \
-    $$PWD/Common/ScalarTypes.hpp \
+    $$PWD/Common/ThermoProperty.hpp \
+    $$PWD/Common/Real.hpp \
     $$PWD/Common/Units.hpp \
 #    $$PWD/Common/formuladata.h \
 #    $$PWD/Common/formulaparser.h \

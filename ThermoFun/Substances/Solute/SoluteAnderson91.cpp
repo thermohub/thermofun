@@ -7,17 +7,17 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAN91(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, const PropertiesSolvent &wpr,  const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteAN91(real TK, real Pbar, Substance subst, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     auto T = TK;
-    ThermoPropertiesSubstance tps;
+    ThermoPropertiesSubstanceAD tps;
     auto tpsr = subst.thermoReferenceProperties();
     double T298 = subst.referenceT();
-    double G298 = tpsr.gibbs_energy.val();
-    double H298 = tpsr.enthalpy.val();
-    double S298 = tpsr.entropy.val();
-    double V298 = tpsr.volume.val(); // J/bar
-    double Cp298 = tpsr.heat_capacity_cp.val();
+    double G298 = tpsr.gibbs_energy.val;
+    double H298 = tpsr.enthalpy.val;
+    double S298 = tpsr.entropy.val;
+    double V298 = tpsr.volume.val; // J/bar
+    double Cp298 = tpsr.heat_capacity_cp.val;
 
     double ALPw298 = wpr.Alpha.val();
     double BETw298 = wpr.Beta.val()*1e5; // 1/bar
@@ -33,7 +33,7 @@ auto thermoPropertiesAqSoluteAN91(Reaktoro_::Temperature TK, Reaktoro_::Pressure
     auto G_bb = H298 - T*S298 + Cp298/(T298*dALPdTw298)*(ALPw298*(T - T298) + log(RHOw/RHOw298));
     auto G = G298 - S298*(T-T298) + Cp298/(T298*dALPdTw298)*(ALPw298*(T - T298) + log(RHOw/RHOw298));
     auto S = S298 - (Cp298*(ALPw298 - ALPw))/(T298*dALPdTw298);
-    Reaktoro_::ThermoScalar V(V298); //-(Cp298*ALPw)/(T298*dALPdTw298); // the model does not include a volume term!
+    real V(V298); //-(Cp298*ALPw)/(T298*dALPdTw298); // the model does not include a volume term!
     auto Cp = T*(Cp298*dALPdTw)/(T298*dALPdTw298);
     auto H = G_bb + T*S298;
 

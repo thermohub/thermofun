@@ -7,18 +7,18 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteHP98(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, const PropertiesSolvent &wpr,  const PropertiesSolvent& wp) -> ThermoPropertiesSubstance
+auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     auto T = TK;
     double Tprime = 0.0;
-    ThermoPropertiesSubstance tps;
+    ThermoPropertiesSubstanceAD tps;
     auto tpsr = subst.thermoReferenceProperties();
     double T298 = subst.referenceT();
-    double G298 = tpsr.gibbs_energy.val();
-    double H298 = tpsr.enthalpy.val();
-    double S298 = tpsr.entropy.val();
-    double V298 = tpsr.volume.val(); // J/bar
-    double Cp298 = tpsr.heat_capacity_cp.val();
+    double G298 = tpsr.gibbs_energy.val;
+    double H298 = tpsr.enthalpy.val;
+    double S298 = tpsr.entropy.val;
+    double V298 = tpsr.volume.val; // J/bar
+    double Cp298 = tpsr.heat_capacity_cp.val;
 
 //    // props given in HP98 page 314
 //    ALPw298 = 0.0002593; // 1/K

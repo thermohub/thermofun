@@ -1,14 +1,12 @@
 #ifndef GASCORK
 #define GASCORK
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
-
-struct ThermoPropertiesSubstance;
 class Substance;
 
-auto thermoPropertiesGasCORK(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+auto thermoPropertiesGasCORK(real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD;
 
 }
 

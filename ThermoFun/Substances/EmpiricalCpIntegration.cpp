@@ -9,14 +9,15 @@
 namespace ThermoFun
 {
 
-auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pressure /*Pbar*/, Substance substance) -> ThermoPropertiesSubstance
+auto thermoPropertiesEmpCpIntegration(const Reaktoro_::Pass& pass, Substance substance, bool* outsideBounds) -> ThermoPropertiesSubstanceAD
 {
-    ThermoPropertiesSubstance thermo_properties_PT = substance.thermoProperties();
+    real TK = pass.T;
+    ThermoPropertiesSubstanceAD thermo_properties_PT;
     ThermoPropertiesSubstance thermo_properties_PrTr = substance.thermoReferenceProperties();
     SubstanceClass::type substance_class = substance.substanceClass();
     ThermoParametersSubstance thermo_parameters = substance.thermoParameters();
 
-    Reaktoro_::ThermoScalar V;
+    real V;
     V = 0.0;
     int k = -1;
     std::vector<double> ac;
@@ -28,33 +29,30 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     auto TrK = substance.referenceT() /* + C_to_K*/;
 
-    auto Sr = thermo_properties_PrTr.entropy;
-    auto Gr = thermo_properties_PrTr.gibbs_energy;
-    auto Hr = thermo_properties_PrTr.enthalpy;
-
-    auto S = thermo_properties_PrTr.entropy;
-    auto G = thermo_properties_PrTr.gibbs_energy;
-    auto H = thermo_properties_PrTr.enthalpy;
+    // the reference properties are constants
+    real S = Reaktoro_::constant(thermo_properties_PrTr.entropy);
+    real G = Reaktoro_::constant(thermo_properties_PrTr.gibbs_energy);
+    real H = Reaktoro_::constant(thermo_properties_PrTr.enthalpy);
 
     if (thermo_parameters.Cp_coeff.size() == 0)
     {
         errorModelParameters("Cp empirical coefficients", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
-        return thermo_properties_PrTr;
+        return thermo_properties_PT;
     }
 
     if (thermo_parameters.temperature_intervals.size() == 0)
     {
         errorModelParameters("Cp temperature intervals", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
-        return thermo_properties_PrTr;
+        return thermo_properties_PT;
     }
 
     // A non-finite input temperature would compare false against every interval bound below
     // (NaN comparisons are always false), leaving k unresolved even after the out-of-bounds
     // fallback further down -- reject it up front instead of indexing with an unresolved k.
-    if (!std::isfinite(static_cast<double>(TK_)))
+    if (!std::isfinite(TK_.val()))
     {
         errorModelParameters("Cp temperature intervals", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
-        return thermo_properties_PrTr;
+        return thermo_properties_PT;
     }
 
     // Cp_coeff[k] and Cp_coeff[j] (0 <= j <= k) are indexed by interval below, so every interval
@@ -63,7 +61,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     if (thermo_parameters.Cp_coeff.size() < thermo_parameters.temperature_intervals.size())
     {
         errorModelParameters("Cp empirical coefficients", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
-        return thermo_properties_PrTr;
+        return thermo_properties_PT;
     }
 
     // Intervals must be finite, non-empty (lower < upper), and non-overlapping/monotonic (each
@@ -79,7 +77,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
             (i > 0 && thermo_parameters.temperature_intervals[i][0] < thermo_parameters.temperature_intervals[i - 1][1]))
         {
             errorModelParameters("Cp temperature intervals", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
-            return thermo_properties_PrTr;
+            return thermo_properties_PT;
         }
     }
 
@@ -99,9 +97,10 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     {
         k_outside_bounds = true;
 
+        if (pass.wrt != Reaktoro_::Wrt::P) // log once
         thfun_logger->warn(" {} {}: The given temperature: {} is not inside the specified interval/s for the Cp calculation.\n"
                            "The temperature is not inside the specified interval for the substance {}.",
-                           __FILE__, __LINE__, static_cast<double>(TK_), substance.symbol());
+                           __FILE__, __LINE__, TK_.val(), substance.symbol());
 
         if (TK_ <= thermo_parameters.temperature_intervals[0][0])
         {
@@ -128,8 +127,8 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
                 if (TK_ >= thermo_parameters.temperature_intervals[i][1] &&
                     TK_ <= thermo_parameters.temperature_intervals[i + 1][0])
                 {
-                    double dist_lower = static_cast<double>(TK_) - thermo_parameters.temperature_intervals[i][1];
-                    double dist_upper = thermo_parameters.temperature_intervals[i + 1][0] - static_cast<double>(TK_);
+                    double dist_lower = TK_.val() - thermo_parameters.temperature_intervals[i][1];
+                    double dist_upper = thermo_parameters.temperature_intervals[i + 1][0] - TK_.val();
                     k = (dist_lower <= dist_upper) ? static_cast<int>(i) : static_cast<int>(i + 1);
                     break;
                 }
@@ -144,7 +143,7 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     if (k < 0)
     {
         errorModelParameters("Cp temperature intervals", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
-        return thermo_properties_PrTr;
+        return thermo_properties_PT;
     }
 
     for (unsigned i = 0; i < thermo_parameters.Cp_coeff[k].size(); i++)
@@ -168,9 +167,9 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     for (unsigned j = 0, ft = 0; j <= k; j++)
     {
         if (j == k)
-            TK = TK_.val() /* + C_to_K*/; // current T is the end T for phase transition Cp calculations
+            TK = TK_; // current T is the end T for phase transition Cp calculations
         else
-            TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/; // takes the upper bound from the j-th Tinterval
+            TK = thermo_parameters.temperature_intervals[j][1] /*+ C_to_K*/; // takes the upper bound from the j-th Tinterval (a constant)
 
         if (!j)
             TrK = substance.referenceT() /*+ C_to_K*/; // if j=0 the first interval should contain the reference T (Tcr)
@@ -255,16 +254,14 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     thermo_properties_PT.entropy = S;
     thermo_properties_PT.volume = V;
 
-    if (k_outside_bounds)
-    {
-        setMessage(Reaktoro_::Status::calculated, "Empirical Cp integration: Outside temperature bounds", thermo_properties_PT);
-    }
+    if (outsideBounds)
+        *outsideBounds = k_outside_bounds;
 
 
     /// reaktoro implementation
     /*
     // Collect the temperature points used for the integrals along the pressure line P = Pr
-    std::vector<Reaktoro_::Temperature> Ti;
+    std::vector<real> Ti;
 
     const auto& Tr   = substance.referenceT();
 
@@ -284,15 +281,15 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
 
     Ti.push_back(TK_);
 
-    Reaktoro_::ThermoScalar xCp;
+    real xCp;
     for(unsigned i = 0; i+1 < Ti.size(); ++i)
         if(Ti[i] <= TK_ && TK_ <= Ti[i+1])
             xCp = thermo_parameters.Cp_coeff[i][0] + thermo_parameters.Cp_coeff[i][1]*TK_ + thermo_parameters.Cp_coeff[i][2]/(TK_*TK_);
 
 
     // Calculate the integrals of the heat capacity function of the mineral from Tr to T at constant pressure Pr
-    Reaktoro_::ThermoScalar CpdT;
-    Reaktoro_::ThermoScalar CpdlnT;
+    real CpdT;
+    real CpdlnT;
     for(unsigned i = 0; i+1 < Ti.size(); ++i)
     {
         const auto T0 = Ti[i];
@@ -311,10 +308,10 @@ auto thermoPropertiesEmpCpIntegration(Reaktoro_::Temperature TK, Reaktoro_::Pres
     }
 
     // Calculate the volume and other auxiliary quantities for the thermodynamic properties of the mineral
-    Reaktoro_::ThermoScalar xV(0.0);
-    Reaktoro_::ThermoScalar GdH;
-    Reaktoro_::ThermoScalar HdH;
-    Reaktoro_::ThermoScalar SdH;
+    real xV(0.0);
+    real GdH;
+    real HdH;
+    real SdH;
     for(unsigned i = 1; i+1 < Ti.size(); ++i)
     {
         GdH += dHt[i-1]*(TK_ - Ti[i])/Ti[i];

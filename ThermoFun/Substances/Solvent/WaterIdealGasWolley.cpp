@@ -4,11 +4,11 @@
 
 namespace ThermoFun {
 
-auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure /*p*/) -> ThermoPropertiesSubstance
+auto waterIdealGas (real t, real /*p*/) -> ThermoPropertiesSubstanceAD
 {
-    ThermoPropertiesSubstance tp;
+    ThermoPropertiesSubstanceAD tp;
     int i=1;
-    Reaktoro_::ThermoScalar  tt, tl, emult, Gig, Hig, Cpig, Cvig, Sig, Aig, Uig;
+    real  tt, tl, emult, Gig, Hig, Cpig, Cvig, Sig, Aig, Uig;
     double c[18]={ .19730271018e2,    .209662681977e2,  -.483429455355e0,
                    .605743189245e1,   .2256023885e2,    -.987532442e1,
                    -.43135538513e1,    .458155781e0,     -.47754901883e-1,
@@ -16,7 +16,7 @@ auto waterIdealGas (Reaktoro_::Temperature t, Reaktoro_::Pressure /*p*/) -> Ther
                    -.56473658748e-6,   .16200446e-7,     -.3303822796e-9,
                    .451916067368e-11,-.370734122708e-13, .137546068238e-15 };
 
-    Reaktoro_::ThermoScalar dH0k;  // enthalpy of ideal gas water at 0 K (kJ)
+    real dH0k;  // enthalpy of ideal gas water at 0 K (kJ)
     dH0k = 0.0;
     dH0k += (-182161.88);
 

@@ -358,7 +358,7 @@ auto Reaction::checkCalcMethodBounds(std::string modelName, double T, double P, 
 auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
-    auto TK          = Reaktoro_::Temperature(pimpl->reference_T);
+    real TK          = pimpl->reference_T;
     auto CpCoeff    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
     auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
     auto ref_prop   = pimpl->thermo_ref_prop;
@@ -370,8 +370,8 @@ auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
 
     K_fT_Coeff.resize(7);
 
-    auto Hr = ref_prop.reaction_enthalpy;
-    auto Sr = ref_prop.reaction_entropy;
+    real Hr = Reaktoro_::constant(ref_prop.reaction_enthalpy);
+    real Sr = Reaktoro_::constant(ref_prop.reaction_entropy);
 
     // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
     K_fT_Coeff[0] = (( Sr - CpCoeff[0] - CpCoeff[0]*log(TK) - CpCoeff[1]*TK + CpCoeff[2]/(2.0*TK*TK)
@@ -398,12 +398,12 @@ auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
     th_param.reaction_logK_fT_coeff = K_fT_Coeff;
     setThermoParameters(th_param);
 
-    ref_prop.reaction_entropy = Sr;  // In this case, everything will be inserted
-    ref_prop.reaction_enthalpy = Hr;
-    ref_prop.reaction_heat_capacity_cp = Cpr;
-    ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
-    ref_prop.log_equilibrium_constant = lgKr;
-    ref_prop.reaction_gibbs_energy = -Rln10*TK*lgKr;
+    ref_prop.reaction_entropy = (Sr).val();  // In this case, everything will be inserted
+    ref_prop.reaction_enthalpy = (Hr).val();
+    ref_prop.reaction_heat_capacity_cp = (Cpr).val();
+    ref_prop.ln_equilibrium_constant = (lgKr * lg_to_ln).val();
+    ref_prop.log_equilibrium_constant = (lgKr).val();
+    ref_prop.reaction_gibbs_energy = (-Rln10*TK*lgKr).val();
 
     return ref_prop;
 }
@@ -412,17 +412,17 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 {
 
     auto Rln10      = R_CONSTANT * lg_to_ln;
-    auto TK         = Reaktoro_::Temperature(pimpl->reference_T);
+    real TK         = pimpl->reference_T;
     auto CpCoeff    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
     auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
     auto ref_prop   = pimpl->thermo_ref_prop;
     auto method_T   = pimpl->method_T;
 
-    auto Sr = ref_prop.reaction_entropy;
+    real Sr = Reaktoro_::constant(ref_prop.reaction_entropy);
 //    auto Gr = ref_prop.reaction_gibbs_energy;
-    auto Hr = ref_prop.reaction_enthalpy;
-    auto Cpr = ref_prop.reaction_heat_capacity_cp;
-    auto lgKr = ref_prop.ln_equilibrium_constant / lg_to_ln;
+    real Hr = Reaktoro_::constant(ref_prop.reaction_enthalpy);
+    real Cpr = Reaktoro_::constant(ref_prop.reaction_heat_capacity_cp);
+    real lgKr = Reaktoro_::constant(ref_prop.ln_equilibrium_constant) / lg_to_ln;
 
     switch( method_T )
     {
@@ -443,12 +443,12 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
         CpCoeff[4] = Rln10 * 6.0 * K_fT_Coeff[5];
         Cpr   = CpCoeff[0] + CpCoeff[1]*TK + CpCoeff[2]/TK*TK + CpCoeff[4]*TK*TK + CpCoeff[3]/pow(TK,0.5);
 
-        ref_prop.reaction_entropy = Sr;  // In this case, everything will be inserted
-        ref_prop.reaction_enthalpy = Hr;
-        ref_prop.reaction_heat_capacity_cp = Cpr;
-        ref_prop.ln_equilibrium_constant = lgKr * lg_to_ln;
-        ref_prop.log_equilibrium_constant = lgKr;
-        ref_prop.reaction_gibbs_energy = -Rln10*TK*lgKr;
+        ref_prop.reaction_entropy = (Sr).val();  // In this case, everything will be inserted
+        ref_prop.reaction_enthalpy = (Hr).val();
+        ref_prop.reaction_heat_capacity_cp = (Cpr).val();
+        ref_prop.ln_equilibrium_constant = (lgKr * lg_to_ln).val();
+        ref_prop.log_equilibrium_constant = (lgKr).val();
+        ref_prop.reaction_gibbs_energy = (-Rln10*TK*lgKr).val();
 
     }
 
@@ -464,16 +464,16 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 auto Reaction::calc_logK_fT_coefficients() -> vd
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
-    auto TK         = Reaktoro_::Temperature(pimpl->reference_T);
+    real TK         = pimpl->reference_T;
     vd K_fT_Coeff   = {0.0,0.0,0.0,0.0,0.0,0.0,0.0};
     auto ref_prop   = pimpl->thermo_ref_prop;
     auto method_T   = pimpl->method_T;
 
-    auto Sr = ref_prop.reaction_entropy;
-    auto Hr = ref_prop.reaction_enthalpy;
-    auto Cpr = ref_prop.reaction_heat_capacity_cp;
+    real Sr = Reaktoro_::constant(ref_prop.reaction_entropy);
+    real Hr = Reaktoro_::constant(ref_prop.reaction_enthalpy);
+    real Cpr = Reaktoro_::constant(ref_prop.reaction_heat_capacity_cp);
 
-    K_fT_Coeff[0] = ref_prop.log_equilibrium_constant.val();
+    K_fT_Coeff[0] = ref_prop.log_equilibrium_constant.val;
 
     switch( method_T )
     { // calculation 2- and 3-term param approximation

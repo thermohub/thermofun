@@ -1,5 +1,6 @@
 #ifndef THERMOMODELREACTION_H
 #define THERMOMODELREACTION_H
+#include "ThermoProperties.h"
 
 #include <memory>
 
@@ -7,10 +8,7 @@
 #include "GlobalVariables.h"
 
 namespace ThermoFun {
-
-struct PropertiesSolvent;
 class Reaction;
-struct ThermoPropertiesReaction;
 
 /**
  * @brief The ThermoModelsReaction class

@@ -1,5 +1,6 @@
 #ifndef WATERHGKGEMS_H
 #define WATERHGKGEMS_H
+#include "ThermoProperties.h"
 
 #include <memory>
 #include <cstring>
@@ -7,10 +8,6 @@
 namespace ThermoFun {
 
 // Forward declarations
-struct PropertiesSolvent;
-struct ThermoPropertiesSubstance;
-struct ThermoPropertiesSolvent;
-struct ElectroPropertiesSolvent;
 struct WaterTripleProperties;
 
 typedef struct

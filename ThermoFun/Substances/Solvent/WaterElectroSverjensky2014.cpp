@@ -22,53 +22,53 @@ const double b[] =
      4.747973
 };
 
-auto epsilonS(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar RHO) -> Reaktoro_::ThermoScalar
+auto epsilonS(real T, real RHO) -> real
 {
    return exp(b[1]*T + b[2]*pow(T,0.5) + b[3])*pow(RHO,(a[1]*T + a[2]*pow(T,0.5) + a[3]));
 }
 
-auto electroPropertiesWaterSverjensky2014(/*PropertiesSolvent ps,*/ Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance substance, int state) -> ElectroPropertiesSolvent
+auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, Substance substance, int state) -> ElectroPropertiesSolventAD
 {
-    ElectroPropertiesSolvent wep;
+    ElectroPropertiesSolventAD wep;
 
     Database db; db.addSubstance(substance);
     ThermoEngine   th(db);
 
-    Reaktoro_::Temperature TK(TC.val() + 273.15);
-    Reaktoro_::Pressure P(Pbar.val() * 1e05);
+    const real TC   = pass.T - 273.15;      // temperature in celsius
+    const real Pbar = pass.P / 1e05;        // pressure in bar
 
-    double P1 = P.val();  // propertiesSolvent takes the pressure by reference
+    real TK = TC + 273.15;
+
+    double P1 = pass.P.val();  // propertiesSolvent takes the pressure by reference
     auto psol = th.propertiesSolvent(TK.val(), P1, substance.symbol(), state);
 
-    const auto RHO = psol.density /1000;
+    const real RHO = pass(psol.density) /1000;
     const auto eps = epsilonS(TC, RHO);
     const auto epsilon2 = eps * eps;
 
     // numerical approximation of epsilonT and epsilonTT
-    Reaktoro_::Temperature T_plus (TC.val()+TC.val()*0.001);
-    double P5 = P.val();  // propertiesSolvent takes the pressure by reference
-    auto RHO_plus = th.propertiesSolvent(T_plus.val()+273.15, P5, substance.symbol(), state).density / 1000;
+    real T_plus = TC + TC.val()*0.001;
+    double P5 = pass.P.val();  // propertiesSolvent takes the pressure by reference
+    real RHO_plus = pass(th.propertiesSolvent(T_plus.val()+273.15, P5, substance.symbol(), state).density) / 1000;
     auto eps_plus = epsilonS(T_plus, RHO_plus);
 
-    Reaktoro_::Temperature T_minus (TC.val()-TC.val()*0.001);
-    double P6 = P.val();  // propertiesSolvent takes the pressure by reference
-    auto RHO_minus  = th.propertiesSolvent(T_minus.val()+273.15, P6, substance.symbol(), state).density / 1000;
+    real T_minus = TC - TC.val()*0.001;
+    double P6 = pass.P.val();  // propertiesSolvent takes the pressure by reference
+    real RHO_minus  = pass(th.propertiesSolvent(T_minus.val()+273.15, P6, substance.symbol(), state).density) / 1000;
     auto eps_minus = epsilonS(T_minus, RHO_minus);
 
     const auto epsilonT  = (eps_plus - eps_minus) / ((T_plus-T_minus));
     const auto epsilonTT = (eps_plus + eps_minus - 2*eps)/pow(((T_plus-T_minus)*0.5),2);
 
     // numerical approximation of epsilonP and epsilonPP
-    Reaktoro_::Pressure P_plus (Pbar.val()+Pbar.val()*0.001);
-    Reaktoro_::Pressure P_plusPa (P_plus.val()*1e05);
-    double P2 = P_plusPa.val();  // propertiesSolvent takes the pressure by reference
-    RHO_plus = th.propertiesSolvent(TK.val(), P2, substance.symbol(), state).density / 1000;
+    real P_plus = Pbar + Pbar.val()*0.001;
+    double P2 = P_plus.val()*1e05;  // propertiesSolvent takes the pressure by reference
+    RHO_plus = pass(th.propertiesSolvent(TK.val(), P2, substance.symbol(), state).density) / 1000;
     eps_plus = epsilonS(TC, RHO_plus);
 
-    Reaktoro_::Pressure P_minus (Pbar.val()-Pbar.val()*0.001);
-    Reaktoro_::Pressure P_minusPa (P_minus.val()*1e05);
-    double P3 = P_minusPa.val();  // propertiesSolvent takes the pressure by reference
-    RHO_minus = th.propertiesSolvent(TK.val(), P3, substance.symbol(), state).density / 1000;
+    real P_minus = Pbar - Pbar.val()*0.001;
+    double P3 = P_minus.val()*1e05;  // propertiesSolvent takes the pressure by reference
+    RHO_minus = pass(th.propertiesSolvent(TK.val(), P3, substance.symbol(), state).density) / 1000;
     eps_minus = epsilonS(TC, RHO_minus);
 
     const auto epsilonP  = (eps_plus - eps_minus) / ((P_plus-P_minus));

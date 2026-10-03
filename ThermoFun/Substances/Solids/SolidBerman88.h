@@ -1,12 +1,11 @@
 #ifndef SOLIDBERMAN88
 #define SOLIDBERMAN88
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 class Substance;
-struct ThermoPropertiesSubstance;
 
 /// Returns the  correcected themrodynamic properties of a substance (mineral) uisng the Berman crrection model
 /// @ref Berman R.G. (1988) Internally consistent thermodynamic data for minerals in the system Na2O-K2O-
@@ -15,7 +14,7 @@ struct ThermoPropertiesSubstance;
 /// @param p pressure (bar)
 /// @param subst substance instance
 /// @param tps structure holding the thermodynamicp porperties of the substance (previously) corrected with other models
-auto thermoPropertiesMinBerman88(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+auto thermoPropertiesMinBerman88(real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps, bool* applied = nullptr) -> ThermoPropertiesSubstanceAD;
 
 }
 

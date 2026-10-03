@@ -6,7 +6,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasSTP(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesGasSTP(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
     double FugProps[6];
     char Eos_Code;
@@ -33,8 +33,6 @@ auto thermoPropertiesGasSTP(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar,
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
-
-    subst.checkCalcMethodBounds("STP Sterner-Pitzer fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

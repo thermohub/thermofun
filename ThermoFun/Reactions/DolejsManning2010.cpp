@@ -3,9 +3,9 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesDolejsManning2010(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, PropertiesSolvent wp) -> ThermoPropertiesReaction
+auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
 {
-    ThermoPropertiesReaction tpr;
+    ThermoPropertiesReactionAD tpr;
 
 //    auto ref_tpr = reaction.thermoReferenceProperties();
     auto RHOw = wp.density/1000; // in g/cm3

@@ -32,10 +32,15 @@ ReactionDolejsManning10::ReactionDolejsManning10(const Reaction &reaction)
 
 auto ReactionDolejsManning10::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
+    auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesFrantzMarshall(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+    });
 
-    return thermoPropertiesFrantzMarshall(t, p, pimpl->reaction, wp);
+    // the logarithm of the equilibrium constant and the isochoric heat capacity are not calculated
+    tpr.log_equilibrium_constant = Reaktoro_::ThermoProperty();
+    tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty();
+
+    return tpr;
 }
 
 //=======================================================================================================
@@ -63,10 +68,15 @@ ReactionFrantzMarshall::ReactionFrantzMarshall(const Reaction &reaction)
 
 auto ReactionFrantzMarshall::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
+    auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesFrantzMarshall(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+    });
 
-    return thermoPropertiesFrantzMarshall(t, p, pimpl->reaction, wp);
+    // the logarithm of the equilibrium constant and the isochoric heat capacity are not calculated
+    tpr.log_equilibrium_constant = Reaktoro_::ThermoProperty();
+    tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty();
+
+    return tpr;
 }
 
 //=======================================================================================================
@@ -94,10 +104,14 @@ ReactionRyzhenkoBryzgalin::ReactionRyzhenkoBryzgalin(const Reaction &reaction)
 
 auto ReactionRyzhenkoBryzgalin::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
+    auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesRyzhenkoBryzgalin(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+    });
 
-    return thermoPropertiesRyzhenkoBryzgalin(t, p, pimpl->reaction, wp);
+    // the isochoric heat capacity is not calculated
+    tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty();
+
+    return tpr;
 }
 
 //=======================================================================================================
@@ -125,10 +139,15 @@ Reaction_LogK_fT::Reaction_LogK_fT(const Reaction &reaction)
 
 auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
+    const auto inputs = prepareLogK_fT(pimpl->reaction, T, methodT);
 
-    return thermoPropertiesReaction_LogK_fT(t, p, pimpl->reaction, methodT);
+    auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, pimpl->reaction, inputs.method);
+    });
+
+    setStatusLogK_fT(tpr, inputs);
+
+    return tpr;
 }
 
 //=======================================================================================================
@@ -156,9 +175,6 @@ ReactionFromReactantsProperties::ReactionFromReactantsProperties(const Reaction 
 
 auto ReactionFromReactantsProperties::thermoProperties(double T, double P) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
-
     ThermoPropertiesReaction tpr;
     return tpr;
 
@@ -190,9 +206,6 @@ Reaction_Vol_fT::Reaction_Vol_fT(const Reaction &reaction)
 
 auto Reaction_Vol_fT::thermoProperties(double T, double P) -> ThermoPropertiesReaction
 {
-    auto t = Reaktoro_::Temperature(T);
-    auto p = Reaktoro_::Pressure(P); p /= bar_to_Pa;
-
     ThermoPropertiesReaction tpr;
     return tpr;
 

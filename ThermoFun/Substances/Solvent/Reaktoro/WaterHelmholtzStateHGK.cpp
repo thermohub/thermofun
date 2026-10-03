@@ -191,7 +191,7 @@ namespace ThermoFun {
             s.helmholtzDDD = 0.0;
         }
 
-        auto calculateWaterHelmholtzStateHGK0(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar /*d*/) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK0(real t, real /*d*/) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
             setzeros(s);
@@ -216,7 +216,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK1(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK1(real t, real d) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -238,7 +238,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK2(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK2(real t, real d) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -299,7 +299,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK3(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK3(real t, real d) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -321,8 +321,7 @@ namespace ThermoFun {
                 auto l_pow = pow(lambda_t / lambda, 2);
                 if (l_pow == 0)
                 {
-                    l_pow.setDdt(0);
-                    l_pow.setDdp(0);
+                    l_pow[1] = 0; // derivative of the pass
                 }
                 const auto lambda_rrt = -pow(lambda_r / lambda, 2) * lambda_t + (lambda_rr * lambda_t + lambda_rt * lambda_r) / lambda;
                 const auto lambda_rtt = -l_pow * lambda_r + (lambda_tt * lambda_r + lambda_rt * lambda_t) / lambda;
@@ -343,7 +342,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK4(Reaktoro_::ThermoScalar t, Reaktoro_::ThermoScalar d) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK4(real t, real d) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -390,7 +389,7 @@ namespace ThermoFun {
 
     } // namespace
 
-auto waterHelmholtzStateHGK(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> WaterHelmholtzState
+auto waterHelmholtzStateHGK(real T, real D) -> WaterHelmholtzState
 {
 	// The dimensionless temperature and density
 	const auto t = T/referenceTemperature;

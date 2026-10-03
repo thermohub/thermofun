@@ -1,14 +1,11 @@
 #ifndef OUTPUTTOCSV_H
 #define OUTPUTTOCSV_H
+#include "ThermoProperties.h"
 
 #include <fstream>
 #include <string>
 
 namespace ThermoFun {
-
-struct ThermoPropertiesSubstance;
-struct PropertiesSolvent;
-struct ElectroPropertiesSolvent;
 
 class OutputToCSV
 {

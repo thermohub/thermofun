@@ -1,14 +1,13 @@
 #ifndef GASSRK
 #define GASSRK
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 class Substance;
-struct ThermoPropertiesSubstance;
 
-auto thermoPropertiesGasSRK(Reaktoro_::Temperature t, Reaktoro_::Pressure p, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+auto thermoPropertiesGasSRK(real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD;
 
 }
 

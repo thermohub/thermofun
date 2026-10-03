@@ -11,8 +11,8 @@ namespace ThermoFun {
 // Written in fortran by M.Gottschalk, GFZ Potsdam
 // Translated to C/C++ by D.Kulik, 08 April 2003
 // calculate the volume integral
-auto BM_IntVol(Reaktoro_::Pressure P, Reaktoro_::Pressure Pref, Reaktoro_::ThermoScalar vt, Reaktoro_::ThermoScalar  vpt,
-                 Reaktoro_::ThermoScalar  kt0, Reaktoro_::ThermoScalar  kp, Reaktoro_::ThermoScalar  kpp) -> Reaktoro_::ThermoScalar
+auto BM_IntVol(real P, real Pref, real vt, real  vpt,
+                 real  kt0, real  kp, real  kpp) -> real
 {
     auto vt23 = pow( vt/vpt, 2./3. );
 
@@ -28,8 +28,8 @@ auto BM_IntVol(Reaktoro_::Pressure P, Reaktoro_::Pressure Pref, Reaktoro_::Therm
 
 //-----------------------------------------------------------------------
 // calculate the volume at P and T
-auto BM_Volume( Reaktoro_::Pressure P, Reaktoro_::ThermoScalar vt, Reaktoro_::ThermoScalar kt0, Reaktoro_::ThermoScalar kp,
-                Reaktoro_::ThermoScalar kpp, Reaktoro_::ThermoScalar vstart) -> Reaktoro_::ThermoScalar
+auto BM_Volume( real P, real vt, real kt0, real kp,
+                real kpp, real vstart) -> real
 {
 //      double  veq, vv, vvnew, vvold, vt23, dveq;
       long int i=0;
@@ -62,11 +62,11 @@ auto BM_Volume( Reaktoro_::Pressure P, Reaktoro_::ThermoScalar vt, Reaktoro_::Th
 //------------------------------------------------------------------------
 // calculate the integral vdP using the Birch-Murnaghan EOS
 // this function will be incorporated into GEM-Selektor v.2.1.0 code
-auto BirchMurnaghan( double Pref, Reaktoro_::Pressure P, Reaktoro_::Temperature Tref, Reaktoro_::Temperature T, Reaktoro_::ThermoScalar v0,
-          std::vector<double> BMConst, Reaktoro_::ThermoScalar &vv, Reaktoro_::ThermoScalar &alpha, Reaktoro_::ThermoScalar &beta,
-          Reaktoro_::ThermoScalar &dG, Reaktoro_::ThermoScalar &dH, Reaktoro_::ThermoScalar &dS ) -> void
+auto BirchMurnaghan( double Pref, real P, double Tref, real T, real v0,
+          std::vector<double> BMConst, real &vv, real &alpha, real &beta,
+          real &dG, real &dH, real &dS ) -> void
 {
-Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
+real vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
          /*Volume, IntVol, */ Pincr, Tincr, /*Pplus, Pminus,*/ Tplus, Tminus,
          vPplus, vPminus, vTplus, vTminus, kt0Tplus, kt0Tminus, kppTplus, kppTminus,
          vtTplus, vtTminus, dGTplus, dGTminus;
@@ -75,8 +75,8 @@ Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp
     Pincr = Tincr = Tplus = Tminus = vPplus = vPminus = vTplus = vTminus = 0.0;
     kt0Tplus = kt0Tminus = kppTplus = kppTminus = vtTplus = vtTminus = dGTplus = dGTminus = 0.0;
 
-    Pincr.setVal(0.01);
-    Tincr.setVal(0.1);
+    Pincr = 0.01;
+    Tincr = 0.1;
        // v0 = BMConst(1) - in GEMS passed as a separate function parameter
     a1 = BMConst[0];
     a2 = BMConst[1];
@@ -88,8 +88,8 @@ Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp
     kp = BMConst[7];
     kpp = BMConst[8];
 
-    Reaktoro_::Pressure Pplus = P.val() + Pincr.val();
-    Reaktoro_::Pressure Pminus = P.val() - Pincr.val();
+    real Pplus = P + Pincr.val();
+    real Pminus = P - Pincr.val();
     Tplus = T + Tincr;
     Tminus = T - Tincr;
 
@@ -146,14 +146,14 @@ Reaktoro_::ThermoScalar vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp
 
 
 
-auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesMinBMGottschalk (real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* applied) -> ThermoPropertiesSubstanceAD
 {
 
     auto Pst = 0.1*subst.referenceP() / bar_to_Pa; // in bar
     auto Tst = subst.referenceT(); // in K
-    auto Vst = subst.thermoReferenceProperties().volume; // j/bar
-    Reaktoro_::Temperature T ( TK.val() );
-    Reaktoro_::Pressure P = Pbar; P*=0.1; /*(0.1*Pbar.val());*/ // in bar
+    auto Vst = Reaktoro_::constant(subst.thermoReferenceProperties().volume); // j/bar
+    real T = TK;
+    real P = Pbar; P*=0.1; /*(0.1*Pbar.val());*/ // in bar
     auto P_Pst = P - Pst;
     auto T_Tst = T -Tst;
 
@@ -163,9 +163,14 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pres
         errorModelParameters("Birch M.", "BMGottschalk", __LINE__, __FILE__);
     }
 
+    if (applied)
+        *applied = false;
+
     if( (P_Pst != 0.0 || T_Tst != 0.) && BMc.size() >= 8 )
     {
-       Reaktoro_::ThermoScalar VV0, GG0, HH0, SS0, aC, aE;
+       if (applied)
+           *applied = true;
+       real VV0, GG0, HH0, SS0, aC, aE;
 
        BirchMurnaghan( Pst, P, Tst, T, Vst*10., BMc,
                        VV0, aC, aE, GG0, HH0, SS0 );
@@ -181,8 +186,6 @@ auto thermoPropertiesMinBMGottschalk (Reaktoro_::Temperature TK, Reaktoro_::Pres
 //       aW.twp->Alp = aC;
 //       aW.twp->Bet = aE;
     }
-
-    subst.checkCalcMethodBounds("BMGottschalk model", TK.val(), Pbar.val()*1e05, tps);
 
     return tps;
 }

@@ -128,18 +128,19 @@ struct ThermoEngine::Impl
 
     auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) const -> void
     {
-        tps.gibbs_energy -= wat.Gtr;
-        tps.enthalpy -= wat.Htr;
-        tps.entropy -= wat.Str;
-        tps.helmholtz_energy -= wat.Atr;
-        tps.internal_energy -= wat.Utr;
+        // constants are subtracted: the derivatives, error and status are not changed
+        tps.gibbs_energy.val -= wat.Gtr;
+        tps.enthalpy.val -= wat.Htr;
+        tps.entropy.val -= wat.Str;
+        tps.helmholtz_energy.val -= wat.Atr;
+        tps.internal_energy.val -= wat.Utr;
     }
 
     auto toBermanBrown(ThermoPropertiesSubstance &tps, const Substance &subst) const -> void
     {
         const auto Tr = subst.referenceT();
         const auto entropyElements = database.elementalEntropyFormula(subst.formula());
-        tps.gibbs_energy -= (Tr * entropyElements);
+        tps.gibbs_energy.val -= (Tr * entropyElements); // a constant: the derivatives, error and status are not changed
     }
 
     auto getThermoPreferencesReaction(const Reaction &reaction) const -> WorkPreferences
@@ -597,41 +598,69 @@ struct ThermoEngine::Impl
 
             tpr = thermo_properties_reaction_fn(T, P, P, reactionSymbol); /*thermoPropertiesReaction(T, P, reactionSymbol);*/
 
-            tps.enthalpy = tpr.reaction_enthalpy;
-            tps.entropy = tpr.reaction_entropy;
-            tps.gibbs_energy = tpr.reaction_gibbs_energy;
-            tps.heat_capacity_cp = tpr.reaction_heat_capacity_cp;
-            tps.heat_capacity_cv = tpr.reaction_heat_capacity_cv;
-            tps.helmholtz_energy = tpr.reaction_helmholtz_energy;
-            tps.internal_energy = tpr.reaction_internal_energy;
-            tps.volume = tpr.reaction_volume;
-
             reactants = reaction.reactants();
 
+            // the properties of the other reactants
+            std::vector<std::pair<ThermoPropertiesSubstance, double>> others;
             for (const auto& reactant : reactants)
             {
                 if (reactant.first != subst.symbol())
-                {
-                    reacTps = thermo_properties_substance_fn(T, P, P, reactant.first); /* thermoPropertiesSubstance(T, P, reactant.first);*/
-                    tps.enthalpy -= reacTps.enthalpy * reactant.second;
-                    tps.entropy -= reacTps.entropy * reactant.second;
-                    tps.gibbs_energy -= reacTps.gibbs_energy * reactant.second;
-                    tps.heat_capacity_cp -= reacTps.heat_capacity_cp * reactant.second;
-                    tps.heat_capacity_cv -= reacTps.heat_capacity_cv * reactant.second;
-                    tps.helmholtz_energy -= reacTps.helmholtz_energy * reactant.second;
-                    tps.internal_energy -= reacTps.internal_energy * reactant.second;
-                    tps.volume -= reacTps.volume * reactant.second;
-                }
+                    others.push_back({thermo_properties_substance_fn(T, P, P, reactant.first) /* thermoPropertiesSubstance(T, P, reactant.first);*/, reactant.second});
             }
 
-            tps.enthalpy = tps.enthalpy / reactants[subst.symbol()];
-            tps.entropy = tps.entropy / reactants[subst.symbol()];
-            tps.gibbs_energy = tps.gibbs_energy / reactants[subst.symbol()];
-            tps.heat_capacity_cp = tps.heat_capacity_cp / reactants[subst.symbol()];
-            tps.heat_capacity_cv = tps.heat_capacity_cv / reactants[subst.symbol()];
-            tps.helmholtz_energy = tps.helmholtz_energy / reactants[subst.symbol()];
-            tps.internal_energy = tps.internal_energy / reactants[subst.symbol()];
-            tps.volume = tps.volume / reactants[subst.symbol()];
+            const double coeff = reactants[subst.symbol()];
+
+            // the properties of the substance from the properties of the reaction and of the other reactants
+            tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+                ThermoPropertiesSubstanceAD a;
+                a.enthalpy         = pass(tpr.reaction_enthalpy);
+                a.entropy          = pass(tpr.reaction_entropy);
+                a.gibbs_energy     = pass(tpr.reaction_gibbs_energy);
+                a.heat_capacity_cp = pass(tpr.reaction_heat_capacity_cp);
+                a.heat_capacity_cv = pass(tpr.reaction_heat_capacity_cv);
+                a.helmholtz_energy = pass(tpr.reaction_helmholtz_energy);
+                a.internal_energy  = pass(tpr.reaction_internal_energy);
+                a.volume           = pass(tpr.reaction_volume);
+
+                for (const auto& other : others)
+                {
+                    a.enthalpy         -= pass(other.first.enthalpy) * other.second;
+                    a.entropy          -= pass(other.first.entropy) * other.second;
+                    a.gibbs_energy     -= pass(other.first.gibbs_energy) * other.second;
+                    a.heat_capacity_cp -= pass(other.first.heat_capacity_cp) * other.second;
+                    a.heat_capacity_cv -= pass(other.first.heat_capacity_cv) * other.second;
+                    a.helmholtz_energy -= pass(other.first.helmholtz_energy) * other.second;
+                    a.internal_energy  -= pass(other.first.internal_energy) * other.second;
+                    a.volume           -= pass(other.first.volume) * other.second;
+                }
+
+                a.enthalpy         = a.enthalpy / coeff;
+                a.entropy          = a.entropy / coeff;
+                a.gibbs_energy     = a.gibbs_energy / coeff;
+                a.heat_capacity_cp = a.heat_capacity_cp / coeff;
+                a.heat_capacity_cv = a.heat_capacity_cv / coeff;
+                a.helmholtz_energy = a.helmholtz_energy / coeff;
+                a.internal_energy  = a.internal_energy / coeff;
+                a.volume           = a.volume / coeff;
+                return a;
+            });
+
+            // each property is not defined if the property of the reaction or of any other reactant is not defined
+            auto setStatus = [&](Reaktoro_::ThermoProperty& p, const Reaktoro_::ThermoProperty& fromReaction,
+                                 Reaktoro_::ThermoProperty ThermoPropertiesSubstance::* member)
+            {
+                p.propagateFrom(fromReaction);
+                for (const auto& other : others)
+                    p.propagateFrom(p, other.first.*member);
+            };
+            setStatus(tps.enthalpy,         tpr.reaction_enthalpy,          &ThermoPropertiesSubstance::enthalpy);
+            setStatus(tps.entropy,          tpr.reaction_entropy,           &ThermoPropertiesSubstance::entropy);
+            setStatus(tps.gibbs_energy,     tpr.reaction_gibbs_energy,      &ThermoPropertiesSubstance::gibbs_energy);
+            setStatus(tps.heat_capacity_cp, tpr.reaction_heat_capacity_cp,  &ThermoPropertiesSubstance::heat_capacity_cp);
+            setStatus(tps.heat_capacity_cv, tpr.reaction_heat_capacity_cv,  &ThermoPropertiesSubstance::heat_capacity_cv);
+            setStatus(tps.helmholtz_energy, tpr.reaction_helmholtz_energy,  &ThermoPropertiesSubstance::helmholtz_energy);
+            setStatus(tps.internal_energy,  tpr.reaction_internal_energy,   &ThermoPropertiesSubstance::internal_energy);
+            setStatus(tps.volume,           tpr.reaction_volume,            &ThermoPropertiesSubstance::volume);
         }
         else
         {
@@ -741,14 +770,33 @@ struct ThermoEngine::Impl
             {
                 auto Pref = pref.workReaction.referenceP() / 1e5;
                 auto P_ = P / 1e5;
-                auto VP = tpr.reaction_volume * (P_ - Pref);
-                tpr.reaction_gibbs_energy += VP;
-                tpr.reaction_enthalpy += VP;
                 auto Vref = pref.workReaction.thermoReferenceProperties().reaction_volume;
-                tpr.log_equilibrium_constant -= Vref * (P_ - Pref) / (R_CONSTANT * Reaktoro_::Temperature(T)) / lg_to_ln;
-                tpr.reaction_entropy = (tpr.reaction_enthalpy - tpr.reaction_gibbs_energy) / T;
-                tpr.reaction_internal_energy = tpr.reaction_enthalpy - P_ * tpr.reaction_volume;
-                tpr.reaction_helmholtz_energy = tpr.reaction_internal_energy - T * tpr.reaction_entropy;
+
+                const auto tprIn = tpr;
+                tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+                    auto a = lift(pass, tprIn);
+                    const real VP = a.reaction_volume * (P_ - Pref);
+                    a.reaction_gibbs_energy += VP;
+                    a.reaction_enthalpy += VP;
+                    a.log_equilibrium_constant -= pass(Vref) * (P_ - Pref) / (R_CONSTANT * pass.T) / lg_to_ln;
+                    a.reaction_entropy = (a.reaction_enthalpy - a.reaction_gibbs_energy) / pass.T;
+                    a.reaction_internal_energy = a.reaction_enthalpy - P_ * a.reaction_volume;
+                    a.reaction_helmholtz_energy = a.reaction_internal_energy - pass.T * a.reaction_entropy;
+                    return a;
+                });
+
+                // the properties that were not changed keep their error and status
+                auto keep = [](Reaktoro_::ThermoProperty& o, const Reaktoro_::ThermoProperty& i) { o.sta = i.sta; o.err = i.err; };
+                keep(tpr.ln_equilibrium_constant, tprIn.ln_equilibrium_constant);
+                keep(tpr.reaction_volume, tprIn.reaction_volume);
+                keep(tpr.reaction_heat_capacity_cp, tprIn.reaction_heat_capacity_cp);
+                keep(tpr.reaction_heat_capacity_cv, tprIn.reaction_heat_capacity_cv);
+                tpr.reaction_gibbs_energy.propagateFrom(tprIn.reaction_gibbs_energy, tprIn.reaction_volume);
+                tpr.reaction_enthalpy.propagateFrom(tprIn.reaction_enthalpy, tprIn.reaction_volume);
+                tpr.log_equilibrium_constant.propagateFrom(tprIn.log_equilibrium_constant, Vref);
+                tpr.reaction_entropy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_gibbs_energy);
+                tpr.reaction_internal_energy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_volume);
+                tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_internal_energy, tpr.reaction_entropy);
 
                 //dU/dT=C (v)
 
@@ -797,6 +845,10 @@ struct ThermoEngine::Impl
 
         std::string message = "Calculated from the reaction components: " + reaction.symbol() + "; ";
 
+        // the properties of the reactants
+        std::vector<std::pair<ThermoPropertiesSubstance, double>> components;
+        std::vector<std::string> symbols;
+
         for (auto &reactant : reaction.reactants())
         {
             auto coeff      = reactant.second;
@@ -809,18 +861,72 @@ struct ThermoEngine::Impl
                 errorMethodNotFound("reaction", reaction.symbol(), __LINE__, __FILE__);
             }
 
-            auto tps        = thermo_properties_substance_fn(T, P,P, substance); /*thermoPropertiesSubstance(T, P, substance);*/
+            components.push_back({thermo_properties_substance_fn(T, P,P, substance) /*thermoPropertiesSubstance(T, P, substance);*/, coeff});
+            symbols.push_back(substance);
+        }
 
-            tpr.reaction_heat_capacity_cp   += tps.heat_capacity_cp*coeff;
-            tpr.reaction_gibbs_energy       += tps.gibbs_energy*coeff;
-            tpr.reaction_enthalpy           += tps.enthalpy*coeff;
-            tpr.reaction_entropy            += tps.entropy*coeff;
-            tpr.reaction_volume             += tps.volume*coeff;
-            tpr.ln_equilibrium_constant     = tpr.reaction_gibbs_energy / -(R_CONSTANT*Reaktoro_::Temperature(T));
-            tpr.log_equilibrium_constant    = tpr.ln_equilibrium_constant * ln_to_lg;
-            tpr.reaction_heat_capacity_cv = tps.heat_capacity_cv*coeff;
-            tpr.reaction_internal_energy  = tps.internal_energy*coeff;
-            tpr.reaction_helmholtz_energy = tps.helmholtz_energy*coeff;
+        // the values and derivatives of the properties of the reaction
+        if (!components.empty())
+        {
+            auto values = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+                ThermoPropertiesReactionAD a;
+                a.reaction_heat_capacity_cp = 0.0;
+                a.reaction_gibbs_energy = 0.0;
+                a.reaction_enthalpy = 0.0;
+                a.reaction_entropy = 0.0;
+                a.reaction_volume = 0.0;
+
+                for (const auto& component : components)
+                {
+                    const auto& tps = component.first;
+                    const auto coeff = component.second;
+
+                    a.reaction_heat_capacity_cp += pass(tps.heat_capacity_cp)*coeff;
+                    a.reaction_gibbs_energy     += pass(tps.gibbs_energy)*coeff;
+                    a.reaction_enthalpy         += pass(tps.enthalpy)*coeff;
+                    a.reaction_entropy          += pass(tps.entropy)*coeff;
+                    a.reaction_volume           += pass(tps.volume)*coeff;
+                    a.reaction_heat_capacity_cv  = pass(tps.heat_capacity_cv)*coeff;
+                    a.reaction_internal_energy   = pass(tps.internal_energy)*coeff;
+                    a.reaction_helmholtz_energy  = pass(tps.helmholtz_energy)*coeff;
+                }
+                a.ln_equilibrium_constant  = a.reaction_gibbs_energy / -(R_CONSTANT*pass.T);
+                a.log_equilibrium_constant = a.ln_equilibrium_constant * ln_to_lg;
+                return a;
+            });
+
+            // the errors and statuses are set below
+            auto copyValues = [](Reaktoro_::ThermoProperty& to, const Reaktoro_::ThermoProperty& from) {
+                to.val = from.val; to.ddt = from.ddt; to.ddp = from.ddp;
+            };
+            copyValues(tpr.reaction_heat_capacity_cp, values.reaction_heat_capacity_cp);
+            copyValues(tpr.reaction_gibbs_energy, values.reaction_gibbs_energy);
+            copyValues(tpr.reaction_enthalpy, values.reaction_enthalpy);
+            copyValues(tpr.reaction_entropy, values.reaction_entropy);
+            copyValues(tpr.reaction_volume, values.reaction_volume);
+            copyValues(tpr.ln_equilibrium_constant, values.ln_equilibrium_constant);
+            copyValues(tpr.log_equilibrium_constant, values.log_equilibrium_constant);
+            copyValues(tpr.reaction_heat_capacity_cv, values.reaction_heat_capacity_cv);
+            copyValues(tpr.reaction_internal_energy, values.reaction_internal_energy);
+            copyValues(tpr.reaction_helmholtz_energy, values.reaction_helmholtz_energy);
+        }
+
+        // the errors and statuses, and the messages of the properties that are not defined
+        for (size_t i = 0; i < components.size(); ++i)
+        {
+            const auto& tps = components[i].first;
+            const auto& substance = symbols[i];
+
+            tpr.reaction_heat_capacity_cp.propagateFrom(tpr.reaction_heat_capacity_cp, tps.heat_capacity_cp);
+            tpr.reaction_gibbs_energy.propagateFrom(tpr.reaction_gibbs_energy, tps.gibbs_energy);
+            tpr.reaction_enthalpy.propagateFrom(tpr.reaction_enthalpy, tps.enthalpy);
+            tpr.reaction_entropy.propagateFrom(tpr.reaction_entropy, tps.entropy);
+            tpr.reaction_volume.propagateFrom(tpr.reaction_volume, tps.volume);
+            tpr.ln_equilibrium_constant.propagateFrom(tpr.reaction_gibbs_energy);
+            tpr.log_equilibrium_constant.propagateFrom(tpr.ln_equilibrium_constant);
+            tpr.reaction_heat_capacity_cv.propagateFrom(tps.heat_capacity_cv);
+            tpr.reaction_internal_energy.propagateFrom(tps.internal_energy);
+            tpr.reaction_helmholtz_energy.propagateFrom(tps.helmholtz_energy);
 
             setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
             setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);

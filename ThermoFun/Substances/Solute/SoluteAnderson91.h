@@ -1,15 +1,12 @@
 #ifndef SOLUTEANDERSON91_H
 #define SOLUTEANDERSON91_H
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
-
-struct ThermoPropertiesSubstance;
-struct PropertiesSolvent;
 class Substance;
 
-auto thermoPropertiesAqSoluteAN91(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, const PropertiesSolvent& wpr,  const PropertiesSolvent& wp) -> ThermoPropertiesSubstance;
+auto thermoPropertiesAqSoluteAN91(real TK, real Pbar, Substance subst, const PropertiesSolventAD& wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD;
 
 }
 

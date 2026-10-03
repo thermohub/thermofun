@@ -31,7 +31,7 @@ const double a[] =
 
 const double gamma = 1.05999998e-02;
 
-auto waterMolarVolume (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaktoro_::ThermoScalar V0) -> Reaktoro_::ThermoScalar
+auto waterMolarVolume (real TK, real Pbar, real V0) -> real
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
@@ -79,9 +79,9 @@ auto waterMolarVolume (Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reak
 }
 
 // Duan et al 1992a; F = F92*beta, G = F92*gamma
-auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar Vr, Reaktoro_::ThermoScalar V) -> Reaktoro_::ThermoScalar
+auto waterFugacityCoeff (real T, real P, real Vr, real V) -> real
 {
-    Reaktoro_::ThermoScalar lnFugCoef/*, lnFugCoef2, lnFugCoef3*/;
+    real lnFugCoef/*, lnFugCoef2, lnFugCoef3*/;
 
     const auto Tc = waterCriticalTemperature;
     const auto B = a[1]  + a[2]/pow((T/Tc),2)  + a[3]/pow((T/Tc),3);
@@ -109,12 +109,12 @@ auto waterFugacityCoeff (Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reakto
 }
 
 
-auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> ThermoPropertiesSubstance
+auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubstanceAD
 {
-    ThermoPropertiesSubstance tps;
+    ThermoPropertiesSubstanceAD tps;
 
-    Reaktoro_::ThermoScalar Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
-    Reaktoro_::ThermoScalar FugCoef;
+    real Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
+    real FugCoef;
 
     Vr = 0.3;
 
@@ -130,9 +130,9 @@ auto thermoPropertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pre
     return tps;
 }
 
-auto waterDensityZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> Reaktoro_::ThermoScalar
+auto waterDensityZhangDuan2005(real T, real P) -> real
 {
-    Reaktoro_::ThermoScalar Vr;
+    real Vr;
 
     Vr = 0.3;
     Vr = waterMolarVolume(T, P, Vr);
@@ -143,11 +143,11 @@ auto waterDensityZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) 
     return D;
 }
 
-auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure P) -> PropertiesSolvent
+auto propertiesWaterZhangDuan2005(real T, real P) -> PropertiesSolventAD
 {
-    PropertiesSolvent ps;
+    PropertiesSolventAD ps;
 
-    Reaktoro_::ThermoScalar Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
+    real Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
 
     Vr = 0.3;
 
@@ -157,14 +157,14 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     const auto D = H2OMolarMass/V*100;
 
     // finite difference T
-    Reaktoro_::ThermoScalar Vr_plus;
-    Reaktoro_::Temperature T_plus (T.val()+T.val()*0.001);
+    real Vr_plus;
+    real T_plus = T + T.val()*0.001;
     Vr_plus = waterMolarVolume(T_plus, P, Vr);
     auto V_plus = Vr_plus * waterCriticalVolume/10;
     auto D_plus = H2OMolarMass/V_plus *100;
 
-    Reaktoro_::ThermoScalar Vr_minus;
-    Reaktoro_::Temperature T_minus (T.val()-T.val()*0.001);
+    real Vr_minus;
+    real T_minus = T - T.val()*0.001;
     Vr_minus = waterMolarVolume(T_minus, P, Vr);
     auto V_minus = Vr_minus * waterCriticalVolume/10;
     auto D_minus = H2OMolarMass/V_minus * 100;
@@ -176,12 +176,12 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
 //    const auto Vd2T = (V_plus + V_minus - 2*V)/pow(((T_plus-T_minus)*0.5),2);
 
     // finite difference P
-    Reaktoro_::Pressure P_plus (P.val() + P.val()*0.001);
+    real P_plus = P + P.val()*0.001;
     Vr_plus = waterMolarVolume(T, P_plus, Vr);
     V_plus = Vr_plus * waterCriticalVolume/10;
     D_plus = H2OMolarMass/V_plus *100;
 
-    Reaktoro_::Pressure P_minus (P.val() - P.val()*0.001);
+    real P_minus = P - P.val()*0.001;
     Vr_minus = waterMolarVolume(T, P_minus, Vr);
     V_minus = Vr_minus * waterCriticalVolume/10;
     D_minus = H2OMolarMass/V_minus *100;
@@ -192,10 +192,10 @@ auto propertiesWaterZhangDuan2005(Reaktoro_::Temperature T, Reaktoro_::Pressure 
     const auto Dd2P = (D_plus + D_minus - 2*D)/pow(((P_plus-P_minus)*0.5),2);
 //    const auto Vd2P = (V_plus + V_minus - 2*V)/pow(((P_plus-P_minus)*0.5),2);
 
-    ps.density   = D /* * 1000*/; ps.density.setDdp(ps.density.ddp()*1e-05);
-    ps.densityT  = DdT; ps.densityT.setDdp(ps.densityT.ddp()*1e-05);
+    ps.density   = D /* * 1000*/;
+    ps.densityT  = DdT;
     ps.densityP  = DdP*1e-05;
-    ps.densityTT = Dd2T; ps.densityTT.setDdp(ps.densityTT.ddp()*1e-05);
+    ps.densityTT = Dd2T;
     ps.densityPP = Dd2P*1e-05;
     ps.Alpha     = -ps.densityT/ps.density;
     ps.Beta      = ps.densityP/ps.density/*/1e+05*/; // from 1/bar to 1/Pa

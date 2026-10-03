@@ -4,19 +4,19 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesReaction_Vol_fT(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Reaction reaction, ThermoPropertiesReaction tpr) -> ThermoPropertiesReaction
+auto thermoPropertiesReaction_Vol_fT(real TK, real Pbar, Reaction reaction, ThermoPropertiesReactionAD tpr) -> ThermoPropertiesReactionAD
 {
 
     auto prop_ref = reaction.thermoReferenceProperties();
     auto Pst = reaction.referenceP();
-    auto Vst = prop_ref.reaction_volume;
+    auto Vst = Reaktoro_::constant(prop_ref.reaction_volume);
     auto Tst = reaction.referenceT();
     auto a = reaction.thermoParameters().reaction_V_fT_coeff;
 
 //    if( (methodP == MethodCorrP_Thrift::type::CPM_VKE || methodP == MethodCorrP_Thrift::type::CPM_VBE) && rc[q].DVt )
 //    {  // calc on equation V(P,T)
-    auto aC = Reaktoro_::ThermoScalar(0.);
-    auto aE = Reaktoro_::ThermoScalar(0.);
+    auto aC = real(0.);
+    auto aE = real(0.);
     for( unsigned i=0; i<a.size(); i++ )
     { // see all  coef Vp(T,P)
         switch( i ) // calc delta

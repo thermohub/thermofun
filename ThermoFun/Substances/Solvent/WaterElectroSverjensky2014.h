@@ -1,14 +1,13 @@
 #ifndef WATERELECTROSVERJENSKY2014_H
 #define WATERELECTROSVERJENSKY2014_H
+#include "ThermoProperties.h"
 
-#include "Common/ScalarTypes.hpp"
 
 namespace ThermoFun {
 
 class Substance;
-struct ElectroPropertiesSolvent;
 
-auto electroPropertiesWaterSverjensky2014(Reaktoro_::Temperature TC, Reaktoro_::Pressure Pbar, Substance substance, int state = -1) -> ElectroPropertiesSolvent;
+auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, Substance substance, int state = -1) -> ElectroPropertiesSolventAD;
 
 }
 

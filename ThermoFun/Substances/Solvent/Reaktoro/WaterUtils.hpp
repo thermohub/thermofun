@@ -1,3 +1,4 @@
+#include "ThermoProperties.h"
 // Reaktoro is a unified framework for modeling chemically reactive systems.
 //
 // Copyright (C) 2014-2015 Allan Leal
@@ -18,8 +19,8 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Common/ScalarTypes.hpp>
-#include "Common/ThermoScalar.hpp"
+#include <Common/Real.hpp>
+#include "Common/Real.hpp"
 
 namespace ThermoFun {
 
@@ -27,48 +28,47 @@ namespace ThermoFun {
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The density of water (in units of kg/m3)
-auto waterDensityHGK(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> Reaktoro_::ThermoScalar;
+auto waterDensityHGK(real T, real P, int state) -> real;
 
 /// Calculate the density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The density of water (in units of kg/m3)
-auto waterDensityWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> Reaktoro_::ThermoScalar;
+auto waterDensityWagnerPruss(real T, real P, int state) -> real;
 
 /// Calculate the pressure of water using the Haar-Gallagher-Kell (1984) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param D The density of water (in units of kg/m3)
 /// @return The pressure of water (in units of Pa)
-auto waterPressureHGK(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> Reaktoro_::ThermoScalar;
+auto waterPressureHGK(real T, real D) -> real;
 
 /// Calculate the pressure of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param D The density of water (in units of kg/m3)
 /// @return The pressure of water (in units of Pa)
-auto waterPressureWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> Reaktoro_::ThermoScalar;
+auto waterPressureWagnerPruss(real T, real D) -> real;
 
 /// Calculate the saturated pressure of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated pressure of water (in units of Pa)
-auto waterSaturatedPressureWagnerPruss(Reaktoro_::Temperature T) -> Reaktoro_::ThermoScalar;
+auto waterSaturatedPressureWagnerPruss(real T) -> real;
 
 /// Calculate the saturated liquid-density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated liquid-density of water (in units of kg/m3)
-auto waterSaturatedLiquidDensityWagnerPruss(Reaktoro_::Temperature T) -> Reaktoro_::ThermoScalar;
+auto waterSaturatedLiquidDensityWagnerPruss(real T) -> real;
 
 /// Calculate the saturated vapour-density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated vapour-density of water (in units of kg/m3)
-auto waterSaturatedVapourDensityWagnerPruss(Reaktoro_::Temperature T) -> Reaktoro_::ThermoScalar;
+auto waterSaturatedVapourDensityWagnerPruss(real T) -> real;
 
 } // namespace Reaktoro
 
 namespace ThermoFun
 {
 // Forward declarations
-struct PropertiesSolvent;
 
-auto waterIdealGas (Reaktoro_::Temperature t, ThermoFun::PropertiesSolvent &wp) -> void;
+auto waterIdealGas (real t, ThermoFun::PropertiesSolvent &wp) -> void;
 
 }

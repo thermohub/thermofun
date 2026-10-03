@@ -7,7 +7,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
     double FugProps[6];
     char Eos_Code = 'G';
@@ -34,8 +34,6 @@ auto thermoPropertiesGasCORK(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar); //FugProps[0] - fugacity coefficient
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
-
-    subst.checkCalcMethodBounds("CORK compensated-Redlich-Kwong fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

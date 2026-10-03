@@ -18,8 +18,8 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Common/ScalarTypes.hpp>
-#include "Common/ThermoScalar.hpp"
+#include <Common/Real.hpp>
+#include "Common/Real.hpp"
 
 namespace ThermoFun {
 
@@ -31,6 +31,6 @@ struct WaterHelmholtzState;
 /// @param D The density of water (in units of kg/m3)
 /// @return The Helmholtz free energy state of water
 /// @see WaterHelmholtzState
-auto waterHelmholtzStateHGK(Reaktoro_::Temperature T, Reaktoro_::ThermoScalar D) -> WaterHelmholtzState;
+auto waterHelmholtzStateHGK(real T, real D) -> WaterHelmholtzState;
 
 } // namespace Reaktoro

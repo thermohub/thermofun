@@ -6,7 +6,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasPRSV(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar, Substance subst, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+auto thermoPropertiesGasPRSV(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
     double FugProps[6];
     if (Pbar.val() == 0.0)
@@ -28,8 +28,6 @@ auto thermoPropertiesGasPRSV(Reaktoro_::Temperature TK, Reaktoro_::Pressure Pbar
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
-
-    subst.checkCalcMethodBounds("PRSV Peng-Robinson-Stryjek-Vera fluid model", TK.val(), Pbar.val()*bar_to_Pa, tps);
 
     return tps;
 }

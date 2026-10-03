@@ -18,41 +18,41 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include "Common/ThermoScalar.hpp"
+#include "Common/Real.hpp"
 
 namespace ThermoFun {
 
 struct WaterHelmholtzState
 {
 	/// The specific Helmholtz free energy of water (in units of J/kg)
-    Reaktoro_::ThermoScalar helmholtz;
+    real helmholtz;
 
 	/// The first-order partial derivative of the specific Helmholtz free energy of water with respect to temperature
-    Reaktoro_::ThermoScalar helmholtzT;
+    real helmholtzT;
 
 	/// The first-order partial derivative of the specific Helmholtz free energy of water with respect to density
-    Reaktoro_::ThermoScalar helmholtzD;
+    real helmholtzD;
 
 	/// The second-order partial derivative of the specific Helmholtz free energy of water with respect to temperature
-    Reaktoro_::ThermoScalar helmholtzTT;
+    real helmholtzTT;
 
 	/// The second-order partial derivative of the specific Helmholtz free energy of water with respect to temperature and density
-    Reaktoro_::ThermoScalar helmholtzTD;
+    real helmholtzTD;
 
 	/// The second-order partial derivative of the specific Helmholtz free energy of water with respect to density
-    Reaktoro_::ThermoScalar helmholtzDD;
+    real helmholtzDD;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to temperature
-    Reaktoro_::ThermoScalar helmholtzTTT;
+    real helmholtzTTT;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to temperature, temperature, and density
-    Reaktoro_::ThermoScalar helmholtzTTD;
+    real helmholtzTTD;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to temperature, density, and density
-    Reaktoro_::ThermoScalar helmholtzTDD;
+    real helmholtzTDD;
 
 	/// The third-order partial derivative of the specific Helmholtz free energy of water with respect to density
-    Reaktoro_::ThermoScalar helmholtzDDD;
+    real helmholtzDDD;
 };
 
 } // namespace Reaktoro

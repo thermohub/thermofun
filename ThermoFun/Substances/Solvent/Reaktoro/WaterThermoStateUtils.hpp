@@ -18,8 +18,8 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Common/ScalarTypes.hpp>
-#include <Common/ThermoScalar.hpp>
+#include <Common/Real.hpp>
+#include <Common/Real.hpp>
 
 
 namespace ThermoFun {
@@ -34,14 +34,14 @@ class Substance;
 /// @param P The pressure of water (in units of Pa)
 /// @return The thermodynamic state of water
 /// @see WaterThermoState
-auto waterThermoStateHGK(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState;
+auto waterThermoStateHGK(real T, real P, int state) -> WaterThermoState;
 
 /// Calculate the thermodynamic state of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The thermodynamic state of water
 /// @see WaterThermoState
-auto waterThermoStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::Pressure P, int state) -> WaterThermoState;
+auto waterThermoStateWagnerPruss(real T, real P, int state) -> WaterThermoState;
 
 /// Calculate the thermodynamic state of water.
 /// This is a general method that uses the Helmholtz free energy state
@@ -53,6 +53,6 @@ auto waterThermoStateWagnerPruss(Reaktoro_::Temperature T, Reaktoro_::Pressure P
 /// @param wh The Helmholtz free energy state of water
 /// @return The thermodynamic state of water
 /// @see WaterHelmholtzState, WaterThermoState
-auto waterThermoState(Reaktoro_::Temperature T, Reaktoro_::Pressure P, Reaktoro_::ThermoScalar D, const WaterHelmholtzState& wh) -> WaterThermoState;
+auto waterThermoState(real T, real P, real D, const WaterHelmholtzState& wh) -> WaterThermoState;
 
 } // namespace Reaktoro
