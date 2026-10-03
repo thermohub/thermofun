@@ -92,6 +92,7 @@ auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string tri
     {
         ps.densityTP.val = ps.densityT.ddp;
         ps.densityTP.ddt = ps.densityTT.ddp;
+        ps.densityTP.ddp = ps.densityPP.ddt; // the mixed third derivative d3(rho)/dT dP2
         ps.densityTP.sta = ps.densityT.sta;
     }
     else
