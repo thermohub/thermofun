@@ -18,9 +18,9 @@ def engine():
     return thermofun.ThermoEngine('pytests/test-thermoengine-thermofun.json')
 
 
-def central_difference(fn, prop, T, P, wrt, step=1e-3):
+def central_difference(fn, prop, T, P, wrt):
     """Central finite difference of the value of `prop` with respect to T or P."""
-    h = step * T if wrt == "T" else step * P
+    h = 1e-3 * T if wrt == "T" else 1e-3 * P
     if wrt == "T":
         up, dn = getattr(fn(T + h, P), prop).val, getattr(fn(T - h, P), prop).val
     else:
@@ -82,94 +82,3 @@ def test_landau_volume_is_pressure_derivative_of_gibbs_energy(engine, T, P):
     # Quartz (Holland-Powell Landau model): V = dG/dP, below and above the critical temperature
     tps = engine.thermoPropertiesSubstance(T, P, "Quartz")
     assert tps.gibbs_energy.ddp * 1e5 == pytest.approx(tps.volume.val, rel=1e-9)
-
-
-def test_multi_interval_cp_integration_derivatives():
-    # Pyrrhotite has several Cp temperature intervals (phase transitions): dG/dT = -S, dH/dT = Cp, dS/dT = Cp/T
-    engine = thermofun.ThermoEngine('pytests/mines16-thermofun.json')
-    for T, P in [(423.15, 4.8e5), (573.15, 1e7)]:
-        tps = engine.thermoPropertiesSubstance(T, P, "Pyrrhotite")
-        assert tps.gibbs_energy.ddt == pytest.approx(-tps.entropy.val, rel=1e-6)
-        assert tps.enthalpy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
-        assert T * tps.entropy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
-
-
-def test_reaction_entropy_derivative():
-    # dS/dT = Cp/T for a reaction whose entropy is calculated from its enthalpy and Gibbs energy
-    engine = thermofun.ThermoEngine('pytests/mines16-thermofun.json')
-    T, P = 298.15, 1e5
-    tpr = engine.thermoPropertiesReaction(T, P, "Sn(Cl)+")
-    assert T * tpr.reaction_entropy.ddt == pytest.approx(tpr.reaction_heat_capacity_cp.val, rel=1e-6)
-
-
-GEMS_WATER_POINTS = [(298.15, 1e5), (473.15, 1e7), (573.15, 5e7), (623.15, 2.5e7), (800.0, 1e8), (900.0, 5e8)]
-
-
-@pytest.fixture(scope="module")
-def gems_engine():
-    # water with the HGK/LVS equation of state and the Johnson-Norton dielectric constant (GEMS implementation)
-    return thermofun.ThermoEngine('pytests/PsiTDB2020-subset-thermofun.json')
-
-
-@pytest.mark.parametrize("T,P", GEMS_WATER_POINTS)
-def test_gems_water_derivatives_match_finite_differences(gems_engine, T, P):
-    fn = lambda t, p: gems_engine.propertiesSolvent(t, p, "H2O(l)")
-    ps = fn(T, P)
-    for prop in ("density", "Alpha", "Beta", "dAldT"):
-        for wrt, ad in (("T", getattr(ps, prop).ddt), ("P", getattr(ps, prop).ddp)):
-            fd = central_difference(fn, prop, T, P, wrt, 1e-4)
-            assert ad == pytest.approx(fd, rel=3e-3, abs=1e-12), f"{prop} d/d{wrt}"
-
-    ft = lambda t, p: gems_engine.thermoPropertiesSubstance(t, p, "H2O(l)")
-    tps = ft(T, P)
-    for prop in ("gibbs_energy", "entropy", "heat_capacity_cp", "volume"):
-        for wrt, ad in (("T", getattr(tps, prop).ddt), ("P", getattr(tps, prop).ddp)):
-            fd = central_difference(ft, prop, T, P, wrt, 1e-4)
-            assert ad == pytest.approx(fd, rel=3e-3, abs=1e-12), f"{prop} d/d{wrt}"
-    # the consistency of the thermodynamic derivatives
-    assert tps.gibbs_energy.ddt == pytest.approx(-tps.entropy.val, rel=1e-6)
-    assert tps.enthalpy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
-    assert T * tps.entropy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
-    # Maxwell relation: dS/dP = -dV/dT (V in J/bar, P in Pa)
-    assert tps.entropy.ddp == pytest.approx(-tps.volume.ddt * 1e-5, rel=1e-4)
-
-
-@pytest.mark.parametrize("T,P", GEMS_WATER_POINTS)
-def test_gems_water_dielectric_constant_derivatives(gems_engine, T, P):
-    eps = gems_engine.electroPropertiesSolvent(T, P, "H2O(l)")
-    # d(epsilon)/dT is the model's epsilonT; d(epsilon)/dP (per Pa) is epsilonP (per bar)
-    assert eps.epsilon.ddt == pytest.approx(eps.epsilonT.val, rel=1e-4)
-    assert eps.epsilon.ddp * 1e5 == pytest.approx(eps.epsilonP.val, rel=1e-4)
-    assert eps.bornZ.ddt == pytest.approx(eps.bornY.val, rel=1e-4)
-
-
-def test_gems_water_saturation_line(gems_engine):
-    # at the saturation pressure (P = 0) the derivatives are those along the saturation line
-    for T in (373.15, 473.15, 573.15):
-        fn = lambda t: gems_engine.thermoPropertiesSubstance(t, 0, "H2O(l)")
-        h = 1e-4 * T
-        for prop in ("gibbs_energy", "entropy", "volume"):
-            fd = (getattr(fn(T + h), prop).val - getattr(fn(T - h), prop).val) / (2 * h)
-            assert getattr(fn(T), prop).ddt == pytest.approx(fd, rel=1e-4)
-
-
-def test_substance_from_reaction_pressure_derivative(gems_engine):
-    # H2PO4- is calculated from a reaction with a constant reaction volume: dG/dP = V
-    for T, P in [(299.15, 1e5), (423.15, 4.8e5), (573.15, 1e7)]:
-        tpr = gems_engine.thermoPropertiesReaction(T, P, "H2PO4-")
-        assert tpr.reaction_gibbs_energy.ddp * 1e5 == pytest.approx(tpr.reaction_volume.val, rel=1e-9)
-        tps = gems_engine.thermoPropertiesSubstance(T, P, "H2PO4-")
-        assert tps.gibbs_energy.ddp * 1e5 == pytest.approx(tps.volume.val, rel=1e-3)
-
-
-def test_gas_derivatives_match_finite_differences():
-    # fluids calculated with equations of state (PRSV and CORK) in the mines16 and aq17 databases
-    for database, symbol in (("pytests/mines16-thermofun.json", "CO"), ("pytests/test-aq17-gem-lma-thermofun.json", "CO2")):
-        engine = thermofun.ThermoEngine(database)
-        fn = lambda t, p: engine.thermoPropertiesSubstance(t, p, symbol)
-        for T, P in [(400.0, 1e5), (600.0, 1e7), (800.0, 1e8)]:
-            tps = fn(T, P)
-            for prop in ("gibbs_energy", "enthalpy", "entropy", "volume"):
-                for wrt, ad in (("T", getattr(tps, prop).ddt), ("P", getattr(tps, prop).ddp)):
-                    fd = central_difference(fn, prop, T, P, wrt, 1e-4)
-                    assert ad == pytest.approx(fd, rel=2e-3, abs=1e-12), f"{symbol} {prop} d/d{wrt}"

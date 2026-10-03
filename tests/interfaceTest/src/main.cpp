@@ -71,17 +71,17 @@
        double P = 300e5;
        double T = 380+273.15;
 
-       auto rho_solvent = engine.propertiesSolvent(T,P, "H2O@", 1).density.val;
+       auto rho_solvent = engine.propertiesSolvent(T,P, "H2O@", 1).density.val();
 
-       auto epsilon_solvent = engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val;
+       auto epsilon_solvent = engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val();
 
-       auto rho_solvent2 = engine.propertiesSolvent(T,P, "H2O@", 0).density.val;
+       auto rho_solvent2 = engine.propertiesSolvent(T,P, "H2O@", 0).density.val();
 
-       auto epsilon_solvent2 = engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val;
+       auto epsilon_solvent2 = engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val();
 
-       auto rho_solvent3 = engine.propertiesSolvent(T,P, "H2O@").density.val;
+       auto rho_solvent3 = engine.propertiesSolvent(T,P, "H2O@").density.val();
 
-       auto epsilon_solvent3 = engine.electroPropertiesSolvent(T,P, "H2O@").epsilon.val;
+       auto epsilon_solvent3 = engine.electroPropertiesSolvent(T,P, "H2O@").epsilon.val();
 
        std::cout <<"end"<< std::endl;
 
@@ -390,8 +390,8 @@ auto prop = engine.thermoPropertiesReaction(873.15, P, "Meionite-Ca + 25H+ = HCO
 //      auto propAl = th.thermoPropertiesSubstance(T, P, "Al+3");
 
 //      // extracting values from results for the Gibbs energy
-//      double G0       = propAl.gibbs_energy.val; // value
-//      double G0_dT    = propAl.gibbs_energy.ddt; // derivative with T = -S0
+//      double G0       = propAl.gibbs_energy.val(); // value
+//      double G0_dT    = propAl.gibbs_energy.ddt(); // derivative with T = -S0
 //      double G0_error = propAl.gibbs_energy.err; // propagated error
 
 //      return 0;

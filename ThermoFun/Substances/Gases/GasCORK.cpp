@@ -9,7 +9,7 @@ namespace ThermoFun {
 
 auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
-    real FugProps[6];
+    double FugProps[6];
     char Eos_Code = 'G';
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
@@ -17,9 +17,9 @@ auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoProperti
     if (subst.formula() == "CO2") Eos_Code = 'C';
     if (subst.formula() == "H2O") Eos_Code = 'V';
 
-    solmod::TCORKcalc myCORK( 1, Pbar, TK, Eos_Code );  // modified 05.11.2010 (TW)
+    solmod::TCORKcalc myCORK( 1, Pbar.val(), (TK.val()), Eos_Code );  // modified 05.11.2010 (TW)
     double TClow = lowerTemperatureBound(subst, "CORK compensated-Redlich-Kwong fluid model");
-    std::array<real, 7> CPg;
+    std::array<double, 7> CPg;
     for (unsigned int i = 0; i < 7; i++)
     {
         CPg[i] = subst.thermoParameters().critical_parameters[i];

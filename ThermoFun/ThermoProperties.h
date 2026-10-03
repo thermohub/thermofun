@@ -6,15 +6,6 @@
 
 namespace ThermoFun {
 
-struct ThermoVariables
-{
-    /// the temperature T (in units of Kelvin)
-    Reaktoro_::Temperature temperature;
-
-    /// the pressure P (in units of Pascal)
-    Reaktoro_::Pressure pressure;
-};
-
 /// Describe the thermodynamic state of a substance
 template<class S>
 struct ThermoPropertiesSubstanceT
@@ -256,12 +247,11 @@ struct FunctionG
     real gPP;
 };
 
-/// The thermodynamic properties returned by the engine: ThermoScalar properties with the value, the derivatives with
-/// respect to T and P, the error and the status (the interface of ThermoFun is not changed by the use of autodiff).
-struct ThermoPropertiesSubstance : ThermoPropertiesSubstanceT<Reaktoro_::ThermoScalar> {};
-struct ThermoPropertiesReaction  : ThermoPropertiesReactionT<Reaktoro_::ThermoScalar> {};
-struct PropertiesSolvent         : PropertiesSolventT<Reaktoro_::ThermoScalar> {};
-struct ElectroPropertiesSolvent  : ElectroPropertiesSolventT<Reaktoro_::ThermoScalar> {};
+/// The thermodynamic properties as results of the engine: value, derivatives with respect to T and P, error and status
+using ThermoPropertiesSubstance = ThermoPropertiesSubstanceT<Reaktoro_::ThermoProperty>;
+using ThermoPropertiesReaction  = ThermoPropertiesReactionT<Reaktoro_::ThermoProperty>;
+using PropertiesSolvent         = PropertiesSolventT<Reaktoro_::ThermoProperty>;
+using ElectroPropertiesSolvent  = ElectroPropertiesSolventT<Reaktoro_::ThermoProperty>;
 
 /// The same properties as autodiff numbers, used inside the models while calculating
 using ThermoPropertiesSubstanceAD = ThermoPropertiesSubstanceT<real>;

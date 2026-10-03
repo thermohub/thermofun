@@ -104,18 +104,25 @@ WaterJNgems::WaterJNgems(const Substance &substance)
 // calculation
 auto WaterJNgems::electroPropertiesSolvent(double T, double P, int state) -> ElectroPropertiesSolvent
 {
+    WaterHGKgems water_hgk; T -= C_to_K; P /= bar_to_Pa;
+
     WaterTripleProperties wtr = waterTripleData.at("NEA_HGK");
 
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
-        real t = pass.T - C_to_K;
-        real p = pass.P / bar_to_Pa;
-        water_hgk.calculateWaterHGKgems(t, p, wtr);
+    water_hgk.calculateWaterHGKgems(T, P, wtr);
 
-        return water_hgk.electroPropertiesWaterJNgems(state); // state 0 = liquid
-    });
+    return water_hgk.electroPropertiesWaterJNgems(state); // state 0 = liquid
 }
 
+//=======================================================================================================
+// Calculate the electro-chemical of water using the electro-chemical properties of water solvent
+// using the Sverjensky et al. (2014) dielectric constant model together with the Zhang and Duan (2002) water
+// PVT model
+// References: Sverjensky et al. Water in the deep Earth: The dielectric constant and the solubilities
+// of quartz and corundum to 60 kb and 1200 °C. GCA, 2014 129:125-145
+// Zhang and Duan Prediction of the PVT properties of water over wide range of temperatures and pressures
+// from molecular dynamics simulation. PEPI, 2002 149:335-354
+// Added: DM 26.07.2016
+//=======================================================================================================
 
 struct WaterElectroSverjensky2014::Impl
 {

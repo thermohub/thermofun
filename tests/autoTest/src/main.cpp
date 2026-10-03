@@ -17,7 +17,7 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
     int i = 1; double d;
     double tolerance = 1e-03;
 
-    d = (fabs(result_gems.gibbs_energy.val - result_tcorrpt.gibbs_energy.val) / fabs(result_gems.gibbs_energy.val));
+    d = (fabs(result_gems.gibbs_energy.val() - result_tcorrpt.gibbs_energy.val()) / fabs(result_gems.gibbs_energy.val()));
     if ( d > tolerance)
     {
         cout << "At T:"<< T << "C and P:" << P << "bar" << endl <<
@@ -27,7 +27,7 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
         i = -1;
     }
 
-    d = (fabs(result_gems.entropy.val - result_tcorrpt.entropy.val) / fabs(result_gems.entropy.val));
+    d = (fabs(result_gems.entropy.val() - result_tcorrpt.entropy.val()) / fabs(result_gems.entropy.val()));
     if ( d > tolerance)
     {
         cout << "At T:"<< T << "C and P:" << P << "bar" << endl <<
@@ -37,7 +37,7 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
         i = -1;
     }
 
-    d = (fabs(result_gems.enthalpy.val - result_tcorrpt.enthalpy.val) / fabs(result_gems.enthalpy.val));
+    d = (fabs(result_gems.enthalpy.val() - result_tcorrpt.enthalpy.val()) / fabs(result_gems.enthalpy.val()));
     if ( d > tolerance)
     {
         cout << "At T:"<< T << "C and P:" << P << "bar" << endl <<
@@ -47,7 +47,7 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
         i = -1;
     }
 
-    d = (fabs(result_gems.heat_capacity_cp.val - result_tcorrpt.heat_capacity_cp.val) / fabs(result_gems.heat_capacity_cp.val));
+    d = (fabs(result_gems.heat_capacity_cp.val() - result_tcorrpt.heat_capacity_cp.val()) / fabs(result_gems.heat_capacity_cp.val()));
     if ( d > tolerance)
     {
         cout << "At T:"<< T << "C and P:" << P << "bar" << endl <<
@@ -57,7 +57,7 @@ auto compare (ThermoPropertiesSubstance result_gems, ThermoPropertiesSubstance r
         i = -1;
     }
 
-    d = (fabs(result_gems.volume.val - result_tcorrpt.volume.val) / fabs(result_gems.volume.val));
+    d = (fabs(result_gems.volume.val() - result_tcorrpt.volume.val()) / fabs(result_gems.volume.val()));
     if ( d > tolerance)
     {
         cout << "At T:"<< T << "C and P:" << P << "bar" << endl <<

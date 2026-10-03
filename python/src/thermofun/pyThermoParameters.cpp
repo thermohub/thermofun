@@ -47,9 +47,7 @@ void exportThermoParametersSubstance(py::module& m)
         .def_readwrite("critical_parameters", &ThermoParametersSubstance::critical_parameters)
         .def_readwrite("volume_BirchM_coeff", &ThermoParametersSubstance::volume_BirchM_coeff)
         .def_readwrite("empirical_coeff", &ThermoParametersSubstance::empirical_coeff)
-        .def_readwrite("solute_holland_powell98_coeff", &ThermoParametersSubstance::solute_holland_powell98_coeff)
-        .def_readwrite("coefficient_errors", &ThermoParametersSubstance::coefficient_errors,
-                       "uncertainties of the coefficients by the key of the database record (e.g. 'eos_hkf_coeffs'), one row per coefficient vector")
+        .def_readwrite("solute_holland_powell98_coeff", &ThermoParametersSubstance::solute_holland_powell98_coeff)        
         ;
 }
 
@@ -66,8 +64,6 @@ void exportThermoParametersReaction(py::module& m)
         .def_readwrite("reaction_RB_coeff", &ThermoParametersReaction::reaction_RB_coeff)
         .def_readwrite("reaction_FM_coeff", &ThermoParametersReaction::reaction_FM_coeff)
         .def_readwrite("reaction_DM10_coeff", &ThermoParametersReaction::reaction_DM10_coeff)
-        .def_readwrite("coefficient_errors", &ThermoParametersReaction::coefficient_errors,
-                       "uncertainties of the coefficients by the key of the database record (e.g. 'logk_ft_coeffs')")
         ;      
 }
 

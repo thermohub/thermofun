@@ -30,8 +30,6 @@ namespace ThermoFun {
     // Common module
     void exportThermoScalar(py::module& m);
     void exportStatus(py::module& m);
-    void exportTemperature(py::module& m);
-    void exportPressure(py::module& m);
     // Properties
     void exportThermoPropertiesSubstance(py::module& m);
     void exportThermoPropertiesReaction(py::module& m);
@@ -50,8 +48,4 @@ namespace ThermoFun {
     void exportSubstance(py::module& m);
     void exportReaction(py::module& m);
     void exportElement(py::module& m);
-    // Enumerations, models, units and parsing
-    void exportGlobalVariables(py::module& m);
-    void exportModels(py::module& m);
-    void exportUtilities(py::module& m);
 } // namespace ThermoFun

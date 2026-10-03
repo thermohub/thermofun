@@ -15,8 +15,7 @@ auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubst
 
 /// Return the physical properties of water
 /// @param wt instance of the strcuture holding the calculated themrmodynamic properties of water
-/// The properties of water with the exact derivatives of the density up to the third order (the pressure of the pass in Pa)
-auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass) -> PropertiesSolventAD;
+auto propertiesWaterZhangDuan2005(real T, real P) -> PropertiesSolventAD;
 
 auto waterDensityZhangDuan2005(real T, real P) -> real;
 
