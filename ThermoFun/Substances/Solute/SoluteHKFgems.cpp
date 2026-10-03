@@ -110,11 +110,17 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
     // GZterm = W * (-Z - 1.0e0);
 
 
+    auto U = H - Pbar*V;
+
+    auto A = U - TK*S;
+
     // Convert the thermodynamic properties of the gas to the standard units
     V  *= 1e-01; // J/bar
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
+    U  *= cal_to_J;
+    A  *= cal_to_J;
     Cp *= cal_to_J;
 
     ThermoPropertiesSubstanceAD tps;
@@ -122,8 +128,8 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
     tps.gibbs_energy     = G;
     tps.enthalpy         = H;
     tps.entropy          = S;
-    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;           // V in J/bar (the term P V was in the wrong units before)
-    tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
+    tps.internal_energy  = U;
+    tps.helmholtz_energy = A;
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 
@@ -184,9 +190,9 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
 
     a = C[0] + C[1]*TC + C[2]*pow(TC,2.);
     b = C[3] + C[4]*TC + C[5]*pow(TC,2.);
-    g.g = a * pow(pw, b);
+    g.g = a * pow(pw, b.val());
 
-    dgdD = - a*b*pow(pw,(b - 1.0e0));
+    dgdD = - a*b*pow(pw,(b.val() - 1.0e0));
     // dgdD2 = a * b * (b - 1.0e0) * pow((1.0e0 - D),(b - 2.0e0));
 
     dadT = C[1] + 2.0*C[2]*TC;
@@ -198,15 +204,15 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
     dDdP = D * beta;
     dDdTT = - D * (daldT - pow(alpha,2.));
         // Db = pow((1.0 - D),b);  Fixed by DAK 01.11.00
-    Db = pow( pw , b );
-    dDbdT = -b * pow(pw,(b - 1.0)) * dDdT + log(pw) * Db  * dbdT;
+    Db = pow( pw , b.val() );
+    dDbdT = -b * pow(pw,(b.val() - 1.0)) * dDdT + log(pw) * Db  * dbdT;
 
 
-    dDbdTT = -(b * pow(pw,(b-1.0)) * dDdTT + pow(pw,(b - 1.0)) * dDdT * dbdT
-                + b * dDdT * ( -(b - 1.0) * pow(pw,(b - 2.0)) * dDdT
-                + log(pw) * pow(pw,(b - 1.0)) * dbdT))
-                + log(pw) * pow(pw,b) * dbdTT
-                - pow(pw,b) * dbdT * dDdT / (1.0 - D)
+    dDbdTT = -(b * pow(pw,(b.val()-1.0)) * dDdTT + pow(pw,(b.val() - 1.0)) * dDdT * dbdT
+                + b * dDdT * ( -(b - 1.0) * pow(pw,(b.val() - 2.0)) * dDdT
+                + log(pw) * pow(pw,(b.val() - 1.0)) * dbdT))
+                + log(pw) * pow(pw,b.val()) * dbdTT
+                - pow(pw,b.val()) * dbdT * dDdT / (1.0 - D)
                 + log(pw) * dbdT * dDbdT;
 
     g.gP = dgdD * dDdP; // from bar to Pa not necessary!!

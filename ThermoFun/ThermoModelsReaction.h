@@ -3,8 +3,6 @@
 #include "ThermoProperties.h"
 
 #include <memory>
-#include <string>
-#include <vector>
 
 // ThermoFun includes
 #include "GlobalVariables.h"
@@ -111,12 +109,10 @@ public:
     /// Construct a ReactionReactionFromReactantsProperties instance from a reaction instance
     explicit ReactionFromReactantsProperties(const Reaction& reaction);
 
-    /// Returns the thermodynamic properties of the reaction, calculated from the properties of its reactants.
+    /// Returns the thermodynamic properties of the reaction.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    /// @param components The properties of the reactants with their stoichiometric coefficients
-    /// @param symbols The symbols of the reactants (same order as the components)
-    auto thermoProperties (double T, double P, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols) -> ThermoPropertiesReaction;
+    auto thermoProperties (double T, double P) -> ThermoPropertiesReaction;
 
 private:
     struct Impl;
@@ -133,11 +129,10 @@ public:
     /// Construct a ReactionReaction_Vol_fT instance from a reaction instance
     explicit Reaction_Vol_fT(const Reaction& reaction);
 
-    /// Returns the properties of the reaction corrected for the reaction volume V(T,P).
+    /// Returns the thermodynamic properties of the reaction.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    /// @param tpr The properties of the reaction at the reference pressure
-    auto thermoProperties (double T, double P, const ThermoPropertiesReaction& tpr) -> ThermoPropertiesReaction;
+    auto thermoProperties (double T, double P) -> ThermoPropertiesReaction;
 
 private:
     struct Impl;

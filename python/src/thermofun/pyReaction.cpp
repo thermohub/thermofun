@@ -72,12 +72,6 @@ void exportReaction(py::module& m)
         .def("method_T", &Reaction::method_T,"Return the temperature correction method code")
         .def("method_P", &Reaction::method_P,"Return the pressure correction method code")
         .def("jsonString", &Reaction::jsonString, "Return the record as a json string")
-        .def("calc_logK_fT_coefficients", &Reaction::calc_logK_fT_coefficients, "Calculate the coefficients of logK as a function of T from the reference properties and the Cp coefficients")
-        .def("thermo_ref_prop", &Reaction::thermo_ref_prop, "Return the reference properties of the reaction")
-        .def("checkCalcMethodBounds",
-             [](Reaction& self, std::string modelName, double T, double P, ThermoPropertiesReaction tpr) { self.checkCalcMethodBounds(modelName, T, P, tpr); return tpr; },
-             py::arg("model_name"), py::arg("T"), py::arg("P"), py::arg("tpr"),
-             "Check that T (K) and P (Pa) are within the limits of the method of the reaction; returns the properties with the status and the message set if outside the limits")
         .def("__str__", [](const Reaction& self) { std::stringstream ss; ss << self; return ss.str(); })
         ;
 }

@@ -99,7 +99,7 @@ TSolMod::TSolMod( SolutionData *sd ):
     // pointer assignments
     aIPx = sd->arIPx;   // Direct access to index list and parameter coeff arrays!
     aIPc = sd->arIPc;
-    aIP = new real[NPar];
+    aIP = new double[NPar];
     aGEX = sd->arGEX;   // Reciprocal energies, Darken terms, pure fugacities of DC (corr. to TP)
     aPparc = sd->arPparc; // Partial pressures NComp
     aMoiSN = sd->arMoiSN; // End member moiety- site multiplicity number tables NComp x NSub x NMoi
@@ -110,10 +110,10 @@ TSolMod::TSolMod( SolutionData *sd ):
     phVOL = sd->aphVOL;
     aVol = sd->arVol;
     lnGamma = sd->arlnGam;
-    lnGamConf = sd->arlnCnft;  // new real[NComp];
-    lnGamRecip = sd->arlnRcpt; // new real[NComp];
-    lnGamEx = sd->arlnExet;    // new real[NComp];
-    lnGamDQF = sd->arlnDQFt;   // new real[NComp];
+    lnGamConf = sd->arlnCnft;  // new double[NComp];
+    lnGamRecip = sd->arlnRcpt; // new double[NComp];
+    lnGamEx = sd->arlnExet;    // new double[NComp];
+    lnGamDQF = sd->arlnDQFt;   // new double[NComp];
    // Arrays for lnGamma components - should we zero off?
     for (long int i=0; i<NComp; i++)
     {
@@ -170,7 +170,7 @@ void TSolMod::getSolutionData( SolutionData *sd )
 
 
 /// generic constructor (new) for calling from DComp/DCthermo calculations
-TSolMod::TSolMod( long int NSpecies, char Mod_Code,  real T_k, real P_bar ):
+TSolMod::TSolMod( long int NSpecies, char Mod_Code,  double T_k, double P_bar ):
         ModCode(Mod_Code), MixCode(0), NComp(NSpecies),  NPar(0),
         NPcoef(0), MaxOrd(0),  NP_DC(0), /*NPTP_DC(NPTPperDC),*/
         NSub(0), NMoi(0), R_CONST(8.31451), Tk(T_k), Pbar(P_bar)
@@ -232,22 +232,22 @@ void TSolMod::alloc_multisite()
    if( !NSub || !NMoi )
        return;   // This is not a multi-site model
    // work array allocation
-   y = new real *[NSub];
+   y = new double *[NSub];
    for( s=0; s<NSub; s++)
    {
-        y[s] = new real[NMoi];
+        y[s] = new double[NMoi];
    }
-   mn = new real **[NComp];
+   mn = new double **[NComp];
 
    for(j=0; j<NComp; j++)
    {
-        mn[j]   = new real *[NSub];
+        mn[j]   = new double *[NSub];
         for(s=0; s<NSub; s++)
         {
-            mn[j][s] = new real [NMoi];
+            mn[j][s] = new double [NMoi];
         }
    }
-   mns = new real[NSub];
+   mns = new double[NSub];
 }
 
 
@@ -272,7 +272,7 @@ long int TSolMod::init_multisite()
               k++;
            }
     // calculation of total site multiplicity numbers
-    real mnsj;
+    double mnsj;
     for( s=0; s<NSub; s++)
     {
        for( j=0; j<NComp; j++)
@@ -370,7 +370,7 @@ void TSolMod::retrieve_sitefr()
 
 
 /// updates P and T in TSolMod if those have changed
-long int TSolMod::UpdatePT ( real T_k, real P_bar )
+long int TSolMod::UpdatePT ( double T_k, double P_bar )
 {
 	  Tk = T_k;
 	  Pbar = P_bar;
@@ -399,7 +399,7 @@ long int TSolMod::IdealMixing()
         return 1;   // this is not a multi-site model - bailing out
     }
 
-    real mnsxj, lnaconj;
+    double mnsxj, lnaconj;
     // calculation of site fractions
     for( s=0; s<NSub; s++)
     {
@@ -438,13 +438,13 @@ long int TSolMod::IdealMixing()
 }
 
 /// configurational entropy
-real TSolMod::ideal_conf_entropy()
+double TSolMod::ideal_conf_entropy()
 {
     long int j,s,m;
 
     if( !NSub || !NMoi )
     {   // This is default (simple mixing) model
-        real si, Sid;
+        double si, Sid;
         si = 0.0;
         for(j=0; j<NComp; j++)
         {
@@ -457,7 +457,7 @@ real TSolMod::ideal_conf_entropy()
 
     // calculation of the multi-site configurational entropy
     retrieve_sitefr();
-    real sic, sis, Sicnf;
+    double sic, sis, Sicnf;
     sic = 0.0;
     for(s=0; s<NSub; s++)   // Eq 1 from Hillert 2001 (J.Alloys Compounds 320, 161-176)
     {              // see also eq 5.36 in the book by Lucas et al. 2007 (page 95)
@@ -474,7 +474,7 @@ real TSolMod::ideal_conf_entropy()
 }
 
 // access from node
-void TSolMod::Set_aIPc( const std::vector<real> aIPc_ )
+void TSolMod::Set_aIPc( const std::vector<double> aIPc_ )
 {
   long int rc;
   if( (long)aIPc_.size() != (NPar*NPcoef) )
@@ -488,7 +488,7 @@ void TSolMod::Set_aIPc( const std::vector<real> aIPc_ )
       aIPc[ rc ] = aIPc_[ rc ];		// pointer to list of indices of interaction param coeffs, NPar * MaxOrd
 }
 
-void TSolMod::Get_aIPc ( std::vector<real> &aIPc_ )
+void TSolMod::Get_aIPc ( std::vector<double> &aIPc_ )
 {
   aIPc_.clear();
   aIPc_.resize( (NPar*NPcoef) );
@@ -500,7 +500,7 @@ void TSolMod::Get_aIPc ( std::vector<real> &aIPc_ )
   }
 }
 
-void TSolMod::Set_aDCc( const std::vector<real> aDCc_ )
+void TSolMod::Set_aDCc( const std::vector<double> aDCc_ )
 {
   long int rc;
   if( (long)aDCc_.size() != (NComp*NP_DC) )
@@ -516,7 +516,7 @@ void TSolMod::Set_aDCc( const std::vector<real> aDCc_ )
   }
 }
 
-void TSolMod::Get_aDCc( std::vector<real> &aDCc_ )
+void TSolMod::Get_aDCc( std::vector<double> &aDCc_ )
 {
   aDCc_.clear();
   aDCc_.resize( (NComp*NP_DC) );

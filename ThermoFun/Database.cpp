@@ -127,27 +127,6 @@ struct Database::Impl
         substances_map = substances;
     }
 
-    auto setMapElements(const ElementsMap& elements) -> void
-    {
-        for (const auto& element : elements)
-        {
-            elements_map[element.first] = element.second;
-            setDBElement(elements_map[element.first]);
-        }
-    }
-
-    auto setMapSubstances(const SubstancesMap& substances) -> void
-    {
-        for (const auto& substance : substances)
-            substances_map[substance.first] = substance.second;
-    }
-
-    auto setMapReactions(const ReactionsMap& reactions) -> void
-    {
-        for (const auto& reaction : reactions)
-            reactions_map[reaction.first] = reaction.second;
-    }
-
     auto addReaction(const Reaction& reaction) -> void
     {
         reactions_map.insert({reaction.symbol(), reaction});
@@ -471,21 +450,6 @@ auto Database::setElement(const std::string& jsonElement) -> void
 auto Database::addMapElements(const ElementsMap& elements) -> void
 {
     pimpl->addMapElements(elements);
-}
-
-auto Database::setMapElements(const ElementsMap& elements) -> void
-{
-    pimpl->setMapElements(elements);
-}
-
-auto Database::setMapSubstances(const SubstancesMap& substances) -> void
-{
-    pimpl->setMapSubstances(substances);
-}
-
-auto Database::setMapReactions(const ReactionsMap& reactions) -> void
-{
-    pimpl->setMapReactions(reactions);
 }
 
 auto Database::addSubstance(const Substance& substance) -> void

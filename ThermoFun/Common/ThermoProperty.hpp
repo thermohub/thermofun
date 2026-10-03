@@ -25,9 +25,19 @@
 #include <ostream>
 
 #include "Common/Real.hpp"
-#include "Common/ThermoScalar.hpp"
 
 namespace Reaktoro_ {
+
+enum Status {
+    notdefined = 0,
+    read,
+    calculated,
+    assigned,
+    initialized,
+    outofbounds
+};
+
+using StatusMessage = std::pair <Status, std::string>;
 
 /// The status of a result calculated from other results: not defined if any of them is not defined
 inline auto combineStatus(const StatusMessage& l, const StatusMessage& r) -> StatusMessage
@@ -37,11 +47,76 @@ inline auto combineStatus(const StatusMessage& l, const StatusMessage& r) -> Sta
     return {Status::calculated, std::string("")};
 }
 
-/// A thermodynamic property as returned by the engine: the value `val`, its partial derivatives with respect to
-/// temperature `ddt` and pressure `ddp` (calculated with autodiff in the models), its error `err` and its status `sta`.
-/// This is the type ThermoScalar of the interface of ThermoFun (Common/ThermoScalar.hpp): code using the properties
-/// of ThermoFun, e.g. `tps.gibbs_energy.val`, `.ddt`, `.ddp`, `.err`, `.sta` or its arithmetic, is not affected.
-using ThermoProperty = ThermoScalar;
+/// The error of a result calculated from other results (quadrature sum of the errors)
+inline auto combineError(double l, double r) -> double
+{
+    return std::sqrt(l*l + r*r);
+}
+
+/// A thermodynamic property as returned by the engine.
+/// It holds the value, its partial derivatives with respect to temperature and pressure (calculated with autodiff
+/// in the models), and its error and status. It has no arithmetic: the calculations are done with autodiff::real
+/// in the models, the error and the status are propagated explicitly (see combineStatus and combineError).
+struct ThermoProperty
+{
+    /// The value of the thermodynamic property
+    double val = 0.0;
+
+    /// The partial temperature derivative of the thermodynamic property
+    double ddt = 0.0;
+
+    /// The partial pressure derivative of the thermodynamic property
+    double ddp = 0.0;
+
+    /// The error of the value of the thermodynamic property
+    double err = 0.0;
+
+    /// The status of the thermodynamic property
+    StatusMessage sta = {Status::notdefined, ""};
+
+    ThermoProperty() = default;
+
+    /// Construct a property with given value only (its status is not defined)
+    explicit ThermoProperty(double val) : val(val) {}
+
+    ThermoProperty(double val, double ddt, double ddp, double err, const StatusMessage& sta)
+    : val(val), ddt(ddt), ddp(ddp), err(std::fabs(err)), sta(sta) {}
+
+    /// Assign a value (a constant: derivatives and error are zero)
+    ThermoProperty& operator=(double other)
+    {
+        val = other; ddt = 0.0; ddp = 0.0; err = 0.0;
+        sta = {Status::assigned, std::string("")};
+        return *this;
+    }
+
+    /// Set the error and the status from the properties it was calculated from
+    template<typename... Props>
+    auto propagateFrom(const Props&... props) -> ThermoProperty&
+    {
+        StatusMessage status = {Status::calculated, std::string("")};
+        double error = 0.0;
+        ((status = combineStatus(status, props.sta), error = combineError(error, props.err)), ...);
+        sta = status;
+        err = error;
+        return *this;
+    }
+
+    /// Set the error and the status as those of a property calculated from constants
+    auto asCalculated() -> ThermoProperty&
+    {
+        sta = {Status::calculated, std::string("")};
+        err = 0.0;
+        return *this;
+    }
+};
+
+/// Output the value of a property
+inline auto operator<<(std::ostream& out, const ThermoProperty& property) -> std::ostream&
+{
+    out << property.val;
+    return out;
+}
 
 /// The variable the derivatives are taken with respect to in one autodiff pass (None: all derivatives are zero)
 enum class Wrt { T, P, None };
@@ -62,8 +137,8 @@ struct Pass
     /// A property, with the derivative of this pass, as an autodiff number
     auto operator()(const ThermoProperty& x) const -> real
     {
-        real r(x.val());
-        r[1] = (wrt == Wrt::T) ? x.ddt() : (wrt == Wrt::P) ? x.ddp() : 0.0;
+        real r = x.val;
+        r[1] = (wrt == Wrt::T) ? x.ddt : (wrt == Wrt::P) ? x.ddp : 0.0;
         return r;
     }
 
@@ -71,17 +146,8 @@ struct Pass
     auto operator()(double x) const -> real { return real(x); }
 };
 
-/// A value of the pass with the derivatives dT and dP of that value with respect to T and P (the derivative of the pass is the
-/// one with respect to the variable of the pass)
-inline auto along(const Pass& pass, double v, double dT, double dP) -> real
-{
-    real r(v);
-    r[1] = (pass.wrt == Wrt::T) ? dT : (pass.wrt == Wrt::P) ? dP : 0.0;
-    return r;
-}
-
 /// A property that is known to be constant (e.g. a reference value of the database) as an autodiff number
-inline auto constant(const ThermoProperty& x) -> real { return real(x.val()); }
+inline auto constant(const ThermoProperty& x) -> real { return real(x.val); }
 
 /// Combine the autodiff numbers of the pass seeded with temperature and the pass seeded with pressure in a property
 inline auto toProperty(const real& wrtT, const real& wrtP) -> ThermoProperty

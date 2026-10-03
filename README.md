@@ -47,7 +47,7 @@ int main()
     double H2Oentropy = batch.thermoPropertiesSubstance( 300, 2000, "H2O@", "entropy").toDouble();
 
     // Retrieve the derivative of G with respect to T
-    double H2OdGdT = batch.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt;
+    double H2OdGdT = batch.thermoPropertiesSubstance( 300, 2000, "H2O", "entropy").toThermoScalar().ddt();
 
     // Write results to a comma separate files for a list of T-P pairs, substances, and properties
     batch.thermoPropertiesSubstance({{25, 1},{40, 1},{70, 100},{90, 100},{100, 100}}, // list of T-P pairs
@@ -224,7 +224,7 @@ This option allows the user to build thermofun library that works with a user pr
 
 #### Install Dependencies (if not using Conda environment)
 
-ThermoFun computes derivatives of the thermodynamic properties with [autodiff](https://autodiff.github.io/) (header-only, v1.1.1 or newer). If autodiff is not installed, CMake fetches it automatically (see [Derivatives with autodiff](#derivatives-with-autodiff)). The models calculate with `autodiff::real` (two passes, with the temperature and with the pressure seeded, see `Common/ThermoProperty.hpp`); the results are `ThermoProperty` instances (`ThermoScalar` in Python) with the value `val`, the derivatives `ddt` and `ddp`, the error `err` and the status `sta`.
+ThermoFun computes derivatives of the thermodynamic properties with [autodiff](https://autodiff.github.io/) (header-only, v1.1.1 or newer). If autodiff is not installed, CMake fetches it automatically (see [Derivatives with autodiff](#derivatives-with-autodiff)).
 
 The thermofun library uses nlohmann/json.hpp as thirdparty dependency to parse database files in json format. To install the header only json library in a terminal ```~/thermofun$``` execute the following: 
 
@@ -360,7 +360,7 @@ The [Fork & Pull Request Workflow](https://docs.github.com/en/get-started/quicks
 
 ## Derivatives with autodiff
 
-Every thermodynamic property is a `ThermoProperty` (`ThermoScalar` in Python), which carries its value together with the derivatives with respect to temperature (`ddt`) and pressure (`ddp`), plus an error and a status. The derivatives are computed by forward-mode automatic differentiation with [autodiff](https://autodiff.github.io/) (`autodiff::real`), not by finite differences. Inside the models the calculation runs twice with `autodiff::real`, once with T seeded and once with P seeded (`twoPass`); the result stores the value `val` and the derivatives `ddt`, `ddp` as plain members, with the error `err` and the status `sta`.
+Every thermodynamic property is a `ThermoScalar`, which carries its value together with the derivatives with respect to temperature (`ddt`) and pressure (`ddp`), plus an error and a status. The derivatives are computed by forward-mode automatic differentiation with [autodiff](https://autodiff.github.io/) (`autodiff::real`), not by finite differences. A `ThermoScalar` holds two autodiff passes, one seeded along T and one along P (`wrtT()`, `wrtP()` in C++).
 
 Derivatives of composite quantities follow from the chain rule, e.g. the derivative of the reaction `logK` or of the Gibbs energy of a reaction is obtained from the derivatives of its reactants, with no extra code in the models.
 
@@ -375,13 +375,13 @@ ThermoFun::ThermoEngine engine(db);
 // T in K, P in Pa
 auto prop = engine.thermoPropertiesSubstance(373.15, 1e8, "H2O@");
 
-double G    = prop.gibbs_energy.val;   // value
-double dGdT = prop.gibbs_energy.ddt;   // d G / d T  (= -S)
-double dGdP = prop.gibbs_energy.ddp;   // d G / d P  (= V)
+double G    = prop.gibbs_energy.val();   // value
+double dGdT = prop.gibbs_energy.ddt();   // d G / d T  (= -S)
+double dGdP = prop.gibbs_energy.ddp();   // d G / d P  (= V)
 
 // the same through the batch interface
 ThermoFun::ThermoBatch batch("Resources/Databases/aq17-thermofun.json");
-double dSdT = batch.thermoPropertiesSubstance(100, 1000, "H2O@", "entropy").toThermoScalar().ddt;
+double dSdT = batch.thermoPropertiesSubstance(100, 1000, "H2O@", "entropy").toThermoScalar().ddt();
 ```
 
 **Python**
@@ -399,8 +399,8 @@ print(prop.gibbs_energy.ddp)   # d G / d P
 
 ### Disabling autodiff
 
-autodiff is a core dependency: the models calculate with `autodiff::real`, so there is **no build option that removes it**, and the derivatives are always propagated alongside the values. What you can control:
+autodiff is a core dependency: `ThermoScalar` is built on `autodiff::real`, so there is **no build option that removes it**, and the derivatives are always propagated alongside the values. What you can control:
 
-* **Ignore the derivatives.** Use only `.val` or `toDouble()` on the batch results. The `ddt`/`ddp` parts are then simply not read.
+* **Ignore the derivatives.** Use only `val()` (C++) or `.val` (Python) or `toDouble()` on the batch results. The `ddt`/`ddp` parts are then simply not read.
 * **Do not download it during the build.** If autodiff is found by CMake (`find_package(autodiff 1.1.1)`), it is used and nothing is fetched. Install it beforehand with `sudo ./install-dependencies.sh`, or with conda (`conda install autodiff -c conda-forge`), or point CMake to an existing installation with `-Dautodiff_DIR=<path>`. The fetch from GitHub only happens when no installation is found.
 * **Skip its tests.** The autodiff test in `tests/autodiff` is only built with `-DTFUN_BUILD_TESTS=ON` (or `-DTFUN_BUILD_ALL=ON`), so leave those off.

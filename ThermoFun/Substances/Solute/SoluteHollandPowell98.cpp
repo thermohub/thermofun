@@ -10,6 +10,7 @@ namespace ThermoFun {
 auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     auto T = TK;
+    double Tprime = 0.0;
     ThermoPropertiesSubstanceAD tps;
     auto tpsr = subst.thermoReferenceProperties();
     double T298 = subst.referenceT();
@@ -49,20 +50,17 @@ auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const Pro
     auto BETw = wp.Beta*1e5; // 1/bar
     auto dALPdTw = wp.dAldT;
 
-    // T' = T below 500 K (it varies with T, so it carries the derivative), constant 500 K above
-    real Tprime = (T <= 500) ? T : real(500.0);
+    if (T <= 500)
+        Tprime = T.val();
+    else
+        Tprime = 500;
 
-    // k * (alpha298 (T - T298) - beta298 P + u ln(rho/rho298)) is the density term of G, u = T/T' (1 up to 500 K)
-    const auto k = ( Cp298 - T298*b )/( T298*dALPdTw298 );
-    const auto L = log(RHOw/RHOw298);
-    const auto u = T/Tprime;
-    const double du = (T <= 500) ? 0.0 : 1.0/500.0; // du/dT
-    auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + k*( ALPw298*(T - T298) - BETw298*Pbar + u*L );
-    // S = -dG/dT, V = dG/dP, Cp = T dS/dT and H = G + T S are exact derivatives of G (d ln(rho)/dT = -alpha)
-    auto S = S298 - b*(T298 - T) - k*( ALPw298 + du*L - u*ALPw );
-    auto V = V298 + k*( -BETw298 + u*BETw );
-    auto Cp = T*( b + k*( 2.0*du*ALPw + u*dALPdTw ) );
-    auto H = G + T*S;
+    auto G_bb = H298 - T*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
+    auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
+    auto S = S298 - b*(T298 - T) - (Cp298 - T298*b)/(T298*dALPdTw298)*(ALPw298 - log(RHOw/RHOw298)/Tprime - (T/Tprime)*ALPw);
+    auto V = V298 + (Cp298 - T298*b)/(T298*dALPdTw298)*( -BETw298 + T/Tprime*BETw );
+    auto Cp = T*(b - ((T298*b - Cp298)*(T*dALPdTw))/(T298*dALPdTw298*Tprime));
+    auto H = G_bb + T*S298;
 
     tps.gibbs_energy     = G;
     tps.volume           = V;

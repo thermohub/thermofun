@@ -60,7 +60,7 @@ namespace ThermoFun
             .def(py::init<const std::string>())
             .def(py::init<const Database &>())
             .def(py::init<const ThermoEngine &>())
-            
+            // .def("setUnits", &ThermoBatch::setUnits)
             // .def("setDigits", &ThermoBatch::setDigits)
             .def("setPropertiesUnits", &ThermoBatch::setPropertiesUnits)
             .def("setPropertiesDigits", &ThermoBatch::setPropertiesDigits)
@@ -88,8 +88,6 @@ namespace ThermoFun
             .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)
             .def("temperatureIncrement", &ThermoBatch::temperatureIncrement, "returns the default temperature increment")
             .def("pressureIncrement", &ThermoBatch::pressureIncrement, "returns the default pressure increment")
-            .def("setUnits", &ThermoBatch::setUnits, "set the units of the properties from a dict {property: unit}", py::arg("units"))
-            .def("setDigits", &ThermoBatch::setDigits, "set the number of round digits of the properties from a dict {property: digits}", py::arg("digits"))
             .def("propertyUnits", &ThermoBatch::propertyUnits, "returns the default properties units")
             .def("propertyDigits", &ThermoBatch::propertyDigits, "returns the default properties number of round digits");
     }
