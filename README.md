@@ -5,9 +5,12 @@ Linux, OSX, Windows
 
 A code for calculating the standard state thermodynamic properties of substances and reactions at a given temperature and pressure. 
 
+**[Guide: basic usage and options](docs/GUIDE.md)** — engine and batch calculations, preferences, derivatives (autodiff), error propagation, rounding.
+
 If you use it in your work please cite the JOSS publication 
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.04624/status.svg)](https://doi.org/10.21105/joss.04624)
 
+- [Guide: usage and options](docs/GUIDE.md)
 - [Code documentation](https://docs.hdoc.io/dmiron/thermofun/?target=_blank)
 - [Simple C++ API example](#simple-c-api-example)
 - [Try ThermoFun](#try-thermofun-in-your-browser-click-launch-binder)

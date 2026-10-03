@@ -83,7 +83,8 @@ struct BatchPreferences
 /// The class provides several functions for setting the units in which the results are displayed and the
 /// siginificant digits (or precision) in which the values will be written in the output CSV file.
 ///
-/// The input temperature and pressure should be in celsius and bar
+/// The input temperature and pressure are in K and Pa by default; change them with setPropertiesUnits(), for example
+/// setPropertiesUnits({"temperature", "pressure"}, {"degC", "bar"}) to give them in celsius and bar
 ///
 class ThermoBatch
 {

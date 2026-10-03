@@ -1141,6 +1141,9 @@ ThermoEngine::ThermoEngine(const Database &database)
 ThermoEngine::ThermoEngine(const ThermoEngine &other)
     : pimpl(new Impl(*other.pimpl))
 {
+    // the copied functions are bound to the Impl of the other engine (and so dangle when it is destroyed):
+    // bind them to this one (the memoization caches start empty)
+    pimpl->set_fn();
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance

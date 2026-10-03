@@ -212,6 +212,14 @@ def test_internal_helmholtz_energy_and_cv_are_completed_from_the_other_propertie
 
 # --- batch -------------------------------------------------------------------------------------------------------
 
+def test_a_copy_of_an_engine_does_not_depend_on_the_original():
+    """A ThermoBatch (and an engine copy) calculates with its own copy of the engine: the original can go away."""
+    ref = tf.ThermoEngine(DB).thermoPropertiesSubstance(298.15, 1e5, "Cal").gibbs_energy.val
+    batch = tf.ThermoBatch(tf.ThermoEngine(DB))  # the engine is a temporary
+    batch.setPropertiesUnits(["temperature", "pressure"], ["K", "Pa"])
+    assert batch.thermoPropertiesSubstance(298.15, 1e5, "Cal", "gibbs_energy").toDouble() == pytest.approx(ref)
+
+
 def test_batch_units_and_digits(database, tmp_path):
     batch = tf.ThermoBatch(database)
     units, digits = dict(batch.propertyUnits()), dict(batch.propertyDigits())
