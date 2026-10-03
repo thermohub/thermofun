@@ -56,18 +56,17 @@ test -d /usr/local/include/eigen3/Eigen || {
 # if no autodiff installed in /usr/local/include/autodiff
 test -d /usr/local/include/autodiff || {
 
-        mkdir -p ~/code && \
-                cd ~/code && \
-                git clone https://github.com/autodiff/autodiff.git -b v1.1.2 && \
-                cd autodiff && \
+        tmpdir=$(mktemp -d) && \
+                git clone https://github.com/autodiff/autodiff.git -b v1.1.2 "$tmpdir/autodiff" && \
+                cd "$tmpdir/autodiff" && \
                 mkdir -p build && \
                 cd build && \
                 cmake .. -DCMAKE_BUILD_TYPE=Release -DAUTODIFF_BUILD_TESTS=OFF -DAUTODIFF_BUILD_PYTHON=OFF -DAUTODIFF_BUILD_EXAMPLES=OFF -DAUTODIFF_BUILD_DOCS=OFF && \
                 sudo make install
 
-        # Removing generated build files
+        # Removing generated build files (only the temporary directory)
         cd ~ && \
-                 rm -rf ~/code
+                 { [ -z "$tmpdir" ] || rm -rf "$tmpdir"; }
 }
 
 # spdlog 

@@ -73,6 +73,9 @@ int main()
     // Derivatives are left at zero where they are not defined (value equal to zero)
     const ThermoScalar zero(0.0, 1.0, 1.0, 0.0, {Status::assigned, ""});
     check(sqrt(zero).ddt() == 0.0 && log(zero).ddp() == 0.0 && pow(zero, 2.0).ddt() == 0.0, "zero guards");
+    // zero base with a seeded exponent must not produce NaN derivatives (0*log(0))
+    const ThermoScalar zpw = pow(zero, P);
+    check(zpw.ddt() == 0.0 && zpw.ddp() == 0.0, "pow zero base, exponent derivatives");
 
     // Setters
     ThermoScalar s(1.0, 2.0, 3.0, 0.0, {Status::assigned, ""});

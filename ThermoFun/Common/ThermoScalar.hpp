@@ -386,9 +386,8 @@ inline auto pow(const ThermoScalar& l, const ThermoScalar& power) -> ThermoScala
     const double powl = std::pow(l.val(), power.val());
     if (l.val() == 0)
     {
-        // the derivative of the base is not defined at zero, only that of the exponent is kept
-        const double logl = std::log(l.val());
-        return {powl, powl * (logl * power.ddt()), powl * (logl * power.ddp()), 0.0, status(l,power)};
+        // derivatives are not defined at a zero base; evaluating log(0) would give 0*(-inf) = NaN
+        return {powl, 0.0, 0.0, 0.0, status(l,power)};
     }
     return {pow(l.wrtT(), power.wrtT()), pow(l.wrtP(), power.wrtP()), powl*(l.err/l.val()), status(l,power)};
 }
