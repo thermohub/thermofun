@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "ThermoProperties.h"
+#include "Common/Rounding.hpp"
 
 using namespace ThermoFun;
 using Reaktoro_::Pass;
@@ -83,6 +84,23 @@ int main()
     // The result of a calculation can be propagated from itself
     c.propagateFrom(c, nd);
     check(c.sta.first == Status::notdefined, "propagate from itself");
+
+    // Absolute errors of the ThermoScalar functions: |df/dx| err (x = 4 +- 0.2, exponent p = 3 +- 0.1)
+    {
+        const double v = 4.0, ev = 0.2, p = 3.0, ep = 0.1;
+        ThermoProperty xs(v, 1.0, 0.0, ev, {Status::assigned, ""});
+        ThermoProperty ps(p, 0.0, 0.0, ep, {Status::assigned, ""});
+        check(close(sqrt(xs).err, ev/(2.0*std::sqrt(v))), "error of sqrt");
+        check(close(pow(xs, 3.0).err, 3.0*v*v*ev), "error of pow(x, p)");
+        check(close(pow(xs, ps).err, std::hypot(p*std::pow(v, p - 1.0)*ev, std::pow(v, p)*std::log(v)*ep)), "error of pow(x, y)");
+        check(close(log(xs).err, ev/v), "error of log");
+        check(close(log10(xs).err, ev/v/std::log(10.0)), "error of log10");
+        check(close((5.0/xs).err, 5.0*ev/(v*v)), "error of scalar / x");
+    }
+
+    // Rounding: a large scaled number with a fraction of .25 is not a tie
+    check(ThermoFun::rounding::roundHalfEven(281474976710657.25, 0) == 281474976710657.0 &&
+          ThermoFun::rounding::roundHalfEven(25.45, 1) == 25.4, "roundHalfEven of a non-tie at 2.8e14");
 
     if (failures == 0) std::printf("All autodiff tests passed\n");
     return failures == 0 ? 0 : 1;

@@ -118,7 +118,7 @@ All models, including the GEMS implementations that had zero or incomplete deriv
     from cal was applied to a quantity already in J). They are `U = H - P V`, `A = U - T S` after the unit conversion.
     **Behaviour change** (U, A of aqueous species).
 17. `U`, `A` and `Cv` are completed centrally by `ThermoEngine` from the other properties (`completeThermoProperties`):
-    `U = H - P V`, `A = U - T S` (with the derivatives `dU/dT = Cp - P dV/dT`, `dU/dP = V - T dV/dT - P dV/dP`,
+    `U = H - P V`, `A = U - T S` (with the derivatives `dU/dT = Cp - P dV/dT`, `dU/dP = -T dV/dT - P dV/dP`,
     in J/Pa units, and the errors propagated), and `Cv = Cp - T V alpha^2/beta = Cp - 1e-5 T (dV/dT)^2/(-dV/dP)`
     for the substances other than the water solvent and vapour. Before, many models left `Cv` = 0 or = `Cp` and `U`, `A` as
     set by each model. **Behaviour change** (U, A, Cv of substances).

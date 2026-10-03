@@ -1065,18 +1065,18 @@ struct ThermoEngine::Impl
             Props out;
             try
             {
-                if (q.record == 0) db.setSubstance(tmpS);
-                if (q.record == 1) db.setReaction(tmpR);
+                if (q.record == 0) db.setMapSubstances({{tmpS.symbol(), tmpS}});
+                if (q.record == 1) db.setMapReactions({{tmpR.symbol(), tmpR}});
                 out = eval(engine, q.record == 2 ? &tmpS : givenS, q.record == 3 ? &tmpR : givenR);
             }
             catch (...)
             {
-                if (q.record == 0) db.setSubstance(origS);
-                if (q.record == 1) db.setReaction(origR);
+                if (q.record == 0) db.setMapSubstances({{origS.symbol(), origS}});
+                if (q.record == 1) db.setMapReactions({{origR.symbol(), origR}});
                 throw;
             }
-            if (q.record == 0) db.setSubstance(origS);
-            if (q.record == 1) db.setReaction(origR);
+            if (q.record == 0) db.setMapSubstances({{origS.symbol(), origS}});
+            if (q.record == 1) db.setMapReactions({{origR.symbol(), origR}});
             return out;
         };
 

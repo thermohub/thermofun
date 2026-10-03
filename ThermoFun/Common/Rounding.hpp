@@ -13,8 +13,9 @@ namespace rounding {
 
 namespace detail {
 /// the tolerance with which a scaled number is taken as exactly at a half (or at an integer): the binary
-/// representation of a decimal number like 25.45 is not exact
-inline double tolerance(double scaled) { return 8.0 * DBL_EPSILON * std::max(1.0, std::fabs(scaled)); }
+/// representation of a decimal number like 25.45 is not exact (capped, so that it stays far below the 0.5 of a
+/// rounding interval for the very large scaled numbers)
+inline double tolerance(double scaled) { return std::min(8.0 * DBL_EPSILON * std::max(1.0, std::fabs(scaled)), 1e-3); }
 }
 
 /// Round to a number of decimals (negative: to tens, hundreds, ...): a digit following the last digit retained that

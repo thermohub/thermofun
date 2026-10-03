@@ -254,9 +254,9 @@ auto ReactionFromReactantsProperties::thermoProperties(double T, double P, const
             tpr.reaction_volume.propagateFrom(tpr.reaction_volume, tps.volume);
             tpr.ln_equilibrium_constant.propagateFrom(tpr.reaction_gibbs_energy);
             tpr.log_equilibrium_constant.propagateFrom(tpr.ln_equilibrium_constant);
-            tpr.reaction_heat_capacity_cv.propagateFrom(tps.heat_capacity_cv);
-            tpr.reaction_internal_energy.propagateFrom(tps.internal_energy);
-            tpr.reaction_helmholtz_energy.propagateFrom(tps.helmholtz_energy);
+            tpr.reaction_heat_capacity_cv.propagateFrom(tpr.reaction_heat_capacity_cv, tps.heat_capacity_cv);
+            tpr.reaction_internal_energy.propagateFrom(tpr.reaction_internal_energy, tps.internal_energy);
+            tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_helmholtz_energy, tps.helmholtz_energy);
 
             setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
             setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);

@@ -154,7 +154,9 @@ auto read_values_units(const json& j, const std::string& data, std::vector<doubl
                     if (entry["errors"][i].is_number() && entry["errors"][i].get<double>() > 0.0)
                     {
                         auto up = raw; up[i] += entry["errors"][i].get<double>();
-                        e[i] = std::fabs(convert_values_units(up, units_from, units_to)[i] - values[i]);
+                        const double diff = std::fabs(convert_values_units(up, units_from, units_to)[i] - values[i]);
+                        if (!std::isfinite(diff)) continue; // an overflowing error cannot be an uncertainty
+                        e[i] = diff;
                         any = true;
                     }
                 if (any) *errors = e;

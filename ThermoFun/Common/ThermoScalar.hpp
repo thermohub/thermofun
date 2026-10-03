@@ -459,7 +459,7 @@ inline auto operator/(double l, const ThermoScalarBase<V>& r) -> ThermoScalarBas
     const double tmp2 = -l*tmp1*tmp1;
     if (r.val == 0)
         return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, 0.0, status(r)};
-    return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, (tmp1 * r.val)*std::sqrt(r.err/r.val*r.err/r.val), status(r)};
+    return {tmp1 * l, tmp2 * r.ddt, tmp2 * r.ddp, std::fabs(tmp2)*r.err, status(r)};
 }
 
 /// Right-divide a ThermoScalar instance by a scalar
@@ -477,7 +477,7 @@ inline auto sqrt(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
     const double tmp2 = 0.5 * tmp1/l.val;
     if (l.val == 0)
         return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/ 0.0,0.0,0.0, status(l)};
-    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.5*(l.err/l.val), status(l)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, std::fabs(tmp2)*l.err, status(l)};
 }
 
 /// Return the power of a ThermoScalar instance
@@ -487,8 +487,8 @@ inline auto pow(const ThermoScalarBase<V>& l, double power) -> ThermoScalarBase<
     const double tmp1 = std::pow(l.val, power);
     const double tmp2 = power * tmp1/l.val;
     if (l.val == 0)
-        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/0.0,0.0, 0.0, status(l)};
-    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, std::fabs(power)*(l.err/l.val), status(l)};
+        return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/0.0,0.0, power == 1.0 ? l.err : 0.0, status(l)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, std::fabs(tmp2)*l.err, status(l)};
 }
 
 /// Return the power of a ThermoScalar instance
@@ -500,7 +500,7 @@ inline auto pow(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& power
     const double tmp = power.val/l.val;
     if (l.val == 0)
         return {powl, powl * (logl * power.ddt + /*tmp * l.ddt*/0.0), powl * (logl * power.ddp + /*tmp * l.ddp*/0.0), 0.0, status(l,power)};
-    return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), powl*(l.err/l.val), status(l,power)};
+    return {powl, powl * (logl * power.ddt + tmp * l.ddt), powl * (logl * power.ddp + tmp * l.ddp), std::sqrt(tmp*powl*l.err*tmp*powl*l.err + logl*powl*power.err*logl*powl*power.err), status(l,power)};
 }
 
 /// Return the natural exponential of a ThermoScalar instance
@@ -519,7 +519,7 @@ inline auto log(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
     const double tmp2 = 1.0/l.val;
     if (l.val == 0)
         return {tmp1, /*tmp2 * l.ddt, tmp2 * l.ddp,*/ 0.0,0.0, 0.0, status(l)};
-    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, 0.434*(l.err/l.val), status(l)};
+    return {tmp1, tmp2 * l.ddt, tmp2 * l.ddp, std::fabs(tmp2)*l.err, status(l)};
 }
 
 /// Return the log10 of a ThermoScalar instance

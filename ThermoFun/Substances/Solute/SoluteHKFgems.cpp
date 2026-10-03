@@ -180,7 +180,7 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
 //    if(ps.density > 1000.0 || ps.density < 350.0)
 //        return g;
 
-    const auto pw = fabs(1.0e0 - D.val()); // insert Sveta 19/02/2000
+    const real pw = fabs(1.0e0 - D); // insert Sveta 19/02/2000 (keeps the derivatives of the density)
 
     a = C[0] + C[1]*TC + C[2]*pow(TC,2.);
     b = C[3] + C[4]*TC + C[5]*pow(TC,2.);
