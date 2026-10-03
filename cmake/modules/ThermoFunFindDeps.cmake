@@ -22,7 +22,10 @@ else()
     message(STATUS "Found ChemicalFun: ${ChemicalFun_DIR} (found version \"${ChemicalFun_VERSION}\")")
 endif()
 
-# Find the autodiff library (header-only); fetch it if it is not installed
+# Find the autodiff library (header-only); fetch it if it is not installed (not needed with -DTFUN_USE_AUTODIFF=OFF)
+if(NOT TFUN_USE_AUTODIFF)
+    message(STATUS "Building without autodiff: the models use plain numbers, all derivatives are 0")
+else()
 find_package(autodiff 1.1.1 CONFIG QUIET)
 if(autodiff_FOUND)
     message(STATUS "Found autodiff: ${autodiff_DIR} (found version \"${autodiff_VERSION}\")")
@@ -39,6 +42,7 @@ else()
         GIT_TAG        b0a4feff5b2a61262e94305452ac53369fe35e75)
     FetchContent_MakeAvailable(autodiff)
 endif()
+endif() # TFUN_USE_AUTODIFF
 
 if(USE_SPDLOG_PRECOMPILED)
    if(NOT TARGET spdlog::spdlog)

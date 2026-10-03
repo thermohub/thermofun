@@ -8,18 +8,19 @@ namespace ThermoFun {
 
 auto thermoPropertiesGasCGF(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
 {
-    double FugProps[6];
+    real FugProps[6];
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
-    solmod::TCGFcalc myCGF( 1, (Pbar.val()), (TK.val()) );
+    solmod::TCGFcalc myCGF( 1, Pbar, TK );
     double TClow = lowerTemperatureBound(subst, "CG Churakov-Gottschalk fluid model");
-    double * CPg = new double[7];
-    for (unsigned int i = 0; i < 7; i++)
+    real CPg[12] = {}; // CGcalcFugPure reads 12 coefficients
+    const auto& critical_parameters = subst.thermoParameters().critical_parameters;
+    for (unsigned int i = 0; i < 12 && i < critical_parameters.size(); i++)
     {
-        CPg[i] = subst.thermoParameters().critical_parameters[i];
+        CPg[i] = critical_parameters[i];
     }
 
-    myCGF.CGcalcFugPure( (TClow/*+273.15*/), (CPg), FugProps );
+    myCGF.CGcalcFugPure( (TClow/*+273.15*/), CPg, FugProps );
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );

@@ -11,7 +11,9 @@ endif()
 
 # Find all dependencies below.
 find_package(ChemicalFun REQUIRED)
-find_package(autodiff CONFIG REQUIRED)
+if(@TFUN_USE_AUTODIFF@)
+    find_package(autodiff CONFIG REQUIRED)
+endif()
 find_package(spdlog CONFIG REQUIRED)
 
 # Recommended check at the end of a cmake config file.

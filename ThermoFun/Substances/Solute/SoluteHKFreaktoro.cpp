@@ -114,17 +114,11 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, Substance subst, co
     auto Cp = c1 + c2/pow(TK - theta, 2) - (2*TK/pow(TK - theta, 3))*(a3*(Pbar - Pr)
         + a4*log((psi + Pbar)/(psi + Pr))) + w*TK*X + 2*TK*Y*wT + TK*(Z + 1)*wTT;
 
-    auto U = H - Pbar*V;
-
-    auto A = U - TK*S;
-
     // Convert the thermodynamic properties of the gas to the standard units
     V  *= 1e-01/**cal_to_J/bar_to_Pa*/;
     G  *= cal_to_J;
     H  *= cal_to_J;
     S  *= cal_to_J;
-    U  *= cal_to_J;
-    A  *= cal_to_J;
     Cp *= cal_to_J;
 
     ThermoPropertiesSubstanceAD tps;
@@ -132,8 +126,8 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, Substance subst, co
     tps.gibbs_energy     = G;
     tps.enthalpy         = H;
     tps.entropy          = S;
-    tps.internal_energy  = U;
-    tps.helmholtz_energy = A;
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;           // V in J/bar (the term P V was in the wrong units before)
+    tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
     tps.heat_capacity_cp = Cp;
     tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
 

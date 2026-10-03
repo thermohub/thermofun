@@ -53,26 +53,42 @@ auto checkModelValidity(double T, double P, double Tmax, /*double Tmin,*/ double
     }
 }
 
+/// Set the statuses and errors of the internal energy U = H - P V and the Helmholtz energy A = U - T S calculated
+/// from the enthalpy, entropy and volume (first-order propagation, independent inputs).
+/// @param T temperature (K), P pressure (Pa)
+static auto setStatusUA(ThermoPropertiesSubstance& tps, double T, double P) -> void
+{
+    const double Pbar = P / bar_to_Pa;
+    tps.internal_energy.propagateFrom(tps.enthalpy, tps.volume);
+    tps.internal_energy.setError({{1.0, tps.enthalpy.err}, {Pbar, tps.volume.err}});
+    tps.helmholtz_energy.propagateFrom(tps.internal_energy, tps.entropy);
+    tps.helmholtz_energy.setError({{1.0, tps.internal_energy.err}, {T, tps.entropy.err}});
+}
+
 /// Set the errors and statuses of the properties calculated with the HKF model: each one is not defined if a
 /// property it is calculated from (a reference property of the substance or a solvent property) is not defined
-static auto setStatusHKF(ThermoPropertiesSubstance& tps, const ThermoPropertiesSubstance& ref, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp, bool charged) -> void
+static auto setStatusHKF(ThermoPropertiesSubstance& tps, const ThermoPropertiesSubstance& ref, const ElectroPropertiesSolvent& wes, const PropertiesSolvent& wp, bool charged, double T, double P, double Tr) -> void
 {
-    tps.volume.propagateFrom(wes.bornQ, wes.bornZ);
-    tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ);
-    tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ);
-    tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY);
-    tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ);
-    // the g function, which sets the effective electrostatic radius of the charged species, is evaluated from the solvent density
+    // the g function, which sets the effective electrostatic radius of the charged species, is evaluated from the solvent
+    // density: for those the density is one more input (propagateFrom replaces the error and status, so it cannot be applied afterwards)
     if (charged)
     {
-        tps.volume.propagateFrom(wp.density);
-        tps.entropy.propagateFrom(wp.density);
-        tps.gibbs_energy.propagateFrom(wp.density);
-        tps.enthalpy.propagateFrom(wp.density);
-        tps.heat_capacity_cp.propagateFrom(wp.density);
+        tps.volume.propagateFrom(wes.bornQ, wes.bornZ, wp.density);
+        tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ, wp.density);
+        tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ, wp.density);
+        tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY, wp.density);
+        tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ, wp.density);
     }
-    tps.internal_energy.propagateFrom(tps.enthalpy, tps.volume);
-    tps.helmholtz_energy.propagateFrom(tps.internal_energy, tps.entropy);
+    else
+    {
+        tps.volume.propagateFrom(wes.bornQ, wes.bornZ);
+        tps.entropy.propagateFrom(ref.entropy, wes.bornY, wes.bornZ);
+        tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy, wes.bornZ);
+        tps.enthalpy.propagateFrom(ref.enthalpy, wes.bornZ, wes.bornY);
+        tps.heat_capacity_cp.propagateFrom(wes.bornX, wes.bornY, wes.bornZ);
+    }
+    tps.gibbs_energy.setError({{1.0, ref.gibbs_energy.err}, {T - Tr, ref.entropy.err}}); // G = G298 - S298 (T - Tr) + ...
+    setStatusUA(tps, T, P);
     tps.heat_capacity_cv.propagateFrom(tps.heat_capacity_cp);
 }
 
@@ -88,13 +104,6 @@ static auto copyStatus(ThermoPropertiesSubstance& out, const ThermoPropertiesSub
     copy(out.volume, in.volume);
     copy(out.heat_capacity_cp, in.heat_capacity_cp);
     copy(out.heat_capacity_cv, in.heat_capacity_cv);
-}
-
-/// Set the statuses of the internal energy and the Helmholtz energy calculated from the enthalpy, entropy and volume
-static auto setStatusUA(ThermoPropertiesSubstance& tps) -> void
-{
-    tps.internal_energy.propagateFrom(tps.enthalpy, tps.volume);
-    tps.helmholtz_energy.propagateFrom(tps.internal_energy, tps.entropy);
 }
 
 struct ThermoModelsSubstance::Impl
@@ -180,8 +189,7 @@ auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoProper
     state.enthalpy.propagateFrom(tps.enthalpy, wtp.gibbs_energy, wtp.entropy, wtp.heat_capacity_cp, wtpr.gibbs_energy, wtpr.entropy, wtpr.heat_capacity_cp);
     state.heat_capacity_cp.propagateFrom(tps.heat_capacity_cp, wtp.gibbs_energy, wtp.entropy, wtp.heat_capacity_cp, wtpr.gibbs_energy, wtpr.entropy, wtpr.heat_capacity_cp);
     state.volume.asCalculated();
-    state.internal_energy.propagateFrom(state.enthalpy, state.volume);
-    state.helmholtz_energy.propagateFrom(state.internal_energy, state.entropy);
+    setStatusUA(state, T, P);
     state.heat_capacity_cv = tps.heat_capacity_cv; // not changed by this model
 
     return state;
@@ -264,7 +272,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
         return thermoPropertiesAqSoluteHKFgems(t, p, pimpl->substance, aes, wesAD, wpAD);
     });
 
-    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0);
+    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0, T, P, pimpl->substance.referenceT());
 
     pimpl->substance.checkCalcMethodBounds("HKF model", T, P, tps);
     if (wp.density.val >= 1400 || wp.density.val <= 600)
@@ -314,7 +322,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
         return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wesAD, wpAD);
     });
 
-    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0);
+    setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0, T, P, pimpl->substance.referenceT());
 
     pimpl->substance.checkCalcMethodBounds("HKF model", T, P, tps);
     if (wp.density.val >= 1400 || wp.density.val <= 600)
@@ -446,7 +454,7 @@ auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesS
         out.volume.sta = ref.volume.sta;
         out.volume.err = ref.volume.err;
     }
-    setStatusUA(out);
+    setStatusUA(out, T, P);
 
     pimpl->substance.checkCalcMethodBounds("Holland and Powell Murnaghan model", T, P, out);
 
@@ -494,7 +502,7 @@ auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance
         out.enthalpy.propagateFrom(tps.enthalpy, ref.volume);
         out.entropy.propagateFrom(tps.entropy, ref.volume);
         out.volume.propagateFrom(ref.volume);
-        setStatusUA(out);
+        setStatusUA(out, T, P);
     }
 
     pimpl->substance.checkCalcMethodBounds("Berman multisite model", T, P, out);
@@ -541,7 +549,7 @@ auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubst
         out.entropy.propagateFrom(tps.entropy);
         out.gibbs_energy.propagateFrom(tps.gibbs_energy);
         out.enthalpy.propagateFrom(tps.enthalpy);
-        setStatusUA(out);
+        setStatusUA(out, T, P);
     }
 
     pimpl->substance.checkCalcMethodBounds("BMGottschalk model", T, P, out);
@@ -592,6 +600,7 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
 
     // the properties are integrated starting from the reference properties
     tps.gibbs_energy.propagateFrom(ref.gibbs_energy, ref.entropy);
+    tps.gibbs_energy.setError({{1.0, ref.gibbs_energy.err}, {T - pimpl->substance.referenceT(), ref.entropy.err}}); // G = G298 - S298 (T - Tr) + ...
     tps.enthalpy.propagateFrom(ref.enthalpy);
     tps.entropy.propagateFrom(ref.entropy);
     tps.volume.sta = {Reaktoro_::Status::assigned, ""};
@@ -692,7 +701,7 @@ auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tp
     out.volume.asCalculated();
     if (subcritical) // the heat capacity is corrected at subcritical T only
         out.heat_capacity_cp.propagateFrom(tps.heat_capacity_cp);
-    setStatusUA(out);
+    setStatusUA(out, T, P);
 
     pimpl->substance.checkCalcMethodBounds("Holland and Powell Landau model", T, P, out);
 
@@ -710,11 +719,15 @@ static auto applyPressure(ThermoPropertiesSubstanceAD tps, const real& t, const 
 }
 
 /// The statuses of the properties after the pressure correction
-static auto applyPressureStatus(ThermoPropertiesSubstance& tps) -> void
+static auto applyPressureStatus(ThermoPropertiesSubstance& tps, double T, double P, double Pref) -> void
 {
+    const double dP = (P - Pref) / bar_to_Pa; // bar
+    const double eG = tps.gibbs_energy.err, eH = tps.enthalpy.err;
     tps.gibbs_energy.propagateFrom(tps.gibbs_energy, tps.volume);
     tps.enthalpy.propagateFrom(tps.enthalpy, tps.volume);
-    setStatusUA(tps);
+    tps.gibbs_energy.setError({{1.0, eG}, {dP, tps.volume.err}});
+    tps.enthalpy.setError({{1.0, eH}, {dP, tps.volume.err}});
+    setStatusUA(tps, T, P);
 }
 
 /// Calculate the properties of a gas or fluid with a model that increments the properties of the ideal gas,
@@ -743,7 +756,7 @@ static auto gasProperties(double T, double P, const Substance& substance, const 
     out.volume.err = 0.0;
 
     if (apply_p)
-        applyPressureStatus(out);
+        applyPressureStatus(out, T, P, substance.referenceP());
 
     // last, so that the status propagation does not erase the bounds message
     Substance subst = substance;
@@ -974,7 +987,7 @@ auto ConMolVol::thermoProperties(double T, double P, ThermoPropertiesSubstance t
         out.volume.err = rtps.volume.err;
         out.gibbs_energy.propagateFrom(tps.gibbs_energy, rtps.volume);
         out.enthalpy.propagateFrom(tps.enthalpy, rtps.volume);
-        setStatusUA(out);
+        setStatusUA(out, T, P);
         return out;
     }
 
@@ -1029,7 +1042,7 @@ auto IdealGasLawVol::thermoProperties(double T, double P, ThermoPropertiesSubsta
     if (idealGasVolume)
         out.volume.asCalculated();
     if (apply_p)
-        applyPressureStatus(out);
+        applyPressureStatus(out, T, P, pimpl->substance.referenceP());
 
     return out;
 }

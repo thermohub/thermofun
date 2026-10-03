@@ -6,6 +6,15 @@
 
 namespace ThermoFun {
 
+struct ThermoVariables
+{
+    /// the temperature T (in units of Kelvin)
+    Reaktoro_::Temperature temperature;
+
+    /// the pressure P (in units of Pascal)
+    Reaktoro_::Pressure pressure;
+};
+
 /// Describe the thermodynamic state of a substance
 template<class S>
 struct ThermoPropertiesSubstanceT
@@ -247,11 +256,12 @@ struct FunctionG
     real gPP;
 };
 
-/// The thermodynamic properties as results of the engine: value, derivatives with respect to T and P, error and status
-using ThermoPropertiesSubstance = ThermoPropertiesSubstanceT<Reaktoro_::ThermoProperty>;
-using ThermoPropertiesReaction  = ThermoPropertiesReactionT<Reaktoro_::ThermoProperty>;
-using PropertiesSolvent         = PropertiesSolventT<Reaktoro_::ThermoProperty>;
-using ElectroPropertiesSolvent  = ElectroPropertiesSolventT<Reaktoro_::ThermoProperty>;
+/// The thermodynamic properties returned by the engine: ThermoScalar properties with the value, the derivatives with
+/// respect to T and P, the error and the status (the interface of ThermoFun is not changed by the use of autodiff).
+struct ThermoPropertiesSubstance : ThermoPropertiesSubstanceT<Reaktoro_::ThermoScalar> {};
+struct ThermoPropertiesReaction  : ThermoPropertiesReactionT<Reaktoro_::ThermoScalar> {};
+struct PropertiesSolvent         : PropertiesSolventT<Reaktoro_::ThermoScalar> {};
+struct ElectroPropertiesSolvent  : ElectroPropertiesSolventT<Reaktoro_::ThermoScalar> {};
 
 /// The same properties as autodiff numbers, used inside the models while calculating
 using ThermoPropertiesSubstanceAD = ThermoPropertiesSubstanceT<real>;
@@ -425,10 +435,16 @@ inline auto toProperties(const ElectroPropertiesSolventAD& wrtT, const ElectroPr
 }
 
 /// Evaluate f(pass) in the autodiff pass seeded with temperature and in the pass seeded with pressure, and combine
-/// the results in properties with the value and the derivatives with respect to T and P
+/// the results in properties with the value and the derivatives with respect to T and P (only the value, in one pass, if
+/// built without autodiff)
 template<typename F>
 inline auto twoPass(double T, double P, F&& f)
 {
+    if constexpr (!Reaktoro_::kWithAutodiff) // built without autodiff: the values only, in one pass (no derivatives)
+    {
+        const auto values = f(Reaktoro_::Pass(T, P, Reaktoro_::Wrt::None));
+        return toProperties(values, values);
+    }
     const auto wrtT = f(Reaktoro_::Pass(T, P, Reaktoro_::Wrt::T));
     const auto wrtP = f(Reaktoro_::Pass(T, P, Reaktoro_::Wrt::P));
     return toProperties(wrtT, wrtP);

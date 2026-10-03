@@ -18,14 +18,21 @@
 
 #include "PyThermoFun.hpp"
 #include "ThermoFun/GlobalVariables.h"
+#include "ThermoFun/Common/Real.hpp"
 using namespace ThermoFun;
 
 PYBIND11_MODULE(PyThermoFun, m)
 {
     update_loggers(false, "thermofun.log", 2);
+    // False if built with -DTFUN_USE_AUTODIFF=OFF: the derivatives ddt, ddp are then 0
+    m.attr("with_autodiff") = Reaktoro_::kWithAutodiff;
+    // Enumerations (before the classes that use them)
+    exportGlobalVariables(m);
     // Common module
     exportThermoScalar(m);
     exportStatus(m);
+    exportTemperature(m);
+    exportPressure(m);
     // Properties 
     exportThermoPropertiesSubstance(m);
     exportThermoPropertiesReaction(m);
@@ -44,6 +51,9 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportSubstance(m);
     exportReaction(m);
     exportElement(m);
+    // Models, units and parsing
+    exportModels(m);
+    exportUtilities(m);
 
     m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of available substance methods.");
     m.def("availableReactionTPMethods", availableReactionTPMethods, "list of JSONs templates of available reaction methods.");

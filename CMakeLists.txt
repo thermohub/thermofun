@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.16..4.2)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.6.3 LANGUAGES CXX)
+project(ThermoFun VERSION 0.7.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,6 +28,8 @@ if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_TESTS           ON)
     set(TFUN_BUILD_PYTHON           ON)
 endif()
+
+option(TFUN_USE_AUTODIFF "Calculate the derivatives of the properties with autodiff. If OFF the models use plain numbers (faster, no autodiff dependency): all derivatives ddt and ddp are 0." ON)
 
 if (TFUN_WASM MATCHES ON)
     # Define which types of libraries to build
