@@ -8,7 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 #include <spdlog/spdlog.h>
 
 namespace ThermoFun {

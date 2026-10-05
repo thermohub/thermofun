@@ -1,6 +1,6 @@
 #ifndef SOLUTEHKFREAKTORO
 #define SOLUTEHKFREAKTORO
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

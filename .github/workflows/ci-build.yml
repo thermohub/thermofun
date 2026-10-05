@@ -67,6 +67,14 @@ jobs:
           conda activate thermofun
           ctest --test-dir .build --output-on-failure
 
+      # Only the installed-headers test runs on macOS and Windows; the other tests run on Linux
+      - name: Running C++ tests (macOS, installed headers only)
+        if: matrix.os == 'macos-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          ctest --test-dir .build --output-on-failure -R installed-headers
+
       - name: Running tests
         if: matrix.os == 'ubuntu-latest'
         shell: bash -l {0}
@@ -79,8 +87,9 @@ jobs:
         shell: cmd
         run: |
           call conda activate thermofun || goto :eof
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" -A x64 -S . -B build  || goto :eof
+          cmake -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" -A x64 -S . -B build  || goto :eof
           cmake --build build --target install --config Release || goto :eof
+          ctest --test-dir build -C Release -R installed-headers --output-on-failure || goto :eof
           python -c "import thermofun" || goto :eof
 
       - name: Run tests that read thermofun

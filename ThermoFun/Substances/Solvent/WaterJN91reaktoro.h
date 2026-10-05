@@ -1,6 +1,6 @@
 #ifndef WATERJN91REAKTORO
 #define WATERJN91REAKTORO
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

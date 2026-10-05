@@ -4,9 +4,9 @@
 #ifndef VOLUME_FUNCTION_OF_T
 #define VOLUME_FUNCTION_OF_T
 
-#include "Common/Real.hpp"
-#include "Reaction.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Reaction.h>
+#include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
 

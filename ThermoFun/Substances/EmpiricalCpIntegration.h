@@ -3,7 +3,7 @@
 
 #ifndef EMPIRICALCPINTEGRATION
 #define EMPIRICALCPINTEGRATION
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

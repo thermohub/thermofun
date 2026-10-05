@@ -115,6 +115,21 @@ if(TFUN_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests/memoization)
     add_subdirectory(tests/autodiff)
+
+    # Every installed header must compile against the install prefix alone ("|" stands for ";" in the list of prefixes,
+    # a ";" would split the argument)
+    string(REPLACE ";" "|" tfun_prefix_path "${CMAKE_PREFIX_PATH}")
+    add_test(NAME installed-headers
+        COMMAND ${CMAKE_COMMAND}
+            -DBINARY_DIR=${CMAKE_BINARY_DIR}
+            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}/tests/installed_headers
+            -DWORK_DIR=${CMAKE_BINARY_DIR}/installed-headers-test
+            "-DPREFIX_PATH=${tfun_prefix_path}"
+            -DGENERATOR=${CMAKE_GENERATOR}
+            -DBUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DPLATFORM=${CMAKE_GENERATOR_PLATFORM}
+            -DCONFIG=$<CONFIG>
+            -P ${CMAKE_SOURCE_DIR}/tests/installed_headers/run.cmake)
 endif()
 
 # Install the cmake config files that permit users to use find_package(ThermoFun)

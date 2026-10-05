@@ -3,7 +3,7 @@ if(TFUN_USE_AUTODIFF)
     # Tests of the autodiff infrastructure (autodiff::real passes, error and status propagation). Header-only, so this links
     # only against autodiff and not against the ThermoFun library.
     add_executable(test-autodiff src/main.cpp)
-    target_include_directories(test-autodiff PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun)
+    target_include_directories(test-autodiff PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun ${CMAKE_SOURCE_DIR})
     target_link_libraries(test-autodiff PRIVATE autodiff::autodiff)
     add_test(NAME autodiff COMMAND test-autodiff)
 
@@ -27,4 +27,15 @@ if(TFUN_USE_AUTODIFF)
     target_include_directories(test-analytic-derivatives PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_link_libraries(test-analytic-derivatives PRIVATE ThermoFun autodiff::autodiff)
     add_test(NAME analytic-derivatives COMMAND test-analytic-derivatives ${CMAKE_SOURCE_DIR}/pytests/test-thermoengine-thermofun.json)
+endif()
+
+# Run against the ThermoFun built in this tree, not one installed in the conda environment: the environment's
+# -Wl,-rpath comes from LDFLAGS and precedes anything CMake adds, so an installed (older) libThermoFun.so shadows
+# the one just built and the tests fail with missing symbols or zero derivatives. LD_PRELOAD wins over the RPATH.
+if(UNIX AND NOT APPLE)
+    foreach(t model-derivatives interface analytic-derivatives)
+        if(TEST ${t})
+            set_tests_properties(${t} PROPERTIES ENVIRONMENT "LD_PRELOAD=$<TARGET_FILE:ThermoFun>")
+        endif()
+    endforeach()
 endif()

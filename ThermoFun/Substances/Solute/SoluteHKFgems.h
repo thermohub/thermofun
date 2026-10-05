@@ -1,6 +1,6 @@
 #ifndef SOLUTEHKFGEMS
 #define SOLUTEHKFGEMS
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

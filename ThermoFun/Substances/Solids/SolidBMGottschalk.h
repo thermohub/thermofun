@@ -3,7 +3,7 @@
 
 #ifndef SOLIDBMGOTTSCHALK
 #define SOLIDBMGOTTSCHALK
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

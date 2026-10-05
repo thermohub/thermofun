@@ -16,7 +16,7 @@
 
 #include <cmath>
 
-#include "Common/Real.hpp"
+#include <ThermoFun/Common/Real.hpp>
 
 namespace ThermoFun {
 namespace cgf {

@@ -3,7 +3,7 @@
 
 #ifndef SOLIDMURNAGHANHP98_H
 #define SOLIDMURNAGHANHP98_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

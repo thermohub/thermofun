@@ -19,7 +19,7 @@
 #pragma once
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Common/Real.hpp>
+#include <ThermoFun/Common/Real.hpp>
 
 namespace ThermoFun {
 

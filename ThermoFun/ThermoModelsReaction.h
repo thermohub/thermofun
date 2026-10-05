@@ -3,14 +3,14 @@
 
 #ifndef THERMOMODELREACTION_H
 #define THERMOMODELREACTION_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 #include <memory>
 #include <string>
 #include <vector>
 
 // ThermoFun includes
-#include "GlobalVariables.h"
+#include <ThermoFun/GlobalVariables.h>
 
 namespace ThermoFun {
 class Reaction;

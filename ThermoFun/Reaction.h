@@ -3,14 +3,14 @@
 
 #ifndef REACTION_H
 #define REACTION_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 // C++ includes
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include "GlobalVariables.h"
+#include <ThermoFun/GlobalVariables.h>
 
 namespace ThermoFun {
 struct ThermoParametersReaction;

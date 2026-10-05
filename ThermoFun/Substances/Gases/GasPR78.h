@@ -3,7 +3,7 @@
 
 #ifndef GASPR78
 #define GASPR78
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

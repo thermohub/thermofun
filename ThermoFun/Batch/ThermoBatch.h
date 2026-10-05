@@ -3,7 +3,7 @@
 
 #ifndef INTERFACE_H
 #define INTERFACE_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 // C++ includes
 #include <map>
@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "../Common/ThermoProperty.hpp"
-#include "OutputBatch.h"
+#include <ThermoFun/Common/ThermoProperty.hpp>
+#include <ThermoFun/Batch/OutputBatch.h>
 
 namespace ThermoFun {
 

@@ -3,7 +3,7 @@
 
 #ifndef GASSRK
 #define GASSRK
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

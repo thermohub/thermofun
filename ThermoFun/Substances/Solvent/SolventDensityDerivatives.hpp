@@ -4,8 +4,8 @@
 #ifndef THERMOFUN_SOLVENTDENSITYDERIVATIVES_HPP
 #define THERMOFUN_SOLVENTDENSITYDERIVATIVES_HPP
 
-#include "Common/ThermoProperty.hpp"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/ThermoProperty.hpp>
+#include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
 

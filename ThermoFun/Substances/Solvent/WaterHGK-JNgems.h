@@ -1,7 +1,7 @@
 #ifndef WATERHGKGEMS_H
 #define WATERHGKGEMS_H
-#include "ThermoProperties.h"
-#include "Common/Real.hpp"
+#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/Real.hpp>
 
 #include <memory>
 #include <cstring>

@@ -3,7 +3,7 @@
 
 #ifndef SOLUTEANDERSON91_H
 #define SOLUTEANDERSON91_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

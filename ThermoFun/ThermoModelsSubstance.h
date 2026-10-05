@@ -3,7 +3,7 @@
 
 #ifndef THERMOMODELSUBSTANCE_H
 #define THERMOMODELSUBSTANCE_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 #include <memory>
 
