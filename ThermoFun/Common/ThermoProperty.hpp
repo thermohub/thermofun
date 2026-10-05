@@ -25,8 +25,8 @@
 #include <utility>
 #include <ostream>
 
-#include "Common/Real.hpp"
-#include "Common/ThermoScalar.hpp"
+#include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Common/ThermoScalar.hpp>
 
 namespace Reaktoro_ {
 

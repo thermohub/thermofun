@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "../Common/ThermoProperty.hpp"
+#include <ThermoFun/Common/ThermoProperty.hpp>
 
 namespace ThermoFun {
 

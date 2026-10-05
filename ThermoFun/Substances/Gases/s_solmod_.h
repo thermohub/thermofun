@@ -30,7 +30,7 @@
 #define _s_solmod_h_
 
 #include <vector>
-#include "Common/Real.hpp"
+#include <ThermoFun/Common/Real.hpp>
 
 namespace solmod
  {

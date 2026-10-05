@@ -3,7 +3,7 @@
 
 #ifndef WATERIDEALGASWOLLEY
 #define WATERIDEALGASWOLLEY
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

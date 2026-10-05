@@ -3,7 +3,7 @@
 
 #ifndef SOLIDHPLANDAU
 #define SOLIDHPLANDAU
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

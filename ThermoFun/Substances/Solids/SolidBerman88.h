@@ -3,7 +3,7 @@
 
 #ifndef SOLIDBERMAN88
 #define SOLIDBERMAN88
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

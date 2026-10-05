@@ -1,9 +1,9 @@
 #ifndef SOLUTEADGEMS
 #define SOLUTEADGEMS
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 #include <vector>
-#include "Common/Real.hpp"
+#include <ThermoFun/Common/Real.hpp>
 
 namespace ThermoFun {
 

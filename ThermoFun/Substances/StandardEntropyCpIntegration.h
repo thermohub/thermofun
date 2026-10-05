@@ -3,7 +3,7 @@
 
 #ifndef STANDARDENTROPYCPINTEGRATION
 #define STANDARDENTROPYCPINTEGRATION
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

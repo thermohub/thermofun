@@ -3,7 +3,7 @@
 
 #ifndef GASSTP
 #define GASSTP
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 
 namespace ThermoFun {

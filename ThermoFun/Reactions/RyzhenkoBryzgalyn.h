@@ -4,10 +4,10 @@
 #ifndef RYZHENKOBRYZGALYN
 #define RYZHENKOBRYZGALYN
 
-#include "Common/Real.hpp"
-#include "Reaction.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Reaction.h>
+#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/ThermoParameters.h>
 
 namespace ThermoFun {
 

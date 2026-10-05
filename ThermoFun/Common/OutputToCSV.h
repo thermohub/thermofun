@@ -1,6 +1,6 @@
 #ifndef OUTPUTTOCSV_H
 #define OUTPUTTOCSV_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 #include <fstream>
 #include <string>

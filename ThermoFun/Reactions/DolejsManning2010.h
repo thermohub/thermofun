@@ -4,9 +4,9 @@
 #ifndef DOLEJSMANNING2010_H
 #define DOLEJSMANNING2010_H
 
-#include "Common/Real.hpp"
-#include "Reaction.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Reaction.h>
+#include <ThermoFun/ThermoProperties.h>
 
 namespace ThermoFun {
 

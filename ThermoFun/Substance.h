@@ -3,14 +3,14 @@
 
 #ifndef SUBSTANCE_H
 #define SUBSTANCE_H
-#include "ThermoProperties.h"
+#include <ThermoFun/ThermoProperties.h>
 
 // C++ includes
 #include <memory>
 #include <string>
 
 // ThermoFun includes
-#include "GlobalVariables.h"
+#include <ThermoFun/GlobalVariables.h>
 
 namespace ThermoFun {
 struct ThermoParametersSubstance;

@@ -1,9 +1,9 @@
 #ifndef WATERHGKREAKTORO
 #define WATERHGKREAKTORO
 
-#include "Common/Real.hpp"
-#include "ThermoProperties.h"
-#include "GlobalVariables.h"
+#include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/GlobalVariables.h>
 
 namespace ThermoFun {
 
