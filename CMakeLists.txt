@@ -124,6 +124,7 @@ if(TFUN_BUILD_TESTS)
             -DBINARY_DIR=${CMAKE_BINARY_DIR}
             -DSOURCE_DIR=${CMAKE_SOURCE_DIR}/tests/installed_headers
             -DWORK_DIR=${CMAKE_BINARY_DIR}/installed-headers-test
+            -DINCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
             "-DPREFIX_PATH=${tfun_prefix_path}"
             -DGENERATOR=${CMAKE_GENERATOR}
             -DBUILD_TYPE=${CMAKE_BUILD_TYPE}

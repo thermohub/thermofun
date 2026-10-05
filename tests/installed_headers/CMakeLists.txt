@@ -8,7 +8,11 @@ project(installed-headers CXX)
 
 find_package(ThermoFun REQUIRED CONFIG PATHS ${THERMOFUN_PREFIX} NO_DEFAULT_PATH)
 
-set(inc ${THERMOFUN_PREFIX}/include)
+# Relative to the prefix (CMAKE_INSTALL_INCLUDEDIR of the ThermoFun build), or absolute
+if(NOT THERMOFUN_INCLUDEDIR)
+    set(THERMOFUN_INCLUDEDIR include)
+endif()
+get_filename_component(inc ${THERMOFUN_INCLUDEDIR} ABSOLUTE BASE_DIR ${THERMOFUN_PREFIX})
 file(GLOB_RECURSE headers RELATIVE ${inc} ${inc}/ThermoFun/*.h ${inc}/ThermoFun/*.hpp)
 list(LENGTH headers n)
 if(n EQUAL 0)
