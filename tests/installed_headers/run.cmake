@@ -26,11 +26,15 @@ if(NOT CONFIG)
     set(CONFIG Release)
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} --install ${BINARY_DIR} --config ${CONFIG} --prefix ${WORK_DIR}/prefix
-                RESULT_VARIABLE r)
-if(r)
-    message(FATAL_ERROR "install failed")
-endif()
+# Install everything but the Python component: its install rule runs pip into the active environment
+foreach(component IN ITEMS Unspecified libraries headers cmake)
+    execute_process(COMMAND ${CMAKE_COMMAND} --install ${BINARY_DIR} --config ${CONFIG}
+                            --prefix ${WORK_DIR}/prefix --component ${component}
+                    RESULT_VARIABLE r)
+    if(r)
+        message(FATAL_ERROR "install of component ${component} failed")
+    endif()
+endforeach()
 execute_process(COMMAND ${CMAKE_COMMAND} -S ${SOURCE_DIR} -B ${WORK_DIR}/build ${cfg_args}
                         -DTHERMOFUN_PREFIX=${WORK_DIR}/prefix -DTHERMOFUN_INCLUDEDIR=${INCLUDEDIR} "-DCMAKE_PREFIX_PATH=${PREFIX_PATH}"
                 RESULT_VARIABLE r)
