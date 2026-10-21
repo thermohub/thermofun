@@ -4,6 +4,7 @@
 #include "ThermoModelsSubstance.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
+#include "ThermoParameters.h"
 
 #include "Substances/EmpiricalCpIntegration.h"
 #include "Substances/StandardEntropyCpIntegration.h"
@@ -606,6 +607,17 @@ auto EmpiricalCpIntegration::thermoProperties(double T, double P) -> ThermoPrope
     tps.gibbs_energy.setError({{1.0, ref.gibbs_energy.err}, {T - pimpl->substance.referenceT(), ref.entropy.err}}); // G = G298 - S298 (T - Tr) + ...
     tps.enthalpy.propagateFrom(ref.enthalpy);
     tps.entropy.propagateFrom(ref.entropy);
+    // without Cp coefficients, Cp is the constant reference value: its uncertainty propagates too
+    if (pimpl->substance.thermoParameters().Cp_coeff.empty())
+    {
+        const double Tr = pimpl->substance.referenceT();
+        tps.heat_capacity_cp.sta = ref.heat_capacity_cp.sta;
+        tps.heat_capacity_cp.err = ref.heat_capacity_cp.err;
+        tps.gibbs_energy.setError({{1.0, ref.gibbs_energy.err}, {T - Tr, ref.entropy.err},
+                                   {T*std::log(T/Tr) - (T - Tr), ref.heat_capacity_cp.err}});
+        tps.enthalpy.setError({{1.0, ref.enthalpy.err}, {T - Tr, ref.heat_capacity_cp.err}});
+        tps.entropy.setError({{1.0, ref.entropy.err}, {std::log(T/Tr), ref.heat_capacity_cp.err}});
+    }
     tps.volume.sta = {Reaktoro_::Status::assigned, ""};
 
     if (outsideBounds)

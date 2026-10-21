@@ -7,6 +7,8 @@
 #include "ThermoParameters.h"
 #include "Substance.h"
 #include <cmath>
+#include <mutex>
+#include <set>
 //#include <iomanip>
 
 namespace ThermoFun
@@ -37,9 +39,31 @@ auto thermoPropertiesEmpCpIntegration(const Reaktoro_::Pass& pass, Substance sub
     real G = Reaktoro_::constant(thermo_properties_PrTr.gibbs_energy);
     real H = Reaktoro_::constant(thermo_properties_PrTr.enthalpy);
 
+    // No Cp coefficients: take Cp as constant at its reference value, as GEMS does. A reference
+    // Cp at or below the float "empty" marker counts as zero.
     if (thermo_parameters.Cp_coeff.size() == 0)
     {
-        errorModelParameters("Cp empirical coefficients", substance.symbol() + " empirical Cp integration", __LINE__, __FILE__);
+        static std::mutex warned_mutex;
+        static std::set<std::string> warned;
+        {
+            std::lock_guard<std::mutex> lock(warned_mutex);
+            if (warned.insert(substance.symbol()).second)
+                thfun_logger->warn("{}: no Cp coefficients for the empirical Cp integration; Cp is taken as constant "
+                                   "at its reference value.", substance.symbol());
+        }
+        double cp0 = Reaktoro_::constant(thermo_properties_PrTr.heat_capacity_cp).val();
+        if (!std::isfinite(cp0) || std::fabs(cp0) < 1e-30)
+            cp0 = 0.0;
+        G -= S * (TK - TrK) + cp0 * (TK * log(TK / TrK) - (TK - TrK));
+        H += cp0 * (TK - TrK);
+        S += cp0 * log(TK / TrK);
+        thermo_properties_PT.heat_capacity_cp = cp0;
+        thermo_properties_PT.gibbs_energy = G;
+        thermo_properties_PT.enthalpy = H;
+        thermo_properties_PT.entropy = S;
+        thermo_properties_PT.volume = V;
+        if (outsideBounds)
+            *outsideBounds = false;
         return thermo_properties_PT;
     }
 

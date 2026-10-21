@@ -107,6 +107,8 @@ A record is a JSON object. A substance has reference properties (`sm_gibbs_energ
 (for example `cp_ft_equation`, `solute_hkf88_gems`, `mv_constant`, fluid equations of state); a reaction has
 reactants, its own reference properties and `TPMethods`. A substance with no `TPMethods` is calculated from
 the reaction that defines it. Each model reads its coefficients as `{"values": [...], "units": [...]}`.
+A `cp_ft_equation` substance without Cp coefficients uses a constant Cp equal to its `sm_heat_capacity_p`
+(zero if that is empty), as GEMS does, and a warning is logged once for it.
 
 | You want to | Do |
 |---|---|

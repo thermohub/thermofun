@@ -22,6 +22,7 @@ install(CODE
         COMMAND ${Python3_EXECUTABLE} -m pip install ${CMAKE_CURRENT_BINARY_DIR} -vv
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
+COMPONENT Python
 )
 
 else()
@@ -47,6 +48,7 @@ install(CODE
         COMMAND ${Python3_EXECUTABLE} -m pip install --prefix \${THERMOFUN_PYTHON_INSTALL_PREFIX_NATIVE} ${CMAKE_CURRENT_BINARY_DIR} -vv
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 "
+COMPONENT Python
 )
 
 endif()
