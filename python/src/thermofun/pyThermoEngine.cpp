@@ -130,6 +130,9 @@ void exportThermoEngine(py::module& m)
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
                    "apply pressure/fugacity correction to gas standard properties True/False (default: False)")
+    .def_readwrite("cancel_fugacity_coefficient_in_gas_props",
+                   &EnginePreferences::cancel_fugacity_coefficient_in_gas_props,
+                   "remove the fugacity coefficient term RT ln(phi) of the fluids from G, giving standard-state G(T, 1 bar) True/False (default: True); False keeps it and removes RT ln(P/1 bar) from G of steam (HGK)")
     .def_readwrite("round_to_uncertainty",
                    &EnginePreferences::round_to_uncertainty,
                    "round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded")

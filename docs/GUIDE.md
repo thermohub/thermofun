@@ -69,6 +69,7 @@ Set before calculating, for example `engine.preferences.propagate_parameter_erro
 | `solvent_symbol` | `H2O@` | The solvent record used to calculate solutes (for example HKF). Change it if your database names water differently. |
 | `fallback_to_reference_properties` | false | When a substance has no calculation method or data are missing, return the reference properties stored in the record instead of leaving the property undefined. |
 | `apply_pressure_correction_to_gas_props` | false | Adds the fugacity/pressure correction of the fluid equation of state to `H`, `S`, `V` of gases (`G` is kept, see the note in [autodiff.md](autodiff.md)). Reactions calculated from reactants switch it on themselves. |
+| `cancel_fugacity_coefficient_in_gas_props` | true | Fluids (CORK, PRSV, CG, SRK, PR78, STP): the term `RT ln(phi)` is removed from `G`, so `G` is the standard-state value `G(T, 1 bar)`. Set to false to keep it: `G` is then `G(T, 1 bar) + RT ln(phi)` (up to 1.3 kJ/mol for CO at 1000 bar), and for steam from the HGK water equation of state the ideal-gas pressure term `RT ln(P/1 bar)` is removed from `G` in the same way. The terms are 0 at 1 bar for an ideal gas. |
 | `propagate_parameter_errors` | false | Also propagates the uncertainties of model coefficients. Costs two extra calculations per parameter with an error. |
 | `round_to_uncertainty` | false | Rounds results to the decimals of their uncertainty (NEA TDB rules). |
 | `uncertainty_significant_digits` | 2 | Digits of the rounded-up uncertainty when rounding is on (the TDB tables use one or two). |
@@ -107,8 +108,21 @@ A record is a JSON object. A substance has reference properties (`sm_gibbs_energ
 (for example `cp_ft_equation`, `solute_hkf88_gems`, `mv_constant`, fluid equations of state); a reaction has
 reactants, its own reference properties and `TPMethods`. A substance with no `TPMethods` is calculated from
 the reaction that defines it. Each model reads its coefficients as `{"values": [...], "units": [...]}`.
+A reaction with `logk_ft_coeffs` and a named extrapolation method (`logk_1_term_extrap0`..`logk_3_term_extrap`) is calculated from its reference values; the function is used only if no such method is named. If both give a different logK at the reference temperature (more than 0.01), a warning is logged once for the reaction.
 A `cp_ft_equation` substance without Cp coefficients uses a constant Cp equal to its `sm_heat_capacity_p`
-(zero if that is empty), as GEMS does, and a warning is logged once for it.
+(zero if that is empty), and a warning is logged once for it.
+
+
+Keys of the coefficients that the substance models read (each `{"values": [...], "units": [...]}`):
+
+| Key | Used by |
+|---|---|
+| `m_volume_fpt_coeffs` | Volume equations of Berman (1988) and Dorogokupets et al. (1988): five coefficients (1/K, 1/K², 1/K³, 1/bar, 1/bar²). |
+| `eos_birch_murnaghan_coeffs` | Birch-Murnaghan volume (12 coefficients). |
+| `eos_churakov_gottschalk_coeffs` | Churakov-Gottschalk fluid (CG) equation of state. |
+| `eos_gas_crit_props` | Critical parameters of the other fluid equations of state. |
+
+A record without `aggregate_state` has the state "other". A water solvent record with `standard_entropy_cp_integration` gets its properties from the reference values and the constant Cp. A gas defined by a reaction and without a volume method has the ideal-gas volume `RT/P`.
 
 | You want to | Do |
 |---|---|
@@ -135,7 +149,7 @@ properties whose **value** needs a derivative; they are `notdefined`:
 | Property | Why |
 |---|---|
 | `heat_capacity_cv` of substances (and `reaction_heat_capacity_cv` of the reactions that use them) | `Cv = Cp - T V alpha^2/beta` needs `dV/dT` and `dV/dP`. The Cv of the water solvent models is analytical and kept. |
-| `densityTP` of the GEMS HGK water | It is `d(densityT)/dP`. `densityT`, `densityP`, `densityTT` and `densityPP` are analytical and kept. |
+| `densityTP` of the HGK water | It is `d(densityT)/dP`. `densityT`, `densityP`, `densityTT` and `densityPP` are analytical and kept. |
 
 (With `fallback_to_reference_properties` on, an undefined property is replaced by the reference value of the record when it has one, as for any property that cannot be calculated, so `Cv` is then the reference `Cv`.) `thermofun.with_autodiff` is `False` in the Python package of this build, and the derivative tests are skipped.
 Projects that use ThermoFun through CMake (`find_package(ThermoFun)`) get the setting from the installed target,
