@@ -472,6 +472,7 @@ struct ThermoEngine::Impl
             }
 
             auto water_triple_reference = database.conventions().water_triple_point_reference;
+            bool water_g_contains_rt_ln_p = false; // true if G of the water model has the term RT ln(P/1 bar)
 
             if (pref.isH2OSolvent || pref.isH2Ovapor)
             {
@@ -484,11 +485,13 @@ struct ThermoEngine::Impl
                 case MethodCorrT_Thrift::type::CTM_WAT:
                 {
                     tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solvent_state, water_triple_reference);
+                    water_g_contains_rt_ln_p = true;
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WAR:
                 {
                     tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solvent_state, water_triple_reference);
+                    water_g_contains_rt_ln_p = true;
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WWP:
@@ -526,7 +529,7 @@ struct ThermoEngine::Impl
 
             // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the
             // HGK equation of state contains in G is removed (H and S are not changed)
-            if (pref.isH2Ovapor && !pref.isH2OSolvent && !preferences.cancel_fugacity_coefficient_in_gas_props &&
+            if (water_g_contains_rt_ln_p && pref.isH2Ovapor && !pref.isH2OSolvent && !preferences.cancel_fugacity_coefficient_in_gas_props &&
                 pref.workSubstance.aggregateState() == AggregateState::type::GAS && P > 0.0)
             {
                 const double Pb = P / bar_to_Pa;
@@ -773,7 +776,8 @@ struct ThermoEngine::Impl
 
         // a gas defined by a reaction and without a volume method has the ideal gas molar volume
         if (!reactionSymbol.empty() && subst.aggregateState() == AggregateState::type::GAS &&
-            subst.substanceClass() == SubstanceClass::type::GASFLUID && !subst.method_P() && P > 0.0)
+            subst.substanceClass() == SubstanceClass::type::GASFLUID && !subst.method_P() && P > 0.0 &&
+            !(tpr.reaction_volume.sta.first != Reaktoro_::Status::notdefined && tpr.reaction_volume.val != 0.0))
         {
             const double Pbar = P / bar_to_Pa;
             tps.volume.val = R_CONSTANT * T / Pbar; // J/bar
@@ -854,7 +858,7 @@ struct ThermoEngine::Impl
                 // the logK(T) function, unless the record names the method of the T correction (extrapolation from the reference values)
                 if (!pref.method_T)
                     pref.method_T = MethodCorrT_Thrift::type::CTM_LGK;
-                else
+                else if (pref.method_T != MethodCorrT_Thrift::type::CTM_LGK)
                     warnIfLogKFunctionDisagrees(reaction);
                 break;
             }
