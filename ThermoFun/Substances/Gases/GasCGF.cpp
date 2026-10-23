@@ -9,7 +9,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCGF(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasCGF(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)
@@ -17,7 +17,9 @@ auto thermoPropertiesGasCGF(real TK, real Pbar, Substance subst, ThermoPropertie
     solmod::TCGFcalc myCGF( 1, Pbar, TK );
     double TClow = lowerTemperatureBound(subst, "CG Churakov-Gottschalk fluid model");
     real CPg[12] = {}; // CGcalcFugPure reads 12 coefficients
-    const auto& critical_parameters = subst.thermoParameters().critical_parameters;
+    // the CG coefficients: eos_churakov_gottschalk_coeffs, or eos_gas_crit_props in older records
+    const auto& empirical_coeff = subst.thermoParameters().empirical_coeff;
+    const auto& critical_parameters = empirical_coeff.empty() ? subst.thermoParameters().critical_parameters : empirical_coeff;
     for (unsigned int i = 0; i < 12 && i < critical_parameters.size(); i++)
     {
         CPg[i] = critical_parameters[i];
@@ -32,7 +34,9 @@ auto thermoPropertiesGasCGF(real TK, real Pbar, Substance subst, ThermoPropertie
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     // back correction
-    tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
+    // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
+    if (cancel_fugacity)
+        tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
 
     return tps;
 }

@@ -1,0 +1,1995 @@
+{
+ "datasources": [
+  "gems"
+ ],
+ "thermodataset": [
+  "gems-export-test"
+ ],
+ "date": "test",
+ "elements": [
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     26.98154067993164
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     28.299999237060547
+    ]
+   },
+   "symbol": "Al"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     12.0108003616333
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     5.739999771118164
+    ]
+   },
+   "symbol": "C"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     40.077999114990234
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     41.59000015258789
+    ]
+   },
+   "symbol": "Ca"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     35.452999114990234
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     111.54049682617188
+    ]
+   },
+   "symbol": "Cl"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     55.845001220703125
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     27.280000686645508
+    ]
+   },
+   "symbol": "Fe"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     1.007949948310852
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     65.33999633789062
+    ]
+   },
+   "symbol": "H"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     39.09830093383789
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     64.67999267578125
+    ]
+   },
+   "symbol": "K"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     24.30500030517578
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     32.66999816894531
+    ]
+   },
+   "symbol": "Mg"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     54.9379997253418
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     32.0099983215332
+    ]
+   },
+   "symbol": "Mn"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     22.98979949951172
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     51.29999923706055
+    ]
+   },
+   "symbol": "Na"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     58.69300079345703
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     29.8700008392334
+    ]
+   },
+   "symbol": "Ni"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     15.99940013885498
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     102.56900024414062
+    ]
+   },
+   "symbol": "O"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     32.06700134277344
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     31.79800033569336
+    ]
+   },
+   "symbol": "S"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     28.085500717163086
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     18.809999465942383
+    ]
+   },
+   "symbol": "Si"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     65.37999725341797
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     41.630001068115234
+    ]
+   },
+   "symbol": "Zn"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     243.0614013671875
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     55.400001525878906
+    ]
+   },
+   "symbol": "Am"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     247.07040405273438
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     71.95999908447266
+    ]
+   },
+   "symbol": "Cm"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     132.90545654296875
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     85.2300033569336
+    ]
+   },
+   "symbol": "Cs"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     144.24200439453125
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     71.5
+    ]
+   },
+   "symbol": "Nd"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     30.97376251220703
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     41.09000015258789
+    ]
+   },
+   "symbol": "P"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     207.1999969482422
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     64.80000305175781
+    ]
+   },
+   "symbol": "Pb"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     244.06280517578125
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     54.459999084472656
+    ]
+   },
+   "symbol": "Pu"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     87.62000274658203
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     55.70000076293945
+    ]
+   },
+   "symbol": "Sr"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     232.03805541992188
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     52.63999938964844
+    ]
+   },
+   "symbol": "Th"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     0.0005485800211317837
+    ]
+   },
+   "class_": {
+    "4": "CHARGE"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     65.33999633789062
+    ]
+   },
+   "symbol": "Zz"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     137.3280029296875
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     62.41999816894531
+    ]
+   },
+   "symbol": "Ba"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     4421
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     0
+    ]
+   },
+   "symbol": "Clai"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     0
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     0
+    ]
+   },
+   "symbol": "Clfei"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     0
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     0
+    ]
+   },
+   "symbol": "Cltti"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     1
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     0
+    ]
+   },
+   "symbol": "Essi"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     1
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     0
+    ]
+   },
+   "symbol": "Esvi"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     1
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     0
+    ]
+   },
+   "symbol": "Eswi"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     151.96400451660156
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     77.77999877929688
+    ]
+   },
+   "symbol": "Eu"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     6.940999984741211
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     29.1200008392334
+    ]
+   },
+   "symbol": "Li"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     95.93998718261719
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     28.65999984741211
+    ]
+   },
+   "symbol": "Mo"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     14.006699562072754
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     95.80449676513672
+    ]
+   },
+   "symbol": "N"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     92.90599822998047
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     36.400001525878906
+    ]
+   },
+   "symbol": "Nb"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     14.006699562072754
+    ]
+   },
+   "class_": {
+    "2": "LIGAND"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     95.80449676513672
+    ]
+   },
+   "symbol": "Nit"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     237.04820251464844
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     50.459999084472656
+    ]
+   },
+   "symbol": "Np"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     226.02499389648438
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     71
+    ]
+   },
+   "symbol": "Ra"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     78.95999908447266
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     42.09000015258789
+    ]
+   },
+   "symbol": "Se"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     118.71099853515625
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     51.21200180053711
+    ]
+   },
+   "symbol": "Sn"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     97.90699768066406
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     32.5
+    ]
+   },
+   "symbol": "Tc"
+  },
+  {
+   "atomic_mass": {
+    "name": "M0i",
+    "values": [
+     238.02890014648438
+    ]
+   },
+   "class_": {
+    "0": "ELEMENT"
+   },
+   "datasources": [
+    "GEMS3gui"
+   ],
+   "entropy": {
+    "name": "S0i",
+    "values": [
+     50.20000076293945
+    ]
+   },
+   "symbol": "U"
+  }
+ ],
+ "substances": [
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "limitsTP": {
+      "lowerT": 273.15,
+      "range": true,
+      "upperT": 2273.15
+     },
+     "m_heat_capacity_ft_coeffs": {
+      "names": [
+       "a0",
+       "a1",
+       "a2",
+       "a3",
+       "a4",
+       "a5",
+       "a6",
+       "a7",
+       "a8",
+       "a9",
+       "a10"
+      ],
+      "units": [
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "(J*K)/mol",
+       "J/(mol*K^0.5)",
+       "J/(mol*K^3)",
+       "J/(mol*K^4)",
+       "J/(mol*K^5)",
+       "(J*K^2)/mol",
+       "J/mol",
+       "J/(mol*K^1.5)",
+       "J/(mol*K)"
+      ],
+      "values": [
+       162.3000030517578,
+       0,
+       -4882600,
+       -1109.300048828125,
+       0,
+       0,
+       0,
+       874659968,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    },
+    {
+     "m_volume_fpt_coeffs": {
+      "values": [
+       -8.900000239009387e-07,
+       2.2119998974862165e-12,
+       0,
+       1.8435999663779512e-05,
+       4.1596798894261156e-08
+      ]
+     },
+     "method": {
+      "35": "mv_equation_dorogokupets88"
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "datasources": [
+    "Berman and Aranovich (1996)"
+   ],
+   "formula": "MgCO3",
+   "formula_charge": 0,
+   "m_compressibility": {
+    "units": [
+     "1e-05/K"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "m_expansivity": {
+    "units": [
+     "kbar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     84.31400299072266
+    ]
+   },
+   "name": "Magnesite (mag)",
+   "sm_enthalpy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -1113636
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     65.20999908447266
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -1029884
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     76.13127899169922
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     2.802999973297119
+    ]
+   },
+   "symbol": "Magnesite"
+  },
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "method": {
+      "26": "water_diel_jnort91_gems"
+     }
+    },
+    {
+     "m_lambda_trans_props": {
+      "values": [
+       1.1754943508222875e-38,
+       1.1754943508222875e-38
+      ]
+     },
+     "method": {
+      "43": "standard_entropy_cp_integration"
+     }
+    },
+    {
+     "method": {
+      "34": "mv_constant"
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "class_": {
+    "3": "SC_AQSOLVENT"
+   },
+   "datasources": [],
+   "formula": "H2O@",
+   "formula_charge": 0,
+   "m_compressibility": {
+    "units": [
+     "1e-05/K"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "m_expansivity": {
+    "units": [
+     "kbar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     18.015300750732422
+    ]
+   },
+   "name": "H2O(l)",
+   "sm_enthalpy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -285830
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     69.94999694824219
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -237140
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     75.3499984741211
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "symbol": "H2O(l)"
+  },
+  {
+   "Pst": 100000,
+   "Tst": 298.15,
+   "aggregate_state": {
+    "0": "AS_GAS"
+   },
+   "class_": {
+    "1": "SC_GASFLUID"
+   },
+   "formula": "H2Se|-2|",
+   "formula_charge": 0,
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     80.97589874267578
+    ]
+   },
+   "name": "_rdc_H2Se(g)",
+   "reaction": "H2Se(g)",
+   "sm_enthalpy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -14700
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     72.39288330078125
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     15221.153765972744
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     0
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     0
+    ]
+   },
+   "symbol": "H2Se(g)"
+  },
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "limitsTP": {
+      "lowerT": 273.15,
+      "range": true,
+      "upperT": 323.15
+     },
+     "m_heat_capacity_ft_coeffs": {
+      "names": [
+       "a0",
+       "a1",
+       "a2",
+       "a3",
+       "a4",
+       "a5",
+       "a6",
+       "a7",
+       "a8",
+       "a9",
+       "a10"
+      ],
+      "units": [
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "(J*K)/mol",
+       "J/(mol*K^0.5)",
+       "J/(mol*K^3)",
+       "J/(mol*K^4)",
+       "J/(mol*K^5)",
+       "(J*K^2)/mol",
+       "J/mol",
+       "J/(mol*K^1.5)",
+       "J/(mol*K)"
+      ],
+      "values": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    },
+    {
+     "method": {
+      "34": "mv_constant"
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "datasources": [
+    "JULY_GEMS:2009:dat:",
+    "NOV_GEMS:2012:dat:"
+   ],
+   "formula": "H2Se|-2|@",
+   "formula_charge": 0,
+   "m_compressibility": {
+    "units": [
+     "1e-05/K"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "m_expansivity": {
+    "units": [
+     "kbar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     80.97589874267578
+    ]
+   },
+   "name": "H2Se  aq",
+   "sm_enthalpy": {
+    "errors": [
+     2000
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     14300
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     1
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     148.60000610351562
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     2000
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     21500
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     0
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     0
+    ]
+   },
+   "symbol": "H2Se@"
+  },
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "limitsTP": {
+      "lowerT": 273.15,
+      "range": true,
+      "upperT": 1500.15
+     },
+     "m_heat_capacity_ft_coeffs": {
+      "names": [
+       "a0",
+       "a1",
+       "a2",
+       "a3",
+       "a4",
+       "a5",
+       "a6",
+       "a7",
+       "a8",
+       "a9",
+       "a10"
+      ],
+      "units": [
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "(J*K)/mol",
+       "J/(mol*K^0.5)",
+       "J/(mol*K^3)",
+       "J/(mol*K^4)",
+       "J/(mol*K^5)",
+       "(J*K^2)/mol",
+       "J/mol",
+       "J/(mol*K^1.5)",
+       "J/(mol*K)"
+      ],
+      "values": [
+       15.821200370788574,
+       0.017857100814580917,
+       49847.1015625,
+       136.177001953125,
+       -4.883900146523956e-06,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    },
+    {
+     "eos_churakov_gottschalk_coeffs": {
+      "values": [
+       3.622999906539917,
+       101.19999694824219,
+       0.10999999940395355,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "10": "fluid_churakov_gottschalk"
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "aggregate_state": {
+    "0": "AS_GAS"
+   },
+   "class_": {
+    "1": "SC_GASFLUID"
+   },
+   "datasources": [
+    "Frenkel et al. (1994)",
+    "Churakov and Gottschalk (2003)"
+   ],
+   "formula": "C|2|O",
+   "formula_charge": 0,
+   "m_compressibility": {
+    "units": [
+     "1e-05/K"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "m_expansivity": {
+    "units": [
+     "kbar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     28.01020050048828
+    ]
+   },
+   "name": "CO, carbon monoxide",
+   "sm_enthalpy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -110520
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     197.64999389648438
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -137157
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     29.15999984741211
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     2478.969970703125
+    ]
+   },
+   "symbol": "CO"
+  },
+  {
+   "name": "ZA",
+   "symbol": "ZA",
+   "formula": "Mg",
+   "formula_charge": 0,
+   "mass_per_mole": {
+    "values": [
+     24.3
+    ],
+    "units": [
+     "g/mol"
+    ]
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "sm_gibbs_energy": {
+    "values": [
+     -100000.0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -120000.0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     50.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "values": [
+     75.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "TPMethods": [
+    {
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    }
+   ]
+  },
+  {
+   "name": "ZP",
+   "symbol": "ZP",
+   "formula": "Mg",
+   "formula_charge": 0,
+   "mass_per_mole": {
+    "values": [
+     24.3
+    ],
+    "units": [
+     "g/mol"
+    ]
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "sm_gibbs_energy": {
+    "values": [
+     -90000.0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -110000.0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     50.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "values": [
+     75.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "reaction": "ZP"
+  }
+ ],
+ "reactions": [
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "limitsTP": {
+      "lowerP": 0,
+      "lowerT": 273.15,
+      "upperP": 10000000,
+      "upperT": 423.15
+     },
+     "logk_ft_coeffs": {
+      "values": [
+       -3.980551242828369,
+       0,
+       1514.766357421875,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "0": "logk_fpt_function"
+     }
+    },
+    {
+     "method": {
+      "7": "logk_3_term_extrap"
+     }
+    },
+    {
+     "method": {
+      "13": "dr_volume_constant"
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "datasources ": [
+    "NOV_GEMS:2012:dat:"
+   ],
+   "drsm_enthalpy": {
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -29000
+    ]
+   },
+   "drsm_entropy": {
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     -76.20712280273438
+    ]
+   },
+   "drsm_gibbs_energy": {
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -6278.846234027256
+    ]
+   },
+   "drsm_heat_capacity_p": {
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     0
+    ]
+   },
+   "drsm_volume": {
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     0
+    ]
+   },
+   "logKr": {
+    "errors": [
+     0.01
+    ],
+    "values": [
+     1.1
+    ]
+   },
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "H2Se@"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "H2Se(g)"
+    }
+   ],
+   "symbol": "H2Se(g)"
+  },
+  {
+   "symbol": "ZP",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "logKr": {
+    "values": [
+     -1.7519142195881732
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "drsm_gibbs_energy": {
+    "values": [
+     10000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "drsm_enthalpy": {
+    "values": [
+     10000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "drsm_entropy": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "drsm_heat_capacity_p": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "drsm_volume": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "ZA"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "ZP"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "0": "logk_fpt_function"
+     },
+     "logk_ft_coeffs": {
+      "values": [
+       -0.5,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "limitsTP": {
+      "lowerT": 273.15,
+      "upperT": 423.15,
+      "lowerP": 0,
+      "upperP": 100000000.0
+     }
+    },
+    {
+     "method": {
+      "7": "logk_3_term_extrap"
+     }
+    },
+    {
+     "method": {
+      "13": "dr_volume_constant"
+     }
+    }
+   ]
+  }
+ ]
+}

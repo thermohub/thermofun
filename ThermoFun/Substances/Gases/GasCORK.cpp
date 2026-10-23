@@ -10,7 +10,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     char Eos_Code = 'G';
@@ -36,7 +36,9 @@ auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoProperti
     tps.entropy      += FugProps[3];
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar); //FugProps[0] - fugacity coefficient
-    tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
+    // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
+    if (cancel_fugacity)
+        tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
 
     return tps;
 }

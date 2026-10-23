@@ -10,7 +10,7 @@ namespace ThermoFun {
 
 class Substance;
 
-auto thermoPropertiesGasSRK(real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesGasSRK(real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
 
 }
 

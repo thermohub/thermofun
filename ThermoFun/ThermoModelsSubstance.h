@@ -370,7 +370,8 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param apply_p pressure correction to gas properties
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
+    /// @param cancel_fugacity remove the fugacity coefficient term RT ln(phi) from G (standard state), default true
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity = true) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -392,7 +393,8 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param apply_p pressure correction to gas properties
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
+    /// @param cancel_fugacity remove the fugacity coefficient term RT ln(phi) from G (standard state), default true
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity = true) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -414,7 +416,8 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param apply_p pressure correction to gas properties
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
+    /// @param cancel_fugacity remove the fugacity coefficient term RT ln(phi) from G (standard state), default true
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity = true) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -436,7 +439,8 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param apply_p pressure correction to gas properties
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
+    /// @param cancel_fugacity remove the fugacity coefficient term RT ln(phi) from G (standard state), default true
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity = true) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -458,7 +462,8 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param apply_p pressure correction to gas properties
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
+    /// @param cancel_fugacity remove the fugacity coefficient term RT ln(phi) from G (standard state), default true
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity = true) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;
@@ -480,7 +485,8 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param apply_p pressure correction to gas properties
-    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance;
+    /// @param cancel_fugacity remove the fugacity coefficient term RT ln(phi) from G (standard state), default true
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity = true) -> ThermoPropertiesSubstance;
 
 private:
     struct Impl;

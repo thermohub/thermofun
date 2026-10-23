@@ -29,6 +29,7 @@ struct EnginePreferences
     std::string solvent_symbol = "H2O@"; // default
     bool fallback_to_reference_properties = false; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain, value undefined only if not present in the database record
     bool apply_pressure_correction_to_gas_props = false; // making the pressure/fugacity correction in the G0, H0, ... properties of gases
+    bool cancel_fugacity_coefficient_in_gas_props = true; // fluid equations of state (CORK, PRSV, CG, SRK, PR78, STP): true removes RT ln(phi) from G (G(T, 1 bar), standard state); false keeps it, so G = G(T, 1 bar) + RT ln(phi), and steam from the HGK equation has RT ln(P/1 bar) removed from G in the same way
     bool round_to_uncertainty = false; // round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (the derivatives are not rounded); only for properties with an error > 0
     int uncertainty_significant_digits = 2; // significant digits of the (rounded up) uncertainties, used if round_to_uncertainty is true (NEA TDB tables give one or two)
     bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
