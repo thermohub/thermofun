@@ -9,7 +9,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasPR78(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasPR78(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)
@@ -31,7 +31,9 @@ auto thermoPropertiesGasPR78(real TK, real Pbar, Substance subst, ThermoProperti
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     // back correction
-    tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
+    // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
+    if (cancel_fugacity)
+        tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
 
     return tps;
 }

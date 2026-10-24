@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.16..4.2)
 
 # Set the name of the project
-project(ThermoFun VERSION 0.7.2 LANGUAGES CXX)
+project(ThermoFun VERSION 0.7.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -116,6 +116,7 @@ if(TFUN_BUILD_TESTS)
     add_subdirectory(tests/memoization)
     add_subdirectory(tests/autodiff)
     add_subdirectory(tests/extra_models)
+    add_subdirectory(tests/gems_export)
 
     # Every installed header must compile against the install prefix alone ("|" stands for ";" in the list of prefixes,
     # a ";" would split the argument)

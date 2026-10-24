@@ -16,7 +16,7 @@ auto thermoPropertiesMinBerman88(real TK, real Pbar, Substance subst, ThermoProp
     auto Vst = Reaktoro_::constant(subst.thermoReferenceProperties().volume); // j/bar
     auto T   = TK;
     auto P   = Pbar; // in bar
-    auto Ts2   = Tst*Tst;
+    auto Ts2   = (T-Tst)*(T-Tst); // the square of the temperature difference
 
     auto vc = subst.thermoParameters().volume_coeff;
 

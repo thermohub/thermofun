@@ -413,7 +413,10 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
     std::string kbuf;
 
     readCoefficients(j, "eos_akinfiev_diamond_coeffs", ps.Cp_nonElectrolyte_coeff, {"1", "(cm^3)/g", "(cm^3*K^0.5)/g"}, ps.coefficient_errors);
-    // ps.volume_BirchM_coeff = read_values_units(j, "eos_birch_murnaghan_coeffs", {});
+    // V(T,P) coefficients: Berman (1988) and Dorogokupets et al. (1988) equations, Birch-Murnaghan (Gottschalk), CG EoS
+    readCoefficients(j, "m_volume_fpt_coeffs", ps.volume_coeff, {"1/K", "1/K^2", "1/K^3", "1/bar", "1/bar^2"}, ps.coefficient_errors);
+    readCoefficients(j, "eos_birch_murnaghan_coeffs", ps.volume_BirchM_coeff, {}, ps.coefficient_errors);
+    readCoefficients(j, "eos_churakov_gottschalk_coeffs", ps.empirical_coeff, {}, ps.coefficient_errors);
     readCoefficients(j, "eos_tait_hp11_coeffs", ps.volume_Tait_coeff, {"1", "1/kbar", "1"}, ps.coefficient_errors);
     readCoefficients(j, "eos_extended_uniquac_coeffs", ps.uniquac_coeff, {"J/(mol*K)", "J/(mol*K^2)", "J/mol", "1/bar", "1/bar^2", "K"}, ps.coefficient_errors);
     if (prop_name == "cp_nasa_polynomials")
@@ -660,6 +663,8 @@ auto parseSubstance(const std::string &data) -> Substance
         read_value_unit(j, "mass_per_mole", val, "g/mol");
         s.setMolarMass(val);
 
+        // a record without an aggregate state has the state "other", not the first one of the list (gas)
+        s.setAggregateState(AggregateState::OTHER);
         if (j.contains("aggregate_state"))
             if (!j["aggregate_state"].is_null() && !j["aggregate_state"].empty())
                 s.setAggregateState(

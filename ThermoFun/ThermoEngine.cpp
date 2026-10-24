@@ -22,6 +22,7 @@
 #include <functional>
 #include <cmath>
 #include <set>
+#include <mutex>
 #include <array>
 
 namespace ThermoFun
@@ -244,8 +245,13 @@ struct ThermoEngine::Impl
         else
             workPreferences.isHydrogen = false;
 
-        // check for H2O vapor
-        if (workPreferences.method_genEOS == MethodGenEoS_Thrift::type::CTPM_HKF && workPreferences.method_P == MethodCorrP_Thrift::type::CPM_GAS)
+        // check for H2O vapor, or pure water (not the aqueous solvent) given by a water EoS
+        const auto mT = workPreferences.method_T;
+        const bool waterEoS = mT == MethodCorrT_Thrift::type::CTM_WAT || mT == MethodCorrT_Thrift::type::CTM_WAR ||
+                              mT == MethodCorrT_Thrift::type::CTM_WWP || mT == MethodCorrT_Thrift::type::CTM_WZD;
+        if (workPreferences.method_genEOS == MethodGenEoS_Thrift::type::CTPM_HKF &&
+            (workPreferences.method_P == MethodCorrP_Thrift::type::CPM_GAS ||
+             (waterEoS && workPreferences.workSubstance.substanceClass() != SubstanceClass::type::AQSOLUTE)))
             workPreferences.isH2Ovapor = true;
         else
             workPreferences.isH2Ovapor = false;
@@ -428,6 +434,7 @@ struct ThermoEngine::Impl
                     tps = MinMurnaghanEOSHP98(pref.workSubstance).thermoProperties(T, P, tps);
                     break;
                 }
+                case MethodCorrP_Thrift::type::CPM_VKE: // same volume equation as Berman (1988)
                 case MethodCorrP_Thrift::type::CPM_VBE:
                 {
                     tps = MinBerman88(pref.workSubstance).thermoProperties(T, P, tps);
@@ -440,32 +447,32 @@ struct ThermoEngine::Impl
                 }
                 case MethodCorrP_Thrift::type::CPM_CORK:
                 {
-                    tps = GasCORK(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    tps = GasCORK(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_PRSV:
                 {
-                    tps = GasPRSV(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    tps = GasPRSV(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_EMP:
                 {
-                    tps = GasCGF(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    tps = GasCGF(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_SRK:
                 {
-                    tps = GasSRK(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    tps = GasSRK(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_PR78:
                 {
-                    tps = GasPR78(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    tps = GasPR78(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_STP:
                 {
-                    tps = GasSTP(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props);
+                    tps = GasSTP(pref.workSubstance).thermoProperties(T, P, tps, preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_OFF:
@@ -485,6 +492,7 @@ struct ThermoEngine::Impl
             }
 
             auto water_triple_reference = database.conventions().water_triple_point_reference;
+            bool water_g_contains_rt_ln_p = false; // true if G of the water model has the term RT ln(P/1 bar)
 
             if (pref.isH2OSolvent || pref.isH2Ovapor)
             {
@@ -497,11 +505,13 @@ struct ThermoEngine::Impl
                 case MethodCorrT_Thrift::type::CTM_WAT:
                 {
                     tps = WaterHGK(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solvent_state, water_triple_reference);
+                    water_g_contains_rt_ln_p = true;
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WAR:
                 {
                     tps = WaterHGKreaktoro(pref.workSubstance).thermoPropertiesSubstance(T, P, preferences.solvent_state, water_triple_reference);
+                    water_g_contains_rt_ln_p = true;
                     break;
                 }
                 case MethodCorrT_Thrift::type::CTM_WWP:
@@ -515,6 +525,13 @@ struct ThermoEngine::Impl
                     break;
                 }
                 default:
+                    // water given by reference values and a constant Cp (the genEOS slot holds the dielectric model)
+                    if (pref.method_T == MethodCorrT_Thrift::type::CTM_CST &&
+                        pref.method_genEOS != MethodGenEoS_Thrift::type::CTPM_CPT)
+                    {
+                        tps = EntropyCpIntegration(pref.workSubstance).thermoProperties(T, P);
+                        break;
+                    }
                     switch (pref.method_genEOS)
                     {
                     case MethodGenEoS_Thrift::type::CTPM_CPT:
@@ -528,6 +545,17 @@ struct ThermoEngine::Impl
                     //                // Exception
                     //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
                 }
+            }
+
+            // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the
+            // HGK equation of state contains in G is removed (H and S are not changed)
+            if (water_g_contains_rt_ln_p && pref.isH2Ovapor && !pref.isH2OSolvent && !preferences.cancel_fugacity_coefficient_in_gas_props &&
+                pref.workSubstance.aggregateState() == AggregateState::type::GAS && P > 0.0)
+            {
+                const double Pb = P / bar_to_Pa;
+                tps.gibbs_energy.val -= R_CONSTANT * T * std::log(Pb);
+                tps.gibbs_energy.ddt -= R_CONSTANT * std::log(Pb);
+                tps.gibbs_energy.ddp -= R_CONSTANT * T / P;
             }
 
             // the properties that follow from the others (U, A, Cv), in the convention of the models
@@ -766,6 +794,18 @@ struct ThermoEngine::Impl
 
         gas_pressure_correction.release();
 
+        // a gas defined by a reaction and without a volume method has the ideal gas molar volume
+        if (!reactionSymbol.empty() && subst.aggregateState() == AggregateState::type::GAS &&
+            subst.substanceClass() == SubstanceClass::type::GASFLUID && !subst.method_P() && P > 0.0 &&
+            !(tpr.reaction_volume.sta.first != Reaktoro_::Status::notdefined && tpr.reaction_volume.val != 0.0))
+        {
+            const double Pbar = P / bar_to_Pa;
+            tps.volume.val = R_CONSTANT * T / Pbar; // J/bar
+            tps.volume.ddt = R_CONSTANT / Pbar;
+            tps.volume.ddp = -tps.volume.val / P;
+            tps.volume.sta = {Reaktoro_::Status::calculated, ""};
+        }
+
         // pressure correction on rdc assuming constant molar volume
         if ((subst.method_P() == MethodCorrP_Thrift::type::CPM_CON) &&
             (reaction.method_P()== MethodCorrP_Thrift::CPM_OFF || !reaction.method_P()))
@@ -791,6 +831,34 @@ struct ThermoEngine::Impl
         return thermoPropertiesReaction(T, P, database.getReaction(symbol));
     }
 
+    /// A record with a logK(T) function and a method of T correction that does not use it: the function and the reference values
+    /// should give the same logK at the reference temperature. One warning for each reaction.
+    auto warnIfLogKFunctionDisagrees(const Reaction &reaction) const -> void
+    {
+        if (reaction.thermoParameters().reaction_logK_fT_coeff.empty())
+            return;
+        const auto ref = reaction.thermoReferenceProperties();
+        const double Tr = reaction.referenceT();
+        double lgK_ref;
+        if (ref.log_equilibrium_constant.sta.first != Reaktoro_::Status::notdefined)
+            lgK_ref = ref.log_equilibrium_constant.val;
+        else if (ref.reaction_gibbs_energy.sta.first != Reaktoro_::Status::notdefined)
+            lgK_ref = -ref.reaction_gibbs_energy.val / (R_CONSTANT * Tr * lg_to_ln);
+        else
+            return;
+        const auto fn = Reaction_LogK_fT(reaction).thermoProperties(Tr, reaction.referenceP(), MethodCorrT_Thrift::type::CTM_LGK);
+        const double lgK_fn = fn.log_equilibrium_constant.val;
+        if (!std::isfinite(lgK_fn) || std::fabs(lgK_fn - lgK_ref) <= 0.01)
+            return;
+        static std::mutex warned_mutex;
+        static std::set<std::string> warned;
+        std::lock_guard<std::mutex> lock(warned_mutex);
+        if (warned.insert(reaction.symbol()).second)
+            thfun_logger->warn("Reaction {}: logK at the reference temperature is {} from the logK(T) function and {} from the reference values; "
+                               "the reference values are used (the T correction method of the record does not use the function)",
+                               reaction.symbol(), lgK_fn, lgK_ref);
+    }
+
     auto thermoPropertiesReaction(double T, double &P, const Reaction &reaction) const -> ThermoPropertiesReaction
     {
         ThermoPropertiesReaction tpr;
@@ -807,7 +875,11 @@ struct ThermoEngine::Impl
             }
             case MethodGenEoS_Thrift::type::CTPM_REA:
             {
-                pref.method_T = MethodCorrT_Thrift::type::CTM_LGK;
+                // the logK(T) function, unless the record names the method of the T correction (extrapolation from the reference values)
+                if (!pref.method_T)
+                    pref.method_T = MethodCorrT_Thrift::type::CTM_LGK;
+                else if (pref.method_T != MethodCorrT_Thrift::type::CTM_LGK)
+                    warnIfLogKFunctionDisagrees(reaction);
                 break;
             }
             }

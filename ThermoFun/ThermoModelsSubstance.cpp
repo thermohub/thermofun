@@ -911,13 +911,13 @@ static auto applyPressureStatus(ThermoPropertiesSubstance& tps, double T, double
 /// The model returns the autodiff properties given the temperature (K), the pressure (bar), the substance and
 /// the properties of the ideal gas.
 template<typename Model>
-static auto gasProperties(double T, double P, const Substance& substance, const ThermoPropertiesSubstance& tps, bool apply_p,
+static auto gasProperties(double T, double P, const Substance& substance, const ThermoPropertiesSubstance& tps, bool apply_p, bool cancel_fugacity,
                           const std::string& modelName, Model model) -> ThermoPropertiesSubstance
 {
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         const real t = pass.T;
         const real p = pass.P / bar_to_Pa;
-        auto r = model(t, p, substance, lift(pass, tps));
+        auto r = model(t, p, substance, lift(pass, tps), cancel_fugacity);
         if (apply_p)
             r = applyPressure(r, t, p, substance.referenceP());
         return r;
@@ -965,9 +965,9 @@ GasCORK::GasCORK(const Substance &substance)
 {}
 
 // calculation
-auto GasCORK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
+auto GasCORK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity) -> ThermoPropertiesSubstance
 {
-    return gasProperties(T, P, pimpl->substance, tps, apply_p, "CORK compensated-Redlich-Kwong fluid model", thermoPropertiesGasCORK);
+    return gasProperties(T, P, pimpl->substance, tps, apply_p, cancel_fugacity, "CORK compensated-Redlich-Kwong fluid model", thermoPropertiesGasCORK);
 }
 
 //=======================================================================================================
@@ -994,9 +994,9 @@ GasPRSV::GasPRSV(const Substance &substance)
 {}
 
 // calculation
-auto GasPRSV::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
+auto GasPRSV::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity) -> ThermoPropertiesSubstance
 {
-    return gasProperties(T, P, pimpl->substance, tps, apply_p, "PRSV Peng-Robinson-Stryjek-Vera fluid model", thermoPropertiesGasPRSV);
+    return gasProperties(T, P, pimpl->substance, tps, apply_p, cancel_fugacity, "PRSV Peng-Robinson-Stryjek-Vera fluid model", thermoPropertiesGasPRSV);
 }
 
 //=======================================================================================================
@@ -1023,9 +1023,9 @@ GasCGF::GasCGF(const Substance &substance)
 {}
 
 // calculation
-auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
+auto GasCGF::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity) -> ThermoPropertiesSubstance
 {
-    return gasProperties(T, P, pimpl->substance, tps, apply_p, "Churakov and Gottschalk fluid model", thermoPropertiesGasCGF);
+    return gasProperties(T, P, pimpl->substance, tps, apply_p, cancel_fugacity, "Churakov and Gottschalk fluid model", thermoPropertiesGasCGF);
 }
 
 //=======================================================================================================
@@ -1052,9 +1052,9 @@ GasSRK::GasSRK(const Substance &substance)
 {}
 
 // calculation
-auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
+auto GasSRK::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity) -> ThermoPropertiesSubstance
 {
-    return gasProperties(T, P, pimpl->substance, tps, apply_p, "SRK Soave-Redlich-Kwong fluid model", thermoPropertiesGasSRK);
+    return gasProperties(T, P, pimpl->substance, tps, apply_p, cancel_fugacity, "SRK Soave-Redlich-Kwong fluid model", thermoPropertiesGasSRK);
 }
 
 //=======================================================================================================
@@ -1081,9 +1081,9 @@ GasPR78::GasPR78(const Substance &substance)
 {}
 
 // calculation
-auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
+auto GasPR78::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity) -> ThermoPropertiesSubstance
 {
-    return gasProperties(T, P, pimpl->substance, tps, apply_p, "PR78 Peng-Robinson fluid model", thermoPropertiesGasPR78);
+    return gasProperties(T, P, pimpl->substance, tps, apply_p, cancel_fugacity, "PR78 Peng-Robinson fluid model", thermoPropertiesGasPR78);
 }
 
 //=======================================================================================================
@@ -1110,9 +1110,9 @@ GasSTP::GasSTP(const Substance &substance)
 {}
 
 // calculation
-auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p) -> ThermoPropertiesSubstance
+auto GasSTP::thermoProperties(double T, double P, ThermoPropertiesSubstance tps, bool apply_p, bool cancel_fugacity) -> ThermoPropertiesSubstance
 {
-    return gasProperties(T, P, pimpl->substance, tps, apply_p, "STP Sterner-Pitzer fluid model", thermoPropertiesGasSTP);
+    return gasProperties(T, P, pimpl->substance, tps, apply_p, cancel_fugacity, "STP Sterner-Pitzer fluid model", thermoPropertiesGasSTP);
 }
 
 //=======================================================================================================
