@@ -43,6 +43,7 @@
 |---|---|---|
 | `Common/` | standard library, autodiff, spdlog | anything else in ThermoFun |
 | `Model/` | `Common/` | nlohmann/json, IO, Methods, Engine, public classes |
+| `Conventions/` | `Model/`, `Common/` | IO, Methods registry, Engine |
 | `Methods/MethodCatalog` | `Model/`, `Common/` | model implementation classes, Engine |
 | `Methods/MethodRegistry`, `Binding` | catalog, `Model/`, model implementation classes, public `Substance`/`Reaction` | IO, Engine |
 | `IO/` | `Model/`, `Methods/MethodCatalog`, `Common/`, nlohmann/json (only in `.cpp` files) | Engine, MethodRegistry (factories) |
@@ -103,6 +104,10 @@ ThermoFun/                                   (library sources and installed head
 │    DetailedResult.h                        DetailedPropertiesSubstance (total, byMethod, auxiliary)
 │    Snapshot.h / .cpp                       content hash and provenance of a calculation (D33)
 │    Composition.h / .cpp                    effect-based ordering of a record's methods (06 §8, step S2.10)
+│
+├─ Conventions/                              NEW  (§14)
+│    Convention.h                            Convention struct, parsing, canonical(), merge()
+│    ConventionConverter.h / .cpp            toCanonical / fromCanonical
 │
 ├─ IO/                                       NEW  (§04, §05)
 │    Format.h                                enum class DataFormat { Auto, Legacy, V2 }

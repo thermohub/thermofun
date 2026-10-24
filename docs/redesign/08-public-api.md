@@ -114,6 +114,10 @@ struct CalculationSnapshot {
 auto snapshot() const -> CalculationSnapshot;
 ```
 
+`EngineConventions` gains (phase 3, 14 §6) `energy_reference`, `standard_pressure`, `concentration_scale` for the
+**output** convention (defaults: canonical); the existing `apparent_properties` and `water_properties` strings stay
+and map onto them. Input conventions come from the data (methods, records, dataset), never from the engine.
+
 `EnginePreferences` gains (phase 3) `std::string property_source = "record"` with values `record` (today:
 REACDC rule and the record's `preferred_property_source`), `direct`, `reaction` (D15 modes, O46). Default keeps
 today's results.

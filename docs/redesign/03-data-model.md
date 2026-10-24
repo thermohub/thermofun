@@ -280,6 +280,7 @@ struct SubstanceRecord
 
     // standard state (D8)
     std::string standard_state_convention; ///< "" = dataset default
+    std::optional<Convention> convention;  ///< declared energy reference, standard pressure, ... (14); none = inherit
     ReferenceConditions reference_conditions;
     std::map<PropertyName, Quantity> standard_state_properties;   ///< G, H, S, Cp, V (D13)
 
@@ -317,6 +318,7 @@ struct ReactionRecord
     std::map<ReactionPropertyName, Quantity> reaction_properties;  ///< logK, dG, dH, dS, dCp, dV
     std::vector<MethodApplication> methods;
     Applicability applicability;              ///< record-level range (legacy record limitsTP)
+    std::optional<Convention> convention;     ///< declared convention of the reaction data (14 §6)
     std::string preferred_property_source;    ///< "direct" | "reactants" | ""
     std::string data_source;
     std::vector<std::string> data_sources;
@@ -406,6 +408,7 @@ struct ThermoDataSetInfo
     std::string status = "draft";
     std::string schema_version;         ///< version of the v2 format of the file ("" for legacy)
     std::string standard_state_convention = "IUPAC_1bar";
+    Convention convention;              ///< dataset default convention (14 §5); ThermoFun default = canonical
     ReferenceConditions reference_conditions;
     std::vector<std::string> sourcetdb;
     std::string solvent;                ///< symbol of the aqueous solvent ("H2O@"), "" = search (today's rule)

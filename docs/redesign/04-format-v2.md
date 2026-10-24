@@ -158,6 +158,7 @@ Fields:
 | `sourcetdb` | string | identity (D24) |
 | `molar_mass` | Quantity (kg/mol in the model; bare numbers in g/mol, decision Q6) | optional |
 | `standard_state_convention` | string | default from `thermodataset` |
+| `convention` | `{energy_reference, standard_pressure, concentration_scale, water_reference}` | declared convention of the record's data (14); default from `thermodataset` |
 | `reference_conditions` | `{T, P}` Quantities | default from `thermodataset`, else 298.15 K, 1e5 Pa |
 | `standard_state_properties` | map `G,H,S,Cp,V` → Quantity | D13 |
 | `methods` | list of method applications (§3.5.1) | ordered |
@@ -242,6 +243,11 @@ thermodataset:
   defaults: {quality: recommended}
   conventions:
     water_triple_point_reference: HKF_HGK_1974    # today's DatabaseConventions
+  convention:                            # dataset default (14 §5); records and Method records may override
+    energy_reference: benson_helgeson    # | berman_brown | ser | assigned_enthalpy | gibbs_helmholtz_formation | dft_formation_0K
+    standard_pressure: 1bar              # | 1atm
+    concentration_scale: molality        # | mole_fraction | molarity
+    water_reference: geochemical         # | steam_tables
 ```
 
 ### 3.8 Method (project scope)
@@ -342,6 +348,7 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-REF-005 | W | `data_source` not found |
 | V2-REF-010 | E | cycle of defining reactions |
 | V2-INC-001 | E | include cycle |
+| CNV-001…005 | E/W | convention conversions (list in 14 §7) |
 | V2-SYM-001 | E | unknown variable or function in a symbolic expression |
 | V2-SYM-002 | E | symbolic expression does not parse |
 | V2-SYM-003 | W | `source` changed after `expression` was generated (regenerate) |

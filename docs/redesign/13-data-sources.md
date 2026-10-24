@@ -173,7 +173,7 @@ Needed:
 
 ## 5. Compatibility issues ThermoFun and the schema must handle
 
-### 5.1 Energy reference conventions
+### 5.1 Energy reference conventions (implemented by the conventions layer, 14)
 
 | Convention | Used by | Meaning | Conversion to ThermoFun's apparent formation G |
 |---|---|---|---|

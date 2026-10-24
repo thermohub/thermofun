@@ -34,11 +34,12 @@ To add a decision: append an entry with the next number, the date, and the files
 | Q21 | Golden references | committed subset (≤ 3 MB, tol. 1e-10) + two-build comparison on every PR (tol. 1e-12) | final | 09 §1, S0.1, S0.4 |
 | Q22 | Landau mineral volume at exactly Tr, Pr | confirm by calculation; fix separately after the refactoring | final | 06 §8.3 |
 | Q23 | Order of external sources | PHREEQC-format + tabulated log K → HP2011 → Shomate/NASA/SGTE → conventions → DFT → DEW | provisional | 13 §7, Phase 7 |
-| Q24 | Energy reference conventions | `energy_reference` field (apparent formation, Berman–Brown, SER, assigned enthalpy, DFT 0 K); convert at load | provisional | 13 §5.1, S7.5 |
+| Q24 | Energy reference conventions | superseded by Q30 | final | 14 |
 | Q25 | Tabulated methods | implement `TabulatedLogK` (legacy id 8) and `TabulatedProperties` (spline on Cp, integrate) | provisional | 13 §6, S7.2 |
-| Q26 | Standard pressure 1 atm vs 1 bar | `standard_pressure` convention field; gas conversion at load | provisional | 13 §5.2, S7.5 |
+| Q26 | Standard pressure 1 atm vs 1 bar | superseded by Q30 | final | 14 |
 | Q27 | DFT-derived data | separate `sourcetdb`, quality `supplemental`, origin `calculated`; no G(T) model by default, Bartel optional | provisional | 13 §4, §5.3, S7.6 |
 | Q29 | Reaktoro-compatible models of the `new_models` branch | part of ThermoFun: `HP11Tait` (id 39), `ExtendedUNIQUAC` (44), `NASA9` (45), `TPTableInterpolation` (46); merged before `golden-baseline`; their energy conventions handled in S7.5 | final | 06 §5.1, §8.3, 03 §4, 04 §3.5.1, 09 §1.1, Phase 0, S7.2–S7.5, 13 |
+| Q30 | Different thermodynamic conventions | declared per method/record/dataset, converted to one canonical convention (Benson–Helgeson, 1 bar, molality, geochemical water) after each method step, output in the user's convention; core of v2 (Phase 3) | final | 14, S3.11, 03, 04, 06, 08 |
 | Q28 | Activity models (Debye–Hückel, SIT, Pitzer) | out of ThermoFun's scope (solver's job); kept as unknown fields by adapters | provisional | 13 §2.1 |
 
 ## Details
@@ -125,3 +126,13 @@ a method application, the branch is merged before the `golden-baseline` tag, and
 NASA-9 done, substance tables done). Their energy conventions (NASA assigned enthalpy; UNIQUAC Gibbs–Helmholtz from
 ΔfG, ΔfH) are declared and converted with the energy-reference work (S7.5) so they can be mixed safely with
 Benson–Helgeson species in reactions.
+
+### Q30. Conventions — 2026-10-24, final
+ThermoFun v2 handles different conventions smoothly: energy reference (Benson–Helgeson, Berman–Brown, SER, assigned
+enthalpy, Gibbs–Helmholtz formation, DFT 0 K), standard pressure (1 bar, 1 atm), concentration scale (molality, mole
+fraction, molarity) and water reference (geochemical, steam tables). Each method, record or dataset declares its
+convention (most specific wins; default = today's behaviour); each method step's result is converted to one
+canonical convention before results are combined or used in reactions; the final result is converted to the
+convention the user asks for (generalising today's Berman–Brown and steam-table options). All energy references
+differ from Berman–Brown by terms in the formula's element entropies, so conversions are closed-form. Moved to
+Phase 3 (S3.11) because the `new_models` methods need it; supersedes Q24 and Q26. Details: 14.

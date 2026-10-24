@@ -81,6 +81,8 @@ struct MethodSpec
     Slot slot = Slot::General;           ///< legacy slot (old API, legacy files, phase-2 executor)
     MethodEffects effects;               ///< how the method combines with others (§8)
     bool needs_solvent = false;          ///< evaluation needs the solvent's properties
+    std::string native_convention = "inherit";   ///< convention of the method's output (14 §5): "inherit" (from the
+                                         ///< record's reference values) or e.g. "assigned_enthalpy" (NASA9)
     bool piecewise = false;              ///< parameters come as `segments`
     bool implemented = true;             ///< false: known name, no implementation (see §5 tables)
     std::vector<ParameterSpec> parameters;
@@ -374,7 +376,8 @@ engine derives the order from the effects. Authors may list methods in any order
 2. transforms:  methods with effects.transform, in list order (they depend on what came before them)
 3. setters:     non-base methods that Set any property, by rank
 4. adders:      methods that only Add, by rank
-5. engine:      U, A, Cv recomputed once; conventions (Berman–Brown, steam tables); fallback to reference values
+5. engine:      U, A, Cv recomputed once; fallback to reference values; output convention (14 §6)
+   (each base/transform step's result is first converted to the canonical convention, 14 §6)
 ```
 
 Validation (at load, `Validate`):
@@ -395,7 +398,7 @@ broken by method id. So a legacy record converted to v2 runs its methods in exac
 | `HP98Landau` | Add | Add | Add | Add | **Set** | — | 100 | V = Landau excess volume (`SolidHPLandau.cpp:74`) |
 | `HP98Min` (Murnaghan) | Add | Add | Add | Add | Add | — | 200 | adds its full V(T,P) (`SolidMurnaghanHP98.cpp:56`); see note |
 | `HP11Tait` | Add | Add | Add | Add | Set | — | 200 | sets V = V(T,P) of the Tait EoS (`new_models`) |
-| `ExtendedUNIQUAC`, `NASA9`, `TPTableInterpolation` | Set | Set | Set | Set | Set | base | 0 | legacy T slot (ids 44–46); energy convention see 13 §5.1 |
+| `ExtendedUNIQUAC`, `NASA9`, `TPTableInterpolation` | Set | Set | Set | Set | Set | base | 0 | legacy T slot (ids 44–46); native conventions `gibbs_helmholtz_formation`, `assigned_enthalpy`, `inherit` (14 §2) |
 | `Berman88Vol`, `Dorogokupets88Vol` | Add | Add | Add | — | Set | — | 200 | sets V = V° then adds (`SolidBerman88.cpp:33-44`) |
 | `BirchMurnaghanGott97` | Add | Add | Add | — | Add | — | 200 | |
 | `PRSV`, `CORK`, `CGF`, `SRK`, `PR78`, `SternerPitzer` | Add | Add | Add | — | Set | — | 200 | depend on engine preferences (pressure correction, fugacity) |

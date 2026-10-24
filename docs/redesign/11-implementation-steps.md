@@ -465,6 +465,20 @@ interpolation; decision Q29). The golden references and the baseline must includ
 - **Do**: 08 §4; SHA-256: add a small public-domain implementation in `TF/Common/Sha256.cpp` (no new dependency).
 - **Commit**: `Add calculation snapshot and property-source preference`
 
+### S3.11 Conventions layer (decision Q30)
+
+- **Files**: `TF/Conventions/Convention.h`, `TF/Conventions/ConventionConverter.h/.cpp`, record and dataset fields
+  (03), `MethodSpec.native_convention` (catalog: `NASA9` → `assigned_enthalpy`, `ExtendedUNIQUAC` →
+  `gibbs_helmholtz_formation`, all others `inherit`), V2 reader/writer for `convention` blocks, executor hooks,
+  `EngineConventions` fields, `tests/model/test_conventions.cpp`, `pytests/test_conventions.py`.
+- **Do**: 14 §2–§7. First replace `toBermanBrown` and `toSteamTables` by `fromCanonical` with the mapped output
+  conventions and check the golden `berman` and `steam` variants are bit-identical; then add `toCanonical` after
+  each base/transform step (identity for canonical data); then the standard-pressure and concentration-scale
+  conversions; then diagnostics CNV-001…005.
+- **Test**: 14 §8 (same species in every convention; mixed `NASA9` + `ExtendedUNIQUAC` + HKF reaction; output
+  conventions bit-identical with today; legacy golden unchanged).
+- **Commit**: `Add the conventions layer: declared input conventions, canonical internal, requested output`
+
 ### S3.10 Pinned schema and JSON Schema validation
 
 - **Needs**: a `thermohub-schema` release. If none exists yet, skip and add an entry to 12-decisions.md.
@@ -641,18 +655,16 @@ Background and sources: [13-data-sources.md](13-data-sources.md).
   reproduce their source tables.
 - **Commit**: `Add Shomate, NASA and SGTE source forms`
 
-### S7.5 Energy reference and standard pressure conventions
+### S7.5 Source-specific convention data
 
-- **Files**: `TF/Model/ThermoDataSetInfo.h` (`energy_reference`, `standard_pressure`), Element record fields for SER
-  data, `TF/IO/Resolve.cpp` (conversion at load), tests.
-- **Do** (decisions Q24, Q26): 13 §5.1–§5.2; conversion to ThermoFun's apparent formation convention at load, as
-  for Berman–Brown; gas properties converted from 1 atm to 1 bar when `standard_pressure` is 1 atm. Include the
-  `new_models` methods: `NASA9` returns G = H − TS with NASA's assigned enthalpy, and `ExtendedUNIQUAC` derives G
-  from Gr and Hr by Gibbs–Helmholtz; when such species are mixed in reactions with Benson–Helgeson species, their
-  energy reference must be declared and converted (test: a reaction mixing a `NASA9` gas with HKF species).
-- **Test**: an element and a compound given in SER and in formation convention give the same results; a gas
-  given at 1 atm and at 1 bar gives the same S and G after conversion.
-- **Commit**: `Convert energy reference and standard pressure conventions at load`
+- **Needs**: S3.11 (the conventions layer exists).
+- **Files**: Element records with SER reference data for SGTE/CALPHAD imports; adapter declarations in
+  `thermohub-tools` (each adapter writes the `convention` block of what it imports).
+- **Do**: make every Phase 7 adapter declare its source's convention (PHREEQC/NEA: `benson_helgeson`-compatible
+  reaction data; NASA/JANAF: `assigned_enthalpy`, `1bar` or `1atm` as the source states; SGTE: `ser`; DFT:
+  `dft_formation_0K`, `per_atom` handled in the adapter).
+- **Test**: one imported species per source gives the same canonical properties as a hand conversion.
+- **Commit**: `Declare the conventions of imported sources`
 
 ### S7.6 DFT-derived data
 

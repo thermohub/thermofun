@@ -30,6 +30,7 @@ restated in these files, so the plan can be followed without them.
 | [10-documentation.md](10-documentation.md) | Documentation structure (Diátaxis), what is generated, docstring rules, changelog | Phases 2, 3, 6 |
 | [11-implementation-steps.md](11-implementation-steps.md) | **The ordered list of steps** (S0.1 … S6.x) with files, code, tests, done-criteria, commit messages | While implementing |
 | [12-decisions.md](12-decisions.md) | Decision log: every design question, the decision taken, and where it is applied | When a choice in another file needs its reason |
+| [14-conventions.md](14-conventions.md) | Thermodynamic conventions (energy reference, standard pressure, concentration scale, water reference): declared per method/record/dataset, converted to one internal convention, output in the user's convention | Phase 3 (S3.11) |
 | [13-data-sources.md](13-data-sources.md) | External data sources (PHREEQC/NEA/LLNL, Holland–Powell, JANAF/NASA, SGTE/CALPHAD, Materials Project and other DFT databases): compatibility and methods to add | Phase 7 |
 
 ## Phases at a glance
@@ -39,7 +40,7 @@ restated in these files, so the plan can be followed without them.
 | 0 | Safety net: golden references (committed subset + two-build comparison in CI), key inventory, fixtures | — |
 | 1 | Format-neutral internal model; legacy reader fills it; engine unchanged | 0.8.0 |
 | 2 | Method registry, named parameters, executor replaces the `switch` blocks; per-method results | 0.9.0 |
-| 3 | v2 reader/writer (JSON core, YAML optional), dataset directory loader, validation | 0.10.0 |
+| 3 | v2 reader/writer (JSON core, YAML optional), dataset directory loader, validation, conventions layer | 0.10.0 |
 | 4 | Converter legacy → v2 (Python CLI), migration report; v2 copies of bundled databases | 0.10.x |
 | 5 | Shared constants as parameter sets; optional Tier-1 symbolic methods | 0.11.0 |
 | 6 | v2 is the documented default; deprecations of the enum/positional API | 1.0.0 |
