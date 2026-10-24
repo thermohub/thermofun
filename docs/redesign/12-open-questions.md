@@ -3,8 +3,8 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~ (decided), Q2, Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
-Q14, Q9, Q8, Q17–Q20.
+Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~ (decided), Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Q14, Q9, Q8, Q17–Q20, Q22.
 
 ---
 
@@ -26,6 +26,13 @@ then a volume EoS acting on its result) and adding (Landau terms).
 - C: keep one-per-slot in v2 too.
 **Recommendation: A**, proposed to `thermohub-schema` as a Method field. ThermoFun phase 2 implements C (refuses
 two in one slot) and keeps the `slot` field ready. Needed by: after phase 2 (06 §8).
+
+**Decision (2026-10-24): per-property effects** (a refinement of A). Each method declares, for G, H, S, Cp, V,
+whether it sets, adds, reads or leaves the property, plus `base`, `transform` and a `rank`. The engine orders
+methods as base → transforms → setters → adders (by rank) → engine steps, and rejects conflicts (two setters of
+one property). File order does not change results. Phase 2 keeps the slot executor; step S2.9 switches to effects
+once every record gives identical results. Proposed to the schema as an `effects` block on Method records.
+Cases and the effect table: 06 §8.
 
 ### Q3. Unit conveniences in v2 files
 Two Cantera-style conveniences: values as strings `"-237.18 kJ/mol"`, and scoped `units:` defaults.
@@ -128,3 +135,10 @@ mapping.
 **Recommendation: C.** Needed by: S0.1 (blocking).
 
 **Decision (2026-10-24): C.** Committed subset (~400 substances + ~150 reactions, ≤ 3 MB, 20-point grid, rel. tolerance 1e-10) plus a full two-build comparison against the `golden-baseline` tag (all records, 90-point grid, rel. tolerance 1e-12) **on every pull request**, with the baseline build cached in CI. Details: 09 §1, steps S0.1 and S0.4.
+
+### Q22. Volume of Landau minerals at exactly the reference T and P (possible bug, found while answering Q2)
+At T = Tr and P = Pr, `HP98Min` sets V = V° (`SolidMurnaghanHP98.cpp:63`) instead of adding its volume, which drops
+the Landau excess volume set before it. V at exactly 298.15 K / 1 bar may differ from V just next to it.
+**Recommendation:** confirm with a small calculation (V of Sillimanite at 298.15 K and 298.16 K, 1 bar); if
+confirmed, open an issue and fix it in a separate change **after** the refactoring, regenerating the golden
+references in that change only. Needed by: not blocking.

@@ -40,6 +40,24 @@ struct ParameterSpec
     int legacy_index = -1;       ///< position in the legacy array
 };
 
+/// What a method does to one property of the result it receives (Q2, decided: effects).
+enum class Effect {
+    None,     ///< does not touch the property
+    Set,      ///< replaces the property (a base model, or the method that owns V)
+    Add,      ///< adds an increment to the property
+    Read      ///< uses the incoming value as an input (a transformation, e.g. Akinfiev-Diamond)
+};
+
+/// The effect of a method on each property it contributes to (G, H, S, Cp, V). U, A, Cv are always
+/// recomputed by the engine at the end and are not declared.
+struct MethodEffects
+{
+    Effect G = Effect::None, H = Effect::None, S = Effect::None, Cp = Effect::None, V = Effect::None;
+    bool base = false;          ///< produces the complete property set from the record (CpIntegration, HKF, water EoS, ...)
+    bool transform = false;     ///< reads the incoming result as input (any Read effect)
+    int rank = 0;               ///< deterministic order among methods of the same group (lower first), see §8.2
+};
+
 /// Legacy names of a method, used by the legacy reader/writer and by the old API.
 struct LegacyAlias
 {
@@ -60,7 +78,8 @@ struct MethodSpec
     std::vector<std::string> applies_to_classes;     ///< §03 §2.2 values; empty = any
     std::vector<std::string> contributes_to;         ///< "G","H","S","Cp","V"
     MethodRole role = MethodRole::SubstanceProperties;
-    Slot slot = Slot::General;
+    Slot slot = Slot::General;           ///< legacy slot (old API, legacy files, phase-2 executor)
+    MethodEffects effects;               ///< how the method combines with others (§8)
     bool needs_solvent = false;          ///< evaluation needs the solvent's properties
     bool piecewise = false;              ///< parameters come as `segments`
     bool implemented = true;             ///< false: known name, no implementation (see §5 tables)
@@ -118,7 +137,8 @@ private:
 
 Each legacy method code belongs to one slot by its number range: `1xx` → `General` (MethodGenEoS), `2xx` →
 `TCorrection` (MethodCorrT), `3xx` → `PCorrection` (MethodCorrP). A record has **at most one method per slot**
-today; v2 records with two methods in one slot are refused in phase 2 (`V2-MTH-007`) until §8 is done.
+today; in phase 2, v2 records with two methods in one slot are refused (`V2-MTH-007`); from step S2.9 the
+effect rules of §8 replace this restriction.
 
 The executor (§7) evaluates `General`, then `TCorrection`, then `PCorrection`, with the special cases of §7.
 Water methods are special: for the water solvent/vapor record, the **EoS** is in the `TCorrection` slot
@@ -318,19 +338,81 @@ method and no reaction volume → ideal-gas molar volume; if P = ConMolVol and t
 `solvent_electro` method (General slot WJNR/WJNG/WSV14/WF97) with the solvent properties. State argument 0/1
 overrides the engine's solvent state.
 
-## 8. After phase 2: several methods per slot, detailed results
+## 8. Combining methods by their effects (Q2, decided)
 
-- **Detailed results (D65)** come in phase 2: the executor records `tps` after each slot step into
-  `DetailedPropertiesSubstance { total; std::vector<std::pair<std::string, ThermoPropertiesSubstance>> steps; }`
-  (`steps[i].first` = method id, value = properties after that step; the contribution of a step is the
-  difference with the previous one). Auxiliary outputs: for water, `PropertiesSolvent` and
-  `ElectroPropertiesSolvent` at T, P.
-- **Several methods in one slot / additive contributions** (D45, D61: lattice + Landau + electronic) need a
-  decision on how v2 orders and combines methods (§12 Q2). Until decided, the registry has the field `slot`
-  and the executor refuses two methods in the same slot. The proposed rule, for discussion: `TCorrection` and
-  `PCorrection` methods are applied in list order, each transforming the result of the previous one; a new slot
-  `Additive` adds a contribution to the result; `General` stays single.
-- **Composite methods (D7)**: not executed (D61).
+Phase 2 keeps today's three slots (§3, §7) so results stay identical while the code moves. The **long-term rule**,
+used for v2 records once step S2.9 is done, is that each method declares its **effect on each property**, and the
+engine derives the order from the effects. Authors may list methods in any order; the result does not depend on it.
+
+### 8.1 Why effects (cases found in the code and data)
+
+| Case | Example | What the methods do |
+|---|---|---|
+| Cp integration + volume EoS | 381 minerals (`HP98Min`) | base sets G, H, S, Cp; EoS **adds** ΔG, ΔH, ΔS, ΔCp and V |
+| Cp + Landau + Murnaghan | 60 minerals (e.g. Sillimanite) | Landau **adds** to G, H, S, Cp and **sets** V to its excess volume; Murnaghan then **adds** its V(T,P). Correct only with Landau first — with list order alone, swapping the two entries silently gives a wrong V |
+| Cp + gas EoS | 43 gases | EoS adds RT ln φ to G and its terms to H, S; **sets** V |
+| Cp (gas state) + Akinfiev–Diamond | 9 neutral aqueous species | AD **reads** the ideal-gas result and turns it into aqueous properties (transformation) |
+| Water EoS + dielectric model | 20 water records | different outputs (roles), not combined |
+| Future: lattice + magnetic + disorder Cp | SUPCRTBL, Berman minerals | pure sums |
+| Two methods both setting V | never meaningful | must be an error |
+
+### 8.2 Execution order (derived, deterministic)
+
+```
+1. base:        exactly one method with effects.base (else: ConstantProperties if the record has standard-state
+                properties; else error V2-MTH-012)
+2. transforms:  methods with effects.transform, in list order (they depend on what came before them)
+3. setters:     non-base methods that Set any property, by rank
+4. adders:      methods that only Add, by rank
+5. engine:      U, A, Cv recomputed once; conventions (Berman–Brown, steam tables); fallback to reference values
+```
+
+Validation (at load, `Validate`):
+- more than one base → `V2-MTH-012`;
+- two non-base methods that `Set` the same property → `V2-MTH-013` (names the property and both methods);
+- a method that `Add`s V when no earlier step defines V → `V2-MTH-014` (warning: V starts from 0);
+- a transform after a setter or adder in the list → `V2-MTH-015` (warning: transforms run before them anyway).
+
+`rank` makes the order of additions fixed (floating-point sums depend on order, and the two-build comparison has
+tolerance 1e-12): built-in methods get the rank of their legacy slot (T-correction 100, P-correction 200), ties
+broken by method id. So a legacy record converted to v2 runs its methods in exactly today's order.
+
+### 8.3 Declared effects of the built-in methods (from reading the code — confirm in S2.3)
+
+| Method | G | H | S | Cp | V | Base / transform | Rank | Notes |
+|---|---|---|---|---|---|---|---|---|
+| `ConstantProperties`, `CpIntegration`, `EntropyCpIntegration`, `HKFGems`, `HKFReaktoro`, `HP98Sol`, `Anderson91`, water EoS methods | Set | Set | Set | Set | Set | base | 0 | `CpIntegration`: check whether it sets V or leaves it undefined |
+| `HP98Landau` | Add | Add | Add | Add | **Set** | — | 100 | V = Landau excess volume (`SolidHPLandau.cpp:74`) |
+| `HP98Min` (Murnaghan) | Add | Add | Add | Add | Add | — | 200 | adds its full V(T,P) (`SolidMurnaghanHP98.cpp:56`); see note |
+| `Berman88Vol`, `Dorogokupets88Vol` | Add | Add | Add | — | Set | — | 200 | sets V = V° then adds (`SolidBerman88.cpp:33-44`) |
+| `BirchMurnaghanGott97` | Add | Add | Add | — | Add | — | 200 | |
+| `PRSV`, `CORK`, `CGF`, `SRK`, `PR78`, `SternerPitzer` | Add | Add | Add | — | Set | — | 200 | depend on engine preferences (pressure correction, fugacity) |
+| `IdealGasVol`, `ConMolVol` | Add | Add | — | — | Set | — | 200 | `ConMolVol` reads V° (from the record, not the incoming result) — confirm |
+| `AkinfievDiamond03` | Read | Read | Read | Read | Set | transform | — | uses the incoming ideal-gas properties |
+| dielectric methods | — | — | — | — | — | role SolventElectro | — | not part of substance composition |
+
+**Note (possible inconsistency, keep as is):** at exactly T = Tr and P = Pr, `HP98Min` takes another branch
+(`SolidMurnaghanHP98.cpp:63`) that **sets** V = V° instead of adding, which drops a Landau excess volume set
+before it. For Landau minerals, V at exactly 298.15 K / 1 bar may therefore differ from the limit next to it.
+Found by reading the code; not fixed during the refactoring (golden rule); reported as an issue (§12 Q22).
+
+### 8.4 Reactions
+
+Reaction methods follow the same idea with effects on logK, dG, dH, dS, dCp, dV: the log K method is the base
+(`LogKAnalytic`, extrapolations, `FrantzMarshall`, `DolejsManning10`, `RyzhenkoBryzgalin`), volume methods
+(`DrVolumeConst`, `DrVolumeFT`) add the P correction (`Add` on logK, dG, dH; `Set` on dV). `RyzhenkoBryzgalin`
+today returns without a P correction (§7.3); declare it as base + `final = true` (no later steps), to keep that.
+
+### 8.5 Detailed results
+
+The executor records the properties after each step (§08 §4 `DetailedPropertiesSubstance::steps`); with effects,
+the contribution of an `Add` method is exactly its increment, which is what D65 asks for.
+
+### 8.6 Proposal to the schema
+
+Add to the v2 Method record an `effects` block (`{G: set|add|read|none, ..., base: bool, rank: int}`), so data
+authors and other calculators see how a method composes. ThermoFun checks a Method record's `effects` against its
+built-in spec (`V2-MTH-011`). Composite methods (D7) stay not executed (D61).
 
 ## 9. Registering a user method (C++)
 
@@ -340,6 +422,7 @@ overrides the engine's solvent state.
 ThermoFun::MethodSpec spec;
 spec.id = "MyCpModel";
 spec.slot = ThermoFun::Slot::General;
+spec.effects = {.G = Effect::Set, .H = Effect::Set, .S = Effect::Set, .Cp = Effect::Set, .base = true};
 spec.parameters = {{"c0", "J/(mol.K)", "J/(mol*K)", "constant Cp"}};
 ThermoFun::MethodRegistry::instance().add(spec, [](const auto& app, const auto& substance) { /* ... */ });
 ```

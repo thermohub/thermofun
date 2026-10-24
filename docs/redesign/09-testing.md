@@ -166,6 +166,8 @@ test framework):
   `enum_method_reaction` resolves; for every spec with `legacy_key`, the number of parameters equals the length of
   today's `units_to` list for that key in `ParseJsonToData.cpp`; ids unique; aliases unique.
 - `test_format_detect.cpp`: documents and records of both formats, edge cases.
+- `test_composition.cpp` (S2.9): order derived from effects; validation codes V2-MTH-012…015; shuffled method
+  lists give bit-identical results.
 - `test_executor_rules.cpp` (phase 2): one case per rule of §06 §7 (H+, H2O vapor, CON short-circuit, CST without
   CPT, steam RT ln P, REA default LGK, MRB early return, reacDC gas volume…), each compared with a value computed by
   the v0.7.3 engine (stored in the test).

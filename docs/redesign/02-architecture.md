@@ -20,7 +20,7 @@
                                 │                 │ Methods                    │
                                 │                 │  MethodCatalog (specs:     │
                                 ├────────────────►│   ids, params, units,      │
-                                │   (specs only)  │   stage, legacy aliases)   │
+                                │   (specs only)  │   effects, legacy aliases) │
                                 │                 │  MethodRegistry (factories)│
                                 │                 │  Binding                   │
                                 │                 └────────────┬──────────────┘

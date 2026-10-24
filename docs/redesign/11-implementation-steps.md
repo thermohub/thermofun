@@ -168,7 +168,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 - **Files**: `TF/Methods/MethodSpec.h`, `TF/Methods/MethodCatalog.h/.cpp`, `tests/model/test_catalog.cpp`.
 - **Do**: 06 §1–§2 (catalog part only, no registry yet). Fill the table from 06 §5: id, aliases (the legacy
   `tp_method_name` and the Thrift enum name, e.g. `"solute_hkf88_gems"`, `"CTPM_HKF"`), slot, role, needs_solvent,
-  piecewise, implemented, parameters with `si_unit`, `model_unit` (copy the `units_to` lists from
+  piecewise, implemented, `effects` (table 06 §8.3), parameters with `si_unit`, `model_unit` (copy the `units_to` lists from
   `ParseJsonToData.cpp` exactly), `legacy_key`, `legacy_index`, and `legacy` aliases (id, name, thrift code from
   `new_old_s_methodtype`/`new_old_r_methodtype`, or 122/123 for HP98/AN91, 99 for CON).
   For parameter names marked "to be determined", use `c0…cN` and leave a `// TODO(S2.3)` comment.
@@ -332,12 +332,33 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 - **Test**: `total` equals `thermoPropertiesSubstance`; last step equals total before `complete/fallback`.
 - **Commit**: `Add per-method breakdown of substance properties`
 
+### S2.8a Confirm the declared effects
+
+- **Files**: `TF/Methods/MethodCatalog.cpp`, `docs/redesign/06-methods-and-executor.md` §8.3.
+- **Do**: for every method, read its `thermoProperties` and confirm each property is set, added, read or untouched
+  (look for `tps.X =`, `tps.X +=`, uses of the incoming `tps`). Fix the table and the catalog where the code
+  disagrees. In particular: does `EmpiricalCpIntegration` set V; does `ConMolVol` read the incoming V or V°;
+  `IdealGasLawVol`; the gas EoS H and S terms.
+- **Commit**: `Confirm the declared effects of every method`
+
 ### S2.8 Python catalog and generated method reference
 
 - **Files**: `PY/pyMethods.cpp` (`methodCatalog()`), `PY/docs.py`, `docs/reference/methods/*` (generated),
   CI step `python -m thermofun.docs generate --check docs/reference`.
 - **Do**: 10 §2. **Release 0.9.0** (changelog, version bump by maintainer).
 - **Commit**: `Generate the method reference from the catalog`
+
+### S2.9 Effect-based composition (after S2.8a; may be done after phase 3)
+
+- **Files**: `TF/Engine/Composition.h/.cpp`, `TF/Engine/SubstanceExecutor.cpp`, `TF/Engine/ReactionExecutor.cpp`,
+  `TF/IO/Validate.cpp`, `tests/model/test_composition.cpp`, `pytests/test_method_order.py`.
+- **Do**: 06 §8.2 order (base → transforms → setters → adders by rank → engine steps) and validation codes
+  012–015. The legacy-specific rules of §7.2 that are not expressible as effects stay as explicit rules
+  (H+, H2O vapor/solvent classification, CST used as base only without CPT, the steam RT ln P correction, reacDC).
+  The slot-based path is removed only when the effect path gives identical results for every record.
+- **Test**: golden subset and two-build comparison identical; for every bundled record with ≥ 2 methods,
+  shuffling the order of `methods` in its v2 form gives bit-identical results; invalid combinations give their codes.
+- **Commit**: `Compose methods by their declared effects`
 
 ---
 
@@ -525,5 +546,4 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 - Packaging with scikit-build-core (§12 Q9).
 - snake_case aliases in Python (§12 Q1).
-- Several methods per slot / additive contributions (06 §8, §12 Q2).
 - C++ JSON Schema validation behind an option (§12 Q8).

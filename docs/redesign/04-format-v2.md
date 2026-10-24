@@ -168,6 +168,7 @@ Fields:
 #### 3.5.1 Method application
 
 ```yaml
+# methods can be listed in any order: the engine orders them by their declared effects (06 §8)
 - method: CpIntegration           # method id or alias (§06)
   parameters: {a0: 44.6, a1: 0.0378}      # for single-piece methods
   parameter_set: IAPWS95_constants_v1     # Tier 3 (O20: together with parameters = override, §12 Q7)
@@ -229,7 +230,7 @@ thermodataset:
 
 ThermoFun accepts v2 Method records (E10, E11) and checks them against its built-in `MethodSpec` (§06 §6):
 for a built-in method, the record's `parameter_definitions` must match names and dimensions (`V2-MTH-010`),
-`operates_on` and `contributes_to` must match (`V2-MTH-011`). A Method that ThermoFun does not implement is kept;
+`operates_on`, `contributes_to` and `effects` (06 §8.6) must match (`V2-MTH-011`). A Method that ThermoFun does not implement is kept;
 using it is an error at calculation time unless it is a Tier-1 expression and SymEngine is enabled (phase 5).
 Composite methods (D7) are kept, never executed (D61): `V2-MTH-020` at use.
 
@@ -301,8 +302,12 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-MTH-004 | E | required parameter missing |
 | V2-MTH-005 | E | method not applicable to the record's class (D23) |
 | V2-MTH-006 | W | segments overlap or leave gaps |
-| V2-MTH-007 | E | two methods in the same slot (not supported until 06 §8) |
+| V2-MTH-007 | E | two methods in the same slot (phase 2 only; replaced by 012–015 from step S2.9) |
 | V2-MTH-008 | E | method known but not implemented (06 §5 `impl = no`) |
+| V2-MTH-012 | E | not exactly one base method (06 §8.2) |
+| V2-MTH-013 | E | two methods set the same property |
+| V2-MTH-014 | W | a method adds to V but no earlier step defines V |
+| V2-MTH-015 | W | a transformation is listed after setters/adders (it runs before them) |
 | V2-MTH-010 | E | Method record's parameter definitions disagree with the built-in spec |
 | V2-MTH-011 | E | Method record's `operates_on`/`contributes_to` disagree with the built-in spec |
 | V2-MTH-020 | E | composite method used in a calculation |

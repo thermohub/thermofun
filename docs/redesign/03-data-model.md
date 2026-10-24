@@ -212,7 +212,7 @@ struct MethodApplication
 };
 ```
 
-Ordering: `SubstanceRecord::methods` keeps file order. The executor orders by stage (§06), stable within a stage.
+Ordering: `SubstanceRecord::methods` keeps file order (for round-trip). The executor derives the order from the methods' declared effects (§06 §8); file order matters only among transformations.
 
 ## 5. Records
 
@@ -350,7 +350,7 @@ struct MethodDefinition
     std::string implementation_id;      ///< for reference methods
     std::string expression;             ///< for symbolic methods (SymEngine syntax)
     std::vector<ReferenceTestCase> tests;
-    std::string stage;                  ///< §06 §3; proposed v2 field (§12 Q2)
+    std::string effects_json;           ///< v2 `effects` block as written (§06 §8.6), checked against the spec
     std::string citation;               ///< DataSource symbol
     std::string extra_json;             ///< includes composite-method fields (D7) kept but not executed
 };
