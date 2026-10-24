@@ -3,8 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~, ~~Q7~~, ~~Q12~~, ~~Q16~~, ~~Q10~~, ~~Q6~~, ~~Q1~~ (decided), Q4, Q5, Q15, Q13,
-Q14, Q9, Q8, Q17–Q20, Q22.
+Status: all questions decided except **Q15** (under discussion).
 
 ---
 
@@ -54,10 +53,14 @@ application when all its parameters share the same non-SI energy/pressure units 
 - C: no YAML in C++ (Python only).
 **Recommendation: A, optional (`TFUN_USE_YAML=OFF` by default).** Needed by: S3.6b.
 
+**Decision (2026-10-24): as recommended.**
+
 ### Q5. Units implementation
 - A: keep the existing converter + UCUM front end (07).
 - B: adopt LLNL `units` (runtime, UCUM domain), new dependency.
 **Recommendation: A**; revisit if UCUM coverage problems appear. Needed by: S1.4.
+
+**Decision (2026-10-24): as recommended.**
 
 ### Q6. Molar mass in the model: kg/mol (SI) or g/mol?
 Chemists write g/mol; SI is kg/mol; the legacy API returns g/mol.
@@ -79,9 +82,13 @@ override the set's entries of the same name, the rest come from the set. Each ov
 **Recommendation: no** (validate in Python/CI); revisit if C++-only users need it (pboettch validator supports
 draft-7; check what LinkML emits). Needed by: later.
 
+**Decision (2026-10-24): as recommended.**
+
 ### Q9. Python packaging and bindings
 **Recommendation:** keep pybind11 and the current packaging during the restructuring; consider scikit-build-core
 afterwards (separate change); nanobind only if binding size/compile time becomes a problem.
+
+**Decision (2026-10-24): as recommended.**
 
 ### Q10. What `jsonString()` returns for v2 records
 - A: the v2 JSON of the record. B: legacy JSON (via LegacyWriter). C: the original YAML/JSON text.
@@ -116,10 +123,14 @@ place (`Model/Vocabulary.cpp`) and changing them is a table edit plus tests, not
 **Recommendation:** Markdown in `docs/` organised by Diátaxis (10 §1), hdoc for C++ API; add MkDocs Material only
 if a searchable site is wanted. Needed by: S6.1.
 
+**Decision (2026-10-24): as recommended.**
+
 ### Q14. v2 copies of the bundled databases: YAML or JSON, one file or directories?
 **Recommendation:** one YAML file per database in `Resources/databases/v2/` (readable diffs; Python reads YAML;
 C++ users without YAML use the JSON written by `convert --format json` on demand), plus the directory form only in
 `thermohub-data`. Needed by: S4.2.
+
+**Decision (2026-10-24): as recommended.**
 
 ### Q15. Tier-1 expression semantics
 **Recommendation:** an expression for ΔG(T, P) relative to the reference state; other properties by symbolic
@@ -137,18 +148,26 @@ Needed by: S3.2 (implemented as profile, adapted when the schema is released).
 The engine returns zeros for the substance whose symbol is exactly `H+` (06 §7.1). **Recommendation:** keep for
 legacy; for v2 keep the same rule (a convention flag on the record is a schema question).
 
+**Decision (2026-10-24): as recommended.**
+
 ### Q18. Choosing the aqueous solvent
 Today: `EnginePreferences.solvent_symbol` (default `H2O@`), else the last `water_solvent` substance in map order.
 **Recommendation:** keep; v2 `thermodataset.solvent` sets it when present and the user has not changed it.
+
+**Decision (2026-10-24): as recommended.**
 
 ### Q19. Legacy uncertainty convention
 Legacy `errors` have no stated convention. **Recommendation:** read as u (k = 1, today's behaviour), flag
 `convention_unknown`, and let a dataset owner set `LegacyReadOptions.error_coverage_factor` when converting.
 
+**Decision (2026-10-24): as recommended.**
+
 ### Q20. Where the converter lives
 D42 puts adapters and migrations in `thermohub-tools`. **Recommendation:** the legacy↔v2 mapping lives in
 ThermoFun (it must read legacy files anyway); `thermohub-tools` calls `thermofun.convert` instead of copying the
 mapping.
+
+**Decision (2026-10-24): as recommended.**
 
 ### Q21. Golden reference data in git (~15–25 MB compressed)
 - A: commit it (simple, works offline).
@@ -164,3 +183,5 @@ the Landau excess volume set before it. V at exactly 298.15 K / 1 bar may differ
 **Recommendation:** confirm with a small calculation (V of Sillimanite at 298.15 K and 298.16 K, 1 bar); if
 confirmed, open an issue and fix it in a separate change **after** the refactoring, regenerating the golden
 references in that change only. Needed by: not blocking.
+
+**Decision (2026-10-24): as recommended.**
