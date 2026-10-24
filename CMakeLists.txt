@@ -115,6 +115,7 @@ if(TFUN_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests/memoization)
     add_subdirectory(tests/autodiff)
+    add_subdirectory(tests/extra_models)
 
     # Every installed header must compile against the install prefix alone ("|" stands for ";" in the list of prefixes,
     # a ";" would split the argument)
