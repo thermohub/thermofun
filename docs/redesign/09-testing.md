@@ -10,7 +10,7 @@ The refactoring is safe only if every step proves that results did not change. F
 | 4 | Unit tests | Ucum, Normalize, Vocabulary, Diagnostics, MethodCatalog, FormatDetect, executor rules | `tests/model/`, `pytests/io/` |
 | 5 | Downstream | Reaktoro's ThermoFun extension still builds and passes | CI job |
 
-## 1. Golden references (Phase 0) — decided design (Q21: hybrid)
+## 1. Golden references (Phase 0, decision Q21)
 
 Two mechanisms, sharing one computation module (`pytests/golden/golden_common.py`):
 
@@ -166,7 +166,7 @@ test framework):
   `enum_method_reaction` resolves; for every spec with `legacy_key`, the number of parameters equals the length of
   today's `units_to` list for that key in `ParseJsonToData.cpp`; ids unique; aliases unique.
 - `test_format_detect.cpp`: documents and records of both formats, edge cases.
-- `test_composition.cpp` (S2.9): order derived from effects; validation codes V2-MTH-012…015; shuffled method
+- `test_composition.cpp` (S2.10): order derived from effects; validation codes V2-MTH-012…015; shuffled method
   lists give bit-identical results.
 - `test_executor_rules.cpp` (phase 2): one case per rule of §06 §7 (H+, H2O vapor, CON short-circuit, CST without
   CPT, steam RT ln P, REA default LGK, MRB early return, reacDC gas volume…), each compared with a value computed by

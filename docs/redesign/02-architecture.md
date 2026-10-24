@@ -102,6 +102,7 @@ ThermoFun/                                   (library sources and installed head
 │    SolventExecutor.h / .cpp                propertiesSolvent, electroPropertiesSolvent
 │    DetailedResult.h                        DetailedPropertiesSubstance (total, byMethod, auxiliary)
 │    Snapshot.h / .cpp                       content hash and provenance of a calculation (D33)
+│    Composition.h / .cpp                    effect-based ordering of a record's methods (06 §8, step S2.10)
 │
 ├─ IO/                                       NEW  (§04, §05)
 │    Format.h                                enum class DataFormat { Auto, Legacy, V2 }
@@ -169,7 +170,7 @@ The existing code style is kept for new code, so the library reads as one piece.
 The Python module mirrors the C++ names (today's rule: "the naming is the same in C++ and Python"), so the
 reference documentation serves both. New functions follow the same camelCase. Pure-Python helper modules
 (`thermofun.convert`, `thermofun.validate`, `thermofun.io`) use snake_case functions as normal Python
-(`convert_file(...)`), since they have no C++ counterpart. See §12 Q1 for the alternative (snake_case aliases).
+(`convert_file(...)`), since they have no C++ counterpart. (Decision Q1.)
 
 ### JSON/YAML
 

@@ -4,16 +4,15 @@ ThermoHub v2 is being designed in `thermohub-schema` (LinkML → JSON Schema). U
 ThermoFun implements the **"ThermoFun profile"** described here: the subset of v2 that ThermoFun needs, written
 from the design decisions (D8–D18, D24–D27, D35, D44–D48, D60, D64) and examples (E7, E11–E13, E21). When the
 schema is released, this file is updated to point to it and the differences become reader changes plus tests.
-Every place where the profile had to choose something the design documents leave open is marked **[profile]**.
-These choices are **provisional** (Q16, decided): they are implemented as written, all key names are constants in
-`IO/V2/V2Keys.h`, and they will be revised with the ThermoHub v2 schema (renamed keys stay readable as aliases for
-one minor version).
+Choices the design documents leave open are marked *(provisional)*. They are implemented as written, every key name
+is a constant in `IO/V2/V2Keys.h`, and they will be revised with the ThermoHub v2 schema; renamed keys stay readable
+as aliases for one minor version (decision Q16).
 
 ## 1. Files and versions
 
 - **JSON** is always supported. **YAML** is supported in Python always, in C++ with `TFUN_USE_YAML=ON` (§02 §5).
 - A v2 file **must** have a top-level `thermohub` key with the format version, e.g. `thermohub: "2.0.0-draft.1"`
-  **[profile]**. This is what format detection keys on, and what version checks use:
+  *(provisional)*. This is what format detection keys on, and what version checks use:
   - same major, any minor/patch → read; a newer minor than ThermoFun knows → warning `V2-VER-002` once;
   - different major → error `V2-VER-001` ("this file uses ThermoHub format 3.x; this ThermoFun reads 2.x").
 - Files written by ThermoFun carry `thermohub: "<the version ThermoFun implements>"` and
@@ -29,7 +28,7 @@ Like today's single legacy file, one v2 file can hold a whole dataset. Top-level
 | `generator` | string | no | tool that wrote the file |
 | `thermodataset` | mapping | no | ThermoDataSet metadata (§3.7) |
 | `units` | mapping | no | default units for the file (§3.3) |
-| `include` | list of strings | no | other files to load first, paths relative to this file (§5) **[profile]** |
+| `include` | list of strings | no | other files to load first, paths relative to this file (§5) *(provisional)* |
 | `elements` | map symbol → Element, or list | no | §3.4 |
 | `substances` | map symbol → Substance, or list | no | §3.5 |
 | `reactions` | map symbol → Reaction, or list | no | §3.6 |
@@ -60,7 +59,7 @@ Every numeric slot (standard-state properties, method parameters, applicability 
 | `{value: -237183, uncertainty: {expanded: 200, coverage_factor: 2}}` | u = 100 |
 | `{value: …, uncertainty: {standard: …, distribution: normal, degrees_of_freedom: 12, kind: primary}}` | full form |
 | `{value: …, quality: core, origin: calculated, calculation_path: "…", source: 2018LOT/MAT}` | metadata (D17) |
-| `"-237.183 kJ/mol"` | string form "number unit" (Cantera style) — accepted when reading, never written (decided, Q3) |
+| `"-237.183 kJ/mol"` | string form "number unit" (Cantera style) — accepted when reading, never written (decision Q3) |
 
 Rules (the implementation is `IO/V2/Normalize.cpp`):
 1. A JSON number → `Quantity{value}`; `unit_as_written = ""`.
@@ -87,7 +86,7 @@ Writer (shortest form that reads back the same):
 Numbers are written with the shortest representation that reads back to the same `double` (nlohmann's default).
 No rounding on write.
 
-### 3.3 Scoped default units (decided, Q3)
+### 3.3 Scoped default units (decision Q3)
 
 A `units:` mapping may appear at file level, in a record, or in a method application. It sets the default unit per
 dimension for all values below it, inner mappings override outer ones (Cantera's rule):
@@ -157,16 +156,16 @@ Fields:
 | `class` | §03 §2.2 | default `other` |
 | `aggregate_state` | §03 §2.3 | default `other` |
 | `sourcetdb` | string | identity (D24) |
-| `molar_mass` | Quantity (kg/mol in the model; bare numbers in g/mol, Q6) | optional |
+| `molar_mass` | Quantity (kg/mol in the model; bare numbers in g/mol, decision Q6) | optional |
 | `standard_state_convention` | string | default from `thermodataset` |
 | `reference_conditions` | `{T, P}` Quantities | default from `thermodataset`, else 298.15 K, 1e5 Pa |
 | `standard_state_properties` | map `G,H,S,Cp,V` → Quantity | D13 |
 | `methods` | list of method applications (§3.5.1) | ordered |
 | `defining_reaction` | reaction symbol | D15 |
 | `preferred_property_source` | `direct` \| `reaction` | D16 |
-| `applicability` | `{t_min, t_max, p_min, p_max}` | record-level range, used when a method application has none **[profile]** |
+| `applicability` | `{t_min, t_max, p_min, p_max}` | record-level range, used when a method application has none *(provisional)* |
 | `data_source` | DataSource symbol | record default (D48) |
-| `data_sources` | list of symbols | all citations of the record, as legacy `datasources` **[profile]** |
+| `data_sources` | list of symbols | all citations of the record, as legacy `datasources` *(provisional)* |
 | `deprecated`, `deprecated_in_favour_of` | bool, symbol | D39 |
 
 #### 3.5.1 Method application
@@ -175,7 +174,7 @@ Fields:
 # methods can be listed in any order: the engine orders them by their declared effects (06 §8)
 - method: CpIntegration           # method id or alias (§06)
   parameters: {a0: 44.6, a1: 0.0378}      # for single-piece methods
-  parameter_set: IAPWS95_constants_v1     # Tier 3; inline `parameters` override entries of the set (Q7, decided)
+  parameter_set: IAPWS95_constants_v1     # Tier 3; inline `parameters` override entries of the set (decision Q7)
   segments:                                # for piecewise methods instead of `parameters`
     - {t_min: 298.15, t_max: 846, parameters: {a0: 44.603, a1: 0.03778, a2: -1.0018e6}}
     - {t_min: 846, t_max: 2000, parameters: {a0: 58.928, a1: 0.01003}}
@@ -223,7 +222,7 @@ thermodataset:
   standard_state_convention: IUPAC_1bar
   reference_conditions: {T: 298.15, P: 1.0e5}
   sourcetdb: [slop98, aq17]
-  solvent: H2O@                         # [profile] replaces the search for a SC_AQSOLVENT substance
+  solvent: H2O@                         # (provisional) replaces the search for a SC_AQSOLVENT substance
   data_source: 2017MIR/WAG              # D48 dataset default
   defaults: {quality: recommended}
   conventions:
@@ -250,7 +249,7 @@ As E11 and D26: `symbol`, `method`, `parameters`, `auxiliary`, `reference`; Data
 
 `Database::addSubstance(json)`, `appendData(vector<string>, label)` accept v2 records as JSON objects:
 the record with `symbol` inside, and either the label argument or a `record_type` key
-(`element | substance | reaction | method | parameter_set | data_source`) **[profile]**. A record is v2 if it has
+(`element | substance | reaction | method | parameter_set | data_source`) *(provisional)*. A record is v2 if it has
 any of `standard_state_properties`, `methods`, `stoichiometry`, `reaction_properties`, `record_type`, or
 `thermohub`; otherwise legacy (§05 §1).
 
@@ -308,7 +307,7 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-MTH-004 | E | required parameter missing |
 | V2-MTH-005 | E | method not applicable to the record's class (D23) |
 | V2-MTH-006 | W | segments overlap or leave gaps |
-| V2-MTH-007 | E | two methods in the same slot (phase 2 only; replaced by 012–015 from step S2.9) |
+| V2-MTH-007 | E | two methods in the same slot (phase 2 only; replaced by 012–015 from step S2.10) |
 | V2-MTH-008 | E | method known but not implemented (06 §5 `impl = no`) |
 | V2-MTH-012 | E | not exactly one base method (06 §8.2) |
 | V2-MTH-013 | E | two methods set the same property |

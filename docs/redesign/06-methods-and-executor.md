@@ -40,7 +40,7 @@ struct ParameterSpec
     int legacy_index = -1;       ///< position in the legacy array
 };
 
-/// What a method does to one property of the result it receives (Q2, decided: effects).
+/// What a method does to one property of the result it receives (decision Q2: effects).
 enum class Effect {
     None,     ///< does not touch the property
     Set,      ///< replaces the property (a base model, or the method that owns V)
@@ -137,8 +137,8 @@ private:
 
 Each legacy method code belongs to one slot by its number range: `1xx` → `General` (MethodGenEoS), `2xx` →
 `TCorrection` (MethodCorrT), `3xx` → `PCorrection` (MethodCorrP). A record has **at most one method per slot**
-today; in phase 2, v2 records with two methods in one slot are refused (`V2-MTH-007`); from step S2.9 the
-effect rules of §8 replace this restriction.
+today; in phase 2, v2 records with two methods in one slot are refused (`V2-MTH-007`); from step S2.10 the
+effect rules of §8 replace this restriction (S2.10).
 
 The executor (§7) evaluates `General`, then `TCorrection`, then `PCorrection`, with the special cases of §7.
 Water methods are special: for the water solvent/vapor record, the **EoS** is in the `TCorrection` slot
@@ -255,7 +255,7 @@ optional ones = 0 or the default). The executor then calls the existing classes 
 the maths untouched and makes v2 records run through the same code as legacy ones.
 
 Parameter sets (phase 5): values come from the referenced `MethodParameterSet` (or the built-in default set), then
-inline `parameters` with the same names override them (Q7).
+inline `parameters` with the same names override them (decision Q7).
 
 Cache: `ThermoEngine::Impl` keeps `std::unordered_map<std::string, BoundSubstance>` keyed by symbol, cleared when
 `Database::revision()` changes; guarded by the existing memoization mutex pattern.
@@ -341,10 +341,10 @@ method and no reaction volume → ideal-gas molar volume; if P = ConMolVol and t
 `solvent_electro` method (General slot WJNR/WJNG/WSV14/WF97) with the solvent properties. State argument 0/1
 overrides the engine's solvent state.
 
-## 8. Combining methods by their effects (Q2, decided)
+## 8. Combining methods by their effects (decision Q2)
 
 Phase 2 keeps today's three slots (§3, §7) so results stay identical while the code moves. The **long-term rule**,
-used for v2 records once step S2.9 is done, is that each method declares its **effect on each property**, and the
+used for v2 records once step S2.10 is done, is that each method declares its **effect on each property**, and the
 engine derives the order from the effects. Authors may list methods in any order; the result does not depend on it.
 
 ### 8.1 Why effects (cases found in the code and data)
@@ -397,7 +397,7 @@ broken by method id. So a legacy record converted to v2 runs its methods in exac
 **Note (possible inconsistency, keep as is):** at exactly T = Tr and P = Pr, `HP98Min` takes another branch
 (`SolidMurnaghanHP98.cpp:63`) that **sets** V = V° instead of adding, which drops a Landau excess volume set
 before it. For Landau minerals, V at exactly 298.15 K / 1 bar may therefore differ from the limit next to it.
-Found by reading the code; not fixed during the refactoring (golden rule); reported as an issue (§12 Q22).
+Found by reading the code; not fixed during the refactoring (golden rule); reported as an issue (decision Q22).
 
 ### 8.4 Reactions
 
@@ -417,7 +417,7 @@ Add to the v2 Method record an `effects` block (`{G: set|add|read|none, ..., bas
 authors and other calculators see how a method composes. ThermoFun checks a Method record's `effects` against its
 built-in spec (`V2-MTH-011`). Composite methods (D7) stay not executed (D61).
 
-## 10. Tier-1 symbolic methods (Q15, decided: option D)
+## 10. Tier-1 symbolic methods (decision Q15)
 
 Goal: a closed-form model (a Cp polynomial, a magnetic or disorder term, a log K(T) function, a ΔV(T, P) term) can
 be added **as data** — a Method record with an expression — with no C++ change and no ThermoFun release. Users and

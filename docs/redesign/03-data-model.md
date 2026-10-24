@@ -82,7 +82,7 @@ struct QuantityList
 Controlled vocabularies as `enum class` with string conversion. The **string** is what v2 files contain; the
 legacy integer codes are only used by the legacy reader/writer and the old API.
 
-**Provisional (Q12):** the values below follow today's data and will be revised with the ThermoHub v2 schema. All
+**Provisional (decision Q12):** the values below follow today's data and will be revised with the ThermoHub v2 schema. All
 values, legacy codes and **aliases** (accepted when reading, never written) are in one table per vocabulary in
 `Model/Vocabulary.cpp`; changing a vocabulary is an edit of that table plus its tests.
 
@@ -134,7 +134,7 @@ when the legacy view (`thermoReferenceProperties()`) is built (§05 §5), so res
 | `other` | 101 `SC_OTHER` | 0 |
 
 The design summary lists richer values (`mineral`, `pure_fluid`, `solid_solution`); the table above is the
-lossless mapping of today's data. Finer classes are an open point for the schema (§12 Q12); ThermoFun treats any
+lossless mapping of today's data. Finer classes come with the ThermoHub schema (decision Q12); ThermoFun treats any
 unknown class string as `other` with a warning.
 
 ### 2.3 Aggregate state ↔ legacy `AggregateState`
@@ -152,7 +152,7 @@ unknown class string as `other` with a warning.
 | `other` | 101 OTHER (also the value when missing) | | | |
 
 (The examples of the design summary use `crystalline`; `crystal` is kept here to match the legacy names and
-Reaktoro. Accept `crystalline` as an alias when reading — §12 Q12.)
+Reaktoro. Accept `crystalline` as an alias when reading — decision Q12.)
 
 ### 2.4 Element class ↔ legacy element `class_`
 
@@ -245,7 +245,7 @@ struct ElementRecord
 ```
 
 Note on molar mass: the legacy API returns g/mol (`Element::molarMass()`); the view converts (§05 §5).
-Molar mass (Q6, decided): kg/mol in the model; files default to g/mol; the legacy API keeps g/mol.
+Molar mass (decision Q6): kg/mol in the model; files default to g/mol; the legacy API keeps g/mol.
 
 ### 5.2 `Model/SubstanceRecord.h`
 
@@ -274,7 +274,7 @@ struct SubstanceRecord
     // how properties at T, P are obtained
     std::vector<MethodApplication> methods;            ///< ordered (D13, D45)
     std::string defining_reaction;                      ///< reaction symbol (D15); legacy "reaction"
-    Applicability applicability;                        ///< record-level range (legacy record limitsTP) [profile]
+    Applicability applicability;                        ///< record-level range (legacy record limitsTP)
     std::string preferred_property_source;              ///< "direct" | "reaction" | "" (D16)
 
     // provenance and lifecycle
@@ -304,7 +304,7 @@ struct ReactionRecord
     ReferenceConditions reference_conditions;
     std::map<ReactionPropertyName, Quantity> reaction_properties;  ///< logK, dG, dH, dS, dCp, dV
     std::vector<MethodApplication> methods;
-    Applicability applicability;              ///< record-level range (legacy record limitsTP) [profile]
+    Applicability applicability;              ///< record-level range (legacy record limitsTP)
     std::string preferred_property_source;    ///< "direct" | "reactants" | ""
     std::string data_source;
     std::vector<std::string> data_sources;

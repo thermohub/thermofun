@@ -100,7 +100,7 @@ For C++, the nlohmann-based `json-schema-validator` (pboettch) supports JSON Sch
 - The JSON Schema released by `thermohub-schema` is the contract (D62); ThermoFun hand-writes its JSON reading.
 - Schema validation of files runs in **Python/CI** (`jsonschema` package) and in `thermofun.validate`; the C++
   library does its own semantic checks (references, units, parameters) and does not depend on a schema validator.
-  An optional C++ validator can be added later behind a CMake option (§12, Q8).
+  An optional C++ validator can be added later behind a CMake option (decision Q8).
 
 ## 7. Compatibility and deprecation policy (NumPy NEP 23)
 
@@ -120,7 +120,7 @@ strings and a UCUM domain.
 
 **ThermoFun adopts:** keep the existing runtime converter (`Common/Units.*`, already used for every value read)
 and add a small **UCUM syntax front end** for the unit strings that occur in thermodynamic data (§07). LLNL
-`units` is the fallback if the unit coverage proves insufficient (§12, Q5).
+`units` is the fallback if the unit coverage proves insufficient (decision Q5).
 
 ## 9. YAML in C++
 
@@ -128,8 +128,8 @@ and add a small **UCUM syntax front end** for the unit strings that occur in the
 parsing (project's own benchmarks). Database files are at most a few MB, read once.
 
 **ThermoFun adopts:** YAML support in C++ is optional (`TFUN_USE_YAML=OFF` by default); the YAML tree is converted
-to `nlohmann::json` and parsed by the JSON code, so there is a single reader. Library choice: §12, Q4
-(recommendation: yaml-cpp, for availability on conda-forge and the Cantera precedent; speed does not matter here).
+to `nlohmann::json` and parsed by the JSON code, so there is a single reader. Library: yaml-cpp
+(decision Q4: available on conda-forge, used by Cantera; speed does not matter here).
 Python users always get YAML through PyYAML.
 
 ## 10. Python bindings and packaging
@@ -139,7 +139,7 @@ faster compiles, smaller binaries and lower call overhead (project's own benchma
 build backend for CMake-based extensions that works with both.
 
 **ThermoFun adopts:** keep pybind11 during the restructuring (no binding rewrite while the API grows). Moving the
-Python packaging to scikit-build-core is a separate, optional step at the end (§12, Q9).
+Python packaging to scikit-build-core is a separate, optional step at the end (decision Q9).
 
 ## 11. Project layout (P1204R0, Pitchfork)
 

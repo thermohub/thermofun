@@ -3,6 +3,8 @@
 This folder is the full plan for restructuring ThermoFun so that it reads the new ThermoHub v2 data format
 (LinkML/JSON-Schema based, YAML authored) while keeping the current ThermoHub JSON format working.
 
+All design questions are decided ([12-decisions.md](12-decisions.md)).
+
 It is written to be implemented **step by step by a coding agent** (or a person) that has not taken part in
 the design discussion. Every step in [11-implementation-steps.md](11-implementation-steps.md) names the files
 to touch, the code to write, the tests to add, the commands to run, and when the step is done.
@@ -27,7 +29,8 @@ restated in these files, so the plan can be followed without them.
 | [09-testing.md](09-testing.md) | Golden-reference suite, round-trip tests, fixtures, CI changes | Phase 0 and every step |
 | [10-documentation.md](10-documentation.md) | Documentation structure (Diátaxis), what is generated, docstring rules, changelog | Phases 2, 3, 6 |
 | [11-implementation-steps.md](11-implementation-steps.md) | **The ordered list of steps** (S0.1 … S6.x) with files, code, tests, done-criteria, commit messages | While implementing |
-| [12-open-questions.md](12-open-questions.md) | Decisions still to take (with a recommendation each), to discuss one by one | Before the phase that needs them |
+| [12-decisions.md](12-decisions.md) | Decision log: every design question, the decision taken, and where it is applied | When a choice in another file needs its reason |
+| [13-data-sources.md](13-data-sources.md) | External data sources (PHREEQC/NEA/LLNL, Holland–Powell, JANAF/NASA, SGTE/CALPHAD, Materials Project and other DFT databases): compatibility and methods to add | Phase 7 |
 
 ## Phases at a glance
 
@@ -40,6 +43,7 @@ restated in these files, so the plan can be followed without them.
 | 4 | Converter legacy → v2 (Python CLI), migration report; v2 copies of bundled databases | 0.10.x |
 | 5 | Shared constants as parameter sets; optional Tier-1 symbolic methods | 0.11.0 |
 | 6 | v2 is the documented default; deprecations of the enum/positional API | 1.0.0 |
+| 7 | External sources: PHREEQC-format reaction data, tabulated methods, HP2011, Shomate/NASA/SGTE forms, energy conventions, DFT data | 1.x |
 
 ## Rules for the implementer
 
@@ -61,7 +65,7 @@ These apply to every step. When a step seems to need breaking one, stop and ask.
 7. **Keep the maths.** Model classes in `Substances/` and `Reactions/` are not edited except where a step says
    so (Phase 5). New code calls them; it does not re-implement them.
 8. **When the code disagrees with this plan, the code is right about today's behaviour.** Note the difference
-   in the step's commit message and in [12-open-questions.md](12-open-questions.md), keep today's behaviour.
+   in the step's commit message and in [12-decisions.md](12-decisions.md) (as a new entry), keep today's behaviour.
 9. **Build and test commands** (Linux, conda environment from `environment.devenv.yml`):
    ```bash
    cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON

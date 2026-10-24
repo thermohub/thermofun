@@ -187,7 +187,7 @@ Every fix-up of bad legacy data is a named function, applied in one place, logge
 | LEG-QRK-010 | coefficient array longer than the method uses (2866 `eos_hkf_coeffs` have 8 values, 7 used; `eos_akinfiev_diamond_coeffs` 7 values, 3 used) | extra values kept in the application's `extra_json` as `_legacy_extra_values`, written back by the legacy writer |
 | LEG-QRK-011 | `units` list shorter than `values` (HKF: 6 units for 8 values) or empty strings in `units` | missing/empty units = the method's legacy unit (today's `convert_value_units`) |
 
-**Unit labels of `m_expansivity` / `m_compressibility` (Q11, decided).** In all bundled data, `m_expansivity`
+**Unit labels of `m_expansivity` / `m_compressibility` (decision Q11).** In all bundled data, `m_expansivity`
 carries the unit `kbar` (389 records) and `m_compressibility` the unit `1e-05/K` (393 records). The **values are
 under the right names, only the unit labels are swapped**, and `m_compressibility` holds the **bulk modulus**
 (inverse of compressibility). Example, Corundum in `aq17`: `m_expansivity` 4.19e-5 → α° = 4.19e-5 1/K;
@@ -240,7 +240,7 @@ Same for `Reaction` and `Element`.
 | `lowerT()/upperT()/lowerP()/upperP()` | record `applicability`, else as today |
 | `reactionSymbol()` / `thermoCalculationType()` | `defining_reaction` / REACDC rule |
 | `substanceClass()`, `aggregateState()` | vocabulary string → legacy enum (§03) |
-| `jsonString()` | `original_text` if not stale and legacy; legacy JSON written by `LegacyWriter` otherwise; for v2 records the v2 JSON of the record (Q10, decided) |
+| `jsonString()` | `original_text` if not stale and legacy; legacy JSON written by `LegacyWriter` otherwise; for v2 records the v2 JSON of the record (decision Q10) |
 | `Reaction::reactants()` | `stoichiometry` as map |
 | `Element::molarMass()` (g/mol), `entropy()` | from the record, converted to the legacy units |
 

@@ -137,7 +137,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
   `extra_json`). Functions: `substanceClassFromLegacy(int) -> std::string`, `legacySubstanceClass(const std::string&)
   -> SubstanceClass::type`, the same for aggregate state and element class; `propertyNameFromString`, `toString`.
   Each vocabulary table has an alias column (start with `crystalline` → `crystal`); readers map aliases to the
-  canonical value, writers emit canonical values. Keep all tables in this one file (Q12: provisional values).
+  canonical value, writers emit canonical values. Keep all tables in this one file (decision Q12: provisional values).
 - **Test**: every value round-trips; unknown string → `other`.
 - **Commit**: `Add Quantity, Uncertainty and vocabularies of the record model`
 
@@ -333,7 +333,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 - **Test**: `total` equals `thermoPropertiesSubstance`; last step equals total before `complete/fallback`.
 - **Commit**: `Add per-method breakdown of substance properties`
 
-### S2.8a Confirm the declared effects
+### S2.8 Confirm the declared effects
 
 - **Files**: `TF/Methods/MethodCatalog.cpp`, `docs/redesign/06-methods-and-executor.md` §8.3.
 - **Do**: for every method, read its `thermoProperties` and confirm each property is set, added, read or untouched
@@ -342,14 +342,14 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
   `IdealGasLawVol`; the gas EoS H and S terms.
 - **Commit**: `Confirm the declared effects of every method`
 
-### S2.8 Python catalog and generated method reference
+### S2.9 Python catalog and generated method reference
 
 - **Files**: `PY/pyMethods.cpp` (`methodCatalog()`), `PY/docs.py`, `docs/reference/methods/*` (generated),
   CI step `python -m thermofun.docs generate --check docs/reference`.
 - **Do**: 10 §2. **Release 0.9.0** (changelog, version bump by maintainer).
 - **Commit**: `Generate the method reference from the catalog`
 
-### S2.9 Effect-based composition (after S2.8a; may be done after phase 3)
+### S2.10 Effect-based composition (after S2.8; may be done after phase 3)
 
 - **Files**: `TF/Engine/Composition.h/.cpp`, `TF/Engine/SubstanceExecutor.cpp`, `TF/Engine/ReactionExecutor.cpp`,
   `TF/IO/Validate.cpp`, `tests/model/test_composition.cpp`, `pytests/test_method_order.py`.
@@ -368,7 +368,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 ### S3.1 Normalisation of quantities and units
 
 - **Files**: `TF/IO/V2/V2Keys.h` (every v2 key as `inline constexpr const char*`; no string literal for a key anywhere
-  else in the reader/writer — Q16), `TF/IO/V2/Normalize.h/.cpp`, `tests/model/test_normalize.cpp`.
+  else in the reader/writer — decision Q16), `TF/IO/V2/Normalize.h/.cpp`, `tests/model/test_normalize.cpp`.
 - **Do**: 04 §3.1 rules 1–7 and §3.3 scoped units:
   ```cpp
   struct UnitScope { std::map<std::string, std::string> defaults; const UnitScope* parent = nullptr; };
@@ -445,7 +445,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 - **Files**: `TF/IO/Legacy/LegacyWriter.h/.cpp`, `Database::save(path, Legacy)`, `pytests/io/test_legacy_writer.py`.
 - **Do**: 05 §6. Also: `Substance::jsonString()` for v2-loaded records returns the v2 JSON of the record (05 §5.2,
-  Q10, decided).
+  decision Q10).
 - **Test**: 09 §4; `tests/gems_export` still passes.
 - **Commit**: `Write records in the legacy format`
 
@@ -457,7 +457,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ### S3.10 Pinned schema and JSON Schema validation
 
-- **Needs**: a `thermohub-schema` release. If none exists yet, skip and note it in 12-open-questions.md.
+- **Needs**: a `thermohub-schema` release. If none exists yet, skip and add an entry to 12-decisions.md.
 - **Files**: `schemas/thermohub/<version>/` (JSON Schema + examples, copied from the release with its licence),
   `PY/validate.py`, CI step.
 - **Do**: 08 §5 validate; make all `pytests/data/v2` fixtures and writer outputs pass the schema; differences
@@ -479,7 +479,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ### S4.2 v2 copies of the bundled databases
 
-- **Files**: `Resources/databases/v2/<name>.yaml` (or `.json` if YAML in git is not wanted — §12 Q14).
+- **Files**: `Resources/databases/v2/<name>.yaml` (decision Q14).
 - **Do**: convert each; add golden variants loading the v2 copies (no new reference files: they must match the
   legacy references).
 - **Commit**: `Add v2 versions of the bundled databases`
@@ -507,7 +507,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 ### S5.2 Using parameter sets from data
 
 - **Do**: binding builds the constants from the set named by `parameter_set` (or the built-in default set), then
-  applies inline `parameters` of the same names as overrides (Q7, decided) and reports each as `V2-MTH-016`.
+  applies inline `parameters` of the same names as overrides (decision Q7) and reports each as `V2-MTH-016`.
 - **Test**: a fixture with a modified constant gives a different, expected value; default gives golden.
 - **Commit**: `Use method parameter sets from data`
 
@@ -578,5 +578,78 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ### Optional later steps
 
-- Packaging with scikit-build-core (§12 Q9).
-- C++ JSON Schema validation behind an option (§12 Q8).
+- Packaging with scikit-build-core (decision Q9).
+- C++ JSON Schema validation behind an option (decision Q8).
+
+---
+
+## Phase 7 — External data sources (1.x releases, decision Q23 order)
+
+Adapters that read external file formats go to `thermohub-tools` (D34); the steps below are the ThermoFun parts.
+Background and sources: [13-data-sources.md](13-data-sources.md).
+
+### S7.1 PHREEQC-format reaction data
+
+- **Files**: tests `pytests/sources/test_phreeqc_mapping.py`, fixtures from phreeqc.dat / NEA TDB / Thermoddem
+  (a few species each, with their licence noted in the fixture).
+- **Do**: document and test the mapping of 13 §2.1: `-analytic A1…A6` → `LogKAnalytic` with a3 = A4 / ln 10 (PHREEQC uses
+  log10 T, ThermoFun ln T — verify the formula in the PHREEQC manual first); `log_k` + `-delta_h` → van 't Hoff
+  method (verify which ThermoFun extrapolation matches); `-Vm` kept as an unknown field. Expose a helper
+  `thermofun.sources.phreeqc_analytic_to_logk(A)` used by the adapter.
+- **Test**: log K of the fixtures at 25, 100, 200 °C equals PHREEQC's (values from PHREEQC output, stored in the test).
+- **Commit**: `Map PHREEQC log K functions to ThermoFun methods`
+
+### S7.2 Tabulated methods
+
+- **Files**: `TF/Reactions/LogKTabulated.*`, `TF/Substances/TabulatedProperties.*`, catalog entries, tests.
+- **Do** (decision Q25): `TabulatedLogK` interpolates log K on a T grid (cubic spline on log K vs T; ΔrH, ΔrS, ΔrCp
+  from its derivatives); map legacy id 8 `logk_lagrange_interp` to it (today a no-op: legacy files keep the no-op
+  behaviour unless the record has a table, so golden results do not change). `TabulatedProperties` interpolates Cp
+  (spline) and integrates for H, S, G from the tabulated reference row, so properties stay consistent.
+- **Test**: LLNL thermo.dat species reproduce their 8 tabulated values exactly; JANAF fixture reproduces the table.
+- **Commit**: `Add tabulated log K and tabulated properties methods`
+
+### S7.3 Holland–Powell 2011
+
+- **Files**: `TF/Substances/Solids/SolidTaitHP11.*`, `SolidLandauHP11.*`, catalog (`HP11Tait` implemented,
+  `HP11Landau` new), fixtures from the HP2011 paper / ds62.
+- **Do**: implement the modified Tait EoS with thermal pressure (Einstein temperature) and the HP2011 Landau model,
+  templated on `real`; declare effects (06 §8.3).
+- **Test**: reproduce published or THERMOCALC values for a few end-members (quartz, forsterite, a Landau phase).
+- **Commit**: `Implement the Holland-Powell 2011 equation of state and Landau model`
+
+### S7.4 Tier-1 source forms for gas and CALPHAD data
+
+- **Needs**: S5.4, S7.5.
+- **Files**: `PY/methods.py` (new source forms `shomate`, `nasa7`, `nasa9`, `sgte`), method records in
+  `examples/v2/methods/`, `MagneticIHJ` as a `gibbs_increment` record with piecewise f(τ).
+- **Do**: 13 §3, §6. Each form converts to a generated G expression (06 §10).
+- **Test**: NIST WebBook Shomate species, a NASA-7 species from Burcat, an SGTE element (with magnetic term, e.g. Fe)
+  reproduce their source tables.
+- **Commit**: `Add Shomate, NASA and SGTE source forms`
+
+### S7.5 Energy reference and standard pressure conventions
+
+- **Files**: `TF/Model/ThermoDataSetInfo.h` (`energy_reference`, `standard_pressure`), Element record fields for SER
+  data, `TF/IO/Resolve.cpp` (conversion at load), tests.
+- **Do** (decisions Q24, Q26): 13 §5.1–§5.2; conversion to ThermoFun's apparent formation convention at load, as
+  for Berman–Brown; gas properties converted from 1 atm to 1 bar when `standard_pressure` is 1 atm.
+- **Test**: an element and a compound given in SER and in formation convention give the same results; a gas
+  given at 1 atm and at 1 bar gives the same S and G after conversion.
+- **Commit**: `Convert energy reference and standard pressure conventions at load`
+
+### S7.6 DFT-derived data
+
+- **Files**: `TF/Common/Units.cpp` (`eV` atom), `PY/sources/dft.py` (helpers), `BartelGibbs` Tier-1 record, tests.
+- **Do** (decision Q27): helpers to turn eV/atom formation energies into J/mol per formula unit, record the
+  correction scheme and source (`origin: calculated`, `calculation_path`, quality `supplemental`), and optionally
+  add the Bartel G(T) increment. Data go into their own `sourcetdb`.
+- **Commit**: `Support DFT-derived formation energies with provenance`
+
+### S7.7 DEW
+
+- **Do**: compare ThermoFun's `WaterZhangDuan05` + `Sverjensky14Diel` + HKF with the DEW model (CHNOSZ `DEW()` as
+  reference) over its validity range; list what is missing (water Gibbs energy function, ω handling) and implement
+  only that.
+- **Commit**: `Check and complete the DEW model`
+

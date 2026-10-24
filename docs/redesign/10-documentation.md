@@ -79,8 +79,8 @@ CI checks that the generated files are up to date (`generate` into a temp dir an
   ignored). Every public declaration has a `///` comment (§02 §4.5).
 - **Python**: pybind11 docstrings on every new binding: one sentence + units, e.g.
   `"Return the per-method breakdown of the properties of a substance at T (K) and P (Pa)."`
-- Site generator for the narrative docs: §12 Q13 (recommendation: keep Markdown in `docs/`, rendered by GitHub and
-  by the existing site; adopt MkDocs Material or Sphinx+MyST only if a searchable site is wanted).
+- Site generator for the narrative docs (decision Q13): Markdown in `docs/`, rendered by GitHub and the existing
+  site; MkDocs Material or Sphinx+MyST only if a searchable site is wanted later.
 
 ## 4. Writing rules
 
