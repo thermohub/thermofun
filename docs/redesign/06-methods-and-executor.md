@@ -417,6 +417,116 @@ Add to the v2 Method record an `effects` block (`{G: set|add|read|none, ..., bas
 authors and other calculators see how a method composes. ThermoFun checks a Method record's `effects` against its
 built-in spec (`V2-MTH-011`). Composite methods (D7) stay not executed (D61).
 
+## 10. Tier-1 symbolic methods (Q15, decided: option D)
+
+Goal: a closed-form model (a Cp polynomial, a magnetic or disorder term, a log K(T) function, a ΔV(T, P) term) can
+be added **as data** — a Method record with an expression — with no C++ change and no ThermoFun release. Users and
+contributors write the model **as published**; a Python tool turns it into the one form the engine evaluates.
+
+### 10.1 Two forms in one Method record
+
+| | Written by | Used by | Content |
+|---|---|---|---|
+| `source` | the author | documentation, review, regeneration | the model as in the paper, in one of the source forms of §10.2 |
+| `expression` | `python -m thermofun.methods build` (generated) | the C++ engine | a thermodynamic potential: `G` or `G_increment` (substances), `drG` or `drG_increment` (reactions), per segment if piecewise |
+
+The engine never integrates. At binding it parses `expression` with SymEngine and differentiates it symbolically:
+
+- substances: S = −∂G/∂T, Cp = −T ∂²G/∂T², V = ∂G/∂P, H = G + T·S;
+- reactions: ΔrS = −∂ΔrG/∂T, ΔrCp = −T ∂²ΔrG/∂T², ΔrV = ∂ΔrG/∂P, ΔrH = ΔrG + T·ΔrS,
+  log K = −ΔrG / (R T ln 10).
+
+Each derived expression is evaluated by the tree-walking evaluator on `real` (autodiff), which gives the T and P
+derivatives. Properties are therefore consistent by construction.
+
+### 10.2 Source forms (what authors write)
+
+| `source.form` | Operates on | Author writes | Tool generates | Effects |
+|---|---|---|---|---|
+| `cp` | substance | Cp(T) at Pr | G(T) = Gr − Sr (T − Tr) + ∫Cp dT − T ∫Cp/T dT (closed form by SymPy) | base (set G, H, S, Cp) |
+| `cp_increment` | substance | ΔCp(T), zero contribution at Tr | ΔG(T) from ∫ΔCp | add G, H, S, Cp |
+| `volume` | substance | V(T, P) | ΔG(T, P) = ∫ from Pr to P of V dP | add G, H, S, Cp; set or add V (declared) |
+| `gibbs` | substance | G(T, P) directly | copied | base |
+| `gibbs_increment` | substance | ΔG(T, P) directly | copied | add |
+| `logk` | reaction | log K(T, P) | ΔrG = −R T ln 10 · log K | base (set log K, ΔrG, ΔrH, ΔrS, ΔrCp) |
+| `drcp` | reaction | ΔrCp(T), with log Kr, ΔrHr (ΔrSr) of the record | ΔrG(T) by integration | base |
+| `drv` | reaction | ΔrV(T, P) | ΔrG increment = ∫ΔrV dP | add (P correction) |
+| `drgibbs`, `drgibbs_increment` | reaction | ΔrG directly | copied | base / add |
+
+Variables available in all expressions (SI): `T` (K), `P` (Pa), `Tr`, `Pr`, the record's reference values
+(`Gr, Hr, Sr, Cpr, Vr` for substances; `logKr, drGr, drHr, drSr, drCpr, drVr` for reactions), the gas constant `R`,
+and the method's parameters by name. Functions: `+ - * / **`, `exp`, `log`, `sqrt`, `pow`, `abs`.
+
+**Pieces in T** (`source.segments`, each with `t_min`, `t_max` and its own Cp expression, plus optional
+`transitions` with ΔH and ΔS at T_tr): the tool computes the integration constants of each segment so that G and S
+are continuous except for the declared transition jumps, and writes one generated `expression` per segment.
+
+**When SymPy cannot integrate** a source (e.g. an EoS volume with no closed-form ∫V dP), `build` stops with a clear
+message; the author then writes the `gibbs`/`gibbs_increment` form directly, or the method needs a Tier-2 (C++)
+implementation.
+
+### 10.3 Example (substance, Maier–Kelley Cp)
+
+```yaml
+methods:
+  MaierKelleyCp:
+    kind: symbolic
+    tier: 1
+    operates_on: substance
+    applies_to_classes: [component]
+    contributes_to: [G, H, S, Cp]
+    effects: {G: set, H: set, S: set, Cp: set, base: true}
+    parameter_definitions:
+      a: {unit: J/(mol.K)}
+      b: {unit: J/(mol.K2)}
+      c: {unit: J.K/mol}
+    source:
+      form: cp
+      expression: "a + b*T + c/T**2"
+    expression:                       # generated — do not edit by hand
+      G: "Gr - Sr*(T - Tr) + a*(T - Tr - T*log(T/Tr)) - b*(T - Tr)**2/2 - c*(T - Tr)**2/(2*T*Tr**2)"
+    generator: "thermofun.methods build <version>"
+    source_hash: "sha256:…"           # hash of `source`; validate() warns if source changed after generation
+    tests:                            # D63: at least one, checked in CI and by validate()
+      - {T: 500, P: 1.0e5, reference: {Gr: -856288, Hr: -910700, Sr: 41.46},
+         parameters: {a: 46.94, b: 0.03431, c: -1.129e6},
+         expected: {Cp: 59.58, H: -898220}, relative_tolerance: 1.0e-4}
+    citation: 1932MAI/KEL
+```
+
+(The generated G above is illustrative; the tool writes the exact SymPy result. The test numbers are placeholders
+to be computed when the method is written.)
+
+### 10.4 Example (reaction, log K function)
+
+```yaml
+methods:
+  LogKPowerSeries:
+    kind: symbolic
+    tier: 1
+    operates_on: reaction
+    contributes_to: [logK, dG, dH, dS, dCp]
+    effects: {logK: set, dG: set, dH: set, dS: set, dCp: set, base: true}
+    parameter_definitions: {A: {unit: "1"}, B: {unit: K}, C: {unit: "1"}}
+    source: {form: logk, expression: "A + B/T + C*log(T)"}
+    expression: {drG: "-R*T*log(10)*(A + B/T + C*log(T))"}
+```
+
+### 10.5 Checks
+
+- `build` and `validate()` run every `tests` case on both forms (the source form numerically with SymPy/mpmath in
+  Python, the generated form in C++) and require agreement within the tolerance.
+- `validate()`: unknown variable or function → `V2-SYM-001`; parse error → `V2-SYM-002`; `source_hash` does not match
+  the current `source` → `V2-SYM-003` (warning: regenerate); a test case fails → `V2-SYM-004`; the expression's
+  dimension (checked by evaluating with unit-scaled parameters) does not give J/mol → `V2-SYM-005`.
+- Effects (§8) come from the `source.form` table above; a record declaring different effects → `V2-MTH-011`.
+
+### 10.6 Without SymEngine
+
+The C++ library builds without SymEngine by default (`TFUN_USE_SYMENGINE=OFF`, also in WASM). A Tier-1 method that
+has a coded equivalent (`CpIntegration`, `LogKAnalytic`, …) runs the code; one that exists only as an expression
+gives `V2-MTH-008` at use, telling the user to enable `TFUN_USE_SYMENGINE`.
+
 ## 9. Registering a user method (C++)
 
 ```cpp

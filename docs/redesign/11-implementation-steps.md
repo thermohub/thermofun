@@ -511,18 +511,49 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 - **Test**: a fixture with a modified constant gives a different, expected value; default gives golden.
 - **Commit**: `Use method parameter sets from data`
 
-### S5.3 Optional Tier-1 symbolic methods
+### S5.3 Symbolic expressions in C++ (optional build feature)
 
-- **Files**: `TF/Methods/Symbolic/SymbolicExpression.h/.cpp`, `Evaluator.h`, CMake option `TFUN_USE_SYMENGINE`.
-- **Do**: parse `MethodDefinition::expression` with SymEngine at binding; evaluate by walking the expression tree
-  with a function templated on the scalar type (`real` or `PlainReal`) supporting `+ - * / pow exp log sqrt`;
-  variables `T`, `P` and parameter names. Run `tests` reference cases (D63) in `validate()`.
-  What the expression defines is decided in §12 Q15 before starting. Recommended: the Method record gives one
-  expression for the **Gibbs energy increment** ΔG(T, P) relative to the reference state; at binding, SymEngine
-  differentiates it symbolically to get S = −∂G/∂T, Cp = −T ∂²G/∂T², V = ∂G/∂P, H = G + TS, and the evaluator
-  computes all five (with autodiff for ddt/ddp). This avoids symbolic integration (limited in SymEngine) and
-  numerical integration.
-- **Commit**: `Optional symbolic (Tier-1) methods`
+- **Files**: `TF/Methods/Symbolic/SymbolicExpression.h/.cpp`, `Evaluator.h`, `SymbolicMethods.cpp`; CMake option
+  `TFUN_USE_SYMENGINE` (default OFF; forced OFF with `TFUN_WASM`); `symengine` in `environment.devenv.yml` for CI;
+  `tests/model/test_symbolic.cpp`.
+- **Do** (06 §10.1, §10.6):
+  1. `SymbolicExpression`: parse a string with SymEngine, reject unknown symbols/functions (`V2-SYM-001/002`),
+     `diff(var)` returning a new expression; keep the SymEngine object internal (pimpl) so no SymEngine header is
+     public.
+  2. `Evaluator.h`: convert the SymEngine tree once into a small internal tree (`Node{op, children, value, var}`),
+     evaluate it with a function template on the scalar type (`real` or `PlainReal`).
+  3. `SymbolicMethods.cpp`: at binding of a Tier-1 record, build the expressions of 06 §10.1 (G and its derivatives
+     for substances; ΔrG and derivatives for reactions; per segment if piecewise), bind variables (T, P, Tr, Pr,
+     reference values, R, parameters in SI) and register the method in the executor with the effects of its form.
+  4. Run the record's `tests` in `validate()` (`V2-SYM-004`); dimension check `V2-SYM-005` by evaluating with
+     parameters scaled by their units (a factor-of-two scale on energy must scale the result by two).
+- **Test**: the Maier–Kelley and log K examples of 06 §10 as fixtures; Tier-1 versions of `CpIntegration` (one
+  segment and two segments with a transition) and `LogKAnalytic` agree with the coded methods to 1e-10 on the golden
+  grid; derivatives agree with finite differences.
+- **Commit**: `Evaluate symbolic (Tier-1) substance and reaction methods`
+
+### S5.4 Authoring tool (Python, SymPy)
+
+- **Files**: `PY/methods.py`, `python/pyproject.toml.in` (optional extra `authoring = ["sympy"]`),
+  `pytests/methods/test_build.py`, fixtures `pytests/data/v2/methods/*.yaml`.
+- **Do** (06 §10.2–§10.5): `build` reads a Method record, converts `source` to the generated `expression` for every
+  form of the table in 06 §10.2 with SymPy (`integrate`, `simplify` only when it does not change the value), handles
+  segments (integration constants for continuity, transition jumps), writes `expression`, `generator`,
+  `source_hash`, and evaluates `tests` with both forms; `check` verifies without writing; `new` prints a template.
+  Expressions are written in the SymEngine/SymPy common syntax (`**`, `log`, `exp`, `sqrt`).
+- **Test**: every form of 06 §10.2 has a fixture; generated forms agree with the source forms numerically; for `cp`
+  sources the C++ result equals `CpIntegration` on the same coefficients; a source SymPy cannot integrate gives the
+  documented message.
+- **Commit**: `Add the Tier-1 method authoring tool`
+
+### S5.5 Documentation for contributors
+
+- **Files**: `docs/how-to/add-a-method-as-data.md`, `examples/v2/methods/` (Maier–Kelley Cp, a magnetic ΔCp, a log K
+  function, a ΔrV term).
+- **Do**: step-by-step guide: choose the form, write `source`, run `build`, add a test case from the paper, run
+  `check`, open a pull request to `thermohub-data/methods/definitions/` (D36 Tier A). Code in the guide is run by
+  `pytests/docs/`.
+- **Commit**: `Document how to add a method as data`
 
 ---
 

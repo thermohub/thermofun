@@ -236,6 +236,8 @@ ThermoFun accepts v2 Method records (E10, E11) and checks them against its built
 for a built-in method, the record's `parameter_definitions` must match names and dimensions (`V2-MTH-010`),
 `operates_on`, `contributes_to` and `effects` (06 §8.6) must match (`V2-MTH-011`). A Method that ThermoFun does not implement is kept;
 using it is an error at calculation time unless it is a Tier-1 expression and SymEngine is enabled (phase 5).
+Tier-1 (symbolic) Method records carry a `source` block written by the author and a generated `expression` block
+(06 §10, examples there); `python -m thermofun.methods build` writes the second from the first.
 Composite methods (D7) are kept, never executed (D61): `V2-MTH-020` at use.
 
 ### 3.9 MethodParameterSet and 3.10 DataSource
@@ -325,6 +327,11 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-REF-005 | W | `data_source` not found |
 | V2-REF-010 | E | cycle of defining reactions |
 | V2-INC-001 | E | include cycle |
+| V2-SYM-001 | E | unknown variable or function in a symbolic expression |
+| V2-SYM-002 | E | symbolic expression does not parse |
+| V2-SYM-003 | W | `source` changed after `expression` was generated (regenerate) |
+| V2-SYM-004 | E | a reference test case of the method fails |
+| V2-SYM-005 | E | the expression does not have the dimension of energy per mole |
 | V2-SRC-001 | W | DataSource symbol not in NEA pattern |
 | LEG-QRK-001…011 | I | a legacy quirk was applied (list in 05 §4) |
 | LEG-MTH-001 | E | legacy method id unknown |

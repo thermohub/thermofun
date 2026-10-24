@@ -137,6 +137,17 @@ python -m thermofun.validate INPUT [--schema schemas/thermohub/<ver>/thermohub.s
 Python API of the same: `thermofun.convert.convert_file(input, output, to="v2", fmt="yaml", split=False,
 report=None) -> Diagnostics`, `thermofun.validate.validate_path(path, schema=None) -> Diagnostics`.
 
+## 5a. Tier-1 method authoring tool (phase 5, Python only, needs SymPy)
+
+```bash
+python -m thermofun.methods build methods/definitions/MaierKelleyCp.yaml      # writes the generated `expression`
+python -m thermofun.methods check methods/definitions/                       # forms agree, tests pass, hashes current
+python -m thermofun.methods new --form cp --name MyCp --params a,b,c > MyCp.yaml   # template to fill in
+```
+
+Python API: `thermofun.methods.build_method(path_or_dict) -> dict`, `check_method(...) -> Diagnostics`. SymPy is an
+optional dependency (`pip install thermofun[authoring]`); running ThermoFun never needs it.
+
 ## 6. What does **not** change
 
 `ThermoEngine` property functions and their units, `ThermoBatch`, `ThermoScalar`, `ThermoPropertiesSubstance`

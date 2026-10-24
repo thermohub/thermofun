@@ -92,7 +92,8 @@ ThermoFun/                                   (library sources and installed head
 │    BuiltinSubstanceMethods.cpp             factories wrapping Substances/* classes
 │    BuiltinReactionMethods.cpp              factories wrapping Reactions/* classes
 │    BuiltinSolventMethods.cpp               factories wrapping Solvent/* classes
-│    Symbolic/ (phase 5, optional)           SymbolicExpression.h/.cpp, Evaluator.h
+│    Symbolic/ (phase 5, optional)           SymbolicExpression.h/.cpp (parse, differentiate), Evaluator.h
+│                                            (tree walk on real), SymbolicMethods.cpp (bind Tier-1 records)
 │
 ├─ Engine/                                   NEW  (phase 2, §06)
 │    WorkContext.h                           what one evaluation needs (T, P, engine prefs, solvent symbol…)
@@ -125,6 +126,7 @@ python/src/thermofun/                        bindings (kept) + NEW files:
 │    io/__init__.py  io/yaml_loader.py       YAML → JSON for C++ (PyYAML)
 │    convert.py                              python -m thermofun.convert  (phase 4)
 │    validate.py                             python -m thermofun.validate (phase 3)
+│    methods.py                              python -m thermofun.methods build|check (phase 5, needs SymPy)
 │
 tests/
 │    golden/            NEW  C++-free golden suite lives in pytests/golden (see below)

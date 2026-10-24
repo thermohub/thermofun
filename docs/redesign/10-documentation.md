@@ -22,6 +22,7 @@ docs/
     propagate-uncertainties.md      uncertainty in files, propagate_parameter_errors
     get-per-method-results.md       thermoPropertiesSubstanceDetailed
     migrate-code-from-enum-api.md   old setter/getter → record API, table
+    add-a-method-as-data.md         write a Tier-1 method (Cp, ΔCp, V, log K forms), build, test, contribute
     add-a-cpp-method.md             register a method (provisional API)
   reference/                        facts only, generated where possible
     format-v2.md                    the v2 profile (from 04-format-v2.md, kept in sync by hand)

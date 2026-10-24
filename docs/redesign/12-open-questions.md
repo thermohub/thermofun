@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Status: all questions decided except **Q15** (under discussion).
+Status: all questions decided (2026-10-24).
 
 ---
 
@@ -135,6 +135,13 @@ C++ users without YAML use the JSON written by `convert --format json` on demand
 ### Q15. Tier-1 expression semantics
 **Recommendation:** an expression for ΔG(T, P) relative to the reference state; other properties by symbolic
 differentiation at binding (11 S5.3). Needed by: S5.3.
+
+**Decision (2026-10-24): option D, substances and reactions.** Authors write the model as published (Cp(T),
+ΔCp(T), V(T, P), log K(T, P), ΔrCp(T), ΔrV(T, P), or G directly) in a `source` block; `python -m thermofun.methods
+build` (SymPy) generates a thermodynamic potential (G or ΔrG, per segment, with continuity constants) in an
+`expression` block; the C++ engine only parses that potential and derives the other properties by symbolic
+differentiation (SymEngine, optional). Both forms are checked against the record's test cases. Goal: easy for users
+and contributors — adding a closed-form model is a data pull request. Details: 06 §10, steps S5.3–S5.5.
 
 ### Q16. Profile choices to confirm with `thermohub-schema`
 Top-level `thermohub: <version>` key; sections as maps keyed by symbol (lists accepted); `record_type` on single

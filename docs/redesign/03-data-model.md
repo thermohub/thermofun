@@ -351,7 +351,14 @@ struct MethodDefinition
     std::vector<std::string> contributes_to;   ///< "G","H","S","Cp","V"
     std::vector<ParameterDefinition> parameter_definitions;
     std::string implementation_id;      ///< for reference methods
-    std::string expression;             ///< for symbolic methods (SymEngine syntax)
+    // Tier-1 symbolic methods (06 §10)
+    std::string source_form;            ///< "cp", "cp_increment", "volume", "gibbs", "logk", "drcp", "drv", ...
+    std::string source_expression;      ///< the model as written by the author (single-piece)
+    std::vector<Segment> source_segments;   ///< piecewise sources (parameters unused; expressions in extra fields)
+    std::map<std::string, std::string> expression;   ///< generated: "G" | "G_increment" | "drG" | "drG_increment" → text
+    std::vector<std::map<std::string, std::string>> expression_segments;   ///< generated, one per segment
+    std::string generator;              ///< tool and version that generated `expression`
+    std::string source_hash;            ///< sha256 of the source block at generation time
     std::vector<ReferenceTestCase> tests;
     std::string effects_json;           ///< v2 `effects` block as written (§06 §8.6), checked against the spec
     std::string citation;               ///< DataSource symbol
