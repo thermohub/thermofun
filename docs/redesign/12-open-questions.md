@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~, ~~Q7~~ (decided), Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~, ~~Q7~~, ~~Q12~~ (decided), Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
 Q14, Q9, Q8, Q17–Q20, Q22.
 
 ---
@@ -100,6 +100,11 @@ when both are used; the legacy writer writes them once at record level. Details:
 - Aggregate state: `crystal` (legacy, Reaktoro) or `crystalline` (design examples)?
 **Recommendation:** today's lists (lossless), aliases accepted on reading; richer classes added when the schema
 defines them, with a mapping table. Needed by: S1.3.
+
+**Decision (2026-10-24):** keep today's seven substance classes and `crystal`. Every vocabulary has an **alias
+table** (e.g. `crystalline` → `crystal`), used when reading; writers emit the canonical value. The vocabularies are
+**provisional**: they will be revised during the ThermoHub v2 schema work, so all values and aliases live in one
+place (`Model/Vocabulary.cpp`) and changing them is a table edit plus tests, not a code change elsewhere.
 
 ### Q13. Documentation site
 **Recommendation:** Markdown in `docs/` organised by Diátaxis (10 §1), hdoc for C++ API; add MkDocs Material only

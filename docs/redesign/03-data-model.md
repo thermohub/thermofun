@@ -82,6 +82,10 @@ struct QuantityList
 Controlled vocabularies as `enum class` with string conversion. The **string** is what v2 files contain; the
 legacy integer codes are only used by the legacy reader/writer and the old API.
 
+**Provisional (Q12):** the values below follow today's data and will be revised with the ThermoHub v2 schema. All
+values, legacy codes and **aliases** (accepted when reading, never written) are in one table per vocabulary in
+`Model/Vocabulary.cpp`; changing a vocabulary is an edit of that table plus its tests.
+
 ```cpp
 namespace ThermoFun {
 

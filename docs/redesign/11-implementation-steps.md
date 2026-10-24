@@ -136,7 +136,8 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
   sources before writing them; if unsure, map only 0 and 4 and treat others as `other` keeping the code in
   `extra_json`). Functions: `substanceClassFromLegacy(int) -> std::string`, `legacySubstanceClass(const std::string&)
   -> SubstanceClass::type`, the same for aggregate state and element class; `propertyNameFromString`, `toString`.
-  Accept `crystalline` as alias of `crystal` when reading.
+  Each vocabulary table has an alias column (start with `crystalline` → `crystal`); readers map aliases to the
+  canonical value, writers emit canonical values. Keep all tables in this one file (Q12: provisional values).
 - **Test**: every value round-trips; unknown string → `other`.
 - **Commit**: `Add Quantity, Uncertainty and vocabularies of the record model`
 
