@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~, ~~Q7~~, ~~Q12~~ (decided), Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~, ~~Q7~~, ~~Q12~~, ~~Q16~~, ~~Q10~~, ~~Q6~~, ~~Q1~~ (decided), Q4, Q5, Q15, Q13,
 Q14, Q9, Q8, Q17–Q20, Q22.
 
 ---
@@ -15,6 +15,8 @@ The module mirrors C++ names today (`thermoPropertiesSubstance`), but a few name
 - B: add snake_case aliases for everything (two names per function, more docs).
 - C: camelCase for C++-mirrored API, snake_case for pure-Python modules (convert, validate, io).
 **Recommendation: C** (written into 02 §3). Needed by: S1.11.
+
+**Decision (2026-10-24): C.** Python mirrors the C++ camelCase names (as today, one reference for both languages); the new pure-Python modules (`thermofun.convert`, `thermofun.validate`, `thermofun.io`, `thermofun.docs`) use snake_case. Existing snake_case names (`with_autodiff`) stay.
 
 ### Q2. Several methods in one slot, and their order (feedback to the schema)
 Today a record has one method per slot (General → T-correction → P-correction). The design summary allows a list
@@ -62,6 +64,8 @@ Chemists write g/mol; SI is kg/mol; the legacy API returns g/mol.
 **Recommendation: SI (kg/mol) in records, g/mol in the legacy API and in files by default unit `g/mol`**
 (slot default unit = `g/mol` for molar mass only, documented). Needed by: S1.5.
 
+**Decision (2026-10-24):** records store molar mass in kg/mol (SI); the default unit of the molar-mass slot in files is `g/mol` (a bare number means g/mol); the legacy API (`Element::molarMass()`, `Substance::molarMass()`) keeps returning g/mol.
+
 ### Q7. `parameters` together with `parameter_set` (O20)
 - A: exclusive (design sketch).
 - B: allowed; inline parameters override entries of the set (useful to change one water constant).
@@ -83,6 +87,8 @@ afterwards (separate change); nanobind only if binding size/compile time becomes
 - A: the v2 JSON of the record. B: legacy JSON (via LegacyWriter). C: the original YAML/JSON text.
 **Recommendation: A** (C for unedited records read from JSON — same thing). Callers that need legacy use
 `Database::toJson(DataFormat::Legacy)`. Needed by: S3.8.
+
+**Decision (2026-10-24): A.** `jsonString()` returns the v2 JSON of the record for records loaded from v2 files (the original text when unedited and read from JSON); legacy-loaded records keep returning their legacy text. Legacy JSON of any record is available through `Database::toJson(DataFormat::Legacy)`.
 
 ### Q11. Physical meaning of `m_expansivity` / `m_compressibility` (data question)
 All bundled data label `m_expansivity` with `kbar` and `m_compressibility` with `1e-05/K`.
@@ -124,6 +130,8 @@ Top-level `thermohub: <version>` key; sections as maps keyed by symbol (lists ac
 records; record-level `applicability`; `data_sources` list on records; `transitions` and `segments` in method
 applications; `thermodataset.solvent`. **Recommendation:** propose all to the schema discussion as written in 04.
 Needed by: S3.2 (implemented as profile, adapted when the schema is released).
+
+**Decision (2026-10-24):** implement the profile choices as written in 04 and mark them **provisional**; they will be revised in the ThermoHub v2 schema work. Every v2 key name is a named constant in one file, `IO/V2/V2Keys.h` (with the vocabularies in `Model/Vocabulary.cpp`), so a rename is a one-line change plus tests. Each choice is proposed to `thermohub-schema`; when the schema is released, differences become reader changes (old spellings kept as aliases for one minor version) and fixture updates.
 
 ### Q17. `H+` handled by its symbol
 The engine returns zeros for the substance whose symbol is exactly `H+` (06 §7.1). **Recommendation:** keep for

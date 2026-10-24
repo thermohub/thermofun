@@ -367,7 +367,8 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ### S3.1 Normalisation of quantities and units
 
-- **Files**: `TF/IO/V2/V2Keys.h`, `TF/IO/V2/Normalize.h/.cpp`, `tests/model/test_normalize.cpp`.
+- **Files**: `TF/IO/V2/V2Keys.h` (every v2 key as `inline constexpr const char*`; no string literal for a key anywhere
+  else in the reader/writer — Q16), `TF/IO/V2/Normalize.h/.cpp`, `tests/model/test_normalize.cpp`.
 - **Do**: 04 §3.1 rules 1–7 and §3.3 scoped units:
   ```cpp
   struct UnitScope { std::map<std::string, std::string> defaults; const UnitScope* parent = nullptr; };
@@ -444,7 +445,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 - **Files**: `TF/IO/Legacy/LegacyWriter.h/.cpp`, `Database::save(path, Legacy)`, `pytests/io/test_legacy_writer.py`.
 - **Do**: 05 §6. Also: `Substance::jsonString()` for v2-loaded records returns the v2 JSON of the record (05 §5.2,
-  §12 Q10 — implement the recommended option).
+  Q10, decided).
 - **Test**: 09 §4; `tests/gems_export` still passes.
 - **Commit**: `Write records in the legacy format`
 
@@ -547,5 +548,4 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 ### Optional later steps
 
 - Packaging with scikit-build-core (§12 Q9).
-- snake_case aliases in Python (§12 Q1).
 - C++ JSON Schema validation behind an option (§12 Q8).

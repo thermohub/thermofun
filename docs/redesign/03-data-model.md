@@ -245,8 +245,7 @@ struct ElementRecord
 ```
 
 Note on molar mass: the legacy API returns g/mol (`Element::molarMass()`); the view converts (§05 §5).
-Decision on whether the model keeps g/mol for molar masses to avoid conversions: §12 Q6 (recommendation: SI,
-kg/mol, in the model; the views convert).
+Molar mass (Q6, decided): kg/mol in the model; files default to g/mol; the legacy API keeps g/mol.
 
 ### 5.2 `Model/SubstanceRecord.h`
 

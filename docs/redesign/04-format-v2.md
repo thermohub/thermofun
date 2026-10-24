@@ -4,8 +4,10 @@ ThermoHub v2 is being designed in `thermohub-schema` (LinkML → JSON Schema). U
 ThermoFun implements the **"ThermoFun profile"** described here: the subset of v2 that ThermoFun needs, written
 from the design decisions (D8–D18, D24–D27, D35, D44–D48, D60, D64) and examples (E7, E11–E13, E21). When the
 schema is released, this file is updated to point to it and the differences become reader changes plus tests.
-Every place where the profile had to choose something the design documents leave open is marked **[profile]**
-and listed in [12-open-questions.md](12-open-questions.md).
+Every place where the profile had to choose something the design documents leave open is marked **[profile]**.
+These choices are **provisional** (Q16, decided): they are implemented as written, all key names are constants in
+`IO/V2/V2Keys.h`, and they will be revised with the ThermoHub v2 schema (renamed keys stay readable as aliases for
+one minor version).
 
 ## 1. Files and versions
 
@@ -155,7 +157,7 @@ Fields:
 | `class` | §03 §2.2 | default `other` |
 | `aggregate_state` | §03 §2.3 | default `other` |
 | `sourcetdb` | string | identity (D24) |
-| `molar_mass` | Quantity (kg/mol) | optional |
+| `molar_mass` | Quantity (kg/mol in the model; bare numbers in g/mol, Q6) | optional |
 | `standard_state_convention` | string | default from `thermodataset` |
 | `reference_conditions` | `{T, P}` Quantities | default from `thermodataset`, else 298.15 K, 1e5 Pa |
 | `standard_state_properties` | map `G,H,S,Cp,V` → Quantity | D13 |

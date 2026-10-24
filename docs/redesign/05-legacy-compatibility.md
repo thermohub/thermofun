@@ -240,7 +240,7 @@ Same for `Reaction` and `Element`.
 | `lowerT()/upperT()/lowerP()/upperP()` | record `applicability`, else as today |
 | `reactionSymbol()` / `thermoCalculationType()` | `defining_reaction` / REACDC rule |
 | `substanceClass()`, `aggregateState()` | vocabulary string → legacy enum (§03) |
-| `jsonString()` | `original_text` if not stale and legacy; legacy JSON written by `LegacyWriter` otherwise; for v2 records the v2 JSON of the record (§12 Q10) |
+| `jsonString()` | `original_text` if not stale and legacy; legacy JSON written by `LegacyWriter` otherwise; for v2 records the v2 JSON of the record (Q10, decided) |
 | `Reaction::reactants()` | `stoichiometry` as map |
 | `Element::molarMass()` (g/mol), `entropy()` | from the record, converted to the legacy units |
 
