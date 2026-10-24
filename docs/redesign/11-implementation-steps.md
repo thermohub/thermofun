@@ -10,38 +10,47 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ## Phase 0 — Safety net
 
-### S0.1 Golden reference suite
+### S0.1 Golden reference suite — committed subset
 
 - **Needs**: —
 - **Files**: create `pytests/golden/golden_common.py`, `pytests/golden/make_references.py`,
-  `pytests/golden/test_golden.py`, `pytests/golden/data/` (generated), `pytests/golden/README.md`.
-- **Do**:
-  1. `golden_common.py`:
+  `pytests/golden/test_golden.py`, `pytests/golden/data/` (generated, incl. `subset.json`),
+  `pytests/golden/README.md`.
+- **Do** (design in 09 §1):
+  1. `golden_common.py` — shared by the committed subset and the two-build comparison; uses only API that exists
+     in v0.7.3:
      ```python
-     T_GRID = [273.15, 298.15, 373.15, 623.15, 1273.15]          # K
-     P_GRID = [0.0, 1e5, 1e8, 5e8]                                # Pa, 0 = saturation
-     SUBST_PROPS = ["gibbs_energy", "enthalpy", "entropy", "heat_capacity_cp", "volume"]
-     SUBST_PROPS_FULL = SUBST_PROPS + ["heat_capacity_cv", "internal_energy", "helmholtz_energy"]
+     SUBSET_T = [273.15, 298.15, 373.15, 623.15, 1273.15]                      # K
+     SUBSET_P = [0.0, 1e5, 1e8, 5e8]                                           # Pa, 0 = saturation
+     FULL_T = [273.15, 283.15, 298.15, 323.15, 348.15, 373.15, 423.15, 473.15, 523.15,
+               573.15, 623.15, 673.15, 873.15, 1073.15, 1273.15]
+     FULL_P = [0.0, 1e5, 1e7, 1e8, 5e8, 1e9]
+     SUBST_PROPS = ["gibbs_energy", "enthalpy", "entropy", "heat_capacity_cp", "volume",
+                    "heat_capacity_cv", "internal_energy", "helmholtz_energy"]
      REAC_PROPS = ["log_equilibrium_constant", "reaction_gibbs_energy", "reaction_enthalpy",
                    "reaction_entropy", "reaction_heat_capacity_cp", "reaction_volume"]
-     def databases() -> list[pathlib.Path]: ...   # Resources/databases/*.json + pytests/**/*.json that load + synthetic
-     def make_engine(db_path, variant) -> thermofun.ThermoEngine: ...   # variants of 09 §1.1
-     def scalar(x) -> list: return [x.val, x.ddt, x.ddp, x.err, str(x.sta)]   # check how sta prints; use the status code
-     def compute(db_path, variant) -> dict: ...   # loops substances, reactions, solvent; catches exceptions → {"error": msg}
+     VARIANTS = ["default", "gas", "errors", "steam", "berman"]
+     def databases() -> list[pathlib.Path]: ...      # Resources/databases/*.json + pytests/**/*.json that load + synthetic
+     def make_engine(db_path, variant) -> "thermofun.ThermoEngine": ...
+     def scalar(x) -> list: ...                      # [val, ddt, ddp, err, status code as int or name]
+     def compute(db_path, variant, T, P, symbols=None) -> dict: ...   # symbols=None → all records
+     def select_subset(db_path) -> dict: ...         # {"substances": [...], "reactions": [...]} per 09 §1.3
+     def compare(expected, got, rel_tol) -> list: ...  # list of differences (09 §1.2)
      ```
-     Get record lists with `engine.database().getSubstancesList()` / `getReactionsList()`. For P = 0 store the
-     returned P too (the engine changes P in place in C++; in Python check what the binding returns — if it
-     does not return P, skip it).
-  2. `make_references.py`: writes `data/<stem>__<variant>.json.gz` (`gzip`, `json.dumps(..., separators=(",",":"))`),
-     records `git rev-parse HEAD` as `thermofun_commit`.
-  3. `test_golden.py`: parametrise over existing data files; recompute; compare as in 09 §1.3; on failure print
-     the first 20 differences.
-  4. Run `python pytests/golden/make_references.py`; check total size (≤ 25 MB, 09 §1.2).
-- **Test**: `pytest pytests/golden -q` passes; then change one coefficient in a copy of a DB by hand and check the
-  test fails (do not commit that).
-- **Done when**: suite green; README explains how and when to regenerate ("only in steps that say so").
-- **Commit**: `Add golden reference results for all bundled databases`
-- After merge, ask the maintainer to tag the commit `golden-baseline`.
+     Get record lists with `engine.database().getSubstancesList()` / `getReactionsList()`. Catch exceptions per
+     point → `{"error": first line}`. Check how `sta` is exposed in Python and store the status code, not the text.
+  2. `make_references.py`: on first run computes `select_subset()` for every database and writes
+     `data/subset.json`; afterwards reads it (never re-selects unless `--reselect`). Writes
+     `data/<stem>__<variant>.json.gz` (`gzip`, `json.dumps(..., separators=(",", ":"))`) and the commit sha.
+     Prints the total size; if above 3 MB apply the reductions of 09 §1.3 rule 5.
+  3. `test_golden.py`: parametrised over the data files; recompute the subset; `compare(..., rel_tol=1e-10)`;
+     on failure print the report.
+  4. Run `python pytests/golden/make_references.py`.
+- **Test**: `pytest pytests/golden -q` passes; then change one coefficient in a copy of a database by hand and check
+  the test fails (do not commit that).
+- **Done when**: suite green; total data ≤ 3 MB; README explains when to regenerate ("only in steps that say so")
+  and lists the subset rules.
+- **Commit**: `Add golden reference results for a representative subset of the bundled databases`
 
 ### S0.2 Legacy key inventory test
 
@@ -67,9 +76,17 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
   that lists, from the legacy ids seen, which ids are covered; expected: all).
 - **Commit**: `Add synthetic fixtures covering every method`
 
-### S0.4 (optional) Differential comparison of two builds
+### S0.4 Two-build comparison and CI job
 
-- **Files**: `pytests/golden/compare_builds.py`. **Do**: 09 §1.4. **Commit**: `Add build-to-build comparison script`
+- **Needs**: S0.1, S0.3; the maintainer has tagged `golden-baseline` (the commit with S0.1–S0.3 merged).
+- **Files**: `pytests/golden/build_baseline.sh`, `pytests/golden/compare_builds.py`, `.gitignore`
+  (`.golden-baseline/`), `.github/workflows/ci-build.yml` (new job `golden-diff`).
+- **Do**: 09 §1.4. The job runs on `pull_request` and on `push` to `master`, Linux only, uses the same conda
+  environment as the build job, caches the baseline install with `actions/cache` (key of 09 §1.4).
+- **Test**: run locally: build the baseline, compare the working tree with it → no differences; change a coefficient
+  in a database copy → reported. Open a draft pull request to check the CI job and the cache.
+- **Done when**: `golden-diff` green on a pull request; second run restores the cache.
+- **Commit**: `Compare every pull request with the golden baseline build`
 
 ### S0.5 Changelog
 

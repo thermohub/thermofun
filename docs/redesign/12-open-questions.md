@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): Q21, Q11, Q2, Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Suggested discussion order (blocking first): ~~Q21~~ (decided), Q11, Q2, Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
 Q14, Q9, Q8, Q17–Q20.
 
 ---
@@ -123,3 +123,5 @@ mapping.
 - B: generate from a baseline build in CI only (no data in git, slower CI, needs the baseline build).
 - C: commit a smaller grid (A with fewer points) + B weekly on a dense grid.
 **Recommendation: C.** Needed by: S0.1 (blocking).
+
+**Decision (2026-10-24): C.** Committed subset (~400 substances + ~150 reactions, ≤ 3 MB, 20-point grid, rel. tolerance 1e-10) plus a full two-build comparison against the `golden-baseline` tag (all records, 90-point grid, rel. tolerance 1e-12) **on every pull request**, with the baseline build cached in CI. Details: 09 §1, steps S0.1 and S0.4.

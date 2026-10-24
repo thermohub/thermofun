@@ -33,7 +33,7 @@ restated in these files, so the plan can be followed without them.
 
 | Phase | Goal | Release |
 |---|---|---|
-| 0 | Safety net: golden reference results for every bundled database; key inventory | — |
+| 0 | Safety net: golden references (committed subset + two-build comparison in CI), key inventory, fixtures | — |
 | 1 | Format-neutral internal model; legacy reader fills it; engine unchanged | 0.8.0 |
 | 2 | Method registry, named parameters, executor replaces the `switch` blocks; per-method results | 0.9.0 |
 | 3 | v2 reader/writer (JSON core, YAML optional), dataset directory loader, validation | 0.10.0 |
@@ -45,9 +45,10 @@ restated in these files, so the plan can be followed without them.
 
 These apply to every step. When a step seems to need breaking one, stop and ask.
 
-1. **Numbers never change.** After each step, `pytest` (including `pytests/golden/`) and `ctest` pass. The
-   golden suite compares values, `ddt`, `ddp`, `err` and status of every substance and reaction of every bundled
-   database with the reference produced before the refactoring (Phase 0). A difference is a bug in the step,
+1. **Numbers never change.** After each step, `pytest` (including `pytests/golden/`) and `ctest` pass, and the
+   two-build comparison against the `golden-baseline` tag shows no difference. Together they compare values,
+   `ddt`, `ddp`, `err` and status of every substance and reaction of every bundled database with the results
+   before the refactoring (Phase 0, 09 §1). A difference is a bug in the step,
    not a reason to regenerate the references. References are regenerated only in a step that says so.
 2. **The public API only grows.** Do not remove or change the signature of anything in an installed header or
    in the Python module until Phase 6 says so. `tests/installed_headers` must stay green.
@@ -68,6 +69,8 @@ These apply to every step. When a step seems to need breaking one, stop and ask.
    ctest --test-dir build --output-on-failure
    cmake --install build          # installs the python package into the active environment
    pytest -ra .
+   bash pytests/golden/build_baseline.sh                                  # once
+   python pytests/golden/compare_builds.py --base .golden-baseline/install
    ```
    Also build once with `-DTFUN_USE_AUTODIFF=OFF` at the end of each phase.
 
