@@ -1,8 +1,7 @@
 # 12 — Decision log
 
 Every design question raised while writing this plan, the decision, and where it is applied. Other files refer to
-these as "decision Qn". **Final** decisions were discussed and agreed; **provisional** ones were taken at the plan's
-recommendation and can be revisited before the step that needs them. Vocabulary and v2-format details are expected to
+these as "decision Qn". All decisions are **final** (discussed and agreed, or confirmed as recommended). Vocabulary and v2-format details are expected to
 change with the ThermoHub v2 schema work (Q12, Q16); the plan keeps them in one place each so changes stay small.
 
 To add a decision: append an entry with the next number, the date, and the files/steps it changes.
@@ -33,17 +32,17 @@ To add a decision: append an entry with the next number, the date, and the files
 | Q20 | Where the legacy↔v2 converter lives | in ThermoFun; `thermohub-tools` calls it | final | 08 §5, S4.1 |
 | Q21 | Golden references | committed subset (≤ 3 MB, tol. 1e-10) + two-build comparison on every PR (tol. 1e-12) | final | 09 §1, S0.1, S0.4 |
 | Q22 | Landau mineral volume at exactly Tr, Pr | confirm by calculation; fix separately after the refactoring | final | 06 §8.3 |
-| Q23 | Order of external sources | PHREEQC-format + tabulated log K → HP2011 → Shomate/NASA/SGTE → conventions → DFT → DEW | provisional | 13 §7, Phase 7 |
+| Q23 | Order of external sources | PHREEQC-format + tabulated log K → HP2011 → Shomate/NASA/SGTE → conventions → DFT → DEW | final | 13 §7, Phase 7 |
 | Q24 | Energy reference conventions | superseded by Q30 | final | 14 |
-| Q25 | Tabulated methods | implement `TabulatedLogK` (legacy id 8) and `TabulatedProperties` (spline on Cp, integrate) | provisional | 13 §6, S7.2 |
+| Q25 | Tabulated methods | implement `TabulatedLogK` (legacy id 8) and `TabulatedProperties` (spline on Cp, integrate) | final | 13 §6, S7.2 |
 | Q26 | Standard pressure 1 atm vs 1 bar | superseded by Q30 | final | 14 |
-| Q27 | DFT-derived data | separate `sourcetdb`, quality `supplemental`, origin `calculated`; no G(T) model by default, Bartel optional | provisional | 13 §4, §5.3, S7.6 |
+| Q27 | DFT-derived data | separate `sourcetdb`, quality `supplemental`, origin `calculated`; no G(T) model by default, Bartel optional | final | 13 §4, §5.3, S7.6 |
 | Q29 | Reaktoro-compatible models of the `new_models` branch | part of ThermoFun: `HP11Tait` (id 39), `ExtendedUNIQUAC` (44), `NASA9` (45), `TPTableInterpolation` (46); merged before `golden-baseline`; their energy conventions handled in S7.5 | final | 06 §5.1, §8.3, 03 §4, 04 §3.5.1, 09 §1.1, Phase 0, S7.2–S7.5, 13 |
 | Q30 | Different thermodynamic conventions | declared per method/record/dataset, converted to one canonical convention (Benson–Helgeson, 1 bar, molality, geochemical water) after each method step, output in the user's convention; core of v2 (Phase 3) | final | 14, S3.11, 03, 04, 06, 08 |
 | Q31 | Method definition and implementation choice | dataset Method record > project record > built-in spec; coded implementation by default, symbolic only when requested; both checked on test cases | final | 06 §11, 08 §4 |
 | Q32 | Calculator features from the design discussion | per-record property source, consistency report, auxiliary outputs, parameter sensitivities (optional), Python record builder, structural data pass-through, provenance of derived uncertainties | final | 06 §12, 08 §4, §4a, 03, S2.7, S3.12, S3.13 |
 | R1 | CodeRabbit review of PR #99 (20 comments) | 19 applied as proposed; the HP98 unit item applied with corrected numbers (2520 kbar = 2.52e11 Pa; Pa → kbar is × 1e-8) | final | 02–11 |
-| Q28 | Activity models (Debye–Hückel, SIT, Pitzer) | out of ThermoFun's scope (solver's job); kept as unknown fields by adapters | provisional | 13 §2.1 |
+| Q28 | Activity models (Debye–Hückel, SIT, Pitzer) | out of ThermoFun's scope (solver's job); kept as unknown fields by adapters | final | 13 §2.1 |
 
 ## Details
 
@@ -117,8 +116,9 @@ At exactly T = Tr and P = Pr, `HP98Min` sets V = V° (`SolidMurnaghanHP98.cpp:63
 Landau excess volume. Confirm with V of Sillimanite at 298.15 K and 298.16 K, 1 bar; if confirmed, fix in a separate
 change after the refactoring and regenerate the golden references in that change only.
 
-### Q23–Q28. External data sources — 2026-10-24, provisional
-Taken at the recommendations of [13-data-sources.md](13-data-sources.md) §5–§8; to be confirmed before Phase 7.
+### Q23, Q25, Q27, Q28. External data sources — 2026-10-24, final
+Taken at the recommendations of [13-data-sources.md](13-data-sources.md) §5–§8 and confirmed. (Q24 and Q26 are
+superseded by Q30.)
 
 ### Q29. Models of the `new_models` branch — 2026-10-24, final
 The branch adds Reaktoro-compatible standard property models: the Holland–Powell (2011) Tait EoS (legacy id 39,

@@ -247,8 +247,8 @@ New **source forms** (`shomate`, `nasa7`, `nasa9`) are small additions to the au
 ## 8. Decisions
 
 Q23–Q28 (target order, energy reference conventions, tabulated methods, standard pressure, DFT data, activity
-models out of scope) are recorded in [12-decisions.md](12-decisions.md) as **provisional** decisions, taken at the
-recommendations of this file; the work is planned in Phase 7 of [11-implementation-steps.md](11-implementation-steps.md).
+models out of scope) are recorded in [12-decisions.md](12-decisions.md) as final decisions, taken at the
+recommendations of this file and confirmed; the work is planned in Phase 7 of [11-implementation-steps.md](11-implementation-steps.md).
 
 ## Sources
 

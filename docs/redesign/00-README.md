@@ -34,6 +34,20 @@ restated in these files, so the plan can be followed without them.
 | [13-data-sources.md](13-data-sources.md) | External data sources (PHREEQC/NEA/LLNL, Holland–Powell, JANAF/NASA, SGTE/CALPHAD, Materials Project and other DFT databases): compatibility and methods to add | Phase 7 |
 | [14-conventions.md](14-conventions.md) | Thermodynamic conventions (energy reference, standard pressure, concentration scale, water reference): declared per method/record/dataset, converted to one internal convention, output in the user's convention | Phase 3 (S3.11) |
 
+## Starting an implementation session
+
+Point the coding agent at this folder and name the next step, for example:
+
+```
+Read docs/redesign/00-README.md, then the files it lists for the phase of the step you implement.
+Implement step S0.1 of docs/redesign/11-implementation-steps.md, following the rules in 00-README.md.
+Run the build and tests listed there, commit with the step's commit message, and stop.
+```
+
+One step per session (or a few small ones of the same phase). Before Phase 0: merge the `new_models` branch.
+If something in the code contradicts the plan, the agent keeps today's behaviour, notes it, and adds an entry to
+[12-decisions.md](12-decisions.md) (rule 8).
+
 ## Phases at a glance
 
 | Phase | Goal | Release |
