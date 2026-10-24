@@ -55,7 +55,7 @@ appears that the reader does not handle.
 | | `Tst`, `Pst` | 5532, 5533 | yes | `reference_conditions` |
 | | `sm_gibbs_energy`, `sm_enthalpy`, `sm_entropy_abs`, `sm_heat_capacity_p`, `sm_volume` `{values, errors, units}` | ~5400 each | yes | `standard_state_properties` G, H, S, Cp, V |
 | | `TPMethods` (list) | 4914 | yes | `methods` (§3) |
-| | `m_expansivity`, `m_compressibility` | 389, 393 | yes | parameters `a0`, `k0` of HP98 methods (§3.3) |
+| | `m_expansivity`, `m_compressibility` | 389, 393 | yes | parameters `alpha0`, `kappa0` of HP98 methods (§3.3) |
 | | `mass_per_mole` | 168 | yes | `molar_mass` |
 | | `reaction` | 793 | yes | `defining_reaction` |
 | | `datasources` | 5014 | no | `data_sources` |
@@ -146,7 +146,7 @@ Then the coefficient key of that method is read into named parameters using the 
 | `cp_ft_equation` (id 0) entries | **one** `CpIntegration` application; each entry adds a `Segment{t_min = limitsTP.lowerT, t_max = limitsTP.upperT, parameters a0…a10}`; each entry's `m_phase_trans_props` adds one `transitions` row `{T, dS, dH, dV, dTdP}` |
 | `eos_hkf_coeffs` (ids 2, 3) | `a1 a2 a3 a4 c1 c2 omega` |
 | `m_landau_phase_trans_props` (id 5, 6) | `Tc0` (written in °C → K in the model), `Smax`, `Vmax` |
-| `m_expansivity`, `m_compressibility` (record level) | parameters `a0` (1/K) and `k0` (bulk modulus, kbar → Pa) added to **every** application whose spec declares them (`HP98Min`, `HP98Landau`); the legacy writer writes them once at record level |
+| `m_expansivity`, `m_compressibility` (record level) | parameters `alpha0` (thermal expansion at 298 K, 1/K) and `kappa0` (bulk modulus at 298 K, kbar → Pa) added to **every** application whose spec declares them (`HP98Min`, `HP98Landau`); the legacy writer writes them once at record level |
 | `eos_gas_crit_props` (ids 8–14) | `Tc Pc omega k1 k2 k3 k4` (index 6 to be named from `s_solmod2_.cpp`, §06) |
 | `eos_akinfiev_diamond_coeffs` (id 4) | `xi a b` |
 | others | §06 §5 tables |
@@ -187,14 +187,16 @@ Every fix-up of bad legacy data is a named function, applied in one place, logge
 | LEG-QRK-010 | coefficient array longer than the method uses (2866 `eos_hkf_coeffs` have 8 values, 7 used; `eos_akinfiev_diamond_coeffs` 7 values, 3 used) | extra values kept in the application's `extra_json` as `_legacy_extra_values`, written back by the legacy writer |
 | LEG-QRK-011 | `units` list shorter than `values` (HKF: 6 units for 8 values) or empty strings in `units` | missing/empty units = the method's legacy unit (today's `convert_value_units`) |
 
-**Unit labels of `m_expansivity` / `m_compressibility`.** In all bundled data, `m_expansivity` carries the unit
-`kbar` (389 records) and `m_compressibility` the unit `1e-05/K` (393 records) — the labels look swapped, and
-quirks 004/005 make the numbers usable. The model classes then read `isothermal_compresibility` as the bulk
-modulus k0 in kbar and multiply `isobaric_expansivity` by 1e-5 to get α0 in 1/K
-(`SolidMurnaghanHP98.cpp:18-19`, `SolidHPLandau.cpp:31-32`). The reader must store in the record **the physical
-values the model ends up using**: `k0 = (number the model receives) kbar → Pa`, `a0 = (number the model receives)
-× 1e-5` in 1/K. Binding converts back. A domain expert should confirm the physical meaning before the v2 copies
-of the databases are published (§12 Q11); the golden suite guarantees the numbers are unchanged either way.
+**Unit labels of `m_expansivity` / `m_compressibility` (Q11, decided).** In all bundled data, `m_expansivity`
+carries the unit `kbar` (389 records) and `m_compressibility` the unit `1e-05/K` (393 records). The **values are
+under the right names, only the unit labels are swapped**, and `m_compressibility` holds the **bulk modulus**
+(inverse of compressibility). Example, Corundum in `aq17`: `m_expansivity` 4.19e-5 → α° = 4.19e-5 1/K;
+`m_compressibility` 2520 → κ = 2520 kbar; both are Holland & Powell (1998) values. Quirks 004/005 plus the model
+code (`SolidMurnaghanHP98.cpp:18-19`, `SolidHPLandau.cpp:31-32`: ×1e5 on reading, ×1e-5 in the model) already give
+the model these physical values. The reader stores them as `alpha0` = `m_expansivity.values[0]` in 1/K and
+`kappa0` = `m_compressibility.values[0]` kbar → Pa, as parameters of every `HP98Min` and `HP98Landau` application of
+the record; binding converts back to what the model receives (`isobaric_expansivity = alpha0·1e5`,
+`isothermal_compresibility = kappa0` in kbar). The golden suite checks that the numbers are unchanged.
 
 ## 5. The old API as a view over the record
 
@@ -246,7 +248,7 @@ Same for `Reaction` and `Element`.
 
 `IO/Legacy/LegacyWriter.{h,cpp}` writes records as legacy JSON: `sm_*` with `{values:[v], errors:[u], units:[legacy
 unit]}`, methods as `TPMethods` with `{"<id>": "<name>"}` and the coefficient arrays in the legacy units; segments
-back to one `cp_ft_equation` entry per segment; `a0`/`k0` back to `m_expansivity`/`m_compressibility`. Records
+back to one `cp_ft_equation` entry per segment; `alpha0`/`kappa0` back to `m_expansivity`/`m_compressibility`. Records
 that came from a legacy file and were not edited are written from `original_text`. A v2 record that the legacy
 format cannot express (an unknown method, a Tier-1 expression, metadata) is written without that part and a
 `LEG-WRT-001` warning names it. Used by `Database::save(path, DataFormat::Legacy)` and by GEMS export.

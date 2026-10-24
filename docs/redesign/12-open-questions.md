@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~ (decided), Q11, Q2, Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~ (decided), Q2, Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
 Q14, Q9, Q8, Q17–Q20.
 
 ---
@@ -69,10 +69,13 @@ afterwards (separate change); nanobind only if binding size/compile time becomes
 `Database::toJson(DataFormat::Legacy)`. Needed by: S3.8.
 
 ### Q11. Physical meaning of `m_expansivity` / `m_compressibility` (data question)
-All bundled data label `m_expansivity` with `kbar` and `m_compressibility` with `1e-05/K`; the code compensates
-(05 §4 note). The record must store physical a0 (1/K) and k0 (Pa).
-**Needs a domain expert** to confirm which number is which before the v2 copies (S4.2) are published.
-Implementation follows "what the model receives" so numbers are unchanged regardless. Needed by: S1.8, S4.2.
+All bundled data label `m_expansivity` with `kbar` and `m_compressibility` with `1e-05/K`.
+
+**Decision (2026-10-24):** the values match Holland & Powell (1998) under their names (e.g. Corundum α° = 4.19e-5
+1/K, κ = 2520 kbar); only the unit labels are swapped, and "compressibility" holds the bulk modulus. In v2 they
+are the parameters **`alpha0`** (thermal expansion at 298 K, SI 1/K) and **`kappa0`** (bulk modulus at 298 K, SI Pa,
+written e.g. `{value: 2520, unit: kbar}`) **of each HP98 method application** (`HP98Min`, `HP98Landau`), repeated
+when both are used; the legacy writer writes them once at record level. Details: 05 §4 note, 06 §5.1.
 
 ### Q12. Vocabularies
 - Substance classes: keep today's seven (`component`, `gas_fluid`, `aqueous_solute`, `water_solvent`,

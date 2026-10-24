@@ -158,7 +158,7 @@ The existing code style is kept for new code, so the library reads as one piece.
 | Files | named after the main class, PascalCase, `.h` + `.cpp` | `MethodRegistry.h`, `MethodRegistry.cpp` |
 | Header guard | `#pragma once` for new files | |
 | Method ids (data) | PascalCase, family first (D22) | `HKFGems`, `Berman88Vol`, `LogKAnalytic` |
-| Parameter names (data) | as in the source paper, ASCII | `a1`, `omega`, `Tc`, `k0` |
+| Parameter names (data) | as in the source paper, ASCII | `a1`, `omega`, `Tc`, `kappa0` |
 | v2 field names (data) | snake_case | `standard_state_properties`, `defining_reaction` |
 | Vocabulary values (data) | snake_case | `aqueous_solute`, `water_solvent` |
 

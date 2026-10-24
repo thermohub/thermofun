@@ -155,7 +155,7 @@ silently ignored today (kept that way for legacy files, with warning `LEG-MTH-00
 | 2 `solute_hkf88_gems` | General / 101 CTPM_HKF | `HKFGems` | `eos_hkf_coeffs`: 0 a1 [cal/(mol*bar)], 1 a2 [cal/mol], 2 a3 [(cal*K)/(mol*bar)], 3 a4 [(cal*K)/mol], 4 c1 [cal/(mol*K)], 5 c2 [(cal*K)/mol], 6 omega [cal/mol]. SI: J/(mol.Pa), J/mol, J.K/(mol.Pa), J.K/mol, J/(mol.K), J.K/mol, J/mol. needs_solvent | yes |
 | 3 `solute_hkf88_reaktoro` | General / 119 CTPM_HKFR | `HKFReaktoro` | as HKFGems | yes |
 | 4 `solute_aknifiev_diamond03` | P / 320 CPM_AKI | `AkinfievDiamond03` | `eos_akinfiev_diamond_coeffs`: 0 xi [1], 1 a [(cm^3)/g], 2 b [(cm^3*K^0.5)/g]. needs_solvent (+ ideal-gas water) | yes |
-| 5 `landau_holland_powell98` | T / 201 CTM_CHP | `HP98Landau` | `m_landau_phase_trans_props`: 0 Tc0 [degC], 1 Smax [J/(mol*K)], 2 Vmax [J/bar]; record-level k0 [kbar], a0 [1/K] (§05 note) | yes |
+| 5 `landau_holland_powell98` | T / 201 CTM_CHP | `HP98Landau` | `m_landau_phase_trans_props`: 0 Tc0 [degC], 1 Smax [J/(mol*K)], 2 Vmax [J/bar]; `alpha0` [1/K] (legacy record-level `m_expansivity`), `kappa0` [kbar, SI Pa] (legacy `m_compressibility`, the bulk modulus at 298 K) (05 §4 note) | yes |
 | 6 `landau_berman88` | T / 202 CTM_BER | `Berman88Landau` | (not defined) | **no** |
 | 8 `fug_critical_param` | P / 311 CPM_GAS | `GasCritical` | `eos_gas_crit_props` as below. Only used by the rule "HKF + CPM_GAS → H2O vapor" (§7) | **no** (flag only) |
 | 9 `fluid_prsv` | P / 312 CPM_PRSV | `PRSV` | `eos_gas_crit_props`: 0 Tc [K], 1 Pc [bar], 2 omega [1], 3 k1 [1], 4 k2 [1], 5 k3 [1], 6 c6 [1] (index 6: name from `s_solmod2_.cpp` `Eosparm` use, S2.3) | yes |
@@ -177,7 +177,7 @@ silently ignored today (kept that way for legacy files, with warning `LEG-MTH-00
 | 35 `mv_equation_dorogokupets88` | P / 306 CPM_VKE | `Dorogokupets88Vol` | `m_volume_fpt_coeffs`: 0 a1 [1/K], 1 a2 [1/K^2], 2 a3 [1/K^3], 3 b1 [1/bar], 4 b2 [1/bar^2] (same class as Berman88Vol) | yes |
 | 36 `mv_equation_berman88` | P / 307 CPM_VBE | `Berman88Vol` | as above | yes |
 | 37 `mv_eos_birch_murnaghan_gott97` | P / 308 CPM_VBM | `BirchMurnaghanGott97` | `eos_birch_murnaghan_coeffs` (no units in legacy, passed as is): 0 a1, 1 a2, 2 a3, 3 a4, 4 a5, 5 kt00, 6 dkdt, 7 kp — units to be determined from `SolidBMGottschalk.cpp` (declare `model_unit` = `si_unit` = "1" until then, flagged) | yes |
-| 38 `mv_eos_murnaghan_hp98` | P / 309 CPM_CEH | `HP98Min` | record-level k0 [kbar], a0 [1/K] (§05 note) | yes |
+| 38 `mv_eos_murnaghan_hp98` | P / 309 CPM_CEH | `HP98Min` | `alpha0` [1/K], `kappa0` [kbar, SI Pa] (as HP98Landau) | yes |
 | 39 `mv_eos_tait_hp11` | P / 310 CPM_VTA | `HP11Tait` | (not defined) | **no** |
 | 40 `mv_pvnrt` | P / 300 CPM_OFF | `IdealGasVol` | — | yes |
 | 41 `solute_holland_powell98` | General / 122 CTPM_HP98 | `HP98Sol` | `solute_holland_powell98_coeff`: 0 b [kJ/(mol*K^2)]. needs_solvent. **Legacy files: ignored today** (no `case` in `setTPMethods_old`); reachable only by `setMethodGenEoS` | yes (API) |
