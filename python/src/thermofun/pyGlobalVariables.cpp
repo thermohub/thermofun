@@ -73,6 +73,9 @@ void exportGlobalVariables(py::module& m)
         e.value("CTM_WWP", MethodCorrT_Thrift::CTM_WWP);
         e.value("CTM_WZD", MethodCorrT_Thrift::CTM_WZD);
         e.value("CTM_DMD", MethodCorrT_Thrift::CTM_DMD);
+        e.value("CTM_UQC", MethodCorrT_Thrift::CTM_UQC);
+        e.value("CTM_NAS", MethodCorrT_Thrift::CTM_NAS);
+        e.value("CTM_ITP", MethodCorrT_Thrift::CTM_ITP);
     }
     {
         py::enum_<MethodCorrP_Thrift::type> e(m, "MethodCorrP_Thrift");
@@ -205,6 +208,9 @@ void exportGlobalVariables(py::module& m)
         e.value("solute_holland_powell98", SubstanceTPMethodType::solute_holland_powell98);
         e.value("solute_anderson91", SubstanceTPMethodType::solute_anderson91);
         e.value("standard_entropy_cp_integration", SubstanceTPMethodType::standard_entropy_cp_integration);
+        e.value("cp_ft_equation_uniquac", SubstanceTPMethodType::cp_ft_equation_uniquac);
+        e.value("cp_nasa_polynomials", SubstanceTPMethodType::cp_nasa_polynomials);
+        e.value("standard_thermo_interpolation", SubstanceTPMethodType::standard_thermo_interpolation);
     }
     {
         py::enum_<ReactionTPMethodType> e(m, "ReactionTPMethodType");

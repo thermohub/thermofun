@@ -81,8 +81,12 @@ void exportModels(py::module& m)
     substanceModelTP<WaterIdealGasWoolley>(m, "WaterIdealGasWoolley", "Ideal gas properties of water (Woolley 1980)");
     substanceModelTP<EmpiricalCpIntegration>(m, "EmpiricalCpIntegration", "Integration of the empirical heat capacity equation Cp = f(T)");
     substanceModelTP<EntropyCpIntegration>(m, "EntropyCpIntegration", "Standard entropy and heat capacity integration");
+    substanceModelTP<ExtendedUNIQUAC>(m, "ExtendedUNIQUAC", "Extended UNIQUAC standard properties (as in Reaktoro)");
+    substanceModelTP<NasaPolynomials>(m, "NasaPolynomials", "NASA polynomials (as in Reaktoro)");
+    substanceModelTP<TPTableInterpolation>(m, "TPTableInterpolation", "Interpolation of the standard properties over a table of T and P (as in Reaktoro)");
 
     substanceModelTPtps<MinMurnaghanEOSHP98>(m, "MinMurnaghanEOSHP98", "Murnaghan equation of state of Holland and Powell (1998)");
+    substanceModelTPtps<MinTaitHP11>(m, "MinTaitHP11", "Tait equation of state of Holland and Powell (2011)");
     substanceModelTPtps<MinBerman88>(m, "MinBerman88", "Volume of minerals, Berman (1988)");
     substanceModelTPtps<MinBMGottschalk>(m, "MinBMGottschalk", "Birch-Murnaghan equation of state, Gottschalk (1997)");
     substanceModelTPtps<HPLandau>(m, "HPLandau", "Landau phase transition of Holland and Powell (1998)");

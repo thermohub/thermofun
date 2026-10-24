@@ -114,6 +114,27 @@ struct ThermoParametersSubstance
     /// Coefficients of mV=f(T,P)
     vd volume_coeff;
 
+    /// Extended UNIQUAC standard properties: a, b, c, alpha, beta, Theta
+    vd uniquac_coeff;
+
+    /// NASA polynomials, one row per temperature interval: a1..a7, b1, b2; and the lower and upper T of each interval
+    vvd nasa_coeff;
+    vvd nasa_temperature_intervals;
+
+    /// Table of standard properties over temperature (K) and pressure (Pa); a property is a vector with
+    /// value[i + j*nT] for temperature i and pressure j; the volume is in m3/mol
+    struct TPTable
+    {
+        vd temperatures;
+        vd pressures;
+        std::map<std::string, vd> values;
+        double reference_pressure = 0.0; // Pa, the pressure of the table values of G (0: 1e5)
+    };
+    TPTable tp_table;
+
+    /// Coefficients of the Tait EoS of Holland and Powell (2011): kappa0', kappa0'' (1/kbar), number of atoms
+    vd volume_Tait_coeff;
+
     /// Critical parameters (for FGL)?
     vd critical_parameters;
 

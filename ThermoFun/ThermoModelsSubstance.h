@@ -231,6 +231,100 @@ private:
 };
 
 /**
+ * @brief The MinTaitHP11 class
+ * Tait equation of state of Holland and Powell (2011) for the pressure dependence of minerals
+ */
+class MinTaitHP11
+{
+public:
+    /// Construct a default model
+    MinTaitHP11();
+
+    /// Construct a Model instance from a Substance
+    explicit MinTaitHP11(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    /// @param tps thermodynamic properties of the substance previosuly corrected
+    auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
+ * @brief The ExtendedUNIQUAC class: Extended UNIQUAC standard properties (Thomsen and Rasmussen, 1999), as in Reaktoro
+ */
+class ExtendedUNIQUAC
+{
+public:
+    /// Construct a default model
+    ExtendedUNIQUAC();
+
+    /// Construct a model from a Substance
+    explicit ExtendedUNIQUAC(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
+ * @brief The NasaPolynomials class: NASA polynomials (McBride et al.), as in Reaktoro
+ */
+class NasaPolynomials
+{
+public:
+    /// Construct a default model
+    NasaPolynomials();
+
+    /// Construct a model from a Substance
+    explicit NasaPolynomials(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
+ * @brief The TPTableInterpolation class: Bilinear interpolation of the standard properties over a table of T and P, as in Reaktoro
+ */
+class TPTableInterpolation
+{
+public:
+    /// Construct a default model
+    TPTableInterpolation();
+
+    /// Construct a model from a Substance
+    explicit TPTableInterpolation(const Substance& substance);
+
+    /// Returns the thermodynamic properties of the substance.
+    /// @param T The temperature value (in units of K)
+    /// @param P The pressure value (in units of Pa)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesSubstance;
+
+private:
+    struct Impl;
+
+    std::shared_ptr<Impl> pimpl;
+};
+
+/**
  * @brief The MinBerman88 class
  * References: Berman RG (1988) Internally consistent thermodynamic data for minerals in the system
  * na2o-k2o-cao-mgo-feo-fe2o-sio2-tio2-h2o-co2. Journal of Petrology 29:445-552
