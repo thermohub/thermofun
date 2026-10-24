@@ -254,6 +254,9 @@ named SI parameters: for each parameter, `vector[legacy_index] = convert(value_S
 optional ones = 0 or the default). The executor then calls the existing classes with that `Substance`. This keeps
 the maths untouched and makes v2 records run through the same code as legacy ones.
 
+Parameter sets (phase 5): values come from the referenced `MethodParameterSet` (or the built-in default set), then
+inline `parameters` with the same names override them (Q7).
+
 Cache: `ThermoEngine::Impl` keeps `std::unordered_map<std::string, BoundSubstance>` keyed by symbol, cleared when
 `Database::revision()` changes; guarded by the existing memoization mutex pattern.
 

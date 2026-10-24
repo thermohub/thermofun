@@ -504,7 +504,8 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ### S5.2 Using parameter sets from data
 
-- **Do**: binding passes the set named by `parameter_set` (or the default) to the model; O20 rule from §12 Q7.
+- **Do**: binding builds the constants from the set named by `parameter_set` (or the built-in default set), then
+  applies inline `parameters` of the same names as overrides (Q7, decided) and reports each as `V2-MTH-016`.
 - **Test**: a fixture with a modified constant gives a different, expected value; default gives golden.
 - **Commit**: `Use method parameter sets from data`
 

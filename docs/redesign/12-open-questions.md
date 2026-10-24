@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~ (decided), Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~, ~~Q7~~ (decided), Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
 Q14, Q9, Q8, Q17–Q20, Q22.
 
 ---
@@ -66,6 +66,10 @@ Chemists write g/mol; SI is kg/mol; the legacy API returns g/mol.
 - A: exclusive (design sketch).
 - B: allowed; inline parameters override entries of the set (useful to change one water constant).
 **Recommendation: B.** Needed by: S5.2 (reader accepts both from S3.2).
+
+**Decision (2026-10-24): B.** A method application may have both `parameter_set` and `parameters`; inline values
+override the set's entries of the same name, the rest come from the set. Each override is reported as info
+`V2-MTH-016` by `validate()`, and the detailed results / snapshot record which values were overridden.
 
 ### Q8. JSON Schema validation inside the C++ library
 **Recommendation: no** (validate in Python/CI); revisit if C++-only users need it (pboettch validator supports

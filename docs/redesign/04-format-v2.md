@@ -173,7 +173,7 @@ Fields:
 # methods can be listed in any order: the engine orders them by their declared effects (06 §8)
 - method: CpIntegration           # method id or alias (§06)
   parameters: {a0: 44.6, a1: 0.0378}      # for single-piece methods
-  parameter_set: IAPWS95_constants_v1     # Tier 3 (O20: together with parameters = override, §12 Q7)
+  parameter_set: IAPWS95_constants_v1     # Tier 3; inline `parameters` override entries of the set (Q7, decided)
   segments:                                # for piecewise methods instead of `parameters`
     - {t_min: 298.15, t_max: 846, parameters: {a0: 44.603, a1: 0.03778, a2: -1.0018e6}}
     - {t_min: 846, t_max: 2000, parameters: {a0: 58.928, a1: 0.01003}}
@@ -310,6 +310,7 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-MTH-013 | E | two methods set the same property |
 | V2-MTH-014 | W | a method adds to V but no earlier step defines V |
 | V2-MTH-015 | W | a transformation is listed after setters/adders (it runs before them) |
+| V2-MTH-016 | I | an inline parameter overrides an entry of the referenced parameter set |
 | V2-MTH-010 | E | Method record's parameter definitions disagree with the built-in spec |
 | V2-MTH-011 | E | Method record's `operates_on`/`contributes_to` disagree with the built-in spec |
 | V2-MTH-020 | E | composite method used in a calculation |
