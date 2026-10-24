@@ -26,7 +26,7 @@ Like today's single legacy file, one v2 file can hold a whole dataset. Top-level
 | `thermohub` | string | yes | format version |
 | `generator` | string | no | tool that wrote the file |
 | `thermodataset` | mapping | no | ThermoDataSet metadata (§3.7) |
-| `units` | mapping | no | default units for the file (§3.3) **[profile, Q3]** |
+| `units` | mapping | no | default units for the file (§3.3) |
 | `include` | list of strings | no | other files to load first, paths relative to this file (§5) **[profile]** |
 | `elements` | map symbol → Element, or list | no | §3.4 |
 | `substances` | map symbol → Substance, or list | no | §3.5 |
@@ -58,7 +58,7 @@ Every numeric slot (standard-state properties, method parameters, applicability 
 | `{value: -237183, uncertainty: {expanded: 200, coverage_factor: 2}}` | u = 100 |
 | `{value: …, uncertainty: {standard: …, distribution: normal, degrees_of_freedom: 12, kind: primary}}` | full form |
 | `{value: …, quality: core, origin: calculated, calculation_path: "…", source: 2018LOT/MAT}` | metadata (D17) |
-| `"-237.183 kJ/mol"` | string form "number unit" (Cantera style) — accepted when reading, never written **[profile, Q3]** |
+| `"-237.183 kJ/mol"` | string form "number unit" (Cantera style) — accepted when reading, never written (decided, Q3) |
 
 Rules (the implementation is `IO/V2/Normalize.cpp`):
 1. A JSON number → `Quantity{value}`; `unit_as_written = ""`.
@@ -85,7 +85,7 @@ Writer (shortest form that reads back the same):
 Numbers are written with the shortest representation that reads back to the same `double` (nlohmann's default).
 No rounding on write.
 
-### 3.3 Scoped default units [profile, Q3]
+### 3.3 Scoped default units (decided, Q3)
 
 A `units:` mapping may appear at file level, in a record, or in a method application. It sets the default unit per
 dimension for all values below it, inner mappings override outer ones (Cantera's rule):
@@ -96,7 +96,9 @@ units: {energy: cal, pressure: bar, temperature: K, length: cm, quantity: mol}
 
 Dimensions and the SI they replace: `energy` (J), `pressure` (Pa), `temperature` (K), `length` (m), `mass` (kg),
 `quantity` (mol). A slot's SI unit is rewritten by substituting the defaults, e.g. `J/(mol.K)` with
-`{energy: cal}` → `cal/(mol.K)`. This is implemented once in `Normalize` and is optional for authors.
+`{energy: cal}` → `cal/(mol.K)`. This is implemented once in `Normalize` and is optional for authors. The writer emits a `units:` mapping on a
+method application only when all its parameters share the same non-SI energy/pressure units and the file gets
+shorter; otherwise it writes explicit `unit` keys or SI values.
 
 ### 3.4 Element
 

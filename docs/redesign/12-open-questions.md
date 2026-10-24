@@ -3,7 +3,7 @@
 Each question: why it matters, options, **recommendation**, and the step that needs the answer. Until a question
 is answered, implement the recommendation. Record the decision here (`Decision:` line) when taken.
 
-Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~ (decided), Q3, Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
+Suggested discussion order (blocking first): ~~Q21~~, ~~Q11~~, ~~Q2~~, ~~Q3~~ (decided), Q7, Q12, Q16, Q10, Q6, Q1, Q4, Q5, Q15, Q13,
 Q14, Q9, Q8, Q17–Q20, Q22.
 
 ---
@@ -40,6 +40,11 @@ Two Cantera-style conveniences: values as strings `"-237.18 kJ/mol"`, and scoped
 - B: accept only `{value, unit}` objects (strict, as in the design examples).
 **Recommendation: A** for reading; propose both to the schema (they keep files paper-like, e.g. HKF parameters in
 cal and bar). Needed by: S3.1.
+
+**Decision (2026-10-24): A.** The reader accepts both the `"number unit"` string form and scoped `units:` defaults
+(file, record, method application). The writer never writes strings; it writes a `units:` mapping on a method
+application when all its parameters share the same non-SI energy/pressure units and this makes the file shorter
+(e.g. HKF parameters in cal and bar). Both conveniences are proposed to `thermohub-schema`.
 
 ### Q4. YAML library in C++
 - A: yaml-cpp (on conda-forge, used by Cantera, slower — irrelevant for MB-size files).
