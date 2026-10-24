@@ -246,7 +246,7 @@ public:
     /// Returns the thermodynamic properties of the substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
-    /// @param tps thermodynamic properties of the substance previosuly corrected
+    /// @param tps thermodynamic properties of the substance calculated before
     auto thermoProperties (double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance;
 
 private:

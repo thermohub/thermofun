@@ -1,6 +1,7 @@
-"""Makes the database and the reference values of the test reaktoro-models with Reaktoro (python, version 2.13).
-Run:  python make_reference.py <a ThermoFun database with "elements", for example pytests/test-thermoengine-thermofun.json>  -> reaktoro_models_db.json, reaktoro_reference.csv
-Entropy and heat capacity of Reaktoro are not given by these models: they are taken from the derivatives of G0 in T."""
+"""Makes the database and the reference values of the test reaktoro-models with Reaktoro.
+Run:  python make_reference.py <ThermoFun database with "elements">  -> reaktoro_models_db.json, reaktoro_reference.csv
+An example database is pytests/test-thermoengine-thermofun.json.
+Reaktoro does not give the entropy and the heat capacity for these models. The script takes them from the derivatives of G0 in T."""
 import json, sys, csv
 import reaktoro as rkt
 
@@ -44,7 +45,7 @@ subs.append(base("Fo", "Mg2SiO4", {"3": "AS_CRYSTAL"}, {"0": "SC_COMPONENT"}, -2
     [{"method": {"0": "cp_ft_equation"}, "m_heat_capacity_ft_coeffs": {"values": [a, b, c, d]}, "limitsTP": {"lowerT": 273.15, "upperT": 2273.15, "range": True}},
      {"method": {"39": "mv_eos_tait_hp11"}, "eos_tait_hp11_coeffs": {"values": [3.84, -2.99e-11 * 1e8, 7], "units": ["1", "1/kbar", "1"]}}],
     {"m_expansivity": {"values": [2.85e-5], "units": ["kbar"]}, "m_compressibility": {"values": [1285.0], "units": ["1e-05/K"]}}))
-# G of ThermoFun is Gf at the reference T and P; Reaktoro adds the integral of V dP from 0 bar (about -V*1 bar): 5 J/mol
+# G of ThermoFun is Gf at the reference T and P. Reaktoro adds the integral of V dP from 0 bar, so the G tolerance is wider
 add("Fo", mt, [(298.15, 1), (298.15, 2000), (500, 5000), (800, 10000), (1000, 20000)], [5.0, -1, 2e-3, 0.05, 1e-5], Cp=False, H=False)
 
 # ---- Extended UNIQUAC
@@ -53,7 +54,7 @@ pu.Gr, pu.Hr, pu.Sr, pu.Vr, pu.a, pu.b, pu.c, pu.alpha, pu.beta, pu.Theta = -300
 mu = rkt.StandardThermoModelExtendedUNIQUAC(pu)
 subs.append(base("UQ", "NaCl", {"4": "AS_AQUEOUS"}, {"2": "SC_AQSOLUTE"}, -300e3, -350e3, 100.0, 80.0 + 0.05 * 298.15 - 10000.0 / 98.15, 3.0,
     [{"method": {"44": "cp_ft_equation_uniquac"}, "eos_extended_uniquac_coeffs": {"values": [80.0, 0.05, -10000.0, 3e-5, 2e-9, 200.0]}}]))
-# the gas constant of ThermoFun and of Reaktoro differ in the sixth digit
+# the gas constants of ThermoFun and Reaktoro differ slightly
 class Cp_(object): pass
 for T, P in [(298.15, 1), (350, 1), (450, 1), (350, 500), (450, 2000)]:
     p = props(mu, T, P); s, _ = derivs(mu, T, P)
@@ -71,7 +72,7 @@ pn.polynomials = polys
 mn = rkt.StandardThermoModelNasa(pn)
 subs.append(base("NS", "CO2", {"0": "AS_GAS"}, {"1": "SC_GASFLUID"}, 0.0, 0.0, 0.0, 0.0, 0.0,
     [{"method": {"45": "cp_nasa_polynomials"}, "limitsTP": {"lowerT": lo, "upperT": hi, "range": True}, "nasa_polynomial_coeffs": {"values": co + bb}} for lo, hi, co, bb in A]))
-# the gas constant of ThermoFun is 8.31451, that of Reaktoro 8.3144598: relative difference 6e-6
+# the gas constants differ slightly, so the tolerances for G and H scale with the value
 for T, P in [(298.15, 1), (500, 1), (999, 1), (1000, 1), (1500, 100), (3000, 1)]:
     p = props(mn, T, P)
     rows.append(["NS", T, P, float(p.G0), float(p.H0), 0.0, float(p.Cp0), 0.0, abs(float(p.G0)) * 8e-6 + 0.01, abs(float(p.H0)) * 8e-6 + 0.01, -1, 1e-3, -1])

@@ -120,18 +120,18 @@ A `cp_ft_equation` substance without Cp coefficients uses a constant Cp equal to
 ### Models taken from Reaktoro
 
 These substance models give the standard properties for the same inputs as the equivalent Reaktoro models
-(`StandardThermoModelHollandPowell`, `...ExtendedUNIQUAC`, `...Nasa`, `...Interpolation`). Each one is a `TPMethods` entry.
+(`StandardThermoModelHollandPowell`, `...ExtendedUNIQUAC`, `...Nasa`, `...Interpolation`). Each model is a `TPMethods` entry.
 
 | Method (code) | Coefficients | What it does |
 |---|---|---|
-| `mv_eos_tait_hp11` (39) | `eos_tait_hp11_coeffs`: `kappa0'`, `kappa0''` (1/kbar), number of atoms; the expansivity `m_expansivity` and the bulk modulus `m_compressibility` (kbar) of the record | Tait equation of state of Holland and Powell (2011): volume, integral of `V dP` from the reference pressure, and the entropy, enthalpy and heat capacity that follow. Use it after a `cp_ft_equation` entry. G at the reference T and P is the reference G (Reaktoro adds the integral from 0 bar, about 5 J/mol more). |
-| `cp_ft_equation_uniquac` (44) | `eos_extended_uniquac_coeffs`: `a`, `b`, `c`, `alpha`, `beta`, `Theta` (default 200 K) | Extended UNIQUAC: `Cp = a + b T + c/(T - Theta)` from the reference G and H of the record; the pressure term `R T (alpha + beta dP) dP` of G gives the volume and the entropy. |
-| `cp_nasa_polynomials` (45) | one entry per temperature interval: `limitsTP` and `nasa_polynomial_coeffs` (`a1`..`a7`, `b1`, `b2`) | NASA polynomials. G, H and S are in the NASA convention (`G = H - T S`), not relative to the reference values of the record. Outside all intervals the nearest one is used and a message is set. |
-| `standard_thermo_interpolation` (46) | `tp_table`: `temperatures` (K), `pressures` (Pa), `gibbs_energy`, `enthalpy`, `volume` (m3/mol), `heat_capacity_cp`, each as a list `value[i + j*nT]` for temperature `i` and pressure `j`; `reference_pressure` (Pa, default 1e5) | Bilinear interpolation in T and P; outside the table the nearest value is used and a message is set. `G` gets the term `V (P - reference_pressure)`; the entropy is `(H - G)/T`. |
+| `mv_eos_tait_hp11` (39) | `eos_tait_hp11_coeffs`: `kappa0'`, `kappa0''` (1/kbar), number of atoms; the expansivity `m_expansivity` and the bulk modulus `m_compressibility` (kbar) of the record | Tait equation of state of Holland and Powell (2011). It gives the volume and the integral of `V dP` from the reference pressure. The entropy, enthalpy and heat capacity follow. Use it after a `cp_ft_equation` entry. G at the reference T and P is the reference G. Reaktoro adds the integral from 0 bar to this G, so the two values differ slightly. |
+| `cp_ft_equation_uniquac` (44) | `eos_extended_uniquac_coeffs`: `a`, `b`, `c`, `alpha`, `beta`, `Theta` (default 200 K) | Extended UNIQUAC. The heat capacity is `Cp = a + b T + c/(T - Theta)`. G and H follow from the reference G and H of the record. The pressure term `R T (alpha + beta dP) dP` of G gives the volume and the entropy. |
+| `cp_nasa_polynomials` (45) | one entry per temperature interval: `limitsTP` and `nasa_polynomial_coeffs` (`a1`..`a7`, `b1`, `b2`) | NASA polynomials. G, H and S use the NASA convention (`G = H - T S`). They do not refer to the reference values of the record. Outside all intervals, the model uses the nearest interval and sets a message. |
+| `standard_thermo_interpolation` (46) | `tp_table`: `temperatures` (K), `pressures` (Pa), `gibbs_energy`, `enthalpy`, `volume` (m3/mol), `heat_capacity_cp`, each as a list `value[i + j*nT]` for temperature `i` and pressure `j`; `reference_pressure` (Pa, default 1e5) | Bilinear interpolation in T and P. Outside the table, the model uses the nearest value and sets a message. `G` gets the term `V (P - reference_pressure)`. The entropy is `(H - G)/T`. |
 
-Differences from Reaktoro: the gas constant is 8.31451 (Reaktoro 8.3144598), which changes NASA values by a relative 6e-6;
-the entropy, which Reaktoro does not give for these models, is calculated here. The test `reaktoro-models` compares all four with
-Reaktoro (`tests/reaktoro_models/make_reference.py`).
+ThermoFun and Reaktoro use slightly different values of the gas constant. This changes the NASA values by a very small amount.
+Reaktoro does not give the entropy for these models. ThermoFun calculates it.
+The test `reaktoro-models` compares all four models with Reaktoro (`tests/reaktoro_models/make_reference.py`).
 
 ## Autodiff — derivatives
 

@@ -1,5 +1,5 @@
-# Standard property models taken from Reaktoro: Holland and Powell (2011) Tait EoS, Extended UNIQUAC, NASA polynomials,
-# interpolation over a table of T and P. The reference values come from Reaktoro (make_reference.py)
+# Tests the standard property models taken from Reaktoro: Tait EoS (Holland and Powell, 2011), Extended UNIQUAC,
+# NASA polynomials and interpolation over a table of T and P. The reference values come from Reaktoro (make_reference.py).
 add_executable(test-reaktoro-models src/main.cpp)
 target_include_directories(test-reaktoro-models PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun)
 target_link_libraries(test-reaktoro-models PRIVATE ThermoFun)

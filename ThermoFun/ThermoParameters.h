@@ -114,15 +114,16 @@ struct ThermoParametersSubstance
     /// Coefficients of mV=f(T,P)
     vd volume_coeff;
 
-    /// Extended UNIQUAC standard properties: a, b, c, alpha, beta, Theta
+    /// Extended UNIQUAC coefficients: a, b, c, alpha, beta, Theta
     vd uniquac_coeff;
 
-    /// NASA polynomials, one row per temperature interval: a1..a7, b1, b2; and the lower and upper T of each interval
+    /// NASA polynomial coefficients, one row per temperature interval: a1..a7, b1, b2
     vvd nasa_coeff;
+    /// Lower and upper T of each NASA interval
     vvd nasa_temperature_intervals;
 
-    /// Table of standard properties over temperature (K) and pressure (Pa); a property is a vector with
-    /// value[i + j*nT] for temperature i and pressure j; the volume is in m3/mol
+    /// Table of standard properties over temperature (K) and pressure (Pa).
+    /// A property is a vector with value[i + j*nT] for temperature i and pressure j. The volume is in m3/mol.
     struct TPTable
     {
         vd temperatures;

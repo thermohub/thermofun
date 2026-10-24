@@ -2,8 +2,8 @@
 // Copyright (C) 2026 ThermoFun contributors
 
 // Compares the standard properties of the models taken from Reaktoro with the values that Reaktoro calculates
-// (tests/reaktoro_models/make_reference.py). A negative tolerance in the file means: the property is not compared.
-// The checks are never compiled out (see tests/memoization/src/main.cpp).
+// (tests/reaktoro_models/make_reference.py). A negative tolerance in the file means that the test does not compare the property.
+// The checks stay active in every build type.
 
 #include <cmath>
 #include <cstdio>

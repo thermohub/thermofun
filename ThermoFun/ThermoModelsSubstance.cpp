@@ -452,7 +452,7 @@ auto MinTaitHP11::thermoProperties(double T, double P, ThermoPropertiesSubstance
         out.volume.propagateFrom(tps.volume, ref.volume);
         out.heat_capacity_cp.propagateFrom(tps.heat_capacity_cp, ref.volume);
     }
-    else // the molar volume is assumed independent of T and P
+    else // the molar volume does not depend on T and P
     {
         out.volume.sta = ref.volume.sta;
         out.volume.err = ref.volume.err;
@@ -469,7 +469,7 @@ auto MinTaitHP11::thermoProperties(double T, double P, ThermoPropertiesSubstance
 // Standard properties models of Reaktoro: Extended UNIQUAC, NASA polynomials, interpolation in T and P
 //=======================================================================================================
 
-/// The properties of a model that gives them all: the statuses are those of calculated values
+/// Sets the status of every property of a model that calculates all of them
 static auto statusCalculated(ThermoPropertiesSubstance& tps, double T, double P) -> void
 {
     for (auto* p : {&tps.gibbs_energy, &tps.enthalpy, &tps.entropy, &tps.volume, &tps.heat_capacity_cp})
