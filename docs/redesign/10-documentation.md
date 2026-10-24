@@ -55,7 +55,8 @@ docs/
   | | |
   |---|---|
   | Operates on | substance (aqueous_solute) |
-  | Slot | General |  | Tier | 2 |
+  | Slot | General |
+  | Tier | 2 |
   | Needs solvent | yes |
   | Legacy names | `solute_hkf88_gems` (TPMethods id 2), CTPM_HKF (101) |
 

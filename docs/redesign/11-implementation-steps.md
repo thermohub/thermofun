@@ -163,7 +163,7 @@ interpolation; decision Q29). The golden references and the baseline must includ
 
 - **Files**: `TF/Model/Applicability.h`, `MethodApplication.h/.cpp`, `MethodDefinition.h`, `MethodParameterSet.h`,
   `DataSource.h`, `ThermoDataSetInfo.h`, `ElementRecord.h`, `SubstanceRecord.h`, `ReactionRecord.h`, `Records.h`,
-  `TF/IO/Format.h`; modify `TF/ThermoFun.h` to include `Model/Records.h` and `IO/Format.h`.
+  `TF/Model/DataFormat.h`; modify `TF/ThermoFun.h` to include `Model/Records.h` and `Model/DataFormat.h`.
 - **Do**: declarations of 03 exactly (field names matter: they are the v2 keys). `Quantity::isBare()`.
   Equality operators (`= default` with C++20) for all records — used by tests.
 - **Test**: `tests/installed_headers` passes (the new headers must not include nlohmann).
@@ -288,10 +288,13 @@ interpolation; decision Q29). The golden references and the baseline must includ
 - **Do**: 06 §2 and §6. In this phase factories only resolve the spec (the executor still calls the classes);
   `bindSubstance` returns the slot specs and a `Substance` whose legacy fields are packed from the record
   (`packLegacy`, including the `new_models` fields `volume_Tait_coeff`, `uniquac_coeff`, `nasa_coeff`,
-  `nasa_temperature_intervals`, `tp_table`). For legacy-loaded records the legacy fields already exist; `packLegacy` must still be
+  `nasa_temperature_intervals`, `tp_table`). `packLegacy` appends the values kept in `_legacy_extra_values` after the named parameters, so
+  packed vectors equal the legacy-loaded ones (2866 HKF records have 8 values). For legacy-loaded records the legacy
+  fields already exist; `packLegacy` must still be
   implemented from named parameters, because v2 records need it.
 - **Test**: for every bundled record, `dumpSubstance(packLegacy(record))` equals `dumpSubstance(substance)` —
-  this checks every parameter name, index and unit of the catalog **before any v2 file exists**.
+  this checks every parameter name, index and unit of the catalog **before any v2 file exists**. Include a fixture
+  with extra legacy values (an HKF record with 8 values).
 - **Commit**: `Add method registry and binding of records to model inputs`
 
 ### S2.3 Complete the parameter names
@@ -310,7 +313,8 @@ interpolation; decision Q29). The golden references and the baseline must includ
 
 - **Files**: `TF/Engine/*Executor.cpp`, `TF/ThermoEngine.cpp`.
 - **Do**: replace `pref.method_genEOS/method_T/method_P` (read from the Substance's legacy enums) by the codes of
-  the bound specs (`spec->legacy[0].thrift_code`), obtained from `bindSubstance(record)`. Keep each `switch` as is
+  the bound specs (`spec->thrift_code`, the slot-specific code stored on the spec; check it is non-zero and belongs
+  to the slot, error otherwise), obtained from `bindSubstance(record)`. Keep each `switch` as is
   (now on the bound code) — this step changes only where the codes come from. Then evaluate the model classes with
   `bound.legacy_substance` instead of the database's `Substance`.
 - **Test**: golden identical.
@@ -340,8 +344,11 @@ interpolation; decision Q29). The golden references and the baseline must includ
 - **Do**: 08 §4. The executor takes an optional `std::vector<std::pair<std::string, ThermoPropertiesSubstance>>*`
   and pushes after each slot step; `thermoPropertiesSubstanceDetailed` passes it; the normal path passes `nullptr`
   (no cost). Not memoized.
-- **Test**: `total` equals `thermoPropertiesSubstance`; last step equals total before `complete/fallback`.
-- **Commit**: `Add per-method breakdown of substance properties`
+  Fill `auxiliary` with the outputs of 06 §12 (expose the intermediate values the model classes already compute;
+  no change of results).
+- **Test**: `total` equals `thermoPropertiesSubstance`; last step equals total before `complete/fallback`; the
+  water and HKF auxiliary values equal `propertiesSolvent` / `electroPropertiesSolvent` at the same T, P.
+- **Commit**: `Add per-method breakdown and auxiliary outputs of substance properties`
 
 ### S2.8 Confirm the declared effects
 
@@ -479,6 +486,22 @@ interpolation; decision Q29). The golden references and the baseline must includ
   conventions bit-identical with today; legacy golden unchanged).
 - **Commit**: `Add the conventions layer: declared input conventions, canonical internal, requested output`
 
+### S3.12 Consistency report and per-record property source
+
+- **Files**: `TF/Engine/Consistency.h/.cpp`, `ThermoEngine` (`consistencyReport`, `setPropertySource`),
+  `PY/consistency.py`, bindings, `pytests/test_consistency.py`.
+- **Do**: 08 §4 (consistency report, per-record property source, `method_implementation` preference, 06 §11).
+- **Test**: a substance whose defining reaction reproduces its G gives `consistent`; perturbing log K by 0.1 gives
+  `inconsistent` with ΔG = −R T ln 10 · 0.1; `setPropertySource("X", "reaction")` changes only X.
+- **Commit**: `Add consistency report and per-record property source`
+
+### S3.13 Python record builder
+
+- **Files**: `PY/records.py`, `pytests/test_records_builder.py`, docs how-to.
+- **Do**: 08 §4a.
+- **Test**: the builder output equals the hand-written v2 fixtures of S3.2.
+- **Commit**: `Add a Python builder for v2 records`
+
 ### S3.10 Pinned schema and JSON Schema validation
 
 - **Needs**: a `thermohub-schema` release. If none exists yet, skip and add an entry to 12-decisions.md.
@@ -601,6 +624,8 @@ interpolation; decision Q29). The golden references and the baseline must includ
 - **Commit**: `Release 1.0.0`
 
 ### Optional later steps
+
+- Parameter sensitivities for fitting single contributions (08 §4, decision Q32).
 
 - Packaging with scikit-build-core (decision Q9).
 - C++ JSON Schema validation behind an option (decision Q8).

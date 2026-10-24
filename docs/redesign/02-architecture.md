@@ -41,7 +41,7 @@
 
 | Layer | May include | Must not include |
 |---|---|---|
-| `Common/` | standard library, autodiff, spdlog | anything else in ThermoFun |
+| `Common/` | standard library, autodiff, spdlog | anything else in ThermoFun — **one exception**: `Common/ParseJsonToData.cpp`, the kept forwarder, may include `IO/Legacy/` (its header stays in `Common/` for users) |
 | `Model/` | `Common/` | nlohmann/json, IO, Methods, Engine, public classes |
 | `Conventions/` | `Model/`, `Common/` | IO, Methods registry, Engine |
 | `Methods/MethodCatalog` | `Model/`, `Common/` | model implementation classes, Engine |
@@ -83,6 +83,7 @@ ThermoFun/                                   (library sources and installed head
 │    DataSource.h                            DataSource
 │    ThermoDataSetInfo.h                     ThermoDataSetInfo (metadata, defaults, conventions)
 │    ElementRecord.h  SubstanceRecord.h  ReactionRecord.h
+│    DataFormat.h                            enum class DataFormat { Auto, Legacy, V2 } (used by records and IO)
 │    Records.h                               includes all of the above (convenience)
 │
 ├─ Methods/                                  NEW  (§06)
@@ -110,7 +111,6 @@ ThermoFun/                                   (library sources and installed head
 │    ConventionConverter.h / .cpp            toCanonical / fromCanonical
 │
 ├─ IO/                                       NEW  (§04, §05)
-│    Format.h                                enum class DataFormat { Auto, Legacy, V2 }
 │    FormatDetect.h / .cpp                   detect file / record format
 │    Legacy/LegacyReader.h / .cpp            legacy JSON → records (moved logic of ParseJsonToData.cpp)
 │    Legacy/LegacyKeys.h                     every legacy key as a named constant
@@ -135,7 +135,6 @@ python/src/thermofun/                        bindings (kept) + NEW files:
 │    methods.py                              python -m thermofun.methods build|check (phase 5, needs SymPy)
 │
 tests/
-│    golden/            NEW  C++-free golden suite lives in pytests/golden (see below)
 │    model/             NEW  C++ unit tests of Model/, Common/Ucum, IO (ctest target `tfun-unit`)
 │
 pytests/

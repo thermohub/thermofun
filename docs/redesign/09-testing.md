@@ -106,7 +106,8 @@ which also updates `thermofun_commit`.
 
 **CI job** `golden-diff` (Linux, every pull request and push to master):
 1. restore the baseline install from the Actions cache, key = `golden-baseline-<tag commit sha>-<hash of
-   environment.devenv.yml>`; on a miss, run `build_baseline.sh` and save the cache;
+   environment.devenv.yml, pytests/golden/build_baseline.sh and the CMake options it uses>` (the script writes its
+   options to `.golden-baseline/options.txt`, which is hashed); on a miss, run `build_baseline.sh` and save the cache;
 2. build and install the pull request (the existing job's steps);
 3. run `compare_builds.py --base <cache> --new <env>`; upload the report as an artifact on failure.
 First run: one extra build (~ as long as the normal build); later runs: cache restore only.

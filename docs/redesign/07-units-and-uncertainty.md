@@ -98,5 +98,6 @@ the object form, written back with the coverage factor it was read with (`expand
 
 ### 5.5 Not in scope
 
-Covariance (D9-E) and Monte-Carlo propagation (D10) are not implemented; the reader keeps such fields in
-`extra_json` (warning `V2-KEY-001`) so they round-trip.
+Covariance (D9-E) and Monte-Carlo propagation (D10) are not implemented. A record-level `covariances` block is
+kept in the record's `extra_json` (warning `V2-KEY-001`) and round-trips; covariance keys inside a single quantity
+are dropped (`V2-QTY-003`, 04 §3.1).

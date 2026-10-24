@@ -9,6 +9,8 @@ are a later, optional extension (§8).
 
 ```cpp
 #pragma once
+#include <functional>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -58,12 +60,21 @@ struct MethodEffects
     int rank = 0;               ///< deterministic order among methods of the same group (lower first), see §8.2
 };
 
+/// The same for reaction methods: effects on logK, dG, dH, dS, dCp, dV.
+struct ReactionEffects
+{
+    Effect logK = Effect::None, dG = Effect::None, dH = Effect::None, dS = Effect::None, dCp = Effect::None, dV = Effect::None;
+    bool base = false;
+    bool final = false;         ///< no later steps run after this method (RyzhenkoBryzgalin, §7.3)
+    int rank = 0;
+};
+
 /// Legacy names of a method, used by the legacy reader/writer and by the old API.
 struct LegacyAlias
 {
     int tp_method_id = -1;           ///< enum_method_substance / enum_method_reaction key
     std::string tp_method_name;      ///< "solute_hkf88_gems"
-    int thrift_code = 0;             ///< value of the MethodGenEoS/CorrT/CorrP enum, e.g. 101 (CTPM_HKF)
+    int thrift_code = 0;             ///< informational; the code used by the engine is MethodSpec::thrift_code
 };
 
 /// Everything ThermoFun knows about one built-in method, without its code (data only).
@@ -79,7 +90,9 @@ struct MethodSpec
     std::vector<std::string> contributes_to;         ///< "G","H","S","Cp","V"
     MethodRole role = MethodRole::SubstanceProperties;
     Slot slot = Slot::General;           ///< legacy slot (old API, legacy files, phase-2 executor)
-    MethodEffects effects;               ///< how the method combines with others (§8)
+    MethodEffects effects;               ///< substance methods: how the method combines with others (§8)
+    ReactionEffects reaction_effects;    ///< reaction methods (operates_on == "reaction")
+    int thrift_code = 0;                 ///< the legacy slot code this method sets (e.g. 101 CTPM_HKF); 0 = none
     bool needs_solvent = false;          ///< evaluation needs the solvent's properties
     std::string native_convention = "inherit";   ///< convention of the method's output (14 §5): "inherit" (from the
                                          ///< record's reference values) or e.g. "assigned_enthalpy" (NASA9)
@@ -373,7 +386,7 @@ engine derives the order from the effects. Authors may list methods in any order
 ```
 1. base:        exactly one method with effects.base (else: ConstantProperties if the record has standard-state
                 properties; else error V2-MTH-012)
-2. transforms:  methods with effects.transform, in list order (they depend on what came before them)
+2. transform:   the method with effects.transform, if any (at most one, V2-MTH-017)
 3. setters:     non-base methods that Set any property, by rank
 4. adders:      methods that only Add, by rank
 5. engine:      U, A, Cv recomputed once; fallback to reference values; output convention (14 §6)
@@ -384,7 +397,10 @@ Validation (at load, `Validate`):
 - more than one base → `V2-MTH-012`;
 - two non-base methods that `Set` the same property → `V2-MTH-013` (names the property and both methods);
 - a method that `Add`s V when no earlier step defines V → `V2-MTH-014` (warning: V starts from 0);
-- a transform after a setter or adder in the list → `V2-MTH-015` (warning: transforms run before them anyway).
+- a transform after a setter or adder in the list → `V2-MTH-015` (warning: transforms run before them anyway);
+- more than one transform in a record → `V2-MTH-017` (error). Today only `AkinfievDiamond03` is a transform, so one
+  per record covers all data and makes the result independent of file order; allowing several needs declared
+  dependencies between transforms and is deferred until a real case appears.
 
 `rank` makes the order of additions fixed (floating-point sums depend on order, and the two-build comparison has
 tolerance 1e-12): built-in methods get the rank of their legacy slot (T-correction 100, P-correction 200), ties
@@ -417,6 +433,7 @@ Reaction methods follow the same idea with effects on logK, dG, dH, dS, dCp, dV:
 (`LogKAnalytic`, extrapolations, `FrantzMarshall`, `DolejsManning10`, `RyzhenkoBryzgalin`), volume methods
 (`DrVolumeConst`, `DrVolumeFT`) add the P correction (`Add` on logK, dG, dH; `Set` on dV). `RyzhenkoBryzgalin`
 today returns without a P correction (§7.3); declare it as base + `final = true` (no later steps), to keep that.
+These effects are declared with `ReactionEffects` (§1); the reaction executor reads `MethodSpec::reaction_effects`.
 
 ### 8.5 Detailed results
 
@@ -428,6 +445,22 @@ the contribution of an `Add` method is exactly its increment, which is what D65 
 Add to the v2 Method record an `effects` block (`{G: set|add|read|none, ..., base: bool, rank: int}`), so data
 authors and other calculators see how a method composes. ThermoFun checks a Method record's `effects` against its
 built-in spec (`V2-MTH-011`). Composite methods (D7) stay not executed (D61).
+
+## 9. Registering a user method (C++)
+
+```cpp
+#include <ThermoFun/Methods/MethodRegistry.h>
+
+ThermoFun::MethodSpec spec;
+spec.id = "MyCpModel";
+spec.slot = ThermoFun::Slot::General;
+spec.effects = {.G = ThermoFun::Effect::Set, .H = ThermoFun::Effect::Set, .S = ThermoFun::Effect::Set,
+                .Cp = ThermoFun::Effect::Set, .base = true};
+spec.parameters = {{"c0", "J/(mol.K)", "J/(mol*K)", "constant Cp"}};
+ThermoFun::MethodRegistry::instance().add(spec, [](const auto& app, const auto& substance) { /* ... */ });
+```
+
+User registration is a phase-2 extension point; it is documented as `provisional` (D5 maturity tags) in 1.0.
 
 ## 10. Tier-1 symbolic methods (decision Q15)
 
@@ -456,7 +489,7 @@ derivatives. Properties are therefore consistent by construction.
 | `source.form` | Operates on | Author writes | Tool generates | Effects |
 |---|---|---|---|---|
 | `cp` | substance | Cp(T) at Pr | G(T) = Gr − Sr (T − Tr) + ∫Cp dT − T ∫Cp/T dT (closed form by SymPy) | base (set G, H, S, Cp) |
-| `cp_increment` | substance | ΔCp(T), zero contribution at Tr | ΔG(T) from ∫ΔCp | add G, H, S, Cp |
+| `cp_increment` | substance | ΔCp(T) | ΔG(T) from ∫ΔCp with ΔH(Tr) = 0 and ΔS(Tr) = 0 (so ΔG(Tr) = 0); tested | add G, H, S, Cp |
 | `volume` | substance | V(T, P) | ΔG(T, P) = ∫ from Pr to P of V dP | add G, H, S, Cp; set or add V (declared) |
 | `gibbs` | substance | G(T, P) directly | copied | base |
 | `gibbs_increment` | substance | ΔG(T, P) directly | copied | add |
@@ -532,6 +565,10 @@ methods:
   the current `source` → `V2-SYM-003` (warning: regenerate); a test case fails → `V2-SYM-004`; the expression's
   dimension (checked by evaluating with unit-scaled parameters) does not give J/mol → `V2-SYM-005`.
 - Effects (§8) come from the `source.form` table above; a record declaring different effects → `V2-MTH-011`.
+- Limits (D63), checked when parsing: only the variables and functions listed in §10.2; comparisons and
+  `piecewise` only in generated segment expressions; expression text ≤ 2000 characters, tree depth ≤ 50,
+  ≤ 1000 operations (defaults, `SymbolicOptions`); exceeding them → `V2-SYM-006`. Expressions are parsed by
+  SymEngine's math parser only (no evaluation of code). Review of the method record (D36) remains the main check.
 
 ### 10.6 Without SymEngine
 
@@ -539,17 +576,41 @@ The C++ library builds without SymEngine by default (`TFUN_USE_SYMENGINE=OFF`, a
 has a coded equivalent (`CpIntegration`, `LogKAnalytic`, …) runs the code; one that exists only as an expression
 gives `V2-MTH-008` at use, telling the user to enable `TFUN_USE_SYMENGINE`.
 
-## 9. Registering a user method (C++)
+## 11. Choosing a method definition and implementation (decision Q31)
+
+A method id can have up to three sources. Resolution, most specific first:
+
+1. a Method record in the **dataset** (rare; overrides for that dataset only, warning `V2-MTH-021`);
+2. a Method record in the **project** scope (`thermohub-data/methods/definitions/`);
+3. the **built-in** `MethodSpec` of ThermoFun.
+
+A Method record for a built-in id must agree with the built-in spec (parameters, units, effects: `V2-MTH-010/011`).
+
+**Implementation.** A method is coded (Tier 2/3) or symbolic (Tier 1) by default (D4). The default can be
+overridden, as the design discussion asked ("by default a method is either symbolic or hard-coded; this can be
+overwritten by an exposed method in its own file with exposed parameters"):
+- **constants**: a `MethodParameterSet` (or inline parameters, decision Q7) replaces the built-in constants of a coded
+  method (phase 5);
+- **formula**: a Method record with an `expression` for a coded id is used **instead of the code** only when asked:
+  `implementation: symbolic` on the method application, or `EnginePreferences.method_implementation[id] = "symbolic"`.
+  Otherwise the code runs and the expression is used for documentation and checks. `validate()` evaluates both on
+  the record's test cases and reports disagreement (`V2-MTH-022`). This is the Tier-2 → Tier-1 promotion path: a
+  method moves to data when its expression reproduces the code.
+
+## 12. Auxiliary outputs (decision Q32)
+
+Besides G, H, S, Cp, V, methods expose named **auxiliary outputs** (the "additional" outputs of the design notes:
+density, dielectric constant, Born functions, solvation terms, fugacity coefficients, order parameters, …):
 
 ```cpp
-#include <ThermoFun/Methods/MethodRegistry.h>
-
-ThermoFun::MethodSpec spec;
-spec.id = "MyCpModel";
-spec.slot = ThermoFun::Slot::General;
-spec.effects = {.G = Effect::Set, .H = Effect::Set, .S = Effect::Set, .Cp = Effect::Set, .base = true};
-spec.parameters = {{"c0", "J/(mol.K)", "J/(mol*K)", "constant Cp"}};
-ThermoFun::MethodRegistry::instance().add(spec, [](const auto& app, const auto& substance) { /* ... */ });
+struct AuxiliaryOutputSpec { std::string name; std::string si_unit; std::string description; };
+// in MethodSpec:
+std::vector<AuxiliaryOutputSpec> auxiliary_outputs;
 ```
 
-User registration is a phase-2 extension point; it is documented as `provisional` (D5 maturity tags) in 1.0.
+First set (phase 2, from values the model classes already compute): water EoS methods → `density`, `alpha`,
+`beta`; dielectric methods → `epsilon`, `born_Z`, `born_Y`, `born_Q`, `born_X`; HKF methods → `omega_T` (effective
+Born coefficient), `g_function`, `born_contribution_G` (G of the solvation term); gas EoS → `fugacity_coefficient`;
+`HP98Landau` → `order_parameter_Q`; `HP11Tait` → `thermal_pressure`. They are returned by
+`thermoPropertiesSubstanceDetailed` (08 §4) only, never on the normal path. Adding one to a model class is the only
+case in this plan where a model `.cpp` gets a small change (exposing an existing intermediate value).

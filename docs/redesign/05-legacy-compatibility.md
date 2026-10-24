@@ -12,7 +12,7 @@ Three kinds of compatibility are kept:
 `IO/FormatDetect.cpp`:
 
 ```cpp
-enum class DataFormat { Auto, Legacy, V2 };
+enum class DataFormat { Auto, Legacy, V2 };   // declared in Model/DataFormat.h (records use it)
 
 /// Format of a whole parsed document (top-level object or array).
 auto detectDocumentFormat(const nlohmann::json& j) -> DataFormat;   // in .cpp only
@@ -183,8 +183,8 @@ Every fix-up of bad legacy data is a named function, applied in one place, logge
 | LEG-QRK-001 | method id and name disagree | id wins |
 | LEG-QRK-002 | method name has leading/trailing spaces (13 bundled records) | trimmed |
 | LEG-QRK-003 | `eos_hkf_coeffs.units[2] == "(cal*K)/mol"` | units replaced by the expected list |
-| LEG-QRK-004 | `m_expansivity.units[0] == "kbar"` | unit `1/K`, value × 1e5 |
-| LEG-QRK-005 | `m_compressibility.units[0] == "1e-05/K"` | unit `kbar` |
+| LEG-QRK-004 | `m_expansivity.units[0] == "kbar"` | legacy fields: unit `1/K`, value × 1e5 (today's parser); records: see the note below |
+| LEG-QRK-005 | `m_compressibility.units[0] == "1e-05/K"` | legacy fields: unit `kbar` (today's parser); records: see the note below |
 | LEG-QRK-006 | `aggregate_state` missing or empty | `other` (not `gas`) |
 | LEG-QRK-007 | record wrapped in `properties` (ArangoDB export) | unwrapped |
 | LEG-QRK-008 | `values: [null]` | property missing |
@@ -202,6 +202,14 @@ the model these physical values. The reader stores them as `alpha0` = `m_expansi
 `kappa0` = `m_compressibility.values[0]` kbar → Pa, as parameters of every `HP98Min` and `HP98Landau` application of
 the record; binding converts back to what the model receives (`isobaric_expansivity = alpha0·1e5`,
 `isothermal_compresibility = kappa0` in kbar). The golden suite checks that the numbers are unchanged.
+
+Conversions happen **once each way**:
+- reader (legacy → record): `alpha0 = m_expansivity.values[0]` in 1/K (no ×1e5); `kappa0 = m_compressibility.values[0] ×
+  1e8` Pa (the number is in kbar; 1 kbar = 1e8 Pa); quirks 004/005 are not applied on this path;
+- binding / legacy view (record → model fields): `isobaric_expansivity = alpha0 × 1e5` (the model multiplies by 1e-5),
+  `isothermal_compresibility = kappa0 × 1e-8` (kbar);
+- test: Corundum (aq17) record has `alpha0 = 4.19e-5` 1/K and `kappa0 = 2.52e11` Pa (2520 kbar), and its legacy fields
+  equal the frozen parser's.
 
 ## 5. The old API as a view over the record
 

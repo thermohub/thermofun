@@ -3,7 +3,8 @@
 This folder is the full plan for restructuring ThermoFun so that it reads the new ThermoHub v2 data format
 (LinkML/JSON-Schema based, YAML authored) while keeping the current ThermoHub JSON format working.
 
-All design questions are decided ([12-decisions.md](12-decisions.md)).
+All design questions are decided ([12-decisions.md](12-decisions.md)); the plan was checked against the full design
+discussion and the CodeRabbit review of PR #99.
 
 It is written to be implemented **step by step by a coding agent** (or a person) that has not taken part in
 the design discussion. Every step in [11-implementation-steps.md](11-implementation-steps.md) names the files
@@ -30,8 +31,8 @@ restated in these files, so the plan can be followed without them.
 | [10-documentation.md](10-documentation.md) | Documentation structure (Diátaxis), what is generated, docstring rules, changelog | Phases 2, 3, 6 |
 | [11-implementation-steps.md](11-implementation-steps.md) | **The ordered list of steps** (S0.1 … S6.x) with files, code, tests, done-criteria, commit messages | While implementing |
 | [12-decisions.md](12-decisions.md) | Decision log: every design question, the decision taken, and where it is applied | When a choice in another file needs its reason |
-| [14-conventions.md](14-conventions.md) | Thermodynamic conventions (energy reference, standard pressure, concentration scale, water reference): declared per method/record/dataset, converted to one internal convention, output in the user's convention | Phase 3 (S3.11) |
 | [13-data-sources.md](13-data-sources.md) | External data sources (PHREEQC/NEA/LLNL, Holland–Powell, JANAF/NASA, SGTE/CALPHAD, Materials Project and other DFT databases): compatibility and methods to add | Phase 7 |
+| [14-conventions.md](14-conventions.md) | Thermodynamic conventions (energy reference, standard pressure, concentration scale, water reference): declared per method/record/dataset, converted to one internal convention, output in the user's convention | Phase 3 (S3.11) |
 
 ## Phases at a glance
 
@@ -64,7 +65,8 @@ These apply to every step. When a step seems to need breaking one, stop and ask.
 6. **Do not add dependencies** other than those named in a step. Optional dependencies are behind CMake
    options that default to `OFF` and the build must work without them.
 7. **Keep the maths.** Model classes in `Substances/` and `Reactions/` are not edited except where a step says
-   so (Phase 5). New code calls them; it does not re-implement them.
+   so (S2.7 exposes existing intermediate values as auxiliary outputs; Phase 5 moves constants). New code calls
+   them; it does not re-implement them.
 8. **When the code disagrees with this plan, the code is right about today's behaviour.** Note the difference
    in the step's commit message and in [12-decisions.md](12-decisions.md) (as a new entry), keep today's behaviour.
 9. **Build and test commands** (Linux, conda environment from `environment.devenv.yml`):

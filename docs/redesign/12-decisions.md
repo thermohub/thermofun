@@ -40,6 +40,9 @@ To add a decision: append an entry with the next number, the date, and the files
 | Q27 | DFT-derived data | separate `sourcetdb`, quality `supplemental`, origin `calculated`; no G(T) model by default, Bartel optional | provisional | 13 §4, §5.3, S7.6 |
 | Q29 | Reaktoro-compatible models of the `new_models` branch | part of ThermoFun: `HP11Tait` (id 39), `ExtendedUNIQUAC` (44), `NASA9` (45), `TPTableInterpolation` (46); merged before `golden-baseline`; their energy conventions handled in S7.5 | final | 06 §5.1, §8.3, 03 §4, 04 §3.5.1, 09 §1.1, Phase 0, S7.2–S7.5, 13 |
 | Q30 | Different thermodynamic conventions | declared per method/record/dataset, converted to one canonical convention (Benson–Helgeson, 1 bar, molality, geochemical water) after each method step, output in the user's convention; core of v2 (Phase 3) | final | 14, S3.11, 03, 04, 06, 08 |
+| Q31 | Method definition and implementation choice | dataset Method record > project record > built-in spec; coded implementation by default, symbolic only when requested; both checked on test cases | final | 06 §11, 08 §4 |
+| Q32 | Calculator features from the design discussion | per-record property source, consistency report, auxiliary outputs, parameter sensitivities (optional), Python record builder, structural data pass-through, provenance of derived uncertainties | final | 06 §12, 08 §4, §4a, 03, S2.7, S3.12, S3.13 |
+| R1 | CodeRabbit review of PR #99 (20 comments) | 19 applied as proposed; the HP98 unit item applied with corrected numbers (2520 kbar = 2.52e11 Pa; Pa → kbar is × 1e-8) | final | 02–11 |
 | Q28 | Activity models (Debye–Hückel, SIT, Pitzer) | out of ThermoFun's scope (solver's job); kept as unknown fields by adapters | provisional | 13 §2.1 |
 
 ## Details
@@ -136,3 +139,29 @@ canonical convention before results are combined or used in reactions; the final
 convention the user asks for (generalising today's Berman–Brown and steam-table options). All energy references
 differ from Berman–Brown by terms in the formula's element entropies, so conversions are closed-form. Moved to
 Phase 3 (S3.11) because the `new_models` methods need it; supersedes Q24 and Q26. Details: 14.
+
+### Q31. Method definition and implementation — 2026-10-24, final
+From the design discussion: "by default a method is either symbolic or hard-coded in the calculator; this can be
+overwritten by an exposed method in its own YAML file with exposed parameters", and method files sit above the
+ThermoDataSets. Resolution: dataset Method record (rare, warned) > project Method record > built-in spec. A coded
+method runs by default; its constants can be replaced by a parameter set (Q7); its formula is replaced by a symbolic
+expression only when requested (`implementation: symbolic` or `EnginePreferences.method_implementation`), and both
+are checked against the record's test cases. Details: 06 §11.
+
+### Q32. Calculator features from the design discussion — 2026-10-24, final
+Points of the design discussion that belong to ThermoFun and were not yet planned: per-substance override of the
+property source (D15/D16, O46); a consistency report for over-determined records (D17, D37, O48); named auxiliary
+outputs of methods (the "additional outputs" of the design notes, D65); parameter sensitivities to fit one
+contribution's parameters (the reason for method splitting); a Python record builder (construction simplicity as a
+tooling layer); structural data kept on records and passed to methods (O53); `sources` and `snapshot` on derived
+uncertainties (D11, D33). Details: 06 §12, 08 §4–§4a, 03, steps S2.7, S3.12, S3.13.
+
+### R1. CodeRabbit review of PR #99 — 2026-10-24
+All 20 comments applied: `DataFormat` moved to `Model/DataFormat.h`; alias resolution through `MethodCatalog`;
+documented exception for the `ParseJsonToData.cpp` forwarder; element classes 1–3 left unmapped until verified;
+published datasets need a version; covariance scope clarified; coverage factors must be positive; dataset metadata
+files carry the `thermohub` key; inherited metadata is computed, not stored; the writer emits extension fields;
+HP98 units converted once each way (with corrected numbers: 2520 kbar = 2.52e11 Pa, Pa → kbar × 1e-8); standard
+headers in the spec; at most one transform per record; `ReactionEffects` with `final`; `cp_increment` boundary
+conditions; qualified example; baseline cache key includes the build script and options; table fix; `packLegacy`
+restores extra legacy values; slot code stored on the spec; stray `tests/golden/` entry removed.

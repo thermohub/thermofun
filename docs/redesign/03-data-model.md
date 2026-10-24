@@ -41,6 +41,10 @@ struct Uncertainty
     /// Optional degrees of freedom (D9-D).
     std::optional<double> degrees_of_freedom;
 
+    /// For kind == Derived: the records the value was propagated from, and the snapshot it was computed against (D11, D33).
+    std::vector<std::string> sources;
+    std::string snapshot;
+
     /// True if the uncertainty came from a legacy file whose convention (u, U, CI) is not stated (05 §3.2).
     bool convention_unknown = false;
 };
@@ -159,12 +163,12 @@ Reaktoro. Accept `crystalline` as an alias when reading — decision Q12.)
 | v2 `class` | Legacy | Count |
 |---|---|---|
 | `element` | 0 `ELEMENT` | 490 |
-| `isotope` | 1 `ISOTOPE` | 0 |
-| `ligand` | 2 `LIGAND` | 0 |
 | `charge` | 4 `CHARGE` | 14 |
-| `other` | other codes | 0 |
+| `other` | any other code (raw code kept in `extra_json` as `_legacy_class`, written back unchanged) | 0 |
 
-(Verify the codes 1–3 against `Element.cpp` / ChemicalFun before writing the table into code.)
+Codes 1–3 (probably isotope/ligand-type classes of ChemicalFun) do not occur in the data and are not mapped
+until their meaning is verified in ChemicalFun's `ElementKey`; mapping them later is a table edit (decision Q12).
+Round-trip tests cover 0, 4 and an unknown code.
 
 ### 2.5 Other vocabularies
 
@@ -228,7 +232,7 @@ struct TableData
 
 (`TableData` is declared before `MethodApplication` in the header.)
 
-Ordering: `SubstanceRecord::methods` keeps file order (for round-trip). The executor derives the order from the methods' declared effects (§06 §8); file order matters only among transformations.
+Ordering: `SubstanceRecord::methods` keeps file order (for round-trip). The executor derives the order from the methods' declared effects (§06 §8); file order does not change results (at most one transformation per record, 06 §8.2).
 
 ## 5. Records
 
@@ -248,6 +252,7 @@ struct ElementRecord
     std::optional<Quantity> heat_capacity;       ///< J/(mol.K) (legacy heat_capacity)
     std::optional<Quantity> volume;              ///< m3/mol
     std::string reference_form;         ///< e.g. "graphite" (O36), optional
+    std::map<std::string, Quantity> structural;   ///< supplemental data (ionic_radius, coordination, ...), O53
     std::vector<std::string> data_sources;
     std::string sourcetdb;
     std::string extra_json;
@@ -289,6 +294,7 @@ struct SubstanceRecord
     std::string defining_reaction;                      ///< reaction symbol (D15); legacy "reaction"
     Applicability applicability;                        ///< record-level range (legacy record limitsTP)
     std::string preferred_property_source;              ///< "direct" | "reaction" | "" (D16)
+    std::map<std::string, Quantity> structural;         ///< supplemental structural data (O53), passed to methods that use it
 
     // provenance and lifecycle
     std::string data_source;                            ///< record-level default source (D48)
@@ -440,6 +446,7 @@ Elements, substances and reactions stay in today's maps (`ElementsMap`, `Substan
 ## 7. Invariants checked by `Validate` (§04 §7)
 
 - every `symbol` non-empty and unique per record type in the database;
+- a ThermoDataSet with `status: published` has a non-empty `version` (`V2-DS-001`; drafts may omit it);
 - every `methods[i].method` known to the registry (after aliases) or defined by a `MethodDefinition`;
 - every required parameter of a method present (inline, in its `parameter_set`, or with a default);
 - `parameter_set` exists and belongs to the same method;

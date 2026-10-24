@@ -66,12 +66,15 @@ Rules (the implementation is `IO/V2/Normalize.cpp`):
 2. A string → split at the first space; the left part must parse as a number (`V2-QTY-001` otherwise), the right
    part is the unit.
 3. An object → `value` is required (`V2-QTY-002`); allowed keys: `value, unit, uncertainty, quality, origin,
-   calculation_path, source`; other keys → warning `V2-QTY-003`, kept nowhere (Quantities have no `extra_json`).
+   calculation_path, source`; other keys (including covariance keys inside a quantity) → warning `V2-QTY-003`, dropped (Quantities have no
+   `extra_json`). Correlations between values are written as a record-level `covariances` block, which is kept in the
+   record's `extra_json` and round-trips (07 §5.5).
 4. Unit resolution: explicit `unit` > the nearest enclosing `units:` default for the slot's dimension (§3.3) >
    the slot's default unit (SI, or the parameter's declared unit for method parameters, §06).
 5. Conversion: `value_SI = convert(value, unit, slot_SI_unit)`; uncertainty is converted as a **difference**
    (scale only, no offset; for °C → K the uncertainty is unchanged).
-6. `expanded` without `coverage_factor` → error `V2-UNC-001`. Both `standard` and `expanded` → error `V2-UNC-002`.
+6. `expanded` without `coverage_factor` → error `V2-UNC-001`; a `coverage_factor` that is not finite and > 0 → error
+   `V2-UNC-004`. Both `standard` and `expanded` → error `V2-UNC-002`.
    Negative uncertainty → error `V2-UNC-003`.
 7. A bare `uncertainty: 0` is kept as zero (a defined zero, D9), not as "missing".
 
@@ -167,6 +170,7 @@ Fields:
 | `applicability` | `{t_min, t_max, p_min, p_max}` | record-level range, used when a method application has none *(provisional)* |
 | `data_source` | DataSource symbol | record default (D48) |
 | `data_sources` | list of symbols | all citations of the record, as legacy `datasources` *(provisional)* |
+| `structural` | map name → Quantity | supplemental data (ionic radius, coordination, …; O53), kept and passed to methods |
 | `deprecated`, `deprecated_in_favour_of` | bool, symbol | D39 |
 
 #### 3.5.1 Method application
@@ -278,7 +282,8 @@ any of `standard_state_properties`, `methods`, `stoichiometry`, `reaction_proper
 
 `Database("path/to/thermohub-data/datasets/cemdata18/v2.1.0")` (a directory) loads:
 
-1. the dataset directory: `thermodataset.yaml|json` (required), then every `*.yaml|*.yml|*.json` under
+1. the dataset directory: `thermodataset.yaml|json` (required; like every v2 file it has the top-level `thermohub`
+   version key, with a `thermodataset:` section), then every `*.yaml|*.yml|*.json` under
    `substances/`, `reactions/`, `elements/` (each file is a bundle with the matching section, or a single
    record with `record_type`), in sorted path order;
 2. project-scoped records: searching upward from the dataset directory for a directory that has `methods/` or
@@ -291,10 +296,12 @@ is loaded once even if included several times; include cycles → `V2-INC-001`.
 ## 6. Resolution (after all files are read)
 
 Implemented in `IO/Resolve.cpp`, in this order:
-1. **Aliases**: `methods[*].method` → canonical id via the registry (§06); unknown → `V2-REF-003`.
-2. **Defaults (D48)**: for each Quantity, empty `meta.source/quality/origin` are filled from the record
-   (`data_source`), then from `thermodataset` (`data_source`, `defaults`). The as-written state is kept for the
-   writer (the writer emits only what was written).
+1. **Aliases**: `methods[*].method` → canonical id via `MethodCatalog::canonicalId` (§06 §2; IO never uses the registry); unknown → `V2-REF-003`.
+2. **Defaults (D48)**: records keep only what was written; inherited metadata is **not** copied into the
+   Quantities. `effectiveMeta(quantity, record, dataset)` computes the effective values when they are needed, per
+   field: `source` ← quantity, else record `data_source`, else dataset `data_source`; `quality` ← quantity, else
+   dataset `defaults.quality`; `origin` ← quantity, else dataset `defaults.origin`; `calculation_path` is never
+   inherited. So the writer emits exactly what was written.
 3. **Reference conditions**: record value, else dataset, else 298.15 K / 1e5 Pa.
 4. **References**: `defining_reaction` → reaction (`V2-REF-001`), stoichiometry keys → substances (`V2-REF-002`,
    warning), `parameter_set` → set of the same method (`V2-REF-004`), `data_source` → DataSource (`V2-REF-005`,
@@ -321,6 +328,9 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-UNC-001 | E | `expanded` uncertainty without `coverage_factor` |
 | V2-UNC-002 | E | both `standard` and `expanded` given |
 | V2-UNC-003 | E | negative uncertainty |
+| V2-UNC-004 | E | coverage factor not finite or not > 0 |
+| V2-DS-001 | E | published ThermoDataSet without `version` |
+| V2-KEY-002 | W | an extension field collides with a canonical field on writing (canonical wins) |
 | V2-VOC-001 | W | unknown vocabulary value (class, aggregate_state, …), `other` used |
 | V2-MTH-001 | E | unknown method id |
 | V2-MTH-002 | E | unknown parameter name for the method |
@@ -335,6 +345,7 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-MTH-014 | W | a method adds to V but no earlier step defines V |
 | V2-MTH-015 | W | a transformation is listed after setters/adders (it runs before them) |
 | V2-MTH-016 | I | an inline parameter overrides an entry of the referenced parameter set |
+| V2-MTH-017 | E | more than one transformation method in a record |
 | V2-MTH-018 | E | a `table` has arrays whose size is not nT × nP, or unsorted grids |
 | V2-MTH-010 | E | Method record's parameter definitions disagree with the built-in spec |
 | V2-MTH-011 | E | Method record's `operates_on`/`contributes_to` disagree with the built-in spec |
@@ -353,6 +364,9 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-SYM-002 | E | symbolic expression does not parse |
 | V2-SYM-003 | W | `source` changed after `expression` was generated (regenerate) |
 | V2-SYM-004 | E | a reference test case of the method fails |
+| V2-SYM-006 | E | a symbolic expression exceeds the size limits or uses a disallowed construct |
+| V2-MTH-021 | W | a dataset-local Method record overrides a project or built-in method |
+| V2-MTH-022 | W | a method's symbolic expression and its coded implementation disagree on the test cases |
 | V2-SYM-005 | E | the expression does not have the dimension of energy per mole |
 | V2-SRC-001 | W | DataSource symbol not in NEA pattern |
 | LEG-QRK-001…011 | I | a legacy quirk was applied (list in 05 §4) |
@@ -369,3 +383,7 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 `WriterOptions::keep_order` (default true: keep load order, so a converted file diffs cleanly against its source).
 Inside a record the field order of §3.4–§3.6 tables. Writing JSON is always available; YAML output is produced by
 the Python converter (PyYAML, `sort_keys=False`, `allow_unicode=True`) or by C++ with `TFUN_USE_YAML`.
+
+Unknown fields kept in `extra_json` (top level, records, method applications) are written back after the canonical
+fields of the same object, in JSON and YAML alike, so a file of a newer minor version round-trips. If an extension
+key collides with a canonical key, the canonical value wins and `V2-KEY-002` is reported.

@@ -8,7 +8,7 @@ return types, same name in Python, §02 §3). Each new function below says the p
 ### C++
 
 ```cpp
-// IO/Format.h  (phase 1)
+// Model/DataFormat.h  (phase 1)
 enum class DataFormat { Auto, Legacy, V2 };
 
 // Database.h — new overloads and members (existing ones unchanged)
@@ -100,6 +100,7 @@ struct DetailedPropertiesSubstance {
     std::vector<std::pair<std::string, ThermoPropertiesSubstance>> steps;   // method id → properties after the step
     std::optional<PropertiesSolvent> solvent;                               // water records
     std::optional<ElectroPropertiesSolvent> solvent_electro;
+    std::map<std::string, Reaktoro_::ThermoScalar> auxiliary;               // 06 §12, e.g. "epsilon", "g_function"
 };
 auto thermoPropertiesSubstanceDetailed(double T, double& P, const std::string& symbol) const -> DetailedPropertiesSubstance;
 
@@ -120,10 +121,66 @@ and map onto them. Input conventions come from the data (methods, records, datas
 
 `EnginePreferences` gains (phase 3) `std::string property_source = "record"` with values `record` (today:
 REACDC rule and the record's `preferred_property_source`), `direct`, `reaction` (D15 modes, O46). Default keeps
-today's results.
+today's results. Per substance or reaction (decision Q32):
+
+```cpp
+auto setPropertySource(const std::string& symbol, const std::string& source) -> void;  // "record" | "direct" | "reaction" | "reactants"
+auto propertySource(const std::string& symbol) const -> std::string;
+```
+
+`EnginePreferences.method_implementation` (`std::map<std::string, std::string>`, id → `"code"` | `"symbolic"`)
+selects the implementation of a method (06 §11).
+
+### Consistency report (decision Q32, D17, D37)
+
+```cpp
+struct ConsistencyItem {
+    std::string symbol;            // over-determined substance or reaction
+    std::string kind;              // "substance_vs_reaction" | "reaction_vs_reactants"
+    double T, P;                   // K, Pa
+    double delta_G;                // J/mol, direct minus derived
+    double delta_logK;             // for reactions
+    std::string flag;              // "consistent" | "inconsistent" (threshold: ConsistencyOptions)
+};
+auto consistencyReport(const std::vector<std::pair<double,double>>& TP, const ConsistencyOptions& = {}) const
+    -> std::vector<ConsistencyItem>;
+```
+
+Over-determined records (a substance with its own data and a defining reaction; a reaction with its own properties
+whose species all have data) are evaluated both ways. Python: `python -m thermofun.consistency DB [--TP ...]`
+writes a table; CI of data repositories posts it as information, never as a failure (D37).
+
+### Parameter sensitivities (decision Q32, optional)
+
+```cpp
+/// d(property)/d(parameter) for the parameters of one method application of a substance, at T (K), P (Pa)
+auto parameterSensitivities(double T, double& P, const std::string& symbol, const std::string& method_id) const
+    -> std::map<std::string, ThermoPropertiesSubstance>;   // parameter name -> derivatives of G, H, S, Cp, V
+```
+
+Built on the existing parameter-derivative passes (`propagate_parameter_errors`, `uncertainCoefficients`), it lets an
+optimiser fit the parameters of one contribution (e.g. the Landau term of a mineral) without touching the others.
+Fitting itself stays outside ThermoFun.
 
 Python: same names; `ThermoBatch` CSV output gets an optional header line with the snapshot
 (`batch.setOutputSnapshot(True)`, default False so files do not change).
+
+## 4a. Building records in Python (decision Q32)
+
+Construction should be as easy as in Reaktoro or Cantera; the builder writes ordinary v2 records:
+
+```python
+from thermofun import records as rec
+
+quartz = (rec.substance("Quartz", formula="SiO2", aggregate_state="crystal", class_="component")
+             .standard_state(G=-856288, H=-910700, S=41.46, Cp=44.6, V="22.688 cm3/mol")
+             .method("CpIntegration", segments=[dict(t_min=298.15, t_max=844, a0=44.6, a1=0.0378, a2=-1.0e6)])
+             .method("HP98Min", alpha0=1.24e-5, kappa0="730 kbar"))
+db.addSubstance(quartz.to_json())        # or quartz.record() -> SubstanceRecord
+```
+
+Values accept numbers, `"number unit"` strings and `{value, uncertainty, unit}` dicts (same rules as files, 04 §3.1).
+`rec.reaction(...)`, `rec.element(...)` likewise. Pure Python (`python/src/thermofun/records.py`), no C++ change.
 
 ## 5. Converter and validator (phase 3/4, Python only)
 
