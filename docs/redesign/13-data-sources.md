@@ -21,7 +21,7 @@ secondary sources and must be verified against the primary source before impleme
 | CHNOSZ OBIGT | HKF / CGL / Berman species (CSV) | existing HKF and Cp methods; **Berman (1988) Cp + V**, Berman Landau (listed, not implemented) | medium | high |
 | CODATA key values | ΔfH°, S°, H°(298)−H°(0) for key species | existing (reference values only) | low | medium (anchoring, checks) |
 | NIST-JANAF tables (SRD 13), NIST WebBook | tabulated G, H, S, Cp vs T; **Shomate** coefficients | **Shomate** (Tier 1), **tabulated properties** method | low | medium–high (gases, high T) |
-| NASA Glenn / Burcat | **NASA-7 / NASA-9** polynomials | NASA7/NASA9 (Tier 1) + enthalpy convention conversion | low | medium (gases, combustion) |
+| NASA Glenn / Burcat | **NASA-7 / NASA-9** polynomials | `NASA9` exists (`new_models`); NASA-7 as Tier-1 form; enthalpy convention conversion | low | medium (gases, combustion) |
 | SGTE unary / CALPHAD TDB | **G − H_SER** polynomials of elements and stoichiometric phases; magnetic term | **SGTE G polynomial** (Tier 1 `gibbs` form), **Inden–Hillert–Jarl magnetic** term, **SER ↔ formation** conversion | medium | medium–high (alloys, slags, links to CALPHAD) |
 | Materials Project, OQMD, AFLOW, JARVIS (DFT) | 0 K formation energies (eV/atom), structures; AFLOW AGL Debye properties | **eV/atom → J/mol** per formula, **G(T) estimation** (Bartel descriptor or Debye), correction-scheme provenance; quality `supplemental`, origin `calculated` | medium | medium (coverage of compounds without experiments; screening) |
 | MP `experimental_thermo` (MPContribs; Kubaschewski et al.) | experimental ΔfH and related values with T ranges | reference values; Shomate-like or tabulated data | low | medium |
@@ -77,9 +77,9 @@ Holland & Powell (2011) (ds6x) uses a **modified Tait equation of state** with a
 temperature), an updated Landau treatment, and Pitzer–Sterner (1995) for gases; versions 6.2 and 6.33 are in wide
 use with THERMOCALC. SUPCRTBL takes most mineral end-members from Holland & Powell (2011) with HKF aqueous species.
 
-ThermoFun today: `HP98Min` (Murnaghan, HP1998), `HP98Landau`, `SternerPitzer`; `HP11Tait` is a **known id with no
-implementation** (`mv_eos_tait_hp11`, 06 §5.1). Implementing HP2011 Tait and HP2011 Landau (Tier 2) would let
-ThermoFun use ds62/ds633 and SUPCRTBL minerals directly. Adapter: the ds62 text file (`tc-ds62.txt`) → v2.
+ThermoFun: `HP98Min` (Murnaghan, HP1998), `HP98Landau`, `SternerPitzer`, and `HP11Tait` (modified Tait EoS with
+thermal pressure, from the `new_models` branch, decision Q29). Adding the HP2011 Landau model (Tier 2) lets ThermoFun
+use ds62/ds633 and SUPCRTBL minerals directly. Adapter: the ds62 text file (`tc-ds62.txt`) → v2.
 
 ### 2.6 DEW (Deep Earth Water)
 
@@ -180,7 +180,8 @@ Needed:
 | Apparent formation (Benson–Helgeson) | SUPCRT, slop, aq17, PHREEQC (via log K) | ΔfG°(Tr) + G(T) − G(Tr) | none (today's default) |
 | Berman–Brown | Berman, HP | G = ΔfH°(Tr) − T S° + … | exists (`EngineConventions.apparent_properties`) |
 | SER (CALPHAD, SGTE) | TDB, SGTE | G − Σ H_SER(elements, 298.15 K) | needs element SER data: subtract Σν_i [H_SER,i − T S_i] terms consistently |
-| Assigned enthalpy (NASA, JANAF H − H298 + ΔfH) | NASA-7/9, JANAF, Burcat | H includes ΔfH(298) | needs element reference H and S |
+| Assigned enthalpy (NASA, JANAF H − H298 + ΔfH) | NASA-7/9 (incl. ThermoFun `NASA9`), JANAF, Burcat | H includes ΔfH(298) | needs element reference H and S |
+| Gibbs–Helmholtz from ΔfG, ΔfH | Extended UNIQUAC (ThermoFun `ExtendedUNIQUAC`) | G(T) = Gr·T/Tr + Hr(1 − T/Tr) + Cp terms | entropy term uses ΔfS, not S°: offset (T − Tr)·Σ S(elements) vs Benson–Helgeson; converts with element entropies |
 | DFT 0 K formation energy | MP, OQMD, AFLOW, JARVIS | ΔfE at 0 K, per atom, with corrections | per-formula scaling, eV → J/mol, + G(T) model; treat as ΔfH(298) estimate |
 
 Decision Q24: add an `energy_reference` field to the standard-state convention of a record or dataset
@@ -214,14 +215,15 @@ redistribution needs per-source checks.
 | Method | Tier | Form (06 §10) | Enables |
 |---|---|---|---|
 | `Shomate` | 1 | new source form `shomate` (Cp in t = T/1000, piecewise) | NIST WebBook / JANAF species |
-| `NASA7`, `NASA9` | 1 | new source forms `nasa7`, `nasa9` | NASA Glenn, Burcat, Cantera data |
+| `NASA7` | 1 | new source form `nasa7` (`NASA9` exists as a coded method, `new_models`) | NASA Glenn, Burcat, Cantera data |
 | `SGTEPolynomial` | 1 | `gibbs` (piecewise) + SER convention | SGTE unary/substance, CALPHAD stoichiometric phases |
 | `MagneticIHJ` | 1 | `gibbs_increment`, piecewise f(τ) | SGTE/CALPHAD magnetic elements and compounds |
 | `BermanCp` mapping | 1 / existing | `cp` | OBIGT/Berman minerals |
 | `BartelGibbs` | 1 | `gibbs_increment` from mass, V/atom | approximate G(T) for DFT compounds |
-| `TabulatedProperties` | 2 | interpolation of G, H, S, Cp on a T (and P) grid, consistent integration | JANAF tables, any tabulated source |
+| `TPTableInterpolation` (exists, `new_models`); consistent-spline option if needed | 2 | interpolation of G, H, V, Cp on a T–P grid | JANAF tables, any tabulated source |
 | `TabulatedLogK` | 2 | interpolation of log K on a T grid (legacy id 8 `logk_lagrange_interp`) | LLNL thermo.dat, EQ3/6, GWB |
-| `HP11Tait`, `HP11Landau` | 2 | C++ | Holland–Powell ds62/ds633, SUPCRTBL |
+| `HP11Landau` (`HP11Tait` exists, `new_models`) | 2 | C++ | Holland–Powell ds62/ds633, SUPCRTBL |
+| `ExtendedUNIQUAC` (exists, `new_models`) | 2 | C++ | Extended UNIQUAC (Thomsen) data, as in Reaktoro |
 | `Berman88Landau` | 2 | C++ (listed, not implemented) | Berman minerals with lambda transitions |
 | `DebyeQHA` | 2 | C++ (Debye integral) | AFLOW AGL, phonon-derived data |
 | PHREEQC `-Vm` aqueous volume | 2 | C++ | PHREEQC P dependence of log K |
@@ -233,9 +235,9 @@ New **source forms** (`shomate`, `nasa7`, `nasa9`) are small additions to the au
 
 1. **PHREEQC-format reaction data** (analytic log K with the log10 conversion, van 't Hoff) and **TabulatedLogK** —
    largest user base; also implements the dormant legacy id 8.
-2. **HP11Tait + HP11Landau** — completes the Holland–Powell family already half present; opens ds62/ds633 and
+2. **HP11Landau** (Tait exists) — completes the Holland–Powell family; opens ds62/ds633 and
    SUPCRTBL.
-3. **Shomate, NASA7/9, SGTE polynomial, magnetic IHJ** as Tier-1 forms — cheap after Q15's tooling; opens gas and
+3. **Shomate, NASA-7, SGTE polynomial, magnetic IHJ** as Tier-1 forms (NASA-9 exists) — cheap after Q15's tooling; opens gas and
    CALPHAD data.
 4. **Energy reference conventions** (SER, assigned enthalpy) and **standard pressure** conversion — needed by 3.
 5. **DFT databases** (MP, OQMD) with eV/atom handling, provenance of correction schemes and Bartel G(T) —

@@ -10,6 +10,10 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ## Phase 0 — Safety net
 
+**Before S0.1:** merge the `new_models` branch (Tait HP11, Extended UNIQUAC, NASA polynomials, T–P table
+interpolation; decision Q29). The golden references and the baseline must include these methods; their own tests
+(`tests/reaktoro_models`, compared with Reaktoro) stay as they are.
+
 ### S0.1 Golden reference suite — committed subset
 
 - **Needs**: —
@@ -78,7 +82,8 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
 
 ### S0.4 Two-build comparison and CI job
 
-- **Needs**: S0.1, S0.3; the maintainer has tagged `golden-baseline` (the commit with S0.1–S0.3 merged).
+- **Needs**: S0.1, S0.3; the `new_models` branch merged (decision Q29); the maintainer has tagged `golden-baseline`
+  (the commit with `new_models` and S0.1–S0.3 merged), so the baseline contains the new methods.
 - **Files**: `pytests/golden/build_baseline.sh`, `pytests/golden/compare_builds.py`, `.gitignore`
   (`.golden-baseline/`), `.github/workflows/ci-build.yml` (new job `golden-diff`).
 - **Do**: 09 §1.4. The job runs on `pull_request` and on `push` to `master`, Linux only, uses the same conda
@@ -173,6 +178,7 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
   `ParseJsonToData.cpp` exactly), `legacy_key`, `legacy_index`, and `legacy` aliases (id, name, thrift code from
   `new_old_s_methodtype`/`new_old_r_methodtype`, or 122/123 for HP98/AN91, 99 for CON).
   For parameter names marked "to be determined", use `c0…cN` and leave a `// TODO(S2.3)` comment.
+  Include the `new_models` ids 39 and 44–46 (06 §5.1).
 - **Test**: 09 §5 `test_catalog.cpp` list.
 - **Commit**: `Add catalog of built-in method specifications`
 
@@ -201,6 +207,9 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
      follows the same rule as `convert_value_units` (missing/empty → the model unit). Extra values → `extra_json`
      `_legacy_extra_values` (LEG-QRK-010). Coefficient keys that belong to another method → 05 §3.3.
   3. `original_text` = the input text; `source_format = Legacy`.
+  4. `new_models` keys: `eos_tait_hp11_coeffs`, `eos_extended_uniquac_coeffs`, `nasa_polynomial_coeffs` (one
+     segment per TPMethods entry, range from `limitsTP`, as `cp_ft_equation`) become named parameters; the `tp_table`
+     object becomes `MethodApplication.table` (§03 §4).
 - **Test**: small hand-written records: HKF species, a Cp mineral with 2 intervals and a transition, H2O@, a gas
   with PRSV, a reaction with logk_ft_coeffs; check record fields and SI values (e.g. a1 in J/(mol.Pa) =
   0.1839 cal/(mol*bar) × 4.184 / 1e5).
@@ -278,7 +287,8 @@ Notation: `TF/` = `ThermoFun/`, `PY/` = `python/src/thermofun/`.
   `BuiltinReactionMethods.cpp`, `BuiltinSolventMethods.cpp`, `tests/model/test_binding.cpp`.
 - **Do**: 06 §2 and §6. In this phase factories only resolve the spec (the executor still calls the classes);
   `bindSubstance` returns the slot specs and a `Substance` whose legacy fields are packed from the record
-  (`packLegacy`). For legacy-loaded records the legacy fields already exist; `packLegacy` must still be
+  (`packLegacy`, including the `new_models` fields `volume_Tait_coeff`, `uniquac_coeff`, `nasa_coeff`,
+  `nasa_temperature_intervals`, `tp_table`). For legacy-loaded records the legacy fields already exist; `packLegacy` must still be
   implemented from named parameters, because v2 records need it.
 - **Test**: for every bundled record, `dumpSubstance(packLegacy(record))` equals `dumpSubstance(substance)` —
   this checks every parameter name, index and unit of the catalog **before any v2 file exists**.
@@ -601,27 +611,30 @@ Background and sources: [13-data-sources.md](13-data-sources.md).
 
 ### S7.2 Tabulated methods
 
-- **Files**: `TF/Reactions/LogKTabulated.*`, `TF/Substances/TabulatedProperties.*`, catalog entries, tests.
-- **Do** (decision Q25): `TabulatedLogK` interpolates log K on a T grid (cubic spline on log K vs T; ΔrH, ΔrS, ΔrCp
-  from its derivatives); map legacy id 8 `logk_lagrange_interp` to it (today a no-op: legacy files keep the no-op
-  behaviour unless the record has a table, so golden results do not change). `TabulatedProperties` interpolates Cp
-  (spline) and integrates for H, S, G from the tabulated reference row, so properties stay consistent.
+- **Files**: `TF/Reactions/LogKTabulated.*`, catalog entries, tests (`TPTableInterpolation` for substances exists,
+  from `new_models`).
+- **Do** (decisions Q25, Q29): `TabulatedLogK` interpolates log K on a T grid (cubic spline on log K vs T; ΔrH, ΔrS,
+  ΔrCp from its derivatives), using the same `table` block as `TPTableInterpolation`; map legacy id 8
+  `logk_lagrange_interp` to it (today a no-op: legacy files keep the no-op behaviour unless the record has a table,
+  so golden results do not change). For substances, keep `TPTableInterpolation` (bilinear, Reaktoro-compatible) and
+  add, only if needed, a thermodynamically consistent option (spline on Cp, integrate H, S, G from the reference row).
 - **Test**: LLNL thermo.dat species reproduce their 8 tabulated values exactly; JANAF fixture reproduces the table.
 - **Commit**: `Add tabulated log K and tabulated properties methods`
 
 ### S7.3 Holland–Powell 2011
 
-- **Files**: `TF/Substances/Solids/SolidTaitHP11.*`, `SolidLandauHP11.*`, catalog (`HP11Tait` implemented,
-  `HP11Landau` new), fixtures from the HP2011 paper / ds62.
-- **Do**: implement the modified Tait EoS with thermal pressure (Einstein temperature) and the HP2011 Landau model,
-  templated on `real`; declare effects (06 §8.3).
+- **Files**: `TF/Substances/Solids/SolidLandauHP11.*`, catalog (`HP11Landau` new), fixtures from the HP2011 paper /
+  ds62. The Tait EoS (`HP11Tait`, `SolidTaitHP11.*`) exists from `new_models`.
+- **Do**: implement the HP2011 Landau model, templated on `real`; declare effects (06 §8.3); a ds62 adapter
+  (`thermohub-tools`) writes `HP11Tait` + `HP11Landau` records.
 - **Test**: reproduce published or THERMOCALC values for a few end-members (quartz, forsterite, a Landau phase).
-- **Commit**: `Implement the Holland-Powell 2011 equation of state and Landau model`
+- **Commit**: `Implement the Holland-Powell 2011 Landau model`
 
 ### S7.4 Tier-1 source forms for gas and CALPHAD data
 
 - **Needs**: S5.4, S7.5.
-- **Files**: `PY/methods.py` (new source forms `shomate`, `nasa7`, `nasa9`, `sgte`), method records in
+- **Files**: `PY/methods.py` (new source forms `shomate`, `nasa7`, `sgte`; NASA-9 is already a coded method,
+  `NASA9`, from `new_models`), method records in
   `examples/v2/methods/`, `MagneticIHJ` as a `gibbs_increment` record with piecewise f(τ).
 - **Do**: 13 §3, §6. Each form converts to a generated G expression (06 §10).
 - **Test**: NIST WebBook Shomate species, a NASA-7 species from Burcat, an SGTE element (with magnetic term, e.g. Fe)
@@ -633,7 +646,10 @@ Background and sources: [13-data-sources.md](13-data-sources.md).
 - **Files**: `TF/Model/ThermoDataSetInfo.h` (`energy_reference`, `standard_pressure`), Element record fields for SER
   data, `TF/IO/Resolve.cpp` (conversion at load), tests.
 - **Do** (decisions Q24, Q26): 13 §5.1–§5.2; conversion to ThermoFun's apparent formation convention at load, as
-  for Berman–Brown; gas properties converted from 1 atm to 1 bar when `standard_pressure` is 1 atm.
+  for Berman–Brown; gas properties converted from 1 atm to 1 bar when `standard_pressure` is 1 atm. Include the
+  `new_models` methods: `NASA9` returns G = H − TS with NASA's assigned enthalpy, and `ExtendedUNIQUAC` derives G
+  from Gr and Hr by Gibbs–Helmholtz; when such species are mixed in reactions with Benson–Helgeson species, their
+  energy reference must be declared and converted (test: a reaction mixing a `NASA9` gas with HKF species).
 - **Test**: an element and a compound given in SER and in formation convention give the same results; a gas
   given at 1 atm and at 1 bar gives the same S and G after conversion.
 - **Commit**: `Convert energy reference and standard pressure conventions at load`

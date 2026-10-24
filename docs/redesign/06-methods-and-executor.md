@@ -198,10 +198,17 @@ silently ignored today (kept that way for legacy files, with warning `LEG-MTH-00
 | 36 `mv_equation_berman88` | P / 307 CPM_VBE | `Berman88Vol` | as above | yes |
 | 37 `mv_eos_birch_murnaghan_gott97` | P / 308 CPM_VBM | `BirchMurnaghanGott97` | `eos_birch_murnaghan_coeffs` (no units in legacy, passed as is): 0 a1, 1 a2, 2 a3, 3 a4, 4 a5, 5 kt00, 6 dkdt, 7 kp — units to be determined from `SolidBMGottschalk.cpp` (declare `model_unit` = `si_unit` = "1" until then, flagged) | yes |
 | 38 `mv_eos_murnaghan_hp98` | P / 309 CPM_CEH | `HP98Min` | `alpha0` [1/K], `kappa0` [kbar, SI Pa] (as HP98Landau) | yes |
-| 39 `mv_eos_tait_hp11` | P / 310 CPM_VTA | `HP11Tait` | (not defined) | **no** |
+| 39 `mv_eos_tait_hp11` | P / 310 CPM_VTA | `HP11Tait` | `eos_tait_hp11_coeffs`: 0 kappa0p [1], 1 kappa0pp [1/kbar], 2 n_atoms [1]; record-level `alpha0` [1/K], `kappa0` [kbar, SI Pa] (as HP98). Einstein temperature from S° and n_atoms (Holland & Powell 2011) | yes (`new_models`) |
 | 40 `mv_pvnrt` | P / 300 CPM_OFF | `IdealGasVol` | — | yes |
 | 41 `solute_holland_powell98` | General / 122 CTPM_HP98 | `HP98Sol` | `solute_holland_powell98_coeff`: 0 b [kJ/(mol*K^2)]. needs_solvent. **Legacy files: ignored today** (no `case` in `setTPMethods_old`); reachable only by `setMethodGenEoS` | yes (API) |
 | 42 `solute_anderson91` | General / 123 CTPM_AN91 | `Anderson91` | —. needs_solvent. Legacy files: ignored today, as 41 | yes (API) |
+| 44 `cp_ft_equation_uniquac` | T / 225 CTM_UQC | `ExtendedUNIQUAC` (alias Reaktoro `StandardThermoModelExtendedUNIQUAC`) | `eos_extended_uniquac_coeffs`: 0 a [J/(mol*K)], 1 b [J/(mol*K^2)], 2 c [J/mol], 3 alpha [1/bar], 4 beta [1/bar^2], 5 Theta [K] (optional, default 200). Cp = a + bT + c/(T − Θ); uses Gr, Hr of the record | yes (`new_models`) |
+| 45 `cp_nasa_polynomials` | T / 226 CTM_NAS | `NASA9` (alias Reaktoro `StandardThermoModelNasa`) | `nasa_polynomial_coeffs` per segment (one TPMethods entry per T interval with `limitsTP`): a1…a7 [1], b1 [K], b2 [1] (Cp/R = a1/T² + a2/T + a3 + a4T + a5T² + a6T³ + a7T⁴). Piecewise; nearest segment outside the range (status message) | yes (`new_models`) |
+| 46 `standard_thermo_interpolation` | T / 227 CTM_ITP | `TPTableInterpolation` (alias Reaktoro `StandardThermoModelInterpolation`) | `tp_table` (an object, not a coefficient array): `temperatures` [K], `pressures` [Pa], tables `gibbs_energy`, `enthalpy` [J/mol], `volume` [m3/mol], `heat_capacity_cp` [J/(mol*K)] with value[i + j·nT], `reference_pressure` [Pa]. Bilinear interpolation, clamped to the table (status message) | yes (`new_models`) |
+
+**Note on ids 44–46.** They sit in the T-correction slot but compute the complete property set: the engine runs
+them after the General slot and their result replaces it (like `EntropyCpIntegration`). In effects terms they are
+**base** methods (§8.3). The `new_models` branch (Reaktoro-compatible standard property models) adds legacy ids 44–46 and implements id 39; the plan treats it as part of ThermoFun (merged before the `golden-baseline` tag, decision Q29).
 
 ### 5.2 Reactions
 
@@ -387,6 +394,8 @@ broken by method id. So a legacy record converted to v2 runs its methods in exac
 | `ConstantProperties`, `CpIntegration`, `EntropyCpIntegration`, `HKFGems`, `HKFReaktoro`, `HP98Sol`, `Anderson91`, water EoS methods | Set | Set | Set | Set | Set | base | 0 | `CpIntegration`: check whether it sets V or leaves it undefined |
 | `HP98Landau` | Add | Add | Add | Add | **Set** | — | 100 | V = Landau excess volume (`SolidHPLandau.cpp:74`) |
 | `HP98Min` (Murnaghan) | Add | Add | Add | Add | Add | — | 200 | adds its full V(T,P) (`SolidMurnaghanHP98.cpp:56`); see note |
+| `HP11Tait` | Add | Add | Add | Add | Set | — | 200 | sets V = V(T,P) of the Tait EoS (`new_models`) |
+| `ExtendedUNIQUAC`, `NASA9`, `TPTableInterpolation` | Set | Set | Set | Set | Set | base | 0 | legacy T slot (ids 44–46); energy convention see 13 §5.1 |
 | `Berman88Vol`, `Dorogokupets88Vol` | Add | Add | Add | — | Set | — | 200 | sets V = V° then adds (`SolidBerman88.cpp:33-44`) |
 | `BirchMurnaghanGott97` | Add | Add | Add | — | Add | — | 200 | |
 | `PRSV`, `CORK`, `CGF`, `SRK`, `PR78`, `SternerPitzer` | Add | Add | Add | — | Set | — | 200 | depend on engine preferences (pressure correction, fugacity) |

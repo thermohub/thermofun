@@ -28,7 +28,8 @@ refactoring, tagged `golden-baseline` by the maintainer after S0.1–S0.3 are me
 ### 1.1 What is computed (both mechanisms)
 
 - **Databases**: every file of `Resources/databases/*.json`, plus `pytests/**/*.json` that load as a database,
-  plus the synthetic fixtures of §3. Each database is loaded alone.
+  plus `tests/reaktoro_models/reaktoro_models_db.json` (the `new_models` methods, decision Q29), plus the synthetic
+  fixtures of §3. Each database is loaded alone.
 - **Engines** (preference variants): `default` (all defaults); `gas` (`apply_pressure_correction_to_gas_props =
   True`, `cancel_fugacity_coefficient_in_gas_props = False`); `errors` (`propagate_parameter_errors = True`);
   `steam` (`EngineConventions.water_properties = "STEAM_TABLES"`); `berman`
@@ -134,7 +135,7 @@ The frozen copy is deleted in Phase 6 (the golden suite remains).
 ## 3. Synthetic fixtures for methods not in the bundled data
 
 `pytests/data/legacy-synthetic/` — one small legacy JSON per method that no bundled database uses (§05 §2):
-Saxena Cp (expect: no-op), Berman88Vol, Dorogokupets88Vol, BirchMurnaghanGott97, HP11Tait (no-op), CGF, SRK, PR78,
+Saxena Cp (expect: no-op), Berman88Vol, Dorogokupets88Vol, BirchMurnaghanGott97, CGF, SRK, PR78,
 SternerPitzer, WaterIAPWS95Gems (no-op), WaterZhangDuan05, Sverjensky14Diel, Fernandez97Diel, Berman88Landau
 (no-op), reactions FrantzMarshall, DolejsManning10, DrVolumeFT, LogKExtrap1T1, LogKExtrap2T, LogKLagrange (no-op).
 Each file holds the record(s) needed (e.g. the solvent `H2O@` for solute or density models). Parameter values:

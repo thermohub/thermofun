@@ -184,7 +184,22 @@ Fields:
   units: {...}                             # optional scoped defaults
 ```
 
-`parameters` and `segments` are exclusive (`V2-MTH-003`). Parameter names must be declared by the method
+Tabulated methods (`TPTableInterpolation`, decision Q29) use a `table` block instead of `parameters`:
+
+```yaml
+- method: TPTableInterpolation
+  table:
+    temperatures: [298.15, 373.15, 473.15]           # K (or with units: {values: [...], unit: Cel})
+    pressures: [1.0e5, 1.0e7]                          # Pa
+    G: [...]                                           # J/mol, value[i + j*nT]
+    H: [...]
+    V: [...]                                           # m3/mol
+    Cp: [...]
+    reference_pressure: 1.0e5
+```
+
+`parameters`, `segments` and `table` are mutually exclusive (`V2-MTH-003`); table sizes must equal
+nT × nP (`V2-MTH-018`). Parameter names must be declared by the method
 (`V2-MTH-002` unknown name: error; with a suggestion of the closest declared name).
 
 ### 3.6 Reaction
@@ -314,6 +329,7 @@ Stable codes so tests and users can refer to them. `E` = error, `W` = warning.
 | V2-MTH-014 | W | a method adds to V but no earlier step defines V |
 | V2-MTH-015 | W | a transformation is listed after setters/adders (it runs before them) |
 | V2-MTH-016 | I | an inline parameter overrides an entry of the referenced parameter set |
+| V2-MTH-018 | E | a `table` has arrays whose size is not nT × nP, or unsorted grids |
 | V2-MTH-010 | E | Method record's parameter definitions disagree with the built-in spec |
 | V2-MTH-011 | E | Method record's `operates_on`/`contributes_to` disagree with the built-in spec |
 | V2-MTH-020 | E | composite method used in a calculation |

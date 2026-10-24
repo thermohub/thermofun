@@ -71,6 +71,8 @@ appears that the reader does not handle.
 | | `eos_gas_crit_props` | 43 | yes | gas EoS parameters |
 | | `eos_akinfiev_diamond_coeffs` | 9 | yes | AD parameters |
 | | `eos_birch_murnaghan_coeffs`, `eos_churakov_gottschalk_coeffs`, `m_volume_fpt_coeffs`, `solute_holland_powell98_coeff` | 0 | yes | §06 tables |
+| | `eos_tait_hp11_coeffs`, `eos_extended_uniquac_coeffs`, `nasa_polynomial_coeffs` (`new_models`) | test data only | yes | §06 tables (ids 39, 44, 45) |
+| | `tp_table` object (`new_models`) | test data only | yes | `MethodApplication.table` (§03 §4) |
 | reaction | `symbol`, `equation`, `reactants` `[{symbol, coefficient}]` | 799 | yes | `symbol`, `equation`, `stoichiometry` |
 | | `Tst`, `Pst` | 633 | yes | `reference_conditions` |
 | | `logKr`, `drsm_*` | 660–790 | yes | `reaction_properties` |
@@ -95,6 +97,9 @@ Methods used in the bundled data (by legacy id): 3 `solute_hkf88_reaktoro` 2866,
 31 `water_eos_hgk84_reaktoro` 2, 8 `fug_critical_param` 1. Reactions: 7 `logk_3_term_extrap` 734,
 13 `dr_volume_constant` 503, 0 `logk_fpt_function` 502, 3 `logk_nordstrom_munoz88` 54,
 10 `solute_eos_ryzhenko_gems` 6, 4 `logk_1_term_extrap0` 2.
+
+Methods added by `new_models` (ids 39 Tait HP11, 44 Extended UNIQUAC, 45 NASA, 46 T–P table) occur only in
+`tests/reaktoro_models/reaktoro_models_db.json`; that file joins the golden databases (§09 §1.1).
 
 **All other methods** (Saxena Cp, Berman/Dorogokupets volume, Birch–Murnaghan, Tait, CGF, SRK, PR78,
 Sterner–Pitzer, HP98 solute, Anderson91, IAPWS95-gems, Zhang–Duan, Sverjensky14, Fernandez97, Berman Landau;

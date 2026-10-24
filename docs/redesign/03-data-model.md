@@ -212,9 +212,21 @@ struct MethodApplication
     std::vector<Segment> segments;               ///< piecewise methods; empty for others
     /// phase transitions inside the range, each {T, dS, dH, dV, dTdP} (legacy m_phase_trans_props rows, 06 §4.1)
     std::vector<std::map<std::string, Quantity>> transitions;
+    std::optional<TableData> table;              ///< tabulated methods (TPTableInterpolation, later TabulatedLogK)
     std::string extra_json;                      ///< unknown fields of this entry
 };
+
+/// A table of property values on a T (and P) grid, SI (decision Q29). values[name][i + j * temperatures.size()].
+struct TableData
+{
+    std::vector<double> temperatures;            ///< K, ascending
+    std::vector<double> pressures;               ///< Pa, ascending (one value for T-only tables)
+    std::map<std::string, std::vector<double>> values;   ///< "G", "H", "V", "Cp" (substances) or "logK" (reactions)
+    std::optional<double> reference_pressure;    ///< Pa
+};
 ```
+
+(`TableData` is declared before `MethodApplication` in the header.)
 
 Ordering: `SubstanceRecord::methods` keeps file order (for round-trip). The executor derives the order from the methods' declared effects (§06 §8); file order matters only among transformations.
 
