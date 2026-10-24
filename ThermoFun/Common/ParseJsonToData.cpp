@@ -293,6 +293,9 @@ auto setTPMethods_old(const SubstanceTPMethodType &type, Substance &s) -> void
     case SubstanceTPMethodType::water_eos_iapws95_reaktoro:
     case SubstanceTPMethodType::water_pvt_zhang_duan05:
     case SubstanceTPMethodType::standard_entropy_cp_integration:
+    case SubstanceTPMethodType::cp_ft_equation_uniquac:
+    case SubstanceTPMethodType::cp_nasa_polynomials:
+    case SubstanceTPMethodType::standard_thermo_interpolation:
         s.setMethod_T(MethodCorrT_Thrift::type(new_old_s_methodtype.at(type)));
         break;
     case SubstanceTPMethodType::mv_constant:
@@ -414,6 +417,42 @@ auto thermoParamSubst(const json &j, std::string prop_name, ThermoParametersSubs
     readCoefficients(j, "m_volume_fpt_coeffs", ps.volume_coeff, {"1/K", "1/K^2", "1/K^3", "1/bar", "1/bar^2"}, ps.coefficient_errors);
     readCoefficients(j, "eos_birch_murnaghan_coeffs", ps.volume_BirchM_coeff, {}, ps.coefficient_errors);
     readCoefficients(j, "eos_churakov_gottschalk_coeffs", ps.empirical_coeff, {}, ps.coefficient_errors);
+    readCoefficients(j, "eos_tait_hp11_coeffs", ps.volume_Tait_coeff, {"1", "1/kbar", "1"}, ps.coefficient_errors);
+    readCoefficients(j, "eos_extended_uniquac_coeffs", ps.uniquac_coeff, {"J/(mol*K)", "J/(mol*K^2)", "J/mol", "1/bar", "1/bar^2", "K"}, ps.coefficient_errors);
+    if (prop_name == "cp_nasa_polynomials")
+    {
+        // one record per temperature interval
+        std::vector<double> nasa;
+        readCoefficients(j, "nasa_polynomial_coeffs", nasa, {}, ps.coefficient_errors);
+        std::vector<double> low_up;
+        if (j.contains("limitsTP") && !j["limitsTP"].is_null())
+        {
+            if (j["limitsTP"].contains("lowerT") && !j["limitsTP"]["lowerT"].is_null())
+                low_up.push_back(j["limitsTP"]["lowerT"].get<double>());
+            if (j["limitsTP"].contains("upperT") && !j["limitsTP"]["upperT"].is_null())
+                low_up.push_back(j["limitsTP"]["upperT"].get<double>());
+        }
+        if (!nasa.empty())
+        {
+            ps.nasa_coeff.push_back(nasa);
+            ps.nasa_temperature_intervals.push_back(low_up);
+        }
+    }
+    if (j.contains("tp_table") && j["tp_table"].is_object())
+    {
+        const auto& tb = j["tp_table"];
+        auto vec = [&](const char* key) { return tb.contains(key) && tb[key].is_array() ? tb[key].get<std::vector<double>>() : std::vector<double>{}; };
+        ps.tp_table.temperatures = vec("temperatures");
+        ps.tp_table.pressures = vec("pressures");
+        for (const char* key : {"gibbs_energy", "enthalpy", "volume", "heat_capacity_cp"})
+        {
+            auto v = vec(key);
+            if (!v.empty())
+                ps.tp_table.values[key] = v;
+        }
+        if (tb.contains("reference_pressure") && tb["reference_pressure"].is_number())
+            ps.tp_table.reference_pressure = tb["reference_pressure"].get<double>();
+    }
     readCoefficients(j, "eos_gas_crit_props", ps.critical_parameters, {"K", "bar", "1", "1"}, ps.coefficient_errors);
     readCoefficients(j, "eos_hkf_coeffs", ps.HKF_parameters, {"cal/(mol*bar)", "cal/mol", "(cal*K)/(mol*bar)", "(cal*K)/mol", "cal/(mol*K)", "(cal*K)/mol", "cal/mol"}, ps.coefficient_errors);
 
