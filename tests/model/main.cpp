@@ -11,11 +11,13 @@
 void runDiagnostics();
 void runLegacyEquivalence();
 void runVocabulary();
+void runUcum();
 
 int main()
 {
     runDiagnostics();
     runVocabulary();
+    runUcum();
     runLegacyEquivalence();
 
     if (tfun_test::failures() != 0)
