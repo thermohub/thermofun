@@ -596,7 +596,7 @@ auto parseElement(const std::string &data) -> Element
         if (j.contains("number"))
             if (!j["number"].is_null())
                 e.setNumber(j["number"].get<int>());
-        double val;
+        double val = 0.0;
         read_value_unit(j, "entropy", val, "J/(mol*K)");
         e.setEntropy(val);
         read_value_unit(j, "heat_capacity", val, "J/(mol*K)");
@@ -659,7 +659,7 @@ auto parseSubstance(const std::string &data) -> Substance
             if (!j["reaction"].is_null())
                 s.setReactionSymbol(j["reaction"]);
 
-        double val;
+        double val = 0.0;
         read_value_unit(j, "mass_per_mole", val, "g/mol");
         s.setMolarMass(val);
 
