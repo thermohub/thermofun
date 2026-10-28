@@ -1,0 +1,417 @@
+{
+ "aq17-thermofun": {
+  "reactions": [],
+  "substances": [
+   "Akermanite",
+   "Al(OH)2+",
+   "Al(OH)3@",
+   "Albite",
+   "Albite high",
+   "Anorthite",
+   "CH4",
+   "CH4@",
+   "CO",
+   "CO2@",
+   "H+",
+   "H2O@",
+   "Portlandite"
+  ]
+ },
+ "cemdata18-thermofun": {
+  "reactions": [
+   "M075SH",
+   "M15SH"
+  ],
+  "substances": [
+   "5CA",
+   "5CNA",
+   "Al(SO4)+",
+   "Al(SO4)2-",
+   "AlSiO5-3",
+   "C12A7",
+   "CA",
+   "CH4",
+   "CO2",
+   "CaSiO3@",
+   "H+",
+   "H2O@",
+   "HCN@",
+   "Hem",
+   "M075SH",
+   "M15SH",
+   "Mag",
+   "Melanterite",
+   "Mg+2",
+   "OH-",
+   "Qtz",
+   "SiO2@",
+   "Sulfur"
+  ]
+ },
+ "heracles-thermofun": {
+  "reactions": [],
+  "substances": [
+   "(MoF5)2(g)",
+   "(MoF5)3(g)",
+   "(UO2)2As2O6",
+   "(UO2)2Cl3",
+   "Al2F6(l)",
+   "AlF(g)",
+   "AlF3",
+   "AlF3(l)",
+   "Am",
+   "Am(OH)3",
+   "Am(g)",
+   "Am(l)",
+   "Am2C3",
+   "Am2O3",
+   "AmF3(g)",
+   "AmO1.5",
+   "Ar+(g)",
+   "Ba(l)",
+   "Ba+(g)",
+   "BaCl2(l)",
+   "BaF2",
+   "BaO(l)",
+   "BaOH+(g)",
+   "BeSe2(g)",
+   "Br-(g)",
+   "CH4(g)",
+   "CO(g)",
+   "CO2(g)",
+   "CSe2(l)",
+   "Ca(l)",
+   "CaOH+(g)",
+   "Ce(g)",
+   "Fe",
+   "Fe+",
+   "H(g)",
+   "H2O",
+   "I+(g)",
+   "O3(g)",
+   "Pu",
+   "PuO1.5",
+   "Se4(g)",
+   "UO2.25"
+  ]
+ },
+ "mines16-thermofun": {
+  "reactions": [
+   "Sn(Cl)+",
+   "Sn(Cl)2@"
+  ],
+  "substances": [
+   "Aegirine",
+   "Ag(CO3)-",
+   "Ag(CO3)2-3",
+   "Albite",
+   "Amesite-Mg",
+   "Analcime",
+   "Anhydrite",
+   "Ankerite",
+   "CH4",
+   "CO",
+   "Cl-",
+   "H+",
+   "H2O@",
+   "Pyrrhotite",
+   "Sn(Cl)+",
+   "Sn(Cl)2@",
+   "Sn+2"
+  ]
+ },
+ "psinagra-12-07-thermofun": {
+  "reactions": [
+   "(NpO2)2(OH)2+2",
+   "(NpO2)2CO3(OH)3-",
+   "(UO2)3(PO4)2w4",
+   "AM4NpO2(CO3)3",
+   "H2Se(g)",
+   "Ni3(AsO3)2wx(s)",
+   "PuO2(coll,hyd)"
+  ],
+  "substances": [
+   "(NpO2)2(OH)2+2",
+   "(NpO2)2CO3(OH)3-",
+   "(UO2)3(PO4)2w4",
+   "AM4NpO2(CO3)3",
+   "Al(SO4)+",
+   "Al(SO4)2-",
+   "AmO2+",
+   "Amor-Sl",
+   "Anh",
+   "CH4",
+   "CO2",
+   "CO3-2",
+   "Cm+3",
+   "H+",
+   "H2O@",
+   "H2Se(g)",
+   "H2Se@",
+   "H3PO4@",
+   "HAsO2@",
+   "Hem",
+   "Mag",
+   "Melanterite",
+   "NH4+",
+   "Ni+2",
+   "Ni3(AsO3)2wx(s)",
+   "NpO2+2",
+   "Pu+4",
+   "PuO2(coll,hyd)",
+   "Qtz",
+   "Sulfur",
+   "UO2+2"
+  ]
+ },
+ "pytests--Fe-O_system": {
+  "reactions": [],
+  "substances": [
+   "Hematite",
+   "Magnetite",
+   "O2"
+  ]
+ },
+ "pytests--PsiTDB2020-subset-thermofun": {
+  "reactions": [
+   "(HgOH)3PO4(s)",
+   "(UO2)2(OH)2+2",
+   "(UO2)2CO3(OH)3-",
+   "(UO2)3(PO4)2w4(cr)",
+   "Ag(OH)2-",
+   "Ag(aq)",
+   "Ag2CO3(cr)",
+   "Fe(OH)3(mic)",
+   "H2PO4-",
+   "H3PO4(aq)",
+   "Hg3(PO4)2(s)"
+  ],
+  "substances": [
+   "(HgOH)3PO4(s)",
+   "(UO2)2(OH)2+2",
+   "(UO2)2CO3(OH)3-",
+   "(UO2)3(PO4)2w4(cr)",
+   "Ag(OH)2-",
+   "Ag(aq)",
+   "Ag(cr)",
+   "Ag+",
+   "Ag2CO3(cr)",
+   "CH4(g)",
+   "CO2(g)",
+   "CO3-2",
+   "Ca(OH)2(cr)",
+   "Ca+2",
+   "CaCO3(calcite)",
+   "Fe(OH)3(mic)",
+   "Fe(alpha)",
+   "Fe+3",
+   "H+",
+   "H2O(l)",
+   "H2PO4-",
+   "H3PO4(aq)",
+   "HPO4-2",
+   "Hg(l)",
+   "Hg+2",
+   "Hg3(PO4)2(s)",
+   "UO2+2",
+   "e-"
+  ]
+ },
+ "pytests--Reactions--Co_Cu_aq-thermofun": {
+  "reactions": [
+   "CoCl+",
+   "CoCl2@"
+  ],
+  "substances": [
+   "Cl-",
+   "Co(s)",
+   "Co+++",
+   "Co+2",
+   "CoCl+",
+   "CoCl2@",
+   "H+",
+   "H2O@"
+  ]
+ },
+ "pytests--Reactions--test-logKfT-thermofun": {
+  "reactions": [
+   "NaHCO3@"
+  ],
+  "substances": [
+   "NaHCO3@"
+  ]
+ },
+ "pytests--Substances--Gases--mines16-thermofun": {
+  "reactions": [
+   "Sn(Cl)+",
+   "Sn(Cl)2@"
+  ],
+  "substances": [
+   "Aegirine",
+   "Ag(CO3)-",
+   "Ag(CO3)2-3",
+   "Albite",
+   "Amesite-Mg",
+   "Analcime",
+   "Anhydrite",
+   "Ankerite",
+   "CH4",
+   "CO",
+   "Cl-",
+   "H+",
+   "H2O@",
+   "Pyrrhotite",
+   "Sn(Cl)+",
+   "Sn(Cl)2@",
+   "Sn+2"
+  ]
+ },
+ "pytests--Substances--Solids--Mo(s)": {
+  "reactions": [],
+  "substances": [
+   "Mo",
+   "Sulfur"
+  ]
+ },
+ "pytests--Substances--Solute--test-hkf-thermofun": {
+  "reactions": [],
+  "substances": [
+   "Al+3",
+   "H2O@",
+   "SiO2@"
+  ]
+ },
+ "pytests--Substances--Solvent--water-thermofun": {
+  "reactions": [],
+  "substances": [
+   "H2O@",
+   "H2O@reak",
+   "H2Og",
+   "my_Al(OH)2+"
+  ]
+ },
+ "pytests--mines16-sub-thermofun": {
+  "reactions": [],
+  "substances": [
+   "H2O@",
+   "La+3",
+   "SO4-2"
+  ]
+ },
+ "pytests--test-aq17-gem-lma-thermofun": {
+  "reactions": [
+   "Akermanite",
+   "Al(OH)2+",
+   "Al(OH)3@",
+   "Albite",
+   "Albite high",
+   "Anorthite",
+   "CH4",
+   "CH4@",
+   "CO",
+   "CO2@",
+   "H4SiO4@",
+   "Meionite-Ca",
+   "Portlandite"
+  ],
+  "substances": [
+   "Akermanite",
+   "Al(OH)2+",
+   "Al(OH)3@",
+   "Al+3",
+   "Albite",
+   "Albite high",
+   "Anorthite",
+   "CH4",
+   "CH4@",
+   "CO",
+   "CO2@",
+   "Ca+2",
+   "H+",
+   "H2O@",
+   "H4SiO4@",
+   "HCO3-",
+   "Meionite-Ca",
+   "Mg+2",
+   "Na+",
+   "O2@",
+   "Portlandite",
+   "SiO2@"
+  ]
+ },
+ "pytests--test-database-thermofun": {
+  "reactions": [
+   "Gedrite-Mg",
+   "Meionite-Ca"
+  ],
+  "substances": [
+   "Al(OH)2+",
+   "Al(OH)3@",
+   "H2O@",
+   "Quartz"
+  ]
+ },
+ "pytests--test-thermoengine-thermofun": {
+  "reactions": [
+   "Gedrite-Mg",
+   "H4SiO4@",
+   "Meionite-Ca",
+   "Pargasite-Mg"
+  ],
+  "substances": [
+   "Al(OH)2+",
+   "Al(OH)3@",
+   "Al+3",
+   "CO2@",
+   "Ca+2",
+   "Cal",
+   "H+",
+   "H2O@",
+   "H4SiO4@",
+   "HCO3-",
+   "Meionite-Ca",
+   "Quartz",
+   "SiO2@",
+   "U+4"
+  ]
+ },
+ "slop98-organic-thermofun": {
+  "reactions": [],
+  "substances": [
+   "1-Buam@",
+   "1-Buol@",
+   "C2H4",
+   "C6H6O",
+   "H2O@"
+  ]
+ },
+ "slop98-thermofun": {
+  "reactions": [],
+  "substances": [
+   "14A-Am",
+   "14A-Cnc",
+   "7A-Cnc",
+   "7A-Csd",
+   "Acn",
+   "Adr",
+   "Ag(CO3)-",
+   "Ag(CO3)2-3",
+   "Ar",
+   "CH4",
+   "H+",
+   "H2O@",
+   "Hg",
+   "Pd-Oxn"
+  ]
+ },
+ "tests--extra_models--extra_models_db": {
+  "reactions": [],
+  "substances": [
+   "Fo",
+   "IG",
+   "IT",
+   "NS",
+   "UQ"
+  ]
+ }
+}

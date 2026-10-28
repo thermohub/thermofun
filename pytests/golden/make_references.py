@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+
+"""Write the golden reference results of the committed subset.
+
+The first run selects the records of every database and writes data/subset.json.
+Later runs read that file. Use --reselect to select again.
+Regenerate the references only in a step of the redesign plan that says so.
+"""
+
+import argparse
+import gzip
+import json
+import pathlib
+import subprocess
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import golden_common as gc  # noqa: E402
+
+DATA = pathlib.Path(__file__).resolve().parent / "data"
+SUBSET_FILE = DATA / "subset.json"
+
+
+def commit_sha():
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=gc.ROOT, text=True).strip()
+    except Exception:
+        return "unknown"
+
+
+def load_or_select(dbs, reselect):
+    if SUBSET_FILE.exists() and not reselect:
+        return json.loads(SUBSET_FILE.read_text())
+    subset = {}
+    for db in dbs:
+        subset[gc.db_name(db)] = gc.select_subset(db)
+        print("selected %s: %d substances, %d reactions" %
+              (gc.db_name(db), len(subset[gc.db_name(db)]["substances"]), len(subset[gc.db_name(db)]["reactions"])))
+    SUBSET_FILE.write_text(json.dumps(subset, indent=1, sort_keys=True) + "\n")
+    return subset
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--reselect", action="store_true", help="select the subset again")
+    parser.add_argument("--variant", action="append", help="only these variants")
+    args = parser.parse_args()
+
+    DATA.mkdir(exist_ok=True)
+    dbs = gc.databases()
+    subset = load_or_select(dbs, args.reselect)
+    sha = commit_sha()
+    total = 0
+    for db in dbs:
+        for variant in args.variant or gc.variants_for(db):
+            result = gc.compute(db, variant, gc.SUBSET_T, gc.SUBSET_P, subset[gc.db_name(db)])
+            result["thermofun_commit"] = sha
+            result["database"] = gc._rel(db)
+            result["variant"] = variant
+            text = json.dumps(result, separators=(",", ":"))
+            path = DATA / ("%s__%s.json.gz" % (gc.db_name(db), variant))
+            with gzip.GzipFile(path, "wb", mtime=0) as f:
+                f.write(text.encode())
+            total += path.stat().st_size
+            print("%-60s %8d bytes" % (path.name, path.stat().st_size), flush=True)
+    print("total size of the data files: %.2f MB" % (total / 1e6))
+    if total > 3e6:
+        print("above 3 MB: apply the reductions of docs/redesign/09-testing.md section 1.3 rule 5")
+
+
+if __name__ == "__main__":
+    main()
