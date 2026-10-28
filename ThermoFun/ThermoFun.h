@@ -14,4 +14,6 @@
 #include <ThermoFun/ThermoProperties.h>
 #include <ThermoFun/ThermoParameters.h>
 #include <ThermoFun/GlobalVariables.h>
+#include <ThermoFun/Model/DataFormat.h>
+#include <ThermoFun/Model/Records.h>
 

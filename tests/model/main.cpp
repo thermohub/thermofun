@@ -12,12 +12,14 @@ void runDiagnostics();
 void runLegacyEquivalence();
 void runVocabulary();
 void runUcum();
+void runRecords();
 
 int main()
 {
     runDiagnostics();
     runVocabulary();
     runUcum();
+    runRecords();
     runLegacyEquivalence();
 
     if (tfun_test::failures() != 0)

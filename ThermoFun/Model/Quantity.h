@@ -42,6 +42,8 @@ struct Uncertainty
 
     /// True if a legacy file does not say if the value is u, U or a confidence interval.
     bool convention_unknown = false;
+
+    auto operator==(const Uncertainty&) const -> bool = default;
 };
 
 /// Optional data about one value. An empty value or string means that the file gives nothing here.
@@ -51,6 +53,8 @@ struct ValueMeta
     std::optional<Origin> origin;
     std::string calculation_path;  ///< free text if origin is Calculated
     std::string source;            ///< symbol of a data source, for example "1995ROB/HEM"
+
+    auto operator==(const ValueMeta&) const -> bool = default;
 };
 
 /// A number with its uncertainty and its data. The value is in SI units.
@@ -67,6 +71,8 @@ struct Quantity
 
     /// True if the quantity has no data, no uncertainty and the default unit. v2 files write it as a bare number.
     auto isBare() const -> bool;
+
+    auto operator==(const Quantity&) const -> bool = default;
 };
 
 /// Numbers that share one unit, for example a legacy array of coefficients.
@@ -75,6 +81,8 @@ struct QuantityList
     std::vector<double> values;                                 ///< SI
     std::vector<std::string> units_as_written;                  ///< one for each value, or empty
     std::vector<std::optional<double>> standard_uncertainties;  ///< one for each value, or empty
+
+    auto operator==(const QuantityList&) const -> bool = default;
 };
 
 } // namespace ThermoFun::v2
