@@ -30,6 +30,23 @@ Build and install it first. Use a clean checkout, not a tree with unfinished edi
 | `test_golden.py` | The values, the derivatives, the errors and the status of each stored property. The tolerance is 1e-10 (relative). |
 | `test_key_inventory.py` | Each key in the legacy files is known. Each method number is valid. Each method has a golden record. |
 
+## Compare two builds
+
+The two-build comparison checks every record of every database, not only the subset.
+It uses 15 temperatures and 6 pressures. The tolerance is 1e-12 (relative).
+
+```bash
+bash pytests/golden/build_baseline.sh                 # once: builds the tag golden-baseline
+python pytests/golden/compare_builds.py --base .golden-baseline/install
+```
+
+- `--new PREFIX` names the install prefix of the build to test. The default is the active environment.
+- `--db NAME` and `--variant NAME` limit the work. Both may be used more than once.
+- The run takes about 4 minutes and needs about 1 GB of temporary disk space.
+- The exit code is 1 if one value, error or status differs.
+
+The CI job `golden-diff` does the same on each pull request. It keeps the baseline build in a cache.
+
 ## If a test fails
 
 1. Read the table in the failure text. It shows the record, the property, the T and the P.
