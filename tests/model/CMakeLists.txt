@@ -2,6 +2,7 @@
 # The frozen copy of the legacy parser is the reference of the equivalence test.
 add_executable(tfun-unit
     main.cpp
+    test_diagnostics.cpp
     test_legacy_equivalence.cpp
     frozen/ParseJsonToData_v073.cpp)
 target_include_directories(tfun-unit PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun ${CMAKE_CURRENT_SOURCE_DIR})

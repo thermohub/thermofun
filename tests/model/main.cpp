@@ -8,10 +8,12 @@
 #include "check.h"
 
 // One runAll() for each test_*.cpp
+void runDiagnostics();
 void runLegacyEquivalence();
 
 int main()
 {
+    runDiagnostics();
     runLegacyEquivalence();
 
     if (tfun_test::failures() != 0)
