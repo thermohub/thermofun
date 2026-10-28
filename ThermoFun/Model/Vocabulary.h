@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-#include "GlobalVariables.h"
+#include <ThermoFun/GlobalVariables.h>
 
 // The words of the data format (v2 strings) and their legacy integer codes.
 // The values are provisional. All tables, with their aliases, are in Vocabulary.cpp.
