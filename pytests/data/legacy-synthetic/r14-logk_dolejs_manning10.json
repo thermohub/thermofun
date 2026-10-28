@@ -1,0 +1,328 @@
+{
+ "thermodataset": "r14-logk_dolejs_manning10",
+ "datasources": [
+  "Synthetic legacy fixture of the golden suite (pytests/golden/make_synthetic_fixtures.py)"
+ ],
+ "date": "2026-10-28",
+ "substances": [
+  {
+   "name": "ZA",
+   "symbol": "ZA",
+   "formula": "Mg",
+   "formula_charge": 0,
+   "mass_per_mole": {
+    "values": [
+     24.3
+    ],
+    "units": [
+     "g/mol"
+    ]
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "sm_gibbs_energy": {
+    "values": [
+     -100000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -120000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     50.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "values": [
+     75.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "TPMethods": [
+    {
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    }
+   ],
+   "_comment": "Same values as ZA and ZP in tests/gems_export/gems_export_data.json"
+  },
+  {
+   "name": "ZP",
+   "symbol": "ZP",
+   "formula": "Mg",
+   "formula_charge": 0,
+   "mass_per_mole": {
+    "values": [
+     24.3
+    ],
+    "units": [
+     "g/mol"
+    ]
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "sm_gibbs_energy": {
+    "values": [
+     -90000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -110000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     50.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "values": [
+     75.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "TPMethods": [
+    {
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    }
+   ],
+   "_comment": "Same values as ZA and ZP in tests/gems_export/gems_export_data.json"
+  },
+  {
+   "name": "Water HGK",
+   "symbol": "H2O@",
+   "formula": "H2O@",
+   "formula_charge": 0,
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "class_": {
+    "3": "SC_AQSOLVENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "method": {
+      "31": "water_eos_hgk84_reaktoro"
+     }
+    },
+    {
+     "method": {
+      "25": "water_diel_jnort91_reaktoro"
+     }
+    }
+   ],
+   "sm_heat_capacity_p": {
+    "values": [
+     75.360527038574
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_gibbs_energy": {
+    "values": [
+     -237183
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -285881
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     69.922996520996
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     1.8068397045136
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "_label": "substance",
+   "_comment": "Solvent as in pytests/Substances/Solute/test-hkf-thermofun.json, with the Reaktoro water models"
+  }
+ ],
+ "reactions": [
+  {
+   "symbol": "logk_dolejs_manning10",
+   "equation": "ZA = ZP",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "logKr": {
+    "values": [
+     -1.7519142195881732
+    ],
+    "errors": [
+     0
+    ]
+   },
+   "drsm_gibbs_energy": {
+    "values": [
+     10000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "drsm_enthalpy": {
+    "values": [
+     10000.0
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "drsm_entropy": {
+    "values": [
+     0.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "drsm_heat_capacity_p": {
+    "values": [
+     5.0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "drsm_volume": {
+    "values": [
+     0.5
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "ZA"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "ZP"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "0": "logk_fpt_function"
+     },
+     "logk_ft_coeffs": {
+      "values": [
+       -0.5,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       -10.0,
+       -5.0,
+       2.0,
+       0.001,
+       1.0
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerP": 0,
+    "lowerT": 273.15,
+    "upperP": 1000000000.0,
+    "upperT": 1273.15
+   },
+   "_comment": "Reference values of the reaction ZP in tests/gems_export/gems_export_data.json; dCp and dV added"
+  }
+ ]
+}

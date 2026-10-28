@@ -1,0 +1,171 @@
+{
+ "thermodataset": "s35-mv_equation_dorogokupets88",
+ "datasources": [
+  "Synthetic legacy fixture of the golden suite (pytests/golden/make_synthetic_fixtures.py)"
+ ],
+ "date": "2026-10-28",
+ "substances": [
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "limitsTP": {
+      "lowerT": 273.15,
+      "range": true,
+      "upperT": 2273.15
+     },
+     "m_heat_capacity_ft_coeffs": {
+      "names": [
+       "a0",
+       "a1",
+       "a2",
+       "a3",
+       "a4",
+       "a5",
+       "a6",
+       "a7",
+       "a8",
+       "a9",
+       "a10"
+      ],
+      "units": [
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "(J*K)/mol",
+       "J/(mol*K^0.5)",
+       "J/(mol*K^3)",
+       "J/(mol*K^4)",
+       "J/(mol*K^5)",
+       "(J*K^2)/mol",
+       "J/mol",
+       "J/(mol*K^1.5)",
+       "J/(mol*K)"
+      ],
+      "values": [
+       162.3000030517578,
+       0,
+       -4882600,
+       -1109.300048828125,
+       0,
+       0,
+       0,
+       874659968,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    },
+    {
+     "method": {
+      "35": "mv_equation_dorogokupets88"
+     },
+     "m_volume_fpt_coeffs": {
+      "values": [
+       -8.900000239009387e-07,
+       2.2119998974862165e-12,
+       0,
+       1.8435999663779512e-05,
+       4.1596798894261156e-08
+      ]
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "formula": "MgCO3",
+   "formula_charge": 0,
+   "m_compressibility": {
+    "units": [
+     "1e-05/K"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "m_expansivity": {
+    "units": [
+     "kbar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     84.31400299072266
+    ]
+   },
+   "name": "MgCO3-dorogokupets",
+   "sm_enthalpy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -1113636
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     65.20999908447266
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -1029884
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     76.13127899169922
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     2.802999973297119
+    ]
+   },
+   "symbol": "MgCO3-dorogokupets",
+   "_comment": "Cp and reference values of Magnesite in tests/gems_export/gems_export_data.json"
+  }
+ ]
+}

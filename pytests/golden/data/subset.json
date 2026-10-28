@@ -290,6 +290,153 @@
    "my_Al(OH)2+"
   ]
  },
+ "pytests--data--legacy-synthetic--r05-logk_1_term_extrap1": {
+  "reactions": [
+   "logk_1_term_extrap1"
+  ],
+  "substances": [
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--r06-logk_2_term_extrap": {
+  "reactions": [
+   "logk_2_term_extrap"
+  ],
+  "substances": [
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--r08-logk_lagrange_interp": {
+  "reactions": [
+   "logk_lagrange_interp"
+  ],
+  "substances": [
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--r09-logk_marshall_frank78": {
+  "reactions": [
+   "logk_marshall_frank78"
+  ],
+  "substances": [
+   "H2O@",
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--r11-dr_heat_capacity_ft": {
+  "reactions": [
+   "dr_heat_capacity_ft"
+  ],
+  "substances": [
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--r12-dr_volume_fpt": {
+  "reactions": [
+   "dr_volume_fpt"
+  ],
+  "substances": [
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10": {
+  "reactions": [
+   "logk_dolejs_manning10"
+  ],
+  "substances": [
+   "H2O@",
+   "ZA",
+   "ZP"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s01-cp_ft_equation_saxena86": {
+  "reactions": [],
+  "substances": [
+   "MgCO3-saxena"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s06-landau_berman88": {
+  "reactions": [],
+  "substances": [
+   "MgCO3-berman-landau"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s10-fluid_churakov_gottschalk": {
+  "reactions": [],
+  "substances": [
+   "CO-cgf"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s11-fluid_soave_redlich_kwong": {
+  "reactions": [],
+  "substances": [
+   "CO-srk"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s12-fluid_sterner_pitzer": {
+  "reactions": [],
+  "substances": [
+   "CO-stp"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s13-fluid_peng_robinson78": {
+  "reactions": [],
+  "substances": [
+   "CO-pr78"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s27-water_diel_sverj14": {
+  "reactions": [],
+  "substances": [
+   "Al+3",
+   "H2O@"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s28-water_diel_fern97": {
+  "reactions": [],
+  "substances": [
+   "Al+3",
+   "H2O@"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems": {
+  "reactions": [],
+  "substances": [
+   "Al+3",
+   "H2O@"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05": {
+  "reactions": [],
+  "substances": [
+   "Al+3",
+   "H2O@"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s35-mv_equation_dorogokupets88": {
+  "reactions": [],
+  "substances": [
+   "MgCO3-dorogokupets"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s36-mv_equation_berman88": {
+  "reactions": [],
+  "substances": [
+   "MgCO3-berman-vol"
+  ]
+ },
+ "pytests--data--legacy-synthetic--s37-mv_eos_birch_murnaghan_gott97": {
+  "reactions": [],
+  "substances": [
+   "MgCO3-bm"
+  ]
+ },
  "pytests--mines16-sub-thermofun": {
   "reactions": [],
   "substances": [
@@ -402,6 +549,14 @@
    "H2O@",
    "Hg",
    "Pd-Oxn"
+  ]
+ },
+ "synthetic-api": {
+  "reactions": [],
+  "substances": [
+   "OH-an91",
+   "OH-hp98",
+   "water"
   ]
  },
  "tests--extra_models--extra_models_db": {

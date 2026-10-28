@@ -30,10 +30,14 @@ def commit_sha():
 
 
 def load_or_select(dbs, reselect):
-    if SUBSET_FILE.exists() and not reselect:
-        return json.loads(SUBSET_FILE.read_text())
     subset = {}
-    for db in dbs:
+    if SUBSET_FILE.exists() and not reselect:
+        subset = json.loads(SUBSET_FILE.read_text())
+        if all(gc.db_name(db) in subset for db in dbs):
+            return subset
+    for db in dbs:  # selects again, or only the databases that have no selection yet
+        if gc.db_name(db) in subset:
+            continue
         subset[gc.db_name(db)] = gc.select_subset(db)
         print("selected %s: %d substances, %d reactions" %
               (gc.db_name(db), len(subset[gc.db_name(db)]["substances"]), len(subset[gc.db_name(db)]["reactions"])))
@@ -44,6 +48,8 @@ def load_or_select(dbs, reselect):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reselect", action="store_true", help="select the subset again")
+    parser.add_argument("--new-only", action="store_true",
+                        help="skip a database and variant whose data file exists already")
     parser.add_argument("--variant", action="append", help="only these variants")
     args = parser.parse_args()
 
@@ -51,9 +57,11 @@ def main():
     dbs = gc.databases()
     subset = load_or_select(dbs, args.reselect)
     sha = commit_sha()
-    total = 0
     for db in dbs:
         for variant in args.variant or gc.variants_for(db):
+            path = DATA / ("%s__%s.json.gz" % (gc.db_name(db), variant))
+            if args.new_only and path.exists():
+                continue
             result = gc.compute(db, variant, gc.SUBSET_T, gc.SUBSET_P, subset[gc.db_name(db)])
             result["thermofun_commit"] = sha
             result["database"] = gc._rel(db)
@@ -62,8 +70,8 @@ def main():
             path = DATA / ("%s__%s.json.gz" % (gc.db_name(db), variant))
             with gzip.GzipFile(path, "wb", mtime=0) as f:
                 f.write(text.encode())
-            total += path.stat().st_size
             print("%-60s %8d bytes" % (path.name, path.stat().st_size), flush=True)
+    total = sum(f.stat().st_size for f in DATA.glob("*.json.gz"))
     print("total size of the data files: %.2f MB" % (total / 1e6))
     if total > 3e6:
         print("above 3 MB: apply the reductions of docs/redesign/09-testing.md section 1.3 rule 5")

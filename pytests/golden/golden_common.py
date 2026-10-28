@@ -37,12 +37,20 @@ STEAM_BERMAN_DATABASES = {"aq17-thermofun", "mines16-thermofun", "pytests--Subst
 
 # Databases outside Resources/databases that are part of the suite
 EXTRA_DATABASES = ["tests/extra_models/extra_models_db.json"]
+SYNTHETIC_DIR = "pytests/data/legacy-synthetic/"
+SYNTHETIC_API = "pytests/golden/synthetic_api.py"
+SYNTHETIC_API_NAME = "synthetic-api"
 # Files of pytests/ that are not databases
 NOT_DATABASES = {"pytests/golden/data/subset.json"}
 
 
 def _rel(path):
     return pathlib.Path(path).resolve().relative_to(ROOT).as_posix()
+
+
+def is_synthetic(db_path):
+    rel = _rel(db_path)
+    return rel.startswith(SYNTHETIC_DIR) or rel == SYNTHETIC_API
 
 
 def _loads(path):
@@ -67,6 +75,7 @@ def databases():
     for name in EXTRA_DATABASES:
         if (ROOT / name).exists():
             found.append(ROOT / name)
+    found.append(ROOT / SYNTHETIC_API)
     unique, seen = [], set()
     for path in found:  # a file with the same content as an earlier one is skipped
         digest = hashlib.md5(path.read_bytes()).hexdigest()
@@ -82,21 +91,34 @@ def databases():
 def db_name(db_path):
     """Short unique name of a database: the file stem for bundled ones, the path below the root for others."""
     rel = _rel(db_path)
+    if rel == SYNTHETIC_API:
+        return SYNTHETIC_API_NAME
     if rel.startswith("Resources/databases/"):
         return pathlib.Path(rel).stem
     return rel[:-len(".json")].replace("/", "--")
 
 
+# Synthetic databases with a water solvent: large files, so `gas` and `errors` are left out (09 section 1.3 rule 5)
+WATER_SYNTHETIC = {"r09-logk_marshall_frank78", "r14-logk_dolejs_manning10", "s27-water_diel_sverj14",
+                   "s28-water_diel_fern97", "s33-water_pvt_zhang_duan05", "synthetic-api"}
+
+
 def variants_for(db_path):
     """The variants stored for a database in the committed subset."""
-    if db_name(db_path) in STEAM_BERMAN_DATABASES:
+    if db_name(db_path).rsplit("--", 1)[-1] in WATER_SYNTHETIC:
+        return ["default", "steam", "berman"]
+    if db_name(db_path) in STEAM_BERMAN_DATABASES or is_synthetic(db_path):
         return list(VARIANTS)
     return [v for v in VARIANTS if v not in ("errors", "steam", "berman")]
 
 
 def make_engine(db_path, variant):
     """Load the database alone and set the preferences of the variant."""
-    engine = thermofun.ThermoEngine(str(db_path))
+    if pathlib.Path(db_path).suffix == ".py":  # the database built through the API
+        import synthetic_api
+        engine = synthetic_api.make_engine()
+    else:
+        engine = thermofun.ThermoEngine(str(db_path))
     if variant == "default":
         pass
     elif variant == "gas":
@@ -215,8 +237,10 @@ def _has(value):
 
 def select_subset(db_path):
     """The records of the committed subset of one database (09 §1.3). Deterministic."""
-    engine = thermofun.ThermoEngine(str(db_path))
+    engine = make_engine(db_path, "default")
     db = engine.database()
+    if is_synthetic(db_path):  # every record of the synthetic fixtures
+        return {"substances": sorted(db.getSubstancesList()), "reactions": sorted(db.getReactionsList())}
 
     groups = {}
     for sym in sorted(db.getSubstancesList()):
