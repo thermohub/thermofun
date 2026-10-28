@@ -14,6 +14,7 @@ void runLegacyEquivalence();
 void runVocabulary();
 void runUcum();
 void runRecords();
+void runFormatDetect();
 
 int main()
 {
@@ -22,6 +23,7 @@ int main()
     runVocabulary();
     runUcum();
     runRecords();
+    runFormatDetect();
     runLegacyEquivalence();
 
     if (tfun_test::failures() != 0)

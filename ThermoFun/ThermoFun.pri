@@ -72,6 +72,8 @@
     $$PWD/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Diagnostics.h \
+    $$PWD/IO/FormatDetect.h \
+    $$PWD/IO/detail/JsonDetect.h \
     $$PWD/Methods/MethodSpec.h \
     $$PWD/Methods/MethodCatalog.h \
     $$PWD/Common/Ucum.h \
@@ -161,6 +163,7 @@
     $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Diagnostics.cpp \
+    $$PWD/IO/FormatDetect.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
     $$PWD/Common/Ucum.cpp \
     $$PWD/Model/Quantity.cpp \
