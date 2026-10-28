@@ -10,10 +10,12 @@
 // One runAll() for each test_*.cpp
 void runDiagnostics();
 void runLegacyEquivalence();
+void runVocabulary();
 
 int main()
 {
     runDiagnostics();
+    runVocabulary();
     runLegacyEquivalence();
 
     if (tfun_test::failures() != 0)
