@@ -12,7 +12,10 @@ import hashlib
 import math
 import pathlib
 
-import thermofun
+try:
+    import thermofun
+except ImportError:  # compare() and format_report() work without the module
+    thermofun = None
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
@@ -110,6 +113,13 @@ def variants_for(db_path):
     if db_name(db_path) in STEAM_BERMAN_DATABASES or is_synthetic(db_path):
         return list(VARIANTS)
     return [v for v in VARIANTS if v not in ("errors", "steam", "berman")]
+
+
+def full_variants_for(db_path):
+    """The variants of the two-build comparison (09 section 1.1)."""
+    if db_name(db_path) in STEAM_BERMAN_DATABASES or is_synthetic(db_path):
+        return list(VARIANTS)
+    return ["default", "gas"]
 
 
 def make_engine(db_path, variant):
@@ -347,9 +357,10 @@ def format_report(diffs, label="", max_report=20):
     lines = []
     if label:
         lines.append(label)
-    lines.append("kind record property field T P expected got rel")
+    lines.append("database variant kind record property field T P expected got rel")
     for d in diffs[:max_report]:
-        lines.append(" ".join(str(d[k]) for k in
-                              ["kind", "record", "property", "field", "T", "P", "expected", "got", "rel"]))
+        lines.append(" ".join(str(d.get(k, "")) for k in
+                              ["database", "variant", "kind", "record", "property", "field", "T", "P",
+                               "expected", "got", "rel"]))
     lines.append("total differences: %d" % len(diffs))
     return "\n".join(lines)

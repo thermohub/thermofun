@@ -104,3 +104,73 @@ jobs:
           conda config --show
           conda list --show-channel-urls
 
+
+  # Compare every record of every database with the build of the tag golden-baseline
+  golden-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-activate: false
+          activate-environment: base
+          channels: conda-forge
+
+      - name: Configuring Conda Environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda run -n base python -m conda_devenv
+
+      - name: Key of the baseline cache
+        id: key
+        shell: bash -l {0}
+        run: |
+          mkdir -p .golden-baseline
+          bash pytests/golden/build_baseline.sh --options > .golden-baseline/options.txt
+          echo "sha=$(git rev-parse 'golden-baseline^{commit}')" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the baseline build
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .golden-baseline/install
+          key: golden-baseline-${{ steps.key.outputs.sha }}-${{ hashFiles('environment.devenv.yml', 'pytests/golden/build_baseline.sh', '.golden-baseline/options.txt') }}
+
+      - name: Build the baseline
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          bash pytests/golden/build_baseline.sh
+
+      - name: Build and install the pull request
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          mkdir .build && cd .build
+          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON
+          ninja
+          ninja install
+
+      - name: Compare with the baseline
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          python pytests/golden/compare_builds.py --base .golden-baseline/install --max-report 50 | tee golden-diff-report.txt
+
+      - name: Upload the report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-diff-report
+          path: golden-diff-report.txt

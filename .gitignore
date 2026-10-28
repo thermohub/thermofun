@@ -70,3 +70,6 @@ tests/build*
 
 CLAUDE.md
 *.whl
+
+# Baseline build of the golden comparison
+.golden-baseline/
