@@ -72,6 +72,8 @@
     $$PWD/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Diagnostics.h \
+    $$PWD/Methods/MethodSpec.h \
+    $$PWD/Methods/MethodCatalog.h \
     $$PWD/Common/Ucum.h \
     $$PWD/Model/Applicability.h \
     $$PWD/Model/Convention.h \
@@ -159,6 +161,7 @@
     $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Diagnostics.cpp \
+    $$PWD/Methods/MethodCatalog.cpp \
     $$PWD/Common/Ucum.cpp \
     $$PWD/Model/Quantity.cpp \
     $$PWD/Model/Vocabulary.cpp \

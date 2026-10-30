@@ -8,6 +8,7 @@
 #include "check.h"
 
 // One runAll() for each test_*.cpp
+void runCatalog();
 void runDiagnostics();
 void runLegacyEquivalence();
 void runVocabulary();
@@ -17,6 +18,7 @@ void runRecords();
 int main()
 {
     runDiagnostics();
+    runCatalog();
     runVocabulary();
     runUcum();
     runRecords();

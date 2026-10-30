@@ -2,6 +2,7 @@
 # The frozen copy of the legacy parser is the reference of the equivalence test.
 add_executable(tfun-unit
     main.cpp
+    test_catalog.cpp
     test_diagnostics.cpp
     test_vocabulary.cpp
     test_ucum.cpp

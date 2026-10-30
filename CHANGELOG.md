@@ -41,6 +41,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Record model, first part (`Model/`, namespace `ThermoFun::v2`): quantities with uncertainty and typed vocabularies.
   Each list has one checked conversion, with aliases and a "did you mean" hint.
 
+- Method catalog (`Methods/`): the specification of every built-in method, with the approved ids, the older ids as
+  aliases, the parameters with SI and source units, the effects, the needs and the classes a method suits.
+
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
   the test databases.

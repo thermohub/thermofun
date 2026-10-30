@@ -87,6 +87,8 @@ def violations():
                 ok = lay in ("IO", "IO/Legacy") and (path.suffix == ".cpp" or "detail" in path.parts)
             elif target == lay or (lay == "IO/Legacy" and target == "IO"):
                 ok = True
+            elif target == "catalog" and lay in ("Methods", "Engine"):
+                ok = True  # the specs are part of the layer Methods
             else:
                 ok = target in ALLOWED[lay] or (target in LAYERS and target in ALLOWED[lay])
             if not ok:
