@@ -11,15 +11,16 @@
 
 #include <ThermoFun/Model/DataFormat.h>
 #include <ThermoFun/Model/Quantity.h>
+#include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// An element of the database, as the file says.
 struct ElementRecord
 {
     std::string symbol;                 ///< "Fe", or "Zz" for the charge
     std::string name;
-    std::string class_ = "element";     ///< "element", "charge" or "other"
+    ElementClass class_ = ElementClass::Element;
     std::optional<int> isotope_mass;
     std::optional<int> number;          ///< atomic number
     std::optional<int> valence;
@@ -31,13 +32,13 @@ struct ElementRecord
     std::map<std::string, Quantity> structural;  ///< more data, for example ionic_radius
     std::vector<std::string> data_sources;
     std::string sourcetdb;
-    std::string extra_json;
+    std::string extra_json;                      ///< fields that the format does not define, as JSON text
     DataFormat source_format = DataFormat::Legacy;
     std::string original_text;                   ///< the text of the record as it was read
 
     auto operator==(const ElementRecord&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

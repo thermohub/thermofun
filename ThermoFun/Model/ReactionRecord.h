@@ -10,7 +10,8 @@
 #include <utility>
 #include <vector>
 
-#include <ThermoFun/Conventions/Convention.h>
+#include <ThermoFun/Model/Convention.h>
+#include <ThermoFun/Model/Covariance.h>
 #include <ThermoFun/Model/Applicability.h>
 #include <ThermoFun/Model/DataFormat.h>
 #include <ThermoFun/Model/MethodApplication.h>
@@ -18,7 +19,7 @@
 #include <ThermoFun/Model/ReferenceConditions.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// A reaction of the database, as the file says. All values are in SI units.
 struct ReactionRecord
@@ -35,17 +36,18 @@ struct ReactionRecord
     std::vector<MethodApplication> methods;
     Applicability applicability;         ///< the range of the record; the legacy key limitsTP of the record
     std::optional<Convention> convention;
-    std::string preferred_property_source;   ///< "direct", "reactants" or empty
+    std::optional<PropertySource> preferred_property_source;   ///< Direct or Reactants; empty: the default rule
+    std::vector<CovarianceBlock> covariance; ///< correlations between values and parameters
     std::string data_source;
     std::vector<std::string> data_sources;
     bool deprecated = false;
-    std::string extra_json;
+    std::string extra_json;              ///< fields that the format does not define, as JSON text
     DataFormat source_format = DataFormat::Legacy;
     std::string original_text;
 
     auto operator==(const ReactionRecord&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

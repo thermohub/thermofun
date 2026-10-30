@@ -62,6 +62,7 @@ struct Quantity
 {
     double value = 0.0;                      ///< in the SI unit of the slot it fills
     std::string unit_as_written;             ///< unit in the file. Empty if the default unit was used.
+    std::string value_as_written;            ///< the number as text in the file, to write it back. Empty if not kept.
     std::optional<Uncertainty> uncertainty;  ///< empty if the file gives none (not zero)
     ValueMeta meta;
 

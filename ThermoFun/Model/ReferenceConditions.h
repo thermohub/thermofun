@@ -4,7 +4,7 @@
 #ifndef THERMOFUN_MODEL_REFERENCECONDITIONS_H
 #define THERMOFUN_MODEL_REFERENCECONDITIONS_H
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// The temperature and the pressure of the reference values of a record.
 struct ReferenceConditions
@@ -15,6 +15,6 @@ struct ReferenceConditions
     auto operator==(const ReferenceConditions&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

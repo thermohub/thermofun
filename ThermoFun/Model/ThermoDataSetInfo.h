@@ -7,19 +7,20 @@
 #include <string>
 #include <vector>
 
-#include <ThermoFun/Conventions/Convention.h>
+#include <ThermoFun/Model/Convention.h>
 #include <ThermoFun/Model/Quantity.h>
 #include <ThermoFun/Model/ReferenceConditions.h>
+#include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// Data about the dataset that is loaded, and its conventions.
 struct ThermoDataSetInfo
 {
     std::string symbol;                 ///< for example "aq17", "cemdata18"
     std::string name;
-    std::string version;                ///< required if the status is "published"
-    std::string status = "draft";       ///< "draft" or "published"
+    std::string version;                ///< required if the status is Published
+    DatasetStatus status = DatasetStatus::Draft;
     std::string schema_version;         ///< version of the v2 format of the file, empty for a legacy file
     std::string standard_state_convention = "IUPAC_1bar";
     Convention convention;              ///< convention of the dataset; the records may declare their own
@@ -36,6 +37,6 @@ struct ThermoDataSetInfo
     auto operator==(const ThermoDataSetInfo&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

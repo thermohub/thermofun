@@ -73,6 +73,20 @@
 # Common
     $$PWD/Common/Diagnostics.h \
     $$PWD/Common/Ucum.h \
+    $$PWD/Model/Applicability.h \
+    $$PWD/Model/Convention.h \
+    $$PWD/Model/Covariance.h \
+    $$PWD/Model/DataFormat.h \
+    $$PWD/Model/DataSource.h \
+    $$PWD/Model/ElementRecord.h \
+    $$PWD/Model/MethodApplication.h \
+    $$PWD/Model/MethodDefinition.h \
+    $$PWD/Model/MethodParameterSet.h \
+    $$PWD/Model/ReactionRecord.h \
+    $$PWD/Model/Records.h \
+    $$PWD/Model/ReferenceConditions.h \
+    $$PWD/Model/SubstanceRecord.h \
+    $$PWD/Model/ThermoDataSetInfo.h \
     $$PWD/Model/Quantity.h \
     $$PWD/Model/Vocabulary.h \
     $$PWD/IO/Legacy/LegacyVocabulary.h \

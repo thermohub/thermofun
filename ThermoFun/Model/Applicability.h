@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Model/Quantity.h>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// The T-P range in which a method application is valid, in SI units. A missing bound is no limit.
 struct Applicability
@@ -32,6 +32,6 @@ struct Segment
     auto operator==(const Segment&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

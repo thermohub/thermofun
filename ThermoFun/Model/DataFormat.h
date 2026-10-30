@@ -4,7 +4,7 @@
 #ifndef THERMOFUN_MODEL_DATAFORMAT_H
 #define THERMOFUN_MODEL_DATAFORMAT_H
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// The format of a data file or of a record. Auto: the reader finds it.
 enum class DataFormat
@@ -14,6 +14,6 @@ enum class DataFormat
     V2
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

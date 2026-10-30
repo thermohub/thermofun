@@ -199,6 +199,14 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Correct the units of the parameters or the expression."},
         {"V2-SYM-006", S::Error, "The expression is too large or uses a construct that is not allowed.",
          "Make the expression smaller, or write the method in C++."},
+        // covariance
+        {"V2-COV-001", S::Error, "The covariance matrix is not symmetric.", "Correct the matrix so that it is symmetric."},
+        {"V2-COV-002", S::Error, "The covariance matrix is not positive semi-definite.",
+         "Correct the matrix; a correlation must be between -1 and 1."},
+        {"V2-COV-003", S::Error, "The size of the covariance matrix does not agree with its list of values.",
+         "Give a square matrix with one row for each value of the list."},
+        {"V2-COV-004", S::Error, "A value of the covariance block is not in the record.",
+         "Correct the path of the value, or add the value to the record."},
         // data sources
         {"V2-SRC-001", S::Warning, "The symbol of the data source does not follow the NEA pattern.",
          "Write the symbol as year + first letters of the authors, for example 1988TAN/HEL."},

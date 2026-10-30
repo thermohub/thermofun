@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// A citation. The symbol follows the pattern YYYYAAA/BBB when possible.
 struct DataSource
@@ -20,6 +20,6 @@ struct DataSource
     auto operator==(const DataSource&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

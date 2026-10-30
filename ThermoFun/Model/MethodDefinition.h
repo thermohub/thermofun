@@ -10,8 +10,9 @@
 #include <vector>
 
 #include <ThermoFun/Model/Applicability.h>
+#include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// Declares one parameter of a method.
 struct ParameterDefinition
@@ -39,12 +40,12 @@ struct ReferenceTestCase
 /// A Method record of a project. ThermoFun reads it and checks it against its built-in specification.
 struct MethodDefinition
 {
-    std::string symbol;                          ///< id of the method, for example "HKFReaktoro"
-    std::string kind = "reference";              ///< "symbolic", "reference" or "composite"
+    std::string symbol;                          ///< id of the method, for example "HKF88"
+    MethodKind kind = MethodKind::Reference;
     int tier = 2;
-    std::string operates_on = "substance";       ///< "substance" or "reaction"
-    std::vector<std::string> applies_to_classes;
-    std::vector<std::string> contributes_to;     ///< "G", "H", "S", "Cp", "V"
+    OperatesOn operates_on = OperatesOn::Substance;
+    std::vector<SubstanceClass> applies_to_classes;
+    std::vector<std::string> contributes_to;     ///< words of PropertyName or ReactionPropertyName
     std::vector<ParameterDefinition> parameter_definitions;
     std::string implementation_id;               ///< for reference methods
     // Symbolic methods of tier 1
@@ -63,6 +64,6 @@ struct MethodDefinition
     auto operator==(const MethodDefinition&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

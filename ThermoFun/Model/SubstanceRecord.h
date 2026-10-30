@@ -9,7 +9,8 @@
 #include <string>
 #include <vector>
 
-#include <ThermoFun/Conventions/Convention.h>
+#include <ThermoFun/Model/Convention.h>
+#include <ThermoFun/Model/Covariance.h>
 #include <ThermoFun/Model/Applicability.h>
 #include <ThermoFun/Model/DataFormat.h>
 #include <ThermoFun/Model/MethodApplication.h>
@@ -17,21 +18,21 @@
 #include <ThermoFun/Model/ReferenceConditions.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// A substance of the database, as the file says. All values are in SI units.
 struct SubstanceRecord
 {
     // identity
     std::string symbol;                  ///< unique in a dataset
-    std::string class_ = "other";        ///< a word of the vocabulary of the substance class
+    SubstanceClass class_ = SubstanceClass::Other;
     std::string sourcetdb;
 
     // description
     std::string name;
     std::string formula;                 ///< a formula of ChemicalFun
     std::optional<int> charge;           ///< the legacy key formula_charge
-    std::string aggregate_state = "other";
+    AggregateState aggregate_state = AggregateState::Other;
     std::optional<Quantity> molar_mass;  ///< kg/mol (the legacy key mass_per_mole is in g/mol)
 
     // standard state
@@ -44,8 +45,9 @@ struct SubstanceRecord
     std::vector<MethodApplication> methods;     ///< in the order of the file
     std::string defining_reaction;              ///< symbol of a reaction; the legacy key reaction
     Applicability applicability;                ///< the range of the record; the legacy key limitsTP of the record
-    std::string preferred_property_source;      ///< "direct", "reaction" or empty
+    std::optional<PropertySource> preferred_property_source;   ///< Direct or Reaction; empty: the default rule
     std::map<std::string, Quantity> structural; ///< more data for methods that use it
+    std::vector<CovarianceBlock> covariance;    ///< correlations between values and parameters
 
     // origin
     std::string data_source;                    ///< source of the record, used if a value gives none
@@ -54,13 +56,13 @@ struct SubstanceRecord
     std::string deprecated_in_favour_of;
 
     // to write the record back
-    std::string extra_json;
+    std::string extra_json;                     ///< fields that the format does not define, as JSON text
     DataFormat source_format = DataFormat::Legacy;
     std::string original_text;
 
     auto operator==(const SubstanceRecord&) const -> bool = default;
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif
