@@ -8,12 +8,12 @@
 
 #include "Substances/EmpiricalCpIntegration.h"
 #include "Substances/StandardEntropyCpIntegration.h"
-#include "Substances/Solute/SoluteHKFreaktoro.h"
-#include "Substances/Solute/SoluteHKFgems.h"
+#include "Methods/Solutes/SoluteHKFreaktoro.h"
+#include "Methods/Solutes/SoluteHKFgems.h"
 #include "Methods/Water/WaterIdealGasWolley.h"
-#include "Substances/Solute/SoluteADgems.h"
-#include "Substances/Solute/SoluteHollandPowell98.h"
-#include "Substances/Solute/SoluteAnderson91.h"
+#include "Methods/Solutes/SoluteADgems.h"
+#include "Methods/Solutes/SoluteHollandPowell98.h"
+#include "Methods/Solutes/SoluteAnderson91.h"
 #include "Substances/Solids/SolidMurnaghanHP98.h"
 #include "Substances/Solids/SolidTaitHP11.h"
 #include "Substances/StandardThermoModelsExtra.h"
@@ -113,6 +113,34 @@ static auto copyStatus(ThermoPropertiesSubstance& out, const ThermoPropertiesSub
     copy(out.heat_capacity_cv, in.heat_capacity_cv);
 }
 
+/// The inputs of the HKF formulas from a substance
+static auto hkfInputsOf(const Substance& substance) -> HKFInputs
+{
+    const auto ref = substance.thermoReferenceProperties();
+    HKFInputs in;
+    in.symbol = substance.symbol();
+    for (double x : substance.thermoParameters().HKF_parameters)
+        in.parameters.push_back(x);
+    in.G = ref.gibbs_energy.val;
+    in.H = ref.enthalpy.val;
+    in.S = ref.entropy.val;
+    in.charge = substance.charge();
+    in.hydrogen_ion = substance.symbol() == "H+";
+    return in;
+}
+
+/// The reference values of the density models from a substance
+static auto soluteReferenceOf(const Substance& substance) -> SoluteReference
+{
+    const auto ref = substance.thermoReferenceProperties();
+    return {substance.referenceT(), ref.gibbs_energy.val, ref.enthalpy.val, ref.entropy.val, ref.heat_capacity_cp.val, ref.volume.val};
+}
+
+static auto realValues(const std::vector<double>& values) -> std::vector<real>
+{
+    return std::vector<real>(values.begin(), values.end());
+}
+
 struct ThermoModelsSubstance::Impl
 {
     /// The substance instance
@@ -186,7 +214,7 @@ auto SoluteAkinfievDiamondEOS::thermoProperties(double T, double P, ThermoProper
     const auto wprAD   = lift(reference, wpr);
 
     auto state = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesAqSoluteAD(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps),
+        return thermoPropertiesAqSoluteAD(pass.T, pass.P / bar_to_Pa, realValues(pimpl->substance.thermoParameters().Cp_nonElectrolyte_coeff), pimpl->substance.symbol(), lift(pass, tps),
                                           lift(pass, wtp), lift(pass, wigp), lift(pass, wp), wtprAD, wigprAD, wprAD);
     });
 
@@ -266,6 +294,7 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
 {
 //    checkModelValidity(T - C_to_K, P / bar_to_Pa, 1000, 5000, pimpl->substance, "HKFgems");
 
+    const auto inputs = hkfInputsOf(pimpl->substance);
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         const real t = pass.T - C_to_K;
         const real p = pass.P / bar_to_Pa;
@@ -274,9 +303,9 @@ auto SoluteHKFgems::thermoProperties(double T, double P, PropertiesSolvent wp, E
 
         FunctionG g = gShok2(t, p, wpAD);
 
-        ElectroPropertiesSubstance aes = omeg92(g, pimpl->substance);
+        ElectroPropertiesSubstance aes = omeg92(g, inputs);
 
-        return thermoPropertiesAqSoluteHKFgems(t, p, pimpl->substance, aes, wesAD, wpAD);
+        return thermoPropertiesAqSoluteHKFgems(t, p, inputs, aes, wesAD, wpAD);
     });
 
     setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0, T, P, pimpl->substance.referenceT());
@@ -316,6 +345,7 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
 {
 //    checkModelValidity(T, P / bar_to_Pa, 1273.15, 5e08, pimpl->substance, "HKFreaktoro");
 
+    const auto inputs = hkfInputsOf(pimpl->substance);
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         const real t = pass.T;
         const real p = pass.P / bar_to_Pa;
@@ -324,9 +354,9 @@ auto SoluteHKFreaktoro::thermoProperties(double T, double P, PropertiesSolvent w
 
         FunctionG g = functionG(t, p, wpAD);
 
-        ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, pimpl->substance);
+        ElectroPropertiesSubstance aes = speciesElectroStateHKF(g, inputs);
 
-        return thermoPropertiesAqSoluteHKFreaktoro(t, p, pimpl->substance, aes, wesAD, wpAD);
+        return thermoPropertiesAqSoluteHKFreaktoro(t, p, inputs, aes, wesAD, wpAD);
     });
 
     setStatusHKF(tps, pimpl->substance.thermoReferenceProperties(), wes, wp, pimpl->substance.charge() != 0, T, P, pimpl->substance.referenceT());
@@ -368,7 +398,7 @@ auto SoluteHollandPowell98::thermoProperties(double T, double P, const Propertie
 ////    checkModelValidity(T, P / bar_to_Pa, 1000, 5000, pimpl->substance, "HKFgems");
 
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesAqSoluteHP98(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, wpr), lift(pass, wp));
+        return thermoPropertiesAqSoluteHP98(pass.T, pass.P / bar_to_Pa, soluteReferenceOf(pimpl->substance), realValues(pimpl->substance.thermoParameters().solute_holland_powell98_coeff), pimpl->substance.symbol(), lift(pass, wpr), lift(pass, wp));
     });
 
     // the reference properties are used as constants, the isochoric heat capacity is not calculated
@@ -406,7 +436,7 @@ auto SoluteAnderson91::thermoProperties(double T, double P, const PropertiesSolv
 ////    checkModelValidity(T, P / bar_to_Pa, 1000, 5000, pimpl->substance, "HKFgems");
 
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesAqSoluteAN91(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, wpr), lift(pass, wp));
+        return thermoPropertiesAqSoluteAN91(pass.T, pass.P / bar_to_Pa, soluteReferenceOf(pimpl->substance), lift(pass, wpr), lift(pass, wp));
     });
 
     // the reference properties are used as constants, the isochoric heat capacity is not calculated

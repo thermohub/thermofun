@@ -1,26 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Solute/SoluteAnderson91.h"
+#include "Methods/Solutes/SoluteAnderson91.h"
 
 #include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoParameters.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAN91(real TK, real Pbar, Substance subst, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesAqSoluteAN91(real TK, real Pbar, const SoluteReference& reference, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     auto T = TK;
     ThermoPropertiesSubstanceAD tps;
-    auto tpsr = subst.thermoReferenceProperties();
-    double T298 = subst.referenceT();
-    double G298 = tpsr.gibbs_energy.val;
-    double H298 = tpsr.enthalpy.val;
-    double S298 = tpsr.entropy.val;
-    double V298 = tpsr.volume.val; // J/bar
-    double Cp298 = tpsr.heat_capacity_cp.val;
+    double T298 = reference.T;
+    double G298 = reference.G;
+    double H298 = reference.H;
+    double S298 = reference.S;
+    double V298 = reference.V; // J/bar
+    double Cp298 = reference.Cp;
 
     double ALPw298 = wpr.Alpha.val();
     double BETw298 = wpr.Beta.val()*1e5; // 1/bar

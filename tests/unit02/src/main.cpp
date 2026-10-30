@@ -13,8 +13,8 @@
 #include "ThermoFun/ThermoModelsSolvent.h"
 #include "ThermoFun/ElectroModelsSolvent.h"
 #include "ThermoFun/GlobalVariables.h"
-#include "ThermoFun/Substances/Solute/SoluteHKFreaktoro.h"
-#include "ThermoFun/Substances/Solute/SoluteHKFgems.h"
+#include "ThermoFun/Methods/Solutes/SoluteHKFreaktoro.h"
+#include "ThermoFun/Methods/Solutes/SoluteHKFgems.h"
 
 using namespace std;
 using namespace ThermoFun;

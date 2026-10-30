@@ -1,12 +1,11 @@
-#include "Substances/Solute/SoluteADgems.h"
+#include "Methods/Solutes/SoluteADgems.h"
 #include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, Substance subst,
+auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& parameters, const std::string& symbol,
                                 ThermoPropertiesSubstanceAD tps, const ThermoPropertiesSubstanceAD& wtp,
                                 const ThermoPropertiesSubstanceAD& wigp, const PropertiesSolventAD& wp,
                                 const ThermoPropertiesSubstanceAD& wtpr, const ThermoPropertiesSubstanceAD& wigpr,
@@ -37,13 +36,13 @@ auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, Substance subst,
 
     ThermoPropertiesSubstanceAD state = tps;
 
-    const auto ADparam = subst.thermoParameters().Cp_nonElectrolyte_coeff;
+    const auto& ADparam = parameters;
 
     if (ADparam.size() == 0)
     {
         Exception exception;
         exception.error << "Error in Akinfiev Diamond EOS";
-        exception.reason << "There are no model parameters given for "<<subst.symbol() << ".";
+        exception.reason << "There are no model parameters given for "<<symbol << ".";
         exception.line = __LINE__;
         RaiseError(exception);
     }
@@ -102,7 +101,7 @@ auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, Substance subst,
 }
 
 void Akinfiev_EOS_increments(real Tk, real /*P*/, real Gig, real Sig, real CPig,
-        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, vd ADparam,
+        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, const std::vector<real>& ADparam,
         real &Geos, real &Veos, real &Seos, real &CPeos, real &Heos )
 {
 

@@ -1,13 +1,13 @@
 #ifndef SOLUTEHKFGEMS
 #define SOLUTEHKFGEMS
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Methods/Solutes/SoluteInputs.h>
 
 
 namespace ThermoFun {
 
 struct ElectroPropertiesSubstance;
 struct FunctionG;
-class Substance;
 
 /// Returns the thermodynamic properties of a substance using the HKF EOS
 /// @ref Tanger and Helgeson (1988)
@@ -16,7 +16,7 @@ class Substance;
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD;
 
 /// Returns the G function and its derivatives (gShock2 in gems)
 /// @ref Shock et al. (1991)
@@ -29,7 +29,7 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG;
 /// @ref Johnson et al. (1991)
 /// @param g structure holding the g function values and its derivatives
 /// @param species instance of the species
-auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance;
+auto omeg92(FunctionG g, const HKFInputs& species) -> ElectroPropertiesSubstance;
 
 }
 

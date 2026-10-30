@@ -16,7 +16,7 @@
 #include "Database.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
-#include "Substances/Solute/SoluteHollandPowell98.h"
+#include "Methods/Solutes/SoluteHollandPowell98.h"
 #include "ThermoParameters.h"
 
 using namespace ThermoFun;

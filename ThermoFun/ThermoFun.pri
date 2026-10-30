@@ -11,8 +11,8 @@
 #    $$PWD/Common/formuladata.h \
 #    $$PWD/Common/formulaparser.h \
 # ThermoFun
-    $$PWD/Substances/Solute/SoluteAnderson91.h \
-    $$PWD/Substances/Solute/SoluteHollandPowell98.h \
+    $$PWD/Methods/Solutes/SoluteAnderson91.h \
+    $$PWD/Methods/Solutes/SoluteHollandPowell98.h \
     $$PWD/Substances/StandardEntropyCpIntegration.h \
     $$PWD/ThermoFun.h \
     $$PWD/Database.h \
@@ -49,9 +49,9 @@
     $$PWD/Methods/Water/WaterElectroSverjensky2014.h \
     $$PWD/Methods/Water/WaterElectroFernandez1997.h \
 # Substances - Solute
-    $$PWD/Substances/Solute/SoluteHKFreaktoro.h \
-    $$PWD/Substances/Solute/SoluteHKFgems.h \
-    $$PWD/Substances/Solute/SoluteADgems.h \
+    $$PWD/Methods/Solutes/SoluteHKFreaktoro.h \
+    $$PWD/Methods/Solutes/SoluteHKFgems.h \
+    $$PWD/Methods/Solutes/SoluteADgems.h \
 # Substances - Soldis
     $$PWD/Substances/Solids/SolidMurnaghanHP98.h \
     $$PWD/Substances/Solids/SolidBerman88.h \
@@ -133,8 +133,8 @@
     $$PWD/ThermoPropertiesStatus.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
-    $$PWD/Substances/Solute/SoluteAnderson91.cpp \
-    $$PWD/Substances/Solute/SoluteHollandPowell98.cpp \
+    $$PWD/Methods/Solutes/SoluteAnderson91.cpp \
+    $$PWD/Methods/Solutes/SoluteHollandPowell98.cpp \
     $$PWD/Substances/StandardEntropyCpIntegration.cpp \
     $$PWD/ThermoModelsSolvent.cpp \
     $$PWD/ElectroModelsSolvent.cpp \
@@ -158,9 +158,9 @@
     $$PWD/Methods/Water/WaterElectroSverjensky2014.cpp \
     $$PWD/Methods/Water/WaterElectroFernandez1997.cpp \
 # Substances - Solute
-    $$PWD/Substances/Solute/SoluteHKFreaktoro.cpp \
-    $$PWD/Substances/Solute/SoluteHKFgems.cpp \
-    $$PWD/Substances/Solute/SoluteADgems.cpp \
+    $$PWD/Methods/Solutes/SoluteHKFreaktoro.cpp \
+    $$PWD/Methods/Solutes/SoluteHKFgems.cpp \
+    $$PWD/Methods/Solutes/SoluteADgems.cpp \
 # Substances - Solids
     $$PWD/Substances/Solids/SolidMurnaghanHP98.cpp \
     $$PWD/Substances/Solids/SolidBMGottschalk.cpp \

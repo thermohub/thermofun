@@ -1,8 +1,7 @@
-#include "Substances/Solute/SoluteHKFreaktoro.h"
+#include "Methods/Solutes/SoluteHKFreaktoro.h"
 #include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoParameters.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
@@ -42,17 +41,16 @@ const double theta = 228;
 /// The constant characteristics \Psi of the solvent (in units of bar)
 const double psi = 2600;
 
-auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, Substance subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
-    auto hkf = subst.thermoParameters().HKF_parameters;
-    auto refProp = subst.thermoReferenceProperties();
+    const auto& hkf = subst.parameters;
 
     if (hkf.size() == 0)
     {
         Exception exception;
         exception.error << "Error in HKFreaktoro EOS";
-        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< subst.symbol << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception)
     }
@@ -60,7 +58,7 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, Substance subst, co
 //    {
 //        Exception exception;
 //        exception.error << "Error in HKFreaktoro EOS";
-//        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
+//        exception.reason << "The HKF paramteres for "<< subst.symbol << " are not defined or are not correclty initialized.";
 //        exception.line = __LINE__;
 //        RaiseError(exception);
 //    }
@@ -70,9 +68,9 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, Substance subst, co
     const auto Pr   = referencePressure;
     const auto Zr   = referenceBornZ;
     const auto Yr   = referenceBornY;
-    const auto Gf   = Reaktoro_::constant(refProp.gibbs_energy) / cal_to_J;
-    const auto Hf   = Reaktoro_::constant(refProp.enthalpy) / cal_to_J;
-    const auto Sr   = Reaktoro_::constant(refProp.entropy) / cal_to_J;
+    const auto Gf   = subst.G / cal_to_J;
+    const auto Hf   = subst.H / cal_to_J;
+    const auto Sr   = subst.S / cal_to_J;
     const auto a1   = hkf[0];
     const auto a2   = hkf[1];
     const auto a3   = hkf[2];
@@ -135,16 +133,16 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, Substance subst, co
 }
 
 
-auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPropertiesSubstance
+auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> ElectroPropertiesSubstance
 {
     // Get the HKF thermodynamic parameters of the aqueous species
-    auto hkf = species.thermoParameters().HKF_parameters;
+    const auto& hkf = species.parameters;
 
     // The species electro instance to be calculated
     ElectroPropertiesSubstance se;
 
     // Check if the aqueous species is neutral or H+, and set its electrostatic data accordingly
-    if(species.charge() == 0.0 || (species.symbol() == "H+"))
+    if(species.charge == 0.0 || species.hydrogen_ion)
     {
         se.w   = hkf[6] /*hkf.wref*/;
         se.wT  = 0.0;
@@ -155,7 +153,7 @@ auto speciesElectroStateHKF(const FunctionG& g, Substance species) -> ElectroPro
     }
     else
     {
-        const auto z = species.charge();
+        const auto z = species.charge;
         const auto wref = hkf[6] /*hkf.wref*/;
 
         const auto reref = z*z/(wref/eta + z/3.082);

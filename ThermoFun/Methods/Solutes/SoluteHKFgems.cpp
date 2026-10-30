@@ -1,8 +1,7 @@
-#include "Substances/Solute/SoluteHKFgems.h"
+#include "Methods/Solutes/SoluteHKFgems.h"
 #include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoParameters.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 
 namespace ThermoFun {
@@ -18,11 +17,10 @@ ZPrTr = -0.1278034682e-1,
                                                   gref = 0.0e0;
 
 
-auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
-    auto hkf = subst.thermoParameters().HKF_parameters;
-    auto refProp = subst.thermoReferenceProperties();
+    const auto& hkf = subst.parameters;
 
     auto TK = TC + C_to_K;
 
@@ -30,7 +28,7 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
     {
         Exception exception;
         exception.error << "Error in HKFgems EOS";
-        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
+        exception.reason << "The HKF paramteres for "<< subst.symbol << " are not defined or are not correclty initialized.";
         exception.line = __LINE__;
         RaiseError(exception)
     }
@@ -38,7 +36,7 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
 //    {
 //        Exception exception;
 //        exception.error << "Error in HKFgems EOS";
-//        exception.reason << "The HKF paramteres for "<< subst.symbol() << " are not defined or are not correclty initialized.";
+//        exception.reason << "The HKF paramteres for "<< subst.symbol << " are not defined or are not correclty initialized.";
 //        exception.line = __LINE__;
 //        RaiseError(exception);
 //    }
@@ -51,9 +49,9 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, Substance subst, const 
 //    const auto Pr   = referencePressure;
 //    const auto Zr   = referenceBornZ;
 //    const auto Yr   = referenceBornY;
-    const auto Gf   = Reaktoro_::constant(refProp.gibbs_energy) / cal_to_J;
-    const auto Hf   = Reaktoro_::constant(refProp.enthalpy) / cal_to_J;
-    const auto Sr   = Reaktoro_::constant(refProp.entropy) / cal_to_J;
+    const auto Gf   = subst.G / cal_to_J;
+    const auto Hf   = subst.H / cal_to_J;
+    const auto Sr   = subst.S / cal_to_J;
     const auto a1   = hkf[0];
     const auto a2   = hkf[1];
     const auto a3   = hkf[2];
@@ -238,12 +236,12 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
     return g;
 }
 
-auto omeg92(FunctionG g, Substance species) -> ElectroPropertiesSubstance
+auto omeg92(FunctionG g, const HKFInputs& species) -> ElectroPropertiesSubstance
 {
     real reref, re, Z3, Z4;
-    const auto chg = species.charge();
+    const auto chg = species.charge;
 
-    auto hkf = species.thermoParameters().HKF_parameters;
+    const auto& hkf = species.parameters;
     const auto wref = hkf[6] /*hkf.wref*/;
 
     ElectroPropertiesSubstance eps;

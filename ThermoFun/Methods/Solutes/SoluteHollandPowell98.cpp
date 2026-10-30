@@ -1,26 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Solute/SoluteHollandPowell98.h"
+#include "Methods/Solutes/SoluteHollandPowell98.h"
 
 #include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoParameters.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, const SoluteReference& reference, const std::vector<real>& parameters, const std::string& symbol, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     auto T = TK;
     ThermoPropertiesSubstanceAD tps;
-    auto tpsr = subst.thermoReferenceProperties();
-    double T298 = subst.referenceT();
-    double G298 = tpsr.gibbs_energy.val;
-    double H298 = tpsr.enthalpy.val;
-    double S298 = tpsr.entropy.val;
-    double V298 = tpsr.volume.val; // J/bar
-    double Cp298 = tpsr.heat_capacity_cp.val;
+    double T298 = reference.T;
+    double G298 = reference.G;
+    double H298 = reference.H;
+    double S298 = reference.S;
+    double V298 = reference.V; // J/bar
+    double Cp298 = reference.Cp;
 
 //    // props given in HP98 page 314
 //    ALPw298 = 0.0002593; // 1/K
@@ -32,14 +30,14 @@ auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, Substance subst, const Pro
     double dALPdTw298 = wpr.dAldT.val();
     double RHOw298 = wpr.density.val()/1000; // g/cm3
 
-    const auto HP98param = subst.thermoParameters().solute_holland_powell98_coeff;
+    const auto& HP98param = parameters;
 
     // EOS coefficients
     if (HP98param.size()<1)
     {
         Exception exception;
         exception.error << "Error in Holland and Powell aq solute model";
-        exception.reason << "There are no model parameters given for "<<subst.symbol() << ".";
+        exception.reason << "There are no model parameters given for "<<symbol << ".";
         exception.file = __FILE__;
         exception.line = __LINE__;
         RaiseError(exception);
