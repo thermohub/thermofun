@@ -8,7 +8,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <ThermoFun/ThermoProperties.h>
 #include <spdlog/spdlog.h>
 
 namespace ThermoFun {
@@ -84,12 +83,6 @@ auto errorModelParameters(std::string type, std::string name, int line, std::str
 auto errorSameSymbol(std::string type, std::string name, int line, std::string file) -> void;
 
 auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void;
-
-auto setMessage(Reaktoro_::Status sta, std::string propertyOfsymbol, std::string calcMessage, std::string &message_ ) -> void;
-
-auto setMessage(Reaktoro_::Status sta, std::string message , ThermoPropertiesSubstance &tps) -> void;
-
-auto setMessage(Reaktoro_::Status sta, std::string message, ThermoPropertiesReaction &tpr ) -> void;
 
 auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
 

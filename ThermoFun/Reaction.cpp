@@ -14,6 +14,7 @@
 #include "ThermoParameters.h"
 #include "Common/Exception.h"
 #include "Common/ParseJsonToData.h"
+#include "ThermoPropertiesStatus.h"
 
 namespace ThermoFun {
 

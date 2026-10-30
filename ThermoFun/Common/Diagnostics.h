@@ -28,14 +28,23 @@ struct Diagnostic
     /// File name, if known.
     std::string file;
 
+    /// Line in the file, starting at 1; 0 if not known.
+    int line = 0;
+
+    /// Column in the line, starting at 1; 0 if not known.
+    int column = 0;
+
     /// Symbol of the record, if known, for example "NaCl@".
     std::string record;
 
     /// JSON pointer inside the record, for example "/methods/0/parameters/a1".
     std::string path;
 
-    /// One sentence for the user.
+    /// What is wrong, one sentence.
     std::string message;
+
+    /// What to do, one sentence. If empty, toString() uses the fix of the code in diagnosticCatalog().
+    std::string fix;
 };
 
 /// A list of problems. Reading and checking functions collect all problems here and do not stop at the first one.
@@ -54,14 +63,15 @@ public:
     /// The problems with the severity Error.
     auto errors() const -> std::vector<Diagnostic>;
 
-    /// One line for each problem: "error V2-REF-001 file:record:path: message". Empty parts are left out.
+    /// One line for each problem, as toString(const Diagnostic&).
     auto toString() const -> std::string;
 
 private:
     std::vector<Diagnostic> items_;
 };
 
-/// The text of one problem, as one line of Diagnostics::toString().
+/// The text of one problem: "file:line:column: severity code record path: message fix".
+/// Empty parts are left out; a line or column of 0 is not shown.
 auto toString(const Diagnostic& d) -> std::string;
 
 /// The text of a severity: "info", "warning" or "error".
@@ -72,11 +82,17 @@ struct DiagnosticInfo
 {
     std::string code;
     Severity severity;
+    /// What the problem is.
     std::string meaning;
+    /// What the user does about it, one sentence in the imperative.
+    std::string fix;
 };
 
-/// All diagnostic codes with their severity and meaning.
+/// All diagnostic codes with their severity, meaning and fix.
 auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&;
+
+/// The catalog entry of a code, or nullptr if the code is not in the catalog.
+auto diagnosticInfo(const std::string& code) -> const DiagnosticInfo*;
 
 }
 

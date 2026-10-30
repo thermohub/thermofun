@@ -35,6 +35,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   ΔrH were wrong by `a`. This model and the Marshall and Franck (1981) model now return log K (it was 0).
   Both are checked against the values published with them.
 
+- Diagnostics (`Common/Diagnostics.h`): problems found while reading or checking data are collected with a code,
+  the file, line and column, the record, the path in the record, a message and a fix. Every code has a fix text.
+
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
   the test databases.

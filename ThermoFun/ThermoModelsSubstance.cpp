@@ -30,6 +30,7 @@
 
 // ThermoFun includes
 #include "Common/Exception.h"
+#include "ThermoPropertiesStatus.h"
 
 namespace ThermoFun {
 

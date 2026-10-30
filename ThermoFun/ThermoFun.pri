@@ -22,6 +22,7 @@
     $$PWD/ThermoModelsSubstance.h \
     $$PWD/ThermoModelsReaction.h \
     $$PWD/ThermoProperties.h \
+    $$PWD/ThermoPropertiesStatus.h \
     $$PWD/ThermoParameters.h \
     $$PWD/OptimizationUtils.h \
 #    $$PWD/TPcalculationsAPI.h \
@@ -70,6 +71,7 @@
     $$PWD/Reactions/Volume_function_of_T.h \
     $$PWD/Reactions/DolejsManning2010.h \
 # Common
+    $$PWD/Common/Diagnostics.h \
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
     $$PWD/Common/OutputToCSV.h \
@@ -86,6 +88,7 @@
 # ThermoFun
     $$PWD/Element.cpp \
     $$PWD/GlobalFunctions.cpp \
+    $$PWD/ThermoPropertiesStatus.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
     $$PWD/Substances/Solute/SoluteAnderson91.cpp \
@@ -137,6 +140,7 @@
     $$PWD/Reactions/Volume_function_of_T.cpp \
     $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
+    $$PWD/Common/Diagnostics.cpp \
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Common/OutputToCSV.cpp \

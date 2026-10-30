@@ -8,6 +8,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Common/ParseJsonToData.h"
+#include "ThermoPropertiesStatus.h"
 
 namespace ThermoFun {
 

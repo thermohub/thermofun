@@ -9,6 +9,7 @@
 #include "Reactions/LogK_function_of_T.h"
 #include "Reactions/DolejsManning2010.h"
 #include "Reactions/Volume_function_of_T.h"
+#include "ThermoPropertiesStatus.h"
 
 namespace ThermoFun {
 
