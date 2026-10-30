@@ -59,6 +59,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   gives the state after each method. The results are the same as before.
 - Water and its dielectric models are method objects too (`thermofun.methods.solventMethod`, `dielectricMethod`), and
   run alone. New option of `WaterZhangDuan05`: `dew_gibbs` gives the Gibbs energy of water of the DEW model.
+- The aqueous solute methods are method objects (`thermofun.methods.substanceMethod`): `HKF88`, `SoluteHP98`,
+  `AndersonEtAl91`, `AkinfievDiamond03`. A method alone takes the state of the solvent, and gives its derivatives with
+  respect to each parameter.
+- The hydrogen ion is found by its class, formula and charge, not by the symbol.
 
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of

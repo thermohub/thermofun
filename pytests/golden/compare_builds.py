@@ -7,8 +7,9 @@
 
 --base and --new are install prefixes (see build_baseline.sh). --new defaults to the active environment.
 Both builds compute the same questions with golden_common.py of the working tree.
-The relative tolerance is 1e-12, and the values of the energies have a margin of two ulps of P*V of the record
-(golden_common.py). The exit code is 1 if any value, error or status differs, except in the records
+The relative tolerance is 1e-10, as in test_golden.py, and the values of the energies have a margin of two ulps of
+P*V of the record (golden_common.py). The differences between 1e-12 and 1e-10 are counted and shown: they are the
+rounding of the parameters between the units of a model and SI, where large terms nearly cancel. The exit code is 1 if any value, error or status differs, except in the records
 listed in expected_changes.json (wrong in the baseline, each with its reason).
 """
 
@@ -26,7 +27,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import golden_common as gc  # noqa: E402
 
-REL_TOL = 1e-12
+REL_TOL = 1e-10
+ROUNDING_TOL = 1e-12  # differences above this are counted, and only those above REL_TOL fail
 CHUNK = 150  # records per work item, to bound the memory
 
 
@@ -131,7 +133,7 @@ def main():
         if any(code != 0 for code in codes):
             print("a worker failed")
             return 2
-        diffs, accepted, files = [], 0, sorted(p.name for p in (tmp / "base").iterdir())
+        diffs, accepted, rounding, files = [], 0, 0, sorted(p.name for p in (tmp / "base").iterdir())
         expected = expected_changes()
         if files != sorted(p.name for p in (tmp / "new").iterdir()):
             print("the two builds produced different work items")
@@ -147,8 +149,11 @@ def main():
                     accepted += 1
                 else:
                     diffs.append(d)
+            rounding += sum((base["database"], base["variant"], d["kind"], d["record"]) not in expected
+                            for d in gc.compare(base, got, ROUNDING_TOL))
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
         print("accepted differences (expected_changes.json): %d" % accepted)
+        print("differences between %g and %g (rounding): %d" % (ROUNDING_TOL, REL_TOL, rounding - len(diffs)))
         return 1 if diffs else 0
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

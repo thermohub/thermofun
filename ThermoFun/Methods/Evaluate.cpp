@@ -27,7 +27,7 @@ auto toReal(const ReferenceValues& r) -> ReferenceState<TPReal>
 
 enum class Seed { T, P, Parameter };
 
-auto pass(const SubstanceMethod& method, double T, double P, const ReferenceState<TPReal>& reference, Seed seed, int parameter) -> SubstanceState<TPReal>
+auto pass(const SubstanceMethod& method, double T, double P, const ReferenceState<TPReal>& reference, Seed seed, int parameter, const SolventInputs* solvent) -> SubstanceState<TPReal>
 {
     TPReal t(T), p(P);
 #ifndef THERMOFUN_NO_AUTODIFF
@@ -39,6 +39,18 @@ auto pass(const SubstanceMethod& method, double T, double P, const ReferenceStat
     SubstanceInputs<TPReal> in{t, p, reference};
     if (seed == Seed::Parameter)
         in.seeded_parameter = parameter;
+    SolventState<TPReal> atPoint, atReference;
+    if (solvent)
+    {
+#ifndef THERMOFUN_NO_AUTODIFF
+        atPoint = solventOfPass(*solvent, T, P, seed == Seed::T ? Reaktoro_::Wrt::T : seed == Seed::P ? Reaktoro_::Wrt::P : Reaktoro_::Wrt::None);
+#else
+        atPoint = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
+#endif
+        atReference = solventAtReference(*solvent, T, P);
+        in.solvent = &atPoint;
+        in.solvent_at_reference = &atReference;
+    }
     SubstanceState<TPReal> state;
     method.apply(state, in);
     return state;
@@ -46,11 +58,32 @@ auto pass(const SubstanceMethod& method, double T, double P, const ReferenceStat
 
 } // namespace
 
-auto evaluate(const SubstanceMethod& method, double T, double P, const ReferenceValues& reference) -> MethodResult
+auto solventOfPass(const SolventInputs& in, double T, double P, Reaktoro_::Wrt wrt) -> SolventState<TPReal>
+{
+    const Reaktoro_::Pass pass(T, P, wrt);
+    SolventState<TPReal> out;
+    out.properties = lift(pass, in.properties);
+    out.electro = lift(pass, in.electro);
+    out.water = lift(pass, in.water);
+    out.ideal_gas_water = lift(pass, in.ideal_gas_water);
+    return out;
+}
+
+auto solventAtReference(const SolventInputs& in, double T, double P) -> SolventState<TPReal>
+{
+    const Reaktoro_::Pass pass(T, P, Reaktoro_::Wrt::None);
+    SolventState<TPReal> out;
+    out.properties = lift(pass, in.properties_at_reference);
+    out.water = lift(pass, in.water_at_reference);
+    out.ideal_gas_water = lift(pass, in.ideal_gas_water_at_reference);
+    return out;
+}
+
+auto evaluate(const SubstanceMethod& method, double T, double P, const ReferenceValues& reference, const SolventInputs* solvent) -> MethodResult
 {
     const auto r = toReal(reference);
-    const auto wrtT = pass(method, T, P, r, Seed::T, -1);
-    const auto wrtP = pass(method, T, P, r, Seed::P, -1);
+    const auto wrtT = pass(method, T, P, r, Seed::T, -1, solvent);
+    const auto wrtP = pass(method, T, P, r, Seed::P, -1, solvent);
     auto combine = [](const TPReal& a, const TPReal& b) { return PropertyValue{a[0], a[1], b[1]}; };
     MethodResult out;
     out.G = combine(wrtT.G, wrtP.G);
@@ -62,9 +95,9 @@ auto evaluate(const SubstanceMethod& method, double T, double P, const Reference
     return out;
 }
 
-auto evaluateParameterDerivative(const SubstanceMethod& method, std::size_t index, double T, double P, const ReferenceValues& reference) -> MethodResult
+auto evaluateParameterDerivative(const SubstanceMethod& method, std::size_t index, double T, double P, const ReferenceValues& reference, const SolventInputs* solvent) -> MethodResult
 {
-    const auto s = pass(method, T, P, toReal(reference), Seed::Parameter, static_cast<int>(index));
+    const auto s = pass(method, T, P, toReal(reference), Seed::Parameter, static_cast<int>(index), solvent);
     auto one = [](const TPReal& a) { return PropertyValue{a[0], a[1], 0.0}; };  // ddt holds the derivative of the pass
     MethodResult out;
     out.G = one(s.G);

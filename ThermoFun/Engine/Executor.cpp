@@ -40,7 +40,7 @@ auto combine(const SubstanceState<TPReal>& wrtT, const SubstanceState<TPReal>& w
 
 } // namespace
 
-auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, std::vector<ExplainStep>* steps) -> SubstanceResult
+auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, std::vector<ExplainStep>* steps, const SolventInputs* solvent) -> SubstanceResult
 {
     const auto reference = toReal(bound.reference);
     TPReal Tt(T), Pp(P);
@@ -53,13 +53,28 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
     wrtT.options = options;
     wrtP.options = options;
 
+    SolventState<TPReal> solventT, solventP, solventRef;
+    if (solvent)
+    {
+#ifndef THERMOFUN_NO_AUTODIFF
+        solventT = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::T);
+        solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::P);
+#else
+        solventT = solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
+#endif
+        solventRef = solventAtReference(*solvent, T, P);
+        wrtT.solvent = &solventT;
+        wrtP.solvent = &solventP;
+        wrtT.solvent_at_reference = wrtP.solvent_at_reference = &solventRef;
+    }
+
     SubstanceState<TPReal> a, b;
     SubstanceResult result;
     for (const auto& method : bound.order)
     {
         method->apply(a, wrtT);
         method->apply(b, wrtP);
-        method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, a.outside_range, options});
+        method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, a.outside_range, options, solvent});
         if (steps)
             steps->push_back({method->spec().id, combine(a, b)});
     }

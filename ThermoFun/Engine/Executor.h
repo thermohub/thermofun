@@ -26,7 +26,8 @@ struct ExplainStep
 };
 
 /// Run the bound methods of a record at T (K) and P (Pa). If steps is given, it gets the state after each method.
-auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, std::vector<ExplainStep>* steps = nullptr) -> SubstanceResult;
+/// solvent: the state of the solvent, if a method of the record needs it.
+auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, std::vector<ExplainStep>* steps = nullptr, const SolventInputs* solvent = nullptr) -> SubstanceResult;
 
 } // namespace ThermoFun::v2
 

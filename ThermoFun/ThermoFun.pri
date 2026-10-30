@@ -79,6 +79,9 @@
     $$PWD/Engine/Binding.h \
     $$PWD/Engine/Executor.h \
     $$PWD/Engine/Solvent.h \
+    $$PWD/Conventions/HydrogenIon.h \
+    $$PWD/Methods/Solutes/SoluteInputs.h \
+    $$PWD/Methods/Solutes/SoluteMethods.h \
     $$PWD/Methods/Water/SolventMethod.h \
     $$PWD/Methods/Water/WaterMethods.h \
     $$PWD/Methods/MethodSpec.h \
@@ -187,6 +190,7 @@
     $$PWD/Engine/Binding.cpp \
     $$PWD/Engine/Executor.cpp \
     $$PWD/Engine/Solvent.cpp \
+    $$PWD/Methods/Solutes/SoluteMethods.cpp \
     $$PWD/Methods/Water/WaterMethods.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
     $$PWD/Methods/MethodRegistry.cpp \

@@ -7,9 +7,11 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include "Common/Exception.h"
 #include "Engine/Executor.h"
 #include "Engine/Solvent.h"
+#include "Conventions/HydrogenIon.h"
 #include "Model/SubstanceRecord.h"
 #include "ThermoEngine.h"
 #include "Database.h"
@@ -226,6 +228,34 @@ struct ThermoEngine::Impl
         return bound;
     }
 
+    /// The state of the solvent that the methods of a record need, calculated with the methods of the solvent record.
+    /// A pressure of 0 is the saturation pressure: it is written to P.
+    auto solventInputs(const v2::BoundSubstance& bound, double T, double& P) const -> std::optional<v2::SolventInputs>
+    {
+        if (!bound.needs.solvent)
+            return std::nullopt;
+        v2::SolventInputs in;
+        const auto symbol = preferences.solvent_symbol;
+        in.properties = properties_solvent_fn(T, P, P, symbol, -1);
+        if (bound.needs.dielectric)
+            in.electro = electro_properties_solvent_fn(T, P, P, symbol, -1);
+        if (bound.needs.solvent_at_reference)
+        {
+            const auto& solvent = database.getSubstance(symbol);
+            double Pr = solvent.referenceP();
+            const double Tr = solvent.referenceT();
+            in.properties_at_reference = properties_solvent_fn(Tr, Pr, Pr, symbol, -1);
+            if (bound.needs.ideal_gas_water)
+            {
+                in.water = thermo_properties_substance_fn(T, P, P, symbol);
+                in.ideal_gas_water = WaterIdealGasWoolley(solvent).thermoProperties(T, P);
+                in.water_at_reference = thermo_properties_substance_fn(Tr, Pr, Pr, symbol);
+                in.ideal_gas_water_at_reference = WaterIdealGasWoolley(solvent).thermoProperties(Tr, Pr);
+            }
+        }
+        return in;
+    }
+
     /// The methods of a water record, if the new path can run it. Temporary router, as boundMethods.
     auto boundSolvent(const Substance& substance) const -> std::shared_ptr<const v2::BoundSolvent>
     {
@@ -358,10 +388,8 @@ struct ThermoEngine::Impl
         workPreferences.method_P = workPreferences.workSubstance.method_P();
 
         // check for H+
-        if (workPreferences.workSubstance.symbol() == "H+")
-            workPreferences.isHydrogen = true;
-        else
-            workPreferences.isHydrogen = false;
+        const auto own_record = workPreferences.workSubstance.record();
+        workPreferences.isHydrogen = own_record ? v2::isHydrogenIon(*own_record) : workPreferences.workSubstance.symbol() == "H+";
 
         // check for H2O vapor, or pure water (not the aqueous solvent) given by a water EoS
         const auto mT = workPreferences.method_T;
@@ -450,7 +478,8 @@ struct ThermoEngine::Impl
         {
             if (const auto bound = boundMethods(substance); bound && !pref.isH2OSolvent && !pref.isH2Ovapor)
             {
-                tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions()));
+                const auto solvent = solventInputs(*bound, T, P);
+                tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions(), nullptr, solvent ? &*solvent : nullptr));
             }
             else if (!pref.isH2OSolvent && !pref.isH2Ovapor)
             {
@@ -1578,7 +1607,8 @@ auto ThermoEngine::explain(double T, double P, std::string substance) const -> s
     if (!bound)
         return out;
     std::vector<v2::ExplainStep> steps;
-    v2::executeSubstance(*bound, T, P, pimpl->substanceOptions(), &steps);
+    const auto solvent = pimpl->solventInputs(*bound, T, P);
+    v2::executeSubstance(*bound, T, P, pimpl->substanceOptions(), &steps, solvent ? &*solvent : nullptr);
     for (const auto& step : steps)
         out.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val});
     return out;

@@ -92,6 +92,16 @@ void exportMethods(py::module& parent)
     py::class_<PhaseTransition>(m, "PhaseTransition", "A phase transition: T [K], dS [J/(mol K)], dH [J/mol], dV [m3/mol]")
         .def(py::init([](double T, double dS, double dH, double dV) { return PhaseTransition{T, dS, dH, dV}; }), py::arg("T"), py::arg("dS") = 0.0, py::arg("dH") = 0.0, py::arg("dV") = 0.0);
 
+    py::class_<SolventInputs>(m, "SolventInputs", "The state of the solvent for a method that needs it")
+        .def(py::init<>())
+        .def_readwrite("properties", &SolventInputs::properties)
+        .def_readwrite("properties_at_reference", &SolventInputs::properties_at_reference)
+        .def_readwrite("electro", &SolventInputs::electro)
+        .def_readwrite("water", &SolventInputs::water)
+        .def_readwrite("water_at_reference", &SolventInputs::water_at_reference)
+        .def_readwrite("ideal_gas_water", &SolventInputs::ideal_gas_water)
+        .def_readwrite("ideal_gas_water_at_reference", &SolventInputs::ideal_gas_water_at_reference);
+
     py::class_<SolventMethod, std::shared_ptr<SolventMethod>>(m, "SolventMethod", "An equation of state of water")
         .def_property_readonly("id", [](const SolventMethod& s) { return s.spec().id; })
         .def("properties", [](const SolventMethod& s, double T, double P, int state) { return s.properties(T, P, state); },
@@ -104,6 +114,13 @@ void exportMethods(py::module& parent)
         .def("properties", &DielectricMethod::properties, "The electrochemical properties at T [K], P [Pa], from the properties of the solvent",
              py::arg("T"), py::arg("P"), py::arg("solvent"), py::arg("state") = 0);
 
+    m.def("substanceMethod", [](const std::string& id, const std::string& implementation, const py::dict& parameters, const std::string& symbol, int charge) {
+            SubstanceRecord record;
+            record.symbol = symbol;
+            record.charge = charge;
+            return std::const_pointer_cast<SubstanceMethod>(MethodRegistry::instance().create(makeApplication(id, implementation, parameters), record));
+        }, "A substance method from its id and its parameters in SI, for example substanceMethod(\"HKF88\", parameters=dict(a1=...), charge=1)",
+        py::arg("id"), py::arg("implementation") = "", py::arg("parameters") = py::dict(), py::arg("symbol") = "", py::arg("charge") = 0);
     m.def("solventMethod", [](const std::string& id, const std::string& implementation, const py::dict& parameters) {
             return std::const_pointer_cast<SolventMethod>(MethodRegistry::instance().createSolvent(makeApplication(id, implementation, parameters)));
         }, "An equation of state of water, for example solventMethod(\"WaterHGK84\", implementation=\"gems\")",
@@ -115,14 +132,14 @@ void exportMethods(py::module& parent)
     py::class_<SubstanceMethod, std::shared_ptr<SubstanceMethod>>(m, "SubstanceMethod", "A method of a substance, bound to its parameters")
         .def_property_readonly("id", [](const SubstanceMethod& s) { return s.spec().id; })
         .def_property_readonly("summary", [](const SubstanceMethod& s) { return s.spec().summary; })
-        .def("evaluate", [](const SubstanceMethod& s, double T, double P, const ReferenceValues& r) { return evaluate(s, T, P, r); },
-             "The properties at T [K], P [Pa], with their derivatives", py::arg("T"), py::arg("P"), py::arg("reference"))
-        .def("parameterDerivative", [](const SubstanceMethod& s, std::size_t i, double T, double P, const ReferenceValues& r) {
-                 auto d = evaluateParameterDerivative(s, i, T, P, r);
+        .def("evaluate", [](const SubstanceMethod& s, double T, double P, const ReferenceValues& r, const SolventInputs* solvent) { return evaluate(s, T, P, r, solvent); },
+             "The properties at T [K], P [Pa], with their derivatives. solvent: for a method that needs the solvent", py::arg("T"), py::arg("P"), py::arg("reference"), py::arg("solvent") = nullptr)
+        .def("parameterDerivative", [](const SubstanceMethod& s, std::size_t i, double T, double P, const ReferenceValues& r, const SolventInputs* solvent) {
+                 auto d = evaluateParameterDerivative(s, i, T, P, r, solvent);
                  py::dict out;
                  out["G"] = d.G.ddt; out["H"] = d.H.ddt; out["S"] = d.S.ddt; out["Cp"] = d.Cp.ddt; out["V"] = d.V.ddt;
                  return out;
-             }, "The derivatives of the properties with respect to one parameter", py::arg("index"), py::arg("T"), py::arg("P"), py::arg("reference"))
+             }, "The derivatives of the properties with respect to one parameter", py::arg("index"), py::arg("T"), py::arg("P"), py::arg("reference"), py::arg("solvent") = nullptr)
         .def("parameterValues", &SubstanceMethod::parameterValues, "The parameters in SI")
         .def("withParameter", [](const SubstanceMethod& s, std::size_t i, double v) { return std::const_pointer_cast<SubstanceMethod>(s.withParameter(i, v)); },
              "A copy with one parameter changed (SI)", py::arg("index"), py::arg("value"));

@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
 
 namespace ThermoFun::v2 {
@@ -75,9 +76,23 @@ struct PropertiesInfo
     ValueInfo G, H, S, Cp, V;
 };
 
-/// The state of the water solvent at T and P.
+/// The state of the water solvent at one T and P, with the derivatives of the pass.
 template <typename Scalar>
-struct SolventState;
+struct SolventState
+{
+    PropertiesSolventT<Scalar> properties;
+    ElectroPropertiesSolventT<Scalar> electro;
+    ThermoPropertiesSubstanceT<Scalar> water;             ///< water as a substance; only for a method that needs it
+    ThermoPropertiesSubstanceT<Scalar> ideal_gas_water;   ///< only for a method that needs it
+};
+
+/// The state of the solvent in plain numbers with derivatives, as the engine calculates it, for one calculation.
+struct SolventInputs
+{
+    PropertiesSolvent properties, properties_at_reference;
+    ElectroPropertiesSolvent electro;
+    ThermoPropertiesSubstance water, water_at_reference, ideal_gas_water, ideal_gas_water_at_reference;
+};
 
 /// The options of an evaluation that change what a method does.
 struct SubstanceOptions
@@ -106,6 +121,7 @@ struct InfoInputs
     double T = 0.0, P = 0.0, Tr = 298.15, Pr = 1e5;
     bool outside = false;  ///< the method used a value outside its range
     SubstanceOptions options{};
+    const SolventInputs* solvent = nullptr;  ///< set if a method of the record needs it
 };
 
 /// A substance method, bound to its parameter values. Immutable. Independent of the database, the engine and the records.

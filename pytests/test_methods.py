@@ -56,7 +56,7 @@ def test_cp_polynomial_with_a_transition():
 def test_engine_runs_records_on_method_objects():
     # the substances with only methods that have code run on the new path, the others on the old one
     here = os.path.dirname(os.path.abspath(__file__))
-    with_code = {"cp_ft_equation", "standard_entropy_cp_integration", "mv_constant", "mv_pvnrt"}
+    with_code = {"cp_ft_equation", "standard_entropy_cp_integration", "mv_constant", "mv_pvnrt", "solute_hkf88_gems", "solute_hkf88_reaktoro", "solute_aknifiev_diamond03"}
     new_path = 0
     for path in glob.glob(os.path.join(here, "..", "Resources", "databases", "*.json")):
         engine = tf.ThermoEngine(path)
@@ -64,7 +64,7 @@ def test_engine_runs_records_on_method_objects():
             data = json.load(f)
         for record in data["substances"]:
             names = {list(m["method"].values())[0].strip() for m in record.get("TPMethods") or []}
-            base = {"cp_ft_equation", "standard_entropy_cp_integration"} & names
+            base = {"cp_ft_equation", "standard_entropy_cp_integration", "solute_hkf88_gems", "solute_hkf88_reaktoro"} & names
             try:
                 steps = engine.explain(298.15, 1e5, record["symbol"])
             except RuntimeError:  # the record has invalid parameters: the old engine raises the same error
@@ -76,7 +76,7 @@ def test_engine_runs_records_on_method_objects():
                 new_path += 1
             elif not names <= with_code:
                 assert steps == [], record["symbol"]
-    assert new_path > 1000
+    assert new_path > 2000
 
 
 def test_constant_volume_adds_the_error_of_the_volume():

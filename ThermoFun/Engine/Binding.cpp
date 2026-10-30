@@ -138,6 +138,15 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record) -> std::shared
                std::make_tuple(groupOf(b->spec()), b->spec().effects.rank, b->spec().id);
     });
 
+    for (const auto& method : bound->order)
+    {
+        const auto& n = method->spec().needs;
+        bound->needs.solvent = bound->needs.solvent || n.solvent;
+        bound->needs.dielectric = bound->needs.dielectric || n.dielectric;
+        bound->needs.solvent_at_reference = bound->needs.solvent_at_reference || n.solvent_at_reference;
+        bound->needs.ideal_gas_water = bound->needs.ideal_gas_water || n.ideal_gas_water;
+    }
+
     bound->reference.T = record->reference_conditions.T;
     bound->reference.P = record->reference_conditions.P;
     auto load = [&](PropertyName name, std::optional<double>& value, ValueInfo& info) {

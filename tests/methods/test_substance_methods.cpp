@@ -16,6 +16,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Engine/Executor.h"
+#include "Conventions/HydrogenIon.h"
 #include "Engine/Solvent.h"
 #include "IO/Legacy/LegacyReader.h"
 #include "Methods/Evaluate.h"
@@ -308,7 +309,7 @@ void testExecutionOrder()
     // a record that the new path cannot run: a method without code, no base method, two base methods
     SubstanceRecord r;
     MethodApplication a;
-    a.method = "HKF88";
+    a.method = "TaitHP11";
     r.methods = {a};
     CHECK(!canBind(r));
     r.methods.clear();
@@ -429,6 +430,25 @@ void testSolvent()
     CHECK(chooseSolvent("none", "", {{"Na+", SubstanceClass::AqueousSolute}}).empty());
 }
 
+void testHydrogenIon()
+{
+    SubstanceRecord r;
+    r.symbol = "anything";
+    r.class_ = SubstanceClass::AqueousSolute;
+    r.formula = "H+";
+    CHECK(isHydrogenIon(r));  // a record may have no charge
+    r.charge = 1;
+    CHECK(isHydrogenIon(r));
+    r.charge = 2;
+    CHECK(!isHydrogenIon(r));
+    r.charge = 1;
+    r.formula = "Na+";
+    CHECK(!isHydrogenIon(r));
+    r.formula = "H+";
+    r.class_ = SubstanceClass::GasFluid;
+    CHECK(!isHydrogenIon(r));
+}
+
 void testAgainstTheOldModels()
 {
     const char* files[] = {"Resources/databases/aq17-thermofun.json", "Resources/databases/cemdata18-thermofun.json",
@@ -500,5 +520,6 @@ void runSubstanceMethods()
     testExecutionOrder();
     testConflictMessages();
     testSolvent();
+    testHydrogenIon();
     testAgainstTheOldModels();
 }

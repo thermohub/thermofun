@@ -21,6 +21,7 @@ struct BoundSubstance
     std::vector<std::shared_ptr<const SubstanceMethod>> order;  ///< in the order of execution
     ReferenceValues reference;                                  ///< the SI values of the record
     PropertiesInfo reference_info;                              ///< their status and errors
+    MethodNeeds needs;                                          ///< what the methods need from outside the record
 };
 
 /// True if every method of the record has code, and exactly one of them is a base method.

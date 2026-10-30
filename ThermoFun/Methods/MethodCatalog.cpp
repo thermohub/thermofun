@@ -49,6 +49,7 @@ struct Spec
         s.needs.solvent_at_reference = atReference;
         return *this;
     }
+    auto dielectric() -> Spec& { s.needs.dielectric = true; return *this; }
     auto piecewise() -> Spec& { s.piecewise = true; return *this; }
     auto notImplemented() -> Spec& { s.implemented = false; return *this; }
     auto add(ParameterSpec p) -> Spec& { s.parameters.push_back(std::move(p)); return *this; }
@@ -210,7 +211,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     // aqueous solutes
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
                      "Tanger and Helgeson (1988); Shock et al. (1992)")
-                    .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().impl({"reaktoro", "gems"}).add(hkfParameters()));
+                    .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters()));
     {
         Spec s("AkinfievDiamond03", "Model of Akinfiev and Diamond", "Calculates the properties of a dissolved gas or neutral species from those of the gas and of water.",
                "Akinfiev and Diamond (2003)");

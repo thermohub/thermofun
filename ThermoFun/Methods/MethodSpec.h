@@ -65,6 +65,7 @@ struct ReactionEffects
 struct MethodNeeds
 {
     bool solvent = false;               ///< the state of the solvent at T, P
+    bool dielectric = false;            ///< with its dielectric constant and Born functions
     bool solvent_at_reference = false;  ///< the state of the solvent at the reference T, P
     bool ideal_gas_water = false;       ///< the properties of water as an ideal gas
     bool element_entropies = false;     ///< the entropies of the elements, for a conversion of conventions

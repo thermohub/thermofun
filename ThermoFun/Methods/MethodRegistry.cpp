@@ -3,12 +3,17 @@
 
 #include "MethodRegistry.h"
 
+#include <initializer_list>
+#include <vector>
+
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Methods/Minerals/ConstantCp.h>
 #include <ThermoFun/Methods/Minerals/ConstantProperties.h>
 #include <ThermoFun/Methods/Minerals/ConstantVolume.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
 #include <ThermoFun/Methods/Minerals/IdealGas.h>
+#include <ThermoFun/Conventions/HydrogenIon.h>
+#include <ThermoFun/Methods/Solutes/SoluteMethods.h>
 #include <ThermoFun/Methods/Water/WaterMethods.h>
 
 namespace ThermoFun::v2 {
@@ -22,6 +27,31 @@ MethodRegistry::MethodRegistry()
     add("CpPolynomial", "", [](A a, R r) { return std::make_shared<const CpPolynomial>(CpPolynomial::fromApplication(a, r.symbol)); });
     add("ConstantVolume", "", [](A, R) { return std::make_shared<const ConstantVolume>(); });
     add("IdealGas", "", [](A, R r) { return std::make_shared<const IdealGas>(r.class_ == SubstanceClass::GasFluid); });
+
+    // the parameters in the order of the catalog; none if the record gives none
+    auto parametersOf = [](A a, std::initializer_list<const char*> names) {
+        std::vector<double> values;
+        if (a.parameters.empty())
+            return values;
+        for (const char* n : names)
+        {
+            const auto it = a.parameters.find(n);
+            values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
+        }
+        return values;
+    };
+    auto hkfSpecies = [](R r) { return HKFSpecies{r.symbol, static_cast<double>(r.charge.value_or(0)), isHydrogenIon(r), r.applicability}; };
+    auto hkfReaktoro = [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+        return std::make_shared<const HKF88Reaktoro>(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
+    };
+    add("HKF88", "", hkfReaktoro);
+    add("HKF88", "reaktoro", hkfReaktoro);
+    add("HKF88", "gems", [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+        return std::make_shared<const HKF88Gems>(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
+    });
+    add("SoluteHP98", "", [parametersOf](A a, R r) { return std::make_shared<const SoluteHP98>(parametersOf(a, {"b"}), r.symbol); });
+    add("AndersonEtAl91", "", [](A, R) { return std::make_shared<const AndersonEtAl91>(); });
+    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return std::make_shared<const AkinfievDiamond03>(parametersOf(a, {"xi", "a", "b"}), r.symbol); });
 
     // "" is the default implementation, the first one of the catalog
     auto solvent = [this](const char* id, const char* implementation, SolventFactory f) {
