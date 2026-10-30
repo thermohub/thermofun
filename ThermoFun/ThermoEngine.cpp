@@ -125,6 +125,25 @@ struct ThermoEngine::Impl
         set_fn();
     }
 
+    /// Two memoized copies of f, one for each value of apply_pressure_correction_to_gas_props, chosen at each call.
+    /// The reactants of a reaction-defined substance and of a reaction from reactants are calculated with the flag
+    /// switched on (FlagGuard), and the cache key does not hold the flag: with one cache, the result of a gas
+    /// depended on the calculations made before it.
+    template <typename Ret, typename... Args>
+    auto memoizeByGasCorrection(const std::function<Ret(Args...)>& f) -> std::function<Ret(Args...)>
+    {
+        auto memoized = [&]() -> std::function<Ret(Args...)> {
+            if (preferences.max_cache_size == 0)
+                return memoize(f);
+            return memoizeN(f, preferences.max_cache_size);
+        };
+        auto without = memoized(), with = memoized();
+        return [this, without, with](Args... args) -> Ret {
+            return preferences.apply_pressure_correction_to_gas_props ? with(std::forward<Args>(args)...)
+                                                                      : without(std::forward<Args>(args)...);
+        };
+    }
+
     void set_fn()
     {
         thermo_properties_substance_fn = [=, this](double T, double P_, double &P, std::string symbol) {
@@ -148,18 +167,10 @@ struct ThermoEngine::Impl
         };
 
         if( preferences.enable_memoize ) {
-            if( preferences.max_cache_size==0 ) {
-                thermo_properties_substance_fn = memoize(thermo_properties_substance_fn);
-                electro_properties_solvent_fn = memoize(electro_properties_solvent_fn);
-                properties_solvent_fn = memoize(properties_solvent_fn);
-                thermo_properties_reaction_fn = memoize(thermo_properties_reaction_fn);
-            }
-            else {
-                thermo_properties_substance_fn = memoizeN(thermo_properties_substance_fn, preferences.max_cache_size);
-                electro_properties_solvent_fn = memoizeN(electro_properties_solvent_fn,preferences.max_cache_size);
-                properties_solvent_fn = memoizeN(properties_solvent_fn,preferences.max_cache_size);
-                thermo_properties_reaction_fn = memoizeN(thermo_properties_reaction_fn,preferences.max_cache_size);
-            }
+            thermo_properties_substance_fn = memoizeByGasCorrection(thermo_properties_substance_fn);
+            electro_properties_solvent_fn = memoizeByGasCorrection(electro_properties_solvent_fn);
+            properties_solvent_fn = memoizeByGasCorrection(properties_solvent_fn);
+            thermo_properties_reaction_fn = memoizeByGasCorrection(thermo_properties_reaction_fn);
         }
         const Database& db = database;
         cached_for = {db.revision(), preferences, conventions, db.conventions()};

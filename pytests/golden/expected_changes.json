@@ -1,0 +1,12 @@
+{
+  "about": "Records whose values in the two-build comparison differ from the baseline build on purpose: the baseline is wrong there. compare_builds.py accepts a difference only for a listed (database, variant, kind, record) and prints how many it accepted. Remove the entries when the baseline tag moves past the fix.",
+  "changes": [
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": ["H2(g)", "HgCO3(aq)", "HgCO3(HgO)2(s)", "HgHCO3+"],
+      "reason": "The baseline returned cached values that depend on the calculation order: the reactants of a reaction-defined substance are calculated with the gas pressure correction on, and shared the cache with the plain calculations. The new values equal the values without memoization (all 2928 checked). Test: pytests/test_calculation_order.py."
+    }
+  ]
+}

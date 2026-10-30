@@ -7,7 +7,8 @@
 
 --base and --new are install prefixes (see build_baseline.sh). --new defaults to the active environment.
 Both builds compute the same questions with golden_common.py of the working tree.
-The relative tolerance is 1e-12. The exit code is 1 if any value, error or status differs.
+The relative tolerance is 1e-12. The exit code is 1 if any value, error or status differs, except in the records
+listed in expected_changes.json (wrong in the baseline, each with its reason).
 """
 
 import argparse
@@ -26,6 +27,13 @@ import golden_common as gc  # noqa: E402
 
 REL_TOL = 1e-12
 CHUNK = 150  # records per work item, to bound the memory
+
+
+def expected_changes():
+    """The (database, variant, kind, record) keys whose differences are expected."""
+    with open(HERE / "expected_changes.json") as f:
+        changes = json.load(f)["changes"]
+    return {(c["database"], c["variant"], c["kind"], r) for c in changes for r in c["records"]}
 
 
 def site_packages(prefix):
@@ -122,19 +130,24 @@ def main():
         if any(code != 0 for code in codes):
             print("a worker failed")
             return 2
-        diffs, files = [], sorted(p.name for p in (tmp / "base").iterdir())
+        diffs, accepted, files = [], 0, sorted(p.name for p in (tmp / "base").iterdir())
+        expected = expected_changes()
         if files != sorted(p.name for p in (tmp / "new").iterdir()):
             print("the two builds produced different work items")
             return 2
         for name in files:
             with gzip.open(tmp / "base" / name, "rt") as f:
-                expected = json.load(f)
+                base = json.load(f)
             with gzip.open(tmp / "new" / name, "rt") as f:
                 got = json.load(f)
-            for d in gc.compare(expected, got, REL_TOL):
-                d["database"], d["variant"] = expected["database"], expected["variant"]
-                diffs.append(d)
+            for d in gc.compare(base, got, REL_TOL):
+                d["database"], d["variant"] = base["database"], base["variant"]
+                if (d["database"], d["variant"], d["kind"], d["record"]) in expected:
+                    accepted += 1
+                else:
+                    diffs.append(d)
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
+        print("accepted differences (expected_changes.json): %d" % accepted)
         return 1 if diffs else 0
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

@@ -44,6 +44,8 @@ python pytests/golden/compare_builds.py --base .golden-baseline/install
 - `--db NAME` and `--variant NAME` limit the work. Both may be used more than once.
 - The run takes about 4 minutes and needs about 1 GB of temporary disk space.
 - The exit code is 1 if one value, error or status differs.
+- The baseline can be wrong. Then list the records in `pytests/golden/expected_changes.json`, with the reason.
+  The comparison accepts differences in these records only, and prints how many it accepted.
 
 The CI job `golden-diff` does the same on each push to `v2` and on each pull request. It keeps the baseline build
 in a cache. The tag `golden-baseline` is on commit `da0e26a`.
