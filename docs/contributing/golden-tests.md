@@ -37,8 +37,9 @@ It uses 15 temperatures and 6 pressures. The tolerance is 1e-10 (relative), as i
 
 - The values of G, H, U and A also have a margin of two ulps of P*V of the record: V passes through m3, and where the
   energy and P*V nearly cancel, one ulp of P*V is large compared with the energy.
-- The differences between 1e-12 and 1e-10 are counted and shown, and do not fail. They are the rounding of the
-  parameters between the units of a model and SI, where large terms nearly cancel.
+- The differences between 1e-12 and 1e-10 are counted and shown. They are the rounding of the parameters between the
+  units of a model and SI, where large terms nearly cancel. The comparison fails if their count is above
+  `rounding_limit` in `expected_changes.json`: a change that raises the count updates the limit and says why.
 - `expected_changes.json` lists the records that differ on purpose, each with its reason. An entry with `property` and
   `max_rel` accepts only differences of that property up to that size: the rest of the record stays checked.
 

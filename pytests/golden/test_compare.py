@@ -64,3 +64,10 @@ def test_an_expected_change_can_be_limited_to_one_property_and_a_size():
     assert not cb.is_expected(diff("heat_capacity_cv", None), limited)
     assert cb.is_expected(diff("enthalpy", 1.0), {key: None})
     assert not cb.is_expected(diff("enthalpy", 1e-8), {})
+
+
+def test_the_count_of_rounding_differences_has_a_limit():
+    assert cb.exit_code([], 45, 45) == 0
+    assert cb.exit_code([], 46, 45) == 1
+    assert cb.exit_code([{"record": "x"}], 0, 45) == 1
+    assert cb.rounding_limit() >= 39

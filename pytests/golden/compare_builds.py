@@ -9,7 +9,8 @@
 Both builds compute the same questions with golden_common.py of the working tree.
 The relative tolerance is 1e-10, as in test_golden.py, and the values of the energies have a margin of two ulps of
 P*V of the record (golden_common.py). The differences between 1e-12 and 1e-10 are counted and shown: they are the
-rounding of the parameters between the units of a model and SI, where large terms nearly cancel. The exit code is 1 if any value, error or status differs, except in the records
+rounding of the parameters between the units of a model and SI, where large terms nearly cancel. Their count has a limit
+in expected_changes.json. The exit code is 1 if any value, error or status differs, except in the records
 listed in expected_changes.json (wrong in the baseline, each with its reason).
 """
 
@@ -47,6 +48,17 @@ def is_expected(d, expected):
         return False
     limit = expected[key]
     return limit is None or (d["property"] == limit[0] and d["rel"] is not None and d["rel"] <= limit[1])
+
+
+def rounding_limit():
+    """The largest accepted number of differences between ROUNDING_TOL and REL_TOL."""
+    with open(HERE / "expected_changes.json") as f:
+        return json.load(f)["rounding_limit"]["count"]
+
+
+def exit_code(differences, rounding, limit):
+    """1 if a value, error or status differs above REL_TOL, or if the rounding differences are more than the limit."""
+    return 1 if differences or rounding > limit else 0
 
 
 def site_packages(prefix):
@@ -164,8 +176,12 @@ def main():
                 rounding += not is_expected(d, expected)
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
         print("accepted differences (expected_changes.json): %d" % accepted)
-        print("differences between %g and %g (rounding): %d" % (ROUNDING_TOL, REL_TOL, rounding - len(diffs)))
-        return 1 if diffs else 0
+        rounding -= len(diffs)
+        limit = rounding_limit()
+        print("differences between %g and %g (rounding): %d, limit %d" % (ROUNDING_TOL, REL_TOL, rounding, limit))
+        if rounding > limit:
+            print("more rounding differences than the limit in expected_changes.json: look for a new source of them")
+        return exit_code(diffs, rounding, limit)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

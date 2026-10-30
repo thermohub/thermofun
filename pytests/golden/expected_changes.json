@@ -1,5 +1,9 @@
 {
   "about": "Records whose values in the two-build comparison differ from the baseline build on purpose: the baseline is wrong there. compare_builds.py accepts a difference only for a listed (database, variant, kind, record) and prints how many it accepted. Remove the entries when the baseline tag moves past the fix.",
+  "rounding_limit": {
+    "count": 45,
+    "reason": "Differences between 1e-12 and 1e-10 on the whole grid: 39 on 2026-10-30, on the local build and in CI. Parameters and V pass through SI (decision 0022). A change that raises the count above this limit updates it in the same commit, and says why."
+  },
   "changes": [
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",
