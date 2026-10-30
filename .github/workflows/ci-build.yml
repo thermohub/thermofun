@@ -5,6 +5,7 @@ on:
       - no_aqueous_phase
       - master
       - main
+      - v2
   pull_request:
     branches:
       - main

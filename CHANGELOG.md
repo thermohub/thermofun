@@ -14,4 +14,4 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Test of the legacy keys and method numbers (`pytests/golden/test_key_inventory.py`).
 - Synthetic legacy fixtures for the methods that no bundled database uses (`pytests/data/legacy-synthetic/`).
 - Comparison of two builds (`pytests/golden/compare_builds.py`) and the CI job `golden-diff`.
-- Guide to the golden tests (`docs/GOLDEN-TESTS.md`).
+- Guide to the golden tests (`docs/contributing/golden-tests.md`).

@@ -65,6 +65,10 @@ python/pyThermoFun/CMakeLists_old.txt
 *.log
 tests/build*
 *build*
+# files that the rule above would hide
+!pytests/golden/build_baseline.sh
+!pytests/golden/compare_builds.py
+!pytests/test_records_builder.py
 
 .claude/
 

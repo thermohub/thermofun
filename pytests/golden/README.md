@@ -67,7 +67,7 @@ Each subset is computed inside its full database.
 3. Always included: every solvent record, `H+`, the defining reaction of each selected substance,
    and the substances in the reactions that are in the subset.
 
-Size rule (09-testing.md section 1.3, rule 5): the data must stay below 3 MB.
+Size rule: the data must stay below 3 MB.
 Taking 3 symbols per group gave 5.5 MB. So these reductions apply:
 
 - 2 symbols per group instead of 3.

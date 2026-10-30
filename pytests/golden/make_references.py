@@ -5,7 +5,7 @@
 
 The first run selects the records of every database and writes data/subset.json.
 Later runs read that file. Use --reselect to select again.
-Regenerate the references only in a step of the redesign plan that says so.
+Regenerate the references only in a change that says so and explains each changed number.
 """
 
 import argparse
@@ -74,7 +74,7 @@ def main():
     total = sum(f.stat().st_size for f in DATA.glob("*.json.gz"))
     print("total size of the data files: %.2f MB" % (total / 1e6))
     if total > 3e6:
-        print("above 3 MB: apply the reductions of docs/redesign/09-testing.md section 1.3 rule 5")
+        print("above 3 MB: apply the size reductions of pytests/golden/README.md")
 
 
 if __name__ == "__main__":

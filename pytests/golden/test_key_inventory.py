@@ -3,7 +3,7 @@
 
 """Fail when a legacy database holds a key that the legacy reader does not handle.
 
-KNOWN is the table of docs/redesign/05-legacy-compatibility.md section 2.
+KNOWN lists every legacy key and how the reader handles it.
 A new key must be added to the reader and to this table together.
 """
 

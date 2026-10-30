@@ -45,7 +45,8 @@ python pytests/golden/compare_builds.py --base .golden-baseline/install
 - The run takes about 4 minutes and needs about 1 GB of temporary disk space.
 - The exit code is 1 if one value, error or status differs.
 
-The CI job `golden-diff` does the same on each pull request. It keeps the baseline build in a cache.
+The CI job `golden-diff` does the same on each push to `v2` and on each pull request. It keeps the baseline build
+in a cache. The tag `golden-baseline` is on commit `da0e26a`.
 
 ## If a test fails
 
@@ -53,7 +54,7 @@ The CI job `golden-diff` does the same on each pull request. It keeps the baseli
 2. Find the change that moved the number.
 3. Fix the change. Do not make the references again to make the test pass.
 
-Make the references again only in a plan step that says so.
+Make the references again only in a change that says so and explains each changed number.
 
 ## Add a database or a fixture
 
@@ -69,5 +70,5 @@ A method that legacy files cannot hold goes into `synthetic_api.py`.
 ## Limits of the tests
 
 - A fixture records today's result. It does not prove that the result is correct.
-- Some fixtures use made-up coefficients. The list is in the project notes.
+- Some fixtures use made-up coefficients: `r14-logk_dolejs_manning10` and `s37-mv_eos_birch_murnaghan_gott97`.
 - A model that does not set a property gives zero for that property. The reference keeps the zero.
