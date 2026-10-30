@@ -6,13 +6,13 @@
 #include "Substance.h"
 
 //#include "Substance.h"
-#include "Substances/Solvent/WaterHGK-JNgems.h"
-#include "Substances/Solvent/WaterHGKreaktoro.h"
-#include "Substances/Solvent/WaterWP95reaktoro.h"
-#include "Substances/Solvent/WaterZhangDuan2005.h"
-#include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
-#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
-#include "Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp"
+#include "Methods/Water/WaterHGK-JNgems.h"
+#include "Methods/Water/WaterHGKreaktoro.h"
+#include "Methods/Water/WaterWP95reaktoro.h"
+#include "Methods/Water/WaterZhangDuan2005.h"
+#include "Methods/Water/Reaktoro/WaterUtils.hpp"
+#include "Methods/Water/Reaktoro/WaterThermoState.hpp"
+#include "Methods/Water/Reaktoro/WaterThermoStateUtils.hpp"
 #include "Common/Exception.h"
 
 namespace ThermoFun {

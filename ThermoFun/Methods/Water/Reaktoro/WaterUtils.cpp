@@ -19,12 +19,12 @@
 #include "WaterUtils.hpp"
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
 #include <Common/Exception.h>
-#include <Substances/Solvent/Reaktoro/WaterConstants.hpp>
-#include <Substances/Solvent/Reaktoro/WaterHelmholtzStateHGK.hpp>
-#include <Substances/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
-#include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
+#include <Methods/Water/Reaktoro/WaterConstants.hpp>
+#include <Methods/Water/Reaktoro/WaterHelmholtzStateHGK.hpp>
+#include <Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
+#include <Methods/Water/Reaktoro/WaterHelmholtzState.hpp>
 
 namespace ThermoFun {
 

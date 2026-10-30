@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Solvent/WaterIdealGasWolley.h"
-#include "GlobalVariables.h"
-#include "ThermoProperties.h"
+#include "Methods/Water/WaterIdealGasWolley.h"
+#include <ThermoFun/Common/Constants.h>
+#include <ThermoFun/Common/ThermoProperties.h>
 
 namespace ThermoFun {
 

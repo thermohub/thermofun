@@ -19,8 +19,8 @@
 #include "WaterElectroStateJohnsonNorton.hpp"
 
 // Reaktoro includes
-#include <Substances/Solvent/Reaktoro/WaterElectroState.hpp>
-#include <Substances/Solvent/Reaktoro/WaterThermoState.hpp>
+#include <Methods/Water/Reaktoro/WaterElectroState.hpp>
+#include <Methods/Water/Reaktoro/WaterThermoState.hpp>
 
 namespace ThermoFun {
 namespace {

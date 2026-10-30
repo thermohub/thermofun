@@ -7,11 +7,17 @@ ThermoFun/Common/ParseJsonToData.cpp: Substance.h
 ThermoFun/Common/ParseJsonToData.cpp: Reaction.h
 ThermoFun/Common/ParseJsonToData.cpp: Element.h
 ThermoFun/Common/ParseJsonToData.cpp: ThermoParameters.h
-ThermoFun/Common/ParseJsonToData.cpp: ThermoProperties.h
 ThermoFun/Common/ParseJsonToData.cpp: nlohmann/json.hpp
 
 # R3.3: the CSV output of ThermoBatch moves to Batch/
-ThermoFun/Common/OutputToCSV.cpp: ThermoProperties.h
 ThermoFun/Common/OutputToCSV.h: ThermoFun/ThermoProperties.h
 ThermoFun/Common/OutputWaterSteamConventionProp.cpp: GlobalVariables.h
-ThermoFun/Common/OutputWaterSteamConventionProp.h: ThermoFun/Substances/Solvent/Reaktoro/WaterThermoState.hpp
+ThermoFun/Common/OutputWaterSteamConventionProp.h: ThermoFun/Methods/Water/Reaktoro/WaterThermoState.hpp
+
+# R2.3: the dielectric models take the state of the solvent, and do not make an engine
+ThermoFun/Methods/Water/WaterElectroFernandez1997.cpp: ThermoEngine.h
+ThermoFun/Methods/Water/WaterElectroFernandez1997.cpp: Database.h
+ThermoFun/Methods/Water/WaterElectroFernandez1997.cpp: Substance.h
+ThermoFun/Methods/Water/WaterElectroSverjensky2014.cpp: ThermoEngine.h
+ThermoFun/Methods/Water/WaterElectroSverjensky2014.cpp: Database.h
+ThermoFun/Methods/Water/WaterElectroSverjensky2014.cpp: Substance.h

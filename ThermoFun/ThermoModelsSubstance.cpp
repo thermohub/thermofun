@@ -10,7 +10,7 @@
 #include "Substances/StandardEntropyCpIntegration.h"
 #include "Substances/Solute/SoluteHKFreaktoro.h"
 #include "Substances/Solute/SoluteHKFgems.h"
-#include "Substances/Solvent/WaterIdealGasWolley.h"
+#include "Methods/Water/WaterIdealGasWolley.h"
 #include "Substances/Solute/SoluteADgems.h"
 #include "Substances/Solute/SoluteHollandPowell98.h"
 #include "Substances/Solute/SoluteAnderson91.h"

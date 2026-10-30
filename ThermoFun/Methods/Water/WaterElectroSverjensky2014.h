@@ -3,7 +3,7 @@
 
 #ifndef WATERELECTROSVERJENSKY2014_H
 #define WATERELECTROSVERJENSKY2014_H
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
 
 
 namespace ThermoFun {

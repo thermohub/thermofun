@@ -1,8 +1,8 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
-#include "ThermoProperties.h"
-#include "GlobalVariables.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 

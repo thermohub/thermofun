@@ -4,15 +4,15 @@
 #include "ElectroModelsSolvent.h"
 #include "Substance.h"
 #include "ThermoProperties.h"
-#include "Substances/Solvent/Reaktoro/WaterElectroState.hpp"
+#include "Methods/Water/Reaktoro/WaterElectroState.hpp"
 // Models
-#include "Substances/Solvent/Reaktoro/WaterUtils.hpp"
-#include "Substances/Solvent/Reaktoro/WaterThermoState.hpp"
-#include "Substances/Solvent/WaterHGK-JNgems.h"
-#include "Substances/Solvent/WaterJN91reaktoro.h"
-#include "Substances/Solvent/WaterElectroSverjensky2014.h"
-#include "Substances/Solvent/WaterElectroFernandez1997.h"
-#include "Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
+#include "Methods/Water/Reaktoro/WaterUtils.hpp"
+#include "Methods/Water/Reaktoro/WaterThermoState.hpp"
+#include "Methods/Water/WaterHGK-JNgems.h"
+#include "Methods/Water/WaterJN91reaktoro.h"
+#include "Methods/Water/WaterElectroSverjensky2014.h"
+#include "Methods/Water/WaterElectroFernandez1997.h"
+#include "Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
 namespace ThermoFun {
 

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Solvent/WaterZhangDuan2005.h"
+#include "Methods/Water/WaterZhangDuan2005.h"
 #include "Common/Exception.h"
-#include "ThermoProperties.h"
-#include "GlobalVariables.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 

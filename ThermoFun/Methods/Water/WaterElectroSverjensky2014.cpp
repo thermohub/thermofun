@@ -5,8 +5,8 @@
 #include "ThermoEngine.h"
 #include "Database.h"
 #include "Substance.h"
-#include "ThermoProperties.h"
-#include "Substances/Solvent/SolventDensityDerivatives.hpp"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include "Methods/Water/SolventDensityDerivatives.hpp"
 
 namespace ThermoFun {
 

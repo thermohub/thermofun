@@ -3,6 +3,8 @@
     $$PWD/Common/ThermoScalar.hpp \
     $$PWD/Common/Rounding.hpp \
     $$PWD/Common/ThermoProperty.hpp \
+    $$PWD/Common/ThermoProperties.h \
+    $$PWD/Common/Constants.h \
     $$PWD/Common/ScalarTypes.hpp \
     $$PWD/Common/Real.hpp \
     $$PWD/Common/Units.hpp \
@@ -29,23 +31,23 @@
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.h \
 # Substances - Solvent
-    $$PWD/Substances/Solvent/Reaktoro/WaterConstants.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterThermoState.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterElectroState.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateHGK.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterUtils.hpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.hpp \
-    $$PWD/Substances/Solvent/WaterHGKreaktoro.h \
-    $$PWD/Substances/Solvent/WaterWP95reaktoro.h \
-    $$PWD/Substances/Solvent/WaterJN91reaktoro.h \
-    $$PWD/Substances/Solvent/WaterHGK-JNgems.h \
-    $$PWD/Substances/Solvent/WaterIdealGasWolley.h \
-    $$PWD/Substances/Solvent/WaterZhangDuan2005.h \
-    $$PWD/Substances/Solvent/WaterElectroSverjensky2014.h \
-    $$PWD/Substances/Solvent/WaterElectroFernandez1997.h \
+    $$PWD/Methods/Water/Reaktoro/WaterConstants.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterHelmholtzState.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterThermoState.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterElectroState.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterHelmholtzStateHGK.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterThermoStateUtils.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterUtils.hpp \
+    $$PWD/Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.hpp \
+    $$PWD/Methods/Water/WaterHGKreaktoro.h \
+    $$PWD/Methods/Water/WaterWP95reaktoro.h \
+    $$PWD/Methods/Water/WaterJN91reaktoro.h \
+    $$PWD/Methods/Water/WaterHGK-JNgems.h \
+    $$PWD/Methods/Water/WaterIdealGasWolley.h \
+    $$PWD/Methods/Water/WaterZhangDuan2005.h \
+    $$PWD/Methods/Water/WaterElectroSverjensky2014.h \
+    $$PWD/Methods/Water/WaterElectroFernandez1997.h \
 # Substances - Solute
     $$PWD/Substances/Solute/SoluteHKFreaktoro.h \
     $$PWD/Substances/Solute/SoluteHKFgems.h \
@@ -139,19 +141,19 @@
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.cpp \
 # Substances - Solvent
-    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateHGK.cpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterThermoStateUtils.cpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterUtils.cpp \
-    $$PWD/Substances/Solvent/Reaktoro/WaterElectroStateJohnsonNorton.cpp \
-    $$PWD/Substances/Solvent/WaterHGKreaktoro.cpp \
-    $$PWD/Substances/Solvent/WaterWP95reaktoro.cpp \
-    $$PWD/Substances/Solvent/WaterJN91reaktoro.cpp \
-    $$PWD/Substances/Solvent/WaterHGK-JNgems.cpp \
-    $$PWD/Substances/Solvent/WaterIdealGasWolley.cpp \
-    $$PWD/Substances/Solvent/WaterZhangDuan2005.cpp \
-    $$PWD/Substances/Solvent/WaterElectroSverjensky2014.cpp \
-    $$PWD/Substances/Solvent/WaterElectroFernandez1997.cpp \
+    $$PWD/Methods/Water/Reaktoro/WaterHelmholtzStateHGK.cpp \
+    $$PWD/Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \
+    $$PWD/Methods/Water/Reaktoro/WaterThermoStateUtils.cpp \
+    $$PWD/Methods/Water/Reaktoro/WaterUtils.cpp \
+    $$PWD/Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.cpp \
+    $$PWD/Methods/Water/WaterHGKreaktoro.cpp \
+    $$PWD/Methods/Water/WaterWP95reaktoro.cpp \
+    $$PWD/Methods/Water/WaterJN91reaktoro.cpp \
+    $$PWD/Methods/Water/WaterHGK-JNgems.cpp \
+    $$PWD/Methods/Water/WaterIdealGasWolley.cpp \
+    $$PWD/Methods/Water/WaterZhangDuan2005.cpp \
+    $$PWD/Methods/Water/WaterElectroSverjensky2014.cpp \
+    $$PWD/Methods/Water/WaterElectroFernandez1997.cpp \
 # Substances - Solute
     $$PWD/Substances/Solute/SoluteHKFreaktoro.cpp \
     $$PWD/Substances/Solute/SoluteHKFgems.cpp \

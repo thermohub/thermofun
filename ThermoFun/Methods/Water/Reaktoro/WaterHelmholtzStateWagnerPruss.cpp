@@ -20,9 +20,9 @@
 
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Common/Real.hpp>
-#include <Substances/Solvent/Reaktoro/WaterThermoStateUtils.hpp>
-#include <Substances/Solvent/Reaktoro/WaterConstants.hpp>
-#include <Substances/Solvent/Reaktoro/WaterHelmholtzState.hpp>
+#include <Methods/Water/Reaktoro/WaterThermoStateUtils.hpp>
+#include <Methods/Water/Reaktoro/WaterConstants.hpp>
+#include <Methods/Water/Reaktoro/WaterHelmholtzState.hpp>
 
 namespace ThermoFun {
 namespace {

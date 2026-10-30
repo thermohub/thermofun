@@ -2,8 +2,8 @@
 #define WATERHGKREAKTORO
 
 #include <ThermoFun/Common/Real.hpp>
-#include <ThermoFun/ThermoProperties.h>
-#include <ThermoFun/GlobalVariables.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 

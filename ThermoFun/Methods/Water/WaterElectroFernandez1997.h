@@ -3,7 +3,7 @@
 
 #ifndef WATERELECTROFERNANDEZ1997
 #define WATERELECTROFERNANDEZ1997
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
 
 
 namespace ThermoFun {

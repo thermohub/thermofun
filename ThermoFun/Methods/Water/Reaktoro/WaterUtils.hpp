@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
 // Reaktoro is a unified framework for modeling chemically reactive systems.
 //
 // Copyright (C) 2014-2015 Allan Leal

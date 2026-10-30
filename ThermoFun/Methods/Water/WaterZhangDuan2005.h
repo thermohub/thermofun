@@ -5,7 +5,7 @@
 #define WATERZHANGDUAN2005
 
 #include <ThermoFun/Common/Real.hpp>
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
 
 namespace ThermoFun {
 
