@@ -1,25 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Gases/GasPRSV.h"
-#include "Substances/Gases/s_solmod_.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include "Methods/Gases/GasPRSV.h"
+#include "Methods/Gases/s_solmod_.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasPRSV(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasPRSV(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
     solmod::TPRSVcalc myPRSV( 1, Pbar, TK );
-    double TClow = lowerTemperatureBound(subst, "PRSV Peng-Robinson-Stryjek-Vera fluid model");
+    double TClow = subst.lower_T;
     real CPg[7];
     for (unsigned int i = 0; i < 7; i++)
     {
-        CPg[i] = subst.thermoParameters().critical_parameters[i];
+        CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
     myPRSV.PRSVCalcFugPure( (TClow/*+273.15*/), CPg, FugProps );

@@ -2,30 +2,29 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include <array>
-#include "Substances/Gases/GasCORK.h"
-#include "Substances/Gases/s_solmod_.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include "Methods/Gases/GasCORK.h"
+#include "Methods/Gases/s_solmod_.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCORK(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasCORK(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     char Eos_Code = 'G';
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
 
-    if (subst.formula() == "CO2") Eos_Code = 'C';
-    if (subst.formula() == "H2O") Eos_Code = 'V';
+    if (subst.formula == "CO2") Eos_Code = 'C';
+    if (subst.formula == "H2O") Eos_Code = 'V';
 
     solmod::TCORKcalc myCORK( 1, Pbar, TK, Eos_Code );  // modified 05.11.2010 (TW)
-    double TClow = lowerTemperatureBound(subst, "CORK compensated-Redlich-Kwong fluid model");
+    double TClow = subst.lower_T;
     std::array<real, 7> CPg;
     for (unsigned int i = 0; i < 7; i++)
     {
-        CPg[i] = subst.thermoParameters().critical_parameters[i];
+        CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
     myCORK.CORKCalcFugPure( (TClow/*+273.15*/), CPg.data(), FugProps );

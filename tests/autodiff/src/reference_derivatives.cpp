@@ -16,7 +16,7 @@
 #include "Substance.h"
 #include "reference/Jets.hpp"
 #include "reference/CGFexact.hpp"
-#include "Substances/Gases/CGFpure.hpp"
+#include "Methods/Gases/CGFpure.hpp"
 
 using namespace ThermoFun;
 

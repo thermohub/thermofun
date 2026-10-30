@@ -1,28 +1,27 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Gases/GasPR78.h"
-#include "Substances/Gases/s_solmod_.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include "Methods/Gases/GasSRK.h"
+#include "Methods/Gases/s_solmod_.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasPR78(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasSRK(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
-    solmod::TPR78calc myPR78( 1, Pbar, TK );
-    double TClow = lowerTemperatureBound(subst, "PR78 Peng-Robinson fluid model");
+    solmod::TSRKcalc mySRK( 1, Pbar, TK );
+    double TClow = subst.lower_T;
     real CPg[7];
     for (unsigned int i = 0; i < 7; i++)
     {
-        CPg[i] = subst.thermoParameters().critical_parameters[i];
+        CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    myPR78.PR78CalcFugPure( (TClow/*+273.15*/), CPg, FugProps );
+    mySRK.SRKCalcFugPure( (TClow/*+273.15*/), CPg, FugProps );
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );

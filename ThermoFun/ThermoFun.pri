@@ -58,14 +58,14 @@
     $$PWD/Methods/Minerals/SolidBMGottschalk.h \
     $$PWD/Methods/Minerals/SolidHPLandau.h \
 # Substances - Gases
-    $$PWD/Substances/Gases/GasCORK.h \
-    $$PWD/Substances/Gases/GasPRSV.h \
-    $$PWD/Substances/Gases/GasCGF.h \
-    $$PWD/Substances/Gases/GasSRK.h \
-    $$PWD/Substances/Gases/GasPR78.h \
-    $$PWD/Substances/Gases/GasSTP.h \
-    $$PWD/Substances/Gases/verror.h \
-    $$PWD/Substances/Gases/s_solmod_.h \
+    $$PWD/Methods/Gases/GasCORK.h \
+    $$PWD/Methods/Gases/GasPRSV.h \
+    $$PWD/Methods/Gases/GasCGF.h \
+    $$PWD/Methods/Gases/GasSRK.h \
+    $$PWD/Methods/Gases/GasPR78.h \
+    $$PWD/Methods/Gases/GasSTP.h \
+    $$PWD/Methods/Gases/verror.h \
+    $$PWD/Methods/Gases/s_solmod_.h \
 # Reactions
     $$PWD/Reactions/FrantzMarshall.h \
     $$PWD/Reactions/RyzhenkoBryzgalyn.h \
@@ -174,14 +174,14 @@
     $$PWD/Methods/Minerals/SolidBerman88.cpp \
     $$PWD/Methods/Minerals/SolidHPLandau.cpp \
 # Substances - Gases
-    $$PWD/Substances/Gases/GasCORK.cpp \
-    $$PWD/Substances/Gases/GasPRSV.cpp \
-    $$PWD/Substances/Gases/GasCGF.cpp \
-    $$PWD/Substances/Gases/GasSRK.cpp \
-    $$PWD/Substances/Gases/GasPR78.cpp \
-    $$PWD/Substances/Gases/GasSTP.cpp \
-    $$PWD/Substances/Gases/s_solmod2_.cpp \
-    $$PWD/Substances/Gases/s_solmod_.cpp \
+    $$PWD/Methods/Gases/GasCORK.cpp \
+    $$PWD/Methods/Gases/GasPRSV.cpp \
+    $$PWD/Methods/Gases/GasCGF.cpp \
+    $$PWD/Methods/Gases/GasSRK.cpp \
+    $$PWD/Methods/Gases/GasPR78.cpp \
+    $$PWD/Methods/Gases/GasSTP.cpp \
+    $$PWD/Methods/Gases/s_solmod2_.cpp \
+    $$PWD/Methods/Gases/s_solmod_.cpp \
 # Reactions
     $$PWD/Reactions/FrantzMarshall.cpp \
     $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \

@@ -21,12 +21,12 @@
 #include "Methods/Minerals/SolidBMGottschalk.h"
 #include "Methods/Minerals/SolidHPLandau.h"
 
-#include "Substances/Gases/GasCORK.h"
-#include "Substances/Gases/GasPRSV.h"
-#include "Substances/Gases/GasCGF.h"
-#include "Substances/Gases/GasSRK.h"
-#include "Substances/Gases/GasPR78.h"
-#include "Substances/Gases/GasSTP.h"
+#include "Methods/Gases/GasCORK.h"
+#include "Methods/Gases/GasPRSV.h"
+#include "Methods/Gases/GasCGF.h"
+#include "Methods/Gases/GasSRK.h"
+#include "Methods/Gases/GasPR78.h"
+#include "Methods/Gases/GasSTP.h"
 
 // ThermoFun includes
 #include "Common/Exception.h"
@@ -963,10 +963,17 @@ template<typename Model>
 static auto gasProperties(double T, double P, const Substance& substance, const ThermoPropertiesSubstance& tps, bool apply_p, bool cancel_fugacity,
                           const std::string& modelName, Model model) -> ThermoPropertiesSubstance
 {
+    // the coefficients of Churakov and Gottschalk: eos_churakov_gottschalk_coeffs, or eos_gas_crit_props in older records
+    const auto& empirical = substance.thermoParameters().empirical_coeff;
+    const bool cg = modelName == "Churakov and Gottschalk fluid model" && !empirical.empty();
+    GasInputs inputs;
+    inputs.parameters = realValues(cg ? empirical : substance.thermoParameters().critical_parameters);
+    inputs.lower_T = lowerTemperatureBound(substance, modelName);
+    inputs.formula = substance.formula();
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         const real t = pass.T;
         const real p = pass.P / bar_to_Pa;
-        auto r = model(t, p, substance, lift(pass, tps), cancel_fugacity);
+        auto r = model(t, p, inputs, lift(pass, tps), cancel_fugacity);
         if (apply_p)
             r = applyPressure(r, t, p, substance.referenceP());
         return r;

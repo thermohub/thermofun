@@ -1,28 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Substances/Gases/GasCGF.h"
-#include "Substances/Gases/s_solmod_.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include "Methods/Gases/GasCGF.h"
+#include "Methods/Gases/s_solmod_.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCGF(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesGasCGF(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)
         Pbar += 1e-5;
     solmod::TCGFcalc myCGF( 1, Pbar, TK );
-    double TClow = lowerTemperatureBound(subst, "CG Churakov-Gottschalk fluid model");
+    double TClow = subst.lower_T;
     real CPg[12] = {}; // CGcalcFugPure reads 12 coefficients
-    // the CG coefficients: eos_churakov_gottschalk_coeffs, or eos_gas_crit_props in older records
-    const auto& empirical_coeff = subst.thermoParameters().empirical_coeff;
-    const auto& critical_parameters = empirical_coeff.empty() ? subst.thermoParameters().critical_parameters : empirical_coeff;
-    for (unsigned int i = 0; i < 12 && i < critical_parameters.size(); i++)
+    for (unsigned int i = 0; i < 12 && i < subst.parameters.size(); i++)
     {
-        CPg[i] = critical_parameters[i];
+        CPg[i] = subst.parameters[i];
     }
 
     myCGF.CGcalcFugPure( (TClow/*+273.15*/), CPg, FugProps );
