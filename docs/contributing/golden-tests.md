@@ -39,6 +39,8 @@ It uses 15 temperatures and 6 pressures. The tolerance is 1e-10 (relative), as i
   energy and P*V nearly cancel, one ulp of P*V is large compared with the energy.
 - The differences between 1e-12 and 1e-10 are counted and shown, and do not fail. They are the rounding of the
   parameters between the units of a model and SI, where large terms nearly cancel.
+- `expected_changes.json` lists the records that differ on purpose, each with its reason. An entry with `property` and
+  `max_rel` accepts only differences of that property up to that size: the rest of the record stays checked.
 
 ```bash
 bash pytests/golden/build_baseline.sh                 # once: builds the tag golden-baseline

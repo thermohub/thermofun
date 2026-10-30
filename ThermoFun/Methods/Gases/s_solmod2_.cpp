@@ -2306,7 +2306,7 @@ long int TCGFcalc::CGcalcFugPure(real Tmin, real *Cemp, real *FugProps )
 	P = Pbar;
 
 	for(long int ii=0; ii<12; ii++ )
-		Coeff[ii] = (double)Cemp[ii];
+		Coeff[ii] = Cemp[ii];
 
 	// Calling CG EoS functions here
     if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5) )
@@ -3252,7 +3252,7 @@ long int TSRKcalc::SRKCalcFugPure(real Tmin, real *Cpg, real *FugProps )
 	real Coeff[7];
 
 	for( int ii=0; ii<7; ii++ )
-		Coeff[ii] = (double)Cpg[ii];
+		Coeff[ii] = Cpg[ii];
 
 	if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5) )
 	{
@@ -4066,7 +4066,7 @@ long int TPR78calc::PR78CalcFugPure( real Tmin, real *Cpg, real *FugProps )
 	real Coeff[7];
 
 	for( int ii=0; ii<7; ii++ )
-		Coeff[ii] = (double)Cpg[ii];
+		Coeff[ii] = Cpg[ii];
 
 	if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5) )
 	{
@@ -5038,7 +5038,7 @@ long int TCORKcalc::CORKCalcFugPure( real Tmin, real *Cpg, real *FugProps )
         real Coeff[7];
 
         for( int ii=0; ii<7; ii++ )
-                Coeff[ii] = (double)Cpg[ii];
+                Coeff[ii] = Cpg[ii];
 
         if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5) )
         {
@@ -6283,7 +6283,7 @@ long int TSTPcalc::STPCalcFugPure(real Tmin, real *Cpg, real *FugProps )
      real Coeff[7];
 
     for( int ii=0; ii<7; ii++ )
-        Coeff[ii] = (double)Cpg[ii];
+        Coeff[ii] = Cpg[ii];
 
     if( (Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5) )
     {

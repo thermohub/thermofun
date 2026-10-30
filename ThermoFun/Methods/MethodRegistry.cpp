@@ -3,11 +3,13 @@
 
 #include "MethodRegistry.h"
 
+#include <cmath>
 #include <initializer_list>
 #include <type_traits>
 #include <vector>
 
 #include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Methods/Gases/GasMethods.h>
 #include <ThermoFun/Methods/Minerals/ConstantCp.h>
 #include <ThermoFun/Methods/Minerals/ConstantProperties.h>
 #include <ThermoFun/Methods/Minerals/ConstantVolume.h>
@@ -56,6 +58,39 @@ MethodRegistry::MethodRegistry()
     mineral(std::type_identity<CpExtendedUNIQUAC>{}, "CpExtendedUNIQUAC", {"a", "b", "c", "alpha", "beta", "Theta"});
     add("NASA9", "", [](A a, R) { return std::make_shared<const NASA9>(a); });
     add("TPTable", "", [](A a, R) { return std::make_shared<const TPTable>(a); });
+
+    // a fluid: the parameters in the order of the names; the lower T of the record is that of its heat capacity
+    auto gas = [this](auto kind, const char* id, std::vector<const char*> names) {
+        using Method = typename decltype(kind)::type;
+        add(id, "", [names, id = std::string(id)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+            std::vector<double> values;
+            for (const char* n : names)
+            {
+                const auto it = a.parameters.find(n);
+                values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
+            }
+            GasRecord record{r.reference_conditions.T, r.formula, r.applicability};
+            bool found = false;
+            for (const auto& other : r.methods)
+                if (other.method == "CpPolynomial" && !found)
+                    for (const auto& segment : other.segments)
+                        if (std::isfinite(segment.t_min) && !found)
+                        {
+                            record.lower_T = segment.t_min;
+                            found = true;
+                        }
+            if (!found)
+                thfun_logger->warn("{}: substance \"{}\" has no temperature intervals (they come only from a CpPolynomial method); using its reference temperature {} K as the lower temperature bound.", id, r.symbol, record.lower_T);
+            return std::make_shared<const Method>(values, record);
+        });
+    };
+    const std::vector<const char*> cubic = {"Tc", "Pc", "omega", "N"}, interaction = {"Tc", "Pc", "omega", "k1", "k2", "k3"};
+    gas(std::type_identity<PRSV86>{}, "PRSV86", interaction);
+    gas(std::type_identity<CorkHP91>{}, "CorkHP91", interaction);
+    gas(std::type_identity<SoaveRedlichKwong72>{}, "SoaveRedlichKwong72", cubic);
+    gas(std::type_identity<PengRobinson78>{}, "PengRobinson78", cubic);
+    gas(std::type_identity<SternerPitzer94>{}, "SternerPitzer94", {"Tc", "Pc"});
+    gas(std::type_identity<ChurakovGottschalk03>{}, "ChurakovGottschalk03", {"sigma0", "eps0", "mu0", "pol0", "sigma1", "sigma2", "eps1", "eps2", "mu1", "mu2", "pol1", "pol2"});
 
     // the parameters in the order of the catalog; none if the record gives none
     auto parametersOf = [](A a, std::initializer_list<const char*> names) {

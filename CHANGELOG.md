@@ -66,6 +66,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The hydrogen ion is found by its class, formula and charge, not by the symbol.
 - The mineral and table methods are method objects: `LandauHP98`, `MurnaghanHP98`, `TaitHP11`, `VolumeBerman88`,
   `VolumeDorogokupets88`, `BirchMurnaghan47`, `CpExtendedUNIQUAC`, `NASA9`, `TPTable`.
+- The fluid methods are method objects: `PRSV86`, `ChurakovGottschalk03`, `SoaveRedlichKwong72`, `SternerPitzer94`,
+  `PengRobinson78`, `CorkHP91`. They give their derivatives with respect to each parameter.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

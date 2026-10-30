@@ -9,6 +9,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import compare_builds as cb  # noqa: E402
 import golden_common as gc  # noqa: E402
 
 P = 1e9  # Pa
@@ -51,3 +52,15 @@ def test_the_margin_is_only_for_the_energies():
     got = copy.deepcopy(expected)
     got["substances"]["Ar(g)"]["entropy"][0][0] += one_ulp_of_pv()
     assert diffs(expected, got)
+
+
+def test_an_expected_change_can_be_limited_to_one_property_and_a_size():
+    key = ("db", "v", "substances", "H2O")
+    limited = {key: ("heat_capacity_cv", 2e-8)}
+    diff = lambda prop, rel: {"database": "db", "variant": "v", "kind": "substances", "record": "H2O", "property": prop, "rel": rel}
+    assert cb.is_expected(diff("heat_capacity_cv", 1e-8), limited)
+    assert not cb.is_expected(diff("heat_capacity_cv", 1e-6), limited)
+    assert not cb.is_expected(diff("enthalpy", 1e-8), limited)
+    assert not cb.is_expected(diff("heat_capacity_cv", None), limited)
+    assert cb.is_expected(diff("enthalpy", 1.0), {key: None})
+    assert not cb.is_expected(diff("enthalpy", 1e-8), {})

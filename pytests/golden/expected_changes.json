@@ -260,6 +260,116 @@
         "IG"
       ],
       "reason": "The status of Cv of a table without Cp was calculated, with the value 0: nothing calculates it. It is now not defined."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O"
+      ],
+      "property": "heat_capacity_cv",
+      "max_rel": 2e-08,
+      "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
     }
   ]
 }

@@ -56,7 +56,7 @@ def test_cp_polynomial_with_a_transition():
 def test_engine_runs_records_on_method_objects():
     # the substances with only methods that have code run on the new path, the others on the old one
     here = os.path.dirname(os.path.abspath(__file__))
-    with_code = {"cp_ft_equation", "standard_entropy_cp_integration", "mv_constant", "mv_pvnrt", "solute_hkf88_gems", "solute_hkf88_reaktoro", "solute_aknifiev_diamond03", "landau_holland_powell98", "mv_eos_murnaghan_hp98", "mv_equation_berman88", "mv_equation_dorogokupets88", "mv_eos_birch_murnaghan_gott97"}
+    with_code = {"cp_ft_equation", "standard_entropy_cp_integration", "mv_constant", "mv_pvnrt", "solute_hkf88_gems", "solute_hkf88_reaktoro", "solute_aknifiev_diamond03", "landau_holland_powell98", "mv_eos_murnaghan_hp98", "mv_equation_berman88", "mv_equation_dorogokupets88", "mv_eos_birch_murnaghan_gott97", "fluid_prsv", "fluid_comp_redlich_kwong_hp91", "fluid_sterner_pitzer", "fluid_peng_robinson78", "fluid_churakov_gottschalk", "fluid_soave_redlich_kwong"}
     new_path = 0
     for path in glob.glob(os.path.join(here, "..", "Resources", "databases", "*.json")):
         engine = tf.ThermoEngine(path)

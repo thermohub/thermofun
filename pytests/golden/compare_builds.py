@@ -33,10 +33,20 @@ CHUNK = 150  # records per work item, to bound the memory
 
 
 def expected_changes():
-    """The (database, variant, kind, record) keys whose differences are expected."""
+    """The (database, variant, kind, record) keys whose differences are expected. The value is None for any difference
+    of the record, or (property, max_rel) if the entry accepts only small differences of one property."""
     with open(HERE / "expected_changes.json") as f:
         changes = json.load(f)["changes"]
-    return {(c["database"], c["variant"], c["kind"], r) for c in changes for r in c["records"]}
+    return {(c["database"], c["variant"], c["kind"], r): (c["property"], c["max_rel"]) if "property" in c else None
+            for c in changes for r in c["records"]}
+
+
+def is_expected(d, expected):
+    key = (d["database"], d["variant"], d["kind"], d["record"])
+    if key not in expected:
+        return False
+    limit = expected[key]
+    return limit is None or (d["property"] == limit[0] and d["rel"] is not None and d["rel"] <= limit[1])
 
 
 def site_packages(prefix):
@@ -145,12 +155,13 @@ def main():
                 got = json.load(f)
             for d in gc.compare(base, got, REL_TOL):
                 d["database"], d["variant"] = base["database"], base["variant"]
-                if (d["database"], d["variant"], d["kind"], d["record"]) in expected:
+                if is_expected(d, expected):
                     accepted += 1
                 else:
                     diffs.append(d)
-            rounding += sum((base["database"], base["variant"], d["kind"], d["record"]) not in expected
-                            for d in gc.compare(base, got, ROUNDING_TOL))
+            for d in gc.compare(base, got, ROUNDING_TOL):
+                d["database"], d["variant"] = base["database"], base["variant"]
+                rounding += not is_expected(d, expected)
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
         print("accepted differences (expected_changes.json): %d" % accepted)
         print("differences between %g and %g (rounding): %d" % (ROUNDING_TOL, REL_TOL, rounding - len(diffs)))

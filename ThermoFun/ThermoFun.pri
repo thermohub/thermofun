@@ -83,6 +83,8 @@
     $$PWD/Methods/Solutes/SoluteInputs.h \
     $$PWD/Methods/Solutes/SoluteMethods.h \
     $$PWD/Methods/MethodHelpers.h \
+    $$PWD/Methods/Gases/GasInputs.h \
+    $$PWD/Methods/Gases/GasMethods.h \
     $$PWD/Methods/Minerals/MineralInputs.h \
     $$PWD/Methods/Minerals/MineralMethods.h \
     $$PWD/Methods/Minerals/SolidLandauHP11.h \
@@ -196,6 +198,7 @@
     $$PWD/Engine/Solvent.cpp \
     $$PWD/Methods/Solutes/SoluteMethods.cpp \
     $$PWD/Methods/Minerals/MineralMethods.cpp \
+    $$PWD/Methods/Gases/GasMethods.cpp \
     $$PWD/Methods/Minerals/SolidLandauHP11.cpp \
     $$PWD/Methods/Water/WaterMethods.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
