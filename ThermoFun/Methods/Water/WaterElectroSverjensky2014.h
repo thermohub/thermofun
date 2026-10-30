@@ -8,9 +8,8 @@
 
 namespace ThermoFun {
 
-class Substance;
 
-auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, Substance substance, int state = -1) -> ElectroPropertiesSolventAD;
+auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent) -> ElectroPropertiesSolventAD;
 
 }
 

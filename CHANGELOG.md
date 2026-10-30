@@ -28,6 +28,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Eigen headers when Eigen is found. Before, `find_package(ThermoFun)` failed in a project that had not found
   autodiff itself, and a ThermoFun built with a fetched autodiff could not be used where Eigen is installed.
 - The parser read an uninitialised value when a substance has no `mass_per_mole` (or an element no entropy).
+- `water_eos_iapws95_gems` in legacy files was ignored, so water gave no values. It is now read as IAPWS-95 (the Reaktoro
+  code, as there is no GEMS code), with a warning.
+- The Zhang and Duan (2005) water model now stops at 2000 K, the limit of the paper (it was 2273.15 K).
 - The Cp polynomial used `a9` without the factor `sqrt(T)`, because of an integer division. Only `BaI2(g)` of heracles has this term.
 - Cached results no longer depend on the calculation order. The reactants of a reaction-defined substance are
   calculated with the gas pressure correction on, and they shared the cache with plain calculations. For example,
@@ -54,6 +57,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `ThermoEngine` calculates a substance with method objects when all its methods have code. `engine.explain(T, P, symbol)`
   gives the state after each method. The results are the same as before.
+- Water and its dielectric models are method objects too (`thermofun.methods.solventMethod`, `dielectricMethod`), and
+  run alone. New option of `WaterZhangDuan05`: `dew_gibbs` gives the Gibbs energy of water of the DEW model.
 
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of

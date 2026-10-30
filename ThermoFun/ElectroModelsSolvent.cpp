@@ -3,6 +3,9 @@
 
 #include "ElectroModelsSolvent.h"
 #include "Substance.h"
+#include "Database.h"
+#include "ThermoEngine.h"
+#include "Methods/Water/WaterMethods.h"
 #include "ThermoProperties.h"
 #include "Methods/Water/Reaktoro/WaterElectroState.hpp"
 // Models
@@ -15,6 +18,19 @@
 #include "Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.hpp"
 
 namespace ThermoFun {
+
+namespace {
+
+// The properties of the solvent that a dielectric model needs, from the methods of its record.
+auto solventOf(const Substance& substance, double T, double P, int state) -> PropertiesSolvent
+{
+    Database db;
+    db.addSubstance(substance);
+    ThermoEngine engine(db);
+    return engine.propertiesSolvent(T, P, substance.symbol(), state);
+}
+
+} // namespace
 
 //=======================================================================================================
 // Calculate the electro-chemical of water using the Jhonson and Norton (1991) model as implemented in
@@ -44,39 +60,7 @@ WaterJNreaktoro::WaterJNreaktoro(const Substance &substance)
 // calculation
 auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps, int state) -> ElectroPropertiesSolvent
 {
-//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
-
-    auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterThermoState wts;
-
-        wts.density   = pass(ps.density);
-        wts.densityT  = pass(ps.densityT);
-        wts.densityP  = pass(ps.densityP);
-        wts.densityTT = pass(ps.densityTT);
-        wts.densityTP = pass(ps.densityTP);
-        wts.densityPP = pass(ps.densityPP);
-
-        return electroPropertiesWaterJNreaktoro(waterElectroStateJohnsonNorton(pass.T, /*pass.P,*/ wts, state));
-    });
-
-    // the calculation only keeps the values and derivatives of the density, so the errors and statuses of
-    // the density inputs are propagated onto each result, according to the derivatives it is calculated from
-    const auto& d = ps.density; const auto& dT = ps.densityT; const auto& dP = ps.densityP;
-    const auto& dTT = ps.densityTT; const auto& dTP = ps.densityTP; const auto& dPP = ps.densityPP;
-    eps.epsilon.propagateFrom(d);
-    eps.bornZ.propagateFrom(d);
-    eps.epsilonT.propagateFrom(d, dT);
-    eps.bornY.propagateFrom(d, dT);
-    eps.epsilonP.propagateFrom(d, dP);
-    eps.bornQ.propagateFrom(d, dP);
-    eps.epsilonTT.propagateFrom(d, dT, dTT);
-    eps.bornX.propagateFrom(d, dT, dTT);
-    eps.epsilonTP.propagateFrom(d, dT, dP, dTP);
-    eps.bornU.propagateFrom(d, dT, dP, dTP);
-    eps.epsilonPP.propagateFrom(d, dP, dPP);
-    eps.bornN.propagateFrom(d, dP, dPP);
-
-    return eps;
+    return v2::JohnsonNorton91Reaktoro().properties(T, P, ps, state);
 }
 
 //=======================================================================================================
@@ -107,16 +91,7 @@ WaterJNgems::WaterJNgems(const Substance &substance)
 // calculation
 auto WaterJNgems::electroPropertiesSolvent(double T, double P, int state) -> ElectroPropertiesSolvent
 {
-    WaterTripleProperties wtr = waterTripleData.at("NEA_HGK");
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
-        real t = pass.T - C_to_K;
-        real p = pass.P / bar_to_Pa;
-        water_hgk.calculateWaterHGKgems(t, p, wtr);
-
-        return water_hgk.electroPropertiesWaterJNgems(state); // state 0 = liquid
-    });
+    return v2::JohnsonNorton91Gems().properties(T, P, PropertiesSolvent{}, state);
 }
 
 
@@ -140,11 +115,7 @@ WaterElectroSverjensky2014::WaterElectroSverjensky2014(const Substance &substanc
 // calculation
 auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/, int state) -> ElectroPropertiesSolvent
 {
-//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return electroPropertiesWaterSverjensky2014(pass, pimpl->substance, state);
-    });
+    return v2::SverjenskyEtAl14().properties(T, P, solventOf(pimpl->substance, T, P, state), state);
 }
 
 //=======================================================================================================
@@ -176,11 +147,7 @@ WaterElectroFernandez1997::WaterElectroFernandez1997(const Substance &substance)
 // calculation
 auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/, int state) -> ElectroPropertiesSolvent
 {
-//    if (P==0) P = saturatedWaterVaporPressureHGK(T+C_to_K);
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return electroPropertiesWaterFernandez1997(pass, pimpl->substance, state);
-    });
+    return v2::FernandezEtAl97().properties(T, P, solventOf(pimpl->substance, T, P, state), state);
 }
 
 } // End namespace ThermoFun

@@ -2,6 +2,7 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "ThermoModelsSolvent.h"
+#include "Methods/Water/WaterMethods.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
 
@@ -16,37 +17,6 @@
 #include "Common/Exception.h"
 
 namespace ThermoFun {
-
-auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double Pmax, double Pmin, std::string model) -> void
-{
-    // Check if given temperature is within the allowed range
-    if(T < 0 /*Tmin*/ || T > Tmax)
-    {
-        Exception exception;
-        exception.error << "Out of T bound in model " << model;
-        exception.reason << "The provided temperature, " << T << " K,"  << "is either negative "
-              "or greater than the maximum allowed, " << Tmax << " K.";
-        RaiseError(exception);
-    }
-
-    // Check if given pressure is within the allowed range
-    if( P > Pmax)
-    {
-        Exception exception;
-        exception.error << "Out of P bound in model " << model;
-        exception.reason << "The provided pressure, " << P << " Pa,"  << "is greater than the maximum allowed, " << Pmax << " Pa.";
-        RaiseError(exception);
-    }
-
-    // Check if given pressure is within the allowed range
-    if( P < Pmin)
-    {
-        Exception exception;
-        exception.error << "Out of P bound in model " << model;
-        exception.reason << "The provided pressure, " << P << " Pa,"  << "is lower than the minimum allowed, " << Pmin << " Pa.";
-        RaiseError(exception);
-    }
-}
 
 //=======================================================================================================
 // Calculate the properties of water using the Haar-Gallagher-Kell (1984) equation of state
@@ -74,52 +44,12 @@ WaterHGK::WaterHGK(const Substance &substance)
 // calculation
 auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string triple) -> PropertiesSolvent
 {
-    WaterTripleProperties wtr = waterTripleData.at(triple);
-
-    double Pout = P;
-    auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
-        real t = pass.T - C_to_K;
-        real p = pass.P / bar_to_Pa;
-        water_hgk.calculateWaterHGKgems(t, p, wtr);
-        Pout = p.val() * bar_to_Pa;
-        return water_hgk.propertiesWaterHGKgems(state);
-    });
-    P = Pout;
-
-    // The GEMS model gives densityT = -alpha rho, densityP = beta rho, densityTT = rho (alpha^2 - dalpha/dT) and (analytical,
-    // from the third derivative of P with respect to the density in the LVS and HGK regions) densityPP = -rho beta^2 Gamma, with
-    // Gamma = rho P_rhorho/P_rho. The mixed second derivative is the exact derivative of the analytical alpha with respect to P:
-    // densityTP = d(densityT)/dP (= d(densityP)/dT), and the mixed third derivative is d(densityTT)/dP.
-    if (Reaktoro_::kWithAutodiff)
-    {
-        ps.densityTP.val = ps.densityT.ddp;
-        ps.densityTP.ddt = ps.densityTT.ddp;
-        ps.densityTP.ddp = ps.densityPP.ddt; // the mixed third derivative d3(rho)/dT dP2
-        ps.densityTP.sta = ps.densityT.sta;
-    }
-    else
-        ps.densityTP.sta = {Reaktoro_::Status::notdefined, "densityTP is the derivative of densityT: not calculated (built without autodiff)"};
-
-    return ps;
+    return v2::WaterHGK84Gems().properties(T, P, state, triple);
 }
 
 auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string triple) -> ThermoPropertiesSubstance
 {
-    WaterTripleProperties wtr = waterTripleData.at(triple);
-
-    double Pout = P;
-    auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
-        real t = pass.T - C_to_K;
-        real p = pass.P / bar_to_Pa;
-        water_hgk.calculateWaterHGKgems(t, p, wtr);
-        Pout = p.val() * bar_to_Pa;
-        return water_hgk.thermoPropertiesWaterHGKgems(state);
-    });
-    P = Pout;
-
-    return tps;
+    return v2::WaterHGK84Gems().substanceProperties(T, P, state, triple);
 }
 
 //=======================================================================================================
@@ -149,22 +79,12 @@ WaterHGKreaktoro::WaterHGKreaktoro(const Substance &substance)
 // calculation
 auto WaterHGKreaktoro::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterHGKreaktoro(waterThermoStateHGK(pass.T, pass.P, state));
-    });
+    return v2::WaterHGK84Reaktoro().properties(T, P, state);
 }
 
 auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
-
-    WaterTripleProperties wtr = waterTripleData.at(tripple);
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state), wtr);
-    });
+    return v2::WaterHGK84Reaktoro().substanceProperties(T, P, state, tripple);
 }
 
 //=======================================================================================================
@@ -195,22 +115,12 @@ WaterWP95reaktoro::WaterWP95reaktoro(const Substance &substance)
 // calculation
 auto WaterWP95reaktoro::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterWP95reaktoro(waterThermoStateWagnerPruss(pass.T, pass.P, state));
-    });
+    return v2::WaterIAPWS95Reaktoro().properties(T, P, state);
 }
 
 auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
-
-    WaterTripleProperties wtr = waterTripleData.at(tripple);
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state), wtr);
-    });
+    return v2::WaterIAPWS95Reaktoro().substanceProperties(T, P, state, tripple);
 }
 
 //=======================================================================================================
@@ -237,29 +147,16 @@ WaterZhangDuan2005::WaterZhangDuan2005(const Substance &substance)
 {}
 
 // calculation
-auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int /*state*/) -> PropertiesSolvent
+auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int state) -> PropertiesSolvent
 {
-    checkModelValidity(T, P, 2273.15, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
-
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterZhangDuan2005(pass);
-    });
+    double p = P;
+    return v2::WaterZhangDuan05().properties(T, p, state);
 }
 
-auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double P, int /*state*/) -> ThermoPropertiesSubstance
+auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance
 {
-    checkModelValidity(T, P, 2273.15, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
-
-    auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterZhangDuan2005(pass.T, pass.P / bar_to_Pa); // pressure in bar
-    });
-
-    // only the volume is calculated by this model
-    const Reaktoro_::StatusMessage undefined = {Reaktoro_::Status::notdefined, ""};
-    for (auto* x : {&tps.gibbs_energy, &tps.helmholtz_energy, &tps.internal_energy, &tps.enthalpy,
-                    &tps.entropy, &tps.heat_capacity_cp, &tps.heat_capacity_cv})
-        x->sta = undefined;
-    return tps;
+    double p = P;
+    return v2::WaterZhangDuan05().substanceProperties(T, p, state, "");
 }
 
 } // namespace ThermoFun

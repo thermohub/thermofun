@@ -9,11 +9,14 @@
 #include <cmath>
 #include <cstdio>
 #include <fstream>
+#include <initializer_list>
+#include <map>
 #include <string>
 
 #include <nlohmann/json.hpp>
 
 #include "Engine/Executor.h"
+#include "Engine/Solvent.h"
 #include "IO/Legacy/LegacyReader.h"
 #include "Methods/Evaluate.h"
 #include "Methods/MethodRegistry.h"
@@ -22,6 +25,7 @@
 #include "Methods/Minerals/ConstantVolume.h"
 #include "Methods/Minerals/CpPolynomial.h"
 #include "Methods/Minerals/IdealGas.h"
+#include "Methods/Water/WaterMethods.h"
 #include "Substance.h"
 #include "ThermoModelsSubstance.h"
 #include "check.h"
@@ -363,6 +367,68 @@ void testConflictMessages()
     CHECK(classMessage);
 }
 
+void testSolvent()
+{
+    auto waterRecord = [](std::vector<std::pair<std::string, std::string>> methods) {
+        auto r = std::make_shared<SubstanceRecord>();
+        r->symbol = "H2O@";
+        r->class_ = SubstanceClass::WaterSolvent;
+        for (const auto& [id, implementation] : methods)
+        {
+            MethodApplication a;
+            a.method = id;
+            a.implementation = implementation;
+            r->methods.push_back(a);
+        }
+        return r;
+    };
+
+    // the methods of a water record: one equation of state, and the dielectric model
+    auto r = waterRecord({{"JohnsonNorton91", "gems"}, {"WaterHGK84", "gems"}});
+    CHECK(canBindSolvent(*r));
+    auto bound = bindSolvent(r);
+    CHECK(dynamic_cast<const WaterHGK84Gems*>(bound->equation_of_state.get()));
+    CHECK(dynamic_cast<const JohnsonNorton91Gems*>(bound->dielectric.get()));
+    CHECK(bound->equation_of_state->gibbsEnergyContainsRTlnP());
+
+    // the default implementation is the first one of the catalog
+    r = waterRecord({{"WaterHGK84", ""}});
+    bound = bindSolvent(r);
+    CHECK(dynamic_cast<const WaterHGK84Reaktoro*>(bound->equation_of_state.get()) && !bound->dielectric);
+
+    CHECK(!canBindSolvent(*waterRecord({{"JohnsonNorton91", ""}})));
+    CHECK(!canBindSolvent(*waterRecord({{"WaterHGK84", ""}, {"WaterIAPWS95", ""}})));
+    CHECK(!canBindSolvent(*waterRecord({{"WaterHGK84", ""}, {"HKF88", ""}})));
+
+    // a pressure of 0 is the saturation pressure, and it is written back (IAPWS-95: 1554928 Pa; the code of GEMS has
+    // its own saturation equation, 0.08 % lower)
+    for (const SolventMethod* method : std::initializer_list<const SolventMethod*>{new WaterHGK84Gems, new WaterHGK84Reaktoro, new WaterIAPWS95Reaktoro})
+    {
+        double P = 0.0;
+        method->properties(473.15, P, 0);
+        CHECK(std::abs(P - 1554928.0) < 3000.0);
+        P = 0.0;
+        method->substanceProperties(473.15, P, 0, "NEA_HGK");
+        CHECK(std::abs(P - 1554928.0) < 3000.0);
+        delete method;
+    }
+
+    // the state of a record
+    SubstanceRecord state;
+    state.aggregate_state = AggregateState::Aqueous;
+    CHECK(solventStateOf(state) == 0);
+    state.aggregate_state = AggregateState::Gas;
+    CHECK(solventStateOf(state) == 1);
+
+    // the rules of the choice of the solvent, in their order
+    const std::map<std::string, SubstanceClass> records = {{"H2O@", SubstanceClass::WaterSolvent}, {"H2O@2", SubstanceClass::WaterSolvent},
+                                                           {"Na+", SubstanceClass::AqueousSolute}, {"Z", SubstanceClass::Other}};
+    CHECK(chooseSolvent("H2O@", "H2O@2", records) == "H2O@");
+    CHECK(chooseSolvent("none", "H2O@", records) == "H2O@");
+    CHECK(chooseSolvent("none", "none", records) == "H2O@2");
+    CHECK(chooseSolvent("none", "", {{"Na+", SubstanceClass::AqueousSolute}}).empty());
+}
+
 void testAgainstTheOldModels()
 {
     const char* files[] = {"Resources/databases/aq17-thermofun.json", "Resources/databases/cemdata18-thermofun.json",
@@ -433,5 +499,6 @@ void runSubstanceMethods()
     testRegistry();
     testExecutionOrder();
     testConflictMessages();
+    testSolvent();
     testAgainstTheOldModels();
 }

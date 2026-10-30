@@ -2,6 +2,11 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "Methods/Water/WaterZhangDuan2005.h"
+
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
 #include "Common/Exception.h"
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Constants.h>
@@ -110,6 +115,71 @@ auto waterFugacityCoeff (real T, real P, real Vr, real V) -> real
     return lnFugCoef;
 }
 
+
+/// Nodes and weights of the Gauss-Legendre rule with n points on [-1, 1]
+static auto gaussLegendre(int n, std::vector<double>& x, std::vector<double>& w) -> void
+{
+    x.assign(n, 0.0);
+    w.assign(n, 0.0);
+    for (int i = 0; i < (n + 1) / 2; ++i)
+    {
+        double z = std::cos(3.14159265358979323846 * (i + 0.75) / (n + 0.5)), dp = 1.0;
+        for (int it = 0; it < 100; ++it)
+        {
+            double p1 = 1.0, p2 = 0.0;
+            for (int j = 0; j < n; ++j)
+            {
+                const double p3 = p2;
+                p2 = p1;
+                p1 = ((2.0 * j + 1.0) * z * p2 - j * p3) / (j + 1.0);
+            }
+            dp = n * (z * p1 - p2) / (z * z - 1.0);
+            const double dz = p1 / dp;
+            z -= dz;
+            if (std::fabs(dz) < 1e-15)
+                break;
+        }
+        x[i] = -z;
+        x[n - 1 - i] = z;
+        w[i] = w[n - 1 - i] = 2.0 / ((1.0 - z * z) * dp * dp);
+    }
+}
+
+auto waterGibbsEnergyDEW(real TK, real Pbar, const DewGibbsCoefficients& c) -> real
+{
+    if (Pbar.val() < 1000.0)
+    {
+        ThermoFun::Exception exception;
+        exception.error << "The Gibbs energy of water of the model DEW is defined for P >= 1 kbar.";
+        exception.reason << "The pressure is " << Pbar.val() << " bar.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+    // G(T, 1 kbar): a polynomial in the temperature in degC, in cal/mol
+    const real tc = TK - 273.15;
+    real G = ((((c.g1kb[0] * tc + c.g1kb[1]) * tc + c.g1kb[2]) * tc + c.g1kb[3]) * tc + c.g1kb[4]) * 4.184;
+
+    // the integral of V dP from 1 kbar to P (V in cm3/mol, bar: 0.1 J), in panels of at most 4 kbar with 12 points each
+    struct Rule { std::vector<double> x, w; };
+    static const Rule rule = [] { Rule r; gaussLegendre(12, r.x, r.w); return r; }();
+    const std::vector<double>& x = rule.x;
+    const std::vector<double>& w = rule.w;
+    const int panels = std::max(1, static_cast<int>(std::ceil((Pbar.val() - 1000.0) / 4000.0)));
+    const real width = (Pbar - 1000.0) / panels;
+    real integral = 0.0;
+    for (int k = 0; k < panels; ++k)
+    {
+        const real lower = 1000.0 + width * k;
+        for (size_t i = 0; i < x.size(); ++i)
+        {
+            const real p = lower + width * (0.5 * (x[i] + 1.0));
+            real Vr = 0.3;
+            Vr = waterMolarVolume(TK, p, Vr);
+            integral += Vr * waterCriticalVolume * (0.5 * w[i]) * width;
+        }
+    }
+    return G + integral * 0.1;
+}
 
 auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubstanceAD
 {

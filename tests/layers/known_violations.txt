@@ -13,11 +13,3 @@ ThermoFun/Common/ParseJsonToData.cpp: nlohmann/json.hpp
 ThermoFun/Common/OutputToCSV.h: ThermoFun/ThermoProperties.h
 ThermoFun/Common/OutputWaterSteamConventionProp.cpp: GlobalVariables.h
 ThermoFun/Common/OutputWaterSteamConventionProp.h: ThermoFun/Methods/Water/Reaktoro/WaterThermoState.hpp
-
-# R2.3: the dielectric models take the state of the solvent, and do not make an engine
-ThermoFun/Methods/Water/WaterElectroFernandez1997.cpp: ThermoEngine.h
-ThermoFun/Methods/Water/WaterElectroFernandez1997.cpp: Database.h
-ThermoFun/Methods/Water/WaterElectroFernandez1997.cpp: Substance.h
-ThermoFun/Methods/Water/WaterElectroSverjensky2014.cpp: ThermoEngine.h
-ThermoFun/Methods/Water/WaterElectroSverjensky2014.cpp: Database.h
-ThermoFun/Methods/Water/WaterElectroSverjensky2014.cpp: Substance.h

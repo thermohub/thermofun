@@ -10,6 +10,7 @@
 #include <string>
 
 #include <ThermoFun/Methods/Method.h>
+#include <ThermoFun/Methods/Water/SolventMethod.h>
 #include <ThermoFun/Model/MethodApplication.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
@@ -21,6 +22,10 @@ class MethodRegistry
 public:
     /// Makes a method from an application and the record it belongs to.
     using SubstanceFactory = std::function<std::shared_ptr<const SubstanceMethod>(const MethodApplication&, const SubstanceRecord&)>;
+
+    /// Makes an equation of state of water or a dielectric model.
+    using SolventFactory = std::function<std::shared_ptr<const SolventMethod>(const MethodApplication&)>;
+    using DielectricFactory = std::function<std::shared_ptr<const DielectricMethod>()>;
 
     /// The one registry of the library.
     static auto instance() -> MethodRegistry&;
@@ -37,9 +42,20 @@ public:
     /// The method object of an application. Raises an error if there is no code for it.
     auto create(const MethodApplication& application, const SubstanceRecord& record = {}) const -> std::shared_ptr<const SubstanceMethod>;
 
+    /// True if there is code for this id as an equation of state of water or a dielectric model.
+    auto hasSolventMethod(const std::string& id) const -> bool;
+
+    /// The equation of state of an application. Raises an error if there is no code for it.
+    auto createSolvent(const MethodApplication& application) const -> std::shared_ptr<const SolventMethod>;
+
+    /// The dielectric model of an application. Raises an error if there is no code for it.
+    auto createDielectric(const MethodApplication& application) const -> std::shared_ptr<const DielectricMethod>;
+
 private:
     MethodRegistry();
     std::map<std::pair<std::string, std::string>, SubstanceFactory> substance_;
+    std::map<std::pair<std::string, std::string>, SolventFactory> solvent_;
+    std::map<std::pair<std::string, std::string>, DielectricFactory> dielectric_;
 };
 
 } // namespace ThermoFun::v2

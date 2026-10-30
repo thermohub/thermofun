@@ -9,6 +9,7 @@
 #include <mutex>
 #include "Common/Exception.h"
 #include "Engine/Executor.h"
+#include "Engine/Solvent.h"
 #include "Model/SubstanceRecord.h"
 #include "ThermoEngine.h"
 #include "Database.h"
@@ -124,6 +125,7 @@ struct ThermoEngine::Impl
     {
         std::mutex mutex;
         std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> substances;
+        std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSolvent>> solvents;
         std::vector<std::shared_ptr<const v2::SubstanceRecord>> records;
     };
     std::shared_ptr<BoundCache> bound_cache = std::make_shared<BoundCache>();
@@ -220,6 +222,22 @@ struct ThermoEngine::Impl
             return it->second;
         auto bound = v2::canBind(*record) ? v2::bindSubstance(record) : nullptr;
         bound_cache->substances[record.get()] = bound;
+        bound_cache->records.push_back(record);
+        return bound;
+    }
+
+    /// The methods of a water record, if the new path can run it. Temporary router, as boundMethods.
+    auto boundSolvent(const Substance& substance) const -> std::shared_ptr<const v2::BoundSolvent>
+    {
+        const auto record = substance.record();
+        if (!record)
+            return nullptr;
+        std::lock_guard<std::mutex> lock(bound_cache->mutex);
+        const auto it = bound_cache->solvents.find(record.get());
+        if (it != bound_cache->solvents.end())
+            return it->second;
+        auto bound = v2::canBindSolvent(*record) ? v2::bindSolvent(record) : nullptr;
+        bound_cache->solvents[record.get()] = bound;
         bound_cache->records.push_back(record);
         return bound;
     }
@@ -363,10 +381,10 @@ struct ThermoEngine::Impl
             workPreferences.isH2OSolvent = false;
 
         // set solvent state
-        if (workPreferences.workSubstance.aggregateState() == AggregateState::type::GAS)
-            preferences.solvent_state = 1; // vapor
+        if (const auto record = workPreferences.workSubstance.record())
+            preferences.solvent_state = v2::solventStateOf(*record);
         else
-            preferences.solvent_state = 0; // liquid
+            preferences.solvent_state = workPreferences.workSubstance.aggregateState() == AggregateState::type::GAS ? 1 : 0;
 
         bool noMethods =
             !workPreferences.method_genEOS &&
@@ -393,11 +411,12 @@ struct ThermoEngine::Impl
             // see if default solvent is in the database if not search for solvent
             if (!database.containsSubstance(preferences.solvent_symbol))
             {
-                for (const auto& pair : database.mapSubstances()) {
-                    if (pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT) {
-                        preferences.solvent_symbol = pair.first;
-                    }
-                }
+                std::map<std::string, v2::SubstanceClass> classes;
+                for (const auto& pair : database.mapSubstances())
+                    classes[pair.first] = pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT ? v2::SubstanceClass::WaterSolvent : v2::SubstanceClass::Other;
+                const auto chosen = v2::chooseSolvent(preferences.solvent_symbol, "", classes);
+                if (!chosen.empty())
+                    preferences.solvent_symbol = chosen;
             }
         }
 
@@ -598,7 +617,13 @@ struct ThermoEngine::Impl
             auto water_triple_reference = database.conventions().water_triple_point_reference;
             bool water_g_contains_rt_ln_p = false; // true if G of the water model has the term RT ln(P/1 bar)
 
-            if (pref.isH2OSolvent || pref.isH2Ovapor)
+            const auto solvent = (pref.isH2OSolvent || pref.isH2Ovapor) ? boundSolvent(substance) : nullptr;
+            if (solvent)
+            {
+                tps = solvent->equation_of_state->substanceProperties(T, P, preferences.solvent_state, water_triple_reference);
+                water_g_contains_rt_ln_p = solvent->equation_of_state->gibbsEnergyContainsRTlnP();
+            }
+            else if (pref.isH2OSolvent || pref.isH2Ovapor)
             {
                 if (pref.method_genEOS == MethodGenEoS_Thrift::type::CTPM_CON)
                 {
@@ -732,7 +757,12 @@ struct ThermoEngine::Impl
         PropertiesSolvent ps = propertiesSolvent(T, P, solvent, preferences.solvent_state);
         ElectroPropertiesSolvent eps;
 
-        if (pref.isH2OSolvent)
+        if (const auto bound = pref.isH2OSolvent ? boundSolvent(solvent) : nullptr)
+        {
+            if (bound->dielectric)
+                eps = bound->dielectric->properties(T, P, ps, preferences.solvent_state);
+        }
+        else if (pref.isH2OSolvent)
         {
             switch (pref.method_genEOS)
             {
@@ -776,7 +806,11 @@ struct ThermoEngine::Impl
             preferences.solvent_state = state;
         PropertiesSolvent ps;
 
-        if (pref.isH2OSolvent)
+        if (const auto bound = pref.isH2OSolvent ? boundSolvent(solvent) : nullptr)
+        {
+            ps = bound->equation_of_state->properties(T, P, preferences.solvent_state);
+        }
+        else if (pref.isH2OSolvent)
         {
             switch (pref.method_T)
             {

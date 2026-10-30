@@ -2,9 +2,7 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "WaterElectroFernandez1997.h"
-#include "ThermoEngine.h"
-#include "Database.h"
-#include "Substance.h"
+#include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include "Methods/Water/SolventDensityDerivatives.hpp"
 
@@ -106,16 +104,11 @@ static auto epsilonF(const real& T, const real& rho) -> EpsilonF
 }
 
 
-auto electroPropertiesWaterFernandez1997(const Reaktoro_::Pass& pass, Substance substance, int state) -> ElectroPropertiesSolventAD
+auto electroPropertiesWaterFernandez1997(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent) -> ElectroPropertiesSolventAD
 {
     ElectroPropertiesSolventAD wep;
 
-    Database db; db.addSubstance(substance);
-    ThermoEngine   th(db);
-
-    double P1 = pass.P.val();  // propertiesSolvent takes the pressure by reference
-    const auto psol = th.propertiesSolvent(pass.T.val(), P1, substance.symbol(), state);
-    const auto r = densityDerivatives(pass, psol);
+    const auto r = densityDerivatives(pass, solvent);
 
     // the dielectric constant and its total derivatives with respect to T and P (Pa): the chain rule with the derivatives of the density
     const auto e = epsilonF(pass.T, r.rho);

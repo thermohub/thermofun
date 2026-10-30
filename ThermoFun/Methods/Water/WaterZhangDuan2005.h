@@ -23,6 +23,15 @@ auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass) -> PropertiesSolv
 
 auto waterDensityZhangDuan2005(real T, real P) -> real;
 
+/// The coefficients of G(T, 1 kbar) of the model DEW: a polynomial in T (degC) in cal/mol, the highest power first
+struct DewGibbsCoefficients
+{
+    double g1kb[5] = {2.6880734e-09, 6.3163061e-07, -0.019372355, -16.945093, -55769.287};
+};
+
+/// The Gibbs energy of water (J/mol) as in the model DEW, for P >= 1 kbar: G(T, 1 kbar) + the integral of V dP
+auto waterGibbsEnergyDEW(real T, real P, const DewGibbsCoefficients& c) -> real;
+
 }
 
 #endif // WATERZHANGDUAN2005

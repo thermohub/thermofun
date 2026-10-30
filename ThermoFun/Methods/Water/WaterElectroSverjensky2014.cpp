@@ -2,9 +2,7 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "WaterElectroSverjensky2014.h"
-#include "ThermoEngine.h"
-#include "Database.h"
-#include "Substance.h"
+#include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include "Methods/Water/SolventDensityDerivatives.hpp"
 
@@ -33,16 +31,11 @@ const double b[] =
 ///   L_TP = w' rho_P/rho + w (rho_TP/rho - rho_T rho_P/rho^2),   L_PP = w (rho_PP/rho - (rho_P/rho)^2),
 ///   eps_T = eps L_T, eps_P = eps L_P, eps_TT = eps (L_T^2 + L_TT), eps_TP = eps (L_T L_P + L_TP), eps_PP = eps (L_P^2 + L_PP)
 /// where the derivatives of the density are those of the solvent model (their own derivatives are the third-order ones).
-auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, Substance substance, int state) -> ElectroPropertiesSolventAD
+auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent) -> ElectroPropertiesSolventAD
 {
     ElectroPropertiesSolventAD wep;
 
-    Database db; db.addSubstance(substance);
-    ThermoEngine   th(db);
-
-    double P1 = pass.P.val();  // propertiesSolvent takes the pressure by reference
-    const auto psol = th.propertiesSolvent(pass.T.val(), P1, substance.symbol(), state);
-    const auto r = densityDerivatives(pass, psol);
+    const auto r = densityDerivatives(pass, solvent);
 
     const real TC  = pass.T - 273.15;      // temperature in celsius
     const real sT  = sqrt(TC);

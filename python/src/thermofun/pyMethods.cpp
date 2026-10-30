@@ -14,6 +14,8 @@
 #include <ThermoFun/Methods/Minerals/ConstantCp.h>
 #include <ThermoFun/Methods/Minerals/ConstantProperties.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
+#include <ThermoFun/Methods/MethodRegistry.h>
+#include <ThermoFun/Methods/Water/SolventMethod.h>
 
 namespace py = pybind11;
 
@@ -41,6 +43,20 @@ auto makeReference(py::object T, py::object P, py::object G, py::object H, py::o
     r.Cp = number(Cp);
     r.V = number(V);
     return r;
+}
+
+auto makeApplication(const std::string& id, const std::string& implementation, const py::dict& parameters) -> MethodApplication
+{
+    MethodApplication a;
+    a.method = id;
+    a.implementation = implementation;
+    for (const auto& item : parameters)
+    {
+        Quantity q;
+        q.value = item.second.cast<double>();
+        a.parameters[item.first.cast<std::string>()] = q;
+    }
+    return a;
 }
 
 } // namespace
@@ -75,6 +91,26 @@ void exportMethods(py::module& parent)
 
     py::class_<PhaseTransition>(m, "PhaseTransition", "A phase transition: T [K], dS [J/(mol K)], dH [J/mol], dV [m3/mol]")
         .def(py::init([](double T, double dS, double dH, double dV) { return PhaseTransition{T, dS, dH, dV}; }), py::arg("T"), py::arg("dS") = 0.0, py::arg("dH") = 0.0, py::arg("dV") = 0.0);
+
+    py::class_<SolventMethod, std::shared_ptr<SolventMethod>>(m, "SolventMethod", "An equation of state of water")
+        .def_property_readonly("id", [](const SolventMethod& s) { return s.spec().id; })
+        .def("properties", [](const SolventMethod& s, double T, double P, int state) { return s.properties(T, P, state); },
+             "The properties of the solvent at T [K], P [Pa]. State: 0 liquid, 1 gas", py::arg("T"), py::arg("P"), py::arg("state") = 0)
+        .def("substanceProperties", [](const SolventMethod& s, double T, double P, int state, const std::string& triple) { return s.substanceProperties(T, P, state, triple); },
+             "The properties of water as a substance at T [K], P [Pa]", py::arg("T"), py::arg("P"), py::arg("state") = 0, py::arg("triple") = "NEA_HGK");
+
+    py::class_<DielectricMethod, std::shared_ptr<DielectricMethod>>(m, "DielectricMethod", "A model of the dielectric constant of water")
+        .def_property_readonly("id", [](const DielectricMethod& s) { return s.spec().id; })
+        .def("properties", &DielectricMethod::properties, "The electrochemical properties at T [K], P [Pa], from the properties of the solvent",
+             py::arg("T"), py::arg("P"), py::arg("solvent"), py::arg("state") = 0);
+
+    m.def("solventMethod", [](const std::string& id, const std::string& implementation, const py::dict& parameters) {
+            return std::const_pointer_cast<SolventMethod>(MethodRegistry::instance().createSolvent(makeApplication(id, implementation, parameters)));
+        }, "An equation of state of water, for example solventMethod(\"WaterHGK84\", implementation=\"gems\")",
+        py::arg("id"), py::arg("implementation") = "", py::arg("parameters") = py::dict());
+    m.def("dielectricMethod", [](const std::string& id, const std::string& implementation) {
+            return std::const_pointer_cast<DielectricMethod>(MethodRegistry::instance().createDielectric(makeApplication(id, implementation, py::dict())));
+        }, "A model of the dielectric constant of water", py::arg("id"), py::arg("implementation") = "");
 
     py::class_<SubstanceMethod, std::shared_ptr<SubstanceMethod>>(m, "SubstanceMethod", "A method of a substance, bound to its parameters")
         .def_property_readonly("id", [](const SubstanceMethod& s) { return s.spec().id; })

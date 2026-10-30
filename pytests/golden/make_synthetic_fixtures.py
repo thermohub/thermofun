@@ -145,7 +145,7 @@ FIXTURES = {
     "s13-fluid_peng_robinson78": [gas("CO-pr78", [{**method(13, "fluid_peng_robinson78"), **CRIT}])],
     "s27-water_diel_sverj14": [water(), solute()],
     "s28-water_diel_fern97": [water(), solute()],
-    "s30-water_eos_iapws95_gems": [water([method(30, "water_eos_iapws95_gems")]), solute()],
+    "s30-water_eos_iapws95_gems": [dict(water(), TPMethods=[method(30, "water_eos_iapws95_gems"), method(25, "water_diel_jnort91_reaktoro")]), solute()],
     "s33-water_pvt_zhang_duan05": [water(), solute()],
     "s35-mv_equation_dorogokupets88": [solid("MgCO3-dorogokupets", [{**method(35, "mv_equation_dorogokupets88"), **VOLUME_FPT}])],
     "s36-mv_equation_berman88": [solid("MgCO3-berman-vol", [{**method(36, "mv_equation_berman88"), **VOLUME_FPT}])],

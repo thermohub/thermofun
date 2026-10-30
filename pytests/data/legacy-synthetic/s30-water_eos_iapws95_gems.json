@@ -21,17 +21,12 @@
    "TPMethods": [
     {
      "method": {
-      "31": "water_eos_hgk84_reaktoro"
+      "30": "water_eos_iapws95_gems"
      }
     },
     {
      "method": {
       "25": "water_diel_jnort91_reaktoro"
-     }
-    },
-    {
-     "method": {
-      "30": "water_eos_iapws95_gems"
      }
     }
    ],

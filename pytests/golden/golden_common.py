@@ -72,8 +72,9 @@ def databases():
     """Paths of all databases of the suite: bundled, test databases that load, extra-model database."""
     found = sorted((ROOT / "Resources" / "databases").glob("*.json"))
     for path in sorted((ROOT / "pytests").rglob("*.json")):
-        # the model databases in pytests/data/published are checked against the papers (test_published_models.py)
-        if _rel(path) in NOT_DATABASES or "golden" in path.parts or "published" in path.parts:
+        # the model databases in pytests/data/published are checked against the papers (test_published_models.py);
+        # pytests/data/sources holds values of other codes, for the tests of the methods
+        if _rel(path) in NOT_DATABASES or {"golden", "published", "sources"} & set(path.parts):
             continue
         if _loads(path) is not None:
             found.append(path)

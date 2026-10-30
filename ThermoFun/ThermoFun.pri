@@ -78,6 +78,9 @@
     $$PWD/IO/detail/JsonDetect.h \
     $$PWD/Engine/Binding.h \
     $$PWD/Engine/Executor.h \
+    $$PWD/Engine/Solvent.h \
+    $$PWD/Methods/Water/SolventMethod.h \
+    $$PWD/Methods/Water/WaterMethods.h \
     $$PWD/Methods/MethodSpec.h \
     $$PWD/Methods/Method.h \
     $$PWD/Methods/MethodBase.h \
@@ -183,6 +186,8 @@
     $$PWD/IO/FormatDetect.cpp \
     $$PWD/Engine/Binding.cpp \
     $$PWD/Engine/Executor.cpp \
+    $$PWD/Engine/Solvent.cpp \
+    $$PWD/Methods/Water/WaterMethods.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
     $$PWD/Methods/MethodRegistry.cpp \
     $$PWD/Methods/Evaluate.cpp \

@@ -3,6 +3,8 @@
 
 #include "MethodCatalog.h"
 
+#include <ThermoFun/Methods/Water/WaterZhangDuan2005.h>
+
 #include <algorithm>
 #include <cctype>
 
@@ -291,6 +293,22 @@ auto substanceMethods() -> std::vector<MethodSpec>
                           .alias({"CORK"}).add(interactionParameters())));
 
     // water
+    // the option of the model DEW: the Gibbs energy of water from the volume of Zhang and Duan
+    auto zhangDuanGibbs = [] {
+        std::vector<ParameterSpec> out;
+        auto dew = par("dew_gibbs", "1", "1", "1: the Gibbs energy of the model DEW (P >= 1 kbar)", false);
+        dew.default_si = 0.0;
+        dew.fittable = false;
+        out.push_back(dew);
+        const DewGibbsCoefficients defaults;
+        for (int i = 0; i < 5; ++i)
+        {
+            auto c = par(("g1kb_" + std::to_string(i)).c_str(), "1", "1", "coefficient of G(T, 1 kbar) of DEW, cal/mol, T in degC, the highest power first", false);
+            c.default_si = defaults.g1kb[i];
+            out.push_back(c);
+        }
+        return out;
+    };
     auto waterEoS = [](Spec s) -> Spec
     {
         auto state = par("state", "1", "1", "0: liquid, 1: gas", false);
@@ -304,13 +322,14 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
                              .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"})));
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
-                             .classes(water)));
+                             .classes(water)
+                             .add(zhangDuanGibbs())));
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})));
-    m.push_back(dielectric(Spec("SverjenskyEtAl14", "Dielectric constant of Sverjensky et al.", "Calculates the dielectric constant of water at high pressure (DEW model).", "Sverjensky et al. (2014)")
+    m.push_back(dielectric(Spec("SverjenskyEtAl14", "Dielectric constant of Sverjensky et al.", "Calculates the dielectric constant of water at high pressure (DEW model). The published coefficients are for t in degC and the density in g/cm3.", "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145")
                                .alias({"Sverjensky14Diel"})));
-    m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez et al. (1997)")
+    m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166")
                                .alias({"Fernandez97Diel"})));
 
     std::vector<MethodSpec> out;

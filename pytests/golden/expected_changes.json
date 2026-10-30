@@ -120,6 +120,101 @@
         "BaI2(g)"
       ],
       "reason": "Cp used a9 * T^0 (integer division 1/2 in the exponent) while S, G and H use a9 * sqrt(T). Cp now equals dH/dT (pytests/test_published_models.py). The only bundled record with a9 != 0."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "Al+3"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "Al+3"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "Al+3"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "Al+3"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "Al+3"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s30-water_eos_iapws95_gems",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
     }
   ]
 }
