@@ -3,11 +3,11 @@
 
 #ifndef SOLIDTAITHP11_H
 #define SOLIDTAITHP11_H
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Methods/Minerals/MineralInputs.h>
 
 namespace ThermoFun {
 
-class Substance;
 
 /// Returns the properties of a mineral, corrected for pressure with the Tait equation of state (Holland and Powell, 2011).
 /// It gives the volume and the integral of V dP from the reference pressure.
@@ -19,7 +19,7 @@ class Substance;
 /// @param subst substance with the expansivity alpha0 and the bulk modulus kappa0 (kbar) of the record,
 /// and the coefficients eos_tait_hp11_coeffs: kappa0', kappa0'' (1/kbar), number of atoms in the formula
 /// @param tps properties of the substance at the reference pressure, calculated before with the heat capacity equation
-auto thermoPropertiesMinTaitHP11(real t, real p, Substance subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume = nullptr) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesMinTaitHP11(real t, real p, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume = nullptr) -> ThermoPropertiesSubstanceAD;
 
 }
 

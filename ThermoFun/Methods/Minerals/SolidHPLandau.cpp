@@ -2,20 +2,19 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "SolidHPLandau.h"
-#include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesHPLandau(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* subcritical) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesHPLandau(real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* subcritical) -> ThermoPropertiesSubstanceAD
 {
     real Tcr, Qq;
     Tcr = 0.0; Qq = 0.0;
-    std::vector<double> transProp = subst.thermoParameters().m_landau_phase_trans_props;
+    const auto& transProp = subst.coefficients;
 //    auto (P/1000) = Reaktoro::Pressure (p.val() /1000);  // in kbar
-    auto TrK = subst.referenceT();
+    auto TrK = subst.Tr;
 
     if (transProp.size() < 3)
     {
@@ -24,12 +23,12 @@ auto thermoPropertiesHPLandau(real TK, real Pbar, Substance subst, ThermoPropert
     }
 
     // Parameters of lambda-transition
-    auto Tcr0 = transProp[0];   // given in centigrade
-    auto Smax = transProp[1];
-    auto Vmax = transProp[2];
+    real Tcr0 = transProp[0];   // given in centigrade
+    real Smax = transProp[1];
+    real Vmax = transProp[2];
 
-    auto k298 = subst.thermoParameters().isothermal_compresibility; // This is the bulk modulus k in kbar at 298 K!
-    auto a0 = subst.thermoParameters().isobaric_expansivity*1e-05; // This is the a parameter (at one bar) in 1/K!
+    const real k298 = subst.kappa0; // This is the bulk modulus k in kbar at 298 K!
+    const real a0 = subst.alpha0; // This is the a parameter (at one bar) in 1/K!
 
     if ( Smax <= 0)
         Smax = 1.0e-20;

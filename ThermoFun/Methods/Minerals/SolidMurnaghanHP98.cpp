@@ -2,21 +2,20 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "SolidMurnaghanHP98.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesMinMurnaghanEOSHP98(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesMinMurnaghanEOSHP98(real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume) -> ThermoPropertiesSubstanceAD
 {
-    auto Pst = subst.referenceP() / bar_to_Pa; // in bar
-    auto Tst = subst.referenceT(); // in K
-    auto Vst = Reaktoro_::constant(subst.thermoReferenceProperties().volume); // j/bar
+    auto Pst = subst.Pr / bar_to_Pa; // in bar
+    auto Tst = subst.Tr; // in K
+    auto Vst = real(subst.V); // j/bar
     auto P_Pst = Pbar - Pst;
     auto T_Tst = TK -Tst;
-    auto k0 = subst.thermoParameters().isothermal_compresibility; // bulk modulus k in kbar at 298 K
-    auto a0 = subst.thermoParameters().isobaric_expansivity*1e-05; // in 1/K
+    const real k0 = subst.kappa0; // bulk modulus k in kbar at 298 K
+    const real a0 = subst.alpha0; // in 1/K
 
     if (variableVolume)
         *variableVolume = false;
@@ -27,7 +26,7 @@ auto thermoPropertiesMinMurnaghanEOSHP98(real TK, real Pbar, Substance subst, Th
     auto dv  = tps.volume;
     auto dcp = tps.heat_capacity_cp;
 
-    if ((P_Pst != 0 || T_Tst !=0 ) && fabs(Vst.val()) > 1e-09 && fabs(a0) > 1e-09 && fabs(k0) > 1e-09)
+    if ((P_Pst != 0 || T_Tst !=0 ) && fabs(Vst.val()) > 1e-09 && fabs(a0.val()) > 1e-09 && fabs(k0.val()) > 1e-09)
     {
 //        aW.twp->Alp = a0 * (1. - 10./pow(T,0.5) );  // expansion at T
         auto kap = k0 * ( 1. - (1.5e-4)*(TK-Tst) );

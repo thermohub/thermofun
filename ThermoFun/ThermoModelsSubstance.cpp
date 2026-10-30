@@ -14,12 +14,12 @@
 #include "Methods/Solutes/SoluteADgems.h"
 #include "Methods/Solutes/SoluteHollandPowell98.h"
 #include "Methods/Solutes/SoluteAnderson91.h"
-#include "Substances/Solids/SolidMurnaghanHP98.h"
-#include "Substances/Solids/SolidTaitHP11.h"
-#include "Substances/StandardThermoModelsExtra.h"
-#include "Substances/Solids/SolidBerman88.h"
-#include "Substances/Solids/SolidBMGottschalk.h"
-#include "Substances/Solids/SolidHPLandau.h"
+#include "Methods/Minerals/SolidMurnaghanHP98.h"
+#include "Methods/Minerals/SolidTaitHP11.h"
+#include "Methods/Minerals/StandardThermoModelsExtra.h"
+#include "Methods/Minerals/SolidBerman88.h"
+#include "Methods/Minerals/SolidBMGottschalk.h"
+#include "Methods/Minerals/SolidHPLandau.h"
 
 #include "Substances/Gases/GasCORK.h"
 #include "Substances/Gases/GasPRSV.h"
@@ -134,6 +134,24 @@ static auto soluteReferenceOf(const Substance& substance) -> SoluteReference
 {
     const auto ref = substance.thermoReferenceProperties();
     return {substance.referenceT(), ref.gibbs_energy.val, ref.enthalpy.val, ref.entropy.val, ref.heat_capacity_cp.val, ref.volume.val};
+}
+
+/// The inputs of the formulas of a mineral from a substance
+static auto mineralInputsOf(const Substance& substance, const std::vector<double>& coefficients) -> MineralInputs
+{
+    const auto ref = substance.thermoReferenceProperties();
+    MineralInputs in;
+    in.Tr = substance.referenceT();
+    in.Pr = substance.referenceP();
+    in.G = ref.gibbs_energy.val;
+    in.H = ref.enthalpy.val;
+    in.S = ref.entropy.val;
+    in.Cp = ref.heat_capacity_cp.val;
+    in.V = ref.volume.val;
+    in.alpha0 = substance.thermoParameters().isobaric_expansivity * 1e-05;
+    in.kappa0 = substance.thermoParameters().isothermal_compresibility;
+    in.coefficients.assign(coefficients.begin(), coefficients.end());
+    return in;
 }
 
 static auto realValues(const std::vector<double>& values) -> std::vector<real>
@@ -470,7 +488,7 @@ auto MinTaitHP11::thermoProperties(double T, double P, ThermoPropertiesSubstance
 {
     bool variableVolume = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesMinTaitHP11(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps), &variableVolume);
+        return thermoPropertiesMinTaitHP11(pass.T, pass.P / bar_to_Pa, mineralInputsOf(pimpl->substance, pimpl->substance.thermoParameters().volume_Tait_coeff), lift(pass, tps), &variableVolume);
     });
 
     const auto ref = pimpl->substance.thermoReferenceProperties();
@@ -529,7 +547,7 @@ auto ExtendedUNIQUAC::thermoProperties(double T, double P) -> ThermoPropertiesSu
 {
     bool outsideBounds = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesExtendedUNIQUAC(pass.T, pass.P / bar_to_Pa, pimpl->substance);
+        return thermoPropertiesExtendedUNIQUAC(pass.T, pass.P / bar_to_Pa, mineralInputsOf(pimpl->substance, pimpl->substance.thermoParameters().uniquac_coeff));
     });
     statusCalculated(out, T, P);
     return out;
@@ -556,7 +574,7 @@ auto NasaPolynomials::thermoProperties(double T, double P) -> ThermoPropertiesSu
 {
     bool outsideBounds = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesNasaPolynomials(pass.T, pass.P / bar_to_Pa, pimpl->substance, &outsideBounds);
+        return thermoPropertiesNasaPolynomials(pass.T, pass.P / bar_to_Pa, NasaInputs{pimpl->substance.thermoParameters().nasa_coeff, pimpl->substance.thermoParameters().nasa_temperature_intervals, pimpl->substance.thermoReferenceProperties().volume.val}, &outsideBounds);
     });
     statusCalculated(out, T, P);
     if (outsideBounds)
@@ -585,7 +603,7 @@ auto TPTableInterpolation::thermoProperties(double T, double P) -> ThermoPropert
 {
     bool outsideBounds = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesTPTableInterpolation(pass.T, pass.P / bar_to_Pa, pimpl->substance, &outsideBounds);
+        return thermoPropertiesTPTableInterpolation(pass.T, pass.P / bar_to_Pa, TableInputs{pimpl->substance.thermoParameters().tp_table.temperatures, pimpl->substance.thermoParameters().tp_table.pressures, pimpl->substance.thermoParameters().tp_table.values, pimpl->substance.thermoParameters().tp_table.reference_pressure, pimpl->substance.thermoReferenceProperties().volume.val}, &outsideBounds);
     });
     statusCalculated(out, T, P);
     // properties that the table does not have stay unset
@@ -632,7 +650,7 @@ auto MinMurnaghanEOSHP98::thermoProperties(double T, double P, ThermoPropertiesS
 {
     bool variableVolume = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesMinMurnaghanEOSHP98(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps), &variableVolume);
+        return thermoPropertiesMinMurnaghanEOSHP98(pass.T, pass.P / bar_to_Pa, mineralInputsOf(pimpl->substance, {}), lift(pass, tps), &variableVolume);
     });
 
     const auto ref = pimpl->substance.thermoReferenceProperties();
@@ -685,7 +703,7 @@ auto MinBerman88::thermoProperties(double T, double P, ThermoPropertiesSubstance
 {
     bool applied = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesMinBerman88(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps), &applied);
+        return thermoPropertiesMinBerman88(pass.T, pass.P / bar_to_Pa, mineralInputsOf(pimpl->substance, pimpl->substance.thermoParameters().volume_coeff), lift(pass, tps), &applied);
     });
 
     const auto ref = pimpl->substance.thermoReferenceProperties();
@@ -734,7 +752,7 @@ auto MinBMGottschalk::thermoProperties(double T, double P, ThermoPropertiesSubst
 {
     bool applied = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesMinBMGottschalk(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps), &applied);
+        return thermoPropertiesMinBMGottschalk(pass.T, pass.P / bar_to_Pa, mineralInputsOf(pimpl->substance, pimpl->substance.thermoParameters().volume_BirchM_coeff), lift(pass, tps), &applied);
     });
 
     const auto ref = pimpl->substance.thermoReferenceProperties();
@@ -898,7 +916,7 @@ auto HPLandau::thermoProperties(double T, double P, ThermoPropertiesSubstance tp
 {
     bool subcritical = false;
     auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesHPLandau(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps), &subcritical);
+        return thermoPropertiesHPLandau(pass.T, pass.P / bar_to_Pa, mineralInputsOf(pimpl->substance, pimpl->substance.thermoParameters().m_landau_phase_trans_props), lift(pass, tps), &subcritical);
     });
 
     copyStatus(out, tps);

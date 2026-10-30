@@ -2,10 +2,9 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "SolidBMGottschalk.h"
-#include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoParameters.h"
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
@@ -66,7 +65,7 @@ auto BM_Volume( real P, real vt, real kt0, real kp,
 // calculate the integral vdP using the Birch-Murnaghan EOS
 // this function will be incorporated into GEM-Selektor v.2.1.0 code
 auto BirchMurnaghan( double Pref, real P, double Tref, real T, real v0,
-          std::vector<double> BMConst, real &vv, real &alpha, real &beta,
+          const std::vector<real>& BMConst, real &vv, real &alpha, real &beta,
           real &dG, real &dH, real &dS ) -> void
 {
 real vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
@@ -149,18 +148,18 @@ real vt, /*vpt,*/ a1, a2, a3, /*a4, a5,*/ kt00, kt0, dkdt, kp, kpp, vstart,
 
 
 
-auto thermoPropertiesMinBMGottschalk (real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* applied) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesMinBMGottschalk (real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* applied) -> ThermoPropertiesSubstanceAD
 {
 
-    auto Pst = 0.1*subst.referenceP() / bar_to_Pa; // in bar
-    auto Tst = subst.referenceT(); // in K
-    auto Vst = Reaktoro_::constant(subst.thermoReferenceProperties().volume); // j/bar
+    auto Pst = 0.1*subst.Pr / bar_to_Pa; // in bar
+    auto Tst = subst.Tr; // in K
+    auto Vst = real(subst.V); // j/bar
     real T = TK;
     real P = Pbar; P*=0.1; /*(0.1*Pbar.val());*/ // in bar
     auto P_Pst = P - Pst;
     auto T_Tst = T -Tst;
 
-    auto BMc = subst.thermoParameters().volume_BirchM_coeff;
+    const auto& BMc = subst.coefficients;
     if (BMc.size() < 8)
     {
         errorModelParameters("Birch M.", "BMGottschalk", __LINE__, __FILE__);

@@ -53,10 +53,10 @@
     $$PWD/Methods/Solutes/SoluteHKFgems.h \
     $$PWD/Methods/Solutes/SoluteADgems.h \
 # Substances - Soldis
-    $$PWD/Substances/Solids/SolidMurnaghanHP98.h \
-    $$PWD/Substances/Solids/SolidBerman88.h \
-    $$PWD/Substances/Solids/SolidBMGottschalk.h \
-    $$PWD/Substances/Solids/SolidHPLandau.h \
+    $$PWD/Methods/Minerals/SolidMurnaghanHP98.h \
+    $$PWD/Methods/Minerals/SolidBerman88.h \
+    $$PWD/Methods/Minerals/SolidBMGottschalk.h \
+    $$PWD/Methods/Minerals/SolidHPLandau.h \
 # Substances - Gases
     $$PWD/Substances/Gases/GasCORK.h \
     $$PWD/Substances/Gases/GasPRSV.h \
@@ -165,10 +165,10 @@
     $$PWD/Methods/Solutes/SoluteHKFgems.cpp \
     $$PWD/Methods/Solutes/SoluteADgems.cpp \
 # Substances - Solids
-    $$PWD/Substances/Solids/SolidMurnaghanHP98.cpp \
-    $$PWD/Substances/Solids/SolidBMGottschalk.cpp \
-    $$PWD/Substances/Solids/SolidBerman88.cpp \
-    $$PWD/Substances/Solids/SolidHPLandau.cpp \
+    $$PWD/Methods/Minerals/SolidMurnaghanHP98.cpp \
+    $$PWD/Methods/Minerals/SolidBMGottschalk.cpp \
+    $$PWD/Methods/Minerals/SolidBerman88.cpp \
+    $$PWD/Methods/Minerals/SolidHPLandau.cpp \
 # Substances - Gases
     $$PWD/Substances/Gases/GasCORK.cpp \
     $$PWD/Substances/Gases/GasPRSV.cpp \

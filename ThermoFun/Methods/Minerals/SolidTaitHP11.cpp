@@ -2,23 +2,21 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "SolidTaitHP11.h"
-#include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesMinTaitHP11(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesMinTaitHP11(real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume) -> ThermoPropertiesSubstanceAD
 {
-    const auto Pr = subst.referenceP() / bar_to_Pa; // bar
-    const auto Tr = subst.referenceT();              // K
-    const auto ref = subst.thermoReferenceProperties();
-    const auto Vr = Reaktoro_::constant(ref.volume); // J/bar
-    const auto Sr = Reaktoro_::constant(ref.entropy); // J/(mol K)
-    const auto alpha0 = subst.thermoParameters().isobaric_expansivity * 1e-05; // 1/K
-    const auto k0 = subst.thermoParameters().isothermal_compresibility * 1000.0; // bulk modulus, bar
-    const auto& c = subst.thermoParameters().volume_Tait_coeff;
+    const auto Pr = subst.Pr / bar_to_Pa; // bar
+    const auto Tr = subst.Tr;              // K
+        const auto Vr = real(subst.V); // J/bar
+    const auto Sr = real(subst.S); // J/(mol K)
+    const auto alpha0 = subst.alpha0; // 1/K
+    const auto k0 = subst.kappa0 * 1000.0; // bulk modulus, bar
+    const auto& c = subst.coefficients;
 
     if (variableVolume)
         *variableVolume = false;
@@ -37,24 +35,24 @@ auto thermoPropertiesMinTaitHP11(real TK, real Pbar, Substance subst, ThermoProp
     if (c.size() < 3)
         errorModelParameters("three coefficients (kappa0', kappa0'', number of atoms)", "Tait Holland and Powell 2011", __LINE__, __FILE__);
 
-    const double kp  = c[0];          // kappa0'
-    const double kpp = c[1] / 1000.0; // kappa0'', 1/bar
-    const double numatoms = c[2];
+    const real kp  = c[0];          // kappa0'
+    const real kpp = c[1] / 1000.0; // kappa0'', 1/bar
+    const real numatoms = c[2];
 
     // eq. (3) of Holland and Powell (2011)
-    const double ka = (1 + kp) / (1 + kp + k0 * kpp);
-    const double kb = kp / k0 - kpp / (1 + kp);
-    const double kc = (1 + kp + k0 * kpp) / (kp * (1 + kp) - k0 * kpp);
+    const real ka = (1 + kp) / (1 + kp + k0 * kpp);
+    const real kb = kp / k0 - kpp / (1 + kp);
+    const real kc = (1 + kp + k0 * kpp) / (kp * (1 + kp) - k0 * kpp);
 
     // Einstein temperature (Holland and Powell 2011, p. 346)
-    const double theta = 10636.0 / (Sr.val() / numatoms + 6.44);
+    const real theta = 10636.0 / (Sr.val() / numatoms + 6.44);
 
     const real u  = theta / TK;
-    const double u0 = theta / Tr;
+    const real u0 = theta / Tr;
     const real eu = exp(u);
-    const double eu0 = std::exp(u0);
+    const real eu0 = exp(u0);
     const real E  = (u / (eu - 1)) * (u / (eu - 1)) * eu;
-    const double E0 = (u0 / (eu0 - 1)) * (u0 / (eu0 - 1)) * eu0;
+    const real E0 = (u0 / (eu0 - 1)) * (u0 / (eu0 - 1)) * eu0;
 
     // thermal pressure and its first two temperature derivatives
     const real Pth   = alpha0 * k0 * (theta / E0) * (1 / (eu - 1) - 1 / (eu0 - 1));

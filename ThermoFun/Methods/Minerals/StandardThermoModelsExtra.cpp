@@ -2,10 +2,9 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "StandardThermoModelsExtra.h"
-#include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 #include <algorithm>
 
 namespace ThermoFun {
@@ -13,21 +12,20 @@ namespace ThermoFun {
 //-------------------------------------------------------------------------------------------------------
 // Extended UNIQUAC
 //-------------------------------------------------------------------------------------------------------
-auto thermoPropertiesExtendedUNIQUAC(real T, real Pbar, Substance subst) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesExtendedUNIQUAC(real T, real Pbar, const MineralInputs& subst) -> ThermoPropertiesSubstanceAD
 {
-    const auto& cf = subst.thermoParameters().uniquac_coeff;
+    const auto& cf = subst.coefficients;
     if (cf.size() < 5)
         errorModelParameters("coefficients a, b, c, alpha, beta (Theta optional)", "Extended UNIQUAC", __LINE__, __FILE__);
 
-    const double a = cf[0], b = cf[1], c = cf[2], alpha = cf[3], beta = cf[4];
-    const double Theta = (cf.size() > 5 && cf[5] != 0.0) ? cf[5] : 200.0;
+    const real a = cf[0], b = cf[1], c = cf[2], alpha = cf[3], beta = cf[4];
+    const real Theta = (cf.size() > 5 && cf[5] != 0.0) ? cf[5] : real(200.0);
 
-    const auto ref = subst.thermoReferenceProperties();
-    const double Tr = subst.referenceT();
-    const double Pr = subst.referenceP() / bar_to_Pa; // bar
-    const double Gr = Reaktoro_::constant(ref.gibbs_energy).val();
-    const double Hr = Reaktoro_::constant(ref.enthalpy).val();
-    const double Vr = Reaktoro_::constant(ref.volume).val();
+    const double Tr = subst.Tr;
+    const double Pr = subst.Pr / bar_to_Pa; // bar
+    const double Gr = subst.G;
+    const double Hr = subst.H;
+    const double Vr = subst.V;
     // the heat capacity has a pole at Theta: T and the reference T must be on the same side, above it
     if (T.val() <= Theta || Tr <= Theta)
         errorModelParameters("temperature and reference temperature above Theta", "Extended UNIQUAC", __LINE__, __FILE__);
@@ -59,10 +57,10 @@ auto thermoPropertiesExtendedUNIQUAC(real T, real Pbar, Substance subst) -> Ther
 //-------------------------------------------------------------------------------------------------------
 // NASA polynomials
 //-------------------------------------------------------------------------------------------------------
-auto thermoPropertiesNasaPolynomials(real T, real Pbar, Substance subst, bool* outsideBounds) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesNasaPolynomials(real T, real Pbar, const NasaInputs& subst, bool* outsideBounds) -> ThermoPropertiesSubstanceAD
 {
-    const auto& rows = subst.thermoParameters().nasa_coeff;
-    const auto& intervals = subst.thermoParameters().nasa_temperature_intervals;
+    const auto& rows = subst.rows;
+    const auto& intervals = subst.intervals;
     if (rows.empty() || rows.size() != intervals.size())
         errorModelParameters("at least one interval with nine coefficients", "NASA polynomials", __LINE__, __FILE__);
 
@@ -102,7 +100,7 @@ auto thermoPropertiesNasaPolynomials(real T, real Pbar, Substance subst, bool* o
     out.enthalpy = (-a1 / T2 + a2 * lnT / T + a3 + a4 * T / 2.0 + a5 * T2 / 3.0 + a6 * T3 / 4.0 + a7 * T4 / 5.0 + b1 / T) * R * T;
     out.entropy  = (-a1 / T2 * 0.5 - a2 / T + a3 * lnT + a4 * T + a5 * T2 / 2.0 + a6 * T3 / 3.0 + a7 * T4 / 4.0 + b2) * R;
     out.gibbs_energy = out.enthalpy - T * out.entropy;
-    out.volume = Reaktoro_::constant(subst.thermoReferenceProperties().volume);
+    out.volume = real(subst.V);
     out.internal_energy  = out.enthalpy - Pbar * out.volume;
     out.helmholtz_energy = out.internal_energy - T * out.entropy;
     return out;
@@ -146,9 +144,8 @@ auto bilinear(const std::vector<double>& xs, const std::vector<double>& ys, cons
 
 }
 
-auto thermoPropertiesTPTableInterpolation(real T, real Pbar, Substance subst, bool* outsideBounds) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesTPTableInterpolation(real T, real Pbar, const TableInputs& tb, bool* outsideBounds) -> ThermoPropertiesSubstanceAD
 {
-    const auto& tb = subst.thermoParameters().tp_table;
     if (tb.temperatures.empty() || tb.pressures.empty())
         errorModelParameters("temperatures and pressures of the table", "T,P table interpolation", __LINE__, __FILE__);
     const size_t n = tb.temperatures.size() * tb.pressures.size();
@@ -184,7 +181,7 @@ auto thermoPropertiesTPTableInterpolation(real T, real Pbar, Substance subst, bo
     const bool hasV = get("volume", V);
     const bool hasCp = get("heat_capacity_cp", Cp);
     if (!hasV)
-        V = Reaktoro_::constant(subst.thermoReferenceProperties().volume) / bar_to_Pa; // J/bar -> m3/mol
+        V = real(tb.V) / bar_to_Pa; // J/bar -> m3/mol
 
     // volume in J/bar: the table has m3/mol (volume is multiplied by the reference pressure of the table)
     const double Pref = tb.reference_pressure > 0.0 ? tb.reference_pressure : 1e5;

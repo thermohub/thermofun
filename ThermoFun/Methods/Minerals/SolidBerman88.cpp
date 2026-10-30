@@ -2,23 +2,22 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "SolidBerman88.h"
-#include "Common/Exception.h"
-#include "Substance.h"
-#include "ThermoProperties.h"
-#include "ThermoParameters.h"
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesMinBerman88(real TK, real Pbar, Substance subst, ThermoPropertiesSubstanceAD tps, bool* applied) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesMinBerman88(real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* applied) -> ThermoPropertiesSubstanceAD
 {
-    auto Pst = subst.referenceP() / bar_to_Pa; // in bar
-    auto Tst = subst.referenceT(); // in K
-    auto Vst = Reaktoro_::constant(subst.thermoReferenceProperties().volume); // j/bar
+    auto Pst = subst.Pr / bar_to_Pa; // in bar
+    auto Tst = subst.Tr; // in K
+    auto Vst = real(subst.V); // j/bar
     auto T   = TK;
     auto P   = Pbar; // in bar
     auto Ts2   = (T-Tst)*(T-Tst); // the square of the temperature difference
 
-    auto vc = subst.thermoParameters().volume_coeff;
+    const auto& vc = subst.coefficients;
 
     if (vc.size() != 5)
     {
