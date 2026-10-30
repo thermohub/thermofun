@@ -4,6 +4,7 @@
 #include "MethodRegistry.h"
 
 #include <initializer_list>
+#include <type_traits>
 #include <vector>
 
 #include <ThermoFun/Common/Exception.h>
@@ -12,6 +13,7 @@
 #include <ThermoFun/Methods/Minerals/ConstantVolume.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
 #include <ThermoFun/Methods/Minerals/IdealGas.h>
+#include <ThermoFun/Methods/Minerals/MineralMethods.h>
 #include <ThermoFun/Conventions/HydrogenIon.h>
 #include <ThermoFun/Methods/Solutes/SoluteMethods.h>
 #include <ThermoFun/Methods/Water/WaterMethods.h>
@@ -27,6 +29,33 @@ MethodRegistry::MethodRegistry()
     add("CpPolynomial", "", [](A a, R r) { return std::make_shared<const CpPolynomial>(CpPolynomial::fromApplication(a, r.symbol)); });
     add("ConstantVolume", "", [](A, R) { return std::make_shared<const ConstantVolume>(); });
     add("IdealGas", "", [](A, R r) { return std::make_shared<const IdealGas>(r.class_ == SubstanceClass::GasFluid); });
+
+    // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
+    auto mineral = [this](auto kind, const char* id, std::initializer_list<const char*> names) {
+        using Method = typename decltype(kind)::type;
+        add(id, "", [names = std::vector<const char*>(names)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+            std::vector<double> values;
+            bool any = false;
+            for (const char* n : names)
+            {
+                const auto it = a.parameters.find(n);
+                any = any || it != a.parameters.end();
+                values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
+            }
+            auto value = [&](const char* n) { const auto it = a.parameters.find(n); return it == a.parameters.end() ? 0.0 : it->second.value; };
+            return std::make_shared<const Method>(any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability);
+        });
+    };
+    mineral(std::type_identity<LandauHP98>{}, "LandauHP98", {"Tc0", "Smax", "Vmax"});
+    mineral(std::type_identity<LandauHP11>{}, "LandauHP11", {"Tc0", "Smax", "Vmax"});
+    mineral(std::type_identity<MurnaghanHP98>{}, "MurnaghanHP98", {});
+    mineral(std::type_identity<TaitHP11>{}, "TaitHP11", {"kappa0p", "kappa0pp", "n_atoms"});
+    mineral(std::type_identity<VolumeBerman88>{}, "VolumeBerman88", {"a1", "a2", "a3", "b1", "b2"});
+    mineral(std::type_identity<VolumeDorogokupets88>{}, "VolumeDorogokupets88", {"a1", "a2", "a3", "b1", "b2"});
+    mineral(std::type_identity<BirchMurnaghan47>{}, "BirchMurnaghan47", {"a1", "a2", "a3", "", "", "kt00", "dkdt", "kp", "kpp"});
+    mineral(std::type_identity<CpExtendedUNIQUAC>{}, "CpExtendedUNIQUAC", {"a", "b", "c", "alpha", "beta", "Theta"});
+    add("NASA9", "", [](A a, R) { return std::make_shared<const NASA9>(a); });
+    add("TPTable", "", [](A a, R) { return std::make_shared<const TPTable>(a); });
 
     // the parameters in the order of the catalog; none if the record gives none
     auto parametersOf = [](A a, std::initializer_list<const char*> names) {

@@ -30,6 +30,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The parser read an uninitialised value when a substance has no `mass_per_mole` (or an element no entropy).
 - `water_eos_iapws95_gems` in legacy files was ignored, so water gave no values. It is now read as IAPWS-95 (the Reaktoro
   code, as there is no GEMS code), with a warning.
+- The status of Cv of a T, P table without Cp was `calculated`, with the value 0. It is now not defined.
 - The Zhang and Duan (2005) water model now stops at 2000 K, the limit of the paper (it was 2273.15 K).
 - The Cp polynomial used `a9` without the factor `sqrt(T)`, because of an integer division. Only `BaI2(g)` of heracles has this term.
 - Cached results no longer depend on the calculation order. The reactants of a reaction-defined substance are
@@ -63,6 +64,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `AndersonEtAl91`, `AkinfievDiamond03`. A method alone takes the state of the solvent, and gives its derivatives with
   respect to each parameter.
 - The hydrogen ion is found by its class, formula and charge, not by the symbol.
+- The mineral and table methods are method objects: `LandauHP98`, `MurnaghanHP98`, `TaitHP11`, `VolumeBerman88`,
+  `VolumeDorogokupets88`, `BirchMurnaghan47`, `CpExtendedUNIQUAC`, `NASA9`, `TPTable`.
+- New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of

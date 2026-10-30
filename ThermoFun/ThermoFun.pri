@@ -82,6 +82,10 @@
     $$PWD/Conventions/HydrogenIon.h \
     $$PWD/Methods/Solutes/SoluteInputs.h \
     $$PWD/Methods/Solutes/SoluteMethods.h \
+    $$PWD/Methods/MethodHelpers.h \
+    $$PWD/Methods/Minerals/MineralInputs.h \
+    $$PWD/Methods/Minerals/MineralMethods.h \
+    $$PWD/Methods/Minerals/SolidLandauHP11.h \
     $$PWD/Methods/Water/SolventMethod.h \
     $$PWD/Methods/Water/WaterMethods.h \
     $$PWD/Methods/MethodSpec.h \
@@ -191,6 +195,8 @@
     $$PWD/Engine/Executor.cpp \
     $$PWD/Engine/Solvent.cpp \
     $$PWD/Methods/Solutes/SoluteMethods.cpp \
+    $$PWD/Methods/Minerals/MineralMethods.cpp \
+    $$PWD/Methods/Minerals/SolidLandauHP11.cpp \
     $$PWD/Methods/Water/WaterMethods.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
     $$PWD/Methods/MethodRegistry.cpp \

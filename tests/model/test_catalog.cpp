@@ -19,7 +19,7 @@ namespace {
 const std::vector<std::string> substanceIds = {
     "ConstantProperties", "CpPolynomial", "CpFeiSaxena86", "ConstantCp", "CpExtendedUNIQUAC", "NASA9", "TPTable",
     "HKF88", "AkinfievDiamond03", "SoluteHP98", "AndersonEtAl91",
-    "LandauHP98", "LambdaBerman88", "ConstantVolume", "VolumeBerman88", "VolumeDorogokupets88", "BirchMurnaghan47",
+    "LandauHP98", "LandauHP11", "LambdaBerman88", "ConstantVolume", "VolumeBerman88", "VolumeDorogokupets88", "BirchMurnaghan47",
     "MurnaghanHP98", "TaitHP11",
     "IdealGas", "PRSV86", "ChurakovGottschalk03", "SoaveRedlichKwong72", "SternerPitzer94", "PengRobinson78", "CorkHP91",
     "WaterHGK84", "WaterIAPWS95", "WaterZhangDuan05", "JohnsonNorton91", "SverjenskyEtAl14", "FernandezEtAl97"};

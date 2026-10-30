@@ -215,6 +215,51 @@
         "H2O@"
       ],
       "reason": "Decision of the maintainer (check-later item 7): the legacy name water_eos_iapws95_gems was ignored, so water gave no values. It is now read as WaterIAPWS95 of Reaktoro, as there is no GEMS code."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "IG"
+      ],
+      "reason": "The status of Cv of a table without Cp was calculated, with the value 0: nothing calculates it. It is now not defined."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "IG"
+      ],
+      "reason": "The status of Cv of a table without Cp was calculated, with the value 0: nothing calculates it. It is now not defined."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "IG"
+      ],
+      "reason": "The status of Cv of a table without Cp was calculated, with the value 0: nothing calculates it. It is now not defined."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "IG"
+      ],
+      "reason": "The status of Cv of a table without Cp was calculated, with the value 0: nothing calculates it. It is now not defined."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "IG"
+      ],
+      "reason": "The status of Cv of a table without Cp was calculated, with the value 0: nothing calculates it. It is now not defined."
     }
   ]
 }

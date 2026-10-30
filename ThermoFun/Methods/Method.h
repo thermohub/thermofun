@@ -119,6 +119,7 @@ struct SubstanceInputs
 struct InfoInputs
 {
     double T = 0.0, P = 0.0, Tr = 298.15, Pr = 1e5;
+    double Vr = 0.0;       ///< the reference volume, J/bar
     bool outside = false;  ///< the method used a value outside its range
     SubstanceOptions options{};
     const SolventInputs* solvent = nullptr;  ///< set if a method of the record needs it

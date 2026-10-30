@@ -7,6 +7,7 @@
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Methods/MethodHelpers.h>
 #include <ThermoFun/Methods/Solutes/SoluteADgems.h>
 #include <ThermoFun/Methods/Solutes/SoluteAnderson91.h>
 #include <ThermoFun/Methods/Solutes/SoluteHKFgems.h>
@@ -17,8 +18,6 @@ namespace ThermoFun::v2 {
 
 namespace {
 
-constexpr double jPerBarToM3 = 1e-5;
-
 // From the SI values of the catalog to the units of the HKF formulas (cal, bar)
 const double hkfFactor[] = {bar_to_Pa / cal_to_J, 1.0 / cal_to_J, bar_to_Pa / cal_to_J, 1.0 / cal_to_J,
                             1.0 / cal_to_J, 1.0 / cal_to_J, 1.0 / cal_to_J};
@@ -26,35 +25,11 @@ const double hkfFactor[] = {bar_to_Pa / cal_to_J, 1.0 / cal_to_J, bar_to_Pa / ca
 // From the SI values of the catalog to the units of the Akinfiev and Diamond formulas (cm3/g)
 const double adFactor[] = {1.0, 1e3, 1e3};
 
-// These methods work with the derivatives of the solvent of the pass, so they have no pass with plain numbers.
-[[noreturn]] auto needsAPass(const std::string& id) -> void
-{
-    funError("Cannot run the method " + id, "It needs the state of the solvent, which exists only in a pass with derivatives.", __LINE__, __FILE__);
-}
-
 template <typename Scalar>
 auto requireSolvent(const SubstanceInputs<Scalar>& in, const char* id, bool atReference = false) -> void
 {
     if (!in.solvent || (atReference && !in.solvent_at_reference))
         funError("Cannot run the method " + std::string(id), "It needs the state of the solvent, and none is given.", __LINE__, __FILE__);
-}
-
-auto infoOf(const Reaktoro_::ThermoScalar& x) -> ValueInfo
-{
-    ValueInfo out;
-    out.status = x.sta.first == Reaktoro_::Status::notdefined ? ValueInfo::Status::NotDefined : ValueInfo::Status::Calculated;
-    out.err = x.err;
-    return out;
-}
-
-template <typename Scalar>
-auto setFromModel(SubstanceState<Scalar>& state, const ThermoPropertiesSubstanceAD& tps) -> void
-{
-    state.G = tps.gibbs_energy;
-    state.H = tps.enthalpy;
-    state.S = tps.entropy;
-    state.Cp = tps.heat_capacity_cp;
-    state.V = tps.volume * jPerBarToM3;
 }
 
 template <typename Method, typename Scalar>
@@ -76,34 +51,6 @@ auto soluteReference(const SubstanceInputs<Scalar>& in) -> SoluteReference
 {
     auto value = [](const std::optional<Scalar>& x) { return x ? (*x)[0] : 0.0; };
     return {in.reference.T, value(in.reference.G), value(in.reference.H), value(in.reference.S), value(in.reference.Cp), value(in.reference.V) / jPerBarToM3};
-}
-
-// The status and the message of a point outside a range: all properties are calculated, with the message
-auto setMessage(PropertiesInfo& out, const std::string& message) -> void
-{
-    for (auto* x : {&out.G, &out.H, &out.S, &out.Cp, &out.V})
-    {
-        x->status = ValueInfo::Status::Calculated;
-        x->message = message;
-    }
-}
-
-auto boundsMessage(const std::string& model, const Applicability& a, double T, double P) -> std::string
-{
-    const double tMin = a.t_min.value_or(-1e300), tMax = a.t_max.value_or(1e300), pMin = a.p_min.value_or(-1e300), pMax = a.p_max.value_or(1e300);
-    if (pMax >= P && tMax >= T && pMin <= P && tMin <= T)
-        return "";
-    return model + ": out of T(" + std::to_string(tMin) + "-" + std::to_string(tMax) + " K) and P(" + std::to_string(pMin) + "-" + std::to_string(pMax) + " Pa) bounds";
-}
-
-// A method that gives all properties as calculated, with no error
-auto allCalculated(PropertiesInfo& out) -> void
-{
-    for (auto* x : {&out.G, &out.H, &out.S, &out.Cp, &out.V})
-    {
-        x->status = ValueInfo::Status::Calculated;
-        x->err = 0.0;
-    }
 }
 
 } // namespace
@@ -235,12 +182,7 @@ auto AkinfievDiamond03::compute(SubstanceState<Scalar>& state, const SubstanceIn
         std::vector<Scalar> parameters;
         for (std::size_t i = 0; i < values_.size(); ++i)
             parameters.push_back(this->parameter(i, in) * adFactor[i]);
-        ThermoPropertiesSubstanceAD incoming;
-        incoming.gibbs_energy = state.G;
-        incoming.enthalpy = state.H;
-        incoming.entropy = state.S;
-        incoming.heat_capacity_cp = state.Cp;
-        incoming.volume = state.V / jPerBarToM3;
+        const auto incoming = toModel(state);
         const auto& s = *in.solvent;
         const auto& r = *in.solvent_at_reference;
         setFromModel(state, thermoPropertiesAqSoluteAD(in.T, in.P / bar_to_Pa, parameters, symbol_, incoming, s.water, s.ideal_gas_water, s.properties, r.water, r.ideal_gas_water, r.properties));

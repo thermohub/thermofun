@@ -74,7 +74,7 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
     {
         method->apply(a, wrtT);
         method->apply(b, wrtP);
-        method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, a.outside_range, options, solvent});
+        method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, bound.reference.V.value_or(0.0) * 1e5, a.outside_range, options, solvent});
         if (steps)
             steps->push_back({method->spec().id, combine(a, b)});
     }

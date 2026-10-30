@@ -235,6 +235,10 @@ auto substanceMethods() -> std::vector<MethodSpec>
                     .add({par("Tc0", "K", "Cel", "critical temperature at 1 bar"), par("Smax", "J/(mol.K)", "J/(mol.K)", "maximum entropy of the transition"),
                           par("Vmax", "m3/mol", "J/(mol.bar)", "maximum volume of the transition")})
                     .add(expansionAndBulkModulus(false)));
+    m.push_back(Spec("LandauHP11", "Landau transition of Holland and Powell (2011)", "Adds the Landau term of a phase transition to G, H, S, Cp and V, with the order parameter at the reference state.", "Holland and Powell (2011)")
+                    .alias({"HP11Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 150).classes(minerals)
+                    .add({par("Tc0", "K", "Cel", "critical temperature at the reference pressure"), par("Smax", "J/(mol.K)", "J/(mol.K)", "maximum entropy of the transition"),
+                          par("Vmax", "m3/mol", "J/(mol.bar)", "maximum volume of the transition")}));
     m.push_back(Spec("LambdaBerman88", "Lambda transition of Berman", "Adds the lambda transition of Berman.", "Berman (1988)")
                     .alias({"Berman88Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::None, 100).classes(minerals).notImplemented());
     m.push_back(Spec("ConstantVolume", "Constant molar volume", "Adds V dP to G and H, with the reference volume.")
