@@ -38,6 +38,8 @@ public:
     template <typename Scalar>
     auto compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void;
 
+    auto info(PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in) const -> void override;
+
 private:
     std::vector<std::pair<double, double>> intervals_;
     std::vector<PhaseTransition> transitions_;

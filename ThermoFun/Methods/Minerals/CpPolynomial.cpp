@@ -60,6 +60,33 @@ auto CpPolynomial::segmentOf(double T, bool warn, bool& outside) const -> int
     return -1;
 }
 
+auto CpPolynomial::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
+{
+    const double T = in.T, Tr = in.Tr;
+    out.G.propagateFrom(ref.G, ref.S);
+    out.G.setError({{1.0, ref.G.err}, {T - Tr, ref.S.err}});
+    out.H.propagateFrom(ref.H);
+    out.S.propagateFrom(ref.S);
+    out.Cp.status = ValueInfo::Status::Calculated;
+    out.Cp.err = 0.0;
+    if (values_.empty())  // the constant reference value: its error goes on
+    {
+        out.Cp = ref.Cp;
+        out.G.setError({{1.0, ref.G.err}, {T - Tr, ref.S.err}, {T * std::log(T / Tr) - (T - Tr), ref.Cp.err}});
+        out.H.setError({{1.0, ref.H.err}, {T - Tr, ref.Cp.err}});
+        out.S.setError({{1.0, ref.S.err}, {std::log(T / Tr), ref.Cp.err}});
+    }
+    out.V = ValueInfo{};
+    out.V.status = ValueInfo::Status::Assigned;
+    if (in.outside)
+    {
+        const std::string message = "Empirical Cp integration: Outside temperature bounds; ";
+        for (ValueInfo* v : {&out.G, &out.H, &out.S, &out.Cp})
+            if (v->status == ValueInfo::Status::Calculated)
+                v->message += message;
+    }
+}
+
 template <typename Scalar>
 auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void
 {
@@ -105,7 +132,7 @@ auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<
         return;
     }
 
-    const std::string what = name_ + " Cp polynomial";
+    const std::string what = name_ + " empirical Cp integration";
     if (intervals_.empty() || !std::isfinite(T0))
     {
         errorModelParameters("Cp temperature intervals", what, __LINE__, __FILE__);

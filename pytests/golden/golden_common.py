@@ -11,6 +11,7 @@ This module uses only the Python API that exists in ThermoFun 0.7.3.
 import hashlib
 import math
 import pathlib
+import sys
 
 try:
     import thermofun
@@ -296,21 +297,37 @@ def select_subset(db_path):
     return {"substances": sorted(substances), "reactions": sorted(reactions)}
 
 
-def _isclose(got, exp, rel_tol):
+def _isclose(got, exp, rel_tol, margin=0.0):
     if isinstance(exp, float) and math.isnan(exp):
         return isinstance(got, float) and math.isnan(got)
     if math.isinf(exp) or math.isinf(got):
         return got == exp
-    return math.isclose(got, exp, rel_tol=rel_tol, abs_tol=rel_tol * max(abs(exp), 1.0))
+    return math.isclose(got, exp, rel_tol=rel_tol, abs_tol=rel_tol * max(abs(exp), 1.0) + margin)
 
 
-def _compare_points(kind, record, prop, exp_list, got_list, grid, rel_tol, diffs):
+# The energies that contain the term P*V. V is in m3 on the way to the result, so it can differ by one ulp from the V
+# in J/bar of the baseline. Where the energy and P*V nearly cancel, this ulp is large compared with the energy.
+ENERGIES_WITH_PV = {"gibbs_energy", "enthalpy", "internal_energy", "helmholtz_energy"}
+
+
+def _pv_margins(prop, record, points):
+    """For each point, two ulps of the term P*V of this record, as the margin of the value of an energy."""
+    if prop not in ENERGIES_WITH_PV or "volume" not in record:
+        return [0.0] * len(points)
+    margins = []
+    for (_, p), volume in zip(points, record["volume"]):
+        margins.append(0.0 if isinstance(volume, dict) else 2 * sys.float_info.epsilon * abs(p / 1e5 * volume[0]))
+    return margins
+
+
+def _compare_points(kind, record, prop, exp_list, got_list, grid, rel_tol, diffs, margins=None):
     points = _grid(grid["T"], grid["P"])
+    margins = margins or [0.0] * len(points)
     if len(exp_list) != len(got_list):
         diffs.append({"kind": kind, "record": record, "property": prop, "field": "length",
                       "T": None, "P": None, "expected": len(exp_list), "got": len(got_list), "rel": None})
         return
-    for (t, p), e, g in zip(points, exp_list, got_list):
+    for (t, p), e, g, margin in zip(points, exp_list, got_list, margins):
         if isinstance(e, dict) or isinstance(g, dict):
             if e != g:
                 diffs.append({"kind": kind, "record": record, "property": prop, "field": "error",
@@ -320,7 +337,7 @@ def _compare_points(kind, record, prop, exp_list, got_list, grid, rel_tol, diffs
             if name == "sta":
                 same = ev == gv
             else:
-                same = _isclose(gv, ev, rel_tol)
+                same = _isclose(gv, ev, rel_tol, margin if name == "val" else 0.0)
             if not same:
                 rel = None
                 if name != "sta" and ev != 0:
@@ -349,7 +366,8 @@ def compare(expected, got, rel_tol):
                                   "T": None, "P": None, "expected": prop in e_rec, "got": prop in g_rec,
                                   "rel": None})
                     continue
-                _compare_points(kind, record, prop, e_rec[prop], g_rec[prop], expected["grid"], rel_tol, diffs)
+                margins = _pv_margins(prop, e_rec, _grid(expected["grid"]["T"], expected["grid"]["P"]))
+                _compare_points(kind, record, prop, e_rec[prop], g_rec[prop], expected["grid"], rel_tol, diffs, margins)
     return diffs
 
 

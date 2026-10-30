@@ -24,6 +24,8 @@ public:
         state.Cp = r.Cp.value_or(Scalar(0.0));
         state.V = r.V.value_or(Scalar(0.0));
     }
+
+    auto info(PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs&) const -> void override { out = reference; }
 };
 
 } // namespace ThermoFun::v2

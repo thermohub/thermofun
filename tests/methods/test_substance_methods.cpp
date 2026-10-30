@@ -5,6 +5,7 @@
 // parameter derivatives, withParameter and the declared effects. Then each method against the old model on every
 // bundled record that uses it.
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -12,12 +13,15 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Engine/Executor.h"
 #include "IO/Legacy/LegacyReader.h"
 #include "Methods/Evaluate.h"
 #include "Methods/MethodRegistry.h"
 #include "Methods/Minerals/ConstantCp.h"
 #include "Methods/Minerals/ConstantProperties.h"
+#include "Methods/Minerals/ConstantVolume.h"
 #include "Methods/Minerals/CpPolynomial.h"
+#include "Methods/Minerals/IdealGas.h"
 #include "Substance.h"
 #include "ThermoModelsSubstance.h"
 #include "check.h"
@@ -163,6 +167,39 @@ void testCpPolynomial()
 }
 
 // The effects that a specification declares are what the method does
+void testVolumeMethods()
+{
+    const auto r = reference();
+    // constant volume: V dP on G and H
+    SubstanceState<double> s;
+    s.G = -1e6; s.H = -1.1e6; s.S = 100.0;
+    ReferenceState<double> ref = r;
+    SubstanceInputs<double> in{500.0, 1e7, ref};
+    ConstantVolume().apply(s, in);
+    const double dV = 3.6934e-5 * (1e7 - 1e5);
+    CHECK(s.V == 3.6934e-5 && s.G == -1e6 + dV && s.H == -1.1e6 + dV && s.S == 100.0);
+    // no reference volume: it does nothing
+    ref.V.reset();
+    SubstanceState<double> t;
+    t.G = 5.0;
+    ConstantVolume().apply(t, in);
+    CHECK(t.G == 5.0 && t.V == 0.0);
+    // ideal gas: V = RT/P of a gas, no change of G and H unless the correction is on
+    SubstanceState<double> g;
+    g.G = 5.0;
+    IdealGas(true).apply(g, in);
+    CHECK(near(g.V, 8.31451 * 500.0 / 1e7, 1e-14) && g.G == 5.0);
+    in.options.apply_pressure_correction = true;
+    SubstanceState<double> c;
+    c.G = 5.0;
+    IdealGas(true).apply(c, in);
+    CHECK(near(c.G, 5.0 + 8.31451 * 500.0 / 1e7 * (1e7 - 1e5), 1e-13));
+    // not a gas: the volume is not touched
+    SubstanceState<double> n;
+    IdealGas(false).apply(n, in);
+    CHECK(n.V == 0.0);
+}
+
 void testEffects()
 {
     const auto r = reference();
@@ -216,7 +253,116 @@ auto referenceOf(const SubstanceRecord& s) -> ReferenceValues
     return r;
 }
 
+// Stand-ins for corrections: each one adds its id to G as a digit, so the value of G shows the order
+template <int Digit>
+class Stand final : public SubstanceMethod
+{
+public:
+    explicit Stand(const char* id) : spec_(*MethodCatalog::instance().find(id)) {}
+    auto spec() const -> const MethodSpec& override { return spec_; }
+    auto apply(SubstanceState<double>& s, const SubstanceInputs<double>&) const -> void override { s.G = s.G * 10 + Digit; }
+    auto apply(SubstanceState<TPReal>& s, const SubstanceInputs<TPReal>&) const -> void override { s.G = s.G * 10 + Digit; }
+    auto parameterValues() const -> std::vector<double> override { return {}; }
+    auto withParameter(std::size_t, double) const -> std::shared_ptr<const SubstanceMethod> override { return nullptr; }
+private:
+    MethodSpec spec_;
+};
+
+void testExecutionOrder()
+{
+    auto& registry = MethodRegistry::instance();
+    registry.add("VolumeBerman88", "", [](const MethodApplication&, const SubstanceRecord&) { return std::make_shared<const Stand<3>>("VolumeBerman88"); });
+    registry.add("LandauHP98", "", [](const MethodApplication&, const SubstanceRecord&) { return std::make_shared<const Stand<2>>("LandauHP98"); });
+    registry.add("MurnaghanHP98", "", [](const MethodApplication&, const SubstanceRecord&) { return std::make_shared<const Stand<4>>("MurnaghanHP98"); });
+
+    std::vector<std::string> ids = {"MurnaghanHP98", "VolumeBerman88", "LandauHP98", "ConstantProperties"};
+    std::sort(ids.begin(), ids.end());
+    do  // every order in the file gives one order of execution
+    {
+        auto record = std::make_shared<SubstanceRecord>();
+        record->symbol = "X";
+        for (const auto& id : ids)
+        {
+            MethodApplication a;
+            a.method = id;
+            record->methods.push_back(a);
+        }
+        CHECK(canBind(*record));
+        const auto bound = bindSubstance(record);
+        std::vector<ExplainStep> steps;
+        const auto result = executeSubstance(*bound, 400.0, 1e5, {}, &steps);
+        CHECK(steps.size() == 4);
+        // base; the correction that sets with the lowest rank; the next one; the one that only adds
+        CHECK(steps[0].method == "ConstantProperties" && steps[1].method == "LandauHP98");
+        CHECK(steps[2].method == "VolumeBerman88" && steps[3].method == "MurnaghanHP98");
+        CHECK(result.values.G.val == 234.0);
+    } while (std::next_permutation(ids.begin(), ids.end()));
+
+    for (const char* id : {"VolumeBerman88", "LandauHP98", "MurnaghanHP98"})
+        registry.remove(id, "");
+
+    // a record that the new path cannot run: a method without code, no base method, two base methods
+    SubstanceRecord r;
+    MethodApplication a;
+    a.method = "HKF88";
+    r.methods = {a};
+    CHECK(!canBind(r));
+    r.methods.clear();
+    CHECK(!canBind(r));
+    a.method = "ConstantCp";
+    r.methods = {a, a};
+    CHECK(!canBind(r));
+}
+
 // Each method against the old model, on every bundled record that has it
+void testConflictMessages()
+{
+    auto check = [](std::vector<std::string> ids, SubstanceClass cls, bool withVolume) {
+        SubstanceRecord r;
+        r.symbol = "Quartz";
+        r.class_ = cls;
+        if (withVolume)
+            r.standard_state_properties[PropertyName::V] = Quantity{};
+        for (const auto& id : ids)
+        {
+            MethodApplication a;
+            a.method = id;
+            r.methods.push_back(a);
+        }
+        return checkMethods(r).all();
+    };
+    auto says = [](const ThermoFun::Diagnostic& d, const char* code, const std::string& message) {
+        return d.code == code && d.message == message && !d.fix.empty() && d.record == "Quartz";
+    };
+    const auto C = SubstanceClass::Component;
+
+    auto found = check({"CpPolynomial"}, C, true);
+    CHECK(found.empty());
+
+    found = check({}, C, false);
+    CHECK(found.size() == 1 && says(found[0], "V2-MTH-012", "Quartz has no base method and no reference values."));
+    found = check({}, C, true);
+    CHECK(found.empty());
+
+    found = check({"ConstantCp", "CpPolynomial"}, C, true);
+    CHECK(found.size() == 1 && says(found[0], "V2-MTH-012", "Quartz has two base methods: ConstantCp and CpPolynomial."));
+
+    found = check({"CpPolynomial", "LandauHP98", "ConstantVolume"}, C, true);
+    CHECK(found.size() == 1 && says(found[0], "V2-MTH-013", "LandauHP98 and ConstantVolume both set the volume of Quartz."));
+
+    found = check({"CpPolynomial", "MurnaghanHP98"}, C, false);
+    CHECK(found.size() == 1 && says(found[0], "V2-MTH-014", "MurnaghanHP98 adds to a volume that is not defined."));
+    CHECK(found[0].severity == ThermoFun::Severity::Warning);
+    found = check({"CpPolynomial", "MurnaghanHP98"}, C, true);
+    CHECK(found.empty());
+
+    found = check({"CpPolynomial", "HKF88"}, C, true);
+    bool classMessage = false;
+    for (const auto& d : found)
+        classMessage = classMessage || says(d, "V2-MTH-005", "HKF88 is for aqueous solutes; Quartz is a component.");
+    CHECK(classMessage);
+}
+
 void testAgainstTheOldModels()
 {
     const char* files[] = {"Resources/databases/aq17-thermofun.json", "Resources/databases/cemdata18-thermofun.json",
@@ -282,7 +428,10 @@ void runSubstanceMethods()
     testConstantProperties();
     testConstantCp();
     testCpPolynomial();
+    testVolumeMethods();
     testEffects();
     testRegistry();
+    testExecutionOrder();
+    testConflictMessages();
     testAgainstTheOldModels();
 }

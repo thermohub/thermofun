@@ -11,6 +11,7 @@
 
 #include <ThermoFun/Methods/Method.h>
 #include <ThermoFun/Model/MethodApplication.h>
+#include <ThermoFun/Model/SubstanceRecord.h>
 
 namespace ThermoFun::v2 {
 
@@ -18,7 +19,8 @@ namespace ThermoFun::v2 {
 class MethodRegistry
 {
 public:
-    using SubstanceFactory = std::function<std::shared_ptr<const SubstanceMethod>(const MethodApplication&)>;
+    /// Makes a method from an application and the record it belongs to.
+    using SubstanceFactory = std::function<std::shared_ptr<const SubstanceMethod>(const MethodApplication&, const SubstanceRecord&)>;
 
     /// The one registry of the library.
     static auto instance() -> MethodRegistry&;
@@ -26,11 +28,14 @@ public:
     /// Add a factory. An implementation of "" is the default of the method.
     auto add(const std::string& id, const std::string& implementation, SubstanceFactory factory) -> void;
 
+    /// Remove a factory.
+    auto remove(const std::string& id, const std::string& implementation) -> void;
+
     /// True if there is code for this method id.
     auto hasSubstanceMethod(const std::string& id) const -> bool;
 
     /// The method object of an application. Raises an error if there is no code for it.
-    auto create(const MethodApplication& application) const -> std::shared_ptr<const SubstanceMethod>;
+    auto create(const MethodApplication& application, const SubstanceRecord& record = {}) const -> std::shared_ptr<const SubstanceMethod>;
 
 private:
     MethodRegistry();

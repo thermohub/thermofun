@@ -52,6 +52,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   alone with no database and no engine, and gives its properties with the derivatives with respect to T, P and each
   parameter. First methods: `ConstantProperties`, `ConstantCp`, `CpPolynomial`.
 
+- `ThermoEngine` calculates a substance with method objects when all its methods have code. `engine.explain(T, P, symbol)`
+  gives the state after each method. The results are the same as before.
+
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
   the test databases.

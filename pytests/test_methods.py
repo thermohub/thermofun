@@ -2,7 +2,10 @@
 # Copyright (C) 2026 ThermoFun contributors
 
 """The method objects run alone from Python, with no database and no engine."""
+import glob
+import json
 import math
+import os
 
 import pytest
 import thermofun as tf
@@ -48,3 +51,52 @@ def test_cp_polynomial_with_a_transition():
     m = tf.methods.CpPolynomial([(273.15, 800.0), (800.0, 2000.0)], a + a, [tf.methods.PhaseTransition(800.0, dS=2.5, dH=2000.0, dV=1e-6)])
     assert m.evaluate(900.0, 1e5, REF).V.val == pytest.approx(1e-6)
     assert m.evaluate(900.0, 1e5, REF).H.val - m.evaluate(700.0, 1e5, REF).H.val == pytest.approx(100.0 * 200 + 2000.0)
+
+
+def test_engine_runs_records_on_method_objects():
+    # the substances with only methods that have code run on the new path, the others on the old one
+    here = os.path.dirname(os.path.abspath(__file__))
+    with_code = {"cp_ft_equation", "standard_entropy_cp_integration", "mv_constant", "mv_pvnrt"}
+    new_path = 0
+    for path in glob.glob(os.path.join(here, "..", "Resources", "databases", "*.json")):
+        engine = tf.ThermoEngine(path)
+        with open(path) as f:
+            data = json.load(f)
+        for record in data["substances"]:
+            names = {list(m["method"].values())[0].strip() for m in record.get("TPMethods") or []}
+            base = {"cp_ft_equation", "standard_entropy_cp_integration"} & names
+            try:
+                steps = engine.explain(298.15, 1e5, record["symbol"])
+            except RuntimeError:  # the record has invalid parameters: the old engine raises the same error
+                with pytest.raises(RuntimeError):
+                    engine.thermoPropertiesSubstance(298.15, 1e5, record["symbol"])
+                continue
+            if names <= with_code and len(base) == 1:
+                assert steps, record["symbol"]
+                new_path += 1
+            elif not names <= with_code:
+                assert steps == [], record["symbol"]
+    assert new_path > 1000
+
+
+def test_constant_volume_adds_the_error_of_the_volume():
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, "mines16-thermofun.json")
+    with open(path) as f:
+        record = next(r for r in json.load(f)["substances"] if r["symbol"] == "Fluorite")
+    err_g = record["sm_gibbs_energy"]["errors"][0]
+    err_v = record["sm_volume"]["errors"][0]  # J/bar
+    engine = tf.ThermoEngine(path)
+    assert engine.explain(298.15, 1e5, "Fluorite")
+    tps = engine.thermoPropertiesSubstance(298.15, 1e5, "Fluorite")
+    assert tps.gibbs_energy.err == pytest.approx(math.sqrt(err_g**2 + err_v**2), rel=1e-14)
+    assert tps.gibbs_energy.err != err_g
+
+
+def test_explain_gives_the_state_after_each_method():
+    here = os.path.dirname(os.path.abspath(__file__))
+    engine = tf.ThermoEngine(os.path.join(here, "test-thermoengine-thermofun.json"))
+    steps = engine.explain(400.0, 1e7, "Quartz")
+    if steps:
+        assert steps[0]["method"] == "CpPolynomial"
+        assert steps[-1]["G"] == pytest.approx(engine.thermoPropertiesSubstance(400.0, 1e7, "Quartz").gibbs_energy.val, rel=1e-12)

@@ -33,7 +33,9 @@ Build and install it first. Use a clean checkout, not a tree with unfinished edi
 ## Compare two builds
 
 The two-build comparison checks every record of every database, not only the subset.
-It uses 15 temperatures and 6 pressures. The tolerance is 1e-12 (relative).
+It uses 15 temperatures and 6 pressures. The tolerance is 1e-12 (relative). The values of G, H, U and A also have a
+margin of two ulps of P*V of the record: V passes through m3, and where the energy and P*V nearly cancel, one ulp of
+P*V is large compared with the energy.
 
 ```bash
 bash pytests/golden/build_baseline.sh                 # once: builds the tag golden-baseline

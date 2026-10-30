@@ -44,6 +44,23 @@ public:
         state.S = S;
         state.V = Scalar(0.0);
     }
+
+    auto info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs&) const -> void override
+    {
+        const bool hasS = ref.S.status != ValueInfo::Status::NotDefined;
+        const bool hasCp = ref.Cp.status != ValueInfo::Status::NotDefined;
+        out.Cp = ref.Cp;
+        out.G = ref.G;
+        if (hasS || hasCp)
+            out.G.propagateFrom(ref.G);
+        out.S = ref.S;
+        out.H = ref.H;
+        if (hasCp)
+        {
+            out.S.propagateFrom(ref.S);
+            out.H.propagateFrom(ref.H);
+        }
+    }
 };
 
 } // namespace ThermoFun::v2

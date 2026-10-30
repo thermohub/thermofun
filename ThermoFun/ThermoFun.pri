@@ -74,6 +74,8 @@
     $$PWD/Common/Diagnostics.h \
     $$PWD/IO/FormatDetect.h \
     $$PWD/IO/detail/JsonDetect.h \
+    $$PWD/Engine/Binding.h \
+    $$PWD/Engine/Executor.h \
     $$PWD/Methods/MethodSpec.h \
     $$PWD/Methods/Method.h \
     $$PWD/Methods/MethodBase.h \
@@ -82,6 +84,8 @@
     $$PWD/Methods/Minerals/ConstantProperties.h \
     $$PWD/Methods/Minerals/ConstantCp.h \
     $$PWD/Methods/Minerals/CpPolynomial.h \
+    $$PWD/Methods/Minerals/ConstantVolume.h \
+    $$PWD/Methods/Minerals/IdealGas.h \
     $$PWD/Methods/MethodCatalog.h \
     $$PWD/Common/Ucum.h \
     $$PWD/Model/Applicability.h \
@@ -175,6 +179,8 @@
 # Common
     $$PWD/Common/Diagnostics.cpp \
     $$PWD/IO/FormatDetect.cpp \
+    $$PWD/Engine/Binding.cpp \
+    $$PWD/Engine/Executor.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
     $$PWD/Methods/MethodRegistry.cpp \
     $$PWD/Methods/Evaluate.cpp \

@@ -7,7 +7,8 @@
 
 --base and --new are install prefixes (see build_baseline.sh). --new defaults to the active environment.
 Both builds compute the same questions with golden_common.py of the working tree.
-The relative tolerance is 1e-12. The exit code is 1 if any value, error or status differs, except in the records
+The relative tolerance is 1e-12, and the values of the energies have a margin of two ulps of P*V of the record
+(golden_common.py). The exit code is 1 if any value, error or status differs, except in the records
 listed in expected_changes.json (wrong in the baseline, each with its reason).
 """
 

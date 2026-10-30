@@ -99,6 +99,16 @@ void exportThermoEngine(py::module& m)
         .def("setConventions", &ThermoEngine::setConventions, "Set the thermodynamic conventions used in the engine calculations", py::arg("conventions"))
         .def_property( "preferences", [](ThermoEngine& en) -> EnginePreferences& { return en.preferences(); }, &ThermoEngine::setPreferences, py::return_value_policy::reference_internal, "The preferences used in engine calculations. A change (also of one field) applies from the next calculation" )
         .def_property( "conventions", [](ThermoEngine& en) -> EngineConventions& { return en.conventions(); }, &ThermoEngine::setConventions, py::return_value_policy::reference_internal, "The thermodynamic conventions used in engine calculations. A change (also of one field) applies from the next calculation" )
+        .def("explain", [](const ThermoEngine& en, double T, double P, std::string symbol) {
+                 py::list out;
+                 for (const auto& step : en.explain(T, P, symbol))
+                 {
+                     py::dict row;
+                     row["method"] = step.method; row["G"] = step.G; row["H"] = step.H; row["S"] = step.S; row["Cp"] = step.Cp; row["V"] = step.V;
+                     out.append(row);
+                 }
+                 return out;
+             }, "The methods that calculate a substance, in the order they run, with the state after each one (SI). Empty if the substance is not yet calculated by method objects.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1, "Calculate the thermodynamic properties of a substance with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
         .def("electroPropertiesSolvent", electroPropertiesSolvent1, "Calculate the electro-chemical properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
         .def("propertiesSolvent", propertiesSolvent1, "Calculate the properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))

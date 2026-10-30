@@ -4,7 +4,12 @@
 // ThermoFun includes
 #include <algorithm>
 #include <limits>
+#include <map>
+#include <memory>
+#include <mutex>
 #include "Common/Exception.h"
+#include "Engine/Executor.h"
+#include "Model/SubstanceRecord.h"
 #include "ThermoEngine.h"
 #include "Database.h"
 #include "Reaction.h"
@@ -114,6 +119,15 @@ struct ThermoEngine::Impl
 
     CacheState cached_for;
 
+    /// The bound methods of each record that this engine has seen; the records are kept so that their addresses stay unique
+    struct BoundCache
+    {
+        std::mutex mutex;
+        std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> substances;
+        std::vector<std::shared_ptr<const v2::SubstanceRecord>> records;
+    };
+    std::shared_ptr<BoundCache> bound_cache = std::make_shared<BoundCache>();
+
     Impl()
     {
         set_fn() ;
@@ -191,6 +205,51 @@ struct ThermoEngine::Impl
             return;
         perturbed_engine.reset();
         set_fn();
+    }
+
+    /// The methods of a substance, if the new path can run it: its record is there, and all its methods have code.
+    /// Temporary router: an object without a record, or a method without code, runs on the old path.
+    auto boundMethods(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>
+    {
+        const auto record = substance.record();
+        if (!record)
+            return nullptr;
+        std::lock_guard<std::mutex> lock(bound_cache->mutex);
+        const auto it = bound_cache->substances.find(record.get());
+        if (it != bound_cache->substances.end())
+            return it->second;
+        auto bound = v2::canBind(*record) ? v2::bindSubstance(record) : nullptr;
+        bound_cache->substances[record.get()] = bound;
+        bound_cache->records.push_back(record);
+        return bound;
+    }
+
+    auto substanceOptions() const -> v2::SubstanceOptions
+    {
+        return {preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props};
+    }
+
+    /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
+    static auto toThermoProperties(const v2::SubstanceResult& r) -> ThermoPropertiesSubstance
+    {
+        auto one = [](const v2::PropertyValue& v, const v2::ValueInfo& i, double factor = 1.0) {
+            Reaktoro_::ThermoProperty p;
+            p.val = v.val * factor;
+            p.ddt = v.ddt * factor;
+            p.ddp = v.ddp * factor;
+            p.err = i.err * factor;
+            p.sta = {i.status == v2::ValueInfo::Status::NotDefined ? Reaktoro_::Status::notdefined
+                     : i.status == v2::ValueInfo::Status::Assigned ? Reaktoro_::Status::assigned
+                     : i.status == v2::ValueInfo::Status::Read ? Reaktoro_::Status::read : Reaktoro_::Status::calculated, i.message};
+            return p;
+        };
+        ThermoPropertiesSubstance tps;
+        tps.gibbs_energy = one(r.values.G, r.info.G);
+        tps.enthalpy = one(r.values.H, r.info.H);
+        tps.entropy = one(r.values.S, r.info.S);
+        tps.heat_capacity_cp = one(r.values.Cp, r.info.Cp);
+        tps.volume = one(r.values.V, r.info.V, 1e5);  // 1 J/bar = 1e-5 m3
+        return tps;
     }
 
     auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) const -> void
@@ -370,7 +429,11 @@ struct ThermoEngine::Impl
 
         if (!pref.isReacDC)
         {
-            if (!pref.isH2OSolvent && !pref.isH2Ovapor)
+            if (const auto bound = boundMethods(substance); bound && !pref.isH2OSolvent && !pref.isH2Ovapor)
+            {
+                tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions()));
+            }
+            else if (!pref.isH2OSolvent && !pref.isH2Ovapor)
             {
                 // metohd EOS
                 switch (pref.method_genEOS)
@@ -1472,6 +1535,19 @@ auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string 
 {
     pimpl->database.appendData(jsonRecords, _label);
     pimpl->perturbed_engine.reset();
+}
+
+auto ThermoEngine::explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>
+{
+    std::vector<ExplainStep> out;
+    const auto bound = pimpl->boundMethods(pimpl->database.getSubstance(substance));
+    if (!bound)
+        return out;
+    std::vector<v2::ExplainStep> steps;
+    v2::executeSubstance(*bound, T, P, pimpl->substanceOptions(), &steps);
+    for (const auto& step : steps)
+        out.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val});
+    return out;
 }
 
 auto ThermoEngine::parseSubstanceFormula(std::string formula) const -> std::map<Element, double>

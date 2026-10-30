@@ -167,6 +167,17 @@ public:
     /// @param reaction the reaction object
     auto thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
+    /// One method of a substance and the properties after it, in SI: G, H [J/mol], S, Cp [J/(mol K)], V [m3/mol].
+    struct ExplainStep
+    {
+        std::string method;
+        double G = 0.0, H = 0.0, S = 0.0, Cp = 0.0, V = 0.0;
+    };
+
+    /// The methods that calculate a substance at T (K) and P (Pa), in the order they run, with the state after each one.
+    /// Empty if the substance is not yet calculated by method objects.
+    auto explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>;
+
     /// Pareses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
