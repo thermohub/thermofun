@@ -390,8 +390,9 @@ Prepared prepare(const std::string& text)
     Prepared out;
     out.factor = p.factor;
     out.dimension = dimensionOf(p);
-    // a text in the converter syntax without a number in front goes to the converter as it is
-    if (isConverterSyntax(text) && p.factor == 1.0)
+    // a text in the converter syntax without a number in front goes to the converter as it is;
+    // the converter has no negative powers, so s^-1 is written again as 1/s
+    if (isConverterSyntax(text) && p.factor == 1.0 && text.find("^-") == std::string::npos)
         out.converter = text;
     else
         out.converter = emit(p, false);
@@ -419,6 +420,18 @@ auto convertAny(double value, const std::string& from, const std::string& to) ->
     if (a.dimension != b.dimension)
         throw std::invalid_argument("the units \"" + from + "\" and \"" + to + "\" have different dimensions");
     return convert(value * a.factor / b.factor, a.converter, b.converter);
+}
+
+auto tryConvert(double value, const std::string& from, const std::string& to) -> std::optional<double>
+{
+    try
+    {
+        return convertAny(value, from, to);
+    }
+    catch (const std::exception&)
+    {
+        return std::nullopt;
+    }
 }
 
 auto convertDifference(double delta, const std::string& from, const std::string& to) -> double

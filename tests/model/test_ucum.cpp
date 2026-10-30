@@ -136,6 +136,19 @@ void testDimension()
     CHECK(dimension("1e-05/K") == (D{0, 0, 0, -1, 0, 0, 0}));
 }
 
+void testTryConvert()
+{
+    CHECK(tryConvert(1.0, "kJ/mol", "J/mol") == 1000.0);
+    CHECK(std::abs(*tryConvert(1.0, "cm3/mol", "m3/mol") - 1e-6) < 1e-18);
+    CHECK(!tryConvert(1.0, "kJ/mol", "K"));         // other dimension
+    CHECK(!tryConvert(1.0, "no_such_unit", "K"));   // not supported
+    CHECK(!tryConvert(1.0, "K", "no_such_unit"));
+    // negative exponents, in both syntaxes
+    CHECK(tryConvert(2.0, "s-1", "1/s") == 2.0);
+    CHECK(tryConvert(2.0, "s^-1", "1/s") == 2.0);
+    CHECK(tryConvert(2.0, "J.K-1.mol-1", "J/(mol*K)") == 2.0);
+}
+
 void testConversion()
 {
     CHECK(near(convertAny(1.0, "kJ/mol", "J/mol"), 1000.0));
@@ -180,4 +193,5 @@ void runUcum()
     testBundledUnits();
     testDimension();
     testConversion();
+    testTryConvert();
 }

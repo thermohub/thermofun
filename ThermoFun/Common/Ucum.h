@@ -5,6 +5,7 @@
 #define THERMOFUN_UCUM_H
 
 #include <array>
+#include <optional>
 #include <string>
 
 namespace ThermoFun {
@@ -18,6 +19,10 @@ auto fromUcum(const std::string& ucum) -> std::string;
 /// Convert a value from one unit to another. Both units are in UCUM or in converter syntax.
 /// Throws std::invalid_argument if the units have different dimensions or one of them is not supported.
 auto convertAny(double value, const std::string& from, const std::string& to) -> double;
+
+/// Convert a value as convertAny, but give an empty value if the units have different dimensions or one of them is
+/// not supported. For checks where "no" is a normal answer.
+auto tryConvert(double value, const std::string& from, const std::string& to) -> std::optional<double>;
 
 /// Convert a difference, for example an uncertainty or a temperature interval: scale only, no offset.
 auto convertDifference(double delta, const std::string& from, const std::string& to) -> double;

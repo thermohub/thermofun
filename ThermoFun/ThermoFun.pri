@@ -72,6 +72,7 @@
     $$PWD/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Diagnostics.h \
+    $$PWD/Common/Ucum.h \
     $$PWD/Model/Quantity.h \
     $$PWD/Model/Vocabulary.h \
     $$PWD/IO/Legacy/LegacyVocabulary.h \
@@ -144,6 +145,7 @@
     $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Diagnostics.cpp \
+    $$PWD/Common/Ucum.cpp \
     $$PWD/Model/Quantity.cpp \
     $$PWD/Model/Vocabulary.cpp \
     $$PWD/IO/Legacy/LegacyVocabulary.cpp \
