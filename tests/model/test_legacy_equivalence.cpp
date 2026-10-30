@@ -47,17 +47,21 @@ const char* const databases[] = {
     "tests/extra_models/extra_models_db.json",
 };
 
-const char* const syntheticDirectory = "pytests/data/legacy-synthetic";
+// Every database in these folders is read: the synthetic fixtures and the model databases with published values
+const char* const databaseDirectories[] = {"pytests/data/legacy-synthetic", "pytests/data/published"};
 
 std::vector<std::string> allFiles()
 {
     std::vector<std::string> files(std::begin(databases), std::end(databases));
-    std::vector<std::string> synthetic;
-    for (const auto& entry : fs::directory_iterator(syntheticDirectory))
-        if (entry.path().extension() == ".json")
-            synthetic.push_back(entry.path().generic_string());
-    std::sort(synthetic.begin(), synthetic.end());
-    files.insert(files.end(), synthetic.begin(), synthetic.end());
+    for (const auto* directory : databaseDirectories)
+    {
+        std::vector<std::string> found;
+        for (const auto& entry : fs::directory_iterator(directory))
+            if (entry.path().extension() == ".json")
+                found.push_back(entry.path().generic_string());
+        std::sort(found.begin(), found.end());
+        files.insert(files.end(), found.begin(), found.end());
+    }
     return files;
 }
 

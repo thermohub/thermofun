@@ -1,0 +1,21 @@
+# Old files that break the layer rules today, each with the step that removes the violation.
+# check_includes.py fails on any violation not listed here, and on a listed one that is gone.
+
+# R1.2: Exception is reworked into Diagnostics (no result structs in Common)
+ThermoFun/Common/Exception.cpp: ThermoProperties.h
+ThermoFun/Common/Exception.h: ThermoFun/ThermoProperties.h
+
+# R1.7: the old parser becomes the legacy reader in IO/Legacy
+ThermoFun/Common/ParseJsonToData.cpp: Database.h
+ThermoFun/Common/ParseJsonToData.cpp: Substance.h
+ThermoFun/Common/ParseJsonToData.cpp: Reaction.h
+ThermoFun/Common/ParseJsonToData.cpp: Element.h
+ThermoFun/Common/ParseJsonToData.cpp: ThermoParameters.h
+ThermoFun/Common/ParseJsonToData.cpp: ThermoProperties.h
+ThermoFun/Common/ParseJsonToData.cpp: nlohmann/json.hpp
+
+# R3.3: the CSV output of ThermoBatch moves to Batch/
+ThermoFun/Common/OutputToCSV.cpp: ThermoProperties.h
+ThermoFun/Common/OutputToCSV.h: ThermoFun/ThermoProperties.h
+ThermoFun/Common/OutputWaterSteamConventionProp.cpp: GlobalVariables.h
+ThermoFun/Common/OutputWaterSteamConventionProp.h: ThermoFun/Substances/Solvent/Reaktoro/WaterThermoState.hpp

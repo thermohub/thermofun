@@ -24,6 +24,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Cached results are no longer returned after a change of the conventions, the preferences, the database
   conventions or the records. Before, a change in place (for example `engine.conventions.water_properties`)
   or `appendData` after a first calculation gave the old result.
+- The installed CMake package config finds its dependencies before it loads the targets, and gives autodiff the
+  Eigen headers when Eigen is found. Before, `find_package(ThermoFun)` failed in a project that had not found
+  autodiff itself, and a ThermoFun built with a fetched autodiff could not be used where Eigen is installed.
+- The parser read an uninitialised value when a substance has no `mass_per_mole` (or an element no entropy).
 - Cached results no longer depend on the calculation order. The reactants of a reaction-defined substance are
   calculated with the gas pressure correction on, and they shared the cache with plain calculations. For example,
   H2(g) at 273.15 K and 100 bar gave G = 5484.36 J/mol instead of 3235.96 J/mol after Fe4(OH)8Clwn(s).
@@ -32,6 +36,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Both are checked against the values published with them.
 
 ### Added (tests)
+- C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
+  the test databases.
+- Layer check of the includes (`tests/layers/check_includes.py`), run in CI.
 
 - Model databases with published parameters (`pytests/data/published/`) and tests against the published values
   (`pytests/test_published_models.py`): Dolejš and Manning (2010), 7 minerals; Marshall and Franck (1981).

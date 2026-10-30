@@ -35,8 +35,9 @@ foreach(component IN ITEMS Unspecified libraries headers cmake)
         message(FATAL_ERROR "install of component ${component} failed")
     endif()
 endforeach()
+# The prefix is searched first: a dependency fetched at build time (autodiff) is installed there, as for a user
 execute_process(COMMAND ${CMAKE_COMMAND} -S ${SOURCE_DIR} -B ${WORK_DIR}/build ${cfg_args}
-                        -DTHERMOFUN_PREFIX=${WORK_DIR}/prefix -DTHERMOFUN_INCLUDEDIR=${INCLUDEDIR} "-DCMAKE_PREFIX_PATH=${PREFIX_PATH}"
+                        -DTHERMOFUN_PREFIX=${WORK_DIR}/prefix -DTHERMOFUN_INCLUDEDIR=${INCLUDEDIR} "-DCMAKE_PREFIX_PATH=${WORK_DIR}/prefix;${PREFIX_PATH}"
                 RESULT_VARIABLE r)
 if(r)
     message(FATAL_ERROR "configure failed")
