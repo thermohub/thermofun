@@ -58,8 +58,9 @@ derivatives) and `electroPropertiesSolvent` (dielectric constant `epsilon` and i
 
 ## Engine preferences — `ThermoEngine.preferences`
 
-Set before calculating, for example `engine.preferences.propagate_parameter_errors = True`
-(Python names are the same except `solventState` and `solventSymbol`).
+Change one option, for example `engine.preferences.propagate_parameter_errors = True`, or set all of them with
+`engine.preferences = prefs` (Python names are the same except `solventState` and `solventSymbol`).
+A change applies from the next calculation: the engine then clears its cached results.
 
 | Option | Default | When it matters |
 |---|---|---|
@@ -77,6 +78,12 @@ Set before calculating, for example `engine.preferences.propagate_parameter_erro
 **Conventions** (`engine.conventions`): `apparent_properties` (`BENSON_HELGESON` default, or `BERMAN_BROWN`)
 converts the properties of substances (not the water solvent) to the Berman-Brown convention if set so; `water_properties` (`GEOCHEMICAL` default,
 or `STEAM_TABLES`) converts the properties of the water solvent to the steam-tables reference state if set so.
+Change one field in place, or set all of them with `engine.conventions = conventions` or
+`engine.setConventions(conventions)`. A change applies from the next calculation.
+
+**Changes of the data** apply from the next calculation too: `appendData`, and `add...`, `set...` or
+`substance(...)`, `reaction(...)`, `element(...)` on `engine.database()`. If you keep a reference from
+`substance(...)` and change the record after a calculation, call `substance(...)` again before the next one.
 
 ## Batch calculations — `ThermoBatch`
 

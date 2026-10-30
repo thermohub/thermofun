@@ -33,6 +33,8 @@ struct EnginePreferences
     bool round_to_uncertainty = false; // round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (the derivatives are not rounded); only for properties with an error > 0
     int uncertainty_significant_digits = 2; // significant digits of the (rounded up) uncertainties, used if round_to_uncertainty is true (NEA TDB tables give one or two)
     bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
+
+    bool operator==(const EnginePreferences&) const = default;
 };
 
 struct EngineConventions {
@@ -40,6 +42,8 @@ struct EngineConventions {
     std::string apparent_properties = "BENSON_HELGESON";
     // e.g. "STEAM_TABLES"
     std::string water_properties = "GEOCHEMICAL";
+
+    bool operator==(const EngineConventions&) const = default;
 };
 
 
@@ -72,6 +76,9 @@ public:
 
     /// Sets the preferences used by ThermoEngine
     auto setPreferences(const EnginePreferences preferences) -> void;
+
+    /// Sets the conventions used by ThermoEngine
+    auto setConventions(const EngineConventions conventions) -> void;
 
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
     auto solventSymbol() -> std::string&;
@@ -167,10 +174,12 @@ public:
 
     /// Return conventions used in the engine
     /// Settings for calculating and outputting properties of a engine 
+    /// A change through the reference applies from the next calculation (the cached results are cleared then).
     EngineConventions& conventions();
     const EngineConventions& conventions() const;
 
     /// Retrieves a copy of the curent preferences
+    /// A change through the reference applies from the next calculation (the cached results are cleared then).
     EnginePreferences& preferences();
     const EnginePreferences& preferences() const;
 

@@ -12,6 +12,7 @@
 #include "Element.h"
 
 #include <nlohmann/json.hpp>
+#include <atomic>
 #include <fstream>
 
 using json = nlohmann::json;
@@ -44,6 +45,17 @@ struct Database::Impl
 
     /// For calculating and outputting properties of a database e.g., the water triple properties
     mutable DatabaseConventions conventions;
+
+    /// Changes with every change of the records (unique over all databases, see Database::revision)
+    std::uint64_t revision = nextRevision();
+
+    static auto nextRevision() -> std::uint64_t
+    {
+        static std::atomic<std::uint64_t> counter{0};
+        return ++counter;
+    }
+
+    auto changed() -> void { revision = nextRevision(); }
 
     Impl()
     {}
@@ -436,6 +448,7 @@ auto Database::operator=(Database other) -> Database&
 
 auto Database::appendData(std::string filename) -> void
 {
+    pimpl->changed();
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromFile(filename);
     if (elements_number != pimpl->mapElements().size())
@@ -444,6 +457,7 @@ auto Database::appendData(std::string filename) -> void
 
 auto Database::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
+    pimpl->changed();
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);
     if (elements_number != pimpl->mapElements().size())
@@ -452,92 +466,110 @@ auto Database::appendData(std::vector<std::string> jsonRecords, std::string _lab
 
 auto Database::addElement(const Element& element) -> void
 {
+    pimpl->changed();
     pimpl->addElement(element);
 }
 
 auto Database::setElement(const Element& element) -> void
 {
+    pimpl->changed();
     pimpl->setElement(element);
 }
 
 auto Database::addElement(const std::string& jsonElement) -> void
 {
+    pimpl->changed();
     pimpl->addElement(Element(jsonElement));
 }
 
 auto Database::setElement(const std::string& jsonElement) -> void
 {
+    pimpl->changed();
     pimpl->setElement(Element(jsonElement));
 }
 
 
 auto Database::addMapElements(const ElementsMap& elements) -> void
 {
+    pimpl->changed();
     pimpl->addMapElements(elements);
 }
 
 auto Database::setMapElements(const ElementsMap& elements) -> void
 {
+    pimpl->changed();
     pimpl->setMapElements(elements);
 }
 
 auto Database::setMapSubstances(const SubstancesMap& substances) -> void
 {
+    pimpl->changed();
     pimpl->setMapSubstances(substances);
 }
 
 auto Database::setMapReactions(const ReactionsMap& reactions) -> void
 {
+    pimpl->changed();
     pimpl->setMapReactions(reactions);
 }
 
 auto Database::addSubstance(const Substance& substance) -> void
 {
+    pimpl->changed();
     pimpl->addSubstance(substance);
 }
 
 auto Database::setSubstance(const Substance& substance) -> void
 {
+    pimpl->changed();
     pimpl->setSubstance(substance);
 }
 
 auto Database::addSubstance(const std::string &jsonSubstance) -> void
 {
+    pimpl->changed();
     pimpl->addSubstance(Substance(jsonSubstance));
 }
 
 auto Database::setSubstance(const std::string &jsonSubstance) -> void
 {
+    pimpl->changed();
     pimpl->setSubstance(Substance(jsonSubstance));
 }
 
 auto Database::addMapSubstances(const SubstancesMap& substances) -> void
 {
+    pimpl->changed();
     pimpl->addMapSubstances(substances);
 }
 
 auto Database::addReaction(const Reaction& reaction) -> void
 {
+    pimpl->changed();
     pimpl->addReaction(reaction);
 }
 
 auto Database::setReaction(const Reaction& reaction) -> void
 {
+    pimpl->changed();
     pimpl->setReaction(reaction);
 }
 
 auto Database::addReaction(const std::string &jsonReaction) -> void
 {
+    pimpl->changed();
     pimpl->addReaction(Reaction(jsonReaction));
 }
 
 auto Database::setReaction(const std::string &jsonReaction) -> void
 {
+    pimpl->changed();
     pimpl->setReaction(Reaction(jsonReaction));
 }
 
 auto Database::addMapReactions(const ReactionsMap& reactions) -> void
 {
+    pimpl->changed();
     pimpl->addMapReactions(reactions);
 }
 
@@ -558,16 +590,19 @@ auto Database::getReaction(std::string symbol) const -> const Reaction&
 
 auto Database::element(std::string symbol) -> Element&
 {
+    pimpl->changed();
     return pimpl->element(symbol);
 }
 
 auto Database::substance(std::string symbol) -> Substance&
 {
+    pimpl->changed();
     return pimpl->substance(symbol);
 }
 
 auto Database::reaction(std::string symbol) -> Reaction&
 {
+    pimpl->changed();
     return pimpl->reaction(symbol);
 }
 
@@ -632,6 +667,11 @@ auto Database::getReactionsList() const -> std::vector<std::string>
    return list;
 }
 
+auto Database::revision() const -> std::uint64_t
+{
+    return pimpl->revision;
+}
+
 DatabaseConventions& Database::conventions() { 
     return pimpl->conventions; }
 
@@ -692,6 +732,7 @@ auto Database::elementalEntropyFormula(std::string formula) const -> double
 
 auto Database::setSubstancesChargeFromFromula() -> void
 {
+    pimpl->changed();
     for (auto& s: pimpl->substances_map)
     {
 //        auto js = s.second.jsonString();

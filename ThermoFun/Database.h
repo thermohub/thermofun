@@ -5,6 +5,7 @@
 #define DATABASE_H
 
 // C++ includes
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,6 +31,8 @@ using ReactionsMap  = std::map<std::string, Reaction>;
 struct DatabaseConventions {
     // e.g. "NEA_HGK", "NEA_IAPWS" (determines the correct properties of water from EoS to geochemical conventions, e.g. G0 -237140 in NEA_HGK or -237181 in HKF_HGK_1974 supcrt datasets
     std::string water_triple_point_reference = "HKF_HGK_1974";
+
+    bool operator==(const DatabaseConventions&) const = default;
 };
 
 
@@ -183,13 +186,16 @@ public:
     /// Return a reactions in the database
     auto getReaction(std::string symbol) const -> const Reaction&;
 
-    /// Reference to the element in the database
+    /// Reference to the element in the database.
+    /// The call counts as a change of the database (see revision): change the record before the next calculation.
     auto element(std::string symbol) -> Element&;
 
-    /// Reference to the substance in the database
+    /// Reference to the substance in the database.
+    /// The call counts as a change of the database (see revision): change the record before the next calculation.
     auto substance(std::string symbol) -> Substance&;
 
-    /// Reference to the reaction in the database
+    /// Reference to the reaction in the database.
+    /// The call counts as a change of the database (see revision): change the record before the next calculation.
     auto reaction(std::string symbol) -> Reaction&;
 
     /// Check if the database contains a given element
@@ -223,6 +229,11 @@ public:
     /// Settings for calculating and outputting properties of a database e.g., the water triple properties
     DatabaseConventions& conventions();
     const DatabaseConventions& conventions() const;
+
+    /// A number that changes with every change of the records: each call of a function that adds, sets or appends
+    /// records, or that returns a non-const reference to a record. Two databases never share a number, except a
+    /// copy and its original before either changes. A ThermoEngine uses it to clear its cached results.
+    auto revision() const -> std::uint64_t;
 
 private:
     struct Impl;

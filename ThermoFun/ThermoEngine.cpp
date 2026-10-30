@@ -103,6 +103,17 @@ struct ThermoEngine::Impl
 
     ThermoPropertiesReactionFunction thermo_properties_reaction_fn;
 
+    /// The database revision and the settings with which the cached results were calculated
+    struct CacheState
+    {
+        std::uint64_t database_revision = 0;
+        EnginePreferences preferences;
+        EngineConventions conventions;
+        DatabaseConventions database_conventions;
+    };
+
+    CacheState cached_for;
+
     Impl()
     {
         set_fn() ;
@@ -150,6 +161,25 @@ struct ThermoEngine::Impl
                 thermo_properties_reaction_fn = memoizeN(thermo_properties_reaction_fn,preferences.max_cache_size);
             }
         }
+        const Database& db = database;
+        cached_for = {db.revision(), preferences, conventions, db.conventions()};
+    }
+
+    /// Clear the cached results if the records, the preferences or the conventions changed after they were cached.
+    /// Called at the start of each calculation, so a change in place (preferences(), conventions(),
+    /// Database::substance(), ...) can never give a stale result.
+    void dropStaleResults()
+    {
+        const Database& db = database;
+        // solvent_state is not compared: each calculation of a substance sets it (to vapor for a gas), so it is
+        // working state of the engine, not a setting of the user
+        auto settings = cached_for.preferences;
+        settings.solvent_state = preferences.solvent_state;
+        if (db.revision() == cached_for.database_revision && preferences == settings &&
+            conventions == cached_for.conventions && db.conventions() == cached_for.database_conventions)
+            return;
+        perturbed_engine.reset();
+        set_fn();
     }
 
     auto toSteamTables(ThermoPropertiesSubstance &tps, WaterTripleProperties wat) const -> void
@@ -1286,6 +1316,7 @@ ThermoEngine::ThermoEngine(const ThermoEngine &other)
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
 {
+    pimpl->dropStaleResults();
     const double P0 = P;
     auto tps = pimpl->thermo_properties_substance_fn(T, P, P, substance);
     if (pimpl->preferences.propagate_parameter_errors)
@@ -1297,16 +1328,19 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
 
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
 {
+    pimpl->dropStaleResults();
     return pimpl->electro_properties_solvent_fn(T, P, P, solvent, state);
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
 {
+    pimpl->dropStaleResults();
     return pimpl->properties_solvent_fn(T, P, P, solvent, state);
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
 {
+    pimpl->dropStaleResults();
     const double P0 = P;
     auto tps = pimpl->thermoPropertiesSubstance(T, P, substance);
     if (pimpl->preferences.propagate_parameter_errors)
@@ -1322,17 +1356,20 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substanc
 
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> ElectroPropertiesSolvent
 {
+    pimpl->dropStaleResults();
     return pimpl->electroPropertiesSolvent(T, P, solvent, state);
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> PropertiesSolvent
 {
+    pimpl->dropStaleResults();
     return pimpl->propertiesSolvent(T, P, solvent, state);
 }
 
 // Reaction
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction
 {
+    pimpl->dropStaleResults();
     const double P0 = P;
     auto tpr = pimpl->thermo_properties_reaction_fn(T, P, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
@@ -1344,6 +1381,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
 
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
 {
+    pimpl->dropStaleResults();
     const double P0 = P;
     auto tpr = pimpl->thermoPropertiesReactionFromReactants(T, P, symbol);
     if (pimpl->preferences.propagate_parameter_errors)
@@ -1355,6 +1393,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, st
 
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
+    pimpl->dropStaleResults();
     const double P0 = P;
     auto tpr = pimpl->thermoPropertiesReaction(T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
@@ -1366,6 +1405,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction&
 
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
+    pimpl->dropStaleResults();
     const double P0 = P;
     auto tpr = pimpl->thermoPropertiesReactionFromReactants(T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
@@ -1380,6 +1420,12 @@ auto ThermoEngine::setPreferences(const EnginePreferences preferences) -> void
     pimpl->preferences = preferences;
     pimpl->perturbed_engine.reset();
     pimpl->set_fn(); // applies the memoization settings (the caches are cleared)
+}
+
+auto ThermoEngine::setConventions(const EngineConventions conventions) -> void
+{
+    pimpl->conventions = conventions;
+    pimpl->dropStaleResults();
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void

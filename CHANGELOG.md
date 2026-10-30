@@ -15,3 +15,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Synthetic legacy fixtures for the methods that no bundled database uses (`pytests/data/legacy-synthetic/`).
 - Comparison of two builds (`pytests/golden/compare_builds.py`) and the CI job `golden-diff`.
 - Guide to the golden tests (`docs/contributing/golden-tests.md`).
+- `ThermoEngine::setConventions` (C++ and Python). In Python, `engine.preferences` and `engine.conventions`
+  can be assigned as a whole.
+- `Database::revision`: a number that changes with each change of the records.
+
+### Fixed
+
+- Cached results are no longer returned after a change of the conventions, the preferences, the database
+  conventions or the records. Before, a change in place (for example `engine.conventions.water_properties`)
+  or `appendData` after a first calculation gave the old result.
