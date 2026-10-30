@@ -102,6 +102,24 @@
         "logk_marshall_frank78"
       ],
       "reason": "Marshall-Franck (1981) model: log K was not returned. Checked: log Kw = -13.995 at 25 C (pytests/test_published_models.py)."
+    },
+    {
+      "database": "heracles-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "BaI2(g)"
+      ],
+      "reason": "Cp used a9 * T^0 (integer division 1/2 in the exponent) while S, G and H use a9 * sqrt(T). Cp now equals dH/dT (pytests/test_published_models.py). The only bundled record with a9 != 0."
+    },
+    {
+      "database": "heracles-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "BaI2(g)"
+      ],
+      "reason": "Cp used a9 * T^0 (integer division 1/2 in the exponent) while S, G and H use a9 * sqrt(T). Cp now equals dH/dT (pytests/test_published_models.py). The only bundled record with a9 != 0."
     }
   ]
 }

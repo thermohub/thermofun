@@ -189,7 +189,7 @@ auto thermoPropertiesEmpCpIntegration(const Reaktoro_::Pass& pass, Substance sub
                 ac[6] * (TK * TK * TK * TK) +
                 ac[7] / (TK * TK * TK) +
                 ac[8] / TK +
-                ac[9] * (pow(TK, (1 / 2))) /*+ ac[10]*log(T)*/);
+                ac[9] * (pow(TK, 0.5)) /*+ ac[10]*log(T)*/);
 
     for (unsigned j = 0, ft = 0; j <= k; j++)
     {

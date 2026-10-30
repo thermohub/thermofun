@@ -54,6 +54,16 @@ def test_marshall_franck_1981_water_ion_product():
         -p.reaction_gibbs_energy.val / (8.31451 * 298.15 * math.log(10)), rel=1e-6)
 
 
+def test_heat_capacity_is_the_temperature_derivative_of_the_enthalpy():
+    # BaI2(g) of heracles is the only bundled record with the term a9 sqrt(T) of Cp
+    engine = tf.ThermoEngine(os.path.join(HERE, "..", "..", "..", "Resources", "databases", "heracles-thermofun.json"))
+    T, P, h = 700.0, 1e5, 1e-2
+    cp = engine.thermoPropertiesSubstance(T, P, "BaI2(g)").heat_capacity_cp.val
+    up = engine.thermoPropertiesSubstance(T + h, P, "BaI2(g)").enthalpy.val
+    down = engine.thermoPropertiesSubstance(T - h, P, "BaI2(g)").enthalpy.val
+    assert cp == pytest.approx((up - down) / (2 * h), rel=1e-6)
+
+
 def test_published_databases_name_their_source():
     for name in os.listdir(HERE):
         with open(os.path.join(HERE, name)) as f:
