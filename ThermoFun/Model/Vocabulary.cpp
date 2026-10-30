@@ -4,253 +4,267 @@
 #include "Vocabulary.h"
 
 #include <algorithm>
-#include <vector>
+#include <cctype>
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 namespace {
 
-// One row of a vocabulary: the canonical word, the aliases that a reader accepts, and (for the
-// vocabularies that have one) the legacy code.
+// One row of a list: the value, its canonical word and the aliases a reader accepts.
 template <class E>
 struct Row
 {
     E value;
     const char* word;
     std::vector<const char*> aliases;
-    int legacy;
 };
 
+// The name of each list (a key of a v2 file) and its rows. One specialization for each enum.
 template <class E>
-auto findWord(const std::vector<Row<E>>& table, const std::string& s) -> const Row<E>*
+struct Table;
+
+#define THERMOFUN_VOCABULARY(E, NAME, ...)                                                                            \
+    template <>                                                                                                       \
+    struct Table<E>                                                                                                   \
+    {                                                                                                                 \
+        static constexpr const char* name = NAME;                                                                     \
+        static auto rows() -> const std::vector<Row<E>>&                                                              \
+        {                                                                                                             \
+            static const std::vector<Row<E>> r = {__VA_ARGS__};                                                       \
+            return r;                                                                                                 \
+        }                                                                                                             \
+    };
+
+using PN = PropertyName;
+THERMOFUN_VOCABULARY(PropertyName, "property",
+    {PN::G, "G", {}}, {PN::H, "H", {}}, {PN::S, "S", {}}, {PN::Cp, "Cp", {}}, {PN::V, "V", {}},
+    {PN::U, "U", {}}, {PN::A, "A", {}}, {PN::Cv, "Cv", {}})
+
+using RPN = ReactionPropertyName;
+THERMOFUN_VOCABULARY(ReactionPropertyName, "reaction_property",
+    {RPN::logK, "logK", {}}, {RPN::lnK, "lnK", {}}, {RPN::dG, "dG", {}}, {RPN::dH, "dH", {}}, {RPN::dS, "dS", {}},
+    {RPN::dCp, "dCp", {}}, {RPN::dV, "dV", {}}, {RPN::dU, "dU", {}}, {RPN::dA, "dA", {}})
+
+THERMOFUN_VOCABULARY(Quality, "quality",
+    {Quality::Core, "core", {}}, {Quality::Recommended, "recommended", {}}, {Quality::Supplemental, "supplemental", {}})
+
+THERMOFUN_VOCABULARY(Origin, "origin",
+    {Origin::Measured, "measured", {}}, {Origin::Entered, "entered", {}}, {Origin::Calculated, "calculated", {}},
+    {Origin::Estimated, "estimated", {}}, {Origin::Converted, "converted", {}})
+
+THERMOFUN_VOCABULARY(PropertySource, "property_source",
+    {PropertySource::Direct, "direct", {}}, {PropertySource::Reaction, "reaction", {}},
+    {PropertySource::Reactants, "reactants", {}})
+
+THERMOFUN_VOCABULARY(DatasetStatus, "status",
+    {DatasetStatus::Draft, "draft", {}}, {DatasetStatus::Published, "published", {}})
+
+THERMOFUN_VOCABULARY(MethodKind, "kind",
+    {MethodKind::Symbolic, "symbolic", {}}, {MethodKind::Reference, "reference", {}},
+    {MethodKind::Composite, "composite", {}})
+
+THERMOFUN_VOCABULARY(OperatesOn, "operates_on",
+    {OperatesOn::Substance, "substance", {}}, {OperatesOn::Reaction, "reaction", {}})
+
+using SC = SubstanceClass;
+THERMOFUN_VOCABULARY(SubstanceClass, "class",
+    {SC::Component, "component", {}}, {SC::GasFluid, "gas_fluid", {}}, {SC::AqueousSolute, "aqueous_solute", {}},
+    {SC::WaterSolvent, "water_solvent", {}}, {SC::SurfaceSpecies, "surface_species", {}},
+    {SC::SiteMoiety, "site_moiety", {}}, {SC::Other, "other", {}})
+
+using AS = AggregateState;
+THERMOFUN_VOCABULARY(AggregateState, "aggregate_state",
+    {AS::Gas, "gas", {}}, {AS::Liquid, "liquid", {}}, {AS::Glass, "glass", {}}, {AS::Crystal, "crystal", {"crystalline"}},
+    {AS::Aqueous, "aqueous", {}}, {AS::Surface, "surface", {}}, {AS::IonExchange, "ion_exchange", {}},
+    {AS::Plasma, "plasma", {}}, {AS::Solid, "solid", {}}, {AS::Condensed, "condensed", {}}, {AS::Fluid, "fluid", {}},
+    {AS::LiquidCrystal, "liquid_crystal", {}}, {AS::AmorphousSolid, "amorphous_solid", {}},
+    {AS::Monomeric, "monomeric", {}}, {AS::Polymeric, "polymeric", {}}, {AS::SolidSolution, "solid_solution", {}},
+    {AS::Other, "other", {}})
+
+THERMOFUN_VOCABULARY(ElementClass, "class",
+    {ElementClass::Element, "element", {}}, {ElementClass::Charge, "charge", {}}, {ElementClass::Other, "other", {}})
+
+THERMOFUN_VOCABULARY(Interpolation, "interpolation",
+    {Interpolation::Lagrange, "lagrange", {}}, {Interpolation::CubicSpline, "cubic_spline", {"spline"}},
+    {Interpolation::Bilinear, "bilinear", {}})
+
+using ER = EnergyReference;
+THERMOFUN_VOCABULARY(EnergyReference, "energy_reference",
+    {ER::BensonHelgeson, "benson_helgeson", {}}, {ER::BermanBrown, "berman_brown", {}}, {ER::SER, "ser", {}},
+    {ER::AssignedEnthalpy, "assigned_enthalpy", {}}, {ER::GibbsHelmholtzFormation, "gibbs_helmholtz_formation", {}},
+    {ER::DFTFormation0K, "dft_formation_0K", {}})
+
+THERMOFUN_VOCABULARY(StandardPressure, "standard_pressure",
+    {StandardPressure::OneBar, "1bar", {"1 bar", "bar"}}, {StandardPressure::OneAtm, "1atm", {"1 atm", "atm"}})
+
+THERMOFUN_VOCABULARY(ConcentrationScale, "concentration_scale",
+    {ConcentrationScale::Molality, "molality", {}}, {ConcentrationScale::MoleFraction, "mole_fraction", {}},
+    {ConcentrationScale::Molarity, "molarity", {}})
+
+THERMOFUN_VOCABULARY(WaterReference, "water_reference",
+    {WaterReference::Geochemical, "geochemical", {}}, {WaterReference::SteamTables, "steam_tables", {}})
+
+#undef THERMOFUN_VOCABULARY
+
+/// Lower case, with '-' read as '_', so that "Steam-Tables" and "STEAM_TABLES" both match "steam_tables".
+auto normalized(std::string_view s) -> std::string
 {
-    for (const auto& row : table)
+    std::string out(s);
+    for (auto& c : out)
+        c = c == '-' ? '_' : static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    return out;
+}
+
+auto editDistance(const std::string& a, const std::string& b) -> size_t
+{
+    std::vector<size_t> row(b.size() + 1);
+    for (size_t j = 0; j <= b.size(); ++j)
+        row[j] = j;
+    for (size_t i = 1; i <= a.size(); ++i)
     {
-        if (s == row.word)
-            return &row;
-        for (const char* alias : row.aliases)
-            if (s == alias)
-                return &row;
+        size_t diagonal = row[0];
+        row[0] = i;
+        for (size_t j = 1; j <= b.size(); ++j)
+        {
+            const size_t up = row[j];
+            row[j] = std::min({row[j] + 1, row[j - 1] + 1, diagonal + (a[i - 1] == b[j - 1] ? 0 : 1)});
+            diagonal = up;
+        }
     }
-    return nullptr;
+    return row[b.size()];
 }
 
+} // namespace
+
 template <class E>
-auto findValue(const std::vector<Row<E>>& table, E value) -> const Row<E>*
+auto toString(E value) -> std::string
 {
-    for (const auto& row : table)
+    for (const auto& row : Table<E>::rows())
         if (row.value == value)
-            return &row;
-    return nullptr;
+            return row.word;
+    return "";
 }
 
 template <class E>
-auto wordOf(const std::vector<Row<E>>& table, E value) -> std::string
+auto fromString(std::string_view word) -> std::optional<E>
 {
-    const auto* row = findValue(table, value);
-    return row ? row->word : "";
+    const auto w = normalized(word);
+    for (const auto& row : Table<E>::rows())
+    {
+        if (w == normalized(row.word))
+            return row.value;
+        for (const char* alias : row.aliases)
+            if (w == normalized(alias))
+                return row.value;
+    }
+    return std::nullopt;
 }
 
 template <class E>
-auto valueOf(const std::vector<Row<E>>& table, const std::string& s) -> std::optional<E>
+auto words() -> std::vector<std::string>
 {
-    const auto* row = findWord(table, s);
-    if (!row)
-        return std::nullopt;
-    return row->value;
+    std::vector<std::string> out;
+    for (const auto& row : Table<E>::rows())
+        out.push_back(row.word);
+    return out;
 }
 
-// ---------------------------------------------------------------------------------------------
-// Tables of the plain vocabularies
-
-const std::vector<Row<PropertyName>> propertyTable = {
-    {PropertyName::G, "G", {}, 0},
-    {PropertyName::H, "H", {}, 0},
-    {PropertyName::S, "S", {}, 0},
-    {PropertyName::Cp, "Cp", {}, 0},
-    {PropertyName::V, "V", {}, 0},
-    {PropertyName::U, "U", {}, 0},
-    {PropertyName::A, "A", {}, 0},
-    {PropertyName::Cv, "Cv", {}, 0},
-};
-
-const std::vector<Row<ReactionPropertyName>> reactionPropertyTable = {
-    {ReactionPropertyName::logK, "logK", {}, 0},
-    {ReactionPropertyName::lnK, "lnK", {}, 0},
-    {ReactionPropertyName::dG, "dG", {}, 0},
-    {ReactionPropertyName::dH, "dH", {}, 0},
-    {ReactionPropertyName::dS, "dS", {}, 0},
-    {ReactionPropertyName::dCp, "dCp", {}, 0},
-    {ReactionPropertyName::dV, "dV", {}, 0},
-    {ReactionPropertyName::dU, "dU", {}, 0},
-    {ReactionPropertyName::dA, "dA", {}, 0},
-};
-
-const std::vector<Row<Quality>> qualityTable = {
-    {Quality::Core, "core", {}, 0},
-    {Quality::Recommended, "recommended", {}, 0},
-    {Quality::Supplemental, "supplemental", {}, 0},
-};
-
-const std::vector<Row<Origin>> originTable = {
-    {Origin::Measured, "measured", {}, 0},
-    {Origin::Entered, "entered", {}, 0},
-    {Origin::Calculated, "calculated", {}, 0},
-    {Origin::Estimated, "estimated", {}, 0},
-    {Origin::Converted, "converted", {}, 0},
-};
-
-const std::vector<Row<PropertySource>> propertySourceTable = {
-    {PropertySource::Direct, "direct", {}, 0},
-    {PropertySource::Reaction, "reaction", {}, 0},
-    {PropertySource::Reactants, "reactants", {}, 0},
-};
-
-const std::vector<Row<DatasetStatus>> datasetStatusTable = {
-    {DatasetStatus::Draft, "draft", {}, 0},
-    {DatasetStatus::Published, "published", {}, 0},
-};
-
-const std::vector<Row<MethodKind>> methodKindTable = {
-    {MethodKind::Symbolic, "symbolic", {}, 0},
-    {MethodKind::Reference, "reference", {}, 0},
-    {MethodKind::Composite, "composite", {}, 0},
-};
-
-const std::vector<Row<OperatesOn>> operatesOnTable = {
-    {OperatesOn::Substance, "substance", {}, 0},
-    {OperatesOn::Reaction, "reaction", {}, 0},
-};
-
-// Units and legacy keys of the properties (same order as the enums)
-struct PropertyInfo
+template <class E>
+auto nearestWord(std::string_view word) -> std::string
 {
-    const char* unit;
-    const char* legacy_key;
-};
-const PropertyInfo propertyInfo[] = {
-    {"J/mol", "sm_gibbs_energy"},      {"J/mol", "sm_enthalpy"}, {"J/(mol.K)", "sm_entropy_abs"},
-    {"J/(mol.K)", "sm_heat_capacity_p"}, {"m3/mol", "sm_volume"}, {"J/mol", ""},
-    {"J/mol", ""},                     {"J/(mol.K)", ""},
-};
-const PropertyInfo reactionPropertyInfo[] = {
-    {"1", "logKr"},          {"1", ""},       {"J/mol", "drsm_gibbs_energy"},
-    {"J/mol", "drsm_enthalpy"}, {"J/(mol.K)", "drsm_entropy"}, {"J/(mol.K)", "drsm_heat_capacity_p"},
-    {"m3/mol", "drsm_volume"}, {"J/mol", ""}, {"J/mol", ""},
-};
+    const auto w = normalized(word);
+    // a few typing errors, not another word; no guess for words of one or two letters
+    if (w.size() < 3)
+        return "";
+    const size_t limit = std::max<size_t>(1, w.size() / 3);
+    std::string best;
+    size_t bestDistance = limit + 1;
+    for (const auto& row : Table<E>::rows())
+    {
+        std::vector<const char*> candidates = row.aliases;
+        candidates.insert(candidates.begin(), row.word);
+        for (const char* candidate : candidates)
+        {
+            const auto d = editDistance(w, normalized(candidate));
+            if (d < bestDistance)
+            {
+                bestDistance = d;
+                best = row.word;
+            }
+        }
+    }
+    return best;
+}
 
-// ---------------------------------------------------------------------------------------------
-// Tables with legacy codes. The value of a row is the legacy code.
-
-const std::vector<Row<int>> substanceClassTable = {
-    {SubstanceClass::COMPONENT, "component", {}, SubstanceClass::COMPONENT},
-    {SubstanceClass::GASFLUID, "gas_fluid", {}, SubstanceClass::GASFLUID},
-    {SubstanceClass::AQSOLUTE, "aqueous_solute", {}, SubstanceClass::AQSOLUTE},
-    {SubstanceClass::AQSOLVENT, "water_solvent", {}, SubstanceClass::AQSOLVENT},
-    {SubstanceClass::SURFSPECIES, "surface_species", {}, SubstanceClass::SURFSPECIES},
-    {SubstanceClass::SITEMOIETY, "site_moiety", {}, SubstanceClass::SITEMOIETY},
-    {SubstanceClass::OTHER_SC, "other", {}, SubstanceClass::OTHER_SC},
-};
-
-const std::vector<Row<int>> aggregateStateTable = {
-    {AggregateState::GAS, "gas", {}, AggregateState::GAS},
-    {AggregateState::LIQUID, "liquid", {}, AggregateState::LIQUID},
-    {AggregateState::GLASS, "glass", {}, AggregateState::GLASS},
-    {AggregateState::CRYSTAL, "crystal", {"crystalline"}, AggregateState::CRYSTAL},
-    {AggregateState::AQUEOUS, "aqueous", {}, AggregateState::AQUEOUS},
-    {AggregateState::SURFACE, "surface", {}, AggregateState::SURFACE},
-    {AggregateState::IONEX, "ion_exchange", {}, AggregateState::IONEX},
-    {AggregateState::PLASMA, "plasma", {}, AggregateState::PLASMA},
-    {AggregateState::SOLID, "solid", {}, AggregateState::SOLID},
-    {AggregateState::CONDENSED, "condensed", {}, AggregateState::CONDENSED},
-    {AggregateState::FLUID, "fluid", {}, AggregateState::FLUID},
-    {AggregateState::LIQUIDCRYSTAL, "liquid_crystal", {}, AggregateState::LIQUIDCRYSTAL},
-    {AggregateState::AMORPHOUSSOLID, "amorphous_solid", {}, AggregateState::AMORPHOUSSOLID},
-    {AggregateState::MONOMERIC, "monomeric", {}, AggregateState::MONOMERIC},
-    {AggregateState::POLYMERIC, "polymeric", {}, AggregateState::POLYMERIC},
-    {AggregateState::SOLIDSOLUTION, "solid_solution", {}, AggregateState::SOLIDSOLUTION},
-    {AggregateState::OTHER, "other", {}, AggregateState::OTHER},
-};
-
-const int elementClassOther = 101;
-const std::vector<Row<int>> elementClassTable = {
-    {0, "element", {}, 0},
-    {4, "charge", {}, 4},
-    {elementClassOther, "other", {}, elementClassOther},
-};
-
-auto wordOfCode(const std::vector<Row<int>>& table, int code) -> std::string
+template <class E>
+auto vocabularyName() -> std::string
 {
-    const auto* row = findValue(table, code);
-    return row ? row->word : "other";
+    return Table<E>::name;
 }
 
-auto codeOfWord(const std::vector<Row<int>>& table, const std::string& word) -> int
+template <class E>
+auto unknownWordMessage(std::string_view word) -> std::string
 {
-    const auto* row = findWord(table, word);
-    return row ? row->legacy : findWord(table, "other")->legacy;
+    std::string message = "\"" + std::string(word) + "\" is not a value of " + vocabularyName<E>() + ".";
+    const auto near = nearestWord<E>(word);
+    if (!near.empty())
+        message += " Did you mean \"" + near + "\"?";
+    message += " Allowed:";
+    const auto all = words<E>();
+    for (size_t i = 0; i < all.size(); ++i)
+        message += (i ? ", " : " ") + all[i];
+    return message + ".";
 }
 
-auto canonical(const std::vector<Row<int>>& table, const std::string& word) -> std::string
+#define THERMOFUN_INSTANTIATE(E)                                                                                      \
+    template auto toString<E>(E) -> std::string;                                                                      \
+    template auto fromString<E>(std::string_view) -> std::optional<E>;                                                \
+    template auto words<E>() -> std::vector<std::string>;                                                             \
+    template auto nearestWord<E>(std::string_view) -> std::string;                                                    \
+    template auto vocabularyName<E>() -> std::string;                                                                 \
+    template auto unknownWordMessage<E>(std::string_view) -> std::string;
+
+THERMOFUN_INSTANTIATE(PropertyName)
+THERMOFUN_INSTANTIATE(ReactionPropertyName)
+THERMOFUN_INSTANTIATE(Quality)
+THERMOFUN_INSTANTIATE(Origin)
+THERMOFUN_INSTANTIATE(PropertySource)
+THERMOFUN_INSTANTIATE(DatasetStatus)
+THERMOFUN_INSTANTIATE(MethodKind)
+THERMOFUN_INSTANTIATE(OperatesOn)
+THERMOFUN_INSTANTIATE(SubstanceClass)
+THERMOFUN_INSTANTIATE(AggregateState)
+THERMOFUN_INSTANTIATE(ElementClass)
+THERMOFUN_INSTANTIATE(Interpolation)
+THERMOFUN_INSTANTIATE(EnergyReference)
+THERMOFUN_INSTANTIATE(StandardPressure)
+THERMOFUN_INSTANTIATE(ConcentrationScale)
+THERMOFUN_INSTANTIATE(WaterReference)
+
+#undef THERMOFUN_INSTANTIATE
+
+auto siUnit(PropertyName p) -> std::string
 {
-    const auto* row = findWord(table, word);
-    return row ? row->word : "other";
+    switch (p)
+    {
+    case PropertyName::G: case PropertyName::H: case PropertyName::U: case PropertyName::A: return "J/mol";
+    case PropertyName::S: case PropertyName::Cp: case PropertyName::Cv: return "J/(mol.K)";
+    case PropertyName::V: return "m3/mol";
+    }
+    return "";
 }
 
-}
-
-// ---------------------------------------------------------------------------------------------
-
-auto toString(PropertyName p) -> std::string { return wordOf(propertyTable, p); }
-auto propertyNameFromString(const std::string& s) -> std::optional<PropertyName> { return valueOf(propertyTable, s); }
-auto toString(ReactionPropertyName p) -> std::string { return wordOf(reactionPropertyTable, p); }
-auto reactionPropertyNameFromString(const std::string& s) -> std::optional<ReactionPropertyName>
+auto siUnit(ReactionPropertyName p) -> std::string
 {
-    return valueOf(reactionPropertyTable, s);
+    switch (p)
+    {
+    case ReactionPropertyName::logK: case ReactionPropertyName::lnK: return "1";
+    case ReactionPropertyName::dG: case ReactionPropertyName::dH: case ReactionPropertyName::dU:
+    case ReactionPropertyName::dA: return "J/mol";
+    case ReactionPropertyName::dS: case ReactionPropertyName::dCp: return "J/(mol.K)";
+    case ReactionPropertyName::dV: return "m3/mol";
+    }
+    return "";
 }
-auto toString(Quality v) -> std::string { return wordOf(qualityTable, v); }
-auto qualityFromString(const std::string& s) -> std::optional<Quality> { return valueOf(qualityTable, s); }
-auto toString(Origin v) -> std::string { return wordOf(originTable, v); }
-auto originFromString(const std::string& s) -> std::optional<Origin> { return valueOf(originTable, s); }
-auto toString(PropertySource v) -> std::string { return wordOf(propertySourceTable, v); }
-auto propertySourceFromString(const std::string& s) -> std::optional<PropertySource>
-{
-    return valueOf(propertySourceTable, s);
-}
-auto toString(DatasetStatus v) -> std::string { return wordOf(datasetStatusTable, v); }
-auto datasetStatusFromString(const std::string& s) -> std::optional<DatasetStatus>
-{
-    return valueOf(datasetStatusTable, s);
-}
-auto toString(MethodKind v) -> std::string { return wordOf(methodKindTable, v); }
-auto methodKindFromString(const std::string& s) -> std::optional<MethodKind> { return valueOf(methodKindTable, s); }
-auto toString(OperatesOn v) -> std::string { return wordOf(operatesOnTable, v); }
-auto operatesOnFromString(const std::string& s) -> std::optional<OperatesOn> { return valueOf(operatesOnTable, s); }
 
-auto siUnit(PropertyName p) -> std::string { return propertyInfo[static_cast<int>(p)].unit; }
-auto legacyKey(PropertyName p) -> std::string { return propertyInfo[static_cast<int>(p)].legacy_key; }
-auto siUnit(ReactionPropertyName p) -> std::string { return reactionPropertyInfo[static_cast<int>(p)].unit; }
-auto legacyKey(ReactionPropertyName p) -> std::string { return reactionPropertyInfo[static_cast<int>(p)].legacy_key; }
-
-auto substanceClassFromLegacy(int code) -> std::string { return wordOfCode(substanceClassTable, code); }
-auto legacySubstanceClass(const std::string& word) -> SubstanceClass::type
-{
-    return static_cast<SubstanceClass::type>(codeOfWord(substanceClassTable, word));
-}
-auto canonicalSubstanceClass(const std::string& word) -> std::string { return canonical(substanceClassTable, word); }
-auto isSubstanceClass(const std::string& word) -> bool { return findWord(substanceClassTable, word) != nullptr; }
-
-auto aggregateStateFromLegacy(int code) -> std::string { return wordOfCode(aggregateStateTable, code); }
-auto legacyAggregateState(const std::string& word) -> AggregateState::type
-{
-    return static_cast<AggregateState::type>(codeOfWord(aggregateStateTable, word));
-}
-auto canonicalAggregateState(const std::string& word) -> std::string { return canonical(aggregateStateTable, word); }
-auto isAggregateState(const std::string& word) -> bool { return findWord(aggregateStateTable, word) != nullptr; }
-
-auto elementClassFromLegacy(int code) -> std::string { return wordOfCode(elementClassTable, code); }
-auto legacyElementClass(const std::string& word) -> int { return codeOfWord(elementClassTable, word); }
-auto canonicalElementClass(const std::string& word) -> std::string { return canonical(elementClassTable, word); }
-auto isElementClass(const std::string& word) -> bool { return findWord(elementClassTable, word) != nullptr; }
-
-}
+} // namespace ThermoFun::v2

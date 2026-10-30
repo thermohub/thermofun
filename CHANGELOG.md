@@ -38,6 +38,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Diagnostics (`Common/Diagnostics.h`): problems found while reading or checking data are collected with a code,
   the file, line and column, the record, the path in the record, a message and a fix. Every code has a fix text.
 
+- Record model, first part (`Model/`, namespace `ThermoFun::v2`): quantities with uncertainty and typed vocabularies.
+  Each list has one checked conversion, with aliases and a "did you mean" hint.
+
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
   the test databases.

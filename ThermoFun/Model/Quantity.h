@@ -8,7 +8,9 @@
 #include <string>
 #include <vector>
 
-namespace ThermoFun {
+#include "Vocabulary.h"
+
+namespace ThermoFun::v2 {
 
 /// Uncertainty of a value, as a standard uncertainty (k = 1) in the SI unit of the value.
 struct Uncertainty
@@ -42,12 +44,12 @@ struct Uncertainty
     bool convention_unknown = false;
 };
 
-/// Optional data about one value. An empty string means that the file gives nothing here.
+/// Optional data about one value. An empty value or string means that the file gives nothing here.
 struct ValueMeta
 {
-    std::string quality;           ///< "core", "recommended", "supplemental" or ""
-    std::string origin;            ///< "measured", "entered", "calculated", "estimated", "converted" or ""
-    std::string calculation_path;  ///< free text if origin is "calculated"
+    std::optional<Quality> quality;
+    std::optional<Origin> origin;
+    std::string calculation_path;  ///< free text if origin is Calculated
     std::string source;            ///< symbol of a data source, for example "1995ROB/HEM"
 };
 
@@ -58,6 +60,10 @@ struct Quantity
     std::string unit_as_written;             ///< unit in the file. Empty if the default unit was used.
     std::optional<Uncertainty> uncertainty;  ///< empty if the file gives none (not zero)
     ValueMeta meta;
+
+    /// True if the value came from a single-precision (float32) source, as the legacy GEMS exports. A writer then
+    /// writes the shortest decimal that gives the same float32, for example 162.3 and not 162.3000030517578.
+    bool single_precision_source = false;
 
     /// True if the quantity has no data, no uncertainty and the default unit. v2 files write it as a bare number.
     auto isBare() const -> bool;
@@ -71,6 +77,6 @@ struct QuantityList
     std::vector<std::optional<double>> standard_uncertainties;  ///< one for each value, or empty
 };
 
-}
+} // namespace ThermoFun::v2
 
 #endif

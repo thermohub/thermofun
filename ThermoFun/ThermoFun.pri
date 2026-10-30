@@ -72,6 +72,9 @@
     $$PWD/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Diagnostics.h \
+    $$PWD/Model/Quantity.h \
+    $$PWD/Model/Vocabulary.h \
+    $$PWD/IO/Legacy/LegacyVocabulary.h \
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
     $$PWD/Common/OutputToCSV.h \
@@ -141,6 +144,9 @@
     $$PWD/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Diagnostics.cpp \
+    $$PWD/Model/Quantity.cpp \
+    $$PWD/Model/Vocabulary.cpp \
+    $$PWD/IO/Legacy/LegacyVocabulary.cpp \
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Common/OutputToCSV.cpp \

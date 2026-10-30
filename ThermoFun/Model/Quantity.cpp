@@ -3,12 +3,12 @@
 
 #include "Quantity.h"
 
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 auto Quantity::isBare() const -> bool
 {
-    return unit_as_written.empty() && !uncertainty.has_value() && meta.quality.empty() && meta.origin.empty() &&
+    return unit_as_written.empty() && !uncertainty.has_value() && !meta.quality && !meta.origin &&
            meta.calculation_path.empty() && meta.source.empty();
 }
 
-}
+} // namespace ThermoFun::v2

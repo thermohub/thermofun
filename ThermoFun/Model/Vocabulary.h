@@ -6,57 +6,26 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
+#include <vector>
 
-#include <ThermoFun/GlobalVariables.h>
+// The closed lists of words of the data format. Each list is an enum class; the words are what v2 files contain.
+// All words and aliases are in one table per list in Vocabulary.cpp. A reader accepts a word or an alias in any
+// case; a writer writes the canonical word. The legacy codes are in IO/Legacy/LegacyVocabulary.h.
 
-// The words of the data format (v2 strings) and their legacy integer codes.
-// The values are provisional. All tables, with their aliases, are in Vocabulary.cpp.
-// A reader accepts an alias and uses the canonical word. A writer writes the canonical word.
-
-namespace ThermoFun {
+namespace ThermoFun::v2 {
 
 /// Standard-state properties of a substance
-enum class PropertyName
-{
-    G,
-    H,
-    S,
-    Cp,
-    V,
-    U,
-    A,
-    Cv
-};
+enum class PropertyName { G, H, S, Cp, V, U, A, Cv };
 
 /// Standard-state properties of a reaction
-enum class ReactionPropertyName
-{
-    logK,
-    lnK,
-    dG,
-    dH,
-    dS,
-    dCp,
-    dV,
-    dU,
-    dA
-};
+enum class ReactionPropertyName { logK, lnK, dG, dH, dS, dCp, dV, dU, dA };
 
-enum class Quality
-{
-    Core,
-    Recommended,
-    Supplemental
-};
+/// How much a value is trusted
+enum class Quality { Core, Recommended, Supplemental };
 
-enum class Origin
-{
-    Measured,
-    Entered,
-    Calculated,
-    Estimated,
-    Converted
-};
+/// How a value was obtained
+enum class Origin { Measured, Entered, Calculated, Estimated, Converted };
 
 /// Where the properties of a substance or a reaction come from
 enum class PropertySource
@@ -66,74 +35,76 @@ enum class PropertySource
     Reactants   ///< reaction: from its reactants
 };
 
-enum class DatasetStatus
+/// The state of a thermodynamic dataset
+enum class DatasetStatus { Draft, Published };
+
+/// The kind of a method record
+enum class MethodKind { Symbolic, Reference, Composite };
+
+/// What a method calculates the properties of
+enum class OperatesOn { Substance, Reaction };
+
+/// The class of a substance
+enum class SubstanceClass { Component, GasFluid, AqueousSolute, WaterSolvent, SurfaceSpecies, SiteMoiety, Other };
+
+/// The aggregate state of a substance
+enum class AggregateState
 {
-    Draft,
-    Published
+    Gas, Liquid, Glass, Crystal, Aqueous, Surface, IonExchange, Plasma, Solid, Condensed, Fluid, LiquidCrystal,
+    AmorphousSolid, Monomeric, Polymeric, SolidSolution, Other
 };
 
-enum class MethodKind
+/// The class of an element
+enum class ElementClass { Element, Charge, Other };
+
+/// How a table is interpolated
+enum class Interpolation { Lagrange, CubicSpline, Bilinear };
+
+/// The reference of the energies (G, H, S) of a substance
+enum class EnergyReference { BensonHelgeson, BermanBrown, SER, AssignedEnthalpy, GibbsHelmholtzFormation, DFTFormation0K };
+
+/// The standard-state pressure
+enum class StandardPressure
 {
-    Symbolic,
-    Reference,
-    Composite
+    OneBar,  ///< 1e5 Pa
+    OneAtm   ///< 101325 Pa
 };
 
-enum class OperatesOn
+/// The concentration scale of aqueous solutes
+enum class ConcentrationScale { Molality, MoleFraction, Molarity };
+
+/// The reference of the properties of water
+enum class WaterReference
 {
-    Substance,
-    Reaction
+    Geochemical,  ///< the reference of HKF and HGK (1974) at the triple point
+    SteamTables   ///< IAPWS: U and S of liquid water are 0 at the triple point
 };
 
-// For each enum: toString() gives the canonical word, and xFromString() reads a word or an alias.
-// xFromString() gives an empty value for a word that is not in the vocabulary.
-auto toString(PropertyName p) -> std::string;
-auto propertyNameFromString(const std::string& s) -> std::optional<PropertyName>;
-auto toString(ReactionPropertyName p) -> std::string;
-auto reactionPropertyNameFromString(const std::string& s) -> std::optional<ReactionPropertyName>;
-auto toString(Quality v) -> std::string;
-auto qualityFromString(const std::string& s) -> std::optional<Quality>;
-auto toString(Origin v) -> std::string;
-auto originFromString(const std::string& s) -> std::optional<Origin>;
-auto toString(PropertySource v) -> std::string;
-auto propertySourceFromString(const std::string& s) -> std::optional<PropertySource>;
-auto toString(DatasetStatus v) -> std::string;
-auto datasetStatusFromString(const std::string& s) -> std::optional<DatasetStatus>;
-auto toString(MethodKind v) -> std::string;
-auto methodKindFromString(const std::string& s) -> std::optional<MethodKind>;
-auto toString(OperatesOn v) -> std::string;
-auto operatesOnFromString(const std::string& s) -> std::optional<OperatesOn>;
+// The functions below exist for each enum above.
 
-/// The SI unit (UCUM) of a property, and its key in a legacy record
+/// The canonical word of a value, as written in v2 files.
+template <class E> auto toString(E value) -> std::string;
+
+/// The value of a word or an alias, in any case. Empty if the word is not in the list.
+template <class E> auto fromString(std::string_view word) -> std::optional<E>;
+
+/// The canonical words of the list, in the order of the enum.
+template <class E> auto words() -> std::vector<std::string>;
+
+/// The canonical word nearest to the given word, for "did you mean", or "" if no word is near.
+template <class E> auto nearestWord(std::string_view word) -> std::string;
+
+/// The name of the list as a key of a v2 file, for example "aggregate_state".
+template <class E> auto vocabularyName() -> std::string;
+
+/// A message for a word that is not in the list, with the nearest word and the allowed words, for example
+/// `"crystl" is not a value of aggregate_state. Did you mean "crystal"? Allowed: gas, liquid, ...`.
+template <class E> auto unknownWordMessage(std::string_view word) -> std::string;
+
+/// The SI unit (UCUM) of a property.
 auto siUnit(PropertyName p) -> std::string;
-auto legacyKey(PropertyName p) -> std::string;
 auto siUnit(ReactionPropertyName p) -> std::string;
-auto legacyKey(ReactionPropertyName p) -> std::string;
 
-// Substance class, aggregate state and element class. A word that is not in the vocabulary becomes "other".
-
-/// The word of a legacy code of the substance class, for example 2 gives "aqueous_solute"
-auto substanceClassFromLegacy(int code) -> std::string;
-/// The legacy code of a word or an alias. A word that is not known gives OTHER_SC.
-auto legacySubstanceClass(const std::string& word) -> SubstanceClass::type;
-/// The canonical word of a word or an alias. A word that is not known gives "other".
-auto canonicalSubstanceClass(const std::string& word) -> std::string;
-/// True if the word or the alias is in the vocabulary.
-auto isSubstanceClass(const std::string& word) -> bool;
-
-auto aggregateStateFromLegacy(int code) -> std::string;
-auto legacyAggregateState(const std::string& word) -> AggregateState::type;
-auto canonicalAggregateState(const std::string& word) -> std::string;
-auto isAggregateState(const std::string& word) -> bool;
-
-/// Only the codes 0 (element) and 4 (charge) have a word. The meaning of 1, 2 and 3 is not verified, so
-/// they give "other". A reader keeps the raw code of such an element.
-auto elementClassFromLegacy(int code) -> std::string;
-/// The legacy code of a word. "other" gives 101.
-auto legacyElementClass(const std::string& word) -> int;
-auto canonicalElementClass(const std::string& word) -> std::string;
-auto isElementClass(const std::string& word) -> bool;
-
-}
+} // namespace ThermoFun::v2
 
 #endif
