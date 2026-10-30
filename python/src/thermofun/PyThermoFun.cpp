@@ -47,6 +47,7 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportBatchPreferences(m);
     exportOutput(m);
     // Data
+    exportMethods(m);
     exportDatabase(m);
     exportSubstance(m);
     exportReaction(m);

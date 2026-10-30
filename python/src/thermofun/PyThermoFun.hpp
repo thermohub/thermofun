@@ -47,6 +47,7 @@ namespace ThermoFun {
     void exportOutput(py::module& m);
     // Data
     void exportDatabase(py::module& m);
+    void exportMethods(py::module& m);
     void exportSubstance(py::module& m);
     void exportReaction(py::module& m);
     void exportElement(py::module& m);

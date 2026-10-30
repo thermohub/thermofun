@@ -3,6 +3,7 @@
 add_executable(tfun-unit
     main.cpp
     test_catalog.cpp
+    ../methods/test_substance_methods.cpp
     test_diagnostics.cpp
     test_vocabulary.cpp
     test_ucum.cpp

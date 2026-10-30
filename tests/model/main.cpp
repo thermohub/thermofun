@@ -9,6 +9,7 @@
 
 // One runAll() for each test_*.cpp
 void runCatalog();
+void runSubstanceMethods();
 void runDiagnostics();
 void runLegacyEquivalence();
 void runVocabulary();
@@ -26,6 +27,7 @@ int main()
     runRecords();
     runFormatDetect();
     runLegacyReader();
+    runSubstanceMethods();
     runLegacyEquivalence();
 
     if (tfun_test::failures() != 0)

@@ -48,6 +48,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Legacy reader (`IO/Legacy/`): reads legacy records into the record model, with a report of all fix-ups and of what
   is not used. `Substance`, `Reaction` and `Element` have `record()`.
 
+- Method objects (`Methods/`, `thermofun.methods` in Python): a method is an object bound to its parameters, that runs
+  alone with no database and no engine, and gives its properties with the derivatives with respect to T, P and each
+  parameter. First methods: `ConstantProperties`, `ConstantCp`, `CpPolynomial`.
+
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
   the test databases.

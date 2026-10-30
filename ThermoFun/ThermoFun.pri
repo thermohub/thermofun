@@ -75,6 +75,13 @@
     $$PWD/IO/FormatDetect.h \
     $$PWD/IO/detail/JsonDetect.h \
     $$PWD/Methods/MethodSpec.h \
+    $$PWD/Methods/Method.h \
+    $$PWD/Methods/MethodBase.h \
+    $$PWD/Methods/MethodRegistry.h \
+    $$PWD/Methods/Evaluate.h \
+    $$PWD/Methods/Minerals/ConstantProperties.h \
+    $$PWD/Methods/Minerals/ConstantCp.h \
+    $$PWD/Methods/Minerals/CpPolynomial.h \
     $$PWD/Methods/MethodCatalog.h \
     $$PWD/Common/Ucum.h \
     $$PWD/Model/Applicability.h \
@@ -169,6 +176,9 @@
     $$PWD/Common/Diagnostics.cpp \
     $$PWD/IO/FormatDetect.cpp \
     $$PWD/Methods/MethodCatalog.cpp \
+    $$PWD/Methods/MethodRegistry.cpp \
+    $$PWD/Methods/Evaluate.cpp \
+    $$PWD/Methods/Minerals/CpPolynomial.cpp \
     $$PWD/Common/Ucum.cpp \
     $$PWD/Model/Quantity.cpp \
     $$PWD/Model/Vocabulary.cpp \
