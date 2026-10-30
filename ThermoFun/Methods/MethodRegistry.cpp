@@ -59,6 +59,74 @@ MethodRegistry::MethodRegistry()
     add("NASA9", "", [](A a, R) { return std::make_shared<const NASA9>(a); });
     add("TPTable", "", [](A a, R) { return std::make_shared<const TPTable>(a); });
 
+    // the reactions: the coefficients of the names in the units of the formulas; none if the record gives none of them
+    auto coefficients = [](A a, std::initializer_list<std::pair<const char*, double>> names) {
+        std::vector<real> values;
+        bool any = false;
+        for (const auto& [n, factor] : names)
+        {
+            const auto it = a.parameters.find(n);
+            any = any || it != a.parameters.end();
+            values.push_back(it == a.parameters.end() ? 0.0 : it->second.value * factor);
+        }
+        return any ? values : std::vector<real>{};
+    };
+    using RR = const ReactionRecord&;
+    auto reactionInputs = [coefficients](A a, RR r, std::initializer_list<std::pair<const char*, double>> names) {
+        ReactionInputs in;
+        in.Tr = r.reference_conditions.T;
+        in.Pr = r.reference_conditions.P;
+        auto load = [&](ReactionPropertyName name, Reaktoro_::ThermoProperty& to, double factor = 1.0) {
+            const auto it = r.reaction_properties.find(name);
+            if (it == r.reaction_properties.end())
+                return;
+            to.val = it->second.value * factor;
+            to.sta = {Reaktoro_::Status::read, ""};
+            if (it->second.uncertainty)
+                to.err = it->second.uncertainty->standard * factor;
+        };
+        auto& ref = in.reference;
+        load(ReactionPropertyName::logK, ref.log_equilibrium_constant);
+        load(ReactionPropertyName::dG, ref.reaction_gibbs_energy);
+        load(ReactionPropertyName::dH, ref.reaction_enthalpy);
+        load(ReactionPropertyName::dS, ref.reaction_entropy);
+        load(ReactionPropertyName::dCp, ref.reaction_heat_capacity_cp);
+        load(ReactionPropertyName::dV, ref.reaction_volume, 1e5);  // J/bar
+        in.coefficients = coefficients(a, names);
+        return in;
+    };
+    auto logKMethod = [this, reactionInputs, coefficients](const char* id, LogKForm form) {
+        reaction_[id] = [=](A a, RR r) {
+            auto in = reactionInputs(a, r, {{"a0", 1}, {"a1", 1}, {"a2", 1}, {"a3", 1}, {"a4", 1}, {"a5", 1}, {"a6", 1}});
+            in.cp_coefficients = coefficients(a, {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}});
+            return makeLogK(id, form, std::move(in));
+        };
+    };
+    logKMethod("LogKPolynomial", LogKForm::Polynomial);
+    logKMethod("ReactionCpPolynomial", LogKForm::Polynomial);
+    logKMethod("LogKNordstromMunoz88", LogKForm::Polynomial);
+    logKMethod("LogKConstant", LogKForm::Constant);
+    logKMethod("LogKZeroEntropy", LogKForm::ZeroEntropy);
+    logKMethod("LogKVantHoff", LogKForm::VantHoff);
+    logKMethod("LogKConstantCp", LogKForm::ConstantCp);
+    reaction_["ConstantReactionProperties"] = [reactionInputs](A a, RR r) { return makeConstantReactionProperties(reactionInputs(a, r, {})); };
+    reaction_["LogKTable"] = [reactionInputs](A a, RR r) {
+        std::vector<double> x, y;
+        if (a.table)
+        {
+            x = a.table->temperatures;
+            if (const auto it = a.table->values.find("logK"); it != a.table->values.end())
+                y = it->second;
+        }
+        const int order = a.interpolation == Interpolation::Lagrange ? a.interpolation_order : 0;
+        return makeLogKTable(std::move(x), std::move(y), order, reactionInputs(a, r, {}));
+    };
+    reaction_["DolejsManning10"] = [reactionInputs](A a, RR r) { return makeDolejsManning10(reactionInputs(a, r, {{"a", 1e-3}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}})); };
+    reaction_["MarshallFranck81"] = [reactionInputs](A a, RR r) { return makeMarshallFranck81(reactionInputs(a, r, {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}, {"f", 1}, {"g", 1}})); };
+    reaction_["RyzhenkoBryzgalin"] = [reactionInputs](A a, RR r) { return makeRyzhenkoBryzgalin(reactionInputs(a, r, {{"pK298", 1}, {"A", 1}, {"B", 1}})); };
+    reaction_["ReactionVolumePolynomial"] = [reactionInputs](A a, RR r) { return makeReactionVolumePolynomial(reactionInputs(a, r, {{"a1", 1}, {"a2", 1}, {"a3", 1}, {"b1", 1e5}, {"b2", 1e10}})); };
+    reaction_["ReactionConstantVolume"] = [reactionInputs](A a, RR r) { return makeReactionConstantVolume(reactionInputs(a, r, {})); };
+
     // a fluid: the parameters in the order of the names; the lower T of the record is that of its heat capacity
     auto gas = [this](auto kind, const char* id, std::vector<const char*> names) {
         using Method = typename decltype(kind)::type;
@@ -198,6 +266,19 @@ auto makeFrom(const Factories& factories, const MethodApplication& application, 
 }
 
 } // namespace
+
+auto MethodRegistry::hasReactionMethod(const std::string& id) const -> bool
+{
+    return reaction_.count(id) > 0;
+}
+
+auto MethodRegistry::createReaction(const MethodApplication& application, const ReactionRecord& record) const -> std::shared_ptr<const ReactionMethod>
+{
+    const auto it = reaction_.find(application.method);
+    if (it == reaction_.end())
+        funError("Cannot make the method " + application.method, "There is no code for this method of a reaction.", __LINE__, __FILE__);
+    return it->second(application, record);
+}
 
 auto MethodRegistry::createSolvent(const MethodApplication& application) const -> std::shared_ptr<const SolventMethod>
 {

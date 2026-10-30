@@ -12,6 +12,7 @@
 #include "Methods/Reactions/LogK_function_of_T.h"
 #include "Methods/Reactions/DolejsManning2010.h"
 #include "Methods/Reactions/Volume_function_of_T.h"
+#include "Methods/Reactions/ReactionMethods.h"
 #include "ThermoPropertiesStatus.h"
 
 namespace ThermoFun {
@@ -172,15 +173,7 @@ auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::
     auto reaction = reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_logK_fT_coeff);
     const auto& cp = pimpl->reaction.thermoParameters().reaction_Cp_fT_coeff;
     reaction.cp_coefficients.assign(cp.begin(), cp.end());
-    const auto inputs = prepareLogK_fT(reaction, T, logKFormOf(methodT));
-
-    auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, reaction, inputs.method);
-    });
-
-    setStatusLogK_fT(tpr, inputs, T, P);
-
-    return tpr;
+    return v2::logKProperties(reaction, logKFormOf(methodT), T, P);
 }
 
 //=======================================================================================================
@@ -355,37 +348,7 @@ Reaction_Vol_fT::Reaction_Vol_fT(const Reaction &reaction)
 
 auto Reaction_Vol_fT::thermoProperties(double T, double P, const ThermoPropertiesReaction& tprIn) -> ThermoPropertiesReaction
 {
-    // P in Pa, the model works with the pressure in bar
-    const auto reaction = pimpl->reaction;
-    auto tpr = tprIn;
-    tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesReaction_Vol_fT(pass.T, pass.P / 1e5, reactionInputsOf(reaction, reaction.thermoParameters().reaction_V_fT_coeff), lift(pass, tprIn));
-    });
-
-    auto keep = [](Reaktoro_::ThermoProperty& o, const Reaktoro_::ThermoProperty& i) { o.sta = i.sta; o.err = i.err; };
-    keep(tpr.reaction_heat_capacity_cv, tprIn.reaction_heat_capacity_cv);
-    tpr.reaction_volume.asCalculated();
-    tpr.reaction_gibbs_energy.propagateFrom(tprIn.reaction_gibbs_energy, tpr.reaction_volume);
-    tpr.reaction_enthalpy.propagateFrom(tprIn.reaction_enthalpy, tpr.reaction_volume);
-    tpr.reaction_entropy.propagateFrom(tprIn.reaction_entropy, tpr.reaction_volume);
-    tpr.reaction_heat_capacity_cp.propagateFrom(tprIn.reaction_heat_capacity_cp, tpr.reaction_volume);
-    tpr.ln_equilibrium_constant.propagateFrom(tprIn.ln_equilibrium_constant, tpr.reaction_volume);
-    tpr.log_equilibrium_constant.propagateFrom(tpr.ln_equilibrium_constant);
-    tpr.reaction_internal_energy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_volume);
-    tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_internal_energy, tpr.reaction_entropy);
-
-    // first-order propagation: the volume model has no uncertainty; the errors of the input are kept, U and A weighted
-    const double Pbar = P / 1e5;
-    auto keepErr = [](Reaktoro_::ThermoProperty& o, const Reaktoro_::ThermoProperty& i) { o.err = i.err; };
-    keepErr(tpr.reaction_gibbs_energy, tprIn.reaction_gibbs_energy);
-    keepErr(tpr.reaction_enthalpy, tprIn.reaction_enthalpy);
-    keepErr(tpr.reaction_entropy, tprIn.reaction_entropy);
-    keepErr(tpr.reaction_heat_capacity_cp, tprIn.reaction_heat_capacity_cp);
-    keepErr(tpr.ln_equilibrium_constant, tprIn.ln_equilibrium_constant);
-    keepErr(tpr.log_equilibrium_constant, tprIn.log_equilibrium_constant);
-    tpr.reaction_internal_energy.setError({{1.0, tpr.reaction_enthalpy.err}, {Pbar, tpr.reaction_volume.err}});
-    tpr.reaction_helmholtz_energy.setError({{1.0, tpr.reaction_internal_energy.err}, {T, tpr.reaction_entropy.err}});
-    return tpr;
+    return v2::volumePolynomialProperties(reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_V_fT_coeff), T, P, tprIn);
 }
 
 } // namespace ThermoFuns

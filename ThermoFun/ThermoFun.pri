@@ -80,6 +80,9 @@
     $$PWD/Engine/Binding.h \
     $$PWD/Engine/Executor.h \
     $$PWD/Engine/Solvent.h \
+    $$PWD/Engine/ReactionBinding.h \
+    $$PWD/Engine/ReactionDefined.h \
+    $$PWD/Methods/Reactions/ReactionMethods.h \
     $$PWD/Conventions/HydrogenIon.h \
     $$PWD/Methods/Solutes/SoluteInputs.h \
     $$PWD/Methods/Solutes/SoluteMethods.h \
@@ -197,6 +200,9 @@
     $$PWD/Engine/Binding.cpp \
     $$PWD/Engine/Executor.cpp \
     $$PWD/Engine/Solvent.cpp \
+    $$PWD/Engine/ReactionBinding.cpp \
+    $$PWD/Engine/ReactionDefined.cpp \
+    $$PWD/Methods/Reactions/ReactionMethods.cpp \
     $$PWD/Methods/Solutes/SoluteMethods.cpp \
     $$PWD/Methods/Minerals/MineralMethods.cpp \
     $$PWD/Methods/Gases/GasMethods.cpp \

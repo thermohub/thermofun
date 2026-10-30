@@ -114,6 +114,39 @@ void exportMethods(py::module& parent)
         .def("properties", &DielectricMethod::properties, "The electrochemical properties at T [K], P [Pa], from the properties of the solvent",
              py::arg("T"), py::arg("P"), py::arg("solvent"), py::arg("state") = 0);
 
+    py::class_<ReactionMethod, std::shared_ptr<ReactionMethod>>(m, "ReactionMethod", "A method of a reaction, bound to its parameters")
+        .def_property_readonly("id", [](const ReactionMethod& s) { return s.spec().id; })
+        .def("calculate", &ReactionMethod::calculate, "The properties at T [K], P [Pa], from those of the method before it. solvent: for a method that needs it",
+             py::arg("T"), py::arg("P"), py::arg("incoming") = ThermoPropertiesReaction{}, py::arg("solvent") = nullptr);
+
+    m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference, int lagrangeOrder) {
+            auto a = makeApplication(id, "", parameters);
+            if (lagrangeOrder > 0)
+            {
+                a.interpolation = Interpolation::Lagrange;
+                a.interpolation_order = lagrangeOrder;
+            }
+            if (!temperatures.is_none())
+            {
+                TableData table;
+                table.temperatures = temperatures.cast<std::vector<double>>();
+                table.values["logK"] = logK.cast<std::vector<double>>();
+                a.table = table;
+            }
+            ReactionRecord record;
+            for (const auto& item : reference)
+            {
+                const auto name = fromString<ReactionPropertyName>(item.first.cast<std::string>());
+                if (!name)
+                    throw py::value_error("Not a property of a reaction: " + item.first.cast<std::string>());
+                Quantity q;
+                q.value = item.second.cast<double>();
+                record.reaction_properties[*name] = q;
+            }
+            return std::const_pointer_cast<ReactionMethod>(MethodRegistry::instance().createReaction(a, record));
+        }, "A method of a reaction, for example reactionMethod(\"LogKTable\", temperatures=[...], logK=[...]). "
+           "parameters in SI; lagrange_order above 0 for the Lagrange polynomial of LogKTable; reference: logK, dG, dH, dS, dCp, dV in SI.",
+        py::arg("id"), py::arg("parameters") = py::dict(), py::arg("temperatures") = py::none(), py::arg("logK") = py::none(), py::arg("reference") = py::dict(), py::arg("lagrange_order") = 0);
     m.def("substanceMethod", [](const std::string& id, const std::string& implementation, const py::dict& parameters, const std::string& symbol, int charge) {
             SubstanceRecord record;
             record.symbol = symbol;

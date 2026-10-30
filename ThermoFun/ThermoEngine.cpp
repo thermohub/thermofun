@@ -11,6 +11,9 @@
 #include "Common/Exception.h"
 #include "Engine/Executor.h"
 #include "Engine/Solvent.h"
+#include "Engine/ReactionBinding.h"
+#include "Engine/ReactionDefined.h"
+#include "Model/ReactionRecord.h"
 #include "Conventions/HydrogenIon.h"
 #include "Model/SubstanceRecord.h"
 #include "ThermoEngine.h"
@@ -129,6 +132,8 @@ struct ThermoEngine::Impl
         std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> substances;
         std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSolvent>> solvents;
         std::vector<std::shared_ptr<const v2::SubstanceRecord>> records;
+        std::map<const v2::ReactionRecord*, std::shared_ptr<const v2::BoundReaction>> reactions;
+        std::vector<std::shared_ptr<const v2::ReactionRecord>> reaction_records;
     };
     std::shared_ptr<BoundCache> bound_cache = std::make_shared<BoundCache>();
 
@@ -254,6 +259,22 @@ struct ThermoEngine::Impl
             }
         }
         return in;
+    }
+
+    /// The methods of a reaction, if the new path can run it. Temporary router, as boundMethods.
+    auto boundReaction(const Reaction& reaction) const -> std::shared_ptr<const v2::BoundReaction>
+    {
+        const auto record = reaction.record();
+        if (!record)
+            return nullptr;
+        std::lock_guard<std::mutex> lock(bound_cache->mutex);
+        const auto it = bound_cache->reactions.find(record.get());
+        if (it != bound_cache->reactions.end())
+            return it->second;
+        auto bound = v2::canBindReaction(*record) ? v2::bindReaction(record) : nullptr;
+        bound_cache->reactions[record.get()] = bound;
+        bound_cache->reaction_records.push_back(record);
+        return bound;
     }
 
     /// The methods of a water record, if the new path can run it. Temporary router, as boundMethods.
@@ -879,6 +900,8 @@ struct ThermoEngine::Impl
         Reaction reaction;
         std::map<std::string, double> reactants;
 
+        const v2::DefiningReactionGuard no_cycle(subst.symbol());
+
         // if reaction involves gases we switch on the P correction to the thermo props
         FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
 
@@ -901,56 +924,7 @@ struct ThermoEngine::Impl
             const double coeff = reactants[subst.symbol()];
 
             // the properties of the substance from the properties of the reaction and of the other reactants
-            tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-                ThermoPropertiesSubstanceAD a;
-                a.enthalpy         = pass(tpr.reaction_enthalpy);
-                a.entropy          = pass(tpr.reaction_entropy);
-                a.gibbs_energy     = pass(tpr.reaction_gibbs_energy);
-                a.heat_capacity_cp = pass(tpr.reaction_heat_capacity_cp);
-                a.heat_capacity_cv = pass(tpr.reaction_heat_capacity_cv);
-                a.helmholtz_energy = pass(tpr.reaction_helmholtz_energy);
-                a.internal_energy  = pass(tpr.reaction_internal_energy);
-                a.volume           = pass(tpr.reaction_volume);
-
-                for (const auto& other : others)
-                {
-                    a.enthalpy         -= pass(other.first.enthalpy) * other.second;
-                    a.entropy          -= pass(other.first.entropy) * other.second;
-                    a.gibbs_energy     -= pass(other.first.gibbs_energy) * other.second;
-                    a.heat_capacity_cp -= pass(other.first.heat_capacity_cp) * other.second;
-                    a.heat_capacity_cv -= pass(other.first.heat_capacity_cv) * other.second;
-                    a.helmholtz_energy -= pass(other.first.helmholtz_energy) * other.second;
-                    a.internal_energy  -= pass(other.first.internal_energy) * other.second;
-                    a.volume           -= pass(other.first.volume) * other.second;
-                }
-
-                a.enthalpy         = a.enthalpy / coeff;
-                a.entropy          = a.entropy / coeff;
-                a.gibbs_energy     = a.gibbs_energy / coeff;
-                a.heat_capacity_cp = a.heat_capacity_cp / coeff;
-                a.heat_capacity_cv = a.heat_capacity_cv / coeff;
-                a.helmholtz_energy = a.helmholtz_energy / coeff;
-                a.internal_energy  = a.internal_energy / coeff;
-                a.volume           = a.volume / coeff;
-                return a;
-            });
-
-            // each property is not defined if the property of the reaction or of any other reactant is not defined
-            auto setStatus = [&](Reaktoro_::ThermoProperty& p, const Reaktoro_::ThermoProperty& fromReaction,
-                                 Reaktoro_::ThermoProperty ThermoPropertiesSubstance::* member)
-            {
-                p.propagateFrom(fromReaction);
-                for (const auto& other : others)
-                    p.propagateFrom(p, other.first.*member);
-            };
-            setStatus(tps.enthalpy,         tpr.reaction_enthalpy,          &ThermoPropertiesSubstance::enthalpy);
-            setStatus(tps.entropy,          tpr.reaction_entropy,           &ThermoPropertiesSubstance::entropy);
-            setStatus(tps.gibbs_energy,     tpr.reaction_gibbs_energy,      &ThermoPropertiesSubstance::gibbs_energy);
-            setStatus(tps.heat_capacity_cp, tpr.reaction_heat_capacity_cp,  &ThermoPropertiesSubstance::heat_capacity_cp);
-            setStatus(tps.heat_capacity_cv, tpr.reaction_heat_capacity_cv,  &ThermoPropertiesSubstance::heat_capacity_cv);
-            setStatus(tps.helmholtz_energy, tpr.reaction_helmholtz_energy,  &ThermoPropertiesSubstance::helmholtz_energy);
-            setStatus(tps.internal_energy,  tpr.reaction_internal_energy,   &ThermoPropertiesSubstance::internal_energy);
-            setStatus(tps.volume,           tpr.reaction_volume,            &ThermoPropertiesSubstance::volume);
+            tps = v2::substanceFromReaction(T, P, tpr, others, coeff);
         }
         else
         {
@@ -966,11 +940,7 @@ struct ThermoEngine::Impl
             subst.substanceClass() == SubstanceClass::type::GASFLUID && !subst.method_P() && P > 0.0 &&
             !(tpr.reaction_volume.sta.first != Reaktoro_::Status::notdefined && tpr.reaction_volume.val != 0.0))
         {
-            const double Pbar = P / bar_to_Pa;
-            tps.volume.val = R_CONSTANT * T / Pbar; // J/bar
-            tps.volume.ddt = R_CONSTANT / Pbar;
-            tps.volume.ddp = -tps.volume.val / P;
-            tps.volume.sta = {Reaktoro_::Status::calculated, ""};
+            v2::setIdealGasVolume(tps, T, P);
         }
 
         // pressure correction on rdc assuming constant molar volume
@@ -1030,6 +1000,16 @@ struct ThermoEngine::Impl
     {
         ThermoPropertiesReaction tpr;
         WorkPreferences pref = getThermoPreferencesReaction(reaction);
+
+        if (const auto bound = boundReaction(reaction))
+        {
+            if (pref.method_genEOS == MethodGenEoS_Thrift::type::CTPM_REA && pref.method_T && pref.method_T != MethodCorrT_Thrift::type::CTM_LGK)
+                warnIfLogKFunctionDisagrees(reaction);
+            std::optional<PropertiesSolvent> solvent;
+            if (bound->needs_solvent)
+                solvent = properties_solvent_fn(T, P, P, preferences.solvent_symbol, -1);
+            return v2::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
+        }
 
         if (!pref.isReacFromReactants)
         {
@@ -1102,47 +1082,10 @@ struct ThermoEngine::Impl
             case MethodCorrP_Thrift::type::CPM_NUL:
             case MethodCorrP_Thrift::type::CPM_CON:
             {
-                auto Pref = pref.workReaction.referenceP() / 1e5;
-                auto Vref = pref.workReaction.thermoReferenceProperties().reaction_volume;
-
-                const auto tprIn = tpr;
-                tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-                    auto a = lift(pass, tprIn);
-                    const real Pbar = pass.P / 1e5; // the pressure of the pass (with its derivative)
-                    const real VP = a.reaction_volume * (Pbar - Pref);
-                    a.reaction_gibbs_energy += VP;
-                    a.reaction_enthalpy += VP;
-                    a.log_equilibrium_constant -= pass(Vref) * (Pbar - Pref) / (R_CONSTANT * pass.T) / lg_to_ln;
-                    a.reaction_entropy = (a.reaction_enthalpy - a.reaction_gibbs_energy) / pass.T;
-                    a.reaction_internal_energy = a.reaction_enthalpy - Pbar * a.reaction_volume;
-                    a.reaction_helmholtz_energy = a.reaction_internal_energy - pass.T * a.reaction_entropy;
-                    return a;
-                });
-
-                // the properties that were not changed keep their error and status
-                auto keep = [](Reaktoro_::ThermoProperty& o, const Reaktoro_::ThermoProperty& i) { o.sta = i.sta; o.err = i.err; };
-                keep(tpr.ln_equilibrium_constant, tprIn.ln_equilibrium_constant);
-                keep(tpr.reaction_volume, tprIn.reaction_volume);
-                keep(tpr.reaction_heat_capacity_cp, tprIn.reaction_heat_capacity_cp);
-                keep(tpr.reaction_heat_capacity_cv, tprIn.reaction_heat_capacity_cv);
-                tpr.reaction_gibbs_energy.propagateFrom(tprIn.reaction_gibbs_energy, tprIn.reaction_volume);
-                tpr.reaction_enthalpy.propagateFrom(tprIn.reaction_enthalpy, tprIn.reaction_volume);
-                tpr.log_equilibrium_constant.propagateFrom(tprIn.log_equilibrium_constant, Vref);
-                tpr.reaction_entropy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_gibbs_energy);
-                tpr.reaction_internal_energy.propagateFrom(tpr.reaction_enthalpy, tpr.reaction_volume);
-                tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_internal_energy, tpr.reaction_entropy);
-
-                // first-order propagation of the errors (independent inputs)
-                {
-                    const double dP = P / 1e5 - Pref;
-                    const double RT = R_CONSTANT * T;
-                    tpr.reaction_gibbs_energy.setError({{1.0, tprIn.reaction_gibbs_energy.err}, {dP, tprIn.reaction_volume.err}});
-                    tpr.reaction_enthalpy.setError({{1.0, tprIn.reaction_enthalpy.err}, {dP, tprIn.reaction_volume.err}});
-                    tpr.log_equilibrium_constant.setError({{1.0, tprIn.log_equilibrium_constant.err}, {dP/(RT*lg_to_ln), Vref.err}});
-                    tpr.reaction_entropy.setError({{1.0/T, tpr.reaction_enthalpy.err}, {1.0/T, tpr.reaction_gibbs_energy.err}});
-                    tpr.reaction_internal_energy.setError({{1.0, tpr.reaction_enthalpy.err}, {P/1e5, tpr.reaction_volume.err}});
-                    tpr.reaction_helmholtz_energy.setError({{1.0, tpr.reaction_internal_energy.err}, {T, tpr.reaction_entropy.err}});
-                }
+                ReactionInputs inputs;
+                inputs.reference = pref.workReaction.thermoReferenceProperties();
+                inputs.Pr = pref.workReaction.referenceP();
+                tpr = v2::constantVolumeProperties(inputs, T, P, tpr);
                 //dU/dT=C (v)
 
                 break;

@@ -364,7 +364,7 @@ auto reactionMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("LogKConstantCp", "log K with constant heat capacity of reaction", "Calculates log K with a dCp that does not change with T; without dCp, dH or dS it uses the simpler form that the data allow. The coefficients of log K(T), if given, only check the reference value.")
                     .alias({"LogKExtrap3T"}).logK().add(logKCoefficients(false)).add(reactionCpCoefficients(false)));
     m.push_back(Spec("LogKTable", "Table of log K", "Interpolates a table of log K(T), with Lagrange polynomials or a cubic spline.")
-                    .alias({"LogKLagrange"}).logK().notImplemented());
+                    .alias({"LogKLagrange"}).logK());
     m.push_back(Spec("MarshallFranck81", "Ion product of water of Marshall and Franck", "Calculates log K = a + b/T + c/T2 + d/T3 + (e + f/T + g/T2) log10(density of water).", "Marshall and Franck (1981)")
                     .alias({"FrantzMarshall", "MarshallFranck78"}).logK().solvent()
                     .add({par("a", "1", "1", "constant term"), par("b", "K", "K", "term b / T"), par("c", "K2", "K2", "term c / T2"), par("d", "K3", "K3", "term d / T3"),

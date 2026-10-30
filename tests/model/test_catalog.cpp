@@ -113,7 +113,7 @@ void testAliasesAndImplementations()
     CHECK(catalog.find("JohnsonNorton91")->implementations.size() == 2);
     // not implemented: the id is known
     CHECK(!catalog.find("LambdaBerman88")->implemented);
-    CHECK(!catalog.find("LogKTable")->implemented);
+    CHECK(catalog.find("LogKTable")->implemented);
     CHECK(catalog.find("HKF88")->implemented);
     // "did you mean"
     CHECK(catalog.suggest("HKF8") == "HKF88");
