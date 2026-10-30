@@ -354,7 +354,7 @@ auto readConventions(const std::string &data) -> DatabaseConventions
     }
     catch (json::exception &ex)
     {
-        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+        spdlog::error(" exception id:  {} message: {}", ex.id, ex.what());  // the logger of the library is data: a Windows DLL does not export it
     }
 
     return c;
@@ -627,7 +627,7 @@ auto parseElement(const std::string &data) -> Element
     }
     catch (json::exception &ex)
     {
-        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+        spdlog::error(" exception id:  {} message: {}", ex.id, ex.what());  // the logger of the library is data: a Windows DLL does not export it
     }
 
     return e;
@@ -717,7 +717,7 @@ auto parseSubstance(const std::string &data) -> Substance
     }
     catch (json::exception &ex)
     {
-        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+        spdlog::error(" exception id:  {} message: {}", ex.id, ex.what());  // the logger of the library is data: a Windows DLL does not export it
     }
 
     return s;
@@ -786,7 +786,7 @@ auto parseReaction(const std::string &data) -> Reaction
     }
     catch (json::exception &ex)
     {
-        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+        spdlog::error(" exception id:  {} message: {}", ex.id, ex.what());  // the logger of the library is data: a Windows DLL does not export it
     }
 
     return r;
