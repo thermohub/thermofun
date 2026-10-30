@@ -15,11 +15,15 @@
 #include "Common/Exception.h"
 #include "Common/ParseJsonToData.h"
 #include "ThermoPropertiesStatus.h"
+#include "IO/Legacy/LegacyReader.h"
 
 namespace ThermoFun {
 
 struct Reaction::Impl
 {
+    /// The record read from the JSON text; empty after an old setter
+    std::shared_ptr<const v2::ReactionRecord> record;
+
     /// The name of the chemical Reaction
     std::string name;
 
@@ -160,6 +164,7 @@ Reaction::Reaction(std::string jsonReaction)
     Reaction other = parseReaction(jsonReaction);
     pimpl = std::move(other.pimpl);
     setJsonString(jsonReaction);
+    pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readLegacyReaction(jsonReaction));
 }
 
 Reaction::Reaction(const Reaction& other)
@@ -177,81 +182,97 @@ auto Reaction::operator=(Reaction other) -> Reaction&
 
 auto Reaction::setName(std::string name) -> void
 {
+    pimpl->record.reset();
     pimpl->name = name;
 }
 
 auto Reaction::setSymbol(std::string symbol) -> void
 {
+    pimpl->record.reset();
     pimpl->symbol = symbol;
 }
 
 auto Reaction::setReactants(std::map<std::string, double> reactants) -> void
 {
+    pimpl->record.reset();
     pimpl->reactants = reactants;
 }
 
 auto Reaction::setReferenceT(double T) -> void
 {
+    pimpl->record.reset();
     pimpl->reference_T = T;
 }
 
 auto Reaction::setReferenceP(double P) -> void
 {
+    pimpl->record.reset();
     pimpl->reference_P = P;
 }
 
 auto Reaction::setLowerT(double T) -> void
 {
+    pimpl->record.reset();
     pimpl->lower_T = T;
 }
 
 auto Reaction::setLowerP(double P) -> void
 {
+    pimpl->record.reset();
     pimpl->lower_P = P;
 }
 
 auto Reaction::setUpperT(double T) -> void
 {
+    pimpl->record.reset();
     pimpl->upper_T = T;
 }
 
 auto Reaction::setUpperP(double P) -> void
 {
+    pimpl->record.reset();
     pimpl->upper_P = P;
 }
 
 auto Reaction::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
 {
+    pimpl->record.reset();
     pimpl->method_genEoS = method_genEoS;
 }
 
 auto Reaction::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 {
+    pimpl->record.reset();
     pimpl->method_T = method_T;
 }
 
 auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
+    pimpl->record.reset();
     pimpl->method_P = method_P;
 }
 
 auto Reaction::setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void
 {
+    pimpl->record.reset();
     pimpl->thermo_ref_prop = refprop;
 }
 
 auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
 {
+    pimpl->record.reset();
     pimpl->thermo_parameters = param;
 }
 
 auto Reaction::setEquation(std::string equation) -> void
 {
+    pimpl->record.reset();
     pimpl->equation = equation;
 }
 
 auto Reaction::setJsonString(const std::string &jString) ->void
 {
+    pimpl->record.reset();
     pimpl->jString = jString;
 }
 
@@ -334,6 +355,11 @@ auto Reaction::method_P() const -> MethodCorrP_Thrift::type
 auto Reaction::equation() const -> std::string
 {
     return pimpl->equation;
+}
+
+auto Reaction::record() const -> std::shared_ptr<const v2::ReactionRecord>
+{
+    return pimpl->record;
 }
 
 auto Reaction::jsonString() const -> std::string

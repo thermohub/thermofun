@@ -79,6 +79,10 @@ void testTranslation()
     for (const char* s : {"J/(mol*K)", "(J*K^2)/mol", "J/(mol*K^0.5)", "(cal*K)/(mol*bar)", "J/(K*mol)"})
         CHECK(fromUcum(s) == s);
 
+    // a mix of the point and the power is translated
+    CHECK(fromUcum("J/(mol.K^0.5)") == "J/(mol*K^0.5)");
+    CHECK(fromUcum("m3.K^0.5/kg") == "m^3*K^0.5/kg");
+
     // units that are not supported
     CHECK(throws("foo"));
     CHECK(throws("J/(mol"));
@@ -165,6 +169,8 @@ void testConversion()
     CHECK(near(convertAny(1.0, "10*-5/K", "1/K"), 1e-5));
     CHECK(near(convertAny(1.0, "1e-05/K", "1/K"), 1e-5));
     CHECK(near(convertAny(100.0, "%", "1"), 1.0));
+    CHECK(near(convertAny(1.0, "1/Pa2", "1/bar^2"), 1e10));  // a power that the converter does not know for Pa
+    CHECK(near(convertAny(1.0, "kJ.K2/mol", "J*K^2/mol"), 1000.0));
 
     // the units must have the same dimension
     bool thrown = false;

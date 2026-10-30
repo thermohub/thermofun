@@ -145,9 +145,9 @@ auto interactionParameters() -> std::vector<ParameterSpec>
 }
 
 // log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T)
-auto logKCoefficients() -> std::vector<ParameterSpec>
+auto logKCoefficients(bool required) -> std::vector<ParameterSpec>
 {
-    return {par("a0", "1", "1", "constant term"), par("a1", "1/K", "1/K", "term a1 T", false),
+    return {par("a0", "1", "1", "constant term", required), par("a1", "1/K", "1/K", "term a1 T", false),
             par("a2", "K", "K", "term a2 / T", false), par("a3", "1", "1", "term a3 ln T", false),
             par("a4", "K2", "K2", "term a4 / T2", false), par("a5", "1/K2", "1/K2", "term a5 T2", false),
             par("a6", "K^0.5", "K^0.5", "term a6 / sqrt(T)", false)};
@@ -291,7 +291,14 @@ auto substanceMethods() -> std::vector<MethodSpec>
                           .alias({"CORK"}).add(interactionParameters())));
 
     // water
-    auto waterEoS = [](Spec s) -> Spec { s.base().role(MethodRole::SolventProperties); return s; };
+    auto waterEoS = [](Spec s) -> Spec
+    {
+        auto state = par("state", "1", "1", "0: liquid, 1: gas", false);
+        state.default_si = 0.0;
+        state.fittable = false;
+        s.base().role(MethodRole::SolventProperties).add(state);
+        return s;
+    };
     m.push_back(waterEoS(Spec("WaterHGK84", "Water, Haar-Gallagher-Kell", "Calculates the properties of water from the HGK equation of state.", "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983)")
                              .alias({"WaterHGK", "WaterHGKGems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro", "gems"})));
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
@@ -321,17 +328,17 @@ auto reactionMethods() -> std::vector<MethodSpec>
         m.push_back(s);
     }
     m.push_back(Spec("LogKPolynomial", "log K polynomial", "Calculates log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T).")
-                    .alias({"LogKAnalytic"}).logK().add(logKCoefficients()));
+                    .alias({"LogKAnalytic"}).logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
     m.push_back(Spec("LogKNordstromMunoz88", "log K of Nordstrom and Munoz", "Calculates log K from the same equation as LogKPolynomial, in the form of Nordstrom and Munoz.", "Nordstrom and Munoz (1988)")
-                    .logK().add(logKCoefficients()));
-    m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T.")
-                    .alias({"LogKExtrap1T0"}).logK());
-    m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K with dS = 0, so dH = dG.")
-                    .alias({"LogKExtrap1T1"}).logK());
-    m.push_back(Spec("LogKVantHoff", "log K of van 't Hoff", "Calculates log K with dH and dS that do not change with T (dCp = 0).")
-                    .alias({"LogKExtrap2T"}).logK());
-    m.push_back(Spec("LogKConstantCp", "log K with constant heat capacity of reaction", "Calculates log K with a dCp that does not change with T; without dCp, dH or dS it uses the simpler form that the data allow.")
-                    .alias({"LogKExtrap3T"}).logK().add(reactionCpCoefficients(false)));
+                    .logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
+    m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T. The coefficients of log K(T), if given, only check the reference value.")
+                    .alias({"LogKExtrap1T0"}).logK().add(logKCoefficients(false)).add(reactionCpCoefficients(false)));
+    m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K with dS = 0, so dH = dG. The coefficients of log K(T), if given, only check the reference value.")
+                    .alias({"LogKExtrap1T1"}).logK().add(logKCoefficients(false)).add(reactionCpCoefficients(false)));
+    m.push_back(Spec("LogKVantHoff", "log K of van 't Hoff", "Calculates log K with dH and dS that do not change with T (dCp = 0). The coefficients of log K(T), if given, only check the reference value.")
+                    .alias({"LogKExtrap2T"}).logK().add(logKCoefficients(false)).add(reactionCpCoefficients(false)));
+    m.push_back(Spec("LogKConstantCp", "log K with constant heat capacity of reaction", "Calculates log K with a dCp that does not change with T; without dCp, dH or dS it uses the simpler form that the data allow. The coefficients of log K(T), if given, only check the reference value.")
+                    .alias({"LogKExtrap3T"}).logK().add(logKCoefficients(false)).add(reactionCpCoefficients(false)));
     m.push_back(Spec("LogKTable", "Table of log K", "Interpolates a table of log K(T), with Lagrange polynomials or a cubic spline.")
                     .alias({"LogKLagrange"}).logK().notImplemented());
     m.push_back(Spec("MarshallFranck81", "Ion product of water of Marshall and Franck", "Calculates log K = a + b/T + c/T2 + d/T3 + (e + f/T + g/T2) log10(density of water).", "Marshall and Franck (1981)")

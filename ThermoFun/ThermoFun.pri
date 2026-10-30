@@ -94,6 +94,10 @@
     $$PWD/Model/Quantity.h \
     $$PWD/Model/Vocabulary.h \
     $$PWD/IO/Legacy/LegacyVocabulary.h \
+    $$PWD/IO/Legacy/LegacyKeys.h \
+    $$PWD/IO/Legacy/LegacyMethodMap.h \
+    $$PWD/IO/Legacy/LegacyQuirks.h \
+    $$PWD/IO/Legacy/LegacyReader.h \
     $$PWD/Common/Exception.h \
     $$PWD/Common/OutputWaterSteamConventionProp.h \
     $$PWD/Common/OutputToCSV.h \
@@ -169,6 +173,9 @@
     $$PWD/Model/Quantity.cpp \
     $$PWD/Model/Vocabulary.cpp \
     $$PWD/IO/Legacy/LegacyVocabulary.cpp \
+    $$PWD/IO/Legacy/LegacyMethodMap.cpp \
+    $$PWD/IO/Legacy/LegacyQuirks.cpp \
+    $$PWD/IO/Legacy/LegacyReader.cpp \
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Common/OutputToCSV.cpp \

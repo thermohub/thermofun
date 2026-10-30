@@ -8,6 +8,7 @@ add_executable(tfun-unit
     test_ucum.cpp
     test_records.cpp
     test_format_detect.cpp
+    test_legacy_reader.cpp
     test_legacy_equivalence.cpp
     frozen/ParseJsonToData_v073.cpp)
 target_include_directories(tfun-unit PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun ${CMAKE_CURRENT_SOURCE_DIR})

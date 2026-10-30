@@ -12,7 +12,7 @@ namespace ThermoFun {
 namespace units {
 
 /// Translate a UCUM unit string to the syntax of the unit converter (Units.hpp).
-/// A string that already has the converter syntax (it has "*" or "^") is returned as it is.
+/// A string that already has the converter syntax (it has a product with "*") is returned as it is.
 /// Throws std::invalid_argument and names the token if the unit is not supported.
 auto fromUcum(const std::string& ucum) -> std::string;
 

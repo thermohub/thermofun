@@ -33,44 +33,45 @@ struct Atom
     const char* converter;
     Dim dimension;
     bool prefix;
+    const char* si;  // the coherent SI unit that the converter knows, for the factor of the atom
 };
 
 const std::vector<Atom>& atoms()
 {
     static const std::vector<Atom> table = {
-        {"g", "g", dim(1, 0, 0), true},
-        {"m", "m", dim(0, 1, 0), true},
-        {"s", "s", dim(0, 0, 1), true},
-        {"K", "K", dim(0, 0, 0, 1), true},
-        {"mol", "mol", dim(0, 0, 0, 0, 1), true},
-        {"A", "A", dim(0, 0, 0, 0, 0, 1), true},
-        {"cd", "cd", dim(0, 0, 0, 0, 0, 0, 1), true},
-        {"J", "J", dim(1, 2, -2), true},
-        {"N", "N", dim(1, 1, -2), true},
-        {"Pa", "Pa", dim(1, -1, -2), true},
-        {"bar", "bar", dim(1, -1, -2), true},
-        {"atm", "atm", dim(1, -1, -2), false},
-        {"torr", "torr", dim(1, -1, -2), false},
-        {"cal", "cal", dim(1, 2, -2), true},
-        {"cal_IT", "cal_IT", dim(1, 2, -2), true},
-        {"cal_th", "cal", dim(1, 2, -2), true},
-        {"eV", "eV", dim(1, 2, -2), true},
-        {"W", "W", dim(1, 2, -3), true},
-        {"Hz", "Hz", dim(0, 0, -1), true},
-        {"V", "V", dim(1, 2, -3, 0, 0, -1), true},
-        {"C", "C", dim(0, 0, 1, 0, 0, 1), true},
-        {"L", "L", dim(0, 3, 0), true},
-        {"l", "L", dim(0, 3, 0), true},
-        {"min", "min", dim(0, 0, 1), false},
-        {"h", "hour", dim(0, 0, 1), false},
-        {"d", "day", dim(0, 0, 1), false},
-        {"Cel", "degC", dim(0, 0, 0, 1), false},
-        {"degC", "degC", dim(0, 0, 0, 1), false},
-        {"degF", "degF", dim(0, 0, 0, 1), false},
-        {"degR", "degR", dim(0, 0, 0, 1), false},
-        {"percent", "percent", dim(0, 0, 0), false},
-        {"%", "percent", dim(0, 0, 0), false},
-        {"ppm", "ppm", dim(0, 0, 0), false},
+        {"g", "g", dim(1, 0, 0), true, "kg"},
+        {"m", "m", dim(0, 1, 0), true, "m"},
+        {"s", "s", dim(0, 0, 1), true, "s"},
+        {"K", "K", dim(0, 0, 0, 1), true, "K"},
+        {"mol", "mol", dim(0, 0, 0, 0, 1), true, "mol"},
+        {"A", "A", dim(0, 0, 0, 0, 0, 1), true, "A"},
+        {"cd", "cd", dim(0, 0, 0, 0, 0, 0, 1), true, "cd"},
+        {"J", "J", dim(1, 2, -2), true, "J"},
+        {"N", "N", dim(1, 1, -2), true, "N"},
+        {"Pa", "Pa", dim(1, -1, -2), true, "Pa"},
+        {"bar", "bar", dim(1, -1, -2), true, "Pa"},
+        {"atm", "atm", dim(1, -1, -2), false, "Pa"},
+        {"torr", "torr", dim(1, -1, -2), false, "Pa"},
+        {"cal", "cal", dim(1, 2, -2), true, "J"},
+        {"cal_IT", "cal_IT", dim(1, 2, -2), true, "J"},
+        {"cal_th", "cal", dim(1, 2, -2), true, "J"},
+        {"eV", "eV", dim(1, 2, -2), true, "J"},
+        {"W", "W", dim(1, 2, -3), true, "W"},
+        {"Hz", "Hz", dim(0, 0, -1), true, "Hz"},
+        {"V", "V", dim(1, 2, -3, 0, 0, -1), true, "V"},
+        {"C", "C", dim(0, 0, 1, 0, 0, 1), true, "C"},
+        {"L", "L", dim(0, 3, 0), true, "m^3"},
+        {"l", "L", dim(0, 3, 0), true, "m^3"},
+        {"min", "min", dim(0, 0, 1), false, "s"},
+        {"h", "hour", dim(0, 0, 1), false, "s"},
+        {"d", "day", dim(0, 0, 1), false, "s"},
+        {"Cel", "degC", dim(0, 0, 0, 1), false, "K"},
+        {"degC", "degC", dim(0, 0, 0, 1), false, "K"},
+        {"degF", "degF", dim(0, 0, 0, 1), false, "K"},
+        {"degR", "degR", dim(0, 0, 0, 1), false, "K"},
+        {"percent", "percent", dim(0, 0, 0), false, "1"},
+        {"%", "percent", dim(0, 0, 0), false, "1"},
+        {"ppm", "ppm", dim(0, 0, 0), false, "1"},
     };
     return table;
 }
@@ -102,9 +103,13 @@ const Atom* findAtom(const std::string& name)
 // One atom with an exponent. The name is the name in the converter syntax.
 struct Term
 {
-    std::string name;
+    std::string name;       // the name in the converter, with the prefix
     double exponent;
     Dim dimension;
+    std::string base;       // the name of the atom in the converter, without the prefix
+    double prefix = 1.0;    // the factor of the prefix
+    std::string si;         // the coherent SI unit of the atom
+    bool offset = false;    // a temperature with an offset: degC, degF, degR
 };
 
 struct Parsed
@@ -281,7 +286,12 @@ private:
         else
             converterName = a->converter;
         double e = exponent(true) * power;
-        return Term{converterName, e, a->dimension};
+        Term t{converterName, e, a->dimension, a->converter, 1.0, a->si, false};
+        if (name != a->ucum)
+            t.prefix = prefixes().at(name[0]);
+        const std::string u = a->converter;
+        t.offset = (u == "degC" || u == "degF" || u == "degR");
+        return t;
     }
 };
 
@@ -294,11 +304,9 @@ Parsed parseUnit(const std::string& text)
 
 bool isConverterSyntax(const std::string& s)
 {
-    // "10*-5" is a power of ten of UCUM and not a product
+    // a product with "*" is the converter syntax. "10*-5" is a power of ten of UCUM and not a product
     for (size_t i = 0; i < s.size(); ++i)
     {
-        if (s[i] == '^')
-            return true;
         if (s[i] == '*')
         {
             bool powerOfTen = i >= 2 && s.compare(i - 2, 2, "10") == 0 && i + 1 < s.size() &&
@@ -380,8 +388,10 @@ Dim dimensionOf(const Parsed& p)
 struct Prepared
 {
     std::string converter;
-    double factor;
+    double factor;       // the number in front of the unit
     Dim dimension;
+    double siFactor;     // the factor to the coherent SI unit, from the atoms; used if no atom has an offset
+    bool offset;         // an atom has an offset
 };
 
 Prepared prepare(const std::string& text)
@@ -390,6 +400,25 @@ Prepared prepare(const std::string& text)
     Prepared out;
     out.factor = p.factor;
     out.dimension = dimensionOf(p);
+    out.offset = false;
+    out.siFactor = 1.0;
+    for (const auto& t : p.terms)
+    {
+        out.offset = out.offset || t.offset;
+        if (!t.offset)
+        {
+            double atomFactor = t.prefix;
+            try
+            {
+                atomFactor *= convert(1.0, t.base, t.si);
+            }
+            catch (const std::exception&)
+            {
+                throw std::invalid_argument("the unit converter does not know the unit \"" + t.base + "\"");
+            }
+            out.siFactor *= std::pow(atomFactor, t.exponent);
+        }
+    }
     // a text in the converter syntax without a number in front goes to the converter as it is;
     // the converter has no negative powers, so s^-1 is written again as 1/s
     if (isConverterSyntax(text) && p.factor == 1.0 && text.find("^-") == std::string::npos)
@@ -419,6 +448,8 @@ auto convertAny(double value, const std::string& from, const std::string& to) ->
     const Prepared b = prepare(to);
     if (a.dimension != b.dimension)
         throw std::invalid_argument("the units \"" + from + "\" and \"" + to + "\" have different dimensions");
+    if (!a.offset && !b.offset)
+        return value * (a.factor * a.siFactor) / (b.factor * b.siFactor);
     return convert(value * a.factor / b.factor, a.converter, b.converter);
 }
 

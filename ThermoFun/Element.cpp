@@ -5,11 +5,15 @@
 #include "Element.h"
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/ParseJsonToData.h"
+#include "IO/Legacy/LegacyReader.h"
 
 namespace ThermoFun {
 
 struct Element::Impl
 {
+    /// The record read from the JSON text; empty after an old setter
+    std::shared_ptr<const v2::ElementRecord> record;
+
     /// The name of the chemical element
     std::string name;
 
@@ -54,6 +58,7 @@ Element::Element(std::string jsonElement)
     Element other = parseElement(jsonElement);
     pimpl = std::move(other.pimpl);
     setJsonString(jsonElement);
+    pimpl->record = std::make_shared<const v2::ElementRecord>(v2::readLegacyElement(jsonElement));
 }
 
 Element::Element(const Element& other)
@@ -87,56 +92,67 @@ auto Element::operator=(Element other) -> Element&
 
 auto Element::setName(std::string name) -> void
 {
+    pimpl->record.reset();
     pimpl->name = name;
 }
 
 auto Element::setSymbol(std::string symbol) -> void
 {
+    pimpl->record.reset();
     pimpl->symbol = symbol;
 }
 
 auto Element::setMolarMass(double value) -> void
 {
+    pimpl->record.reset();
     pimpl->molarMass = value;
 }
 
 auto Element::setEntropy(double value) -> void
 {
+    pimpl->record.reset();
     pimpl->entropy = value;
 }
 
 auto Element::setHeatCapacity(double value) -> void
 {
+    pimpl->record.reset();
     pimpl->heatCapacity = value;
 }
 
 auto Element::setVolume(double value) -> void
 {
+    pimpl->record.reset();
     pimpl->volume = value;
 }
 
 auto Element::setValence(int value) -> void
 {
+    pimpl->record.reset();
     pimpl->valence = value;
 }
 
 auto Element::setClass(int value) -> void
 {
+    pimpl->record.reset();
     pimpl->class_ = value;
 }
 
 auto Element::setIsotopeMass(int value) -> void
 {
+    pimpl->record.reset();
     pimpl->isotopeMass = value;
 }
 
 auto Element::setNumber(int value) -> void
 {
+    pimpl->record.reset();
     pimpl->number = value;
 }
 
 auto Element::setJsonString(const std::string &jString) ->void
 {
+    pimpl->record.reset();
     pimpl->jString = jString;
 }
 
@@ -188,6 +204,11 @@ auto Element::isotopeMass() const -> int
 auto Element::number() const -> int
 {
     return pimpl->number;
+}
+
+auto Element::record() const -> std::shared_ptr<const v2::ElementRecord>
+{
+    return pimpl->record;
 }
 
 auto Element::jsonString() const -> std::string

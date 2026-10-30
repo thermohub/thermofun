@@ -1,7 +1,7 @@
 # Old files that break the layer rules today, each with the step that removes the violation.
 # check_includes.py fails on any violation not listed here, and on a listed one that is gone.
 
-# R1.7: the old parser becomes the legacy reader in IO/Legacy
+# R3.3: the old parser goes when the old fields go; the legacy reader of IO/Legacy replaces it
 ThermoFun/Common/ParseJsonToData.cpp: Database.h
 ThermoFun/Common/ParseJsonToData.cpp: Substance.h
 ThermoFun/Common/ParseJsonToData.cpp: Reaction.h

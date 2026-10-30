@@ -1,0 +1,53 @@
+{
+ "Resources/databases/aq17-thermofun.json": {
+  "LEG-QRK-003": 43,
+  "LEG-QRK-004": 109,
+  "LEG-QRK-005": 109,
+  "LEG-QRK-010": 169,
+  "LEG-QRK-011": 116
+ },
+ "Resources/databases/cemdata18-thermofun.json": {
+  "LEG-QRK-003": 72,
+  "LEG-QRK-010": 230,
+  "LEG-QRK-011": 141
+ },
+ "Resources/databases/heracles-thermofun.json": {
+  "LEG-QRK-010": 1307,
+  "LEG-QRK-011": 453
+ },
+ "Resources/databases/mines16-thermofun.json": {
+  "LEG-QRK-003": 384,
+  "LEG-QRK-004": 55,
+  "LEG-QRK-005": 55,
+  "LEG-QRK-010": 564,
+  "LEG-QRK-011": 141
+ },
+ "Resources/databases/psinagra-12-07-thermofun.json": {
+  "LEG-QRK-003": 180,
+  "LEG-QRK-005": 4,
+  "LEG-QRK-010": 673,
+  "LEG-QRK-011": 42
+ },
+ "Resources/databases/slop98-organic-thermofun.json": {
+  "LEG-QRK-003": 567,
+  "LEG-QRK-010": 572,
+  "LEG-QRK-011": 5
+ },
+ "Resources/databases/slop98-thermofun.json": {
+  "LEG-QRK-003": 762,
+  "LEG-QRK-010": 1044,
+  "LEG-QRK-011": 160
+ },
+ "pytests/test-aq17-gem-lma-thermofun.json": {
+  "LEG-QRK-003": 43,
+  "LEG-QRK-004": 109,
+  "LEG-QRK-005": 109,
+  "LEG-QRK-010": 169,
+  "LEG-QRK-011": 116
+ },
+ "tests/extra_models/extra_models_db.json": {
+  "LEG-KEY-001": 7,
+  "LEG-QRK-004": 1,
+  "LEG-QRK-005": 1
+ }
+}

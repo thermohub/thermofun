@@ -44,6 +44,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Method catalog (`Methods/`): the specification of every built-in method, with the approved ids, the older ids as
   aliases, the parameters with SI and source units, the effects, the needs and the classes a method suits.
 
+- Legacy reader (`IO/Legacy/`): reads legacy records into the record model, with a report of all fix-ups and of what
+  is not used. `Substance`, `Reaction` and `Element` have `record()`.
+
 ### Added (tests)
 - C++ unit test target `tfun-unit` (`tests/model/`): the parser is compared with a frozen copy for every record of
   the test databases.

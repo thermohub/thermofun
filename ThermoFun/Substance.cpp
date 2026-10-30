@@ -9,11 +9,15 @@
 #include "ThermoParameters.h"
 #include "Common/ParseJsonToData.h"
 #include "ThermoPropertiesStatus.h"
+#include "IO/Legacy/LegacyReader.h"
 
 namespace ThermoFun {
 
 struct Substance::Impl
 {
+    /// The record read from the JSON text; empty after an old setter
+    std::shared_ptr<const v2::SubstanceRecord> record;
+
     /// The name of the chemical Substance
     std::string name;
 
@@ -95,6 +99,7 @@ Substance::Substance(std::string jsonSubstance)
     Substance other = parseSubstance(jsonSubstance);
     pimpl = std::move(other.pimpl);
     setJsonString(jsonSubstance);
+    pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readLegacySubstance(jsonSubstance));
 }
 
 Substance::Substance(const Substance& other)
@@ -112,106 +117,127 @@ auto Substance::operator=(Substance other) -> Substance&
 
 auto Substance::setName(std::string name) -> void
 {
+    pimpl->record.reset();
     pimpl->name = name;
 }
 
 auto Substance::setSymbol(std::string symbol) -> void
 {
+    pimpl->record.reset();
     pimpl->symbol = symbol;
 }
 
 auto Substance::setFormula(std::string formula) -> void
 {
+    pimpl->record.reset();
     pimpl->formula = formula;
 }
 
 auto Substance::setReactionSymbol(std::string reaction) -> void
 {
+    pimpl->record.reset();
     pimpl->reactionSymbol = reaction;
 }
 
 auto Substance::setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void
 {
+    pimpl->record.reset();
     pimpl->thermo_ref_prop = thermo_ref_prop;
 }
 
 auto Substance::setThermoParameters(ThermoParametersSubstance thermo_param) -> void
 {
+    pimpl->record.reset();
     pimpl->thermo_param = thermo_param;
 }
 
 auto Substance::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
 {
+    pimpl->record.reset();
     pimpl->method_genEoS = method_genEoS;
 }
 
 auto Substance::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 {
+    pimpl->record.reset();
     pimpl->method_T = method_T;
 }
 
 auto Substance::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
+    pimpl->record.reset();
     pimpl->method_P = method_P;
 }
 
 auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
 {
+    pimpl->record.reset();
     pimpl->substance_class = substance_class;
 }
 
 auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
 {
+    pimpl->record.reset();
     pimpl->aggregate_state = aggregate_state;
 }
 
 auto Substance::setThermoCalculationType(SubstanceThermoCalculationType::type calculation_type) -> void
 {
+    pimpl->record.reset();
     pimpl->thermo_calculation_type = calculation_type;
 }
 
 auto Substance::setCharge(int charge) -> void
 {
+    pimpl->record.reset();
     pimpl->charge = charge;
 }
 
 auto Substance::setReferenceT(double T) -> void
 {
+    pimpl->record.reset();
     pimpl->reference_T = T;
 }
 
 auto Substance::setReferenceP(double P) -> void
 {
+    pimpl->record.reset();
     pimpl->reference_P = P;
 }
 
 auto Substance::setLowerT(double T) -> void
 {
+    pimpl->record.reset();
     pimpl->lower_T = T;
 }
 
 auto Substance::setLowerP(double P) -> void
 {
+    pimpl->record.reset();
     pimpl->lower_P = P;
 }
 
 auto Substance::setUpperT(double T) -> void
 {
+    pimpl->record.reset();
     pimpl->upper_T = T;
 }
 
 auto Substance::setUpperP(double P) -> void
 {
+    pimpl->record.reset();
     pimpl->upper_P = P;
 }
 
 auto Substance::setMolarMass(double molar_mass) -> void
 {
+    pimpl->record.reset();
     pimpl->molar_mass = molar_mass;
 }
 
 auto Substance::setJsonString(const std::string &jString) ->void
 {
+    pimpl->record.reset();
     pimpl->jString = jString;
 }
 
@@ -318,6 +344,11 @@ auto Substance::aggregateState() const -> AggregateState::type
 auto Substance::charge() const -> int
 {
     return pimpl->charge;
+}
+
+auto Substance::record() const -> std::shared_ptr<const v2::SubstanceRecord>
+{
+    return pimpl->record;
 }
 
 auto Substance::jsonString() const -> std::string

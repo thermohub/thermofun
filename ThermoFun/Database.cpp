@@ -330,22 +330,19 @@ struct Database::Impl
 
         if (_label == "substance")
         {
-            Substance substance = parseSubstance(props);
-            substance.setJsonString(props);
+            Substance substance(props.get<std::string>());
             checkIfSymbolExists(substances_map, "substance", substance.symbol());
             substances_map[substance.symbol()] = substance;
         } else
         if (_label == "reaction")
         {
-           Reaction reaction = parseReaction(props);
-           reaction.setJsonString(props);
+           Reaction reaction(props.get<std::string>());
            checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
            reactions_map[reaction.symbol()] = reaction;
         } else
         if (_label == "element")
         {
-            Element element = parseElement(props);
-            element.setJsonString(props);
+            Element element(props.get<std::string>());
             checkIfSymbolExists(elements_map, "element", element.symbol());
             elements_map[element.symbol()] = element;
         } else
