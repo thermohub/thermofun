@@ -2,11 +2,12 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "DolejsManning2010.h"
-#include "ThermoParameters.h"
+
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
+auto thermoPropertiesDolejsManning2010(real TK, real Pbar, const ReactionInputs& reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
 {
     ThermoPropertiesReactionAD tpr;
 
@@ -15,7 +16,7 @@ auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, co
     auto ALPw = wp.Alpha;
     auto BETw = wp.Beta*1e05;
     auto dALPdTw = wp.dAldT;
-    auto DMcoef = reaction.thermoParameters().reaction_DM10_coeff;
+    auto DMcoef = reaction.coefficients;
 
     auto dRHOdT = -ALPw*RHOw;
     auto dRHOdP = BETw*RHOw;

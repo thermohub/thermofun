@@ -2,7 +2,8 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "Volume_function_of_T.h"
-#include "ThermoParameters.h"
+
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
@@ -11,14 +12,14 @@ namespace ThermoFun {
 // The correction of the properties at (T,Pst) is the integral of V over P:
 //   dG = Vst [ (1 + a0 dT + a1 dT^2 + a2 dT^3) dP + a3 dP^2/2 + a4 dP^3/3 ]
 // with dS = -d(dG)/dT, dH = dG - T d(dG)/dT, dCp = -T d2(dG)/dT2, ln K = -G/(RT) (the derivatives follow by autodiff).
-auto thermoPropertiesReaction_Vol_fT(real TK, real Pbar, Reaction reaction, ThermoPropertiesReactionAD tpr) -> ThermoPropertiesReactionAD
+auto thermoPropertiesReaction_Vol_fT(real TK, real Pbar, const ReactionInputs& reaction, ThermoPropertiesReactionAD tpr) -> ThermoPropertiesReactionAD
 {
-    const double Vst = reaction.thermoReferenceProperties().reaction_volume.val; // J/bar
-    const double Tst = reaction.referenceT();                                    // K
-    const double Pst = reaction.referenceP() / 1e5;                              // bar
-    const auto a = reaction.thermoParameters().reaction_V_fT_coeff;
+    const double Vst = reaction.reference.reaction_volume.val; // J/bar
+    const double Tst = reaction.Tr;                                    // K
+    const double Pst = reaction.Pr / 1e5;                              // bar
+    const auto a = reaction.coefficients;
 
-    auto coeff = [&](size_t i) { return i < a.size() ? a[i] : 0.0; };
+    auto coeff = [&](size_t i) { return i < a.size() ? a[i] : real(0.0); };
 
     const real dT = TK - Tst;
     const real dP = Pbar - Pst;

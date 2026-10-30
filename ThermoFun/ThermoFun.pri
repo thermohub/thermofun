@@ -67,11 +67,12 @@
     $$PWD/Methods/Gases/verror.h \
     $$PWD/Methods/Gases/s_solmod_.h \
 # Reactions
-    $$PWD/Reactions/FrantzMarshall.h \
-    $$PWD/Reactions/RyzhenkoBryzgalyn.h \
-    $$PWD/Reactions/LogK_function_of_T.h \
-    $$PWD/Reactions/Volume_function_of_T.h \
-    $$PWD/Reactions/DolejsManning2010.h \
+    $$PWD/Methods/Reactions/ReactionInputs.h \
+    $$PWD/Methods/Reactions/FrantzMarshall.h \
+    $$PWD/Methods/Reactions/RyzhenkoBryzgalyn.h \
+    $$PWD/Methods/Reactions/LogK_function_of_T.h \
+    $$PWD/Methods/Reactions/Volume_function_of_T.h \
+    $$PWD/Methods/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Diagnostics.h \
     $$PWD/IO/FormatDetect.h \
@@ -185,11 +186,11 @@
     $$PWD/Methods/Gases/s_solmod2_.cpp \
     $$PWD/Methods/Gases/s_solmod_.cpp \
 # Reactions
-    $$PWD/Reactions/FrantzMarshall.cpp \
-    $$PWD/Reactions/RyzhenkoBryzgalyn.cpp \
-    $$PWD/Reactions/LogK_function_of_T.cpp \
-    $$PWD/Reactions/Volume_function_of_T.cpp \
-    $$PWD/Reactions/DolejsManning2010.cpp \
+    $$PWD/Methods/Reactions/FrantzMarshall.cpp \
+    $$PWD/Methods/Reactions/RyzhenkoBryzgalyn.cpp \
+    $$PWD/Methods/Reactions/LogK_function_of_T.cpp \
+    $$PWD/Methods/Reactions/Volume_function_of_T.cpp \
+    $$PWD/Methods/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Diagnostics.cpp \
     $$PWD/IO/FormatDetect.cpp \

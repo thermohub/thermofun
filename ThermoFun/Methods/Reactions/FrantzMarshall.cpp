@@ -2,11 +2,12 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "FrantzMarshall.h"
-#include "ThermoParameters.h"
+
+#include <ThermoFun/Common/Constants.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesFrantzMarshall(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
+auto thermoPropertiesFrantzMarshall(real TK, real Pbar, const ReactionInputs& reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
 {
     ThermoPropertiesReactionAD tpr;
 
@@ -15,7 +16,7 @@ auto thermoPropertiesFrantzMarshall(real TK, real Pbar, Reaction reaction, const
     auto ALP = wp.Alpha;
     auto BET = wp.Beta*1e05;
     auto dALPdT = wp.dAldT;
-    auto MFcoef = reaction.thermoParameters().reaction_FM_coeff;
+    auto MFcoef = reaction.coefficients;
 
     auto dRHOdT = -ALP*RHO;
     auto dRHOdP = BET*RHO;

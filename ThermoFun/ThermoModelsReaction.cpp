@@ -4,11 +4,14 @@
 #include "Common/Exception.h"
 #include "ThermoProperties.h"
 #include "ThermoModelsReaction.h"
-#include "Reactions/FrantzMarshall.h"
-#include "Reactions/RyzhenkoBryzgalyn.h"
-#include "Reactions/LogK_function_of_T.h"
-#include "Reactions/DolejsManning2010.h"
-#include "Reactions/Volume_function_of_T.h"
+#include "Reaction.h"
+#include "ThermoParameters.h"
+#include "GlobalVariables.h"
+#include "Methods/Reactions/FrantzMarshall.h"
+#include "Methods/Reactions/RyzhenkoBryzgalyn.h"
+#include "Methods/Reactions/LogK_function_of_T.h"
+#include "Methods/Reactions/DolejsManning2010.h"
+#include "Methods/Reactions/Volume_function_of_T.h"
 #include "ThermoPropertiesStatus.h"
 
 namespace ThermoFun {
@@ -36,10 +39,33 @@ ReactionDolejsManning10::ReactionDolejsManning10(const Reaction &reaction)
 {}
 
 
+/// The inputs of the formulas of a reaction, from the reaction
+static auto reactionInputsOf(const Reaction& reaction, const std::vector<double>& coefficients) -> ReactionInputs
+{
+    ReactionInputs in;
+    in.reference = reaction.thermoReferenceProperties();
+    in.Tr = reaction.referenceT();
+    in.Pr = reaction.referenceP();
+    in.coefficients.assign(coefficients.begin(), coefficients.end());
+    return in;
+}
+
+static auto logKFormOf(MethodCorrT_Thrift::type method) -> LogKForm
+{
+    switch (method)
+    {
+    case MethodCorrT_Thrift::type::CTM_EK0: return LogKForm::Constant;
+    case MethodCorrT_Thrift::type::CTM_EK1: return LogKForm::ZeroEntropy;
+    case MethodCorrT_Thrift::type::CTM_EK2: return LogKForm::VantHoff;
+    case MethodCorrT_Thrift::type::CTM_EK3: return LogKForm::ConstantCp;
+    default: return LogKForm::Polynomial;
+    }
+}
+
 auto ReactionDolejsManning10::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesDolejsManning2010(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+        return thermoPropertiesDolejsManning2010(pass.T, pass.P / bar_to_Pa, reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_DM10_coeff), lift(pass, wp));
     });
 
     // the isochoric heat capacity is not calculated
@@ -74,7 +100,7 @@ ReactionFrantzMarshall::ReactionFrantzMarshall(const Reaction &reaction)
 auto ReactionFrantzMarshall::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesFrantzMarshall(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+        return thermoPropertiesFrantzMarshall(pass.T, pass.P / bar_to_Pa, reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_FM_coeff), lift(pass, wp));
     });
 
     // the isochoric heat capacity is not calculated
@@ -109,7 +135,7 @@ ReactionRyzhenkoBryzgalin::ReactionRyzhenkoBryzgalin(const Reaction &reaction)
 auto ReactionRyzhenkoBryzgalin::thermoProperties(double T, double P, PropertiesSolvent wp) -> ThermoPropertiesReaction
 {
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesRyzhenkoBryzgalin(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
+        return thermoPropertiesRyzhenkoBryzgalin(pass.T, pass.P / bar_to_Pa, reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_RB_coeff), lift(pass, wp));
     });
 
     // the isochoric heat capacity is not calculated
@@ -143,10 +169,13 @@ Reaction_LogK_fT::Reaction_LogK_fT(const Reaction &reaction)
 
 auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
 {
-    const auto inputs = prepareLogK_fT(pimpl->reaction, T, methodT);
+    auto reaction = reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_logK_fT_coeff);
+    const auto& cp = pimpl->reaction.thermoParameters().reaction_Cp_fT_coeff;
+    reaction.cp_coefficients.assign(cp.begin(), cp.end());
+    const auto inputs = prepareLogK_fT(reaction, T, logKFormOf(methodT));
 
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, pimpl->reaction, inputs.method);
+        return thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, reaction, inputs.method);
     });
 
     setStatusLogK_fT(tpr, inputs, T, P);
@@ -330,7 +359,7 @@ auto Reaction_Vol_fT::thermoProperties(double T, double P, const ThermoPropertie
     const auto reaction = pimpl->reaction;
     auto tpr = tprIn;
     tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesReaction_Vol_fT(pass.T, pass.P / 1e5, reaction, lift(pass, tprIn));
+        return thermoPropertiesReaction_Vol_fT(pass.T, pass.P / 1e5, reactionInputsOf(reaction, reaction.thermoParameters().reaction_V_fT_coeff), lift(pass, tprIn));
     });
 
     auto keep = [](Reaktoro_::ThermoProperty& o, const Reaktoro_::ThermoProperty& i) { o.sta = i.sta; o.err = i.err; };

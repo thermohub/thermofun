@@ -5,12 +5,11 @@
 #define DOLEJSMANNING2010_H
 
 #include <ThermoFun/Common/Real.hpp>
-#include <ThermoFun/Reaction.h>
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Methods/Reactions/ReactionInputs.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD;
+auto thermoPropertiesDolejsManning2010(real TK, real Pbar, const ReactionInputs& reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD;
 
 }
 

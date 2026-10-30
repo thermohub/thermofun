@@ -5,12 +5,11 @@
 #define VOLUME_FUNCTION_OF_T
 
 #include <ThermoFun/Common/Real.hpp>
-#include <ThermoFun/Reaction.h>
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Methods/Reactions/ReactionInputs.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesReaction_Vol_fT(real t, real p, Reaction reaction, ThermoPropertiesReactionAD tpr) -> ThermoPropertiesReactionAD;
+auto thermoPropertiesReaction_Vol_fT(real t, real p, const ReactionInputs& reaction, ThermoPropertiesReactionAD tpr) -> ThermoPropertiesReactionAD;
 
 }
 

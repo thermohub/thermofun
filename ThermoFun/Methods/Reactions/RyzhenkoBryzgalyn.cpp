@@ -3,9 +3,11 @@
 
 #include "RyzhenkoBryzgalyn.h"
 
+#include <ThermoFun/Common/Constants.h>
+
 namespace ThermoFun {
 
-auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, Reaction reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
+auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, const ReactionInputs& reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
 {
 
     ThermoPropertiesReactionAD tpr;
@@ -15,7 +17,7 @@ auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, Reaction reaction, co
     auto ALP = wp.Alpha;
     auto BET = wp.Beta;
     auto dALPdT = wp.dAldT;
-    auto RBcoef = reaction.thermoParameters().reaction_RB_coeff;
+    auto RBcoef = reaction.coefficients;
 
     auto dRHOdT = -ALP*RHO;
     auto dRHOdP = BET*RHO;

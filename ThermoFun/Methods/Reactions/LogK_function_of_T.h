@@ -5,8 +5,7 @@
 #define LOGK_FUNCTION_OF_T
 
 #include <ThermoFun/Common/Real.hpp>
-#include <ThermoFun/Reaction.h>
-#include <ThermoFun/ThermoProperties.h>
+#include <ThermoFun/Methods/Reactions/ReactionInputs.h>
 
 namespace ThermoFun {
 
@@ -15,15 +14,15 @@ namespace ThermoFun {
 struct LogKInputs
 {
     Reaktoro_::ThermoProperty dVr, dHr, dSr, dCpr, dGr, lgK;
-    MethodCorrT_Thrift::type method;
+    LogKForm method;
 };
 
 /// Prepare the calculation of the properties of a reaction from the reference properties: the enthalpy or entropy
 /// are calculated if missing and the method is determined if it is the 3-term one
-auto prepareLogK_fT(Reaction reaction, double T, MethodCorrT_Thrift::type CE) -> LogKInputs;
+auto prepareLogK_fT(const ReactionInputs& reaction, double T, LogKForm CE) -> LogKInputs;
 
 /// Calculate the properties of the reaction (autodiff numbers) with the method given by prepareLogK_fT
-auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, Reaction reaction, MethodCorrT_Thrift::type CE) -> ThermoPropertiesReactionAD;
+auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& reaction, LogKForm CE) -> ThermoPropertiesReactionAD;
 
 /// Set the errors and the statuses of the properties calculated with thermoPropertiesReaction_LogK_fT
 /// @param T temperature (K), P pressure (Pa)
