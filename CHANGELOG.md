@@ -27,3 +27,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Cached results no longer depend on the calculation order. The reactants of a reaction-defined substance are
   calculated with the gas pressure correction on, and they shared the cache with plain calculations. For example,
   H2(g) at 273.15 K and 100 bar gave G = 5484.36 J/mol instead of 3235.96 J/mol after Fe4(OH)8Clwn(s).
+- The Dolejš and Manning (2010) density model used the parameter `a` in kJ/mol in a formula in J/mol, so ΔrG and
+  ΔrH were wrong by `a`. This model and the Marshall and Franck (1981) model now return log K (it was 0).
+  Both are checked against the values published with them.
+
+### Added (tests)
+
+- Model databases with published parameters (`pytests/data/published/`) and tests against the published values
+  (`pytests/test_published_models.py`): Dolejš and Manning (2010), 7 minerals; Marshall and Franck (1981).
+- The synthetic fixtures r14 and s37 use published values instead of invented ones.

@@ -1,0 +1,618 @@
+{
+ "thermodataset": "DolejsManning2010",
+ "datasources": [
+  "Dolejs D., Manning C.E. (2010) Thermodynamic model for mineral solubility in aqueous fluids: theory, calibration and application to model fluid-flow systems. Geofluids 10, 20-40. doi:10.1111/j.1468-8123.2010.00282.x. Tables 1 (parameters, molal scale) and 2 (properties of dissolution at 25 C, 1 bar)."
+ ],
+ "date": "2026-10-30",
+ "substances": [
+  {
+   "name": "Water HGK",
+   "symbol": "H2O@",
+   "formula": "H2O@",
+   "formula_charge": 0,
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "class_": {
+    "3": "SC_AQSOLVENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "method": {
+      "31": "water_eos_hgk84_reaktoro"
+     }
+    },
+    {
+     "method": {
+      "25": "water_diel_jnort91_reaktoro"
+     }
+    }
+   ],
+   "sm_heat_capacity_p": {
+    "values": [
+     75.360527038574
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_gibbs_energy": {
+    "values": [
+     -237183
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -285881
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     69.922996520996
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     1.8068397045136
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "_label": "substance",
+   "_comment": "Solvent as in pytests/Substances/Solute/test-hkf-thermofun.json, with the Reaktoro water models"
+  },
+  {
+   "symbol": "Apatite-F",
+   "name": "Apatite-F",
+   "formula": "Ca5(PO4)3F",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Ca5(PO4)3F(aq)",
+   "name": "Ca5(PO4)3F(aq)",
+   "formula": "Ca5(PO4)3F",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Calcite",
+   "name": "Calcite",
+   "formula": "CaCO3",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "CaCO3(aq)",
+   "name": "CaCO3(aq)",
+   "formula": "CaCO3",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Corundum",
+   "name": "Corundum",
+   "formula": "Al2O3",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Al2O3(aq)",
+   "name": "Al2O3(aq)",
+   "formula": "Al2O3",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Fluorite",
+   "name": "Fluorite",
+   "formula": "CaF2",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "CaF2(aq)",
+   "name": "CaF2(aq)",
+   "formula": "CaF2",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Portlandite",
+   "name": "Portlandite",
+   "formula": "Ca(OH)2",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Ca(OH)2(aq)",
+   "name": "Ca(OH)2(aq)",
+   "formula": "Ca(OH)2",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Quartz",
+   "name": "Quartz",
+   "formula": "SiO2",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "SiO2(aq)",
+   "name": "SiO2(aq)",
+   "formula": "SiO2",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "Rutile",
+   "name": "Rutile",
+   "formula": "TiO2",
+   "formula_charge": 0,
+   "class_": {
+    "0": "SC_COMPONENT"
+   },
+   "aggregate_state": {
+    "3": "AS_CRYSTAL"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  },
+  {
+   "symbol": "TiO2(aq)",
+   "name": "TiO2(aq)",
+   "formula": "TiO2",
+   "formula_charge": 0,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the dissolution come from the reaction."
+  }
+ ],
+ "reactions": [
+  {
+   "symbol": "Apatite-F-dissolution",
+   "equation": "Apatite-F = Ca5(PO4)3F(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Apatite-F"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "Ca5(PO4)3F(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       63.4,
+       3.9,
+       0,
+       0,
+       -89.32
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Apatite-F). Table 2 at 25 C, 1 bar: log K -11.31, dG 64.53 kJ/mol, dH 61.24 kJ/mol, dS -11.02 J/(K mol), dCp -90.13 J/(K mol), dV -12.08 cm3/mol."
+  },
+  {
+   "symbol": "Calcite-dissolution",
+   "equation": "Calcite = CaCO3(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Calcite"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "CaCO3(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       57.4,
+       -35.71,
+       0,
+       0,
+       -72.98
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Calcite). Table 2 at 25 C, 1 bar: log K -8.2, dG 46.78 kJ/mol, dH 55.69 kJ/mol, dS 29.9 J/(K mol), dCp -73.65 J/(K mol), dV -9.87 cm3/mol."
+  },
+  {
+   "symbol": "Corundum-dissolution",
+   "equation": "Corundum = Al2O3(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Corundum"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "Al2O3(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       80.3,
+       -29.31,
+       0,
+       0,
+       -37.01
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Corundum). Table 2 at 25 C, 1 bar: log K -12.54, dG 71.6 kJ/mol, dH 79.46 kJ/mol, dS 26.37 J/(K mol), dCp -37.35 J/(K mol), dV -5.0 cm3/mol."
+  },
+  {
+   "symbol": "Fluorite-dissolution",
+   "equation": "Fluorite = CaF2(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Fluorite"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "CaF2(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       56.4,
+       -24.89,
+       0,
+       0,
+       -59.73
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Fluorite). Table 2 at 25 C, 1 bar: log K -8.59, dG 49.01 kJ/mol, dH 55.01 kJ/mol, dS 20.13 J/(K mol), dCp -60.27 J/(K mol), dV -8.07 cm3/mol."
+  },
+  {
+   "symbol": "Portlandite-dissolution",
+   "equation": "Portlandite = Ca(OH)2(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Portlandite"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "Ca(OH)2(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       13.1,
+       10.05,
+       0,
+       0,
+       -94.74
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Portlandite). Table 2 at 25 C, 1 bar: log K -2.82, dG 16.08 kJ/mol, dH 10.84 kJ/mol, dS -17.6 J/(K mol), dCp -95.6 J/(K mol), dV -12.81 cm3/mol."
+  },
+  {
+   "symbol": "Quartz-dissolution",
+   "equation": "Quartz = SiO2(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Quartz"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "SiO2(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       23.6,
+       -52.92,
+       10.93,
+       -0.0463,
+       -18.52
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Quartz). Table 2 at 25 C, 1 bar: log K -3.91, dG 22.32 kJ/mol, dH 24.05 kJ/mol, dS 5.8 J/(K mol), dCp -2.04 J/(K mol), dV -2.5 cm3/mol."
+  },
+  {
+   "symbol": "Rutile-dissolution",
+   "equation": "Rutile = TiO2(aq)",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "Rutile"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "TiO2(aq)"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "14": "logk_dolejs_manning10"
+     },
+     "dr_dolejs_manning10_coeffs": {
+      "values": [
+       104.0,
+       -33.72,
+       0,
+       0,
+       -13.32
+      ],
+      "units": [
+       "kJ/mol",
+       "J/(mol*K)",
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "J/(mol*K)"
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 298.15,
+    "upperT": 1173.15,
+    "lowerP": 0,
+    "upperP": 2000000000.0
+   },
+   "_comment": "Dolejs and Manning (2010) Table 1 (Rutile). Table 2 at 25 C, 1 bar: log K -16.45, dG 93.93 kJ/mol, dH 103.98 kJ/mol, dS 33.72 J/(K mol), dCp -13.43 J/(K mol), dV -1.8 cm3/mol."
+  }
+ ]
+}

@@ -5,8 +5,103 @@
       "database": "pytests--PsiTDB2020-subset-thermofun",
       "variant": "default",
       "kind": "substances",
-      "records": ["H2(g)", "HgCO3(aq)", "HgCO3(HgO)2(s)", "HgHCO3+"],
+      "records": [
+        "H2(g)",
+        "HgCO3(aq)",
+        "HgCO3(HgO)2(s)",
+        "HgHCO3+"
+      ],
       "reason": "The baseline returned cached values that depend on the calculation order: the reactants of a reaction-defined substance are calculated with the gas pressure correction on, and shared the cache with the plain calculations. The new values equal the values without memoization (all 2928 checked). Test: pytests/test_calculation_order.py."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "default",
+      "kind": "reactions",
+      "records": [
+        "logk_dolejs_manning10"
+      ],
+      "reason": "Dolejs-Manning (2010) model: the parameter a was used in kJ/mol in a formula in J/mol, and log K was not returned. Checked against Table 2 of the paper (pytests/test_published_models.py). The fixture has the published Quartz parameters instead of invented ones."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "gas",
+      "kind": "reactions",
+      "records": [
+        "logk_dolejs_manning10"
+      ],
+      "reason": "Dolejs-Manning (2010) model: the parameter a was used in kJ/mol in a formula in J/mol, and log K was not returned. Checked against Table 2 of the paper (pytests/test_published_models.py). The fixture has the published Quartz parameters instead of invented ones."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "errors",
+      "kind": "reactions",
+      "records": [
+        "logk_dolejs_manning10"
+      ],
+      "reason": "Dolejs-Manning (2010) model: the parameter a was used in kJ/mol in a formula in J/mol, and log K was not returned. Checked against Table 2 of the paper (pytests/test_published_models.py). The fixture has the published Quartz parameters instead of invented ones."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "steam",
+      "kind": "reactions",
+      "records": [
+        "logk_dolejs_manning10"
+      ],
+      "reason": "Dolejs-Manning (2010) model: the parameter a was used in kJ/mol in a formula in J/mol, and log K was not returned. Checked against Table 2 of the paper (pytests/test_published_models.py). The fixture has the published Quartz parameters instead of invented ones."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "berman",
+      "kind": "reactions",
+      "records": [
+        "logk_dolejs_manning10"
+      ],
+      "reason": "Dolejs-Manning (2010) model: the parameter a was used in kJ/mol in a formula in J/mol, and log K was not returned. Checked against Table 2 of the paper (pytests/test_published_models.py). The fixture has the published Quartz parameters instead of invented ones."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "default",
+      "kind": "reactions",
+      "records": [
+        "logk_marshall_frank78"
+      ],
+      "reason": "Marshall-Franck (1981) model: log K was not returned. Checked: log Kw = -13.995 at 25 C (pytests/test_published_models.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "gas",
+      "kind": "reactions",
+      "records": [
+        "logk_marshall_frank78"
+      ],
+      "reason": "Marshall-Franck (1981) model: log K was not returned. Checked: log Kw = -13.995 at 25 C (pytests/test_published_models.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "errors",
+      "kind": "reactions",
+      "records": [
+        "logk_marshall_frank78"
+      ],
+      "reason": "Marshall-Franck (1981) model: log K was not returned. Checked: log Kw = -13.995 at 25 C (pytests/test_published_models.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "steam",
+      "kind": "reactions",
+      "records": [
+        "logk_marshall_frank78"
+      ],
+      "reason": "Marshall-Franck (1981) model: log K was not returned. Checked: log Kw = -13.995 at 25 C (pytests/test_published_models.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "berman",
+      "kind": "reactions",
+      "records": [
+        "logk_marshall_frank78"
+      ],
+      "reason": "Marshall-Franck (1981) model: log K was not returned. Checked: log Kw = -13.995 at 25 C (pytests/test_published_models.py)."
     }
   ]
 }

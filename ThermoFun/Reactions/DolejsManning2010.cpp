@@ -21,7 +21,7 @@ auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, co
     auto dRHOdP = BETw*RHOw;
     auto d2RHOdT2 = RHOw*(pow(ALPw,2)-dALPdTw);
 
-    auto a = DMcoef[0];
+    auto a = DMcoef[0]*1e3; // kJ/mol (as read) to J/mol
     auto b = DMcoef[1];
     auto c = DMcoef[2];
     auto d = DMcoef[3];
@@ -42,6 +42,7 @@ auto thermoPropertiesDolejsManning2010(real TK, real Pbar, Reaction reaction, co
            // Error( GetName(),"DM denisty model: dGr and lnK not consistent!");
 
     tpr.ln_equilibrium_constant    = logK*lg_to_ln;
+    tpr.log_equilibrium_constant   = logK;
     tpr.reaction_enthalpy          = dHr;
     tpr.reaction_entropy           = dSr;
     tpr.reaction_gibbs_energy      = dGr;

@@ -41,8 +41,7 @@ auto ReactionDolejsManning10::thermoProperties(double T, double P, PropertiesSol
         return thermoPropertiesDolejsManning2010(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
     });
 
-    // the logarithm of the equilibrium constant and the isochoric heat capacity are not calculated
-    tpr.log_equilibrium_constant = Reaktoro_::ThermoProperty();
+    // the isochoric heat capacity is not calculated
     tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty();
 
     return tpr;
@@ -77,8 +76,7 @@ auto ReactionFrantzMarshall::thermoProperties(double T, double P, PropertiesSolv
         return thermoPropertiesFrantzMarshall(pass.T, pass.P / bar_to_Pa, pimpl->reaction, lift(pass, wp));
     });
 
-    // the logarithm of the equilibrium constant and the isochoric heat capacity are not calculated
-    tpr.log_equilibrium_constant = Reaktoro_::ThermoProperty();
+    // the isochoric heat capacity is not calculated
     tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty();
 
     return tpr;

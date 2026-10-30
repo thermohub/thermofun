@@ -1,0 +1,155 @@
+{
+ "thermodataset": "MarshallFranck1981",
+ "datasources": [
+  "Marshall W.L., Franck E.U. (1981) Ion product of water substance, 0-1000 C, 1-10000 bars. New International Formulation and its background. J. Phys. Chem. Ref. Data 10, 295-304 (the IAPWS 1980 formulation). Reference cited by Arcis et al. (2024), J. Phys. Chem. Ref. Data 53, 023103, doi:10.1063/5.0198792."
+ ],
+ "date": "2026-10-30",
+ "substances": [
+  {
+   "name": "Water HGK",
+   "symbol": "H2O@",
+   "formula": "H2O@",
+   "formula_charge": 0,
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "class_": {
+    "3": "SC_AQSOLVENT"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "method": {
+      "31": "water_eos_hgk84_reaktoro"
+     }
+    },
+    {
+     "method": {
+      "25": "water_diel_jnort91_reaktoro"
+     }
+    }
+   ],
+   "sm_heat_capacity_p": {
+    "values": [
+     75.360527038574
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_gibbs_energy": {
+    "values": [
+     -237183
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_enthalpy": {
+    "values": [
+     -285881
+    ],
+    "units": [
+     "J/mol"
+    ]
+   },
+   "sm_entropy_abs": {
+    "values": [
+     69.922996520996
+    ],
+    "units": [
+     "J/(mol*K)"
+    ]
+   },
+   "sm_volume": {
+    "values": [
+     1.8068397045136
+    ],
+    "units": [
+     "J/bar"
+    ]
+   },
+   "_label": "substance",
+   "_comment": "Solvent as in pytests/Substances/Solute/test-hkf-thermofun.json, with the Reaktoro water models"
+  },
+  {
+   "symbol": "H+",
+   "name": "H+",
+   "formula": "H+",
+   "formula_charge": 1,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the ionization come from the reaction."
+  },
+  {
+   "symbol": "OH-",
+   "name": "OH-",
+   "formula": "OH-",
+   "formula_charge": -1,
+   "class_": {
+    "2": "SC_AQSOLUTE"
+   },
+   "aggregate_state": {
+    "4": "AS_AQUEOUS"
+   },
+   "Tst": 298.15,
+   "Pst": 100000,
+   "_comment": "Stoichiometry only; the properties of the ionization come from the reaction."
+  }
+ ],
+ "reactions": [
+  {
+   "symbol": "H2O-ionization",
+   "equation": "H2O@ = H+ + OH-",
+   "Tst": 298.15,
+   "Pst": 100000,
+   "reactants": [
+    {
+     "coefficient": -1,
+     "symbol": "H2O@"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "H+"
+    },
+    {
+     "coefficient": 1,
+     "symbol": "OH-"
+    }
+   ],
+   "TPMethods": [
+    {
+     "method": {
+      "9": "logk_marshall_frank78"
+     },
+     "dr_marshall_franck_coeffs": {
+      "values": [
+       -4.098,
+       -3245.2,
+       223620.0,
+       -39840000.0,
+       13.957,
+       -1262.3,
+       856410.0
+      ]
+     }
+    }
+   ],
+   "limitsTP": {
+    "range": false,
+    "lowerT": 273.15,
+    "upperT": 1273.15,
+    "lowerP": 0,
+    "upperP": 1000000000.0
+   },
+   "_comment": "log Kw = A + B/T + C/T2 + D/T3 + (E + F/T + G/T2) log rho_w (rho in g/cm3). log Kw = -13.995 at 25 C, 1 bar."
+  }
+ ]
+}

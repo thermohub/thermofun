@@ -66,17 +66,17 @@
      },
      "eos_birch_murnaghan_coeffs": {
       "values": [
-       3e-05,
+       3.73e-05,
        0,
        0,
        0,
        0,
-       1150000.0,
-       -100.0,
+       121951.2,
+       0,
        4.0,
        0
       ],
-      "_comment": "a1..a5 [1/K...], kt00 [bar], dkdt [bar/K], kp, kpp (0: computed). Magnesite-like illustrative values"
+      "_comment": "a1..a5 [1/K...], kt00 [MPa], dkdt [MPa/K], kp, kpp (0: computed). Magnesite: a1 = alpha = 37.30e-6 1/K and kt00 = 1/beta, beta = 8.20e-6 1/MPa, from Gottschalk (1997) Table 2; kp = 4 (second-order Birch-Murnaghan) and dkdt = 0 are not from the paper, which gives no Birch-Murnaghan parameters"
      }
     }
    ],

@@ -90,8 +90,10 @@ CRIT = {"eos_gas_crit_props": {
 VOLUME_FPT = {"m_volume_fpt_coeffs": {
     "values": [-8.900000239009387e-07, 2.2119998974862165e-12, 0, 1.8435999663779512e-05, 4.1596798894261156e-08]}}
 BM = {"eos_birch_murnaghan_coeffs": {
-    "values": [3.0e-05, 0, 0, 0, 0, 1.15e6, -100.0, 4.0, 0],
-    "_comment": "a1..a5 [1/K...], kt00 [bar], dkdt [bar/K], kp, kpp (0: computed). Magnesite-like illustrative values"}}
+    "values": [3.73e-05, 0, 0, 0, 0, 121951.2, 0, 4.0, 0],
+    "_comment": "a1..a5 [1/K...], kt00 [MPa], dkdt [MPa/K], kp, kpp (0: computed). Magnesite: a1 = alpha = 37.30e-6 1/K "
+                "and kt00 = 1/beta, beta = 8.20e-6 1/MPa, from Gottschalk (1997) Table 2; kp = 4 (second-order "
+                "Birch-Murnaghan) and dkdt = 0 are not from the paper, which gives no Birch-Murnaghan parameters"}}
 
 
 def za_zp():
@@ -160,7 +162,8 @@ REACTIONS = {
     "r08-logk_lagrange_interp": (False, [logk_entry(), method(8, "logk_lagrange_interp")]),
     "r09-logk_marshall_frank78": (True, [logk_entry(), {
         **method(9, "logk_marshall_frank78"),
-        "dr_marshall_franck_coeffs": {"values": [-4.098, -3245.2, 2.2362e5, -3.984e7, 13.957, -1262.3, 8.5641e5]},
+        "dr_marshall_franck_coeffs": {"values": [-4.098, -3245.2, 2.2362e5, -3.984e7, 13.957, -1262.3, 8.5641e5],
+                                      "_comment": "Ion product of water, Marshall and Franck (1981)"},
         }]),
     "r11-dr_heat_capacity_ft": (False, [{
         **method(11, "dr_heat_capacity_ft"),
@@ -171,7 +174,8 @@ REACTIONS = {
                                             4.1596798894261156e-08]}}]),
     "r14-logk_dolejs_manning10": (True, [logk_entry(), {
         **method(14, "logk_dolejs_manning10"),
-        "dr_dolejs_manning10_coeffs": {"values": [-10.0, -5.0, 2.0, 0.001, 1.0]}}]),
+        "dr_dolejs_manning10_coeffs": {"values": [23.6, -52.92, 10.93, -0.0463, -18.52],
+                                       "_comment": "Quartz, Dolejs and Manning (2010) Table 1 (a kJ/mol)"}}]),
 }
 
 

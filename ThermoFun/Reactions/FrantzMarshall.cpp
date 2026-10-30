@@ -50,6 +50,7 @@ auto thermoPropertiesFrantzMarshall(real TK, real Pbar, Reaction reaction, const
     auto dAr  = dUr - TK*dSr;
 
     tpr.ln_equilibrium_constant    = logK*lg_to_ln;
+    tpr.log_equilibrium_constant   = logK;
     tpr.reaction_enthalpy          = dHr;
     tpr.reaction_entropy           = dSr;
     tpr.reaction_gibbs_energy      = dGr;

@@ -306,12 +306,13 @@
      },
      "dr_dolejs_manning10_coeffs": {
       "values": [
-       -10.0,
-       -5.0,
-       2.0,
-       0.001,
-       1.0
-      ]
+       23.6,
+       -52.92,
+       10.93,
+       -0.0463,
+       -18.52
+      ],
+      "_comment": "Quartz, Dolejs and Manning (2010) Table 1 (a kJ/mol)"
      }
     }
    ],
