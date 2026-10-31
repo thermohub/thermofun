@@ -389,14 +389,14 @@ void testSolvent()
     // the methods of a water record: one equation of state, and the dielectric model
     auto r = waterRecord({{"JohnsonNorton91", "gems"}, {"WaterHGK84", "gems"}});
     auto bound = bindSolvent(r);
-    CHECK(dynamic_cast<const WaterHGK84Gems*>(bound->equation_of_state.get()));
-    CHECK(dynamic_cast<const JohnsonNorton91Gems*>(bound->dielectric.get()));
+    CHECK(bound->equation_of_state->implementation() == "gems");
+    CHECK(bound->dielectric->implementation() == "gems");
     CHECK(bound->equation_of_state->gibbsEnergyContainsRTlnP());
 
     // the default implementation is the first one of the catalog
     r = waterRecord({{"WaterHGK84", ""}});
     bound = bindSolvent(r);
-    CHECK(dynamic_cast<const WaterHGK84Reaktoro*>(bound->equation_of_state.get()) && !bound->dielectric);
+    CHECK(bound->equation_of_state->implementation() == "reaktoro" && !bound->dielectric);
 
     // only a dielectric model: no properties of water
     CHECK(!bindSolvent(waterRecord({{"JohnsonNorton91", ""}}))->equation_of_state);
@@ -410,7 +410,7 @@ void testSolvent()
 
     // a pressure of 0 is the saturation pressure, and it is written back (IAPWS-95: 1554928 Pa; the code of GEMS has
     // its own saturation equation, 0.08 % lower)
-    for (const SolventMethod* method : std::initializer_list<const SolventMethod*>{new WaterHGK84Gems, new WaterHGK84Reaktoro, new WaterIAPWS95Reaktoro})
+    for (const auto& method : {waterHGK84GemsMethod(), waterHGK84ReaktoroMethod(), waterIAPWS95ReaktoroMethod()})
     {
         double P = 0.0;
         method->properties(473.15, P, 0);
@@ -418,7 +418,6 @@ void testSolvent()
         P = 0.0;
         method->substanceProperties(473.15, P, 0, "NEA_HGK");
         CHECK(std::abs(P - 1554928.0) < 3000.0);
-        delete method;
     }
 
     // the state of a record

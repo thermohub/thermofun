@@ -4,10 +4,11 @@
 #ifndef THERMOFUN_METHODS_GASES_GASMETHODS_H
 #define THERMOFUN_METHODS_GASES_GASMETHODS_H
 
+#include <memory>
 #include <string>
 #include <vector>
 
-#include <ThermoFun/Methods/MethodBase.h>
+#include <ThermoFun/Methods/Method.h>
 #include <ThermoFun/Model/Applicability.h>
 
 namespace ThermoFun::v2 {
@@ -20,40 +21,10 @@ struct GasRecord
     Applicability applicability;
 };
 
-/// A fluid equation of state: it adds its terms to G, H and S of the ideal gas, and sets V. Parameters in SI, in the
-/// order of the catalog. The options of the engine say if G keeps RT ln(phi), and if the pressure term is added.
-template <typename Derived>
-class GasMethod : public SubstanceMethodBase<Derived>
-{
-public:
-    GasMethod(std::vector<double> parameters, GasRecord record)
-    : SubstanceMethodBase<Derived>(std::move(parameters)), record_(std::move(record)) {}
-
-    template <typename Scalar>
-    auto compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void;
-
-    auto info(PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in) const -> void override;
-
-private:
-    GasRecord record_;
-};
-
-#define THERMOFUN_GAS_METHOD(NAME, ID)                                                                                 \
-    class NAME final : public GasMethod<NAME>                                                                          \
-    {                                                                                                                  \
-    public:                                                                                                            \
-        static constexpr const char* id = ID;                                                                          \
-        using GasMethod<NAME>::GasMethod;                                                                              \
-    };
-
-THERMOFUN_GAS_METHOD(PRSV86, "PRSV86")
-THERMOFUN_GAS_METHOD(ChurakovGottschalk03, "ChurakovGottschalk03")
-THERMOFUN_GAS_METHOD(SoaveRedlichKwong72, "SoaveRedlichKwong72")
-THERMOFUN_GAS_METHOD(SternerPitzer94, "SternerPitzer94")
-THERMOFUN_GAS_METHOD(PengRobinson78, "PengRobinson78")
-THERMOFUN_GAS_METHOD(CorkHP91, "CorkHP91")
-
-#undef THERMOFUN_GAS_METHOD
+/// A fluid equation of state: PRSV86, ChurakovGottschalk03, SoaveRedlichKwong72, SternerPitzer94, PengRobinson78 or CorkHP91. It adds its terms to G, H
+/// and S of the ideal gas, and sets V. Parameters in SI, in the order of the catalog. The options of the engine say if G keeps RT ln(phi), and if the
+/// pressure term is added.
+auto gasMethod(const std::string& id, std::vector<double> parameters, GasRecord record) -> std::shared_ptr<const SubstanceMethod>;
 
 } // namespace ThermoFun::v2
 

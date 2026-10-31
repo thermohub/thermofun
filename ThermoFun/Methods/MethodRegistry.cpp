@@ -32,9 +32,8 @@ MethodRegistry::MethodRegistry()
     add("IdealGas", "", [](A, R r) { return idealGasMethod(r.class_ == SubstanceClass::GasFluid); });
 
     // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
-    auto mineral = [this](auto kind, const char* id, std::initializer_list<const char*> names) {
-        using Method = typename decltype(kind)::type;
-        add(id, "", [names = std::vector<const char*>(names)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+    auto mineral = [this](const char* id, std::initializer_list<const char*> names) {
+        add(id, "", [id, names = std::vector<const char*>(names)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;
             bool any = false;
             for (const char* n : names)
@@ -44,19 +43,19 @@ MethodRegistry::MethodRegistry()
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
             auto value = [&](const char* n) { const auto it = a.parameters.find(n); return it == a.parameters.end() ? 0.0 : it->second.value; };
-            return std::make_shared<const Method>(any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability);
+            return mineralMethod(id, any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability);
         });
     };
-    mineral(std::type_identity<LandauHP98>{}, "LandauHP98", {"Tc0", "Smax", "Vmax"});
-    mineral(std::type_identity<LandauHP11>{}, "LandauHP11", {"Tc0", "Smax", "Vmax"});
-    mineral(std::type_identity<MurnaghanHP98>{}, "MurnaghanHP98", {});
-    mineral(std::type_identity<TaitHP11>{}, "TaitHP11", {"kappa0p", "kappa0pp", "n_atoms"});
-    mineral(std::type_identity<VolumeBerman88>{}, "VolumeBerman88", {"a1", "a2", "a3", "b1", "b2"});
-    mineral(std::type_identity<VolumeDorogokupets88>{}, "VolumeDorogokupets88", {"a1", "a2", "a3", "b1", "b2"});
-    mineral(std::type_identity<BirchMurnaghan47>{}, "BirchMurnaghan47", {"a1", "a2", "a3", "", "", "kt00", "dkdt", "kp", "kpp"});
-    mineral(std::type_identity<CpExtendedUNIQUAC>{}, "CpExtendedUNIQUAC", {"a", "b", "c", "alpha", "beta", "Theta"});
-    add("NASA9", "", [](A a, R) { return std::make_shared<const NASA9>(a); });
-    add("TPTable", "", [](A a, R) { return std::make_shared<const TPTable>(a); });
+    mineral("LandauHP98", {"Tc0", "Smax", "Vmax"});
+    mineral("LandauHP11", {"Tc0", "Smax", "Vmax"});
+    mineral("MurnaghanHP98", {});
+    mineral("TaitHP11", {"kappa0p", "kappa0pp", "n_atoms"});
+    mineral("VolumeBerman88", {"a1", "a2", "a3", "b1", "b2"});
+    mineral("VolumeDorogokupets88", {"a1", "a2", "a3", "b1", "b2"});
+    mineral("BirchMurnaghan47", {"a1", "a2", "a3", "", "", "kt00", "dkdt", "kp", "kpp"});
+    mineral("CpExtendedUNIQUAC", {"a", "b", "c", "alpha", "beta", "Theta"});
+    add("NASA9", "", [](A a, R) { return nasa9Method(a); });
+    add("TPTable", "", [](A a, R) { return tpTableMethod(a); });
 
     // the reactions: the coefficients of the names in the units of the formulas; none if the record gives none of them
     auto coefficients = [](A a, std::initializer_list<std::pair<const char*, double>> names) {
@@ -127,8 +126,7 @@ MethodRegistry::MethodRegistry()
     reaction_["ReactionConstantVolume"] = [reactionInputs](A a, RR r) { return makeReactionConstantVolume(reactionInputs(a, r, {})); };
 
     // a fluid: the parameters in the order of the names; the lower T of the record is that of its heat capacity
-    auto gas = [this](auto kind, const char* id, std::vector<const char*> names) {
-        using Method = typename decltype(kind)::type;
+    auto gas = [this](const char* id, std::vector<const char*> names) {
         add(id, "", [names, id = std::string(id)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;
             for (const char* n : names)
@@ -148,16 +146,16 @@ MethodRegistry::MethodRegistry()
                         }
             if (!found)
                 thfun_logger->warn("{}: substance \"{}\" has no temperature intervals (they come only from a CpPolynomial method); using its reference temperature {} K as the lower temperature bound.", id, r.symbol, record.lower_T);
-            return std::make_shared<const Method>(values, record);
+            return gasMethod(id, values, record);
         });
     };
     const std::vector<const char*> cubic = {"Tc", "Pc", "omega", "N"}, interaction = {"Tc", "Pc", "omega", "k1", "k2", "k3"};
-    gas(std::type_identity<PRSV86>{}, "PRSV86", interaction);
-    gas(std::type_identity<CorkHP91>{}, "CorkHP91", interaction);
-    gas(std::type_identity<SoaveRedlichKwong72>{}, "SoaveRedlichKwong72", cubic);
-    gas(std::type_identity<PengRobinson78>{}, "PengRobinson78", cubic);
-    gas(std::type_identity<SternerPitzer94>{}, "SternerPitzer94", {"Tc", "Pc"});
-    gas(std::type_identity<ChurakovGottschalk03>{}, "ChurakovGottschalk03", {"sigma0", "eps0", "mu0", "pol0", "sigma1", "sigma2", "eps1", "eps2", "mu1", "mu2", "pol1", "pol2"});
+    gas("PRSV86", interaction);
+    gas("CorkHP91", interaction);
+    gas("SoaveRedlichKwong72", cubic);
+    gas("PengRobinson78", cubic);
+    gas("SternerPitzer94", {"Tc", "Pc"});
+    gas("ChurakovGottschalk03", {"sigma0", "eps0", "mu0", "pol0", "sigma1", "sigma2", "eps1", "eps2", "mu1", "mu2", "pol1", "pol2"});
 
     // the parameters in the order of the catalog; none if the record gives none
     auto parametersOf = [](A a, std::initializer_list<const char*> names) {
@@ -173,16 +171,16 @@ MethodRegistry::MethodRegistry()
     };
     auto hkfSpecies = [](R r) { return HKFSpecies{r.symbol, static_cast<double>(r.charge.value_or(0)), isHydrogenIon(r), r.applicability}; };
     auto hkfReaktoro = [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return std::make_shared<const HKF88Reaktoro>(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
+        return hkf88ReaktoroMethod(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
     };
     add("HKF88", "", hkfReaktoro);
     add("HKF88", "reaktoro", hkfReaktoro);
     add("HKF88", "gems", [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return std::make_shared<const HKF88Gems>(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
+        return hkf88GemsMethod(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
     });
-    add("SoluteHP98", "", [parametersOf](A a, R r) { return std::make_shared<const SoluteHP98>(parametersOf(a, {"b"}), r.symbol); });
-    add("AndersonEtAl91", "", [](A, R) { return std::make_shared<const AndersonEtAl91>(); });
-    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return std::make_shared<const AkinfievDiamond03>(parametersOf(a, {"xi", "a", "b"}), r.symbol); });
+    add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a, {"b"}), r.symbol); });
+    add("AndersonEtAl91", "", [](A, R) { return andersonEtAl91Method(); });
+    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a, {"xi", "a", "b"}), r.symbol); });
 
     // "" is the default implementation, the first one of the catalog
     auto solvent = [this](const char* id, const char* implementation, SolventFactory f) {
@@ -191,11 +189,11 @@ MethodRegistry::MethodRegistry()
     auto dielectric = [this](const char* id, const char* implementation, DielectricFactory f) {
         dielectric_[{id, implementation}] = std::move(f);
     };
-    SolventFactory hgkReaktoro = [](A) { return std::make_shared<const WaterHGK84Reaktoro>(); };
-    SolventFactory iapws = [](A) { return std::make_shared<const WaterIAPWS95Reaktoro>(); };
+    SolventFactory hgkReaktoro = [](A) { return waterHGK84ReaktoroMethod(); };
+    SolventFactory iapws = [](A) { return waterIAPWS95ReaktoroMethod(); };
     solvent("WaterHGK84", "", hgkReaktoro);
     solvent("WaterHGK84", "reaktoro", hgkReaktoro);
-    solvent("WaterHGK84", "gems", [](A) { return std::make_shared<const WaterHGK84Gems>(); });
+    solvent("WaterHGK84", "gems", [](A) { return waterHGK84GemsMethod(); });
     solvent("WaterIAPWS95", "", iapws);
     solvent("WaterIAPWS95", "reaktoro", iapws);
     solvent("WaterZhangDuan05", "", [](A a) {
@@ -204,14 +202,14 @@ MethodRegistry::MethodRegistry()
             if (const auto p = a.parameters.find("g1kb_" + std::to_string(i)); p != a.parameters.end())
                 coefficients.g1kb[i] = p->second.value;
         const auto dew = a.parameters.find("dew_gibbs");
-        return std::make_shared<const WaterZhangDuan05>(dew != a.parameters.end() && dew->second.value != 0.0, coefficients);
+        return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, coefficients);
     });
-    DielectricFactory jnReaktoro = [] { return std::make_shared<const JohnsonNorton91Reaktoro>(); };
+    DielectricFactory jnReaktoro = [] { return johnsonNorton91ReaktoroMethod(); };
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
-    dielectric("JohnsonNorton91", "gems", [] { return std::make_shared<const JohnsonNorton91Gems>(); });
-    dielectric("SverjenskyEtAl14", "", [] { return std::make_shared<const SverjenskyEtAl14>(); });
-    dielectric("FernandezEtAl97", "", [] { return std::make_shared<const FernandezEtAl97>(); });
+    dielectric("JohnsonNorton91", "gems", [] { return johnsonNorton91GemsMethod(); });
+    dielectric("SverjenskyEtAl14", "", [] { return sverjenskyEtAl14Method(); });
+    dielectric("FernandezEtAl97", "", [] { return fernandezEtAl97Method(); });
 }
 
 auto MethodRegistry::instance() -> MethodRegistry&

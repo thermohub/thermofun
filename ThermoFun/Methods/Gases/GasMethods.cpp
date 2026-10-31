@@ -3,9 +3,11 @@
 
 #include "GasMethods.h"
 
+#include <map>
 #include <type_traits>
 
 #include <ThermoFun/Common/Constants.h>
+#include <ThermoFun/Methods/FunctionMethod.h>
 #include <ThermoFun/Methods/Gases/GasCGF.h>
 #include <ThermoFun/Methods/Gases/GasCORK.h>
 #include <ThermoFun/Methods/Gases/GasPR78.h>
@@ -18,61 +20,42 @@ namespace ThermoFun::v2 {
 
 namespace {
 
-template <typename Method>
-auto modelName() -> const char*
+using Model = ThermoPropertiesSubstanceAD (*)(real T, real Pbar, const GasInputs& inputs, ThermoPropertiesSubstanceAD state, bool cancel);
+
+/// One equation of state. pressure_at_place_1: the parameter at place 1 is Pc, which the formula has in bar.
+struct GasRow
 {
-    if constexpr (std::is_same_v<Method, PRSV86>)
-        return "PRSV Peng-Robinson-Stryjek-Vera fluid model";
-    else if constexpr (std::is_same_v<Method, ChurakovGottschalk03>)
-        return "Churakov and Gottschalk fluid model";
-    else if constexpr (std::is_same_v<Method, SoaveRedlichKwong72>)
-        return "SRK Soave-Redlich-Kwong fluid model";
-    else if constexpr (std::is_same_v<Method, SternerPitzer94>)
-        return "STP Sterner-Pitzer fluid model";
-    else if constexpr (std::is_same_v<Method, PengRobinson78>)
-        return "PR78 Peng-Robinson fluid model";
-    else
-        return "CORK compensated-Redlich-Kwong fluid model";
-}
+    Model model;
+    const char* name;
+    bool pressure_at_place_1;
+};
 
-template <typename Method>
-auto formula(const real& T, const real& Pbar, const GasInputs& inputs, const ThermoPropertiesSubstanceAD& state, bool cancel) -> ThermoPropertiesSubstanceAD
+struct GasData
 {
-    if constexpr (std::is_same_v<Method, PRSV86>)
-        return thermoPropertiesGasPRSV(T, Pbar, inputs, state, cancel);
-    else if constexpr (std::is_same_v<Method, ChurakovGottschalk03>)
-        return thermoPropertiesGasCGF(T, Pbar, inputs, state, cancel);
-    else if constexpr (std::is_same_v<Method, SoaveRedlichKwong72>)
-        return thermoPropertiesGasSRK(T, Pbar, inputs, state, cancel);
-    else if constexpr (std::is_same_v<Method, SternerPitzer94>)
-        return thermoPropertiesGasSTP(T, Pbar, inputs, state, cancel);
-    else if constexpr (std::is_same_v<Method, PengRobinson78>)
-        return thermoPropertiesGasPR78(T, Pbar, inputs, state, cancel);
-    else
-        return thermoPropertiesGasCORK(T, Pbar, inputs, state, cancel);
-}
+    GasRecord record;
+    const GasRow* row = nullptr;
+};
 
-} // namespace
+using Parameters = MethodParameters<GasData>;
 
-template <typename Derived>
 template <typename Scalar>
-auto GasMethod<Derived>::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void
+auto gas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const Parameters& parameters, const char* id) -> void
 {
     if constexpr (std::is_same_v<Scalar, double>)
-        needsAPass(Derived::id);
+        needsAPass(id);
     else
     {
+        const GasData& data = parameters.data;
         GasInputs inputs;
-        inputs.lower_T = record_.lower_T;
-        inputs.formula = record_.formula;
-        for (std::size_t i = 0; i < this->values_.size(); ++i)
+        inputs.lower_T = data.record.lower_T;
+        inputs.formula = data.record.formula;
+        for (std::size_t i = 0; i < parameters.values.size(); ++i)
         {
-            // the formulas have Pc in bar, at place 1, for all methods but the coefficients of Churakov and Gottschalk
-            const bool pressure = i == 1 && !std::is_same_v<Derived, ChurakovGottschalk03>;
-            inputs.parameters.push_back(pressure ? this->parameter(i, in) / bar_to_Pa : this->parameter(i, in));
+            const bool pressure = i == 1 && data.row->pressure_at_place_1;
+            inputs.parameters.push_back(pressure ? parameters.value(i, in) / bar_to_Pa : parameters.value(i, in));
         }
         const Scalar p = in.P / bar_to_Pa;
-        auto out = formula<Derived>(in.T, p, inputs, toModel(state), in.options.cancel_fugacity_coefficient);
+        auto out = data.row->model(in.T, p, inputs, toModel(state), in.options.cancel_fugacity_coefficient);
         if (in.options.apply_pressure_correction)
         {
             const Scalar term = out.volume * (p - in.reference.P / bar_to_Pa);
@@ -83,8 +66,7 @@ auto GasMethod<Derived>::compute(SubstanceState<Scalar>& state, const SubstanceI
     }
 }
 
-template <typename Derived>
-auto GasMethod<Derived>::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in) const -> void
+auto gasInfo(PropertiesInfo& out, const InfoInputs& in, const GasData& data) -> void
 {
     // the Gibbs energy, enthalpy and entropy are incremented, the volume is set to a value
     const ValueInfo G = out.G, H = out.H, S = out.S;
@@ -101,23 +83,34 @@ auto GasMethod<Derived>::info(PropertiesInfo& out, const PropertiesInfo&, const 
         out.G.setError({{1.0, g.err}, {dP, out.V.err}});
         out.H.setError({{1.0, h.err}, {dP, out.V.err}});
     }
-    const auto message = boundsMessage(modelName<Derived>(), record_.applicability, in.T, in.P);
+    const auto message = boundsMessage(data.row->name, data.record.applicability, in.T, in.P);
     if (!message.empty())
         setMessage(out, message);
 }
 
-#define THERMOFUN_INSTANTIATE_GAS(M)                                                                                   \
-    template class GasMethod<M>;                                                                                       \
-    template auto GasMethod<M>::compute(SubstanceState<double>&, const SubstanceInputs<double>&) const -> void;        \
-    template auto GasMethod<M>::compute(SubstanceState<TPReal>&, const SubstanceInputs<TPReal>&) const -> void;
+auto rowOf(const std::string& id) -> const GasRow&
+{
+    static const std::map<std::string, GasRow> rows = {
+        {"PRSV86", {thermoPropertiesGasPRSV, "PRSV Peng-Robinson-Stryjek-Vera fluid model", true}},
+        {"ChurakovGottschalk03", {thermoPropertiesGasCGF, "Churakov and Gottschalk fluid model", false}},
+        {"SoaveRedlichKwong72", {thermoPropertiesGasSRK, "SRK Soave-Redlich-Kwong fluid model", true}},
+        {"SternerPitzer94", {thermoPropertiesGasSTP, "STP Sterner-Pitzer fluid model", true}},
+        {"PengRobinson78", {thermoPropertiesGasPR78, "PR78 Peng-Robinson fluid model", true}},
+        {"CorkHP91", {thermoPropertiesGasCORK, "CORK compensated-Redlich-Kwong fluid model", true}},
+    };
+    const auto it = rows.find(id);
+    if (it == rows.end())
+        funError("Unknown fluid method", id, __LINE__, __FILE__);
+    return it->second;
+}
 
-THERMOFUN_INSTANTIATE_GAS(PRSV86)
-THERMOFUN_INSTANTIATE_GAS(ChurakovGottschalk03)
-THERMOFUN_INSTANTIATE_GAS(SoaveRedlichKwong72)
-THERMOFUN_INSTANTIATE_GAS(SternerPitzer94)
-THERMOFUN_INSTANTIATE_GAS(PengRobinson78)
-THERMOFUN_INSTANTIATE_GAS(CorkHP91)
+} // namespace
 
-#undef THERMOFUN_INSTANTIATE_GAS
+auto gasMethod(const std::string& id, std::vector<double> parameters, GasRecord record) -> std::shared_ptr<const SubstanceMethod>
+{
+    return makeMethod(id.c_str(), Parameters{std::move(parameters), {std::move(record), &rowOf(id)}},
+                      [id](auto& state, const auto& in, const Parameters& p) { gas(state, in, p, id.c_str()); },
+                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) { gasInfo(out, in, p.data); });
+}
 
 } // namespace ThermoFun::v2

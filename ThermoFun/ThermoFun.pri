@@ -98,7 +98,6 @@
     $$PWD/Methods/Water/WaterMethods.h \
     $$PWD/Methods/MethodSpec.h \
     $$PWD/Methods/Method.h \
-    $$PWD/Methods/MethodBase.h \
     $$PWD/Methods/MethodRegistry.h \
     $$PWD/Methods/Evaluate.h \
     $$PWD/Methods/FunctionMethod.h \

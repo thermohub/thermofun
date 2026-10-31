@@ -24,169 +24,124 @@ auto specOf(const char* id) -> const MethodSpec&
     return *MethodCatalog::instance().find(id, OperatesOn::Reaction);
 }
 
-class Base : public ReactionMethod
+/// A reaction method: a function of T, P, the incoming properties and the solvent.
+template <typename Calculate>
+class FunctionReactionMethod final : public ReactionMethod
 {
 public:
-    Base(const char* id, ReactionInputs inputs) : spec_(specOf(id)), inputs_(std::move(inputs)) {}
+    FunctionReactionMethod(const char* id, Calculate calculate) : spec_(specOf(id)), calculate_(std::move(calculate)) {}
     auto spec() const -> const MethodSpec& override { return spec_; }
+    auto calculate(double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent* solvent) const -> ThermoPropertiesReaction override
+    {
+        return calculate_(T, P, incoming, solvent);
+    }
 
-protected:
+private:
     const MethodSpec& spec_;
-    ReactionInputs inputs_;
+    Calculate calculate_;
 };
 
-class LogK final : public Base
+template <typename Calculate>
+auto makeReactionMethod(const char* id, Calculate calculate) -> std::shared_ptr<const ReactionMethod>
 {
-public:
-    LogK(const char* id, LogKForm form, ReactionInputs inputs) : Base(id, std::move(inputs)), form_(form) {}
-    auto calculate(double T, double P, const ThermoPropertiesReaction&, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
-    {
-        return logKProperties(inputs_, form_, T, P);
-    }
+    return std::make_shared<const FunctionReactionMethod<Calculate>>(id, std::move(calculate));
+}
 
-private:
-    LogKForm form_;
-};
-
-class ConstantProperties final : public Base
+auto logKTable(const std::vector<double>& x, const std::vector<double>& y, int order, const ReactionInputs& inputs, double T, double P, const ThermoPropertiesReaction& incoming) -> ThermoPropertiesReaction
 {
-public:
-    using Base::Base;
-    auto calculate(double, double, const ThermoPropertiesReaction&, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
-    {
-        return inputs_.reference;
-    }
-};
+    if (x.empty() && y.empty())
+        return incoming;  // a method without a table does nothing, as in the legacy code
+    if (x.size() < 2 || x.size() != y.size())
+        funError("The table of log K is not usable", "It needs at least two temperatures and one log K for each.", __LINE__, __FILE__);
+    if (T < x.front() || T > x.back())
+        funError("Temperature outside the table of log K", "T = " + std::to_string(T) + " K, the table covers " + std::to_string(x.front()) + " to " + std::to_string(x.back()) + " K.", __LINE__, __FILE__);
 
-class Table final : public Base
-{
-public:
-    Table(std::vector<double> x, std::vector<double> y, int order, ReactionInputs inputs)
-    : Base("LogKTable", std::move(inputs)), x_(std::move(x)), y_(std::move(y)), order_(order) {}
-
-    auto calculate(double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
-    {
-        if (x_.empty() && y_.empty())
-            return incoming;  // a method without a table does nothing, as in the legacy code
-        if (x_.size() < 2 || x_.size() != y_.size())
-            funError("The table of log K is not usable", "It needs at least two temperatures and one log K for each.", __LINE__, __FILE__);
-        if (T < x_.front() || T > x_.back())
-            funError("Temperature outside the table of log K", "T = " + std::to_string(T) + " K, the table covers " + std::to_string(x_.front()) + " to " + std::to_string(x_.back()) + " K.", __LINE__, __FILE__);
-
-        const double Rln10 = R_CONSTANT * lg_to_ln;
-        const real dVr = Reaktoro_::constant(inputs_.reference.reaction_volume);
-        auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-            const real TK = pass.T;
-            const auto s = order_ == 0 ? naturalSpline(x_, y_, TK) : lagrangePolynomial(x_, y_, TK, order_);
-            ThermoPropertiesReactionAD a;
-            a.log_equilibrium_constant = s.value;
-            a.ln_equilibrium_constant = s.value * lg_to_ln;
-            a.reaction_gibbs_energy = -Rln10 * TK * s.value;
-            a.reaction_enthalpy = Rln10 * TK * TK * s.first;
-            a.reaction_entropy = Rln10 * (TK * s.first + s.value);
-            a.reaction_heat_capacity_cp = Rln10 * (2.0 * TK * s.first + TK * TK * s.second);
-            a.reaction_volume = dVr;
-            return a;
-        });
-        tpr.log_equilibrium_constant.asCalculated();
-        tpr.ln_equilibrium_constant.asCalculated();
-        tpr.reaction_gibbs_energy.asCalculated();
-        tpr.reaction_enthalpy.asCalculated();
-        tpr.reaction_entropy.asCalculated();
-        tpr.reaction_heat_capacity_cp.asCalculated();
-        tpr.reaction_volume = inputs_.reference.reaction_volume;
-        return tpr;
-    }
-
-private:
-    std::vector<double> x_, y_;
-    int order_;
-};
+    const double Rln10 = R_CONSTANT * lg_to_ln;
+    const real dVr = Reaktoro_::constant(inputs.reference.reaction_volume);
+    auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        const real TK = pass.T;
+        const auto s = order == 0 ? naturalSpline(x, y, TK) : lagrangePolynomial(x, y, TK, order);
+        ThermoPropertiesReactionAD a;
+        a.log_equilibrium_constant = s.value;
+        a.ln_equilibrium_constant = s.value * lg_to_ln;
+        a.reaction_gibbs_energy = -Rln10 * TK * s.value;
+        a.reaction_enthalpy = Rln10 * TK * TK * s.first;
+        a.reaction_entropy = Rln10 * (TK * s.first + s.value);
+        a.reaction_heat_capacity_cp = Rln10 * (2.0 * TK * s.first + TK * TK * s.second);
+        a.reaction_volume = dVr;
+        return a;
+    });
+    tpr.log_equilibrium_constant.asCalculated();
+    tpr.ln_equilibrium_constant.asCalculated();
+    tpr.reaction_gibbs_energy.asCalculated();
+    tpr.reaction_enthalpy.asCalculated();
+    tpr.reaction_entropy.asCalculated();
+    tpr.reaction_heat_capacity_cp.asCalculated();
+    tpr.reaction_volume = inputs.reference.reaction_volume;
+    return tpr;
+}
 
 // A model of the density of water: the isochoric heat capacity is not calculated.
 template <typename Formula>
-class Density final : public Base
+auto densityMethod(const char* id, Formula formula, ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
-public:
-    Density(const char* id, Formula formula, ReactionInputs inputs) : Base(id, std::move(inputs)), formula_(formula) {}
-    auto calculate(double T, double P, const ThermoPropertiesReaction&, const PropertiesSolvent* solvent) const -> ThermoPropertiesReaction override
-    {
+    const std::string name = id;
+    return makeReactionMethod(id, [name, formula, inputs = std::move(inputs)](double T, double P, const ThermoPropertiesReaction&, const PropertiesSolvent* solvent) {
         if (!solvent)
-            funError("Cannot run the method " + spec_.id, "It needs the state of the solvent, and none is given.", __LINE__, __FILE__);
+            funError("Cannot run the method " + name, "It needs the state of the solvent, and none is given.", __LINE__, __FILE__);
         auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-            return formula_(pass.T, pass.P / bar_to_Pa, inputs_, lift(pass, *solvent));
+            return formula(pass.T, pass.P / bar_to_Pa, inputs, lift(pass, *solvent));
         });
         tpr.reaction_heat_capacity_cv = Reaktoro_::ThermoProperty();
         return tpr;
-    }
-
-private:
-    Formula formula_;
-};
-
-class VolumePolynomial final : public Base
-{
-public:
-    using Base::Base;
-    auto calculate(double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
-    {
-        return volumePolynomialProperties(inputs_, T, P, incoming);
-    }
-};
-
-class ConstantVolume final : public Base
-{
-public:
-    using Base::Base;
-    auto calculate(double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
-    {
-        return constantVolumeProperties(inputs_, T, P, incoming);
-    }
-};
+    });
+}
 
 } // namespace
 
 auto makeLogK(const char* id, LogKForm form, ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
-    return std::make_shared<const LogK>(id, form, std::move(inputs));
+    return makeReactionMethod(id, [form, inputs = std::move(inputs)](double T, double P, const ThermoPropertiesReaction&, const PropertiesSolvent*) { return logKProperties(inputs, form, T, P); });
 }
 
 auto makeConstantReactionProperties(ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
-    return std::make_shared<const ConstantProperties>("ConstantReactionProperties", std::move(inputs));
+    return makeReactionMethod("ConstantReactionProperties", [inputs = std::move(inputs)](double, double, const ThermoPropertiesReaction&, const PropertiesSolvent*) { return inputs.reference; });
 }
 
 auto makeLogKTable(std::vector<double> temperatures, std::vector<double> logK, int order, ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
-    return std::make_shared<const Table>(std::move(temperatures), std::move(logK), order, std::move(inputs));
+    return makeReactionMethod("LogKTable", [x = std::move(temperatures), y = std::move(logK), order, inputs = std::move(inputs)](double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) {
+        return logKTable(x, y, order, inputs, T, P, incoming);
+    });
 }
 
 auto makeDolejsManning10(ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
     auto f = [](const real& t, const real& p, const ReactionInputs& i, const PropertiesSolventAD& w) { return thermoPropertiesDolejsManning2010(t, p, i, w); };
-    return std::make_shared<const Density<decltype(f)>>("DolejsManning10", f, std::move(inputs));
+    return densityMethod("DolejsManning10", f, std::move(inputs));
 }
 
 auto makeMarshallFranck81(ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
     auto f = [](const real& t, const real& p, const ReactionInputs& i, const PropertiesSolventAD& w) { return thermoPropertiesFrantzMarshall(t, p, i, w); };
-    return std::make_shared<const Density<decltype(f)>>("MarshallFranck81", f, std::move(inputs));
+    return densityMethod("MarshallFranck81", f, std::move(inputs));
 }
 
 auto makeRyzhenkoBryzgalin(ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
     auto f = [](const real& t, const real& p, const ReactionInputs& i, const PropertiesSolventAD& w) { return thermoPropertiesRyzhenkoBryzgalin(t, p, i, w); };
-    return std::make_shared<const Density<decltype(f)>>("RyzhenkoBryzgalin", f, std::move(inputs));
+    return densityMethod("RyzhenkoBryzgalin", f, std::move(inputs));
 }
 
 auto makeReactionVolumePolynomial(ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
-    return std::make_shared<const VolumePolynomial>("ReactionVolumePolynomial", std::move(inputs));
+    return makeReactionMethod("ReactionVolumePolynomial", [inputs = std::move(inputs)](double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) { return volumePolynomialProperties(inputs, T, P, incoming); });
 }
 
 auto makeReactionConstantVolume(ReactionInputs inputs) -> std::shared_ptr<const ReactionMethod>
 {
-    return std::make_shared<const ConstantVolume>("ReactionConstantVolume", std::move(inputs));
+    return makeReactionMethod("ReactionConstantVolume", [inputs = std::move(inputs)](double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) { return constantVolumeProperties(inputs, T, P, incoming); });
 }
 
 auto naturalSpline(const std::vector<double>& x, const std::vector<double>& y, const real& at) -> InterpolatedValue

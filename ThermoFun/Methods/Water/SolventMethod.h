@@ -21,6 +21,9 @@ public:
     /// The specification of the method.
     virtual auto spec() const -> const MethodSpec& = 0;
 
+    /// The name of the implementation, empty if the method has one.
+    virtual auto implementation() const -> std::string = 0;
+
     /// The properties of water as a solvent at T (K) and P (Pa). State: 0 liquid, 1 gas.
     virtual auto properties(double T, double& P, int state) const -> PropertiesSolvent = 0;
 
@@ -39,6 +42,9 @@ public:
 
     /// The specification of the method.
     virtual auto spec() const -> const MethodSpec& = 0;
+
+    /// The name of the implementation, empty if the method has one.
+    virtual auto implementation() const -> std::string = 0;
 
     /// The electrochemical properties at T (K) and P (Pa), from the properties of the solvent at this T and P.
     virtual auto properties(double T, double P, const PropertiesSolvent& solvent, int state) const -> ElectroPropertiesSolvent = 0;

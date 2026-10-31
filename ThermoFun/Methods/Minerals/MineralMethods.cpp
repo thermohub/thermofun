@@ -4,9 +4,11 @@
 #include "MineralMethods.h"
 
 #include <cmath>
+#include <map>
 #include <type_traits>
 
 #include <ThermoFun/Common/Constants.h>
+#include <ThermoFun/Methods/FunctionMethod.h>
 #include <ThermoFun/Methods/MethodHelpers.h>
 #include <ThermoFun/Methods/Minerals/SolidBMGottschalk.h>
 #include <ThermoFun/Methods/Minerals/SolidBerman88.h>
@@ -47,43 +49,48 @@ struct Unit
     double factor = 1.0, offset = 0.0;
 };
 
-template <typename Method>
-auto unitsOf() -> std::vector<Unit>
+struct MineralRow;
+
+/// What a mineral formula gets beside its numbers. values: the coefficients, then alpha0 and kappa0.
+struct MineralData
 {
-    if constexpr (std::is_same_v<Method, LandauHP98> || std::is_same_v<Method, LandauHP11>)
-        return {{1.0, -C_to_K}, {}, {1e5, 0.0}};          // Tc0 degC, Smax, Vmax J/bar
-    else if constexpr (std::is_same_v<Method, TaitHP11>)
-        return {{}, {1e8, 0.0}, {}};                      // kappa0p, kappa0pp 1/kbar, n_atoms
-    else if constexpr (std::is_same_v<Method, VolumeBerman88> || std::is_same_v<Method, VolumeDorogokupets88>)
-        return {{}, {}, {}, {1e5, 0.0}, {1e10, 0.0}};     // a1, a2, a3, b1 1/bar, b2 1/bar2
-    else if constexpr (std::is_same_v<Method, BirchMurnaghan47>)
-        return {{}, {}, {}, {0.0, 0.0}, {0.0, 0.0}, {1e-6, 0.0}, {1e-6, 0.0}, {}, {1e6, 0.0}};  // two unused places; MPa
-    else if constexpr (std::is_same_v<Method, CpExtendedUNIQUAC>)
-        return {{}, {}, {}, {1e5, 0.0}, {1e10, 0.0}, {}}; // a, b, c, alpha 1/bar, beta 1/bar2, Theta
+    std::size_t coefficients = 0;
+    Applicability applicability;
+    const MineralRow* row = nullptr;
+};
+
+using Parameters = MethodParameters<MineralData>;
+using Model = ThermoPropertiesSubstanceAD (*)(const real& T, const real& Pbar, const MineralInputs& inputs, const ThermoPropertiesSubstanceAD& state);
+using StatusRule = void (*)(PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in, const Parameters& p);
+
+/// One mineral method: its formula, the units of its coefficients and its status rule.
+struct MineralRow
+{
+    Model model;
+    std::vector<Unit> units;
+    StatusRule info;
+};
+
+template <typename Scalar>
+auto mineral(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const Parameters& p, const char* id) -> void
+{
+    if constexpr (std::is_same_v<Scalar, double>)
+        needsAPass(id);
     else
-        return {};
+    {
+        auto inputs = inputsOf(in);
+        const auto& units = p.data.row->units;
+        for (std::size_t i = 0; i < p.data.coefficients; ++i)
+        {
+            const auto unit = i < units.size() ? units[i] : Unit{};
+            inputs.coefficients.push_back(p.value(i, in) * unit.factor + unit.offset);
+        }
+        inputs.alpha0 = p.value(p.data.coefficients, in);
+        inputs.kappa0 = p.value(p.data.coefficients + 1, in) * 1e-8;  // kbar
+        setFromModel(state, p.data.row->model(in.T, in.P / bar_to_Pa, inputs, toModel(state)));
+    }
 }
 
-template <typename Method>
-auto formula(const real& T, const real& Pbar, const MineralInputs& inputs, const ThermoPropertiesSubstanceAD& state) -> ThermoPropertiesSubstanceAD
-{
-    if constexpr (std::is_same_v<Method, LandauHP98>)
-        return thermoPropertiesHPLandau(T, Pbar, inputs, state);
-    else if constexpr (std::is_same_v<Method, LandauHP11>)
-        return thermoPropertiesHP11Landau(T, Pbar, inputs, state);
-    else if constexpr (std::is_same_v<Method, MurnaghanHP98>)
-        return thermoPropertiesMinMurnaghanEOSHP98(T, Pbar, inputs, state);
-    else if constexpr (std::is_same_v<Method, TaitHP11>)
-        return thermoPropertiesMinTaitHP11(T, Pbar, inputs, state);
-    else if constexpr (std::is_same_v<Method, VolumeBerman88> || std::is_same_v<Method, VolumeDorogokupets88>)
-        return thermoPropertiesMinBerman88(T, Pbar, inputs, state);
-    else if constexpr (std::is_same_v<Method, BirchMurnaghan47>)
-        return thermoPropertiesMinBMGottschalk(T, Pbar, inputs, state);
-    else
-        return thermoPropertiesExtendedUNIQUAC(T, Pbar, inputs);
-}
-
-template <typename Method>
 auto boundsOf(PropertiesInfo& out, const char* model, const Applicability& a, const InfoInputs& in) -> void
 {
     const auto message = boundsMessage(model, a, in.T, in.P);
@@ -91,30 +98,7 @@ auto boundsOf(PropertiesInfo& out, const char* model, const Applicability& a, co
         setMessage(out, message);
 }
 
-} // namespace
-
-template <typename Derived>
-template <typename Scalar>
-auto MineralMethod<Derived>::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void
-{
-    if constexpr (std::is_same_v<Scalar, double>)
-        needsAPass(Derived::id);
-    else
-    {
-        auto inputs = inputsOf(in);
-        const auto units = unitsOf<Derived>();
-        for (std::size_t i = 0; i < coefficients_; ++i)
-        {
-            const auto unit = i < units.size() ? units[i] : Unit{};
-            inputs.coefficients.push_back(this->parameter(i, in) * unit.factor + unit.offset);
-        }
-        inputs.alpha0 = this->parameter(coefficients_, in);
-        inputs.kappa0 = this->parameter(coefficients_ + 1, in) * 1e-8;  // kbar
-        setFromModel(state, formula<Derived>(in.T, in.P / bar_to_Pa, inputs, toModel(state)));
-    }
-}
-
-auto LandauHP98::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in) const -> void
+auto landauHP98Info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) -> void
 {
     const ValueInfo G = out.G, S = out.S, H = out.H, Cp = out.Cp;
     out.G.propagateFrom(G);
@@ -123,27 +107,27 @@ auto LandauHP98::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInpu
     out.V.status = ValueInfo::Status::Calculated;
     out.V.err = 0.0;
     // the heat capacity is corrected at subcritical T only
-    const double Smax = values_[1] > 0.0 ? values_[1] : 1.0e-20;
-    const double Tcritical = values_[0] + (values_[2] == 0.0 ? 0.0 : values_[2] * 1e5 / Smax * in.P / bar_to_Pa);
+    const double Smax = p.values[1] > 0.0 ? p.values[1] : 1.0e-20;
+    const double Tcritical = p.values[0] + (p.values[2] == 0.0 ? 0.0 : p.values[2] * 1e5 / Smax * in.P / bar_to_Pa);
     if (in.T < Tcritical)
         out.Cp.propagateFrom(Cp);
-    boundsOf<LandauHP98>(out, "Holland and Powell Landau model", applicability_, in);
+    boundsOf(out, "Holland and Powell Landau model", p.data.applicability, in);
 }
 
-auto LandauHP11::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in) const -> void
+auto landauHP11Info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) -> void
 {
     const ValueInfo G = out.G, S = out.S, H = out.H, V = out.V, Cp = out.Cp;
     out.G.propagateFrom(G);
     out.S.propagateFrom(S);
     out.H.propagateFrom(H);
     out.V.propagateFrom(V);
-    const double Smax = values_[1] > 0.0 ? values_[1] : 1.0e-20;
-    if (in.T < values_[0] + values_[2] * (in.P - in.Pr) / Smax)
+    const double Smax = p.values[1] > 0.0 ? p.values[1] : 1.0e-20;
+    if (in.T < p.values[0] + p.values[2] * (in.P - in.Pr) / Smax)
         out.Cp.propagateFrom(Cp);
 }
 
 // The rule of Murnaghan and Tait: the terms need a volume that varies; if not, the volume is the reference volume
-static auto variableVolumeInfo(PropertiesInfo& out, const PropertiesInfo& ref, bool variable) -> void
+auto variableVolumeInfo(PropertiesInfo& out, const PropertiesInfo& ref, bool variable) -> void
 {
     const ValueInfo G = out.G, H = out.H, S = out.S, V = out.V, Cp = out.Cp;
     const ValueInfo volume = volumeInJPerBar(ref.V);
@@ -162,21 +146,21 @@ static auto variableVolumeInfo(PropertiesInfo& out, const PropertiesInfo& ref, b
     }
 }
 
-auto MurnaghanHP98::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
+auto murnaghanHP98Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
-    const bool variable = (in.P != in.Pr || in.T != in.Tr) && std::fabs(in.Vr) > 1e-9 && std::fabs(values_[coefficients_]) > 1e-9 && std::fabs(values_[coefficients_ + 1] * 1e-8) > 1e-9;
+    const bool variable = (in.P != in.Pr || in.T != in.Tr) && std::fabs(in.Vr) > 1e-9 && std::fabs(p.values[p.data.coefficients]) > 1e-9 && std::fabs(p.values[p.data.coefficients + 1] * 1e-8) > 1e-9;
     variableVolumeInfo(out, ref, variable);
-    boundsOf<MurnaghanHP98>(out, "Holland and Powell Murnaghan model", applicability_, in);
+    boundsOf(out, "Holland and Powell Murnaghan model", p.data.applicability, in);
 }
 
-auto TaitHP11::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
+auto taitHP11Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
-    variableVolumeInfo(out, ref, values_[coefficients_ + 1] != 0.0 && std::fabs(in.Vr) >= 1e-9);
-    boundsOf<TaitHP11>(out, "Holland and Powell Tait model", applicability_, in);
+    variableVolumeInfo(out, ref, p.values[p.data.coefficients + 1] != 0.0 && std::fabs(in.Vr) >= 1e-9);
+    boundsOf(out, "Holland and Powell Tait model", p.data.applicability, in);
 }
 
 // The rule of the molar volumes of Berman: the volume is the reference volume
-static auto bermanInfo(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) -> void
+auto bermanInfo(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
     const ValueInfo G = out.G, H = out.H, S = out.S;
     out.V.status = ref.V.status;
@@ -189,21 +173,10 @@ static auto bermanInfo(PropertiesInfo& out, const PropertiesInfo& ref, const Inf
         out.S.propagateFrom(S, volume);
         out.V.propagateFrom(ref.V);
     }
+    boundsOf(out, "Berman multisite model", p.data.applicability, in);
 }
 
-auto VolumeBerman88::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
-{
-    bermanInfo(out, ref, in);
-    boundsOf<VolumeBerman88>(out, "Berman multisite model", applicability_, in);
-}
-
-auto VolumeDorogokupets88::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
-{
-    bermanInfo(out, ref, in);
-    boundsOf<VolumeDorogokupets88>(out, "Berman multisite model", applicability_, in);
-}
-
-auto BirchMurnaghan47::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
+auto birchMurnaghan47Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
     if (in.P != in.Pr || in.T != in.Tr)
     {
@@ -213,67 +186,76 @@ auto BirchMurnaghan47::info(PropertiesInfo& out, const PropertiesInfo& ref, cons
         out.G.propagateFrom(G);
         out.H.propagateFrom(H);
     }
-    boundsOf<BirchMurnaghan47>(out, "BMGottschalk model", applicability_, in);
+    boundsOf(out, "BMGottschalk model", p.data.applicability, in);
 }
 
-auto CpExtendedUNIQUAC::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs&) const -> void
+auto extendedUNIQUACInfo(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs&, const Parameters&) -> void
 {
     allCalculated(out);
 }
 
-NASA9::NASA9(const MethodApplication& application)
+auto rowOf(const std::string& id) -> const MineralRow&
 {
-    static const char* names[] = {"a1", "a2", "a3", "a4", "a5", "a6", "a7", "b1", "b2"};
-    for (const auto& segment : application.segments)
-    {
-        std::vector<double> row;
-        for (const char* n : names)
-        {
-            const auto it = segment.parameters.find(n);
-            row.push_back(it == segment.parameters.end() ? 0.0 : it->second.value);
-        }
-        rows_.push_back(row);
-        intervals_.push_back({segment.t_min, segment.t_max});
-    }
+    static const std::map<std::string, MineralRow> rows = {
+        {"LandauHP98", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesHPLandau(T, P, i, s); },
+                        {{1.0, -C_to_K}, {}, {1e5, 0.0}}, landauHP98Info}},                      // Tc0 degC, Smax, Vmax J/bar
+        {"LandauHP11", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesHP11Landau(T, P, i, s); },
+                        {{1.0, -C_to_K}, {}, {1e5, 0.0}}, landauHP11Info}},
+        {"MurnaghanHP98", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesMinMurnaghanEOSHP98(T, P, i, s); },
+                           {}, murnaghanHP98Info}},
+        {"TaitHP11", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesMinTaitHP11(T, P, i, s); },
+                      {{}, {1e8, 0.0}, {}}, taitHP11Info}},                                      // kappa0p, kappa0pp 1/kbar, n_atoms
+        {"VolumeBerman88", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesMinBerman88(T, P, i, s); },
+                            {{}, {}, {}, {1e5, 0.0}, {1e10, 0.0}}, bermanInfo}},                 // a1, a2, a3, b1 1/bar, b2 1/bar2
+        {"VolumeDorogokupets88", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesMinBerman88(T, P, i, s); },
+                                  {{}, {}, {}, {1e5, 0.0}, {1e10, 0.0}}, bermanInfo}},
+        {"BirchMurnaghan47", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD& s) { return thermoPropertiesMinBMGottschalk(T, P, i, s); },
+                              {{}, {}, {}, {0.0, 0.0}, {0.0, 0.0}, {1e-6, 0.0}, {1e-6, 0.0}, {}, {1e6, 0.0}}, birchMurnaghan47Info}},  // two unused places; MPa
+        {"CpExtendedUNIQUAC", {[](const real& T, const real& P, const MineralInputs& i, const ThermoPropertiesSubstanceAD&) { return thermoPropertiesExtendedUNIQUAC(T, P, i); },
+                               {{}, {}, {}, {1e5, 0.0}, {1e10, 0.0}, {}}, extendedUNIQUACInfo}},  // a, b, c, alpha 1/bar, beta 1/bar2, Theta
+    };
+    const auto it = rows.find(id);
+    if (it == rows.end())
+        funError("Unknown mineral method", id, __LINE__, __FILE__);
+    return it->second;
 }
 
+struct NasaData
+{
+    std::vector<std::vector<double>> rows, intervals;
+};
+
 template <typename Scalar>
-auto NASA9::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void
+auto nasa9(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const NasaData& data) -> void
 {
     if constexpr (std::is_same_v<Scalar, double>)
-        needsAPass(id);
+        needsAPass("NASA9");
     else
     {
         bool outside = false;
-        setFromModel(state, thermoPropertiesNasaPolynomials(in.T, in.P / bar_to_Pa, NasaInputs{rows_, intervals_, valueOf(in.reference.V) / jPerBarToM3}, &outside));
+        setFromModel(state, thermoPropertiesNasaPolynomials(in.T, in.P / bar_to_Pa, NasaInputs{data.rows, data.intervals, valueOf(in.reference.V) / jPerBarToM3}, &outside));
         state.outside_range = outside;
     }
 }
 
-auto NASA9::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in) const -> void
+auto nasa9Info(PropertiesInfo& out, const InfoInputs& in) -> void
 {
     allCalculated(out);
     if (in.outside)
         setMessage(out, "NASA polynomials: Outside temperature bounds");
 }
 
-TPTable::TPTable(const MethodApplication& application)
-{
-    if (application.table)
-        table_ = *application.table;
-}
-
 template <typename Scalar>
-auto TPTable::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void
+auto tpTable(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const TableData& table) -> void
 {
     if constexpr (std::is_same_v<Scalar, double>)
-        needsAPass(id);
+        needsAPass("TPTable");
     else
     {
-        TableInputs inputs{table_.temperatures, table_.pressures, {}, table_.reference_pressure.value_or(0.0), valueOf(in.reference.V) / jPerBarToM3};
+        TableInputs inputs{table.temperatures, table.pressures, {}, table.reference_pressure.value_or(0.0), valueOf(in.reference.V) / jPerBarToM3};
         static const std::pair<const char*, const char*> keys[] = {{"G", "gibbs_energy"}, {"H", "enthalpy"}, {"V", "volume"}, {"Cp", "heat_capacity_cp"}};
         for (const auto& [from, to] : keys)
-            if (const auto it = table_.values.find(from); it != table_.values.end())
+            if (const auto it = table.values.find(from); it != table.values.end())
                 inputs.values[to] = it->second;
         bool outside = false;
         setFromModel(state, thermoPropertiesTPTableInterpolation(in.T, in.P / bar_to_Pa, inputs, &outside));
@@ -281,10 +263,10 @@ auto TPTable::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scala
     }
 }
 
-auto TPTable::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in) const -> void
+auto tpTableInfo(PropertiesInfo& out, const InfoInputs& in, const TableData& table) -> void
 {
     allCalculated(out);
-    auto has = [this](const char* key) { const auto it = table_.values.find(key); return it != table_.values.end() && !it->second.empty(); };
+    auto has = [&table](const char* key) { const auto it = table.values.find(key); return it != table.values.end() && !it->second.empty(); };
     if (!has("H"))
         out.H = out.S = ValueInfo{};
     if (!has("Cp"))
@@ -293,24 +275,44 @@ auto TPTable::info(PropertiesInfo& out, const PropertiesInfo&, const InfoInputs&
         setMessage(out, "Interpolation table: Outside the table");
 }
 
-#define THERMOFUN_INSTANTIATE_MINERAL(M)                                                                               \
-    template auto MineralMethod<M>::compute(SubstanceState<double>&, const SubstanceInputs<double>&) const -> void;    \
-    template auto MineralMethod<M>::compute(SubstanceState<TPReal>&, const SubstanceInputs<TPReal>&) const -> void;
+} // namespace
 
-THERMOFUN_INSTANTIATE_MINERAL(LandauHP98)
-THERMOFUN_INSTANTIATE_MINERAL(LandauHP11)
-THERMOFUN_INSTANTIATE_MINERAL(MurnaghanHP98)
-THERMOFUN_INSTANTIATE_MINERAL(TaitHP11)
-THERMOFUN_INSTANTIATE_MINERAL(VolumeBerman88)
-THERMOFUN_INSTANTIATE_MINERAL(VolumeDorogokupets88)
-THERMOFUN_INSTANTIATE_MINERAL(BirchMurnaghan47)
-THERMOFUN_INSTANTIATE_MINERAL(CpExtendedUNIQUAC)
+auto mineralMethod(const std::string& id, std::vector<double> coefficients, double alpha0, double kappa0, Applicability applicability) -> std::shared_ptr<const SubstanceMethod>
+{
+    const MineralRow& row = rowOf(id);
+    const std::size_t count = coefficients.size();
+    coefficients.push_back(alpha0);
+    coefficients.push_back(kappa0);
+    return makeMethod(id.c_str(), Parameters{std::move(coefficients), {count, std::move(applicability), &row}},
+                      [id](auto& state, const auto& in, const Parameters& p) { mineral(state, in, p, id.c_str()); },
+                      [](PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in, const Parameters& p) { p.data.row->info(out, reference, in, p); });
+}
 
-#undef THERMOFUN_INSTANTIATE_MINERAL
+auto nasa9Method(const MethodApplication& application) -> std::shared_ptr<const SubstanceMethod>
+{
+    static const char* names[] = {"a1", "a2", "a3", "a4", "a5", "a6", "a7", "b1", "b2"};
+    NasaData data;
+    for (const auto& segment : application.segments)
+    {
+        std::vector<double> row;
+        for (const char* n : names)
+        {
+            const auto it = segment.parameters.find(n);
+            row.push_back(it == segment.parameters.end() ? 0.0 : it->second.value);
+        }
+        data.rows.push_back(row);
+        data.intervals.push_back({segment.t_min, segment.t_max});
+    }
+    return makeMethod("NASA9", MethodParameters<NasaData>{{}, std::move(data)},
+                      [](auto& state, const auto& in, const auto& p) { nasa9(state, in, p.data); },
+                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const auto&) { nasa9Info(out, in); });
+}
 
-template auto NASA9::compute(SubstanceState<double>&, const SubstanceInputs<double>&) const -> void;
-template auto NASA9::compute(SubstanceState<TPReal>&, const SubstanceInputs<TPReal>&) const -> void;
-template auto TPTable::compute(SubstanceState<double>&, const SubstanceInputs<double>&) const -> void;
-template auto TPTable::compute(SubstanceState<TPReal>&, const SubstanceInputs<TPReal>&) const -> void;
+auto tpTableMethod(const MethodApplication& application) -> std::shared_ptr<const SubstanceMethod>
+{
+    return makeMethod("TPTable", MethodParameters<TableData>{{}, application.table.value_or(TableData{})},
+                      [](auto& state, const auto& in, const auto& p) { tpTable(state, in, p.data); },
+                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const auto& p) { tpTableInfo(out, in, p.data); });
+}
 
 } // namespace ThermoFun::v2

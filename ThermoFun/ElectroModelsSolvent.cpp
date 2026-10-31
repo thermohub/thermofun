@@ -60,7 +60,7 @@ WaterJNreaktoro::WaterJNreaktoro(const Substance &substance)
 // calculation
 auto WaterJNreaktoro::electroPropertiesSolvent(double T, double P, PropertiesSolvent ps, int state) -> ElectroPropertiesSolvent
 {
-    return v2::JohnsonNorton91Reaktoro().properties(T, P, ps, state);
+    return v2::johnsonNorton91ReaktoroMethod()->properties(T, P, ps, state);
 }
 
 //=======================================================================================================
@@ -91,7 +91,7 @@ WaterJNgems::WaterJNgems(const Substance &substance)
 // calculation
 auto WaterJNgems::electroPropertiesSolvent(double T, double P, int state) -> ElectroPropertiesSolvent
 {
-    return v2::JohnsonNorton91Gems().properties(T, P, PropertiesSolvent{}, state);
+    return v2::johnsonNorton91GemsMethod()->properties(T, P, PropertiesSolvent{}, state);
 }
 
 
@@ -115,7 +115,7 @@ WaterElectroSverjensky2014::WaterElectroSverjensky2014(const Substance &substanc
 // calculation
 auto WaterElectroSverjensky2014::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/, int state) -> ElectroPropertiesSolvent
 {
-    return v2::SverjenskyEtAl14().properties(T, P, solventOf(pimpl->substance, T, P, state), state);
+    return v2::sverjenskyEtAl14Method()->properties(T, P, solventOf(pimpl->substance, T, P, state), state);
 }
 
 //=======================================================================================================
@@ -147,7 +147,7 @@ WaterElectroFernandez1997::WaterElectroFernandez1997(const Substance &substance)
 // calculation
 auto WaterElectroFernandez1997::electroPropertiesSolvent(double T, double P/*, PropertiesSolvent ps*/, int state) -> ElectroPropertiesSolvent
 {
-    return v2::FernandezEtAl97().properties(T, P, solventOf(pimpl->substance, T, P, state), state);
+    return v2::fernandezEtAl97Method()->properties(T, P, solventOf(pimpl->substance, T, P, state), state);
 }
 
 } // End namespace ThermoFun

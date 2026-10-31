@@ -44,12 +44,12 @@ WaterHGK::WaterHGK(const Substance &substance)
 // calculation
 auto WaterHGK::propertiesSolvent(double T, double &P, int state, std::string triple) -> PropertiesSolvent
 {
-    return v2::WaterHGK84Gems().properties(T, P, state, triple);
+    return v2::waterHGK84GemsProperties(T, P, state, triple);
 }
 
 auto WaterHGK::thermoPropertiesSubstance(double T, double &P, int state, std::string triple) -> ThermoPropertiesSubstance
 {
-    return v2::WaterHGK84Gems().substanceProperties(T, P, state, triple);
+    return v2::waterHGK84GemsMethod()->substanceProperties(T, P, state, triple);
 }
 
 //=======================================================================================================
@@ -79,12 +79,12 @@ WaterHGKreaktoro::WaterHGKreaktoro(const Substance &substance)
 // calculation
 auto WaterHGKreaktoro::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    return v2::WaterHGK84Reaktoro().properties(T, P, state);
+    return v2::waterHGK84ReaktoroMethod()->properties(T, P, state);
 }
 
 auto WaterHGKreaktoro::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
-    return v2::WaterHGK84Reaktoro().substanceProperties(T, P, state, tripple);
+    return v2::waterHGK84ReaktoroMethod()->substanceProperties(T, P, state, tripple);
 }
 
 //=======================================================================================================
@@ -115,12 +115,12 @@ WaterWP95reaktoro::WaterWP95reaktoro(const Substance &substance)
 // calculation
 auto WaterWP95reaktoro::propertiesSolvent(double T, double &P, int state) -> PropertiesSolvent
 {
-    return v2::WaterIAPWS95Reaktoro().properties(T, P, state);
+    return v2::waterIAPWS95ReaktoroMethod()->properties(T, P, state);
 }
 
 auto WaterWP95reaktoro::thermoPropertiesSubstance(double T, double &P, int state, std::string tripple) -> ThermoPropertiesSubstance
 {
-    return v2::WaterIAPWS95Reaktoro().substanceProperties(T, P, state, tripple);
+    return v2::waterIAPWS95ReaktoroMethod()->substanceProperties(T, P, state, tripple);
 }
 
 //=======================================================================================================
@@ -150,13 +150,13 @@ WaterZhangDuan2005::WaterZhangDuan2005(const Substance &substance)
 auto WaterZhangDuan2005::propertiesSolvent(double T, double P, int state) -> PropertiesSolvent
 {
     double p = P;
-    return v2::WaterZhangDuan05().properties(T, p, state);
+    return v2::waterZhangDuan05Method()->properties(T, p, state);
 }
 
 auto WaterZhangDuan2005::thermoPropertiesSubstance(double T, double P, int state) -> ThermoPropertiesSubstance
 {
     double p = P;
-    return v2::WaterZhangDuan05().substanceProperties(T, p, state, "");
+    return v2::waterZhangDuan05Method()->substanceProperties(T, p, state, "");
 }
 
 } // namespace ThermoFun
