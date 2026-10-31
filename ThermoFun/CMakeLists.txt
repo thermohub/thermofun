@@ -63,5 +63,6 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
     PATTERN "detail" EXCLUDE
+    PATTERN "DatabaseImpl.h" EXCLUDE
     PATTERN "ThermoEngineImpl.h" EXCLUDE
     PATTERN "ThermoEngineParameterErrors.hpp" EXCLUDE)

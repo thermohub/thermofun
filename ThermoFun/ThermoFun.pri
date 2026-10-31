@@ -14,6 +14,7 @@
     $$PWD/Methods/Solutes/SoluteHollandPowell98.h \
     $$PWD/ThermoFun.h \
     $$PWD/Database.h \
+    $$PWD/DatabaseImpl.h \
     $$PWD/Element.h \
     $$PWD/Substance.h \
     $$PWD/Reaction.h \
@@ -187,6 +188,9 @@
     $$PWD/IO/Equation.cpp \
     $$PWD/IO/Yaml/Yaml.cpp \
     $$PWD/IO/V2/V2Writer.cpp \
+    $$PWD/IO/V2/V2WriteNumbers.cpp \
+    $$PWD/IO/V2/V2WriteMethods.cpp \
+    $$PWD/IO/V2/V2WriteText.cpp \
     $$PWD/IO/Validate.cpp \
     $$PWD/IO/Legacy/LegacyWriter.cpp \
     $$PWD/IO/FormatDetect.cpp \
@@ -214,6 +218,7 @@
     $$PWD/IO/Legacy/LegacyMethodMap.cpp \
     $$PWD/IO/Legacy/LegacyQuirks.cpp \
     $$PWD/IO/Legacy/LegacyReader.cpp \
+    $$PWD/IO/Legacy/LegacyReadMethods.cpp \
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
     $$PWD/Conventions/ConventionConverter.cpp \
