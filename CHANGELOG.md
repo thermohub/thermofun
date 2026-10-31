@@ -96,9 +96,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - ThermoFun reads the v2 format in JSON: `Database`, `ThermoEngine`, and `Substance`, `Reaction`, `Element` for one record. Units of a
   scope, uncertainties, method implementations, interpolation, covariance blocks and diagnostics with the path of the value.
   `Database` gives `thermoDataSet`, `methods`, `parameterSets`, `dataSources` and `loadDiagnostics`; the objects give `record()` in
-  Python. The v2 writer is next.
+  Python.
 - The v2 format can be YAML: a file or a text, read in C++ with the vendored rapidyaml, in C++ and Python alike. Diagnostics give the
   line and the column, for JSON too. PyYAML is not needed.
+- `Database::toJson`, `toYaml` and `save` write all records in the v2 format. A legacy value is written as its short decimal (`-56.484`); use `readable=False` for
+  the exact value. See `docs/how-to/add-data.md`.
 - New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
   `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.

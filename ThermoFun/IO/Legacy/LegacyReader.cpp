@@ -112,7 +112,11 @@ auto parse(const std::string& text, const Context& c) -> json
 // True if the number is exactly a float32: the legacy GEMS exports write such numbers (162.3000030517578)
 auto isSinglePrecision(double value) -> bool
 {
-    return static_cast<double>(static_cast<float>(value)) == value && static_cast<double>(static_cast<float>(value)) != std::round(value);
+    // exports of GEMS print a float with 13 or 14 digits, for example -56.484001159668: the value is near the float, not equal to it.
+    // A short decimal that a float holds is near it too, for example 0.5: its shortest form does not change on writing.
+    // A whole number says nothing about its source.
+    const auto f = static_cast<float>(value);
+    return std::isfinite(f) && value != std::floor(value) && std::fabs(value - static_cast<double>(f)) <= 2e-12 * std::fabs(value);
 }
 
 // A value with its unit: {"values": [x], "units": [u], "errors": [e]}
@@ -602,6 +606,7 @@ void readHp98Values(const json& j, SubstanceRecord& s, const Context& c)
         if (!values.empty() && values[0])
         {
             Quantity q;
+            q.single_precision_source = isSinglePrecision(*values[0]);
             q.unit_as_written = unit == "1/K" ? "" : unit;
             try
             {
@@ -632,6 +637,7 @@ void readHp98Values(const json& j, SubstanceRecord& s, const Context& c)
         if (!values.empty() && values[0])
         {
             Quantity q;
+            q.single_precision_source = isSinglePrecision(*values[0]);
             q.unit_as_written = unit == "kbar" ? "" : unit;
             try
             {

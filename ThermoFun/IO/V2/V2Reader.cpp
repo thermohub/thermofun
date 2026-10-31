@@ -475,7 +475,7 @@ auto readElement(Context& c, const json& node, const std::string& key, const Uni
     }
     static const std::set<std::string> known = {"symbol", "name", "class", "number", "isotope_mass", "valence", "molar_mass",
                                                 "standard_entropy", "heat_capacity", "volume", "reference_form", "data_sources",
-                                                "sourcetdb", "structural", "units"};
+                                                "sourcetdb", "structural", "units", "legacy_class"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -486,6 +486,7 @@ auto readElement(Context& c, const json& node, const std::string& key, const Uni
     r.symbol = symbol;
     r.name = optionalString(node, "name");
     r.class_ = optionalString(node, "class").empty() ? ElementClass::Element : vocabulary<ElementClass>(c, optionalString(node, "class"), symbol, path + "/class").value_or(ElementClass::Other);
+    r.legacy_class = optionalInt(node, "legacy_class");
     r.isotope_mass = optionalInt(node, "isotope_mass");
     r.number = optionalInt(node, "number");
     r.valence = optionalInt(node, "valence");

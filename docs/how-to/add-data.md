@@ -48,7 +48,24 @@ ThermoFun finds the format itself. A file with the key `thermohub` at the top is
 
 `addReaction`, `setReaction`, `addElement` and `setElement` do the same for the other records.
 
-These are not available yet: writing a database to a file, dataset folders, `include`, and the Python record builders.
+These are not available yet: dataset folders, `include`, the legacy writer and the Python record builders.
+
+**Save a database.** `database.save("file.yaml")` writes all records in the v2 format, as YAML or as JSON by the name of the file. It also converts a
+legacy file to v2:
+
+```python
+import thermofun as tf
+
+legacy = tf.Database('{"substances": [{"symbol": "A", "formula": "Ca", "sm_gibbs_energy": {"values": [-56.484001159668]}}]}')
+legacy.save("converted.yaml")                    # short decimals, for people
+assert "-56.484\n" in open("converted.yaml").read() or "G: -56.484" in open("converted.yaml").read()
+exact = tf.Database(legacy.toJson(readable=False))
+assert exact.getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value == -56.484001159668
+```
+
+By default, a value from a legacy file is written as its short decimal: `-56.484`, not `-56.484001159668`. These values were single-precision
+numbers. A database read back from such a file can differ by a small amount from the legacy file: in the bundled databases, at most 0.46 J/mol in G and
+3.6e-5 in log K. Use `readable=False` to read back the same numbers.
 
 ## 3. The smallest file
 
@@ -71,8 +88,6 @@ substances:
 Then calculate with it:
 
 ```python
-import thermofun as tf
-
 engine = tf.ThermoEngine("small.yaml")
 result = engine.thermoPropertiesSubstance(373.15, 1e5, "Corundum")
 assert result.heat_capacity_cp.val == 79.0                   # J/(mol K)

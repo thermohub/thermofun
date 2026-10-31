@@ -248,6 +248,15 @@ public:
     auto parameterSets() const -> const std::map<std::string, v2::MethodParameterSet>&;
     auto dataSources() const -> const std::map<std::string, v2::DataSource>&;
 
+    /// All records in the v2 format, as JSON or as YAML text.
+    /// @param readable true: a value from a single-precision source is written as the shortest decimal of that float
+    /// (for example -56.484); it reads back up to about 6e-8 relative from the value in memory. false: it reads back the same.
+    auto toJson(bool readable = true) const -> std::string;
+    auto toYaml(bool readable = true) const -> std::string;
+
+    /// Writes all records in the v2 format to a file: YAML if the name ends with .yaml or .yml, else JSON.
+    auto save(const std::string& path, bool readable = true) const -> void;
+
     /// What the load of v2 files reported: the warnings and the notes.
     auto loadDiagnostics() const -> const Diagnostics&;
 

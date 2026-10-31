@@ -8,6 +8,7 @@
 #include <iterator>
 #include "Common/Exception.h"
 #include "IO/V2/V2Reader.h"
+#include "IO/V2/V2Writer.h"
 #include "IO/detail/JsonDetect.h"
 #include "IO/detail/Yaml.h"
 #include "Substance.h"
@@ -757,6 +758,50 @@ auto Database::getReactionsList() const -> std::vector<std::string>
       list.push_back(item.first);
    }
    return list;
+}
+
+namespace {
+
+auto allRecords(const Database& db) -> v2::V2Records
+{
+    v2::V2Records out;
+    out.dataset = db.thermoDataSet();
+    out.dataset.water_triple_point_reference = db.conventions().water_triple_point_reference;
+    for (const auto& item : db.mapElements())
+        out.elements.push_back(*item.second.record());
+    for (const auto& item : db.mapSubstances())
+        out.substances.push_back(*item.second.record());
+    for (const auto& item : db.mapReactions())
+        out.reactions.push_back(*item.second.record());
+    for (const auto& item : db.methods())
+        out.methods.push_back(item.second);
+    for (const auto& item : db.parameterSets())
+        out.parameter_sets.push_back(item.second);
+    for (const auto& item : db.dataSources())
+        out.data_sources.push_back(item.second);
+    return out;
+}
+
+} // namespace
+
+auto Database::toJson(bool readable) const -> std::string
+{
+    return v2::writeV2Json(allRecords(*this), {readable});
+}
+
+auto Database::toYaml(bool readable) const -> std::string
+{
+    return v2::writeV2Yaml(allRecords(*this), {readable});
+}
+
+auto Database::save(const std::string& path, bool readable) const -> void
+{
+    const auto endsWith = [&](const std::string& tail) { return path.size() >= tail.size() && path.compare(path.size() - tail.size(), tail.size(), tail) == 0; };
+    const std::string text = endsWith(".yaml") || endsWith(".yml") ? toYaml(readable) : toJson(readable);
+    std::ofstream out(path);
+    if (!out.good())
+        funError("File writing error", "The file " + path + " cannot be written.", __LINE__, __FILE__);
+    out << text;
 }
 
 auto Database::thermoDataSet() const -> const v2::ThermoDataSetInfo&
