@@ -77,3 +77,28 @@ def test_the_engine_has_the_same_result_on_both_paths_of_the_options(name, symbo
     corrected = engine.thermoPropertiesSubstance(800.0, 1e8, symbol)
     assert corrected.gibbs_energy.val > base
     assert math.isfinite(corrected.enthalpy.val)
+
+
+# Sterner and Pitzer have their own equations for H2O and CO2. J/bar: 1 cm3/mol is 0.1 J/bar.
+STERNER_PITZER = [
+    ("H2O", 647.3, 220.9, 1000.0, 1e5, 8.31451 * 1000.0 / 1e5 * 1e5, 1e-2),  # supercritical, close to an ideal gas
+    ("H2O", 647.3, 220.9, 500.0, 1e5, 8.31451 * 500.0 / 1e5 * 1e5, 2e-2),    # steam, below the saturation pressure
+    ("H2O", 647.3, 220.9, 500.0, 1e8, 2.0, 5e-2),                            # liquid: 0.9 g/cm3
+    ("CO2", 304.2, 73.8, 1000.0, 1e5, 8.31451 * 1000.0 / 1e5 * 1e5, 1e-2),
+    ("CO2", 304.2, 73.8, 280.0, 1e6, 8.31451 * 280.0 / 1e6 * 1e5 * 0.94, 3e-2),  # vapour below Psat, 4.2 MPa
+    ("CO2", 304.2, 73.8, 280.0, 5e6, 4.9, 5e-2),                              # liquid: 0.9 g/cm3
+]
+
+
+@pytest.mark.parametrize("formula,Tc,Pc,T,P,volume,tolerance", STERNER_PITZER)
+def test_the_sterner_pitzer_equations_of_water_and_carbon_dioxide(tmp_path, formula, Tc, Pc, T, P, volume, tolerance):
+    doc = json.loads((SYNTHETIC / "s12-fluid_sterner_pitzer.json").read_text())
+    record = doc["substances"][0]
+    record["symbol"] = record["name"] = "fluid"
+    record["formula"] = formula
+    record["TPMethods"][1]["eos_gas_crit_props"]["values"][:2] = [Tc, Pc]
+    path = tmp_path / "fluid.json"
+    path.write_text(json.dumps(doc))
+    result = tf.ThermoEngine(str(path)).thermoPropertiesSubstance(T, P, "fluid")
+    assert result.volume.val == pytest.approx(volume, rel=tolerance)
+    assert math.isfinite(result.gibbs_energy.val) and math.isfinite(result.enthalpy.val) and math.isfinite(result.entropy.val)
