@@ -65,12 +65,18 @@ auto isNumber(const std::string& text, double& value) -> bool
     return end == text.c_str() + text.size() && std::isfinite(value);
 }
 
+// A molar volume in J/bar is a volume for one mole, as in legacy data: the unit does not say "per mole"
+auto molar(const std::string& unit, const std::string& slot) -> std::string
+{
+    return unit == "J/bar" && slot == "m3/mol" ? "J/(mol.bar)" : unit;
+}
+
 // Checks that a unit can be parsed and has the dimension of the slot. Returns false with an error in the diagnostics.
 auto checkUnit(const std::string& unit, const std::string& slot, Diagnostics& diag, const std::string& path) -> bool
 {
     try
     {
-        if (units::dimension(unit) != units::dimension(slot))
+        if (units::dimension(molar(unit, slot)) != units::dimension(slot))
         {
             report(diag, Severity::Error, "V2-UNIT-002", path, "The unit " + unit + " has not the dimension of " + slot);
             return false;
@@ -87,12 +93,12 @@ auto checkUnit(const std::string& unit, const std::string& slot, Diagnostics& di
 // A number in an explicit or default unit, as the value in the SI unit of the slot
 auto toSi(double x, const std::string& unit, const std::string& slot) -> double
 {
-    return unit == slot ? x : units::convertAny(x, unit, slot);
+    return unit == slot ? x : units::convertAny(x, molar(unit, slot), slot);
 }
 
 auto toSiDifference(double x, const std::string& unit, const std::string& slot) -> double
 {
-    return unit == slot ? x : units::convertDifference(x, unit, slot);
+    return unit == slot ? x : units::convertDifference(x, molar(unit, slot), slot);
 }
 
 // reads the uncertainty (a number or an object) given in `unit`

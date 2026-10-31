@@ -99,6 +99,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Python. The v2 writer is next.
 - The v2 format can be YAML: a file or a text, read in C++ with the vendored rapidyaml, in C++ and Python alike. Diagnostics give the
   line and the column, for JSON too. PyYAML is not needed.
+- New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
+  `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

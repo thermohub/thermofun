@@ -119,6 +119,33 @@ void exportMethods(py::module& parent)
         .def("calculate", &ReactionMethod::calculate, "The properties at T [K], P [Pa], from those of the method before it. solvent: for a method that needs it",
              py::arg("T"), py::arg("P"), py::arg("incoming") = ThermoPropertiesReaction{}, py::arg("solvent") = nullptr);
 
+    m.def("catalog", [] {
+        py::list out;
+        for (const auto& spec : MethodCatalog::instance().specs())
+        {
+            py::dict row;
+            row["id"] = spec.id; row["aliases"] = spec.aliases; row["title"] = spec.title; row["summary"] = spec.summary;
+            row["citation"] = spec.citation; row["operates_on"] = toString(spec.operates_on);
+            row["base"] = spec.operates_on == OperatesOn::Substance ? spec.effects.base : spec.reaction_effects.base;
+            row["piecewise"] = spec.piecewise; row["implemented"] = spec.implemented;
+            row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
+            row["implementations"] = spec.implementations;
+            row["needs_solvent"] = spec.needs.solvent;
+            py::list parameters;
+            for (const auto& p : spec.parameters)
+            {
+                py::dict one;
+                one["name"] = p.name; one["si_unit"] = p.si_unit; one["source_unit"] = p.source_unit; one["required"] = p.required;
+                one["description"] = p.description;
+                one["default"] = p.default_si ? py::cast(*p.default_si) : py::none();
+                parameters.append(one);
+            }
+            row["parameters"] = parameters;
+            out.append(row);
+        }
+        return out;
+    }, "All built-in methods: id, title, what they need and their parameters");
+
     m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference, int lagrangeOrder) {
             auto a = makeApplication(id, "", parameters);
             if (lagrangeOrder > 0)

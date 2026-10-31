@@ -61,3 +61,7 @@ Try the ThermoFun examples in your browser:
 * [guide](GUIDE.md): basic usage and the options of the engine and the batch (preferences, conventions, units), the database records, derivatives, errors and rounding.
 * [python](python.md): the Python interface: classes, enumerations, models, utilities and what is not exposed.
 * [autodiff](autodiff.md): how the derivatives with respect to temperature and pressure are calculated (autodiff), the interface for other codes, the derivative fixes, the propagation of errors (uncertainties, NEA TDB rounding), the Python interface, and the known limitations.
+
+## Add your own data
+
+[Add data to ThermoFun](how-to/add-data.md) tells you how the data is arranged, which methods you can use, and how to write a substance, a reaction and a dataset.
