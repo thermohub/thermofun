@@ -137,9 +137,10 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate thermofun
-          cmake -S . -B build-tsan -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DTFUN_BUILD_TESTS=ON -DTFUN_BUILD_PYTHON=OFF \
-                -DCMAKE_CXX_FLAGS="-fsanitize=thread -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
-          cmake --build build-tsan -j 4 --target test-records-immutable
+          cmake -S . -B build-tsan -G Ninja -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON -DTFUN_BUILD_PYTHON=OFF \
+                -DCMAKE_CXX_FLAGS="-fsanitize=thread -g1" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
+          # full debug information fills the memory of the runner when the library links
+          cmake --build build-tsan -j 2 --target test-records-immutable
 
       - name: Run with ThreadSanitizer
         shell: bash -l {0}
