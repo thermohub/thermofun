@@ -150,3 +150,16 @@ def test_the_hydrogen_ion_is_zero_whatever_its_symbol():
     engine = tf.ThermoEngine(json.dumps(doc))
     p = engine.thermoPropertiesSubstance(373.15, 1e7, "Hydrogen")
     assert p.gibbs_energy.val == 0.0 and p.entropy.val == 0.0 and p.volume.val == 0.0
+
+
+def test_the_enthalpy_of_hp98_starts_from_the_reference_enthalpy():
+    # G is apparent, H is not: H must not come from G alone. A density term of the water remains at 1 bar: 0.1 % at most
+    engine = tf.ThermoEngine(str(AQ17))
+    wp, wpr = engine.propertiesSolvent(298.15, 1e5, "H2O@"), engine.propertiesSolvent(298.15, 1e5, "H2O@")
+    solvent = tf.methods.SolventInputs()
+    solvent.properties = wp
+    solvent.properties_at_reference = wpr
+    reference = tf.methods.Reference(T=298.15, P=1e5, G=-157220.0, H=-230020.0, S=-10.71, Cp=-137.2, V=-4.18e-6)
+    now = tf.methods.substanceMethod("SoluteHP98", parameters={"b": 0.0}, symbol="OH-").evaluate(298.15, 1e5, reference, solvent)
+    assert now.H.val == pytest.approx(-230020.0, rel=1e-3)
+    assert now.G.val == pytest.approx(-157220.0, rel=1e-3)

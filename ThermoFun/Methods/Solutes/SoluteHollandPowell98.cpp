@@ -59,11 +59,12 @@ auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, const SoluteReference& ref
     const auto u = T/Tprime;
     const double du = (T <= 500) ? 0.0 : 1.0/500.0; // du/dT
     auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + k*( ALPw298*(T - T298) - BETw298*Pbar + u*L );
-    // S = -dG/dT, V = dG/dP, Cp = T dS/dT and H = G + T S are exact derivatives of G (d ln(rho)/dT = -alpha)
+    // S = -dG/dT, V = dG/dP, Cp = T dS/dT and H = G + T S + constant are exact derivatives of G (d ln(rho)/dT = -alpha)
     auto S = S298 - b*(T298 - T) - k*( ALPw298 + du*L - u*ALPw );
     auto V = V298 + k*( -BETw298 + u*BETw );
     auto Cp = T*( b + k*( 2.0*du*ALPw + u*dALPdTw ) );
-    auto H = G + T*S;
+    // G is apparent: it holds another constant than H, as the difference of the reference values says
+    auto H = G + T*S + (H298 - G298 - T298*S298);
 
     tps.gibbs_energy     = G;
     tps.volume           = V;

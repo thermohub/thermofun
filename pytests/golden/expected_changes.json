@@ -1300,6 +1300,76 @@
         "reaction_heat_capacity_cp"
       ],
       "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "OH-hp98"
+      ],
+      "properties": [
+        "enthalpy",
+        "internal_energy",
+        "helmholtz_energy"
+      ],
+      "reason": "SoluteHP98: H was G + T S, with the apparent G, so it did not start from the reference H (69.6 kJ/mol away in the example). Now H = G + T S + (H298 - G298 - T298 S298), as AndersonEtAl91 does. G, S, Cp and V do not change."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "OH-hp98"
+      ],
+      "properties": [
+        "enthalpy",
+        "internal_energy",
+        "helmholtz_energy"
+      ],
+      "reason": "SoluteHP98: H was G + T S, with the apparent G, so it did not start from the reference H (69.6 kJ/mol away in the example). Now H = G + T S + (H298 - G298 - T298 S298), as AndersonEtAl91 does. G, S, Cp and V do not change."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "OH-hp98"
+      ],
+      "properties": [
+        "enthalpy",
+        "internal_energy",
+        "helmholtz_energy"
+      ],
+      "reason": "SoluteHP98: H was G + T S, with the apparent G, so it did not start from the reference H (69.6 kJ/mol away in the example). Now H = G + T S + (H298 - G298 - T298 S298), as AndersonEtAl91 does. G, S, Cp and V do not change."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "OH-hp98"
+      ],
+      "properties": [
+        "enthalpy",
+        "internal_energy",
+        "helmholtz_energy"
+      ],
+      "reason": "SoluteHP98: H was G + T S, with the apparent G, so it did not start from the reference H (69.6 kJ/mol away in the example). Now H = G + T S + (H298 - G298 - T298 S298), as AndersonEtAl91 does. G, S, Cp and V do not change."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "OH-hp98"
+      ],
+      "properties": [
+        "enthalpy",
+        "internal_energy",
+        "helmholtz_energy"
+      ],
+      "reason": "SoluteHP98: H was G + T S, with the apparent G, so it did not start from the reference H (69.6 kJ/mol away in the example). Now H = G + T S + (H298 - G298 - T298 S298), as AndersonEtAl91 does. G, S, Cp and V do not change."
     }
   ]
 }
