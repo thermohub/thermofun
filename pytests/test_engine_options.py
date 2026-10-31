@@ -74,24 +74,6 @@ def test_old_and_typed_fields_give_the_same_result(old, typed, symbol):
 
 # --- checks --------------------------------------------------------------------------------------
 
-@pytest.mark.parametrize("field, value", [("energy_reference", "ser"), ("standard_pressure", "1atm"), ("concentration_scale", "molarity")])
-def test_a_convention_that_is_not_calculated_yet_is_refused(field, value):
-    c = tf.EngineConventions()
-    setattr(c, field, value)
-    engine = tf.ThermoEngine(DB)
-    with pytest.raises(ValueError, match="not calculated yet"):
-        engine.setConventions(c)
-    assert gibbs(engine, "Ca+2") == gibbs(tf.ThermoEngine(DB), "Ca+2")
-
-
-def test_a_change_in_place_is_checked_at_the_next_calculation():
-    engine = tf.ThermoEngine(DB)
-    gibbs(engine, "Ca+2")
-    engine.conventions.standard_pressure = "1atm"
-    with pytest.raises(ValueError, match="not calculated yet"):
-        gibbs(engine, "Ca+2")
-
-
 @pytest.mark.parametrize("field, value, message", [("solventState", 2, "solvent state"), ("uncertainty_significant_digits", 0, "significant digits")])
 def test_numbers_of_the_preferences_are_checked(field, value, message):
     p = tf.EnginePreferences()

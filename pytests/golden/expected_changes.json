@@ -374,6 +374,90 @@
       "property": "heat_capacity_cv",
       "max_rel": 2e-08,
       "reason": "Cv = Cp - T V_T^2/(-V_P) of the liquid-like root of PRSV is ill-conditioned below the boiling point: one ulp of Pc, from the conversion bar to Pa and back, changes it by 1.5e-8 (measured: the old code with Pc one ulp lower gives the new value). Only this property, up to max_rel."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "NS",
+        "UQ"
+      ],
+      "reason": "Conventions (R4.5): the values of NASA9 are in assigned_enthalpy and those of CpExtendedUNIQUAC in gibbs_helmholtz_formation, the baseline returned them as they are and mixed them with benson_helgeson values of other species. Now each is converted to the canonical convention after its method; asking for the native convention gives the baseline values (tests/extra_models)."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "NS",
+        "UQ"
+      ],
+      "reason": "Conventions (R4.5): the values of NASA9 are in assigned_enthalpy and those of CpExtendedUNIQUAC in gibbs_helmholtz_formation, the baseline returned them as they are and mixed them with benson_helgeson values of other species. Now each is converted to the canonical convention after its method; asking for the native convention gives the baseline values (tests/extra_models)."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "NS",
+        "UQ"
+      ],
+      "reason": "Conventions (R4.5): the values of NASA9 are in assigned_enthalpy and those of CpExtendedUNIQUAC in gibbs_helmholtz_formation, the baseline returned them as they are and mixed them with benson_helgeson values of other species. Now each is converted to the canonical convention after its method; asking for the native convention gives the baseline values (tests/extra_models)."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "NS",
+        "UQ"
+      ],
+      "reason": "Conventions (R4.5): the values of NASA9 are in assigned_enthalpy and those of CpExtendedUNIQUAC in gibbs_helmholtz_formation, the baseline returned them as they are and mixed them with benson_helgeson values of other species. Now each is converted to the canonical convention after its method; asking for the native convention gives the baseline values (tests/extra_models)."
+    },
+    {
+      "database": "tests--extra_models--extra_models_db",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "NS",
+        "UQ"
+      ],
+      "reason": "Conventions (R4.5): the values of NASA9 are in assigned_enthalpy and those of CpExtendedUNIQUAC in gibbs_helmholtz_formation, the baseline returned them as they are and mixed them with benson_helgeson values of other species. Now each is converted to the canonical convention after its method; asking for the native convention gives the baseline values (tests/extra_models)."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "CH4@",
+        "CO2@",
+        "H2@",
+        "O2@"
+      ],
+      "reason": "Conventions (R4.5): AkinfievDiamond03 reads G, H and S of water. The baseline gave it water in the output convention, so asking for the steam tables changed these solutes by the reference of water. Inside the engine water is now canonical: these solutes equal the default variant."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "Ti(OH)3+",
+        "Ti(OH)4@",
+        "Ti(OH)5-"
+      ],
+      "reason": "Conventions (R4.5): the baseline calculated a substance from its defining reaction with the reactants in the output convention. Their reactions have H2O@, so the reference of water reached them. Now it is calculated in the canonical convention and converted once."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "Ti(OH)3+",
+        "Ti(OH)4@",
+        "Ti(OH)5-"
+      ],
+      "reason": "Conventions (R4.5): the baseline calculated a substance from its defining reaction with the reactants in the output convention. Water is not converted to Berman-Brown, so G was wrong by the coefficient of H2O@ times Tr times the element entropies of water (69.5 kJ/mol for each H2O@). Now it is calculated in the canonical convention and converted once."
     }
   ]
 }

@@ -83,6 +83,8 @@
     $$PWD/Engine/ReactionBinding.h \
     $$PWD/Engine/ReactionDefined.h \
     $$PWD/Methods/Reactions/ReactionMethods.h \
+    $$PWD/Conventions/Convention.h \
+    $$PWD/Conventions/ConventionConverter.h \
     $$PWD/Conventions/HydrogenIon.h \
     $$PWD/Methods/Solutes/SoluteInputs.h \
     $$PWD/Methods/Solutes/SoluteMethods.h \
@@ -226,6 +228,7 @@
     $$PWD/IO/Legacy/LegacyReader.cpp \
     $$PWD/Common/Exception.cpp \
     $$PWD/Common/OutputWaterSteamConventionProp.cpp \
+    $$PWD/Conventions/ConventionConverter.cpp \
     $$PWD/Common/OutputToCSV.cpp \
 # Interface
     $$PWD/ThermoEngine.cpp \

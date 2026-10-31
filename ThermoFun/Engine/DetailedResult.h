@@ -27,7 +27,7 @@ struct DetailedPropertiesSubstance
     std::string source;
     std::string reaction;              ///< the defining reaction, for the source "reaction"
     std::vector<ExplainStep> steps;    ///< the methods in the order they ran, for the source "methods"
-    std::vector<std::string> conversions;   ///< "steam_tables", "berman_brown": conversions applied after the methods
+    std::vector<std::string> conversions;   ///< "<method> to canonical", and the words of the output convention: "steam_tables", "berman_brown", ...
 };
 
 } // namespace ThermoFun

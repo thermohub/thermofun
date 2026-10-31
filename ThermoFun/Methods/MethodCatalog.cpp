@@ -51,6 +51,7 @@ struct Spec
     }
     auto dielectric() -> Spec& { s.needs.dielectric = true; return *this; }
     auto piecewise() -> Spec& { s.piecewise = true; return *this; }
+    auto convention(EnergyReference reference) -> Spec& { s.native_convention = reference; return *this; }
     auto notImplemented() -> Spec& { s.implemented = false; return *this; }
     auto add(ParameterSpec p) -> Spec& { s.parameters.push_back(std::move(p)); return *this; }
     auto add(std::vector<ParameterSpec> ps) -> Spec&
@@ -188,6 +189,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     {
         Spec s("CpExtendedUNIQUAC", "Heat capacity of Extended UNIQUAC", "Integrates Cp = a + b T + c / (T - Theta) and adds a pressure term.", "Thomsen and Rasmussen (1999)");
         s.alias({"ExtendedUNIQUAC", "StandardThermoModelExtendedUNIQUAC"}).base().classes(solutes);
+        s.convention(EnergyReference::GibbsHelmholtzFormation);
         s.add({par("a", "J/(mol.K)", "J/(mol.K)", "constant term"), par("b", "J/(mol.K2)", "J/(mol.K2)", "term b T"),
                par("c", "J/mol", "J/mol", "term c / (T - Theta)"), par("alpha", "1/Pa", "1/bar", "pressure term, first coefficient"),
                par("beta", "1/Pa2", "1/bar2", "pressure term, second coefficient")});
@@ -199,6 +201,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     {
         Spec s("NASA9", "NASA polynomials", "Calculates the properties from NASA 9-coefficient polynomials, by T segment.", "McBride, Zehe and Gordon (2002)");
         s.alias({"StandardThermoModelNasa"}).base().piecewise();
+        s.convention(EnergyReference::AssignedEnthalpy);
         for (const char* n : {"a1", "a2", "a3", "a4", "a5", "a6", "a7"})
             s.add(par(n, "1", "1", "coefficient of Cp/R"));
         s.add(par("b1", "K", "K", "integration constant of H"));

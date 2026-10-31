@@ -279,6 +279,17 @@ ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
 assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
 ```
 
+**Conventions.** Give `convention` in a record, or in the dataset, if the values are not in the defaults (`benson_helgeson`, `1bar`, `molality`, `geochemical`). For example: `convention: {energy_reference: berman_brown, standard_pressure: 1atm}`.
+
+- `energy_reference`: `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K`.
+- `standard_pressure`: `1bar`, `1atm`. It changes gases only.
+- `concentration_scale`: `molality`, `mole_fraction`, `molarity`. It changes aqueous solutes only. `molarity` needs the water solvent in the database.
+- `water_reference`: `geochemical`, `steam_tables`. It changes the water solvent only.
+
+The engine converts the result of the base method. It does not convert corrections. Species with different conventions can be in one reaction. A change of the energy reference needs the
+entropies of the elements. Put them in `elements`. If they are not there, the engine uses the table of ChemicalFun and gives a warning (`CNV-006`). If no source has them, the engine gives an error (`CNV-001`).
+`NASA9` is always in `assigned_enthalpy` and `CpExtendedUNIQUAC` in `gibbs_helmholtz_formation`, whatever the record says. Results come in the defaults. To ask for others, set `EngineConventions`.
+
 **The hydrogen ion.** The geochemical convention (`benson_helgeson`, the default) defines all properties of the hydrogen ion as 0, at all T and P. A record with the class
 `aqueous_solute` and the formula `H+` needs no methods and no values in this convention. In another convention, the properties of H+ can be different: give `convention` in
 the record, or in the dataset, with the values and the methods. ThermoFun then uses them. It also uses values other than 0 in the geochemical convention, and `validate` gives a warning (`CNV-007`).
@@ -737,6 +748,5 @@ ThermoFun reads these, but does not use them in a calculation:
 - `parameter_set` of a method and the record `parameter_sets`.
 - Method records with `kind: symbolic`.
 - Covariance blocks. `validate` checks them.
-- `convention` of a record or a dataset. Conventions other than `benson_helgeson` and `berman_brown` raise an error in the engine.
 
 **Check:** run `python -m pytest pytests/test_add_data_guide.py`. All examples of this page run and their results are correct.

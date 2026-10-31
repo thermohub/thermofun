@@ -382,11 +382,21 @@ auto readConvention(Context& c, const json& node, const std::string& record, con
 {
     if (!node.is_object())
         return std::nullopt;
+    // a wrong word here would give wrong values without a sign: an error, not a warning
+    const auto word = [&]<typename E>(std::type_identity<E>, const char* key) -> std::optional<E> {
+        const std::string text = optionalString(node, key);
+        if (text.empty())
+            return std::nullopt;
+        const auto value = fromString<E>(text);
+        if (!value)
+            report(c, Severity::Error, "CNV-005", record, path + "/" + key, unknownWordMessage<E>(text));
+        return value;
+    };
     Convention conv;
-    conv.energy_reference = vocabulary<EnergyReference>(c, optionalString(node, "energy_reference"), record, path + "/energy_reference");
-    conv.standard_pressure = vocabulary<StandardPressure>(c, optionalString(node, "standard_pressure"), record, path + "/standard_pressure");
-    conv.concentration_scale = vocabulary<ConcentrationScale>(c, optionalString(node, "concentration_scale"), record, path + "/concentration_scale");
-    conv.water_reference = vocabulary<WaterReference>(c, optionalString(node, "water_reference"), record, path + "/water_reference");
+    conv.energy_reference = word(std::type_identity<EnergyReference>{}, "energy_reference");
+    conv.standard_pressure = word(std::type_identity<StandardPressure>{}, "standard_pressure");
+    conv.concentration_scale = word(std::type_identity<ConcentrationScale>{}, "concentration_scale");
+    conv.water_reference = word(std::type_identity<WaterReference>{}, "water_reference");
     return conv;
 }
 

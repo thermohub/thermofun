@@ -37,6 +37,12 @@ struct DatabaseConventions {
     bool operator==(const DatabaseConventions&) const = default;
 };
 
+/// See Database::elementEntropySources.
+struct ElementEntropySources
+{
+    std::vector<std::string> from_table, missing;
+};
+
 /// Reads the object "conventions" of a database, given as a JSON string.
 auto readConventions(const std::string& data) -> DatabaseConventions;
 
@@ -224,6 +230,10 @@ public:
     /// @param formula
     /// @return elemental entropy
     auto elementalEntropyFormula(std::string formula) const -> double;
+
+    /// The elements of a formula whose entropies are not in the records of this database: those that come from the element table of ChemicalFun,
+    /// and those that no source has.
+    auto elementEntropySources(const std::string& formula) const -> ElementEntropySources;
 
     /// Checks if charge exists in json, if not uses formula parser to calculate
     /// and set the substance charge

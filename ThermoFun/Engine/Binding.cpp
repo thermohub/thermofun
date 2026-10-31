@@ -130,7 +130,7 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
     return out;
 }
 
-auto bindSubstance(std::shared_ptr<const SubstanceRecord> record) -> std::shared_ptr<const BoundSubstance>
+auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConventions& conventions) -> std::shared_ptr<const BoundSubstance>
 {
     auto bound = std::make_shared<BoundSubstance>();
     for (const auto& a : record->methods)
@@ -139,6 +139,23 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record) -> std::shared
         return std::make_tuple(groupOf(a->spec()), a->spec().effects.rank, a->spec().id) <
                std::make_tuple(groupOf(b->spec()), b->spec().effects.rank, b->spec().id);
     });
+
+    ConversionSubject subject;
+    subject.Tr = record->reference_conditions.T;
+    subject.gas = record->aggregate_state == AggregateState::Gas;
+    subject.solute = record->class_ == SubstanceClass::AqueousSolute;
+    subject.element_entropy = conventions.element_entropy;
+    const Convention inherited = mergeConvention(record->convention.value_or(Convention{}), conventions.dataset);
+    for (const auto& method : bound->order)
+    {
+        const auto& spec = method->spec();
+        Convention declared;
+        declared.energy_reference = spec.native_convention;
+        if (spec.effects.base)
+            declared = mergeConvention(declared, inherited);
+        bound->to_canonical.push_back(spec.effects.G == Effect::Set ? shiftToCanonical(declared, subject) : ConventionShift{});
+        bound->needs.solvent = bound->needs.solvent || bound->to_canonical.back().needsSolvent();
+    }
 
     for (const auto& method : bound->order)
     {

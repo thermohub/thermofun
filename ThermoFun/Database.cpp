@@ -13,7 +13,9 @@
 #include "IO/Legacy/LegacyWriter.h"
 #include "IO/Validate.h"
 #include "Engine/Binding.h"
+#include "Conventions/Convention.h"
 #include "Conventions/HydrogenIon.h"
+#include "Methods/MethodCatalog.h"
 #include "IO/detail/JsonDetect.h"
 #include "IO/detail/Yaml.h"
 #include "Substance.h"
@@ -995,6 +997,68 @@ auto Database::legacyWriteProblems() const -> Diagnostics
     return problems;
 }
 
+namespace {
+
+/// The checks of the conventions of the records (14 section 5 and section 7)
+void checkConventions(const Database& db, const v2::V2Records& records, Diagnostics& all)
+{
+    const auto add = [&](Severity severity, const char* code, const std::string& record, const std::string& path, const std::string& message) {
+        Diagnostic d;
+        d.severity = severity;
+        d.code = code;
+        d.record = record;
+        d.path = path;
+        d.message = message;
+        all.add(d);
+    };
+    const auto join = [](const std::vector<std::string>& words) {
+        std::string text;
+        for (const auto& w : words)
+            text += (text.empty() ? "" : ", ") + w;
+        return text;
+    };
+    const auto datasetReference = records.dataset.convention.energy_reference.value_or(v2::EnergyReference::BensonHelgeson);
+    bool hasSolvent = false;
+    std::map<std::string, v2::EnergyReference> references;
+    for (const auto& r : records.substances)
+    {
+        hasSolvent = hasSolvent || r.class_ == v2::SubstanceClass::WaterSolvent;
+        const v2::Convention own = r.convention.value_or(v2::Convention{});
+        std::optional<v2::EnergyReference> native;
+        for (const auto& a : r.methods)
+            if (const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance); spec && spec->effects.base && spec->native_convention)
+                native = spec->native_convention;
+        if (native && !own.energy_reference && *native != datasetReference)
+            add(Severity::Warning, "CNV-003", r.symbol, "/substances/" + r.symbol + "/methods",
+                "The method gives " + v2::toString(*native) + ", the dataset uses " + v2::toString(datasetReference) + ", and the record declares no convention. The values are converted.");
+        const auto reference = native ? *native : own.energy_reference.value_or(datasetReference);
+        references[r.symbol] = reference;
+        if (reference != v2::EnergyReference::BensonHelgeson && !r.formula.empty())
+        {
+            const auto sources = db.elementEntropySources(r.formula);
+            if (!sources.missing.empty())
+                add(Severity::Error, "CNV-001", r.symbol, "/substances/" + r.symbol + "/formula", "A conversion needs the entropies of the elements " + join(sources.missing) + ", and no source has them.");
+            if (!sources.from_table.empty())
+                add(Severity::Warning, "CNV-006", r.symbol, "/substances/" + r.symbol + "/formula", "The entropies of the elements " + join(sources.from_table) + " come from the element table of ChemicalFun, not from the database.");
+        }
+    }
+    for (const auto& r : records.substances)
+        if (r.class_ == v2::SubstanceClass::AqueousSolute && !hasSolvent &&
+            mergeConvention(r.convention.value_or(v2::Convention{}), records.dataset.convention).concentration_scale == v2::ConcentrationScale::Molarity)
+            add(Severity::Error, "CNV-002", r.symbol, "/substances/" + r.symbol + "/convention", "A solute in molarity needs a solvent, and the database has none.");
+    for (const auto& r : records.reactions)
+    {
+        std::set<v2::EnergyReference> seen;
+        for (const auto& [symbol, coefficient] : r.stoichiometry)
+            if (const auto it = references.find(symbol); it != references.end())
+                seen.insert(it->second);
+        if (seen.size() > 1)
+            add(Severity::Warning, "CNV-004", r.symbol, "/reactions/" + r.symbol + "/equation", "The species of this reaction use different energy references. The values are converted.");
+    }
+}
+
+} // namespace
+
 auto Database::validate() const -> Diagnostics
 {
     const auto parse = [this](const std::string& formula) {
@@ -1021,6 +1085,7 @@ auto Database::validate() const -> Diagnostics
             all.add(d);
         }
     }
+    checkConventions(*this, records, all);
     return all;
 }
 
@@ -1120,6 +1185,22 @@ auto Database::elementalEntropyFormula(std::string formula) const -> double
 {
     ChemicalFun::FormulaProperties prop = pimpl->all_elements.formulasProperties(formula);
     return prop.elemental_entropy;
+}
+
+auto Database::elementEntropySources(const std::string& formula) const -> ElementEntropySources
+{
+    ElementEntropySources sources;
+    const auto& table = pimpl->all_elements.elements();
+    const ChemicalFun::FormulaToken token(formula);
+    for (const auto& key : token.getElementsList())
+    {
+        const auto it = table.find(key);
+        if (it == table.end() || it->second.entropy == 0.0)
+            sources.missing.push_back(key.Symbol());
+        else if (!pimpl->elements_map.count(key.Symbol()))
+            sources.from_table.push_back(key.Symbol());
+    }
+    return sources;
 }
 
 auto Database::setSubstancesChargeFromFromula() -> void

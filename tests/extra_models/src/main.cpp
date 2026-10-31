@@ -47,6 +47,13 @@ int main(int argc, char** argv)
         }
         const double T = v[0], Pbar = v[1];
         double P = Pbar * 1e5;
+        // the reference values of these two models are in the native convention of the model; the engine converts to the requested one
+        EngineConventions conventions;
+        if (sym == "UQ")
+            conventions.energy_reference = v2::EnergyReference::GibbsHelmholtzFormation;
+        if (sym == "NS")
+            conventions.energy_reference = v2::EnergyReference::AssignedEnthalpy;
+        engine.setConventions(conventions);
         ThermoPropertiesSubstance r = engine.thermoPropertiesSubstance(T, P, sym);
         const double got[5] = {static_cast<double>(r.gibbs_energy), static_cast<double>(r.enthalpy), static_cast<double>(r.entropy),
                                static_cast<double>(r.heat_capacity_cp), static_cast<double>(r.volume)};
@@ -66,6 +73,7 @@ int main(int argc, char** argv)
     }
     if (rows == 0)
         failures++;
+    engine.setConventions({});
 
     // the engine takes T and P by reference
     auto props = [&](double T, double P, const char* symbol) { return engine.thermoPropertiesSubstance(T, P, symbol); };

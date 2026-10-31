@@ -28,6 +28,8 @@ auto bindSolvent(std::shared_ptr<const SubstanceRecord> record) -> std::shared_p
         else if (a.method == "ConstantCp" || a.method == "CpPolynomial" || a.method == "ConstantProperties")
             values->methods.push_back(a);
     }
+    // water has its own reference (water_reference): the engine converts it, not the binding
+    values->convention.reset();
     if (!bound->equation_of_state && canBind(*values))
         bound->reference_values = bindSubstance(values);
     bound->record = std::move(record);
