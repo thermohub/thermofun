@@ -54,4 +54,13 @@ auto waterIdealGas (real t, real /*p*/) -> ThermoPropertiesSubstanceAD
 }
 
 
+auto waterIdealGasProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return waterIdealGas(pass.T, pass.P);
+    });
+    tps.volume = Reaktoro_::ThermoProperty(); // the volume is not calculated
+    return tps;
+}
+
 }

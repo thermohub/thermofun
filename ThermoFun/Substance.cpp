@@ -12,7 +12,7 @@
 #include "Common/Exception.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
-#include "ThermoPropertiesStatus.h"
+#include "Common/ThermoPropertiesStatus.h"
 #include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"
 #include "IO/Legacy/LegacyWriter.h"

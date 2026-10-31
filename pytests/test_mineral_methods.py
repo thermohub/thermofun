@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 ThermoFun contributors
 
-# The mineral and table methods alone, with no database and no engine, against the old classes and the published
+# The mineral and table methods alone, with no database and no engine; before, against the old classes and the published
 # equations. A correction applied alone, from an empty state, gives its own increment.
 
 import json
@@ -30,17 +30,6 @@ def fixture(name):
     return json.loads((SYNTHETIC / (name + ".json")).read_text())
 
 
-def check_against_old(method, old, record, T, P):
-    # Birch-Murnaghan uses finite differences inside: one ulp of a parameter through SI changes G by about 2e-9
-    now = method.evaluate(T, P, reference_of(record))
-    before = old.thermoProperties(T, P, tf.ThermoPropertiesSubstance())
-    assert now.G.val == pytest.approx(before.gibbs_energy.val, rel=1e-8, abs=1e-6)
-    assert now.H.val == pytest.approx(before.enthalpy.val, rel=1e-8, abs=1e-6)
-    assert now.S.val == pytest.approx(before.entropy.val, rel=1e-8, abs=1e-8)
-    assert now.V.val * 1e5 == pytest.approx(before.volume.val, rel=1e-8, abs=1e-10)
-    assert now.G.ddt == pytest.approx(before.gibbs_energy.ddt, rel=1e-6, abs=1e-8)
-
-
 def parameters_si(entry, key, names_units):
     values = entry[key]["values"]
     return {n: values[i] * f for i, n, f in names_units}
@@ -60,14 +49,6 @@ def case_method(case):
     doc = fixture(name)
     record = next(r for r in doc["substances"] if any(legacy in m["method"].values() for m in r["TPMethods"]))
     return tf.methods.substanceMethod(method_id, parameters=parameters_si(method_entry(record, legacy), key, names), symbol=record["symbol"]), record, old
-
-
-@pytest.mark.parametrize("case", CASES, ids=lambda c: c[2])
-@pytest.mark.parametrize("T,P", POINTS)
-def test_a_correction_alone_gives_the_result_of_the_old_class(case, T, P):
-    method, record, old = case_method(case)
-    substance = tf.Database(json.dumps({"elements": [], "substances": [record], "reactions": []})).getSubstance(record["symbol"])
-    check_against_old(method, getattr(tf, old)(substance), record, T, P)
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c[2])

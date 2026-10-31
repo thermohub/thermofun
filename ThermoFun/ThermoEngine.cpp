@@ -24,17 +24,15 @@
 #include "Reaction.h"
 #include "Substance.h"
 #include "Element.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoModelsSolvent.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Common/Rounding.hpp"
-#include "ElectroModelsSolvent.h"
-#include "ThermoModelsReaction.h"
 
 #include "Engine/ResultCache.h"
 #include "Methods/MethodCatalog.h"
 #include "Methods/MethodRegistry.h"
+#include "Methods/Reactions/ReactionMethods.h"
+#include "Methods/Water/WaterIdealGasWolley.h"
 #include <stdexcept>
 #include <functional>
 #include <cmath>
@@ -350,9 +348,9 @@ struct ThermoEngine::Impl
             if (bound.needs.ideal_gas_water)
             {
                 in.water = cachedSubstance(T, P, symbol);
-                in.ideal_gas_water = WaterIdealGasWoolley(solvent).thermoProperties(T, P);
+                in.ideal_gas_water = waterIdealGasProperties(T, P);
                 in.water_at_reference = cachedSubstance(Tr, Pr, symbol);
-                in.ideal_gas_water_at_reference = WaterIdealGasWoolley(solvent).thermoProperties(Tr, Pr);
+                in.ideal_gas_water_at_reference = waterIdealGasProperties(Tr, Pr);
             }
         }
         return in;
@@ -920,7 +918,7 @@ struct ThermoEngine::Impl
         {
             // check properites
             tps = fallbackThermoPropertiesSubstance(tps, subst);
-            tps = ConMolVol(subst).thermoProperties(T, P, tps);
+            tps = v2::constantVolumeCorrection(T, P, tps, subst.thermoReferenceProperties(), subst.referenceP());
         }
 
         return tps;
@@ -954,7 +952,15 @@ struct ThermoEngine::Impl
             lgK_ref = -ref.reaction_gibbs_energy.val / (R_CONSTANT * Tr * lg_to_ln);
         else
             return;
-        const auto fn = Reaction_LogK_fT(reaction).thermoProperties(Tr, reaction.referenceP());
+        ReactionInputs inputs;
+        inputs.reference = ref;
+        inputs.Tr = Tr;
+        inputs.Pr = reaction.referenceP();
+        const auto& logK = reaction.thermoParameters().reaction_logK_fT_coeff;
+        inputs.coefficients.assign(logK.begin(), logK.end());
+        const auto& cp = reaction.thermoParameters().reaction_Cp_fT_coeff;
+        inputs.cp_coefficients.assign(cp.begin(), cp.end());
+        const auto fn = v2::logKProperties(inputs, LogKForm::Polynomial, Tr, reaction.referenceP());
         const double lgK_fn = fn.log_equilibrium_constant.val;
         if (!std::isfinite(lgK_fn) || std::fabs(lgK_fn - lgK_ref) <= 0.01)
             return;
@@ -1036,7 +1042,7 @@ struct ThermoEngine::Impl
             symbols.push_back(substance);
         }
 
-        tpr = ReactionFromReactantsProperties(reaction).thermoProperties(T, P, components, symbols);
+        tpr = v2::reactionFromReactants(T, P, reaction.symbol(), components, symbols);
 
         gas_pressure_correction.release();
         return tpr;

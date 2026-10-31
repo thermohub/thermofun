@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
-// Tests that the derivatives with respect to temperature and pressure of the properties calculated by models
+// Tests that the derivatives with respect to temperature and pressure of the properties calculated by methods
 // that are not covered by the databases of the tests agree with finite differences of their values.
 #include <cmath>
 #include <cstdio>
 #include <functional>
 
 #include "ThermoEngine.h"
-#include "ThermoModelsReaction.h"
-#include "Reaction.h"
-#include "ThermoModelsSubstance.h"
-#include "ThermoModelsSolvent.h"
-#include "ElectroModelsSolvent.h"
 #include "Database.h"
 #include "ThermoProperties.h"
-#include "Substance.h"
-#include "Methods/Solutes/SoluteHollandPowell98.h"
-#include "ThermoParameters.h"
+#include "Engine/Executor.h"
+#include "Methods/Gases/GasMethods.h"
+#include "Methods/Minerals/MineralMethods.h"
+#include "Methods/Minerals/ReferenceMethods.h"
+#include "Methods/Reactions/ReactionMethods.h"
+#include "Methods/Solutes/SoluteMethods.h"
+#include "Methods/Water/WaterMethods.h"
 
 using namespace ThermoFun;
+using namespace ThermoFun::v2;
 
 static int failures = 0;
 
-static void checkDerivatives(const char* what, const std::function<Reaktoro_::ThermoProperty(double, double)>& f,
-                             double T, double P, double rel = 2e-4)
+template <typename Function>
+static void checkDerivatives(const char* what, const Function& f, double T, double P, double rel = 2e-4)
 {
     const double hT = 1e-3 * T, hP = 1e-3 * P;
     const auto x = f(T, P);
@@ -39,190 +39,130 @@ static void checkDerivatives(const char* what, const std::function<Reaktoro_::Th
     }
 }
 
-static ThermoPropertiesSubstance inputProperties()
+/// The reference values of all substances here: V is 2 J/bar.
+static auto referenceValues() -> ReferenceValues
 {
-    ThermoPropertiesSubstance tps;
-    tps.gibbs_energy = -1.0e6;
-    tps.enthalpy = -1.1e6;
-    tps.entropy = 100.0;
-    tps.volume = 2.0;
-    tps.heat_capacity_cp = 80.0;
-    tps.heat_capacity_cv = 80.0;
-    tps.internal_energy = -1.1e6;
-    tps.helmholtz_energy = -1.0e6;
-    return tps;
+    ReferenceValues r;
+    r.T = 298.15;
+    r.P = 1e5;
+    r.G = -1.0e6;
+    r.H = -1.1e6;
+    r.S = 100.0;
+    r.Cp = 80.0;
+    r.V = 2e-5;
+    return r;
 }
 
-static Substance makeSubstance()
+/// A method alone at T, P. The volume is in J/bar, to compare it with a tolerance of that size.
+static auto run(std::shared_ptr<const SubstanceMethod> method, double T, double P, bool pressureCorrection = false, const SolventInputs* solvent = nullptr) -> MethodResult
 {
-    Substance substance;
-    substance.setSymbol("X");
-    substance.setReferenceT(298.15);
-    substance.setReferenceP(1e5);
-    ThermoPropertiesSubstance ref = inputProperties();
-    substance.setThermoReferenceProperties(ref);
-    return substance;
+    BoundSubstance bound;
+    bound.order = {std::move(method)};
+    bound.reference = referenceValues();
+    SubstanceOptions options;
+    options.apply_pressure_correction = pressureCorrection;
+    auto out = executeSubstance(bound, T, P, options, nullptr, solvent).values;
+    out.V.val *= 1e5;
+    out.V.ddt *= 1e5;
+    out.V.ddp *= 1e5;
+    return out;
+}
+
+/// The five properties of a method, each against finite differences.
+static void checkProperties(const char* what, const std::shared_ptr<const SubstanceMethod>& method, double T, double P, double rel = 2e-4, bool pressureCorrection = false)
+{
+    for (auto member : {&MethodResult::G, &MethodResult::H, &MethodResult::S, &MethodResult::V})
+        checkDerivatives(what, [&](double t, double p) { return run(method, t, p, pressureCorrection).*member; }, T, P, rel);
+}
+
+static auto reactionInputs(std::vector<double> coefficients) -> ReactionInputs
+{
+    ReactionInputs in;
+    in.Tr = 298.15;
+    in.Pr = 1e5;
+    in.coefficients.assign(coefficients.begin(), coefficients.end());
+    return in;
 }
 
 int main(int argc, char** argv)
 {
     const double T = 450.0, P = 5e7;
 
-    // Berman (1988) volume model
-    {
-        auto substance = makeSubstance();
-        ThermoParametersSubstance parameters;
-        parameters.volume_coeff = {-1.5e-5, 2.0e-8, -1.0e-11, 5.0e-5, 2.0e-9};
-        substance.setThermoParameters(parameters);
-        const auto tps = inputProperties();
-        MinBerman88 model(substance);
-        auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, tps)).*member; }; };
-        checkDerivatives("Berman gibbs_energy", f(&ThermoPropertiesSubstance::gibbs_energy), T, P);
-        checkDerivatives("Berman enthalpy", f(&ThermoPropertiesSubstance::enthalpy), T, P);
-        checkDerivatives("Berman entropy", f(&ThermoPropertiesSubstance::entropy), T, P);
-        checkDerivatives("Berman volume", f(&ThermoPropertiesSubstance::volume), T, P);
-        checkDerivatives("Berman internal_energy", f(&ThermoPropertiesSubstance::internal_energy), T, P);
-        checkDerivatives("Berman helmholtz_energy", f(&ThermoPropertiesSubstance::helmholtz_energy), T, P);
-    }
+    // Berman (1988) volume model: b1 in 1/bar, b2 in 1/bar2
+    checkProperties("Berman", mineralMethod("VolumeBerman88", {-1.5e-5, 2.0e-8, -1.0e-11, 5.0e-5 / 1e5, 2.0e-9 / 1e10}, 0.0, 0.0, {}), T, P);
 
-    // Birch-Murnaghan model (Gottschalk)
+    // Birch-Murnaghan model (Gottschalk): kt00 and dkdt in MPa, kpp in 1/MPa
+    for (auto member : {&MethodResult::G, &MethodResult::S, &MethodResult::V})
     {
-        auto substance = makeSubstance();
-        ThermoParametersSubstance parameters;
-        parameters.volume_BirchM_coeff = {2.6e-5, 1.0e-8, 0.0, 0.0, 0.0, 1.0e3, -0.05, 4.0, 0.0};
-        substance.setThermoParameters(parameters);
-        const auto tps = inputProperties();
-        MinBMGottschalk model(substance);
-        auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, tps)).*member; }; };
-        checkDerivatives("BMGottschalk gibbs_energy", f(&ThermoPropertiesSubstance::gibbs_energy), T, P, 2e-3);
-        checkDerivatives("BMGottschalk entropy", f(&ThermoPropertiesSubstance::entropy), T, P, 2e-3);
-        checkDerivatives("BMGottschalk volume", f(&ThermoPropertiesSubstance::volume), T, P, 2e-3);
+        const auto method = mineralMethod("BirchMurnaghan47", {2.6e-5, 1.0e-8, 0.0, 0.0, 0.0, 1.0e3 / 1e-6, -0.05 / 1e-6, 4.0, 0.0}, 0.0, 0.0, {});
+        checkDerivatives("BMGottschalk", [&](double t, double p) { return run(method, t, p).*member; }, T, P, 2e-3);
     }
 
     // Constant molar volume
-    {
-        auto substance = makeSubstance();
-        const auto tps = inputProperties();
-        ConMolVol model(substance);
-        auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, tps)).*member; }; };
-        checkDerivatives("ConMolVol gibbs_energy", f(&ThermoPropertiesSubstance::gibbs_energy), T, P);
-        checkDerivatives("ConMolVol helmholtz_energy", f(&ThermoPropertiesSubstance::helmholtz_energy), T, P);
-    }
+    checkDerivatives("ConstantVolume G", [&](double t, double p) { return run(constantVolumeMethod(), t, p).G; }, T, P);
 
     // Ideal gas law volume with the pressure correction
-    {
-        auto substance = makeSubstance();
-        substance.setSubstanceClass(SubstanceClass::type::GASFLUID);
-        const auto tps = inputProperties();
-        IdealGasLawVol model(substance);
-        auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, tps, true)).*member; }; };
-        checkDerivatives("IdealGasLawVol volume", f(&ThermoPropertiesSubstance::volume), T, P);
-        checkDerivatives("IdealGasLawVol gibbs_energy", f(&ThermoPropertiesSubstance::gibbs_energy), T, P);
-        checkDerivatives("IdealGasLawVol enthalpy", f(&ThermoPropertiesSubstance::enthalpy), T, P);
-    }
+    checkProperties("IdealGas", idealGasMethod(true), T, P, 2e-4, true);
 
-    // Gas and fluid models (fugacity from the equations of state)
+    // Gas and fluid models (fugacity from the equations of state). Pc in Pa
     {
-        auto substance = makeSubstance();
-        substance.setSubstanceClass(SubstanceClass::type::GASFLUID);
-        substance.setFormula("CH4");
-        ThermoParametersSubstance parameters;
-        parameters.temperature_intervals = {{200.0, 2000.0}};
-        parameters.critical_parameters = {190.56, 45.99, 0.0115, 0.0, 0.0, 0.0, 0.0};  // Tcr, Pcr, omega, ...
-        substance.setThermoParameters(parameters);
-        const auto tps = inputProperties();
-
-        auto gas = [&](const char* name, auto&& model, double Tgas, double Pgas, double rel = 2e-3) {
-            for (auto member : {&ThermoPropertiesSubstance::gibbs_energy, &ThermoPropertiesSubstance::enthalpy,
-                                &ThermoPropertiesSubstance::entropy, &ThermoPropertiesSubstance::volume})
-            {
-                auto f = [&](double t, double p) { return (model.thermoProperties(t, p, tps, true)).*member; };
-                checkDerivatives(name, f, Tgas, Pgas, rel);
-            }
+        const auto gas = [](const char* id, std::vector<double> parameters, const char* formula) {
+            GasRecord record;
+            record.lower_T = 200.0;
+            record.formula = formula;
+            return gasMethod(id, std::move(parameters), record);
         };
+        const std::vector<double> cubic = {190.56, 45.99e5, 0.0115, 0.0}, interaction = {190.56, 45.99e5, 0.0115, 0.0, 0.0, 0.0};
+        checkProperties("SRK", gas("SoaveRedlichKwong72", cubic, "CH4"), 450.0, 5e7, 2e-3, true);
+        checkProperties("PR78", gas("PengRobinson78", cubic, "CH4"), 450.0, 5e7, 2e-3, true);
+        checkProperties("PRSV", gas("PRSV86", interaction, "CH4"), 450.0, 5e7, 2e-3, true);
+        checkProperties("STP", gas("SternerPitzer94", {190.56, 45.99e5}, "CO2"), 600.0, 5e7, 2e-3, true);
+        checkProperties("CORK", gas("CorkHP91", interaction, "CO2"), 600.0, 5e7, 2e-3, true);
 
-        gas("SRK", GasSRK(substance), 450.0, 5e7);
-        gas("PR78", GasPR78(substance), 450.0, 5e7);
-        gas("PRSV", GasPRSV(substance), 450.0, 5e7);
-
-        auto co2 = substance;
-        co2.setFormula("CO2");
-        gas("STP", GasSTP(co2), 600.0, 5e7);
-        gas("CORK", GasCORK(co2), 600.0, 5e7);
-
-        auto cgf = substance;
-        ThermoParametersSubstance cgfParameters = parameters;
-        cgfParameters.critical_parameters = {3.7327, 149.92, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-        cgf.setThermoParameters(cgfParameters);
-        // exact derivatives of the free energy (no finite differences): tight tolerance; polar fluid (dipole and induced terms)
-        gas("CGF", GasCGF(cgf), 450.0, 5e7, 2e-5);
-        gas("CGF", GasCGF(cgf), 700.0, 2e8, 2e-5);
-        auto cgfPolar = substance;
-        cgfParameters.critical_parameters = {3.0, 300.0, 1.2, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-        cgfPolar.setThermoParameters(cgfParameters);
-        gas("CGF polar", GasCGF(cgfPolar), 600.0, 1e8, 2e-5);
+        // exact derivatives of the free energy (no finite differences): tight tolerance; polar fluid (dipole and induced dipole)
+        const auto cgf = gas("ChurakovGottschalk03", {3.7327, 149.92, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, "CH4");
+        checkProperties("CGF", cgf, 450.0, 5e7, 2e-5, true);
+        checkProperties("CGF", cgf, 700.0, 2e8, 2e-5, true);
+        checkProperties("CGF polar", gas("ChurakovGottschalk03", {3.0, 300.0, 1.2, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, "CH4"), 600.0, 1e8, 2e-5, true);
     }
 
-    // Reaction models that depend on the properties of the solvent (Frantz-Marshall, Dolejs-Manning)
+    // Reaction methods that depend on the properties of the solvent (Frantz-Marshall, Dolejs-Manning)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
         auto waterProps = [&](double t, double p) { double pp = p; return engine.propertiesSolvent(t, pp, "H2O@"); };
 
-        Reaction reaction;
-        reaction.setReferenceT(298.15);
-        reaction.setReferenceP(1e5);
+        const auto check = [&](const char* name, const std::shared_ptr<const ReactionMethod>& method) {
+            for (auto member : {&ThermoPropertiesReaction::reaction_gibbs_energy, &ThermoPropertiesReaction::reaction_enthalpy,
+                                &ThermoPropertiesReaction::reaction_entropy, &ThermoPropertiesReaction::reaction_volume})
+                checkDerivatives(name, [&](double t, double p) { const auto w = waterProps(t, p); return method->calculate(t, p, {}, &w).*member; }, 573.15, 5e7);
+        };
+        check("Frantz-Marshall", makeMarshallFranck81(reactionInputs({-10.0, -2000.0, 1.0e5, 1.0e7, 3.0, -500.0, 1.0e4})));
+        check("Dolejs-Manning", makeDolejsManning10(reactionInputs({1.0e5, -200.0, -20.0, 0.01, -5.0e3})));
 
+        // Holland and Powell (1998) aqueous solute model: derivatives of its own values. b in J/(mol K2)
         {
-            ThermoParametersReaction parameters;
-            parameters.reaction_FM_coeff = {-10.0, -2000.0, 1.0e5, 1.0e7, 3.0, -500.0, 1.0e4};
-            reaction.setThermoParameters(parameters);
-            ReactionFrantzMarshall model(reaction);
-            auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, waterProps(t, p))).*member; }; };
-            checkDerivatives("Frantz-Marshall gibbs_energy", f(&ThermoPropertiesReaction::reaction_gibbs_energy), 573.15, 5e7);
-            checkDerivatives("Frantz-Marshall enthalpy", f(&ThermoPropertiesReaction::reaction_enthalpy), 573.15, 5e7);
-            checkDerivatives("Frantz-Marshall entropy", f(&ThermoPropertiesReaction::reaction_entropy), 573.15, 5e7);
-            checkDerivatives("Frantz-Marshall volume", f(&ThermoPropertiesReaction::reaction_volume), 573.15, 5e7);
-        }
-        {
-            ThermoParametersReaction parameters;
-            parameters.reaction_DM10_coeff = {1.0e5, -200.0, -20.0, 0.01, -5.0e3};
-            reaction.setThermoParameters(parameters);
-            ReactionDolejsManning10 model(reaction);
-            auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, waterProps(t, p))).*member; }; };
-            checkDerivatives("Dolejs-Manning gibbs_energy", f(&ThermoPropertiesReaction::reaction_gibbs_energy), 573.15, 5e7);
-            checkDerivatives("Dolejs-Manning enthalpy", f(&ThermoPropertiesReaction::reaction_enthalpy), 573.15, 5e7);
-            checkDerivatives("Dolejs-Manning entropy", f(&ThermoPropertiesReaction::reaction_entropy), 573.15, 5e7);
-            checkDerivatives("Dolejs-Manning volume", f(&ThermoPropertiesReaction::reaction_volume), 573.15, 5e7);
-        }
-
-        // Holland and Powell (1998) aqueous solute model: derivatives of its own values
-        {
-            Substance solute = makeSubstance();
-            ThermoParametersSubstance parameters;
-            parameters.solute_holland_powell98_coeff = {0.2};
-            solute.setThermoParameters(parameters);
-            SoluteHollandPowell98 model(solute);
+            const auto method = soluteHP98Method({0.2 * 1e3}, "X");
             auto f = [&](auto member) {
-                return [=, &model](double t, double p) {
+                return [=, &engine](double t, double p) {
                     double Tr = 298.15, Pr = 1e5, pp = p;
-                    auto wpr = engine.propertiesSolvent(Tr, Pr, "H2O@");
-                    auto wp = engine.propertiesSolvent(t, pp, "H2O@");
-                    return (model.thermoProperties(t, p, wpr, wp)).*member;
+                    SolventInputs solvent;
+                    solvent.properties_at_reference = engine.propertiesSolvent(Tr, Pr, "H2O@");
+                    solvent.properties = engine.propertiesSolvent(t, pp, "H2O@");
+                    return run(method, t, p, false, &solvent).*member;
                 };
             };
             for (double t : {400.0, 450.0, 520.0})
-                for (auto m : {&ThermoPropertiesSubstance::gibbs_energy, &ThermoPropertiesSubstance::entropy,
-                               &ThermoPropertiesSubstance::volume, &ThermoPropertiesSubstance::heat_capacity_cp})
+                for (auto m : {&MethodResult::G, &MethodResult::S, &MethodResult::V, &MethodResult::Cp})
                     checkDerivatives("HP98 solute", f(m), t, 5e7, 1e-3);
             // exact relations: dG/dT = -S, dG/dP = V, H = G + T S, dH/dT = Cp
             for (double t : {400.0, 450.0, 520.0})
             {
-                const auto x = f(&ThermoPropertiesSubstance::gibbs_energy)(t, 5e7);
-                const auto S = f(&ThermoPropertiesSubstance::entropy)(t, 5e7);
-                const auto V = f(&ThermoPropertiesSubstance::volume)(t, 5e7);
-                const auto H = f(&ThermoPropertiesSubstance::enthalpy)(t, 5e7);
-                const auto Cp = f(&ThermoPropertiesSubstance::heat_capacity_cp)(t, 5e7);
+                const auto x = f(&MethodResult::G)(t, 5e7);
+                const auto S = f(&MethodResult::S)(t, 5e7);
+                const auto V = f(&MethodResult::V)(t, 5e7);
+                const auto H = f(&MethodResult::H)(t, 5e7);
+                const auto Cp = f(&MethodResult::Cp)(t, 5e7);
                 auto close = [](double a, double b) { return std::fabs(a - b) <= 1e-6 * (std::fabs(b) + 1.0); };
                 if (!close(x.ddt, -S.val) || !close(x.ddp * 1e5, V.val) || !close(H.val, x.val + t * S.val) ||
                     !close(H.ddt, Cp.val) || !close(t * S.ddt, Cp.val))
@@ -235,16 +175,9 @@ int main(int argc, char** argv)
 
         // Reaction volume as a function of T and P: derivatives, thermodynamic relations and the reference state
         {
-            Reaction rv;
-            rv.setReferenceT(298.15);
-            rv.setReferenceP(1e5);
-            ThermoPropertiesReaction ref;
-            ref.reaction_volume = 3.0; // J/bar
-            rv.setThermoReferenceProperties(ref);
-            ThermoParametersReaction parameters;
-            parameters.reaction_V_fT_coeff = {1.0e-4, 2.0e-7, 1.0e-10, -4.0e-5, 1.0e-9};
-            rv.setThermoParameters(parameters);
-            Reaction_Vol_fT model(rv);
+            auto inputs = reactionInputs({1.0e-4, 2.0e-7, 1.0e-10, -4.0e-5, 1.0e-9});
+            inputs.reference.reaction_volume = 3.0; // J/bar
+            const auto method = makeReactionVolumePolynomial(inputs);
 
             ThermoPropertiesReaction in;
             in.reaction_gibbs_energy = -5.0e4; in.reaction_enthalpy = -6.0e4; in.reaction_entropy = 30.0;
@@ -252,14 +185,14 @@ int main(int argc, char** argv)
             in.ln_equilibrium_constant = 20.0; in.log_equilibrium_constant = 8.7;
             in.reaction_internal_energy = -6.0e4; in.reaction_helmholtz_energy = -5.0e4;
             in.reaction_volume = 3.0;
-            auto f = [&](auto member) { return [=, &model](double t, double p) { return (model.thermoProperties(t, p, in)).*member; }; };
+            auto f = [&](auto member) { return [=](double t, double p) { return method->calculate(t, p, in, nullptr).*member; }; };
             const double tt = 450.0, pp = 5e7;
             for (auto m : {&ThermoPropertiesReaction::reaction_gibbs_energy, &ThermoPropertiesReaction::reaction_enthalpy,
                            &ThermoPropertiesReaction::reaction_entropy, &ThermoPropertiesReaction::reaction_volume,
                            &ThermoPropertiesReaction::reaction_heat_capacity_cp, &ThermoPropertiesReaction::ln_equilibrium_constant})
                 checkDerivatives("Reaction_Vol_fT", f(m), tt, pp);
 
-            const auto x = model.thermoProperties(tt, pp, in);
+            const auto x = method->calculate(tt, pp, in, nullptr);
             auto rel = [](double a, double b) { return std::fabs(a - b) <= 1e-9 * (std::fabs(b) + 1.0); };
             // the input has no derivatives: dG/dP = V (J/bar per Pa), dG/dT + S = S(input), H = G + T S - T S(input)
             if (!rel(x.reaction_gibbs_energy.ddp * 1e5, x.reaction_volume.val) ||
@@ -269,7 +202,7 @@ int main(int argc, char** argv)
                 std::printf("FAILED: Reaction_Vol_fT thermodynamic relations\n");
                 ++failures;
             }
-            const auto r = model.thermoProperties(298.15, 1e5, in); // at the reference state nothing changes
+            const auto r = method->calculate(298.15, 1e5, in, nullptr); // at the reference state nothing changes
             if (!rel(r.reaction_gibbs_energy.val, in.reaction_gibbs_energy.val) || !rel(r.reaction_volume.val, 3.0))
             {
                 std::printf("FAILED: Reaction_Vol_fT reference state\n");
@@ -281,9 +214,8 @@ int main(int argc, char** argv)
     // Zhang and Duan (2005) water: the derivatives of the density up to the third order are exact (no finite differences)
     for (auto tp : {std::make_pair(400.0, 3e8), std::make_pair(600.0, 5e8), std::make_pair(800.0, 1e9)})
     {
-        auto substance = makeSubstance();
-        WaterZhangDuan2005 model(substance);
-        auto ps = [&](double t, double p) { return model.propertiesSolvent(t, p, 0); };
+        const auto model = waterZhangDuan05Method();
+        auto ps = [&](double t, double p) { return model->properties(t, p, 0); };
         auto f = [&](auto member) { return [=](double t, double p) { return ps(t, p).*member; }; };
         const double t = tp.first, p = tp.second;
         for (auto m : {&PropertiesSolvent::density, &PropertiesSolvent::densityT, &PropertiesSolvent::densityP,
@@ -308,15 +240,18 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
-        Database database(argv[1]);
-        const auto water = database.getSubstance("H2O@");
-        WaterElectroSverjensky2014 sverjensky(water);
-        WaterElectroFernandez1997 fernandez(water);
+        const auto sverjensky = sverjenskyEtAl14Method();
+        const auto fernandez = fernandezEtAl97Method();
+        // the properties of the solvent at T and P, as the engine gives them to a method
+        const auto electro = [&](const std::shared_ptr<const DielectricMethod>& model, double t, double p) {
+            double pp = p;
+            return model->properties(t, p, engine.propertiesSolvent(t, pp, "H2O@", 0), 0);
+        };
         for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(650.0, 3e8), std::make_pair(300.0, 1e6)})
         {
             const double t = tp.first, p = tp.second;
-            auto check = [&](const char* name, auto& model) {
-                auto e = [&](double tt, double pp) { return model.electroPropertiesSolvent(tt, pp, 0); };
+            auto check = [&](const char* name, const std::shared_ptr<const DielectricMethod>& model) {
+                auto e = [&](double tt, double pp) { return electro(model, tt, pp); };
                 auto f = [&](auto member) { return [=](double tt, double pp) { return e(tt, pp).*member; }; };
                 for (auto m : {&ElectroPropertiesSolvent::epsilon, &ElectroPropertiesSolvent::epsilonT, &ElectroPropertiesSolvent::epsilonP,
                                &ElectroPropertiesSolvent::epsilonTT, &ElectroPropertiesSolvent::epsilonPP})
@@ -344,7 +279,7 @@ int main(int argc, char** argv)
             const double u1 = -8.016651e-05 + 0.5 * -6.871618e-02 / std::sqrt(tc);
             const double w0 = -1.576377e-03 * tc + 6.810288e-02 * std::sqrt(tc) + 7.548755e-01;
             const double w1 = -1.576377e-03 + 0.5 * 6.810288e-02 / std::sqrt(tc);
-            const auto s = sverjensky.electroPropertiesSolvent(t, p, 0);
+            const auto s = electro(sverjensky, t, p);
             const double LT = u1 + w1 * std::log(r) + w0 * rho.densityT.val / rho.density.val;
             const double LP = w0 * rho.densityP.val / rho.density.val;
             if (std::fabs(s.epsilonT.val - s.epsilon.val * LT) > 1e-9 * std::fabs(s.epsilonT.val) ||

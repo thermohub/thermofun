@@ -19,6 +19,9 @@ class Substance;
  */
 auto waterIdealGas (real t, real p) -> ThermoPropertiesSubstanceAD;
 
+/// The ideal gas properties of water at T (K) and P (Pa), with the derivatives. The volume is not calculated.
+auto waterIdealGasProperties(double T, double P) -> ThermoPropertiesSubstance;
+
 }
 
 #endif // WATERIDEALGASWOLLEY

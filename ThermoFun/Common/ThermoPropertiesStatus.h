@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#ifndef THERMOFUN_THERMOPROPERTIESSTATUS_H
-#define THERMOFUN_THERMOPROPERTIESSTATUS_H
+#ifndef THERMOFUN_COMMON_THERMOPROPERTIESSTATUS_H
+#define THERMOFUN_COMMON_THERMOPROPERTIESSTATUS_H
 
 #include <string>
-#include "ThermoProperties.h"
+#include <ThermoFun/Common/ThermoProperties.h>
 
 namespace ThermoFun {
 
@@ -20,4 +20,4 @@ auto setMessage(Reaktoro_::Status sta, std::string message, ThermoPropertiesReac
 
 } // namespace ThermoFun
 
-#endif // THERMOFUN_THERMOPROPERTIESSTATUS_H
+#endif // THERMOFUN_COMMON_THERMOPROPERTIESSTATUS_H

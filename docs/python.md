@@ -26,17 +26,13 @@ constants `R_CONSTANT`, `NA_CONSTANT`, `F_CONSTANT`, `e_CONSTANT`, `k_CONSTANT`,
 
 ## Models
 
-The calculation models can be used directly with the `Substance` or `Reaction` that holds their parameters:
+A method can be used alone, with no database and no engine. The module `thermofun.methods` makes it from its id and its parameters in SI:
 
-- substances: `ThermoModelsSubstance`, `EmpiricalCpIntegration`, `EntropyCpIntegration`, `WaterIdealGasWoolley`, `HPLandau`,
-  `MinMurnaghanEOSHP98`, `MinBerman88`, `MinBMGottschalk`, `ConMolVol`, `IdealGasLawVol`, `GasCORK`, `GasPRSV`, `GasCGF`,
-  `GasSRK`, `GasPR78`, `GasSTP`, `SoluteHKFgems`, `SoluteHKFreaktoro`, `SoluteHollandPowell98`, `SoluteAnderson91`,
-  `SoluteAkinfievDiamondEOS`;
-- solvent: `WaterHGK`, `WaterHGKreaktoro`, `WaterWP95reaktoro`, `WaterZhangDuan2005` (`propertiesSolvent`,
-  `thermoPropertiesSubstance`), `WaterJNreaktoro`, `WaterJNgems`, `WaterElectroSverjensky2014`,
-  `WaterElectroFernandez1997` (`electroPropertiesSolvent`);
-- reactions: `ReactionDolejsManning10`, `ReactionFrantzMarshall`, `ReactionRyzhenkoBryzgalin`, `Reaction_LogK_fT`,
-  `Reaction_Vol_fT`, `ReactionFromReactantsProperties`.
+- `substanceMethod(id, parameters=..., symbol=...)` gives a method with `evaluate(T, P, reference, solvent)`;
+- `solventMethod(id, implementation=...)` gives an equation of state of water with `properties(T, P, state)`;
+- `dielectricMethod(id, implementation=...)` gives a dielectric model with `properties(T, P, solvent, state)`;
+- `reactionMethod(id, ...)` gives a method of a reaction with `calculate(T, P, incoming, solvent)`;
+- `catalog()` lists all methods. The pages in `docs/reference/methods` describe them.
 
 The pressure of the solvent models is an input (the saturation line, `P = 0`, is available through `ThermoEngine`).
 

@@ -12,22 +12,16 @@
 # ThermoFun
     $$PWD/Methods/Solutes/SoluteAnderson91.h \
     $$PWD/Methods/Solutes/SoluteHollandPowell98.h \
-    $$PWD/Substances/StandardEntropyCpIntegration.h \
     $$PWD/ThermoFun.h \
     $$PWD/Database.h \
     $$PWD/Element.h \
     $$PWD/Substance.h \
     $$PWD/Reaction.h \
-    $$PWD/ThermoModelsSolvent.h \
-    $$PWD/ElectroModelsSolvent.h \
-    $$PWD/ThermoModelsSubstance.h \
-    $$PWD/ThermoModelsReaction.h \
     $$PWD/ThermoProperties.h \
-    $$PWD/ThermoPropertiesStatus.h \
+    $$PWD/Common/ThermoPropertiesStatus.h \
     $$PWD/ThermoParameters.h \
 #    $$PWD/TPcalculationsAPI.h \
 # Substances
-    $$PWD/Substances/EmpiricalCpIntegration.h \
 # Substances - Solvent
     $$PWD/Methods/Water/Reaktoro/WaterConstants.hpp \
     $$PWD/Methods/Water/Reaktoro/WaterHelmholtzState.hpp \
@@ -141,19 +135,13 @@
 # ThermoFun
     $$PWD/Element.cpp \
     $$PWD/GlobalFunctions.cpp \
-    $$PWD/ThermoPropertiesStatus.cpp \
+    $$PWD/Common/ThermoPropertiesStatus.cpp \
     $$PWD/Substance.cpp \
     $$PWD/Reaction.cpp \
     $$PWD/Methods/Solutes/SoluteAnderson91.cpp \
     $$PWD/Methods/Solutes/SoluteHollandPowell98.cpp \
-    $$PWD/Substances/StandardEntropyCpIntegration.cpp \
-    $$PWD/ThermoModelsSolvent.cpp \
-    $$PWD/ElectroModelsSolvent.cpp \
-    $$PWD/ThermoModelsReaction.cpp \
-    $$PWD/ThermoModelsSubstance.cpp \
 #    $$PWD/TPcalculationsAPI.cpp \
 # Substances
-    $$PWD/Substances/EmpiricalCpIntegration.cpp \
 # Substances - Solvent
     $$PWD/Methods/Water/Reaktoro/WaterHelmholtzStateHGK.cpp \
     $$PWD/Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.cpp \

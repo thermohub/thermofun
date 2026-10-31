@@ -26,7 +26,6 @@
 #include "Methods/MethodCatalog.h"
 #include "Methods/Water/WaterMethods.h"
 #include "Substance.h"
-#include "ThermoModelsSubstance.h"
 #include "check.h"
 
 using namespace ThermoFun::v2;
@@ -321,7 +320,6 @@ void testExecutionOrder()
     CHECK(!canBind(r));
 }
 
-// Each method against the old model, on every bundled record that has it
 void testConflictMessages()
 {
     auto check = [](std::vector<std::string> ids, SubstanceClass cls, bool withVolume) {
@@ -455,63 +453,6 @@ void testHydrogenIon()
     CHECK(!isHydrogenIon(r));
 }
 
-void testAgainstTheOldModels()
-{
-    const char* files[] = {"Resources/databases/aq17-thermofun.json", "Resources/databases/cemdata18-thermofun.json",
-                           "Resources/databases/heracles-thermofun.json", "Resources/databases/mines16-thermofun.json",
-                           "Resources/databases/psinagra-12-07-thermofun.json", "Resources/databases/slop98-thermofun.json",
-                           "pytests/PsiTDB2020-subset-thermofun.json"};
-    size_t cp = 0, constant = 0, failed = 0;
-    auto compare = [&](const ThermoFun::ThermoPropertiesSubstance& old, const MethodResult& now, const std::string& symbol) {
-        auto same = [&](const Reaktoro_::ThermoProperty& a, const PropertyValue& b) {
-            return near(a.val, b.val, 1e-12, 1e-9) && near(a.ddt, b.ddt, 1e-10, 1e-9) && near(a.ddp, b.ddp, 1e-10, 1e-9);
-        };
-        const bool ok = same(old.gibbs_energy, now.G) && same(old.enthalpy, now.H) && same(old.entropy, now.S) && same(old.heat_capacity_cp, now.Cp);
-        if (!ok && failed++ < 5)
-            std::printf("  differs: %s G %.12g %.12g H %.12g %.12g S %.12g %.12g Cp %.12g %.12g\n", symbol.c_str(), old.gibbs_energy.val, now.G.val, old.enthalpy.val, now.H.val, old.entropy.val, now.S.val, old.heat_capacity_cp.val, now.Cp.val);
-    };
-    for (const char* file : files)
-    {
-        std::ifstream in(file);
-        const json j = json::parse(in);
-        for (const auto& rec : j.value("substances", json::array()))
-        {
-            const auto text = rec.dump();
-            const SubstanceRecord s = readLegacySubstance(text);
-            const ThermoFun::Substance old(text);
-            const auto r = referenceOf(s);
-            for (const auto& a : s.methods)
-            {
-                for (double T : {298.15, 450.0, 1000.0})
-                {
-                    if (a.method == "CpPolynomial")
-                    {
-                        try
-                        {
-                            const auto now = evaluate(*cpPolynomialMethod(a, s.symbol), T, 1e5, r);
-                            compare(ThermoFun::EmpiricalCpIntegration(old).thermoProperties(T, 1e5), now, s.symbol);
-                            ++cp;
-                        }
-                        catch (const std::exception&)
-                        {
-                            bool oldRaised = false;
-                            try { ThermoFun::EmpiricalCpIntegration(old).thermoProperties(T, 1e5); } catch (const std::exception&) { oldRaised = true; }
-                            CHECK(oldRaised);  // an error only where the old model has one
-                        }
-                    }
-                    else if (a.method == "ConstantCp")
-                    {
-                        compare(ThermoFun::EntropyCpIntegration(old).thermoProperties(T, 1e5), evaluate(*constantCpMethod(), T, 1e5, r), s.symbol);
-                        ++constant;
-                    }
-                }
-            }
-        }
-    }
-    std::printf("  method objects against the old models: CpPolynomial %zu, ConstantCp %zu points\n", cp, constant);
-    CHECK(cp > 4000 && constant > 100);
-    CHECK(failed == 0);
-}
 
 } // namespace
 
@@ -527,5 +468,4 @@ void runSubstanceMethods()
     testConflictMessages();
     testSolvent();
     testHydrogenIon();
-    testAgainstTheOldModels();
 }

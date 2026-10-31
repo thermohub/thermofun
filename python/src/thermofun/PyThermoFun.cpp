@@ -57,7 +57,6 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportReaction(m);
     exportElement(m);
     // Models, units and parsing
-    exportModels(m);
     exportUtilities(m);
 
     m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of available substance methods.");

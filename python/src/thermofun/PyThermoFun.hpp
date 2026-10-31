@@ -56,6 +56,5 @@ namespace ThermoFun {
     void exportElement(py::module& m);
     // Enumerations, models, units and parsing
     void exportGlobalVariables(py::module& m);
-    void exportModels(py::module& m);
     void exportUtilities(py::module& m);
 } // namespace ThermoFun

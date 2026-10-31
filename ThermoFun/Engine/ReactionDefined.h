@@ -16,6 +16,13 @@ namespace ThermoFun::v2 {
 /// coefficient. coefficient: of the substance in the reaction.
 auto substanceFromReaction(double T, double P, const ThermoPropertiesReaction& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& others, double coefficient) -> ThermoPropertiesSubstance;
 
+/// The properties of a reaction from those of its reactants, each with its coefficient. reaction and symbols: for the messages.
+auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols) -> ThermoPropertiesReaction;
+
+/// The properties tps with the pressure term of a constant volume: V dP on G and H. reference: the reference properties, Pr in Pa. Without a reference
+/// volume nothing changes.
+auto constantVolumeCorrection(double T, double P, const ThermoPropertiesSubstance& tps, const ThermoPropertiesSubstance& reference, double Pr) -> ThermoPropertiesSubstance;
+
 /// The molar volume of an ideal gas, J/bar, with its derivatives.
 auto setIdealGasVolume(ThermoPropertiesSubstance& tps, double T, double P) -> void;
 

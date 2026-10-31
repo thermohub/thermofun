@@ -38,18 +38,6 @@ def method_of(case, record):
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c[2])
-@pytest.mark.parametrize("T,P", [(400.0, 1e6), (800.0, 1e8), (1200.0, 5e8)])
-def test_a_fluid_alone_gives_the_result_of_the_old_class(case, T, P):
-    substance, record = load(case[0], case[1])
-    # with the lower T of the old class: the reference T, as neither has a heat capacity here
-    old = getattr(tf, case[3])(substance).thermoProperties(T, P, tf.ThermoPropertiesSubstance(), False)
-    new = method_of(case, record).evaluate(T, P, reference_of(record))
-    assert new.H.val == pytest.approx(old.enthalpy.val, rel=1e-3, abs=1e-3)
-    assert new.S.val == pytest.approx(old.entropy.val, rel=1e-3, abs=1e-3)
-    assert new.V.val * 1e5 == pytest.approx(old.volume.val, rel=1e-3)
-
-
-@pytest.mark.parametrize("case", CASES, ids=lambda c: c[2])
 def test_the_volume_follows_the_ideal_gas_at_low_pressure(case):
     _, record = load(case[0], case[1])
     T, P = 1500.0, 1e5

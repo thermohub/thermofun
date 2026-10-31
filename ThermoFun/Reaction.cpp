@@ -14,7 +14,7 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Common/Exception.h"
-#include "ThermoPropertiesStatus.h"
+#include "Common/ThermoPropertiesStatus.h"
 #include "IO/Equation.h"
 #include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"

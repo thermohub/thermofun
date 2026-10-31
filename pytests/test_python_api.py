@@ -121,94 +121,6 @@ def test_check_calc_method_bounds(database):
 
 # --- models ------------------------------------------------------------------------------------------------------
 
-def test_substance_models_agree_with_the_engine(database, engine):
-    cal = database.getSubstance("Cal")
-    T, P = 450.0, 1e5
-    ref = engine.thermoPropertiesSubstance(T, P, "Cal")
-    cp = tf.EmpiricalCpIntegration(cal).thermoProperties(T, P)
-    assert cp.gibbs_energy.val == pytest.approx(ref.gibbs_energy.val, rel=1e-12)
-    assert cp.gibbs_energy.ddt == pytest.approx(ref.gibbs_energy.ddt, rel=1e-12)
-    assert cp.heat_capacity_cp.val == pytest.approx(ref.heat_capacity_cp.val, rel=1e-12)
-    # the volume model corrects the properties for the pressure
-    out = tf.ConMolVol(cal).thermoProperties(T, 5e7, cp)
-    v = cal.thermoReferenceProperties().volume.val
-    assert out.gibbs_energy.val == pytest.approx(cp.gibbs_energy.val + v * (5e7 - 1e5) / 1e5, rel=1e-10)
-    # all the models are constructed from a Substance or a Reaction
-    for name in ("ThermoModelsSubstance", "WaterIdealGasWoolley", "EntropyCpIntegration", "HPLandau", "MinBerman88",
-                 "MinBMGottschalk", "MinMurnaghanEOSHP98", "GasCORK", "GasPRSV", "GasCGF", "GasSRK", "GasPR78", "GasSTP",
-                 "IdealGasLawVol", "SoluteHKFgems", "SoluteHKFreaktoro", "SoluteHollandPowell98", "SoluteAnderson91",
-                 "SoluteAkinfievDiamondEOS", "WaterHGK", "WaterHGKreaktoro", "WaterWP95reaktoro", "WaterZhangDuan2005",
-                 "WaterJNreaktoro", "WaterJNgems", "WaterElectroSverjensky2014", "WaterElectroFernandez1997"):
-        assert hasattr(tf, name), name
-        getattr(tf, name)(cal)
-    for name in ("ReactionDolejsManning10", "ReactionFrantzMarshall", "ReactionRyzhenkoBryzgalin", "Reaction_LogK_fT",
-                 "Reaction_Vol_fT", "ReactionFromReactantsProperties"):
-        getattr(tf, name)(database.getReactions()[0])
-
-
-@needs_autodiff
-
-
-def test_solvent_models(database):
-    water = database.getSubstance("H2O@")
-    for model in (tf.WaterHGKreaktoro(water), tf.WaterWP95reaktoro(water), tf.WaterHGK(water)):
-        ps = model.propertiesSolvent(298.15, 1e5, 0)
-        assert ps.density.val == pytest.approx(997.0, abs=1.5)
-        assert ps.density.ddt < 0
-    eps = tf.WaterJNgems(water).electroPropertiesSolvent(298.15, 1e5, 0)
-    assert eps.epsilon.val == pytest.approx(78.4, abs=0.5)
-    ps = tf.WaterHGKreaktoro(water).propertiesSolvent(298.15, 1e5, 0)
-    eps2 = tf.WaterJNreaktoro(water).electroPropertiesSolvent(298.15, 1e5, ps, 0)
-    assert eps2.epsilon.val == pytest.approx(78.4, abs=0.5)
-    assert tf.WaterHGKreaktoro(water).thermoPropertiesSubstance(298.15, 1e5, 0, "NEA_HGK").gibbs_energy.val < 0
-
-
-@needs_autodiff
-
-
-def test_reaction_models():
-    reaction = tf.Reaction()
-    reaction.setReferenceT(298.15)
-    reaction.setReferenceP(1e5)
-    ref = tf.ThermoPropertiesReaction()
-    ref.reaction_volume.val = 3.0
-    reaction.setThermoReferenceProperties(ref)
-    parameters = tf.ThermoParametersReaction()
-    parameters.reaction_V_fT_coeff = [1e-4, 2e-7, 1e-10, -4e-5, 1e-9]
-    reaction.setThermoParameters(parameters)
-    model = tf.Reaction_Vol_fT(reaction)
-    tpr = tf.ThermoPropertiesReaction()
-    tpr.reaction_gibbs_energy.val = -5e4
-    at_reference = model.thermoProperties(298.15, 1e5, tpr)
-    assert at_reference.reaction_gibbs_energy.val == pytest.approx(-5e4)
-    assert at_reference.reaction_volume.val == pytest.approx(3.0)
-    high = model.thermoProperties(450.0, 5e7, tpr)
-    assert high.reaction_gibbs_energy.ddp * 1e5 == pytest.approx(high.reaction_volume.val, rel=1e-9)
-
-
-@needs_autodiff
-
-
-def test_hollandpowell98_solute_relations(engine):
-    solute = tf.Substance()
-    solute.setSymbol("X")
-    solute.setReferenceT(298.15)
-    solute.setReferenceP(1e5)
-    ref = tf.ThermoPropertiesSubstance()
-    ref.gibbs_energy.val, ref.enthalpy.val, ref.entropy.val = -1e5, -1.2e5, 50.0
-    ref.volume.val, ref.heat_capacity_cp.val = 2.0, 150.0
-    solute.setThermoReferenceProperties(ref)
-    parameters = tf.ThermoParametersSubstance()
-    parameters.solute_holland_powell98_coeff = [0.2]
-    solute.setThermoParameters(parameters)
-    model = tf.SoluteHollandPowell98(solute)
-    wpr = engine.propertiesSolvent(298.15, 1e5, "H2O@")
-    wp = engine.propertiesSolvent(450.0, 2e7, "H2O@")
-    x = model.thermoProperties(450.0, 2e7, wpr, wp)
-    assert x.gibbs_energy.ddt == pytest.approx(-x.entropy.val, rel=1e-6)
-    assert x.gibbs_energy.ddp * 1e5 == pytest.approx(x.volume.val, rel=1e-6)
-
-
 def test_internal_helmholtz_energy_and_cv_are_completed_from_the_other_properties(database, engine):
     """U = H - P V, A = U - T S and Cv = Cp - T V alpha^2/beta for every substance with a molar volume."""
     checked = 0
@@ -268,32 +180,6 @@ def test_thermoscalar_arithmetic_and_variables():
 # --- exact derivatives of the Zhang-Duan water and of the dielectric models ---------------------------------------
 
 @needs_autodiff
-
-def test_zhang_duan_and_dielectric_models_have_exact_derivatives(database):
-    water = database.getSubstance("H2O@")
-    zd = tf.WaterZhangDuan2005(water)
-    for T, P in ((400.0, 3e8), (700.0, 6e8)):
-        x = zd.propertiesSolvent(T, P, 0)
-        # first and second derivatives are the derivatives of the density; the mixed derivatives are symmetric (to rounding)
-        assert x.density.ddt == pytest.approx(x.densityT.val, rel=1e-12)
-        assert x.density.ddp == pytest.approx(x.densityP.val, rel=1e-12)
-        assert x.densityT.ddt == pytest.approx(x.densityTT.val, rel=1e-12)
-        assert x.densityP.ddp == pytest.approx(x.densityPP.val, rel=1e-12)
-        assert x.densityT.ddp == pytest.approx(x.densityP.ddt, rel=1e-12)
-        assert x.densityTP.val == pytest.approx(x.densityT.ddp, rel=1e-12)
-        h = 1e-3 * T
-        fd = (zd.propertiesSolvent(T + h, P, 0).densityTT.val - zd.propertiesSolvent(T - h, P, 0).densityTT.val) / (2 * h)
-        assert x.densityTT.ddt == pytest.approx(fd, rel=1e-3)
-
-    for model in (tf.WaterElectroSverjensky2014(water), tf.WaterElectroFernandez1997(water)):
-        x = model.electroPropertiesSolvent(500.0, 1e8, 0)
-        assert x.epsilon.ddt == pytest.approx(x.epsilonT.val, rel=1e-12)
-        assert x.epsilonT.ddt == pytest.approx(x.epsilonTT.val, rel=1e-12)
-        assert x.epsilon.ddp * 1e5 == pytest.approx(x.epsilonP.val, rel=1e-12)     # per bar and per Pa
-        assert x.epsilonT.ddp * 1e5 == pytest.approx(x.epsilonP.ddt, rel=1e-12)    # symmetric mixed derivatives
-        assert x.bornY.val == pytest.approx(x.epsilonT.val / x.epsilon.val ** 2, rel=1e-12)
-
-
 @pytest.mark.skipif(getattr(tf, "with_autodiff", True), reason="only for the build without autodiff (-DTFUN_USE_AUTODIFF=OFF)")
 def test_built_without_autodiff_all_the_derivatives_are_zero(engine):
     """The models calculate with plain numbers: the values are those of the autodiff build, the derivatives are 0 and
@@ -304,3 +190,19 @@ def test_built_without_autodiff_all_the_derivatives_are_zero(engine):
             x = getattr(tps, p)
             assert x.sta[0] != tf.Status.notdefined and x.ddt == 0.0 and x.ddp == 0.0, (symbol, p)
     assert engine.thermoPropertiesSubstance(373.15, 1e7, "Quartz").heat_capacity_cv.sta[0] == tf.Status.notdefined
+
+
+def test_the_water_methods_alone():
+    for implementation, method in (("reaktoro", "WaterHGK84"), ("gems", "WaterHGK84"), ("", "WaterIAPWS95")):
+        ps = tf.methods.solventMethod(method, implementation=implementation).properties(298.15, 1e5, 0)
+        assert ps.density.val == pytest.approx(997.0, abs=1.5)
+        assert ps.density.ddt < 0
+    eps = tf.methods.dielectricMethod("JohnsonNorton91", implementation="gems").properties(298.15, 1e5, tf.PropertiesSolvent(), 0)
+    assert eps.epsilon.val == pytest.approx(78.4, abs=0.5)
+    ps = tf.methods.solventMethod("WaterHGK84").properties(298.15, 1e5, 0)
+    assert tf.methods.dielectricMethod("JohnsonNorton91").properties(298.15, 1e5, ps, 0).epsilon.val == pytest.approx(78.4, abs=0.5)
+
+
+def test_the_old_model_classes_are_gone():
+    for name in ("ThermoModelsSubstance", "ConMolVol", "GasPRSV", "WaterHGK", "SoluteHKFgems", "ReactionFromReactantsProperties"):
+        assert not hasattr(tf, name), name

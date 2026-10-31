@@ -125,24 +125,21 @@ DENSITY_REFERENCE = dict(T=298.15, P=1e5, G=-157220.0, H=-230020.0, S=-10.71, Cp
 
 
 @pytest.mark.parametrize("T,P", [(298.15, 1e5), (373.15, 1e7), (573.15, 5e7)])
-@pytest.mark.parametrize("old_class,method_id,parameters", [
-    ("SoluteHollandPowell98", "SoluteHP98", {"b": 1.0}),   # J/(mol K2): 1e-3 kJ/(mol K2) in the old class
-    ("SoluteAnderson91", "AndersonEtAl91", {}),
+@pytest.mark.parametrize("method_id,parameters", [
+    ("SoluteHP98", {"b": 1.0}),   # J/(mol K2)
+    ("AndersonEtAl91", {}),
 ])
-def test_the_density_models_alone_give_the_result_of_the_old_classes(old_class, method_id, parameters, T, P):
+def test_the_density_models_alone_keep_the_relations_of_thermodynamics(method_id, parameters, T, P):
     engine = tf.ThermoEngine(str(AQ17))
     wp, wpr = engine.propertiesSolvent(T, P, "H2O@"), engine.propertiesSolvent(298.15, 1e5, "H2O@")
-    old = getattr(tf, old_class)(density_substance()).thermoProperties(T, P, wpr, wp)
     solvent = tf.methods.SolventInputs()
     solvent.properties = wp
     solvent.properties_at_reference = wpr
     now = tf.methods.substanceMethod(method_id, parameters=parameters, symbol="OH-").evaluate(T, P, tf.methods.Reference(**DENSITY_REFERENCE), solvent)
-    assert now.G.val == pytest.approx(old.gibbs_energy.val, rel=1e-12)
-    assert now.H.val == pytest.approx(old.enthalpy.val, rel=1e-12)
-    assert now.S.val == pytest.approx(old.entropy.val, rel=1e-11)
-    assert now.Cp.val == pytest.approx(old.heat_capacity_cp.val, rel=1e-11)
-    assert now.V.val * 1e5 == pytest.approx(old.volume.val, rel=1e-12)
-    assert math.isfinite(now.G.ddt)
+    # G is apparent, so H - G - T S is a constant; the derivatives have no such term
+    assert now.G.ddt == pytest.approx(-now.S.val, rel=1e-6)
+    if method_id == "SoluteHP98":   # the code of Anderson et al. has no volume term: V stays the reference value
+        assert now.G.ddp == pytest.approx(now.V.val, rel=1e-6)
 
 
 def test_the_hydrogen_ion_is_zero_whatever_its_symbol():
