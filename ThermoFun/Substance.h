@@ -186,6 +186,12 @@ public:
     /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
     auto record() const -> std::shared_ptr<const v2::SubstanceRecord>;
 
+    /// True if an old setter gave a method code that no method of the record holds, for example CPM_NUL.
+    auto hasCodeWithoutMethod() const -> bool;
+
+    /// An object that keeps what the setters give in the old fields. Only for the old parser, until step R3.3.
+    static auto withoutRecord() -> Substance;
+
     /**
      * @brief jonString
      * @return record in json string

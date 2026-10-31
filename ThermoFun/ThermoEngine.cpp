@@ -221,7 +221,7 @@ struct ThermoEngine::Impl
     auto boundMethods(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>
     {
         const auto record = substance.record();
-        if (!record)
+        if (!record || substance.hasCodeWithoutMethod())
             return nullptr;
         std::lock_guard<std::mutex> lock(bound_cache->mutex);
         const auto it = bound_cache->substances.find(record.get());
@@ -265,7 +265,7 @@ struct ThermoEngine::Impl
     auto boundReaction(const Reaction& reaction) const -> std::shared_ptr<const v2::BoundReaction>
     {
         const auto record = reaction.record();
-        if (!record)
+        if (!record || reaction.hasCodeWithoutMethod())
             return nullptr;
         std::lock_guard<std::mutex> lock(bound_cache->mutex);
         const auto it = bound_cache->reactions.find(record.get());
@@ -281,7 +281,7 @@ struct ThermoEngine::Impl
     auto boundSolvent(const Substance& substance) const -> std::shared_ptr<const v2::BoundSolvent>
     {
         const auto record = substance.record();
-        if (!record)
+        if (!record || substance.hasCodeWithoutMethod())
             return nullptr;
         std::lock_guard<std::mutex> lock(bound_cache->mutex);
         const auto it = bound_cache->solvents.find(record.get());

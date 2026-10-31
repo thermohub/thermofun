@@ -571,7 +571,7 @@ auto getReactants(const json &r) -> std::map<std::string, double>
 
 auto parseElement(const std::string &data) -> Element
 {
-    Element e;
+    Element e = Element::withoutRecord();
     std::string kbuf;
     std::string name;
 
@@ -628,7 +628,7 @@ auto parseElement(const std::string &data) -> Element
 
 auto parseSubstance(const std::string &data) -> Substance
 {
-    Substance s;
+    Substance s = Substance::withoutRecord();
     std::vector<std::string> vkbuf;
     std::string kbuf;
 
@@ -718,7 +718,7 @@ auto parseSubstance(const std::string &data) -> Substance
 
 auto parseReaction(const std::string &data) -> Reaction
 {
-    Reaction r;
+    Reaction r = Reaction::withoutRecord();
     std::string kbuf;
     std::vector<std::string> vkbuf;
 

@@ -22,8 +22,58 @@ namespace ThermoFun {
 
 struct Reaction::Impl
 {
-    /// The record read from the JSON text; empty after an old setter
+    /// Changes a copy of the record: a reference to the old record stays valid.
+    template <class Change>
+    void edit(Change change)
+    {
+        if (!record)
+            return;
+        auto copy = std::make_shared<v2::ReactionRecord>(*record);
+        change(*copy);
+        copy->original_text.clear();
+        record = copy;
+    }
+
+    auto parameters() const -> ThermoParametersReaction
+    {
+        auto out = compat::thermoParameters(*record);
+        compat::addWaiting(out, thermo_parameters);
+        return out;
+    }
+
+    auto codes() const -> compat::MethodCodes
+    {
+        auto out = compat::methodCodes(*record);
+        if (codes_without_method.general)
+            out.general = codes_without_method.general;
+        if (codes_without_method.temperature)
+            out.temperature = codes_without_method.temperature;
+        if (codes_without_method.pressure)
+            out.pressure = codes_without_method.pressure;
+        return out;
+    }
+
+    /// Replaces the methods. A code that the record cannot hold is kept beside it.
+    void setMethods(const compat::MethodCodes& wanted, const ThermoParametersReaction& parameters)
+    {
+        edit([&](v2::ReactionRecord& r) {
+            compat::setMethods(r, wanted, parameters);
+            const auto held = compat::methodCodes(r);
+            codes_without_method = {};
+            if (wanted.general != held.general)
+                codes_without_method.general = wanted.general;
+            if (wanted.temperature != held.temperature)
+                codes_without_method.temperature = wanted.temperature;
+            if (wanted.pressure != held.pressure)
+                codes_without_method.pressure = wanted.pressure;
+        });
+    }
+
+    /// The record. Empty only for the old parser (withoutRecord).
     std::shared_ptr<const v2::ReactionRecord> record;
+
+    /// The old codes that the record cannot hold: they give no method (for example CPM_NUL)
+    compat::MethodCodes codes_without_method;
 
     /// The name of the chemical Reaction
     std::string name;
@@ -157,7 +207,16 @@ struct Reaction::Impl
 
 Reaction::Reaction()
 : pimpl(new Impl())
-{}
+{
+    pimpl->record = std::make_shared<const v2::ReactionRecord>();
+}
+
+auto Reaction::withoutRecord() -> Reaction
+{
+    Reaction r;
+    r.pimpl->record.reset();
+    return r;
+}
 
 Reaction::Reaction(std::string jsonReaction)
 : pimpl(new Impl())
@@ -165,6 +224,7 @@ Reaction::Reaction(std::string jsonReaction)
     Reaction other = parseReaction(jsonReaction);
     pimpl = std::move(other.pimpl);
     setJsonString(jsonReaction);
+    pimpl->thermo_parameters = {};   // the record holds what a method reads
     pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readLegacyReaction(jsonReaction));
 }
 
@@ -183,97 +243,112 @@ auto Reaction::operator=(Reaction other) -> Reaction&
 
 auto Reaction::setName(std::string name) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.name = name; });
     pimpl->name = name;
 }
 
 auto Reaction::setSymbol(std::string symbol) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.symbol = symbol; });
     pimpl->symbol = symbol;
 }
 
 auto Reaction::setReactants(std::map<std::string, double> reactants) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.stoichiometry.assign(reactants.begin(), reactants.end()); });
     pimpl->reactants = reactants;
 }
 
 auto Reaction::setReferenceT(double T) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.reference_conditions.T = T; });
     pimpl->reference_T = T;
 }
 
 auto Reaction::setReferenceP(double P) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.reference_conditions.P = P; });
     pimpl->reference_P = P;
 }
 
 auto Reaction::setLowerT(double T) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.t_min = T; });
     pimpl->lower_T = T;
 }
 
 auto Reaction::setLowerP(double P) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.p_min = P; });
     pimpl->lower_P = P;
 }
 
 auto Reaction::setUpperT(double T) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.t_max = T; });
     pimpl->upper_T = T;
 }
 
 auto Reaction::setUpperP(double P) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.p_max = P; });
     pimpl->upper_P = P;
 }
 
 auto Reaction::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        auto codes = pimpl->codes();
+        codes.general = method_genEoS;
+        pimpl->setMethods(codes, pimpl->parameters());
+    }
     pimpl->method_genEoS = method_genEoS;
 }
 
 auto Reaction::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        auto codes = pimpl->codes();
+        codes.temperature = method_T;
+        pimpl->setMethods(codes, pimpl->parameters());
+    }
     pimpl->method_T = method_T;
 }
 
 auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        auto codes = pimpl->codes();
+        codes.pressure = method_P;
+        pimpl->setMethods(codes, pimpl->parameters());
+    }
     pimpl->method_P = method_P;
 }
 
 auto Reaction::setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { compat::setThermoReferenceProperties(r, refprop); });
     pimpl->thermo_ref_prop = refprop;
 }
 
 auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+        pimpl->setMethods(pimpl->codes(), param);
     pimpl->thermo_parameters = param;
 }
 
 auto Reaction::setEquation(std::string equation) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ReactionRecord& r) { r.equation = equation; });
     pimpl->equation = equation;
 }
 
 auto Reaction::setJsonString(const std::string &jString) ->void
 {
-    pimpl->record.reset();
     pimpl->jString = jString;
 }
 
@@ -315,7 +390,7 @@ auto Reaction::thermoReferenceProperties() const -> ThermoPropertiesReaction
 auto Reaction::thermoParameters() const -> ThermoParametersReaction
 {
     if (pimpl->record)
-        return compat::thermoParameters(*pimpl->record);
+        return pimpl->parameters();
     return pimpl->thermo_parameters;
 }
 
@@ -356,21 +431,21 @@ auto Reaction::upperP() const -> double
 auto Reaction::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
     if (pimpl->record)
-        return compat::methodCodes(*pimpl->record).general;
+        return pimpl->codes().general;
     return pimpl->method_genEoS;
 }
 
 auto Reaction::method_T() const -> MethodCorrT_Thrift::type
 {
     if (pimpl->record)
-        return compat::methodCodes(*pimpl->record).temperature;
+        return pimpl->codes().temperature;
     return pimpl->method_T;
 }
 
 auto Reaction::method_P() const -> MethodCorrP_Thrift::type
 {
     if (pimpl->record)
-        return compat::methodCodes(*pimpl->record).pressure;
+        return pimpl->codes().pressure;
     return pimpl->method_P;
 }
 
@@ -379,6 +454,12 @@ auto Reaction::equation() const -> std::string
     if (pimpl->record)
         return pimpl->record->equation;
     return pimpl->equation;
+}
+
+auto Reaction::hasCodeWithoutMethod() const -> bool
+{
+    const auto& c = pimpl->codes_without_method;
+    return c.general || c.temperature || c.pressure;
 }
 
 auto Reaction::record() const -> std::shared_ptr<const v2::ReactionRecord>
@@ -394,6 +475,11 @@ auto Reaction::jsonString() const -> std::string
 auto Reaction::fromEquation(const std::string &reactionEquation) -> void
 {
     pimpl->fromEquation(reactionEquation);
+    pimpl->edit([&](v2::ReactionRecord& r) {
+        r.symbol = pimpl->symbol;
+        r.equation = pimpl->equation;
+        r.stoichiometry.assign(pimpl->reactants.begin(), pimpl->reactants.end());
+    });
 }
 
 auto Reaction::checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void

@@ -6,13 +6,26 @@
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/ParseJsonToData.h"
 #include "IO/Legacy/LegacyReader.h"
+#include "IO/Legacy/LegacyVocabulary.h"
 
 namespace ThermoFun {
 
 struct Element::Impl
 {
-    /// The record read from the JSON text; empty after an old setter
+    /// The record. Empty only for the old parser (withoutRecord).
     std::shared_ptr<const v2::ElementRecord> record;
+
+    /// Changes a copy of the record: a reference to the old record stays valid.
+    template <class Change>
+    void edit(Change change)
+    {
+        if (!record)
+            return;
+        auto copy = std::make_shared<v2::ElementRecord>(*record);
+        change(*copy);
+        copy->original_text.clear();
+        record = copy;
+    }
 
     /// The name of the chemical element
     std::string name;
@@ -50,7 +63,16 @@ struct Element::Impl
 
 Element::Element()
 : pimpl(new Impl())
-{}
+{
+    pimpl->record = std::make_shared<const v2::ElementRecord>();
+}
+
+auto Element::withoutRecord() -> Element
+{
+    Element e;
+    e.pimpl->record.reset();
+    return e;
+}
 
 Element::Element(std::string jsonElement)
 : pimpl(new Impl())
@@ -92,67 +114,86 @@ auto Element::operator=(Element other) -> Element&
 
 auto Element::setName(std::string name) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) { r.name = name; });
     pimpl->name = name;
 }
 
 auto Element::setSymbol(std::string symbol) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) { r.symbol = symbol; });
     pimpl->symbol = symbol;
 }
 
 auto Element::setMolarMass(double value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) {
+        auto q = r.molar_mass.value_or(v2::Quantity{});
+        q.value = value * 1e-3;
+        q.value_as_written.clear();
+        r.molar_mass = q;
+    });
     pimpl->molarMass = value;
 }
 
 auto Element::setEntropy(double value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) {
+        auto q = r.standard_entropy.value_or(v2::Quantity{});
+        q.value = value;
+        q.value_as_written.clear();
+        r.standard_entropy = q;
+    });
     pimpl->entropy = value;
 }
 
 auto Element::setHeatCapacity(double value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) {
+        auto q = r.heat_capacity.value_or(v2::Quantity{});
+        q.value = value;
+        q.value_as_written.clear();
+        r.heat_capacity = q;
+    });
     pimpl->heatCapacity = value;
 }
 
 auto Element::setVolume(double value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) {
+        auto q = r.volume.value_or(v2::Quantity{});
+        q.value = value * 1e-6;
+        q.value_as_written.clear();
+        r.volume = q;
+    });
     pimpl->volume = value;
 }
 
 auto Element::setValence(int value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) { r.valence = value; });
     pimpl->valence = value;
 }
 
 auto Element::setClass(int value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) { r.class_ = elementClassFromLegacy(value); });
     pimpl->class_ = value;
 }
 
 auto Element::setIsotopeMass(int value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) { r.isotope_mass = value; });
     pimpl->isotopeMass = value;
 }
 
 auto Element::setNumber(int value) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::ElementRecord& r) { r.number = value; });
     pimpl->number = value;
 }
 
 auto Element::setJsonString(const std::string &jString) ->void
 {
-    pimpl->record.reset();
     pimpl->jString = jString;
 }
 

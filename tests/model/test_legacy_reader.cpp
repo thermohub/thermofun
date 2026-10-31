@@ -496,24 +496,27 @@ void testRecordLink()
     for (const auto& e : db.getElements())
         CHECK(e.record() != nullptr);
 
-    // a copy shares the record; a setter clears it only in the object that changes
+    // a copy shares the record; a setter makes a new record only in the object that changes
     ThermoFun::Substance a = db.getSubstance("Cal");
     ThermoFun::Substance b = a;
     CHECK(a.record() != nullptr && a.record() == b.record());
+    const auto before = a.record();
     b.setName("changed");
-    CHECK(b.record() == nullptr);
-    CHECK(a.record() != nullptr);
-    CHECK(db.getSubstance("Cal").record() != nullptr);
+    CHECK(b.record() != nullptr && b.record() != before && b.record()->name == "changed");
+    CHECK(a.record() == before && before->name != "changed");
+    CHECK(db.getSubstance("Cal").record()->name != "changed");
+    CHECK(!before->original_text.empty() && b.record()->original_text.empty());
 
     ThermoFun::Reaction r = db.getReactions().front();
     r.setSymbol("changed");
-    CHECK(r.record() == nullptr);
+    CHECK(r.record() != nullptr && r.record()->symbol == "changed");
     ThermoFun::Element e = db.getElements().front();
     e.setValence(1);
-    CHECK(e.record() == nullptr);
+    CHECK(e.record() != nullptr && e.record()->valence == 1);
 
-    // an object made by the setters has no record
-    CHECK(ThermoFun::Substance().record() == nullptr);
+    // an object made by the setters has a record from the start; only the old parser keeps the old fields
+    CHECK(ThermoFun::Substance().record() != nullptr);
+    CHECK(ThermoFun::Substance::withoutRecord().record() == nullptr);
 }
 
 // The migration report of a database: how many diagnostics of each code

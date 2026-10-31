@@ -4,7 +4,9 @@
 #ifndef THERMOFUN_IO_LEGACY_LEGACYREADER_H
 #define THERMOFUN_IO_LEGACY_LEGACYREADER_H
 
+#include <map>
 #include <string>
+#include <vector>
 
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/Model/Records.h>
@@ -30,6 +32,29 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
     -> SubstanceRecord;
 auto readLegacyReaction(const std::string& text, const LegacyReadOptions& options = {}, Diagnostics* diagnostics = nullptr)
     -> ReactionRecord;
+
+/// What one entry of TPMethods says, in the units of the legacy arrays.
+struct LegacyMethodEntry
+{
+    int id = 0;
+    std::string name;
+    std::map<std::string, std::vector<double>> arrays;   ///< by the key of the array
+    std::map<std::string, std::vector<double>> errors;   ///< by the key of the array
+    std::vector<double> temperature_limits;              ///< lower and upper, or empty
+    std::vector<double> phase_transition;                ///< a row of m_phase_trans_props, or empty
+
+    bool has_table = false;
+    std::vector<double> table_temperatures, table_pressures;
+    std::map<std::string, std::vector<double>> table_values;   ///< by the legacy key of the property
+    double table_reference_pressure = 0.0;
+};
+
+/// Replaces the methods of a record, and what depends on them, with those of legacy entries and of the values of
+/// m_expansivity and m_compressibility (0: none). The rules of the reader apply: the class and the aggregate state of
+/// the record count.
+void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, double expansivity, double compressibility, SubstanceRecord& record,
+                       Diagnostics* diagnostics = nullptr);
+void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, ReactionRecord& record, Diagnostics* diagnostics = nullptr);
 
 /// The data about the dataset in the top-level keys of a legacy document.
 auto readLegacyDocumentInfo(const std::string& text) -> ThermoDataSetInfo;

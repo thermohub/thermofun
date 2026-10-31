@@ -654,6 +654,29 @@ void readHp98Values(const json& j, SubstanceRecord& s, const Context& c)
         s.structural["kappa0"] = *kappa;
 }
 
+// The methods of a record, and what depends on them
+void readSubstanceMethods(const json& j, SubstanceRecord& s, const Context& c)
+{
+    MethodFlags flags;
+    s.methods = readMethods(j, OperatesOn::Substance, c, flags);
+    applyWaterVapourRule(s, flags);
+    readHp98Values(j, s, c);
+
+    // from a reaction: a defining reaction and no methods, no method at all, or only a constant volume
+    const bool onlyConstantVolume = s.methods.size() == 1 && s.methods[0].method == "ConstantVolume";
+    if (s.methods.empty() || onlyConstantVolume)
+        s.preferred_property_source = PropertySource::Reaction;
+}
+
+void readReactionMethods(const json& j, ReactionRecord& r, const Context& c)
+{
+    MethodFlags flags;
+    r.methods = readMethods(j, OperatesOn::Reaction, c, flags);
+    mergeLogKMethods(r.methods);
+    if (r.methods.empty())
+        r.preferred_property_source = PropertySource::Reactants;
+}
+
 // the keys that the reader handles, per kind of record
 const std::set<std::string>& knownSubstanceKeys()
 {
@@ -763,15 +786,7 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
         if (auto q = readQuantity(j, slot.key, slot.unit, slot.si, c))
             s.standard_state_properties[slot.property] = *q;
 
-    MethodFlags flags;
-    s.methods = readMethods(j, OperatesOn::Substance, c, flags);
-    applyWaterVapourRule(s, flags);
-    readHp98Values(j, s, c);
-
-    // from a reaction: a defining reaction and no methods, no method at all, or only a constant volume
-    const bool onlyConstantVolume = s.methods.size() == 1 && s.methods[0].method == "ConstantVolume";
-    if (s.methods.empty() || onlyConstantVolume)
-        s.preferred_property_source = PropertySource::Reaction;
+    readSubstanceMethods(j, s, c);
 
     s.data_sources = readSources(j);
     reportUnknownKeys(j, knownSubstanceKeys(), c);
@@ -818,11 +833,7 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
         if (auto q = readQuantity(j, slot.key, slot.unit, slot.si, c))
             r.reaction_properties[slot.property] = *q;
 
-    MethodFlags flags;
-    r.methods = readMethods(j, OperatesOn::Reaction, c, flags);
-    mergeLogKMethods(r.methods);
-    if (r.methods.empty())
-        r.preferred_property_source = PropertySource::Reactants;
+    readReactionMethods(j, r, c);
     r.data_sources = readSources(j);
     reportUnknownKeys(j, knownReactionKeys(), c);
     return r;
@@ -857,6 +868,64 @@ auto readLegacyElement(const std::string& text, const LegacyReadOptions& options
 
     reportUnknownKeys(j, knownElementKeys(), c);
     return e;
+}
+
+// The text of a list of entries, as a file has it
+auto tpMethodsOf(const std::vector<LegacyMethodEntry>& entries) -> json
+{
+    json out = json::array();
+    for (const auto& e : entries)
+    {
+        json entry;
+        entry[legacy::Method] = {{std::to_string(e.id), e.name}};
+        for (const auto& [key, values] : e.arrays)
+        {
+            entry[key] = {{"values", values}};
+            if (const auto it = e.errors.find(key); it != e.errors.end() && !it->second.empty())
+                entry[key]["errors"] = it->second;
+        }
+        if (e.temperature_limits.size() == 2)
+            entry[legacy::LimitsTP] = {{"lowerT", e.temperature_limits[0]}, {"upperT", e.temperature_limits[1]}};
+        if (!e.phase_transition.empty())
+            entry[legacy::MPhaseTransProps] = {{"values", e.phase_transition}};
+        if (e.has_table)
+        {
+            json table = {{"temperatures", e.table_temperatures}, {"pressures", e.table_pressures}};
+            for (const auto& [key, values] : e.table_values)
+                table[key] = values;
+            if (e.table_reference_pressure != 0.0)
+                table["reference_pressure"] = e.table_reference_pressure;
+            entry[legacy::TpTable] = table;
+        }
+        out.push_back(entry);
+    }
+    return out;
+}
+
+void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, double expansivity, double compressibility, SubstanceRecord& record, Diagnostics* diagnostics)
+{
+    json j;
+    j[legacy::TPMethods] = tpMethodsOf(entries);
+    if (expansivity != 0.0)
+        j[legacy::MExpansivity] = {{"values", {expansivity}}};
+    if (compressibility != 0.0)
+        j[legacy::MCompressibility] = {{"values", {compressibility}}};
+    const LegacyReadOptions options;
+    Context c{options, diagnostics, record.symbol};
+    record.structural.erase("alpha0");
+    record.structural.erase("kappa0");
+    record.preferred_property_source.reset();
+    readSubstanceMethods(j, record, c);
+}
+
+void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, ReactionRecord& record, Diagnostics* diagnostics)
+{
+    json j;
+    j[legacy::TPMethods] = tpMethodsOf(entries);
+    const LegacyReadOptions options;
+    Context c{options, diagnostics, record.symbol};
+    record.preferred_property_source.reset();
+    readReactionMethods(j, record, c);
 }
 
 auto readLegacyDocumentInfo(const std::string& text) -> ThermoDataSetInfo

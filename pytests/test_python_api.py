@@ -32,13 +32,13 @@ def test_enumerations_of_the_setters_and_getters():
     s.setAggregateState(tf.AggregateState.CRYSTAL)
     s.setThermoCalculationType(tf.SubstanceThermoCalculationType.REACDC)
     s.setMethodGenEoS(tf.MethodGenEoS_Thrift.CTPM_CON)
-    s.setMethod_T(tf.MethodCorrT_Thrift.CTM_LGX)
+    s.setMethod_T(tf.MethodCorrT_Thrift.CTM_CHP)
     s.setMethod_P(tf.MethodCorrP_Thrift.CPM_NUL)
     assert s.substanceClass() == tf.SubstanceClass.AQSOLUTE
     assert s.aggregateState() == tf.AggregateState.CRYSTAL
     assert s.thermoCalculationType() == tf.SubstanceThermoCalculationType.REACDC
     assert s.methodGenEOS() == tf.MethodGenEoS_Thrift.CTPM_CON
-    assert s.method_T() == tf.MethodCorrT_Thrift.CTM_LGX
+    assert s.method_T() == tf.MethodCorrT_Thrift.CTM_CHP
     assert s.method_P() == tf.MethodCorrP_Thrift.CPM_NUL
 
     r = tf.Reaction()

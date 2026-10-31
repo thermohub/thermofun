@@ -74,6 +74,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The getters of `Substance`, `Reaction` and `Element` answer from the record (`Compat/`). Arrays hold only the values
   that a method reads, and an error is positive. A value that passes through SI can differ from the file by rounding
   (for example -10465 cal gives -10464.999999999998).
+- The old setters now edit the record. `setMethodGenEoS`, `setMethod_T` and `setMethod_P` raise an error for a code that has no
+  method for that kind of record, for example `CTM_LGX` on a substance (`ValueError` in Python); before, the code was stored and
+  did nothing. `setThermoParameters` raises an error that names the array and the position if an array with values misses a
+  required parameter.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

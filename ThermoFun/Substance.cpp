@@ -2,6 +2,9 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "Substance.h"
+
+#include <optional>
+
 #include "Compat/SubstanceCompat.h"
 #include "IO/Legacy/LegacyVocabulary.h"
 
@@ -17,8 +20,14 @@ namespace ThermoFun {
 
 struct Substance::Impl
 {
-    /// The record read from the JSON text; empty after an old setter
+    /// The record. Empty only for the old parser (withoutRecord).
     std::shared_ptr<const v2::SubstanceRecord> record;
+
+    /// The old codes that the record cannot hold: they give no method (for example CPM_NUL)
+    compat::MethodCodes codes_without_method;
+
+    /// The calculation type, if an old setter gave it
+    std::optional<SubstanceThermoCalculationType::type> calculation_type;
 
     /// The name of the chemical Substance
     std::string name;
@@ -87,13 +96,75 @@ struct Substance::Impl
 
     std::string jString;
 
+    /// Changes a copy of the record: a reference to the old record stays valid.
+    template <class Change>
+    void edit(Change change)
+    {
+        if (!record)
+            return;
+        auto copy = std::make_shared<v2::SubstanceRecord>(*record);
+        change(*copy);
+        copy->original_text.clear();
+        record = copy;
+    }
+
+    auto parameters() const -> ThermoParametersSubstance
+    {
+        auto out = compat::thermoParameters(*record);
+        compat::addWaiting(out, thermo_param);
+        return out;
+    }
+
+    auto codes() const -> compat::MethodCodes
+    {
+        auto out = compat::methodCodes(*record);
+        if (codes_without_method.general)
+            out.general = codes_without_method.general;
+        if (codes_without_method.temperature)
+            out.temperature = codes_without_method.temperature;
+        if (codes_without_method.pressure)
+            out.pressure = codes_without_method.pressure;
+        return out;
+    }
+
+    /// Replaces the methods. A code that the record cannot hold is kept beside it.
+    void setMethods(const compat::MethodCodes& wanted, const ThermoParametersSubstance& parameters)
+    {
+        edit([&](v2::SubstanceRecord& r) {
+            compat::setMethods(r, wanted, parameters);
+            if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
+                r.preferred_property_source = v2::PropertySource::Reaction;
+            const auto held = compat::methodCodes(r);
+            codes_without_method = {};
+            if (wanted.general != held.general)
+                codes_without_method.general = wanted.general;
+            if (wanted.temperature != held.temperature)
+                codes_without_method.temperature = wanted.temperature;
+            if (wanted.pressure != held.pressure)
+                codes_without_method.pressure = wanted.pressure;
+        });
+    }
+
 //    /// Concentration scale used in defining the properties of the substance
 //    ConcentrationScales::type StdConcentration_scale;
 };
 
 Substance::Substance()
 : pimpl(new Impl())
-{}
+{
+    // the old defaults: the codes 0
+    v2::SubstanceRecord empty;
+    empty.class_ = substanceClassFromLegacy(0);
+    empty.aggregate_state = aggregateStateFromLegacy(0);
+    pimpl->record = std::make_shared<const v2::SubstanceRecord>(empty);
+}
+
+auto Substance::withoutRecord() -> Substance
+{
+    Substance s;
+    s.pimpl->record.reset();
+    return s;
+}
 
 Substance::Substance(std::string jsonSubstance)
 : pimpl(new Impl())
@@ -101,6 +172,7 @@ Substance::Substance(std::string jsonSubstance)
     Substance other = parseSubstance(jsonSubstance);
     pimpl = std::move(other.pimpl);
     setJsonString(jsonSubstance);
+    pimpl->thermo_param = {};   // the record holds what a method reads
     pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readLegacySubstance(jsonSubstance));
 }
 
@@ -119,127 +191,168 @@ auto Substance::operator=(Substance other) -> Substance&
 
 auto Substance::setName(std::string name) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.name = name; });
     pimpl->name = name;
 }
 
 auto Substance::setSymbol(std::string symbol) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.symbol = symbol; });
     pimpl->symbol = symbol;
 }
 
 auto Substance::setFormula(std::string formula) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.formula = formula; });
     pimpl->formula = formula;
 }
 
 auto Substance::setReactionSymbol(std::string reaction) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.defining_reaction = reaction; });
     pimpl->reactionSymbol = reaction;
 }
 
 auto Substance::setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { compat::setThermoReferenceProperties(r, thermo_ref_prop); });
     pimpl->thermo_ref_prop = thermo_ref_prop;
 }
 
 auto Substance::setThermoParameters(ThermoParametersSubstance thermo_param) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+        pimpl->setMethods(pimpl->codes(), thermo_param);
     pimpl->thermo_param = thermo_param;
 }
 
 auto Substance::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        auto codes = pimpl->codes();
+        codes.general = method_genEoS;
+        pimpl->setMethods(codes, pimpl->parameters());
+    }
     pimpl->method_genEoS = method_genEoS;
 }
 
 auto Substance::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        auto codes = pimpl->codes();
+        codes.temperature = method_T;
+        pimpl->setMethods(codes, pimpl->parameters());
+    }
     pimpl->method_T = method_T;
 }
 
 auto Substance::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        auto codes = pimpl->codes();
+        codes.pressure = method_P;
+        pimpl->setMethods(codes, pimpl->parameters());
+    }
     pimpl->method_P = method_P;
 }
 
 auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        // the rules of the methods read the class
+        const auto codes = pimpl->codes();
+        const auto parameters = pimpl->parameters();
+        pimpl->edit([&](v2::SubstanceRecord& r) { r.class_ = substanceClassFromLegacy(substance_class); });
+        if (!pimpl->record->methods.empty())
+            pimpl->setMethods(codes, parameters);
+    }
     pimpl->substance_class = substance_class;
 }
 
 auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        // the rules of the methods read the state
+        const auto codes = pimpl->codes();
+        const auto parameters = pimpl->parameters();
+        pimpl->edit([&](v2::SubstanceRecord& r) { r.aggregate_state = aggregateStateFromLegacy(aggregate_state); });
+        if (!pimpl->record->methods.empty())
+            pimpl->setMethods(codes, parameters);
+    }
     pimpl->aggregate_state = aggregate_state;
 }
 
 auto Substance::setThermoCalculationType(SubstanceThermoCalculationType::type calculation_type) -> void
 {
-    pimpl->record.reset();
+    if (pimpl->record)
+    {
+        pimpl->calculation_type = calculation_type;
+        if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
+            pimpl->edit([&](v2::SubstanceRecord& r) { r.preferred_property_source = v2::PropertySource::Reaction; });
+    }
     pimpl->thermo_calculation_type = calculation_type;
 }
 
 auto Substance::setCharge(int charge) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.charge = charge; });
     pimpl->charge = charge;
 }
 
 auto Substance::setReferenceT(double T) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.reference_conditions.T = T; });
     pimpl->reference_T = T;
 }
 
 auto Substance::setReferenceP(double P) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.reference_conditions.P = P; });
     pimpl->reference_P = P;
 }
 
 auto Substance::setLowerT(double T) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.t_min = T; });
     pimpl->lower_T = T;
 }
 
 auto Substance::setLowerP(double P) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.p_min = P; });
     pimpl->lower_P = P;
 }
 
 auto Substance::setUpperT(double T) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.t_max = T; });
     pimpl->upper_T = T;
 }
 
 auto Substance::setUpperP(double P) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.p_max = P; });
     pimpl->upper_P = P;
 }
 
 auto Substance::setMolarMass(double molar_mass) -> void
 {
-    pimpl->record.reset();
+    pimpl->edit([&](v2::SubstanceRecord& r) {
+        auto q = r.molar_mass.value_or(v2::Quantity{});
+        q.value = molar_mass * 1e-3;
+        q.value_as_written.clear();
+        r.molar_mass = q;
+    });
     pimpl->molar_mass = molar_mass;
 }
 
 auto Substance::setJsonString(const std::string &jString) ->void
 {
-    pimpl->record.reset();
     pimpl->jString = jString;
 }
 
@@ -320,7 +433,7 @@ auto Substance::thermoProperties() const -> ThermoPropertiesSubstance
 auto Substance::thermoParameters() const -> ThermoParametersSubstance
 {
     if (pimpl->record)
-        return compat::thermoParameters(*pimpl->record);
+        return pimpl->parameters();
     return pimpl->thermo_param;
 }
 
@@ -334,21 +447,21 @@ auto Substance::thermoReferenceProperties() const -> ThermoPropertiesSubstance
 auto Substance::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
     if (pimpl->record)
-        return compat::methodCodes(*pimpl->record).general;
+        return pimpl->codes().general;
     return pimpl->method_genEoS;
 }
 
 auto Substance::method_T() const -> MethodCorrT_Thrift::type
 {
     if (pimpl->record)
-        return compat::methodCodes(*pimpl->record).temperature;
+        return pimpl->codes().temperature;
     return pimpl->method_T;
 }
 
 auto Substance::method_P() const -> MethodCorrP_Thrift::type
 {
     if (pimpl->record)
-        return compat::methodCodes(*pimpl->record).pressure;
+        return pimpl->codes().pressure;
     return pimpl->method_P;
 }
 
@@ -362,7 +475,7 @@ auto Substance::substanceClass() const -> SubstanceClass::type
 auto Substance::thermoCalculationType() const -> SubstanceThermoCalculationType::type
 {
     if (pimpl->record)
-        return compat::thermoCalculationType(*pimpl->record);
+        return pimpl->calculation_type.value_or(compat::thermoCalculationType(*pimpl->record));
     return pimpl->thermo_calculation_type;
 }
 
@@ -376,6 +489,12 @@ auto Substance::aggregateState() const -> AggregateState::type
 auto Substance::charge() const -> int
 {
     return pimpl->charge;
+}
+
+auto Substance::hasCodeWithoutMethod() const -> bool
+{
+    const auto& c = pimpl->codes_without_method;
+    return c.general || c.temperature || c.pressure;
 }
 
 auto Substance::record() const -> std::shared_ptr<const v2::SubstanceRecord>
