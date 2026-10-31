@@ -98,6 +98,7 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
         {"V2-KEY-002", S::Warning, "An extension field has the name of a standard field. The standard field is written.",
          "Rename the extension field."},
         // identity
+        {"V2-YAML-001", S::Error, "The text cannot be read as YAML.", "Correct the text at the line and the column that the message gives."},
         {"V2-ID-001", S::Error, "The record has no symbol.", "Give the record a unique `symbol`."},
         {"V2-ID-002", S::Error, "The symbol inside the record is not the same as its key in the map.",
          "Make the `symbol` the same as the key."},

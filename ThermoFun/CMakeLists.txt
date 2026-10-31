@@ -27,6 +27,9 @@ else()
     target_compile_definitions(ThermoFun PUBLIC THERMOFUN_NO_AUTODIFF)
 endif()
 
+# rapidyaml: only IO/Yaml/Yaml.cpp includes it
+set_source_files_properties(IO/Yaml/Yaml.cpp PROPERTIES INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/third_party/rapidyaml)
+
 # Specify the include directories of the library target
 target_include_directories(ThermoFun
     PUBLIC

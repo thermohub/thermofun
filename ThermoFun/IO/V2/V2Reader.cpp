@@ -8,11 +8,13 @@
 #include <limits>
 #include <regex>
 #include <set>
+#include <tuple>
 
 #include <nlohmann/json.hpp>
 
 #include <ThermoFun/IO/V2/V2Keys.h>
 #include <ThermoFun/IO/V2/detail/Normalize.h>
+#include <ThermoFun/IO/detail/Yaml.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/IO/Equation.h>
@@ -909,16 +911,12 @@ void versionCheck(Context& c, const json& root)
 
 }
 
-auto readV2Document(const std::string& text, Diagnostics& diagnostics, const std::string& file) -> V2Document
+namespace {
+
+auto readDocument(const json& root, Diagnostics& diagnostics, const std::string& file) -> V2Document
 {
     V2Document doc;
     Context c{diagnostics, nullptr, file};
-    json root = json::parse(text, nullptr, false);
-    if (root.is_discarded() || !root.is_object())
-    {
-        report(c, Severity::Error, "V2-ID-001", "", "/", "The text is not a JSON object.");
-        return doc;
-    }
     versionCheck(c, root);
     for (const auto& d : diagnostics.all())
         if (d.code == "V2-VER-001")
@@ -980,6 +978,59 @@ auto readV2Document(const std::string& text, Diagnostics& diagnostics, const std
                     });
     for (const auto& m : doc.methods)
         checkMethodDefinition(m, diagnostics);
+    return doc;
+}
+
+}
+
+auto readV2Document(const std::string& text, Diagnostics& diagnostics, const std::string& file) -> V2Document
+{
+    Diagnostics found;
+    V2Document doc;
+    Context c{found, nullptr, file};
+    if (detail::looksLikeJson(text))
+    {
+        json root = json::parse(text, nullptr, false);
+        if (root.is_discarded() || !root.is_object())
+            report(c, Severity::Error, "V2-ID-001", "", "/", "The text is not a JSON object.");
+        else
+            doc = readDocument(root, found, file);
+    }
+    else
+    {
+        auto yaml = detail::readYaml(text);
+        if (!yaml.ok)
+        {
+            Diagnostic d;
+            d.severity = Severity::Error;
+            d.code = "V2-YAML-001";
+            d.file = file;
+            d.path = "/";
+            d.line = yaml.problem.line;
+            d.column = yaml.problem.column;
+            d.message = yaml.problem.message;
+            diagnostics.add(d);
+            return doc;
+        }
+        if (!yaml.tree.is_object())
+            report(c, Severity::Error, "V2-ID-001", "", "/", "The text is not a mapping.");
+        else
+        {
+            for (const auto& path : yaml.paths_written_twice)
+                report(c, Severity::Warning, "V2-ID-003", "", path, "The key at " + path + " is written twice; the later value replaces the earlier.");
+            doc = readDocument(yaml.tree, found, file);
+        }
+    }
+    // the place in the text is looked for only if there is something to say: a parse with locations takes time
+    if (!found.all().empty())
+    {
+        const detail::TextLocations locations(text);
+        for (auto d : found.all())
+        {
+            std::tie(d.line, d.column) = locations.find(d.path);
+            diagnostics.add(d);
+        }
+    }
     return doc;
 }
 

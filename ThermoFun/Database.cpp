@@ -5,9 +5,11 @@
 
 // ThermoFun includes
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
+#include <iterator>
 #include "Common/Exception.h"
 #include "IO/V2/V2Reader.h"
 #include "IO/detail/JsonDetect.h"
+#include "IO/detail/Yaml.h"
 #include "Substance.h"
 #include "Reaction.h"
 #include "Element.h"
@@ -442,6 +444,8 @@ struct Database::Impl
         try {
 
             json j;
+            std::string text = filename;
+            std::string file;   // empty: the text was given, not a file
 
             try
             {
@@ -451,14 +455,27 @@ struct Database::Impl
             catch (json::parse_error &e)
             {
                 std::ifstream ifs(filename);
-                if (!ifs.good())
+                if (ifs.good())
+                {
+                    file = filename;
+                    text.assign(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
+                }
+                else if (v2::detail::looksLikeJson(filename) || filename.find("thermohub") == std::string::npos)
                     funError("File reading error", std::string("Database file " + filename + " not found!"), __LINE__, __FILE__);
-                j = json::parse(ifs);
+
+                if (v2::detail::looksLikeJson(text))
+                    j = json::parse(text);
+                else
+                {
+                    // YAML: the v2 reader reports what it finds in the text
+                    fromV2(text, file);
+                    return;
+                }
             }
 
             if (v2::detail::detectDocumentFormat(j) == v2::DataFormat::V2)
             {
-                fromV2(j.dump(), filename.size() < 4096 && filename.find('{') == std::string::npos ? filename : std::string());
+                fromV2(text, file);
                 return;
             }
 

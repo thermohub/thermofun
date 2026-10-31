@@ -196,6 +196,7 @@
 # Common
     $$PWD/Common/Diagnostics.cpp \
     $$PWD/IO/Equation.cpp \
+    $$PWD/IO/Yaml/Yaml.cpp \
     $$PWD/IO/FormatDetect.cpp \
     $$PWD/Engine/Binding.cpp \
     $$PWD/Engine/Executor.cpp \
