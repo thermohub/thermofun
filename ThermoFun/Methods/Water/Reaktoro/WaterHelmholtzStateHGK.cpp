@@ -267,7 +267,7 @@ namespace ThermoFun {
             const auto x_tt = y_tt * x2 + 2.0 * y_t * x_t * x;
             const auto x_rt = y_rt * x2 + 2.0 * y_r * x_t * x;
             const auto x_rrr = y_rrr * x2 + 4 * y_rr * x_r * x + 2 * y_r * (x_rr * x + x_r * x_r);
-            const auto x_rrt = y_rrt * x2 + 2 * (y_rt * x_r + y_rr * x_t) + 2 * y_r * (x_rt * x + x_r * x_t);
+            const auto x_rrt = y_rrt * x2 + 2 * x * (y_rt * x_r + y_rr * x_t) + 2 * y_r * (x_rt * x + x_r * x_t);
             const auto x_rtt = y_rtt * x2 + 4 * y_rt * x_t * x + 2 * y_r * (x_tt * x + x_t * x_t);
             const auto x_ttt = y_ttt * x2 + 4 * y_tt * x_t * x + 2 * y_t * (x_tt * x + x_t * x_t);
 
@@ -369,7 +369,7 @@ namespace ThermoFun {
                 const auto theta_tt = 2 * beta[i] * (2 * beta[i] * tau * tau - 1) * tau_t * tau_t * theta;
                 const auto theta_rt = -2 * beta[i] * tau * tau_t * theta_r;
                 const auto theta_rrr = psi_rr * theta + 2 * psi_r * theta_r + psi * theta_rr;
-                const auto theta_rrt = psi_r * theta_r + psi * theta_rt;
+                const auto theta_rrt = psi_r * theta_t + psi * theta_rt;
                 const auto theta_rtt = psi * theta_tt;
                 const auto theta_ttt = -2 * beta[i] * (2 * tau_t * tau_t * theta_t + tau * tau_t * theta_tt);
 

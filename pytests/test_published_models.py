@@ -16,6 +16,7 @@ import thermofun as tf
 
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "published")
 
+# The water of the fixture is IAPWS-95, as in the paper. HGK gives dCp up to 0.39 away.
 # Dolejs and Manning (2010), Table 2: log K, dG [kJ/mol], dH [kJ/mol], dS [J/(K mol)], dCp [J/(K mol)], dV [cm3/mol]
 DM10_TABLE2 = {
     "Apatite-F": (-11.31, 64.53, 61.24, -11.02, -90.13, -12.08),

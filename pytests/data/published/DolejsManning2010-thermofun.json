@@ -21,7 +21,7 @@
    "TPMethods": [
     {
      "method": {
-      "31": "water_eos_hgk84_reaktoro"
+      "32": "water_eos_iapws95_reaktoro"
      }
     },
     {

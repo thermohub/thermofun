@@ -161,3 +161,26 @@ def test_a_legacy_water_eos_of_gems_that_does_not_exist_runs_iapws95():
     ps = engine.propertiesSolvent(298.15, 1e5, "H2O@", 0)
     assert ps.density.val == tf.methods.solventMethod("WaterIAPWS95").properties(298.15, 1e5).density.val
     assert not math.isnan(engine.thermoPropertiesSubstance(298.15, 1e5, "Al+3").gibbs_energy.val)
+
+
+# The second derivatives of the density by T of HGK (Reaktoro) had two errors in the third derivative of the Helmholtz function by T, D, D.
+@pytest.mark.parametrize("T, P", [(298.15, 1e5), (473.15, 2e6), (673.15, 1e8), (1073.15, 5e8), (298.15, 1e9)])
+def test_the_second_derivatives_of_the_density_of_hgk_are_those_of_its_first_derivatives(T, P):
+    db = "pytests/test-aq17-gem-lma-thermofun.json"
+    e = tf.ThermoEngine(db)
+    q = e.propertiesSolvent(T, P, "H2O@")
+    assert q.densityTT.val == pytest.approx(q.densityT.ddt, rel=1e-8)
+    assert q.dAldT.val == pytest.approx(q.Alpha.ddt, rel=1e-8)
+    assert q.densityTP.val == pytest.approx(q.densityT.ddp, rel=1e-8)
+
+
+@pytest.mark.parametrize("symbol", ["Ca+2", "Cl-", "Al(OH)2+"])
+@pytest.mark.parametrize("T, P", [(298.15, 1e5), (473.15, 2e6), (673.15, 1e8)])
+def test_the_heat_capacity_of_a_solute_is_the_same_with_both_implementations_of_hgk(symbol, T, P):
+    def cp(implementation):
+        e = tf.ThermoEngine("pytests/test-aq17-gem-lma-thermofun.json")
+        p = tf.EnginePreferences()
+        p.method_implementation = {"WaterHGK84": implementation, "HKF88": implementation}
+        e.setPreferences(p)
+        return e.thermoPropertiesSubstance(T, P, symbol).heat_capacity_cp.val
+    assert cp("reaktoro") == pytest.approx(cp("gems"), abs=2e-3)

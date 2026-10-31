@@ -443,7 +443,7 @@ struct ThermoEngine::Impl
         const auto s = cachedSolvent(T, P, symbol, -1);
         Reaktoro_::ThermoScalar Ts(T);
         Ts.ddt = 1.0;
-        auto m = v2::molarityTerms(Ts, s.density, s.densityT, s.densityP, Reaktoro_::ThermoScalar(v2::densityTT(s)));
+        auto m = v2::molarityTerms(Ts, s.density, s.densityT, s.densityP, s.densityTT);
         m.V *= 1e5;
         return m;
     }

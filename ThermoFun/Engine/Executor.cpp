@@ -26,14 +26,14 @@ auto toReal(const ReferenceValues& r) -> ReferenceState<TPReal>
 }
 
 /// The result of a method in the canonical convention
-auto convert(SubstanceState<TPReal>& state, const ConventionShift& shift, const SubstanceInputs<TPReal>& in, const SolventInputs* solvent) -> void
+auto convert(SubstanceState<TPReal>& state, const ConventionShift& shift, const SubstanceInputs<TPReal>& in) -> void
 {
     state.G += shift.G0 + shift.G_per_K * in.T;
     state.S -= shift.G_per_K;
     if (shift.needsSolvent())
     {
         const auto& s = in.solvent->properties;
-        const auto m = molarityTerms(in.T, s.density, s.densityT, s.densityP, TPReal(densityTT(solvent->properties)));
+        const auto m = molarityTerms(in.T, s.density, s.densityT, s.densityP, s.densityTT);
         state.G += shift.molarity * m.G;
         state.H += shift.molarity * m.H;
         state.S += shift.molarity * m.S;
@@ -94,8 +94,8 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
         method->apply(b, wrtP);
         if (i < bound.to_canonical.size() && !bound.to_canonical[i].identity())
         {
-            convert(a, bound.to_canonical[i], wrtT, solvent);
-            convert(b, bound.to_canonical[i], wrtP, solvent);
+            convert(a, bound.to_canonical[i], wrtT);
+            convert(b, bound.to_canonical[i], wrtP);
         }
         method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, bound.reference.V.value_or(0.0) * 1e5, a.outside_range, options, solvent});
         if (steps)

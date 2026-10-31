@@ -49,14 +49,6 @@ struct MolarityTerms
     Scalar G, H, S, Cp, V;
 };
 
-/// The second derivative of the density of water by T, kg/(m3 K2). The field densityTT of the water models differs from the derivative of
-/// densityT (3 % at 473 K); the derivative of densityT agrees with finite differences. Without autodiff that derivative is not there.
-template <typename Properties>
-auto densityTT(const Properties& solvent) -> double
-{
-    return solvent.densityT.ddt != 0.0 ? solvent.densityT.ddt : solvent.densityTT.val;
-}
-
 template <typename TScalar, typename Scalar>
 auto molarityTerms(const TScalar& T, const Scalar& rho, const Scalar& rhoT, const Scalar& rhoP, const Scalar& rhoTT) -> MolarityTerms<Scalar>
 {

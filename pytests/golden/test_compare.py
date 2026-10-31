@@ -63,6 +63,9 @@ def test_an_expected_change_can_be_limited_to_one_property_and_a_size():
     assert not cb.is_expected(diff("enthalpy", 1e-8), limited)
     assert not cb.is_expected(diff("heat_capacity_cv", None), limited)
     assert cb.is_expected(diff("enthalpy", 1.0), {key: None})
+    some = {key: frozenset({"heat_capacity_cp"})}
+    assert cb.is_expected(diff("heat_capacity_cp", 3.0), some)
+    assert not cb.is_expected(diff("enthalpy", 3.0), some)
     assert not cb.is_expected(diff("enthalpy", 1e-8), {})
 
 

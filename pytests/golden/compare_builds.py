@@ -35,11 +35,17 @@ CHUNK = 150  # records per work item, to bound the memory
 
 def expected_changes():
     """The (database, variant, kind, record) keys whose differences are expected. The value is None for any difference
-    of the record, or (property, max_rel) if the entry accepts only small differences of one property."""
+    of the record, (property, max_rel) if the entry accepts only small differences of one property, or a set of properties
+    if it accepts any difference of those."""
     with open(HERE / "expected_changes.json") as f:
         changes = json.load(f)["changes"]
-    return {(c["database"], c["variant"], c["kind"], r): (c["property"], c["max_rel"]) if "property" in c else None
-            for c in changes for r in c["records"]}
+
+    def limit(c):
+        if "properties" in c:
+            return frozenset(c["properties"])
+        return (c["property"], c["max_rel"]) if "property" in c else None
+
+    return {(c["database"], c["variant"], c["kind"], r): limit(c) for c in changes for r in c["records"]}
 
 
 def is_expected(d, expected):
@@ -47,6 +53,8 @@ def is_expected(d, expected):
     if key not in expected:
         return False
     limit = expected[key]
+    if isinstance(limit, frozenset):
+        return d["property"] in limit
     return limit is None or (d["property"] == limit[0] and d["rel"] is not None and d["rel"] <= limit[1])
 
 

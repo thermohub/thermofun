@@ -458,6 +458,848 @@
         "Ti(OH)5-"
       ],
       "reason": "Conventions (R4.5): the baseline calculated a substance from its defining reaction with the reactants in the output convention. Water is not converted to Berman-Brown, so G was wrong by the coefficient of H2O@ times Tr times the element entropies of water (69.5 kJ/mol for each H2O@). Now it is calculated in the canonical convention and converted once."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "Al+3"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Al(OH)2+",
+        "Al(OH)3@",
+        "Al(OH)4-",
+        "Al+3",
+        "AlH3SiO4+2",
+        "AlOH+2",
+        "CH4@",
+        "CO2@",
+        "CO3-2",
+        "CO@",
+        "Ca+2",
+        "CaCO3@",
+        "CaCl+",
+        "CaCl2@",
+        "CaHCO3+",
+        "CaHSiO3+",
+        "CaOH+",
+        "CaSiO3@",
+        "Cl-",
+        "H2@",
+        "H4SiO4@",
+        "HCO3-",
+        "HSiO3-",
+        "K+",
+        "KAlO2@",
+        "KCO3-",
+        "KCl@",
+        "KHCO3@",
+        "KOH@",
+        "Mg+2",
+        "MgCl+",
+        "MgCl2@",
+        "MgHCO3+",
+        "MgHSiO3+",
+        "MgOH+",
+        "MgSiO3@",
+        "Na+",
+        "NaCO3-",
+        "NaCl@",
+        "NaHSiO3@",
+        "NaOH@",
+        "O2@",
+        "OH-",
+        "SiO2@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "default",
+      "kind": "reactions",
+      "records": [
+        "Meionite-Ca"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Al(OH)2+",
+        "Al(OH)3@",
+        "Al(OH)4-",
+        "Al+3",
+        "AlH3SiO4+2",
+        "AlOH+2",
+        "CH4@",
+        "CO2@",
+        "CO3-2",
+        "CO@",
+        "Ca+2",
+        "CaCO3@",
+        "CaCl+",
+        "CaCl2@",
+        "CaHCO3+",
+        "CaHSiO3+",
+        "CaOH+",
+        "CaSiO3@",
+        "Cl-",
+        "H2@",
+        "H4SiO4@",
+        "HCO3-",
+        "HSiO3-",
+        "K+",
+        "KAlO2@",
+        "KCO3-",
+        "KCl@",
+        "KHCO3@",
+        "KOH@",
+        "Mg+2",
+        "MgCl+",
+        "MgCl2@",
+        "MgHCO3+",
+        "MgHSiO3+",
+        "MgOH+",
+        "MgSiO3@",
+        "Na+",
+        "NaCO3-",
+        "NaCl@",
+        "NaHSiO3@",
+        "NaOH@",
+        "O2@",
+        "OH-",
+        "SiO2@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "reactions",
+      "records": [
+        "Meionite-Ca"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "electroPropertiesSolvent.bornX",
+        "electroPropertiesSolvent.epsilonTP",
+        "electroPropertiesSolvent.epsilonTT",
+        "heat_capacity_cp",
+        "heat_capacity_cv",
+        "propertiesSolvent.dAldT",
+        "propertiesSolvent.densityTP",
+        "propertiesSolvent.densityTT",
+        "propertiesSolvent.pressureTD",
+        "reaction_heat_capacity_cp"
+      ],
+      "reason": "HGK (Reaktoro): two errors in the third derivative of the Helmholtz function by T, D, D (x_rrt without a factor x, theta_rrt with theta_r for theta_t). densityTT, dAldT, pressureTD and through them the Born function X, epsilonTT and Cp of the solutes were wrong; G, H, S and V are not changed. Checked: each third derivative against autodiff, densityTT against the T derivative of densityT, Cp of solutes against the GEMS implementation (pytests/test_water_methods.py)."
     }
   ]
 }
