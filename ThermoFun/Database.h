@@ -43,6 +43,14 @@ struct ElementEntropySources
     std::vector<std::string> from_table, missing;
 };
 
+/// The problems of one v2 record, given as JSON text, without the rest of a database: from the reader and from validate.
+/// section: "elements", "substances" or "reactions". A reference to another record is not a problem here.
+auto checkRecord(const std::string& section, const std::string& symbol, const std::string& record) -> Diagnostics;
+
+/// What the legacy reader finds in a legacy file: the quirks and the keys that it does not read (the migration report). A load does not keep
+/// this, to stay fast. Empty for another file.
+auto legacyFileDiagnostics(const std::string& file) -> Diagnostics;
+
 /// Reads the object "conventions" of a database, given as a JSON string.
 auto readConventions(const std::string& data) -> DatabaseConventions;
 

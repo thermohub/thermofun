@@ -10,6 +10,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <ThermoFun/IO/Legacy/LegacyMethodMap.h>
 #include <ThermoFun/Methods/Evaluate.h>
 #include <ThermoFun/Methods/Minerals/ConstantCp.h>
 #include <ThermoFun/Methods/Minerals/ConstantProperties.h>
@@ -131,6 +132,15 @@ void exportMethods(py::module& parent)
             row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
             row["implementations"] = spec.implementations;
             row["needs_solvent"] = spec.needs.solvent;
+            std::vector<std::string> classes, legacy_names;
+            for (const auto c : spec.applies_to_classes)
+                classes.push_back(toString(c));
+            for (const auto& l : spec.operates_on == OperatesOn::Substance ? v2::legacy::legacySubstanceMethods() : v2::legacy::legacyReactionMethods())
+                if (spec.id == l.method)
+                    legacy_names.push_back(l.name);
+            row["classes"] = classes;
+            row["legacy_names"] = legacy_names;
+            row["native_convention"] = spec.native_convention ? toString(*spec.native_convention) : std::string();
             py::list parameters;
             for (const auto& p : spec.parameters)
             {

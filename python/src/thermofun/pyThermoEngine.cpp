@@ -137,6 +137,38 @@ void exportThermoEngine(py::module& m)
     auto thermoPropertiesReaction2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&) const>(&ThermoEngine::thermoPropertiesReaction);
     auto thermoPropertiesReactionFromReactants2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&) const>(&ThermoEngine::thermoPropertiesReactionFromReactants);
 
+    m.def("optionWords", [] {
+        std::map<std::string, std::vector<std::string>> out;
+        out["property_source"] = v2::words<v2::PropertySource>();
+        out["energy_reference"] = v2::words<v2::EnergyReference>();
+        out["standard_pressure"] = v2::words<v2::StandardPressure>();
+        out["concentration_scale"] = v2::words<v2::ConcentrationScale>();
+        out["water_reference"] = v2::words<v2::WaterReference>();
+        return out;
+    }, "The valid words of the options of the engine");
+
+    py::class_<CalculationSnapshot>(m, "CalculationSnapshot", "What a calculation depends on")
+        .def_readonly("thermofun_version", &CalculationSnapshot::thermofun_version)
+        .def_readonly("format_version", &CalculationSnapshot::format_version)
+        .def_readonly("dataset", &CalculationSnapshot::dataset)
+        .def_readonly("dataset_version", &CalculationSnapshot::dataset_version)
+        .def_readonly("content_hash", &CalculationSnapshot::content_hash)
+        .def_readonly("implementations", &CalculationSnapshot::implementations);
+
+    py::class_<ConsistencyOptions>(m, "ConsistencyOptions", "The options of ThermoEngine.consistencyReport")
+        .def(py::init<>())
+        .def_readwrite("delta_G_threshold", &ConsistencyOptions::delta_G_threshold, "J/mol; a larger difference is inconsistent");
+
+    py::class_<ConsistencyItem>(m, "ConsistencyItem", "One record at one T and P that has two ways to its properties")
+        .def_readonly("symbol", &ConsistencyItem::symbol)
+        .def_readonly("kind", &ConsistencyItem::kind)
+        .def_readonly("T", &ConsistencyItem::T)
+        .def_readonly("P", &ConsistencyItem::P)
+        .def_readonly("delta_G", &ConsistencyItem::delta_G)
+        .def_readonly("delta_logK", &ConsistencyItem::delta_logK)
+        .def_readonly("flag", &ConsistencyItem::flag)
+        .def_readonly("message", &ConsistencyItem::message);
+
     py::class_<ThermoEngine>(m, "ThermoEngine", "Contains methods for calculating the thermodynamic properties of the substances and reactions")
 //        .def(py::init<>())
         .def(py::init<const std::string>(), "Constructor using a thermofun database as a JSON string")
@@ -177,6 +209,9 @@ void exportThermoEngine(py::module& m)
                  out["properties"] = d.properties; out["source"] = d.source; out["reaction"] = d.reaction; out["steps"] = steps; out["conversions"] = d.conversions;
                  return out;
              }, "The result of a calculation and how it came: properties, source, reaction, steps (the methods in order, SI) and conversions.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
+        .def("snapshot", &ThermoEngine::snapshot, "What the results depend on: versions, dataset, SHA-256 of the records, implementations")
+        .def("consistencyReport", &ThermoEngine::consistencyReport, py::arg("TP"), py::arg("options") = ConsistencyOptions{},
+             "The records that can be calculated in two ways, and the difference at each pair (T [K], P [Pa])")
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1, "Calculate the thermodynamic properties of a substance with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
         .def("electroPropertiesSolvent", electroPropertiesSolvent1, "Calculate the electro-chemical properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
         .def("propertiesSolvent", propertiesSolvent1, "Calculate the properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))

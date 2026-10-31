@@ -45,7 +45,8 @@ void exportDiagnostics(py::module& m)
     py::class_<DiagnosticInfo>(m, "DiagnosticInfo", "A code of the catalog of diagnostics")
         .def_readonly("code", &DiagnosticInfo::code)
         .def_readonly("severity", &DiagnosticInfo::severity)
-        .def_readonly("meaning", &DiagnosticInfo::meaning);
+        .def_readonly("meaning", &DiagnosticInfo::meaning)
+        .def_readonly("fix", &DiagnosticInfo::fix);
 
     m.def("diagnosticCatalog", &diagnosticCatalog, "All codes of diagnostics with their meaning");
 }

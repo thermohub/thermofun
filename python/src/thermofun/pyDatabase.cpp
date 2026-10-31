@@ -36,6 +36,10 @@ namespace ThermoFun {
 
 void exportDatabase(py::module& m)
 {
+    m.def("legacyFileDiagnostics", &legacyFileDiagnostics, py::arg("file"), "What the legacy reader finds in a legacy file: the quirks and the keys that it does not read");
+    m.def("checkRecord", &checkRecord, py::arg("section"), py::arg("symbol"), py::arg("record"),
+          "The problems of one v2 record given as JSON text: section is elements, substances or reactions");
+
     auto appendData1 = static_cast<void(Database::*)(std::string)>(&Database::appendData);
     auto appendData2 = static_cast<void(Database::*)(std::vector<std::string>, std::string)>(&Database::appendData);
 

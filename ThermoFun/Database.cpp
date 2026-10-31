@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <set>
 
 using json = nlohmann::json;
@@ -1185,6 +1186,54 @@ auto Database::elementalEntropyFormula(std::string formula) const -> double
 {
     ChemicalFun::FormulaProperties prop = pimpl->all_elements.formulasProperties(formula);
     return prop.elemental_entropy;
+}
+
+auto checkRecord(const std::string& section, const std::string& symbol, const std::string& record) -> Diagnostics
+{
+    nlohmann::json document = {{"thermohub", "2.0.0-draft.1"}, {section, {{symbol, nlohmann::json::parse(record)}}}};
+    const std::string text = document.dump();
+    Diagnostics found, out;
+    v2::readV2Document(text, found);
+    if (found.ok())
+    {
+        const Diagnostics problems = Database(text).validate();
+        for (const auto& d : problems.all())
+            found.add(d);
+    }
+    for (const auto& d : found.all())
+        if (d.code.rfind("V2-REF", 0) != 0)
+            out.add(d);
+    return out;
+}
+
+auto legacyFileDiagnostics(const std::string& file) -> Diagnostics
+{
+    Diagnostics diagnostics;
+    std::ifstream in(file);
+    if (!in.good())
+        return diagnostics;
+    std::stringstream text;
+    text << in.rdbuf();
+    const auto j = nlohmann::json::parse(text.str(), nullptr, false);
+    if (j.is_discarded() || v2::detail::detectDocumentFormat(j) == v2::DataFormat::V2)
+        return diagnostics;
+    const auto read = [&](const nlohmann::json& record, const std::string& kind) {
+        if (kind == "element")
+            v2::readLegacyElement(record.dump(), {}, &diagnostics);
+        else if (kind == "substance")
+            v2::readLegacySubstance(record.dump(), {}, &diagnostics);
+        else if (kind == "reaction")
+            v2::readLegacyReaction(record.dump(), {}, &diagnostics);
+    };
+    for (const auto* section : {"element", "substance", "reaction"})
+        if (const auto key = std::string(section) + "s"; j.is_object() && j.contains(key))
+            for (const auto& record : j[key])
+                read(record, section);
+    if (j.is_array())
+        for (const auto& record : j)
+            if (record.contains("_label"))
+                read(record, record["_label"].get<std::string>());
+    return diagnostics;
 }
 
 auto Database::elementEntropySources(const std::string& formula) const -> ElementEntropySources

@@ -27,6 +27,8 @@ else()
     target_compile_definitions(ThermoFun PUBLIC THERMOFUN_NO_AUTODIFF)
 endif()
 
+set_source_files_properties(ThermoEngine.cpp PROPERTIES COMPILE_DEFINITIONS "THERMOFUN_VERSION_STRING=\"${PROJECT_VERSION}\"")
+
 # rapidyaml: only IO/Yaml/Yaml.cpp includes it, and its symbols stay inside the library
 set_source_files_properties(IO/Yaml/Yaml.cpp PROPERTIES
     INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/third_party/rapidyaml

@@ -3,7 +3,9 @@
 
 #ifndef THERMO_H
 #define THERMO_H
+#include <ThermoFun/Engine/Consistency.h>
 #include <ThermoFun/Engine/DetailedResult.h>
+#include <ThermoFun/Engine/Snapshot.h>
 #include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoProperties.h>
 
@@ -193,6 +195,15 @@ public:
     /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
     /// @param P The pressure value (in units of Pa); 0 means the saturation pressure, which is written back
     auto thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance;
+
+    /// What the results depend on: the version of ThermoFun, the format and dataset of the loaded data, the SHA-256 of all records,
+    /// and the implementations that the preferences ask for.
+    auto snapshot() const -> CalculationSnapshot;
+
+    /// The records that can be calculated in two ways, and the difference between the ways at each pair (T in K, P in Pa):
+    /// a substance from its methods and from its defining reaction, a reaction from its methods and from its reactants.
+    /// Information for the owners of the data.
+    auto consistencyReport(const std::vector<std::pair<double, double>>& TP, const ConsistencyOptions& options = {}) const -> std::vector<ConsistencyItem>;
 
     /// Pareses a given substance formula present in the database
     /// @param formula

@@ -8,6 +8,7 @@
 #include "check.h"
 
 // One runAll() for each test_*.cpp
+void runSha256();
 void runCatalog();
 void runSubstanceMethods();
 void runDiagnostics();
@@ -22,6 +23,7 @@ void runLegacyReader();
 int main()
 {
     runDiagnostics();
+    runSha256();
     runCatalog();
     runVocabulary();
     runUcum();

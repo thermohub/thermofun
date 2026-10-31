@@ -1,5 +1,6 @@
 message(STATUS "Building python library ")
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/__init__.py" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(GLOB PYTHON_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
+file(COPY ${PYTHON_FILES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Collect the source files of PyThermoFun
 file(GLOB_RECURSE HEADER_FILES *.hpp)

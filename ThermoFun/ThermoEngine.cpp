@@ -15,6 +15,7 @@
 #include "Engine/ReactionBinding.h"
 #include "Engine/ReactionDefined.h"
 #include "Model/ReactionRecord.h"
+#include "Common/Sha256.h"
 #include "Conventions/ConventionConverter.h"
 #include "Conventions/HydrogenIon.h"
 #include "Model/SubstanceRecord.h"
@@ -1455,6 +1456,82 @@ auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const 
 {
     pimpl->dropStaleResults();
     return pimpl->detailedSubstance(T, P, pimpl->database.getSubstance(substance));
+}
+
+auto ThermoEngine::snapshot() const -> CalculationSnapshot
+{
+    CalculationSnapshot s;
+#ifdef THERMOFUN_VERSION_STRING
+    s.thermofun_version = THERMOFUN_VERSION_STRING;
+#endif
+    const Database& database = pimpl->database;
+    const auto& info = database.thermoDataSet();
+    s.format_version = info.schema_version.empty() ? "legacy" : info.schema_version;
+    s.dataset = info.symbol;
+    s.dataset_version = info.version;
+    s.content_hash = sha256(database.toJson(false));
+    s.implementations = pimpl->preferences.method_implementation;
+    return s;
+}
+
+auto ThermoEngine::consistencyReport(const std::vector<std::pair<double, double>>& TP, const ConsistencyOptions& options) const -> std::vector<ConsistencyItem>
+{
+    pimpl->dropStaleResults();
+    ThermoEngine direct(*this), derived(*this);
+    EnginePreferences p = preferences();
+    p.enable_memoize = false;
+    p.property_source = v2::PropertySource::Direct;
+    direct.setPreferences(p);
+    p.property_source = v2::PropertySource::Reaction;
+    derived.setPreferences(p);
+    const Database& database = pimpl->database;
+
+    std::vector<ConsistencyItem> items;
+    // a calculation that fails is an item too: a record must not leave the report without a sign
+    const auto compare = [&](const std::string& symbol, const char* kind, const std::pair<double, double>& point, auto&& differences) {
+        ConsistencyItem item;
+        item.symbol = symbol;
+        item.kind = kind;
+        item.T = point.first;
+        item.P = point.second;
+        try
+        {
+            differences(item);
+            item.flag = std::fabs(item.delta_G) > options.delta_G_threshold ? "inconsistent" : "consistent";
+        }
+        catch (const std::exception& error)
+        {
+            item.flag = "not calculated";
+            item.message = error.what();
+        }
+        items.push_back(item);
+    };
+    for (const auto& [symbol, substance] : database.mapSubstances())
+    {
+        const auto reaction = substance.reactionSymbol();
+        // without data of its own or without a reaction, there are not two ways
+        if (reaction.empty() || !database.containsReaction(reaction) || substance.record()->methods.empty())
+            continue;
+        for (const auto& point : TP)
+            compare(symbol, "substance_vs_reaction", point, [&, symbol = symbol](ConsistencyItem& item) {
+                double P1 = point.second, P2 = point.second;
+                item.delta_G = direct.thermoPropertiesSubstance(point.first, P1, symbol).gibbs_energy.val - derived.thermoPropertiesSubstance(point.first, P2, symbol).gibbs_energy.val;
+            });
+    }
+    for (const auto& [symbol, reaction] : database.mapReactions())
+    {
+        if (reaction.record()->methods.empty() || reaction.reactants().empty())
+            continue;
+        for (const auto& point : TP)
+            compare(symbol, "reaction_vs_reactants", point, [&, symbol = symbol](ConsistencyItem& item) {
+                double P1 = point.second, P2 = point.second;
+                const auto a = direct.thermoPropertiesReaction(point.first, P1, symbol);
+                const auto b = direct.thermoPropertiesReactionFromReactants(point.first, P2, symbol);
+                item.delta_G = a.reaction_gibbs_energy.val - b.reaction_gibbs_energy.val;
+                item.delta_logK = a.log_equilibrium_constant.val - b.log_equilibrium_constant.val;
+            });
+    }
+    return items;
 }
 
 auto ThermoEngine::parseSubstanceFormula(std::string formula) const -> std::map<Element, double>
