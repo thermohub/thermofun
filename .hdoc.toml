@@ -22,10 +22,6 @@ paths = [
   "/pytests/",
   "/tests/",
   "/Common/",
-  "/Substances/Solvent/Reaktoro/",
-  "/Substances/Gases/s_solmod_.cpp",
-  "/Substances/Gases/s_solmod_.h",
-  "/Substances/Gases/s_solmod2_.cpp",
-  "/Substances/Gases/verror.h"
+  "/Substances/Solvent/Reaktoro/"
   # more paths can be added as needed
 ]
