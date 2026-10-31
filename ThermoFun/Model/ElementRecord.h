@@ -21,6 +21,7 @@ struct ElementRecord
     std::string symbol;                 ///< "Fe", or "Zz" for the charge
     std::string name;
     ElementClass class_ = ElementClass::Element;
+    std::optional<int> legacy_class;    ///< the code in a legacy file, for a class without a word
     std::optional<int> isotope_mass;
     std::optional<int> number;          ///< atomic number
     std::optional<int> valence;

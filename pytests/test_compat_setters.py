@@ -356,3 +356,24 @@ def test_a_reaction_with_logk_coefficients_and_a_density_model_runs_the_model():
 def test_parse_functions_give_records_that_run():
     s = tf.parseSubstance(json.dumps({"symbol": "Y", "formula": "Ca", "sm_gibbs_energy": {"values": [-5.0]}}))
     assert engine_with(s).thermoPropertiesSubstance(300.0, 1e5, "Y").gibbs_energy.val == pytest.approx(-5.0)
+
+
+def test_a_reaction_with_only_an_equation_has_its_stoichiometry():
+    r = tf.Reaction(json.dumps({"equation": "Cal = Ca+2 + CO3-2"}))
+    assert r.symbol() == "Cal = Ca+2 + CO3-2"
+    assert r.reactants() == {"Cal": -1.0, "Ca+2": 1.0, "CO3-2": 1.0}
+    r = tf.Reaction(json.dumps({"symbol": "R", "equation": "Al+3 + 4 H2O@ + 0Ca+2= 1Al(OH)4- + 4 \n H+"}))
+    assert r.reactants() == {"Al+3": -1.0, "H2O@": -4.0, "Ca+2": -0.0, "Al(OH)4-": 1.0, "H+": 4.0}
+
+
+def test_reactants_of_the_record_go_before_its_equation():
+    r = tf.Reaction(json.dumps({"symbol": "R", "equation": "A = B", "reactants": [{"symbol": "C", "coefficient": 2.0}]}))
+    assert r.reactants() == {"C": 2.0}
+
+
+def test_a_text_that_is_no_json_gives_an_empty_record():
+    s = tf.Substance("not json")
+    assert s.symbol() == ""
+    assert s.jsonString() == "not json"
+    r = tf.Reaction("not json")
+    assert r.reactants() == {}

@@ -5,7 +5,6 @@
 
 #include <ThermoFun/Batch/ThermoBatch.h>
 #include <ThermoFun/Batch/OutputBatch.h>
-#include <ThermoFun/Common/ParseJsonToData.h>
 #include <ThermoFun/ThermoEngine.h>
 #include <ThermoFun/Database.h>
 #include <ThermoFun/Element.h>

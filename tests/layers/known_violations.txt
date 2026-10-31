@@ -1,14 +1,6 @@
 # Old files that break the layer rules today, each with the step that removes the violation.
 # check_includes.py fails on any violation not listed here, and on a listed one that is gone.
 
-# R3.3: the old parser goes when the old fields go; the legacy reader of IO/Legacy replaces it
-ThermoFun/Common/ParseJsonToData.cpp: Database.h
-ThermoFun/Common/ParseJsonToData.cpp: Substance.h
-ThermoFun/Common/ParseJsonToData.cpp: Reaction.h
-ThermoFun/Common/ParseJsonToData.cpp: Element.h
-ThermoFun/Common/ParseJsonToData.cpp: ThermoParameters.h
-ThermoFun/Common/ParseJsonToData.cpp: nlohmann/json.hpp
-
 # R3.3: the CSV output of ThermoBatch moves to Batch/
 ThermoFun/Common/OutputToCSV.h: ThermoFun/ThermoProperties.h
 ThermoFun/Common/OutputWaterSteamConventionProp.cpp: GlobalVariables.h

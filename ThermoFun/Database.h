@@ -35,6 +35,9 @@ struct DatabaseConventions {
     bool operator==(const DatabaseConventions&) const = default;
 };
 
+/// Reads the object "conventions" of a database, given as a JSON string.
+auto readConventions(const std::string& data) -> DatabaseConventions;
+
 
 /**
  * @brief The Database class stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance

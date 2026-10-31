@@ -153,7 +153,8 @@ inline void dumpReactionParameters(Dump& d, const ThermoParametersReaction& x)
     d.line(p + ".coefficient_errors", x.coefficient_errors);
 }
 
-inline std::string dumpSubstance(const Substance& s)
+template <class SubstanceT>
+std::string dumpSubstance(const SubstanceT& s)
 {
     Dump d;
     d.line("name", s.name());
@@ -181,7 +182,8 @@ inline std::string dumpSubstance(const Substance& s)
     return d.str();
 }
 
-inline std::string dumpReaction(const Reaction& r)
+template <class ReactionT>
+std::string dumpReaction(const ReactionT& r)
 {
     Dump d;
     d.line("name", r.name());
@@ -205,7 +207,8 @@ inline std::string dumpReaction(const Reaction& r)
     return d.str();
 }
 
-inline std::string dumpElement(const Element& e)
+template <class ElementT>
+std::string dumpElement(const ElementT& e)
 {
     Dump d;
     d.line("name", e.name());

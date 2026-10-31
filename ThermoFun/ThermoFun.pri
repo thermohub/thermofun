@@ -1,5 +1,4 @@
     HEADERS	 += $$PWD/GlobalVariables.h \
-    $$PWD/Common/ParseJsonToData.h \
     $$PWD/Common/ThermoScalar.hpp \
     $$PWD/Common/Rounding.hpp \
     $$PWD/Common/ThermoProperty.hpp \
@@ -136,7 +135,6 @@
     $$PWD/Batch/OutputBatch.h
 
     SOURCES	 += $$PWD/Database.cpp \
-    $$PWD/Common/ParseJsonToData.cpp \
     $$PWD/Common/Units.cpp \
 #    $$PWD/Common/formuladata.cpp \
 #    $$PWD/Common/formulaparser.cpp \

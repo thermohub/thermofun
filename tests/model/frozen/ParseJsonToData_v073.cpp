@@ -2,7 +2,8 @@
 // ThermoFun/Common/ParseJsonToData.cpp as it was on the branch redesign at 2e00e56 (version 0.7.3 and new_models),
 // before the model layer. The only changes: the namespace is frozen_v073, the header is the frozen header, and the
 // two local variables `double val` start with 0.0 (they were not set when a record lacks mass_per_mole or entropy).
-// The test test_legacy_equivalence.cpp compares it with the parser of the library.
+// The test test_legacy_equivalence.cpp compares it with the getters of the library. Since R3.3 it fills the plain objects
+// of the frozen header, and Reaction::fromEquation is copied here.
 
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
@@ -576,9 +577,78 @@ auto getReactants(const json &r) -> std::map<std::string, double>
     return reactants;
 }
 
+// Reaction::fromEquation at 2e00e56
+static void stripAll(std::string& str, const std::string& valof)
+{
+    if (str.empty())
+        return;
+    std::string::size_type pos1 = str.find_first_not_of(valof);
+    std::string::size_type pos2 = str.find_last_not_of(valof);
+    str = str.substr((pos1 == std::string::npos ? 0 : pos1), (pos2 == std::string::npos ? str.length() - 1 : pos2 - pos1 + 1));
+    str.erase(remove(str.begin(), str.end(), ' '), str.end());
+    str.erase(remove(str.begin(), str.end(), '\n'), str.end());
+    str.erase(remove(str.begin(), str.end(), '\t'), str.end());
+}
+
+static std::vector<std::string> regexpSplit(const std::string& str, std::string rgx_str)
+{
+    std::vector<std::string> lst;
+    std::regex rgx(rgx_str);
+    std::sregex_token_iterator iter(str.begin(), str.end(), rgx, -1);
+    std::sregex_token_iterator end;
+    while (iter != end)
+    {
+        lst.push_back(*iter);
+        stripAll(lst.back(), "\u0020\t\n");
+        ++iter;
+    }
+    return lst;
+}
+
+static std::string extractCoef(const std::string& data, double& coef)
+{
+    coef = 1.;
+    if (data.empty() || isalpha(data[0]) || data[0] == '(')
+        return data;
+    if (data[0] == '+' && (isalpha(data[1]) || data[1] == '('))
+        return data.substr(1);
+    if (data[0] == '-' && (isalpha(data[1]) || data[1] == '('))
+    {
+        coef = -1.;
+        return data.substr(1);
+    }
+    std::string::size_type sz;
+    coef = stod(data, &sz);
+    return data.substr(sz);
+}
+
+auto Reaction::fromEquation(const std::string& reactionEquation) -> void
+{
+    equation_ = reactionEquation;
+    if (symbol_.empty())
+        symbol_ = reactionEquation;
+    std::size_t eqpos = equation_.find("=");
+    std::string str_reactants = equation_.substr(0, eqpos);
+    std::string str_products = equation_.substr(eqpos + 1);
+    double coef = 1.;
+    std::string reactant;
+    for (const auto& el : regexpSplit(str_reactants, "\\s+\\+\\s+"))
+    {
+        reactant = extractCoef(el, coef);
+        if (!reactant.empty())
+            reactants_[reactant] = coef * (-1.);
+    }
+    for (const auto& el : regexpSplit(str_products, "\\s+\\+\\s+"))
+    {
+        reactant = extractCoef(el, coef);
+        if (!reactant.empty())
+            reactants_[reactant] = coef;
+    }
+}
+
 auto parseElement(const std::string &data) -> Element
 {
-    Element e = Element::withoutRecord();
+    Element e;
     std::string kbuf;
     std::string name;
 
@@ -635,7 +705,7 @@ auto parseElement(const std::string &data) -> Element
 
 auto parseSubstance(const std::string &data) -> Substance
 {
-    Substance s = Substance::withoutRecord();
+    Substance s;
     std::vector<std::string> vkbuf;
     std::string kbuf;
 
@@ -725,7 +795,7 @@ auto parseSubstance(const std::string &data) -> Substance
 
 auto parseReaction(const std::string &data) -> Reaction
 {
-    Reaction r = Reaction::withoutRecord();
+    Reaction r;
     std::string kbuf;
     std::vector<std::string> vkbuf;
 

@@ -4,6 +4,7 @@
 #include "LegacyReader.h"
 
 #include <algorithm>
+#include <regex>
 #include <cctype>
 #include <cmath>
 #include <exception>
@@ -12,6 +13,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 
@@ -752,6 +754,61 @@ auto readSources(const json& j) -> std::vector<std::string>
 
 // ---------------------------------------------------------------------------------------------------------------
 
+void checkReading(const Diagnostics& diagnostics)
+{
+    for (const auto& d : diagnostics.errors())
+    {
+        // the one error that refuses the record, as the old parser did: the others leave a record with what could be read
+        if (d.code == "LEG-QRK-009")
+            funError("Too many coefficient values", toString(d), __LINE__, __FILE__);
+        thfun_logger->error("{}", toString(d));
+    }
+}
+
+auto stoichiometryOfEquation(const std::string& equation) -> std::vector<std::pair<std::string, double>>
+{
+    // the coefficient of "+10.7H2O", "2 H2O" or "H2O"
+    auto extract = [](const std::string& text, double& coefficient) -> std::string {
+        coefficient = 1.0;
+        if (text.empty() || std::isalpha(static_cast<unsigned char>(text[0])) || text[0] == '(')
+            return text;
+        if (text[0] == '+' && text.size() > 1 && (std::isalpha(static_cast<unsigned char>(text[1])) || text[1] == '('))
+            return text.substr(1);
+        if (text[0] == '-' && text.size() > 1 && (std::isalpha(static_cast<unsigned char>(text[1])) || text[1] == '('))
+        {
+            coefficient = -1.0;
+            return text.substr(1);
+        }
+        std::size_t used = 0;
+        coefficient = std::stod(text, &used);
+        return text.substr(used);
+    };
+
+    std::vector<std::pair<std::string, double>> out;
+    auto add = [&](const std::string& side, double sign) {
+        static const std::regex separator("\\s+\\+\\s+");
+        for (std::sregex_token_iterator it(side.begin(), side.end(), separator, -1), end; it != end; ++it)
+        {
+            std::string part = *it;
+            part.erase(std::remove_if(part.begin(), part.end(), [](unsigned char c) { return c == ' ' || c == '\n' || c == '\t'; }), part.end());
+            double coefficient = 1.0;
+            const std::string symbol = extract(part, coefficient);
+            if (symbol.empty())
+                continue;
+            const auto known = std::find_if(out.begin(), out.end(), [&](const auto& item) { return item.first == symbol; });
+            if (known != out.end())
+                known->second = coefficient * sign;
+            else
+                out.emplace_back(symbol, coefficient * sign);
+        }
+    };
+    const auto equal = equation.find('=');
+    add(equation.substr(0, equal), -1.0);
+    if (equal != std::string::npos)
+        add(equation.substr(equal + 1), 1.0);
+    return out;
+}
+
 auto readLegacySubstance(const std::string& text, const LegacyReadOptions& options, Diagnostics* diagnostics) -> SubstanceRecord
 {
     SubstanceRecord s;
@@ -823,10 +880,18 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
     r.name = stringOf(j, legacy::Name);
     r.equation = stringOf(j, legacy::Equation);
 
-    if (isPresent(j, legacy::Reactants) && j[legacy::Reactants].is_array())
-        for (const auto& item : j[legacy::Reactants])
-            if (item.is_object() && isPresent(item, legacy::Symbol) && isPresent(item, "coefficient") && item["coefficient"].is_number())
-                r.stoichiometry.emplace_back(item[legacy::Symbol].get<std::string>(), item["coefficient"].get<double>());
+    if (r.symbol.empty())
+        r.symbol = r.equation;
+
+    if (isPresent(j, legacy::Reactants))
+    {
+        if (j[legacy::Reactants].is_array())
+            for (const auto& item : j[legacy::Reactants])
+                if (item.is_object() && isPresent(item, legacy::Symbol) && isPresent(item, "coefficient") && item["coefficient"].is_number())
+                    r.stoichiometry.emplace_back(item[legacy::Symbol].get<std::string>(), item["coefficient"].get<double>());
+    }
+    else if (!r.equation.empty())
+        r.stoichiometry = stoichiometryOfEquation(r.equation);
 
     r.applicability = readLimits(j);
     if (isPresent(j, legacy::Tst) && j[legacy::Tst].is_number())
@@ -874,6 +939,8 @@ auto readLegacyElement(const std::string& text, const LegacyReadOptions& options
 
     const int code = (isPresent(j, legacy::Class) && j[legacy::Class].is_object()) ? codeOf(j, legacy::Class, 0) : 0;
     e.class_ = elementClassFromLegacy(code);
+    if (e.class_ == ElementClass::Other)
+        e.legacy_class = code;
     if (e.class_ == ElementClass::Other)
         report(c, Severity::Warning, "LEG-KEY-001", legacy::Class, "the element class " + std::to_string(code) + " has no word: `other` is used");
 

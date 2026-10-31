@@ -81,6 +81,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The engine runs every record through method objects: the old `switch` evaluation is gone. New:
   `thermoPropertiesSubstanceDetailed` gives the result, its source, the methods in order and the conversions applied.
   `explain` is built on it, so it now needs the defining reaction of a substance in the database.
+- `Substance`, `Reaction` and `Element` hold only their record. The old parser is removed, with the C++ functions
+  `parseSubstance`, `parseReaction`, `parseElement` and the header `Common/ParseJsonToData.h`: use the constructors. The Python
+  functions stay. `readConventions` is in `Database.h`.
+- `Element::heatCapacity()` and `volume()` give 0 if the record has no such value; before, a missing value took the entropy or
+  the atomic mass. `lowerP()` and `upperP()` give the limits of the file; before, they were not read.
 - `ThermoFun/OptimizationUtils.h` is removed. The engine keeps its results in `Engine/ResultCache.h`.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 

@@ -110,6 +110,45 @@ jobs:
           conda list --show-channel-urls
 
 
+  # Records never change, and threads can share them: tests/model/test_records_immutable.cpp
+  thread-sanitizer:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-activate: false
+          activate-environment: base
+          channels: conda-forge
+
+      - name: Configuring Conda Environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda run -n base python -m conda_devenv
+
+      - name: Build with ThreadSanitizer
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          cmake -S . -B build-tsan -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DTFUN_BUILD_TESTS=ON -DTFUN_BUILD_PYTHON=OFF \
+                -DCMAKE_CXX_FLAGS="-fsanitize=thread -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
+          cmake --build build-tsan -j 4 --target test-records-immutable
+
+      - name: Run with ThreadSanitizer
+        shell: bash -l {0}
+        run: |
+          # ThreadSanitizer cannot map its memory with the high address randomization of the runners
+          sudo sysctl vm.mmap_rnd_bits=28
+          conda activate thermofun
+          ./build-tsan/tests/model/test-records-immutable
+
   # Compare every record of every database with the build of the tag golden-baseline
   golden-diff:
     runs-on: ubuntu-latest

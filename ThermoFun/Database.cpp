@@ -6,7 +6,6 @@
 // ThermoFun includes
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/Exception.h"
-#include "Common/ParseJsonToData.h"
 #include "Substance.h"
 #include "Reaction.h"
 #include "Element.h"
@@ -26,6 +25,24 @@ namespace ThermoFun {
     exception.reason << "There is no such " << type << " in the database.";
     exception.line = line;
     RaiseError(exception)
+}
+
+auto readConventions(const std::string &data) -> DatabaseConventions
+{
+    DatabaseConventions c;
+
+    try {
+    const auto& jc = json::parse(data);
+
+    if (jc.contains("water_triple_point_reference") && !jc["water_triple_point_reference"].is_null())
+        c.water_triple_point_reference = jc["water_triple_point_reference"].get<std::string>();
+    }
+    catch (json::exception &ex)
+    {
+        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+    }
+
+    return c;
 }
 
 struct Database::Impl

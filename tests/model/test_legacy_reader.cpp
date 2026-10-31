@@ -514,9 +514,8 @@ void testRecordLink()
     e.setValence(1);
     CHECK(e.record() != nullptr && e.record()->valence == 1);
 
-    // an object made by the setters has a record from the start; only the old parser keeps the old fields
+    // an object made by the setters has a record from the start
     CHECK(ThermoFun::Substance().record() != nullptr);
-    CHECK(ThermoFun::Substance::withoutRecord().record() == nullptr);
 }
 
 // The migration report of a database: how many diagnostics of each code

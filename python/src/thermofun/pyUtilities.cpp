@@ -12,7 +12,10 @@
 namespace py = pybind11;
 
 #include <ThermoFun/Common/Units.hpp>
-#include <ThermoFun/Common/ParseJsonToData.h>
+#include <ThermoFun/Database.h>
+#include <ThermoFun/Element.h>
+#include <ThermoFun/Reaction.h>
+#include <ThermoFun/Substance.h>
 #include <ThermoFun/Database.h>
 #include <ThermoFun/Element.h>
 #include <ThermoFun/Substance.h>

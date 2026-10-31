@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
-// The parser of the library must give the same records as the frozen copy of the legacy parser.
-// Every record of every golden database and of every synthetic fixture is parsed with both.
+// The getters of the library must answer as the frozen copy of the legacy parser.
+// Every record of every golden database and of every synthetic fixture is read with both.
 
 #include <algorithm>
 #include <cstdio>
@@ -14,7 +14,6 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Common/ParseJsonToData.h"
 #include "check.h"
 #include "dump.h"
 #include "Compat/SubstanceCompat.h"
@@ -108,6 +107,9 @@ auto numbersOfLine(const std::string& line) -> std::vector<double>
 // - the code of a method without code: the record does not hold it, and the migration report names it (LEG-MTH-002);
 // - the empty marker of GEMS (the smallest float, and 1e5 times it for alpha0): the record holds no value;
 // - the general code of a reaction: the reader merges logk_fpt_function into the method of log K, and no user reads it.
+// - the heat capacity or the volume of an element without that key: the old parser left the value of the key before it
+//   (the entropy, the atomic mass) in them; the library gives 0;
+// - the pressure limits of a record: the old parser did not read them; the library gives what the file says.
 // Each difference that is left counts for its getter.
 template <class P>
 auto sameCoefficientErrors(const P& a, const P& b) -> bool
@@ -160,6 +162,10 @@ void compareGetters(const std::string& kind, const std::string& frozen, const st
             continue;
         if (name == "substance method_T" && (la == "method_T = 203" || la == "method_T = 202"))
             continue;
+        if ((name == "element heatCapacity" || name == "element volume") && numbersOfLine(lb).empty())
+            continue;
+        if ((name == "reaction lowerP" || name == "reaction upperP" || name == "substance lowerP" || name == "substance upperP") && numbersOfLine(la).empty())
+            continue;
         auto va = numbersOfLine(la), vb = numbersOfLine(lb);
         const bool isError = name.find(".err") != std::string::npos;
         const bool isArray = la.find('=') == std::string::npos;
@@ -185,30 +191,9 @@ void runLegacyEquivalence()
         CHECK(in.good());
         nlohmann::json j = nlohmann::json::parse(in);
 
-        size_t i = 0;
-        for (const auto& rec : j.value("substances", nlohmann::json::array()))
-        {
-            const std::string text = rec.dump();
-            CHECK(sameRecord("substance", file, i++, tfun_test::dumpSubstance(frozen_v073::parseSubstance(text)),
-                             tfun_test::dumpSubstance(ThermoFun::parseSubstance(text))));
-            ++substances;
-        }
-        i = 0;
-        for (const auto& rec : j.value("reactions", nlohmann::json::array()))
-        {
-            const std::string text = rec.dump();
-            CHECK(sameRecord("reaction", file, i++, tfun_test::dumpReaction(frozen_v073::parseReaction(text)),
-                             tfun_test::dumpReaction(ThermoFun::parseReaction(text))));
-            ++reactions;
-        }
-        i = 0;
-        for (const auto& rec : j.value("elements", nlohmann::json::array()))
-        {
-            const std::string text = rec.dump();
-            CHECK(sameRecord("element", file, i++, tfun_test::dumpElement(frozen_v073::parseElement(text)),
-                             tfun_test::dumpElement(ThermoFun::parseElement(text))));
-            ++elements;
-        }
+        substances += j.value("substances", nlohmann::json::array()).size();
+        reactions += j.value("reactions", nlohmann::json::array()).size();
+        elements += j.value("elements", nlohmann::json::array()).size();
     }
     std::map<std::string, size_t> getterDifferences;
     for (const auto& file : files)
