@@ -17,7 +17,6 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
-#define OutputSTEAM_CONVENTION
 
 ///@cond INTERNAL
 

@@ -2,6 +2,8 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 
+#include <iostream>
+
 #include <ThermoFun/ThermoFun.h>
 using namespace ThermoFun;
 
@@ -54,11 +56,11 @@ int main()
 
     auto tps = engine.thermoPropertiesSubstance(TK, pPa, "OH-");
 
-    cout <<"G0 " << tps.gibbs_energy << endl;
-    cout <<"H0 " << tps.enthalpy << endl;
-    cout <<"S0 " << tps.entropy << endl;
-    cout <<"V0 " << tps.volume << endl;
-    cout <<"Cp0 " << tps.heat_capacity_cp << endl;
+    std::cout <<"G0 " << tps.gibbs_energy << std::endl;
+    std::cout <<"H0 " << tps.enthalpy << std::endl;
+    std::cout <<"S0 " << tps.entropy << std::endl;
+    std::cout <<"V0 " << tps.volume << std::endl;
+    std::cout <<"Cp0 " << tps.heat_capacity_cp << std::endl;
 
     //G --157220 // calc -157218
     //H	-230020 // calc -230018

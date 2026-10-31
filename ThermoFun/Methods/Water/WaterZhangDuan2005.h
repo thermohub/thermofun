@@ -21,7 +21,6 @@ auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubst
 /// The properties of water with the exact derivatives of the density up to the third order (the pressure of the pass in Pa)
 auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass) -> PropertiesSolventAD;
 
-auto waterDensityZhangDuan2005(real T, real P) -> real;
 
 /// The coefficients of G(T, 1 kbar) of the model DEW: a polynomial in T (degC) in cal/mol, the highest power first
 struct DewGibbsCoefficients

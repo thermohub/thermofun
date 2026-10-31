@@ -74,19 +74,14 @@ std::string message(const Exception& exception, const std::string& file, int lin
 
 auto errorMethodNotFound(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorReactionNotDefined(std::string name, int line, std::string file) -> void;
 
-auto errorSolventNotDefined(std::string type, std::string name, int line, std::string file) -> void;
 
 auto errorModelParameters(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorSameSymbol(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void;
 
 auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
 
-auto funErrorIf(bool condition, const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
 
 } // namespace ThermoFun
 

@@ -1,7 +1,2 @@
 # Old files that break the layer rules today, each with the step that removes the violation.
 # check_includes.py fails on any violation not listed here, and on a listed one that is gone.
-
-# R3.3: the CSV output of ThermoBatch moves to Batch/
-ThermoFun/Common/OutputToCSV.h: ThermoFun/ThermoProperties.h
-ThermoFun/Common/OutputWaterSteamConventionProp.cpp: GlobalVariables.h
-ThermoFun/Common/OutputWaterSteamConventionProp.h: ThermoFun/Methods/Water/Reaktoro/WaterThermoState.hpp

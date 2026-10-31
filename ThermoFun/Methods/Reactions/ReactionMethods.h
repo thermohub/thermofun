@@ -49,7 +49,7 @@ struct InterpolatedValue
 auto naturalSpline(const std::vector<double>& x, const std::vector<double>& y, const real& at) -> InterpolatedValue;
 auto lagrangePolynomial(const std::vector<double>& x, const std::vector<double>& y, const real& at, int order) -> InterpolatedValue;
 
-/// The calculations of the methods, with their status rules, for the old classes too.
+/// The calculations of the methods, with their status rules.
 auto logKProperties(const ReactionInputs& inputs, LogKForm form, double T, double P) -> ThermoPropertiesReaction;
 auto volumePolynomialProperties(const ReactionInputs& inputs, double T, double P, const ThermoPropertiesReaction& incoming) -> ThermoPropertiesReaction;
 auto constantVolumeProperties(const ReactionInputs& inputs, double T, double P, const ThermoPropertiesReaction& incoming) -> ThermoPropertiesReaction;

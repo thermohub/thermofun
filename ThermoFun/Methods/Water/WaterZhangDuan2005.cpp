@@ -202,19 +202,6 @@ auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubst
     return tps;
 }
 
-auto waterDensityZhangDuan2005(real T, real P) -> real
-{
-    real Vr;
-
-    Vr = 0.3;
-    Vr = waterMolarVolume(T, P, Vr);
-
-    const auto V = Vr * waterCriticalVolume /10;
-    const auto D = H2OMolarMass/V*100;
-
-    return D;
-}
-
 /// The partial derivatives of the reduced volume Vr(T, P) of the Zhang and Duan (2005) EOS, obtained analytically by the implicit
 /// differentiation of f(Vr, T, P) = s - Vcr Vr = 0, with s = R T Z(Vr, T)/P (T in K, P in bar):
 ///   Z = 1 + B/x + C/x^2 + D/x^4 + E/x^5 + (F/x^2 + G/x^4) exp(-gamma/x^2),  x = Vr,  B..G power laws of T/Tc

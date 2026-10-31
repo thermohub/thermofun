@@ -46,9 +46,6 @@ auto thermoPropertiesWaterWP95reaktoro(real T, const WaterThermoState& wt, const
     state.heat_capacity_cp = Cp;
     state.heat_capacity_cv = Cv;
 
-//#ifdef OutputSTEAM_CONVENTION
-//    OutputSteamConventionH2OProp("H2OWP95reaktoro.csv", wt);
-//#endif
 
     return state;
 }

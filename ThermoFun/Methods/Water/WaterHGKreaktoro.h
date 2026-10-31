@@ -19,9 +19,6 @@ struct WaterTripleProperties;
 
 //auto waterSaturatedPressureWagnerPruss(Reaktoro::Temperature T) -> Reaktoro::ThermoScalar;
 
-/// Calculate the water saturated vapor pressure using the HGK model (from GEMS)
-/// @param t temperature (K)
-auto saturatedWaterVaporPressureHGK(real TK) -> real;
 
 /// Return the thermodynamic properties of water
 /// @param T temparature (K)

@@ -76,16 +76,6 @@ struct Quantity
     auto operator==(const Quantity&) const -> bool = default;
 };
 
-/// Numbers that share one unit, for example a legacy array of coefficients.
-struct QuantityList
-{
-    std::vector<double> values;                                 ///< SI
-    std::vector<std::string> units_as_written;                  ///< one for each value, or empty
-    std::vector<std::optional<double>> standard_uncertainties;  ///< one for each value, or empty
-
-    auto operator==(const QuantityList&) const -> bool = default;
-};
-
 } // namespace ThermoFun::v2
 
 #endif

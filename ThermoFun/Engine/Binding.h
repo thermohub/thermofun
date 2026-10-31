@@ -37,8 +37,8 @@ struct BindConventions
 /// True if every method of the record has code, and exactly one of them is a base method.
 auto canBind(const SubstanceRecord& record) -> bool;
 
-/// The conflicts between the methods of a record, each with what to do. Not used for legacy records yet: they keep
-/// the behaviour of the old engine until the v2 reader (R3) reports these problems at load.
+/// The conflicts between the methods of a record, each with what to do. A load uses it for v2 files, and validate for all records:
+/// a legacy record is read as it is.
 auto checkMethods(const SubstanceRecord& record) -> Diagnostics;
 
 /// Make the methods of a record and put them in the order of execution: the base method, a transformation, the

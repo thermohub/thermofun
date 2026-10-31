@@ -40,7 +40,7 @@ code that uses ThermoFun, what was fixed on the way, and what is known and left.
 Codes that use ThermoFun are not affected:
 
 - `Common/ThermoScalar.hpp` (`Reaktoro_::ThermoScalar`, `Temperature`, `Pressure` with their arithmetic, `Status`),
-  `Common/ScalarTypes.hpp` and `ThermoVariables` are as before; the engine and batch API is unchanged; the Python
+  `ThermoVariables` are as before; the engine and batch API is unchanged; the Python
   class `ThermoScalar` and its attributes are unchanged.
 - The members `val`, `ddt` and `ddp` can be used in both styles: `x.val` (ThermoFun) and `x.val()` (autodiff and
   Reaktoro); `val(x)` also works. They are of the type `Reaktoro_::Num`, which converts to and from `double`

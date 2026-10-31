@@ -87,6 +87,16 @@ jobs:
           conda activate thermofun
           pytest -ra -vv --color=yes .
 
+      - name: Building the examples
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          for e in cmake-project solute-anderson91 solute-hp98; do
+            cmake -S "examples/$e" -B "examples/build/$e" -G Ninja
+            cmake --build "examples/build/$e"
+          done
+
       - name: Generating the v2 copies of the bundled databases
         if: matrix.os == 'ubuntu-latest'
         shell: bash -l {0}

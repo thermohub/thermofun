@@ -16,6 +16,9 @@ add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)
 
+# The headers need C++20, also in the code of a user of the library
+target_compile_features(ThermoFun PUBLIC cxx_std_20)
+
 # Link ThermoFun against all required dependencies
 target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
 if(TFUN_USE_AUTODIFF)

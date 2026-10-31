@@ -10,7 +10,6 @@ to the **GNU Lesser General Public License version 2.1 or (at your option) any l
 commit `a8abc79e`, "Updated the license from GPLv3.0 to LGPLv2.1"), and the headers of these files carry the notice of
 that license (as in Reaktoro today). Reaktoro depends on ThermoFun, so ThermoFun must stay compatible with the LGPL-2.1+ of Reaktoro:
 
-- `ThermoFun/Common/ScalarTypes.hpp`
 - `ThermoFun/Common/ThermoProperty.hpp`
 - `ThermoFun/Common/ThermoScalar.hpp`
 - `ThermoFun/Common/Units.cpp`

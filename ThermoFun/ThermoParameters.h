@@ -190,11 +190,6 @@ struct ThermoParametersReaction
     std::map<std::string, vvd> coefficient_errors;
 };
 
-/// Describes the thermodynamic parameters of a solvent used in specific models to calculate
-/// its thermodynamic properties at a given temperature and pressure
-struct ThermoParametersSolvent
-{ };
-
 /// A coefficient of a model with an uncertainty: the key of the coefficients in the database record, a pointer to its value
 /// and its standard error
 struct UncertainCoefficient
