@@ -13,6 +13,7 @@
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Methods/Gases/GasMethods.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
+#include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Minerals/MineralMethods.h>
 #include <ThermoFun/Methods/Minerals/ReferenceMethods.h>
 #include <ThermoFun/Conventions/HydrogenIon.h>
@@ -20,6 +21,20 @@
 #include <ThermoFun/Methods/Water/WaterMethods.h>
 
 namespace ThermoFun::v2 {
+
+namespace {
+
+/// The names of the parameters of a method, in the order of the catalog. alpha0 and kappa0 of a mineral are apart: its formulas get them on their own.
+auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::string>
+{
+    std::vector<std::string> names;
+    for (const auto& p : MethodCatalog::instance().find(id, OperatesOn::Substance)->parameters)
+        if (withModuli || (p.name != "alpha0" && p.name != "kappa0"))
+            names.push_back(p.name);
+    return names;
+}
+
+} // namespace
 
 MethodRegistry::MethodRegistry()
 {
@@ -32,11 +47,11 @@ MethodRegistry::MethodRegistry()
     add("IdealGas", "", [](A, R r) { return idealGasMethod(r.class_ == SubstanceClass::GasFluid); });
 
     // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
-    auto mineral = [this](const char* id, std::initializer_list<const char*> names) {
-        add(id, "", [id, names = std::vector<const char*>(names)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+    auto mineral = [this](const char* id, std::vector<std::string> names) {
+        add(id, "", [id, names = std::move(names)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;
             bool any = false;
-            for (const char* n : names)
+            for (const auto& n : names)
             {
                 const auto it = a.parameters.find(n);
                 any = any || it != a.parameters.end();
@@ -46,14 +61,14 @@ MethodRegistry::MethodRegistry()
             return mineralMethod(id, any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability);
         });
     };
-    mineral("LandauHP98", {"Tc0", "Smax", "Vmax"});
-    mineral("LandauHP11", {"Tc0", "Smax", "Vmax"});
-    mineral("MurnaghanHP98", {});
-    mineral("TaitHP11", {"kappa0p", "kappa0pp", "n_atoms"});
-    mineral("VolumeBerman88", {"a1", "a2", "a3", "b1", "b2"});
-    mineral("VolumeDorogokupets88", {"a1", "a2", "a3", "b1", "b2"});
-    mineral("BirchMurnaghan47", {"a1", "a2", "a3", "", "", "kt00", "dkdt", "kp", "kpp"});
-    mineral("CpExtendedUNIQUAC", {"a", "b", "c", "alpha", "beta", "Theta"});
+    mineral("LandauHP98", catalogNames("LandauHP98", false));
+    mineral("LandauHP11", catalogNames("LandauHP11", false));
+    mineral("MurnaghanHP98", catalogNames("MurnaghanHP98", false));
+    mineral("TaitHP11", catalogNames("TaitHP11", false));
+    mineral("VolumeBerman88", catalogNames("VolumeBerman88", false));
+    mineral("VolumeDorogokupets88", catalogNames("VolumeDorogokupets88", false));
+    mineral("BirchMurnaghan47", {"a1", "a2", "a3", "", "", "kt00", "dkdt", "kp", "kpp"});  // the formula has two unused places
+    mineral("CpExtendedUNIQUAC", catalogNames("CpExtendedUNIQUAC", false));
     add("NASA9", "", [](A a, R) { return nasa9Method(a); });
     add("TPTable", "", [](A a, R) { return tpTableMethod(a); });
 
@@ -126,10 +141,10 @@ MethodRegistry::MethodRegistry()
     reaction_["ReactionConstantVolume"] = [reactionInputs](A a, RR r) { return makeReactionConstantVolume(reactionInputs(a, r, {})); };
 
     // a fluid: the parameters in the order of the names; the lower T of the record is that of its heat capacity
-    auto gas = [this](const char* id, std::vector<const char*> names) {
-        add(id, "", [names, id = std::string(id)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+    auto gas = [this](const char* id) {
+        add(id, "", [names = catalogNames(id), id = std::string(id)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;
-            for (const char* n : names)
+            for (const auto& n : names)
             {
                 const auto it = a.parameters.find(n);
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
@@ -149,20 +164,19 @@ MethodRegistry::MethodRegistry()
             return gasMethod(id, values, record);
         });
     };
-    const std::vector<const char*> cubic = {"Tc", "Pc", "omega", "N"}, interaction = {"Tc", "Pc", "omega", "k1", "k2", "k3"};
-    gas("PRSV86", interaction);
-    gas("CorkHP91", interaction);
-    gas("SoaveRedlichKwong72", cubic);
-    gas("PengRobinson78", cubic);
-    gas("SternerPitzer94", {"Tc", "Pc"});
-    gas("ChurakovGottschalk03", {"sigma0", "eps0", "mu0", "pol0", "sigma1", "sigma2", "eps1", "eps2", "mu1", "mu2", "pol1", "pol2"});
+    gas("PRSV86");
+    gas("CorkHP91");
+    gas("SoaveRedlichKwong72");
+    gas("PengRobinson78");
+    gas("SternerPitzer94");
+    gas("ChurakovGottschalk03");
 
     // the parameters in the order of the catalog; none if the record gives none
-    auto parametersOf = [](A a, std::initializer_list<const char*> names) {
+    auto parametersOf = [](A a) {
         std::vector<double> values;
         if (a.parameters.empty())
             return values;
-        for (const char* n : names)
+        for (const auto& n : catalogNames(a.method.c_str()))
         {
             const auto it = a.parameters.find(n);
             values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
@@ -171,16 +185,16 @@ MethodRegistry::MethodRegistry()
     };
     auto hkfSpecies = [](R r) { return HKFSpecies{r.symbol, static_cast<double>(r.charge.value_or(0)), isHydrogenIon(r), r.applicability}; };
     auto hkfReaktoro = [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return hkf88ReaktoroMethod(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
+        return hkf88ReaktoroMethod(parametersOf(a), hkfSpecies(r));
     };
     add("HKF88", "", hkfReaktoro);
     add("HKF88", "reaktoro", hkfReaktoro);
     add("HKF88", "gems", [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return hkf88GemsMethod(parametersOf(a, {"a1", "a2", "a3", "a4", "c1", "c2", "omega"}), hkfSpecies(r));
+        return hkf88GemsMethod(parametersOf(a), hkfSpecies(r));
     });
-    add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a, {"b"}), r.symbol); });
+    add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
     add("AndersonEtAl91", "", [](A, R) { return andersonEtAl91Method(); });
-    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a, {"xi", "a", "b"}), r.symbol); });
+    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a), r.symbol); });
 
     // "" is the default implementation, the first one of the catalog
     auto solvent = [this](const char* id, const char* implementation, SolventFactory f) {
