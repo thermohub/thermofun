@@ -93,23 +93,6 @@ auto waterDensityWagnerPruss(real T, real P, int state) -> real
     return waterDensity(T, P, state, waterHelmholtzStateWagnerPruss);
 }
 
-template<typename HelmholtzModel>
-auto waterPressure(real T, real D, const HelmholtzModel& model) -> real
-{
-    WaterHelmholtzState h = model(T, D);
-    return D*D*h.helmholtzD.val();
-}
-
-auto waterPressureHGK(real T, real D) -> real
-{
-    return waterPressure(T, D, waterHelmholtzStateHGK);
-}
-
-auto waterPressureWagnerPruss(real T, real D) -> real
-{
-    return waterPressure(T, D, waterHelmholtzStateHGK);
-}
-
 auto waterSaturatedPressureWagnerPruss(real T) -> real
 {
     const double a1 = -7.85951783;

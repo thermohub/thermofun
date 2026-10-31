@@ -36,18 +36,6 @@ auto waterDensityHGK(real T, real P, int state) -> real;
 /// @return The density of water (in units of kg/m3)
 auto waterDensityWagnerPruss(real T, real P, int state) -> real;
 
-/// Calculate the pressure of water using the Haar-Gallagher-Kell (1984) equation of state
-/// @param T The temperature of water (in units of K)
-/// @param D The density of water (in units of kg/m3)
-/// @return The pressure of water (in units of Pa)
-auto waterPressureHGK(real T, real D) -> real;
-
-/// Calculate the pressure of water using the Wagner and Pruss (1995) equation of state
-/// @param T The temperature of water (in units of K)
-/// @param D The density of water (in units of kg/m3)
-/// @return The pressure of water (in units of Pa)
-auto waterPressureWagnerPruss(real T, real D) -> real;
-
 /// Calculate the saturated pressure of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated pressure of water (in units of Pa)
