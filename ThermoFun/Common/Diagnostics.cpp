@@ -91,6 +91,7 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
         // format version and keys
         {"V2-VER-001", S::Error, "The major version of the format is not supported.",
          "Convert the file with the ThermoFun version that wrote it, or update ThermoFun."},
+        {"V2-VER-003", S::Error, "The file has no key `thermohub` with the version of the format.", "Add the key at the top of the file, for example `thermohub: 2.0.0-draft.1`."},
         {"V2-VER-002", S::Warning, "The minor version of the format is newer than this ThermoFun knows.",
          "Update ThermoFun to read all fields of the file."},
         {"V2-KEY-001", S::Warning, "The key is not known. It is kept and written back.",
@@ -134,6 +135,7 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Add the parameter, or give a `parameter_set` that has it."},
         {"V2-MTH-005", S::Error, "The method cannot be used for this class of substance.",
          "Use a method for the class of the record (see `Suits` in the method reference)."},
+        {"V2-APP-001", S::Error, "The minimum of a range is not below its maximum.", "Correct the limits of the range."},
         {"V2-MTH-006", S::Warning, "The temperature segments overlap or leave gaps.",
          "Make each segment start where the one before ends."},
         {"V2-MTH-009", S::Error, "The method has no implementation with this name.",

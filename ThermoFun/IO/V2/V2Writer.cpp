@@ -834,6 +834,36 @@ void block(const json& node, size_t indent, std::string& out)
 
 } // namespace
 
+auto writeV2Element(const ElementRecord& record, const V2WriterOptions& options) -> std::string
+{
+    json out = json::object();
+    out["symbol"] = record.symbol;
+    const json fields = elementJson(record, options);
+    for (const auto& item : fields.items())
+        out[item.key()] = item.value();
+    return out.dump();
+}
+
+auto writeV2Substance(const SubstanceRecord& record, const V2WriterOptions& options) -> std::string
+{
+    json out = json::object();
+    out["symbol"] = record.symbol;
+    const json fields = substanceJson(record, ThermoDataSetInfo{}, options);
+    for (const auto& item : fields.items())
+        out[item.key()] = item.value();
+    return out.dump();
+}
+
+auto writeV2Reaction(const ReactionRecord& record, const V2WriterOptions& options) -> std::string
+{
+    json out = json::object();
+    out["symbol"] = record.symbol;
+    const json fields = reactionJson(record, ThermoDataSetInfo{}, options);
+    for (const auto& item : fields.items())
+        out[item.key()] = item.value();
+    return out.dump();
+}
+
 auto writeV2Json(const V2Records& records, const V2WriterOptions& options) -> std::string
 {
     return documentJson(records, options).dump(1);

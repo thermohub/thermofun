@@ -475,7 +475,7 @@ auto readElement(Context& c, const json& node, const std::string& key, const Uni
     }
     static const std::set<std::string> known = {"symbol", "name", "class", "number", "isotope_mass", "valence", "molar_mass",
                                                 "standard_entropy", "heat_capacity", "volume", "reference_form", "data_sources",
-                                                "sourcetdb", "structural", "units", "legacy_class"};
+                                                "sourcetdb", "structural", "units", "record_type", "legacy_class"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -521,7 +521,7 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     static const std::set<std::string> known = {
         "symbol", "name", "formula", "charge", "class", "aggregate_state", "sourcetdb", "molar_mass", "standard_state_convention",
         "convention", "reference_conditions", "standard_state_properties", "methods", "defining_reaction", "preferred_property_source",
-        "applicability", "data_source", "data_sources", "structural", "deprecated", "deprecated_in_favour_of", "units", "covariances"};
+        "applicability", "data_source", "data_sources", "structural", "deprecated", "deprecated_in_favour_of", "units", "record_type", "covariances"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -597,7 +597,7 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
     }
     static const std::set<std::string> known = {
         "symbol", "name", "equation", "stoichiometry", "reference_conditions", "reaction_properties", "methods", "level", "data_source",
-        "data_sources", "applicability", "convention", "preferred_property_source", "sourcetdb", "deprecated", "units", "covariances"};
+        "data_sources", "applicability", "convention", "preferred_property_source", "sourcetdb", "deprecated", "units", "record_type", "covariances"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -900,14 +900,26 @@ void readRecords(Context& c, const json& node, const UnitScope& scope, const std
     }
 }
 
+// The format version that this reader knows
+constexpr int knownMinor = 0;
+
 void versionCheck(Context& c, const json& root)
 {
     if (!root.contains("thermohub") || !root["thermohub"].is_string())
+    {
+        report(c, Severity::Error, "V2-VER-003", "", "/", "The file has no key thermohub with the version of the format.");
         return;
+    }
     const std::string version = root["thermohub"].get<std::string>();
     const int major = std::atoi(version.c_str());
     if (major != 2)
+    {
         report(c, Severity::Error, "V2-VER-001", "", "/thermohub", "This file uses the format " + version + "; ThermoFun reads 2.x.");
+        return;
+    }
+    const auto dot = version.find('.');
+    if (dot != std::string::npos && std::atoi(version.c_str() + dot + 1) > knownMinor)
+        report(c, Severity::Warning, "V2-VER-002", "", "/thermohub", "This file uses the format " + version + "; this ThermoFun knows 2." + std::to_string(knownMinor) + ". It keeps what it does not know.");
 }
 
 }
@@ -920,7 +932,7 @@ auto readDocument(const json& root, Diagnostics& diagnostics, const std::string&
     Context c{diagnostics, nullptr, file};
     versionCheck(c, root);
     for (const auto& d : diagnostics.all())
-        if (d.code == "V2-VER-001")
+        if (d.code == "V2-VER-001" || d.code == "V2-VER-003")
             return doc;
     static const std::set<std::string> topKnown = {"thermohub", "generator", "thermodataset", "units", "include", "elements",
                                                     "substances", "reactions", "methods", "parameter_sets", "data_sources"};

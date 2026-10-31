@@ -1,0 +1,20 @@
+{
+ "aq17-thermofun.json": {
+  "V2-MTH-004": 4
+ },
+ "cemdata18-thermofun.json": {
+  "V2-APP-001": 2
+ },
+ "heracles-thermofun.json": {
+  "V2-MTH-006": 1
+ },
+ "mines16-thermofun.json": {
+  "V2-MTH-004": 2,
+  "V2-RXN-002": 1
+ },
+ "psinagra-12-07-thermofun.json": {
+  "V2-RXN-002": 1
+ },
+ "slop98-organic-thermofun.json": {},
+ "slop98-thermofun.json": {}
+}

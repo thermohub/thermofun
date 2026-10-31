@@ -103,6 +103,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the exact value. See `docs/how-to/add-data.md`.
 - Numbers in data files and units are read the same in all locales. In a program with a decimal comma, as Qt can set, `-1234.5` in a v2 YAML file gave -1234 with no error, and an
   equation with `0.5` was read wrongly.
+- `Database::validate` reports the problems between records. A v2 file can use `include`, and `Database` reads a dataset folder. `toLegacyJson` and
+  `save(path, DataFormat::Legacy)` write the legacy format. `jsonString()` of an edited record gives the record as it is now; before, it gave the old text. A v2 file without the key
+  `thermohub` is refused, and a v2 file with methods that conflict is refused at the load.
 - New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
   `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.

@@ -31,6 +31,11 @@ struct V2Records
     std::vector<DataSource> data_sources;
 };
 
+/// One record as JSON text, with its symbol.
+auto writeV2Element(const ElementRecord& record, const V2WriterOptions& options = {}) -> std::string;
+auto writeV2Substance(const SubstanceRecord& record, const V2WriterOptions& options = {}) -> std::string;
+auto writeV2Reaction(const ReactionRecord& record, const V2WriterOptions& options = {}) -> std::string;
+
 /// A document as JSON text. The keys are in the order of the format; the records keep the order of the vectors.
 auto writeV2Json(const V2Records& records, const V2WriterOptions& options = {}) -> std::string;
 

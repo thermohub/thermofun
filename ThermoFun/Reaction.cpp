@@ -18,6 +18,8 @@
 #include "IO/Equation.h"
 #include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"
+#include "IO/Legacy/LegacyWriter.h"
+#include "IO/V2/V2Writer.h"
 #include "IO/V2/V2Reader.h"
 
 namespace ThermoFun {
@@ -32,6 +34,7 @@ struct Reaction::Impl
         change(*copy);
         copy->original_text.clear();
         record = copy;
+        jString.clear();
     }
 
     auto parameters() const -> ThermoParametersReaction
@@ -78,7 +81,7 @@ struct Reaction::Impl
     /// Arrays that an old setter gave and no method of the record reads yet: it can set them before the method
     ThermoParametersReaction waiting_parameters;
 
-    /// The text of the record. An edit does not change it, until the legacy writer exists (R4.4).
+    /// The text of the record as it was read; empty after an edit: then the writer of its format gives it
     std::string jString;
 };
 
@@ -299,7 +302,10 @@ auto Reaction::record() const -> std::shared_ptr<const v2::ReactionRecord>
 
 auto Reaction::jsonString() const -> std::string
 {
-    return pimpl->jString;
+    if (!pimpl->jString.empty())
+        return pimpl->jString;
+    // an edited record: written from its fields, in the format it came from
+    return pimpl->record->source_format == v2::DataFormat::V2 ? v2::writeV2Reaction(*pimpl->record) : v2::writeLegacyReaction(*pimpl->record);
 }
 
 auto Reaction::fromEquation(const std::string &reactionEquation) -> void

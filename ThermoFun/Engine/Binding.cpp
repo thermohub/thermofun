@@ -7,6 +7,7 @@
 #include <string>
 #include <tuple>
 
+#include <ThermoFun/Conventions/HydrogenIon.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodRegistry.h>
 
@@ -40,7 +41,7 @@ auto problem(const SubstanceRecord& record, const std::string& code, const std::
     d.severity = diagnosticInfo(code)->severity;
     d.code = code;
     d.record = record.symbol;
-    d.path = "/methods";
+    d.path = "/substances/" + record.symbol + "/methods";
     d.message = message;
     d.fix = fix;
     return d;
@@ -76,7 +77,8 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
         if (spec->effects.base)
             bases.push_back(spec->id);
     const bool fromReaction = !record.defining_reaction.empty() || record.preferred_property_source == PropertySource::Reaction;
-    if (bases.empty() && !fromReaction && record.standard_state_properties.empty())
+    // the properties of the hydrogen ion are 0 by definition
+    if (bases.empty() && !fromReaction && record.standard_state_properties.empty() && !isHydrogenIon(record))
         out.add(problem(record, "V2-MTH-012", record.symbol + " has no base method and no reference values.",
                         "Add a base method (for example CpPolynomial) or the standard-state properties G, H, S, Cp, V."));
     if (bases.size() > 1)

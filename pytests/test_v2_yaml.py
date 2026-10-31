@@ -107,13 +107,13 @@ def test_plain_numbers(yaml_value, expected):
 
 
 def test_a_word_in_quotes_stays_a_word():
-    db = tf.Database(HEADER + 'substances:\n  A:\n    name: "1.5"\n    formula: Ca\n')
+    db = tf.Database(HEADER + 'substances:\n  A:\n    name: "1.5"\n    formula: Ca\n    standard_state_properties: {G: 1}\n')
     assert db.getSubstance("A").name() == "1.5"
 
 
 def test_a_diagnostic_of_a_yaml_file_has_its_line_and_column(tmp_path):
     target = tmp_path / "data.yaml"
-    target.write_text(HEADER + "substances:\n  A:\n    aggregate_state: crystall\n    formula: Ca\n")
+    target.write_text(HEADER + "substances:\n  A:\n    aggregate_state: crystall\n    formula: Ca\n    standard_state_properties: {G: 1}\n")
     db = tf.Database(str(target))
     found = [d for d in db.loadDiagnostics().all() if d.code == "V2-VOC-001"]
     assert found[0].line == 4 and found[0].column > 1 and found[0].file == str(target)
@@ -122,7 +122,7 @@ def test_a_diagnostic_of_a_yaml_file_has_its_line_and_column(tmp_path):
 
 def test_a_diagnostic_of_a_json_file_has_its_line_too(tmp_path):
     target = tmp_path / "data.json"
-    target.write_text('{"thermohub": "2.0.0-draft.1",\n "substances": {\n  "A": {\n   "aggregate_state": "crystall"}}}\n')
+    target.write_text('{"thermohub": "2.0.0-draft.1",\n "substances": {\n  "A": {\n   "aggregate_state": "crystall",\n   "standard_state_properties": {"G": 1}}}}\n')
     found = [d for d in tf.Database(str(target)).loadDiagnostics().all() if d.code == "V2-VOC-001"]
     assert found[0].line == 4
 
@@ -151,7 +151,7 @@ def test_a_text_that_is_not_yaml_is_refused(text, tmp_path):
 
 def test_a_key_written_twice_gives_a_warning(tmp_path):
     target = tmp_path / "data.yaml"
-    target.write_text(HEADER + "substances:\n  A:\n    formula: Ca\n  A:\n    formula: Mg\n")
+    target.write_text(HEADER + "substances:\n  A:\n    formula: Ca\n    standard_state_properties: {G: 1}\n  A:\n    formula: Mg\n    standard_state_properties: {G: 1}\n")
     db = tf.Database(str(target))
     assert [d for d in db.loadDiagnostics().all() if d.code == "V2-ID-003"]
     assert db.getSubstance("A").formula() == "Mg"
@@ -164,10 +164,17 @@ def test_two_documents_are_refused(tmp_path):
         tf.Database(str(target))
 
 
-def test_yaml_without_the_version_key_is_not_a_v2_file(tmp_path):
+def test_yaml_without_the_version_key_is_refused(tmp_path):
     target = tmp_path / "data.yaml"
     target.write_text("substances:\n  A:\n    formula: Ca\n")
-    assert tf.Database(str(target)).numberOfSubstances() == 1
+    with pytest.raises(RuntimeError, match="V2-VER-003"):
+        tf.Database(str(target))
+
+
+def test_a_newer_minor_version_gives_a_warning():
+    db = tf.Database("thermohub: 2.9.0\nsubstances:\n  A:\n    formula: Ca\n    standard_state_properties: {G: 1}\n")
+    assert [d for d in db.loadDiagnostics().all() if d.code == "V2-VER-002"]
+    assert db.numberOfSubstances() == 1
 
 
 def test_a_file_that_is_not_there_is_named():

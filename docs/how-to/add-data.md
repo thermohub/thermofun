@@ -44,11 +44,12 @@ ThermoFun finds the format itself. A file with the key `thermohub` at the top is
 | One new record, as text | Call `database.addSubstance(text)`. It also accepts a `Substance`. The call does not replace a record. |
 | One record to replace | Call `database.setSubstance(text)`. |
 | A legacy database file | Load it the same way. |
+| A dataset in many files | Make a dataset folder, or use `include` (Section 7.1). |
 | A record that you change in a program | Use the setters of `Substance`, `Reaction` or `Element`. They edit a copy of the record. |
 
 `addReaction`, `setReaction`, `addElement` and `setElement` do the same for the other records.
 
-These are not available yet: dataset folders, `include`, the legacy writer and the Python record builders.
+The Python record builders are not available yet.
 
 **Save a database.** `database.save("file.yaml")` writes all records in the v2 format, as YAML or as JSON by the name of the file. It also converts a
 legacy file to v2:
@@ -62,6 +63,8 @@ assert "-56.484\n" in open("converted.yaml").read() or "G: -56.484" in open("con
 exact = tf.Database(legacy.toJson(readable=False))
 assert exact.getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value == -56.484001159668
 ```
+
+`database.save("old.json", format=tf.DataFormat.Legacy)` writes the legacy format. `database.legacyWriteProblems()` lists what that format cannot hold.
 
 By default, a value from a legacy file is written as its short decimal: `-56.484`, not `-56.484001159668`. These values were single-precision
 numbers. A database read back from such a file can differ by a small amount from the legacy file: in the bundled databases, at most 0.46 J/mol in G and
@@ -478,6 +481,50 @@ assert tf.ThermoEngine(db).solventSymbol() == "WATER"
 assert abs(db.getElement("Ca").molarMass() - 40.078) < 1e-9
 ```
 
+### 7.1 A dataset in many files
+
+A file can load other files first. The key `include` holds paths from the folder of the file, and `*` and `?` can select many files. A file loads once. A
+value in the file replaces a value in a file that it includes.
+
+<!-- file: part.yaml -->
+```yaml
+thermohub: 2.0.0-draft.1
+substances:
+  First:
+    formula: Ca
+    standard_state_properties: {G: -1000}
+```
+
+<!-- file: main.yaml -->
+```yaml
+thermohub: 2.0.0-draft.1
+include: [part.yaml]
+substances:
+  Second:
+    formula: Mg
+    standard_state_properties: {G: -2000}
+```
+
+```python
+assert tf.Database("main.yaml").getSubstancesList() == ["First", "Second"]
+```
+
+A **dataset folder** holds one dataset. Give the name of the folder to `Database`:
+
+```text
+datasets/my-data/1.0.0/
+  thermodataset.yaml        required: the file with the key thermodataset
+  elements/*.yaml           each file has a key elements, or is one record
+  substances/*.yaml         also in folders inside it
+  reactions/*.yaml
+```
+
+A file that holds one record has the key `record_type`: `element`, `substance`, `reaction`, `method`, `parameter_set` or `data_source`. It does not have the key `thermohub`.
+A file can be YAML or JSON.
+
+ThermoFun also looks in the folders above the dataset for the first folder that has `methods/` or `bibliography/`. It loads `methods/definitions`, `methods/parameter_sets` and
+`bibliography` from there, before the dataset.
+
 ## 8. Uncertainties and correlations
 
 Give the uncertainty with each value (Section 4). Write the correlations between values as a list in the record: `paths` names the
@@ -635,6 +682,7 @@ substances:
   A:
     formula: Ca
     aggregate_state: crystall
+    standard_state_properties: {G: -1000}
 ```
 
 ```python
@@ -645,8 +693,19 @@ assert problem.line == 5
 assert 'Did you mean "crystal"' in problem.message
 ```
 
+A load cannot see some problems, because a record can come from another file. `database.validate()` reports them: a missing reaction, an equation that is not balanced, a cycle of
+defining reactions, a missing parameter, a covariance matrix that is wrong.
+
+```python
+checked = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  A: {defining_reaction: nothing, standard_state_properties: {G: 1}}\n").validate()
+assert [d.code for d in checked.all()] == ["V2-REF-001"]
+```
+
 | Code | What is wrong | What to do |
 |---|---|---|
+| `V2-VER-003` | The file has no key `thermohub`. | Add it at the top of the file. |
+| `V2-MTH-012` | The record has two base methods, or no method and no values. | Keep one base method, or give the values. |
+| `V2-MTH-005` | The method is for another class of substance. | Use another method, or correct `class`. |
 | `V2-MTH-001` | The method id is not known. | Use an id of Section 9. |
 | `V2-MTH-002` | The method has no parameter with this name. | Use a name of Section 9. |
 | `V2-MTH-003` | The method has two of `parameters`, `segments` and `table`. | Keep one. |
@@ -663,7 +722,7 @@ ThermoFun reads these, but does not use them in a calculation:
 
 - `parameter_set` of a method and the record `parameter_sets`.
 - Method records with `kind: symbolic`.
-- Covariance blocks.
+- Covariance blocks. `validate` checks them.
 - `convention` of a record or a dataset. Conventions other than `benson_helgeson` and `berman_brown` raise an error in the engine.
 
 **Check:** run `python -m pytest pytests/test_add_data_guide.py`. All examples of this page run and their results are correct.

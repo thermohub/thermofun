@@ -254,8 +254,18 @@ public:
     auto toJson(bool readable = true) const -> std::string;
     auto toYaml(bool readable = true) const -> std::string;
 
-    /// Writes all records in the v2 format to a file: YAML if the name ends with .yaml or .yml, else JSON.
-    auto save(const std::string& path, bool readable = true) const -> void;
+    /// All records as legacy JSON text. What the legacy format cannot hold is left out, with a warning in the log.
+    /// @param useOriginalText a record from a legacy file that nobody edited is written as its text
+    auto toLegacyJson(bool useOriginalText = true) const -> std::string;
+
+    /// What toLegacyJson leaves out.
+    auto legacyWriteProblems() const -> Diagnostics;
+
+    /// Writes all records to a file. V2: YAML if the name ends with .yaml or .yml, else JSON. Legacy: legacy JSON, from the fields of the records.
+    auto save(const std::string& path, v2::DataFormat format = v2::DataFormat::V2, bool readable = true) const -> void;
+
+    /// All problems of the database, also those that a load does not refuse because a record can come from another file.
+    auto validate() const -> Diagnostics;
 
     /// What the load of v2 files reported: the warnings and the notes.
     auto loadDiagnostics() const -> const Diagnostics&;

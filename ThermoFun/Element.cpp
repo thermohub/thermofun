@@ -7,6 +7,8 @@
 #include "Common/Exception.h"
 #include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"
+#include "IO/Legacy/LegacyWriter.h"
+#include "IO/V2/V2Writer.h"
 #include "IO/V2/V2Reader.h"
 #include "IO/Legacy/LegacyVocabulary.h"
 
@@ -25,6 +27,7 @@ struct Element::Impl
         change(*copy);
         copy->original_text.clear();
         record = copy;
+        jString.clear();
     }
 
     /// Record in JSON string
@@ -228,7 +231,10 @@ auto Element::record() const -> std::shared_ptr<const v2::ElementRecord>
 
 auto Element::jsonString() const -> std::string
 {
-    return pimpl->jString;
+    if (!pimpl->jString.empty())
+        return pimpl->jString;
+    // an edited record: written from its fields, in the format it came from
+    return pimpl->record->source_format == v2::DataFormat::V2 ? v2::writeV2Element(*pimpl->record) : v2::writeLegacyElement(*pimpl->record);
 }
 
 ChemicalFun::ElementKey Element::toElementKey(ChemicalFun::ElementValues &eldata)
