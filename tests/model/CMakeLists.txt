@@ -11,6 +11,7 @@ add_executable(tfun-unit
     test_ucum.cpp
     test_records.cpp
     test_format_detect.cpp
+    test_normalize.cpp
     test_legacy_reader.cpp
     test_legacy_equivalence.cpp
     frozen/ParseJsonToData_v073.cpp)

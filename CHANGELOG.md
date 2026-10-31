@@ -93,6 +93,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   was ignored. A convention that is not calculated yet (for example `1atm`) raises an error.
 - New: `setPropertySource` and `propertySource`: a substance from its methods or its defining reaction, a reaction from its methods
   or its reactants, for one record or for all.
+- ThermoFun reads the v2 format in JSON: `Database`, `ThermoEngine`, and `Substance`, `Reaction`, `Element` for one record. Units of a
+  scope, uncertainties, method implementations, interpolation, covariance blocks and diagnostics with the path of the value.
+  `Database` gives `thermoDataSet`, `methods`, `parameterSets`, `dataSources` and `loadDiagnostics`; the objects give `record()` in
+  Python. YAML and the v2 writer are next.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

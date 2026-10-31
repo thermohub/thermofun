@@ -12,6 +12,7 @@ void runCatalog();
 void runSubstanceMethods();
 void runDiagnostics();
 void runLegacyEquivalence();
+void runNormalize();
 void runVocabulary();
 void runUcum();
 void runRecords();
@@ -29,6 +30,7 @@ int main()
     runLegacyReader();
     runSubstanceMethods();
     runLegacyEquivalence();
+    runNormalize();
 
     if (tfun_test::failures() != 0)
         std::printf("tfun-unit: %d check(s) failed\n", tfun_test::failures());

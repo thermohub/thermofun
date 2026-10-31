@@ -1,0 +1,8 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "thermodataset": {
+  "symbol": "x",
+  "status": "published"
+ },
+ "substances": {}
+}

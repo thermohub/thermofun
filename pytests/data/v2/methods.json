@@ -1,0 +1,75 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "thermodataset": {
+  "symbol": "projectrecords",
+  "name": "Records of the project scope",
+  "solvent": "WATER"
+ },
+ "data_sources": {
+  "1998HOL/POW": {
+   "title": "An internally consistent thermodynamic data set",
+   "year": 1998,
+   "journal": "J. Metamorph. Geol."
+  },
+  "mydata": {
+   "title": "A source with a free symbol"
+  }
+ },
+ "methods": {
+  "CpPolynomial": {
+   "kind": "reference",
+   "tier": 2,
+   "operates_on": "substance",
+   "contributes_to": [
+    "G",
+    "H",
+    "S",
+    "Cp",
+    "V"
+   ],
+   "citation": "1998HOL/POW"
+  }
+ },
+ "parameter_sets": {
+  "hkf_na": {
+   "method": "HKF88",
+   "parameters": {
+    "a1": 1e-06,
+    "a2": 100.0
+   },
+   "reference": "1998HOL/POW"
+  }
+ },
+ "elements": {
+  "H": {
+   "number": 1,
+   "molar_mass": 1.00794
+  }
+ },
+ "substances": {
+  "WATER": {
+   "name": "Water",
+   "formula": "H2O@",
+   "charge": 0,
+   "class": "water_solvent",
+   "aggregate_state": "aqueous",
+   "standard_state_properties": {
+    "G": -237183,
+    "H": -285881,
+    "S": 69.923,
+    "Cp": 75.36,
+    "V": 1.80684e-05
+   },
+   "methods": [
+    {
+     "method": "WaterIAPWS95"
+    },
+    {
+     "method": "JohnsonNorton91",
+     "implementation": "reaktoro"
+    }
+   ],
+   "data_source": "1998HOL/POW"
+  }
+ }
+}

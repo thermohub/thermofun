@@ -1,0 +1,951 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "generator": "make_v2_fixtures.py",
+ "thermodataset": {
+  "symbol": "minerals",
+  "name": "Minerals from aq17"
+ },
+ "substances": {
+  "Gibbsite": {
+   "name": "Gibbsite (gbs) Cp coeff from Pokrovskii and Helgeson (1995)",
+   "formula": "Al(OH)3",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": {
+     "value": -1154900.0,
+     "uncertainty": 1200.0
+    },
+    "H": {
+     "value": -1293100.0,
+     "uncertainty": 1200.0
+    },
+    "S": {
+     "value": 68.400001525879,
+     "uncertainty": 0.10000000149012
+    },
+    "Cp": {
+     "value": 91.720283508301,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 3.1960000991821004e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 583.15,
+       "parameters": {
+        "a0": 54.697429656982,
+        "a1": 0.17027199268341,
+        "a2": -1221728.0,
+        "a3": 0.0,
+        "a4": 0.0,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "MurnaghanHP98"
+    }
+   ],
+   "defining_reaction": "Gibbsite"
+  },
+  "Portlandite": {
+   "name": "Portlandite",
+   "formula": "Ca(OH)2",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -897013.0,
+    "H": -984675.0,
+    "S": 83.39998626709,
+    "Cp": {
+     "value": 87.505340576172,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 3.305999994278e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 700.00000610352,
+       "parameters": {
+        "a0": 186.69999694824,
+        "a1": -0.02191000059247,
+        "a2": 0.0,
+        "a3": -1600.0,
+        "a4": 0.0,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "ConstantVolume"
+    }
+   ],
+   "defining_reaction": "Portlandite"
+  },
+  "Calcite": {
+   "name": "Calcite (cc)",
+   "formula": "CaCO3",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -1129195.0,
+    "H": -1207470.0,
+    "S": 92.5,
+    "Cp": {
+     "value": 83.370727539062,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 3.6889998912811e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 2273.15,
+       "parameters": {
+        "a0": 140.89999389648,
+        "a1": 0.005028999876231,
+        "a2": -950700.0,
+        "a3": -858.40002441406,
+        "a4": 0.0,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "LandauHP98",
+     "parameters": {
+      "Smax": 10.0,
+      "Tc0": 1239.9999755859399,
+      "Vmax": 3.9999999105930004e-07,
+      "alpha0": 4.4000000343658e-05,
+      "kappa0": 76000000000.0
+     }
+    },
+    {
+     "method": "MurnaghanHP98",
+     "parameters": {
+      "alpha0": 4.4000000343658e-05,
+      "kappa0": 76000000000.0
+     }
+    }
+   ],
+   "defining_reaction": "Calcite"
+  },
+  "Akermanite": {
+   "name": "Akermanite (ak)",
+   "formula": "Ca2MgSi2O7",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -3669893.0,
+    "H": -3866360.0,
+    "S": 212.5,
+    "Cp": {
+     "value": 216.20722961426,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 9.253999710083002e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 2273.15,
+       "parameters": {
+        "a0": 385.39999389648,
+        "a1": 0.0032089999876916,
+        "a2": -247500.0,
+        "a3": -2889.8999023438,
+        "a4": 0.0,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "MurnaghanHP98",
+     "parameters": {
+      "alpha0": 5.080000119051e-05,
+      "kappa0": 142000000000.0
+     }
+    }
+   ],
+   "defining_reaction": "Akermanite"
+  },
+  "Quartz": {
+   "name": "Quartz (q)",
+   "formula": "SiO2",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -856433.0,
+    "H": -910830.0,
+    "S": 41.5,
+    "Cp": {
+     "value": 44.89091873169,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 2.2688000202179003e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 2273.15,
+       "parameters": {
+        "a0": 110.69999694824,
+        "a1": -0.0051890001632273,
+        "a2": 0.0,
+        "a3": -1128.3000488281,
+        "a4": 0.0,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "LandauHP98",
+     "parameters": {
+      "Smax": 4.9499998092651,
+      "Tc0": 846.99997558594,
+      "Vmax": 1.1879999935627e-06,
+      "alpha0": 6.4999999267457e-06,
+      "kappa0": 75000000000.0
+     }
+    },
+    {
+     "method": "MurnaghanHP98",
+     "parameters": {
+      "alpha0": 6.4999999267457e-06,
+      "kappa0": 75000000000.0
+     }
+    }
+   ],
+   "defining_reaction": "Quartz"
+  },
+  "H2O@": {
+   "name": "Water HGK",
+   "formula": "H2O@",
+   "charge": 0,
+   "class": "water_solvent",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": {
+     "value": -237183.0,
+     "uncertainty": 100.0
+    },
+    "H": {
+     "value": -285881.0,
+     "uncertainty": 200.0
+    },
+    "S": {
+     "value": 69.922996520996,
+     "uncertainty": 0.10000000149012
+    },
+    "Cp": {
+     "value": 75.360527038574,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 1.8068397045136e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "WaterHGK84",
+     "implementation": "reaktoro"
+    },
+    {
+     "method": "JohnsonNorton91",
+     "implementation": "reaktoro"
+    }
+   ]
+  },
+  "Al+3": {
+   "name": "Al+3 ion",
+   "formula": "Al+3",
+   "charge": 3,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -486594.0,
+    "H": -537882.0,
+    "S": -339.73999023438,
+    "Cp": {
+     "value": -119.34440612793,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": -4.5337700843811e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": -1.4217232007980144e-05,
+      "a2": -6727.411821288906,
+      "a3": 0.0005050045975494387,
+      "a4": -88462.312,
+      "c1": 60.37302643585344,
+      "c2": -370380.232,
+      "omega": 1146541.52
+     }
+    }
+   ]
+  },
+  "H+": {
+   "name": "H+",
+   "formula": "H+",
+   "charge": 1,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": 0.0,
+    "H": 0.0,
+    "S": 0.0,
+    "Cp": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    }
+   },
+   "preferred_property_source": "reaction"
+  },
+  "Ca+2": {
+   "name": "Ca+2 ion",
+   "formula": "Ca+2",
+   "charge": 2,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -552821.0,
+    "H": -543100.0,
+    "S": -56.484001159668,
+    "Cp": {
+     "value": -30.922517776489,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": -1.8438742160797e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": -8.146248267591069e-07,
+      "a2": -3034.2368510742135,
+      "a3": 0.00022160973834991387,
+      "a4": -103729.719828125,
+      "c1": 37.656,
+      "c2": -105520.48000000001,
+      "omega": 517393.4726875
+     }
+    }
+   ]
+  },
+  "HCO3-": {
+   "name": "HCO3- bicarbonate ion",
+   "formula": "HCO3-",
+   "charge": -1,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -586855.0,
+    "H": -690463.0,
+    "S": 96.625,
+    "Cp": {
+     "value": -34.845699310303,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 2.420910358429e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": 1.2525222694873677e-05,
+      "a2": 2083.088059570323,
+      "a3": 0.0009870265148925912,
+      "a4": -124884.032,
+      "c1": 54.366897819521185,
+      "c2": -199070.53600000002,
+      "omega": 535217.28
+     }
+    }
+   ]
+  },
+  "Mg+2": {
+   "name": "Mg+2 ion",
+   "formula": "Mg+2",
+   "charge": 2,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -456005.0,
+    "H": -467949.0,
+    "S": -138.07000732422,
+    "Cp": {
+     "value": -21.662094116211,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": -2.2013738155365002e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": -3.437992578744892e-06,
+      "a2": -3597.821702148427,
+      "a3": 0.000351037614364626,
+      "a4": -99997.608171875,
+      "c1": 87.02719680786323,
+      "c2": -246521.29634375,
+      "omega": 643164.48
+     }
+    }
+   ]
+  },
+  "H4SiO4@": {
+   "name": "H4SiO4 (aq)",
+   "formula": "H4SiO4@",
+   "charge": 0,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -1308407.0,
+    "H": -1450119.0,
+    "S": 215.158,
+    "Cp": {
+     "value": -167.762,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 5.22e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "defining_reaction": "H4SiO4@",
+   "preferred_property_source": "reaction"
+  },
+  "SiO2@": {
+   "name": "SiO2 (aq)",
+   "formula": "SiO2@",
+   "charge": 0,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -834041.0,
+    "H": -878357.0,
+    "S": 75.311996459961,
+    "Cp": {
+     "value": -318.48419189453,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 1.6063253879547002e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": 7.949599900245491e-06,
+      "a2": 711.28,
+      "a3": 0.0008368000000000002,
+      "a4": -112968.0,
+      "c1": 121.75440159607048,
+      "c2": -2142208.0,
+      "omega": 54015.44
+     }
+    }
+   ]
+  }
+ },
+ "reactions": {
+  "Gibbsite": {
+   "name": "",
+   "stoichiometry": {
+    "Gibbsite": -1.0,
+    "H+": -3.0,
+    "Al+3": 1.0,
+    "H2O@": 3.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 7.575803,
+     "uncertainty": 0.2167
+    },
+    "dG": {
+     "value": -43243.0,
+     "uncertainty": 1236.931688
+    },
+    "dH": {
+     "value": -102425.0,
+     "uncertainty": 1341.640786
+    },
+    "dS": {
+     "value": -198.371002,
+     "uncertainty": 0.316228
+    },
+    "dCp": {
+     "value": 15.016891,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": -2.3092510000000004e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstantCp",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": 5349.99805266041,
+      "a3": 0.784382109904942,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 298.15,
+    "p_min": 0.1,
+    "p_max": 1000000.0
+   }
+  },
+  "Portlandite": {
+   "name": "",
+   "stoichiometry": {
+    "H2O@": 2.0,
+    "Portlandite": -1.0,
+    "Ca+2": 1.0,
+    "H+": -2.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 22.805368,
+     "uncertainty": 0.035038
+    },
+    "dG": {
+     "value": -130174.0,
+     "uncertainty": 200.0
+    },
+    "dH": {
+     "value": -130187.0,
+     "uncertainty": 400.0
+    },
+    "dS": {
+     "value": -0.037994,
+     "uncertainty": 0.2
+    },
+    "dCp": {
+     "value": 32.293196,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": -1.536195e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstantCp",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": 6800.09955071224,
+      "a3": 1.68678091983579,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 298.15,
+    "p_min": 0.1,
+    "p_max": 1000000.0
+   }
+  },
+  "Calcite": {
+   "name": "",
+   "stoichiometry": {
+    "Calcite": -1.0,
+    "HCO3-": 1.0,
+    "H+": -1.0,
+    "Ca+2": 1.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 1.836181,
+     "uncertainty": 0.0
+    },
+    "dG": {
+     "value": -10481.0,
+     "uncertainty": 0.0
+    },
+    "dH": {
+     "value": -26093.0,
+     "uncertainty": 0.0
+    },
+    "dS": {
+     "value": -52.359001,
+     "uncertainty": 0.0
+    },
+    "dCp": {
+     "value": -149.138945,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": -3.111964e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstantCp",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": 1362.92408287106,
+      "a3": -7.79002260508498,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 298.15,
+    "p_min": 0.1,
+    "p_max": 1000000.0
+   }
+  },
+  "Akermanite": {
+   "name": "",
+   "stoichiometry": {
+    "H4SiO4@": 2.0,
+    "H2O@": -1.0,
+    "Akermanite": -1.0,
+    "H+": -6.0,
+    "Ca+2": 2.0,
+    "Mg+2": 1.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 47.544324,
+     "uncertainty": 0.017519
+    },
+    "dG": {
+     "value": -271385.0,
+     "uncertainty": 100.0
+    },
+    "dH": {
+     "value": -302146.0,
+     "uncertainty": 200.0
+    },
+    "dS": {
+     "value": -103.145006,
+     "uncertainty": 0.1
+    },
+    "dCp": {
+     "value": -710.598886,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": -6.509962e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstantCp",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": 15782.0894470992,
+      "a3": -37.1169407500382,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 298.15,
+    "p_min": 0.1,
+    "p_max": 1000000.0
+   }
+  },
+  "Quartz": {
+   "name": "",
+   "stoichiometry": {
+    "H2O@": -2.0,
+    "H4SiO4@": 1.0,
+    "Quartz": -1.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": -3.922886,
+     "uncertainty": 0.035038
+    },
+    "dG": {
+     "value": 22392.0,
+     "uncertainty": 200.0
+    },
+    "dH": {
+     "value": 32473.0,
+     "uncertainty": 400.0
+    },
+    "dS": {
+     "value": 33.812007,
+     "uncertainty": 0.2
+    },
+    "dCp": {
+     "value": -363.373973,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": -6.624790000000001e-06,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstantCp",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": -1696.17268014686,
+      "a3": -18.980229904198,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 298.15,
+    "p_min": 0.1,
+    "p_max": 1000000.0
+   }
+  },
+  "H4SiO4@": {
+   "name": "",
+   "stoichiometry": {
+    "H4SiO4@": -1.0,
+    "SiO2@": 1.0,
+    "H2O@": 2.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 0.0,
+     "uncertainty": 0.035038
+    },
+    "dG": {
+     "value": 0.0,
+     "uncertainty": 200.0
+    },
+    "dH": {
+     "value": 0.0,
+     "uncertainty": 400.0
+    },
+    "dS": {
+     "value": 0.0,
+     "uncertainty": 0.2
+    },
+    "dCp": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstant",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": 0.0,
+      "a3": 0.0,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 1073.15,
+    "p_min": 0.1,
+    "p_max": 5000000000.0
+   }
+  }
+ }
+}

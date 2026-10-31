@@ -13,7 +13,9 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "ThermoPropertiesStatus.h"
+#include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"
+#include "IO/V2/V2Reader.h"
 
 namespace ThermoFun {
 
@@ -99,9 +101,23 @@ Substance::Substance(std::string jsonSubstance)
 : pimpl(new Impl())
 {
     Diagnostics diagnostics;
-    pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readLegacySubstance(jsonSubstance, {}, &diagnostics));
+    if (v2::detectRecordFormat(jsonSubstance) == v2::DataFormat::V2)
+    {
+        pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readV2Substance(jsonSubstance, diagnostics));
+        if (!diagnostics.ok())
+            funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
+    }
+    else
+        pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readLegacySubstance(jsonSubstance, {}, &diagnostics));
     v2::checkReading(diagnostics);
     pimpl->jString = jsonSubstance;
+}
+
+Substance::Substance(std::shared_ptr<const v2::SubstanceRecord> record)
+: pimpl(new Impl())
+{
+    pimpl->record = std::move(record);
+    pimpl->jString = pimpl->record->original_text;
 }
 
 Substance::Substance(const Substance& other)

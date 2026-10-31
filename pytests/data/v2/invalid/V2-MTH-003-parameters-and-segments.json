@@ -1,0 +1,21 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "substances": {
+  "A": {
+   "name": "x",
+   "formula": "Fe",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "methods": [
+    {
+     "method": "CpIntegration",
+     "parameters": {
+      "a0": 1
+     },
+     "segments": []
+    }
+   ]
+  }
+ }
+}

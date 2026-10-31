@@ -186,6 +186,9 @@ public:
     /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
     auto record() const -> std::shared_ptr<const v2::SubstanceRecord>;
 
+    /// An object of a record of any format.
+    explicit Substance(std::shared_ptr<const v2::SubstanceRecord> record);
+
     /**
      * @brief jonString
      * @return record in json string

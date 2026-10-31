@@ -135,6 +135,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Use a method for the class of the record (see `Suits` in the method reference)."},
         {"V2-MTH-006", S::Warning, "The temperature segments overlap or leave gaps.",
          "Make each segment start where the one before ends."},
+        {"V2-MTH-009", S::Error, "The method has no implementation with this name.",
+         "Use one of the implementations of the method, or remove the key `implementation`."},
         {"V2-MTH-008", S::Error, "The method is known but not implemented.",
          "Use another method for the record, or give its properties as constant values."},
         {"V2-MTH-010", S::Error, "The parameters of a Method record are not the same as those of the built-in method.",

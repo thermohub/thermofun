@@ -37,9 +37,6 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
 /// Logs the error diagnostics of a reading. Raises an error for a list with too many coefficients.
 void checkReading(const Diagnostics& diagnostics);
 
-/// The symbols and coefficients of "A + 2 B = C": below 0 on the left, above 0 on the right, in the order of the equation.
-auto stoichiometryOfEquation(const std::string& equation) -> std::vector<std::pair<std::string, double>>;
-
 /// What one entry of TPMethods says, in the units of the legacy arrays.
 struct LegacyMethodEntry
 {

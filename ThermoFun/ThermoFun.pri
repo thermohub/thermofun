@@ -73,6 +73,7 @@
     $$PWD/Methods/Reactions/DolejsManning2010.h \
 # Common
     $$PWD/Common/Diagnostics.h \
+    $$PWD/IO/Equation.h \
     $$PWD/IO/FormatDetect.h \
     $$PWD/IO/detail/JsonDetect.h \
     $$PWD/Engine/Binding.h \
@@ -194,6 +195,7 @@
     $$PWD/Methods/Reactions/DolejsManning2010.cpp \
 # Common
     $$PWD/Common/Diagnostics.cpp \
+    $$PWD/IO/Equation.cpp \
     $$PWD/IO/FormatDetect.cpp \
     $$PWD/Engine/Binding.cpp \
     $$PWD/Engine/Executor.cpp \

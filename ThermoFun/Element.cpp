@@ -4,7 +4,10 @@
 #include <iostream>
 #include "Element.h"
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
+#include "Common/Exception.h"
+#include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"
+#include "IO/V2/V2Reader.h"
 #include "IO/Legacy/LegacyVocabulary.h"
 
 namespace ThermoFun {
@@ -38,9 +41,23 @@ Element::Element(std::string jsonElement)
 : pimpl(new Impl())
 {
     Diagnostics diagnostics;
-    pimpl->record = std::make_shared<const v2::ElementRecord>(v2::readLegacyElement(jsonElement, {}, &diagnostics));
+    if (v2::detectRecordFormat(jsonElement) == v2::DataFormat::V2)
+    {
+        pimpl->record = std::make_shared<const v2::ElementRecord>(v2::readV2Element(jsonElement, diagnostics));
+        if (!diagnostics.ok())
+            funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
+    }
+    else
+        pimpl->record = std::make_shared<const v2::ElementRecord>(v2::readLegacyElement(jsonElement, {}, &diagnostics));
     v2::checkReading(diagnostics);
     pimpl->jString = jsonElement;
+}
+
+Element::Element(std::shared_ptr<const v2::ElementRecord> record)
+: pimpl(new Impl())
+{
+    pimpl->record = std::move(record);
+    pimpl->jString = pimpl->record->original_text;
 }
 
 Element::Element(const Element& other)

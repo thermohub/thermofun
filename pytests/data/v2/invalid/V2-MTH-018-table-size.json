@@ -1,0 +1,29 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "substances": {
+  "A": {
+   "name": "x",
+   "formula": "Fe",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "methods": [
+    {
+     "method": "TPTableInterpolation",
+     "table": {
+      "temperatures": [
+       300,
+       400
+      ],
+      "pressures": [
+       100000.0
+      ],
+      "G": [
+       1
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

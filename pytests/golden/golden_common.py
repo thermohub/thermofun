@@ -74,7 +74,8 @@ def databases():
     for path in sorted((ROOT / "pytests").rglob("*.json")):
         # the model databases in pytests/data/published are checked against the papers (test_published_models.py);
         # pytests/data/sources holds values of other codes, for the tests of the methods
-        if _rel(path) in NOT_DATABASES or {"golden", "published", "sources"} & set(path.parts):
+        # pytests/data/v2 is in the v2 format, which the baseline cannot read (test_v2_reader.py)
+        if _rel(path) in NOT_DATABASES or {"golden", "published", "sources", "v2"} & set(path.parts):
             continue
         if _loads(path) is not None:
             found.append(path)

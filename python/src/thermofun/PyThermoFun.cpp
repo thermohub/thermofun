@@ -41,6 +41,10 @@ PYBIND11_MODULE(PyThermoFun, m)
     // Parameters
     exportThermoParametersReaction(m);
     exportThermoParametersSubstance(m);
+    // Records
+    exportQuantity(m);
+    exportRecords(m);
+    exportDiagnostics(m);
     // Core module
     exportThermoEngine(m);
     exportThermoBatch(m);

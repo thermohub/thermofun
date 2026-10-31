@@ -1,0 +1,366 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "generator": "make_v2_fixtures.py",
+ "thermodataset": {
+  "symbol": "gases"
+ },
+ "substances": {
+  "H2S": {
+   "name": "HYDROGEN SULFIDE GAS",
+   "formula": "H2S|-2|",
+   "charge": 0,
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": {
+     "value": -33400.0,
+     "uncertainty": 600.0
+    },
+    "H": {
+     "value": -20600.0,
+     "uncertainty": 600.0
+    },
+    "S": {
+     "value": 205.80000305176,
+     "uncertainty": 0.20000000298023
+    },
+    "Cp": {
+     "value": 34.195098876953,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.024789699707031,
+     "uncertainty": 1.9999999552965002e-07
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 1800.15,
+       "parameters": {
+        "a0": 26.360000610352,
+        "a1": 0.026499999687076,
+        "a2": 266000.0,
+        "a3": -43.560001373291,
+        "a4": -6.0239999584155e-06,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "PRSV86",
+     "parameters": {
+      "Pc": 8943000.030517599,
+      "Tc": 373.08999633789,
+      "k1": 0.031599998474121,
+      "k2": 0.0,
+      "k3": 0.0,
+      "omega": 0.10000000149012
+     }
+    }
+   ]
+  },
+  "H2O": {
+   "name": "H2O, water",
+   "formula": "H2O",
+   "charge": 0,
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -228527.0,
+    "H": -241800.0,
+    "S": 188.72999572754,
+    "Cp": {
+     "value": 33.569999694824,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.024789711914062002,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 1500.15,
+       "parameters": {
+        "a0": 11.551300048828,
+        "a1": 0.024264300242066,
+        "a2": -163610.0,
+        "a3": 292.50500488281,
+        "a4": -3.5934499464929e-06,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "PRSV86",
+     "parameters": {
+      "Pc": 22089799.499512002,
+      "Tc": 647.28601074219,
+      "k1": -0.066349998116493,
+      "k2": 0.0,
+      "k3": 0.0,
+      "omega": 0.34380000829697
+     }
+    }
+   ]
+  },
+  "H2": {
+   "name": "H2, hydrogen",
+   "formula": "H|0|2",
+   "charge": 0,
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": 0.0,
+    "H": 0.0,
+    "S": 130.75999450684,
+    "Cp": {
+     "value": 28.821424484253,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.024797221679688,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 1500.15,
+       "parameters": {
+        "a0": 6.535059928894,
+        "a1": 0.012237300164998,
+        "a2": -530498.0,
+        "a3": 427.18701171875,
+        "a4": -1.5123899856917e-06,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "PRSV86",
+     "parameters": {
+      "Pc": 1297000.0267029,
+      "Tc": 33.20000076294,
+      "k1": 0.0,
+      "k2": 0.0,
+      "k3": 0.0,
+      "omega": -0.21999999880791
+     }
+    }
+   ]
+  },
+  "CO2": {
+   "name": "CO2, carbon dioxide",
+   "formula": "CO2",
+   "charge": 0,
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -394338.0,
+    "H": -393470.0,
+    "S": 213.78999328613,
+    "Cp": {
+     "value": 37.130001068115,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.024789711914062002,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 1500.15,
+       "parameters": {
+        "a0": 65.68229675293,
+        "a1": 0.011197299696505,
+        "a2": 280403.0,
+        "a3": -599.12902832031,
+        "a4": -3.9157198443718e-06,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "PRSV86",
+     "parameters": {
+      "Pc": 7382430.267334,
+      "Tc": 304.20999145508,
+      "k1": 0.042849998921156,
+      "k2": 0.0,
+      "k3": 0.0,
+      "omega": 0.22499999403954
+     }
+    }
+   ]
+  },
+  "CO": {
+   "name": "CO, carbon monoxide",
+   "formula": "C|2|O",
+   "charge": 0,
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -137157.0,
+    "H": -110520.0,
+    "S": 197.64999389648,
+    "Cp": {
+     "value": 29.159999847412,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.024789711914062002,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 1500.15,
+       "parameters": {
+        "a0": 15.821200370789,
+        "a1": 0.017857100814581,
+        "a2": 49847.1015625,
+        "a3": 136.17700195312,
+        "a4": -4.883900146524e-06,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "PRSV86",
+     "parameters": {
+      "Pc": 3495999.9084472996,
+      "Tc": 132.91000366211,
+      "k1": 0.042789999395609,
+      "k2": 0.0,
+      "k3": 0.0,
+      "omega": 0.048300001770258
+     }
+    }
+   ]
+  },
+  "CH4": {
+   "name": "CH4, methane",
+   "formula": "C|-4|H4",
+   "charge": 0,
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -50509.0,
+    "H": -74570.0,
+    "S": 186.39999389648,
+    "Cp": {
+     "value": 35.709999084473,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.024789711914062002,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 1500.15,
+       "parameters": {
+        "a0": 41.621299743652,
+        "a1": 0.06691700220108,
+        "a2": 1184870.0,
+        "a3": -651.51800537109,
+        "a4": -1.6371999663534e-05,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "PRSV86",
+     "parameters": {
+      "Pc": 4595000.076294,
+      "Tc": 190.55499267578,
+      "k1": -0.001589999999851,
+      "k2": 0.0,
+      "k3": 0.0,
+      "omega": 0.010449999943376
+     }
+    }
+   ]
+  }
+ }
+}

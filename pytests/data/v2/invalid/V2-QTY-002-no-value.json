@@ -1,0 +1,17 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "substances": {
+  "A": {
+   "name": "x",
+   "formula": "Fe",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "standard_state_properties": {
+    "G": {
+     "unit": "kJ/mol"
+    }
+   }
+  }
+ }
+}

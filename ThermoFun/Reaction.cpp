@@ -15,7 +15,10 @@
 #include "ThermoParameters.h"
 #include "Common/Exception.h"
 #include "ThermoPropertiesStatus.h"
+#include "IO/Equation.h"
+#include "IO/FormatDetect.h"
 #include "IO/Legacy/LegacyReader.h"
+#include "IO/V2/V2Reader.h"
 
 namespace ThermoFun {
 
@@ -89,9 +92,23 @@ Reaction::Reaction(std::string jsonReaction)
 : pimpl(new Impl())
 {
     Diagnostics diagnostics;
-    pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readLegacyReaction(jsonReaction, {}, &diagnostics));
+    if (v2::detectRecordFormat(jsonReaction) == v2::DataFormat::V2)
+    {
+        pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readV2Reaction(jsonReaction, diagnostics));
+        if (!diagnostics.ok())
+            funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
+    }
+    else
+        pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readLegacyReaction(jsonReaction, {}, &diagnostics));
     v2::checkReading(diagnostics);
     pimpl->jString = jsonReaction;
+}
+
+Reaction::Reaction(std::shared_ptr<const v2::ReactionRecord> record)
+: pimpl(new Impl())
+{
+    pimpl->record = std::move(record);
+    pimpl->jString = pimpl->record->original_text;
 }
 
 Reaction::Reaction(const Reaction& other)

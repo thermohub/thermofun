@@ -166,6 +166,9 @@ struct ThermoEngine::Impl
     Impl(const Database &database)
         : database(database)
     {
+        // the solvent of the dataset
+        if (const auto& solvent = this->database.thermoDataSet().solvent; !solvent.empty())
+            preferences.solvent_symbol = solvent;
         resultsAreCurrent();
     }
 

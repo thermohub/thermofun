@@ -26,6 +26,7 @@
 namespace py = pybind11;
 
 // ThermoFun includes
+#include <ThermoFun/Model/Records.h>
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/ThermoProperties.h>
 #include <ThermoFun/ThermoParameters.h>
@@ -80,6 +81,7 @@ void exportSubstance(py::module& m)
         .def("thermoCalculationType", &Substance::thermoCalculationType, "Return the code of the substance properties calculation type")
         .def("aggregateState", &Substance::aggregateState, "Return the aggregate state of a substance")
         .def("charge", &Substance::charge, "Return the charge of a substance")
+        .def("record", [](const Substance& x) { return *x.record(); }, "The record (a copy)")
         .def("jsonString", &Substance::jsonString, "Return the record as a json string")
         .def("checkCalcMethodBounds",
              [](Substance& self, std::string modelName, double T, double P, ThermoPropertiesSubstance tps) { self.checkCalcMethodBounds(modelName, T, P, tps); return tps; },

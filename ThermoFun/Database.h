@@ -5,6 +5,8 @@
 #define DATABASE_H
 
 // C++ includes
+#include <ThermoFun/Common/Diagnostics.h>
+#include <ThermoFun/Model/Records.h>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -237,6 +239,17 @@ public:
     /// records, or that returns a non-const reference to a record. Two databases never share a number, except a
     /// copy and its original before either changes. A ThermoEngine uses it to clear its cached results.
     auto revision() const -> std::uint64_t;
+
+    /// Data about the loaded dataset. Empty for a legacy file.
+    auto thermoDataSet() const -> const v2::ThermoDataSetInfo&;
+
+    /// The Method records, parameter sets and data sources that the loaded files give.
+    auto methods() const -> const std::map<std::string, v2::MethodDefinition>&;
+    auto parameterSets() const -> const std::map<std::string, v2::MethodParameterSet>&;
+    auto dataSources() const -> const std::map<std::string, v2::DataSource>&;
+
+    /// What the load of v2 files reported: the warnings and the notes.
+    auto loadDiagnostics() const -> const Diagnostics&;
 
 private:
     struct Impl;

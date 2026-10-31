@@ -6,6 +6,8 @@
 // ThermoFun includes
 #include "ChemicalFun/FormulaParser/ChemicalData.h"
 #include "Common/Exception.h"
+#include "IO/V2/V2Reader.h"
+#include "IO/detail/JsonDetect.h"
 #include "Substance.h"
 #include "Reaction.h"
 #include "Element.h"
@@ -47,6 +49,13 @@ auto readConventions(const std::string &data) -> DatabaseConventions
 
 struct Database::Impl
 {
+    /// Data about the dataset, and the records of the project that a v2 file gives
+    v2::ThermoDataSetInfo dataset_info;
+    std::map<std::string, v2::MethodDefinition> methods;
+    std::map<std::string, v2::MethodParameterSet> parameter_sets;
+    std::map<std::string, v2::DataSource> data_sources;
+    Diagnostics load_diagnostics;
+
     /// The map of all aqueous species in the database
     SubstancesMap substances_map;
 
@@ -380,6 +389,52 @@ struct Database::Impl
         }
     }
 
+    /// Puts the records of a v2 document into the database. Warnings are logged; an error stops the reading.
+    auto fromV2(const std::string& text, const std::string& file) -> void
+    {
+        Diagnostics diagnostics;
+        v2::V2Document document = v2::readV2Document(text, diagnostics, file);
+        v2::resolveV2Document(document, diagnostics);
+        for (const auto& d : diagnostics.all())
+        {
+            load_diagnostics.add(d);
+            if (d.severity == Severity::Warning)
+                thfun_logger->warn("{} {}", d.code, d.message);
+        }
+        if (!diagnostics.ok())
+            funError("The file cannot be read", diagnostics.toString(), __LINE__, __FILE__);
+        // a file with no thermodataset block (a part of a dataset) leaves the dataset as it is
+        if (document.has_dataset)
+        {
+            conventions.water_triple_point_reference = document.info.water_triple_point_reference;
+            dataset_info = document.info;
+        }
+        for (const auto& m : document.methods)
+            methods[m.symbol] = m;
+        for (const auto& p : document.parameter_sets)
+            parameter_sets[p.symbol] = p;
+        for (const auto& d : document.data_sources)
+            data_sources[d.symbol] = d;
+        for (auto& record : document.elements)
+        {
+            checkIfSymbolExists(elements_map, "element", record.symbol);
+            const std::string symbol = record.symbol;
+            elements_map[symbol] = Element(std::make_shared<const v2::ElementRecord>(std::move(record)));
+        }
+        for (auto& record : document.substances)
+        {
+            checkIfSymbolExists(substances_map, "substance", record.symbol);
+            const std::string symbol = record.symbol;
+            substances_map[symbol] = Substance(std::make_shared<const v2::SubstanceRecord>(std::move(record)));
+        }
+        for (auto& record : document.reactions)
+        {
+            checkIfSymbolExists(reactions_map, "reaction", record.symbol);
+            const std::string symbol = record.symbol;
+            reactions_map[symbol] = Reaction(std::make_shared<const v2::ReactionRecord>(std::move(record)));
+        }
+    }
+
     /// Parses the JSON file (or string) and puts the data into the internal data structure
     /// @param filename name of the file (in the working directory)
     auto fromFile(std::string filename) -> void
@@ -399,6 +454,12 @@ struct Database::Impl
                 if (!ifs.good())
                     funError("File reading error", std::string("Database file " + filename + " not found!"), __LINE__, __FILE__);
                 j = json::parse(ifs);
+            }
+
+            if (v2::detail::detectDocumentFormat(j) == v2::DataFormat::V2)
+            {
+                fromV2(j.dump(), filename.size() < 4096 && filename.find('{') == std::string::npos ? filename : std::string());
+                return;
             }
 
             if (j.contains("conventions"))
@@ -679,6 +740,31 @@ auto Database::getReactionsList() const -> std::vector<std::string>
       list.push_back(item.first);
    }
    return list;
+}
+
+auto Database::thermoDataSet() const -> const v2::ThermoDataSetInfo&
+{
+    return pimpl->dataset_info;
+}
+
+auto Database::methods() const -> const std::map<std::string, v2::MethodDefinition>&
+{
+    return pimpl->methods;
+}
+
+auto Database::parameterSets() const -> const std::map<std::string, v2::MethodParameterSet>&
+{
+    return pimpl->parameter_sets;
+}
+
+auto Database::dataSources() const -> const std::map<std::string, v2::DataSource>&
+{
+    return pimpl->data_sources;
+}
+
+auto Database::loadDiagnostics() const -> const Diagnostics&
+{
+    return pimpl->load_diagnostics;
 }
 
 auto Database::revision() const -> std::uint64_t
