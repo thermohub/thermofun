@@ -87,6 +87,25 @@ jobs:
           conda activate thermofun
           pytest -ra -vv --color=yes .
 
+      - name: Generating the v2 copies of the bundled databases
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          mkdir -p v2-copies
+          for f in Resources/databases/*.json; do
+            n=$(basename "$f" .json)
+            python -m thermofun.convert "$f" "v2-copies/$n.yaml" --format yaml --report "v2-copies/$n-report.md"
+            python -m thermofun.validate "v2-copies/$n.yaml" > "v2-copies/$n-validate.txt" || true
+          done
+
+      - name: Keeping the v2 copies of the bundled databases
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-copies
+          path: v2-copies
+
       - name: Building, Testing & Installing thermofun (Windows)
         if: matrix.os == 'windows-latest'
         shell: cmd

@@ -82,6 +82,26 @@ def test_the_command_line(tmp_path):
     assert json.loads(out.read_text())["thermohub"]
 
 
+@pytest.mark.parametrize("path", sorted((ROOT / "Resources" / "databases").glob("*.json")), ids=lambda p: p.stem)
+def test_the_v2_copy_of_each_bundled_database_gives_the_same_results(tmp_path, path):
+    # what CI generates, in the form of a person (YAML, short decimals), and in exact form
+    exact = tmp_path / "exact.yaml"
+    convert.convert_file(path, exact, fmt="yaml", exact=True)
+    legacy = tf.ThermoEngine(str(path))
+    copy = tf.ThermoEngine(str(exact))
+    db = legacy.database()
+    assert sorted(copy.database().getSubstancesList()) == sorted(db.getSubstancesList())
+    assert sorted(copy.database().getReactionsList()) == sorted(db.getReactionsList())
+    for symbol in db.getSubstancesList():
+        if sum(map(ord, symbol)) % 7 == 0:   # a fixed part, to stay fast
+            a = legacy.thermoPropertiesSubstance(400.0, 1e7, symbol).gibbs_energy.val
+            b = copy.thermoPropertiesSubstance(400.0, 1e7, symbol).gibbs_energy.val
+            assert a == b or (math.isnan(a) and math.isnan(b)), symbol
+    short = tmp_path / "short.yaml"
+    convert.convert_file(path, short, fmt="yaml")
+    assert tf.Database(str(short)).numberOfSubstances() == db.numberOfSubstances()
+
+
 # --- the validator -----------------------------------------------------------------------------------------------------
 
 def test_validate_gives_exit_code_0_for_good_data(capsys):
