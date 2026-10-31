@@ -55,7 +55,7 @@ Codes that use ThermoFun are not affected:
 
 All models, including the GEMS implementations that had zero or incomplete derivatives:
 - the HGK/LVS water and the Johnson-Norton dielectric constant of GEMS (`WaterHGK-JNgems`);
-- the equations of state of fluids: CORK, PRSV, SRK, PR78, STP and Churakov-Gottschalk (`Gases/s_solmod`).
+- the equations of state of fluids: CORK, PRSV, SRK, PR78, STP and Churakov-Gottschalk (`Methods/Gases/Gas*.cpp`).
 
 ## 4. Derivative bugs fixed (present before)
 
