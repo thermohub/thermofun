@@ -158,21 +158,29 @@ auto Element::setJsonString(const std::string &jString) ->void
 
 auto Element::name() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->name;
     return pimpl->name;
 }
 
 auto Element::symbol() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->symbol;
     return pimpl->symbol;
 }
 
 auto Element::molarMass() const -> double
 {
+    if (pimpl->record)
+        return pimpl->record->molar_mass ? pimpl->record->molar_mass->value * 1e3 : pimpl->molarMass;
     return pimpl->molarMass;
 }
 
 auto Element::entropy() const -> double
 {
+    if (pimpl->record)
+        return pimpl->record->standard_entropy ? pimpl->record->standard_entropy->value : pimpl->entropy;
     return pimpl->entropy;
 }
 

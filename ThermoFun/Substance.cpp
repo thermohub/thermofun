@@ -2,6 +2,8 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "Substance.h"
+#include "Compat/SubstanceCompat.h"
+#include "IO/Legacy/LegacyVocabulary.h"
 
 // ThermoFun includes
 #include "Common/Exception.h"
@@ -243,36 +245,50 @@ auto Substance::setJsonString(const std::string &jString) ->void
 
 auto Substance::name() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->name;
     return pimpl->name;
 }
 
 auto Substance::symbol() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->symbol;
     return pimpl->symbol;
 }
 
 auto Substance::formula() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->formula;
     return pimpl->formula;
 }
 
 auto Substance::reactionSymbol() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->defining_reaction;
     return pimpl->reactionSymbol;
 }
 
 auto Substance::molarMass() const -> double
 {
+    if (pimpl->record)
+        return compat::molarMass(*pimpl->record);
     return pimpl->molar_mass;
 }
 
 auto Substance::referenceT() const -> double
 {
+    if (pimpl->record)
+        return pimpl->record->reference_conditions.T;
     return pimpl->reference_T;
 }
 
 auto Substance::referenceP() const -> double
 {
+    if (pimpl->record)
+        return pimpl->record->reference_conditions.P;
     return pimpl->reference_P;
 }
 
@@ -303,41 +319,57 @@ auto Substance::thermoProperties() const -> ThermoPropertiesSubstance
 
 auto Substance::thermoParameters() const -> ThermoParametersSubstance
 {
+    if (pimpl->record)
+        return compat::thermoParameters(*pimpl->record);
     return pimpl->thermo_param;
 }
 
 auto Substance::thermoReferenceProperties() const -> ThermoPropertiesSubstance
 {
+    if (pimpl->record)
+        return compat::thermoReferenceProperties(*pimpl->record);
     return pimpl->thermo_ref_prop;
 }
 
 auto Substance::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
+    if (pimpl->record)
+        return compat::methodCodes(*pimpl->record).general;
     return pimpl->method_genEoS;
 }
 
 auto Substance::method_T() const -> MethodCorrT_Thrift::type
 {
+    if (pimpl->record)
+        return compat::methodCodes(*pimpl->record).temperature;
     return pimpl->method_T;
 }
 
 auto Substance::method_P() const -> MethodCorrP_Thrift::type
 {
+    if (pimpl->record)
+        return compat::methodCodes(*pimpl->record).pressure;
     return pimpl->method_P;
 }
 
 auto Substance::substanceClass() const -> SubstanceClass::type
 {
+    if (pimpl->record)
+        return toLegacy(pimpl->record->class_);
     return pimpl->substance_class;
 }
 
 auto Substance::thermoCalculationType() const -> SubstanceThermoCalculationType::type
 {
+    if (pimpl->record)
+        return compat::thermoCalculationType(*pimpl->record);
     return pimpl->thermo_calculation_type;
 }
 
 auto Substance::aggregateState() const -> AggregateState::type
 {
+    if (pimpl->record)
+        return toLegacy(pimpl->record->aggregate_state);
     return pimpl->aggregate_state;
 }
 

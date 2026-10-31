@@ -1003,7 +1003,7 @@ struct ThermoEngine::Impl
 
         if (const auto bound = boundReaction(reaction))
         {
-            if (pref.method_genEOS == MethodGenEoS_Thrift::type::CTPM_REA && pref.method_T && pref.method_T != MethodCorrT_Thrift::type::CTM_LGK)
+            if (bound->base->spec().id != "LogKPolynomial")
                 warnIfLogKFunctionDisagrees(reaction);
             std::optional<PropertiesSolvent> solvent;
             if (bound->needs_solvent)

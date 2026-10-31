@@ -2,6 +2,7 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "Reaction.h"
+#include "Compat/SubstanceCompat.h"
 
 // C++ includes
 #include <map>
@@ -278,16 +279,23 @@ auto Reaction::setJsonString(const std::string &jString) ->void
 
 auto Reaction::name() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->name;
     return pimpl->name;
 }
 
 auto Reaction::symbol() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->symbol;
     return pimpl->symbol;
 }
 
 auto Reaction::reactants() const -> std::map<std::string, double>
 {
+    // a legacy record can have only the equation: the reader does not parse it yet (R3.3)
+    if (pimpl->record && !pimpl->record->stoichiometry.empty())
+        return compat::reactants(*pimpl->record);
     return pimpl->reactants;
 }
 
@@ -299,21 +307,29 @@ auto Reaction::thermo_ref_prop() const -> ThermoPropertiesReaction
 
 auto Reaction::thermoReferenceProperties() const -> ThermoPropertiesReaction
 {
+    if (pimpl->record)
+        return compat::thermoReferenceProperties(*pimpl->record);
     return pimpl->thermo_ref_prop;
 }
 
 auto Reaction::thermoParameters() const -> ThermoParametersReaction
 {
+    if (pimpl->record)
+        return compat::thermoParameters(*pimpl->record);
     return pimpl->thermo_parameters;
 }
 
 auto Reaction::referenceT() const -> double
 {
+    if (pimpl->record)
+        return pimpl->record->reference_conditions.T;
     return pimpl->reference_T;
 }
 
 auto Reaction::referenceP() const -> double
 {
+    if (pimpl->record)
+        return pimpl->record->reference_conditions.P;
     return pimpl->reference_P;
 }
 
@@ -339,21 +355,29 @@ auto Reaction::upperP() const -> double
 
 auto Reaction::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
+    if (pimpl->record)
+        return compat::methodCodes(*pimpl->record).general;
     return pimpl->method_genEoS;
 }
 
 auto Reaction::method_T() const -> MethodCorrT_Thrift::type
 {
+    if (pimpl->record)
+        return compat::methodCodes(*pimpl->record).temperature;
     return pimpl->method_T;
 }
 
 auto Reaction::method_P() const -> MethodCorrP_Thrift::type
 {
+    if (pimpl->record)
+        return compat::methodCodes(*pimpl->record).pressure;
     return pimpl->method_P;
 }
 
 auto Reaction::equation() const -> std::string
 {
+    if (pimpl->record)
+        return pimpl->record->equation;
     return pimpl->equation;
 }
 

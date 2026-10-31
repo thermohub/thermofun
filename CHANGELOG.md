@@ -71,6 +71,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The reaction methods are method objects (`thermofun.methods.reactionMethod`). New: `LogKTable`, log K from a table in
   T, with a natural cubic spline or the Lagrange polynomial of GEMS.
 - A cycle of defining reactions raises an error that names the cycle. Before, the stack overflowed.
+- The getters of `Substance`, `Reaction` and `Element` answer from the record (`Compat/`). Arrays hold only the values
+  that a method reads, and an error is positive. A value that passes through SI can differ from the file by rounding
+  (for example -10465 cal gives -10464.999999999998).
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

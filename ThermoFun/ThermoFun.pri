@@ -80,6 +80,7 @@
     $$PWD/Engine/Binding.h \
     $$PWD/Engine/Executor.h \
     $$PWD/Engine/Solvent.h \
+    $$PWD/Compat/SubstanceCompat.h \
     $$PWD/Engine/ReactionBinding.h \
     $$PWD/Engine/ReactionDefined.h \
     $$PWD/Methods/Reactions/ReactionMethods.h \
@@ -200,6 +201,7 @@
     $$PWD/Engine/Binding.cpp \
     $$PWD/Engine/Executor.cpp \
     $$PWD/Engine/Solvent.cpp \
+    $$PWD/Compat/SubstanceCompat.cpp \
     $$PWD/Engine/ReactionBinding.cpp \
     $$PWD/Engine/ReactionDefined.cpp \
     $$PWD/Methods/Reactions/ReactionMethods.cpp \

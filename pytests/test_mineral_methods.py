@@ -31,13 +31,14 @@ def fixture(name):
 
 
 def check_against_old(method, old, record, T, P):
+    # Birch-Murnaghan uses finite differences inside: one ulp of a parameter through SI changes G by about 2e-9
     now = method.evaluate(T, P, reference_of(record))
     before = old.thermoProperties(T, P, tf.ThermoPropertiesSubstance())
-    assert now.G.val == pytest.approx(before.gibbs_energy.val, rel=1e-10, abs=1e-6)
-    assert now.H.val == pytest.approx(before.enthalpy.val, rel=1e-10, abs=1e-6)
-    assert now.S.val == pytest.approx(before.entropy.val, rel=1e-10, abs=1e-8)
-    assert now.V.val * 1e5 == pytest.approx(before.volume.val, rel=1e-10, abs=1e-10)
-    assert now.G.ddt == pytest.approx(before.gibbs_energy.ddt, rel=1e-8, abs=1e-8)
+    assert now.G.val == pytest.approx(before.gibbs_energy.val, rel=1e-8, abs=1e-6)
+    assert now.H.val == pytest.approx(before.enthalpy.val, rel=1e-8, abs=1e-6)
+    assert now.S.val == pytest.approx(before.entropy.val, rel=1e-8, abs=1e-8)
+    assert now.V.val * 1e5 == pytest.approx(before.volume.val, rel=1e-8, abs=1e-10)
+    assert now.G.ddt == pytest.approx(before.gibbs_energy.ddt, rel=1e-6, abs=1e-8)
 
 
 def parameters_si(entry, key, names_units):

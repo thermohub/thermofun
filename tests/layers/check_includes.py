@@ -31,7 +31,7 @@ ALLOWED = {
     "Engine": {"Methods", "Model", "Conventions", "Common"},
     "IO": {"Model", "Common", "catalog"},
     "IO/Legacy": {"IO", "Model", "Common", "catalog", "legacy-enums"},
-    "Compat": {"Model", "Common", "catalog", "legacy-enums", "public"},
+    "Compat": {"Model", "Common", "catalog", "legacy-enums", "public", "IO/Legacy"},
 }
 JSON_YAML = re.compile(r"^(nlohmann/|ryml|c4/|rapidyaml)")
 INCLUDE = re.compile(r'^\s*#\s*include\s*[<"]([^>"]+)[>"]', re.M)
