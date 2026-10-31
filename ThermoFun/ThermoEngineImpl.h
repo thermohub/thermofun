@@ -131,6 +131,7 @@ struct ThermoEngine::Impl
         electro_results.clear();
         solvent_results.clear();
         reaction_results.clear();
+        users_are_current = false;
         // the methods are bound with the implementations of the preferences
         bound_cache = std::make_shared<BoundCache>();
         resultsAreCurrent();
@@ -315,6 +316,24 @@ struct ThermoEngine::Impl
 
     /// Each val holds a derivative, V in m3/mol per unit.
     auto reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool alwaysFromReactants = false) const -> ThermoPropertiesReaction;
+
+    //=================================================================================================
+    // The handles on the parameters
+    //=================================================================================================
+
+    /// A change of a value of a record, in the database of this engine. Only the results that depend on it are cleared.
+    template <class Edit>
+    auto editValue(const ParameterRef& ref, Edit edit) -> void;
+
+    auto isOfReaction(const ParameterRef& ref) const -> bool;
+    auto valueOf(const ParameterRef& ref) const -> v2::Quantity;
+
+    /// The substances and reactions whose results use this record, and itself
+    auto dependentsOf(const std::string& symbol) const -> std::set<std::string>;
+
+    /// Who uses each symbol, directly. Filled when needed; a change of a value does not change it.
+    mutable std::map<std::string, std::set<std::string>> users;
+    mutable bool users_are_current = false;
 
     //=================================================================================================
     // Propagation of the errors of the reference properties and of the coefficients of the models

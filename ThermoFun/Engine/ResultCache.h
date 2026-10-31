@@ -75,6 +75,23 @@ public:
         usage_.clear();
     }
 
+    /// Drops the results of these symbols.
+    template <class Symbols>
+    void erase(const Symbols& symbols)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (auto it = entries_.begin(); it != entries_.end();)
+        {
+            if (symbols.count(it->first.symbol))
+            {
+                usage_.erase(it->second.usage);
+                it = entries_.erase(it);
+            }
+            else
+                ++it;
+        }
+    }
+
     auto size() const -> std::size_t
     {
         std::lock_guard<std::mutex> lock(mutex_);

@@ -16,4 +16,5 @@ dependencies:
   - autodiff
   - python>=3.9
   - pytest
+  - scipy
 

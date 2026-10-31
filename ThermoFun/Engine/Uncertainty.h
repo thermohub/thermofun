@@ -13,6 +13,22 @@
 
 namespace ThermoFun::v2 {
 
+/// One value of a record that can be a parameter: its path, as a covariance block names it, and how a calculation names it.
+struct RecordValue
+{
+    std::string path;
+    ParameterRef ref;
+    double standard = 0.0;
+};
+
+/// All the values of a record: reference values, parameters of the methods, of their segments, and the changes at their transitions.
+auto recordValues(const SubstanceRecord& record) -> std::vector<RecordValue>;
+auto recordValues(const ReactionRecord& record) -> std::vector<RecordValue>;
+
+/// The value of a record that a calculation names so. Null if the record has no such value.
+auto findValue(SubstanceRecord& record, const ParameterRef& ref) -> Quantity*;
+auto findValue(ReactionRecord& record, const ParameterRef& ref) -> Quantity*;
+
 /// The uncertain values of some records, with their covariance. Inputs without an uncertainty are not in the list.
 struct UncertainInputs
 {

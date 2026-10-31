@@ -19,6 +19,9 @@ description = "The Python interface of the ThermoFun library."
 license = "LGPL-3.0-or-later"
 keywords = ["element", "substance", "reaction", "HKF equation", "solvent", "liquid"]
 
+[project.optional-dependencies]
+fitting = ["scipy"]
+
 [project.urls]
 Homepage = "https://thermohub.org/"
 Repository = "https://github.com/thermohub/thermofun.git"

@@ -163,6 +163,13 @@ void exportThermoEngine(py::module& m)
         return out;
     };
 
+    py::class_<ParameterHandle>(m, "ParameterHandle", "One parameter of a record of an engine, for a fit")
+        .def("name", &ParameterHandle::name)
+        .def("value", &ParameterHandle::value, "The value in SI")
+        .def("setValue", &ParameterHandle::setValue, py::arg("value"), "Changes the value (SI); only the results that depend on the record are cleared")
+        .def("uncertainty", &ParameterHandle::uncertainty, "The standard uncertainty in SI, or None")
+        .def("key", [](const ParameterHandle& h) { return std::make_tuple(h.ref().symbol, h.ref().method, h.ref().parameter); }, "(symbol, method, parameter)");
+
     py::class_<ConsistencyOptions>(m, "ConsistencyOptions", "The options of ThermoEngine.consistencyReport")
         .def(py::init<>())
         .def_readwrite("delta_G_threshold", &ConsistencyOptions::delta_G_threshold, "J/mol; a larger difference is inconsistent");
@@ -225,6 +232,24 @@ void exportThermoEngine(py::module& m)
                  return self.reactionParameterSensitivities(T, P, symbol, sensitivities(parameters));
              }, py::arg("T"), py::arg("P"), py::arg("symbol"), py::arg("parameters"),
              "The exact derivatives of the properties of a reaction by parameters, each (symbol, method, parameter): method \"\" for a reference value. A dict: property, then the name of the parameter. SI")
+        .def("parameter", &ThermoEngine::parameter, py::keep_alive<0, 1>(), py::arg("symbol"), py::arg("method"), py::arg("parameter"),
+             "A handle on one parameter of a record: method \"\" for a reference value")
+        .def("parameters", [](py::object self, const std::string& symbol) {
+                 py::list out;
+                 for (auto& handle : self.cast<ThermoEngine&>().parameters(symbol))
+                 {
+                     py::object item = py::cast(handle);
+                     py::detail::keep_alive_impl(item, self);  // a handle needs its engine
+                     out.append(item);
+                 }
+                 return out;
+             }, py::arg("symbol"), "The handles of all the values of a record that can be fitted")
+        .def("commitParameters", &ThermoEngine::commitParameters, "A database with the current values of the handles")
+        .def("setParameterCovariance", [sensitivities](ThermoEngine& self, const std::vector<std::tuple<std::string, std::string, std::string>>& parameters, const std::vector<double>& covariance) {
+                 return self.setParameterCovariance(sensitivities(parameters), covariance);
+             }, py::arg("parameters"), py::arg("covariance"),
+             "Gives parameters a covariance, SI, row after row: one block for each record. Returns the number of the values dropped, between different records")
+        .def("numberOfCachedResults", &ThermoEngine::numberOfCachedResults, "The number of results kept in the caches")
         .def("snapshot", &ThermoEngine::snapshot, "What the results depend on: versions, dataset, SHA-256 of the records, implementations")
         .def("consistencyReport", &ThermoEngine::consistencyReport, py::arg("TP"), py::arg("options") = ConsistencyOptions{},
              "The records that can be calculated in two ways, and the difference at each pair (T [K], P [Pa])")

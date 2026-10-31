@@ -10,14 +10,6 @@ namespace ThermoFun::v2 {
 
 namespace {
 
-/// All the values of a record by their paths, as a covariance block names them.
-struct Named
-{
-    std::string path;
-    ParameterRef ref;
-    double standard = 0.0;
-};
-
 auto standardOf(const Quantity& q) -> double
 {
     return q.uncertainty ? q.uncertainty->standard : 0.0;
@@ -34,7 +26,7 @@ auto nameOf(ReactionPropertyName name) -> std::string
 }
 
 template <typename Record>
-auto methodValues(const Record& record, std::vector<Named>& out) -> void
+auto methodValues(const Record& record, std::vector<RecordValue>& out) -> void
 {
     for (std::size_t i = 0; i < record.methods.size(); ++i)
     {
@@ -52,10 +44,34 @@ auto methodValues(const Record& record, std::vector<Named>& out) -> void
     }
 }
 
-auto addAll(UncertainInputs& to, const std::vector<Named>& values, const std::vector<CovarianceBlock>& covariance) -> void
+/// a0: the parameter, or that of the first segment. a0[1]: of the second segment. dS[0]: the change at the first transition.
+template <typename Record>
+auto findInMethods(Record& record, const ParameterRef& ref) -> Quantity*
+{
+    const auto open = ref.parameter.find('[');
+    const std::string base = ref.parameter.substr(0, open);
+    const std::size_t row = open == std::string::npos ? 0 : std::stoul(ref.parameter.substr(open + 1));
+    for (auto& a : record.methods)
+    {
+        if (a.method != ref.method)
+            continue;
+        if (open == std::string::npos)
+            if (const auto it = a.parameters.find(base); it != a.parameters.end())
+                return &it->second;
+        if (row < a.segments.size())
+            if (const auto it = a.segments[row].parameters.find(base); it != a.segments[row].parameters.end())
+                return &it->second;
+        if (open != std::string::npos && row < a.transitions.size())
+            if (const auto it = a.transitions[row].find(base); it != a.transitions[row].end())
+                return &it->second;
+    }
+    return nullptr;
+}
+
+auto addAll(UncertainInputs& to, const std::vector<RecordValue>& values, const std::vector<CovarianceBlock>& covariance) -> void
 {
     std::map<std::string, std::size_t> places;
-    auto place = [&](const Named& value, bool inBlock) {
+    auto place = [&](const RecordValue& value, bool inBlock) {
         const auto it = places.find(value.path);
         if (it != places.end())
         {
@@ -75,7 +91,7 @@ auto addAll(UncertainInputs& to, const std::vector<Named>& values, const std::ve
         resolved.matrix = block.matrix;
         for (const auto& path : block.paths)
         {
-            const auto it = std::find_if(values.begin(), values.end(), [&](const Named& v) { return v.path == path; });
+            const auto it = std::find_if(values.begin(), values.end(), [&](const RecordValue& v) { return v.path == path; });
             // the reader checks the paths of a v2 file
             resolved.inputs.push_back(it == values.end() ? to.inputs.size() : place(*it, true));
             if (it == values.end())
@@ -87,22 +103,56 @@ auto addAll(UncertainInputs& to, const std::vector<Named>& values, const std::ve
 
 } // namespace
 
-auto UncertainInputs::add(const SubstanceRecord& record) -> void
+auto recordValues(const SubstanceRecord& record) -> std::vector<RecordValue>
 {
-    std::vector<Named> values;
+    std::vector<RecordValue> values;
     for (const auto& [name, q] : record.standard_state_properties)
         values.push_back({"/standard_state_properties/" + nameOf(name), {record.symbol, "", nameOf(name)}, standardOf(q)});
     methodValues(record, values);
-    addAll(*this, values, record.covariance);
+    return values;
+}
+
+auto recordValues(const ReactionRecord& record) -> std::vector<RecordValue>
+{
+    std::vector<RecordValue> values;
+    for (const auto& [name, q] : record.reaction_properties)
+        values.push_back({"/reaction_properties/" + nameOf(name), {record.symbol, "", nameOf(name)}, standardOf(q)});
+    methodValues(record, values);
+    return values;
+}
+
+auto findValue(SubstanceRecord& record, const ParameterRef& ref) -> Quantity*
+{
+    if (ref.method.empty())
+    {
+        for (auto& [name, q] : record.standard_state_properties)
+            if (nameOf(name) == ref.parameter)
+                return &q;
+        return nullptr;
+    }
+    return findInMethods(record, ref);
+}
+
+auto findValue(ReactionRecord& record, const ParameterRef& ref) -> Quantity*
+{
+    if (ref.method.empty())
+    {
+        for (auto& [name, q] : record.reaction_properties)
+            if (nameOf(name) == ref.parameter)
+                return &q;
+        return nullptr;
+    }
+    return findInMethods(record, ref);
+}
+
+auto UncertainInputs::add(const SubstanceRecord& record) -> void
+{
+    addAll(*this, recordValues(record), record.covariance);
 }
 
 auto UncertainInputs::add(const ReactionRecord& record) -> void
 {
-    std::vector<Named> values;
-    for (const auto& [name, q] : record.reaction_properties)
-        values.push_back({"/reaction_properties/" + nameOf(name), {record.symbol, "", nameOf(name)}, standardOf(q)});
-    methodValues(record, values);
-    addAll(*this, values, record.covariance);
+    addAll(*this, recordValues(record), record.covariance);
 }
 
 auto UncertainInputs::variance(const std::vector<double>& J) const -> double

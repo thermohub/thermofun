@@ -5,7 +5,9 @@
 #define THERMOFUN_ENGINE_SENSITIVITY_H
 
 #include <map>
+#include <optional>
 #include <string>
+#include <utility>
 
 namespace ThermoFun {
 
@@ -22,6 +24,31 @@ struct ParameterRef
 
 /// The derivatives: property, then the name of the parameter. SI: the unit of the property per the SI unit of the parameter.
 using SensitivityResult = std::map<std::string, std::map<std::string, double>>;
+
+class ThermoEngine;
+
+/// One parameter of a record of an engine, for a fit. It changes the record in the database of that engine, which must live as long as the handle. A change clears
+/// only the results that depend on this record.
+class ParameterHandle
+{
+public:
+    ParameterHandle(ThermoEngine& engine, ParameterRef ref) : engine_(&engine), ref_(std::move(ref)) {}
+
+    /// Calcite/LandauHP98/Smax
+    auto name() const -> std::string { return ref_.name(); }
+    auto ref() const -> const ParameterRef& { return ref_; }
+
+    /// SI
+    auto value() const -> double;
+    auto setValue(double value_si) -> void;
+
+    /// The standard uncertainty, SI; empty if the record gives none.
+    auto uncertainty() const -> std::optional<double>;
+
+private:
+    ThermoEngine* engine_;
+    ParameterRef ref_;
+};
 
 } // namespace ThermoFun
 

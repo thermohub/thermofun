@@ -66,6 +66,7 @@ struct EngineConventions {
 class ThermoEngine
 {
     friend class Interface;
+    friend class ParameterHandle;
 
 public:
     /**
@@ -213,6 +214,22 @@ public:
 
     /// The same for a reaction. Results: logK, lnK, dG, dH, dS, dCp, dV.
     auto reactionParameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
+
+    /// A handle on one parameter of a record: see ParameterRef. An unknown parameter is an error.
+    auto parameter(const std::string& symbol, const std::string& method, const std::string& parameter) -> ParameterHandle;
+
+    /// The handles of all the values that can be fitted, of the substance and of the reaction with this symbol.
+    auto parameters(const std::string& symbol) -> std::vector<ParameterHandle>;
+
+    /// A database with the current values of the handles.
+    auto commitParameters() const -> Database;
+
+    /// Gives these parameters a covariance, in SI, row after row: their uncertainties, and one covariance block for each record. The covariance of parameters of
+    /// two different records has no place in the format: it is dropped, and the function returns the number of the values dropped.
+    auto setParameterCovariance(const std::vector<ParameterRef>& parameters, const std::vector<double>& covariance) -> std::size_t;
+
+    /// The number of results kept in the caches.
+    auto numberOfCachedResults() const -> std::size_t;
 
     /// The records that can be calculated in two ways, and the difference between the ways at each pair (T in K, P in Pa):
     /// a substance from its methods and from its defining reaction, a reaction from its methods and from its reactants.
