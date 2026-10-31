@@ -3,6 +3,7 @@
 
 #include "LogK_function_of_T.h"
 #include <ThermoFun/Common/Constants.h>
+#include <ThermoFun/Common/Exception.h>
 #include <algorithm>
 
 namespace ThermoFun {
@@ -225,6 +226,14 @@ auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& 
                 CpCoeff[3] = -Rln10 * 0.25 * A[6];
                 CpCoeff[4] = Rln10 * 6.0 * A[5];
             }
+
+            if (A.empty())
+                funError("Cannot calculate log K of a reaction", "It has neither the coefficients of log K nor those of its heat capacity.", __LINE__, __FILE__);
+            // a record can leave out the last coefficients, if they are 0
+            if (A.size() < 7)
+                A.resize(7, 0.0);
+            if (CpCoeff.size() < 5)
+                CpCoeff.resize(5, 0.0);
 
             lgK = A[0] + A[1] * TK + A[2]/TK + A[3] * log(TK) + A[4] / (TK*TK) +
                   A[5] * (TK*TK) + A[6] / pow(TK,0.5);
