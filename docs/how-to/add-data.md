@@ -279,11 +279,25 @@ ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
 assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
 ```
 
-A record with the class `aqueous_solute` and the formula `H+` has all properties 0 at all T and P. It needs no methods.
+**The hydrogen ion.** The geochemical convention (`benson_helgeson`, the default) defines all properties of the hydrogen ion as 0, at all T and P. A record with the class
+`aqueous_solute` and the formula `H+` needs no methods and no values in this convention. In another convention, the properties of H+ can be different: give `convention` in
+the record, or in the dataset, with the values and the methods. ThermoFun then uses them. It also uses values other than 0 in the geochemical convention, and `validate` gives a warning (`CNV-007`).
 
 ```python
 hydrogen = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  H+: {formula: H+, class: aqueous_solute, aggregate_state: aqueous}\n")
 assert tf.ThermoEngine(hydrogen).thermoPropertiesSubstance(400.0, 1e6, "H+").gibbs_energy.val == 0.0
+other = tf.Database("""thermohub: 2.0.0-draft.1
+substances:
+  H+:
+    formula: H+
+    class: aqueous_solute
+    aggregate_state: aqueous
+    convention: {energy_reference: ser}
+    standard_state_properties: {G: -1000, H: -1000, S: 10, Cp: 20, V: 0}
+    methods:
+      - {method: ConstantCp}
+""")
+assert tf.ThermoEngine(other).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val == -1000.0
 ```
 
 ### 5.4 A gas

@@ -135,6 +135,7 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Add the parameter, or give a `parameter_set` that has it."},
         {"V2-MTH-005", S::Error, "The method cannot be used for this class of substance.",
          "Use a method for the class of the record (see `Suits` in the method reference)."},
+        {"CNV-007", S::Warning, "The hydrogen ion has values other than 0 in the geochemical convention.", "Set the values to 0, or declare the convention of the record."},
         {"V2-APP-001", S::Error, "The minimum of a range is not below its maximum.", "Correct the limits of the range."},
         {"V2-MTH-006", S::Warning, "The temperature segments overlap or leave gaps.",
          "Make each segment start where the one before ends."},

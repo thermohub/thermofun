@@ -106,6 +106,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Database::validate` reports the problems between records. A v2 file can use `include`, and `Database` reads a dataset folder. `toLegacyJson` and
   `save(path, DataFormat::Legacy)` write the legacy format. `jsonString()` of an edited record gives the record as it is now; before, it gave the old text. A v2 file without the key
   `thermohub` is refused, and a v2 file with methods that conflict is refused at the load.
+- The hydrogen ion is 0 only in the geochemical convention, and only if its record gives no other value. Before, a record with the formula `H+` always gave 0 and its data was ignored.
 - New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
   `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.

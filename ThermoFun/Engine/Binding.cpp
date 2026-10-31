@@ -77,8 +77,8 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
         if (spec->effects.base)
             bases.push_back(spec->id);
     const bool fromReaction = !record.defining_reaction.empty() || record.preferred_property_source == PropertySource::Reaction;
-    // the properties of the hydrogen ion are 0 by definition
-    if (bases.empty() && !fromReaction && record.standard_state_properties.empty() && !isHydrogenIon(record))
+    // the geochemical convention defines the properties of the hydrogen ion as 0: it needs no values there
+    if (bases.empty() && !fromReaction && record.standard_state_properties.empty() && !isZeroHydrogenIon(record, Convention{}))
         out.add(problem(record, "V2-MTH-012", record.symbol + " has no base method and no reference values.",
                         "Add a base method (for example CpPolynomial) or the standard-state properties G, H, S, Cp, V."));
     if (bases.size() > 1)

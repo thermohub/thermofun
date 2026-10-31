@@ -444,7 +444,7 @@ struct ThermoEngine::Impl
     {
         const auto record = substance.record();
         SubstanceKind kind;
-        kind.isHydrogen = v2::isHydrogenIon(*record);
+        kind.isHydrogen = v2::isZeroHydrogenIon(*record, database.thermoDataSet().convention);
         kind.isH2Ovapor = compat::isWaterVapour(*record);
         kind.isH2OSolvent = record->class_ == v2::SubstanceClass::WaterSolvent;
         kind.isReacDC = substance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC ||

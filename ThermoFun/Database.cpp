@@ -13,6 +13,7 @@
 #include "IO/Legacy/LegacyWriter.h"
 #include "IO/Validate.h"
 #include "Engine/Binding.h"
+#include "Conventions/HydrogenIon.h"
 #include "IO/detail/JsonDetect.h"
 #include "IO/detail/Yaml.h"
 #include "Substance.h"
@@ -1009,6 +1010,16 @@ auto Database::validate() const -> Diagnostics
         const Diagnostics conflicts = v2::checkMethods(record);
         for (const auto& d : conflicts.all())
             all.add(d);
+        if (v2::isHydrogenIon(record) && v2::hydrogenIonConventionIsZero(record, records.dataset.convention) && v2::recordHasOwnValues(record))
+        {
+            Diagnostic d;
+            d.severity = Severity::Warning;
+            d.code = "CNV-007";
+            d.record = record.symbol;
+            d.path = "/substances/" + record.symbol;
+            d.message = "The geochemical convention defines the properties of the hydrogen ion as 0, and this record gives other values. They are used.";
+            all.add(d);
+        }
     }
     return all;
 }

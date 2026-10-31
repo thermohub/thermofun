@@ -260,3 +260,71 @@ def test_the_text_of_an_edited_record_is_written_from_its_fields():
     written = json.loads(v2.jsonString())
     assert written["symbol"] == "B" and written["formula"] == "Mg" and "standard_state_properties" in written
     assert tf.Substance(v2.jsonString()).formula() == "Mg"
+
+
+# --- the hydrogen ion ------------------------------------------------------------------------------
+
+def hydrogen(**more):
+    record = {"formula": "H+", "class": "aqueous_solute", "aggregate_state": "aqueous"}
+    record.update(more)
+    return tf.Database(document(substances={"H+": record}))
+
+
+VALUES = {"G": -1000.0, "H": -1000.0, "S": 10.0, "Cp": 20.0, "V": 1e-5}
+METHODS = [{"method": "ConstantCp"}, {"method": "ConstantVolume"}]
+
+
+def gibbs_of(db):
+    return tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val
+
+
+def test_the_hydrogen_ion_is_zero_in_the_geochemical_convention():
+    assert gibbs_of(hydrogen()) == 0.0
+    assert gibbs_of(hydrogen(standard_state_properties=dict.fromkeys(VALUES, 0.0))) == 0.0
+    assert gibbs_of(hydrogen(convention={"energy_reference": "benson_helgeson"})) == 0.0
+
+
+@pytest.mark.parametrize("reference", ["ser", "berman_brown", "assigned_enthalpy"])
+def test_the_hydrogen_ion_has_its_values_in_another_convention(reference):
+    db = hydrogen(convention={"energy_reference": reference}, standard_state_properties=VALUES, methods=METHODS)
+    assert gibbs_of(db) == -1000.0
+    assert "CNV-007" not in codes(db)
+
+
+def test_the_convention_of_the_dataset_counts_for_the_hydrogen_ion():
+    record = {"formula": "H+", "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": VALUES, "methods": METHODS}
+    db = tf.Database(document(thermodataset={"symbol": "x", "convention": {"energy_reference": "ser"}}, substances={"H+": record}))
+    assert gibbs_of(db) == -1000.0
+    assert "CNV-007" not in codes(db)
+
+
+def test_a_zero_in_a_record_of_another_convention_stays_a_value():
+    db = hydrogen(convention={"energy_reference": "ser"}, standard_state_properties=dict(VALUES, G=0.0, S=10.0), methods=METHODS)
+    p = tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "H+")
+    assert p.entropy.val == 10.0
+
+
+def test_own_values_in_the_geochemical_convention_are_used_with_a_warning():
+    db = hydrogen(standard_state_properties=VALUES, methods=METHODS)
+    assert gibbs_of(db) == -1000.0
+    found = [d for d in db.validate().all() if d.code == "CNV-007"]
+    assert found and found[0].severity == tf.Severity.Warning and found[0].record == "H+"
+
+
+def test_only_the_hydrogen_ion_has_this_rule():
+    db = tf.Database(document(substances={"X+": {"formula": "Na+", "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": {"G": -5.0}}}))
+    assert tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "X+").gibbs_energy.val == -5.0
+
+
+def test_another_convention_with_nothing_given_is_refused():
+    with pytest.raises(RuntimeError, match="V2-MTH-012"):
+        hydrogen(convention={"energy_reference": "ser"})
+
+
+@pytest.mark.parametrize("path", BUNDLED, ids=os.path.basename)
+def test_the_hydrogen_ion_of_a_bundled_database_stays_zero(path):
+    db = tf.Database(path)
+    if db.containsSubstance("H+"):
+        engine = tf.ThermoEngine(db)
+        for T, P in [(298.15, 1e5), (473.15, 1e7)]:
+            assert engine.thermoPropertiesSubstance(T, P, "H+").gibbs_energy.val == 0.0
