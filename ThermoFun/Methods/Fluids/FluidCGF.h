@@ -4,12 +4,12 @@
 #ifndef GASCGF
 #define GASCGF
 #include <ThermoFun/Common/ThermoProperties.h>
-#include <ThermoFun/Methods/Gases/GasInputs.h>
+#include <ThermoFun/Methods/Fluids/FluidInputs.h>
 
 
 namespace ThermoFun {
 
-auto thermoPropertiesGasCGF(real t, real p, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesFluidCGF(real t, real p, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
 
 }
 

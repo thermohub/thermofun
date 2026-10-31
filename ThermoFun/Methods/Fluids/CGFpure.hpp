@@ -8,7 +8,7 @@
 // Replaces the finite differences of the original implementation (the compressibility factor, the internal energy of the reference
 // fluid and the residual entropy were calculated with a relative step of 1e-5).
 
-#include <ThermoFun/Methods/Gases/CGFanalytic.hpp>
+#include <ThermoFun/Methods/Fluids/CGFanalytic.hpp>
 
 namespace ThermoFun {
 namespace cgf {

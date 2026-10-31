@@ -4,13 +4,13 @@
 #ifndef GASPR78
 #define GASPR78
 #include <ThermoFun/Common/ThermoProperties.h>
-#include <ThermoFun/Methods/Gases/GasInputs.h>
+#include <ThermoFun/Methods/Fluids/FluidInputs.h>
 
 
 namespace ThermoFun {
 
 
-auto thermoPropertiesGasPR78(real t, real p, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesFluidPR78(real t, real p, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
 
 }
 

@@ -4,13 +4,13 @@
 #ifndef GASSTP
 #define GASSTP
 #include <ThermoFun/Common/ThermoProperties.h>
-#include <ThermoFun/Methods/Gases/GasInputs.h>
+#include <ThermoFun/Methods/Fluids/FluidInputs.h>
 
 
 namespace ThermoFun {
 
 
-auto thermoPropertiesGasSTP(real t, real p, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesFluidSTP(real t, real p, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
 
 }
 

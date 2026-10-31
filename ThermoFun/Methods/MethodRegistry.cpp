@@ -11,7 +11,7 @@
 #include <vector>
 
 #include <ThermoFun/Common/Exception.h>
-#include <ThermoFun/Methods/Gases/GasMethods.h>
+#include <ThermoFun/Methods/Fluids/FluidMethods.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Minerals/MineralMethods.h>
@@ -149,7 +149,7 @@ MethodRegistry::MethodRegistry()
                 const auto it = a.parameters.find(n);
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
-            GasRecord record{r.reference_conditions.T, r.formula, r.applicability};
+            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability};
             bool found = false;
             for (const auto& other : r.methods)
                 if (other.method == "CpPolynomial" && !found)
@@ -161,7 +161,7 @@ MethodRegistry::MethodRegistry()
                         }
             if (!found)
                 thfun_logger->warn("{}: substance \"{}\" has no temperature intervals (they come only from a CpPolynomial method); using its reference temperature {} K as the lower temperature bound.", id, r.symbol, record.lower_T);
-            return gasMethod(id, values, record);
+            return fluidMethod(id, values, record);
         });
     };
     gas("PRSV86");

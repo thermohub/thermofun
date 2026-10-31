@@ -11,7 +11,7 @@
 #include "Database.h"
 #include "ThermoProperties.h"
 #include "Engine/Executor.h"
-#include "Methods/Gases/GasMethods.h"
+#include "Methods/Fluids/FluidMethods.h"
 #include "Methods/Minerals/MineralMethods.h"
 #include "Methods/Minerals/ReferenceMethods.h"
 #include "Methods/Reactions/ReactionMethods.h"
@@ -107,10 +107,10 @@ int main(int argc, char** argv)
     // Gas and fluid models (fugacity from the equations of state). Pc in Pa
     {
         const auto gas = [](const char* id, std::vector<double> parameters, const char* formula) {
-            GasRecord record;
+            FluidRecord record;
             record.lower_T = 200.0;
             record.formula = formula;
-            return gasMethod(id, std::move(parameters), record);
+            return fluidMethod(id, std::move(parameters), record);
         };
         const std::vector<double> cubic = {190.56, 45.99e5, 0.0115, 0.0}, interaction = {190.56, 45.99e5, 0.0115, 0.0, 0.0, 0.0};
         checkProperties("SRK", gas("SoaveRedlichKwong72", cubic, "CH4"), 450.0, 5e7, 2e-3, true);

@@ -4,13 +4,13 @@
 #ifndef GASSRK
 #define GASSRK
 #include <ThermoFun/Common/ThermoProperties.h>
-#include <ThermoFun/Methods/Gases/GasInputs.h>
+#include <ThermoFun/Methods/Fluids/FluidInputs.h>
 
 
 namespace ThermoFun {
 
 
-auto thermoPropertiesGasSRK(real t, real p, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
+auto thermoPropertiesFluidSRK(real t, real p, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity = true) -> ThermoPropertiesSubstanceAD;
 
 }
 

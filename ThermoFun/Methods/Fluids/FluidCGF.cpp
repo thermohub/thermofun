@@ -4,11 +4,11 @@
 // The formulas of this file come from s_solmod2.cpp of the GEMS3K code, (c) T. Wagner, D. Kulik, S. Dmitrieva, F. Hingerl,
 // S. Churakov, A. Rysin and others, under the GNU Lesser General Public License version 3 or later.
 
-#include "Methods/Gases/GasCGF.h"
+#include "Methods/Fluids/FluidCGF.h"
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
-#include <ThermoFun/Methods/Gases/CGFpure.hpp>
+#include <ThermoFun/Methods/Fluids/CGFpure.hpp>
 
 namespace ThermoFun {
 
@@ -1085,7 +1085,7 @@ long int CGActivCoefPT(Work& w, real *X,real *param, real *act, unsigned long in
 
 } // namespace
 
-auto thermoPropertiesGasCGF(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesFluidCGF(real TK, real Pbar, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)

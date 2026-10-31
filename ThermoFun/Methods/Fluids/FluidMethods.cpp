@@ -1,52 +1,52 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
-#include "GasMethods.h"
+#include "FluidMethods.h"
 
 #include <map>
 #include <type_traits>
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Methods/FunctionMethod.h>
-#include <ThermoFun/Methods/Gases/GasCGF.h>
-#include <ThermoFun/Methods/Gases/GasCORK.h>
-#include <ThermoFun/Methods/Gases/GasPR78.h>
-#include <ThermoFun/Methods/Gases/GasPRSV.h>
-#include <ThermoFun/Methods/Gases/GasSRK.h>
-#include <ThermoFun/Methods/Gases/GasSTP.h>
+#include <ThermoFun/Methods/Fluids/FluidCGF.h>
+#include <ThermoFun/Methods/Fluids/FluidCORK.h>
+#include <ThermoFun/Methods/Fluids/FluidPR78.h>
+#include <ThermoFun/Methods/Fluids/FluidPRSV.h>
+#include <ThermoFun/Methods/Fluids/FluidSRK.h>
+#include <ThermoFun/Methods/Fluids/FluidSTP.h>
 #include <ThermoFun/Methods/MethodHelpers.h>
 
 namespace ThermoFun::v2 {
 
 namespace {
 
-using Model = ThermoPropertiesSubstanceAD (*)(real T, real Pbar, const GasInputs& inputs, ThermoPropertiesSubstanceAD state, bool cancel);
+using Model = ThermoPropertiesSubstanceAD (*)(real T, real Pbar, const FluidInputs& inputs, ThermoPropertiesSubstanceAD state, bool cancel);
 
 /// One equation of state. pressure_at_place_1: the parameter at place 1 is Pc, which the formula has in bar.
-struct GasRow
+struct FluidRow
 {
     Model model;
     const char* name;
     bool pressure_at_place_1;
 };
 
-struct GasData
+struct FluidData
 {
-    GasRecord record;
-    const GasRow* row = nullptr;
+    FluidRecord record;
+    const FluidRow* row = nullptr;
 };
 
-using Parameters = MethodParameters<GasData>;
+using Parameters = MethodParameters<FluidData>;
 
 template <typename Scalar>
-auto gas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const Parameters& parameters, const char* id) -> void
+auto fluid(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const Parameters& parameters, const char* id) -> void
 {
     if constexpr (std::is_same_v<Scalar, double>)
         needsAPass(id);
     else
     {
-        const GasData& data = parameters.data;
-        GasInputs inputs;
+        const FluidData& data = parameters.data;
+        FluidInputs inputs;
         inputs.lower_T = data.record.lower_T;
         inputs.formula = data.record.formula;
         for (std::size_t i = 0; i < parameters.values.size(); ++i)
@@ -66,7 +66,7 @@ auto gas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const
     }
 }
 
-auto gasInfo(PropertiesInfo& out, const InfoInputs& in, const GasData& data) -> void
+auto fluidInfo(PropertiesInfo& out, const InfoInputs& in, const FluidData& data) -> void
 {
     // the Gibbs energy, enthalpy and entropy are incremented, the volume is set to a value
     const ValueInfo G = out.G, H = out.H, S = out.S;
@@ -88,15 +88,15 @@ auto gasInfo(PropertiesInfo& out, const InfoInputs& in, const GasData& data) -> 
         setMessage(out, message);
 }
 
-auto rowOf(const std::string& id) -> const GasRow&
+auto rowOf(const std::string& id) -> const FluidRow&
 {
-    static const std::map<std::string, GasRow> rows = {
-        {"PRSV86", {thermoPropertiesGasPRSV, "PRSV Peng-Robinson-Stryjek-Vera fluid model", true}},
-        {"ChurakovGottschalk03", {thermoPropertiesGasCGF, "Churakov and Gottschalk fluid model", false}},
-        {"SoaveRedlichKwong72", {thermoPropertiesGasSRK, "SRK Soave-Redlich-Kwong fluid model", true}},
-        {"SternerPitzer94", {thermoPropertiesGasSTP, "STP Sterner-Pitzer fluid model", true}},
-        {"PengRobinson78", {thermoPropertiesGasPR78, "PR78 Peng-Robinson fluid model", true}},
-        {"CorkHP91", {thermoPropertiesGasCORK, "CORK compensated-Redlich-Kwong fluid model", true}},
+    static const std::map<std::string, FluidRow> rows = {
+        {"PRSV86", {thermoPropertiesFluidPRSV, "PRSV Peng-Robinson-Stryjek-Vera fluid model", true}},
+        {"ChurakovGottschalk03", {thermoPropertiesFluidCGF, "Churakov and Gottschalk fluid model", false}},
+        {"SoaveRedlichKwong72", {thermoPropertiesFluidSRK, "SRK Soave-Redlich-Kwong fluid model", true}},
+        {"SternerPitzer94", {thermoPropertiesFluidSTP, "STP Sterner-Pitzer fluid model", true}},
+        {"PengRobinson78", {thermoPropertiesFluidPR78, "PR78 Peng-Robinson fluid model", true}},
+        {"CorkHP91", {thermoPropertiesFluidCORK, "CORK compensated-Redlich-Kwong fluid model", true}},
     };
     const auto it = rows.find(id);
     if (it == rows.end())
@@ -106,11 +106,11 @@ auto rowOf(const std::string& id) -> const GasRow&
 
 } // namespace
 
-auto gasMethod(const std::string& id, std::vector<double> parameters, GasRecord record) -> std::shared_ptr<const SubstanceMethod>
+auto fluidMethod(const std::string& id, std::vector<double> parameters, FluidRecord record) -> std::shared_ptr<const SubstanceMethod>
 {
     return makeMethod(id.c_str(), Parameters{std::move(parameters), {std::move(record), &rowOf(id)}},
-                      [id](auto& state, const auto& in, const Parameters& p) { gas(state, in, p, id.c_str()); },
-                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) { gasInfo(out, in, p.data); });
+                      [id](auto& state, const auto& in, const Parameters& p) { fluid(state, in, p, id.c_str()); },
+                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) { fluidInfo(out, in, p.data); });
 }
 
 } // namespace ThermoFun::v2

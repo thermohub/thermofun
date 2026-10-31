@@ -55,7 +55,7 @@ Codes that use ThermoFun are not affected:
 
 All models, including the GEMS implementations that had zero or incomplete derivatives:
 - the HGK/LVS water and the Johnson-Norton dielectric constant of GEMS (`WaterHGK-JNgems`);
-- the equations of state of fluids: CORK, PRSV, SRK, PR78, STP and Churakov-Gottschalk (`Methods/Gases/Gas*.cpp`).
+- the equations of state of fluids: CORK, PRSV, SRK, PR78, STP and Churakov-Gottschalk (`Methods/Fluids/Fluid*.cpp`).
 
 ## 4. Derivative bugs fixed (present before)
 
@@ -98,7 +98,7 @@ All models, including the GEMS implementations that had zero or incomplete deriv
    differences with a relative step of 1e-5. They are **analytical** now: the free energy of the reference fluid and of the pure fluid
    and their derivatives (the hard-sphere diameter by implicit differentiation of its polynomial, the chain rule through the
    polar terms and the T dependent parameters) were derived symbolically (sympy,
-   `Substances/Gases/tools/generate_cgf_derivatives.py`) into `Substances/Gases/CGFanalytic.hpp`. The values change by about 1e-5 (the
+   `Methods/Fluids/tools/generate_cgf_derivatives.py`) into `Methods/Fluids/CGFanalytic.hpp`. The values change by about 1e-5 (the
    truncation error of the finite differences): the volume of a test fluid by 1e-5, its enthalpy by 4e-5; the derivatives with respect to T
    and P agree to 2e-5 with finite differences and to 1e-9 with the autodiff reference (nonpolar, polar and T dependent parameters).
 11. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
@@ -209,7 +209,7 @@ it is given. Tests: `pytests/test_errors.py`.
 - Near the critical point the derivatives of the HGK/LVS water are more self-consistent than finite differences of the values.
 - Churakov-Gottschalk fluid mixtures (more than one component) still use the finite differences of the original code (`DELTA = 1e-5` in
   the composition derivatives and in the residual functions); the pure fluids used by ThermoFun are exact (section 4). `G` of a CG fluid
-  has no residual contribution (the `back correction` in `GasCGF.cpp` cancels it, as in master); not changed.
+  has no residual contribution (the `back correction` in `FluidCGF.cpp` cancels it, as in master); not changed.
 - `Cv` follows `Cp - T V alpha^2/beta` only where the substance has a molar volume with `dV/dT != 0` and `dV/dP < 0`.
   For the aqueous ions (partial molar volumes with `dV/dP > 0`, the electrostriction term) the relation has no meaning
   and `Cv = Cp` is kept; the `ddt` and `ddp` of `Cv` are those of `Cp` (exact only for `dV/dT = 0`).

@@ -34,12 +34,12 @@ that license (as in Reaktoro today). Reaktoro depends on ThermoFun, so ThermoFun
 Copyright by T. Wagner, D. Kulik, S. Dmitrieva, F. Hingerl, S. Churakov, A. Rysin and others (see each header), GNU Lesser
 General Public License version 3 or (at your option) any later version:
 
-- `ThermoFun/Methods/Gases/GasCGF.cpp`
-- `ThermoFun/Methods/Gases/GasCORK.cpp`
-- `ThermoFun/Methods/Gases/GasPR78.cpp`
-- `ThermoFun/Methods/Gases/GasPRSV.cpp`
-- `ThermoFun/Methods/Gases/GasSRK.cpp`
-- `ThermoFun/Methods/Gases/GasSTP.cpp`
+- `ThermoFun/Methods/Fluids/FluidCGF.cpp`
+- `ThermoFun/Methods/Fluids/FluidCORK.cpp`
+- `ThermoFun/Methods/Fluids/FluidPR78.cpp`
+- `ThermoFun/Methods/Fluids/FluidPRSV.cpp`
+- `ThermoFun/Methods/Fluids/FluidSRK.cpp`
+- `ThermoFun/Methods/Fluids/FluidSTP.cpp`
 
 ## Files whose origin is to be confirmed
 

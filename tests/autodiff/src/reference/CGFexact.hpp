@@ -5,7 +5,7 @@
 #define THERMOFUN_CGFREFERENCE_HPP
 
 // Churakov and Gottschalk (2003) EOS of a pure fluid with exact derivatives. The original implementation (TCGFcalc in
-// GasCGF.cpp) calculates the compressibility Z = 1 + rho dF/drho, the internal energy U = dF/dbeta and the entropy
+// FluidCGF.cpp) calculates the compressibility Z = 1 + rho dF/drho, the internal energy U = dF/dbeta and the entropy
 // of the residual properties with finite differences (relative step 1e-5). These are derivatives of closed form
 // functions: here the free energy F(T, rho) is a template on the number type, and the derivatives are calculated with
 // nested autodiff dual numbers. The pass derivative (d/dT or d/dP of the properties) is the base level of the numbers.

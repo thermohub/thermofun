@@ -4,7 +4,7 @@
 // The formulas of this file come from s_solmod2.cpp of the GEMS3K code, (c) T. Wagner, D. Kulik, S. Dmitrieva, F. Hingerl,
 // S. Churakov, A. Rysin and others, under the GNU Lesser General Public License version 3 or later.
 
-#include "Methods/Gases/GasSRK.h"
+#include "Methods/Fluids/FluidPRSV.h"
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Constants.h>
 
@@ -23,7 +23,6 @@ void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
     rc = (2.*pow(a2,3.) - 9.*a2*a1 + 27.*a0)/54.;
     q3 = pow(q,3.);
     rc2 = pow(rc,2.);
-
     if (rc2 < q3)  // three real roots
     {
         theta = acos(rc/sqrt(q3));
@@ -31,7 +30,6 @@ void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
         z2 = (-2.)*sqrt(q)*cos(theta/3.+2./3.*3.1415927)-a2/3.;
         z3 = (-2.)*sqrt(q)*cos(theta/3.-2./3.*3.1415927)-a2/3.;
     }
-
     else  // one real root
     {
         ac = (-1.)*rc/fabs(rc)*pow(fabs(rc)+sqrt(rc2-q3), 1./3.);
@@ -46,29 +44,40 @@ void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
 }
 
 /// The attractive (a) and repulsive (b) parameters of the equation of state, and the T derivatives of a.
-void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apure, real &bpure, real &da, real &d2a )
+void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real k1, real k2, real k3, real &apure, real &bpure, real &da, real &d2a )
 {
-    real Tred, m, alph, ac, sqa, dsqa, d2sqa;
+    real Tred, k0, k, alph, ac, sqa, dsqa, d2sqa;
 
     Tred = Tk/Tcrit;
-    m = 0.48 + 1.574*omg - 0.176*pow(omg,2.);
-    alph = pow(1. + m*(1-sqrt(Tred)), 2.);
-    ac = (0.42747)*pow(R_CONST,2.)*pow(Tcrit,2.) / Pcrit;
+    k0 = 0.378893 + 1.4897153*omg - 0.17131848*pow(omg,2.) + 0.0196554*pow(omg,3.);
+    if(Tk >= Tcrit)
+    {
+        k1 = 0.0;
+        k2 = 0.0;
+        k3 = 0.0;
+    }
+    k = k0 + (k1 + k2*(k3-Tred)*(1.-sqrt(Tred))) * (1.+sqrt(Tred)) * (0.7-Tred);
+    alph = pow(1. + k*(1.-sqrt(Tred)), 2.);
+    ac = (0.457235)*pow(R_CONST,2.)*pow(Tcrit,2.) / Pcrit;
     apure = alph*ac;
-    bpure = (0.08664)*R_CONST*Tcrit/Pcrit;
-    sqa = 1. + m*(1-sqrt(Tred));
-    dsqa = -0.5*m/(sqrt(Tred)*Tcrit);
+    bpure = (0.077796)*R_CONST*Tcrit/Pcrit;
+    sqa = 1.+k*(1.-sqrt(Tred));
+    // dsqa = (-1.)*k0/(2.*sqrt(Tk*Tcrit)) - 1.7*k1/Tcrit + 2.*k1*Tk/(pow(Tcrit,2.));  // extend dA/dT for k2, k3
+    dsqa = ( k1*(0.7-Tred)/(2.*sqrt(Tred)*Tcrit) - k1*(1.+sqrt(Tred))/Tcrit ) * (1.-sqrt(Tred))
+                - (k0 + k1*(1.+sqrt(Tred))*(0.7-Tred))/(2*sqrt(Tred)*Tcrit);
     da = 2.*ac*(sqa*dsqa);
-    d2sqa = 0.25*m/(pow(Tred,1.5)*pow(Tcrit,2.));
+    d2sqa = ( - (k1*(0.7-Tred))/(4.*pow(Tred,1.5)*pow(Tcrit,2.)) - k1/(sqrt(Tred)*pow(Tcrit,2.)) ) * (1.-sqrt(Tred))
+                + ( - k1*(0.7-Tred)/(2.*sqrt(Tred)*Tcrit) - k1*(1.+sqrt(Tred))/Tcrit ) / (sqrt(Tred)*Tcrit)
+                + ( k0 + k1*(1.+sqrt(Tred))*(0.7-Tred) ) / (4.*pow(Tred,1.5)*pow(Tcrit,2.));
     d2a = 2.*ac*(dsqa*dsqa + sqa*d2sqa);
 
 }
 
-/// The fugacity and the residual functions of a pure fluid. eos: Tcrit, Pcrit, omg, N. pure: a, b, da/dT, d2a/dT2.
+/// The fugacity and the residual functions of a pure fluid. eos: Tcrit, Pcrit, omg, k1, k2, k3. pure: a, b, da/dT, d2a/dT2.
 /// out: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
 void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, real* out)
 {
-    real /*Tcrit, Pcrit, Tred,*/ asrk, bsrk, da, d2a, A, B, a2, a1, a0,
+    real Tcrit, Pcrit, Tred, aprsv, bprsv, alph, da, d2a, k, A, B, a2, a1, a0,
             z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
     real /*gig, hig, sig, cpig,*/ fugpure, grs, hrs, srs, cprs,
             cv, dPdT, dPdV, dVdT;
@@ -80,34 +89,39 @@ void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real*
     //cpig = 0.;
 
     // retrieve a and b terms of cubic EoS
-    asrk = pure[0];
-    bsrk = pure[1];
+    Tcrit = eos[0];
+    Pcrit = eos[1];
+    Tred = Tk/Tcrit;
+    aprsv = pure[0];
+    bprsv = pure[1];
     da = pure[2];
     d2a = pure[3];
 
     // solve cubic equation
-    A = asrk*Pbar/(pow(R_CONST,2.)*pow(Tk,2.));
-    B = bsrk*Pbar/(R_CONST*Tk);
-    a2 = (-1.);
-    a1 = A-B-pow(B,2.);
-    a0 = -A*B;
+    A = aprsv*Pbar/(pow(R_CONST,2.)*pow(Tk,2.));
+    B = bprsv*Pbar/(R_CONST*Tk);
+    a2 = B - 1.;
+    a1 = A - 3.*pow(B,2.) - 2.*B;
+    a0 = pow(B,3.) + pow(B,2.) - A*B;
     cardano(a2, a1, a0, z1, z2, z3);
 
     // find stable roots
     vol1 = z1*R_CONST*Tk/Pbar;
     vol2 = z2*R_CONST*Tk/Pbar;
     vol3 = z3*R_CONST*Tk/Pbar;
-
     if (z1 > B)
-        lnf1 = z1 - 1 - log(z1-B) - A/B*log(1.+B/z1);
+        lnf1 = (-1.)*log(z1-B)
+            - A/(B*sqrt(8.))*log((z1+(1.+sqrt(2.))*B)/(z1+(1.-sqrt(2.))*B))+z1-1.;
     else
         lnf1 = 1000.;
     if (z2 > B)
-        lnf2 = z2 - 1 - log(z2-B) - A/B*log(1.+B/z2);
+        lnf2 = (-1.)*log(z2-B)
+            - A/(B*sqrt(8.))*log((z2+(1.+sqrt(2.))*B)/(z2+(1.-sqrt(2.))*B))+z2-1.;
     else
         lnf2 = 1000.;
     if (z3 > B)
-        lnf3 = z3 - 1 - log(z3-B) - A/B*log(1.+B/z3);
+        lnf3 = (-1.)*log(z3-B)
+            - A/(B*sqrt(8.))*log((z3+(1.+sqrt(2.))*B)/(z3+(1.-sqrt(2.))*B))+z3-1.;
     else
         lnf3 = 1000.;
 
@@ -129,21 +143,26 @@ void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real*
     }
 
     // calculate thermodynamic properties
-    hrs = - ( 1 - z + 1./(bsrk*R_CONST*Tk) * (asrk-Tk*da) * log(1.+ bsrk/vol) )*R_CONST*Tk;
-    srs = ( log(z*(1.-bsrk/vol)) + 1./(bsrk*R_CONST) * da * log(1.+bsrk/vol) )*R_CONST;
-    grs = hrs - Tk*srs;
+    alph = aprsv/((0.457235)*pow(R_CONST,2.)*pow(Tcrit,2.) / Pcrit);
+    k = (sqrt(alph)-1.)/(1.-sqrt(Tred));
+    grs = R_CONST*Tk*(z-1.-log(z-B)-A/(B*sqrt(8.))
+                *log((z+(1+sqrt(2.))*B)/(z+(1-sqrt(2.))*B)));
+    hrs = R_CONST*Tk*(z-1.-log((z+(1+sqrt(2.))*B)/(z+(1-sqrt(2.))*B))
+                *A/(B*sqrt(8.))*(1+k*sqrt(Tred)/sqrt(alph)));
+    srs = (hrs-grs)/Tk;
 
     // heat capacity part
-    cv = Tk*d2a/bsrk * log(1.+B/z);
-    dPdT = R_CONST/(vol-bsrk) - da/(vol*(vol+bsrk));
-    dPdV = - R_CONST*Tk/pow((vol-bsrk),2.) + asrk*(2.*vol+bsrk)/pow((vol*(vol+bsrk)),2.);
+    cv = Tk*d2a/(bprsv*sqrt(8.))
+             * log( (z+B*(1.+sqrt(2.)))/(z+B*(1.-sqrt(2.))) );
+    dPdT = R_CONST/(vol-bprsv) - da/( vol*(vol+bprsv) + bprsv*(vol-bprsv) );
+    dPdV = - R_CONST*Tk/pow((vol-bprsv),2.) + 2.*aprsv*(vol+bprsv)/pow((vol*(vol+bprsv)+bprsv*(vol-bprsv)),2.);
     dVdT = (-1.)*(1./dPdV)*dPdT;
     cprs = cv + Tk*dPdT*dVdT - R_CONST;
 
     // increment thermodynamic properties
     fugpure = exp(lnf);
     out[0] = fugpure;
-    out[1] = grs;
+    out[1] = grs;  // changed to residual functions, 31.05.2008 (TW)
     out[2] = hrs;
     out[3] = srs;
     out[4] = vol;
@@ -159,9 +178,11 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
         const real Tcrit = eos[0];
         const real Pcrit = eos[1];
         const real omg = eos[2];
-        const real N = eos[3];
+        const real k1 = eos[3];
+        const real k2 = eos[4];
+        const real k3 = eos[5];
         real apure, bpure, da, d2a;
-        ab(Tk, Tcrit, Pcrit, omg, N, apure, bpure, da, d2a);
+        ab(Tk, Tcrit, Pcrit, omg, k1, k2, k3, apure, bpure, da, d2a);
         const real pure[4] = {apure, bpure, da, d2a};
         fugacityPure(Tk, Pbar, eos, pure, out);
     }
@@ -176,7 +197,7 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
 
 } // namespace
 
-auto thermoPropertiesGasSRK(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesFluidPRSV(real TK, real Pbar, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     if (Pbar.val() == 0.0)
@@ -196,7 +217,6 @@ auto thermoPropertiesGasSRK(real TK, real Pbar, const GasInputs& subst, ThermoPr
     tps.entropy      += FugProps[3];
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
-    // back correction
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
     if (cancel_fugacity)
         tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);

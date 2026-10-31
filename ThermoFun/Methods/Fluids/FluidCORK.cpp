@@ -5,7 +5,7 @@
 // The formulas of this file come from s_solmod2.cpp of the GEMS3K code, (c) T. Wagner, D. Kulik, S. Dmitrieva, F. Hingerl,
 // S. Churakov, A. Rysin and others, under the GNU Lesser General Public License version 3 or later.
 
-#include "Methods/Gases/GasCORK.h"
+#include "Methods/Fluids/FluidCORK.h"
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Constants.h>
 
@@ -542,7 +542,7 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code
 
 } // namespace
 
-auto thermoPropertiesGasCORK(real TK, real Pbar, const GasInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesFluidCORK(real TK, real Pbar, const FluidInputs& subst, ThermoPropertiesSubstanceAD tps, bool cancel_fugacity) -> ThermoPropertiesSubstanceAD
 {
     real FugProps[6];
     char Eos_Code = 'G';
