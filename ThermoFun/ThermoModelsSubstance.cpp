@@ -2,6 +2,7 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "ThermoModelsSubstance.h"
+#include "Model/SubstanceRecord.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
 #include "ThermoParameters.h"
@@ -178,17 +179,13 @@ ThermoModelsSubstance::ThermoModelsSubstance(const Substance& substance)
 
 auto ThermoModelsSubstance::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
 {
-    MethodGenEoS_Thrift::type method_genEOS = pimpl->substance.methodGenEOS();
-
-    switch( method_genEOS )
-    {
-        case MethodGenEoS_Thrift::type::CTPM_CPT:
-        {
-            EmpiricalCpIntegration CpInt ( pimpl->substance);
-            return CpInt.thermoProperties(T, P);
-//            break;
-        }
-    }
+    if (const auto record = pimpl->substance.record())
+        for (const auto& application : record->methods)
+            if (application.method == "CpPolynomial")
+            {
+                EmpiricalCpIntegration CpInt ( pimpl->substance);
+                return CpInt.thermoProperties(T, P);
+            }
 
     // Exception
     Exception exception;

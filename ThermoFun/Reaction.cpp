@@ -53,7 +53,7 @@ struct Reaction::Impl
         return out;
     }
 
-    /// Replaces the methods. A code that the record cannot hold is kept beside it.
+    /// Replaces the methods. A code that a method does not give back is kept beside the record, for the getters.
     void setMethods(const compat::MethodCodes& wanted, const ThermoParametersReaction& parameters)
     {
         edit([&](v2::ReactionRecord& r) {
@@ -72,7 +72,7 @@ struct Reaction::Impl
     /// The record. Empty only for the old parser (withoutRecord).
     std::shared_ptr<const v2::ReactionRecord> record;
 
-    /// The old codes that the record cannot hold: they give no method (for example CPM_NUL)
+    /// The old codes that a method of the record does not give back (for example CPM_NUL)
     compat::MethodCodes codes_without_method;
 
     /// The name of the chemical Reaction
@@ -454,12 +454,6 @@ auto Reaction::equation() const -> std::string
     if (pimpl->record)
         return pimpl->record->equation;
     return pimpl->equation;
-}
-
-auto Reaction::hasCodeWithoutMethod() const -> bool
-{
-    const auto& c = pimpl->codes_without_method;
-    return c.general || c.temperature || c.pressure;
 }
 
 auto Reaction::record() const -> std::shared_ptr<const v2::ReactionRecord>

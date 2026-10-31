@@ -30,9 +30,9 @@ void exportUtilities(py::module& m)
           "Check if a unit can be converted to another unit");
 
     // records
-    m.def("parseElement", &parseElement, py::arg("json"), "Parse an element record given as a JSON string");
-    m.def("parseSubstance", &parseSubstance, py::arg("json"), "Parse a substance record given as a JSON string");
-    m.def("parseReaction", &parseReaction, py::arg("json"), "Parse a reaction record given as a JSON string");
+    m.def("parseElement", [](const std::string& json) { return Element(json); }, py::arg("json"), "Parse an element record given as a JSON string");
+    m.def("parseSubstance", [](const std::string& json) { return Substance(json); }, py::arg("json"), "Parse a substance record given as a JSON string");
+    m.def("parseReaction", [](const std::string& json) { return Reaction(json); }, py::arg("json"), "Parse a reaction record given as a JSON string");
     m.def("readConventions", &readConventions, py::arg("json"), "Read the conventions of a database given as a JSON string");
 
     // the thermodynamic variables

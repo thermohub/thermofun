@@ -269,3 +269,88 @@ def test_a_changed_parameter_changes_the_result():
     same_again = tf.Database(from_file)
     same_again.setSubstance(rebuilt_substance(from_file.getSubstance(symbol)))
     assert tf.ThermoEngine(same_again).thermoPropertiesSubstance(373.15, 1e6, symbol).gibbs_energy.val == pytest.approx(original, rel=1e-10)
+
+
+def constant_substance(general=None):
+    s = tf.Substance()
+    s.setSymbol("X")
+    s.setFormula("Ca")
+    s.setAggregateState(tf.AggregateState.CRYSTAL)
+    reference = tf.ThermoPropertiesSubstance()
+    reference.gibbs_energy = tf.ThermoScalar(-1e5)
+    reference.enthalpy = tf.ThermoScalar(-1.2e5)
+    reference.entropy = tf.ThermoScalar(50.0)
+    reference.heat_capacity_cp = tf.ThermoScalar(100.0)
+    reference.volume = tf.ThermoScalar(3.0)
+    s.setThermoReferenceProperties(reference)
+    if general is not None:
+        s.setMethodGenEoS(general)
+    return s
+
+
+def engine_with(*records):
+    db = tf.Database()
+    for r in records:
+        db.addSubstance(r)
+    return tf.ThermoEngine(db)
+
+
+def test_constant_properties_give_the_reference_values_and_stop_other_methods():
+    s = constant_substance(tf.MethodGenEoS_Thrift.CTPM_CON)
+    s.setMethod_P(tf.MethodCorrP_Thrift.CPM_CON)
+    assert s.methodGenEOS() == tf.MethodGenEoS_Thrift.CTPM_CON
+    assert s.method_P() == tf.MethodCorrP_Thrift.CPM_CON
+    p = engine_with(s).thermoPropertiesSubstance(500.0, 1e8, "X")
+    assert p.gibbs_energy.val == pytest.approx(-1e5)
+    assert p.enthalpy.val == pytest.approx(-1.2e5)
+    assert p.volume.val == pytest.approx(3.0)
+
+
+def test_a_record_without_methods_and_reaction_has_its_reference_values():
+    p = engine_with(constant_substance()).thermoPropertiesSubstance(500.0, 1e7, "X")
+    assert p.gibbs_energy.val == pytest.approx(-1e5)
+    assert p.entropy.val == pytest.approx(50.0)
+
+
+def test_cpm_off_is_the_ideal_gas_volume():
+    s = constant_substance(tf.MethodGenEoS_Thrift.CTPM_CPT)
+    s.setSubstanceClass(tf.SubstanceClass.GASFLUID)
+    s.setAggregateState(tf.AggregateState.GAS)
+    parameters = tf.ThermoParametersSubstance()
+    parameters.Cp_coeff = [[100.0]]
+    parameters.temperature_intervals = [[273.15, 2000.0]]
+    s.setThermoParameters(parameters)
+    s.setMethod_P(tf.MethodCorrP_Thrift.CPM_OFF)
+    assert s.method_P() == tf.MethodCorrP_Thrift.CPM_OFF
+    p = engine_with(s).thermoPropertiesSubstance(500.0, 1e6, "X")
+    assert p.volume.val == pytest.approx(8.31451 * 500.0 / 10.0, rel=1e-3)   # J/bar at 10 bar
+
+
+@pytest.mark.parametrize("second", [{"31": "water_eos_hgk84_reaktoro"}, None])
+def test_hkf_with_water_means_vapour(second):
+    """HKF with the flag of the gas, or with a water equation of state, on a record that is no solute."""
+    methods = [{"method": {"2": "solute_hkf88_gems"}}]
+    methods.append({"method": second} if second else {"method": {"8": "fug_critical_param"}})
+    record = {"symbol": "H2O(g)", "formula": "H2O", "class_": {"1": "SC_GASFLUID"}, "aggregate_state": {"0": "AS_GAS"},
+              "TPMethods": methods, "sm_gibbs_energy": {"values": [-228582.0]}, "sm_enthalpy": {"values": [-241816.0]}}
+    s = tf.Substance(json.dumps(record))
+    assert s.methodGenEOS() == tf.MethodGenEoS_Thrift.CTPM_HKF
+    engine = engine_with(s)
+    low, high = (engine.thermoPropertiesSubstance(T, 1e5, "H2O(g)") for T in (400.0, 800.0))
+    assert high.enthalpy.val - low.enthalpy.val == pytest.approx(14400.0, rel=0.05)    # steam, not the reference values
+
+
+def test_a_reaction_with_logk_coefficients_and_a_density_model_runs_the_model():
+    record = {"symbol": "R", "equation": "A = B",
+              "TPMethods": [{"method": {"0": "logk_fpt_function"}, "logk_ft_coeffs": {"values": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
+                            {"method": {"9": "logk_marshall_frank78"}, "dr_marshall_franck_coeffs": {"values": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]}}]}
+    r = tf.Reaction(json.dumps(record))
+    assert r.method_T() == tf.MethodCorrT_Thrift.CTM_DKR
+    assert r.methodGenEOS() == tf.MethodGenEoS_Thrift.CTPM_REA
+    assert r.thermoParameters().reaction_logK_fT_coeff[0] == 1.0
+    assert r.thermoParameters().reaction_FM_coeff == pytest.approx([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+
+
+def test_parse_functions_give_records_that_run():
+    s = tf.parseSubstance(json.dumps({"symbol": "Y", "formula": "Ca", "sm_gibbs_energy": {"values": [-5.0]}}))
+    assert engine_with(s).thermoPropertiesSubstance(300.0, 1e5, "Y").gibbs_energy.val == pytest.approx(-5.0)

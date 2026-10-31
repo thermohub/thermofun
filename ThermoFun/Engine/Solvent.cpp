@@ -8,30 +8,28 @@
 
 namespace ThermoFun::v2 {
 
-auto canBindSolvent(const SubstanceRecord& record) -> bool
-{
-    int equations = 0;
-    for (const auto& a : record.methods)
-    {
-        const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance);
-        if (!spec || !MethodRegistry::instance().hasSolventMethod(a.method))
-            return false;
-        equations += spec->role == MethodRole::SolventProperties;
-    }
-    return equations == 1;
-}
-
 auto bindSolvent(std::shared_ptr<const SubstanceRecord> record) -> std::shared_ptr<const BoundSolvent>
 {
     auto bound = std::make_shared<BoundSolvent>();
+    auto values = std::make_shared<SubstanceRecord>(*record);
+    values->methods.clear();
     for (const auto& a : record->methods)
     {
         const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance);
-        if (spec->role == MethodRole::SolventProperties)
-            bound->equation_of_state = MethodRegistry::instance().createSolvent(a);
-        else
-            bound->dielectric = MethodRegistry::instance().createDielectric(a);
+        if (!spec)
+            continue;
+        if (MethodRegistry::instance().hasSolventMethod(a.method))
+        {
+            if (spec->role == MethodRole::SolventProperties)
+                bound->equation_of_state = MethodRegistry::instance().createSolvent(a);
+            else
+                bound->dielectric = MethodRegistry::instance().createDielectric(a);
+        }
+        else if (a.method == "ConstantCp" || a.method == "CpPolynomial" || a.method == "ConstantProperties")
+            values->methods.push_back(a);
     }
+    if (!bound->equation_of_state && canBind(*values))
+        bound->reference_values = bindSubstance(values);
     bound->record = std::move(record);
     return bound;
 }

@@ -36,6 +36,10 @@ auto thermoReferenceProperties(const v2::SubstanceRecord& record) -> ThermoPrope
 /// The molar mass in g/mol.
 auto molarMass(const v2::SubstanceRecord& record) -> double;
 
+/// True if the record is vapour by the rule of the old engine: HKF with the flag of the gas, or with a water equation of
+/// state on a record that is not an aqueous solute.
+auto isWaterVapour(const v2::SubstanceRecord& record) -> bool;
+
 /// How the properties come: from methods, or from a reaction.
 auto thermoCalculationType(const v2::SubstanceRecord& record) -> SubstanceThermoCalculationType::type;
 
@@ -47,7 +51,7 @@ auto reactants(const v2::ReactionRecord& record) -> std::map<std::string, double
 
 /// Replaces the methods of a record with those of the old codes, with the parameters taken from the arrays. Goes through
 /// the legacy reader, so the rules of a file apply. Gives an error if a code has no method; a code that asks for nothing
-/// (for example CPM_NUL) leaves the slot empty. Methods kept from the record keep what the arrays cannot hold.
+/// (for example CPM_NUL) leaves the slot empty, and CTPM_CON gives the constant properties. Methods kept from the record keep what the arrays cannot hold.
 void setMethods(v2::SubstanceRecord& record, const MethodCodes& codes, const ThermoParametersSubstance& parameters);
 void setMethods(v2::ReactionRecord& record, const MethodCodes& codes, const ThermoParametersReaction& parameters);
 

@@ -23,7 +23,7 @@ struct Substance::Impl
     /// The record. Empty only for the old parser (withoutRecord).
     std::shared_ptr<const v2::SubstanceRecord> record;
 
-    /// The old codes that the record cannot hold: they give no method (for example CPM_NUL)
+    /// The old codes that a method of the record does not give back (for example CPM_NUL)
     compat::MethodCodes codes_without_method;
 
     /// The calculation type, if an old setter gave it
@@ -127,7 +127,7 @@ struct Substance::Impl
         return out;
     }
 
-    /// Replaces the methods. A code that the record cannot hold is kept beside it.
+    /// Replaces the methods. A code that a method does not give back is kept beside the record, for the getters.
     void setMethods(const compat::MethodCodes& wanted, const ThermoParametersSubstance& parameters)
     {
         edit([&](v2::SubstanceRecord& r) {
@@ -489,12 +489,6 @@ auto Substance::aggregateState() const -> AggregateState::type
 auto Substance::charge() const -> int
 {
     return pimpl->charge;
-}
-
-auto Substance::hasCodeWithoutMethod() const -> bool
-{
-    const auto& c = pimpl->codes_without_method;
-    return c.general || c.temperature || c.pressure;
 }
 
 auto Substance::record() const -> std::shared_ptr<const v2::SubstanceRecord>

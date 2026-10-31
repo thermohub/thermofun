@@ -99,6 +99,9 @@ public:
     /// @param P The pressure value (in units of Pa)
     auto thermoProperties (double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction;
 
+    /// The properties from the coefficients of the function log K(T)
+    auto thermoProperties (double T, double P) -> ThermoPropertiesReaction;
+
 private:
     struct Impl;
 

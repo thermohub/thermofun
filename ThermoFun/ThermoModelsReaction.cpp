@@ -168,6 +168,11 @@ Reaction_LogK_fT::Reaction_LogK_fT(const Reaction &reaction)
 {}
 
 
+auto Reaction_LogK_fT::thermoProperties(double T, double P) -> ThermoPropertiesReaction
+{
+    return thermoProperties(T, P, MethodCorrT_Thrift::type::CTM_LGK);
+}
+
 auto Reaction_LogK_fT::thermoProperties(double T, double P, MethodCorrT_Thrift::type methodT) -> ThermoPropertiesReaction
 {
     auto reaction = reactionInputsOf(pimpl->reaction, pimpl->reaction.thermoParameters().reaction_logK_fT_coeff);

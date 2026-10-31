@@ -386,7 +386,6 @@ void testSolvent()
 
     // the methods of a water record: one equation of state, and the dielectric model
     auto r = waterRecord({{"JohnsonNorton91", "gems"}, {"WaterHGK84", "gems"}});
-    CHECK(canBindSolvent(*r));
     auto bound = bindSolvent(r);
     CHECK(dynamic_cast<const WaterHGK84Gems*>(bound->equation_of_state.get()));
     CHECK(dynamic_cast<const JohnsonNorton91Gems*>(bound->dielectric.get()));
@@ -397,9 +396,15 @@ void testSolvent()
     bound = bindSolvent(r);
     CHECK(dynamic_cast<const WaterHGK84Reaktoro*>(bound->equation_of_state.get()) && !bound->dielectric);
 
-    CHECK(!canBindSolvent(*waterRecord({{"JohnsonNorton91", ""}})));
-    CHECK(!canBindSolvent(*waterRecord({{"WaterHGK84", ""}, {"WaterIAPWS95", ""}})));
-    CHECK(!canBindSolvent(*waterRecord({{"WaterHGK84", ""}, {"HKF88", ""}})));
+    // only a dielectric model: no properties of water
+    CHECK(!bindSolvent(waterRecord({{"JohnsonNorton91", ""}}))->equation_of_state);
+    // water by reference values: the base method runs alone, and the dielectric model stays
+    bound = bindSolvent(waterRecord({{"JohnsonNorton91", "gems"}, {"ConstantCp", ""}, {"ConstantVolume", ""}}));
+    CHECK(!bound->equation_of_state && bound->reference_values && bound->dielectric);
+    CHECK(bound->reference_values->record->methods.size() == 1);
+    // an equation of state goes first, and a method that does not act on water is left out
+    bound = bindSolvent(waterRecord({{"WaterHGK84", ""}, {"HKF88", ""}}));
+    CHECK(bound->equation_of_state && !bound->reference_values);
 
     // a pressure of 0 is the saturation pressure, and it is written back (IAPWS-95: 1554928 Pa; the code of GEMS has
     // its own saturation equation, 0.08 % lower)

@@ -9,6 +9,7 @@
 #include <string>
 
 #include <ThermoFun/Methods/Water/SolventMethod.h>
+#include <ThermoFun/Engine/Binding.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
 namespace ThermoFun::v2 {
@@ -17,14 +18,13 @@ namespace ThermoFun::v2 {
 struct BoundSolvent
 {
     std::shared_ptr<const SubstanceRecord> record;
-    std::shared_ptr<const SolventMethod> equation_of_state;
-    std::shared_ptr<const DielectricMethod> dielectric;  ///< null if the record has no dielectric model
+    std::shared_ptr<const SolventMethod> equation_of_state;  ///< null if the record has no equation of state of water
+    std::shared_ptr<const DielectricMethod> dielectric;      ///< null if the record has no dielectric model
+    /// Water given by reference values: a base method without water properties. Null if the record has none.
+    std::shared_ptr<const BoundSubstance> reference_values;
 };
 
-/// True if the record has one equation of state of water with code, no other base method, and only methods of the solvent.
-auto canBindSolvent(const SubstanceRecord& record) -> bool;
-
-/// Make the methods of a water record.
+/// Make the methods of a water record. Methods that have no effect on water are left out.
 auto bindSolvent(std::shared_ptr<const SubstanceRecord> record) -> std::shared_ptr<const BoundSolvent>;
 
 /// The state of water for a record: 1 (gas) if its aggregate state is gas, else 0 (liquid).

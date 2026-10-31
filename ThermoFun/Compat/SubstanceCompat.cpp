@@ -129,11 +129,10 @@ auto limitsOf(const v2::Segment& s) -> std::vector<double>
     return row;
 }
 
-// The old codes that ask for no method, and the methods without code: the slot stays empty
+// The old codes that give no legacy method: the slot stays empty. CTPM_CON gives a method of its own (see setMethods).
 auto asksForNothing(int code) -> bool
 {
-    return code == MethodGenEoS_Thrift::type::CTPM_CON || code == MethodCorrP_Thrift::type::CPM_OFF || code == MethodCorrP_Thrift::type::CPM_NUL ||
-           code == MethodCorrT_Thrift::type::CTM_BER || code == MethodCorrT_Thrift::type::CTM_FEI;
+    return code == MethodGenEoS_Thrift::type::CTPM_CON || code == MethodCorrP_Thrift::type::CPM_OFF || code == MethodCorrP_Thrift::type::CPM_NUL;
 }
 
 // The legacy methods of the old codes, in the order of the slots
@@ -142,12 +141,13 @@ auto methodsOfCodes(const MethodCodes& codes, const std::vector<v2::legacy::Lega
     std::vector<const v2::legacy::LegacyMethod*> out;
     for (const int code : {static_cast<int>(codes.general), static_cast<int>(codes.temperature), static_cast<int>(codes.pressure)})
     {
-        if (code == 0 || asksForNothing(code))
+        if (code == 0)
             continue;
         const auto it = std::find_if(all.begin(), all.end(), [&](const auto& m) { return m.thrift_code == code; });
-        if (it == all.end())
+        if (it != all.end())
+            out.push_back(&*it);
+        else if (!asksForNothing(code))
             throw std::invalid_argument("The old method code " + std::to_string(code) + " has no method for a " + what + ".");
-        out.push_back(&*it);
     }
     return out;
 }
@@ -239,6 +239,16 @@ void keepWhatArraysCannotHold(std::vector<v2::MethodApplication>& methods, const
                 a.parameters.emplace(name, value);
         }
     }
+}
+
+// CTPM_CON: the reference properties at every T and P; the old engine ran no other method of such a record
+template <class Record>
+void useConstantProperties(Record& record, const char* method)
+{
+    v2::MethodApplication application;
+    application.method = method;
+    record.methods = {application};
+    record.preferred_property_source.reset();
 }
 
 void setProperty(std::optional<v2::Quantity> quantity, const Reaktoro_::ThermoProperty& from, double factor, const std::function<void(v2::Quantity)>& store)
@@ -382,6 +392,16 @@ auto molarMass(const v2::SubstanceRecord& record) -> double
     return record.molar_mass ? record.molar_mass->value * 1e3 : 0.0;
 }
 
+auto isWaterVapour(const v2::SubstanceRecord& record) -> bool
+{
+    const auto codes = methodCodes(record);
+    const auto t = codes.temperature;
+    const bool waterEoS = t == MethodCorrT_Thrift::type::CTM_WAT || t == MethodCorrT_Thrift::type::CTM_WAR ||
+                          t == MethodCorrT_Thrift::type::CTM_WWP || t == MethodCorrT_Thrift::type::CTM_WZD;
+    return codes.general == MethodGenEoS_Thrift::type::CTPM_HKF &&
+           (codes.pressure == MethodCorrP_Thrift::type::CPM_GAS || (waterEoS && record.class_ != v2::SubstanceClass::AqueousSolute));
+}
+
 auto thermoCalculationType(const v2::SubstanceRecord& record) -> SubstanceThermoCalculationType::type
 {
     return !record.defining_reaction.empty() && record.methods.empty() ? SubstanceThermoCalculationType::type::REACDC
@@ -403,7 +423,8 @@ auto methodCodes(const v2::ReactionRecord& record) -> MethodCodes
         else
             out.pressure = static_cast<MethodCorrP_Thrift::type>(m->thrift_code);
         // the reader keeps the coefficients of logk_fpt_function in a method of another form
-        if (a.method.rfind("LogK", 0) == 0 && (a.parameters.count("a0") || a.parameters.count("a")))
+        const bool ownNames = a.method != "LogKTable" && a.method.rfind("LogK", 0) == 0;
+        if (a.parameters.count("a0") || (ownNames && a.parameters.count("a")))
             out.general = static_cast<MethodGenEoS_Thrift::type>(v2::legacy::legacyReactionMethod(0)->thrift_code);
     }
     return out;
@@ -436,10 +457,21 @@ auto thermoParameters(const v2::ReactionRecord& record) -> ThermoParametersReact
         };
         fill(*method);
         // a log K method holds the coefficients of the merged logk_fpt_function and dr_heat_capacity_ft
-        if (a.method.rfind("LogK", 0) == 0 || a.method == "ReactionCpPolynomial")
+        const bool ownNames = a.method != "LogKTable" && a.method.rfind("LogK", 0) == 0;
+        if (ownNames || a.method == "ReactionCpPolynomial")
             for (const auto& m : v2::legacy::legacyReactionMethods())
                 if (std::string(m.name) == "logk_fpt_function" || std::string(m.name) == "dr_heat_capacity_ft")
                     fill(m);
+        // other methods hold only the coefficients of log K: a, b, ... of those are their own parameters
+        if (!ownNames && a.parameters.count("a0"))
+        {
+            for (const auto& m : v2::legacy::legacyReactionMethods())
+                if (std::string(m.name) == "logk_fpt_function")
+                    for (const auto& p : m.parameters)
+                        if (std::string(p.key) == "logk_ft_coeffs")
+                            if (const auto it = a.parameters.find(p.name); it != a.parameters.end())
+                                setAt(out.reaction_logK_fT_coeff, p.index, it->second.value);
+        }
     }
     return out;
 }
@@ -500,6 +532,8 @@ void setMethods(v2::SubstanceRecord& record, const MethodCodes& codes, const The
     const auto before = record.methods;
     v2::readLegacyMethods(entries, p.isobaric_expansivity, p.isothermal_compresibility, record);
     keepWhatArraysCannotHold(record.methods, before, all);
+    if (codes.general == MethodGenEoS_Thrift::type::CTPM_CON)
+        useConstantProperties(record, "ConstantProperties");
 }
 
 void setMethods(v2::ReactionRecord& record, const MethodCodes& codes, const ThermoParametersReaction& parameters)
@@ -507,7 +541,11 @@ void setMethods(v2::ReactionRecord& record, const MethodCodes& codes, const Ther
     const auto& all = v2::legacy::legacyReactionMethods();
     auto p = parameters;
     std::vector<v2::LegacyMethodEntry> entries;
-    for (const auto* m : methodsOfCodes(codes, all, "reaction"))
+    // on a reaction, CPM_NUL is the constant volume
+    auto wanted = codes;
+    if (wanted.pressure == MethodCorrP_Thrift::type::CPM_NUL)
+        wanted.pressure = MethodCorrP_Thrift::type::CPM_CON;
+    for (const auto* m : methodsOfCodes(wanted, all, "reaction"))
     {
         auto entry = methodEntry(*m);
         addArrays(entry, *m, p, v2::OperatesOn::Reaction);
@@ -516,6 +554,8 @@ void setMethods(v2::ReactionRecord& record, const MethodCodes& codes, const Ther
     const auto before = record.methods;
     v2::readLegacyMethods(entries, record);
     keepWhatArraysCannotHold(record.methods, before, all);
+    if (codes.general == MethodGenEoS_Thrift::type::CTPM_CON)
+        useConstantProperties(record, "ConstantReactionProperties");
 }
 
 void setThermoReferenceProperties(v2::SubstanceRecord& record, const ThermoPropertiesSubstance& properties)

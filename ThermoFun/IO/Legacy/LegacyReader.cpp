@@ -4,6 +4,7 @@
 #include "LegacyReader.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <exception>
 #include <limits>
@@ -531,6 +532,20 @@ void mergeLogKMethods(std::vector<MethodApplication>& apps)
                    return a.method != kept && (a.method == "LogKPolynomial" || a.method == "ReactionCpPolynomial");
                }),
                apps.end());
+
+    // the same beside a method with parameters of its own: only the coefficients of log K, a0 to a6, have other names
+    auto* polynomial = findMethod(apps, "LogKPolynomial");
+    MethodApplication* other = nullptr;
+    for (const char* id : {"LogKTable", "MarshallFranck81", "RyzhenkoBryzgalin", "DolejsManning10"})
+        if (!other)
+            other = findMethod(apps, id);
+    if (polynomial && other)
+    {
+        for (const auto& p : polynomial->parameters)
+            if (p.first.size() == 2 && p.first[0] == 'a' && std::isdigit(static_cast<unsigned char>(p.first[1])))
+                other->parameters.insert(p);
+        apps.erase(apps.begin() + (polynomial - apps.data()));
+    }
 }
 
 // Water vapour: HKF with the flag fug_critical_param, or with a water equation of state on a record that is not an
@@ -553,6 +568,8 @@ void applyWaterVapourRule(SubstanceRecord& s, const MethodFlags& flags)
     }
     else if (vapourByHkf)
     {
+        // the name of HKF stays on the water method: it says that this record is vapour
+        water->method_as_written = hkf->method_as_written;
         s.methods.erase(s.methods.begin() + (hkf - s.methods.data()));
         water = nullptr;
     }
