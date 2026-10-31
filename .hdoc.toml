@@ -22,7 +22,6 @@ paths = [
   "/pytests/",
   "/tests/",
   "/Common/",
-  "OptimizationUtils.h",
   "/Substances/Solvent/Reaktoro/",
   "/Substances/Gases/s_solmod_.cpp",
   "/Substances/Gases/s_solmod_.h",

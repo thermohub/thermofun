@@ -26,7 +26,6 @@
     $$PWD/ThermoProperties.h \
     $$PWD/ThermoPropertiesStatus.h \
     $$PWD/ThermoParameters.h \
-    $$PWD/OptimizationUtils.h \
 #    $$PWD/TPcalculationsAPI.h \
 # Substances
     $$PWD/Substances/EmpiricalCpIntegration.h \

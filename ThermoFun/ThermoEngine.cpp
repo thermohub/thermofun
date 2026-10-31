@@ -30,7 +30,7 @@
 #include "ElectroModelsSolvent.h"
 #include "ThermoModelsReaction.h"
 
-#include "OptimizationUtils.h"
+#include "Engine/ResultCache.h"
 #include <functional>
 #include <cmath>
 #include <set>
@@ -66,18 +66,6 @@ bool iequals(const std::string &a, const std::string &b)
     return true;
 }
 
-using ThermoPropertiesSubstanceFunction =
-    std::function<ThermoPropertiesSubstance(double, double, double &, std::string)>;
-
-using ElectroPropertiesSolventFunction =
-    std::function<ElectroPropertiesSolvent(double, double, double &, std::string, int)>;
-
-using PropertiesSolventFunction =
-    std::function<PropertiesSolvent(double, double, double &, std::string, int)>;
-
-using ThermoPropertiesReactionFunction =
-    std::function<ThermoPropertiesReaction(double, double, double &, std::string)>;
-
 struct ThermoEngine::Impl
 {
     /// The database instance
@@ -87,15 +75,13 @@ struct ThermoEngine::Impl
 
     mutable EngineConventions conventions;
 
-    ThermoPropertiesSubstanceFunction thermo_properties_substance_fn;
+    /// The results of the calculations (see enable_memoize)
+    mutable v2::ResultCache<ThermoPropertiesSubstance> substance_results;
+    mutable v2::ResultCache<ElectroPropertiesSolvent> electro_results;
+    mutable v2::ResultCache<PropertiesSolvent> solvent_results;
+    mutable v2::ResultCache<ThermoPropertiesReaction> reaction_results;
 
-    ElectroPropertiesSolventFunction electro_properties_solvent_fn;
-
-    PropertiesSolventFunction properties_solvent_fn;
-
-    ThermoPropertiesReactionFunction thermo_properties_reaction_fn;
-
-    /// The database revision and the settings with which the cached results were calculated
+    /// The database revision and the settings with which the results were calculated
     struct CacheState
     {
         std::uint64_t database_revision = 0;
@@ -120,64 +106,65 @@ struct ThermoEngine::Impl
 
     Impl()
     {
-        set_fn() ;
+        resultsAreCurrent();
     }
 
     Impl(const Database &database)
         : database(database)
     {
-        set_fn();
+        resultsAreCurrent();
     }
 
-    /// Two memoized copies of f, one for each value of apply_pressure_correction_to_gas_props, chosen at each call.
-    /// The reactants of a reaction-defined substance and of a reaction from reactants are calculated with the flag
-    /// switched on (FlagGuard), and the cache key does not hold the flag: with one cache, the result of a gas
-    /// depended on the calculations made before it.
-    template <typename Ret, typename... Args>
-    auto memoizeByGasCorrection(const std::function<Ret(Args...)>& f) -> std::function<Ret(Args...)>
+    void resultsAreCurrent()
     {
-        auto memoized = [&]() -> std::function<Ret(Args...)> {
-            if (preferences.max_cache_size == 0)
-                return memoize(f);
-            return memoizeN(f, preferences.max_cache_size);
-        };
-        auto without = memoized(), with = memoized();
-        return [this, without, with](Args... args) -> Ret {
-            return preferences.apply_pressure_correction_to_gas_props ? with(std::forward<Args>(args)...)
-                                                                      : without(std::forward<Args>(args)...);
-        };
-    }
-
-    void set_fn()
-    {
-        thermo_properties_substance_fn = [=, this](double T, double P_, double &P, std::string symbol) {
-            auto x = P_;
-            return thermoPropertiesSubstance(T, P, symbol);
-        };
-
-        electro_properties_solvent_fn = [=, this](double T, double P_, double &P, std::string symbol, int state) {
-            auto x = P_;
-            return electroPropertiesSolvent(T, P, symbol, state);
-        };
-
-        properties_solvent_fn = [=, this](double T, double P_, double &P, std::string symbol, int state) {
-            auto x = P_;
-            return propertiesSolvent(T, P, symbol, state);
-        };
-
-        thermo_properties_reaction_fn = [=, this](double T, double P_, double &P, std::string symbol) {
-            auto x = P_;
-            return thermoPropertiesReaction(T, P, symbol);
-        };
-
-        if( preferences.enable_memoize ) {
-            thermo_properties_substance_fn = memoizeByGasCorrection(thermo_properties_substance_fn);
-            electro_properties_solvent_fn = memoizeByGasCorrection(electro_properties_solvent_fn);
-            properties_solvent_fn = memoizeByGasCorrection(properties_solvent_fn);
-            thermo_properties_reaction_fn = memoizeByGasCorrection(thermo_properties_reaction_fn);
-        }
         const Database& db = database;
         cached_for = {db.revision(), preferences, conventions, db.conventions()};
+    }
+
+    void clearResults()
+    {
+        substance_results.clear();
+        electro_results.clear();
+        solvent_results.clear();
+        reaction_results.clear();
+        perturbed_engine.reset();
+        resultsAreCurrent();
+    }
+
+    /// The result of a calculation from the cache, else calculated and kept. The reactants of a reaction-defined substance and of
+    /// a reaction from reactants are calculated with the pressure correction of gases switched on (FlagGuard): the key holds the flag,
+    /// so a result of a gas does not depend on the calculations made before it.
+    template <class Value, class Calculate>
+    auto cached(v2::ResultCache<Value>& cache, double T, double& P, const std::string& symbol, int state, Calculate calculate) const -> Value
+    {
+        if (!preferences.enable_memoize)
+            return calculate();
+        const v2::ResultKey key{symbol, T, P, state, preferences.apply_pressure_correction_to_gas_props};
+        if (auto hit = cache.find(key, P))
+            return *hit;
+        const Value value = calculate();
+        cache.store(key, value, P, preferences.max_cache_size);
+        return value;
+    }
+
+    auto cachedSubstance(double T, double& P, const std::string& symbol) const -> ThermoPropertiesSubstance
+    {
+        return cached(substance_results, T, P, symbol, -1, [&] { return thermoPropertiesSubstance(T, P, symbol); });
+    }
+
+    auto cachedElectro(double T, double& P, const std::string& symbol, int state) const -> ElectroPropertiesSolvent
+    {
+        return cached(electro_results, T, P, symbol, state, [&] { return electroPropertiesSolvent(T, P, symbol, state); });
+    }
+
+    auto cachedSolvent(double T, double& P, const std::string& symbol, int state) const -> PropertiesSolvent
+    {
+        return cached(solvent_results, T, P, symbol, state, [&] { return propertiesSolvent(T, P, symbol, state); });
+    }
+
+    auto cachedReaction(double T, double& P, const std::string& symbol) const -> ThermoPropertiesReaction
+    {
+        return cached(reaction_results, T, P, symbol, -1, [&] { return thermoPropertiesReaction(T, P, symbol); });
     }
 
     /// Clear the cached results if the records, the preferences or the conventions changed after they were cached.
@@ -193,8 +180,7 @@ struct ThermoEngine::Impl
         if (db.revision() == cached_for.database_revision && preferences == settings &&
             conventions == cached_for.conventions && db.conventions() == cached_for.database_conventions)
             return;
-        perturbed_engine.reset();
-        set_fn();
+        clearResults();
     }
 
     /// The methods of a substance. Null if they give no one base method: then no method runs.
@@ -219,20 +205,20 @@ struct ThermoEngine::Impl
             return std::nullopt;
         v2::SolventInputs in;
         const auto symbol = preferences.solvent_symbol;
-        in.properties = properties_solvent_fn(T, P, P, symbol, -1);
+        in.properties = cachedSolvent(T, P, symbol, -1);
         if (bound.needs.dielectric)
-            in.electro = electro_properties_solvent_fn(T, P, P, symbol, -1);
+            in.electro = cachedElectro(T, P, symbol, -1);
         if (bound.needs.solvent_at_reference)
         {
             const auto& solvent = database.getSubstance(symbol);
             double Pr = solvent.referenceP();
             const double Tr = solvent.referenceT();
-            in.properties_at_reference = properties_solvent_fn(Tr, Pr, Pr, symbol, -1);
+            in.properties_at_reference = cachedSolvent(Tr, Pr, symbol, -1);
             if (bound.needs.ideal_gas_water)
             {
-                in.water = thermo_properties_substance_fn(T, P, P, symbol);
+                in.water = cachedSubstance(T, P, symbol);
                 in.ideal_gas_water = WaterIdealGasWoolley(solvent).thermoProperties(T, P);
-                in.water_at_reference = thermo_properties_substance_fn(Tr, Pr, Pr, symbol);
+                in.water_at_reference = cachedSubstance(Tr, Pr, symbol);
                 in.ideal_gas_water_at_reference = WaterIdealGasWoolley(solvent).thermoProperties(Tr, Pr);
             }
         }
@@ -402,8 +388,18 @@ struct ThermoEngine::Impl
         return thermoPropertiesSubstance(T, P, database.getSubstance(substance));
     }
 
-    auto thermoPropertiesSubstance(double T, double &P, const Substance &substance) const -> ThermoPropertiesSubstance
+    auto detailedSubstance(double T, double &P, const Substance &substance) const -> DetailedPropertiesSubstance
     {
+        DetailedPropertiesSubstance detailed;
+        detailed.properties = thermoPropertiesSubstance(T, P, substance, &detailed);
+        return detailed;
+    }
+
+    auto thermoPropertiesSubstance(double T, double &P, const Substance &substance, DetailedPropertiesSubstance* detailed = nullptr) const -> ThermoPropertiesSubstance
+    {
+        // where the result came from, if it is asked for
+        const auto cameFrom = [&](const char* source) { if (detailed) detailed->source = source; };
+        cameFrom("none");
         const SubstanceKind kind = kindOf(substance);
         ThermoPropertiesSubstance tps;
 
@@ -417,6 +413,7 @@ struct ThermoEngine::Impl
             tps.heat_capacity_cp = 0.0;
             tps.heat_capacity_cv = 0.0;
             tps.helmholtz_energy = 0.0;
+            cameFrom("hydrogen_ion");
             return tps;
         }
 
@@ -427,13 +424,19 @@ struct ThermoEngine::Impl
         {
             tps = reacDCthermoProperties(T, P, substance);
             completeThermoProperties(tps, T, P, !isWater);
+            cameFrom("reaction");
+            if (detailed)
+                detailed->reaction = substance.reactionSymbol();
         }
         else
         {
             bool water_g_contains_rt_ln_p = false; // true if G of the water model has the term RT ln(P/1 bar)
 
             if (kind.isReacDC)
+            {
                 tps = substance.thermoReferenceProperties();
+                cameFrom("reference");
+            }
             else if (isWater)
             {
                 const auto solvent = boundSolvent(substance);
@@ -441,14 +444,23 @@ struct ThermoEngine::Impl
                 {
                     tps = solvent->equation_of_state->substanceProperties(T, P, preferences.solvent_state, database.conventions().water_triple_point_reference);
                     water_g_contains_rt_ln_p = solvent->equation_of_state->gibbsEnergyContainsRTlnP();
+                    cameFrom("water");
                 }
                 else if (solvent->reference_values)
+                {
                     tps = toThermoProperties(v2::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
+                    cameFrom("reference");
+                }
             }
             else if (const auto bound = boundMethods(substance))
             {
                 const auto solvent = solventInputs(*bound, T, P);
-                tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions(), nullptr, solvent ? &*solvent : nullptr));
+                std::vector<v2::ExplainStep> steps;
+                tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions(), detailed ? &steps : nullptr, solvent ? &*solvent : nullptr));
+                cameFrom("methods");
+                if (detailed)
+                    for (const auto& step : steps)
+                        detailed->steps.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val});
             }
 
             // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the
@@ -469,10 +481,18 @@ struct ThermoEngine::Impl
             if (kind.isH2OSolvent)
             {
                 if (iequals(conventions.water_properties, "STEAM_TABLES"))
+                {
                     toSteamTables(tps, waterTripleData.at(database.conventions().water_triple_point_reference));
+                    if (detailed)
+                        detailed->conversions.push_back("steam_tables");
+                }
             }
             else if (iequals(conventions.apparent_properties, "BERMAN_BROWN"))
+            {
                 toBermanBrown(tps, substance);
+                if (detailed)
+                    detailed->conversions.push_back("berman_brown");
+            }
         }
 
         // check properties
@@ -557,7 +577,7 @@ struct ThermoEngine::Impl
         // if reaction involves gases we switch on the P correction to the thermo props
         FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
 
-        tpr = thermo_properties_reaction_fn(T, P, P, reactionSymbol); /*thermoPropertiesReaction(T, P, reactionSymbol);*/
+        tpr = cachedReaction(T, P, reactionSymbol); /*thermoPropertiesReaction(T, P, reactionSymbol);*/
 
         reactants = reaction.reactants();
 
@@ -566,7 +586,7 @@ struct ThermoEngine::Impl
         for (const auto& reactant : reactants)
         {
             if (reactant.first != subst.symbol())
-                others.push_back({thermo_properties_substance_fn(T, P, P, reactant.first) /* thermoPropertiesSubstance(T, P, reactant.first);*/, reactant.second});
+                others.push_back({cachedSubstance(T, P, reactant.first) /* thermoPropertiesSubstance(T, P, reactant.first);*/, reactant.second});
         }
 
         const double coeff = reactants[subst.symbol()];
@@ -645,7 +665,7 @@ struct ThermoEngine::Impl
                 warnIfLogKFunctionDisagrees(reaction);
             std::optional<PropertiesSolvent> solvent;
             if (bound->needs_solvent)
-                solvent = properties_solvent_fn(T, P, P, preferences.solvent_symbol, -1);
+                solvent = cachedSolvent(T, P, preferences.solvent_symbol, -1);
             return v2::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
         }
 
@@ -692,7 +712,7 @@ struct ThermoEngine::Impl
                 errorMethodNotFound("reaction", reaction.symbol(), __LINE__, __FILE__);
             }
 
-            components.push_back({thermo_properties_substance_fn(T, P,P, substance) /*thermoPropertiesSubstance(T, P, substance);*/, coeff});
+            components.push_back({cachedSubstance(T, P, substance) /*thermoPropertiesSubstance(T, P, substance);*/, coeff});
             symbols.push_back(substance);
         }
 
@@ -714,13 +734,11 @@ struct ThermoEngine::Impl
         if (!perturbed_engine)
             perturbed_engine.reset(new ThermoEngine(database));
         auto& impl = *perturbed_engine->pimpl;
-        const bool reset = impl.preferences.enable_memoize;
         impl.preferences = preferences;
         impl.preferences.enable_memoize = false;
         impl.preferences.propagate_parameter_errors = false;
         impl.preferences.round_to_uncertainty = false;
         impl.conventions = conventions;
-        if (reset) impl.set_fn(); // without memoization
         return *perturbed_engine;
     }
 
@@ -934,16 +952,14 @@ ThermoEngine::ThermoEngine(const Database &database)
 ThermoEngine::ThermoEngine(const ThermoEngine &other)
     : pimpl(new Impl(*other.pimpl))
 {
-    // the copied functions are bound to the Impl of the other engine (and so dangle when it is destroyed):
-    // bind them to this one (the memoization caches start empty)
-    pimpl->set_fn();
+    // the caches of results start empty
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();
     const double P0 = P;
-    auto tps = pimpl->thermo_properties_substance_fn(T, P, P, substance);
+    auto tps = pimpl->cachedSubstance(T, P, substance);
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tps, pimpl->recordsOfSubstance(substance), nullptr, nullptr,
             [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, substance); });
@@ -954,13 +970,13 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
 {
     pimpl->dropStaleResults();
-    return pimpl->electro_properties_solvent_fn(T, P, P, solvent, state);
+    return pimpl->cachedElectro(T, P, solvent, state);
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
 {
     pimpl->dropStaleResults();
-    return pimpl->properties_solvent_fn(T, P, P, solvent, state);
+    return pimpl->cachedSolvent(T, P, solvent, state);
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
@@ -996,7 +1012,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
 {
     pimpl->dropStaleResults();
     const double P0 = P;
-    auto tpr = pimpl->thermo_properties_reaction_fn(T, P, P, reaction);
+    auto tpr = pimpl->cachedReaction(T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(reaction), nullptr, nullptr,
             [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReaction(T, p, reaction); });
@@ -1043,8 +1059,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
 auto ThermoEngine::setPreferences(const EnginePreferences preferences) -> void
 {
     pimpl->preferences = preferences;
-    pimpl->perturbed_engine.reset();
-    pimpl->set_fn(); // applies the memoization settings (the caches are cleared)
+    pimpl->clearResults();
 }
 
 auto ThermoEngine::setConventions(const EngineConventions conventions) -> void
@@ -1090,16 +1105,13 @@ auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string 
 
 auto ThermoEngine::explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>
 {
-    std::vector<ExplainStep> out;
-    const auto bound = pimpl->boundMethods(pimpl->database.getSubstance(substance));
-    if (!bound)
-        return out;
-    std::vector<v2::ExplainStep> steps;
-    const auto solvent = pimpl->solventInputs(*bound, T, P);
-    v2::executeSubstance(*bound, T, P, pimpl->substanceOptions(), &steps, solvent ? &*solvent : nullptr);
-    for (const auto& step : steps)
-        out.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val});
-    return out;
+    return thermoPropertiesSubstanceDetailed(T, P, substance).steps;
+}
+
+auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance
+{
+    pimpl->dropStaleResults();
+    return pimpl->detailedSubstance(T, P, pimpl->database.getSubstance(substance));
 }
 
 auto ThermoEngine::parseSubstanceFormula(std::string formula) const -> std::map<Element, double>

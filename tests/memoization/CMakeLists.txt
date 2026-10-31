@@ -1,4 +1,4 @@
-# Regression tests for ThermoFun/OptimizationUtils.h. Header-only, so this does
+# Regression tests for ThermoFun/Engine/ResultCache.h. Header-only, so this does
 # not link against the ThermoFun library - unlike the standalone example
 # projects in the sibling directories, which expect an installed ThermoFun.
 add_executable(test-memoization src/main.cpp)

@@ -78,6 +78,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   method for that kind of record, for example `CTM_LGX` on a substance (`ValueError` in Python); before, the code was stored and
   did nothing. `setThermoParameters` raises an error that names the array and the position if an array with values misses a
   required parameter.
+- The engine runs every record through method objects: the old `switch` evaluation is gone. New:
+  `thermoPropertiesSubstanceDetailed` gives the result, its source, the methods in order and the conversions applied.
+  `explain` is built on it, so it now needs the defining reaction of a substance in the database.
+- `ThermoFun/OptimizationUtils.h` is removed. The engine keeps its results in `Engine/ResultCache.h`.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

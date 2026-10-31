@@ -4,7 +4,7 @@
 import thermofun as thermofun
 import unittest
 
-# Regression coverage for the memoization cache in ThermoFun/OptimizationUtils.h,
+# Regression coverage for the memoization cache in ThermoFun/Engine/ResultCache.h,
 # exercised through the public Python API (which is the same path GEMS3K uses via
 # TNode::load_all_thermodynamic_from_thermo - see CLAUDE.md).
 #

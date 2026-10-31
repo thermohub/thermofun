@@ -100,3 +100,18 @@ def test_explain_gives_the_state_after_each_method():
     if steps:
         assert steps[0]["method"] == "CpPolynomial"
         assert steps[-1]["G"] == pytest.approx(engine.thermoPropertiesSubstance(400.0, 1e7, "Quartz").gibbs_energy.val, rel=1e-12)
+
+
+def test_a_detailed_result_says_how_it_came():
+    engine = tf.ThermoEngine(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test-aq17-gem-lma-thermofun.json"))
+    plain = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
+    detailed = engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "Ca+2")
+    assert detailed["source"] == "methods"
+    assert [step["method"] for step in detailed["steps"]] == ["HKF88"]
+    assert detailed["properties"].gibbs_energy.val == plain.gibbs_energy.val
+    assert detailed["steps"][-1]["G"] == pytest.approx(plain.gibbs_energy.val)
+    assert detailed["conversions"] == []
+    assert engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "H+")["source"] == "hydrogen_ion"
+    assert engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "H2O@")["source"] == "water"
+    defined = engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "H4SiO4@")
+    assert defined["source"] == "reaction" and defined["reaction"] == "H4SiO4@" and defined["steps"] == []

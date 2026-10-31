@@ -244,6 +244,8 @@ def test_records_written_with_setters_run_on_the_method_objects():
     written.conventions.water_triple_point_reference = from_file.conventions.water_triple_point_reference
     for s in from_file.getSubstances():
         written.addSubstance(rebuilt_substance(s))
+    for r in from_file.getReactions():
+        written.addReaction(r)
     engine_file, engine_written = tf.ThermoEngine(from_file), tf.ThermoEngine(written)
     on_objects = 0
     for s in from_file.getSubstances():

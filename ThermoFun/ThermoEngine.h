@@ -3,6 +3,7 @@
 
 #ifndef THERMO_H
 #define THERMO_H
+#include <ThermoFun/Engine/DetailedResult.h>
 #include <ThermoFun/ThermoProperties.h>
 
 #include <string>
@@ -19,7 +20,6 @@ class Solvent;
 class Substance;
 class Reaction;
 class Element;
-struct WorkPreferences;
 
 struct EnginePreferences
 {
@@ -167,16 +167,15 @@ public:
     /// @param reaction the reaction object
     auto thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
-    /// One method of a substance and the properties after it, in SI: G, H [J/mol], S, Cp [J/(mol K)], V [m3/mol].
-    struct ExplainStep
-    {
-        std::string method;
-        double G = 0.0, H = 0.0, S = 0.0, Cp = 0.0, V = 0.0;
-    };
+    using ExplainStep = ThermoFun::ExplainStep;
 
     /// The methods that calculate a substance at T (K) and P (Pa), in the order they run, with the state after each one.
-    /// Empty if the substance is not yet calculated by method objects.
+    /// Empty if no such methods run: water, a substance defined by a reaction, a record without a base method.
     auto explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>;
+
+    /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
+    /// @param P The pressure value (in units of Pa); 0 means the saturation pressure, which is written back
+    auto thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance;
 
     /// Pareses a given substance formula present in the database
     /// @param formula
