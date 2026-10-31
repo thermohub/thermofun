@@ -3,6 +3,8 @@
 
 #include "Equation.h"
 
+#include <ThermoFun/Common/Numbers.h>
+
 #include <algorithm>
 #include <cctype>
 #include <regex>
@@ -24,7 +26,7 @@ auto stoichiometryOfEquation(const std::string& equation) -> std::vector<std::pa
             return text.substr(1);
         }
         std::size_t used = 0;
-        coefficient = std::stod(text, &used);
+        coefficient = numbers::parseDouble(text, used);
         return text.substr(used);
     };
 

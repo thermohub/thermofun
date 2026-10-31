@@ -7,6 +7,7 @@ import glob
 import json
 import os
 import re
+import struct
 
 import pytest
 import thermofun as tf
@@ -84,6 +85,45 @@ def test_yaml_and_json_give_equal_records(path):
     for symbol in db.getReactionsList():
         assert from_yaml.getReaction(symbol).record() == from_json.getReaction(symbol).record(), symbol
     assert from_yaml.toJson() == from_json.toJson()
+
+
+def float32(x):
+    return struct.pack("f", x)
+
+
+def changed_numbers(exact, readable, path=""):
+    """The numbers that shortening changes, as (path, exact, readable)."""
+    if isinstance(exact, dict):
+        return [c for key in exact for c in changed_numbers(exact[key], readable[key], path + "/" + key)]
+    if isinstance(exact, list):
+        return [c for a, b in zip(exact, readable) for c in changed_numbers(a, b, path)]
+    if isinstance(exact, (int, float)) and not isinstance(exact, bool) and exact != readable:
+        return [(path, exact, readable)]
+    return []
+
+
+@pytest.mark.parametrize("path", BUNDLED, ids=os.path.basename)
+def test_a_short_decimal_holds_the_same_float(path):
+    """Shortening loses nothing: the short decimal and the value of the legacy file are the same single-precision number."""
+    db = tf.Database(path)
+    changes = changed_numbers(json.loads(db.toJson(readable=False)), json.loads(db.toJson()))
+    assert changes
+    for where, exact, readable in changes:
+        assert float32(exact) == float32(readable), where
+        assert abs(exact - readable) <= 6e-8 * abs(exact), where
+
+
+@pytest.mark.parametrize("path", BUNDLED, ids=os.path.basename)
+def test_the_exact_file_holds_the_same_doubles(path):
+    db = tf.Database(path)
+    again = tf.Database(db.toJson(readable=False))
+    for symbol in db.getSubstancesList():
+        a, b = db.getSubstance(symbol).record(), again.getSubstance(symbol).record()
+        for name, q in a.standard_state_properties.items():
+            assert b.standard_state_properties[name].value == q.value, (symbol, name)
+        for x, y in zip(a.methods, b.methods):
+            for name, q in y.parameters.items():
+                assert q.value == x.parameters[name].value, (symbol, x.method, name)
 
 
 def aq17():

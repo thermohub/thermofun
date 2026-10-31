@@ -2,6 +2,7 @@
 // Copyright (C) 2026 ThermoFun contributors
 
 #include <ThermoFun/IO/detail/Yaml.h>
+#include <ThermoFun/Common/Numbers.h>
 
 #include <charconv>
 #include <cmath>
@@ -130,7 +131,7 @@ auto plainNumber(std::string_view s, json& out) -> bool
             return true;
         }
     }
-    const double value = std::strtod(text.c_str(), nullptr);
+    const double value = numbers::parseDouble(text);
     if (!std::isfinite(value))
         return false;
     out = value;

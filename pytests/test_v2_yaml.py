@@ -5,7 +5,9 @@
 
 import glob
 import json
+import locale
 import os
+import re
 import time
 
 import pytest
@@ -171,6 +173,58 @@ def test_yaml_without_the_version_key_is_not_a_v2_file(tmp_path):
 def test_a_file_that_is_not_there_is_named():
     with pytest.raises(RuntimeError, match="no-such-file.yaml"):
         tf.Database("no-such-file.yaml")
+
+
+def comma_locale():
+    for name in ("de_DE.UTF-8", "de_DE.utf8", "fr_FR.UTF-8", "fr_FR.utf8", "ru_RU.UTF-8", "ro_RO.UTF-8"):
+        try:
+            locale.setlocale(locale.LC_ALL, name)
+        except locale.Error:
+            continue
+        if locale.localeconv()["decimal_point"] == ",":
+            return name
+    return None
+
+
+def test_numbers_do_not_depend_on_the_locale_of_the_program():
+    """A program can set a locale with a decimal comma, as Qt does. Then strtod reads 1.5 as 1, with no error."""
+    before = locale.setlocale(locale.LC_ALL)
+    try:
+        if not comma_locale():
+            pytest.skip("no locale with a decimal comma is installed")
+        text = HEADER + "substances:\n  A:\n    standard_state_properties:\n      G: -1234.5\n      S: {value: 2.5, unit: J/(mol.K)}\n      Cp: 1.5 J/(mol.K)\n"
+        record = tf.Database(text).getSubstance("A").record().standard_state_properties
+        assert record[tf.PropertyName.G].value == -1234.5
+        assert record[tf.PropertyName.S].value == 2.5
+        assert record[tf.PropertyName.Cp].value == 1.5
+        assert tf.Reaction('{"symbol": "R", "equation": "0.5 A = 1.5 B"}').reactants() == {"A": -0.5, "B": 1.5}
+        written = tf.Database(text).toYaml()
+        assert "-1234.5" in written and tf.Database(written).toYaml() == written
+    finally:
+        locale.setlocale(locale.LC_ALL, before)
+
+
+def test_no_number_of_data_is_read_with_the_locale():
+    """The check that works without a comma locale: the calls that follow the locale are not in the code that reads data."""
+    calls = re.compile(r"\b(strtod|strtof|stod|stof|atof|sscanf)\s*\(")
+    files = glob.glob("ThermoFun/IO/**/*.cpp", recursive=True) + glob.glob("ThermoFun/IO/**/*.h", recursive=True) + ["ThermoFun/Common/Ucum.cpp"]
+    assert files
+    for path in files:
+        with open(path) as f:
+            assert not calls.search(f.read()), path
+
+
+@pytest.mark.parametrize("text, value", [("1.5 J/mol", 1.5), ("-2.5e3 J/mol", -2500.0), ("+7 J/mol", 7.0), (".5 J/mol", 0.5)])
+def test_a_number_with_a_unit_as_text(text, value):
+    written = HEADER + 'substances:\n  A:\n    standard_state_properties:\n      G: "' + text + '"\n'
+    assert tf.Database(written).getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value == value
+
+
+@pytest.mark.parametrize("text", ["1e J/mol", "abc J/mol", "1,5 J/mol", "1.5.2 J/mol", "inf J/mol", "nan J/mol"])
+def test_a_text_that_is_no_number_is_refused(text):
+    written = HEADER + 'substances:\n  A:\n    standard_state_properties:\n      G: "' + text + '"\n'
+    with pytest.raises(RuntimeError, match="V2-QTY-001"):
+        tf.Database(written)
 
 
 def seconds(function, repeat=3):

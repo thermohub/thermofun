@@ -15,6 +15,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <ThermoFun/Common/Numbers.h>
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/IO/Equation.h>
 #include <ThermoFun/IO/V2/detail/Normalize.h>
@@ -70,7 +71,7 @@ auto shortestFloat(double x) -> double
         return x;
     char text[64];
     const auto r = std::to_chars(text, text + sizeof(text), f);
-    return std::strtod(std::string(text, r.ptr).c_str(), nullptr);
+    return numbers::parseDouble(std::string_view(text, static_cast<size_t>(r.ptr - text)));
 }
 
 // A limit of T or P has no flag of its source: a value that is a float printed with 13 or 14 digits is one, for example 700.00000610352

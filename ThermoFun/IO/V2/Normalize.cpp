@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <stdexcept>
 
+#include <ThermoFun/Common/Numbers.h>
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/IO/V2/V2Keys.h>
 
@@ -60,9 +61,9 @@ auto isNumber(const std::string& text, double& value) -> bool
 {
     if (text.empty())
         return false;
-    char* end = nullptr;
-    value = std::strtod(text.c_str(), &end);
-    return end == text.c_str() + text.size() && std::isfinite(value);
+    std::size_t used = 0;
+    value = numbers::parseDouble(text, used);
+    return used == text.size() && std::isfinite(value);
 }
 
 // A molar volume in J/bar is a volume for one mole, as in legacy data: the unit does not say "per mole"
@@ -311,7 +312,7 @@ auto writeQuantity(const Quantity& q, const std::string& slot_si_unit) -> json
     const std::string& unit = q.unit_as_written;
     const bool inSlotUnit = unit.empty();
     const double written = inSlotUnit ? q.value
-                           : !q.value_as_written.empty() ? std::stod(q.value_as_written)
+                           : !q.value_as_written.empty() ? numbers::parseDouble(q.value_as_written)
                                                 : units::convertAny(q.value, slot_si_unit, unit);
 
     json uncertainty;

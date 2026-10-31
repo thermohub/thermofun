@@ -2,6 +2,7 @@
 // Copyright (C) 2026 ThermoFun contributors
 
 #include "Ucum.h"
+#include "Numbers.h"
 
 #include <cctype>
 #include <cmath>
@@ -208,7 +209,7 @@ private:
             if (pos_ == expDigits)
                 pos_ = save;
         }
-        return std::strtod(s_.substr(start, pos_ - start).c_str(), nullptr);
+        return numbers::parseDouble(std::string_view(s_).substr(start, pos_ - start));
     }
 
     void factor(Parsed& out, double power)

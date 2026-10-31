@@ -101,6 +101,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   line and the column, for JSON too. PyYAML is not needed.
 - `Database::toJson`, `toYaml` and `save` write all records in the v2 format. A legacy value is written as its short decimal (`-56.484`); use `readable=False` for
   the exact value. See `docs/how-to/add-data.md`.
+- Numbers in data files and units are read the same in all locales. In a program with a decimal comma, as Qt can set, `-1234.5` in a v2 YAML file gave -1234 with no error, and an
+  equation with `0.5` was read wrongly.
 - New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
   `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.

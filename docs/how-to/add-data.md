@@ -67,6 +67,9 @@ By default, a value from a legacy file is written as its short decimal: `-56.484
 numbers. A database read back from such a file can differ by a small amount from the legacy file: in the bundled databases, at most 0.46 J/mol in G and
 3.6e-5 in log K. Use `readable=False` to read back the same numbers.
 
+No information is lost. A short decimal gives the same single-precision number as the long one. A value in another unit, for example cal, is written as the shortest
+number that reads back as the same value in SI units. A number in a file always has a point as the decimal mark, in all locales.
+
 ## 3. The smallest file
 
 Write this file:
