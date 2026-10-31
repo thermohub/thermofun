@@ -12,12 +12,9 @@
 
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Methods/Gases/GasMethods.h>
-#include <ThermoFun/Methods/Minerals/ConstantCp.h>
-#include <ThermoFun/Methods/Minerals/ConstantProperties.h>
-#include <ThermoFun/Methods/Minerals/ConstantVolume.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
-#include <ThermoFun/Methods/Minerals/IdealGas.h>
 #include <ThermoFun/Methods/Minerals/MineralMethods.h>
+#include <ThermoFun/Methods/Minerals/ReferenceMethods.h>
 #include <ThermoFun/Conventions/HydrogenIon.h>
 #include <ThermoFun/Methods/Solutes/SoluteMethods.h>
 #include <ThermoFun/Methods/Water/WaterMethods.h>
@@ -28,11 +25,11 @@ MethodRegistry::MethodRegistry()
 {
     using A = const MethodApplication&;
     using R = const SubstanceRecord&;
-    add("ConstantProperties", "", [](A, R) { return std::make_shared<const ConstantProperties>(); });
-    add("ConstantCp", "", [](A, R) { return std::make_shared<const ConstantCp>(); });
-    add("CpPolynomial", "", [](A a, R r) { return std::make_shared<const CpPolynomial>(CpPolynomial::fromApplication(a, r.symbol)); });
-    add("ConstantVolume", "", [](A, R) { return std::make_shared<const ConstantVolume>(); });
-    add("IdealGas", "", [](A, R r) { return std::make_shared<const IdealGas>(r.class_ == SubstanceClass::GasFluid); });
+    add("ConstantProperties", "", [](A, R) { return constantPropertiesMethod(); });
+    add("ConstantCp", "", [](A, R) { return constantCpMethod(); });
+    add("CpPolynomial", "", [](A a, R r) { return cpPolynomialMethod(a, r.symbol); });
+    add("ConstantVolume", "", [](A, R) { return constantVolumeMethod(); });
+    add("IdealGas", "", [](A, R r) { return idealGasMethod(r.class_ == SubstanceClass::GasFluid); });
 
     // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
     auto mineral = [this](auto kind, const char* id, std::initializer_list<const char*> names) {

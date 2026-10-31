@@ -21,11 +21,9 @@
 #include "IO/Legacy/LegacyReader.h"
 #include "Methods/Evaluate.h"
 #include "Methods/MethodRegistry.h"
-#include "Methods/Minerals/ConstantCp.h"
-#include "Methods/Minerals/ConstantProperties.h"
-#include "Methods/Minerals/ConstantVolume.h"
 #include "Methods/Minerals/CpPolynomial.h"
-#include "Methods/Minerals/IdealGas.h"
+#include "Methods/Minerals/ReferenceMethods.h"
+#include "Methods/MethodCatalog.h"
 #include "Methods/Water/WaterMethods.h"
 #include "Substance.h"
 #include "ThermoModelsSubstance.h"
@@ -55,9 +53,9 @@ auto reference() -> ReferenceValues
 }
 
 // Two segments of Cp with a transition: all terms used
-auto polynomial() -> CpPolynomial
+auto polynomial() -> std::shared_ptr<const SubstanceMethod>
 {
-    return CpPolynomial({{273.15, 800.0}, {800.0, 2000.0}},
+    return cpPolynomialMethod({{273.15, 800.0}, {800.0, 2000.0}},
                         {99.7, 0.027, -2148800.0, 0.0, 1e-6, 2e-9, 1e-12, 1e6, 10.0, 0.5,
                          120.0, 0.01, -1e6, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1},
                         {{800.0, 2.5, 2000.0, 1e-6}});
@@ -107,7 +105,8 @@ void checkDerivatives(const SubstanceMethod& m)
 
 void testConstantProperties()
 {
-    const ConstantProperties m;
+    const auto method = constantPropertiesMethod();
+    const auto& m = *method;
     const auto r = evaluate(m, 500.0, 1e7, reference());
     CHECK(r.G.val == -1129178.0 && r.H.val == -1207600.0 && r.S.val == 91.7 && r.Cp.val == 83.47 && r.V.val == 3.6934e-5);
     CHECK(r.G.ddt == 0.0 && r.G.ddp == 0.0);
@@ -119,7 +118,8 @@ void testConstantProperties()
 
 void testConstantCp()
 {
-    const ConstantCp m;
+    const auto method = constantCpMethod();
+    const auto& m = *method;
     const auto r = evaluate(m, 500.0, 1e5, reference());
     const double Tr = 298.15, T = 500.0, S0 = 91.7, Cp = 83.47;
     CHECK(near(r.S.val, S0 + Cp * std::log(T / Tr), 1e-14));
@@ -137,7 +137,8 @@ void testConstantCp()
 
 void testCpPolynomial()
 {
-    const auto m = polynomial();
+    const auto method = polynomial();
+    const auto& m = *method;
     CHECK(m.parameterValues().size() == 20);
     checkDerivatives(m);
 
@@ -161,7 +162,8 @@ void testCpPolynomial()
     CHECK(evaluate(m, 3000.0, 1e5, r).outside_range);
     CHECK(!evaluate(m, 500.0, 1e5, r).outside_range);
     // without coefficients: Cp is the constant reference value, without a coefficient to fit
-    const CpPolynomial none({}, {});
+    const auto noneMethod = cpPolynomialMethod(std::vector<std::pair<double, double>>{}, std::vector<double>{});
+    const auto& none = *noneMethod;
     const auto c = evaluate(none, 400.0, 1e5, r);
     CHECK(c.Cp.val == 83.47);
     CHECK(near(c.H.val, -1207600.0 + 83.47 * (400.0 - 298.15), 1e-14));
@@ -180,28 +182,28 @@ void testVolumeMethods()
     s.G = -1e6; s.H = -1.1e6; s.S = 100.0;
     ReferenceState<double> ref = r;
     SubstanceInputs<double> in{500.0, 1e7, ref};
-    ConstantVolume().apply(s, in);
+    constantVolumeMethod()->apply(s, in);
     const double dV = 3.6934e-5 * (1e7 - 1e5);
     CHECK(s.V == 3.6934e-5 && s.G == -1e6 + dV && s.H == -1.1e6 + dV && s.S == 100.0);
     // no reference volume: it does nothing
     ref.V.reset();
     SubstanceState<double> t;
     t.G = 5.0;
-    ConstantVolume().apply(t, in);
+    constantVolumeMethod()->apply(t, in);
     CHECK(t.G == 5.0 && t.V == 0.0);
     // ideal gas: V = RT/P of a gas, no change of G and H unless the correction is on
     SubstanceState<double> g;
     g.G = 5.0;
-    IdealGas(true).apply(g, in);
+    idealGasMethod(true)->apply(g, in);
     CHECK(near(g.V, 8.31451 * 500.0 / 1e7, 1e-14) && g.G == 5.0);
     in.options.apply_pressure_correction = true;
     SubstanceState<double> c;
     c.G = 5.0;
-    IdealGas(true).apply(c, in);
+    idealGasMethod(true)->apply(c, in);
     CHECK(near(c.G, 5.0 + 8.31451 * 500.0 / 1e7 * (1e7 - 1e5), 1e-13));
     // not a gas: the volume is not touched
     SubstanceState<double> n;
-    IdealGas(false).apply(n, in);
+    idealGasMethod(false)->apply(n, in);
     CHECK(n.V == 0.0);
 }
 
@@ -212,7 +214,7 @@ void testEffects()
     state.G = 1.0; state.H = 2.0; state.S = 3.0; state.Cp = 4.0; state.V = 5.0;
     ReferenceState<double> ref = r;
     SubstanceInputs<double> in{500.0, 1e7, ref};
-    const CpPolynomial cp = polynomial();
+    const auto cp = polynomial();
     auto check = [&](const SubstanceMethod& m) {
         CHECK(m.spec().effects.base);
         SubstanceState<double> a = state, b;
@@ -221,9 +223,9 @@ void testEffects()
         // a base method sets everything: the incoming state does not matter
         CHECK(a.G == b.G && a.H == b.H && a.S == b.S && a.Cp == b.Cp && a.V == b.V);
     };
-    check(ConstantProperties());
-    check(ConstantCp());
-    check(cp);
+    check(*constantPropertiesMethod());
+    check(*constantCpMethod());
+    check(*cp);
 }
 
 void testRegistry()
@@ -487,7 +489,7 @@ void testAgainstTheOldModels()
                     {
                         try
                         {
-                            const auto now = evaluate(CpPolynomial::fromApplication(a, s.symbol), T, 1e5, r);
+                            const auto now = evaluate(*cpPolynomialMethod(a, s.symbol), T, 1e5, r);
                             compare(ThermoFun::EmpiricalCpIntegration(old).thermoProperties(T, 1e5), now, s.symbol);
                             ++cp;
                         }
@@ -500,7 +502,7 @@ void testAgainstTheOldModels()
                     }
                     else if (a.method == "ConstantCp")
                     {
-                        compare(ThermoFun::EntropyCpIntegration(old).thermoProperties(T, 1e5), evaluate(ConstantCp(), T, 1e5, r), s.symbol);
+                        compare(ThermoFun::EntropyCpIntegration(old).thermoProperties(T, 1e5), evaluate(*constantCpMethod(), T, 1e5, r), s.symbol);
                         ++constant;
                     }
                 }

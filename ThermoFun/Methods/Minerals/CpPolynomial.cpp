@@ -6,61 +6,46 @@
 #include <mutex>
 #include <set>
 
+#include <ThermoFun/Methods/FunctionMethod.h>
+
 namespace ThermoFun::v2 {
 
-CpPolynomial::CpPolynomial(std::vector<std::pair<double, double>> intervals, std::vector<double> coefficients,
-                           std::vector<PhaseTransition> transitions, std::string name)
-    : SubstanceMethodBase(std::move(coefficients)), intervals_(std::move(intervals)), transitions_(std::move(transitions)), name_(std::move(name))
-{
-}
+namespace {
 
-auto CpPolynomial::fromApplication(const MethodApplication& application, const std::string& name) -> CpPolynomial
+constexpr std::size_t coefficientsPerSegment = 10;
+
+/// What the formula needs beside the coefficients.
+struct CpPolynomialData
 {
-    static const char* names[coefficientsPerSegment] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"};
     std::vector<std::pair<double, double>> intervals;
-    std::vector<double> coefficients;
-    for (const auto& segment : application.segments)
-    {
-        intervals.emplace_back(segment.t_min, segment.t_max);
-        if (segment.parameters.empty())
-            continue;  // a segment without coefficients has no row of coefficients
-        for (const char* n : names)
-        {
-            const auto it = segment.parameters.find(n);
-            coefficients.push_back(it == segment.parameters.end() ? 0.0 : it->second.value);
-        }
-    }
     std::vector<PhaseTransition> transitions;
-    for (const auto& row : application.transitions)
-    {
-        auto value = [&](const char* key) { const auto it = row.find(key); return it == row.end() ? 0.0 : it->second.value; };
-        transitions.push_back({value("T"), value("dS"), value("dH"), value("dV")});
-    }
-    return CpPolynomial(std::move(intervals), std::move(coefficients), std::move(transitions), name);
-}
+    std::string name;
+};
 
-auto CpPolynomial::segmentOf(double T, bool warn, bool& outside) const -> int
+using Parameters = MethodParameters<CpPolynomialData>;
+
+auto segmentOf(const CpPolynomialData& data, double T, bool warn, bool& outside) -> int
 {
-    const auto n = intervals_.size();
+    const auto n = data.intervals.size();
     for (size_t i = 0; i < n; ++i)
-        if (intervals_[i].first <= T && intervals_[i].second > T)
+        if (data.intervals[i].first <= T && data.intervals[i].second > T)
             return static_cast<int>(i);
 
     outside = true;
     if (warn)
-        thfun_logger->warn("{}: the temperature {} is not inside the T intervals of the Cp polynomial.", name_, T);
-    if (T <= intervals_[0].first)
+        thfun_logger->warn("{}: the temperature {} is not inside the T intervals of the Cp polynomial.", data.name, T);
+    if (T <= data.intervals[0].first)
         return 0;
-    if (T >= intervals_[n - 1].second)
+    if (T >= data.intervals[n - 1].second)
         return static_cast<int>(n) - 1;
     // in a gap between two intervals: the nearest one
     for (size_t i = 0; i + 1 < n; ++i)
-        if (T >= intervals_[i].second && T <= intervals_[i + 1].first)
-            return (T - intervals_[i].second <= intervals_[i + 1].first - T) ? static_cast<int>(i) : static_cast<int>(i + 1);
+        if (T >= data.intervals[i].second && T <= data.intervals[i + 1].first)
+            return (T - data.intervals[i].second <= data.intervals[i + 1].first - T) ? static_cast<int>(i) : static_cast<int>(i + 1);
     return -1;
 }
 
-auto CpPolynomial::info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in) const -> void
+auto cpPolynomialInfo(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& parameters) -> void
 {
     const double T = in.T, Tr = in.Tr;
     out.G.propagateFrom(ref.G, ref.S);
@@ -69,7 +54,7 @@ auto CpPolynomial::info(PropertiesInfo& out, const PropertiesInfo& ref, const In
     out.S.propagateFrom(ref.S);
     out.Cp.status = ValueInfo::Status::Calculated;
     out.Cp.err = 0.0;
-    if (values_.empty())  // the constant reference value: its error goes on
+    if (parameters.values.empty())  // the constant reference value: its error goes on
     {
         out.Cp = ref.Cp;
         out.G.setError({{1.0, ref.G.err}, {T - Tr, ref.S.err}, {T * std::log(T / Tr) - (T - Tr), ref.Cp.err}});
@@ -88,8 +73,9 @@ auto CpPolynomial::info(PropertiesInfo& out, const PropertiesInfo& ref, const In
 }
 
 template <typename Scalar>
-auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) const -> void
+auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const Parameters& parameters) -> void
 {
+    const CpPolynomialData& data = parameters.data;
     using std::log;
     using std::pow;
     using ThermoFun::pow;
@@ -108,7 +94,7 @@ auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<
     double TrK = in.reference.T;
 
     // without coefficients: Cp is the constant reference value; at or below the empty marker of GEMS it counts as 0
-    if (values_.empty())
+    if (parameters.values.empty())
     {
         double cp0 = 0.0;
         if (in.reference.Cp)
@@ -132,27 +118,27 @@ auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<
         return;
     }
 
-    const std::string what = name_ + " empirical Cp integration";
-    if (intervals_.empty() || !std::isfinite(T0))
+    const std::string what = data.name + " empirical Cp integration";
+    if (data.intervals.empty() || !std::isfinite(T0))
     {
         errorModelParameters("Cp temperature intervals", what, __LINE__, __FILE__);
         return;
     }
-    if (values_.size() < intervals_.size() * coefficientsPerSegment)
+    if (parameters.values.size() < data.intervals.size() * coefficientsPerSegment)
     {
         errorModelParameters("Cp empirical coefficients", what, __LINE__, __FILE__);
         return;
     }
-    for (size_t i = 0; i < intervals_.size(); ++i)
-        if (!std::isfinite(intervals_[i].first) || !std::isfinite(intervals_[i].second) || intervals_[i].first >= intervals_[i].second ||
-            (i > 0 && intervals_[i].first < intervals_[i - 1].second))
+    for (size_t i = 0; i < data.intervals.size(); ++i)
+        if (!std::isfinite(data.intervals[i].first) || !std::isfinite(data.intervals[i].second) || data.intervals[i].first >= data.intervals[i].second ||
+            (i > 0 && data.intervals[i].first < data.intervals[i - 1].second))
         {
             errorModelParameters("Cp temperature intervals", what, __LINE__, __FILE__);
             return;
         }
 
     bool outside = false;
-    const int k = segmentOf(T0, !std::is_same_v<Scalar, double> && in.seeded_parameter < 0, outside);
+    const int k = segmentOf(data, T0, !std::is_same_v<Scalar, double> && in.seeded_parameter < 0, outside);
     if (k < 0)
     {
         errorModelParameters("Cp temperature intervals", what, __LINE__, __FILE__);
@@ -162,7 +148,7 @@ auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<
     std::vector<Scalar> ac(coefficientsPerSegment);
     auto loadCoefficients = [&](int segment) {
         for (std::size_t i = 0; i < coefficientsPerSegment; ++i)
-            ac[i] = parameter<Scalar>(segment * coefficientsPerSegment + i, in);
+            ac[i] = parameters.value<Scalar>(segment * coefficientsPerSegment + i, in);
     };
 
     loadCoefficients(k);
@@ -182,29 +168,29 @@ auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<
         if (j == k)
             TK = in.T;  // the current T is the end of the integration
         else
-            TK = intervals_[j].second;
+            TK = data.intervals[j].second;
 
         if (!j)
             TrK = in.reference.T;  // the first interval holds the reference T
         else
-            TrK = intervals_[j].first;
+            TrK = data.intervals[j].first;
 
         const double Tst2 = TrK * TrK;
         const double Tst3 = Tst2 * TrK;
         const double Tst4 = Tst3 * TrK;
         const double Tst05 = std::sqrt(TrK);
 
-        if (j && transitions_.empty())
+        if (j && data.transitions.empty())
         {
-            funError("No phase transition properties present in the record.", "For substance " + name_ + ".", __LINE__, __FILE__);
+            funError("No phase transition properties present in the record.", "For substance " + data.name + ".", __LINE__, __FILE__);
             return;
         }
 
-        if (j && transitions_[ft].T <= TrK)
+        if (j && data.transitions[ft].T <= TrK)
         {
-            S += transitions_[ft].dS;
-            H += transitions_[ft].dH;
-            V += transitions_[ft].dV;
+            S += data.transitions[ft].dS;
+            H += data.transitions[ft].dH;
+            V += data.transitions[ft].dV;
             ++ft;
         }
 
@@ -254,7 +240,38 @@ auto CpPolynomial::compute(SubstanceState<Scalar>& state, const SubstanceInputs<
     state.outside_range = outside;
 }
 
-template auto CpPolynomial::compute<double>(SubstanceState<double>&, const SubstanceInputs<double>&) const -> void;
-template auto CpPolynomial::compute<TPReal>(SubstanceState<TPReal>&, const SubstanceInputs<TPReal>&) const -> void;
+} // namespace
+
+auto cpPolynomialMethod(std::vector<std::pair<double, double>> intervals, std::vector<double> coefficients,
+                        std::vector<PhaseTransition> transitions, std::string name) -> std::shared_ptr<const SubstanceMethod>
+{
+    return makeMethod("CpPolynomial", Parameters{std::move(coefficients), {std::move(intervals), std::move(transitions), std::move(name)}},
+                      [](auto& state, const auto& in, const Parameters& p) { cpPolynomial(state, in, p); }, cpPolynomialInfo);
+}
+
+auto cpPolynomialMethod(const MethodApplication& application, const std::string& name) -> std::shared_ptr<const SubstanceMethod>
+{
+    static const char* names[coefficientsPerSegment] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"};
+    std::vector<std::pair<double, double>> intervals;
+    std::vector<double> coefficients;
+    for (const auto& segment : application.segments)
+    {
+        intervals.emplace_back(segment.t_min, segment.t_max);
+        if (segment.parameters.empty())
+            continue;  // a segment without coefficients has no row of coefficients
+        for (const char* n : names)
+        {
+            const auto it = segment.parameters.find(n);
+            coefficients.push_back(it == segment.parameters.end() ? 0.0 : it->second.value);
+        }
+    }
+    std::vector<PhaseTransition> transitions;
+    for (const auto& row : application.transitions)
+    {
+        auto value = [&](const char* key) { const auto it = row.find(key); return it == row.end() ? 0.0 : it->second.value; };
+        transitions.push_back({value("T"), value("dS"), value("dH"), value("dV")});
+    }
+    return cpPolynomialMethod(std::move(intervals), std::move(coefficients), std::move(transitions), name);
+}
 
 } // namespace ThermoFun::v2

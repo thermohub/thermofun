@@ -12,9 +12,9 @@
 
 #include <ThermoFun/IO/Legacy/LegacyMethodMap.h>
 #include <ThermoFun/Methods/Evaluate.h>
-#include <ThermoFun/Methods/Minerals/ConstantCp.h>
-#include <ThermoFun/Methods/Minerals/ConstantProperties.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
+#include <ThermoFun/Methods/Minerals/ReferenceMethods.h>
+#include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodRegistry.h>
 #include <ThermoFun/Methods/Water/SolventMethod.h>
 
@@ -214,16 +214,15 @@ void exportMethods(py::module& parent)
         .def("withParameter", [](const SubstanceMethod& s, std::size_t i, double v) { return std::const_pointer_cast<SubstanceMethod>(s.withParameter(i, v)); },
              "A copy with one parameter changed (SI)", py::arg("index"), py::arg("value"));
 
-    py::class_<ConstantProperties, SubstanceMethod, std::shared_ptr<ConstantProperties>>(m, "ConstantProperties", "The reference properties at every T and P")
-        .def(py::init<>());
-    py::class_<ConstantCp, SubstanceMethod, std::shared_ptr<ConstantCp>>(m, "ConstantCp", "Integrates the constant reference Cp")
-        .def(py::init<>());
-    py::class_<CpPolynomial, SubstanceMethod, std::shared_ptr<CpPolynomial>>(m, "CpPolynomial", "Integrates a Cp polynomial over T segments")
-        .def(py::init([](std::vector<std::pair<double, double>> intervals, std::vector<double> coefficients, std::vector<PhaseTransition> transitions) {
-                 return CpPolynomial(std::move(intervals), std::move(coefficients), std::move(transitions));
-             }),
-             "intervals: (lower, upper) in K for each segment; coefficients: a0 to a9 of the segments, one after the other",
-             py::arg("intervals") = std::vector<std::pair<double, double>>{}, py::arg("coefficients") = std::vector<double>{}, py::arg("transitions") = std::vector<PhaseTransition>{});
+    // a method is a function that gives a SubstanceMethod
+    const auto mutableMethod = [](std::shared_ptr<const SubstanceMethod> method) { return std::const_pointer_cast<SubstanceMethod>(std::move(method)); };
+    m.def("ConstantProperties", [=] { return mutableMethod(constantPropertiesMethod()); }, "The reference properties at every T and P");
+    m.def("ConstantCp", [=] { return mutableMethod(constantCpMethod()); }, "Integrates the constant reference Cp");
+    m.def("CpPolynomial", [=](std::vector<std::pair<double, double>> intervals, std::vector<double> coefficients, std::vector<PhaseTransition> transitions) {
+              return mutableMethod(cpPolynomialMethod(std::move(intervals), std::move(coefficients), std::move(transitions)));
+          },
+          "Integrates a Cp polynomial over T segments. intervals: (lower, upper) in K for each segment; coefficients: a0 to a9 of the segments, one after the other",
+          py::arg("intervals") = std::vector<std::pair<double, double>>{}, py::arg("coefficients") = std::vector<double>{}, py::arg("transitions") = std::vector<PhaseTransition>{});
 }
 
 } // namespace ThermoFun
