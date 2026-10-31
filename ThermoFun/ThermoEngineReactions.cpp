@@ -75,7 +75,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
 {
     // from the reactants: a record without methods, unless the source says otherwise. "reaction" is for substances only.
     const auto record = reaction.record();
-    const auto source = sourceOf(record->symbol, record->preferred_property_source);
+    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
     bool fromReactants = record->methods.empty();
     if (source == v2::PropertySource::Reactants && !record->stoichiometry.empty())
         fromReactants = true;

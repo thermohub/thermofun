@@ -138,7 +138,7 @@ void testCpPolynomial()
 {
     const auto method = polynomial();
     const auto& m = *method;
-    CHECK(m.parameterValues().size() == 20);
+    CHECK(m.parameterValues().size() == 23);  // 2 segments of 10, and dS, dH, dV of the transition
     checkDerivatives(m);
 
     // the reference state gives the reference values, and Cp is dH/dT and T dS/dT

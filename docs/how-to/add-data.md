@@ -664,7 +664,21 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 
 ## 10. Choose where properties come from
 
-A substance can have methods and also a reaction. The record says which one to use. You can change that in the engine:
+A substance can have methods and also a defining reaction. A reaction can have methods and also reactants. The record says which one to use. You can change that in the engine.
+
+A substance and its defining reaction often have the same symbol. Each one keeps its own choice:
+
+| Word | Substance with this symbol | Reaction with this symbol |
+|---|---|---|
+| `reaction` | from its defining reaction | no change |
+| `reactants` | no change | from its reactants |
+| `direct` | from its methods | from its methods |
+| `record` | what the record says | what the record says |
+
+To get a substance from its methods and the reaction from its reactants, give `direct` and then `reactants`. To get a substance from its reaction and the reaction from its reactants, the reaction must not use that substance: ThermoFun raises an error that names the cycle.
+
+Derivatives and propagated errors use the same path as the values. To see the path of a result, use `thermoPropertiesSubstanceDetailed(T, P, symbol).source`.
+
 
 ```python
 engine = tf.ThermoEngine("defined.yaml")

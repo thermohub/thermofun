@@ -45,8 +45,9 @@ auto withSeed(ReactionInputs in, const std::string& parameter) -> ReactionInputs
             }
         return false;
     };
-    if (!seedIn(in.coefficients, in.coefficient_units) && !seedIn(in.cp_coefficients, in.cp_coefficient_units))
-        funError("Cannot derive by the parameter " + parameter, "This reaction method has no such value.", __LINE__, __FILE__);
+    // a value that this method does not read has no derivative
+    if (!seedIn(in.coefficients, in.coefficient_units))
+        seedIn(in.cp_coefficients, in.cp_coefficient_units);
     return in;
 }
 

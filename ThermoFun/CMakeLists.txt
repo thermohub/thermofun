@@ -67,5 +67,4 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
     PATTERN "detail" EXCLUDE
     PATTERN "DatabaseImpl.h" EXCLUDE
-    PATTERN "ThermoEngineImpl.h" EXCLUDE
-    PATTERN "ThermoEngineParameterErrors.hpp" EXCLUDE)
+    PATTERN "ThermoEngineImpl.h" EXCLUDE)

@@ -160,15 +160,13 @@ The error `err` of a property is a first-order (linear) propagation of independe
   optional `errors` array next to the `values` of a coefficient entry of the record (`eos_hkf_coeffs`,
   `m_heat_capacity_ft_coeffs`, `m_phase_trans_props`, `m_landau_phase_trans_props`, `logk_ft_coeffs`,
   `dr_heat_capacity_ft_coeffs`, `dr_volume_fpt_coeffs`, `dr_marshall_franck_coeffs`, `dr_dolejs_manning10_coeffs`, ...) is read
-  with the same units. For every parameter with an error `s` the property is calculated at `p + s` and `p - s` with a copy of
-  the database, and `err = sqrt(sum ((y(p+s) - y(p-s))/2)^2)` for every property. The parameters of the reactants of a
-  reaction and of the reactions of a substance are perturbed together, so parameters shared by several records
-  are correlated correctly. Cost: two extra calculations per parameter that has an error (none without errors).
-  If the calculation fails for a perturbed parameter, or gives a property that is not defined or not finite, the
+  with the same units. For every result `err = sqrt(J S J^T)`: `J` holds the exact derivatives by each uncertain value (`parameterSensitivities`),
+  through the reactants of a reaction and the reaction of a substance, along the path of the record; `S` is diagonal,
+  apart from the `covariances` blocks of a record. Cost: one pass per value that has an error; for Cv four more, as its derivative
+  needs the second derivatives of V, taken as differences of the exact dV/dp. If the calculation fails, or the result is not finite, the
   uncertainty of the affected properties is incomplete: their `err` is not a number and the message of their status says so (instead of an
   error that is too small, or 0, and looks complete).
-  Not covered: the solvent models, correlations between different parameters (no covariance matrices), nonlinear
-  models are evaluated at the step `s` (not a Taylor expansion).
+  Not covered: correlations between records; a large uncertainty of a nonlinear parameter (first order only).
 - **Rounding (`preferences.round_to_uncertainty`, default off).** Following TDB-3 (Rounding, Significant digits) the value of
   every calculated property with an error > 0 is rounded to the number of decimals of its uncertainty, and the
   uncertainty is rounded up to `uncertainty_significant_digits` significant digits (default 2; the TDB tables use one or

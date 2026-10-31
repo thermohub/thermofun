@@ -18,6 +18,7 @@
 #include "Engine/Solvent.h"
 #include "Engine/ReactionBinding.h"
 #include "Engine/ReactionDefined.h"
+#include "Engine/Uncertainty.h"
 #include "Model/ReactionRecord.h"
 #include "Common/Sha256.h"
 #include "Conventions/ConventionConverter.h"
@@ -70,8 +71,8 @@ struct ThermoEngine::Impl
 
     mutable EngineConventions conventions;
 
-    /// The source of the properties of single records (see setPropertySource)
-    std::map<std::string, v2::PropertySource> property_sources;
+    /// The source of the properties of single records (see setPropertySource). A substance and its defining reaction often have the same symbol: each has its own choice.
+    std::map<std::string, v2::PropertySource> substance_sources, reaction_sources;
 
     /// The results of the calculations (see enable_memoize)
     mutable v2::ResultCache<ThermoPropertiesSubstance> substance_results;
@@ -130,7 +131,6 @@ struct ThermoEngine::Impl
         electro_results.clear();
         solvent_results.clear();
         reaction_results.clear();
-        perturbed_engine.reset();
         // the methods are bound with the implementations of the preferences
         bound_cache = std::make_shared<BoundCache>();
         resultsAreCurrent();
@@ -179,7 +179,7 @@ struct ThermoEngine::Impl
 
     /// Where the properties of a record come from: the source of the symbol, else the preference of the engine, else the
     /// record. Empty: the rule of the record.
-    auto sourceOf(const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>;
+    auto sourceOf(const std::map<std::string, v2::PropertySource>& own, const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>;
 
     /// A record with the implementations of the preferences
     auto withImplementations(std::shared_ptr<const v2::SubstanceRecord> record) const -> std::shared_ptr<const v2::SubstanceRecord>;
@@ -311,24 +311,17 @@ struct ThermoEngine::Impl
 
     auto seedOf(const v2::BoundSubstance& bound, const ParameterRef& ref) const -> v2::ParameterSeed;
 
-    auto substanceDerivative(double T, double& P, const std::string& symbol, const ParameterRef& ref) const -> v2::PropertyDerivatives;
+    auto substanceDerivative(double T, double& P, const Substance& substance, const ParameterRef& ref) const -> v2::PropertyDerivatives;
 
     /// Each val holds a derivative, V in m3/mol per unit.
-    auto reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref) const -> ThermoPropertiesReaction;
+    auto reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool alwaysFromReactants = false) const -> ThermoPropertiesReaction;
 
     //=================================================================================================
     // Propagation of the errors of the reference properties and of the coefficients of the models
     //=================================================================================================
 
-    /// A copy of the engine used to calculate with perturbed parameters (without memoization and error propagation)
-    mutable std::shared_ptr<ThermoEngine> perturbed_engine;
-
-    auto perturbedEngine() const -> ThermoEngine&;
-
     static auto fields(ThermoPropertiesSubstance& p) -> std::vector<Reaktoro_::ThermoProperty*>;
     static auto fields(ThermoPropertiesReaction& p) -> std::vector<Reaktoro_::ThermoProperty*>;
-    static auto referenceFields(ThermoPropertiesSubstance& p) -> std::vector<Reaktoro_::ThermoProperty*>;
-    static auto referenceFields(ThermoPropertiesReaction& p) -> std::vector<Reaktoro_::ThermoProperty*>;
 
     /// The records (substances and reactions of the database) a calculation depends on
     struct Records
@@ -340,21 +333,18 @@ struct ThermoEngine::Impl
 
     auto collectReaction(Records& r, const std::string& symbol) const -> void;
 
-    /// One parameter with an uncertainty
-    struct Parameter
-    {
-        int record;           // 0: substance of the database, 1: reaction of the database, 2: given substance, 3: given reaction
-        std::string symbol;
-        int reference;        // index of the reference property, or -1 for a coefficient
-        std::string key;      // the coefficient (see UncertainCoefficient)
-        double sigma;
-    };
+    /// The uncertain values of these records, and of a record that is not in the database
+    auto inputsOf(const Records& records, const Substance* given = nullptr, const Reaction* given_reaction = nullptr) const -> v2::UncertainInputs;
 
-    /// Add the effect of the uncertain parameters to the errors of the properties calculated by eval: the standard error
-    /// of a property is the quadrature sum of (y(p+s) - y(p-s))/2 over the parameters p with an error s (first-order
-    /// propagation, independent parameters; parameters shared by several records are perturbed together)
-    template<class Props, class Eval>
-    auto addParameterErrors(Props& result, const Records& records, const Substance* givenS, const Reaction* givenR, Eval eval) const -> void;
+    /// The derivatives of all the properties of a substance by one value, in the order of fields: V in J/bar. tps: the properties at T, P.
+    auto substanceJacobian(double T, double& P, const Substance& substance, const ThermoPropertiesSubstance& tps, const ParameterRef& ref) const -> std::vector<double>;
+
+    /// The same for a reaction
+    auto reactionJacobian(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool fromReactants) const -> std::vector<double>;
+
+    /// The errors of the results from all the uncertain values: u^2 = J S J^T (first order; S is diagonal, apart from the covariance blocks of the records).
+    auto addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const v2::UncertainInputs& inputs) const -> void;
+    auto addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const v2::UncertainInputs& inputs) const -> void;
 
     /// Round the values of the properties to the decimals of their uncertainties (NEA TDB rules) if requested
     template<class Props>

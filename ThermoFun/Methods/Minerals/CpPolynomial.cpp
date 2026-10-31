@@ -24,6 +24,12 @@ struct CpPolynomialData
 
 using Parameters = MethodParameters<CpPolynomialData>;
 
+/// The values are the coefficients of the segments, then dS, dH, dV of each transition.
+auto coefficientCount(const Parameters& parameters) -> std::size_t
+{
+    return parameters.values.size() - 3 * parameters.data.transitions.size();
+}
+
 auto segmentOf(const CpPolynomialData& data, double T, bool warn, bool& outside) -> int
 {
     const auto n = data.intervals.size();
@@ -54,7 +60,7 @@ auto cpPolynomialInfo(PropertiesInfo& out, const PropertiesInfo& ref, const Info
     out.S.propagateFrom(ref.S);
     out.Cp.status = ValueInfo::Status::Calculated;
     out.Cp.err = 0.0;
-    if (parameters.values.empty())  // the constant reference value: its error goes on
+    if (coefficientCount(parameters) == 0)  // the constant reference value: its error goes on
     {
         out.Cp = ref.Cp;
         out.G.setError({{1.0, ref.G.err}, {T - Tr, ref.S.err}, {T * std::log(T / Tr) - (T - Tr), ref.Cp.err}});
@@ -94,7 +100,7 @@ auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& 
     double TrK = in.reference.T;
 
     // without coefficients: Cp is the constant reference value; at or below the empty marker of GEMS it counts as 0
-    if (parameters.values.empty())
+    if (coefficientCount(parameters) == 0)
     {
         Scalar cp0 = 0.0;
         if (in.reference.Cp)
@@ -124,7 +130,7 @@ auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& 
         errorModelParameters("Cp temperature intervals", what, __LINE__, __FILE__);
         return;
     }
-    if (parameters.values.size() < data.intervals.size() * coefficientsPerSegment)
+    if (coefficientCount(parameters) < data.intervals.size() * coefficientsPerSegment)
     {
         errorModelParameters("Cp empirical coefficients", what, __LINE__, __FILE__);
         return;
@@ -188,9 +194,10 @@ auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& 
 
         if (j && data.transitions[ft].T <= TrK)
         {
-            S += data.transitions[ft].dS;
-            H += data.transitions[ft].dH;
-            V += data.transitions[ft].dV;
+            const std::size_t first = coefficientCount(parameters) + 3 * ft;
+            S += parameters.value<Scalar>(first, in);
+            H += parameters.value<Scalar>(first + 1, in);
+            V += parameters.value<Scalar>(first + 2, in);
             ++ft;
         }
 
@@ -251,6 +258,13 @@ auto cpPolynomialMethod(std::vector<std::pair<double, double>> intervals, std::v
         names.push_back("a" + std::to_string(i % coefficientsPerSegment));
         if (i >= coefficientsPerSegment)
             names.back() += "[" + std::to_string(i / coefficientsPerSegment) + "]";
+    }
+    // after the coefficients: the changes at each transition. Its temperature is not among them, as the formula is not smooth in it.
+    for (std::size_t k = 0; k < transitions.size(); ++k)
+    {
+        const auto row = "[" + std::to_string(k) + "]";
+        coefficients.insert(coefficients.end(), {transitions[k].dS, transitions[k].dH, transitions[k].dV});
+        names.insert(names.end(), {"dS" + row, "dH" + row, "dV" + row});
     }
     return makeMethod("CpPolynomial", Parameters{std::move(coefficients), {std::move(intervals), std::move(transitions), std::move(name)}, std::move(names)},
                       [](auto& state, const auto& in, const Parameters& p) { cpPolynomial(state, in, p); }, cpPolynomialInfo);

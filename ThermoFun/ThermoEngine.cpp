@@ -3,7 +3,6 @@
 
 // ThermoFun includes
 #include "ThermoEngineImpl.h"
-#include "ThermoEngineParameterErrors.hpp"
 
 namespace ThermoFun
 {
@@ -92,11 +91,9 @@ ThermoEngine::ThermoEngine(const ThermoEngine &other)
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();
-    const double P0 = P;
     auto tps = pimpl->toOutput(pimpl->cachedSubstance(T, P, substance), T, P, pimpl->database.getSubstance(substance));
     if (pimpl->preferences.propagate_parameter_errors)
-        pimpl->addParameterErrors(tps, pimpl->recordsOfSubstance(substance), nullptr, nullptr,
-            [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, substance); });
+        pimpl->addSubstanceErrors(tps, T, P, pimpl->database.getSubstance(substance), pimpl->inputsOf(pimpl->recordsOfSubstance(substance)));
     pimpl->roundResults(tps);
     return tps;
 }
@@ -116,14 +113,12 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, i
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();
-    const double P0 = P;
     auto tps = pimpl->toOutput(pimpl->thermoPropertiesSubstance(T, P, substance), T, P, substance);
     if (pimpl->preferences.propagate_parameter_errors)
     {
         ThermoEngine::Impl::Records records;
         if (!substance.reactionSymbol().empty()) pimpl->collectReaction(records, substance.reactionSymbol());
-        pimpl->addParameterErrors(tps, records, &substance, nullptr,
-            [&](ThermoEngine& e, const Substance* s, const Reaction*) { double p = P0; return e.thermoPropertiesSubstance(T, p, *s); });
+        pimpl->addSubstanceErrors(tps, T, P, substance, pimpl->inputsOf(records, &substance));
     }
     pimpl->roundResults(tps);
     return tps;
@@ -145,11 +140,9 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solv
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
-    const double P0 = P;
     auto tpr = pimpl->toOutput(pimpl->cachedReaction(T, P, reaction), T, P, pimpl->reactionOfSymbol(reaction));
     if (pimpl->preferences.propagate_parameter_errors)
-        pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(reaction), nullptr, nullptr,
-            [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReaction(T, p, reaction); });
+        pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(reaction), false, pimpl->inputsOf(pimpl->recordsOfReaction(reaction)));
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -157,11 +150,9 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
-    const double P0 = P;
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, symbol), T, P, pimpl->database.getReaction(symbol));
     if (pimpl->preferences.propagate_parameter_errors)
-        pimpl->addParameterErrors(tpr, pimpl->recordsOfReaction(symbol), nullptr, nullptr,
-            [&](ThermoEngine& e, const Substance*, const Reaction*) { double p = P0; return e.thermoPropertiesReactionFromReactants(T, p, symbol); });
+        pimpl->addReactionErrors(tpr, T, P, pimpl->database.getReaction(symbol), true, pimpl->inputsOf(pimpl->recordsOfReaction(symbol)));
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -169,11 +160,9 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, st
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
-    const double P0 = P;
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReaction(T, P, reaction), T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
-        pimpl->addParameterErrors(tpr, pimpl->recordsOfReactants(reaction), nullptr, &reaction,
-            [&](ThermoEngine& e, const Substance*, const Reaction* r) { double p = P0; return e.thermoPropertiesReaction(T, p, *r); });
+        pimpl->addReactionErrors(tpr, T, P, reaction, false, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -181,11 +170,9 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction&
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
-    const double P0 = P;
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, reaction), T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
-        pimpl->addParameterErrors(tpr, pimpl->recordsOfReactants(reaction), nullptr, &reaction,
-            [&](ThermoEngine& e, const Substance*, const Reaction* r) { double p = P0; return e.thermoPropertiesReactionFromReactants(T, p, *r); });
+        pimpl->addReactionErrors(tpr, T, P, reaction, true, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -208,9 +195,14 @@ auto ThermoEngine::setConventions(const EngineConventions conventions) -> void
 auto ThermoEngine::setPropertySource(const std::string& symbol, v2::PropertySource source) -> void
 {
     if (source == v2::PropertySource::Record)
-        pimpl->property_sources.erase(symbol);
-    else
-        pimpl->property_sources[symbol] = source;
+    {
+        pimpl->substance_sources.erase(symbol);
+        pimpl->reaction_sources.erase(symbol);
+    }
+    if (source == v2::PropertySource::Direct || source == v2::PropertySource::Reaction)
+        pimpl->substance_sources[symbol] = source;
+    if (source == v2::PropertySource::Direct || source == v2::PropertySource::Reactants)
+        pimpl->reaction_sources[symbol] = source;
     pimpl->clearResults();
 }
 
@@ -221,8 +213,11 @@ auto ThermoEngine::setPropertySource(const std::string& symbol, const std::strin
 
 auto ThermoEngine::propertySource(const std::string& symbol) const -> v2::PropertySource
 {
-    const auto own = pimpl->property_sources.find(symbol);
-    return own == pimpl->property_sources.end() ? pimpl->preferences.property_source : own->second;
+    // the choice that is not the plain one, if a substance and a reaction with this symbol differ
+    for (const auto* own : {&pimpl->reaction_sources, &pimpl->substance_sources})
+        if (const auto it = own->find(symbol); it != own->end() && it->second != v2::PropertySource::Direct)
+            return it->second;
+    return pimpl->substance_sources.count(symbol) ? v2::PropertySource::Direct : pimpl->preferences.property_source;
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
@@ -251,13 +246,11 @@ auto ThermoEngine::database() const -> const Database &
 auto ThermoEngine::appendData(std::string filename) -> void
 {
     pimpl->database.appendData(filename);
-    pimpl->perturbed_engine.reset();
 }
 
 auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
     pimpl->database.appendData(jsonRecords, _label);
-    pimpl->perturbed_engine.reset();
 }
 
 auto ThermoEngine::explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>

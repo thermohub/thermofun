@@ -130,9 +130,9 @@ auto ThermoEngine::Impl::seedOf(const v2::BoundSubstance& bound, const Parameter
 }
 
 /// In the canonical convention: the changes of convention do not depend on a parameter. P is known here: a pressure of 0 was changed by the calculation of the properties.
-auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const std::string& symbol, const ParameterRef& ref) const -> v2::PropertyDerivatives
+auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substance& substance, const ParameterRef& ref) const -> v2::PropertyDerivatives
 {
-    const Substance substance = database.getSubstance(symbol);
+    const auto symbol = substance.symbol();
     const SubstanceKind kind = kindOf(substance);
     v2::PropertyDerivatives d;
     if (kind.isHydrogen)
@@ -155,7 +155,7 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const std::str
         for (const auto& [other, coefficient] : reactants)
             if (other != symbol)
             {
-                const auto o = substanceDerivative(T, P, other, ref);
+                const auto o = substanceDerivative(T, P, database.getSubstance(other), ref);
                 d.G -= coefficient * o.G;
                 d.H -= coefficient * o.H;
                 d.S -= coefficient * o.S;
@@ -226,11 +226,11 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const std::str
     return d;
 }
 
-auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref) const -> ThermoPropertiesReaction
+auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool alwaysFromReactants) const -> ThermoPropertiesReaction
 {
     const auto record = reaction.record();
-    const auto source = sourceOf(record->symbol, record->preferred_property_source);
-    bool fromReactants = record->methods.empty();
+    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
+    bool fromReactants = alwaysFromReactants || record->methods.empty();
     if (source == v2::PropertySource::Reactants && !record->stoichiometry.empty())
         fromReactants = true;
 
@@ -241,7 +241,7 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
         FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
         for (const auto& [symbol, coefficient] : reaction.reactants())
         {
-            const auto o = substanceDerivative(T, P, symbol, ref);
+            const auto o = substanceDerivative(T, P, database.getSubstance(symbol), ref);
             d.reaction_gibbs_energy.val += coefficient * o.G;
             d.reaction_enthalpy.val += coefficient * o.H;
             d.reaction_entropy.val += coefficient * o.S;
@@ -278,7 +278,7 @@ auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string
     for (const auto& ref : parameters)
     {
         pimpl->checkParameter(ref);
-        const auto d = pimpl->substanceDerivative(T, P, symbol, ref);
+        const auto d = pimpl->substanceDerivative(T, P, pimpl->database.getSubstance(symbol), ref);
         const auto name = ref.name();
         out["G"][name] = d.G;
         out["H"][name] = d.H;

@@ -54,6 +54,10 @@ def parameters_of(section, symbol, record):
                 if numeric(segment["parameters"], name):
                     label = name if k == 0 else f"{name}[{k}]"
                     out.append((method["method"], label, lambda doc, i=i, k=k, n=name: (doc[section][symbol]["methods"][i]["segments"][k]["parameters"], n)))
+        for k, row in enumerate(method.get("transitions", [])):
+            for name in ("dS", "dH", "dV"):
+                if name in row and numeric(row, name):
+                    out.append((method["method"], f"{name}[{k}]", lambda doc, i=i, k=k, n=name: (doc[section][symbol]["methods"][i]["transitions"][k], n)))
     return out
 
 
@@ -73,6 +77,8 @@ def si_value(db, section, symbol, owner, name):
         values = record.standard_state_properties if section == "substances" else record.reaction_properties
         return next(q.value for key, q in values.items() if str(key).split(".")[-1] == name)
     method = next(m for m in record.methods if m.method == owner)
+    if name[:2] in ("dS", "dH", "dV") and method.transitions:
+        return method.transitions[int(name[3:-1])][name[:2]].value
     if method.segments:
         base, _, k = name.partition("[")
         return method.segments[int(k[:-1]) if k else 0].parameters[base].value
@@ -142,6 +148,8 @@ ADDED_SUBSTANCES = [
     ("Q-l11", {}, MINERAL["standard_state_properties"], [CP, {"method": "LandauHP11", "parameters": {"Tc0": 847.0, "Smax": 4.95, "Vmax": 1.188e-6}}]),
     ("Q-tait", {}, MINERAL["standard_state_properties"], [CP, {"method": "TaitHP11", "parameters": {"kappa0p": 4.0, "kappa0pp": -5e-11, "n_atoms": 3, "alpha0": 6.5e-6, "kappa0": 7.5e10}}]),
     ("OH-uni", dict(formula="OH-", charge=-1, **{"class": "aqueous_solute"}), SOLUTE_REFERENCE, [{"method": "CpExtendedUNIQUAC", "parameters": {"a": -200.0, "b": 0.5, "c": 30000.0, "alpha": 1e-10, "beta": -1e-19, "Theta": 200.0}}]),
+    ("Q-tr", {}, MINERAL["standard_state_properties"], [{"method": "CpPolynomial", "segments": [{"t_min": 273.15, "t_max": 400.0, "parameters": CP["segments"][0]["parameters"]}, {"t_min": 400.0, "t_max": 2273.15, "parameters": dict(CP["segments"][0]["parameters"])}],
+                                                       "transitions": [{"T": 400.0, "dS": 2.0, "dH": 800.0, "dV": 1e-7}]}]),
     ("Q-cp", {}, MINERAL["standard_state_properties"], [{"method": "ConstantCp"}, {"method": "ConstantVolume"}]),
 ]
 EQUATION = {"reference_conditions": {"T": 298.15, "P": 100000.0}, "stoichiometry": {"H4SiO4@": -1.0, "SiO2@": 1.0, "H2O@": 2.0}}
@@ -165,7 +173,7 @@ def test_the_methods_that_the_files_do_not_have():
     for symbol, methods in ADDED_REACTIONS:
         doc["reactions"][symbol] = {**copy.deepcopy(EQUATION), "name": symbol, "reaction_properties": dict(LOGK), "methods": copy.deepcopy(methods)}
     added = {m["method"] for _, _, _, methods in ADDED_SUBSTANCES for m in methods} | {m["method"] for _, methods in ADDED_REACTIONS for m in methods}
-    problems = bad_points_of(tf.Database(json.dumps(doc)), doc, added - {"CpPolynomial"})
+    problems = bad_points_of(tf.Database(json.dumps(doc)), doc, added)
     assert not problems, problems[:6]
 
 
@@ -284,3 +292,58 @@ def label(ref):
 def test_the_derivatives_of_a_record_by_its_parameters(path):
     problems = bad_points(path)
     assert not problems, problems[:6]
+
+
+def both_ways(reaction_symbol="C"):
+    """C has methods and a defining reaction. The reaction has methods and reactants, and the same symbol as C."""
+    def substance(symbol, G, **more):
+        return {"symbol": symbol, "formula": symbol, "class_": {"0": "SC_COMPONENT"}, "aggregate_state": {"3": "AS_CRYSTAL"}, "Tst": 298.15, "Pst": 100000,
+                "sm_gibbs_energy": {"values": [G]}, "sm_enthalpy": {"values": [G]}, "sm_entropy_abs": {"values": [10.0]},
+                "sm_heat_capacity_p": {"values": [20.0]}, "sm_volume": {"values": [1.0]}, **more}
+    methods = [{"method": {"43": "standard_entropy_cp_integration"}}]
+    return tf.Database(json.dumps({
+        "substances": [substance("A", -1000.0, TPMethods=methods), substance("B", -2000.0, TPMethods=methods), substance("C", -3000.0, TPMethods=methods, reaction=reaction_symbol)],
+        "reactions": [{"symbol": reaction_symbol, "equation": "A + B = C", "reactants": [{"symbol": "A", "coefficient": -1}, {"symbol": "B", "coefficient": -1}, {"symbol": "C", "coefficient": 1}],
+                       "Tst": 298.15, "Pst": 100000, "logKr": {"values": [1.0]}, "TPMethods": [{"method": {"4": "logk_1_term_extrap0"}}]}]}))
+
+
+def derivative(function, symbol, ref, name):
+    return function(400.0, 1e7, symbol, [ref])[name][label(ref)]
+
+
+def test_the_derivatives_follow_the_path_of_the_substance():
+    engine = tf.ThermoEngine(both_ways())
+    own, other = ("C", "", "G"), ("A", "", "G")
+    assert derivative(engine.parameterSensitivities, "C", own, "G") == 1.0   # its own methods
+    assert derivative(engine.parameterSensitivities, "C", other, "G") == 0.0
+    engine.setPropertySource("C", "reaction")                                # its defining reaction: G(C) = dG + G(A) + G(B)
+    assert derivative(engine.parameterSensitivities, "C", own, "G") == 0.0
+    assert derivative(engine.parameterSensitivities, "C", other, "G") == pytest.approx(1.0)
+    assert derivative(engine.parameterSensitivities, "C", ("C", "", "logK"), "G") == pytest.approx(-8.31451 * 400.0 * math.log(10.0), rel=1e-4)
+
+
+def test_the_derivatives_follow_the_path_of_the_reaction():
+    engine = tf.ThermoEngine(both_ways())
+    logK, species = ("C", "", "logK"), ("C", "", "G")
+    assert derivative(engine.reactionParameterSensitivities, "C", logK, "logK") == 1.0  # its own methods
+    assert derivative(engine.reactionParameterSensitivities, "C", species, "dG") == 0.0
+    engine.setPropertySource("C", "reactants")                                          # the sum over its species
+    assert derivative(engine.reactionParameterSensitivities, "C", logK, "logK") == 0.0
+    assert derivative(engine.reactionParameterSensitivities, "C", species, "dG") == pytest.approx(1.0)
+    assert derivative(engine.reactionParameterSensitivities, "C", ("A", "", "G"), "dG") == pytest.approx(-1.0)
+
+
+def test_a_substance_and_a_reaction_with_one_symbol_have_their_own_path():
+    engine = tf.ThermoEngine(both_ways())
+    engine.setPropertySource("C", "direct")
+    engine.setPropertySource("C", "reactants")
+    assert engine.thermoPropertiesSubstance(298.15, 1e5, "C").gibbs_energy.val == pytest.approx(-3000.0)   # still its methods
+    assert engine.thermoPropertiesReaction(298.15, 1e5, "C").reaction_gibbs_energy.val == pytest.approx(0.0, abs=1e-6)   # G(C) - G(A) - G(B)
+    assert engine.propertySource("C") == tf.PropertySource.Reactants
+    engine.setPropertySource("C", "record")
+    assert engine.propertySource("C") == tf.PropertySource.Record
+    # a substance from a reaction that comes from that substance has no answer
+    engine.setPropertySource("C", "reaction")
+    engine.setPropertySource("C", "reactants")
+    with pytest.raises(RuntimeError, match="C"):
+        engine.thermoPropertiesSubstance(298.15, 1e5, "C")

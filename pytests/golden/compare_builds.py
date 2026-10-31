@@ -181,10 +181,12 @@ def main():
                     diffs.append(d)
             for d in gc.compare(base, got, ROUNDING_TOL):
                 d["database"], d["variant"] = base["database"], base["variant"]
-                rounding += not is_expected(d, expected)
+                # the errors of that variant come from exact derivatives now, the baseline from differences of large numbers: REL_TOL still holds for them
+                if not (d["variant"] == "errors" and d["field"] == "err"):
+                    rounding += not is_expected(d, expected)
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
         print("accepted differences (expected_changes.json): %d" % accepted)
-        rounding -= len(diffs)
+        rounding -= sum(not (d["variant"] == "errors" and d["field"] == "err") for d in diffs)
         limit = rounding_limit()
         print("differences between %g and %g (rounding): %d, limit %d" % (ROUNDING_TOL, REL_TOL, rounding, limit))
         if rounding > limit:

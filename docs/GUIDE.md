@@ -192,10 +192,11 @@ uncertainties in the database, results are at 95 % too.
 | Reference properties (`errors` of `sm_gibbs_energy`, ...) | Always. `G(T) = G298 - S298 (T - Tr) + ...` carries `(T - Tr) * err_S298`. |
 | Reactions from reactants | `sqrt(sum nu_i^2 err_i^2)`, weighted by the stoichiometric coefficients. `ln K`: `err_G / (R T)`; `log K`: divided by `ln 10`. |
 | Derived properties | `U = H - P V`, `A = U - T S`, ... analytically. |
-| Coefficients of the models | Only with `propagate_parameter_errors = True`: each coefficient with an error is varied by `+-` its error and half the difference of the results is added in quadrature. |
+| Coefficients of the models | Only with `propagate_parameter_errors = True`: `u^2 = J S J^T`, with the exact derivatives `J` of the result by each uncertain value and `S` their covariance. |
 
-If the calculation fails for a perturbed parameter, the affected `err` is `NaN` and the message of `sta` says the
-uncertainty is incomplete. Not covered: correlations (no covariance matrices) and the solvent models. The assignment of uncertainties
+If the derivative cannot be calculated, or the result is not finite, the affected `err` is `NaN` and the message of `sta` says the
+uncertainty is incomplete. Correlations come from the `covariances` of a record; values of different records are independent. Water has no uncertain
+parameters here. Without autodiff (`TFUN_USE_AUTODIFF=OFF`) the option raises an error. The assignment of uncertainties
 (weighted means, SIT extrapolation) is part of data evaluation and is not done here. Details and the
 NEA TDB-3 worked example: [autodiff.md, section 5](autodiff.md#5-errors-uncertainties).
 

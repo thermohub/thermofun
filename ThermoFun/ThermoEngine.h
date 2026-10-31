@@ -81,8 +81,13 @@ public:
     /// Construct a copy of an ThermoEngine instance
     ThermoEngine(const ThermoEngine &other);
 
-    /// Where the properties of one substance or reaction come from. It replaces the preference property_source for that
-    /// symbol; Record removes this choice.
+    /// Where the properties of one substance or reaction come from. It replaces the preference property_source for that symbol.
+    /// A substance and its defining reaction can have the same symbol, and each has its own choice:
+    ///   Reaction: the substance comes from its defining reaction. The reaction with this symbol does not change.
+    ///   Reactants: the reaction comes from its reactants. The substance with this symbol does not change.
+    ///   Direct: both come from their own methods.
+    ///   Record: removes both choices.
+    /// So the substance from its methods and the reaction from its reactants is Direct, then Reactants.
     auto setPropertySource(const std::string& symbol, v2::PropertySource source) -> void;
 
     /// The same with a word: "record", "direct", "reaction" or "reactants". An unknown word raises an error with the words allowed.

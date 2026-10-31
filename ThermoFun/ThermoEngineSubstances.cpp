@@ -10,11 +10,11 @@ namespace ThermoFun
 
 /// Where the properties of a record come from: the source of the symbol, else the preference of the engine, else the
 /// record. Empty: the rule of the record.
-auto ThermoEngine::Impl::sourceOf(const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>
+auto ThermoEngine::Impl::sourceOf(const std::map<std::string, v2::PropertySource>& own, const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>
 {
-    const auto own = property_sources.find(symbol);
-    if (own != property_sources.end())
-        return own->second;
+    const auto it = own.find(symbol);
+    if (it != own.end())
+        return it->second;
     if (preferences.property_source != v2::PropertySource::Record)
         return preferences.property_source;
     return preferred;
@@ -178,7 +178,7 @@ auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKi
                     record->preferred_property_source == v2::PropertySource::Reaction || record->methods.empty();
 
     // the source can replace the rule, if the record has what that source needs
-    const auto source = sourceOf(record->symbol, record->preferred_property_source);
+    const auto source = sourceOf(substance_sources, record->symbol, record->preferred_property_source);
     const bool hasMethods = !record->methods.empty() && !(record->methods.size() == 1 && record->methods[0].method == "ConstantVolume");
     if (source == v2::PropertySource::Reaction && !record->defining_reaction.empty())
         kind.isReacDC = true;
