@@ -80,7 +80,7 @@ auto errorModelParameters(std::string type, std::string name, int line, std::str
 
 
 
-auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
+[[noreturn]] auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
 
 
 } // namespace ThermoFun
