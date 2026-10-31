@@ -4,6 +4,7 @@
 #ifndef THERMO_H
 #define THERMO_H
 #include <ThermoFun/Engine/DetailedResult.h>
+#include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoProperties.h>
 
 #include <string>
@@ -32,16 +33,22 @@ struct EnginePreferences
     bool cancel_fugacity_coefficient_in_gas_props = true; // fluid equations of state (CORK, PRSV, CG, SRK, PR78, STP): true removes RT ln(phi) from G (G(T, 1 bar), standard state); false keeps it, so G = G(T, 1 bar) + RT ln(phi), and steam from the HGK equation has RT ln(P/1 bar) removed from G in the same way
     bool round_to_uncertainty = false; // round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (the derivatives are not rounded); only for properties with an error > 0
     int uncertainty_significant_digits = 2; // significant digits of the (rounded up) uncertainties, used if round_to_uncertainty is true (NEA TDB tables give one or two)
+    v2::PropertySource property_source = v2::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
+    std::map<std::string, std::string> method_implementation; // method id -> implementation, for example {"HKF88": "reaktoro"}; it replaces the implementation of the records
     bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
 
     bool operator==(const EnginePreferences&) const = default;
 };
 
 struct EngineConventions {
-    // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
-    std::string apparent_properties = "BENSON_HELGESON";
-    // e.g. "STEAM_TABLES"
-    std::string water_properties = "GEOCHEMICAL";
+    v2::EnergyReference energy_reference = v2::EnergyReference::BensonHelgeson;
+    v2::StandardPressure standard_pressure = v2::StandardPressure::OneBar;
+    v2::ConcentrationScale concentration_scale = v2::ConcentrationScale::Molality;
+    v2::WaterReference water_reference = v2::WaterReference::Geochemical;
+
+    // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine.
+    std::string apparent_properties;   // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
+    std::string water_properties;      // e.g. "GEOCHEMICAL", "STEAM_TABLES"
 
     bool operator==(const EngineConventions&) const = default;
 };
@@ -70,6 +77,16 @@ public:
 
     /// Construct a copy of an ThermoEngine instance
     ThermoEngine(const ThermoEngine &other);
+
+    /// Where the properties of one substance or reaction come from. It replaces the preference property_source for that
+    /// symbol; Record removes this choice.
+    auto setPropertySource(const std::string& symbol, v2::PropertySource source) -> void;
+
+    /// The same with a word: "record", "direct", "reaction" or "reactants". An unknown word raises an error with the words allowed.
+    auto setPropertySource(const std::string& symbol, const std::string& source) -> void;
+
+    /// The source of a symbol: its own, else the preference of the engine.
+    auto propertySource(const std::string& symbol) const -> v2::PropertySource;
 
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
     auto setSolventSymbol(const std::string solvent_symbol) -> void;

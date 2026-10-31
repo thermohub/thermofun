@@ -68,8 +68,8 @@ void testLists()
     roundTrip<Quality>({Quality::Core, Quality::Recommended, Quality::Supplemental}, {"core", "recommended", "supplemental"});
     roundTrip<Origin>({Origin::Measured, Origin::Entered, Origin::Calculated, Origin::Estimated, Origin::Converted},
                       {"measured", "entered", "calculated", "estimated", "converted"});
-    roundTrip<PropertySource>({PropertySource::Direct, PropertySource::Reaction, PropertySource::Reactants},
-                              {"direct", "reaction", "reactants"});
+    roundTrip<PropertySource>({PropertySource::Direct, PropertySource::Reaction, PropertySource::Reactants, PropertySource::Record},
+                              {"direct", "reaction", "reactants", "record"});
     roundTrip<DatasetStatus>({DatasetStatus::Draft, DatasetStatus::Published}, {"draft", "published"});
     roundTrip<MethodKind>({MethodKind::Symbolic, MethodKind::Reference, MethodKind::Composite}, {"symbolic", "reference", "composite"});
     roundTrip<OperatesOn>({OperatesOn::Substance, OperatesOn::Reaction}, {"substance", "reaction"});

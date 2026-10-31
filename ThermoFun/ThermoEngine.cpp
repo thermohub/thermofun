@@ -31,6 +31,9 @@
 #include "ThermoModelsReaction.h"
 
 #include "Engine/ResultCache.h"
+#include "Methods/MethodCatalog.h"
+#include "Methods/MethodRegistry.h"
+#include <stdexcept>
 #include <functional>
 #include <cmath>
 #include <set>
@@ -55,15 +58,63 @@ private:
     bool previous_;
 };
 
-bool iequals(const std::string &a, const std::string &b)
+// The checks of the settings: an error says what is allowed
+template <class E>
+auto checkedWord(const std::string& word) -> E
 {
-    size_t sz = a.size();
-    if (b.size() != sz)
-        return false;
-    for (size_t i = 0; i < sz; ++i)
-        if (tolower(a[i]) != tolower(b[i]))
-            return false;
-    return true;
+    const auto value = v2::fromString<E>(word);
+    if (!value)
+        throw std::invalid_argument(v2::unknownWordMessage<E>(word));
+    return *value;
+}
+
+void checkPreferences(const EnginePreferences& p)
+{
+    if (p.solvent_state != 0 && p.solvent_state != 1)
+        throw std::invalid_argument("The solvent state is " + std::to_string(p.solvent_state) + ": it must be 0 (liquid) or 1 (vapour).");
+    if (p.uncertainty_significant_digits < 1)
+        throw std::invalid_argument("The number of significant digits of an uncertainty is " + std::to_string(p.uncertainty_significant_digits) + ": it must be 1 or more.");
+    for (const auto& [id, implementation] : p.method_implementation)
+    {
+        const auto* spec = v2::MethodCatalog::instance().find(id);
+        if (!spec)
+            throw std::invalid_argument("method_implementation: there is no method " + id + ".");
+        const auto known = v2::MethodRegistry::instance().implementations(spec->id);
+        if (std::find(known.begin(), known.end(), implementation) == known.end())
+        {
+            std::string message = "method_implementation: the method " + spec->id + " has no implementation \"" + implementation + "\". Allowed:";
+            for (const auto& k : known)
+                if (!k.empty())
+                    message += " " + k;
+            throw std::invalid_argument(message + ".");
+        }
+    }
+}
+
+/// A word set in an old field replaces the typed value, and the field is empty after it
+void applyOldWords(EngineConventions& c)
+{
+    if (!c.apparent_properties.empty())
+    {
+        c.energy_reference = checkedWord<v2::EnergyReference>(c.apparent_properties);
+        c.apparent_properties.clear();
+    }
+    if (!c.water_properties.empty())
+    {
+        c.water_reference = checkedWord<v2::WaterReference>(c.water_properties);
+        c.water_properties.clear();
+    }
+}
+
+void checkConventions(const EngineConventions& c)
+{
+    // the conversion to the others comes with step R4.5; without this error they would silently give the default
+    if (c.energy_reference != v2::EnergyReference::BensonHelgeson && c.energy_reference != v2::EnergyReference::BermanBrown)
+        throw std::invalid_argument("The energy reference " + v2::toString(c.energy_reference) + " is not calculated yet. Allowed: benson_helgeson, berman_brown.");
+    if (c.standard_pressure != v2::StandardPressure::OneBar)
+        throw std::invalid_argument("The standard pressure " + v2::toString(c.standard_pressure) + " is not calculated yet. Allowed: 1bar.");
+    if (c.concentration_scale != v2::ConcentrationScale::Molality)
+        throw std::invalid_argument("The concentration scale " + v2::toString(c.concentration_scale) + " is not calculated yet. Allowed: molality.");
 }
 
 struct ThermoEngine::Impl
@@ -74,6 +125,9 @@ struct ThermoEngine::Impl
     mutable EnginePreferences preferences;
 
     mutable EngineConventions conventions;
+
+    /// The source of the properties of single records (see setPropertySource)
+    std::map<std::string, v2::PropertySource> property_sources;
 
     /// The results of the calculations (see enable_memoize)
     mutable v2::ResultCache<ThermoPropertiesSubstance> substance_results;
@@ -128,6 +182,8 @@ struct ThermoEngine::Impl
         solvent_results.clear();
         reaction_results.clear();
         perturbed_engine.reset();
+        // the methods are bound with the implementations of the preferences
+        bound_cache = std::make_shared<BoundCache>();
         resultsAreCurrent();
     }
 
@@ -172,6 +228,7 @@ struct ThermoEngine::Impl
     /// Database::substance(), ...) can never give a stale result.
     void dropStaleResults()
     {
+        applyOldWords(conventions);
         const Database& db = database;
         // solvent_state is not compared: each calculation of a substance sets it (to vapor for a gas), so it is
         // working state of the engine, not a setting of the user
@@ -180,7 +237,34 @@ struct ThermoEngine::Impl
         if (db.revision() == cached_for.database_revision && preferences == settings &&
             conventions == cached_for.conventions && db.conventions() == cached_for.database_conventions)
             return;
+        checkPreferences(preferences);
+        checkConventions(conventions);
         clearResults();
+    }
+
+    /// Where the properties of a record come from: the source of the symbol, else the preference of the engine, else the
+    /// record. Empty: the rule of the record.
+    auto sourceOf(const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>
+    {
+        const auto own = property_sources.find(symbol);
+        if (own != property_sources.end())
+            return own->second;
+        if (preferences.property_source != v2::PropertySource::Record)
+            return preferences.property_source;
+        return preferred;
+    }
+
+    /// A record with the implementations of the preferences
+    auto withImplementations(std::shared_ptr<const v2::SubstanceRecord> record) const -> std::shared_ptr<const v2::SubstanceRecord>
+    {
+        if (preferences.method_implementation.empty())
+            return record;
+        auto copy = std::make_shared<v2::SubstanceRecord>(*record);
+        for (const auto& [id, implementation] : preferences.method_implementation)
+            for (auto& a : copy->methods)
+                if (a.method == v2::MethodCatalog::instance().find(id)->id)
+                    a.implementation = implementation;
+        return copy;
     }
 
     /// The methods of a substance. Null if they give no one base method: then no method runs.
@@ -191,7 +275,7 @@ struct ThermoEngine::Impl
         const auto it = bound_cache->substances.find(record.get());
         if (it != bound_cache->substances.end())
             return it->second;
-        auto bound = v2::canBind(*record) ? v2::bindSubstance(record) : nullptr;
+        auto bound = v2::canBind(*record) ? v2::bindSubstance(withImplementations(record)) : nullptr;
         bound_cache->substances[record.get()] = bound;
         bound_cache->records.push_back(record);
         return bound;
@@ -247,7 +331,7 @@ struct ThermoEngine::Impl
         const auto it = bound_cache->solvents.find(record.get());
         if (it != bound_cache->solvents.end())
             return it->second;
-        auto bound = v2::bindSolvent(record);
+        auto bound = v2::bindSolvent(withImplementations(record));
         bound_cache->solvents[record.get()] = bound;
         bound_cache->records.push_back(record);
         return bound;
@@ -362,6 +446,14 @@ struct ThermoEngine::Impl
         kind.isH2OSolvent = record->class_ == v2::SubstanceClass::WaterSolvent;
         kind.isReacDC = substance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC ||
                         record->preferred_property_source == v2::PropertySource::Reaction || record->methods.empty();
+
+        // the source can replace the rule, if the record has what that source needs
+        const auto source = sourceOf(record->symbol, record->preferred_property_source);
+        const bool hasMethods = !record->methods.empty() && !(record->methods.size() == 1 && record->methods[0].method == "ConstantVolume");
+        if (source == v2::PropertySource::Reaction && !record->defining_reaction.empty())
+            kind.isReacDC = true;
+        else if (source == v2::PropertySource::Direct && hasMethods)
+            kind.isReacDC = false;
 
         preferences.solvent_state = v2::solventStateOf(*record);
 
@@ -480,14 +572,14 @@ struct ThermoEngine::Impl
             /// Convetion convert
             if (kind.isH2OSolvent)
             {
-                if (iequals(conventions.water_properties, "STEAM_TABLES"))
+                if (conventions.water_reference == v2::WaterReference::SteamTables)
                 {
                     toSteamTables(tps, waterTripleData.at(database.conventions().water_triple_point_reference));
                     if (detailed)
                         detailed->conversions.push_back("steam_tables");
                 }
             }
-            else if (iequals(conventions.apparent_properties, "BERMAN_BROWN"))
+            else if (conventions.energy_reference == v2::EnergyReference::BermanBrown)
             {
                 toBermanBrown(tps, substance);
                 if (detailed)
@@ -659,6 +751,15 @@ struct ThermoEngine::Impl
 
     auto thermoPropertiesReaction(double T, double &P, const Reaction &reaction) const -> ThermoPropertiesReaction
     {
+        // from the reactants: a record without methods, unless the source says otherwise. "reaction" is for substances only.
+        const auto record = reaction.record();
+        const auto source = sourceOf(record->symbol, record->preferred_property_source);
+        bool fromReactants = record->methods.empty();
+        if (source == v2::PropertySource::Reactants && !record->stoichiometry.empty())
+            fromReactants = true;
+        if (fromReactants)
+            return thermoPropertiesReactionFromReactants(T, P, reaction);
+
         if (const auto bound = boundReaction(reaction))
         {
             if (bound->base->spec().id != "LogKPolynomial")
@@ -668,10 +769,6 @@ struct ThermoEngine::Impl
                 solvent = cachedSolvent(T, P, preferences.solvent_symbol, -1);
             return v2::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
         }
-
-        // no method at all: from the reactants
-        if (reaction.record()->methods.empty())
-            return thermoPropertiesReactionFromReactants(T, P, reaction);
         return {};
     }
 
@@ -739,6 +836,7 @@ struct ThermoEngine::Impl
         impl.preferences.propagate_parameter_errors = false;
         impl.preferences.round_to_uncertainty = false;
         impl.conventions = conventions;
+        impl.property_sources = property_sources;
         return *perturbed_engine;
     }
 
@@ -1058,14 +1156,38 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
 
 auto ThermoEngine::setPreferences(const EnginePreferences preferences) -> void
 {
+    checkPreferences(preferences);
     pimpl->preferences = preferences;
     pimpl->clearResults();
 }
 
 auto ThermoEngine::setConventions(const EngineConventions conventions) -> void
 {
-    pimpl->conventions = conventions;
-    pimpl->dropStaleResults();
+    auto checked = conventions;
+    applyOldWords(checked);
+    checkConventions(checked);
+    pimpl->conventions = checked;
+    pimpl->clearResults();
+}
+
+auto ThermoEngine::setPropertySource(const std::string& symbol, v2::PropertySource source) -> void
+{
+    if (source == v2::PropertySource::Record)
+        pimpl->property_sources.erase(symbol);
+    else
+        pimpl->property_sources[symbol] = source;
+    pimpl->clearResults();
+}
+
+auto ThermoEngine::setPropertySource(const std::string& symbol, const std::string& source) -> void
+{
+    setPropertySource(symbol, checkedWord<v2::PropertySource>(source));
+}
+
+auto ThermoEngine::propertySource(const std::string& symbol) const -> v2::PropertySource
+{
+    const auto own = pimpl->property_sources.find(symbol);
+    return own == pimpl->property_sources.end() ? pimpl->preferences.property_source : own->second;
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void

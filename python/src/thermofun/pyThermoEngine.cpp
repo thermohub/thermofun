@@ -25,6 +25,11 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
+// C++ includes
+#include <algorithm>
+#include <cctype>
+#include <string>
+
 // ThermoFun includes
 #include <ThermoFun/ThermoEngine.h>
 #include <ThermoFun/Common/Rounding.hpp>
@@ -35,8 +40,55 @@ namespace py = pybind11;
 
 namespace ThermoFun {
 
+namespace {
+
+// The value of a checked word: an unknown word gives the words allowed and a hint
+template <class E>
+auto wordOf(const std::string& word) -> E
+{
+    const auto value = v2::fromString<E>(word);
+    if (!value)
+        throw py::value_error(v2::unknownWordMessage<E>(word));
+    return *value;
+}
+
+// A setting given as the enum or as a word
+template <class E>
+auto valueOf(const py::object& given) -> E
+{
+    if (py::isinstance<py::str>(given))
+        return wordOf<E>(given.cast<std::string>());
+    return given.cast<E>();
+}
+
+// The word of a value in capitals, as the old fields had it
+template <class E>
+auto oldWord(E value) -> std::string
+{
+    auto word = v2::toString(value);
+    std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+    return word;
+}
+
+} // namespace
+
 void exportThermoEngine(py::module& m)
 {
+    py::enum_<v2::PropertySource>(m, "PropertySource", "Where the properties of a substance or a reaction come from")
+        .value("Direct", v2::PropertySource::Direct).value("Reaction", v2::PropertySource::Reaction)
+        .value("Reactants", v2::PropertySource::Reactants).value("Record", v2::PropertySource::Record);
+    py::enum_<v2::EnergyReference>(m, "EnergyReference", "The reference of the energies of a substance")
+        .value("BensonHelgeson", v2::EnergyReference::BensonHelgeson).value("BermanBrown", v2::EnergyReference::BermanBrown)
+        .value("SER", v2::EnergyReference::SER).value("AssignedEnthalpy", v2::EnergyReference::AssignedEnthalpy)
+        .value("GibbsHelmholtzFormation", v2::EnergyReference::GibbsHelmholtzFormation).value("DFTFormation0K", v2::EnergyReference::DFTFormation0K);
+    py::enum_<v2::StandardPressure>(m, "StandardPressure", "The standard-state pressure")
+        .value("OneBar", v2::StandardPressure::OneBar).value("OneAtm", v2::StandardPressure::OneAtm);
+    py::enum_<v2::ConcentrationScale>(m, "ConcentrationScale", "The concentration scale of aqueous solutes")
+        .value("Molality", v2::ConcentrationScale::Molality).value("MoleFraction", v2::ConcentrationScale::MoleFraction)
+        .value("Molarity", v2::ConcentrationScale::Molarity);
+    py::enum_<v2::WaterReference>(m, "WaterReference", "The reference of the properties of water")
+        .value("Geochemical", v2::WaterReference::Geochemical).value("SteamTables", v2::WaterReference::SteamTables);
+
     auto appendData1 = static_cast<void(ThermoEngine::*)(std::string)>(&ThermoEngine::appendData);
     auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>, std::string)>(&ThermoEngine::appendData);
 
@@ -95,6 +147,9 @@ void exportThermoEngine(py::module& m)
         .def("setPreferences", &ThermoEngine::setPreferences, "Set the preferences used in the engine calculations", py::arg("preferences"))
         .def("database", &ThermoEngine::database, py::return_value_policy::reference_internal, "The database of the engine")
         .def("setSolventSymbol", &ThermoEngine::setSolventSymbol, "Sets the symbol of the solvent record present in the thermodynamic dataset. Will be used to calculate the solvent properties ", py::arg("symbol"))
+        .def("setPropertySource", [](ThermoEngine& en, const std::string& symbol, py::object source) { en.setPropertySource(symbol, valueOf<v2::PropertySource>(source)); },
+             "Where the properties of one substance or reaction come from: PropertySource or the words record, direct, reaction, reactants. It replaces the preference property_source for that symbol", py::arg("symbol"), py::arg("source"))
+        .def("propertySource", &ThermoEngine::propertySource, "The source of a symbol: its own, else the preference of the engine", py::arg("symbol"))
         .def("solventSymbol", &ThermoEngine::solventSymbol, "Returns the symbol of the solvent record used to calculate the solvent properties")
         .def("setConventions", &ThermoEngine::setConventions, "Set the thermodynamic conventions used in the engine calculations", py::arg("conventions"))
         .def_property( "preferences", [](ThermoEngine& en) -> EnginePreferences& { return en.preferences(); }, &ThermoEngine::setPreferences, py::return_value_policy::reference_internal, "The preferences used in engine calculations. A change (also of one field) applies from the next calculation" )
@@ -140,6 +195,11 @@ void exportThermoEngine(py::module& m)
 
    py::class_<EnginePreferences>(m, "EnginePreferences")
     .def(py::init<>())  // default constructor
+    .def_property("property_source", [](const EnginePreferences& p) { return p.property_source; },
+                  [](EnginePreferences& p, py::object source) { p.property_source = valueOf<v2::PropertySource>(source); },
+                  "where the properties of a record come from: PropertySource or the words record (default), direct, reaction, reactants")
+    .def_readwrite("method_implementation", &EnginePreferences::method_implementation,
+                   "method id -> implementation, for example {'HKF88': 'reaktoro'}; it replaces the implementation of the records")
     .def_readwrite("enable_memoize", &EnginePreferences::enable_memoize,
                    "enable/disable memoization of calculated properties (default: True)")
     .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size,
@@ -179,8 +239,19 @@ void exportThermoEngine(py::module& m)
 
     py::class_<EngineConventions>(m, "EngineConventions")
         .def(py::init<>())
-        .def_readwrite("apparent_properties", &EngineConventions::apparent_properties)
-        .def_readwrite("water_properties", &EngineConventions::water_properties);
+        .def_property("energy_reference", [](const EngineConventions& c) { return c.energy_reference; },
+                      [](EngineConventions& c, py::object v) { c.energy_reference = valueOf<v2::EnergyReference>(v); c.apparent_properties.clear(); })
+        .def_property("standard_pressure", [](const EngineConventions& c) { return c.standard_pressure; },
+                      [](EngineConventions& c, py::object v) { c.standard_pressure = valueOf<v2::StandardPressure>(v); })
+        .def_property("concentration_scale", [](const EngineConventions& c) { return c.concentration_scale; },
+                      [](EngineConventions& c, py::object v) { c.concentration_scale = valueOf<v2::ConcentrationScale>(v); })
+        .def_property("water_reference", [](const EngineConventions& c) { return c.water_reference; },
+                      [](EngineConventions& c, py::object v) { c.water_reference = valueOf<v2::WaterReference>(v); c.water_properties.clear(); })
+        // the old names: the same values as checked words in capitals
+        .def_property("apparent_properties", [](const EngineConventions& c) { return oldWord(c.energy_reference); },
+                      [](EngineConventions& c, const std::string& word) { c.energy_reference = wordOf<v2::EnergyReference>(word); c.apparent_properties.clear(); })
+        .def_property("water_properties", [](const EngineConventions& c) { return oldWord(c.water_reference); },
+                      [](EngineConventions& c, const std::string& word) { c.water_reference = wordOf<v2::WaterReference>(word); c.water_properties.clear(); });
 }
 
 }

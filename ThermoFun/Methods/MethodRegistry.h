@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <ThermoFun/Methods/Method.h>
 #include <ThermoFun/Methods/Reactions/ReactionMethods.h>
@@ -43,6 +44,10 @@ public:
 
     /// True if there is code for this method id.
     auto hasSubstanceMethod(const std::string& id) const -> bool;
+
+    /// The implementations with code of a method id of a substance, a water equation of state or a dielectric model;
+    /// "" is the default.
+    auto implementations(const std::string& id) const -> std::vector<std::string>;
 
     /// The method object of an application. Raises an error if there is no code for it.
     auto create(const MethodApplication& application, const SubstanceRecord& record = {}) const -> std::shared_ptr<const SubstanceMethod>;

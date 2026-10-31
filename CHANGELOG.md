@@ -87,6 +87,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Element::heatCapacity()` and `volume()` give 0 if the record has no such value; before, a missing value took the entropy or
   the atomic mass. `lowerP()` and `upperP()` give the limits of the file; before, they were not read.
 - `ThermoFun/OptimizationUtils.h` is removed. The engine keeps its results in `Engine/ResultCache.h`.
+- The settings of the engine are typed: `EnginePreferences::property_source`, `method_implementation`, and
+  `EngineConventions::energy_reference`, `standard_pressure`, `concentration_scale`, `water_reference`. In Python they take the
+  enum or a word. `apparent_properties` and `water_properties` still work. A wrong word now raises an error with a hint; before, it
+  was ignored. A convention that is not calculated yet (for example `1atm`) raises an error.
+- New: `setPropertySource` and `propertySource`: a substance from its methods or its defining reaction, a reaction from its methods
+  or its reactants, for one record or for all.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.
 
 ### Added (tests)

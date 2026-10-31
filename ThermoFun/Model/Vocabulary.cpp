@@ -54,7 +54,7 @@ THERMOFUN_VOCABULARY(Origin, "origin",
 
 THERMOFUN_VOCABULARY(PropertySource, "property_source",
     {PropertySource::Direct, "direct", {}}, {PropertySource::Reaction, "reaction", {}},
-    {PropertySource::Reactants, "reactants", {}})
+    {PropertySource::Reactants, "reactants", {}}, {PropertySource::Record, "record", {}})
 
 THERMOFUN_VOCABULARY(DatasetStatus, "status",
     {DatasetStatus::Draft, "draft", {}}, {DatasetStatus::Published, "published", {}})

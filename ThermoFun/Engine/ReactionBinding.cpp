@@ -10,8 +10,6 @@ namespace ThermoFun::v2 {
 
 auto canBindReaction(const ReactionRecord& record) -> bool
 {
-    if (record.preferred_property_source == PropertySource::Reactants)
-        return false;
     int bases = 0;
     for (const auto& a : record.methods)
     {

@@ -32,7 +32,8 @@ enum class PropertySource
 {
     Direct,
     Reaction,   ///< substance: from its defining reaction
-    Reactants   ///< reaction: from its reactants
+    Reactants,  ///< reaction: from its reactants
+    Record      ///< a setting of the engine only: what the record says
 };
 
 /// The state of a thermodynamic dataset

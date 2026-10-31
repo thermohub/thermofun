@@ -3,6 +3,8 @@
 
 #include "MethodRegistry.h"
 
+#include <algorithm>
+
 #include <cmath>
 #include <initializer_list>
 #include <type_traits>
@@ -235,6 +237,20 @@ auto MethodRegistry::hasSubstanceMethod(const std::string& id) const -> bool
 {
     const auto it = substance_.lower_bound({id, ""});
     return it != substance_.end() && it->first.first == id;
+}
+
+auto MethodRegistry::implementations(const std::string& id) const -> std::vector<std::string>
+{
+    std::vector<std::string> out;
+    auto addFrom = [&](const auto& factories) {
+        for (const auto& [key, factory] : factories)
+            if (key.first == id && std::find(out.begin(), out.end(), key.second) == out.end())
+                out.push_back(key.second);
+    };
+    addFrom(substance_);
+    addFrom(solvent_);
+    addFrom(dielectric_);
+    return out;
 }
 
 auto MethodRegistry::create(const MethodApplication& application, const SubstanceRecord& record) const -> std::shared_ptr<const SubstanceMethod>
