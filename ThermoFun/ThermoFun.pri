@@ -125,6 +125,8 @@
     $$PWD/Common/OutputToCSV.h \
 # Interface
     $$PWD/ThermoEngine.h \
+    $$PWD/ThermoEngineImpl.h \
+    $$PWD/ThermoEngineParameterErrors.hpp \
     $$PWD/Batch/ThermoBatch.h \
     $$PWD/Batch/OutputBatch.h
 
@@ -218,6 +220,10 @@
     $$PWD/Common/OutputToCSV.cpp \
 # Interface
     $$PWD/ThermoEngine.cpp \
+    $$PWD/ThermoEngineConventions.cpp \
+    $$PWD/ThermoEngineErrors.cpp \
+    $$PWD/ThermoEngineReactions.cpp \
+    $$PWD/ThermoEngineSubstances.cpp \
     $$PWD/Batch/ThermoBatch.cpp \
     $$PWD/Batch/OutputBatch.cpp
 

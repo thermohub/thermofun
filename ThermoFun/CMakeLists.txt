@@ -58,8 +58,10 @@ if(MSVC)
 endif()
 
 # Install the header files preserving the directory hierarchy
-# (the folders "detail" hold headers that use nlohmann_json; they are not installed)
+# (the folders "detail" hold headers that use nlohmann_json; they are not installed, nor the inside of the engine)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
-    PATTERN "detail" EXCLUDE)
+    PATTERN "detail" EXCLUDE
+    PATTERN "ThermoEngineImpl.h" EXCLUDE
+    PATTERN "ThermoEngineParameterErrors.hpp" EXCLUDE)
