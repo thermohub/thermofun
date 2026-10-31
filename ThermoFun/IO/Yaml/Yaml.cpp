@@ -10,15 +10,8 @@
 #include <stdexcept>
 #include <string_view>
 
-// the symbols of rapidyaml stay inside the library
-#if defined(__GNUC__)
-#pragma GCC visibility push(hidden)
-#endif
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include <rapidyaml.hpp>
-#if defined(__GNUC__)
-#pragma GCC visibility pop
-#endif
 
 namespace ThermoFun::v2::detail {
 
