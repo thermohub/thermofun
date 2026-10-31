@@ -1370,6 +1370,51 @@
         "helmholtz_energy"
       ],
       "reason": "SoluteHP98: H was G + T S, with the apparent G, so it did not start from the reference H (69.6 kJ/mol away in the example). Now H = G + T S + (H298 - G298 - T298 S298), as AndersonEtAl91 does. G, S, Cp and V do not change."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s12-fluid_sterner_pitzer",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "CO-stp"
+      ],
+      "reason": "Sterner-Pitzer: the code of the fluid was not initialised for a gas other than H2O and CO2. In the baseline build the memory happened to hold 'C', so CO ran on the CO2 equation; the result depended on the compiler. A gas other than H2O and CO2 now goes by corresponding states, as in CORK. No bundled database has such a record."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s12-fluid_sterner_pitzer",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CO-stp"
+      ],
+      "reason": "Sterner-Pitzer: the code of the fluid was not initialised for a gas other than H2O and CO2. In the baseline build the memory happened to hold 'C', so CO ran on the CO2 equation; the result depended on the compiler. A gas other than H2O and CO2 now goes by corresponding states, as in CORK. No bundled database has such a record."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s12-fluid_sterner_pitzer",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "CO-stp"
+      ],
+      "reason": "Sterner-Pitzer: the code of the fluid was not initialised for a gas other than H2O and CO2. In the baseline build the memory happened to hold 'C', so CO ran on the CO2 equation; the result depended on the compiler. A gas other than H2O and CO2 now goes by corresponding states, as in CORK. No bundled database has such a record."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s12-fluid_sterner_pitzer",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "CO-stp"
+      ],
+      "reason": "Sterner-Pitzer: the code of the fluid was not initialised for a gas other than H2O and CO2. In the baseline build the memory happened to hold 'C', so CO ran on the CO2 equation; the result depended on the compiler. A gas other than H2O and CO2 now goes by corresponding states, as in CORK. No bundled database has such a record."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s12-fluid_sterner_pitzer",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "CO-stp"
+      ],
+      "reason": "Sterner-Pitzer: the code of the fluid was not initialised for a gas other than H2O and CO2. In the baseline build the memory happened to hold 'C', so CO ran on the CO2 equation; the result depended on the compiler. A gas other than H2O and CO2 now goes by corresponding states, as in CORK. No bundled database has such a record."
     }
   ]
 }
