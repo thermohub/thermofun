@@ -23,6 +23,7 @@ auto ThermoEngine::Impl::sourceOf(const std::map<std::string, v2::PropertySource
 /// A record with the implementations of the preferences
 auto ThermoEngine::Impl::withImplementations(std::shared_ptr<const v2::SubstanceRecord> record) const -> std::shared_ptr<const v2::SubstanceRecord>
 {
+    record = v2::withParameterSets(std::move(record), database.parameterSets());
     if (preferences.method_implementation.empty())
         return record;
     auto copy = std::make_shared<v2::SubstanceRecord>(*record);

@@ -25,12 +25,12 @@ auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> v2::Quantity
     v2::ReactionRecord r;
     if (isOfReaction(ref))
     {
-        r = *database.getReaction(ref.symbol).record();
+        r = *v2::withParameterSets(database.getReaction(ref.symbol).record(), database.parameterSets());
         found = v2::findValue(r, ref);
     }
     else
     {
-        s = *database.getSubstance(ref.symbol).record();
+        s = *v2::withParameterSets(database.getSubstance(ref.symbol).record(), database.parameterSets());
         found = v2::findValue(s, ref);
     }
     if (!found)
@@ -115,7 +115,17 @@ auto ParameterHandle::value() const -> double
 auto ParameterHandle::setValue(double value_si) -> void
 {
     const auto ref = ref_;
-    engine_->pimpl->editValue(ref, [&](auto& record) { v2::findValue(record, ref)->value = value_si; });
+    auto& impl = *engine_->pimpl;
+    const auto current = impl.valueOf(ref);
+    impl.editValue(ref, [&](auto& record) {
+        auto* value = v2::findValue(record, ref);
+        // a value of a parameter set: the record gets its own, and the set stays as it is for the other records
+        if (!value)
+            for (auto& a : record.methods)
+                if (a.method == ref.method)
+                    value = &(a.parameters[ref.parameter] = current);
+        value->value = value_si;
+    });
 }
 
 auto ParameterHandle::uncertainty() const -> std::optional<double>

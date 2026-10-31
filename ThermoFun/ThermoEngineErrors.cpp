@@ -103,14 +103,15 @@ auto ThermoEngine::Impl::recordsOfReactants(const Reaction& reaction) const -> R
 auto ThermoEngine::Impl::inputsOf(const Records& records, const Substance* given, const Reaction* givenReaction) const -> v2::UncertainInputs
 {
     v2::UncertainInputs inputs;
+    const auto& sets = database.parameterSets();
     for (const auto& symbol : records.substances)
-        inputs.add(*database.getSubstance(symbol).record());
+        inputs.add(*v2::withParameterSets(database.getSubstance(symbol).record(), sets));
     for (const auto& symbol : records.reactions)
-        inputs.add(*database.getReaction(symbol).record());
+        inputs.add(*v2::withParameterSets(database.getReaction(symbol).record(), sets));
     if (given)
-        inputs.add(*given->record());
+        inputs.add(*v2::withParameterSets(given->record(), sets));
     if (givenReaction)
-        inputs.add(*givenReaction->record());
+        inputs.add(*v2::withParameterSets(givenReaction->record(), sets));
     return inputs;
 }
 

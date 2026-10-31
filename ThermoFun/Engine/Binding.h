@@ -4,14 +4,18 @@
 #ifndef THERMOFUN_ENGINE_BINDING_H
 #define THERMOFUN_ENGINE_BINDING_H
 
+#include <algorithm>
 #include <functional>
+#include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/Conventions/ConventionConverter.h>
 #include <ThermoFun/Methods/Evaluate.h>
 #include <ThermoFun/Methods/Method.h>
+#include <ThermoFun/Model/MethodParameterSet.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
 namespace ThermoFun::v2 {
@@ -33,6 +37,19 @@ struct BindConventions
     Convention dataset;                          ///< the convention of the dataset
     std::function<double()> element_entropy;     ///< the sum of the entropies of the elements of the record. Called only if needed.
 };
+
+/// A copy of a record whose methods hold the values of their parameter sets. A value that a method gives itself stays. The same record if no method names a set.
+template <typename Record>
+auto withParameterSets(std::shared_ptr<const Record> record, const std::map<std::string, MethodParameterSet>& sets) -> std::shared_ptr<const Record>
+{
+    if (std::none_of(record->methods.begin(), record->methods.end(), [](const auto& a) { return !a.parameter_set.empty(); }))
+        return record;
+    auto copy = std::make_shared<Record>(*record);
+    for (auto& a : copy->methods)
+        if (const auto set = sets.find(a.parameter_set); !a.parameter_set.empty() && set != sets.end())
+            a.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
+    return copy;
+}
 
 /// True if every method of the record has code, and exactly one of them is a base method.
 auto canBind(const SubstanceRecord& record) -> bool;
