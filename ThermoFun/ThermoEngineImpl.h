@@ -304,6 +304,19 @@ struct ThermoEngine::Impl
     auto thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
     //=================================================================================================
+    // The derivatives by the parameters of the records
+    //=================================================================================================
+
+    auto checkParameter(const ParameterRef& ref) const -> void;
+
+    auto seedOf(const v2::BoundSubstance& bound, const ParameterRef& ref) const -> v2::ParameterSeed;
+
+    auto substanceDerivative(double T, double& P, const std::string& symbol, const ParameterRef& ref) const -> v2::PropertyDerivatives;
+
+    /// Each val holds a derivative, V in m3/mol per unit.
+    auto reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref) const -> ThermoPropertiesReaction;
+
+    //=================================================================================================
     // Propagation of the errors of the reference properties and of the coefficients of the models
     //=================================================================================================
 

@@ -17,8 +17,8 @@ struct MineralInputs
 {
     double Tr = 298.15;              ///< K
     double Pr = 1e5;                 ///< Pa
-    double G = 0.0, H = 0.0, S = 0.0, Cp = 0.0;  ///< J/mol, J/(mol K)
-    double V = 0.0;                  ///< J/bar
+    real G = 0.0, H = 0.0, S = 0.0, Cp = 0.0;  ///< J/mol, J/(mol K)
+    real V = 0.0;                    ///< J/bar
     real alpha0 = 0.0;               ///< thermal expansion, 1/K
     real kappa0 = 0.0;               ///< bulk modulus, kbar
     std::vector<real> coefficients;  ///< of the method, in the units of its formulas
@@ -28,7 +28,7 @@ struct MineralInputs
 struct NasaInputs
 {
     std::vector<std::vector<double>> rows, intervals;
-    double V = 0.0;  ///< J/bar
+    real V = 0.0;  ///< J/bar
 };
 
 /// A table in T (K) and P (Pa): value[i + j nT] for temperature i and pressure j. Volume in m3/mol.
@@ -37,7 +37,7 @@ struct TableInputs
     std::vector<double> temperatures, pressures;
     std::map<std::string, std::vector<double>> values;
     double reference_pressure = 0.0;  ///< Pa, the pressure of the values of G (0: 1e5)
-    double V = 0.0;                   ///< J/bar, the reference volume
+    real V = 0.0;                     ///< J/bar, the reference volume
 };
 
 } // namespace ThermoFun

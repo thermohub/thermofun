@@ -96,15 +96,15 @@ auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& 
     // without coefficients: Cp is the constant reference value; at or below the empty marker of GEMS it counts as 0
     if (parameters.values.empty())
     {
-        double cp0 = 0.0;
+        Scalar cp0 = 0.0;
         if (in.reference.Cp)
-        {
-            if constexpr (std::is_same_v<Scalar, double>)
-                cp0 = *in.reference.Cp;
-            else
-                cp0 = in.reference.Cp->val();
-        }
-        if (!std::isfinite(cp0) || std::fabs(cp0) < 1e-30)
+            cp0 = *in.reference.Cp;
+        double plain = 0.0;
+        if constexpr (std::is_same_v<Scalar, double>)
+            plain = cp0;
+        else
+            plain = cp0.val();
+        if (!std::isfinite(plain) || std::fabs(plain) < 1e-30)
             cp0 = 0.0;
         G -= S * (TK - TrK) + cp0 * (TK * log(TK / TrK) - (TK - TrK));
         H += cp0 * (TK - TrK);
@@ -245,7 +245,14 @@ auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& 
 auto cpPolynomialMethod(std::vector<std::pair<double, double>> intervals, std::vector<double> coefficients,
                         std::vector<PhaseTransition> transitions, std::string name) -> std::shared_ptr<const SubstanceMethod>
 {
-    return makeMethod("CpPolynomial", Parameters{std::move(coefficients), {std::move(intervals), std::move(transitions), std::move(name)}},
+    std::vector<std::string> names;
+    for (std::size_t i = 0; i < coefficients.size(); ++i)
+    {
+        names.push_back("a" + std::to_string(i % coefficientsPerSegment));
+        if (i >= coefficientsPerSegment)
+            names.back() += "[" + std::to_string(i / coefficientsPerSegment) + "]";
+    }
+    return makeMethod("CpPolynomial", Parameters{std::move(coefficients), {std::move(intervals), std::move(transitions), std::move(name)}, std::move(names)},
                       [](auto& state, const auto& in, const Parameters& p) { cpPolynomial(state, in, p); }, cpPolynomialInfo);
 }
 

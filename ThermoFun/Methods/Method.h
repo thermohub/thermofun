@@ -141,6 +141,10 @@ public:
     /// The parameters in SI. A method with T segments gives those of one segment after the other.
     virtual auto parameterValues() const -> std::vector<double> = 0;
 
+    /// The names of the parameters, in the order of parameterValues. "": a place that the formula does not use. a0[1]: a0 of the second T segment.
+    /// Empty if the values have no names, for example the coefficients of a table.
+    virtual auto parameterNames() const -> std::vector<std::string> { return {}; }
+
     /// A copy of this method with one parameter changed (SI). The original does not change.
     virtual auto withParameter(std::size_t index, double value_si) const -> std::shared_ptr<const SubstanceMethod> = 0;
 

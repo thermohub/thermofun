@@ -46,4 +46,23 @@ auto executeReaction(const BoundReaction& bound, double T, double P, const Prope
     return tpr;
 }
 
+auto reactionParameterDerivative(const BoundReaction& bound, const std::string& method, const std::string& parameter, double T, double P, const PropertiesSolvent* solvent) -> ThermoPropertiesReaction
+{
+    auto seedOf = [&](const ReactionMethod& m) { return method.empty() || method == m.spec().id ? parameter : std::string(); };
+    auto derivative = bound.base->parameterDerivative(seedOf(*bound.base), T, P, ThermoPropertiesReaction{}, solvent);
+    if (!bound.volume)
+        return derivative;
+    // the volume method works on the values of the base method, with their derivatives in ddt
+    auto incoming = bound.base->calculate(T, P, ThermoPropertiesReaction{}, solvent);
+    auto carry = [](Reaktoro_::ThermoProperty& to, const Reaktoro_::ThermoProperty& d) { to.ddt = d.val; to.ddp = 0.0; };
+    carry(incoming.log_equilibrium_constant, derivative.log_equilibrium_constant);
+    carry(incoming.ln_equilibrium_constant, derivative.ln_equilibrium_constant);
+    carry(incoming.reaction_gibbs_energy, derivative.reaction_gibbs_energy);
+    carry(incoming.reaction_enthalpy, derivative.reaction_enthalpy);
+    carry(incoming.reaction_entropy, derivative.reaction_entropy);
+    carry(incoming.reaction_heat_capacity_cp, derivative.reaction_heat_capacity_cp);
+    carry(incoming.reaction_volume, derivative.reaction_volume);
+    return bound.volume->parameterDerivative(seedOf(*bound.volume), T, P, incoming, solvent);
+}
+
 } // namespace ThermoFun::v2

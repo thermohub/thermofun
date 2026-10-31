@@ -5,6 +5,7 @@
 #define THERMOFUN_ENGINE_REACTIONBINDING_H
 
 #include <memory>
+#include <string>
 
 #include <ThermoFun/Methods/Reactions/ReactionMethods.h>
 #include <ThermoFun/Model/ReactionRecord.h>
@@ -28,6 +29,10 @@ auto bindReaction(std::shared_ptr<const ReactionRecord> record) -> std::shared_p
 
 /// The properties of a bound reaction at T (K) and P (Pa). solvent: if the methods need it.
 auto executeReaction(const BoundReaction& bound, double T, double P, const PropertiesSolvent* solvent) -> ThermoPropertiesReaction;
+
+/// The derivatives of the properties of a bound reaction by one parameter: each val is a derivative, V in J/bar per unit. method: the method of the parameter,
+/// empty for a reference value (logK, dG, dH, dS, dCp, dV), which every method reads.
+auto reactionParameterDerivative(const BoundReaction& bound, const std::string& method, const std::string& parameter, double T, double P, const PropertiesSolvent* solvent) -> ThermoPropertiesReaction;
 
 } // namespace ThermoFun::v2
 

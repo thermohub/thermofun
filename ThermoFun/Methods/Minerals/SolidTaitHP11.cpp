@@ -45,7 +45,7 @@ auto thermoPropertiesMinTaitHP11(real TK, real Pbar, const MineralInputs& subst,
     const real kc = (1 + kp + k0 * kpp) / (kp * (1 + kp) - k0 * kpp);
 
     // Einstein temperature (Holland and Powell 2011, p. 346)
-    const real theta = 10636.0 / (Sr.val() / numatoms + 6.44);
+    const real theta = 10636.0 / (Sr / numatoms + 6.44);
 
     const real u  = theta / TK;
     const real u0 = theta / Tr;

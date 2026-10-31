@@ -23,9 +23,9 @@ auto thermoPropertiesExtendedUNIQUAC(real T, real Pbar, const MineralInputs& sub
 
     const double Tr = subst.Tr;
     const double Pr = subst.Pr / bar_to_Pa; // bar
-    const double Gr = subst.G;
-    const double Hr = subst.H;
-    const double Vr = subst.V;
+    const real Gr = subst.G;
+    const real Hr = subst.H;
+    const real Vr = subst.V;
     // the heat capacity has a pole at Theta: T and the reference T must be on the same side, above it
     if (T.val() <= Theta || Tr <= Theta)
         errorModelParameters("temperature and reference temperature above Theta", "Extended UNIQUAC", __LINE__, __FILE__);

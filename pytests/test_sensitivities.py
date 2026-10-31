@@ -1,0 +1,286 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+
+# The derivatives by the parameters against central finite differences, for each parameter of each record of the test files, through
+# reactions and substances defined by a reaction.
+
+import copy
+import glob
+import json
+import math
+import os
+
+import pytest
+import thermofun as tf
+
+FILES = sorted(glob.glob("pytests/data/v2/*.json")) + sorted(glob.glob("pytests/data/legacy-synthetic/*.json"))
+POINTS = [(298.15, 1e5), (450.0, 2e7), (623.15, 1e8)]
+STEP = 1e-4
+SUBSTANCE = {"G": "gibbs_energy", "H": "enthalpy", "S": "entropy", "Cp": "heat_capacity_cp", "V": "volume"}
+REACTION = {"logK": "log_equilibrium_constant", "dG": "reaction_gibbs_energy", "dH": "reaction_enthalpy", "dS": "reaction_entropy", "dCp": "reaction_heat_capacity_cp", "dV": "reaction_volume"}
+# the engine gives V in J/bar, the derivatives are SI
+FACTOR = {"V": 1e-5, "dV": 1e-5}
+# the size of the noise of S and H of Birch-Murnaghan: see test_the_entropy_of_birch_murnaghan_with_a_large_step
+NOISE = {"S": 1e-7, "H": 5e-5}
+
+
+def numeric(holder, key):
+    """The number in a value of a file, with or without an uncertainty."""
+    x = holder[key]
+    return x["value"] if isinstance(x, dict) else x
+
+
+def change(holder, key, factor):
+    if isinstance(holder[key], dict):
+        holder[key]["value"] *= factor
+    else:
+        holder[key] *= factor
+
+
+def parameters_of(section, symbol, record):
+    """Each parameter of a record that has a value: (reference, method, name, holder path)."""
+    out = []
+    values = record.get("standard_state_properties" if section == "substances" else "reaction_properties", {})
+    for name in values:
+        if numeric(values, name):
+            out.append(("", name, lambda doc, n=name, key="standard_state_properties" if section == "substances" else "reaction_properties": (doc[section][symbol][key], n)))
+    for i, method in enumerate(record.get("methods", [])):
+        for name, value in method.get("parameters", {}).items():
+            if not isinstance(value, (int, float, dict)) or not numeric(method["parameters"], name):
+                continue
+            out.append((method["method"], name, lambda doc, i=i, n=name: (doc[section][symbol]["methods"][i]["parameters"], n)))
+        for k, segment in enumerate(method.get("segments", [])):
+            for name, value in segment.get("parameters", {}).items():
+                if numeric(segment["parameters"], name):
+                    label = name if k == 0 else f"{name}[{k}]"
+                    out.append((method["method"], label, lambda doc, i=i, k=k, n=name: (doc[section][symbol]["methods"][i]["segments"][k]["parameters"], n)))
+    return out
+
+
+def properties(doc, kind, T, P, symbol):
+    engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    if kind == "substance":
+        r = engine.thermoPropertiesSubstance(T, P, symbol)
+        return {k: getattr(r, f).val * FACTOR.get(k, 1.0) for k, f in SUBSTANCE.items()}
+    r = engine.thermoPropertiesReaction(T, P, symbol)
+    return {k: getattr(r, f).val * FACTOR.get(k, 1.0) for k, f in REACTION.items()}
+
+
+def si_value(db, section, symbol, owner, name):
+    """The value of a parameter in SI, from the record."""
+    record = db.getSubstance(symbol).record() if section == "substances" else db.getReaction(symbol).record()
+    if not owner:
+        values = record.standard_state_properties if section == "substances" else record.reaction_properties
+        return next(q.value for key, q in values.items() if str(key).split(".")[-1] == name)
+    method = next(m for m in record.methods if m.method == owner)
+    if method.segments:
+        base, _, k = name.partition("[")
+        return method.segments[int(k[:-1]) if k else 0].parameters[base].value
+    return method.parameters[name].value
+
+
+def check(doc, kind, T, P, symbol, ref, holder_of, exact, theta, noise={}):
+    """exact: the derivatives by the parameter, for one (T, P). theta: its value in SI. The file can have other units: a relative step is the same in all."""
+    up, down = copy.deepcopy(doc), copy.deepcopy(doc)
+    change(*holder_of(up), 1.0 + STEP)
+    change(*holder_of(down), 1.0 - STEP)
+    a, b = properties(up, kind, T, P, symbol), properties(down, kind, T, P, symbol)
+    problems = []
+    for name in a:
+        difference = (a[name] - b[name]) / (2.0 * STEP)  # dX / dln(theta)
+        if not (math.isfinite(difference) and math.isfinite(exact[name])):
+            continue
+        wanted = exact[name] * theta
+        if abs(difference - wanted) > 3e-5 * abs(difference) + 1e-11 * abs(a[name]) / STEP + noise.get(name, 0.0) / STEP:
+            problems.append((symbol, ref, name, T, P, "difference", difference, "exact", wanted))
+    return problems
+
+
+def bad_points(path, only=None):
+    """The differences between the derivatives and the finite differences. only: just the records with one of these methods."""
+    db = tf.Database(path)
+    return bad_points_of(db, json.loads(db.toJson(readable=False)), only)
+
+
+def bad_points_of(db, doc, only=None, one=None):
+    problems = []
+    engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    for section, kind, method in (("substances", "substance", engine.parameterSensitivities), ("reactions", "reaction", engine.reactionParameterSensitivities)):
+        for symbol, record in doc.get(section, {}).items():
+            if record.get("class") == "water_solvent":
+                continue
+            if only and not any(m["method"] in only for m in record.get("methods", [])):
+                continue
+            if one and symbol != one:
+                continue
+            for owner, name, holder_of in parameters_of(section, symbol, record):
+                ref = (symbol, owner, name)
+                theta = si_value(db, section, symbol, owner, name)
+                for T, P in POINTS:
+                    try:
+                        derivatives = method(T, P, symbol, [ref])
+                    except RuntimeError as error:
+                        if "Cannot derive" in str(error):
+                            problems.append((symbol, ref, T, P, str(error)[:200]))
+                        continue  # the model does not cover this point
+                    exact = {k: v[label(ref)] for k, v in derivatives.items()}
+                    noise = NOISE if any(m["method"] == "BirchMurnaghan47" for m in record.get("methods", [])) else {}
+                    problems += check(doc, kind, T, P, symbol, ref, holder_of, exact, theta, noise)
+    return problems
+
+
+# The methods that no record of the files above has with parameters
+SOLUTE_REFERENCE = {"G": -157220.0, "H": -230020.0, "S": -10.71, "Cp": -137.2, "V": -0.418e-5}
+MINERAL = {"class": "component", "aggregate_state": "crystal", "formula": "SiO2", "charge": 0, "reference_conditions": {"T": 298.15, "P": 100000.0},
+           "standard_state_properties": {"G": -856433.0, "H": -910830.0, "S": 41.5, "Cp": 44.9, "V": 2.27e-5}}
+CP = {"method": "CpPolynomial", "segments": [{"t_min": 273.15, "t_max": 2273.15, "parameters": {"a0": 110.7, "a1": -0.00519, "a2": 0.0, "a3": -1128.3, "a4": 0.0, "a5": 0.0, "a6": 0.0, "a7": 0.0, "a8": 0.0, "a9": 0.0}}]}
+HKF = {"a1": 7.69e-06, "a2": -956.0, "a3": 0.000136, "a4": -114055.0, "c1": 76.1, "c2": -124725.0, "omega": 138323.0}
+ADDED_SUBSTANCES = [
+    ("OH-hp", dict(formula="OH-", charge=-1, **{"class": "aqueous_solute"}), SOLUTE_REFERENCE, [{"method": "SoluteHP98", "parameters": {"b": 1.0}}]),
+    ("OH-an", dict(formula="OH-", charge=-1, **{"class": "aqueous_solute"}), SOLUTE_REFERENCE, [{"method": "AndersonEtAl91"}]),
+    ("OH-gems", dict(formula="OH-", charge=-1, **{"class": "aqueous_solute"}), SOLUTE_REFERENCE, [{"method": "HKF88", "implementation": "gems", "parameters": HKF}]),
+    ("Q-l11", {}, MINERAL["standard_state_properties"], [CP, {"method": "LandauHP11", "parameters": {"Tc0": 847.0, "Smax": 4.95, "Vmax": 1.188e-6}}]),
+    ("Q-tait", {}, MINERAL["standard_state_properties"], [CP, {"method": "TaitHP11", "parameters": {"kappa0p": 4.0, "kappa0pp": -5e-11, "n_atoms": 3, "alpha0": 6.5e-6, "kappa0": 7.5e10}}]),
+    ("OH-uni", dict(formula="OH-", charge=-1, **{"class": "aqueous_solute"}), SOLUTE_REFERENCE, [{"method": "CpExtendedUNIQUAC", "parameters": {"a": -200.0, "b": 0.5, "c": 30000.0, "alpha": 1e-10, "beta": -1e-19, "Theta": 200.0}}]),
+    ("Q-cp", {}, MINERAL["standard_state_properties"], [{"method": "ConstantCp"}, {"method": "ConstantVolume"}]),
+]
+EQUATION = {"reference_conditions": {"T": 298.15, "P": 100000.0}, "stoichiometry": {"H4SiO4@": -1.0, "SiO2@": 1.0, "H2O@": 2.0}}
+LOGK = {"logK": 2.7, "dG": -15411.0, "dH": 25000.0, "dS": 135.0, "dCp": 40.0, "dV": 2e-6}
+ADDED_REACTIONS = [
+    ("r-rb", [{"method": "RyzhenkoBryzgalin", "parameters": {"pK298": 2.7, "A": -500.0, "B": 3.0}}]),
+    ("r-cp", [{"method": "LogKNordstromMunoz88", "parameters": {"a0": 1.8, "a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0, "a5": 0.0, "a6": 0.0, "a": 20.0, "b": 0.05, "c": 1000.0, "d": 10.0, "e": 1e-5}}]),
+    ("r-nm", [{"method": "LogKNordstromMunoz88", "parameters": {"a0": 1.8, "a1": -0.0026, "a2": 0.0, "a3": 0.0, "a4": 0.0, "a5": 4.4e-6, "a6": 0.0}}]),
+    ("r-cp3", [{"method": "LogKConstantCp"}, {"method": "ReactionConstantVolume"}]),
+    ("r-const", [{"method": "ConstantReactionProperties"}]),
+]
+
+
+def test_the_methods_that_the_files_do_not_have():
+    doc = json.loads(tf.Database("pytests/data/v2/hkf.json").toJson(readable=False))
+    for symbol, extra, reference, methods in ADDED_SUBSTANCES:
+        record = {**{k: v for k, v in MINERAL.items() if k != "standard_state_properties"}, "name": symbol, "standard_state_properties": dict(reference), "methods": copy.deepcopy(methods), **extra}
+        if extra:
+            record["aggregate_state"] = "aqueous"
+        doc["substances"][symbol] = record
+    for symbol, methods in ADDED_REACTIONS:
+        doc["reactions"][symbol] = {**copy.deepcopy(EQUATION), "name": symbol, "reaction_properties": dict(LOGK), "methods": copy.deepcopy(methods)}
+    added = {m["method"] for _, _, _, methods in ADDED_SUBSTANCES for m in methods} | {m["method"] for _, methods in ADDED_REACTIONS for m in methods}
+    problems = bad_points_of(tf.Database(json.dumps(doc)), doc, added - {"CpPolynomial"})
+    assert not problems, problems[:6]
+
+
+@pytest.mark.parametrize("path,methods", [("pytests/test-aq17-gem-lma-thermofun.json", {"AkinfievDiamond03", "CorkHP91"}), ("Resources/databases/mines16-thermofun.json", {"LogKNordstromMunoz88"})],
+                         ids=["aq17", "mines16"])
+def test_the_methods_of_the_large_files(path, methods):
+    """One record of each method, because each step loads the whole file."""
+    db = tf.Database(path)
+    doc = json.loads(db.toJson(readable=False))
+    for method in methods:
+        for section in ("substances", "reactions"):
+            for symbol, record in doc.get(section, {}).items():
+                if any(m["method"] == method for m in record.get("methods", [])):
+                    problems = bad_points_of(db, doc, {method}, symbol)
+                    assert not problems, problems[:6]
+                    break
+
+
+def test_the_derivatives_of_a_substance_through_its_defining_reaction():
+    """Through the reaction, and through the other species of the reaction, with the parameters of each."""
+    path = "pytests/data/v2/reactions.json"
+    db = tf.Database(path)
+    doc = json.loads(db.toJson(readable=False))
+    engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    defined = [s for s, r in doc["substances"].items() if r.get("defining_reaction")]
+    assert defined
+    checked = 0
+    problems = []
+    for symbol in defined:
+        reaction = doc["substances"][symbol]["defining_reaction"]
+        others = [o for o in doc["reactions"][reaction]["stoichiometry"] if o != symbol]
+        items = [("reactions", reaction, doc["reactions"][reaction])] + [("substances", o, doc["substances"][o]) for o in others if doc["substances"][o].get("class") != "water_solvent"]
+        for section, owner_symbol, record in items:
+            for owner, name, holder_of in parameters_of(section, owner_symbol, record):
+                ref = (owner_symbol, owner, name)
+                theta = si_value(db, section, owner_symbol, owner, name)
+                for T, P in POINTS:
+                    exact = {k: v[label(ref)] for k, v in engine.parameterSensitivities(T, P, symbol, [ref]).items()}
+                    problems += check(doc, "substance", T, P, symbol, ref, holder_of, exact, theta)
+                    checked += 1
+    assert checked > 10
+    assert not problems, problems[:6]
+
+
+def test_the_derivatives_of_a_reaction_from_its_reactants():
+    """A reaction without methods sums the derivatives of its species."""
+    db = tf.Database("pytests/data/v2/reactions.json")
+    doc = json.loads(db.toJson(readable=False))
+    symbol, species = "H4SiO4@", "SiO2@"
+    doc["reactions"][symbol].pop("methods", None)
+    doc["reactions"][symbol].pop("reaction_properties", None)
+    doc["substances"][symbol].pop("defining_reaction", None)  # else the reaction and the substance need each other
+    engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    nu = doc["reactions"][symbol]["stoichiometry"][species]
+    ref = (species, "", "S")
+    reaction = engine.reactionParameterSensitivities(473.15, 1e7, symbol, [ref])
+    substance = engine.parameterSensitivities(473.15, 1e7, species, [ref])
+    assert reaction["dS"][label(ref)] == pytest.approx(nu * substance["S"][label(ref)], rel=1e-12)
+    assert reaction["logK"][label(ref)] == pytest.approx(-nu * substance["G"][label(ref)] / (8.31451 * 473.15 * math.log(10.0)), rel=1e-4)
+
+
+@pytest.mark.parametrize("ref,words", [
+    (("Quartz", "CpPolynomial", "zz"), "a0, a1"),
+    (("Quartz", "HKF88", "a1"), "does not use this method"),
+    (("Quartz", "NoSuchMethod", "a1"), "no such method"),
+    (("Quartz", "", "logK2"), "reference value is one of"),
+    (("NoSuchSymbol", "", "G"), "no substance"),
+    (("H2O@", "WaterHGK84", "state"), "method of water"),
+])
+def test_an_unknown_parameter_is_an_error_and_not_a_derivative_of_zero(ref, words):
+    engine = tf.ThermoEngine("pytests/data/v2/minerals.json")
+    with pytest.raises(RuntimeError, match=words):
+        engine.parameterSensitivities(500.0, 1e7, "Quartz", [ref])
+
+
+def test_the_derivative_is_zero_for_a_parameter_of_a_record_that_is_not_used():
+    engine = tf.ThermoEngine("pytests/data/v2/minerals.json")
+    other = next(s for s in engine.database().getSubstancesList() if s != "Quartz" and engine.database().getSubstance(s).record().standard_state_properties and s != "H2O@")
+    ref = (other, "", "S")
+    result = engine.parameterSensitivities(500.0, 1e7, "Quartz", [ref])
+    assert all(v[label(ref)] == 0.0 for v in result.values())
+
+
+def test_a_pressure_of_zero_is_the_saturation_pressure():
+    engine = tf.ThermoEngine("pytests/data/v2/hkf.json")
+    ref = ("Na+", "HKF88", "c1")
+    saturated = engine.parameterSensitivities(473.15, 0.0, "Na+", [ref])
+    psat = 1554939.22  # Pa at 200 degC
+    assert saturated["Cp"][label(ref)] == pytest.approx(engine.parameterSensitivities(473.15, psat, "Na+", [ref])["Cp"][label(ref)], rel=1e-5)
+
+
+def test_the_entropy_of_birch_murnaghan_with_a_large_step():
+    """S of this model comes from a finite difference over a Newton iteration: a small step only shows that noise."""
+    path = "pytests/data/legacy-synthetic/s37-mv_eos_birch_murnaghan_gott97.json"
+    db = tf.Database(path)
+    doc = json.loads(db.toJson(readable=False))
+    symbol = next(iter(doc["substances"]))
+    i = next(j for j, m in enumerate(doc["substances"][symbol]["methods"]) if m["method"] == "BirchMurnaghan47")
+    ref = (symbol, "BirchMurnaghan47", "a1")
+    theta = si_value(db, "substances", symbol, "BirchMurnaghan47", "a1")
+    up, down = copy.deepcopy(doc), copy.deepcopy(doc)
+    step = 0.03
+    change(up["substances"][symbol]["methods"][i]["parameters"], "a1", 1.0 + step)
+    change(down["substances"][symbol]["methods"][i]["parameters"], "a1", 1.0 - step)
+    a, b = properties(up, "substance", 450.0, 2e7, symbol), properties(down, "substance", 450.0, 2e7, symbol)
+    exact = tf.ThermoEngine(db).parameterSensitivities(450.0, 2e7, symbol, [ref])
+    assert (a["S"] - b["S"]) / (2.0 * step) == pytest.approx(exact["S"][label(ref)] * theta, rel=2e-3)
+
+
+def label(ref):
+    symbol, method, parameter = ref
+    return f"{symbol}/{method + '/' if method else ''}{parameter}"
+
+
+@pytest.mark.parametrize("path", FILES, ids=os.path.basename)
+def test_the_derivatives_of_a_record_by_its_parameters(path):
+    problems = bad_points(path)
+    assert not problems, problems[:6]

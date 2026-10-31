@@ -58,7 +58,7 @@ MethodRegistry::MethodRegistry()
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
             auto value = [&](const char* n) { const auto it = a.parameters.find(n); return it == a.parameters.end() ? 0.0 : it->second.value; };
-            return mineralMethod(id, any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability);
+            return mineralMethod(id, any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability, any ? names : std::vector<std::string>{});
         });
     };
     mineral("LandauHP98", catalogNames("LandauHP98", false));
@@ -73,7 +73,8 @@ MethodRegistry::MethodRegistry()
     add("TPTable", "", [](A a, R) { return tpTableMethod(a); });
 
     // the reactions: the coefficients of the names in the units of the formulas; none if the record gives none of them
-    auto coefficients = [](A a, std::initializer_list<std::pair<const char*, double>> names) {
+    using Names = std::initializer_list<std::pair<const char*, double>>;
+    auto coefficients = [](A a, Names names) {
         std::vector<real> values;
         bool any = false;
         for (const auto& [n, factor] : names)
@@ -85,7 +86,7 @@ MethodRegistry::MethodRegistry()
         return any ? values : std::vector<real>{};
     };
     using RR = const ReactionRecord&;
-    auto reactionInputs = [coefficients](A a, RR r, std::initializer_list<std::pair<const char*, double>> names) {
+    auto reactionInputs = [coefficients](A a, RR r, Names names) {
         ReactionInputs in;
         in.Tr = r.reference_conditions.T;
         in.Pr = r.reference_conditions.P;
@@ -106,12 +107,15 @@ MethodRegistry::MethodRegistry()
         load(ReactionPropertyName::dCp, ref.reaction_heat_capacity_cp);
         load(ReactionPropertyName::dV, ref.reaction_volume, 1e5);  // J/bar
         in.coefficients = coefficients(a, names);
+        for (const auto& [n, factor] : names)
+            in.coefficient_units.push_back({n, factor});
         return in;
     };
     auto logKMethod = [this, reactionInputs, coefficients](const char* id, LogKForm form) {
         reaction_[id] = [=](A a, RR r) {
             auto in = reactionInputs(a, r, {{"a0", 1}, {"a1", 1}, {"a2", 1}, {"a3", 1}, {"a4", 1}, {"a5", 1}, {"a6", 1}});
             in.cp_coefficients = coefficients(a, {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}});
+            in.cp_coefficient_units = {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}};
             return makeLogK(id, form, std::move(in));
         };
     };

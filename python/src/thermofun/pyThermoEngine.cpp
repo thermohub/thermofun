@@ -23,6 +23,7 @@
 // pybind11 includes
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tuple>
 namespace py = pybind11;
 
 // C++ includes
@@ -155,6 +156,13 @@ void exportThermoEngine(py::module& m)
         .def_readonly("content_hash", &CalculationSnapshot::content_hash)
         .def_readonly("implementations", &CalculationSnapshot::implementations);
 
+    const auto sensitivities = [](const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
+        std::vector<ParameterRef> out;
+        for (const auto& [symbol, method, parameter] : parameters)
+            out.push_back({symbol, method, parameter});
+        return out;
+    };
+
     py::class_<ConsistencyOptions>(m, "ConsistencyOptions", "The options of ThermoEngine.consistencyReport")
         .def(py::init<>())
         .def_readwrite("delta_G_threshold", &ConsistencyOptions::delta_G_threshold, "J/mol; a larger difference is inconsistent");
@@ -209,6 +217,14 @@ void exportThermoEngine(py::module& m)
                  out["properties"] = d.properties; out["source"] = d.source; out["reaction"] = d.reaction; out["steps"] = steps; out["conversions"] = d.conversions;
                  return out;
              }, "The result of a calculation and how it came: properties, source, reaction, steps (the methods in order, SI) and conversions.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
+        .def("parameterSensitivities", [sensitivities](const ThermoEngine& self, double T, double P, const std::string& symbol, const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
+                 return self.parameterSensitivities(T, P, symbol, sensitivities(parameters));
+             }, py::arg("T"), py::arg("P"), py::arg("symbol"), py::arg("parameters"),
+             "The exact derivatives of the properties of a substance by parameters, each (symbol, method, parameter): method \"\" for a reference value. A dict: property, then the name of the parameter. SI")
+        .def("reactionParameterSensitivities", [sensitivities](const ThermoEngine& self, double T, double P, const std::string& symbol, const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
+                 return self.reactionParameterSensitivities(T, P, symbol, sensitivities(parameters));
+             }, py::arg("T"), py::arg("P"), py::arg("symbol"), py::arg("parameters"),
+             "The exact derivatives of the properties of a reaction by parameters, each (symbol, method, parameter): method \"\" for a reference value. A dict: property, then the name of the parameter. SI")
         .def("snapshot", &ThermoEngine::snapshot, "What the results depend on: versions, dataset, SHA-256 of the records, implementations")
         .def("consistencyReport", &ThermoEngine::consistencyReport, py::arg("TP"), py::arg("options") = ConsistencyOptions{},
              "The records that can be calculated in two ways, and the difference at each pair (T [K], P [Pa])")

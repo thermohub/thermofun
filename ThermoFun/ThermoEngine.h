@@ -5,6 +5,7 @@
 #define THERMO_H
 #include <ThermoFun/Engine/Consistency.h>
 #include <ThermoFun/Engine/DetailedResult.h>
+#include <ThermoFun/Engine/Sensitivity.h>
 #include <ThermoFun/Engine/Snapshot.h>
 #include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoProperties.h>
@@ -199,6 +200,14 @@ public:
     /// What the results depend on: the version of ThermoFun, the format and dataset of the loaded data, the SHA-256 of all records,
     /// and the implementations that the preferences ask for.
     auto snapshot() const -> CalculationSnapshot;
+
+    /// The exact derivatives of the properties of a substance by the given parameters, through its defining reaction and the other species of that reaction.
+    /// Results: G, H, S, Cp, V, U, A. A pressure of 0 is the saturation pressure, written to P. The results are in the canonical convention, and a change of
+    /// convention does not change them.
+    auto parameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
+
+    /// The same for a reaction. Results: logK, lnK, dG, dH, dS, dCp, dV.
+    auto reactionParameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
 
     /// The records that can be calculated in two ways, and the difference between the ways at each pair (T in K, P in Pa):
     /// a substance from its methods and from its defining reaction, a reaction from its methods and from its reactants.

@@ -146,12 +146,12 @@ auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& 
     auto A       = reaction.coefficients;
     auto CpCoeff = reaction.cp_coefficients;
     // the reference properties are constants
-    real dVr     = Reaktoro_::constant(ref_tpr.reaction_volume);   //Gr = rc[q].Gs[0];
-    real dHr     = Reaktoro_::constant(ref_tpr.reaction_enthalpy);
-    real dSr     = Reaktoro_::constant(ref_tpr.reaction_entropy);
-    real dCpr    = Reaktoro_::constant(ref_tpr.reaction_heat_capacity_cp);
-    real dGr     = Reaktoro_::constant(ref_tpr.reaction_gibbs_energy);
-    real lgK     = Reaktoro_::constant(ref_tpr.log_equilibrium_constant);
+    real dVr     = seeded(ref_tpr.reaction_volume, reaction.seed.dV);   //Gr = rc[q].Gs[0];
+    real dHr     = seeded(ref_tpr.reaction_enthalpy, reaction.seed.dH);
+    real dSr     = seeded(ref_tpr.reaction_entropy, reaction.seed.dS);
+    real dCpr    = seeded(ref_tpr.reaction_heat_capacity_cp, reaction.seed.dCp);
+    real dGr     = seeded(ref_tpr.reaction_gibbs_energy, reaction.seed.dG);
+    real lgK     = seeded(ref_tpr.log_equilibrium_constant, reaction.seed.logK);
     auto Tr      = reaction.Tr;
 
 

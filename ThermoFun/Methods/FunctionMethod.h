@@ -5,6 +5,7 @@
 #define THERMOFUN_METHODS_FUNCTIONMETHOD_H
 
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -26,6 +27,7 @@ struct MethodParameters
 {
     std::vector<double> values;
     Data data;
+    std::vector<std::string> names;  ///< of the values, if they are not those of the catalog
 
     /// The value of parameter i in this pass: the seeded parameter carries the derivative.
     template <typename Scalar>
@@ -55,6 +57,23 @@ public:
     auto apply(SubstanceState<double>& state, const SubstanceInputs<double>& in) const -> void override { formula_(state, in, parameters_); }
     auto apply(SubstanceState<TPReal>& state, const SubstanceInputs<TPReal>& in) const -> void override { formula_(state, in, parameters_); }
     auto parameterValues() const -> std::vector<double> override { return parameters_.values; }
+
+    auto parameterNames() const -> std::vector<std::string> override
+    {
+        if (!parameters_.names.empty())
+            return parameters_.names;
+        // the moduli of a mineral come after its coefficients
+        std::vector<std::string> names;
+        for (const auto& p : spec_->parameters)
+            if (p.name != "alpha0" && p.name != "kappa0")
+                names.push_back(p.name);
+        for (const auto& p : spec_->parameters)
+            if (p.name == "alpha0" || p.name == "kappa0")
+                names.push_back(p.name);
+        if (names.size() != parameters_.values.size())
+            names.clear();
+        return names;
+    }
 
     auto withParameter(std::size_t index, double value_si) const -> std::shared_ptr<const SubstanceMethod> override
     {

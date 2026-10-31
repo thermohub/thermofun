@@ -105,4 +105,39 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
     return result;
 }
 
+auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSeed& seed, double T, double P, const SubstanceOptions& options, const SolventInputs* solvent) -> PropertyDerivatives
+{
+    auto reference = toReal(bound.reference);
+    auto carry = [](std::optional<TPReal>& value, double s) {
+        if (value && s != 0.0)
+            (*value)[1] = s;
+    };
+    carry(reference.G, seed.G);
+    carry(reference.H, seed.H);
+    carry(reference.S, seed.S);
+    carry(reference.Cp, seed.Cp);
+    carry(reference.V, seed.V);
+
+    SubstanceInputs<TPReal> in{TPReal(T), TPReal(P), reference};
+    in.options = options;
+    SolventState<TPReal> atPoint, atReference;
+    if (solvent)
+    {
+        atPoint = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
+        atReference = solventAtReference(*solvent, T, P);
+        in.solvent = &atPoint;
+        in.solvent_at_reference = &atReference;
+    }
+
+    SubstanceState<TPReal> state;
+    for (std::size_t i = 0; i < bound.order.size(); ++i)
+    {
+        in.seeded_parameter = static_cast<int>(i) == seed.method ? seed.parameter : -1;
+        bound.order[i]->apply(state, in);
+        if (i < bound.to_canonical.size() && !bound.to_canonical[i].identity())
+            convert(state, bound.to_canonical[i], in);
+    }
+    return {state.G[1], state.H[1], state.S[1], state.Cp[1], state.V[1]};
+}
+
 } // namespace ThermoFun::v2

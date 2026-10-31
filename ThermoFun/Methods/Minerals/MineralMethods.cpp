@@ -23,9 +23,9 @@ namespace ThermoFun::v2 {
 namespace {
 
 template <typename Scalar>
-auto valueOf(const std::optional<Scalar>& x) -> double
+auto valueOf(const std::optional<Scalar>& x) -> Scalar
 {
-    return x ? (*x)[0] : 0.0;
+    return x ? *x : Scalar(0.0);
 }
 
 // What the formulas read of the record; the coefficients are added by the method
@@ -277,13 +277,18 @@ auto tpTableInfo(PropertiesInfo& out, const InfoInputs& in, const TableData& tab
 
 } // namespace
 
-auto mineralMethod(const std::string& id, std::vector<double> coefficients, double alpha0, double kappa0, Applicability applicability) -> std::shared_ptr<const SubstanceMethod>
+auto mineralMethod(const std::string& id, std::vector<double> coefficients, double alpha0, double kappa0, Applicability applicability, std::vector<std::string> names) -> std::shared_ptr<const SubstanceMethod>
 {
     const MineralRow& row = rowOf(id);
     const std::size_t count = coefficients.size();
     coefficients.push_back(alpha0);
     coefficients.push_back(kappa0);
-    return makeMethod(id.c_str(), Parameters{std::move(coefficients), {count, std::move(applicability), &row}},
+    if (!names.empty())
+    {
+        names.push_back("alpha0");
+        names.push_back("kappa0");
+    }
+    return makeMethod(id.c_str(), Parameters{std::move(coefficients), {count, std::move(applicability), &row}, std::move(names)},
                       [id](auto& state, const auto& in, const Parameters& p) { mineral(state, in, p, id.c_str()); },
                       [](PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in, const Parameters& p) { p.data.row->info(out, reference, in, p); });
 }

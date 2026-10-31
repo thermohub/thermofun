@@ -17,7 +17,7 @@ struct HKFInputs
 {
     std::string symbol;
     std::vector<real> parameters;
-    double G = 0.0, H = 0.0, S = 0.0;
+    real G = 0.0, H = 0.0, S = 0.0;
     double charge = 0.0;
     bool hydrogen_ion = false;
 };
@@ -25,7 +25,8 @@ struct HKFInputs
 /// The reference values of a species for the density models. K, J/mol, J/(mol K), J/bar.
 struct SoluteReference
 {
-    double T = 298.15, G = 0.0, H = 0.0, S = 0.0, Cp = 0.0, V = 0.0;
+    double T = 298.15;
+    real G = 0.0, H = 0.0, S = 0.0, Cp = 0.0, V = 0.0;
 };
 
 } // namespace ThermoFun

@@ -14,11 +14,11 @@ auto thermoPropertiesAqSoluteAN91(real TK, real Pbar, const SoluteReference& ref
     auto T = TK;
     ThermoPropertiesSubstanceAD tps;
     double T298 = reference.T;
-    double G298 = reference.G;
-    double H298 = reference.H;
-    double S298 = reference.S;
-    double V298 = reference.V; // J/bar
-    double Cp298 = reference.Cp;
+    real G298 = reference.G;
+    real H298 = reference.H;
+    real S298 = reference.S;
+    real V298 = reference.V; // J/bar
+    real Cp298 = reference.Cp;
 
     double ALPw298 = wpr.Alpha.val();
     double BETw298 = wpr.Beta.val()*1e5; // 1/bar

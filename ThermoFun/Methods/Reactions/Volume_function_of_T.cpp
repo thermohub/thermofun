@@ -14,7 +14,7 @@ namespace ThermoFun {
 // with dS = -d(dG)/dT, dH = dG - T d(dG)/dT, dCp = -T d2(dG)/dT2, ln K = -G/(RT) (the derivatives follow by autodiff).
 auto thermoPropertiesReaction_Vol_fT(real TK, real Pbar, const ReactionInputs& reaction, ThermoPropertiesReactionAD tpr) -> ThermoPropertiesReactionAD
 {
-    const double Vst = reaction.reference.reaction_volume.val; // J/bar
+    const real Vst = seeded(reaction.reference.reaction_volume, reaction.seed.dV); // J/bar
     const double Tst = reaction.Tr;                                    // K
     const double Pst = reaction.Pr / 1e5;                              // bar
     const auto a = reaction.coefficients;

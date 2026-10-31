@@ -39,9 +39,9 @@ auto hkfInputs(const std::vector<Scalar>& parameters, const HKFSpecies& species,
     HKFInputs out;
     out.symbol = species.symbol;
     out.parameters = parameters;
-    out.G = in.reference.G ? (*in.reference.G)[0] : 0.0;
-    out.H = in.reference.H ? (*in.reference.H)[0] : 0.0;
-    out.S = in.reference.S ? (*in.reference.S)[0] : 0.0;
+    out.G = in.reference.G ? *in.reference.G : Scalar(0.0);
+    out.H = in.reference.H ? *in.reference.H : Scalar(0.0);
+    out.S = in.reference.S ? *in.reference.S : Scalar(0.0);
     out.charge = species.charge;
     out.hydrogen_ion = species.hydrogen_ion;
     return out;
@@ -50,7 +50,7 @@ auto hkfInputs(const std::vector<Scalar>& parameters, const HKFSpecies& species,
 template <typename Scalar>
 auto soluteReference(const SubstanceInputs<Scalar>& in) -> SoluteReference
 {
-    auto value = [](const std::optional<Scalar>& x) { return x ? (*x)[0] : 0.0; };
+    auto value = [](const std::optional<Scalar>& x) { return x ? *x : Scalar(0.0); };
     return {in.reference.T, value(in.reference.G), value(in.reference.H), value(in.reference.S), value(in.reference.Cp), value(in.reference.V) / jPerBarToM3};
 }
 

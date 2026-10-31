@@ -5,6 +5,7 @@
 #define THERMOFUN_METHODS_REACTIONS_REACTIONMETHODS_H
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <ThermoFun/Methods/MethodSpec.h>
@@ -23,6 +24,13 @@ public:
 
     /// The properties at T (K) and P (Pa), from those of the method before it. solvent: for a method that needs it.
     virtual auto calculate(double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent* solvent) const -> ThermoPropertiesReaction = 0;
+
+    /// The names of the coefficients of the method.
+    virtual auto parameterNames() const -> std::vector<std::string> { return {}; }
+
+    /// The derivatives of the properties by one parameter: each val is a derivative, V in J/bar per unit. parameter: a name of parameterNames, or a reference
+    /// value (logK, dG, dH, dS, dCp, dV), or empty for what comes only from the method before. incoming: the values of that method, with their derivatives in ddt.
+    virtual auto parameterDerivative(const std::string& parameter, double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent* solvent) const -> ThermoPropertiesReaction = 0;
 };
 
 /// log K in one of its forms. The form ConstantCp is reduced to a simpler one if the record has fewer reference values.
