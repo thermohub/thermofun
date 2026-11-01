@@ -4,6 +4,8 @@
 #ifndef THERMOFUN_ENGINE_BINDING_H
 #define THERMOFUN_ENGINE_BINDING_H
 
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <algorithm>
 #include <functional>
 #include <map>
@@ -46,8 +48,17 @@ auto withParameterSets(std::shared_ptr<const Record> record, const std::map<std:
         return record;
     auto copy = std::make_shared<Record>(*record);
     for (auto& a : copy->methods)
-        if (const auto set = sets.find(a.parameter_set); !a.parameter_set.empty() && set != sets.end())
-            a.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
+    {
+        if (a.parameter_set.empty())
+            continue;
+        const auto set = sets.find(a.parameter_set);
+        const auto* found = set != sets.end() ? &set->second : parameterSetVariant(a.parameter_set);
+        if (!found)
+            funError("Cannot use the method " + a.method + " of " + record->symbol, "There is no parameter set " + a.parameter_set + ".", __LINE__, __FILE__);
+        a.parameters.insert(found->parameters.begin(), found->parameters.end());
+        if (a.implementation.empty())
+            a.implementation = found->implementation;
+    }
     return copy;
 }
 

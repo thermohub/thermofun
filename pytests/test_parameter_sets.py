@@ -269,3 +269,58 @@ def test_both_implementations_of_johnson_norton_agree_on_the_same_water():
         next(m for m in doc["substances"][solvent_symbol(doc)]["methods"] if m["method"] == "JohnsonNorton91")["implementation"] = implementation
         values[implementation] = epsilon(doc)
     assert values["gems"] == pytest.approx(values["reaktoro"], rel=1e-12)
+
+
+def test_each_method_has_one_default_set_and_a_file_named_after_it():
+    import pathlib
+    import re
+    folder = pathlib.Path(__file__).resolve().parent.parent / "ThermoFun" / "Methods" / "ParameterSets"
+    defaults = set()
+    for file in folder.glob("*.yaml"):
+        for block in re.split(r"(?m)^  (?=\w+:$)", file.read_text())[1:]:
+            method = re.search(r"^    method: (\S+)$", block, re.M).group(1)
+            assert file.stem.split("-")[0] == method, file.name
+            implementation = re.search(r"^    implementation: (\S+)$", block, re.M)
+            if not re.search(r"^    default: false$", block, re.M):
+                key = (method, implementation.group(1) if implementation else "")
+                assert key not in defaults, key
+                defaults.add(key)
+
+
+VARIANT_PROGRAM = """
+import json, sys
+import thermofun as tf
+doc = json.loads(tf.Database("pytests/data/v2/hkf.json").toJson(readable=False))
+method = next(m for m in doc["substances"]["Na+"]["methods"] if m["method"] == "HKF88")
+def gibbs():
+    return tf.ThermoEngine(tf.Database(json.dumps(doc))).thermoPropertiesSubstance(473.15, 5e7, "Na+").gibbs_energy.val
+plain = gibbs()
+method["parameter_set"] = "HKF88_test_variant_v1"
+named = gibbs()
+print(plain != named)
+"""
+
+
+def run_variant_program(folder):
+    import os
+    import subprocess
+    import sys
+    env = dict(os.environ, THERMOFUN_PARAMETER_PATH=str(folder))
+    return subprocess.run([sys.executable, "-c", VARIANT_PROGRAM], env=env, capture_output=True, text=True)
+
+
+def test_a_record_chooses_a_variant_from_a_folder_of_the_environment(tmp_path):
+    (tmp_path / "HKF88-test.yaml").write_text(
+        "thermohub: 2.0.0-draft.1\nparameter_sets:\n  HKF88_test_variant_v1:\n    method: HKF88\n    implementation: gems\n"
+        "    default: false\n    description: a variant for this test only, with another eta\n    reference: this test\n"
+        "    parameters:\n      eta: 1.7e+05\n")
+    done = run_variant_program(tmp_path)
+    assert done.returncode == 0, done.stderr[-500:]
+    assert done.stdout.strip().endswith("True")
+
+
+def test_an_unknown_variant_is_reported():
+    doc = json.loads(tf.Database("pytests/data/v2/hkf.json").toJson(readable=False))
+    next(m for m in doc["substances"]["Na+"]["methods"] if m["method"] == "HKF88")["parameter_set"] = "no_such_set"
+    with pytest.raises(Exception, match="no_such_set"):
+        gibbs(doc)

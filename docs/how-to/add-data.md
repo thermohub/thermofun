@@ -684,6 +684,17 @@ Some methods have constants that do not belong to one substance, for example the
 
 A record does not give them. To use another value, give it inline in the `parameters` of the method, or in a `parameter_set` of the same method. The value then holds only for that record. Where this is not possible, the page of the method says so.
 
+A model can have variants of these files. A record chooses one by its name, and a value given inline still wins:
+
+```
+methods:
+  - method: HKF88
+    parameter_set: HKF88_my_variant_v1
+    parameters: {a1: 1.0}
+```
+
+A variant has `default: false`. It can be in the library, in the `parameter_sets` of the file, in a `methods/parameter_sets` folder above the dataset, or in a folder named by the environment variable `THERMOFUN_PARAMETER_PATH`. Files in that variable's folders change nothing until a record names one of their sets.
+
 ## 10. Choose where properties come from
 
 A substance can have methods and also a defining reaction. A reaction can have methods and also reactants. The record says which one to use. You can change that in the engine.

@@ -113,10 +113,10 @@ int main(int argc, char** argv)
             FluidRecord record;
             record.lower_T = 200.0;
             record.formula = formula;
-            if (const auto set = builtinParameterSets().find(id); set != builtinParameterSets().end())
+            if (const auto* set = builtinConstants(id))
                 for (const auto& p : MethodCatalog::instance().find(id, OperatesOn::Substance)->parameters)
                     if (p.constant)
-                        record.constants.push_back(set->second.parameters.at(p.name).value);
+                        record.constants.push_back(set->parameters.at(p.name).value);
             return fluidMethod(id, std::move(parameters), record);
         };
         const std::vector<double> cubic = {190.56, 45.99e5, 0.0115, 0.0}, interaction = {190.56, 45.99e5, 0.0115, 0.0, 0.0, 0.0};

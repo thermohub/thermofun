@@ -30,20 +30,19 @@ namespace {
 /// The application with the built-in constants of its method, for each value that it does not give itself. An implementation can have its own.
 auto withConstants(MethodApplication application) -> MethodApplication
 {
-    const auto& sets = builtinParameterSets();
     std::string implementation = application.implementation;
     if (implementation.empty())
         if (const auto* spec = MethodCatalog::instance().find(application.method); spec && !spec->implementations.empty())
             implementation = spec->implementations.front();
-    auto set = sets.find(application.method + "/" + implementation);
-    if (set == sets.end())
-        set = sets.find(application.method);
-    if (set != sets.end())
+    if (const auto* set = builtinConstants(application.method, implementation))
     {
         // a constant the record gives must belong to this implementation, or nothing would read it
-        auto values = set->second.parameters;
+        auto values = set->parameters;
         if (implementation == "reaktoro" && (application.method == "WaterHGK84" || application.method == "WaterIAPWS95"))
-            values.insert(sets.at("WaterSaturation").parameters.begin(), sets.at("WaterSaturation").parameters.end());
+        {
+            const auto& saturation = builtinConstants("WaterSaturation")->parameters;
+            values.insert(saturation.begin(), saturation.end());
+        }
         if (const auto* spec = MethodCatalog::instance().find(application.method))
             for (const auto& p : spec->parameters)
                 if (p.constant && application.parameters.count(p.name) && !values.count(p.name))
@@ -264,7 +263,7 @@ MethodRegistry::MethodRegistry()
     solvent("WaterHGK84", "", hgkReaktoro);
     solvent("WaterHGK84", "reaktoro", hgkReaktoro);
     solvent("WaterHGK84", "gems", [](A a) {
-        return waterHGK84GemsMethod(makeWaterHGKgemsConstants(a.parameters, builtinParameterSets().at("JohnsonNorton91").parameters));
+        return waterHGK84GemsMethod(makeWaterHGKgemsConstants(a.parameters, builtinConstants("JohnsonNorton91")->parameters));
     });
     solvent("WaterIAPWS95", "", iapws);
     solvent("WaterIAPWS95", "reaktoro", iapws);
@@ -276,7 +275,7 @@ MethodRegistry::MethodRegistry()
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
     dielectric("JohnsonNorton91", "gems", [](A a) {
-        return johnsonNorton91GemsMethod(makeWaterHGKgemsConstants(builtinParameterSets().at("WaterHGK84/gems").parameters, a.parameters));
+        return johnsonNorton91GemsMethod(makeWaterHGKgemsConstants(builtinConstants("WaterHGK84", "gems")->parameters, a.parameters));
     });
     dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
     dielectric("FernandezEtAl97", "", [](A a) { return fernandezEtAl97Method(constantsOf(a)); });

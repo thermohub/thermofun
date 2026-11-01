@@ -155,14 +155,18 @@ void exportMethods(py::module& parent)
             }
             row["parameters"] = parameters;
             py::list constantSets;
-            for (const auto& [key, set] : v2::builtinParameterSets())
-                if (set.method == spec.id || (set.method == "WaterSaturation" && (spec.id == "WaterHGK84" || spec.id == "WaterIAPWS95")))
+            auto addSets = [&](const std::string& method) {
+                for (const auto& set : v2::builtinSetsOf(method))
                 {
                     py::dict one;
-                    one["symbol"] = set.symbol; one["implementation"] = set.implementation;
+                    one["symbol"] = set.symbol; one["implementation"] = set.implementation; one["default"] = set.is_default;
                     one["description"] = set.description; one["reference"] = set.reference;
                     constantSets.append(one);
                 }
+            };
+            addSets(spec.id);
+            if (spec.id == "WaterHGK84" || spec.id == "WaterIAPWS95")
+                addSets("WaterSaturation");
             row["constant_sets"] = constantSets;
             out.append(row);
         }

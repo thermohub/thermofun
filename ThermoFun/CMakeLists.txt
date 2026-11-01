@@ -91,7 +91,7 @@ endif()
 # (the folders "detail" hold headers that use nlohmann_json; they are not installed, nor the inside of the engine)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
+    FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h" PATTERN "*.yaml" PATTERN "README.md"
     PATTERN "detail" EXCLUDE
     PATTERN "DatabaseImpl.h" EXCLUDE
     PATTERN "ThermoEngineImpl.h" EXCLUDE)

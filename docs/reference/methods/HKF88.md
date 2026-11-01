@@ -37,15 +37,15 @@ Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
-Implementation `gems`.
-
-Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code.
-
-Source: Tanger and Helgeson (1988); Shock et al. (1992).
-
 Implementation `reaktoro`.
 
 Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code.
+
+Source: Tanger and Helgeson (1988); Shock et al. (1992).
+
+Implementation `gems`.
+
+Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code.
 
 Source: Tanger and Helgeson (1988); Shock et al. (1992).
 

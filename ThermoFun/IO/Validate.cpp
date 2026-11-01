@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include "Validate.h"
 
 #include <algorithm>
@@ -64,7 +65,7 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
         for (const auto& set : records.parameter_sets)
             if (set.symbol == symbol)
                 return &set;
-        return nullptr;
+        return parameterSetVariant(symbol);
     };
     int index = 0;
     for (const auto& app : methods)

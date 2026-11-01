@@ -19,6 +19,7 @@ struct MethodParameterSet
     std::string implementation;                    ///< empty: all the implementations of the method
     std::map<std::string, Quantity> parameters;
     std::map<std::string, Quantity> auxiliary;
+    bool is_default = true;                        ///< false: only a record that names it uses it
     std::string description;                       ///< what the values are, and their units
     std::string reference;                         ///< symbol of a data source
     std::string extra_json;

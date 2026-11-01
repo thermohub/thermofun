@@ -265,7 +265,7 @@ auto waterHGK84GemsProperties(double T, double& P, int state, const std::string&
 
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent
 {
-    static const auto constants = makeWaterHGKgemsConstants(builtinParameterSets().at("WaterHGK84/gems").parameters, builtinParameterSets().at("JohnsonNorton91").parameters);
+    static const auto constants = makeWaterHGKgemsConstants(builtinConstants("WaterHGK84", "gems")->parameters, builtinConstants("JohnsonNorton91")->parameters);
     return waterHGK84GemsProperties(T, P, state, triple, *constants);
 }
 

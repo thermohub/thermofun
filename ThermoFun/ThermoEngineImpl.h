@@ -285,7 +285,7 @@ struct ThermoEngine::Impl
     auto dataPressure(double T, const Substance& substance) const -> double;
     static auto waterCriticalT() -> double
     {
-        static const double T = v2::builtinParameterSets().at("WaterSaturation").parameters.at("Tcr").value;
+        static const double T = v2::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
         return T;
     }
 
