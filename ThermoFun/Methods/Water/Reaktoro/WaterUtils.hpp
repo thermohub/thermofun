@@ -22,19 +22,21 @@
 // Reaktoro includes (modified DM 11.05.2016)
 #include <ThermoFun/Common/Real.hpp>
 
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzConstants.hpp>
+
 namespace ThermoFun {
 
 /// Calculate the density of water using the Haar-Gallagher-Kell (1984) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The density of water (in units of kg/m3)
-auto waterDensityHGK(real T, real P, int state) -> real;
+auto waterDensityHGK(real T, real P, int state, const HGKConstants& constants) -> real;
 
 /// Calculate the density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The density of water (in units of kg/m3)
-auto waterDensityWagnerPruss(real T, real P, int state) -> real;
+auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> real;
 
 /// Calculate the saturated pressure of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)

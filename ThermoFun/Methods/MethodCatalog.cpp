@@ -189,6 +189,12 @@ auto numbered(const char* prefix, int count, const char* description) -> std::ve
     return out;
 }
 
+/// name_1, name_2, ...: an array of the formulas, built in
+auto listed(const std::string& name, int count) -> std::vector<ParameterSpec>
+{
+    return numbered((name + "_").c_str(), count, "see Methods/ParameterSets");
+}
+
 auto substanceMethods() -> std::vector<MethodSpec>
 {
     std::vector<Spec> m;
@@ -354,9 +360,10 @@ auto substanceMethods() -> std::vector<MethodSpec>
         return s;
     };
     m.push_back(waterEoS(Spec("WaterHGK84", "Water, Haar-Gallagher-Kell", "Calculates the properties of water from the HGK equation of state.", "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983)")
-                             .alias({"WaterHGK", "WaterHGKGems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro", "gems"})));
+                             .alias({"WaterHGK", "WaterHGKGems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro", "gems"}).add(listed("A0", 18)).add(listed("A1", 5)).add(listed("yc", 4)).add(listed("ki", 36)).add(listed("li", 36)).add(listed("A3", 36)).add(listed("mi", 4)).add(listed("ni", 4)).add(listed("alpha", 4)).add(listed("beta", 4)).add(listed("ri", 4)).add(listed("ti", 4)).add(listed("A4", 4))
+                             .add(constants({{"referenceTemperature", "K"}, {"referenceDensity", "kg/m3"}, {"referenceHelmholtz", "J/kg"}, {"A20", "coefficient"}, {"z0", "coefficient"}}))));
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
-                             .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"})));
+                             .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"}).add(listed("no", 9)).add(listed("gammao", 5)).add(listed("c", 55)).add(listed("d", 55)).add(listed("t", 55)).add(listed("n", 57)).add(listed("alpha", 3)).add(listed("beta", 3)).add(listed("gamma", 3)).add(listed("epsilon", 3)).add(listed("a", 2)).add(listed("b", 2)).add(listed("A", 2)).add(listed("B", 2)).add(listed("C", 2)).add(listed("F", 2)).add(listed("E", 2)).add(numbered("sat_a", 6, "coefficient of the saturation pressure"))));
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
                              .add(zhangDuanGibbs())));

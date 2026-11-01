@@ -84,37 +84,37 @@ auto hgk84GemsSubstance(double T, double& P, int state, const std::string& tripl
     return tps;
 }
 
-auto hgk84ReaktoroProperties(double T, double& P, int state) -> PropertiesSolvent
+auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants& constants) -> PropertiesSolvent
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterHGKreaktoro(waterThermoStateHGK(pass.T, pass.P, state));
+        return propertiesWaterHGKreaktoro(waterThermoStateHGK(pass.T, pass.P, state, constants));
     });
 }
 
-auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple) -> ThermoPropertiesSubstance
+auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKConstants& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
     WaterTripleProperties wtr = waterTripleData.at(triple);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state), wtr);
+        return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state, constants), wtr);
     });
 }
 
-auto iapws95ReaktoroProperties(double T, double& P, int state) -> PropertiesSolvent
+auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPrussConstants& constants) -> PropertiesSolvent
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterWP95reaktoro(waterThermoStateWagnerPruss(pass.T, pass.P, state));
+        return propertiesWaterWP95reaktoro(waterThermoStateWagnerPruss(pass.T, pass.P, state, constants));
     });
 }
 
-auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple) -> ThermoPropertiesSubstance
+auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
     WaterTripleProperties wtr = waterTripleData.at(triple);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state), wtr);
+        return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state, constants), wtr);
     });
 }
 
@@ -271,16 +271,57 @@ auto waterHGK84GemsMethod() -> std::shared_ptr<const SolventMethod>
     return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "gems", waterHGK84GemsProperties, hgk84GemsSubstance, true);
 }
 
-auto waterHGK84ReaktoroMethod() -> std::shared_ptr<const SolventMethod>
+namespace {
+
+/// The values name_1, name_2, ... of a method.
+template <typename Number = double>
+auto listOf(const MethodApplication& a, const std::string& name) -> std::vector<Number>
 {
-    return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "reaktoro",
-        [](double T, double& P, int state, const std::string&) { return hgk84ReaktoroProperties(T, P, state); }, hgk84ReaktoroSubstance, true);
+    std::vector<Number> out;
+    for (int i = 1;; ++i)
+    {
+        const auto it = a.parameters.find(name + "_" + std::to_string(i));
+        if (it == a.parameters.end())
+            break;
+        out.push_back(static_cast<Number>(it->second.value));
+    }
+    if (out.empty())
+        funError("Cannot make the method " + a.method, "It has no values of " + name + ".", __LINE__, __FILE__);
+    return out;
 }
 
-auto waterIAPWS95ReaktoroMethod() -> std::shared_ptr<const SolventMethod>
+auto valueOf(const MethodApplication& a, const char* name) -> double
 {
+    const auto it = a.parameters.find(name);
+    if (it == a.parameters.end())
+        funError("Cannot make the method " + a.method, std::string("It has no value of ") + name + ".", __LINE__, __FILE__);
+    return it->second.value;
+}
+
+} // namespace
+
+auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
+{
+    HGKConstants k;
+    k.A0 = listOf(a, "A0"); k.A1 = listOf(a, "A1"); k.yc = listOf(a, "yc"); k.A3 = listOf(a, "A3"); k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta");
+    k.ri = listOf(a, "ri"); k.ti = listOf(a, "ti"); k.A4 = listOf(a, "A4");
+    k.ki = listOf<int>(a, "ki"); k.li = listOf<int>(a, "li"); k.mi = listOf<int>(a, "mi"); k.ni = listOf<int>(a, "ni");
+    k.referenceTemperature = valueOf(a, "referenceTemperature"); k.referenceDensity = valueOf(a, "referenceDensity"); k.referenceHelmholtz = valueOf(a, "referenceHelmholtz");
+    k.referenceVolume = 1.0 / k.referenceDensity; k.A20 = valueOf(a, "A20"); k.z0 = valueOf(a, "z0");
+    return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "reaktoro",
+        [k](double T, double& P, int state, const std::string&) { return hgk84ReaktoroProperties(T, P, state, k); },
+        [k](double T, double& P, int state, const std::string& triple) { return hgk84ReaktoroSubstance(T, P, state, triple, k); }, true);
+}
+
+auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
+{
+    WagnerPrussConstants k;
+    k.no = listOf(a, "no"); k.gammao = listOf(a, "gammao"); k.c = listOf(a, "c"); k.d = listOf(a, "d"); k.t = listOf(a, "t"); k.n = listOf(a, "n");
+    k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta"); k.gamma = listOf(a, "gamma"); k.epsilon = listOf(a, "epsilon");
+    k.a = listOf(a, "a"); k.b = listOf(a, "b"); k.A = listOf(a, "A"); k.B = listOf(a, "B"); k.C = listOf(a, "C"); k.F = listOf(a, "F"); k.E = listOf(a, "E");
     return std::make_shared<const FunctionSolventMethod>("WaterIAPWS95", "reaktoro",
-        [](double T, double& P, int state, const std::string&) { return iapws95ReaktoroProperties(T, P, state); }, iapws95ReaktoroSubstance, false);
+        [k](double T, double& P, int state, const std::string&) { return iapws95ReaktoroProperties(T, P, state, k); },
+        [k](double T, double& P, int state, const std::string& triple) { return iapws95ReaktoroSubstance(T, P, state, triple, k); }, true);
 }
 
 auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>

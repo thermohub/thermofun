@@ -22,6 +22,8 @@
 #include <ThermoFun/Common/Real.hpp>
 
 
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzConstants.hpp>
+
 namespace ThermoFun {
 
 // Forward declarations
@@ -34,14 +36,14 @@ class Substance;
 /// @param P The pressure of water (in units of Pa)
 /// @return The thermodynamic state of water
 /// @see WaterThermoState
-auto waterThermoStateHGK(real T, real P, int state) -> WaterThermoState;
+auto waterThermoStateHGK(real T, real P, int state, const HGKConstants& constants) -> WaterThermoState;
 
 /// Calculate the thermodynamic state of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @param P The pressure of water (in units of Pa)
 /// @return The thermodynamic state of water
 /// @see WaterThermoState
-auto waterThermoStateWagnerPruss(real T, real P, int state) -> WaterThermoState;
+auto waterThermoStateWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> WaterThermoState;
 
 /// Calculate the thermodynamic state of water.
 /// This is a general method that uses the Helmholtz free energy state

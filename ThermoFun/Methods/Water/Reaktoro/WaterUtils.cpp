@@ -25,6 +25,9 @@
 #include <Methods/Water/Reaktoro/WaterHelmholtzStateHGK.hpp>
 #include <Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
 #include <Methods/Water/Reaktoro/WaterHelmholtzState.hpp>
+#include <ThermoFun/Model/BuiltinParameterSets.h>
+
+#include <vector>
 
 namespace ThermoFun {
 
@@ -83,24 +86,27 @@ auto waterDensity(real T, real P, int solvent_state, const HelmholtsModel& model
     return {};
 }
 
-auto waterDensityHGK(real T, real P, int state) -> real
+auto waterDensityHGK(real T, real P, int state, const HGKConstants& constants) -> real
 {
-    return waterDensity(T, P, state, waterHelmholtzStateHGK);
+    return waterDensity(T, P, state, [&constants](real t, real d) { return waterHelmholtzStateHGK(t, d, constants); });
 }
 
-auto waterDensityWagnerPruss(real T, real P, int state) -> real
+auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> real
 {
-    return waterDensity(T, P, state, waterHelmholtzStateWagnerPruss);
+    return waterDensity(T, P, state, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); });
 }
 
 auto waterSaturatedPressureWagnerPruss(real T) -> real
 {
-    const double a1 = -7.85951783;
-    const double a2 =  1.84408259;
-    const double a3 = -11.7866497;
-    const double a4 =  22.6807411;
-    const double a5 = -15.9618719;
-    const double a6 =  1.80122502;
+    // the same for every water method, read once
+    static const std::vector<double> a = [] {
+        const auto& set = v2::builtinParameterSets().at("WaterIAPWS95/reaktoro");
+        std::vector<double> out;
+        for (const char* name : {"sat_a1", "sat_a2", "sat_a3", "sat_a4", "sat_a5", "sat_a6"})
+            out.push_back(set.parameters.at(name).value);
+        return out;
+    }();
+    const double a1 = a[0], a2 = a[1], a3 = a[2], a4 = a[3], a5 = a[4], a6 = a[5];
 
     const double Tcr = waterCriticalTemperature;
     const double Pcr = waterCriticalPressure;

@@ -8,19 +8,20 @@
 #include <string>
 
 #include <ThermoFun/Methods/Water/SolventMethod.h>
+#include <ThermoFun/Model/MethodApplication.h>
 #include <ThermoFun/Methods/Water/WaterZhangDuan2005.h>
 
 namespace ThermoFun::v2 {
 
 /// WaterHGK84: implementation gems (the code of SUPCRT and GEMS, with the LVS equation near the critical point), or reaktoro.
 auto waterHGK84GemsMethod() -> std::shared_ptr<const SolventMethod>;
-auto waterHGK84ReaktoroMethod() -> std::shared_ptr<const SolventMethod>;
+auto waterHGK84ReaktoroMethod(const MethodApplication& application) -> std::shared_ptr<const SolventMethod>;
 
 /// The properties of water as a solvent from the code of GEMS, in the reference of the triple point given by its name.
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent;
 
 /// WaterIAPWS95, implementation reaktoro
-auto waterIAPWS95ReaktoroMethod() -> std::shared_ptr<const SolventMethod>;
+auto waterIAPWS95ReaktoroMethod(const MethodApplication& application) -> std::shared_ptr<const SolventMethod>;
 
 /// WaterZhangDuan05: the volume, the density and its derivatives; with the option of DEW, also G (P >= 1 kbar).
 auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>;

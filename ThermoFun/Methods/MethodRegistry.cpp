@@ -248,8 +248,8 @@ MethodRegistry::MethodRegistry()
     auto dielectric = [this](const char* id, const char* implementation, DielectricFactory f) {
         dielectric_[{id, implementation}] = std::move(f);
     };
-    SolventFactory hgkReaktoro = [](A) { return waterHGK84ReaktoroMethod(); };
-    SolventFactory iapws = [](A) { return waterIAPWS95ReaktoroMethod(); };
+    SolventFactory hgkReaktoro = [](A a) { return waterHGK84ReaktoroMethod(a); };
+    SolventFactory iapws = [](A a) { return waterIAPWS95ReaktoroMethod(a); };
     solvent("WaterHGK84", "", hgkReaktoro);
     solvent("WaterHGK84", "reaktoro", hgkReaktoro);
     solvent("WaterHGK84", "gems", [](A) { return waterHGK84GemsMethod(); });
