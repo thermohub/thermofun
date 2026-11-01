@@ -3,6 +3,7 @@
 
 // ThermoFun includes
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Common/PhysicalConstants.h>
 
 namespace ThermoFun
 {
@@ -277,7 +278,58 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     s.dataset_version = info.version;
     s.content_hash = sha256(database.toJson(false));
     s.implementations = pimpl->preferences.method_implementation;
+    s.physical_constants = PHYSICAL_CONSTANTS_NAME;
+    const auto& p = pimpl->preferences;
+    if (database.containsSubstance(p.solvent_symbol))
+    {
+        s.water_symbol = p.solvent_symbol;
+        s.water_methods = calculationPath(p.solvent_symbol).methods;
+    }
+    const EnginePreferences defaults;
+    const auto word = [](bool value) { return std::string(value ? "true" : "false"); };
+    if (p.solvent_state != defaults.solvent_state) s.options["solvent_state"] = std::to_string(p.solvent_state);
+    if (p.fallback_to_reference_properties != defaults.fallback_to_reference_properties) s.options["fallback_to_reference_properties"] = word(p.fallback_to_reference_properties);
+    if (p.apply_pressure_correction_to_gas_props != defaults.apply_pressure_correction_to_gas_props) s.options["apply_pressure_correction_to_gas_props"] = word(p.apply_pressure_correction_to_gas_props);
+    if (p.cancel_fugacity_coefficient_in_gas_props != defaults.cancel_fugacity_coefficient_in_gas_props) s.options["cancel_fugacity_coefficient_in_gas_props"] = word(p.cancel_fugacity_coefficient_in_gas_props);
+    if (p.round_to_uncertainty != defaults.round_to_uncertainty) s.options["round_to_uncertainty"] = word(p.round_to_uncertainty);
+    if (p.uncertainty_significant_digits != defaults.uncertainty_significant_digits) s.options["uncertainty_significant_digits"] = std::to_string(p.uncertainty_significant_digits);
+    if (p.propagate_parameter_errors != defaults.propagate_parameter_errors) s.options["propagate_parameter_errors"] = word(p.propagate_parameter_errors);
+    if (p.property_source != defaults.property_source) s.options["property_source"] = v2::toString(p.property_source);
+    const auto& c = pimpl->conventions;
+    s.conventions["energy_reference"] = v2::toString(c.energy_reference);
+    s.conventions["standard_pressure"] = v2::toString(c.standard_pressure);
+    s.conventions["concentration_scale"] = v2::toString(c.concentration_scale);
+    s.conventions["water_reference"] = v2::toString(c.water_reference);
     return s;
+}
+
+auto snapshotLines(const CalculationSnapshot& s) -> std::vector<std::string>
+{
+    const auto joined = [](const std::map<std::string, std::string>& items) {
+        std::string out;
+        for (const auto& [key, value] : items)
+            out += (out.empty() ? "" : ", ") + key + " = " + value;
+        return out;
+    };
+    std::vector<std::string> lines;
+    lines.push_back("ThermoFun " + (s.thermofun_version.empty() ? std::string("(version not known)") : s.thermofun_version) + ", physical constants " + s.physical_constants);
+    std::string data = "data: format " + s.format_version;
+    if (!s.dataset.empty())
+        data += ", dataset " + s.dataset + (s.dataset_version.empty() ? "" : " " + s.dataset_version);
+    lines.push_back(data + ", sha256 " + s.content_hash);
+    if (!s.water_symbol.empty())
+    {
+        std::string water = "water: " + s.water_symbol + ":";
+        for (std::size_t i = 0; i < s.water_methods.size(); ++i)
+            water += (i ? ", " : " ") + s.water_methods[i];
+        lines.push_back(water);
+    }
+    lines.push_back("conventions: " + joined(s.conventions));
+    if (!s.options.empty())
+        lines.push_back("options: " + joined(s.options));
+    if (!s.implementations.empty())
+        lines.push_back("implementations: " + joined(s.implementations));
+    return lines;
 }
 
 auto ThermoEngine::consistencyReport(const std::vector<std::pair<double, double>>& TP, const ConsistencyOptions& options) const -> std::vector<ConsistencyItem>

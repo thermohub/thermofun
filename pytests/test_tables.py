@@ -31,7 +31,7 @@ def batch():
 
 def rows_of(path):
     with open(path) as f:
-        return list(csv.reader(f))
+        return list(csv.reader(line for line in f if not line.startswith("#")))
 
 
 def test_the_numbers_are_those_of_toCSV(tmp_path):
@@ -153,7 +153,7 @@ def test_a_wrong_setup_says_why(bad, text):
 
 
 def test_markdown_and_latex(tmp_path):
-    table = tf.table(setup())["t"]
+    table = tf.table(setup(provenance="none"))["t"]
     md, tex = table.write(str(tmp_path / "a.md")), table.write(str(tmp_path / "a.tex"))
     assert open(md).read().startswith("| Symbol |")
     text = open(tex).read()
@@ -184,7 +184,7 @@ def test_the_command_writes_the_files(tmp_path, monkeypatch):
     (tmp_path / "setup.yaml").write_text(f"database: {AQ}\nconditions:\n  T: [298.15]\n  P: [100000.0]\ntables:\n  - name: s\n    records: [Ca+2]\n    columns: [G]\n    output: out.md\n")
     monkeypatch.chdir(tmp_path)
     assert tf.tables.main(["setup.yaml"]) == 0
-    assert (tmp_path / "out.md").read_text().startswith("| Symbol")
+    assert "| Symbol" in (tmp_path / "out.md").read_text()
 
 
 def test_each_template_makes_its_tables():

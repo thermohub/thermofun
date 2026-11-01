@@ -15,6 +15,10 @@ In Python:
     setup.column("G", unit="J/mol", digits=1)
     results = setup.run()
 
+    records = {"class": "aqueous_solute", "elements": ["Ca"]}             # a rule instead of a list
+    setup = tf.tables.template(["species-properties", "batch-saturation"], database=engine, records=records)
+    setup.batch().run().toCSV("out.csv")                                  # the same setup as a ThermoBatch
+
 See docs/how-to/make-tables.md.
 """
 
@@ -70,6 +74,20 @@ class Setup:
         self.core.addColumnFromJson(json.dumps({"property": name, **settings}), table)
         return self
 
+    def use(self, name):
+        """Puts a template under the settings: what it says replaces what the setup says."""
+        self.core.useTemplate(name)
+        return self
+
+    def batch(self, table=""):
+        """One table as a calculation of ThermoBatch. Its .run() gives the Output, and its .write() writes the file."""
+        return self.core.batch(table)
+
+    def apply_to(self, batch, table=""):
+        """Sets the units, digits and preferences of a ThermoBatch that you have, from one table."""
+        self.core.applyTo(batch, table)
+        return batch
+
     def remove_column(self, name, table=""):
         """Removes a column."""
         self.core.removeColumn(name, table)
@@ -110,9 +128,32 @@ def templates():
     return dict(_tf.TableSetup.templates())
 
 
+def template_source(name):
+    """Where a template comes from: the path of its file, or "library"."""
+    return _tf.TableSetup.templateSource(name)
+
+
+def template_folders():
+    """The folders of THERMOFUN_TEMPLATE_PATH."""
+    return _tf.TableSetup.templateFolders()
+
+
+def select_substances(database, rule):
+    """The substances that a rule chooses, for example {"class": "aqueous_solute", "elements": ["Ca"]}."""
+    return _tf.selectSubstances(_database_of(database), rule)
+
+
+def select_reactions(database, rule):
+    """The reactions that a rule chooses, for example {"involving": ["Calcite"]}."""
+    return _tf.selectReactions(_database_of(database), rule)
+
+
 def template(name, database=None, **settings):
-    """A Setup from a template, with your records and any setting of Setup.set."""
-    made = Setup(_tf.TableSetup.fromTemplate(name))
+    """A Setup from a template or a list of templates, with your records and any setting of Setup.set."""
+    names = [name] if isinstance(name, str) else list(name)
+    made = Setup(_tf.TableSetup.fromTemplate(names[0]))
+    for other in names[1:]:
+        made.use(other)
     if database is not None:
         made.set(database=database)
     return made.set(**settings) if settings else made

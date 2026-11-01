@@ -170,7 +170,13 @@ void exportThermoEngine(py::module& m)
         .def_readonly("dataset", &CalculationSnapshot::dataset)
         .def_readonly("dataset_version", &CalculationSnapshot::dataset_version)
         .def_readonly("content_hash", &CalculationSnapshot::content_hash)
-        .def_readonly("implementations", &CalculationSnapshot::implementations);
+        .def_readonly("implementations", &CalculationSnapshot::implementations)
+        .def_readonly("physical_constants", &CalculationSnapshot::physical_constants)
+        .def_readonly("water_symbol", &CalculationSnapshot::water_symbol)
+        .def_readonly("water_methods", &CalculationSnapshot::water_methods)
+        .def_readonly("options", &CalculationSnapshot::options)
+        .def_readonly("conventions", &CalculationSnapshot::conventions)
+        .def("lines", &snapshotLines, "The snapshot as short lines of text");
 
     const auto sensitivities = [](const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
         std::vector<ParameterRef> out;

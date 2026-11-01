@@ -48,6 +48,7 @@ auto Output::toCSV(std::string filename) -> void
 {
     pimpl->fProperties.open( filename, std::ios::trunc );
 
+    foutProvenance();
     pimpl->fProperties << CSVHeader() << std::endl;
 
     foutResults();
@@ -59,6 +60,7 @@ auto Output::toCSVTransposed(std::string filename) -> void
 {
     pimpl->fProperties.open( filename, std::ios::trunc );
 
+    foutProvenance();
     pimpl->fProperties << CSVHeaderTransposed() << std::endl;
 
     foutResultsTransposed();
@@ -73,6 +75,7 @@ auto Output::toCSVPropertyGrid(std::string filename) -> void
     {
         pimpl->fProperties.open(std::string(properties[i]+"_"+filename), std::ios::trunc );
 
+        foutProvenance();
         pimpl->fProperties << CSVHeaderPropertyGrid() << std::endl;
 
         foutPropertyGrid(properties[i], i);
@@ -106,6 +109,18 @@ auto Output::to2DVectorDouble() -> std::vector<std::vector<double>>
             vectorD[i][j] = vectorTS[i][j].val;
     }
     return vectorD;
+}
+
+auto Output::provenance() -> std::vector<std::string>
+{
+    return pimpl->api.provenance();
+}
+
+auto Output::foutProvenance() -> void
+{
+    if (pimpl->api.outputSettings().writeProvenance)
+        for (const auto& line : provenance())
+            pimpl->fProperties << "# " << line << std::endl;
 }
 
 auto Output::CSVHeader( ) -> std::string

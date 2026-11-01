@@ -69,6 +69,12 @@ struct BatchPreferences
      * @value False wrtites the calculated value, danger - this value is probably not correct
      */
     bool writeNaNifNotDefinedValue = true;
+
+    /// True: a CSV file starts with lines "# ..." that say how it was made (see Output::provenance)
+    bool writeProvenance = false;
+
+    /// Lines that go before those of the engine: where the setup came from
+    std::vector<std::string> provenanceNotes;
 };
 
 ///
@@ -143,6 +149,14 @@ public:
     BatchPreferences& preferences();
     const BatchPreferences& preferences() const;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
+
+    /// The substances or reactions of the database that a rule chooses, for example "{class: aqueous_solute, elements: [Ca]}".
+    /// See selectSubstances in Batch/RecordRules.h.
+    auto selectSubstances           (const std::string &rule) const -> vstr;
+    auto selectReactions            (const std::string &rule) const -> vstr;
+
+    /// What the results depend on: lines of text from the engine (see ThermoEngine::snapshot)
+    auto provenance                 () const -> vstr;
 
     auto temperatureIncrement  () -> const std::map<std::string, double>&;
     auto pressureIncrement  () -> const std::map<std::string, double>&;

@@ -30,6 +30,7 @@ def test_the_code_of_a_page_runs(page, tmp_path, monkeypatch):
     names = {}
     for match in BLOCK.finditer(text):
         if match["file"]:
+            (tmp_path / match["file"]).parent.mkdir(parents=True, exist_ok=True)
             (tmp_path / match["file"]).write_text(match["text"])
         elif match["kind"] == "python":
             exec(compile(match["text"], page.name, "exec"), names)

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <regex>
@@ -432,7 +433,12 @@ auto parseText(const std::string& text) -> json
     const auto start = text.find_first_not_of(" \t\r\n");
     try
     {
-        return json::parse(start != std::string::npos && text[start] == '{' ? text : v2::yamlToJson(text));
+        if (start == std::string::npos || text[start] != '{')
+            return json::parse(v2::yamlToJson(text));
+        if (json::accept(text))
+            return json::parse(text);
+        // {a: 1} is YAML too, and the reader of YAML starts from a block
+        return json::parse(v2::yamlToJson("setup: " + text))["setup"];
     }
     catch (const std::exception& error)
     {
@@ -450,6 +456,36 @@ auto readFile(const std::string& path) -> std::string
     return text.str();
 }
 
+auto folderList() -> std::vector<std::string>
+{
+    std::vector<std::string> out;
+    const char* value = std::getenv("THERMOFUN_TEMPLATE_PATH");
+    std::stringstream folders(value ? value : "");
+#ifdef _WIN32
+    const char separator = ';';
+#else
+    const char separator = ':';
+#endif
+    for (std::string folder; std::getline(folders, folder, separator);)
+        if (!folder.empty())
+            out.push_back(folder);
+    return out;
+}
+
+/// The files of the template folders: the first folder that has a name wins.
+auto userTemplateFiles() -> std::map<std::string, std::filesystem::path>
+{
+    std::map<std::string, std::filesystem::path> out;
+    for (const auto& folder : folderList())
+    {
+        std::error_code ignored;
+        for (const auto& entry : std::filesystem::directory_iterator(folder, ignored))
+            if (const auto extension = entry.path().extension(); extension == ".yaml" || extension == ".yml")
+                out.emplace(entry.path().stem().string(), entry.path());
+    }
+    return out;
+}
+
 auto templateFile(const std::string& name) -> const v2::detail::BuiltinFile*
 {
     for (unsigned long i = 0; i < v2::detail::builtin_table_template_count; ++i)
@@ -461,6 +497,201 @@ auto templateFile(const std::string& name) -> const v2::detail::BuiltinFile*
 auto textOf(const v2::detail::BuiltinFile& file) -> std::string
 {
     return std::string(reinterpret_cast<const char*>(file.text), file.size);
+}
+
+auto describedBy(const std::string& text) -> std::string
+{
+    const std::string first = text.substr(0, text.find('\n'));
+    return first.rfind("# ", 0) == 0 ? first.substr(2) : first;
+}
+
+/// Puts `over` on `base`: its settings replace those of the setup and of its tables, and a table of the same name changes that table.
+auto mergeOver(json& base, const json& over) -> void
+{
+    const auto eachColumn = [&](auto&& f) {
+        if (base.contains("tables"))
+            for (auto& table : base["tables"])
+                if (table.contains("columns"))
+                    for (auto& column : table["columns"])
+                        if (column.is_object())
+                            f(column);
+    };
+    for (const auto& item : over.items())
+    {
+        const auto& key = item.key();
+        if (key == "tables")
+            continue;
+        if (key == "from_templates")
+        {
+            if (!base.contains(key))
+                base[key] = json::array();
+            for (const auto& name : item.value())
+                base[key].push_back(name);
+            continue;
+        }
+        if (key == "conditions")
+        {
+            if (!base.contains(key))
+                base[key] = json::object();
+            base[key].update(item.value());
+            if (base.contains("tables"))
+                for (auto& table : base["tables"])
+                    if (table.contains(key))
+                        table[key].update(item.value());
+            continue;
+        }
+        base[key] = item.value();
+        if (base.contains("tables"))
+            for (auto& table : base["tables"])
+                table.erase(key);
+        // a unit or digits for a property replace those that a column of a template has
+        if (key == "units" && item.value().is_object())
+            eachColumn([&](json& column) {
+                if (item.value().contains(column.value("property", "")))
+                    column.erase("unit");
+            });
+        if (key == "digits")
+            eachColumn([&](json& column) {
+                if (item.value().is_number() || item.value().contains(column.value("property", "")))
+                    column.erase("digits");
+            });
+    }
+    if (!over.contains("tables"))
+        return;
+    if (!base.contains("tables"))
+        base["tables"] = json::array();
+    for (const auto& table : over["tables"])
+    {
+        const std::string name = stringOr(table, "name", "");
+        const auto same = std::find_if(base["tables"].begin(), base["tables"].end(), [&](const json& t) { return !name.empty() && stringOr(t, "name", "") == name; });
+        if (same == base["tables"].end())
+            base["tables"].push_back(table);
+        else
+            same->update(table);
+    }
+}
+
+/// Replaces the key `template` by what the templates say, under what the document says.
+auto expandTemplates(json document, std::vector<std::string> chain = {}) -> json
+{
+    if (!document.contains("template"))
+        return document;
+    const json node = document["template"];
+    document.erase("template");
+    json result = json::object();
+    result["from_templates"] = json::array();
+    for (const auto& item : node.is_array() ? node : json::array({node}))
+    {
+        if (!item.is_string())
+            fail("template has a value that is not a name: " + item.dump() + ".");
+        const auto name = item.get<std::string>();
+        if (std::find(chain.begin(), chain.end(), name) != chain.end())
+            fail("The template " + name + " uses itself.");
+        auto next = chain;
+        next.push_back(name);
+        mergeOver(result, expandTemplates(parseText(TableSetup::templateText(name)), next));
+        result["from_templates"].push_back(name);
+    }
+    mergeOver(result, document);
+    return result;
+}
+
+const std::vector<std::string> tableKeys = {"database", "conditions", "tables", "template", "from_templates", "name", "description", "records", "reactions", "columns", "layout", "across", "loop",
+                                            "format", "digits", "digits_T", "digits_P", "units", "separator", "not_defined", "write_not_defined", "output", "format_file", "provenance", "options",
+                                            "conventions", "solvent", "source", "sources", "compare"};
+const std::vector<std::string> conditionKeys = {"T", "P", "pairs", "order"};
+const std::vector<std::string> columnKeys = {"property", "show", "unit", "digits", "format", "label"};
+const std::vector<std::string> compareKeys = {"label", "replace", "options", "conventions", "database"};
+
+auto checkKeys(const json& node, const std::vector<std::string>& known, const std::string& where) -> void
+{
+    if (!node.is_object())
+        return;
+    for (const auto& item : node.items())
+        if (std::find(known.begin(), known.end(), item.key()) == known.end())
+            fail(detail::unknownKeyMessage(where, item.key(), known));
+}
+
+auto checkTable(const json& spec, const std::string& name) -> void
+{
+    const std::string where = "The table " + name;
+    checkKeys(spec, tableKeys, where);
+    if (spec.contains("conditions"))
+        checkKeys(spec["conditions"], conditionKeys, "The conditions of the table " + name);
+    if (spec.contains("columns"))
+        for (const auto& column : spec["columns"])
+            checkKeys(column, columnKeys, "A column of the table " + name);
+    if (spec.contains("compare"))
+        for (const auto& variant : spec["compare"])
+            checkKeys(variant, compareKeys, "A comparison of the table " + name);
+    const std::string mode = stringOr(spec, "provenance", "header");
+    if (mode != "header" && mode != "file" && mode != "none")
+        fail("provenance is header, file or none, not " + mode + ".");
+}
+
+/// The symbols of `records` or `reactions`: a list, a rule, or a list with rules in it.
+auto symbolsOf(const json& node, const Database& database, bool reaction) -> std::vector<std::string>
+{
+    std::vector<std::string> out;
+    const auto add = [&](const std::string& symbol) {
+        if (std::find(out.begin(), out.end(), symbol) == out.end())
+            out.push_back(symbol);
+    };
+    for (const auto& item : node.is_array() ? node : json::array({node}))
+    {
+        if (item.is_object())
+            for (const auto& symbol : reaction ? selectReactions(database, item.dump()) : selectSubstances(database, item.dump()))
+                add(symbol);
+        else if (item.is_string())
+            add(item.get<std::string>());
+        else
+            fail(std::string(reaction ? "reactions" : "records") + " has a value that is not a symbol or a rule: " + item.dump() + ".");
+    }
+    return out;
+}
+
+/// The points of the conditions, in the order of the setup.
+auto pointsOf(const json& conditions, const Axis& axisT, const Axis& axisP) -> std::vector<Point>
+{
+    std::vector<Point> points;
+    if (conditions.contains("pairs") && conditions["pairs"].get<bool>())
+    {
+        if (axisT.values.size() != axisP.values.size())
+            fail("pairs: T has " + std::to_string(axisT.values.size()) + " values and P has " + std::to_string(axisP.values.size()) + ".");
+        for (std::size_t i = 0; i < axisT.values.size(); ++i)
+            points.push_back({axisT.values[i], axisP.values[i], static_cast<bool>(axisP.saturation[i])});
+    }
+    else if (stringOr(conditions, "order", "T_first") == "P_first")
+    {
+        for (std::size_t p = 0; p < axisP.values.size(); ++p)
+            for (const double t : axisT.values)
+                points.push_back({t, axisP.values[p], static_cast<bool>(axisP.saturation[p])});
+    }
+    else
+    {
+        for (const double t : axisT.values)
+            for (std::size_t p = 0; p < axisP.values.size(); ++p)
+                points.push_back({t, axisP.values[p], static_cast<bool>(axisP.saturation[p])});
+    }
+    return points;
+}
+
+/// A column with the units and the digits that the table gives for its property.
+auto withTableDefaults(json column, const json& spec, const std::string& field) -> json
+{
+    const auto lookup = [&](const char* key) -> const json* {
+        if (!spec.contains(key) || !spec[key].is_object())
+            return nullptr;
+        const auto property = column["property"].get<std::string>();
+        return spec[key].contains(property) ? &spec[key][property] : spec[key].contains(field) ? &spec[key][field] : nullptr;
+    };
+    if (!column.contains("unit"))
+        if (const auto* unit = lookup("units"))
+            column["unit"] = *unit;
+    if (!column.contains("digits"))
+        if (const auto* digits = lookup("digits"))
+            column["digits"] = *digits;
+    return column;
 }
 
 /// A copy of a database with other methods in some records: {record: {old method: new method or a method record}}.
@@ -702,10 +933,70 @@ auto latexText(const std::vector<std::vector<std::string>>& lines) -> std::strin
 
 } // namespace
 
-auto Table::toText(const std::string& kind) const -> std::string
+auto TableProvenance::lines() const -> std::vector<std::string>
+{
+    std::vector<std::string> out;
+    if (!database.empty())
+        out.push_back("database: " + database);
+    if (!templates.empty())
+    {
+        std::string text = "templates:";
+        for (std::size_t i = 0; i < templates.size(); ++i)
+            text += (i ? ", " : " ") + templates[i];
+        out.push_back(text);
+    }
+    for (const auto& [label, snapshot] : calculations)
+        for (const auto& line : snapshotLines(snapshot))
+            out.push_back((label.empty() ? "" : "[" + label + "] ") + line);
+    return out;
+}
+
+auto TableProvenance::toYaml() const -> std::string
+{
+    json document = json::object();
+    document["database"] = database;
+    document["templates"] = templates;
+    document["calculations"] = json::array();
+    for (const auto& [label, s] : calculations)
+    {
+        json item = {{"label", label}, {"thermofun", s.thermofun_version}, {"physical_constants", s.physical_constants}, {"format", s.format_version},
+                     {"dataset", s.dataset}, {"dataset_version", s.dataset_version}, {"sha256", s.content_hash}, {"water", s.water_symbol}, {"water_methods", s.water_methods},
+                     {"conventions", s.conventions}, {"options", s.options}, {"implementations", s.implementations}};
+        document["calculations"].push_back(std::move(item));
+    }
+    std::string text = blockText(document, 0) + "setup:\n";
+    std::stringstream lines_of(setup);
+    for (std::string line; std::getline(lines_of, line);)
+        text += "  " + line + "\n";
+    return text;
+}
+
+namespace {
+
+auto commented(const std::vector<std::string>& lines, const std::string& kind) -> std::string
+{
+    std::string out = kind == "md" ? "<!--\n" : "";
+    for (const auto& line : lines)
+        out += (kind == "csv" ? "# " : kind == "tex" ? "% " : "") + line + "\n";
+    return kind == "md" ? out + "-->\n\n" : out;
+}
+
+auto writeProvenanceFile(const TableProvenance& provenance, const std::string& where) -> void
+{
+    std::ofstream file(where + ".provenance.yaml");
+    if (!file)
+        fail("Cannot write the file " + where + ".provenance.yaml.");
+    file << provenance.toYaml();
+}
+
+} // namespace
+
+auto Table::toText(const std::string& kind, bool with_provenance) const -> std::string
 {
     if (kind != "csv" && kind != "md" && kind != "tex")
         fail("The format of an output is csv, md or tex, not " + kind + ".");
+    if (with_provenance)
+        return commented(provenance_.lines(), kind) + toText(kind, false);
     const auto text = [&](const std::vector<std::vector<std::string>>& lines) {
         return kind == "csv" ? csvText(lines, separator_) : kind == "md" ? markdownText(lines) : latexText(lines);
     };
@@ -731,11 +1022,13 @@ auto Table::write(const std::string& path) const -> std::string
         if (kind == "markdown") kind = "md";
         if (kind == "txt" || kind == "dat" || kind.empty()) kind = "csv";
     }
-    const auto text = toText(kind);
+    const auto text = toText(kind, provenance_mode_ == "header");
     std::ofstream file(where);
     if (!file)
         fail("Cannot write the file " + where + ".");
     file << text;
+    if (provenance_mode_ == "file")
+        writeProvenanceFile(provenance_, where);
     return where;
 }
 
@@ -841,6 +1134,50 @@ struct TableSetup::Impl
         return engine;
     }
 
+    /// The settings of a table: those of the top of the setup, with those of the table over them.
+    auto mergedSpec(const json& table) const -> json
+    {
+        json merged = json::object();
+        for (const auto& item : document.items())
+            if (item.key() != "tables" && item.key() != "database")
+                merged[item.key()] = item.value();
+        for (const auto& item : table.items())
+            merged[item.key()] = item.value();
+        return merged;
+    }
+
+    /// The settings of the table with this name. Without a name, the setup must have one table.
+    auto oneTable(const std::string& table) const -> json
+    {
+        if (!document.contains("tables") || !document["tables"].is_array() || document["tables"].empty())
+            fail("The setup has no tables.");
+        std::string names;
+        for (const auto& t : document["tables"])
+        {
+            if (table.empty() ? document["tables"].size() == 1 : stringOr(t, "name", "") == table)
+                return mergedSpec(t);
+            names += (names.empty() ? "" : ", ") + stringOr(t, "name", "");
+        }
+        fail("Name one table of the setup. It has: " + names + ".");
+    }
+
+    /// The part of the provenance that is the same for a table and for a batch.
+    auto provenanceOf(const json& spec) const -> TableProvenance
+    {
+        TableProvenance p;
+        p.database = document.contains("database") && document["database"].is_string() ? document["database"].get<std::string>() : "given in memory";
+        if (document.contains("from_templates"))
+            for (const auto& name : document["from_templates"])
+            {
+                const auto where = TableSetup::templateSource(name.get<std::string>());
+                p.templates.push_back(name.get<std::string>() + (where == "library" ? "" : " (" + where + ")"));
+            }
+        json settings = spec;
+        settings.erase("from_templates");
+        p.setup = blockText(settings, 0);
+        return p;
+    }
+
     auto runTable(const std::string& name, const json& spec, const Database& source) const -> Table
     {
         Table table;
@@ -853,6 +1190,8 @@ struct TableSetup::Impl
         table.file_format_ = stringOr(spec, "format_file", "");
         table.across_ = stringOr(spec, "across", "P");
         table.loop_ = stringOr(spec, "loop", "records");
+        table.provenance_mode_ = stringOr(spec, "provenance", "header");
+        table.provenance_ = provenanceOf(spec);
         table.digits_ = digitsOf(spec, "digits");
         table.digits_T_ = digitsOf(spec, "digits_T");
         table.digits_P_ = digitsOf(spec, "digits_P");
@@ -861,11 +1200,11 @@ struct TableSetup::Impl
 
         std::vector<std::pair<bool, std::string>> kinds;
         if (spec.contains("records"))
-            for (const auto& r : spec["records"])
-                kinds.emplace_back(false, r.get<std::string>());
+            for (const auto& r : symbolsOf(spec["records"], source, false))
+                kinds.emplace_back(false, r);
         if (spec.contains("reactions"))
-            for (const auto& r : spec["reactions"])
-                kinds.emplace_back(true, r.get<std::string>());
+            for (const auto& r : symbolsOf(spec["reactions"], source, true))
+                kinds.emplace_back(true, r);
         if (kinds.empty())
             fail("The table " + name + " has no records or reactions: give records or reactions.");
         if (!spec.contains("conditions") || !spec["conditions"].contains("T") || !spec["conditions"].contains("P"))
@@ -877,31 +1216,15 @@ struct TableSetup::Impl
         table.Ts_ = axisT.values;
         table.Ps_ = axisP.values;
         table.Ps_saturation_ = axisP.saturation;
-        std::vector<Point> points;
-        if (conditions.contains("pairs") && conditions["pairs"].get<bool>())
-        {
-            if (axisT.values.size() != axisP.values.size())
-                fail("pairs: T has " + std::to_string(axisT.values.size()) + " values and P has " + std::to_string(axisP.values.size()) + ".");
-            for (std::size_t i = 0; i < axisT.values.size(); ++i)
-                points.push_back({axisT.values[i], axisP.values[i], static_cast<bool>(axisP.saturation[i])});
-        }
-        else if (stringOr(conditions, "order", "T_first") == "P_first")
-        {
-            for (std::size_t p = 0; p < axisP.values.size(); ++p)
-                for (const double t : axisT.values)
-                    points.push_back({t, axisP.values[p], static_cast<bool>(axisP.saturation[p])});
-        }
-        else
-        {
-            for (const double t : axisT.values)
-                for (std::size_t p = 0; p < axisP.values.size(); ++p)
-                    points.push_back({t, axisP.values[p], static_cast<bool>(axisP.saturation[p])});
-        }
+        const std::vector<Point> points = pointsOf(conditions, axisT, axisP);
 
         std::vector<json> columns;
         if (spec.contains("columns"))
             for (const auto& c : spec["columns"])
-                columns.push_back(columnOf(c));
+            {
+                json column = columnOf(c);
+                columns.push_back(withTableDefaults(column, spec, fieldOf(kinds.front().first, column["property"].get<std::string>()).second));
+            }
         if (columns.empty())
             fail("The table " + name + " has no columns.");
 
@@ -913,7 +1236,10 @@ struct TableSetup::Impl
             variants.push_back(json::object());
         std::vector<ThermoEngine> engines;
         for (const auto& v : variants)
+        {
             engines.push_back(engineOf(source, spec, v));
+            table.provenance_.calculations.emplace_back(stringOr(v, "label", ""), engines.back().snapshot());
+        }
         for (const auto& v : variants)
             for (const auto& column : columns)
             {
@@ -1021,9 +1347,10 @@ TableSetup::~TableSetup() = default;
 auto TableSetup::fromText(const std::string& text) -> TableSetup
 {
     TableSetup setup;
-    setup.pimpl->document = parseText(text);
-    if (!setup.pimpl->document.is_object())
+    json document = parseText(text);
+    if (!document.is_object())
         fail("The setup is not a mapping.");
+    setup.pimpl->document = expandTemplates(std::move(document));
     return setup;
 }
 
@@ -1040,15 +1367,31 @@ auto TableSetup::templates() -> std::map<std::string, std::string>
     for (unsigned long i = 0; i < v2::detail::builtin_table_template_count; ++i)
     {
         const auto& file = v2::detail::builtin_table_templates[i];
-        std::string first = textOf(file);
-        first = first.substr(0, first.find('\n'));
-        out[std::filesystem::path(file.name).stem().string()] = first.rfind("# ", 0) == 0 ? first.substr(2) : first;
+        out[std::filesystem::path(file.name).stem().string()] = describedBy(textOf(file));
     }
+    for (const auto& item : userTemplateFiles())
+        out[item.first] = describedBy(readFile(item.second.string()));
     return out;
+}
+
+auto TableSetup::templateFolders() -> std::vector<std::string>
+{
+    return folderList();
+}
+
+auto TableSetup::templateSource(const std::string& name) -> std::string
+{
+    const auto files = userTemplateFiles();
+    if (const auto it = files.find(name); it != files.end())
+        return it->second.string();
+    return templateFile(name) ? "library" : "";
 }
 
 auto TableSetup::templateText(const std::string& name) -> std::string
 {
+    const auto files = userTemplateFiles();
+    if (const auto it = files.find(name); it != files.end())
+        return readFile(it->second.string());
     const auto* file = templateFile(name);
     if (!file)
     {
@@ -1062,7 +1405,13 @@ auto TableSetup::templateText(const std::string& name) -> std::string
 
 auto TableSetup::fromTemplate(const std::string& name) -> TableSetup
 {
-    return fromText(templateText(name));
+    return fromText(json{{"template", name}}.dump());
+}
+
+auto TableSetup::useTemplate(const std::string& name) -> TableSetup&
+{
+    mergeOver(pimpl->document, expandTemplates(json{{"template", name}}));
+    return *this;
 }
 
 auto TableSetup::setDatabase(const Database& database) -> TableSetup&
@@ -1088,6 +1437,20 @@ auto TableSetup::setRecords(const std::vector<std::string>& symbols, const std::
 auto TableSetup::setReactions(const std::vector<std::string>& symbols, const std::string& table) -> TableSetup&
 {
     pimpl->forTables(table, [&](json& t) { t["reactions"] = symbols; });
+    return *this;
+}
+
+auto TableSetup::setRecordRule(const std::string& rule, const std::string& table) -> TableSetup&
+{
+    const json parsed = parseText(rule);
+    pimpl->forTables(table, [&](json& t) { t["records"] = parsed; });
+    return *this;
+}
+
+auto TableSetup::setReactionRule(const std::string& rule, const std::string& table) -> TableSetup&
+{
+    const json parsed = parseText(rule);
+    pimpl->forTables(table, [&](json& t) { t["reactions"] = parsed; });
     return *this;
 }
 
@@ -1234,16 +1597,145 @@ auto TableSetup::run() const -> TableResults
     for (const auto& spec : document["tables"])
     {
         ++index;
-        json merged = json::object();
-        for (const auto& item : document.items())
-            if (item.key() != "tables" && item.key() != "database")
-                merged[item.key()] = item.value();
-        for (const auto& item : spec.items())
-            merged[item.key()] = item.value();
+        const json merged = pimpl->mergedSpec(spec);
         const std::string name = stringOr(merged, "name", "table" + std::to_string(index));
+        checkTable(merged, name);
         results.tables_.push_back(pimpl->runTable(name, merged, source));
     }
     return results;
+}
+
+namespace {
+
+/// The name that ThermoBatch has for a property.
+auto batchName(bool reaction, const std::string& property) -> std::string
+{
+    const auto [where, field] = fieldOf(reaction, property);
+    if (where != Where::Thermo)
+        fail("A ThermoBatch does not calculate the property " + property + " of water: use a table.");
+    return field == "log_equilibrium_constant" ? "logKr" : field == "ln_equilibrium_constant" ? "lnKr" : field;
+}
+
+} // namespace
+
+auto TableSetup::applyTo(ThermoBatch& batch, const std::string& table) const -> void
+{
+    const json spec = pimpl->oneTable(table);
+    const std::string name = stringOr(spec, "name", "table1");
+    checkTable(spec, name);
+    if (spec.contains("compare"))
+        fail("The table " + name + " has compare: a ThermoBatch has one engine. Use a table.");
+    const bool hasRecords = spec.contains("records") && !spec["records"].empty(), hasReactions = spec.contains("reactions") && !spec["reactions"].empty();
+    if (hasRecords && hasReactions)
+        fail("The table " + name + " has records and reactions: a ThermoBatch calculates one or the other.");
+
+    if (spec.contains("conditions"))
+    {
+        if (spec["conditions"].contains("T"))
+            batch.setPropertyUnit("temperature", axisOf(spec["conditions"]["T"], "T", "K").unit);
+        if (spec["conditions"].contains("P"))
+            batch.setPropertyUnit("pressure", axisOf(spec["conditions"]["P"], "P", "Pa").unit);
+    }
+    const auto tableDigits = digitsOf(spec, "digits");
+    if (spec.contains("columns"))
+        for (const auto& c : spec["columns"])
+        {
+            json column = columnOf(c);
+            const auto property = column["property"].get<std::string>();
+            if (column["show"] != "val")
+                fail("A ThermoBatch writes values: the column " + property + " with show " + column["show"].get<std::string>() + " needs a table.");
+            const auto batchField = batchName(hasReactions, property);
+            column = withTableDefaults(column, spec, fieldOf(hasReactions, property).second);
+            if (column.contains("unit"))
+                batch.setPropertyUnit(batchField, unitOf(column["unit"].get<std::string>()));
+            if (const auto digits = digitsOf(column, "digits"); digits || tableDigits)
+                batch.setPropertyDigit(batchField, digits ? *digits : *tableDigits);
+        }
+
+    auto& p = batch.preferences();
+    if (spec.contains("format"))
+    {
+        const std::string style = spec["format"].get<std::string>();
+        if (style != "fixed" && style != "floating" && style != "scientific")
+            fail("format is fixed, floating or scientific, not " + style + ".");
+        p.isFixed = style == "fixed";
+        p.isFloating = style == "floating";
+        p.isScientific = style == "scientific";
+    }
+    p.separator = stringOr(spec, "separator", p.separator);
+    p.fileName = stringOr(spec, "output", p.fileName);
+    p.loopOverTPpairsFirst = stringOr(spec, "loop", "records") == "records";
+    p.loopTemperatureThenPressure = stringOr(spec, "layout", "long") == "grid" ? stringOr(spec, "across", "P") == "P"
+                                  : !spec.contains("conditions") || stringOr(spec["conditions"], "order", "T_first") != "P_first";
+    if (spec.contains("write_not_defined"))
+        p.writeNaNifNotDefinedValue = spec["write_not_defined"].get<bool>();
+    const std::string word = stringOr(spec, "source", "");
+    p.substancePropertiesFromReaction = word == "reaction";
+    p.reactionPropertiesFromReactants = word == "reactants";
+    p.writeProvenance = stringOr(spec, "provenance", "header") == "header";
+    auto notes = pimpl->provenanceOf(spec);
+    p.provenanceNotes = notes.lines();
+}
+
+auto TableSetup::batch(const std::string& table) const -> BatchCalculation
+{
+    const json spec = pimpl->oneTable(table);
+    const std::string name = stringOr(spec, "name", "table1");
+    checkTable(spec, name);
+
+    const Database source = pimpl->sourceDatabase();
+    ThermoEngine engine = pimpl->engineOf(source, spec, json::object());
+    const bool reactions = spec.contains("reactions") && !spec["reactions"].empty();
+    std::vector<std::string> symbols = spec.contains(reactions ? "reactions" : "records") ? symbolsOf(spec[reactions ? "reactions" : "records"], source, reactions) : std::vector<std::string>{};
+    if (symbols.empty())
+        fail("The table " + name + " has no records or reactions: give records or reactions.");
+    if (!reactions && stringOr(spec, "source", "") == "reaction")
+        for (const auto& symbol : symbols)
+            engine.setPropertySource(symbol, "reaction");
+    if (!spec.contains("conditions") || !spec["conditions"].contains("T") || !spec["conditions"].contains("P"))
+        fail("The conditions of the table " + name + " need T and P.");
+
+    BatchCalculation calculation{ThermoBatch(engine)};
+    applyTo(calculation.batch_, table);
+    calculation.symbols_ = std::move(symbols);
+    calculation.reactions_ = reactions;
+    calculation.layout_ = stringOr(spec, "layout", "long");
+    calculation.provenance_mode_ = stringOr(spec, "provenance", "header");
+    calculation.provenance_ = pimpl->provenanceOf(spec);
+    calculation.provenance_.calculations.emplace_back("", engine.snapshot());
+    if (spec.contains("columns"))
+        for (const auto& c : spec["columns"])
+            calculation.properties_.push_back(batchName(reactions, columnOf(c)["property"].get<std::string>()));
+    if (calculation.properties_.empty())
+        fail("The table " + name + " has no columns.");
+    json conditions = spec["conditions"];
+    // a grid of Output reads the results in this order
+    if (calculation.layout_ == "grid")
+        conditions["order"] = stringOr(spec, "across", "P") == "T" ? "P_first" : "T_first";
+    const Axis axisT = axisOf(conditions["T"], "T", "K"), axisP = axisOf(conditions["P"], "P", "Pa");
+    for (const auto& point : pointsOf(conditions, axisT, axisP))
+        calculation.points_.push_back({point.T, point.saturation ? 0.0 : point.P});
+    return calculation;
+}
+
+auto BatchCalculation::run() -> Output
+{
+    return reactions_ ? batch_.thermoPropertiesReaction(points_, symbols_, properties_) : batch_.thermoPropertiesSubstance(points_, symbols_, properties_);
+}
+
+auto BatchCalculation::write(const std::string& path) -> std::string
+{
+    const std::string where = path.empty() ? batch_.preferences().fileName : path;
+    auto output = run();
+    if (layout_ == "transposed")
+        output.toCSVTransposed(where);
+    else if (layout_ == "grid")
+        output.toCSVPropertyGrid(where);
+    else
+        output.toCSV(where);
+    if (provenance_mode_ == "file")
+        writeProvenanceFile(provenance_, where);
+    return where;
 }
 
 } // namespace ThermoFun

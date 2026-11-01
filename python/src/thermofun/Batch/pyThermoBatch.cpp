@@ -38,6 +38,14 @@ namespace py = pybind11;
 namespace ThermoFun
 {
 
+namespace {
+/// A rule as text: a dict, or YAML or JSON text.
+auto ruleText(const py::object& rule) -> std::string
+{
+    return py::isinstance<py::str>(rule) ? rule.cast<std::string>() : py::module_::import("json").attr("dumps")(rule).cast<std::string>();
+}
+} // namespace
+
     void exportThermoBatch(py::module &m)
     {
         auto thermoPropertiesSubstance1 = static_cast<Output (ThermoBatch::*)(double, double, std::string, std::string)>(&ThermoBatch::thermoPropertiesSubstance);
@@ -86,6 +94,9 @@ namespace ThermoFun
             .def("setBatchPreferences", &ThermoBatch::setBatchPreferences)
             .def_property_readonly( "preferences", [](ThermoBatch& b) -> BatchPreferences& { return b.preferences(); }, py::return_value_policy::reference_internal )
             .def("setSolventSymbol", &ThermoBatch::setSolventSymbol)
+            .def("selectSubstances", [](const ThermoBatch& b, const py::object& rule) { return b.selectSubstances(ruleText(rule)); }, "the substances that a rule chooses, for example {\"class\": \"aqueous_solute\", \"elements\": [\"Ca\"]}", py::arg("rule"))
+            .def("selectReactions", [](const ThermoBatch& b, const py::object& rule) { return b.selectReactions(ruleText(rule)); }, "the reactions that a rule chooses", py::arg("rule"))
+            .def("provenance", &ThermoBatch::provenance, "what the results depend on: lines of text")
             .def("temperatureIncrement", &ThermoBatch::temperatureIncrement, "returns the default temperature increment")
             .def("pressureIncrement", &ThermoBatch::pressureIncrement, "returns the default pressure increment")
             .def("setUnits", &ThermoBatch::setUnits, "set the units of the properties from a dict {property: unit}", py::arg("units"))
@@ -122,7 +133,8 @@ namespace ThermoFun
             .def_readwrite("reactionPropertiesFromReactants", &BatchPreferences::reactionPropertiesFromReactants, "default=False, calculate reaction properties from reactants")
             .def_readwrite("loopOverTPpairsFirst", &BatchPreferences::loopOverTPpairsFirst, "default=True, when calculating properties the loop is going for T-P points first and then for substances/reactions list")
             .def_readwrite("loopTemperatureThenPressure", &BatchPreferences::loopTemperatureThenPressure, "default=True, when calculating properties the loop is going for T and the P")
-            .def_readwrite("writeNaNifNotDefinedValue", &BatchPreferences::writeNaNifNotDefinedValue, "default=False, if True write NaN if a property is not defined");
+            .def_readwrite("writeNaNifNotDefinedValue", &BatchPreferences::writeNaNifNotDefinedValue, "default=False, if True write NaN if a property is not defined")
+            .def_readwrite("writeProvenance", &BatchPreferences::writeProvenance, "default=False, if True a CSV file starts with lines \"# ...\" that say how it was made");
     }
 
 }

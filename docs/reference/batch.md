@@ -14,6 +14,8 @@
 | `setTemperatureIncrement(first, last, step)`, `setPressureIncrement(first, last, step)` | A grid of T and P. |
 | `setSolventSymbol(symbol)` | The water record. |
 | `setBatchPreferences(preferences)` | The options below. |
+| `selectSubstances(rule)`, `selectReactions(rule)` | The symbols that a rule chooses: see [Make tables](../how-to/make-tables.md). |
+| `provenance()` | What the results depend on, as lines of text. |
 
 `tf.availablePropertiesSubstance()` and `tf.availablePropertiesReaction()` list the properties and their units.
 
@@ -33,3 +35,4 @@
 | `reactionPropertiesFromReactants` | false | Calculates reactions from their reactants. |
 | `loopOverTPpairsFirst`, `loopTemperatureThenPressure` | true | The order of the loops. |
 | `writeNaNifNotDefinedValue` | true | Writes `NaN` for a value that is not defined. |
+| `writeProvenance` | false | A CSV file starts with lines `# ...` that say how it was made, as `Output.provenance()` gives them. |
