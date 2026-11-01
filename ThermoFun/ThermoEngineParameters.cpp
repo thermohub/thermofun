@@ -94,6 +94,7 @@ auto ThermoEngine::Impl::editValue(const ParameterRef& ref, Edit edit) -> void
         std::lock_guard<std::mutex> lock(bound.mutex);
         forget(bound.substances, bound.records, old.get());
         bound.solvents.erase(old.get());
+        bound.corrections.erase(old.get());
     }
     // a solute can read the solvent as a substance: then every result goes
     if (ref.symbol == preferences.solvent_symbol)

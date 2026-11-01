@@ -105,7 +105,59 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
     return result;
 }
 
-auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSeed& seed, double T, double P, const SubstanceOptions& options, const SolventInputs* solvent) -> PropertyDerivatives
+auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, const SolventInputs* solvent) -> MethodResult
+{
+    auto start = [&](bool wrtT) {
+        auto one = [&](const PropertyValue& v) {
+            TPReal x(v.val);
+#ifndef THERMOFUN_NO_AUTODIFF
+            x[1] = wrtT ? v.ddt : v.ddp;
+#endif
+            return x;
+        };
+        SubstanceState<TPReal> s;
+        s.G = one(initial.G);
+        s.H = one(initial.H);
+        s.S = one(initial.S);
+        s.Cp = one(initial.Cp);
+        s.V = one(initial.V);
+        return s;
+    };
+    const auto reference = toReal(bound.reference);
+    TPReal Tt(T), Pp(P);
+#ifndef THERMOFUN_NO_AUTODIFF
+    Tt[1] = 1.0;
+    Pp[1] = 1.0;
+#endif
+    SubstanceInputs<TPReal> wrtT{Tt, TPReal(P), reference};
+    SubstanceInputs<TPReal> wrtP{TPReal(T), Pp, reference};
+    wrtT.options = options;
+    wrtP.options = options;
+    SolventState<TPReal> solventT, solventP, solventRef;
+    if (solvent)
+    {
+#ifndef THERMOFUN_NO_AUTODIFF
+        solventT = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::T);
+        solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::P);
+#else
+        solventT = solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
+#endif
+        solventRef = solventAtReference(*solvent, T, P);
+        wrtT.solvent = &solventT;
+        wrtP.solvent = &solventP;
+        wrtT.solvent_at_reference = wrtP.solvent_at_reference = &solventRef;
+    }
+    auto a = start(true), b = start(false);
+    for (const auto& method : bound.order)
+    {
+        method->apply(a, wrtT);
+        method->apply(b, wrtP);
+    }
+    return combine(a, b);
+}
+
+auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSeed& seed, double T, double P, const SubstanceOptions& options, const SolventInputs* solvent,
+                                  const std::pair<MethodResult, PropertyDerivatives>* initial) -> PropertyDerivatives
 {
     auto reference = toReal(bound.reference);
     auto carry = [](std::optional<TPReal>& value, double s) {
@@ -130,6 +182,20 @@ auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSe
     }
 
     SubstanceState<TPReal> state;
+    if (initial)
+    {
+        auto one = [](double value, double derivative) {
+            TPReal x(value);
+            x[1] = derivative;
+            return x;
+        };
+        const auto& [values, d] = *initial;
+        state.G = one(values.G.val, d.G);
+        state.H = one(values.H.val, d.H);
+        state.S = one(values.S.val, d.S);
+        state.Cp = one(values.Cp.val, d.Cp);
+        state.V = one(values.V.val, d.V);
+    }
     for (std::size_t i = 0; i < bound.order.size(); ++i)
     {
         in.seeded_parameter = static_cast<int>(i) == seed.method ? seed.parameter : -1;

@@ -91,7 +91,9 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
         fail("The database has no substance with this symbol.");
     if (spec->role != v2::MethodRole::SubstanceProperties)
         fail("A method of water has no derivatives by its parameters.");
-    const auto bound = boundMethods(database.getSubstance(ref.symbol));
+    auto bound = boundMethods(database.getSubstance(ref.symbol));
+    if (!bound)  // only corrections, on what a reaction gives
+        bound = pressureCorrections(database.getSubstance(ref.symbol));
     if (bound)
         for (const auto& method : bound->order)
             if (method->spec().id == spec->id)
@@ -173,16 +175,20 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         d.V /= nu;
         if (ownTerm)
         {
-            // see reacDCthermoProperties. The volume of an ideal gas and its pressure term have no parameters
-            if (hasMethod(substance.record()->methods, "IdealGas"))
-                d.V = 0.0;
-            else if (substance.thermoReferenceProperties().volume.sta.first != Reaktoro_::Status::notdefined)
+            // see reacDCthermoProperties
+            if (hasMethod(substance.record()->methods, "ConstantVolume") && substance.thermoReferenceProperties().volume.sta.first != Reaktoro_::Status::notdefined)
             {
                 const double seedV = own && ref.parameter == "V" ? 1.0 : 0.0;
-                d.V = seedV;
                 const double from = fromData ? Pdata : substance.referenceP();
+                d.V = seedV;
                 d.G += seedV * (P - from);
                 d.H += seedV * (P - from);
+            }
+            if (const auto corrections = pressureCorrections(substance); corrections && !corrections->order.empty())
+            {
+                const auto solvent = solventInputs(*corrections, T, P);
+                const std::pair<v2::MethodResult, v2::PropertyDerivatives> initial{valuesOf(raw), d};
+                d = v2::substanceParameterDerivative(*corrections, seedOf(*corrections, ref), T, P, substanceOptions(), solvent ? &*solvent : nullptr, &initial);
             }
         }
     }

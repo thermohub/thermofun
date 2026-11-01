@@ -82,6 +82,7 @@ struct ThermoEngine::Impl
         std::mutex mutex;
         std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> substances;
         std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSolvent>> solvents;
+        std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> corrections;
         std::vector<std::shared_ptr<const v2::SubstanceRecord>> records;
         std::map<const v2::ReactionRecord*, std::shared_ptr<const v2::BoundReaction>> reactions;
         std::vector<std::shared_ptr<const v2::ReactionRecord>> reaction_records;
@@ -282,6 +283,14 @@ struct ThermoEngine::Impl
     /// Above the critical temperature of water there is no such pressure: a substance then has its species at P.
     auto dataPressure(double T, const Substance& substance) const -> double;
     static constexpr double water_critical_T = 647.096;  // K
+
+    static auto hasBaseMethod(const v2::SubstanceRecord& record) -> bool;
+
+    /// The methods of a substance for the pressure, apart from ConstantVolume, to run on what its defining reaction gives
+    auto pressureCorrections(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>;
+
+    /// The properties in the form of the methods: V in m3/mol
+    static auto valuesOf(const ThermoPropertiesSubstance& tps) -> v2::MethodResult;
 
     /// True if a substance defined by this reaction takes its pressure term from its own method. Else there would be two of them.
     auto pressureFromRecord(const Substance& substance, const Reaction& reaction) const -> bool;

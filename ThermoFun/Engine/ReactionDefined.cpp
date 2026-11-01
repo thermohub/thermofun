@@ -229,25 +229,6 @@ auto constantVolumeCorrection(double T, double P, const ThermoPropertiesSubstanc
     return out;
 }
 
-auto setIdealGasVolume(ThermoPropertiesSubstance& tps, double T, double P) -> void
-{
-    const double Pbar = P / bar_to_Pa;
-    tps.volume.val = R_CONSTANT * T / Pbar; // J/bar
-    tps.volume.ddt = R_CONSTANT / Pbar;
-    tps.volume.ddp = -tps.volume.val / P;
-    tps.volume.sta = {Reaktoro_::Status::calculated, ""};
-}
-
-auto addIdealGasPressureTerm(ThermoPropertiesSubstance& tps, double T, double P, double Pr) -> void
-{
-    const double lnP = std::log(P / Pr);
-    tps.gibbs_energy.val += R_CONSTANT * T * lnP;
-    tps.gibbs_energy.ddt += R_CONSTANT * lnP;
-    tps.gibbs_energy.ddp += R_CONSTANT * T / P;
-    tps.entropy.val -= R_CONSTANT * lnP;
-    tps.entropy.ddp -= R_CONSTANT / P;
-}
-
 namespace {
 
 auto stack() -> std::vector<std::string>&

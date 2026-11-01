@@ -347,3 +347,32 @@ def test_a_substance_and_a_reaction_with_one_symbol_have_their_own_path():
     engine.setPropertySource("C", "reactants")
     with pytest.raises(RuntimeError, match="C"):
         engine.thermoPropertiesSubstance(298.15, 1e5, "C")
+
+
+def test_the_derivatives_of_a_fluid_on_a_substance_defined_by_a_reaction(tmp_path):
+    source = json.loads(open("pytests/data/legacy-synthetic/s12-fluid_sterner_pitzer.json").read())
+    template = source["substances"][0]
+    fluid = {"method": {"13": "fluid_peng_robinson78"}, "eos_gas_crit_props": {"values": [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]}}
+    a, x = copy.deepcopy(template), copy.deepcopy(template)
+    a.update(symbol="A", name="A", formula="CO2", TPMethods=[template["TPMethods"][0]])
+    x.update(symbol="X", name="X", formula="CO2", TPMethods=[fluid], reaction="R")
+    source["substances"] = [a, x]
+    source["reactions"] = [{"symbol": "R", "equation": "A = X", "reactants": [{"symbol": "A", "coefficient": -1}, {"symbol": "X", "coefficient": 1}], "Tst": 298.15, "Pst": 100000,
+                            "logKr": {"values": [1.0]}, "TPMethods": [{"method": {"4": "logk_1_term_extrap0"}}]}]
+    path = tmp_path / "fluid.json"
+    path.write_text(json.dumps(source))
+    db = tf.Database(str(path))
+    doc = json.loads(db.toJson(readable=False))
+    engine = tf.ThermoEngine(db)
+    problems = []
+    volumes = {}
+    for owner, name, holder_of in parameters_of("substances", "X", doc["substances"]["X"]):
+        if owner != "PengRobinson78":
+            continue
+        ref = ("X", owner, name)
+        theta = si_value(db, "substances", "X", owner, name)
+        exact = {k: v[label(ref)] for k, v in engine.parameterSensitivities(600.0, 1e8, "X", [ref]).items()}
+        volumes[name] = exact["V"]
+        problems += check(doc, "substance", 600.0, 1e8, "X", ref, holder_of, exact, theta)
+    assert not problems, problems[:4]
+    assert volumes["Tc"] != 0.0 and volumes["Pc"] != 0.0

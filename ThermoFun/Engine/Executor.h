@@ -5,6 +5,7 @@
 #define THERMOFUN_ENGINE_EXECUTOR_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <ThermoFun/Engine/Binding.h>
@@ -29,6 +30,9 @@ struct ExplainStep
 /// solvent: the state of the solvent, if a method of the record needs it.
 auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, std::vector<ExplainStep>* steps = nullptr, const SolventInputs* solvent = nullptr) -> SubstanceResult;
 
+/// The methods of a record run on properties that come from elsewhere, from a defining reaction: initial, with its derivatives. SI.
+auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, const SolventInputs* solvent = nullptr) -> MethodResult;
+
 /// The derivatives of the properties by one parameter. SI per unit of the parameter in SI.
 struct PropertyDerivatives
 {
@@ -44,7 +48,9 @@ struct ParameterSeed
 };
 
 /// The derivatives of the properties of a record by one parameter, along the bound methods, each with the state that the method before gives.
-auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSeed& seed, double T, double P, const SubstanceOptions& options = {}, const SolventInputs* solvent = nullptr) -> PropertyDerivatives;
+/// initial: the values and derivatives of what the methods work on, if they do not start from nothing.
+auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSeed& seed, double T, double P, const SubstanceOptions& options = {}, const SolventInputs* solvent = nullptr,
+                                  const std::pair<MethodResult, PropertyDerivatives>* initial = nullptr) -> PropertyDerivatives;
 
 } // namespace ThermoFun::v2
 

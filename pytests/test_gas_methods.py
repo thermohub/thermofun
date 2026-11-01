@@ -250,3 +250,52 @@ def test_the_data_of_a_reaction_are_on_the_saturation_curve(T):
 def test_above_the_critical_temperature_the_species_are_at_the_pressure():
     value = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(673.15, 1e8, "AgCl(cr)").gibbs_energy.val
     assert -140000.0 < value < -90000.0
+
+
+def fluid_from_a_reaction(tmp_path, reaction_methods, reaction_values=None):
+    """log K as a function of T for the reaction, and Peng-Robinson on the substance, as in THEREDA."""
+    doc = json.loads((SYNTHETIC / "s12-fluid_sterner_pitzer.json").read_text())
+    template = doc["substances"][0]
+    plain = [template["TPMethods"][0]]
+    fluid = {"method": {"13": "fluid_peng_robinson78"}, "eos_gas_crit_props": {"values": [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]}}
+
+    def record(symbol, methods, **more):
+        r = json.loads(json.dumps(template))
+        r["symbol"] = r["name"] = symbol
+        r["formula"] = "CO2"
+        r["TPMethods"] = methods
+        r.update(more)
+        return r
+
+    doc["substances"] = [record("A", plain), record("X", [fluid], reaction="R")]
+    doc["reactions"] = [{"symbol": "R", "equation": "A = X", "reactants": [{"symbol": "A", "coefficient": -1}, {"symbol": "X", "coefficient": 1}], "Tst": 298.15, "Pst": 100000,
+                         "logKr": {"values": [1.0]}, "TPMethods": reaction_methods, **(reaction_values or {})}]
+    path = tmp_path / "fluid.json"
+    path.write_text(json.dumps(doc))
+    return tf.ThermoEngine(str(path))
+
+
+@pytest.mark.parametrize("T,P", [(600.0, 1e7), (600.0, 1e8), (900.0, 5e8)])
+def test_a_fluid_on_a_substance_defined_by_a_reaction(tmp_path, T, P):
+    engine = fluid_from_a_reaction(tmp_path, [LOGK])
+    r = engine.thermoPropertiesSubstance(T, P, "X")
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-3)
+    assert r.volume.val > 0.0
+    # the same term as the same fluid with a Cp of its own: G from the state at the data pressure
+    low = engine.thermoPropertiesSubstance(T, 1e5, "X").gibbs_energy.val
+    assert r.gibbs_energy.val - low > 8.31451 * T * math.log(P / 1e5) * 0.9
+
+
+def test_the_option_of_the_pressure_term_holds_for_it(tmp_path):
+    engine = fluid_from_a_reaction(tmp_path, [LOGK])
+    engine.preferences.apply_pressure_correction_to_gas_props = False
+    engine.preferences.cancel_fugacity_coefficient_in_gas_props = True
+    high, low = (engine.thermoPropertiesSubstance(600.0, p, "X").gibbs_energy.val for p in (1e8, 1e5))
+    assert high == pytest.approx(low, abs=1.0)
+    assert engine.thermoPropertiesSubstance(600.0, 1e8, "X").volume.val > 0.0  # the method still gives V
+
+
+def test_no_second_term_on_a_fluid_when_the_reaction_has_a_volume(tmp_path):
+    engine = fluid_from_a_reaction(tmp_path, [LOGK, {"method": {"13": "dr_volume_constant"}}], {"drsm_volume": {"values": [3.0]}})
+    r = engine.thermoPropertiesSubstance(600.0, 1e8, "X")
+    assert r.volume.val == pytest.approx(3.0 + 2.8, abs=3.0)  # from the reaction and the volume of A, not the fluid

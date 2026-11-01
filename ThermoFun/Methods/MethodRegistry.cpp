@@ -195,6 +195,11 @@ MethodRegistry::MethodRegistry()
                             record.lower_T = segment.t_min;
                             found = true;
                         }
+            if (!found && r.applicability.t_min)
+            {
+                record.lower_T = *r.applicability.t_min;
+                found = true;
+            }
             if (!found)
                 thfun_logger->warn("{}: substance \"{}\" has no temperature intervals (they come only from a CpPolynomial method); using its reference temperature {} K as the lower temperature bound.", id, r.symbol, record.lower_T);
             return fluidMethod(id, values, record);
