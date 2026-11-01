@@ -6,6 +6,7 @@ add_executable(tfun-unit
     main.cpp
     test_catalog.cpp
     test_symbolic.cpp
+    test_tables.cpp
     ../methods/test_substance_methods.cpp
     test_diagnostics.cpp
     test_vocabulary.cpp

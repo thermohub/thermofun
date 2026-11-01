@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
 namespace ThermoFun::v2::v2reader {
@@ -189,6 +190,14 @@ auto readDocument(const json& root, Diagnostics& diagnostics, const std::string&
 namespace ThermoFun::v2 {
 
 using namespace v2reader;
+
+auto yamlToJson(const std::string& text) -> std::string
+{
+    auto yaml = detail::readYaml(text);
+    if (!yaml.ok)
+        funError("Cannot read the YAML text", "Line " + std::to_string(yaml.problem.line) + ": " + yaml.problem.message, __LINE__, __FILE__);
+    return yaml.tree.dump();
+}
 
 auto readV2Document(const std::string& text, Diagnostics& diagnostics, const std::string& file) -> V2Document
 {

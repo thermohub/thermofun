@@ -26,6 +26,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Symbolic methods of substances and reactions, with the CMake option `TFUN_USE_SYMENGINE`, and `python -m thermofun.method_tool` with its source forms.
 - `ThermoEngine::calculationPath`: how a record is calculated. It calculates nothing.
 - Derivatives by a built-in constant, also through the water into a solute.
+- `TableSetup` (C++ and Python): tables from a YAML setup or a template of the library, in the layouts long, transposed and grid, as CSV, Markdown or LaTeX. `python -m thermofun.tables`, and `tf.table` in Python.
 - Tutorials, how-to pages, a glossary, and reference and explanation pages in `docs/`.
 
 ### Changed

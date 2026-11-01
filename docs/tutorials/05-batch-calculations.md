@@ -60,4 +60,4 @@ grid = batch.thermoPropertiesReaction(["Calcite = Ca+2 + CO3-2"], ["logKr"]).to2
 assert len(grid) == 3
 ```
 
-The other options are in [Batch options](../reference/batch.md).
+The other options are in [Batch options](../reference/batch.md). For tables from a YAML setup or a template, see [Make tables](../how-to/make-tables.md).

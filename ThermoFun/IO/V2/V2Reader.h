@@ -29,6 +29,9 @@ struct V2Document
 
 /// Reads a document. A problem is added to the diagnostics; a record with an error is not in the result.
 /// The default units of the file and the reference conditions of the dataset are applied.
+/// A YAML text as a JSON text. An error names the line, if it cannot be read.
+auto yamlToJson(const std::string& text) -> std::string;
+
 auto readV2Document(const std::string& text, Diagnostics& diagnostics, const std::string& file = "") -> V2Document;
 
 /// Reads one record. The result has an empty symbol if the record has an error.

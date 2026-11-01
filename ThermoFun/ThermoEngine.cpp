@@ -150,9 +150,9 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
-    auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, symbol), T, P, pimpl->database.getReaction(symbol));
+    auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, symbol), T, P, pimpl->reactionOfSymbol(symbol));
     if (pimpl->preferences.propagate_parameter_errors)
-        pimpl->addReactionErrors(tpr, T, P, pimpl->database.getReaction(symbol), true, pimpl->inputsOf(pimpl->recordsOfReaction(symbol)));
+        pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(symbol), true, pimpl->inputsOf(pimpl->recordsOfReaction(symbol)));
     pimpl->roundResults(tpr);
     return tpr;
 }

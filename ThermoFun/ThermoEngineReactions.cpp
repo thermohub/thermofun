@@ -127,7 +127,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
 
 auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
 {
-    return thermoPropertiesReactionFromReactants(T, P, database.getReaction(symbol));
+    return thermoPropertiesReactionFromReactants(T, P, reactionOfSymbol(symbol));
 }
 
 auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction

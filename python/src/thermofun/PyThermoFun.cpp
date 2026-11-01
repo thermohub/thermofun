@@ -47,6 +47,7 @@ PYBIND11_MODULE(PyThermoFun, m)
     exportDiagnostics(m);
     // Core module
     exportThermoEngine(m);
+    exportTables(m);
     exportThermoBatch(m);
     exportBatchPreferences(m);
     exportOutput(m);

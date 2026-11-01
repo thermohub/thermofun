@@ -30,6 +30,7 @@ Databases are in `Resources/databases/` of the repository. The words of these pa
 ## How-to: steps for one job
 
 - [Add data](how-to/add-data.md): the complete guide to substances, reactions, methods, units and datasets.
+- [Make tables](how-to/make-tables.md): from a YAML setup or a template, in C++ and Python.
 - [Convert a legacy database](how-to/convert-legacy-database.md)
 - [Validate data](how-to/validate-data.md)
 - [Choose water models](how-to/choose-water-models.md)

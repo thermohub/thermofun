@@ -63,6 +63,23 @@ inline constexpr double R_CONSTANT = @PHYSICAL_CONSTANT_R@, NA_CONSTANT = @PHYSI
 ")
 install(FILES ${PHYSICAL_CONSTANTS_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ThermoFun/Common)
 
+# The templates of tables go into the library in the same way
+file(GLOB TABLE_TEMPLATE_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Batch/Templates/*.yaml)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${TABLE_TEMPLATE_FILES})
+set(TABLE_TEMPLATE_ARRAYS "")
+set(TABLE_TEMPLATE_ROWS "")
+set(TABLE_TEMPLATE_COUNT 0)
+foreach(file ${TABLE_TEMPLATE_FILES})
+    get_filename_component(name ${file} NAME)
+    file(READ ${file} hex HEX)
+    string(LENGTH "${hex}" length)
+    math(EXPR bytes "${length} / 2")
+    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," hex "${hex}")
+    string(APPEND TABLE_TEMPLATE_ARRAYS "const unsigned char template_${TABLE_TEMPLATE_COUNT}[] = {${hex}};\n")
+    string(APPEND TABLE_TEMPLATE_ROWS "    {\"${name}\", template_${TABLE_TEMPLATE_COUNT}, ${bytes}},\n")
+    math(EXPR TABLE_TEMPLATE_COUNT "${TABLE_TEMPLATE_COUNT} + 1")
+endforeach()
+
 set(PARAMETER_SET_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/BuiltinParameterFiles.cpp)
 file(CONFIGURE OUTPUT ${PARAMETER_SET_SOURCE} CONTENT "// Generated from Methods/ParameterSets: do not edit.
 namespace ThermoFun::v2::detail {
@@ -71,6 +88,10 @@ namespace { @PARAMETER_SET_ARRAYS@ }
 extern const BuiltinFile builtin_parameter_files[] = {
 @PARAMETER_SET_ROWS@};
 extern const unsigned long builtin_parameter_file_count = @PARAMETER_SET_COUNT@;
+namespace { @TABLE_TEMPLATE_ARRAYS@ }
+extern const BuiltinFile builtin_table_templates[] = {
+@TABLE_TEMPLATE_ROWS@};
+extern const unsigned long builtin_table_template_count = @TABLE_TEMPLATE_COUNT@;
 }
 " @ONLY)
 

@@ -5,6 +5,8 @@
 
 # Batch options
 
+[Make tables](../how-to/make-tables.md) does all this from a setup, and has a table that gives the setting for each option here.
+
 | Method of `ThermoBatch` | What it does |
 |---|---|
 | `thermoPropertiesSubstance`, `thermoPropertiesReaction` | One T and P, a list of pairs, or a list of T and a list of P, for one or many symbols and properties. |
