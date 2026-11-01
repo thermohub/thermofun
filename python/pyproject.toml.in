@@ -21,7 +21,7 @@ keywords = ["element", "substance", "reaction", "HKF equation", "solvent", "liqu
 
 [project.optional-dependencies]
 fitting = ["scipy"]
-authoring = ["sympy"]
+authoring = ["sympy", "pyyaml"]
 
 [project.urls]
 Homepage = "https://thermohub.org/"

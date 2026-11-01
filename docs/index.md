@@ -15,7 +15,7 @@ calcium = engine.thermoPropertiesSubstance(473.15, 2e8, "Ca+2")   # T in K, P in
 assert calcium.gibbs_energy.val < 0.0                             # J/mol
 ```
 
-Install it with `conda install -c conda-forge thermofun`, or [build it from the source](how-to/build-from-source.md).
+Install it with `conda install -c conda-forge thermofun`, or [install it from the source](how-to/install-from-source.md).
 
 Databases are in `Resources/databases/` of the repository. The words of these pages are in the [glossary](glossary.md).
 
@@ -42,7 +42,7 @@ Databases are in `Resources/databases/` of the repository. The words of these pa
 - [Migrate from the old API](how-to/migrate-from-the-old-api.md)
 - [Add a method as data](how-to/add-a-method-as-data.md)
 - [Add a method in C++](how-to/add-a-cpp-method.md)
-- [Build from the source](how-to/build-from-source.md)
+- [Install from the source](how-to/install-from-source.md)
 
 ## Reference: facts
 

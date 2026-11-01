@@ -16,6 +16,7 @@ dependencies:
   - autodiff
   - symengine
   - sympy
+  - pyyaml
   - python>=3.9
   - pytest
   - scipy

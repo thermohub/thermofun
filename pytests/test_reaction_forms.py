@@ -111,6 +111,7 @@ def test_check_runs_the_test_cases_of_a_reaction():
 
 @pytest.mark.parametrize("file", ["logk-polynomial.yaml", "drcp-linear.yaml", "vant-hoff.yaml"])
 def test_the_examples_are_in_order(file):
+    pytest.importorskip("yaml")
     document, _ = tool._load(str(pathlib.Path(__file__).resolve().parent.parent / "examples" / "v2" / "methods" / file))
     assert tool.check(document) == []
 
