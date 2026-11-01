@@ -239,10 +239,8 @@ return wp;
 
  /* aad[4]  */
 
-namespace {
-
-/// The constants of the model, read once from Methods/ParameterSets/WaterHGK84-gems.yaml. A calculation copies those of the structs, which it also writes to.
-struct Constants
+/// The constants of the model: from Methods/ParameterSets/WaterHGK84-gems.yaml and JohnsonNorton91.yaml, or the record. A calculation copies those of the structs, which it also writes to.
+struct WaterHGKgemsConstants
 {
     ACONST ac{};
     NCONST nc{};
@@ -264,12 +262,15 @@ struct Constants
     double cond_bL[5][6] = {};
     double cond_bu[6][5] = {};
     double jn_a[10] = {};
+    double jn_Tr = 0.0;
+    double jn_Dr = 0.0;
 };
 
-auto readConstants() -> Constants
+namespace {
+
+auto readConstants(const std::map<std::string, v2::Quantity>& values, const std::map<std::string, v2::Quantity>& dielectric) -> WaterHGKgemsConstants
 {
-    const auto& values = v2::builtinParameterSets().at("WaterHGK84/gems").parameters;
-    Constants out;
+    WaterHGKgemsConstants out;
     auto number = [&](const std::string& name) { return values.at(name).value; };
     auto one = [&](auto& to, const std::string& name) { to = static_cast<std::decay_t<decltype(to)>>(number(name)); };
     // an array of one or two dimensions, as many values as the file has
@@ -363,17 +364,19 @@ auto readConstants() -> Constants
     list(out.cond_au, "cond_au");
     list(out.cond_bL, "cond_bL");
     list(out.cond_bu, "cond_bu");
-    list(out.jn_a, "jn_a");
+    for (std::size_t i = 0; i < 10; ++i)
+        out.jn_a[i] = dielectric.at("a" + std::to_string(i + 1)).value;
+    out.jn_Tr = dielectric.at("Tr").value;
+    out.jn_Dr = dielectric.at("Dr").value;
     return out;
 }
 
-auto constants() -> const Constants&
-{
-    static const Constants c = readConstants();
-    return c;
-}
-
 } // namespace
+
+auto makeWaterHGKgemsConstants(const std::map<std::string, v2::Quantity>& water, const std::map<std::string, v2::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>
+{
+    return std::make_shared<const WaterHGKgemsConstants>(readConstants(water, dielectric));
+}
 
 TOLERS  to_ = { /* TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL */
     1.0e-6, 1.0e-6, 1.0e-9, 1.0e-5, -673.5e0, 1.0e-7};
@@ -410,11 +413,11 @@ auto  WaterHGKgems::TdegK(int it, real t) -> real
     return(TdegK);
 }
 
-WaterHGKgems::WaterHGKgems()
+WaterHGKgems::WaterHGKgems(const WaterHGKgemsConstants& constants) : k_(&constants)
 {
     // set global constant
     //  npH2O++;
-    const auto& k = constants();
+    const auto& k = *k_;
     ac_value = k.ac;
     nc_value = k.nc;
     el_value = k.el;
@@ -2179,7 +2182,7 @@ auto WaterHGKgems::TdPsdT(real t_) -> real
 //    int i=-1;
     real v, w, y, z, q, b = 0.0e0, c = 0.0e0, TdPsdT;
 
-    const auto& a = constants().psat_a;
+    const auto& a = k_->psat_a;
     v = t_ / 647.25e0;
     w = 1.0 - v;
     for( int i=0; i<=7; i++  ) // while (i++ <= 7)
@@ -2252,7 +2255,7 @@ auto WaterHGKgems::ideal(real t) -> void
 {
     int i=1;
     real  tt, tl, emult;
-    const auto& c = constants().ideal_c;
+    const auto& c = k_->ideal_c;
 
     tt  = t / 1.0e2;
     tl  = log(tt);
@@ -2443,8 +2446,8 @@ auto WaterHGKgems::Born92(real TK, real Pbars, real Dgcm3, real betab,
 //See  statement 3.1-2 and 4.1-5 in Tabl. 1,6,8 in Sengers and Kamgar-Parsi (1984).
 auto WaterHGKgems::viscos(real Tk, real Pbars, real Dkgm3, real betaPa) -> real
 {
-    const auto& a = constants().visc_a;
-    const auto& b = constants().visc_b;
+    const auto& a = k_->visc_a;
+    const auto& b = k_->visc_b;
     real Tstar, Dstar, Pstar, ustar, TOL, vIscos, TdegC, sum,
     T, D, u0, u1, u2, xt;
     int i=-1, j=-1;
@@ -2505,10 +2508,10 @@ auto WaterHGKgems::thcond(real Tk, real Pbars, real Dkgm3, real alph,
     int i=-1, j=-1;
     real TOL, Tstar, Dstar, Pstar, ustar, C, TdegC;
     real thCOND, T, D, sum, L0, L1, L2, u0, u1, xt, dPdT;
-    const auto& aL = constants().cond_aL;
-    const auto& au = constants().cond_au;
-    const auto& bL = constants().cond_bL;
-    const auto& bu = constants().cond_bu;
+    const auto& aL = k_->cond_aL;
+    const auto& au = k_->cond_au;
+    const auto& bL = k_->cond_bL;
+    const auto& bu = k_->cond_bu;
     TOL    = 1.0e-2;
     Tstar  = 647.270e0;
     Dstar  = 317.763e0;
@@ -2832,7 +2835,7 @@ auto WaterHGKgems::PsHGK(real t) -> real
 {
     real  pl, psHGK, v, w, b, q, z;
     int i=-1;
-    const auto& a = constants().psat_a;
+    const auto& a = k_->psat_a;
     if (t <= 314.0e0)
     {
         pl    = 6.3573118e0 - 8858.843e0 / t + 607.56335e0 * pow(t,-0.6e0);
@@ -2898,9 +2901,10 @@ auto WaterHGKgems::JN91(real T, real D, real beta, real *alpha, real *daldT,
 {
     int j=-1, k=0;
     real c[5], dcdT[5], dc2dTT[5];
-    real Tref = 298.15e0, Tn;
+    real Tref = k_->jn_Tr, Tn;
 
-    const auto& a = constants().jn_a;
+    const auto& a = k_->jn_a;
+    D = D / (k_->jn_Dr / 1000.0);  // D is in g/cm3
 
     Tn        = T / Tref;
     c[0]      = 1.0e0;

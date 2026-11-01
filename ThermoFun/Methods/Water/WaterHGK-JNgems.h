@@ -3,7 +3,11 @@
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Real.hpp>
 
+#include <ThermoFun/Model/Quantity.h>
+
+#include <map>
 #include <memory>
+#include <string>
 #include <cstring>
 
 namespace ThermoFun {
@@ -254,12 +258,18 @@ struct STORE
     }
 };
 
+struct WaterHGKgemsConstants;
+
+/// The constants from the values of the method of water and of the dielectric constant, both with all their names.
+auto makeWaterHGKgemsConstants(const std::map<std::string, v2::Quantity>& water, const std::map<std::string, v2::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>;
+
 class WaterHGKgems
 {
 public:
-    WaterHGKgems();
+    explicit WaterHGKgems(const WaterHGKgemsConstants& constants);
 
 private:
+    const WaterHGKgemsConstants* k_;
 
     HGK_SPECS aSpc; HGK_STATES aSta;
 

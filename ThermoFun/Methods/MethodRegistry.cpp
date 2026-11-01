@@ -12,6 +12,7 @@
 
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Methods/Fluids/FluidMethods.h>
+#include <ThermoFun/Methods/Water/WaterHGK-JNgems.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
@@ -38,7 +39,14 @@ auto withConstants(MethodApplication application) -> MethodApplication
     if (set == sets.end())
         set = sets.find(application.method);
     if (set != sets.end())
+    {
+        // a constant the record gives must belong to this implementation, or nothing would read it
+        if (const auto* spec = MethodCatalog::instance().find(application.method))
+            for (const auto& p : spec->parameters)
+                if (p.constant && application.parameters.count(p.name) && !set->second.parameters.count(p.name))
+                    funError("Cannot make the method " + application.method, "The constant " + p.name + " does not belong to the implementation " + implementation + ".", __LINE__, __FILE__);
         application.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
+    }
     return application;
 }
 
@@ -252,7 +260,9 @@ MethodRegistry::MethodRegistry()
     SolventFactory iapws = [](A a) { return waterIAPWS95ReaktoroMethod(a); };
     solvent("WaterHGK84", "", hgkReaktoro);
     solvent("WaterHGK84", "reaktoro", hgkReaktoro);
-    solvent("WaterHGK84", "gems", [](A) { return waterHGK84GemsMethod(); });
+    solvent("WaterHGK84", "gems", [](A a) {
+        return waterHGK84GemsMethod(makeWaterHGKgemsConstants(a.parameters, builtinParameterSets().at("JohnsonNorton91").parameters));
+    });
     solvent("WaterIAPWS95", "", iapws);
     solvent("WaterIAPWS95", "reaktoro", iapws);
     solvent("WaterZhangDuan05", "", [](A a) {
@@ -262,7 +272,9 @@ MethodRegistry::MethodRegistry()
     DielectricFactory jnReaktoro = [](A a) { return johnsonNorton91ReaktoroMethod(constantsOf(a)); };
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
-    dielectric("JohnsonNorton91", "gems", [](A) { return johnsonNorton91GemsMethod(); });
+    dielectric("JohnsonNorton91", "gems", [](A a) {
+        return johnsonNorton91GemsMethod(makeWaterHGKgemsConstants(builtinParameterSets().at("WaterHGK84/gems").parameters, a.parameters));
+    });
     dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
     dielectric("FernandezEtAl97", "", [](A a) { return fernandezEtAl97Method(constantsOf(a)); });
 }

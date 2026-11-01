@@ -409,7 +409,7 @@ void testSolvent()
 
     // a pressure of 0 is the saturation pressure, and it is written back (IAPWS-95: 1554928 Pa; the code of GEMS has
     // its own saturation equation, 0.08 % lower)
-    for (const auto& method : {waterHGK84GemsMethod(), MethodRegistry::instance().createSolvent(MethodApplication{"WaterHGK84", "", "reaktoro"}), MethodRegistry::instance().createSolvent(MethodApplication{"WaterIAPWS95", "", "reaktoro"})})
+    for (const auto& method : {MethodRegistry::instance().createSolvent(MethodApplication{"WaterHGK84", "", "gems"}), MethodRegistry::instance().createSolvent(MethodApplication{"WaterHGK84", "", "reaktoro"}), MethodRegistry::instance().createSolvent(MethodApplication{"WaterIAPWS95", "", "reaktoro"})})
     {
         double P = 0.0;
         method->properties(473.15, P, 0);

@@ -11,10 +11,14 @@
 #include <ThermoFun/Model/MethodApplication.h>
 #include <ThermoFun/Methods/Water/WaterZhangDuan2005.h>
 
+namespace ThermoFun {
+struct WaterHGKgemsConstants;
+}
+
 namespace ThermoFun::v2 {
 
 /// WaterHGK84: implementation gems (the code of SUPCRT and GEMS, with the LVS equation near the critical point), or reaktoro.
-auto waterHGK84GemsMethod() -> std::shared_ptr<const SolventMethod>;
+auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const SolventMethod>;
 auto waterHGK84ReaktoroMethod(const MethodApplication& application) -> std::shared_ptr<const SolventMethod>;
 
 /// The properties of water as a solvent from the code of GEMS, in the reference of the triple point given by its name.
@@ -28,7 +32,7 @@ auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std
 
 /// JohnsonNorton91: implementation reaktoro, from the density of the solvent; or gems, from its own HGK calculation, without the solvent.
 auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
-auto johnsonNorton91GemsMethod() -> std::shared_ptr<const DielectricMethod>;
+auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const DielectricMethod>;
 
 /// SverjenskyEtAl14. constants: in the order of the catalog, as for the two others of this form
 auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;

@@ -16,6 +16,7 @@
 #include <ThermoFun/Methods/Water/WaterElectroFernandez1997.h>
 #include <ThermoFun/Methods/Water/WaterElectroSverjensky2014.h>
 #include <ThermoFun/Methods/Water/WaterHGK-JNgems.h>
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Methods/Water/WaterHGKreaktoro.h>
 #include <ThermoFun/Methods/Water/WaterJN91reaktoro.h>
 #include <ThermoFun/Methods/Water/WaterWP95reaktoro.h>
@@ -66,13 +67,13 @@ auto checkZhangDuan(double T, double P) -> void
     checkModelValidity(T, P, 2000.0, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
 }
 
-auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple) -> ThermoPropertiesSubstance
+auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> ThermoPropertiesSubstance
 {
     WaterTripleProperties wtr = waterTripleData().at(triple);
 
     double Pout = P;
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
+        WaterHGKgems water_hgk(constants);
         real t = pass.T - C_to_K;
         real p = pass.P / bar_to_Pa;
         water_hgk.calculateWaterHGKgems(t, p, wtr);
@@ -178,11 +179,11 @@ auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, in
     return eps;
 }
 
-auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent&, int state) -> ElectroPropertiesSolvent
+auto johnsonNorton91Gems(double T, double P, int state, const WaterHGKgemsConstants& constants) -> ElectroPropertiesSolvent
 {
     WaterTripleProperties wtr = waterTripleData().at("NEA_HGK");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
+        WaterHGKgems water_hgk(constants);
         real t = pass.T - C_to_K;
         real p = pass.P / bar_to_Pa;
         water_hgk.calculateWaterHGKgems(t, p, wtr);
@@ -234,13 +235,13 @@ private:
 
 } // namespace
 
-auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent
+auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> PropertiesSolvent
 {
     WaterTripleProperties wtr = waterTripleData().at(triple);
 
     double Pout = P;
     auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        WaterHGKgems water_hgk;
+        WaterHGKgems water_hgk(constants);
         real t = pass.T - C_to_K;
         real p = pass.P / bar_to_Pa;
         water_hgk.calculateWaterHGKgems(t, p, wtr);
@@ -266,9 +267,17 @@ auto waterHGK84GemsProperties(double T, double& P, int state, const std::string&
     return ps;
 }
 
-auto waterHGK84GemsMethod() -> std::shared_ptr<const SolventMethod>
+auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent
 {
-    return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "gems", waterHGK84GemsProperties, hgk84GemsSubstance, true);
+    static const auto constants = makeWaterHGKgemsConstants(builtinParameterSets().at("WaterHGK84/gems").parameters, builtinParameterSets().at("JohnsonNorton91").parameters);
+    return waterHGK84GemsProperties(T, P, state, triple, *constants);
+}
+
+auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const SolventMethod>
+{
+    return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "gems",
+        [constants](double T, double& P, int state, const std::string& triple) { return waterHGK84GemsProperties(T, P, state, triple, *constants); },
+        [constants](double T, double& P, int state, const std::string& triple) { return hgk84GemsSubstance(T, P, state, triple, *constants); }, true);
 }
 
 namespace {
@@ -338,9 +347,11 @@ auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared
     });
 }
 
-auto johnsonNorton91GemsMethod() -> std::shared_ptr<const DielectricMethod>
+auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const DielectricMethod>
 {
-    return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", johnsonNorton91Gems);
+    return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", [constants](double T, double P, const PropertiesSolvent&, int state) {
+        return johnsonNorton91Gems(T, P, state, *constants);
+    });
 }
 
 auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>

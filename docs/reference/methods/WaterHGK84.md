@@ -33,7 +33,7 @@ A record does not give these: ThermoFun reads them from `ThermoFun/Methods/Param
 
 Implementation `gems`.
 
-All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984); jn: dielectric constant of Johnson and Norton (1991). A record cannot replace these values: the GEMS code reads this table once for all its calculations.
+All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml.
 
 Source: Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991).
 
@@ -43,7 +43,7 @@ Helmholtz function of water, Reaktoro implementation. name_N is place N of the a
 
 Source: Haar L., Gallagher J.S., Kell G.S. (1984) NBS/NRC Steam Tables.
 
-Names: `A0_1` to `A0_18`, `A1_1` to `A1_5`, `yc_1` to `yc_4`, `ki_1` to `ki_36`, `li_1` to `li_36`, `A3_1` to `A3_36`, `mi_1` to `mi_4`, `ni_1` to `ni_4`, `alpha_1` to `alpha_4`, `beta_1` to `beta_4`, `ri_1` to `ri_4`, `ti_1` to `ti_4`, `A4_1` to `A4_4`, `referenceTemperature`, `referenceDensity`, `referenceHelmholtz`, `A20`, `z0`.
+Names: `A0_1` to `A0_18`, `A1_1` to `A1_5`, `yc_1` to `yc_4`, `ki_1` to `ki_36`, `li_1` to `li_36`, `A3_1` to `A3_36`, `mi_1` to `mi_4`, `ni_1` to `ni_4`, `alpha_1` to `alpha_4`, `beta_1` to `beta_4`, `ri_1` to `ri_4`, `ti_1` to `ti_4`, `A4_1` to `A4_4`, `referenceTemperature`, `referenceDensity`, `referenceHelmholtz`, `A20`, `z0`, `ac_wm`, `ac_gascon`, `ac_tz`, `ac_aa`, `ac_uref`, `ac_sref`, `ac_zb`, `ac_dzb`, `ac_yb`, `nc_nc`, `el_g1`, `el_g2`, `el_gf`, `el_b1`, `el_b2`, `el_b1t`, `el_b2t`, `el_b1tt`, `el_b2tt`, `hc_tcHGK`, `hc_dcHGK`, `hc_pcHGK`, `hb_Ttop`, `hb_Tbtm`, `hb_Ptop`, `hb_Pbtm`, `hb_Dtop`, `hb_Dbtm`, `li_sDli1`, `li_sPli1`, `li_sDli37`, `li_sPli37`, `li_sDIB30`, `li_Tli13`, `li_Pli13`, `li_Dli13`, `li_TnIB30`, `li_DnIB30`, `tt_Utri`, `tt_Stri`, `tt_Htri`, `tt_Atri`, `tt_Gtri`, `tt_Ttr`, `tt_Ptripl`, `tt_Dltrip`, `tt_Dvtrip`, `cr_Tc`, `cr_rhoC`, `cr_Pc`, `cr_Pcon`, `cr_Ucon`, `cr_Scon`, `cr_dPcon`, `nc_g_1` to `nc_g_40`, `nc_ii_1` to `nc_ii_40`, `nc_jj_1` to `nc_jj_40`, `bc_bp_1` to `bc_bp_10`, `bc_bq_1` to `bc_bq_10`, `ad_atz_1` to `ad_atz_4`, `ad_adz_1` to `ad_adz_4`, `ad_aat_1` to `ad_aat_4`, `ad_aad_1` to `ad_aad_4`, `co_a_1` to `co_a_20`, `co_q_1` to `co_q_20`, `co_x_1` to `co_x_11`, `psat_a_1` to `psat_a_8`, `ideal_c_1` to `ideal_c_18`, `visc_a_1` to `visc_a_4`, `visc_b_1` to `visc_b_42`, `cond_aL_1` to `cond_aL_4`, `cond_au_1` to `cond_au_4`, `cond_bL_1` to `cond_bL_30`, `cond_bu_1` to `cond_bu_30`.
 
 ## Example
 

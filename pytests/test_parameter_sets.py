@@ -161,3 +161,49 @@ def test_each_file_of_constants_describes_each_set():
         sets = len(re.findall(r"^  \w+:$", text, re.M))
         assert sets and len(re.findall(r'^    description: ".{40,}"$', text, re.M)) == sets, file.name
         assert len(re.findall(r'^    reference: ".+"$', text, re.M)) == sets, file.name
+
+
+def water_of(doc):
+    return next(m for m in doc["substances"][solvent_symbol(doc)]["methods"] if m["method"] == "WaterHGK84")
+
+
+def gems_water():
+    doc = water_with_dielectric()
+    water_of(doc)["implementation"] = "gems"
+    for m in doc["substances"][solvent_symbol(doc)]["methods"]:
+        if m["method"] == "SverjenskyEtAl14":
+            m["method"] = "JohnsonNorton91"
+            m["implementation"] = "gems"
+    return doc
+
+
+def gibbs_of_water(doc, T=473.15, P=1e8):
+    return tf.ThermoEngine(tf.Database(json.dumps(doc))).thermoPropertiesSubstance(T, P, solvent_symbol(doc)).gibbs_energy.val
+
+
+def test_a_record_can_replace_a_constant_of_the_gems_water_and_only_for_itself():
+    doc = gems_water()
+    plain = gibbs_of_water(doc)
+    changed = json.loads(json.dumps(doc))
+    water_of(changed)["parameters"] = {**water_of(changed).get("parameters", {}), "nc_g_1": -0.53062968529023e3 * 1.001}
+    assert gibbs_of_water(changed) != plain
+    assert gibbs_of_water(doc) == plain
+
+
+def test_a_record_can_replace_a_constant_of_johnson_norton_in_both_implementations():
+    for implementation in ("gems", "reaktoro"):
+        doc = gems_water()
+        method = next(m for m in doc["substances"][solvent_symbol(doc)]["methods"] if m["method"] == "JohnsonNorton91")
+        method["implementation"] = implementation
+        plain = epsilon(doc)
+        method["parameters"] = {**method.get("parameters", {}), "a2": 0.2128462733e+03 * 1.01}
+        assert epsilon(doc) != plain, implementation
+        assert epsilon(doc) == pytest.approx(plain, rel=0.1), implementation
+
+
+def test_a_constant_of_another_implementation_is_an_error():
+    doc = water_with_dielectric()
+    water_of(doc)["implementation"] = "reaktoro"
+    water_of(doc)["parameters"] = {**water_of(doc).get("parameters", {}), "nc_g_1": 1.0}
+    with pytest.raises(Exception, match="does not belong"):
+        gibbs_of_water(doc)

@@ -3,7 +3,7 @@ parameter_sets:
   WaterHGK84_gems_constants_v1:
     method: WaterHGK84
     implementation: gems
-    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984); jn: dielectric constant of Johnson and Norton (1991). A record cannot replace these values: the GEMS code reads this table once for all its calculations."
+    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml."
     reference: "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991)"
     parameters:
       ac_wm: 0.1801520000e2
@@ -377,16 +377,6 @@ parameter_sets:
       cond_bL_28: 0.0e0
       cond_bL_29: 0.0e0
       cond_bL_30: 0.0e0
-      jn_a_1: 0.1470333593e+02
-      jn_a_2: 0.2128462733e+03
-      jn_a_3: -0.1154445173e+03
-      jn_a_4: 0.1955210915e+02
-      jn_a_5: -0.8330347980e+02
-      jn_a_6: 0.3213240048e+02
-      jn_a_7: -0.6694098645e+01
-      jn_a_8: -0.3786202045e+02
-      jn_a_9: 0.6887359646e+02
-      jn_a_10: -0.2729401652e+02
       cond_bu_1: 0.5019380e0
       cond_bu_2: 0.2356220e0
       cond_bu_3: -0.2746370e0
