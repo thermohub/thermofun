@@ -26,14 +26,14 @@ auto waterIAPWS95ReaktoroMethod() -> std::shared_ptr<const SolventMethod>;
 auto waterZhangDuan05Method(bool dew_gibbs = false, DewGibbsCoefficients coefficients = {}) -> std::shared_ptr<const SolventMethod>;
 
 /// JohnsonNorton91: implementation reaktoro, from the density of the solvent; or gems, from its own HGK calculation, without the solvent.
-auto johnsonNorton91ReaktoroMethod() -> std::shared_ptr<const DielectricMethod>;
+auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
 auto johnsonNorton91GemsMethod() -> std::shared_ptr<const DielectricMethod>;
 
-/// SverjenskyEtAl14
-auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;  // a1, a2, a3, b1, b2, b3
+/// SverjenskyEtAl14. constants: in the order of the catalog, as for the two others of this form
+auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
 
 /// FernandezEtAl97
-auto fernandezEtAl97Method() -> std::shared_ptr<const DielectricMethod>;
+auto fernandezEtAl97Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
 
 } // namespace ThermoFun::v2
 

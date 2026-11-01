@@ -26,20 +26,6 @@ namespace ThermoFun::v2 {
 namespace {
 
 /// The names of the parameters of a method, in the order of the catalog. alpha0 and kappa0 of a mineral are apart: its formulas get them on their own.
-/// The values of these names. Each one comes from the built-in constants, a parameter set or the record.
-auto constantsOf(const MethodApplication& application, std::initializer_list<const char*> names) -> std::vector<double>
-{
-    std::vector<double> out;
-    for (const char* name : names)
-    {
-        const auto it = application.parameters.find(name);
-        if (it == application.parameters.end())
-            funError("Cannot make the method " + application.method, std::string("It has no value of ") + name + ".", __LINE__, __FILE__);
-        out.push_back(it->second.value);
-    }
-    return out;
-}
-
 auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::string>
 {
     std::vector<std::string> names;
@@ -237,12 +223,24 @@ MethodRegistry::MethodRegistry()
         const auto dew = a.parameters.find("dew_gibbs");
         return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, coefficients);
     });
-    DielectricFactory jnReaktoro = [](A) { return johnsonNorton91ReaktoroMethod(); };
+    // the values in the order of the catalog. Each one comes from the built-in constants, a parameter set or the record
+    auto constantsOf = [](A a) {
+        std::vector<double> values;
+        for (const auto& n : catalogNames(a.method.c_str()))
+        {
+            const auto it = a.parameters.find(n);
+            if (it == a.parameters.end())
+                funError("Cannot make the method " + a.method, "It has no value of " + n + ".", __LINE__, __FILE__);
+            values.push_back(it->second.value);
+        }
+        return values;
+    };
+    DielectricFactory jnReaktoro = [constantsOf](A a) { return johnsonNorton91ReaktoroMethod(constantsOf(a)); };
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
     dielectric("JohnsonNorton91", "gems", [](A) { return johnsonNorton91GemsMethod(); });
-    dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a, {"a1", "a2", "a3", "b1", "b2", "b3"})); });
-    dielectric("FernandezEtAl97", "", [](A) { return fernandezEtAl97Method(); });
+    dielectric("SverjenskyEtAl14", "", [constantsOf](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
+    dielectric("FernandezEtAl97", "", [constantsOf](A a) { return fernandezEtAl97Method(constantsOf(a)); });
 }
 
 auto MethodRegistry::instance() -> MethodRegistry&

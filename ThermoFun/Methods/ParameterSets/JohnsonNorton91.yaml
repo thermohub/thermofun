@@ -1,0 +1,20 @@
+# The dielectric constant of water of Johnson and Norton (1991): eps = sum k_i(t) r^i, t = T/Tr, r = rho/Dr.
+# k0 = 1, k1 = a1/t, k2 = a2/t + a3 + a4 t, k3 = a5/t + a6 t + a7 t2, k4 = a8/t2 + a9/t + a10. Tr in K, Dr in kg/m3.
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  JohnsonNorton91_constants_v1:
+    method: JohnsonNorton91
+    reference: "Johnson J.W., Norton D. (1991) Am. J. Sci. 291, 541-648"
+    parameters:
+      a1: 0.1470333593e+02
+      a2: 0.2128462733e+03
+      a3: -0.1154445173e+03
+      a4: 0.1955210915e+02
+      a5: -0.8330347980e+02
+      a6: 0.3213240048e+02
+      a7: -0.6694098645e+01
+      a8: -0.3786202045e+02
+      a9: 0.6887359646e+02
+      a10: -0.2729401652e+02
+      Tr: 298.15
+      Dr: 1000.0

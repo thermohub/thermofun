@@ -33,52 +33,29 @@ namespace {
 // Amer. Jour. Sci., v. 291, pp. 541-648.
 //------------------------------------------------------------------------------------------
 
-// The reference temperature (in K) and density (in kg/m3) for the calculation of
-// the dielectric constant of water and its partial derivatives
-const double kReferenceTemperature = 298.15;
-const double kReferenceDensity = 1000.0;
-
-const double a[] =
+/// k_i(t), and its first and second derivative. a: a1 to a10, in the places 1 to 10.
+struct Term
 {
-	 0.0000000000e+00,
-	 0.1470333593e+02,
-	 0.2128462733e+03,
-	-0.1154445173e+03,
-	 0.1955210915e+02,
-	-0.8330347980e+02,
-	 0.3213240048e+02,
-	-0.6694098645e+01,
-	-0.3786202045e+02,
-	 0.6887359646e+02,
-	-0.2729401652e+02
+    real k, k_t, k_tt;
 };
 
-inline auto k0(real /*t*/)    -> real { return real(1.0); }
-inline auto k1(real t)    -> real { return a[1]/t; }
-inline auto k2(real t)    -> real { return a[2]/t + a[3] + a[4]*t; }
-inline auto k3(real t)    -> real { return a[5]/t + a[6]*t + a[7]*t*t; }
-inline auto k4(real t)    -> real { return a[8]/t/t + a[9]/t + a[10]; }
-
-inline auto k0_t(real /*t*/)  -> real { return real(0.0); }
-inline auto k1_t(real t)  -> real { return -a[1]/(t*t); }
-inline auto k2_t(real t)  -> real { return -a[2]/(t*t) + a[4]; }
-inline auto k3_t(real t)  -> real { return -a[5]/(t*t) + a[6] + 2*a[7]*t; }
-inline auto k4_t(real t)  -> real { return -2*a[8]/(t*t*t) - a[9]/(t*t); }
-
-inline auto k0_tt(real /*t*/) -> real { return real(0.0); }
-inline auto k1_tt(real t) -> real { return 2*a[1]/(t*t*t); }
-inline auto k2_tt(real t) -> real { return 2*a[2]/(t*t*t); }
-inline auto k3_tt(real t) -> real { return 2*a[5]/(t*t*t) + 2*a[7]; }
-inline auto k4_tt(real t) -> real { return 6*a[8]/(t*t*t*t) + 2*a[9]/(t*t*t); }
-
-real (*k[5])(real)    = {k0, k1, k2, k3, k4};
-real (*k_t[5])(real)  = {k0_t, k1_t, k2_t, k3_t, k4_t};
-real (*k_tt[5])(real) = {k0_tt, k1_tt, k2_tt, k3_tt, k4_tt};
+auto term(int i, const real& t, const double* a) -> Term
+{
+    switch (i)
+    {
+        case 0: return {real(1.0), real(0.0), real(0.0)};
+        case 1: return {a[1]/t, -a[1]/(t*t), 2*a[1]/(t*t*t)};
+        case 2: return {a[2]/t + a[3] + a[4]*t, -a[2]/(t*t) + a[4], 2*a[2]/(t*t*t)};
+        case 3: return {a[5]/t + a[6]*t + a[7]*t*t, -a[5]/(t*t) + a[6] + 2*a[7]*t, 2*a[5]/(t*t*t) + 2*a[7]};
+        default: return {a[8]/t/t + a[9]/t + a[10], -2*a[8]/(t*t*t) - a[9]/(t*t), 6*a[8]/(t*t*t*t) + 2*a[9]/(t*t*t)};
+    }
+}
 
 } // namespace
 
-auto waterElectroStateJohnsonNorton(real T, /*real P,*/ const WaterThermoState& wt, int state) -> WaterElectroState
+auto waterElectroStateJohnsonNorton(real T, /*real P,*/ const WaterThermoState& wt, const std::vector<double>& constants, int state) -> WaterElectroState
 {
+    const double a[] = {0.0, constants[0], constants[1], constants[2], constants[3], constants[4], constants[5], constants[6], constants[7], constants[8], constants[9]};
 	WaterElectroState we;
 
     we.epsilon   = 0.0;
@@ -94,8 +71,8 @@ auto waterElectroStateJohnsonNorton(real T, /*real P,*/ const WaterThermoState& 
     const auto betaT  =  wt.densityTP/wt.density + alpha*beta;
     const auto betaP  =  wt.densityPP/wt.density - beta*beta;
 
-    const auto Tr = kReferenceTemperature;
-    const auto Dr = kReferenceDensity;
+    const auto Tr = constants[10];
+    const auto Dr = constants[11];
 
 	const auto t = T/Tr;
 	const auto r = wt.density/Dr;
@@ -103,9 +80,10 @@ auto waterElectroStateJohnsonNorton(real T, /*real P,*/ const WaterThermoState& 
 	for(int i = 0; i <= 4; ++i)
 	{
 		const auto ri    = pow(r, i);
-		const auto ki    = k[i](t);
-		const auto ki_t  = k_t[i](t)/Tr;
-		const auto ki_tt = k_tt[i](t)/Tr/Tr;
+		const auto ti    = term(i, t, a);
+		const auto ki    = ti.k;
+		const auto ki_t  = ti.k_t/Tr;
+		const auto ki_tt = ti.k_tt/Tr/Tr;
 
 		we.epsilon   += ki*ri;
 		we.epsilonT  += ri*(ki_t - i*alpha*ki);

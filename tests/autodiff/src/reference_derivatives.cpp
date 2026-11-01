@@ -12,6 +12,7 @@
 #include "ThermoEngine.h"
 #include <memory>
 
+#include "Methods/MethodRegistry.h"
 #include "Methods/Water/WaterMethods.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
@@ -202,8 +203,8 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
-        const auto sverjensky = v2::sverjenskyEtAl14Method({-1.576377e-03, 6.810288e-02, 7.548755e-01, -8.016651e-05, -6.871618e-02, 4.747973});
-        const auto fernandez = v2::fernandezEtAl97Method();
+        const auto sverjensky = v2::MethodRegistry::instance().createDielectric(ThermoFun::v2::MethodApplication{"SverjenskyEtAl14"});
+        const auto fernandez = v2::MethodRegistry::instance().createDielectric(ThermoFun::v2::MethodApplication{"FernandezEtAl97"});
 
         auto check = [&](const char* name, const std::shared_ptr<const v2::DielectricMethod>& model, jets::Dual (*epsilon)(jets::Dual, jets::Dual), double T, double P) {
             double p = P;

@@ -332,15 +332,32 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
                              .add(zhangDuanGibbs())));
+    // the constants of a model: built-in, so a record does not have to give them (see Methods/ParameterSets)
+    auto constants = [](std::vector<std::pair<const char*, const char*>> rows) {
+        std::vector<ParameterSpec> out;
+        for (const auto& [name, description] : rows)
+            out.push_back(par(name, "1", "1", description, false));
+        return out;
+    };
+    auto numbered = [](const char* prefix, int count, const char* description) {
+        std::vector<ParameterSpec> out;
+        for (int i = 1; i <= count; ++i)
+            out.push_back(par((prefix + std::to_string(i)).c_str(), "1", "1", description, false));
+        return out;
+    };
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
-                               .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})));
+                               .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})
+                               .add(numbered("a", 10, "coefficient of k_i(t)")).add(constants({{"Tr", "reference temperature, K"}, {"Dr", "reference density, kg/m3"}}))));
     m.push_back(dielectric(Spec("SverjenskyEtAl14", "Dielectric constant of Sverjensky et al.", "Calculates the dielectric constant of water at high pressure (DEW model). The published coefficients are for t in degC and the density in g/cm3.", "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145")
                                .alias({"Sverjensky14Diel"})
-                               .add({par("a1", "1", "1", "coefficient of t in w; t in degC", false), par("a2", "1", "1", "coefficient of sqrt(t) in w", false), par("a3", "1", "1", "constant of w", false),
-                                     par("b1", "1", "1", "coefficient of t in u", false), par("b2", "1", "1", "coefficient of sqrt(t) in u", false), par("b3", "1", "1", "constant of u", false)})));
+                               .add(constants({{"a1", "coefficient of t in w; t in degC"}, {"a2", "coefficient of sqrt(t) in w"}, {"a3", "constant of w"},
+                                               {"b1", "coefficient of t in u"}, {"b2", "coefficient of sqrt(t) in u"}, {"b3", "constant of u"}}))));
     m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166")
-                               .alias({"Fernandez97Diel"})));
+                               .alias({"Fernandez97Diel"})
+                               .add(numbered("n", 12, "coefficient of g")).add(numbered("I", 11, "exponent of the density")).add(numbered("J", 11, "exponent of the temperature"))
+                               .add(constants({{"Tc", "critical temperature, K"}, {"rhoc", "critical density, kg/m3"}, {"k", "constant of Boltzmann, SI"}, {"Na", "number of Avogadro, 1/mol"},
+                                               {"alpha", "mean molecular polarizability, SI"}, {"epsilon0", "permittivity of vacuum, SI"}, {"mu", "dipole moment, SI"}, {"M", "molar mass, kg/mol"}}))));
 
     std::vector<MethodSpec> out;
     for (auto& s : m)

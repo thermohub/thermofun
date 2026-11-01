@@ -8,16 +8,17 @@
 
 namespace ThermoFun {
 
-const double I[] = {1, 1, 1, 2, 3, 3, 4, 5, 6, 7, 10};
-const double J[] = {0.25, 1, 2.5, 1.5, 1.5, 2.5, 2, 2, 5, 0.5, 10};
-const double n[] = {0.978224486826, -0.957771379375, 0.237511794148, 0.714692244396,
-     -0.298217036956, -0.108863472196, .949327488264e-1, -.980469816509e-2,
-     .165167634970e-4, .937359795772e-4, -.12317921872e-9, .196096504426e-2};
-const double Tc = 647.096;     // K
-const double Pc = 22.064;      // MPa
-const double rhoc = 322.;      // kg/m³
+/// The constants in the order of the catalog: n1 to n12, I1 to I11, J1 to J11, Tc, rhoc, k, Na, alpha, epsilon0, mu, M
+struct Constants
+{
+    const double* n;
+    const double* I;
+    const double* J;
+    double Tc, rhoc, k, Na, alfa, epsilon0, mu, M;
 
-
+    explicit Constants(const std::vector<double>& c)
+    : n(c.data()), I(c.data() + 12), J(c.data() + 23), Tc(c[34]), rhoc(c[35]), k(c[36]), Na(c[37]), alfa(c[38]), epsilon0(c[39]), mu(c[40]), M(c[41]) {}
+};
 
 /// The dielectric constant of water of Fernandez et al. (1997) and its partial derivatives with respect to T (K) and the density
 /// (kg/m3), analytical:
@@ -29,14 +30,10 @@ struct EpsilonF
     real eps, T, rho, TT, Trho, rhorho;
 };
 
-static auto epsilonF(const real& T, const real& rho) -> EpsilonF
+static auto epsilonF(const real& T, const real& rho, const Constants& c) -> EpsilonF
 {
-    const double k        = 1.380658e-23;
-    const double Na       = 6.0221367e23;
-    const double alfa     = 1.636e-40;
-    const double epsilon0 = 8.854187817e-12;
-    const double mu       = 6.138e-30;
-    const double M        = 0.018015268;
+    const auto n = c.n, I = c.I, J = c.J;
+    const double Tc = c.Tc, rhoc = c.rhoc, k = c.k, Na = c.Na, alfa = c.alfa, epsilon0 = c.epsilon0, mu = c.mu, M = c.M;
     const double cA = Na*mu*mu/M/epsilon0/k;
     const double cB = Na*alfa/3/M/epsilon0;
 
@@ -104,14 +101,14 @@ static auto epsilonF(const real& T, const real& rho) -> EpsilonF
 }
 
 
-auto electroPropertiesWaterFernandez1997(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent) -> ElectroPropertiesSolventAD
+auto electroPropertiesWaterFernandez1997(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent, const std::vector<double>& constants) -> ElectroPropertiesSolventAD
 {
     ElectroPropertiesSolventAD wep;
 
     const auto r = densityDerivatives(pass, solvent);
 
     // the dielectric constant and its total derivatives with respect to T and P (Pa): the chain rule with the derivatives of the density
-    const auto e = epsilonF(pass.T, r.rho);
+    const auto e = epsilonF(pass.T, r.rho, Constants(constants));
     const real eps_T = e.T + e.rho*r.T;
     const real eps_P = e.rho*r.P;
     const real eps_TT = e.TT + 2*e.Trho*r.T + e.rhorho*r.T*r.T + e.rho*r.TT;

@@ -147,7 +147,7 @@ auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const DewGibbsCoe
     return tps;
 }
 
-auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, int state) -> ElectroPropertiesSolvent
+auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, int state, const std::vector<double>& constants) -> ElectroPropertiesSolvent
 {
     auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         WaterThermoState wts;
@@ -157,7 +157,7 @@ auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, in
         wts.densityTT = pass(ps.densityTT);
         wts.densityTP = pass(ps.densityTP);
         wts.densityPP = pass(ps.densityPP);
-        return electroPropertiesWaterJNreaktoro(waterElectroStateJohnsonNorton(pass.T, /*pass.P,*/ wts, state));
+        return electroPropertiesWaterJNreaktoro(waterElectroStateJohnsonNorton(pass.T, /*pass.P,*/ wts, constants, state));
     });
     // the calculation only keeps the values and derivatives of the density, so the errors and statuses of
     // the density inputs are propagated onto each result, according to the derivatives it is calculated from
@@ -187,13 +187,6 @@ auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent&, int state
         real p = pass.P / bar_to_Pa;
         water_hgk.calculateWaterHGKgems(t, p, wtr);
         return water_hgk.electroPropertiesWaterJNgems(state); // state 0 = liquid
-    });
-}
-
-auto fernandezEtAl97(double T, double P, const PropertiesSolvent& solvent, int) -> ElectroPropertiesSolvent
-{
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return electroPropertiesWaterFernandez1997(pass, solvent);
     });
 }
 
@@ -297,9 +290,11 @@ auto waterZhangDuan05Method(bool dew_gibbs, DewGibbsCoefficients coefficients) -
         [dew_gibbs, coefficients](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, coefficients); }, false);
 }
 
-auto johnsonNorton91ReaktoroMethod() -> std::shared_ptr<const DielectricMethod>
+auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>
 {
-    return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "reaktoro", johnsonNorton91Reaktoro);
+    return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "reaktoro", [constants = std::move(constants)](double T, double P, const PropertiesSolvent& solvent, int state) {
+        return johnsonNorton91Reaktoro(T, P, solvent, state, constants);
+    });
 }
 
 auto johnsonNorton91GemsMethod() -> std::shared_ptr<const DielectricMethod>
@@ -316,9 +311,13 @@ auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<co
     });
 }
 
-auto fernandezEtAl97Method() -> std::shared_ptr<const DielectricMethod>
+auto fernandezEtAl97Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>
 {
-    return std::make_shared<const FunctionDielectricMethod>("FernandezEtAl97", "", fernandezEtAl97);
+    return std::make_shared<const FunctionDielectricMethod>("FernandezEtAl97", "", [constants = std::move(constants)](double T, double P, const PropertiesSolvent& solvent, int) {
+        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+            return electroPropertiesWaterFernandez1997(pass, solvent, constants);
+        });
+    });
 }
 
 } // namespace ThermoFun::v2

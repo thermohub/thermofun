@@ -11,6 +11,7 @@
 #include "Database.h"
 #include "ThermoProperties.h"
 #include "Engine/Executor.h"
+#include "Methods/MethodRegistry.h"
 #include "Methods/Fluids/FluidMethods.h"
 #include "Methods/Minerals/MineralMethods.h"
 #include "Methods/Minerals/ReferenceMethods.h"
@@ -240,8 +241,8 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
-        const auto sverjensky = sverjenskyEtAl14Method({-1.576377e-03, 6.810288e-02, 7.548755e-01, -8.016651e-05, -6.871618e-02, 4.747973});
-        const auto fernandez = fernandezEtAl97Method();
+        const auto sverjensky = MethodRegistry::instance().createDielectric(MethodApplication{"SverjenskyEtAl14"});
+        const auto fernandez = MethodRegistry::instance().createDielectric(MethodApplication{"FernandezEtAl97"});
         // the properties of the solvent at T and P, as the engine gives them to a method
         const auto electro = [&](const std::shared_ptr<const DielectricMethod>& model, double t, double p) {
             double pp = p;
