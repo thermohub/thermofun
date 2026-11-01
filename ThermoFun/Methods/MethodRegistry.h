@@ -20,6 +20,9 @@
 namespace ThermoFun::v2 {
 
 /// Makes the method objects from what a record says. It has one factory for each method id and implementation.
+/// The application with the built-in constants of its method, for each value that it does not give itself.
+auto withBuiltinConstants(const MethodApplication& application) -> MethodApplication;
+
 class MethodRegistry
 {
 public:

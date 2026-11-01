@@ -376,3 +376,70 @@ def test_the_derivatives_of_a_fluid_on_a_substance_defined_by_a_reaction(tmp_pat
         problems += check(doc, "substance", 600.0, 1e8, "X", ref, holder_of, exact, theta)
     assert not problems, problems[:4]
     assert volumes["Tc"] != 0.0 and volumes["Pc"] != 0.0
+
+
+# --- the constants of the methods, also through the water ------------------------------------------------------------
+
+AQ = "pytests/data/v2/hkf.json"
+
+
+def solvent_method(engine_file=AQ):
+    doc = json.loads(tf.Database(engine_file).toJson(readable=False))
+    solvent = next(s for s, r in doc["substances"].items() if r.get("class") == "water_solvent")
+    return solvent, doc["substances"][solvent]["methods"]
+
+
+def gibbs_with(ref, value, symbol, T, P):
+    engine = tf.ThermoEngine(AQ)
+    engine.parameter(*ref).setValue(value)
+    return engine.thermoPropertiesSubstance(T, P, symbol).gibbs_energy.val
+
+
+def test_a_constant_of_the_dielectric_method_reaches_a_solute_through_the_water():
+    solvent, methods = solvent_method()
+    dielectric = next(m["method"] for m in methods if m["method"] in ("JohnsonNorton91", "SverjenskyEtAl14", "FernandezEtAl97"))
+    name = {"JohnsonNorton91": "a2", "SverjenskyEtAl14": "b3", "FernandezEtAl97": "n1"}[dielectric]
+    ref = (solvent, dielectric, name)
+    T, P = 473.15, 5e7
+    engine = tf.ThermoEngine(AQ)
+    value = engine.parameter(*ref).value()
+    got = engine.parameterSensitivities(T, P, "Na+", [ref])["G"]["%s/%s/%s" % ref]
+    step = abs(value) * 1e-3
+    hand = (gibbs_with(ref, value + step, "Na+", T, P) - gibbs_with(ref, value - step, "Na+", T, P)) / (2 * step)
+    assert got != 0.0
+    assert got == pytest.approx(hand, rel=1e-3)
+
+
+def test_a_constant_of_the_water_reaches_the_water_itself():
+    solvent, methods = solvent_method()
+    water = next(m for m in methods if m["method"] in ("WaterHGK84", "WaterIAPWS95"))
+    name = "M" if water.get("implementation", "reaktoro") == "reaktoro" else "ac_tz"
+    ref = (solvent, water["method"], name)
+    T, P = 473.15, 5e7
+    engine = tf.ThermoEngine(AQ)
+    assert engine.parameterSensitivities(T, P, solvent, [ref])["V"]["%s/%s/%s" % ref] != 0.0
+
+
+def test_a_constant_of_the_method_of_a_solute():
+    T, P = 473.15, 5e7
+    ref = ("Na+", "HKF88", "eta")
+    engine = tf.ThermoEngine(AQ)
+    assert engine.parameterSensitivities(T, P, "Na+", [ref])["G"]["Na+/HKF88/eta"] != 0.0
+    assert engine.parameter(*ref).value() > 0.0
+    assert "eta" not in [h.key()[2] for h in engine.parameters("Na+")]
+
+
+def test_a_constant_of_the_method_of_a_reaction():
+    file = "pytests/Reactions/Co_Cu_aq-thermofun.json"
+    ref = ("CoCl4-2", "RyzhenkoBryzgalin", "zzH2O")
+    got = tf.ThermoEngine(file).reactionParameterSensitivities(673.15, 800e5, "CoCl4-2", [ref])["logK"]["CoCl4-2/RyzhenkoBryzgalin/zzH2O"]
+    def logK(value):
+        engine = tf.ThermoEngine(file)
+        engine.parameter(*ref).setValue(value)
+        return engine.thermoPropertiesReaction(673.15, 800e5, "CoCl4-2").log_equilibrium_constant.val
+    assert got == pytest.approx((logK(1.0107 * 1.001) - logK(1.0107 * 0.999)) / (2 * 1.0107e-3), rel=1e-3)
+
+
+def test_a_method_that_the_record_does_not_use_is_an_error():
+    with pytest.raises(RuntimeError, match="does not use"):
+        tf.ThermoEngine(AQ).parameterSensitivities(473.15, 5e7, "Na+", [("Na+", "CorkHP91", "cs_a0")])

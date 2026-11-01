@@ -283,6 +283,9 @@ struct ThermoEngine::Impl
     /// True if a substance is calculated from its defining reaction, by its record and the sources.
     auto comesFromReaction(const Substance& substance) const -> bool;
 
+    /// True if the parameter is a built-in constant of its method. A derivative by a constant is a central difference of the whole calculation.
+    auto isConstant(const ParameterRef& ref) const -> bool;
+
     /// True if a reaction is the sum of its reactants, by its record and the sources. If a reactant comes from this reaction there is a loop: a choice
     /// for this reaction is an error that names the loop, and a choice for all records leaves this one to its own methods, with a warning.
     auto reactionFromReactants(const Reaction& reaction) const -> bool;

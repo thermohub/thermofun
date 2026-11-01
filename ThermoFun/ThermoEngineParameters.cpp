@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Methods/MethodRegistry.h>
 
 namespace ThermoFun
 {
@@ -16,6 +17,14 @@ auto ThermoEngine::Impl::isOfReaction(const ParameterRef& ref) const -> bool
         return ref.parameter == "logK" || ref.parameter == "dG" || ref.parameter == "dH" || ref.parameter == "dS" || ref.parameter == "dCp" || ref.parameter == "dV";
     const auto* spec = v2::MethodCatalog::instance().find(ref.method);
     return spec && spec->operates_on == v2::OperatesOn::Reaction;
+}
+
+auto ThermoEngine::Impl::isConstant(const ParameterRef& ref) const -> bool
+{
+    if (ref.method.empty())
+        return false;
+    const auto* spec = v2::MethodCatalog::instance().find(ref.method);
+    return spec && std::any_of(spec->parameters.begin(), spec->parameters.end(), [&](const auto& p) { return p.constant && p.name == ref.parameter; });
 }
 
 auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> v2::Quantity
@@ -33,6 +42,15 @@ auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> v2::Quantity
         s = *v2::withParameterSets(database.getSubstance(ref.symbol).record(), database.parameterSets());
         found = v2::findValue(s, ref);
     }
+    // a constant of the method that the record does not replace
+    if (!found && isConstant(ref))
+        for (const auto& a : isOfReaction(ref) ? r.methods : s.methods)
+            if (a.method == ref.method)
+            {
+                const auto all = v2::withBuiltinConstants(a);
+                if (const auto it = all.parameters.find(ref.parameter); it != all.parameters.end())
+                    return it->second;
+            }
     if (!found)
         funError("Cannot read the parameter " + ref.name(), "The record has no such value.", __LINE__, __FILE__);
     return *found;

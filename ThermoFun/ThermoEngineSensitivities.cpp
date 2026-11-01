@@ -72,6 +72,19 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
     const auto* spec = v2::MethodCatalog::instance().find(ref.method);
     if (!spec)
         fail("The catalog has no such method.");
+    if (isConstant(ref))
+    {
+        const bool ofReaction = spec->operates_on == v2::OperatesOn::Reaction;
+        if (ofReaction ? !database.containsReaction(ref.symbol) : !database.containsSubstance(ref.symbol))
+            fail("The database has no such record.");
+        const auto& methods = ofReaction ? database.getReaction(ref.symbol).record()->methods : database.getSubstance(ref.symbol).record()->methods;
+        if (std::none_of(methods.begin(), methods.end(), [&](const auto& a) { return a.method == ref.method; }))
+            fail("The record does not use this method.");
+        for (const char* integer : {"ki_", "li_", "mi_", "ni_", "nc_ii_", "nc_jj_", "nc_nc"})
+            if (ref.parameter.rfind(integer, 0) == 0)
+                fail("This constant is an integer of a table: it has no derivative.");
+        return;
+    }
     if (spec->operates_on == v2::OperatesOn::Reaction)
     {
         if (!database.containsReaction(ref.symbol))
@@ -269,6 +282,24 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
     return d;
 }
 
+namespace {
+
+/// Two copies of an engine with a constant of a method a little higher and lower. Through them a constant reaches all that depends on the record, also through
+/// the water into a solute. The constants have no autodiff pass: they are not parameters to fit by default, and many.
+auto enginesAroundConstant(const ThermoEngine& engine, const ParameterRef& ref, double& step) -> std::pair<ThermoEngine, ThermoEngine>
+{
+    std::pair<ThermoEngine, ThermoEngine> out(engine, engine);
+    auto high = out.first.parameter(ref.symbol, ref.method, ref.parameter);
+    auto low = out.second.parameter(ref.symbol, ref.method, ref.parameter);
+    const double value = high.value();
+    step = value != 0.0 ? std::fabs(value) * 1e-6 : 1e-6;
+    high.setValue(value + step);
+    low.setValue(value - step);
+    return out;
+}
+
+} // namespace
+
 auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult
 {
     if (!Reaktoro_::kWithAutodiff)
@@ -279,8 +310,25 @@ auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string
     for (const auto& ref : parameters)
     {
         pimpl->checkParameter(ref);
-        const auto d = pimpl->substanceDerivative(T, P, pimpl->database.getSubstance(symbol), ref);
         const auto name = ref.name();
+        if (pimpl->isConstant(ref))
+        {
+            double step = 0.0;
+            auto [high, low] = enginesAroundConstant(*this, ref, step);
+            double Phigh = P, Plow = P;
+            const auto up = high.thermoPropertiesSubstance(T, Phigh, symbol);
+            const auto down = low.thermoPropertiesSubstance(T, Plow, symbol);
+            const auto slope = [&](const Reaktoro_::ThermoProperty& x, const Reaktoro_::ThermoProperty& y) { return (x.val - y.val) / (2.0 * step); };
+            out["G"][name] = slope(up.gibbs_energy, down.gibbs_energy);
+            out["H"][name] = slope(up.enthalpy, down.enthalpy);
+            out["S"][name] = slope(up.entropy, down.entropy);
+            out["Cp"][name] = slope(up.heat_capacity_cp, down.heat_capacity_cp);
+            out["V"][name] = slope(up.volume, down.volume) * 1e-5;
+            out["U"][name] = out["H"][name] - P * out["V"][name];
+            out["A"][name] = out["U"][name] - T * out["S"][name];
+            continue;
+        }
+        const auto d = pimpl->substanceDerivative(T, P, pimpl->database.getSubstance(symbol), ref);
         out["G"][name] = d.G;
         out["H"][name] = d.H;
         out["S"][name] = d.S;
@@ -303,8 +351,25 @@ auto ThermoEngine::reactionParameterSensitivities(double T, double& P, const std
     for (const auto& ref : parameters)
     {
         pimpl->checkParameter(ref);
-        const auto d = pimpl->reactionDerivative(T, P, reaction, ref);
         const auto name = ref.name();
+        if (pimpl->isConstant(ref))
+        {
+            double step = 0.0;
+            auto [high, low] = enginesAroundConstant(*this, ref, step);
+            double Phigh = P, Plow = P;
+            const auto up = high.thermoPropertiesReaction(T, Phigh, symbol);
+            const auto down = low.thermoPropertiesReaction(T, Plow, symbol);
+            const auto slope = [&](const Reaktoro_::ThermoProperty& x, const Reaktoro_::ThermoProperty& y) { return (x.val - y.val) / (2.0 * step); };
+            out["logK"][name] = slope(up.log_equilibrium_constant, down.log_equilibrium_constant);
+            out["lnK"][name] = slope(up.ln_equilibrium_constant, down.ln_equilibrium_constant);
+            out["dG"][name] = slope(up.reaction_gibbs_energy, down.reaction_gibbs_energy);
+            out["dH"][name] = slope(up.reaction_enthalpy, down.reaction_enthalpy);
+            out["dS"][name] = slope(up.reaction_entropy, down.reaction_entropy);
+            out["dCp"][name] = slope(up.reaction_heat_capacity_cp, down.reaction_heat_capacity_cp);
+            out["dV"][name] = slope(up.reaction_volume, down.reaction_volume) * 1e-5;
+            continue;
+        }
+        const auto d = pimpl->reactionDerivative(T, P, reaction, ref);
         out["logK"][name] = d.log_equilibrium_constant.val;
         out["lnK"][name] = d.ln_equilibrium_constant.val;
         out["dG"][name] = d.reaction_gibbs_energy.val;

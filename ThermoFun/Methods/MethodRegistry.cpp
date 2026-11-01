@@ -52,6 +52,15 @@ auto withConstants(MethodApplication application) -> MethodApplication
     return application;
 }
 
+} // namespace
+
+auto withBuiltinConstants(const MethodApplication& application) -> MethodApplication
+{
+    return withConstants(application);
+}
+
+namespace {
+
 auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::string>
 {
     std::vector<std::string> names;
