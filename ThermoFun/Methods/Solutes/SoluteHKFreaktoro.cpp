@@ -154,7 +154,7 @@ auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants
     const auto TdegC = T - 273.15;
     const auto Pbar  = P;
 
-    if (ps.density >= 1400)
+    if (ps.density >= constants.Dmax * 1000)
     {
         thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3. Outside the applicability limits of the HKF model.",
                            __FILE__, __LINE__, ps.density.val()/1000);

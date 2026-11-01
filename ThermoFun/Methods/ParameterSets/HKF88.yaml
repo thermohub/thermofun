@@ -3,7 +3,7 @@ parameter_sets:
   HKF88_reaktoro_constants_v1:
     method: HKF88
     implementation: reaktoro
-    description: "Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code."
+    description: "Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code."
     reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
     parameters:
       eta: 1.66027e+05
@@ -24,10 +24,11 @@ parameter_sets:
       af1: 3.666660e+01
       af2: -1.504956e-10
       af3: 5.017990e-14
+      Dmax: 1.4
   HKF88_gems_constants_v1:
     method: HKF88
     implementation: gems
-    description: "Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code."
+    description: "Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code."
     reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
     parameters:
       eta: 0.166027e6
@@ -48,3 +49,4 @@ parameter_sets:
       af1: 0.3666666e+02
       af2: -0.1504956e-09
       af3: 0.5017997e-13
+      Dmax: 1.4

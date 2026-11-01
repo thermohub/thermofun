@@ -282,6 +282,7 @@ struct WaterHGKgemsConstants
     double cond_bu[6][5] = {};
     double jn_a[10] = {};
     double jn_Tr = 0.0;
+    double visc_Pmax = 0.0, visc_P2 = 0.0, visc_T2 = 0.0, visc_P3 = 0.0, visc_T3 = 0.0, visc_Tmax = 0.0, cond_Pmax = 0.0, cond_P2 = 0.0, cond_T2 = 0.0, cond_P3 = 0.0, cond_T3 = 0.0, cond_Tmax = 0.0;
     double surf_Ttripl = 0.0, surf_Tcrit = 0.0, surf_Tstar = 0.0, surf_Tcstar = 0.0, surf_v = 0.0, surf_B = 0.0, surf_stref = 0.0, born_TMAX = 0.0, born_PMAX = 0.0, trans_Tstar = 0.0, trans_Dstar = 0.0, trans_Pstar = 0.0, trans_ustar = 0.0, cond_C = 0.0, crit_T = 0.0, crit_P = 0.0;
     double jn_Dr = 0.0;
 };
@@ -402,6 +403,18 @@ auto readConstants(const std::map<std::string, v2::Quantity>& values, const std:
     one(out.cond_C, "cond_C");
     one(out.crit_T, "crit_T");
     one(out.crit_P, "crit_P");
+    one(out.visc_Pmax, "visc_Pmax");
+    one(out.visc_P2, "visc_P2");
+    one(out.visc_T2, "visc_T2");
+    one(out.visc_P3, "visc_P3");
+    one(out.visc_T3, "visc_T3");
+    one(out.visc_Tmax, "visc_Tmax");
+    one(out.cond_Pmax, "cond_Pmax");
+    one(out.cond_P2, "cond_P2");
+    one(out.cond_T2, "cond_T2");
+    one(out.cond_P3, "cond_P3");
+    one(out.cond_T3, "cond_T3");
+    one(out.cond_Tmax, "cond_Tmax");
     out.jn_Tr = dielectric.at("Tr").value;
     out.jn_Dr = dielectric.at("Dr").value;
     return out;
@@ -2496,10 +2509,10 @@ auto WaterHGKgems::viscos(real Tk, real Pbars, real Dkgm3, real betaPa) -> real
     vIscos = 0.0e0;
     TdegC  = Tk - 273.15e0;
 
-    if ((Pbars > 5000.0e0 + TOL) ||
-            ((Pbars > 3500.0e0 + TOL) && (TdegC > 150.0e0 + TOL)) ||
-            ((Pbars > 3000.0e0 + TOL) && (TdegC > 600.0e0 + TOL)) ||
-            (TdegC  >  900.0e0 + TOL))
+    if ((Pbars > k_->visc_Pmax + TOL) ||
+            ((Pbars > k_->visc_P2 + TOL) && (TdegC > k_->visc_T2 + TOL)) ||
+            ((Pbars > k_->visc_P3 + TOL) && (TdegC > k_->visc_T3 + TOL)) ||
+            (TdegC  >  k_->visc_Tmax + TOL))
         return(vIscos);
     T = Tk / Tstar;
     D = Dkgm3 / Dstar;
@@ -2557,10 +2570,10 @@ auto WaterHGKgems::thcond(real Tk, real Pbars, real Dkgm3, real alph,
     thCOND = 0.0e0;
     TdegC  = Tk - 273.15e0;
 
-    if ((Pbars > 4000.0e0+TOL) ||
-            ((Pbars > 2000.0e0+TOL) && (TdegC > 125.0e0+TOL)) ||
-            ((Pbars > 1500.0e0+TOL) && (TdegC > 400.0e0+TOL)) ||
-            (TdegC  > 800.0e0+TOL))
+    if ((Pbars > k_->cond_Pmax+TOL) ||
+            ((Pbars > k_->cond_P2+TOL) && (TdegC > k_->cond_T2+TOL)) ||
+            ((Pbars > k_->cond_P3+TOL) && (TdegC > k_->cond_T3+TOL)) ||
+            (TdegC  > k_->cond_Tmax+TOL))
         return(thCOND);
     T = Tk / Tstar;
     D = Dkgm3 / Dstar;

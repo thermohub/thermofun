@@ -2,7 +2,7 @@ thermohub: 2.0.0-draft.1
 parameter_sets:
   WaterZhangDuan05_constants_v1:
     method: WaterZhangDuan05
-    description: "Water at high pressure and temperature. a1 to a14, gamma: coefficients of the equation of state; Tc in K, Vc in cm3/mol, R in cm3 bar/(K mol), as in the formulas. g1kb_0 to g1kb_4: G(T, 1 kbar) of the DEW model, a polynomial in T (degC) in cal/mol, highest power first."
+    description: "Water at high pressure and temperature. a1 to a14, gamma: coefficients of the equation of state; Tc in K, Vc in cm3/mol, R in cm3 bar/(K mol), as in the formulas. g1kb_0 to g1kb_4: G(T, 1 kbar) of the DEW model, a polynomial in T (degC) in cal/mol, highest power first. Tmax in K, Pmin and Pmax in Pa: the range of the model; outside of it the calculation stops with an error."
     reference: "Zhang Z., Duan Z. (2005) Phys. Earth Planet. Inter. 149, 335-354; Sverjensky et al. (2014)"
     parameters:
       a1: 3.49824207e-01
@@ -28,3 +28,6 @@ parameter_sets:
       g1kb_2: -0.019372355
       g1kb_3: -16.945093
       g1kb_4: -55769.287
+      Tmax: 2000.0
+      Pmax: 3e10
+      Pmin: 1e8

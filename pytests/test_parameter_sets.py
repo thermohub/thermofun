@@ -324,3 +324,9 @@ def test_an_unknown_variant_is_reported():
     next(m for m in doc["substances"]["Na+"]["methods"] if m["method"] == "HKF88")["parameter_set"] = "no_such_set"
     with pytest.raises(Exception, match="no_such_set"):
         gibbs(doc)
+
+
+def test_a_record_can_replace_the_range_of_a_model():
+    doc = gems_water()
+    water_of(doc)["parameters"] = {"visc_Tmax": 100.0}
+    assert tf.ThermoEngine(tf.Database(json.dumps(doc))).propertiesSolvent(473.15, 1e7, solvent_symbol(doc)).dynamic_viscosity == 0.0

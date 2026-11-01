@@ -16,7 +16,7 @@ namespace ThermoFun {
 /// The constants of the HKF model and of its g function, as in Methods/ParameterSets/HKF88.yaml. The order is that of the catalog.
 struct HKFConstants
 {
-    double eta, theta, psi, Tr, Pr, Zr, Yr, zeta, gr, ag1, ag2, ag3, bg1, bg2, bg3, af1, af2, af3;
+    double eta, theta, psi, Tr, Pr, Zr, Yr, zeta, gr, ag1, ag2, ag3, bg1, bg2, bg3, af1, af2, af3, Dmax;
 };
 
 struct HKFInputs

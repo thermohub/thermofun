@@ -17,9 +17,10 @@ struct ZhangDuanConstants
     double a[15];
     double gamma, Tc, Vc, R;
     double g1kb[5];  ///< G(T, 1 kbar) of the model DEW: a polynomial in T (degC) in cal/mol, the highest power first
+    double Tmax, Pmax, Pmin;  ///< the range of the model, K and Pa
 
     explicit ZhangDuanConstants(const std::vector<double>& v)
-    : a{0.0, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13]}, gamma(v[14]), Tc(v[15]), Vc(v[16]), R(v[17]), g1kb{v[18], v[19], v[20], v[21], v[22]} {}
+    : a{0.0, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13]}, gamma(v[14]), Tc(v[15]), Vc(v[16]), R(v[17]), g1kb{v[18], v[19], v[20], v[21], v[22]}, Tmax(v[23]), Pmax(v[24]), Pmin(v[25]) {}
 };
 
 //// Forward declarations

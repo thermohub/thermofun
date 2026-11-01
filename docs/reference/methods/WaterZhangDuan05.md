@@ -27,11 +27,11 @@ Source: Zhang and Duan (2005).
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
-Water at high pressure and temperature. a1 to a14, gamma: coefficients of the equation of state; Tc in K, Vc in cm3/mol, R in cm3 bar/(K mol), as in the formulas. g1kb_0 to g1kb_4: G(T, 1 kbar) of the DEW model, a polynomial in T (degC) in cal/mol, highest power first.
+Water at high pressure and temperature. a1 to a14, gamma: coefficients of the equation of state; Tc in K, Vc in cm3/mol, R in cm3 bar/(K mol), as in the formulas. g1kb_0 to g1kb_4: G(T, 1 kbar) of the DEW model, a polynomial in T (degC) in cal/mol, highest power first. Tmax in K, Pmin and Pmax in Pa: the range of the model; outside of it the calculation stops with an error.
 
 Source: Zhang Z., Duan Z. (2005) Phys. Earth Planet. Inter. 149, 335-354; Sverjensky et al. (2014).
 
-Names: `a1` to `a14`, `gamma`, `Tc`, `Vc`, `R`, `g1kb_0` to `g1kb_4`.
+Names: `a1` to `a14`, `gamma`, `Tc`, `Vc`, `R`, `g1kb_0` to `g1kb_4`, `Tmax`, `Pmax`, `Pmin`.
 
 ## Example
 

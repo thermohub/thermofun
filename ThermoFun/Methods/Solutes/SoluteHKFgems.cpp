@@ -150,7 +150,7 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants
 
     FunctionG g; 
 
-    if (D.val() >= 1.4)
+    if (D.val() >= constants.Dmax)
     {
         thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3. Outside the applicability limits of the HKF model.",
                            __FILE__, __LINE__, ps.density.val()/1000 );

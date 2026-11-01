@@ -237,7 +237,7 @@ MethodRegistry::MethodRegistry()
     auto hkfSpecies = [](R r) { return HKFSpecies{r.symbol, static_cast<double>(r.charge.value_or(0)), isHydrogenIon(r), r.applicability}; };
     auto hkfConstants = [](A a) {
         const auto c = constantsOf(a);
-        return HKFConstants{c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17]};
+        return HKFConstants{c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17], c[18]};
     };
     auto hkfReaktoro = [parametersOf, hkfSpecies, hkfConstants](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
         return hkf88ReaktoroMethod(parametersOf(a), hkfSpecies(r), hkfConstants(a));

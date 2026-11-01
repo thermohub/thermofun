@@ -62,9 +62,9 @@ auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double
     }
 }
 // The limits of Zhang and Duan (2005): from 100 MPa and 273.15 K up to about 20-30 GPa and 2000 K.
-auto checkZhangDuan(double T, double P) -> void
+auto checkZhangDuan(double T, double P, const ZhangDuanConstants& c) -> void
 {
-    checkModelValidity(T, P, 2000.0, 273.15, 3e10, 1e8, "Zhang and Duan (2005) H2O model.");
+    checkModelValidity(T, P, c.Tmax, 273.15, c.Pmax, c.Pmin, "Zhang and Duan (2005) H2O model.");
 }
 
 auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> ThermoPropertiesSubstance
@@ -121,7 +121,7 @@ auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string&
 
 auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& constants) -> PropertiesSolvent
 {
-    checkZhangDuan(T, P);
+    checkZhangDuan(T, P, constants);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return propertiesWaterZhangDuan2005(pass, constants);
     });
@@ -129,7 +129,7 @@ auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& consta
 
 auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const ZhangDuanConstants& constants) -> ThermoPropertiesSubstance
 {
-    checkZhangDuan(T, P);
+    checkZhangDuan(T, P, constants);
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         auto out = thermoPropertiesWaterZhangDuan2005(pass.T, pass.P / bar_to_Pa, constants); // pressure in bar
         if (dew_gibbs)
