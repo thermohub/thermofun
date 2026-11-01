@@ -4,6 +4,7 @@
 # The parameters of a method can come from a parameter set of the file: the same results as inline, and an inline value goes first.
 
 import json
+import math
 
 import pytest
 import thermofun as tf
@@ -65,3 +66,42 @@ def test_the_derivatives_and_the_errors_read_the_set():
     assert d != 0.0
     engine.preferences.propagate_parameter_errors = True
     assert engine.thermoPropertiesSubstance(T, P, "Na+").heat_capacity_cp.err == pytest.approx(abs(d) * 1.0, rel=1e-10)
+
+
+# The constants of a method are data: a file next to the code, a set of a file, or the record
+def water_with_dielectric():
+    return json.loads(tf.Database("pytests/data/legacy-synthetic/s27-water_diel_sverj14.json").toJson(readable=False))
+
+
+def epsilon(doc, T=473.15, P=1e8):
+    return tf.ThermoEngine(tf.Database(json.dumps(doc))).electroPropertiesSolvent(T, P, solvent_symbol(doc)).epsilon.val
+
+
+def solvent_symbol(doc):
+    return next(s for s, r in doc["substances"].items() if r.get("class") == "water_solvent")
+
+
+def dielectric_of(doc):
+    return next(m for m in doc["substances"][solvent_symbol(doc)]["methods"] if m["method"] == "SverjenskyEtAl14")
+
+
+def test_the_built_in_constants_are_the_values_of_the_paper():
+    doc = water_with_dielectric()
+    plain = epsilon(doc)
+    t, rho = 473.15 - 273.15, tf.ThermoEngine(tf.Database(json.dumps(doc))).propertiesSolvent(473.15, 1e8, solvent_symbol(doc)).density.val / 1000.0
+    a, b = (-1.576377e-03, 6.810288e-02, 7.548755e-01), (-8.016651e-05, -6.871618e-02, 4.747973)
+    assert plain == pytest.approx(math.exp(b[0] * t + b[1] * math.sqrt(t) + b[2]) * rho ** (a[0] * t + a[1] * math.sqrt(t) + a[2]), rel=1e-10)
+
+
+def test_a_record_and_a_set_can_replace_a_built_in_constant():
+    doc = water_with_dielectric()
+    plain = epsilon(doc)
+    method = dielectric_of(doc)
+    method["parameters"] = {**method.get("parameters", {}), "b3": 5.0}
+    inline = epsilon(doc)
+    assert inline != plain
+    doc = water_with_dielectric()
+    method = dielectric_of(doc)
+    method["parameter_set"] = "mine"
+    doc["parameter_sets"] = {"mine": {"method": "SverjenskyEtAl14", "parameters": {"b3": 5.0}}}
+    assert epsilon(doc) == inline

@@ -10,8 +10,35 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 #set(THERMOFUN_SHARED_LIB ${PROJECT_NAME}${SUFFIX_SHARED_LIBS})
 #set(THERMOFUN_STATIC_LIB ${PROJECT_NAME}${SUFFIX_STATIC_LIBS})
 
+# The constants of the methods: each file of Methods/ParameterSets goes into the library as bytes, so that they need no path when the library runs
+file(GLOB PARAMETER_SET_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Methods/ParameterSets/*.yaml)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${PARAMETER_SET_FILES})
+set(PARAMETER_SET_ARRAYS "")
+set(PARAMETER_SET_ROWS "")
+set(PARAMETER_SET_COUNT 0)
+foreach(file ${PARAMETER_SET_FILES})
+    get_filename_component(name ${file} NAME)
+    file(READ ${file} hex HEX)
+    string(LENGTH "${hex}" length)
+    math(EXPR bytes "${length} / 2")
+    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," hex "${hex}")
+    string(APPEND PARAMETER_SET_ARRAYS "const unsigned char file_${PARAMETER_SET_COUNT}[] = {${hex}};\n")
+    string(APPEND PARAMETER_SET_ROWS "    {\"${name}\", file_${PARAMETER_SET_COUNT}, ${bytes}},\n")
+    math(EXPR PARAMETER_SET_COUNT "${PARAMETER_SET_COUNT} + 1")
+endforeach()
+set(PARAMETER_SET_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/BuiltinParameterFiles.cpp)
+file(CONFIGURE OUTPUT ${PARAMETER_SET_SOURCE} CONTENT "// Generated from Methods/ParameterSets: do not edit.
+namespace ThermoFun::v2::detail {
+struct BuiltinFile { const char* name; const unsigned char* text; unsigned long size; };
+namespace { @PARAMETER_SET_ARRAYS@ }
+extern const BuiltinFile builtin_parameter_files[] = {
+@PARAMETER_SET_ROWS@};
+extern const unsigned long builtin_parameter_file_count = @PARAMETER_SET_COUNT@;
+}
+" @ONLY)
+
 # Create a library using the collected source files
-add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES})
+add_library(ThermoFun ${HEADER_FILES} ${SOURCE_FILES} ${PARAMETER_SET_SOURCE})
 
 # Add aliases for ThermoFun shared and static libraries
 add_library(ThermoFun::ThermoFun ALIAS ThermoFun)

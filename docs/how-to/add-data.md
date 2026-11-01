@@ -639,7 +639,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 | Id | What it is | Parameters, with the SI unit | Implementations |
 |---|---|---|---|
 | `JohnsonNorton91` | Dielectric constant of Johnson and Norton | none | `reaktoro`, `gems` |
-| `SverjenskyEtAl14` | Dielectric constant of Sverjensky et al. | none | one |
+| `SverjenskyEtAl14` | Dielectric constant of Sverjensky et al. | `a1` (optional)<br>`a2` (optional)<br>`a3` (optional)<br>`b1` (optional)<br>`b2` (optional)<br>`b3` (optional) | one |
 | `FernandezEtAl97` | Dielectric constant of Fernandez et al. | none | one |
 
 ### Base methods of a reaction

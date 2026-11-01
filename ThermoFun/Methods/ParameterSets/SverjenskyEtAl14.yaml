@@ -1,0 +1,14 @@
+# The coefficients of the dielectric constant of water of Sverjensky et al. (2014):
+# eps = exp(u) rho^w, u = b1 t + b2 sqrt(t) + b3, w = a1 t + a2 sqrt(t) + a3, with t in degC and rho in g/cm3. As in the paper.
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  SverjenskyEtAl14_constants_v1:
+    method: SverjenskyEtAl14
+    reference: "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145"
+    parameters:
+      a1: -1.576377e-03
+      a2: 6.810288e-02
+      a3: 7.548755e-01
+      b1: -8.016651e-05
+      b2: -6.871618e-02
+      b3: 4.747973

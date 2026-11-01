@@ -28,7 +28,7 @@ public:
 
     /// Makes an equation of state of water or a dielectric model.
     using SolventFactory = std::function<std::shared_ptr<const SolventMethod>(const MethodApplication&)>;
-    using DielectricFactory = std::function<std::shared_ptr<const DielectricMethod>()>;
+    using DielectricFactory = std::function<std::shared_ptr<const DielectricMethod>(const MethodApplication&)>;
 
     /// Makes a method of a reaction from an application and the record it belongs to.
     using ReactionFactory = std::function<std::shared_ptr<const ReactionMethod>(const MethodApplication&, const ReactionRecord&)>;

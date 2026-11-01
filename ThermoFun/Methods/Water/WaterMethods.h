@@ -30,7 +30,7 @@ auto johnsonNorton91ReaktoroMethod() -> std::shared_ptr<const DielectricMethod>;
 auto johnsonNorton91GemsMethod() -> std::shared_ptr<const DielectricMethod>;
 
 /// SverjenskyEtAl14
-auto sverjenskyEtAl14Method() -> std::shared_ptr<const DielectricMethod>;
+auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;  // a1, a2, a3, b1, b2, b3
 
 /// FernandezEtAl97
 auto fernandezEtAl97Method() -> std::shared_ptr<const DielectricMethod>;

@@ -12,6 +12,7 @@
 
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Methods/Fluids/FluidMethods.h>
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Minerals/MineralMethods.h>
@@ -25,6 +26,20 @@ namespace ThermoFun::v2 {
 namespace {
 
 /// The names of the parameters of a method, in the order of the catalog. alpha0 and kappa0 of a mineral are apart: its formulas get them on their own.
+/// The values of these names. Each one comes from the built-in constants, a parameter set or the record.
+auto constantsOf(const MethodApplication& application, std::initializer_list<const char*> names) -> std::vector<double>
+{
+    std::vector<double> out;
+    for (const char* name : names)
+    {
+        const auto it = application.parameters.find(name);
+        if (it == application.parameters.end())
+            funError("Cannot make the method " + application.method, std::string("It has no value of ") + name + ".", __LINE__, __FILE__);
+        out.push_back(it->second.value);
+    }
+    return out;
+}
+
 auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::string>
 {
     std::vector<std::string> names;
@@ -222,12 +237,12 @@ MethodRegistry::MethodRegistry()
         const auto dew = a.parameters.find("dew_gibbs");
         return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, coefficients);
     });
-    DielectricFactory jnReaktoro = [] { return johnsonNorton91ReaktoroMethod(); };
+    DielectricFactory jnReaktoro = [](A) { return johnsonNorton91ReaktoroMethod(); };
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
-    dielectric("JohnsonNorton91", "gems", [] { return johnsonNorton91GemsMethod(); });
-    dielectric("SverjenskyEtAl14", "", [] { return sverjenskyEtAl14Method(); });
-    dielectric("FernandezEtAl97", "", [] { return fernandezEtAl97Method(); });
+    dielectric("JohnsonNorton91", "gems", [](A) { return johnsonNorton91GemsMethod(); });
+    dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a, {"a1", "a2", "a3", "b1", "b2", "b3"})); });
+    dielectric("FernandezEtAl97", "", [](A) { return fernandezEtAl97Method(); });
 }
 
 auto MethodRegistry::instance() -> MethodRegistry&
@@ -283,6 +298,15 @@ auto MethodRegistry::hasSolventMethod(const std::string& id) const -> bool
 
 namespace {
 
+/// The application with the built-in constants of its method, for each value that it does not give itself.
+auto withConstants(MethodApplication application) -> MethodApplication
+{
+    const auto& sets = builtinParameterSets();
+    if (const auto set = sets.find(application.method); set != sets.end())
+        application.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
+    return application;
+}
+
 template <class Factories, class... Inputs>
 auto makeFrom(const Factories& factories, const MethodApplication& application, const Inputs&... inputs)
 {
@@ -306,17 +330,17 @@ auto MethodRegistry::createReaction(const MethodApplication& application, const 
     const auto it = reaction_.find(application.method);
     if (it == reaction_.end())
         funError("Cannot make the method " + application.method, "There is no code for this method of a reaction.", __LINE__, __FILE__);
-    return it->second(application, record);
+    return it->second(withConstants(application), record);
 }
 
 auto MethodRegistry::createSolvent(const MethodApplication& application) const -> std::shared_ptr<const SolventMethod>
 {
-    return makeFrom(solvent_, application, application);
+    return makeFrom(solvent_, application, withConstants(application));
 }
 
 auto MethodRegistry::createDielectric(const MethodApplication& application) const -> std::shared_ptr<const DielectricMethod>
 {
-    return makeFrom(dielectric_, application);
+    return makeFrom(dielectric_, application, withConstants(application));
 }
 
 } // namespace ThermoFun::v2

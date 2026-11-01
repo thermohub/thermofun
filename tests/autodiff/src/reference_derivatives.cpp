@@ -202,7 +202,7 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
-        const auto sverjensky = v2::sverjenskyEtAl14Method();
+        const auto sverjensky = v2::sverjenskyEtAl14Method({-1.576377e-03, 6.810288e-02, 7.548755e-01, -8.016651e-05, -6.871618e-02, 4.747973});
         const auto fernandez = v2::fernandezEtAl97Method();
 
         auto check = [&](const char* name, const std::shared_ptr<const v2::DielectricMethod>& model, jets::Dual (*epsilon)(jets::Dual, jets::Dual), double T, double P) {

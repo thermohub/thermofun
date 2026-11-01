@@ -8,22 +8,6 @@
 
 namespace ThermoFun {
 
-const double a[] =
-{
-     0.0000000000,
-    -1.576377e-03,
-     6.810288e-02,
-     7.548755e-01
-};
-
-const double b[] =
-{
-     0.0000000000,
-    -8.016651e-05,
-    -6.871618e-02,
-     4.747973
-};
-
 /// The dielectric constant of water of Sverjensky et al. (2014): eps = exp(u(T)) rho^w(T), with u = b1 t + b2 sqrt(t) + b3 and
 /// w = a1 t + a2 sqrt(t) + a3 (t in deg C, rho in g/cm3). With L = ln eps = u + w ln(rho) the derivatives are analytical:
 ///   L_T = u' + w' ln(rho) + w rho_T/rho,   L_P = w rho_P/rho,
@@ -31,8 +15,11 @@ const double b[] =
 ///   L_TP = w' rho_P/rho + w (rho_TP/rho - rho_T rho_P/rho^2),   L_PP = w (rho_PP/rho - (rho_P/rho)^2),
 ///   eps_T = eps L_T, eps_P = eps L_P, eps_TT = eps (L_T^2 + L_TT), eps_TP = eps (L_T L_P + L_TP), eps_PP = eps (L_P^2 + L_PP)
 /// where the derivatives of the density are those of the solvent model (their own derivatives are the third-order ones).
-auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent) -> ElectroPropertiesSolventAD
+auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent, const std::vector<double>& constants) -> ElectroPropertiesSolventAD
 {
+    // a1, a2, a3, b1, b2, b3; the first place of each is not used
+    const double a[] = {0.0, constants[0], constants[1], constants[2]};
+    const double b[] = {0.0, constants[3], constants[4], constants[5]};
     ElectroPropertiesSolventAD wep;
 
     const auto r = densityDerivatives(pass, solvent);

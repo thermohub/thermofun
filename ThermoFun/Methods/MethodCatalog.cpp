@@ -336,7 +336,9 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})));
     m.push_back(dielectric(Spec("SverjenskyEtAl14", "Dielectric constant of Sverjensky et al.", "Calculates the dielectric constant of water at high pressure (DEW model). The published coefficients are for t in degC and the density in g/cm3.", "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145")
-                               .alias({"Sverjensky14Diel"})));
+                               .alias({"Sverjensky14Diel"})
+                               .add({par("a1", "1", "1", "coefficient of t in w; t in degC", false), par("a2", "1", "1", "coefficient of sqrt(t) in w", false), par("a3", "1", "1", "constant of w", false),
+                                     par("b1", "1", "1", "coefficient of t in u", false), par("b2", "1", "1", "coefficient of sqrt(t) in u", false), par("b3", "1", "1", "constant of u", false)})));
     m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166")
                                .alias({"Fernandez97Diel"})));
 

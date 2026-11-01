@@ -190,13 +190,6 @@ auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent&, int state
     });
 }
 
-auto sverjenskyEtAl14(double T, double P, const PropertiesSolvent& solvent, int) -> ElectroPropertiesSolvent
-{
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return electroPropertiesWaterSverjensky2014(pass, solvent);
-    });
-}
-
 auto fernandezEtAl97(double T, double P, const PropertiesSolvent& solvent, int) -> ElectroPropertiesSolvent
 {
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -232,9 +225,9 @@ private:
 class FunctionDielectricMethod final : public DielectricMethod
 {
 public:
-    using Function = ElectroPropertiesSolvent (*)(double, double, const PropertiesSolvent&, int);
+    using Function = std::function<ElectroPropertiesSolvent(double, double, const PropertiesSolvent&, int)>;
 
-    FunctionDielectricMethod(const char* id, const char* implementation, Function function) : spec_(specOf(id)), implementation_(implementation), function_(function) {}
+    FunctionDielectricMethod(const char* id, const char* implementation, Function function) : spec_(specOf(id)), implementation_(implementation), function_(std::move(function)) {}
 
     auto spec() const -> const MethodSpec& override { return spec_; }
     auto implementation() const -> std::string override { return implementation_; }
@@ -314,9 +307,13 @@ auto johnsonNorton91GemsMethod() -> std::shared_ptr<const DielectricMethod>
     return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", johnsonNorton91Gems);
 }
 
-auto sverjenskyEtAl14Method() -> std::shared_ptr<const DielectricMethod>
+auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>
 {
-    return std::make_shared<const FunctionDielectricMethod>("SverjenskyEtAl14", "", sverjenskyEtAl14);
+    return std::make_shared<const FunctionDielectricMethod>("SverjenskyEtAl14", "", [constants = std::move(constants)](double T, double P, const PropertiesSolvent& solvent, int) {
+        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+            return electroPropertiesWaterSverjensky2014(pass, solvent, constants);
+        });
+    });
 }
 
 auto fernandezEtAl97Method() -> std::shared_ptr<const DielectricMethod>

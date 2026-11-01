@@ -3,13 +3,15 @@
 
 #ifndef WATERELECTROSVERJENSKY2014_H
 #define WATERELECTROSVERJENSKY2014_H
+#include <vector>
+
 #include <ThermoFun/Common/ThermoProperties.h>
 
 
 namespace ThermoFun {
 
 
-auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent) -> ElectroPropertiesSolventAD;
+auto electroPropertiesWaterSverjensky2014(const Reaktoro_::Pass& pass, const PropertiesSolvent& solvent, const std::vector<double>& constants) -> ElectroPropertiesSolventAD;
 
 }
 
