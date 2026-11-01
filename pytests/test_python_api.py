@@ -197,9 +197,9 @@ def test_the_water_methods_alone():
         ps = tf.methods.solventMethod(method, implementation=implementation).properties(298.15, 1e5, 0)
         assert ps.density.val == pytest.approx(997.0, abs=1.5)
         assert ps.density.ddt < 0
-    eps = tf.methods.dielectricMethod("JohnsonNorton91", implementation="gems").properties(298.15, 1e5, tf.PropertiesSolvent(), 0)
-    assert eps.epsilon.val == pytest.approx(78.4, abs=0.5)
     ps = tf.methods.solventMethod("WaterHGK84").properties(298.15, 1e5, 0)
+    eps = tf.methods.dielectricMethod("JohnsonNorton91", implementation="gems").properties(298.15, 1e5, ps, 0)
+    assert eps.epsilon.val == pytest.approx(78.4, abs=0.5)
     assert tf.methods.dielectricMethod("JohnsonNorton91").properties(298.15, 1e5, ps, 0).epsilon.val == pytest.approx(78.4, abs=0.5)
 
 

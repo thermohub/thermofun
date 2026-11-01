@@ -157,6 +157,25 @@ auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolventAD
 return wp;
 }
 
+auto WaterHGKgems::electroPropertiesWaterJNgems(real T, real Pbars, real densityGcm3, real betaBar, real alpha, real daldT) -> ElectroPropertiesSolventAD
+{
+    // as calculateWaterHGKgems does for the water, between 0 and 0.01 degC
+    if (T - 273.15 < 0.01 && T - 273.15 >= 0.0)
+        T = real(0.01 + 273.15);
+    real eps = 0.0, Z = 0.0, Q = 0.0, Y = 0.0, X = 0.0;
+    Born92(T, Pbars, densityGcm3, betaBar, &alpha, &daldT, &eps, &Z, &Q, &Y, &X, 4);
+    ElectroPropertiesSolventAD wp;
+    wp.epsilon   = eps;
+    wp.bornZ     = Z;
+    wp.bornY     = Y;
+    wp.bornQ     = Q / 1e05; // from bar-1 to Pa-1
+    wp.bornX     = X;
+    wp.epsilonT  = Y * pow(eps,2.);
+    wp.epsilonTT = (X + 2.*eps*pow(Y,2.)) * pow(eps,2.);
+    wp.epsilonP  = Q * pow(eps,2.);
+    return wp;
+}
+
 auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesSolventAD
 {
     ElectroPropertiesSolventAD wp;

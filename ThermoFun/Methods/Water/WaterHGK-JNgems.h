@@ -397,6 +397,8 @@ public:
     auto thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstanceAD;
 
     auto electroPropertiesWaterJNgems(int state) -> ElectroPropertiesSolventAD;
+    /// From the properties of the water of the record: density in g/cm3, compressibility in 1/bar, expansion in 1/K and its T derivative.
+    auto electroPropertiesWaterJNgems(real T, real Pbars, real densityGcm3, real betaBar, real alpha, real daldT) -> ElectroPropertiesSolventAD;
 
 };
 

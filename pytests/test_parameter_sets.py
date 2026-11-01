@@ -251,3 +251,21 @@ def test_a_record_can_replace_a_constant_of_a_method_of_a_reaction():
     plain = logK()
     method["parameters"] = {**method.get("parameters", {}), "zzH2O": 1.0107 * 1.01}
     assert logK() != plain
+
+
+def test_the_dielectric_constant_of_gems_reads_the_water_of_the_record():
+    doc = gems_water()
+    plain = epsilon(doc)
+    water_of(doc)["parameters"] = {**water_of(doc).get("parameters", {}), "nc_g_1": -0.53062968529023e3 * 1.001}
+    assert epsilon(doc) != plain
+    assert epsilon(doc) == pytest.approx(plain, rel=0.1)
+
+
+def test_both_implementations_of_johnson_norton_agree_on_the_same_water():
+    values = {}
+    for implementation in ("gems", "reaktoro"):
+        doc = gems_water()
+        water_of(doc)["implementation"] = "reaktoro"
+        next(m for m in doc["substances"][solvent_symbol(doc)]["methods"] if m["method"] == "JohnsonNorton91")["implementation"] = implementation
+        values[implementation] = epsilon(doc)
+    assert values["gems"] == pytest.approx(values["reaktoro"], rel=1e-12)

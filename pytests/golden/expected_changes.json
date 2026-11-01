@@ -1781,6 +1781,24 @@
         "UO3w2(cr)"
       ],
       "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2Og"
+      ],
+      "reason": "H2Og is water forced to the gas state. The baseline took the density of the gas, but calculated the dielectric constant of the GEMS code from its own water in the state of the engine, the liquid (35.3 at 473 K, 100 bar, with a density of 130.75 kg/m3). The dielectric constant now reads the water of the record (3.02)."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2Og"
+      ],
+      "reason": "H2Og is water forced to the gas state. The baseline took the density of the gas, but calculated the dielectric constant of the GEMS code from its own water in the state of the engine, the liquid (35.3 at 473 K, 100 bar, with a density of 130.75 kg/m3). The dielectric constant now reads the water of the record (3.02)."
     }
   ]
 }
