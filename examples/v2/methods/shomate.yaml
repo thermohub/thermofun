@@ -42,8 +42,7 @@ tests:
     S: 234.901
   relative_tolerance: 0.001
 expression:
-  G: A*T + B*T**2/2000 + C*T**3/3000000 + D*T**4/4000000000 - 1000000*E/T + 1000*F
-    - T*(A*log(T/1000) + B*T/1000 + C*T**2/2000000 + D*T**3/3000000000 - 500000*E/T**2
-    + G)
-generator: 'thermofun.methods build '
+  G: A*T - B*T**2/2000 - C*T**3/6000000 - D*T**4/12000000000 - 500000*E/T + 1000*F
+    - G*T + (-12000000000*A*T**2*log(T) + 36000000000*A*T**2*log(10))/(12000000000*T)
+generator: 'thermofun.method_tool build '
 source_hash: sha256:1bd49157b2e52052697a7b79138553ffe7bb3a05f1639a8b81ca200a2d8045dc

@@ -14,7 +14,8 @@ if the source changed after the build, or if a test case of the record fails.
 The source forms for a substance are `cp`, `cp_increment`, `volume`, `gibbs`, `gibbs_increment`, `shomate`
 (the parameters A to G of the NIST WebBook) and `nasa7` (the parameters a1 to a7 of the NASA 7-term polynomials).
 Each piece in T has its own parameter values in the substance.
-A method of a reaction has its expression of `dG` written by hand: the tool has no forms for reactions yet.
+The source forms for a reaction (`operates_on: reaction`) are `logk` (log K as a function of T and P), `drcp` (the heat
+capacity of reaction as a function of T), `vant_hoff` (constant enthalpy of reaction, no expression) and `dg` (dG as written).
 """
 
 import argparse
@@ -23,7 +24,9 @@ import json
 import sys
 
 FORMS = ("cp", "cp_increment", "volume", "gibbs", "gibbs_increment", "shomate", "nasa7", "sgte", "magnetic_ihj")
+REACTION_FORMS = ("logk", "drcp", "vant_hoff", "dg")
 FIXED = ("T", "P", "Tr", "Pr", "R", "Gr", "Hr", "Sr", "Cpr", "Vr")
+FIXED_REACTION = ("T", "P", "Tr", "Pr", "R", "dGr", "dHr", "dSr", "dCpr", "dVr")
 
 
 class BuildError(Exception):
@@ -52,9 +55,14 @@ def source_hash(source):
     return "sha256:" + hashlib.sha256(text.encode()).hexdigest()
 
 
+def _of_reaction(record):
+    return record.get("operates_on") == "reaction"
+
+
 def _symbols(record):
     sympy = _sympy()
-    names = list(FIXED) + [str(p) for p in (record.get("parameter_definitions") or {})]
+    fixed = FIXED_REACTION if _of_reaction(record) else FIXED
+    names = list(fixed) + [str(p) for p in (record.get("parameter_definitions") or {})]
     positive = ("T", "P", "Tr", "Pr")
     return {n: sympy.Symbol(n, positive=True) if n in positive else sympy.Symbol(n, real=True) for n in names}
 
@@ -142,9 +150,33 @@ def _magnetic_ihj(symbols, record):
     return [prefactor * low, prefactor * high]
 
 
+def _reaction_dg(record, symbols):
+    """The pair ("dG", expression of dG) for the source of a method of a reaction."""
+    sympy = _sympy()
+    source = record.get("source") or {}
+    form = source.get("form")
+    if form not in REACTION_FORMS:
+        raise BuildError(f"the source form '{form}' is not for a reaction. Use one of: {', '.join(REACTION_FORMS)}")
+    T, Tr = symbols["T"], symbols["Tr"]
+    if form == "vant_hoff":
+        return "dG", symbols["dHr"] - T * (symbols["dHr"] - symbols["dGr"]) / Tr
+    if "expression" not in source:
+        raise BuildError("the source needs an expression")
+    expr = _parse(source["expression"], symbols)
+    if form == "dg":
+        return "dG", expr
+    if form == "logk":
+        return "dG", -symbols["R"] * T * sympy.log(10) * expr
+    dH = _integrate(expr, T, Tr, T)
+    dS = _integrate(expr / T, T, Tr, T)
+    return "dG", symbols["dGr"] - symbols["dSr"] * (T - Tr) + dH - T * dS
+
+
 def _gibbs(record, symbols):
     """The pair (key, expression of G or of the increment of G) for the source of the record."""
     sympy = _sympy()
+    if _of_reaction(record):
+        return _reaction_dg(record, symbols)
     source = record.get("source") or {}
     form = source.get("form")
     if "segments" in source:
@@ -177,7 +209,7 @@ def _gibbs(record, symbols):
 
 
 def _numbers(record, symbols, case):
-    values = {"T": 298.15, "P": 1e5, "Tr": 298.15, "Pr": 1e5, "R": 8.31451, "Gr": 0.0, "Hr": 0.0, "Sr": 0.0, "Cpr": 0.0, "Vr": 0.0}
+    values = {"dGr": 0.0, "dHr": 0.0, "dSr": 0.0, "dCpr": 0.0, "dVr": 0.0, "T": 298.15, "P": 1e5, "Tr": 298.15, "Pr": 1e5, "R": 8.31451, "Gr": 0.0, "Hr": 0.0, "Sr": 0.0, "Cpr": 0.0, "Vr": 0.0}
     values.update(case.get("reference") or {})
     values.update({"T": case.get("T", values["T"]), "P": case.get("P", values["P"])})
     values.update(case.get("parameters") or {})
@@ -192,6 +224,9 @@ def properties(expression, record, case):
     T, P = symbols["T"], symbols["P"]
     s = -sympy.diff(g, T)
     out = {"G": g, "S": s, "V": sympy.diff(g, P), "Cp": -T * sympy.diff(g, T, 2), "H": g + T * s}
+    if _of_reaction(record):
+        out = {"d" + name: value for name, value in out.items()}
+        out["logK"] = -g / (symbols["R"] * T * sympy.log(10))
     values = _numbers(record, symbols, case)
     return {k: float(v.subs(values)) for k, v in out.items()}
 
@@ -200,15 +235,16 @@ def _simplified(expr, symbols, record):
     """simplify only if the value does not change, also when it is evaluated with ordinary floating-point numbers"""
     sympy = _sympy()
     try:
-        simple = sympy.simplify(expr)
+        # simplify joins logarithms: log(T**a/Tr**a) overflows for a large a, as a*log(T) does not
+        simple = sympy.expand_log(sympy.simplify(expr), force=True)
     except Exception:   # pragma: no cover
         return expr
     names = list(symbols)
     f_old = sympy.lambdify([symbols[n] for n in names], expr, "math")
     f_new = sympy.lambdify([symbols[n] for n in names], simple, "math")
-    for T in (350.0, 900.0, 2500.0):
+    for T, value in ((350.0, 1.5), (900.0, 1.5), (2500.0, 1.5), (900.0, 300.0)):
         point = {"T": T, "P": 2e7, "Tr": 298.15, "Pr": 1e5, "R": 8.31451, "Gr": -1e6, "Hr": -1.1e6, "Sr": 80.0, "Cpr": 90.0, "Vr": 3e-5}
-        args = [point.get(n, 1.5) for n in names]
+        args = [point.get(n, point.get(n[1:], value)) for n in names]  # dGr as Gr
         try:
             a, b = f_old(*args), f_new(*args)
         except (OverflowError, ValueError, ZeroDivisionError):
@@ -255,7 +291,7 @@ def check(record):
         problems.append(f"the record has not the expression for {key} of each piece: run build")
         return problems
     # the written expression and the one of the source must give the same numbers
-    point = {"T": 450.0, "P": 3e7, "reference": {"Gr": -1e6, "Hr": -1.1e6, "Sr": 80.0, "Cpr": 90.0, "Vr": 3e-5},
+    point = {"T": 450.0, "P": 3e7, "reference": {"Gr": -1e6, "Hr": -1.1e6, "Sr": 80.0, "Cpr": 90.0, "Vr": 3e-5, "dGr": -1e4, "dHr": -2e4, "dSr": 30.0, "dCpr": 90.0, "dVr": 3e-5},
              "parameters": {n: 1.5 for n in (record.get("parameter_definitions") or {})}}
     for i, (w, m) in enumerate(zip(written, made)):
         a, b = properties(w[key], record, point), properties(m[key], record, point)
@@ -282,14 +318,22 @@ _TEMPLATES = {
     "nasa7": ("", {f"a{i}": "1" for i in range(1, 8)}),
     "sgte": ("", {n: "1" for n in "abcdefgh"}),
     "magnetic_ihj": ("", {"Tc": "K", "beta": "1", "p": "1"}),
+    "logk": ("A0 + A1*T + A2/T + A3*log(T)/log(10) + A4/T**2", {"A0": "1", "A1": "1/K", "A2": "K", "A3": "1", "A4": "K2"}),
+    "drcp": ("a + b*T", {"a": "J/(mol.K)", "b": "J/(mol.K2)"}),
+    "vant_hoff": ("", {}),
+    "dg": ("dGr - dSr*(T - Tr)", {}),
 }
 
 
 def new(form):
     """A template Method record for a source form."""
     if form not in _TEMPLATES:
-        raise BuildError(f"the source form '{form}' is not supported. Use one of: {', '.join(FORMS)}")
+        raise BuildError(f"the source form '{form}' is not supported. Use one of: {', '.join(FORMS + REACTION_FORMS)}")
     expression, parameters = _TEMPLATES[form]
+    if form in REACTION_FORMS:
+        return {"kind": "symbolic", "tier": 1, "operates_on": "reaction", "contributes_to": ["logK", "dG", "dH", "dS", "dCp", "dV"],
+                "parameter_definitions": {k: {"unit": v} for k, v in parameters.items()},
+                "source": {"form": form, "expression": expression} if expression else {"form": form}}
     source = {"form": form} if form in ("shomate", "nasa7", "sgte", "magnetic_ihj") else {"form": form, "expression": expression}
     return {"kind": "symbolic", "tier": 1, "operates_on": "substance",
             "contributes_to": ["G", "H", "S", "Cp"] + (["V"] if form in ("volume", "gibbs_increment") else []),
@@ -329,7 +373,7 @@ def main(argv=None):
         if name == "build":
             p.add_argument("-o", "--output")
     p = sub.add_parser("new")
-    p.add_argument("form", choices=FORMS)
+    p.add_argument("form", choices=FORMS + REACTION_FORMS)
     args = parser.parse_args(argv)
 
     try:

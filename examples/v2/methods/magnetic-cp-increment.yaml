@@ -24,7 +24,7 @@ tests:
     Cp: 2.5
   relative_tolerance: 1.0e-09
 expression:
-  G_increment: a*(2*T**3 - 3*T*(T**2 - 4*T*Tc + 4*Tc*Tr - Tr**2 + log(T**(2*Tc**2)/Tr**(2*Tc**2)))
-    + 6*Tc**2*(T - Tr) + 6*Tc*(-T**2 + Tr**2) - 2*Tr**3)/(6*Tc**2)
-generator: 'thermofun.methods build '
+  G_increment: a*(2*T**3 - 3*T*(T**2 - 4*T*Tc + 2*Tc**2*log(T) - 2*Tc**2*log(Tr) +
+    4*Tc*Tr - Tr**2) + 6*Tc**2*(T - Tr) + 6*Tc*(-T**2 + Tr**2) - 2*Tr**3)/(6*Tc**2)
+generator: 'thermofun.method_tool build '
 source_hash: sha256:b01fe34dff683b1fa78f0eb09b3b77322a21940fc7954fd7ba95cc3a2c3a6993

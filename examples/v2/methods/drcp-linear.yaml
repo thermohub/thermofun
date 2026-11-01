@@ -1,0 +1,35 @@
+# A heat capacity of reaction dCp = a + b T. The record gives log K and dS or dH at the reference.
+kind: symbolic
+tier: 1
+operates_on: reaction
+contributes_to:
+- logK
+- dG
+- dH
+- dS
+- dCp
+parameter_definitions:
+  a:
+    unit: J/(mol.K)
+  b:
+    unit: J/(mol.K2)
+source:
+  form: drcp
+  expression: a + b*T
+tests:
+- T: 298.15
+  P: 100000.0
+  parameters:
+    a: 120.0
+    b: 0.3
+  reference:
+    dGr: -22800.0
+    dSr: 10.0
+  expected:
+    dG: -22800.0
+    dCp: 209.445
+expression:
+  dG: T**2*b/2 + T*a - T*(T*b - Tr*b + a*log(T) - a*log(Tr)) - Tr**2*b/2 - Tr*a +
+    dGr - dSr*(T - Tr)
+generator: 'thermofun.method_tool build '
+source_hash: sha256:64f012004d65ec1dd4d33eef5ad8204abcdecac98a91aa5d60d7d5c2c087fbef

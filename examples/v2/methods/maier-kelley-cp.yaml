@@ -33,7 +33,7 @@ tests:
     Cp: 81.6
   relative_tolerance: 1.0e-09
 expression:
-  G: Gr - Sr*T + Sr*Tr - T**2*b/2 + T*Tr*b + T*a + T*log(Tr**a/T**a) - T*c/(2*Tr**2)
+  G: Gr - Sr*T + Sr*Tr - T**2*b/2 + T*Tr*b + T*a + T*(-a*log(T) + a*log(Tr)) - T*c/(2*Tr**2)
     - Tr**2*b/2 - Tr*a + c/Tr - c/(2*T)
-generator: 'thermofun.methods build '
+generator: 'thermofun.method_tool build '
 source_hash: sha256:e41646f42f2c8555867ce7b2016fdbc7b8d7b733d3dfc59f0afd109af6d2bbe0

@@ -1,0 +1,25 @@
+# Constant enthalpy of reaction. The record gives log K and dH at the reference.
+kind: symbolic
+tier: 1
+operates_on: reaction
+contributes_to:
+- logK
+- dG
+- dH
+- dS
+parameter_definitions: {}
+source:
+  form: vant_hoff
+tests:
+- T: 298.15
+  P: 100000.0
+  reference:
+    dGr: -22800.0
+    dHr: -20000.0
+  expected:
+    dG: -22800.0
+    dH: -20000.0
+expression:
+  dG: (T*(dGr - dHr) + Tr*dHr)/Tr
+generator: 'thermofun.method_tool build '
+source_hash: sha256:3eae7e0209c29f4a6554ba8ca9d51a7627dc8e7b7446ca528746bafa5911bb3f

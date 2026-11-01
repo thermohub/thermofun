@@ -7,6 +7,8 @@
 #include <cmath>
 #include <map>
 #include <mutex>
+#include <optional>
+#include <regex>
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
@@ -185,9 +187,26 @@ public:
         Tr_ = record.reference_conditions.T;
         Pr_ = record.reference_conditions.P;
         const auto valueOf = [&](ReactionPropertyName name) { const auto it = record.reaction_properties.find(name); return it == record.reaction_properties.end() ? std::optional<double>{} : std::optional<double>(it->second.value); };
-        const auto logK = valueOf(ReactionPropertyName::logK);
-        reference_ = {valueOf(ReactionPropertyName::dG).value_or(logK ? -R_CONSTANT * Tr_ * lg_to_ln * *logK : 0.0), valueOf(ReactionPropertyName::dH).value_or(0.0),
-                      valueOf(ReactionPropertyName::dS).value_or(0.0), valueOf(ReactionPropertyName::dCp).value_or(0.0), valueOf(ReactionPropertyName::dV).value_or(0.0)};
+        // what the record does not give, from what it gives: dG from log K, and dG = dH - Tr dS
+        auto dG = valueOf(ReactionPropertyName::dG), dH = valueOf(ReactionPropertyName::dH), dS = valueOf(ReactionPropertyName::dS);
+        if (const auto logK = valueOf(ReactionPropertyName::logK); !dG && logK)
+            dG = -R_CONSTANT * Tr_ * lg_to_ln * *logK;
+        if (!dG && dH && dS)
+            dG = *dH - Tr_ * *dS;
+        if (!dS && dG && dH)
+            dS = (*dH - *dG) / Tr_;
+        if (!dH && dG && dS)
+            dH = *dG + Tr_ * *dS;
+        const auto dCp = valueOf(ReactionPropertyName::dCp), dV = valueOf(ReactionPropertyName::dV);
+        // a value that the expression uses and the record cannot give is an error, not a 0
+        const std::string& text = definition.expression.at("dG");
+        const std::pair<const char*, const std::optional<double>*> given[] = {{"dGr", &dG}, {"dHr", &dH}, {"dSr", &dS}, {"dCpr", &dCp}, {"dVr", &dV}};
+        for (const auto& [name, value] : given)
+        {
+            if (!value->has_value() && std::regex_search(text, std::regex(std::string("\\b") + name + "\\b")))
+                funError("Cannot make the symbolic method " + definition.symbol + " for the reaction " + record.symbol, std::string("Its expression uses ") + name + ", and the record cannot give it. Give it in reaction_properties.", __LINE__, __FILE__);
+            reference_.push_back(value->value_or(0.0));
+        }
         for (const auto& p : definition.parameter_definitions)
         {
             const auto it = application.parameters.find(p.name);

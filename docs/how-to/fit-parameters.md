@@ -47,7 +47,25 @@ The result has the properties first and the parameters second, so `pandas.DataFr
 The derivatives follow the same path as the values: see [Choose where properties come from](add-data.md#10-choose-where-properties-come-from). A substance from its defining reaction
 has derivatives by the reaction and by the other species. A substance from its methods has none by them. An unknown parameter is an error, and not a derivative of 0.
 
-A built-in constant of a method can also be named, for example `("H2O@", "SverjenskyEtAl14", "b3")`. The derivative reaches all that depends on the record, also a solute through the water. It is a central difference of the whole calculation, so it is less exact and slower than the derivative of a parameter. `engine.parameters(symbol)` does not list constants: name them to use them. An integer of a table, such as an exponent of the water code, has no derivative.
+A call has two parts, which can be different records: the record whose properties you want, and the record that holds the parameter:
+
+```
+engine.parameterSensitivities(T, P, "Na+", [("H2O@", "SverjenskyEtAl14", "b3")])
+#                  how the properties of Na+  change with this parameter of H2O@
+```
+
+Here `b3` belongs to the dielectric model of `H2O@`. `Na+` is in the call because HKF uses the dielectric constant: `b3` changes the dielectric constant of `H2O@`, then the Born functions, then G of `Na+`.
+
+`b3` is a built-in constant of the method, with its value in `ThermoFun/Methods/ParameterSets`. The difference between a parameter and a constant:
+
+| | A parameter of a record | A built-in constant of a method |
+|---|---|---|
+| Example | `a1` of HKF on `Na+` | `eta` of HKF, `b3` of Sverjensky |
+| `engine.parameters(symbol)` | lists it | does not list it: name it to use it |
+| The derivative | exact, with autodiff | a central difference of the whole calculation: less exact, and slower |
+| Which records it reaches | those that depend on the record | those that depend on the record, also a solute through the water |
+
+Constants are not listed because a model can have hundreds of them, and a fit that goes over `engine.parameters(symbol)` should not change the table of a water model. An integer of a table, such as an exponent of the water code, has no derivative.
 
 ## 3. Change a parameter
 
