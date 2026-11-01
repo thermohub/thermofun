@@ -52,6 +52,16 @@ struct MethodEffects
 };
 
 /// The effects of a reaction method on logK, dG, dH, dS, dCp and dV.
+/// What the result of a method depends on, beside its parameters. A correction for pressure is what P says.
+enum class Dependence
+{
+    Unset,
+    None,   ///< the same values at every T and P
+    T,
+    P,
+    TP
+};
+
 struct ReactionEffects
 {
     Effect logK = Effect::None, dG = Effect::None, dH = Effect::None, dS = Effect::None, dCp = Effect::None,
@@ -90,6 +100,7 @@ struct MethodSpec
     OperatesOn operates_on = OperatesOn::Substance;
     std::vector<SubstanceClass> applies_to_classes;   ///< empty: any class
     MethodRole role = MethodRole::SubstanceProperties;
+    Dependence depends_on = Dependence::Unset;
     MethodEffects effects;                       ///< substances
     ReactionEffects reaction_effects;            ///< reactions
     MethodNeeds needs;

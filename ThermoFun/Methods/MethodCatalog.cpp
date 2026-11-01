@@ -6,6 +6,7 @@
 #include <ThermoFun/Methods/Water/WaterZhangDuan2005.h>
 
 #include <algorithm>
+#include <map>
 #include <cctype>
 
 namespace ThermoFun::v2 {
@@ -445,6 +446,21 @@ MethodCatalog::MethodCatalog()
     specs_ = substanceMethods();
     auto reactions = reactionMethods();
     specs_.insert(specs_.end(), reactions.begin(), reactions.end());
+    using D = Dependence;
+    static const std::map<std::string, Dependence> depends = {
+        {"ConstantProperties", D::None}, {"ConstantReactionProperties", D::None}, {"LogKConstant", D::None},
+        {"ConstantCp", D::T}, {"CpPolynomial", D::T}, {"CpFeiSaxena86", D::T}, {"NASA9", D::T}, {"LambdaBerman88", D::T},
+        {"LogKZeroEntropy", D::T}, {"LogKVantHoff", D::T}, {"LogKConstantCp", D::T}, {"LogKPolynomial", D::T}, {"LogKNordstromMunoz88", D::T},
+        {"LogKTable", D::T}, {"ReactionCpPolynomial", D::T},
+        {"ConstantVolume", D::P}, {"IdealGas", D::P}, {"ReactionConstantVolume", D::P},
+        {"TPTable", D::TP}, {"CpExtendedUNIQUAC", D::TP}, {"HKF88", D::TP}, {"AkinfievDiamond03", D::TP}, {"SoluteHP98", D::TP}, {"AndersonEtAl91", D::TP},
+        {"LandauHP98", D::TP}, {"LandauHP11", D::TP}, {"MurnaghanHP98", D::TP}, {"TaitHP11", D::TP}, {"VolumeBerman88", D::TP}, {"VolumeDorogokupets88", D::TP}, {"BirchMurnaghan47", D::TP},
+        {"PRSV86", D::TP}, {"SoaveRedlichKwong72", D::TP}, {"PengRobinson78", D::TP}, {"SternerPitzer94", D::TP}, {"CorkHP91", D::TP}, {"ChurakovGottschalk03", D::TP},
+        {"WaterHGK84", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
+        {"DolejsManning10", D::TP}, {"MarshallFranck81", D::TP}, {"RyzhenkoBryzgalin", D::TP}, {"ReactionVolumePolynomial", D::TP}};
+    for (auto& spec : specs_)
+        if (const auto it = depends.find(spec.id); it != depends.end())
+            spec.depends_on = it->second;
 }
 
 auto MethodCatalog::instance() -> const MethodCatalog&

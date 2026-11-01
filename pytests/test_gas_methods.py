@@ -181,3 +181,72 @@ def test_a_gas_has_the_same_value_alone_and_in_a_reaction(tmp_path, pressure, ca
     gas, other = (engine.thermoPropertiesSubstance(T, P, s).gibbs_energy.val for s in ("G", "S"))
     assert engine.thermoPropertiesReactionFromReactants(T, P, "R").reaction_gibbs_energy.val == pytest.approx(other - gas, rel=1e-9)
     assert engine.thermoPropertiesSubstance(T, P, "G").gibbs_energy.val == gas  # also after the reaction
+
+
+# A substance defined by a reaction takes its pressure term from one place
+def defined(reaction_methods, reaction_values, substance_methods, tmp_path):
+    def record(symbol, G, V, **more):
+        return {"symbol": symbol, "formula": symbol, "class_": {"0": "SC_COMPONENT"}, "aggregate_state": {"3": "AS_CRYSTAL"}, "Tst": 298.15, "Pst": 100000,
+                "sm_gibbs_energy": {"values": [G]}, "sm_enthalpy": {"values": [G]}, "sm_entropy_abs": {"values": [10.0]}, "sm_heat_capacity_p": {"values": [20.0]}, "sm_volume": {"values": [V]}, **more}
+    plain = [{"method": {"43": "standard_entropy_cp_integration"}}, {"method": {"34": "mv_constant"}}]
+    doc = {"substances": [record("A", -1000.0, 2.0, TPMethods=plain), record("X", -3000.0, 5.0, reaction="R", **({"TPMethods": substance_methods} if substance_methods else {}))],
+           "reactions": [{"symbol": "R", "equation": "A = X", "reactants": [{"symbol": "A", "coefficient": -1}, {"symbol": "X", "coefficient": 1}], "Tst": 298.15, "Pst": 100000,
+                          "logKr": {"values": [1.0]}, "TPMethods": reaction_methods, **reaction_values}]}
+    path = tmp_path / "defined.json"
+    path.write_text(json.dumps(doc))
+    engine = tf.ThermoEngine(str(path))
+    high, low = (engine.thermoPropertiesSubstance(298.15, p, "X") for p in (1e8, 1e5))
+    return high.gibbs_energy.val - low.gibbs_energy.val, high.volume.val, high.gibbs_energy.ddp
+
+
+LOGK = {"method": {"4": "logk_1_term_extrap0"}}
+OWN = [{"method": {"34": "mv_constant"}}]
+BAR = 1000.0 - 1.0
+
+
+def test_the_own_volume_when_the_reaction_does_not_change_with_pressure(tmp_path):
+    change, volume, ddp = defined([LOGK], {}, OWN, tmp_path)
+    assert change == pytest.approx(5.0 * BAR)  # not with the term of A, which is at P in the reaction only if the reaction has it
+    assert volume == pytest.approx(5.0)
+    assert ddp == pytest.approx(5.0e-5)
+
+
+def test_the_own_volume_when_the_volume_of_the_reaction_is_zero(tmp_path):
+    change, volume, _ = defined([LOGK, {"method": {"13": "dr_volume_constant"}}], {"drsm_volume": {"values": [0.0]}}, OWN, tmp_path)
+    assert change == pytest.approx(5.0 * BAR)
+    assert volume == pytest.approx(5.0)
+
+
+def test_no_second_term_when_the_reaction_has_a_volume(tmp_path):
+    change, volume, _ = defined([LOGK, {"method": {"13": "dr_volume_constant"}}], {"drsm_volume": {"values": [3.0]}}, OWN, tmp_path)
+    assert change == pytest.approx((3.0 + 2.0) * BAR)  # G(X) = dG + G(A): the volume of the reaction and the term of A
+    assert volume == pytest.approx(3.0 + 2.0)
+
+
+def test_the_marks_of_the_methods():
+    specs = {s["id"]: s for s in tf.methods.catalog()}
+    assert all(s["depends_on"] for s in specs.values()), [i for i, s in specs.items() if not s["depends_on"]]
+    assert specs["ConstantVolume"]["depends_on"] == "P" and specs["CpPolynomial"]["depends_on"] == "T"
+    assert specs["HKF88"]["depends_on"] == "T, P" and specs["LogKConstant"]["depends_on"] == "none"
+
+
+TDB = HERE / "PsiTDB2020-subset-thermofun.json"
+
+
+@pytest.mark.parametrize("T,P", [(298.15, 1e8), (473.15, 1e8), (573.15, 2e7)])
+def test_a_solid_defined_by_a_reaction_without_pressure_has_the_term_of_its_volume(T, P):
+    r = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(T, P, "AgCl(cr)")
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-9)
+
+
+@pytest.mark.parametrize("T", [298.15, 473.15, 573.15, 623.15])
+def test_the_data_of_a_reaction_are_on_the_saturation_curve(T):
+    """Above 100 degC the aqueous species of the reaction are not at 1 bar, where there is no liquid water."""
+    engine = tf.ThermoEngine(str(TDB))
+    saturated = engine.thermoPropertiesSubstance(T, 0.0, "AgCl(cr)").gibbs_energy.val
+    assert -140000.0 < saturated < -90000.0
+
+
+def test_above_the_critical_temperature_the_species_are_at_the_pressure():
+    value = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(673.15, 1e8, "AgCl(cr)").gibbs_energy.val
+    assert -140000.0 < value < -90000.0

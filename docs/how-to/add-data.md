@@ -357,6 +357,16 @@ assert engine.thermoPropertiesSubstance(400.0, 1e7, "CO2").gibbs_energy.val == e
 Give `defining_reaction`, and leave out `methods`. The engine calculates the reaction, and takes the properties of the substance from
 it and from the other substances of the reaction. The reaction must name the substance.
 
+The pressure term comes from one place only:
+
+| The reaction | The substance | What happens |
+|---|---|---|
+| Changes with P: a model of log K with P, a volume method with a volume that is not 0, or its reactants | any | The reaction and the other substances at P. The method of the substance adds no second term. |
+| Does not change with P | has `ConstantVolume` or `IdealGas` | All at the pressure of the log K data, then that method, so dG/dP = V. This pressure is the larger of the reference pressure and the saturation pressure of water. Above the critical temperature of water it does not exist: the other substances are at P. |
+| Does not change with P | no such method | The other substances at P. Log K does not depend on P. |
+
+The catalog says for each method if it depends on T, P or both: `tf.methods.catalog()`, key `depends_on`.
+
 <!-- file: defined.yaml -->
 ```yaml
 thermohub: 2.0.0-draft.1

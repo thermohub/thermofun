@@ -375,9 +375,44 @@ auto ThermoEngine::Impl::propertiesSolvent(double T, double &P, const Substance 
     return ps;
 }
 
+auto ThermoEngine::Impl::reactionCarriesPressure(const Reaction& reaction) const -> bool
+{
+    const auto record = reaction.record();
+    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
+    if (record->methods.empty() || source == v2::PropertySource::Reactants)
+        return true;  // its species do
+    const auto volume = record->reaction_properties.find(v2::ReactionPropertyName::dV);
+    const bool hasVolume = volume != record->reaction_properties.end() && volume->second.value != 0.0;
+    for (const auto& a : record->methods)
+    {
+        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Reaction);
+        if (!spec || (spec->depends_on != v2::Dependence::P && spec->depends_on != v2::Dependence::TP))
+            continue;
+        // a model of log K has P in it; a method of the volume works on the reference volume of the reaction
+        if (spec->reaction_effects.base || hasVolume)
+            return true;
+    }
+    return false;
+}
+
+auto ThermoEngine::Impl::dataPressure(double T, const Substance& substance) const -> double
+{
+    double Psat = 0.0;
+    if (T >= water_critical_T || !database.containsSubstance(preferences.solvent_symbol))
+        return substance.referenceP();
+    cachedSolvent(T, Psat, preferences.solvent_symbol, -1);
+    return std::max(substance.referenceP(), Psat);
+}
+
+auto ThermoEngine::Impl::pressureFromRecord(const Substance& substance, const Reaction& reaction) const -> bool
+{
+    const auto& methods = substance.record()->methods;
+    return (hasMethod(methods, "ConstantVolume") || hasMethod(methods, "IdealGas")) && !reactionCarriesPressure(reaction);
+}
+
 auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance subst) const -> ThermoPropertiesSubstance
 {
-    ThermoPropertiesSubstance tps, reacTps;
+    ThermoPropertiesSubstance tps;
     ThermoPropertiesReaction tpr;
     const std::string reactionSymbol = subst.reactionSymbol();
     const Reaction reaction = database.getReaction(reactionSymbol);
@@ -385,7 +420,15 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
 
     const v2::DefiningReactionGuard no_cycle(subst.symbol());
 
-    tpr = cachedReaction(T, P, reactionSymbol); /*thermoPropertiesReaction(T, P, reactionSymbol);*/
+    // A record that gives its own pressure term, and a reaction that does not: all at the pressure of the data of the reaction, then that term. Else all at P.
+    const bool ownTerm = pressureFromRecord(subst, reaction);
+    if (ownTerm && P == 0.0 && T < water_critical_T && database.containsSubstance(preferences.solvent_symbol))
+        cachedSolvent(T, P, preferences.solvent_symbol, -1);  // the saturation pressure
+    double Pdata = dataPressure(T, subst);
+    const bool fromData = ownTerm && T < water_critical_T;
+    double& Pcalc = fromData ? Pdata : P;  // the calculation writes the saturation pressure to P
+
+    tpr = cachedReaction(T, Pcalc, reactionSymbol);
 
     reactants = reaction.reactants();
 
@@ -394,27 +437,28 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     for (const auto& reactant : reactants)
     {
         if (reactant.first != subst.symbol())
-            others.push_back({cachedSubstance(T, P, reactant.first) /* thermoPropertiesSubstance(T, P, reactant.first);*/, reactant.second});
+            others.push_back({cachedSubstance(T, Pcalc, reactant.first), reactant.second});
     }
 
     const double coeff = reactants[subst.symbol()];
 
     // the properties of the substance from the properties of the reaction and of the other reactants
-    tps = v2::substanceFromReaction(T, P, tpr, others, coeff);
+    tps = v2::substanceFromReaction(T, Pcalc, tpr, others, coeff);
+    if (!ownTerm)
+        return tps;
 
-    // the record prescribes the volume of an ideal gas
-    if (hasMethod(subst.record()->methods, "IdealGas") && P > 0.0)
-        v2::setIdealGasVolume(tps, T, P);
-
-    // pressure correction on rdc assuming constant molar volume
-    if (hasMethod(subst.record()->methods, "ConstantVolume") &&
-        !hasMethod(reaction.record()->methods, "ReactionConstantVolume") && !hasMethod(reaction.record()->methods, "ReactionVolumePolynomial"))
+    if (fromData)
+        for (auto* field : fields(tps))
+            field->ddp = 0.0;  // the values of the data do not change with P
+    tps = fallbackThermoPropertiesSubstance(tps, subst);
+    if (hasMethod(subst.record()->methods, "ConstantVolume"))
+        tps = v2::constantVolumeCorrection(T, P, tps, subst.thermoReferenceProperties(), fromData ? Pdata : subst.referenceP());
+    else if (P > 0.0)
     {
-        // check properites
-        tps = fallbackThermoPropertiesSubstance(tps, subst);
-        tps = v2::constantVolumeCorrection(T, P, tps, subst.thermoReferenceProperties(), subst.referenceP());
+        v2::setIdealGasVolume(tps, T, P);
+        if (preferences.apply_pressure_correction_to_gas_props)
+            v2::addIdealGasPressureTerm(tps, T, P, subst.referenceP());
     }
-
     return tps;
 }
 

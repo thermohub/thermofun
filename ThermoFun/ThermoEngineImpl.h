@@ -275,6 +275,17 @@ struct ThermoEngine::Impl
 
     auto reacDCthermoProperties(double T, double &P, Substance subst) const -> ThermoPropertiesSubstance;
 
+    /// True if the properties of a reaction change with P: from a model of log K, from a method of its volume with a volume that is not 0, or from its species
+    auto reactionCarriesPressure(const Reaction& reaction) const -> bool;
+
+    /// The pressure of the log K data of a reaction at T: the larger of the reference pressure and the saturation pressure of water, where liquid water exists.
+    /// Above the critical temperature of water there is no such pressure: a substance then has its species at P.
+    auto dataPressure(double T, const Substance& substance) const -> double;
+    static constexpr double water_critical_T = 647.096;  // K
+
+    /// True if a substance defined by this reaction takes its pressure term from its own method. Else there would be two of them.
+    auto pressureFromRecord(const Substance& substance, const Reaction& reaction) const -> bool;
+
     auto thermoPropertiesReaction(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction;
 
     /// A record with a logK(T) function and a method of T correction that does not use it: the function and the reference values

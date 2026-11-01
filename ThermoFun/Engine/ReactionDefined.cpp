@@ -238,6 +238,16 @@ auto setIdealGasVolume(ThermoPropertiesSubstance& tps, double T, double P) -> vo
     tps.volume.sta = {Reaktoro_::Status::calculated, ""};
 }
 
+auto addIdealGasPressureTerm(ThermoPropertiesSubstance& tps, double T, double P, double Pr) -> void
+{
+    const double lnP = std::log(P / Pr);
+    tps.gibbs_energy.val += R_CONSTANT * T * lnP;
+    tps.gibbs_energy.ddt += R_CONSTANT * lnP;
+    tps.gibbs_energy.ddp += R_CONSTANT * T / P;
+    tps.entropy.val -= R_CONSTANT * lnP;
+    tps.entropy.ddp -= R_CONSTANT / P;
+}
+
 namespace {
 
 auto stack() -> std::vector<std::string>&

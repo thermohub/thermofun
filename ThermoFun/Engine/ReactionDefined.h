@@ -26,6 +26,9 @@ auto constantVolumeCorrection(double T, double P, const ThermoPropertiesSubstanc
 /// The molar volume of an ideal gas, J/bar, with its derivatives.
 auto setIdealGasVolume(ThermoPropertiesSubstance& tps, double T, double P) -> void;
 
+/// The pressure term of an ideal gas from Pr: RT ln(P/Pr) on G, -R ln(P/Pr) on S. Pa.
+auto addIdealGasPressureTerm(ThermoPropertiesSubstance& tps, double T, double P, double Pr) -> void;
+
 /// While it lives, one substance is being calculated from its defining reaction. It raises an error that names the
 /// cycle if the same substance is already being calculated on this thread, instead of a stack overflow.
 class DefiningReactionGuard

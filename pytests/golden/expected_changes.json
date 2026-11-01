@@ -1689,6 +1689,98 @@
         "Xe"
       ],
       "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2Se(g)"
+      ],
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2Se(g)"
+      ],
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "(UO2)3(PO4)2w4(cr)",
+        "Ag2CO3(cr)",
+        "Ag2O(am)",
+        "Ag2O(cr)",
+        "Ag3PO4(s)",
+        "AgCl(cr)",
+        "C(cr)",
+        "Ca3(PO4)2(cr)",
+        "Ca4H(PO4)3w2.5(s)",
+        "Ca5(PO4)3Cl(cr)",
+        "Ca5(PO4)3OH(cr)",
+        "CaCO3(aragonite)",
+        "CaCO3(vaterite)",
+        "CaHPO4(cr)",
+        "CaHPO4w2(cr)",
+        "CaU6O19w11(cr)",
+        "Ca[(UO2)(PO4)]2w6(cr)",
+        "Fe(OH)2(s)",
+        "Fe2Cl(OH)3(beta)",
+        "Fe2O3(gamma)",
+        "Fe3(PO4)2w8(cr)",
+        "FeCO3(cr)",
+        "FePO4(cr)",
+        "FePO4w2(s)",
+        "HgHPO4(s)",
+        "UO2(am_hyd)",
+        "UO2CO3(cr)",
+        "UO2HPO4w4(cr)",
+        "UO3w2(cr)"
+      ],
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "(UO2)3(PO4)2w4(cr)",
+        "Ag2CO3(cr)",
+        "Ag2O(am)",
+        "Ag2O(cr)",
+        "Ag3PO4(s)",
+        "AgCl(cr)",
+        "C(cr)",
+        "Ca3(PO4)2(cr)",
+        "Ca4H(PO4)3w2.5(s)",
+        "Ca5(PO4)3Cl(cr)",
+        "Ca5(PO4)3OH(cr)",
+        "CaCO3(aragonite)",
+        "CaCO3(vaterite)",
+        "CaHPO4(cr)",
+        "CaHPO4w2(cr)",
+        "CaU6O19w11(cr)",
+        "Ca[(UO2)(PO4)]2w6(cr)",
+        "Fe(OH)2(s)",
+        "Fe2Cl(OH)3(beta)",
+        "Fe2O3(gamma)",
+        "Fe3(PO4)2w8(cr)",
+        "FeCO3(cr)",
+        "FePO4(cr)",
+        "FePO4w2(s)",
+        "HgHPO4(s)",
+        "UO2(am_hyd)",
+        "UO2CO3(cr)",
+        "UO2HPO4w4(cr)",
+        "UO3w2(cr)"
+      ],
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
     }
   ]
 }

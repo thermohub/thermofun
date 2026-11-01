@@ -148,13 +148,17 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         raw = reacDCthermoProperties(T, P, substance);
         const Reaction reaction = database.getReaction(substance.reactionSymbol());
         const v2::DefiningReactionGuard no_cycle(symbol);
-        const auto r = reactionDerivative(T, P, reaction, ref);
+        const bool ownTerm = pressureFromRecord(substance, reaction);
+        double Pdata = dataPressure(T, substance);
+        const bool fromData = ownTerm && T < water_critical_T;
+        double& Pcalc = fromData ? Pdata : P;
+        const auto r = reactionDerivative(T, Pcalc, reaction, ref);
         d = {r.reaction_gibbs_energy.val, r.reaction_enthalpy.val, r.reaction_entropy.val, r.reaction_heat_capacity_cp.val, r.reaction_volume.val};
         auto reactants = reaction.reactants();
         for (const auto& [other, coefficient] : reactants)
             if (other != symbol)
             {
-                const auto o = substanceDerivative(T, P, database.getSubstance(other), ref);
+                const auto o = substanceDerivative(T, Pcalc, database.getSubstance(other), ref);
                 d.G -= coefficient * o.G;
                 d.H -= coefficient * o.H;
                 d.S -= coefficient * o.S;
@@ -167,19 +171,18 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         d.S /= nu;
         d.Cp /= nu;
         d.V /= nu;
-        // the record prescribes the volume of an ideal gas: see reacDCthermoProperties
-        if (hasMethod(substance.record()->methods, "IdealGas") && P > 0.0)
-            d.V = 0.0;
-        if (hasMethod(substance.record()->methods, "ConstantVolume") &&
-            !hasMethod(reaction.record()->methods, "ReactionConstantVolume") && !hasMethod(reaction.record()->methods, "ReactionVolumePolynomial"))
+        if (ownTerm)
         {
-            // the constant volume of the record replaces the volume, and adds to G and H
-            const double seedV = own && ref.parameter == "V" ? 1.0 : 0.0;
-            if (substance.thermoReferenceProperties().volume.sta.first != Reaktoro_::Status::notdefined)
+            // see reacDCthermoProperties. The volume of an ideal gas and its pressure term have no parameters
+            if (hasMethod(substance.record()->methods, "IdealGas"))
+                d.V = 0.0;
+            else if (substance.thermoReferenceProperties().volume.sta.first != Reaktoro_::Status::notdefined)
             {
+                const double seedV = own && ref.parameter == "V" ? 1.0 : 0.0;
                 d.V = seedV;
-                d.G += seedV * (P - substance.referenceP());
-                d.H += seedV * (P - substance.referenceP());
+                const double from = fromData ? Pdata : substance.referenceP();
+                d.G += seedV * (P - from);
+                d.H += seedV * (P - from);
             }
         }
     }
