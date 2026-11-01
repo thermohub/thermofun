@@ -281,6 +281,19 @@ private:
     DERIV dv;
     IO_Y io;
     //
+    // the constants of this object: it also writes to some of them
+    ACONST ac_value;
+    NCONST nc_value;
+    ELLCON el_value;
+    BCONST bc_value;
+    ADDCON ad_value;
+    HGK_CRT hc_value;
+    HGK_BND hb_value;
+    LIQICE li_value;
+    TPOINT tt_value;
+    CRITS cr_value;
+    COEFS co_value;
+
     ACONST   *ac;
     NCONST   *nc;
     ELLCON   *el;

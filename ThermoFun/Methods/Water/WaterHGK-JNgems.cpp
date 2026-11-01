@@ -1,6 +1,11 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
+
+#include <string>
+#include <type_traits>
+
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Constants.h>
 
@@ -228,115 +233,152 @@ return wp;
 *            comparisons are set and stored in COMMON /tolers/.     */
 
 
-ACONST  ac_ = { /* wm, gascon, tz, aa, uref, sref*/
-    0.1801520000e2, 0.46152200e0, 0.647073e3, 0.1e1,
-    -0.4328455039e4, 0.76180802e1,  0., 0., 0.};
+                                           /*  nc    */
 
-NCONST  nc_ ={ /* g(40), ii(40), jj(40), nc */
-    {-0.53062968529023e3, 0.22744901424408e4, 0.78779333020687e3,
-     -0.69830527374994e2, 0.17863832875422e5,-0.39514731563338e5,
-     0.33803884280753e5,-0.13855050202703e5,-0.25637436613260e6,
-     0.48212575981415e6,-0.34183016969660e6, 0.12223156417448e6,
-     0.11797433655832e7,-0.21734810110373e7, 0.10829952168620e7,
-     -0.25441998064049e6,-0.31377774947767e7, 0.52911910757704e7,
-     -0.13802577177877e7,-0.25109914369001e6, 0.46561826115608e7,
-     -0.72752773275387e7, 0.41774246148294e6, 0.14016358244614e7,
-     -0.31555231392127e7, 0.47929666384584e7, 0.40912664781209e6,
-     -0.13626369388386e7, 0.69625220862664e6,-0.10834900096447e7,
-     -0.22722827401688e6, 0.38365486000660e6, 0.68833257944332e4,
-     0.21757245522644e5,-0.26627944829770e4,-0.70730418082074e5,
-     -0.22500000000000e0,-0.16800000000000e1, 0.5500000000000e-1,
-     -.93000000000000e2},                             /* g[40]  */
-    {0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
-     4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 8, 8, 8, 8,
-     2, 2, 0, 4, 2, 2, 2, 4},                        /* ii[40] */
-    {2, 3, 5, 7, 2, 3, 5, 7, 2, 3, 5, 7, 2, 3, 5, 7,
-     2, 3, 5, 7, 2, 3, 5, 7, 2, 3, 5, 7, 2, 3, 5, 7,
-     1, 4, 4, 4, 0, 2, 0, 0},                        /* jj[40] */
-    36};                                           /*  nc    */
+           /* bq[10] */
 
-ELLCON  el_ = { /* g1, g2, gf */
-    0.11e2, 0.44333333333333e2, 0.35e1, 0., 0., 0., 0., 0., 0.};
+ /* aad[4]  */
 
-BCONST  bc_ = { /* bp(10), bq(10) */
-    {0.7478629e0,-0.3540782e0,  0.0e0, 0.0, 0.7159876e-2,
-     0.0e0,      -0.3528426e-2, 0.0e0, 0.0, 0.0},    /* bp[10] */
-    {0.11278334e1, 0.0e0, -0.5944001e0, -0.5010996e1, 0.0e0,
-     0.63684256e0, 0.0e0, 0.0, 0.0, 0.0}};           /* bq[10] */
+namespace {
 
-ADDCON  ad_ = { /* atz(4), adz(4), aat(4), aad(4) */
-    {0.64e3,  0.64e3,  0.6416e3, 0.27e3},   /* atz[4]  */
-    {0.319e0, 0.319e0, 0.319e0,  0.155e1},  /* adz[4]  */
-    {0.2e5,   0.2e5,   0.4e5,    0.25e2},   /* aat[4]  */
-    {0.34e2,  0.4e2,   0.3e2,    0.105e4} }; /* aad[4]  */
+/// The constants of the model, read once from Methods/ParameterSets/WaterHGK84-gems.yaml. A calculation copies those of the structs, which it also writes to.
+struct Constants
+{
+    ACONST ac{};
+    NCONST nc{};
+    ELLCON el{};
+    BCONST bc{};
+    ADDCON ad{};
+    HGK_CRT hc{};
+    HGK_BND hb{};
+    LIQICE li{};
+    TPOINT tt{};
+    CRITS cr{};
+    COEFS co{};
+    double psat_a[8] = {};
+    double ideal_c[18] = {};
+    double visc_a[4] = {};
+    double visc_b[7][6] = {};
+    double cond_aL[4] = {};
+    double cond_au[4] = {};
+    double cond_bL[5][6] = {};
+    double cond_bu[6][5] = {};
+    double jn_a[10] = {};
+};
 
-HGK_CRT hc_ = { /* tcHGK, dcHGK, pcHGK */
-    0.647126e3, 0.322e3, 0.22055e2};
+auto readConstants() -> Constants
+{
+    const auto& values = v2::builtinParameterSets().at("WaterHGK84/gems").parameters;
+    Constants out;
+    auto number = [&](const std::string& name) { return values.at(name).value; };
+    auto one = [&](auto& to, const std::string& name) { to = static_cast<std::decay_t<decltype(to)>>(number(name)); };
+    // an array of one or two dimensions, as many values as the file has
+    auto list = [&](auto& to, const std::string& name) {
+        using Row = std::remove_reference_t<decltype(to[0])>;
+        if constexpr (std::is_array_v<Row>)
+        {
+            const auto columns = std::extent_v<Row>;
+            for (std::size_t i = 0; i < std::extent_v<std::remove_reference_t<decltype(to)>> * columns; ++i)
+                if (const auto it = values.find(name + "_" + std::to_string(i + 1)); it != values.end())
+                    to[i / columns][i % columns] = it->second.value;
+        }
+        else
+        {
+            for (std::size_t i = 0; i < std::extent_v<std::remove_reference_t<decltype(to)>>; ++i)
+                if (const auto it = values.find(name + "_" + std::to_string(i + 1)); it != values.end())
+                    to[i] = static_cast<Row>(it->second.value);
+        }
+    };
+    one(out.ac.wm, "ac_wm");
+    one(out.ac.gascon, "ac_gascon");
+    one(out.ac.tz, "ac_tz");
+    one(out.ac.aa, "ac_aa");
+    one(out.ac.uref, "ac_uref");
+    one(out.ac.sref, "ac_sref");
+    one(out.ac.zb, "ac_zb");
+    one(out.ac.dzb, "ac_dzb");
+    one(out.ac.yb, "ac_yb");
+    list(out.nc.g, "nc_g");
+    list(out.nc.ii, "nc_ii");
+    list(out.nc.jj, "nc_jj");
+    one(out.nc.nc, "nc_nc");
+    one(out.el.g1, "el_g1");
+    one(out.el.g2, "el_g2");
+    one(out.el.gf, "el_gf");
+    one(out.el.b1, "el_b1");
+    one(out.el.b2, "el_b2");
+    one(out.el.b1t, "el_b1t");
+    one(out.el.b2t, "el_b2t");
+    one(out.el.b1tt, "el_b1tt");
+    one(out.el.b2tt, "el_b2tt");
+    list(out.bc.bp, "bc_bp");
+    list(out.bc.bq, "bc_bq");
+    list(out.ad.atz, "ad_atz");
+    list(out.ad.adz, "ad_adz");
+    list(out.ad.aat, "ad_aat");
+    list(out.ad.aad, "ad_aad");
+    one(out.hc.tcHGK, "hc_tcHGK");
+    one(out.hc.dcHGK, "hc_dcHGK");
+    one(out.hc.pcHGK, "hc_pcHGK");
+    one(out.hb.Ttop, "hb_Ttop");
+    one(out.hb.Tbtm, "hb_Tbtm");
+    one(out.hb.Ptop, "hb_Ptop");
+    one(out.hb.Pbtm, "hb_Pbtm");
+    one(out.hb.Dtop, "hb_Dtop");
+    one(out.hb.Dbtm, "hb_Dbtm");
+    one(out.li.sDli1, "li_sDli1");
+    one(out.li.sPli1, "li_sPli1");
+    one(out.li.sDli37, "li_sDli37");
+    one(out.li.sPli37, "li_sPli37");
+    one(out.li.sDIB30, "li_sDIB30");
+    one(out.li.Tli13, "li_Tli13");
+    one(out.li.Pli13, "li_Pli13");
+    one(out.li.Dli13, "li_Dli13");
+    one(out.li.TnIB30, "li_TnIB30");
+    one(out.li.DnIB30, "li_DnIB30");
+    one(out.tt.Utri, "tt_Utri");
+    one(out.tt.Stri, "tt_Stri");
+    one(out.tt.Htri, "tt_Htri");
+    one(out.tt.Atri, "tt_Atri");
+    one(out.tt.Gtri, "tt_Gtri");
+    one(out.tt.Ttr, "tt_Ttr");
+    one(out.tt.Ptripl, "tt_Ptripl");
+    one(out.tt.Dltrip, "tt_Dltrip");
+    one(out.tt.Dvtrip, "tt_Dvtrip");
+    one(out.cr.Tc, "cr_Tc");
+    one(out.cr.rhoC, "cr_rhoC");
+    one(out.cr.Pc, "cr_Pc");
+    one(out.cr.Pcon, "cr_Pcon");
+    one(out.cr.Ucon, "cr_Ucon");
+    one(out.cr.Scon, "cr_Scon");
+    one(out.cr.dPcon, "cr_dPcon");
+    list(out.co.a, "co_a");
+    list(out.co.q, "co_q");
+    list(out.co.x, "co_x");
+    list(out.psat_a, "psat_a");
+    list(out.ideal_c, "ideal_c");
+    list(out.visc_a, "visc_a");
+    list(out.visc_b, "visc_b");
+    list(out.cond_aL, "cond_aL");
+    list(out.cond_au, "cond_au");
+    list(out.cond_bL, "cond_bL");
+    list(out.cond_bu, "cond_bu");
+    list(out.jn_a, "jn_a");
+    return out;
+}
+
+auto constants() -> const Constants&
+{
+    static const Constants c = readConstants();
+    return c;
+}
+
+} // namespace
 
 TOLERS  to_ = { /* TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL */
     1.0e-6, 1.0e-6, 1.0e-9, 1.0e-5, -673.5e0, 1.0e-7};
 
-HGK_BND hb_ = { /* Ttop, Tbtm, Ptop, Pbtm, Dtop, Dbtm */
-    2.25e3,-2.0e1, 3.0e4, 1.0e-3,
-    0.138074666423686955066817336896e1,
-    0.858745555396173972667420987465e-7};
-
-LIQICE  li_ = { /* sDli1, sPli1, sDli37, sPli37, sDIB30,
-                       Tli13, Pli13, Dli13, TnIB30, DnIB30 */
-    -0.584797401732178547634910059828e-2,
-    -0.138180804975562958027981345769e3,
-    0.183244000000000000000000000007e-2,
-    0.174536874999999999999999999995e3,
-    -0.168375439429928741092636579574e-3,
-    -0.15e2,
-    0.20741e4,
-    0.108755631570602617113573577945e1,
-    0.145e3,
-    0.102631640581853166397515716306e1};
-
-TPOINT  tt_ = {/* Utri,Stri,Htri,Atri,Gtri
-                       Ttr, Ptripl, Dltrip, Dvtrip */
-    0e0, 0e0, 0e0, 0.0e0, 0e0,
-    2.7316e2,
-    0.611731677193563186622762580414e-2,
-    0.999778211030936587977889295063e0,
-    0.485467583448287303988319166423e-5};
-
-CRITS   cr_ = { /* Tc, rhoC, Pc, Pcon, Ucon, Scon, dPcon */
-    647.067e0,  322.778e0,  22.046e0,
-    0.034070660379837018423130834983e0,
-    22046.0e0,
-    0.034070660379837018423130834983e3,
-    0.000000327018783663660700780197e0};
-
-COEFS   co_ = { /* a(20), q(20), x(11) */
-    {-0.017762e0, 5.238000e0, 0.000000e0,-2.549150e1,
-     6.844500e0, 0.325000e0, 1.440300e0, 0.000000e0,
-     1.375700e0, 2.366660e1, 4.820000e0, 0.294200e0,
-     -1.123260e1,-2.265470e1,-1.788760e1,-4.933200e0,
-     1.109430391161019373812391218008e0,
-     -1.981395981400671095301629432211e0,
-     0.246912528778663959151808173743e0,
-     -0.843411332867484343974055795059e0},      /* a[20] */
-
-    {-0.006000e0,-0.003000e0, 0.000000e0, 6.470670e2,
-     3.227780e2, 2.204600e1, 0.267000e0,-1.600000e0,
-     0.491775937675717720291497417773e0, 0.108500e0,
-     0.586534703230779473334597524774e0,
-     -1.026243389120214352553706598564e0,
-     0.612903225806451612903225804745e0, 0.500000e0,
-     -0.391500e0, 0.825000e0, 0.741500e0,
-     0.103245882826119154987166286332e0,
-     0.160322434159191991394857495360e0,
-     -0.169859514687100893997445721324e0},      /* q[20] */
-
-    {6.430000e2, 6.453000e2, 6.950000e2,
-     1.997750e2, 4.200400e2,
-     2.09945691135940719075293945960e1,
-     2.15814057875264119875397458907e1,
-     3.0135e1, 4.0484e1,
-     0.175777517046267847932127026995e0,
-     0.380293646126229135059562456934e0}};     /* x[11] */
+     /* x[11] */
 
 auto WaterHGKgems::errorHKFH2OValidity(std::string type, real P, real T, std::string name, int line) -> void
 {
@@ -372,18 +414,30 @@ WaterHGKgems::WaterHGKgems()
 {
     // set global constant
     //  npH2O++;
-    ac = &ac_;
-    nc = &nc_;
-    el = &el_;
-    bcn = &bc_;
-    ad = &ad_;
-    hc = &hc_;
+    const auto& k = constants();
+    ac_value = k.ac;
+    nc_value = k.nc;
+    el_value = k.el;
+    bc_value = k.bc;
+    ad_value = k.ad;
+    hc_value = k.hc;
+    hb_value = k.hb;
+    li_value = k.li;
+    tt_value = k.tt;
+    cr_value = k.cr;
+    co_value = k.co;
+    ac = &ac_value;
+    nc = &nc_value;
+    el = &el_value;
+    bcn = &bc_value;
+    ad = &ad_value;
+    hc = &hc_value;
     to = &to_;
-    hb = &hb_;
-    li = &li_;
-    tt = &tt_;
-    cr = &cr_;
-    co = &co_;
+    hb = &hb_value;
+    li = &li_value;
+    tt = &tt_value;
+    cr = &cr_value;
+    co = &co_value;
 }
 
 auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties wtr) -> void
@@ -2125,8 +2179,7 @@ auto WaterHGKgems::TdPsdT(real t_) -> real
 //    int i=-1;
     real v, w, y, z, q, b = 0.0e0, c = 0.0e0, TdPsdT;
 
-    real a[8]={-.78889166e1,  .25514255e1, -.6716169e1,  .33239495e2,
-                 -.10538479e3,  .17435319e3, -.14839348e3, .48631602e2};
+    const auto& a = constants().psat_a;
     v = t_ / 647.25e0;
     w = 1.0 - v;
     for( int i=0; i<=7; i++  ) // while (i++ <= 7)
@@ -2199,12 +2252,7 @@ auto WaterHGKgems::ideal(real t) -> void
 {
     int i=1;
     real  tt, tl, emult;
-    real c[18]={ .19730271018e2,    .209662681977e2,  -.483429455355e0,
-                   .605743189245e1,   .2256023885e2,    -.987532442e1,
-                   -.43135538513e1,    .458155781e0,     -.47754901883e-1,
-                   .41238460633e-2,  -.27929052852e-3,   .14481695261e-4,
-                   -.56473658748e-6,   .16200446e-7,     -.3303822796e-9,
-                   .451916067368e-11,-.370734122708e-13, .137546068238e-15 };
+    const auto& c = constants().ideal_c;
 
     tt  = t / 1.0e2;
     tl  = log(tt);
@@ -2395,18 +2443,8 @@ auto WaterHGKgems::Born92(real TK, real Pbars, real Dgcm3, real betab,
 //See  statement 3.1-2 and 4.1-5 in Tabl. 1,6,8 in Sengers and Kamgar-Parsi (1984).
 auto WaterHGKgems::viscos(real Tk, real Pbars, real Dkgm3, real betaPa) -> real
 {
-    real  a[4] = { 0.0181583e0,  0.0177624e0,
-                     0.0105287e0, -0.0036744e0  };
-    real b[7][6] =
-        {
-            { 0.5132047e0, 0.3205656e0, 0.0e0, 0.0e0,-0.7782567e0, 0.1885447e0 },
-            { 0.2151778e0, 0.7317883e0, 1.2410440e0, 1.4767830e0, 0.0e0, 0.0e0 },
-            {-0.2818107e0,-1.0707860e0,-1.2631840e0, 0.0e0, 0.0e0, 0.0e0 },
-            { 0.1778064e0, 0.4605040e0, 0.2340379e0,-0.4924179e0, 0.0e0, 0.0e0 },
-            {-0.0417661e0, 0.0e0, 0.0e0, 0.1600435e0, 0.0e0, 0.0e0 },
-            { 0.0e0,-0.01578386e0, 0.0e0, 0.0e0, 0.0e0, 0.0e0  },
-            { 0.0e0, 0.0e0, 0.0e0,-0.003629481e0, 0.0e0, 0.0e0 }
-        };
+    const auto& a = constants().visc_a;
+    const auto& b = constants().visc_b;
     real Tstar, Dstar, Pstar, ustar, TOL, vIscos, TdegC, sum,
     T, D, u0, u1, u2, xt;
     int i=-1, j=-1;
@@ -2467,29 +2505,10 @@ auto WaterHGKgems::thcond(real Tk, real Pbars, real Dkgm3, real alph,
     int i=-1, j=-1;
     real TOL, Tstar, Dstar, Pstar, ustar, C, TdegC;
     real thCOND, T, D, sum, L0, L1, L2, u0, u1, xt, dPdT;
-    real aL[4] = { 0.2022230e1, 0.1411166e2, 0.5255970e1,-0.2018700e1 };
-    real au[4] = { 0.0181583e0, 0.0177624e0, 0.0105287e0,-0.0036744e0 };
-    real bL[5][6] =
-        {
-            { 1.329304600e0,-0.404524370e0, 0.244094900e0, 0.018660751e0,
-              -0.129610680e0, 0.044809953e0                                 },
-            { 1.701836300e0,-2.215684500e0, 1.651105700e0,-0.767360020e0,
-              0.372833440e0,-0.112031600e0                                 },
-            { 5.224615800e0,-1.012411100e1, 4.987468700e0,-0.272976940e0,
-              -0.430833930e0, 0.133338490e0                                 },
-            { 8.712767500e0,-9.500061100e0, 4.378660600e0,-0.917837820e0,
-              0.0e0, 0.0e0                                                 },
-            {-1.852599900e0, 0.934046900e0, 0.0e0, 0.0e0, 0.0e0, 0.0e0     }
-        };
-    real bu[6][5] =
-        {
-            { 0.5019380e0, 0.2356220e0,-0.2746370e0, 0.1458310e0,-0.0270448e0 },
-            { 0.1628880e0, 0.7893930e0,-0.7435390e0, 0.2631290e0,-0.0253093e0 },
-            {-0.1303560e0, 0.6736650e0,-0.9594560e0, 0.3472470e0,-0.0267758e0 },
-            { 0.9079190e0, 1.2075520e0,-0.6873430e0, 0.2134860e0,-0.0822904e0 },
-            {-0.5511190e0, 0.0670665e0,-0.4970890e0, 0.1007540e0, 0.0602253e0 },
-            { 0.1465430e0,-0.0843370e0, 0.1952860e0,-0.0329320e0,-0.0202595e0 }
-        };
+    const auto& aL = constants().cond_aL;
+    const auto& au = constants().cond_au;
+    const auto& bL = constants().cond_bL;
+    const auto& bu = constants().cond_bu;
     TOL    = 1.0e-2;
     Tstar  = 647.270e0;
     Dstar  = 317.763e0;
@@ -2813,8 +2832,7 @@ auto WaterHGKgems::PsHGK(real t) -> real
 {
     real  pl, psHGK, v, w, b, q, z;
     int i=-1;
-    real a[8] ={ -.78889166e1,  .25514255e1, -.6716169e1,  .33239495e2,
-                   -.10538479e3,  .17435319e3, -.14839348e3, .48631602e2};
+    const auto& a = constants().psat_a;
     if (t <= 314.0e0)
     {
         pl    = 6.3573118e0 - 8858.843e0 / t + 607.56335e0 * pow(t,-0.6e0);
@@ -2882,11 +2900,7 @@ auto WaterHGKgems::JN91(real T, real D, real beta, real *alpha, real *daldT,
     real c[5], dcdT[5], dc2dTT[5];
     real Tref = 298.15e0, Tn;
 
-    real a[10] = { 0.1470333593e+02, 0.2128462733e+03,
-                     -0.1154445173e+03, 0.1955210915e+02,
-                     -0.8330347980e+02, 0.3213240048e+02,
-                     -0.6694098645e+01,-0.3786202045e+02,
-                     0.6887359646e+02,-0.2729401652e+02 };
+    const auto& a = constants().jn_a;
 
     Tn        = T / Tref;
     c[0]      = 1.0e0;
