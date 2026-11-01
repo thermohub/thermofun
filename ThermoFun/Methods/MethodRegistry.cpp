@@ -63,10 +63,10 @@ auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::st
 }
 
 /// The values of the constants of a method, in the order of the catalog.
-auto constantsOf(const MethodApplication& application) -> std::vector<double>
+auto constantsOf(const MethodApplication& application, OperatesOn on = OperatesOn::Substance) -> std::vector<double>
 {
     std::vector<double> values;
-    for (const auto& p : MethodCatalog::instance().find(application.method, OperatesOn::Substance)->parameters)
+    for (const auto& p : MethodCatalog::instance().find(application.method, on)->parameters)
         if (p.constant)
         {
             const auto it = application.parameters.find(p.name);
@@ -183,7 +183,7 @@ MethodRegistry::MethodRegistry()
     };
     reaction_["DolejsManning10"] = [reactionInputs](A a, RR r) { return makeDolejsManning10(reactionInputs(a, r, {{"a", 1e-3}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}})); };
     reaction_["MarshallFranck81"] = [reactionInputs](A a, RR r) { return makeMarshallFranck81(reactionInputs(a, r, {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}, {"f", 1}, {"g", 1}})); };
-    reaction_["RyzhenkoBryzgalin"] = [reactionInputs](A a, RR r) { return makeRyzhenkoBryzgalin(reactionInputs(a, r, {{"pK298", 1}, {"A", 1}, {"B", 1}})); };
+    reaction_["RyzhenkoBryzgalin"] = [reactionInputs](A a, RR r) { auto inputs = reactionInputs(a, r, {{"pK298", 1}, {"A", 1}, {"B", 1}}); inputs.constants = constantsOf(a, OperatesOn::Reaction); return makeRyzhenkoBryzgalin(std::move(inputs)); };
     reaction_["ReactionVolumePolynomial"] = [reactionInputs](A a, RR r) { return makeReactionVolumePolynomial(reactionInputs(a, r, {{"a1", 1}, {"a2", 1}, {"a3", 1}, {"b1", 1e5}, {"b2", 1e10}})); };
     reaction_["ReactionConstantVolume"] = [reactionInputs](A a, RR r) { return makeReactionConstantVolume(reactionInputs(a, r, {})); };
 

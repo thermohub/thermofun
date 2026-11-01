@@ -3,7 +3,7 @@ parameter_sets:
   WaterHGK84_gems_constants_v1:
     method: WaterHGK84
     implementation: gems
-    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml."
+    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; crit: the critical point of the near-critical branch; surf: surface tension; born: the T in degC and P in bar up to which the Born functions are calculated; trans: the reducing values of viscosity and thermal conductivity; cond_C: a constant of thermal conductivity; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml."
     reference: "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991)"
     parameters:
       ac_wm: 0.1801520000e2
@@ -407,3 +407,19 @@ parameter_sets:
       cond_bu_28: 0.1952860e0
       cond_bu_29: -0.0329320e0
       cond_bu_30: -0.0202595e0
+      surf_Ttripl: 273.16e0
+      surf_Tcrit: 647.067e0
+      surf_Tstar: 647.27e0
+      surf_Tcstar: 0.999686e0
+      surf_v: 1.256e0
+      surf_B: -0.625e0
+      surf_stref: 0.2358e0
+      born_TMAX: 1000.0e0
+      born_PMAX: 5000.0
+      trans_Tstar: 647.270e0
+      trans_Dstar: 317.763e0
+      trans_Pstar: 22.1150e6
+      trans_ustar: 1.0e-6
+      cond_C: 3.7711e-8
+      crit_T: 647.067000003e0
+      crit_P: 22.0460000008e0

@@ -229,3 +229,25 @@ def test_a_record_can_replace_the_critical_point_of_the_water_model():
     water_of(doc)["implementation"] = "reaktoro"
     water_of(doc)["parameters"] = {**water_of(doc).get("parameters", {}), "M": 0.018015268 * 1.01}
     assert gibbs_of_water(doc) != plain
+
+
+def test_a_record_can_replace_a_scalar_of_the_gems_water():
+    def water_properties(doc):
+        return tf.ThermoEngine(tf.Database(json.dumps(doc))).propertiesSolvent(473.15, 1e7, solvent_symbol(doc))
+    doc = gems_water()
+    plain = water_properties(doc)
+    water_of(doc)["parameters"] = {**water_of(doc).get("parameters", {}), "surf_stref": 0.2358 * 2}
+    changed = water_properties(doc)
+    assert changed.surface_tension == pytest.approx(2 * plain.surface_tension, rel=1e-12)
+    assert changed.density.val == plain.density.val
+    water_of(doc)["parameters"] = {"trans_ustar": 1.0e-6 * 2}
+    assert water_properties(doc).dynamic_viscosity == pytest.approx(2 * plain.dynamic_viscosity, rel=1e-12)
+
+
+def test_a_record_can_replace_a_constant_of_a_method_of_a_reaction():
+    doc = json.loads(tf.Database("pytests/Reactions/Co_Cu_aq-thermofun.json").toJson(readable=False))
+    method = next(m for m in doc["reactions"]["CoCl4-2"]["methods"] if m["method"] == "RyzhenkoBryzgalin")
+    logK = lambda: tf.ThermoEngine(tf.Database(json.dumps(doc))).thermoPropertiesReaction(673.15, 800e5, "CoCl4-2").log_equilibrium_constant.val
+    plain = logK()
+    method["parameters"] = {**method.get("parameters", {}), "zzH2O": 1.0107 * 1.01}
+    assert logK() != plain

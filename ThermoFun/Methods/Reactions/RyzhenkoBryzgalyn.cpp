@@ -27,15 +27,15 @@ auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, const ReactionInputs&
     auto A = RBcoef[1];
     auto B = RBcoef[2];
 
-    auto a = -4.098;
-    auto b = -3245.2;
-    auto c = 2.2362e+5;
-    auto d = -3.984e+7;
-    auto e = 13.957;
-    auto f = -1262.3;
-    auto g = 8.5641e+5;
-    auto RHO298 = 0.997061;
-    auto zzH2O = 1.0107;
+    const double a = reaction.constants[0];
+    const double b = reaction.constants[1];
+    const double c = reaction.constants[2];
+    const double d = reaction.constants[3];
+    const double e = reaction.constants[4];
+    const double f = reaction.constants[5];
+    const double g = reaction.constants[6];
+    const double RHO298 = reaction.constants[7];
+    const double zzH2O = reaction.constants[8];
 
     auto pKw298 = -(a + b/298.15 + c/pow(298.15,2.) + d/pow(298.15,3.)
         + ( e + f/298.15 + g/pow(298.15,2.))*log10(RHO298));

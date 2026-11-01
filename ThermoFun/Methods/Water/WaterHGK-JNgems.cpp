@@ -263,6 +263,7 @@ struct WaterHGKgemsConstants
     double cond_bu[6][5] = {};
     double jn_a[10] = {};
     double jn_Tr = 0.0;
+    double surf_Ttripl = 0.0, surf_Tcrit = 0.0, surf_Tstar = 0.0, surf_Tcstar = 0.0, surf_v = 0.0, surf_B = 0.0, surf_stref = 0.0, born_TMAX = 0.0, born_PMAX = 0.0, trans_Tstar = 0.0, trans_Dstar = 0.0, trans_Pstar = 0.0, trans_ustar = 0.0, cond_C = 0.0, crit_T = 0.0, crit_P = 0.0;
     double jn_Dr = 0.0;
 };
 
@@ -366,6 +367,22 @@ auto readConstants(const std::map<std::string, v2::Quantity>& values, const std:
     list(out.cond_bu, "cond_bu");
     for (std::size_t i = 0; i < 10; ++i)
         out.jn_a[i] = dielectric.at("a" + std::to_string(i + 1)).value;
+    one(out.surf_Ttripl, "surf_Ttripl");
+    one(out.surf_Tcrit, "surf_Tcrit");
+    one(out.surf_Tstar, "surf_Tstar");
+    one(out.surf_Tcstar, "surf_Tcstar");
+    one(out.surf_v, "surf_v");
+    one(out.surf_B, "surf_B");
+    one(out.surf_stref, "surf_stref");
+    one(out.born_TMAX, "born_TMAX");
+    one(out.born_PMAX, "born_PMAX");
+    one(out.trans_Tstar, "trans_Tstar");
+    one(out.trans_Dstar, "trans_Dstar");
+    one(out.trans_Pstar, "trans_Pstar");
+    one(out.trans_ustar, "trans_ustar");
+    one(out.cond_C, "cond_C");
+    one(out.crit_T, "crit_T");
+    one(out.crit_P, "crit_P");
     out.jn_Tr = dielectric.at("Tr").value;
     out.jn_Dr = dielectric.at("Dr").value;
     return out;
@@ -1719,8 +1736,8 @@ auto WaterHGKgems::LVSeqn(int isat, int iopt, int itripl, real TC,
             {
                 cpoint = 1;
                 cdens  = dL;
-                TC =  647.067000003e0;
-                *P =  22.0460000008e0;
+                TC =  k_->crit_T;
+                *P =  k_->crit_P;
                 ioptsv   = iopt;
                 aSpc.iopt = iopt = 2;
                 aSpc.isat = isat = 0;
@@ -2376,13 +2393,13 @@ auto WaterHGKgems::surten(real Tsatur) -> real
     real Ttripl, Tcrit, Tstar, Tcstar, v, B, stref, FPTOL;
     real sUrten, Tnorm;
 
-    Ttripl = 273.16e0;
-    Tcrit  = 647.067e0;
-    Tstar  = 647.27e0;
-    Tcstar = 0.999686e0;
-    v      =  1.256e0;
-    B      = -0.625e0;
-    stref  = 0.2358e0;
+    Ttripl = k_->surf_Ttripl;
+    Tcrit  = k_->surf_Tcrit;
+    Tstar  = k_->surf_Tstar;
+    Tcstar = k_->surf_Tcstar;
+    v      =  k_->surf_v;
+    B      = k_->surf_B;
+    stref  = k_->surf_stref;
     FPTOL  = 1.0e-10;
 
     if ((Tsatur < Ttripl) || (Tsatur > Tcrit))
@@ -2414,8 +2431,8 @@ auto WaterHGKgems::Born92(real TK, real Pbars, real Dgcm3, real betab,
     //int iRET = 0;
     real TMAX, PMAX, TOL, TdegC, dedP, dedT, d2edT2;
 
-    TMAX = 1000.0e0;
-    PMAX = 5000.0;
+    TMAX = k_->born_TMAX;
+    PMAX = k_->born_PMAX;
     TOL  = 1.0e-3;
 
     *eps = 0.0e0;
@@ -2452,10 +2469,10 @@ auto WaterHGKgems::viscos(real Tk, real Pbars, real Dkgm3, real betaPa) -> real
     T, D, u0, u1, u2, xt;
     int i=-1, j=-1;
 
-    Tstar  = 647.270e0;
-    Dstar  = 317.763e0;
-    Pstar  = 22.1150e6;
-    ustar  = 1.0e-6;
+    Tstar  = k_->trans_Tstar;
+    Dstar  = k_->trans_Dstar;
+    Pstar  = k_->trans_Pstar;
+    ustar  = k_->trans_ustar;
     TOL    = 1.0e-2;
     vIscos = 0.0e0;
     TdegC  = Tk - 273.15e0;
@@ -2513,11 +2530,11 @@ auto WaterHGKgems::thcond(real Tk, real Pbars, real Dkgm3, real alph,
     const auto& bL = k_->cond_bL;
     const auto& bu = k_->cond_bu;
     TOL    = 1.0e-2;
-    Tstar  = 647.270e0;
-    Dstar  = 317.763e0;
-    Pstar  = 22.1150e6;
-    ustar  = 1.0e-6;
-    C      = 3.7711e-8;
+    Tstar  = k_->trans_Tstar;
+    Dstar  = k_->trans_Dstar;
+    Pstar  = k_->trans_Pstar;
+    ustar  = k_->trans_ustar;
+    C      = k_->cond_C;
     thCOND = 0.0e0;
     TdegC  = Tk - 273.15e0;
 

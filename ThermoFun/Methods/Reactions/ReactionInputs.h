@@ -39,6 +39,7 @@ inline auto seeded(const Reaktoro_::ThermoProperty& x, double seed) -> real
 /// What the formulas of a reaction need of a record.
 struct ReactionInputs
 {
+    std::vector<double> constants;  ///< of the method, in the order of the catalog
     ThermoPropertiesReaction reference;  ///< the reference properties, with their status and errors. V in J/bar
     double Tr = 298.15;                  ///< K
     double Pr = 1e5;                     ///< Pa
