@@ -5,14 +5,21 @@
 
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodRegistry.h>
+#include <ThermoFun/Methods/Symbolic/SymbolicMethod.h>
 
 namespace ThermoFun::v2 {
 
-auto canBindReaction(const ReactionRecord& record) -> bool
+auto canBindReaction(const ReactionRecord& record, const std::map<std::string, MethodDefinition>* definitions) -> bool
 {
     int bases = 0;
     for (const auto& a : record.methods)
     {
+        if (definitions && !MethodCatalog::instance().find(a.method, OperatesOn::Reaction))
+            if (const auto it = definitions->find(a.method); it != definitions->end() && isSymbolicReactionDefinition(it->second))
+            {
+                ++bases;
+                continue;
+            }
         const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Reaction);
         if (!spec || !MethodRegistry::instance().hasReactionMethod(a.method))
             return false;
@@ -21,13 +28,14 @@ auto canBindReaction(const ReactionRecord& record) -> bool
     return bases == 1;
 }
 
-auto bindReaction(std::shared_ptr<const ReactionRecord> record) -> std::shared_ptr<const BoundReaction>
+auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<std::string, MethodDefinition>* definitions) -> std::shared_ptr<const BoundReaction>
 {
     auto bound = std::make_shared<BoundReaction>();
     const auto& registry = MethodRegistry::instance();
     for (const auto& a : record->methods)
     {
-        auto method = registry.createReaction(a, *record);
+        const bool symbolic = definitions && !MethodCatalog::instance().find(a.method, OperatesOn::Reaction) && definitions->count(a.method);
+        auto method = symbolic ? symbolicReactionMethod(definitions->at(a.method), a, *record) : registry.createReaction(a, *record);
         if (method->spec().reaction_effects.base)
             bound->base = method;
         else

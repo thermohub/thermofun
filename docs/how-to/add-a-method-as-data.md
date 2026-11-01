@@ -88,3 +88,16 @@ Several methods on one record give the same result in any order.
 
 Examples are in `examples/v2/methods/`. Open a pull request with the Method record to `thermohub-data/methods/definitions/`.
 A reviewer checks the source against the paper. The checks `V2-SYM-001`, `002` and `006` run when the file is read.
+
+## A method of a reaction
+
+A method of a reaction has `operates_on: reaction` and an expression of `dG` in J/mol, with T, P, Tr, Pr, R, the reference values dGr, dHr, dSr, dCpr, dVr of the reaction, and its parameters. The other properties come from it: dS = -d(dG)/dT, dH = dG + T dS, dCp = -T d2(dG)/dT2, dV = d(dG)/dP, and log K = -dG/(R T ln 10).
+
+```yaml
+methods:
+  LinearDG:
+    kind: symbolic
+    operates_on: reaction
+    parameter_definitions: {h: {unit: J/mol}, s: {unit: J/(mol.K)}}
+    expression: {dG: "h - s*T"}
+```

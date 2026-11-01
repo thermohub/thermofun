@@ -144,10 +144,10 @@ auto readDocument(const json& root, Diagnostics& diagnostics, const std::string&
             const json& m = item.value();
             if (!m.is_object() || !m.contains("kind") || !m["kind"].is_string() || m["kind"].get<std::string>() != "symbolic")
                 continue;
-            if (m.contains("operates_on") && m["operates_on"].is_string() && m["operates_on"].get<std::string>() != "substance")
-                continue;
             MethodSpec spec;
             spec.id = item.key();
+            if (m.contains("operates_on") && m["operates_on"].is_string() && m["operates_on"].get<std::string>() == "reaction")
+                spec.operates_on = OperatesOn::Reaction;
             if (m.contains("parameter_definitions") && m["parameter_definitions"].is_object())
                 for (const auto& p : m["parameter_definitions"].items())
                 {

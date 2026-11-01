@@ -16,6 +16,9 @@ auto ThermoEngine::Impl::isOfReaction(const ParameterRef& ref) const -> bool
     if (ref.method.empty())
         return ref.parameter == "logK" || ref.parameter == "dG" || ref.parameter == "dH" || ref.parameter == "dS" || ref.parameter == "dCp" || ref.parameter == "dV";
     const auto* spec = v2::MethodCatalog::instance().find(ref.method);
+    if (!spec)
+        if (const auto it = database.methods().find(ref.method); it != database.methods().end())
+            return it->second.operates_on == v2::OperatesOn::Reaction;
     return spec && spec->operates_on == v2::OperatesOn::Reaction;
 }
 

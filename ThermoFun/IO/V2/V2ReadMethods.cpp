@@ -170,8 +170,8 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
         MethodApplication app;
         app.method_as_written = node["method"].get<std::string>();
         const MethodSpec* spec = MethodCatalog::instance().find(app.method_as_written, operatesOn);
-        if (!spec && operatesOn == OperatesOn::Substance)
-            if (auto symbolic = c.symbolic_specs.find(app.method_as_written); symbolic != c.symbolic_specs.end())
+        if (!spec)
+            if (auto symbolic = c.symbolic_specs.find(app.method_as_written); symbolic != c.symbolic_specs.end() && symbolic->second.operates_on == operatesOn)
                 spec = &symbolic->second;
         if (!spec)
         {

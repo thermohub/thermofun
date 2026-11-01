@@ -74,6 +74,17 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
     {
         if (!database.methods().count(ref.method))
             fail("The catalog and the database have no such method.");
+        if (isOfReaction(ref))
+        {
+            if (!database.containsReaction(ref.symbol))
+                fail("The database has no reaction with this symbol.");
+            const auto bound = boundReaction(database.getReaction(ref.symbol));
+            if (!bound || !bound->base || bound->base->spec().id != ref.method)
+                fail("The record does not use this method.");
+            if (indexOf(bound->base->parameterNames(), ref.parameter) < 0)
+                fail("This method of the record has the parameters: " + joined(bound->base->parameterNames()) + ".");
+            return;
+        }
         if (!database.containsSubstance(ref.symbol))
             fail("The database has no substance with this symbol.");
         if (const auto bound = boundMethods(database.getSubstance(ref.symbol)))
@@ -292,7 +303,7 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
         std::optional<PropertiesSolvent> solvent;
         if (bound->needs_solvent)
             solvent = cachedSolvent(T, P, preferences.solvent_symbol, -1);
-        return toSI(v2::reactionParameterDerivative(*bound, spec ? spec->id : "", ref.parameter, T, P, solvent ? &*solvent : nullptr));
+        return toSI(v2::reactionParameterDerivative(*bound, spec ? spec->id : ref.method, ref.parameter, T, P, solvent ? &*solvent : nullptr));
     }
     return d;
 }

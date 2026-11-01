@@ -4,6 +4,8 @@
 #ifndef THERMOFUN_ENGINE_REACTIONBINDING_H
 #define THERMOFUN_ENGINE_REACTIONBINDING_H
 
+#include <map>
+#include <ThermoFun/Model/MethodDefinition.h>
 #include <memory>
 #include <string>
 
@@ -22,10 +24,10 @@ struct BoundReaction
 };
 
 /// True if the properties of the record come from its methods, every method has code, and one of them is a base method.
-auto canBindReaction(const ReactionRecord& record) -> bool;
+auto canBindReaction(const ReactionRecord& record, const std::map<std::string, MethodDefinition>* definitions = nullptr) -> bool;
 
 /// Make the methods of a reaction.
-auto bindReaction(std::shared_ptr<const ReactionRecord> record) -> std::shared_ptr<const BoundReaction>;
+auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<std::string, MethodDefinition>* definitions = nullptr) -> std::shared_ptr<const BoundReaction>;
 
 /// The properties of a bound reaction at T (K) and P (Pa). solvent: if the methods need it.
 auto executeReaction(const BoundReaction& bound, double T, double P, const PropertiesSolvent* solvent) -> ThermoPropertiesReaction;

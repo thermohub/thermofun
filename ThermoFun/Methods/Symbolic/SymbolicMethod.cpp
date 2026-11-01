@@ -169,11 +169,114 @@ private:
     std::size_t per_piece_ = 0;
 };
 
+/// dG(T, P) and all from it: dS = -d(dG)/dT, dH = dG + T dS, dCp = -T d2(dG)/dT2, dV = d(dG)/dP, log K = -dG/(R T ln 10).
+class SymbolicReactionMethod final : public ReactionMethod
+{
+public:
+    SymbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record)
+    : expression_(compile(definition.expression.at("dG"), symbolicVariables(definition), definition.symbol))
+    {
+        spec_.id = definition.symbol;
+        spec_.operates_on = OperatesOn::Reaction;
+        spec_.implemented = true;
+        spec_.depends_on = Dependence::TP;
+        spec_.reaction_effects.base = true;
+        spec_.reaction_effects.logK = spec_.reaction_effects.dG = spec_.reaction_effects.dH = spec_.reaction_effects.dS = spec_.reaction_effects.dCp = spec_.reaction_effects.dV = Effect::Set;
+        Tr_ = record.reference_conditions.T;
+        Pr_ = record.reference_conditions.P;
+        const auto valueOf = [&](ReactionPropertyName name) { const auto it = record.reaction_properties.find(name); return it == record.reaction_properties.end() ? std::optional<double>{} : std::optional<double>(it->second.value); };
+        const auto logK = valueOf(ReactionPropertyName::logK);
+        reference_ = {valueOf(ReactionPropertyName::dG).value_or(logK ? -R_CONSTANT * Tr_ * lg_to_ln * *logK : 0.0), valueOf(ReactionPropertyName::dH).value_or(0.0),
+                      valueOf(ReactionPropertyName::dS).value_or(0.0), valueOf(ReactionPropertyName::dCp).value_or(0.0), valueOf(ReactionPropertyName::dV).value_or(0.0)};
+        for (const auto& p : definition.parameter_definitions)
+        {
+            const auto it = application.parameters.find(p.name);
+            values_.push_back(it != application.parameters.end() ? it->second.value : p.default_value.value_or(0.0));
+            names_.push_back(p.name);
+        }
+    }
+
+    auto spec() const -> const MethodSpec& override { return spec_; }
+    auto parameterNames() const -> std::vector<std::string> override { return names_; }
+
+    auto calculate(double T, double P, const ThermoPropertiesReaction&, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
+    {
+        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) { return propertiesAt(pass.T, pass.P, -1); });
+    }
+
+    auto parameterDerivative(const std::string& parameter, double T, double P, const ThermoPropertiesReaction&, const PropertiesSolvent*) const -> ThermoPropertiesReaction override
+    {
+        const auto at = std::find(names_.begin(), names_.end(), parameter);
+        ThermoPropertiesReaction out;
+        if (at == names_.end())
+            return out;
+        const auto a = propertiesAt(real(T), real(P), static_cast<int>(at - names_.begin()));
+        out.log_equilibrium_constant = a.log_equilibrium_constant[1];
+        out.ln_equilibrium_constant = a.ln_equilibrium_constant[1];
+        out.reaction_gibbs_energy = a.reaction_gibbs_energy[1];
+        out.reaction_enthalpy = a.reaction_enthalpy[1];
+        out.reaction_entropy = a.reaction_entropy[1];
+        out.reaction_heat_capacity_cp = a.reaction_heat_capacity_cp[1];
+        out.reaction_volume = a.reaction_volume[1];
+        return out;
+    }
+
+private:
+    auto propertiesAt(const real& T, const real& P, int seeded) const -> ThermoPropertiesReactionAD
+    {
+        std::vector<real> v = {T, P, real(Tr_), real(Pr_), real(R_CONSTANT)};
+        for (const double x : reference_)
+            v.emplace_back(x);
+        for (std::size_t i = 0; i < values_.size(); ++i)
+        {
+            real value = values_[i];
+            if (seeded == static_cast<int>(i))
+                value[1] = 1.0;
+            v.push_back(value);
+        }
+        const auto& c = *expression_;
+        const real dG = c.G.evaluate<real>(v);
+        const real dS = -c.dT.evaluate<real>(v);
+        const real dV = c.dP.evaluate<real>(v) * bar_to_Pa;  // J/bar
+        ThermoPropertiesReactionAD out;
+        out.reaction_gibbs_energy = dG;
+        out.reaction_entropy = dS;
+        out.reaction_enthalpy = dG + T * dS;
+        out.reaction_heat_capacity_cp = -T * c.dTT.evaluate<real>(v);
+        out.reaction_volume = dV;
+        out.ln_equilibrium_constant = -dG / (R_CONSTANT * T);
+        out.log_equilibrium_constant = out.ln_equilibrium_constant * ln_to_lg;
+        out.reaction_internal_energy = out.reaction_enthalpy - P / bar_to_Pa * dV;
+        out.reaction_helmholtz_energy = out.reaction_internal_energy - T * dS;
+        return out;
+    }
+
+    MethodSpec spec_;
+    std::shared_ptr<const Compiled> expression_;
+    double Tr_ = 298.15, Pr_ = 1e5;
+    std::vector<double> reference_, values_;
+    std::vector<std::string> names_;
+};
+
 } // namespace
+
+auto isSymbolicReactionDefinition(const MethodDefinition& definition) -> bool
+{
+    return definition.kind == MethodKind::Symbolic && definition.operates_on == OperatesOn::Reaction && definition.expression.count("dG") > 0;
+}
+
+auto symbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record) -> std::shared_ptr<const ReactionMethod>
+{
+    if (!SymbolicExpression::available())
+        funError("Cannot run the symbolic method " + definition.symbol, "V2-MTH-008: this build of ThermoFun has no symbolic methods. Build with TFUN_USE_SYMENGINE=ON.", __LINE__, __FILE__);
+    return std::make_shared<const SymbolicReactionMethod>(definition, application, record);
+}
 
 auto symbolicVariables(const MethodDefinition& definition) -> std::vector<std::string>
 {
     std::vector<std::string> names = {"T", "P", "Tr", "Pr", "R", "Gr", "Hr", "Sr", "Cpr", "Vr"};
+    if (definition.operates_on == OperatesOn::Reaction)
+        names = {"T", "P", "Tr", "Pr", "R", "dGr", "dHr", "dSr", "dCpr", "dVr"};
     for (const auto& p : definition.parameter_definitions)
         names.push_back(p.name);
     return names;
@@ -270,7 +373,8 @@ auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& di
                 readable = false;
                 report(diagnostics, error.code, Severity::Error, definition, name + ": " + error.what());
             }
-    if (!readable || !isSymbolicSubstanceDefinition(definition))
+    const bool ofReaction = isSymbolicReactionDefinition(definition);
+    if (!readable || (!ofReaction && !isSymbolicSubstanceDefinition(definition)))
         return;
     for (std::size_t i = 0; i < definition.tests.size(); ++i)
     {
@@ -281,11 +385,13 @@ auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& di
             continue;
         }
         const auto one = pieceOf(definition, test.piece);
-        const std::string key = isSymbolicBase(one) ? "G" : "G_increment";
+        const std::string key = ofReaction ? "dG" : isSymbolicBase(one) ? "G" : "G_increment";
         const auto expression = SymbolicExpression::parse(one.expression.at(key), variables);
         const auto referenceOf = [&](const char* name, double otherwise) { const auto it = test.reference.find(name); return it == test.reference.end() ? otherwise : it->second; };
         const auto evaluateAt = [&](double T, double P) {
-            std::vector<double> v = {T, P, referenceOf("Tr", 298.15), referenceOf("Pr", 1e5), R_CONSTANT, referenceOf("Gr", 0.0), referenceOf("Hr", 0.0), referenceOf("Sr", 0.0), referenceOf("Cpr", 0.0), referenceOf("Vr", 0.0)};
+            const char* const names[][5] = {{"Gr", "Hr", "Sr", "Cpr", "Vr"}, {"dGr", "dHr", "dSr", "dCpr", "dVr"}};
+            const auto& r = names[ofReaction ? 1 : 0];
+            std::vector<double> v = {T, P, referenceOf("Tr", 298.15), referenceOf("Pr", 1e5), R_CONSTANT, referenceOf(r[0], 0.0), referenceOf(r[1], 0.0), referenceOf(r[2], 0.0), referenceOf(r[3], 0.0), referenceOf(r[4], 0.0)};
             for (const auto& p : definition.parameter_definitions)
             {
                 const auto it = test.parameters.find(p.name);
@@ -297,7 +403,10 @@ auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& di
         const auto dT = expression.diff("T");
         const double G = expression.evaluate<double>(v);
         const double S = -dT.evaluate<double>(v);
-        const std::map<std::string, double> got = {{"G", G}, {"S", S}, {"H", G + test.T * S}, {"V", expression.diff("P").evaluate<double>(v)}, {"Cp", -test.T * dT.diff("T").evaluate<double>(v)}};
+        const double V = expression.diff("P").evaluate<double>(v), Cp = -test.T * dT.diff("T").evaluate<double>(v);
+        const std::map<std::string, double> got = ofReaction
+            ? std::map<std::string, double>{{"dG", G}, {"dS", S}, {"dH", G + test.T * S}, {"dV", V}, {"dCp", Cp}, {"logK", -G / (R_CONSTANT * test.T) * ln_to_lg}}
+            : std::map<std::string, double>{{"G", G}, {"S", S}, {"H", G + test.T * S}, {"V", V}, {"Cp", Cp}};
         for (const auto& [name, want] : test.expected)
             if (const auto it = got.find(name); it != got.end() && std::fabs(it->second - want) > test.relative_tolerance * std::max(std::fabs(want), 1e-30))
                 report(diagnostics, "V2-SYM-004", Severity::Error, definition, "Test case " + std::to_string(i) + ": " + name + " is " + std::to_string(it->second) + ", expected " + std::to_string(want) + ".");

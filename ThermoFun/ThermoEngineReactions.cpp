@@ -18,7 +18,7 @@ auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::s
     const auto it = bound_cache->reactions.find(record.get());
     if (it != bound_cache->reactions.end())
         return it->second;
-    auto bound = v2::canBindReaction(*record) ? v2::bindReaction(v2::withParameterSets(record, database.parameterSets())) : nullptr;
+    auto bound = v2::canBindReaction(*record, &database.methods()) ? v2::bindReaction(v2::withParameterSets(record, database.parameterSets()), &database.methods()) : nullptr;
     bound_cache->reactions[record.get()] = bound;
     bound_cache->reaction_records.push_back(record);
     return bound;

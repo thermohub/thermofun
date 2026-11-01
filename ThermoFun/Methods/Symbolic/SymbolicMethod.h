@@ -10,6 +10,8 @@
 
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/Methods/Method.h>
+#include <ThermoFun/Methods/Reactions/ReactionMethods.h>
+#include <ThermoFun/Model/ReactionRecord.h>
 #include <ThermoFun/Model/MethodApplication.h>
 #include <ThermoFun/Model/MethodDefinition.h>
 
@@ -26,6 +28,12 @@ auto isSymbolicBase(const MethodDefinition& definition) -> bool;
 
 /// The method object of a Method record of the database. An error (V2-MTH-008) if the library has no SymEngine.
 auto symbolicMethod(const MethodDefinition& definition, const MethodApplication& application) -> std::shared_ptr<const SubstanceMethod>;
+
+/// True if the definition has an expression of dG that a reaction can run.
+auto isSymbolicReactionDefinition(const MethodDefinition& definition) -> bool;
+
+/// The method object of a Method record for a reaction, with its reference values.
+auto symbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record) -> std::shared_ptr<const ReactionMethod>;
 
 /// The checks of a symbolic Method record: its expressions (V2-SYM-001, 002, 006), its source (003), its test cases (004) and its units (005).
 auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& diagnostics) -> void;

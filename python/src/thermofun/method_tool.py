@@ -14,7 +14,7 @@ if the source changed after the build, or if a test case of the record fails.
 The source forms for a substance are `cp`, `cp_increment`, `volume`, `gibbs`, `gibbs_increment`, `shomate`
 (the parameters A to G of the NIST WebBook) and `nasa7` (the parameters a1 to a7 of the NASA 7-term polynomials).
 Each piece in T has its own parameter values in the substance.
-Pieces in T (`segments`) and the forms for reactions are not supported yet.
+A method of a reaction has its expression of `dG` written by hand: the tool has no forms for reactions yet.
 """
 
 import argparse

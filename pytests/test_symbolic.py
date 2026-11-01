@@ -133,3 +133,62 @@ def test_the_derivative_by_a_parameter_is_exact():
     T = 500.0
     got = e.parameterSensitivities(T, 1e5, "X", [("X", "MaierKelleyCp", "a")])["G"]["X/MaierKelleyCp/a"]
     assert got == pytest.approx(T - TR - T * math.log(T / TR), rel=1e-12)
+
+
+# --- a method of a reaction -------------------------------------------------------------------------------------------
+
+LINEAR_DG = {"kind": "symbolic", "tier": 1, "operates_on": "reaction", "contributes_to": ["logK", "dG"],
+             "parameter_definitions": {"h": {"unit": "J/mol"}, "s": {"unit": "J/(mol.K)"}, "w": {"unit": "m3/mol"}}, "expression": {"dG": "h - s*T + w*(P - Pr)"}}
+VALUES = {"h": -20000.0, "s": 30.0, "w": 1e-5}
+
+
+def reaction_engine(definition=LINEAR_DG, parameters=VALUES):
+    doc = {"thermohub": "2.0.0-draft.1", "methods": {"LinearDG": definition},
+           "substances": {"Y": {"formula": "Ca", "class": "component", "standard_state_properties": {"G": -1000.0, "H": -900.0, "S": 10.0, "Cp": 10.0, "V": 1e-5}},
+                          "Z": {"formula": "Ca", "class": "component", "defining_reaction": "R"}},
+           "reactions": {"R": {"equation": "Y = Z", "methods": [{"method": "LinearDG", "parameters": parameters}]}}}
+    return tf.ThermoEngine(tf.Database(json.dumps(doc)))
+
+
+def test_a_reaction_from_its_expression_of_dg():
+    T, P = 500.0, 2e7
+    r = reaction_engine().thermoPropertiesReaction(T, P, "R")
+    dG = -20000.0 - 30.0 * T + 1e-5 * (P - 1e5)
+    assert r.reaction_gibbs_energy.val == pytest.approx(dG, rel=1e-12)
+    assert r.reaction_entropy.val == pytest.approx(30.0, rel=1e-12)
+    assert r.reaction_enthalpy.val == pytest.approx(dG + T * 30.0, rel=1e-12)
+    assert r.reaction_volume.val == pytest.approx(1.0, rel=1e-12)
+    assert r.reaction_heat_capacity_cp.val == pytest.approx(0.0, abs=1e-9)
+    assert r.log_equilibrium_constant.val == pytest.approx(-dG / (8.31451 * T * math.log(10)), rel=1e-5)
+    assert r.reaction_gibbs_energy.ddt == pytest.approx(-30.0, rel=1e-12)
+
+
+def test_a_substance_from_a_reaction_with_an_expression():
+    T, P = 500.0, 2e7
+    e = reaction_engine()
+    assert math.isfinite(e.thermoPropertiesSubstance(T, P, "Z").gibbs_energy.val)
+    assert e.calculationPath("Z")["steps"][0]["methods"] == ["LinearDG"]
+
+
+def test_the_derivative_of_a_reaction_by_its_parameter():
+    T, P = 500.0, 2e7
+    got = reaction_engine().reactionParameterSensitivities(T, P, "R", [("R", "LinearDG", "s")])
+    assert got["dG"]["R/LinearDG/s"] == pytest.approx(-T, rel=1e-12)
+    assert got["dS"]["R/LinearDG/s"] == pytest.approx(1.0, rel=1e-12)
+
+
+def test_a_handle_and_a_fit_on_a_parameter_of_a_reaction():
+    e = reaction_engine()
+    assert e.parameter("R", "LinearDG", "s").value() == 30.0
+    e.parameter("R", "LinearDG", "s").setValue(40.0)
+    assert e.thermoPropertiesReaction(500.0, 1e5, "R").reaction_entropy.val == pytest.approx(40.0, rel=1e-12)
+
+
+def test_the_checks_of_a_method_of_a_reaction():
+    def codes(definition):
+        doc = {"thermohub": "2.0.0-draft.1", "methods": {"M": definition}}
+        return [d.code for d in tf.Database(json.dumps(doc)).validate()]
+    case = {"T": 300.0, "P": 1e5, "parameters": VALUES, "expected": {"dG": 1.0}}
+    assert "V2-SYM-004" in codes(dict(LINEAR_DG, tests=[case]))
+    assert "V2-SYM-005" in codes(dict(LINEAR_DG, expression={"dG": "h*s*T"}))
+    assert "V2-SYM-001" in codes(dict(LINEAR_DG, expression={"dG": "h*Gr"}))
