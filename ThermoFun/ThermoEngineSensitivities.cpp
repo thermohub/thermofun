@@ -234,10 +234,7 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
 auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool alwaysFromReactants) const -> ThermoPropertiesReaction
 {
     const auto record = reaction.record();
-    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
-    bool fromReactants = alwaysFromReactants || record->methods.empty();
-    if (source == v2::PropertySource::Reactants && !record->stoichiometry.empty())
-        fromReactants = true;
+    const bool fromReactants = alwaysFromReactants || reactionFromReactants(reaction);
 
     ThermoPropertiesReaction d;
     if (fromReactants)

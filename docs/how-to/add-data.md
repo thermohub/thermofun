@@ -728,6 +728,17 @@ error with a hint.
 
 To use one implementation for all records, set `engine.preferences.method_implementation = {"HKF88": "gems"}`.
 
+To see the path that the engine takes for a record, without calculating:
+
+```python
+engine = tf.ThermoEngine("small.yaml")
+path = engine.calculationPath("Corundum")
+assert path["source"] == "methods"
+assert path["methods"] == ["ConstantCp", "ConstantVolume"]
+```
+
+A reaction and a substance can define each other. If a reaction with `reactants` needs a substance that comes from this reaction, the calculation stops with an error that names the cycle. With `reactants` set for all records in the preferences of the engine, this reaction keeps its own methods, with a warning.
+
 ## 11. Use the old setters
 
 Old programs can still build records with setters. These calls are deprecated in version 1.0. New data must use a file.

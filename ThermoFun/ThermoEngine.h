@@ -58,6 +58,19 @@ struct EngineConventions {
 
 
 
+/// How a record is calculated: the steps of a substance or a reaction, down to the records with their own methods.
+struct CalculationPath
+{
+    std::string kind;                     ///< "substance" or "reaction"
+    std::string symbol;
+    std::string source;                   ///< "methods", "reaction", "reactants", "reference", "water" or "hydrogen_ion"
+    std::vector<std::string> methods;     ///< the methods the record has
+    double coefficient = 1.0;             ///< in the reaction above, if there is one
+    std::string role;                     ///< "", "defining_reaction", "reactant" or "solvent"
+    std::vector<CalculationPath> steps;   ///< what it needs
+    std::string problem;                  ///< why it cannot be calculated, if so
+};
+
 /**
  * @brief The ThermoEngine class calculates the thermodynamic properties of the substances
  * from the internal database. It also calculates the electro-chemical and other physico-chemical
@@ -201,6 +214,9 @@ public:
 
     /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
     /// @param P The pressure value (in units of Pa); 0 means the saturation pressure, which is written back
+    /// How a substance, or a reaction if there is no such substance, is calculated with the sources of this engine. It calculates nothing.
+    auto calculationPath(const std::string& symbol) const -> CalculationPath;
+
     auto thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance;
 
     /// What the results depend on: the version of ThermoFun, the format and dataset of the loaded data, the SHA-256 of all records,

@@ -3,6 +3,8 @@
 
 // The properties of reactions, in the canonical convention.
 
+#include <mutex>
+#include <set>
 #include "ThermoEngineImpl.h"
 
 namespace ThermoFun
@@ -71,15 +73,39 @@ auto ThermoEngine::Impl::warnIfLogKFunctionDisagrees(const Reaction &reaction) c
                            reaction.symbol(), lgK_fn, lgK_ref);
 }
 
+auto ThermoEngine::Impl::reactionFromReactants(const Reaction& reaction) const -> bool
+{
+    const auto record = reaction.record();
+    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
+    if (!record->methods.empty() && (source != v2::PropertySource::Reactants || record->stoichiometry.empty()))
+        return false;
+    for (const auto& reactant : reaction.reactants())
+    {
+        if (!database.containsSubstance(reactant.first))
+            continue;
+        const auto substance = database.getSubstance(reactant.first);
+        if (substance.reactionSymbol() != reaction.symbol() || !comesFromReaction(substance))
+            continue;
+        const std::string loop = reactant.first + " -> " + reaction.symbol() + " -> " + reactant.first;
+        const bool forThisReaction = reaction_sources.count(record->symbol) || record->preferred_property_source == v2::PropertySource::Reactants;
+        if (record->methods.empty() || forThisReaction)
+            funError("Cannot calculate the reaction " + reaction.symbol() + " from its reactants",
+                     "A cycle of defining reactions: " + loop + ". Give " + reactant.first + " a base method, or give the reaction a method and use it.", __LINE__, __FILE__);
+        static std::mutex mutex;
+        static std::set<std::string> warned;
+        const std::lock_guard<std::mutex> lock(mutex);
+        if (warned.insert(reaction.symbol()).second)
+            thfun_logger->warn("The reaction {} keeps its own methods: from its reactants would be a cycle of defining reactions, {}.", reaction.symbol(), loop);
+        return false;
+    }
+    return true;
+}
+
 auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Reaction &reaction) const -> ThermoPropertiesReaction
 {
     // from the reactants: a record without methods, unless the source says otherwise. "reaction" is for substances only.
     const auto record = reaction.record();
-    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
-    bool fromReactants = record->methods.empty();
-    if (source == v2::PropertySource::Reactants && !record->stoichiometry.empty())
-        fromReactants = true;
-    if (fromReactants)
+    if (reactionFromReactants(reaction))
         return thermoPropertiesReactionFromReactants(T, P, reaction);
 
     if (const auto bound = boundReaction(reaction))
@@ -127,12 +153,6 @@ auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double 
         auto coeff      = reactant.second;
         auto substance  = reactant.first;
         auto s = database.getSubstance(substance);
-
-        // check if substance is correctly defined
-        if (!s.methodGenEOS() && !s.method_P() && !s.method_T() && s.reactionSymbol() == reaction.symbol())
-        {
-            errorMethodNotFound("reaction", reaction.symbol(), __LINE__, __FILE__);
-        }
 
         components.push_back({cachedSubstance(T, P, substance) /*thermoPropertiesSubstance(T, P, substance);*/, coeff});
         symbols.push_back(substance);

@@ -168,6 +168,24 @@ auto ThermoEngine::Impl::completeThermoProperties(ThermoPropertiesSubstance &tps
     }
 }
 
+auto ThermoEngine::Impl::comesFromReaction(const Substance &substance) const -> bool
+{
+    const auto record = substance.record();
+    bool fromReaction = substance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC ||
+                        record->preferred_property_source == v2::PropertySource::Reaction || record->methods.empty();
+    // no base method: only corrections, which work on what the reaction gives
+    if (!record->defining_reaction.empty() && !record->methods.empty() && !hasBaseMethod(*record))
+        fromReaction = true;
+
+    // the source can replace the rule, if the record has what that source needs
+    const auto source = sourceOf(substance_sources, record->symbol, record->preferred_property_source);
+    if (source == v2::PropertySource::Reaction && !record->defining_reaction.empty())
+        fromReaction = true;
+    else if (source == v2::PropertySource::Direct && hasBaseMethod(*record))
+        fromReaction = false;
+    return fromReaction;
+}
+
 auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKind
 {
     const auto record = substance.record();
@@ -175,19 +193,7 @@ auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKi
     kind.isHydrogen = v2::isZeroHydrogenIon(*record, database.thermoDataSet().convention);
     kind.isH2Ovapor = compat::isWaterVapour(*record);
     kind.isH2OSolvent = record->class_ == v2::SubstanceClass::WaterSolvent;
-    kind.isReacDC = substance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC ||
-                    record->preferred_property_source == v2::PropertySource::Reaction || record->methods.empty();
-    // no base method: only corrections, which work on what the reaction gives
-    if (!record->defining_reaction.empty() && !record->methods.empty() && !hasBaseMethod(*record))
-        kind.isReacDC = true;
-
-    // the source can replace the rule, if the record has what that source needs
-    const auto source = sourceOf(substance_sources, record->symbol, record->preferred_property_source);
-    const bool hasMethods = hasBaseMethod(*record);
-    if (source == v2::PropertySource::Reaction && !record->defining_reaction.empty())
-        kind.isReacDC = true;
-    else if (source == v2::PropertySource::Direct && hasMethods)
-        kind.isReacDC = false;
+    kind.isReacDC = comesFromReaction(substance);
 
     preferences.solvent_state = v2::solventStateOf(*record);
 
@@ -378,8 +384,7 @@ auto ThermoEngine::Impl::propertiesSolvent(double T, double &P, const Substance 
 auto ThermoEngine::Impl::reactionCarriesPressure(const Reaction& reaction) const -> bool
 {
     const auto record = reaction.record();
-    const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
-    if (record->methods.empty() || source == v2::PropertySource::Reactants)
+    if (reactionFromReactants(reaction))
         return true;  // its species do
     const auto volume = record->reaction_properties.find(v2::ReactionPropertyName::dV);
     const bool hasVolume = volume != record->reaction_properties.end() && volume->second.value != 0.0;

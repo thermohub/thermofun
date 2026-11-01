@@ -280,6 +280,16 @@ struct ThermoEngine::Impl
     /// True if the properties of a reaction change with P: from a model of log K, from a method of its volume with a volume that is not 0, or from its species
     auto reactionCarriesPressure(const Reaction& reaction) const -> bool;
 
+    /// True if a substance is calculated from its defining reaction, by its record and the sources.
+    auto comesFromReaction(const Substance& substance) const -> bool;
+
+    /// True if a reaction is the sum of its reactants, by its record and the sources. If a reactant comes from this reaction there is a loop: a choice
+    /// for this reaction is an error that names the loop, and a choice for all records leaves this one to its own methods, with a warning.
+    auto reactionFromReactants(const Reaction& reaction) const -> bool;
+
+    auto pathOfSubstance(const std::string& symbol, std::vector<std::string>& above) const -> CalculationPath;
+    auto pathOfReaction(const std::string& symbol, std::vector<std::string>& above) const -> CalculationPath;
+
     /// The pressure of the log K data of a reaction at T: the larger of the reference pressure and the saturation pressure of water, where liquid water exists.
     /// Above the critical temperature of water there is no such pressure: a substance then has its species at P.
     auto dataPressure(double T, const Substance& substance) const -> double;

@@ -137,3 +137,46 @@ def test_after_a_cycle_the_engine_still_works():
     with pytest.raises(RuntimeError):
         engine.thermoPropertiesSubstance(300.0, 1e5, "A")
     assert math.isfinite(engine.thermoPropertiesSubstance(300.0, 1e5, "C").gibbs_energy.val)
+
+
+def loop_of_one():
+    # Z comes only from R3, and R3 has its own method
+    return {"thermohub": "2.0.0-draft.1",
+            "substances": {"Y": {"formula": "Ca", "class": "component", "standard_state_properties": {"G": -1000.0, "H": -900.0, "S": 10.0, "Cp": 10.0, "V": 1e-5}},
+                           "Z": {"formula": "Ca", "class": "component", "defining_reaction": "R3"}},
+            "reactions": {"R3": {"equation": "Y = Z", "reaction_properties": {"logK": 1.0}, "methods": [{"method": "LogKConstant"}]}}}
+
+
+def test_a_reaction_from_reactants_that_comes_back_names_the_cycle():
+    engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
+    engine.setPropertySource("R3", "reactants")
+    with pytest.raises(RuntimeError, match="cycle of defining reactions: Z -> R3 -> Z"):
+        engine.thermoPropertiesSubstance(300.0, 1e5, "Z")
+
+
+def test_reactants_for_all_records_leaves_such_a_reaction_to_its_own_methods():
+    plain = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one()))).thermoPropertiesSubstance(300.0, 1e5, "Z").gibbs_energy.val
+    engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
+    preferences = engine.preferences
+    preferences.property_source = "reactants"
+    engine.preferences = preferences
+    assert engine.thermoPropertiesSubstance(300.0, 1e5, "Z").gibbs_energy.val == plain
+
+
+def test_the_path_of_a_substance_from_its_reaction():
+    engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
+    path = engine.calculationPath("Z")
+    assert path["source"] == "reaction"
+    assert [(s["role"], s["symbol"], s["source"]) for s in path["steps"]] == [("defining_reaction", "R3", "methods"), ("reactant", "Y", "reference")]
+    assert path["steps"][1]["coefficient"] == -1.0
+    assert path["steps"][0]["methods"] == ["LogKConstant"]
+
+
+def test_the_path_follows_the_source_and_shows_a_cycle_without_an_error():
+    engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
+    engine.setPropertySource("R3", "reactants")
+    assert "Z -> R3 -> Z" in engine.calculationPath("Z")["steps"][0]["problem"]
+    engine.setPropertySource("R3", "record")
+    assert engine.calculationPath("R3")["source"] == "methods"
+    engine.setPropertySource("Z", "direct")
+    assert engine.calculationPath("Y")["source"] == "reference"

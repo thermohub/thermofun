@@ -73,6 +73,22 @@ auto oldWord(E value) -> std::string
 
 } // namespace
 
+namespace {
+
+auto pathToDict(const ThermoFun::CalculationPath& path) -> py::dict
+{
+    py::dict out;
+    out["kind"] = path.kind; out["symbol"] = path.symbol; out["source"] = path.source; out["methods"] = path.methods;
+    out["coefficient"] = path.coefficient; out["role"] = path.role; out["problem"] = path.problem;
+    py::list steps;
+    for (const auto& step : path.steps)
+        steps.append(pathToDict(step));
+    out["steps"] = steps;
+    return out;
+}
+
+} // namespace
+
 void exportThermoEngine(py::module& m)
 {
     py::enum_<v2::PropertySource>(m, "PropertySource", "Where the properties of a substance or a reaction come from")
@@ -211,6 +227,8 @@ void exportThermoEngine(py::module& m)
                  }
                  return out;
              }, "The methods that calculate a substance, in the order they run, with the state after each one (SI). Empty if no such methods run: water, a substance defined by a reaction, a record without a base method.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
+        .def("calculationPath", [](const ThermoEngine& en, const std::string& symbol) { return pathToDict(en.calculationPath(symbol)); }, py::arg("symbol"),
+             "How a substance or a reaction is calculated with the sources of this engine, as a dict: kind, symbol, source, methods, coefficient, role, steps, problem. It calculates nothing.")
         .def("thermoPropertiesSubstanceDetailed", [](const ThermoEngine& en, double T, double P, std::string symbol) {
                  const auto d = en.thermoPropertiesSubstanceDetailed(T, P, symbol);
                  py::list steps;
