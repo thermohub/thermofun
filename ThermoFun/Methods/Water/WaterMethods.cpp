@@ -14,6 +14,7 @@
 #include <ThermoFun/Methods/Water/Reaktoro/WaterThermoStateUtils.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterUtils.hpp>
 #include <ThermoFun/Methods/Water/WaterElectroFernandez1997.h>
+#include <ThermoFun/Methods/Water/WaterElectroBradleyPitzer79.h>
 #include <ThermoFun/Methods/Water/WaterElectroHelgesonKirkham74.h>
 #include <ThermoFun/Methods/Water/WaterElectroSverjensky2014.h>
 #include <ThermoFun/Methods/Water/WaterHGK-JNgems.h>
@@ -367,6 +368,19 @@ auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> cons
 {
     return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", [constants](double T, double P, const PropertiesSolvent& solvent, int) {
         return johnsonNorton91Gems(T, P, solvent, *constants);
+    });
+}
+
+auto bradleyPitzer79Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>
+{
+    return std::make_shared<const FunctionDielectricMethod>("BradleyPitzer79", "", [constants = std::move(constants)](double T, double P, const PropertiesSolvent&, int) {
+        const double Tmin = constants[9], Tmax = constants[10], Tlow = constants[11], Pmax_low = constants[12], Pmax = constants[13];
+        const double Pbar = P / bar_to_Pa;
+        if (T < Tmin || T > Tmax || Pbar > (T < Tlow ? Pmax_low : Pmax))
+            thfun_logger->warn("BradleyPitzer79: T = {} K, P = {} bar is outside the range of the model", T, Pbar);
+        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+            return electroPropertiesWaterBradleyPitzer79(pass, constants);
+        });
     });
 }
 

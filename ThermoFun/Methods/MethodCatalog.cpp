@@ -395,6 +395,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})
                                .add(numbered("a", 10, "coefficient of k_i(t)")).add(constants({{"Tr", "reference temperature, K"}, {"Dr", "reference density, kg/m3"}}))));
+    m.push_back(dielectric(Spec("BradleyPitzer79", "Dielectric constant of Bradley and Pitzer", "Calculates the dielectric constant of water and the Born functions from T and P, with no density of water.", "Bradley and Pitzer (1979)")
+                               .add(builtIn({"U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "Tmin", "Tmax", "Tlow", "Pmax_low", "Pmax"}))));
     m.push_back(dielectric(Spec("HelgesonKirkham74", "Dielectric constant of Helgeson and Kirkham", "Calculates the dielectric constant of water and the Born functions from a polynomial in T and the density. HKF coefficients of Tanger and Helgeson (1988) and Sverjensky et al. (1997) were fitted with it.", "Helgeson and Kirkham (1974); Tanger and Helgeson (1988)")
                                .add(builtIn({"e_0_0", "e_0_1", "e_0_2", "e_0_3", "e_0_4", "e_1_0", "e_1_1", "e_1_2", "e_1_3", "e_2_0", "e_2_1", "e_2_2", "e_3_0", "e_3_1", "e_4_0"}))));
     m.push_back(dielectric(Spec("SverjenskyEtAl14", "Dielectric constant of Sverjensky et al.", "Calculates the dielectric constant of water at high pressure (DEW model). The published coefficients are for t in degC and the density in g/cm3.", "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145")
@@ -503,7 +505,7 @@ MethodCatalog::MethodCatalog()
         {"TPTable", D::TP}, {"CpExtendedUNIQUAC", D::TP}, {"HKF88", D::TP}, {"AkinfievDiamond03", D::TP}, {"SoluteHP98", D::TP}, {"AndersonEtAl91", D::TP},
         {"LandauHP98", D::TP}, {"LandauHP11", D::TP}, {"MurnaghanHP98", D::TP}, {"TaitHP11", D::TP}, {"VolumeBerman88", D::TP}, {"VolumeDorogokupets88", D::TP}, {"BirchMurnaghan47", D::TP},
         {"PRSV86", D::TP}, {"SoaveRedlichKwong72", D::TP}, {"PengRobinson78", D::TP}, {"SternerPitzer94", D::TP}, {"CorkHP91", D::TP}, {"ChurakovGottschalk03", D::TP},
-        {"WaterHGK84", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
+        {"WaterHGK84", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
         {"DolejsManning10", D::TP}, {"MarshallFranck81", D::TP}, {"RyzhenkoBryzgalin", D::TP}, {"ReactionVolumePolynomial", D::TP}};
     for (auto& spec : specs_)
         if (const auto it = depends.find(spec.id); it != depends.end())

@@ -21,6 +21,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | [AkinfievDiamond03](AkinfievDiamond03.md) | Model of Akinfiev and Diamond | correction | substance | aqueous_solute | gems |
 | [AndersonEtAl91](AndersonEtAl91.md) | Aqueous solute of Anderson et al. | base | substance | aqueous_solute |  |
 | [BirchMurnaghan47](BirchMurnaghan47.md) | Birch-Murnaghan equation of state | correction | substance | component | gems |
+| [BradleyPitzer79](BradleyPitzer79.md) | Dielectric constant of Bradley and Pitzer | correction | substance | water_solvent |  |
 | [ChurakovGottschalk03](ChurakovGottschalk03.md) | Equation of state of Churakov and Gottschalk | correction | substance | gas_fluid |  |
 | [ConstantCp](ConstantCp.md) | Constant heat capacity | base | substance | any |  |
 | [ConstantProperties](ConstantProperties.md) | Constant properties | base | substance | any |  |

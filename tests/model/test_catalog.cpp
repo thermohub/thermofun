@@ -22,7 +22,7 @@ const std::vector<std::string> substanceIds = {
     "LandauHP98", "LandauHP11", "LambdaBerman88", "ConstantVolume", "VolumeBerman88", "VolumeDorogokupets88", "BirchMurnaghan47",
     "MurnaghanHP98", "TaitHP11",
     "IdealGas", "PRSV86", "ChurakovGottschalk03", "SoaveRedlichKwong72", "SternerPitzer94", "PengRobinson78", "CorkHP91",
-    "WaterHGK84", "WaterIAPWS95", "WaterZhangDuan05", "JohnsonNorton91", "HelgesonKirkham74", "SverjenskyEtAl14", "FernandezEtAl97"};
+    "WaterHGK84", "WaterIAPWS95", "WaterZhangDuan05", "JohnsonNorton91", "BradleyPitzer79", "HelgesonKirkham74", "SverjenskyEtAl14", "FernandezEtAl97"};
 
 const std::vector<std::string> reactionIds = {
     "ConstantReactionProperties", "LogKPolynomial", "LogKNordstromMunoz88", "LogKConstant", "LogKZeroEntropy", "LogKVantHoff",

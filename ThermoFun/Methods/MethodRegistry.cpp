@@ -277,6 +277,7 @@ MethodRegistry::MethodRegistry()
     dielectric("JohnsonNorton91", "gems", [](A a) {
         return johnsonNorton91GemsMethod(makeWaterHGKgemsConstants(builtinConstants("WaterHGK84", "gems")->parameters, a.parameters));
     });
+    dielectric("BradleyPitzer79", "", [](A a) { return bradleyPitzer79Method(constantsOf(a)); });
     dielectric("HelgesonKirkham74", "", [](A a) { return helgesonKirkham74Method(constantsOf(a)); });
     dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
     dielectric("FernandezEtAl97", "", [](A a) { return fernandezEtAl97Method(constantsOf(a)); });
