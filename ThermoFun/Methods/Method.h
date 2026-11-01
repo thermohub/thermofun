@@ -97,8 +97,8 @@ struct SolventInputs
 /// The options of an evaluation that change what a method does.
 struct SubstanceOptions
 {
-    bool apply_pressure_correction = false;  ///< gases: add the pressure term to G and H
-    bool cancel_fugacity_coefficient = true; ///< fluids: G is the standard-state value
+    bool apply_pressure_correction = true;   ///< a method for the pressure of a gas: G has RT ln(P/Pr), and S has -R ln(P/Pr)
+    bool cancel_fugacity_coefficient = false; ///< fluids: G does not have RT ln(phi)
 };
 
 /// What a substance method gets at each call.

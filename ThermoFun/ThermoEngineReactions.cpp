@@ -118,8 +118,6 @@ auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double 
     tpr.reaction_internal_energy = 0.0;
     tpr.reaction_helmholtz_energy = 0.0;
 
-    FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
-
     // the properties of the reactants
     std::vector<std::pair<ThermoPropertiesSubstance, double>> components;
     std::vector<std::string> symbols;
@@ -142,7 +140,6 @@ auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double 
 
     tpr = v2::reactionFromReactants(T, P, reaction.symbol(), components, symbols);
 
-    gas_pressure_correction.release();
     return tpr;
 }
 

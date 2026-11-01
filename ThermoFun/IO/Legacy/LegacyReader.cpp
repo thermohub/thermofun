@@ -223,6 +223,14 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
 
     s.data_sources = readSources(j);
     reportUnknownKeys(j, knownSubstanceKeys(), c);
+    // In the old format a gas defined by a reaction has the volume of an ideal gas, without saying so. In a record the method says it.
+    if (!s.defining_reaction.empty() && s.methods.empty() && s.class_ == SubstanceClass::GasFluid && s.aggregate_state == AggregateState::Gas)
+    {
+        MethodApplication ideal;
+        ideal.method = "IdealGas";
+        ideal.implied = true;
+        s.methods.push_back(ideal);
+    }
     return s;
 }
 

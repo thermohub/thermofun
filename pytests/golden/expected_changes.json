@@ -1415,6 +1415,280 @@
         "CO-stp"
       ],
       "reason": "Sterner-Pitzer: the code of the fluid was not initialised for a gas other than H2O and CO2. In the baseline build the memory happened to hold 'C', so CO ran on the CO2 equation; the result depended on the compiler. A gas other than H2O and CO2 now goes by corresponding states, as in CORK. No bundled database has such a record."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4",
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "O2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "cemdata18-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4",
+        "CO2",
+        "H2",
+        "H2O",
+        "H2S",
+        "N2",
+        "O2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "heracles-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Ar+(g)",
+        "Ba+(g)",
+        "BaF+(g)",
+        "BaO+(g)",
+        "BaOH+(g)",
+        "Br+(g)",
+        "Br-(g)",
+        "CH4(g)",
+        "CO(g)",
+        "CO2(g)",
+        "Ca+(g)",
+        "Cl+(g)",
+        "Cl-(g)",
+        "Cs+(g)",
+        "Cs2O+(g)",
+        "CsOH+(g)",
+        "F+(g)",
+        "F-(g)",
+        "H(g)",
+        "H+(g)",
+        "H2(g)",
+        "H2+(g)",
+        "H2O(g)",
+        "H3+(g)",
+        "HCl-(g)",
+        "He",
+        "I+(g)",
+        "I-(g)",
+        "Kr",
+        "Mo+(g)",
+        "Mo-(g)",
+        "N+(g)",
+        "N-(g)",
+        "N2(g)",
+        "N2+(g)",
+        "N2-(g)",
+        "N2O(g)",
+        "N2O+(g)",
+        "N2O3(g)",
+        "N2O4(g)",
+        "N2O5(g)",
+        "N3(g)",
+        "NH3(g)",
+        "NO(g)",
+        "NO+(g)",
+        "NO2(g)",
+        "NO2-(g)",
+        "NO3(g)",
+        "NO3-(g)",
+        "O(g)",
+        "O+(g)",
+        "O-(g)",
+        "O2(g)",
+        "O2+(g)",
+        "O2-(g)",
+        "O2H-(g)",
+        "O2H2(g)",
+        "O3(g)",
+        "OH(g)",
+        "OH+(g)",
+        "OH-(g)",
+        "OH2+(g)",
+        "OH3+(g)",
+        "Rn(g)",
+        "Sr+(g)",
+        "SrO+(g)",
+        "SrOH+(g)",
+        "Xe",
+        "Zz-(g)"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4",
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "H2S",
+        "HCl",
+        "HF",
+        "O2",
+        "SO2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4",
+        "CO2",
+        "H2",
+        "H2S",
+        "N2",
+        "O2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--Fe-O_system",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "O2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Fe4(OH)8Clwn(s)",
+        "Fe6(OH)12CO3wn(s)"
+      ],
+      "reason": "The reactants of a substance defined by a reaction took the pressure term of a gas even with the option off: V (P - Pr), which at low pressure is about -RT Pr/P (at 611 Pa, -370 kJ/mol per mole of gas). The option now holds on every path, so with it off these species have no such term. Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4(g)",
+        "CO2(g)",
+        "Fe4(OH)8Clwn(s)",
+        "Fe6(OH)12CO3wn(s)",
+        "H2(g)",
+        "H2O(g)",
+        "Hg(g)",
+        "HgCO3(HgO)2(s)",
+        "HgCO3(aq)",
+        "HgHCO3+",
+        "O2(g)"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4",
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "H2S",
+        "HCl",
+        "HF",
+        "O2",
+        "SO2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s10-fluid_churakov_gottschalk",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CO-cgf"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s11-fluid_soave_redlich_kwong",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CO-srk"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s13-fluid_peng_robinson78",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CO-pr78"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "CH4",
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "O2"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "slop98-organic-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "C2H4",
+        "C6H6O",
+        "m-C7H8O",
+        "o-C7H8O",
+        "p-C7H8O"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Ar",
+        "CH4",
+        "CO",
+        "CO2",
+        "H2",
+        "H2O",
+        "H2S",
+        "He",
+        "Kr",
+        "N2",
+        "NH3",
+        "Ne",
+        "Nia2",
+        "O2",
+        "Rn",
+        "S2",
+        "SO2",
+        "Xe"
+      ],
+      "reason": "The pressure term of a gas with a method is now RT ln(P/Pr) in G and -R ln(P/Pr) in S, on every path. Before: V (P - Pr) in G and H, the term of a solid (CO2 PRSV, 600 K, 1 to 1000 bar: dG 6537 J/mol against the integral of V dP of 34958; dH 2530 against -4007). The new values hold dG/dP = V (test_gas_methods.py). Maintainer's decision, 2026-11-01."
     }
   ]
 }

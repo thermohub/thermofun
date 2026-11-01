@@ -21,11 +21,10 @@ struct ResultKey
     double T = 0.0;
     double P = 0.0;           ///< as given: 0 means the saturation pressure
     int state = -1;           ///< the state of water that was asked for; -1 for none
-    bool gas_correction = false;   ///< a reaction switches on the pressure correction of its gases: another result
 
     auto operator<(const ResultKey& o) const -> bool
     {
-        return std::tie(symbol, T, P, state, gas_correction) < std::tie(o.symbol, o.T, o.P, o.state, o.gas_correction);
+        return std::tie(symbol, T, P, state) < std::tie(o.symbol, o.T, o.P, o.state);
     }
 };
 

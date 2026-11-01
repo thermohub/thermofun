@@ -20,8 +20,8 @@ auto constantCpMethod() -> std::shared_ptr<const SubstanceMethod>;
 auto constantVolumeMethod() -> std::shared_ptr<const SubstanceMethod>;
 
 /// Sets V = R T / P for a gas. With the pressure correction switched on, it also adds V (P - Pr) to G and H.
-/// isGas: the volume comes from the gas law only for a record of the class gas_fluid.
-auto idealGasMethod(bool isGas) -> std::shared_ptr<const SubstanceMethod>;
+/// V = RT/P, and with the correction of the options G(T, P) = G(T, Pr) + RT ln(P/Pr). The record decides, by prescribing this method.
+auto idealGasMethod() -> std::shared_ptr<const SubstanceMethod>;
 
 } // namespace ThermoFun::v2
 

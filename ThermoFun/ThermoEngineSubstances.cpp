@@ -177,10 +177,13 @@ auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKi
     kind.isH2OSolvent = record->class_ == v2::SubstanceClass::WaterSolvent;
     kind.isReacDC = substance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC ||
                     record->preferred_property_source == v2::PropertySource::Reaction || record->methods.empty();
+    // the only method is its volume: the rest comes from the reaction
+    if (!record->defining_reaction.empty() && record->methods.size() == 1 && record->methods[0].method == "IdealGas")
+        kind.isReacDC = true;
 
     // the source can replace the rule, if the record has what that source needs
     const auto source = sourceOf(substance_sources, record->symbol, record->preferred_property_source);
-    const bool hasMethods = !record->methods.empty() && !(record->methods.size() == 1 && record->methods[0].method == "ConstantVolume");
+    const bool hasMethods = !record->methods.empty() && !(record->methods.size() == 1 && (record->methods[0].method == "ConstantVolume" || record->methods[0].method == "IdealGas"));
     if (source == v2::PropertySource::Reaction && !record->defining_reaction.empty())
         kind.isReacDC = true;
     else if (source == v2::PropertySource::Direct && hasMethods)
@@ -290,7 +293,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
 
         // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the
         // HGK equation of state contains in G is removed (H and S are not changed)
-        if (water_g_contains_rt_ln_p && kind.isH2Ovapor && !kind.isH2OSolvent && !preferences.cancel_fugacity_coefficient_in_gas_props &&
+        if (water_g_contains_rt_ln_p && kind.isH2Ovapor && !kind.isH2OSolvent && !preferences.apply_pressure_correction_to_gas_props && !preferences.cancel_fugacity_coefficient_in_gas_props &&
             substance.aggregateState() == AggregateState::type::GAS && P > 0.0)
         {
             const double Pb = P / bar_to_Pa;
@@ -382,9 +385,6 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
 
     const v2::DefiningReactionGuard no_cycle(subst.symbol());
 
-    // if reaction involves gases we switch on the P correction to the thermo props
-    FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
-
     tpr = cachedReaction(T, P, reactionSymbol); /*thermoPropertiesReaction(T, P, reactionSymbol);*/
 
     reactants = reaction.reactants();
@@ -402,15 +402,9 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     // the properties of the substance from the properties of the reaction and of the other reactants
     tps = v2::substanceFromReaction(T, P, tpr, others, coeff);
 
-    gas_pressure_correction.release();
-
-    // a gas defined by a reaction and without a volume method has the ideal gas molar volume
-    if (subst.aggregateState() == AggregateState::type::GAS &&
-        subst.substanceClass() == SubstanceClass::type::GASFLUID && !subst.method_P() && P > 0.0 &&
-        !(tpr.reaction_volume.sta.first != Reaktoro_::Status::notdefined && tpr.reaction_volume.val != 0.0))
-    {
+    // the record prescribes the volume of an ideal gas
+    if (hasMethod(subst.record()->methods, "IdealGas") && P > 0.0)
         v2::setIdealGasVolume(tps, T, P);
-    }
 
     // pressure correction on rdc assuming constant molar volume
     if (hasMethod(subst.record()->methods, "ConstantVolume") &&

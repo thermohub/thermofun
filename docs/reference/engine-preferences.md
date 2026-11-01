@@ -6,8 +6,8 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 | Option | Default | Valid words | Description |
 |---|---|---|---|
-| apply_pressure_correction_to_gas_props | False |  | apply pressure/fugacity correction to gas standard properties True/False (default: False) |
-| cancel_fugacity_coefficient_in_gas_props | True |  | remove the fugacity coefficient term RT ln(phi) of the fluids from G, giving standard-state G(T, 1 bar) True/False (default: True); False keeps it and removes RT ln(P/1 bar) from G of steam (HGK) |
+| apply_pressure_correction_to_gas_props | True |  | apply pressure/fugacity correction to gas standard properties True/False (default: False) |
+| cancel_fugacity_coefficient_in_gas_props | False |  | remove the fugacity coefficient term RT ln(phi) of the fluids from G, giving standard-state G(T, 1 bar) True/False (default: True); False keeps it and removes RT ln(P/1 bar) from G of steam (HGK) |
 | enable_memoize | True |  | enable/disable memoization of calculated properties (default: True) |
 | fallback_to_reference_properties | False |  | use reference properties if no calculation functions are available True/False (default: False) |
 | max_cache_size | 1000000 |  | size of memoization cache, default 1e6 (if 0 unlimited cache) |

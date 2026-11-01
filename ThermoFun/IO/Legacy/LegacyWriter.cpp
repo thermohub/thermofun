@@ -199,6 +199,8 @@ auto writeLegacySubstance(const SubstanceRecord& r, const LegacyWriteOptions& op
     bool gasFlag = false;
     for (const auto& app : r.methods)
     {
+        if (app.implied)
+            continue;
         const LM* method = legacyOf(app, legacy::legacySubstanceMethods());
         const MethodSpec* spec = MethodCatalog::instance().find(app.method, OperatesOn::Substance);
         if (!method || !spec)

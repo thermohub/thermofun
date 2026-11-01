@@ -69,13 +69,17 @@ int main(int argc, char** argv)
     }
 
     // Fugacity coefficient: removed from G by default, kept when the preference is false (reference: CO at 25 C, 1000 bar, G = -135869.687 J/mol)
-    double gStd = static_cast<double>(props("CO", 25., 1000.).gibbs_energy);
+    // Both of the state at the reference pressure, as in a GEMS export: the term RT ln(P/Pr) is off
     ThermoEngine engineFug(db);
     engineFug.setSolventSymbol("H2O(l)");
     auto prefs = engineFug.preferences();
-    prefs.cancel_fugacity_coefficient_in_gas_props = false;
+    prefs.apply_pressure_correction_to_gas_props = false;
+    prefs.cancel_fugacity_coefficient_in_gas_props = true;
     engineFug.setPreferences(prefs);
     double P1000 = 1000. * 1e5;
+    double gStd = static_cast<double>(engineFug.thermoPropertiesSubstance(298.15, P1000, "CO").gibbs_energy);
+    prefs.cancel_fugacity_coefficient_in_gas_props = false;
+    engineFug.setPreferences(prefs);
     double gFug = static_cast<double>(engineFug.thermoPropertiesSubstance(298.15, P1000, "CO").gibbs_energy);
     check(near(gStd, -137157.0, 1.5), "CO G with the fugacity term cancelled", gStd, -137157.0);
     check(near(gFug, -135869.687, 1.5), "CO G with the fugacity term kept", gFug, -135869.687);

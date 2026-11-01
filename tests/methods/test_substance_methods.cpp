@@ -190,20 +190,21 @@ void testVolumeMethods()
     t.G = 5.0;
     constantVolumeMethod()->apply(t, in);
     CHECK(t.G == 5.0 && t.V == 0.0);
-    // ideal gas: V = RT/P of a gas, no change of G and H unless the correction is on
+    // ideal gas: V = RT/P; without the correction no change of G and H
+    in.options.apply_pressure_correction = false;
     SubstanceState<double> g;
     g.G = 5.0;
-    idealGasMethod(true)->apply(g, in);
+    idealGasMethod()->apply(g, in);
     CHECK(near(g.V, 8.31451 * 500.0 / 1e7, 1e-14) && g.G == 5.0);
+    // with it G(T, P) has RT ln(P/Pr), S has -R ln(P/Pr), and H does not change
     in.options.apply_pressure_correction = true;
     SubstanceState<double> c;
     c.G = 5.0;
-    idealGasMethod(true)->apply(c, in);
-    CHECK(near(c.G, 5.0 + 8.31451 * 500.0 / 1e7 * (1e7 - 1e5), 1e-13));
-    // not a gas: the volume is not touched
-    SubstanceState<double> n;
-    idealGasMethod(false)->apply(n, in);
-    CHECK(n.V == 0.0);
+    c.H = 7.0;
+    idealGasMethod()->apply(c, in);
+    CHECK(near(c.G, 5.0 + 8.31451 * 500.0 * std::log(1e7 / 1e5), 1e-12));
+    CHECK(near(c.S, -8.31451 * std::log(1e7 / 1e5), 1e-12));
+    CHECK(c.H == 7.0);
 }
 
 void testEffects()

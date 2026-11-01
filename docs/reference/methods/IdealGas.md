@@ -2,7 +2,7 @@
 
 Ideal gas.
 
-Sets V = RT/P and adds RT ln(P/P0) to G.
+Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.
 
 | | |
 |---|---|
@@ -17,7 +17,7 @@ Sets V = RT/P and adds RT ln(P/P0) to G.
 
 ## Example
 
-From C12A7 in `cemdata18-thermofun.json`.
+From CH4 in `cemdata18-thermofun.json`.
 
 ```yaml
 - method: IdealGas

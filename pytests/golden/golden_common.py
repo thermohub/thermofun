@@ -133,6 +133,11 @@ def make_engine(db_path, variant):
         engine = synthetic_api.make_engine()
     else:
         engine = thermofun.ThermoEngine(str(db_path))
+    # the comparison holds these options where they were, so that each build runs the same path; the variant gas has them on
+    plain = thermofun.EnginePreferences()
+    plain.apply_pressure_correction_to_gas_props = False
+    plain.cancel_fugacity_coefficient_in_gas_props = True
+    engine.setPreferences(plain)
     if variant == "default":
         pass
     elif variant == "gas":
@@ -142,6 +147,8 @@ def make_engine(db_path, variant):
         engine.setPreferences(prefs)
     elif variant == "errors":
         prefs = thermofun.EnginePreferences()
+        prefs.apply_pressure_correction_to_gas_props = False
+        prefs.cancel_fugacity_coefficient_in_gas_props = True
         prefs.propagate_parameter_errors = True
         engine.setPreferences(prefs)
     elif variant == "steam":

@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     checkDerivatives("ConstantVolume G", [&](double t, double p) { return run(constantVolumeMethod(), t, p).G; }, T, P);
 
     // Ideal gas law volume with the pressure correction
-    checkProperties("IdealGas", idealGasMethod(true), T, P, 2e-4, true);
+    checkProperties("IdealGas", idealGasMethod(), T, P, 2e-4, true);
 
     // Gas and fluid models (fugacity from the equations of state). Pc in Pa
     {

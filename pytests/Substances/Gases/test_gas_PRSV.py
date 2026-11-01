@@ -10,6 +10,9 @@ class TestCpfT(unittest.TestCase):
 
     def setUp(self):
         self.engine = thermofun.ThermoEngine('pytests/Substances/Gases/mines16-thermofun.json')
+        # these numbers are of the state at the reference pressure, with the residual terms of H and S
+        self.engine.preferences.apply_pressure_correction_to_gas_props = False
+        self.engine.preferences.cancel_fugacity_coefficient_in_gas_props = True
     
     def test_properties_substance(self):
         assert self.engine.thermoPropertiesSubstance(50+273.15, 1e5, "O2").gibbs_energy.val == pytest.approx(-5159.744184316695, 1e-5, 1e-14)

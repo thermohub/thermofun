@@ -147,7 +147,6 @@ auto ThermoEngine::Impl::reactionJacobian(double T, double& P, const Reaction& r
     if (fromReactants || record->methods.empty())
     {
         // the sum of the Cv of the species
-        FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
         for (const auto& [symbol, coefficient] : reaction.reactants())
         {
             const auto substance = database.getSubstance(symbol);

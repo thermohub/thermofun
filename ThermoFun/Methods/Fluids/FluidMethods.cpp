@@ -55,12 +55,13 @@ auto fluid(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, con
             inputs.parameters.push_back(pressure ? parameters.value(i, in) / bar_to_Pa : parameters.value(i, in));
         }
         const Scalar p = in.P / bar_to_Pa;
+        // G(T, P) = G(T, Pr) + RT ln(P/Pr) + RT ln(phi), so dG/dP = V, with two options for its two terms. The model gives the residual terms; H has no other term.
         auto out = data.row->model(in.T, p, inputs, toModel(state), in.options.cancel_fugacity_coefficient);
-        if (in.options.apply_pressure_correction)
+        if (in.options.apply_pressure_correction && p > 0.0)
         {
-            const Scalar term = out.volume * (p - in.reference.P / bar_to_Pa);
-            out.gibbs_energy += term;
-            out.enthalpy += term;
+            const Scalar lnP = log(p / (in.reference.P / bar_to_Pa));
+            out.gibbs_energy += R_CONSTANT * in.T * lnP;
+            out.entropy -= R_CONSTANT * lnP;
         }
         setFromModel(state, out);
     }
@@ -74,15 +75,6 @@ auto fluidInfo(PropertiesInfo& out, const InfoInputs& in, const FluidData& data)
     out.H.propagateFrom(H);
     out.S.propagateFrom(S);
     out.V = ValueInfo{ValueInfo::Status::Assigned, 0.0, ""};
-    if (in.options.apply_pressure_correction)
-    {
-        const double dP = (in.P - in.Pr) / bar_to_Pa;
-        const ValueInfo g = out.G, h = out.H;
-        out.G.propagateFrom(g, out.V);
-        out.H.propagateFrom(h, out.V);
-        out.G.setError({{1.0, g.err}, {dP, out.V.err}});
-        out.H.setError({{1.0, h.err}, {dP, out.V.err}});
-    }
     const auto message = boundsMessage(data.row->name, data.record.applicability, in.T, in.P);
     if (!message.empty())
         setMessage(out, message);

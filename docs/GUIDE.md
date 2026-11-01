@@ -69,8 +69,8 @@ A change applies from the next calculation: the engine then clears its cached re
 | `solvent_state` | 0 | Solvent state used by the solute models: 0 liquid, 1 vapour. |
 | `solvent_symbol` | `H2O@` | The solvent record used to calculate solutes (for example HKF). Change it if your database names water differently. |
 | `fallback_to_reference_properties` | false | When a substance has no calculation method or data are missing, return the reference properties stored in the record instead of leaving the property undefined. |
-| `apply_pressure_correction_to_gas_props` | false | Adds the fugacity/pressure correction of the fluid equation of state to `H`, `S`, `V` of gases (`G` is kept, see the note in [autodiff.md](autodiff.md)). Reactions calculated from reactants switch it on themselves. |
-| `cancel_fugacity_coefficient_in_gas_props` | true | Fluids (CORK, PRSV, CG, SRK, PR78, STP): the term `RT ln(phi)` is removed from `G`, so `G` is the standard-state value `G(T, 1 bar)`. Set to false to keep it: `G` is then `G(T, 1 bar) + RT ln(phi)` (up to 1.3 kJ/mol for CO at 1000 bar), and for steam from the HGK water equation of state the ideal-gas pressure term `RT ln(P/1 bar)` is removed from `G` in the same way. The terms are 0 at 1 bar for an ideal gas. |
+| `apply_pressure_correction_to_gas_props` | true | A gas whose record prescribes a fluid equation of state or `IdealGas` has `RT ln(P/Pr)` in `G` and `-R ln(P/Pr)` in `S`. The same alone and inside a reaction. |
+| `cancel_fugacity_coefficient_in_gas_props` | false | Fluids (CORK, PRSV, CG, SRK, PR78, STP): true removes `RT ln(phi)` from `G`. With both defaults `G(T, P) = G(T, Pr) + RT ln(P/Pr) + RT ln(phi)`, so `dG/dP = V`. The standard state `G(T, Pr)` is the correction off and this true. |
 | `propagate_parameter_errors` | false | Also propagates the uncertainties of model coefficients. Costs two extra calculations per parameter with an error. |
 | `round_to_uncertainty` | false | Rounds results to the decimals of their uncertainty (NEA TDB rules). |
 | `uncertainty_significant_digits` | 2 | Digits of the rounded-up uncertainty when rounding is on (the TDB tables use one or two). |

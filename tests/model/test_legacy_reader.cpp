@@ -548,8 +548,9 @@ void testAllDatabases()
                     std::printf("  %s %s: %s\n", file, s.symbol.c_str(), x.message.c_str());
             addToReport(report, d);
             CHECK(s.symbol == rec["symbol"].get<std::string>());
-            CHECK(s.methods.size() <= rec.value("TPMethods", json::array()).size());
-            methods += s.methods.size();
+            const auto written = std::count_if(s.methods.begin(), s.methods.end(), [](const auto& a) { return !a.implied; });
+            CHECK(written <= static_cast<std::ptrdiff_t>(rec.value("TPMethods", json::array()).size()));
+            methods += written;
             for (const char* key : {"sm_gibbs_energy", "sm_enthalpy"})
                 if (rec.contains(key) && rec[key].contains("values") && !rec[key]["values"].empty() && rec[key]["values"][0].is_number())
                     CHECK(s.standard_state_properties.count(key == std::string("sm_gibbs_energy") ? PropertyName::G : PropertyName::H) == 1);

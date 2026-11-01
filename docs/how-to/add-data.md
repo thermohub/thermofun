@@ -313,11 +313,16 @@ assert tf.ThermoEngine(other).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs
 
 ### 5.4 A gas
 
-An equation of state changes H, S and V with pressure. Two preferences of the engine decide what happens to G:
+A record decides by its methods: a fluid equation of state or `IdealGas` makes a gas depend on pressure. The class and the aggregate state of the record do not decide this. Without such a method, a gas gets no pressure term.
 
-- By default, G stays G(T, 1 bar).
-- `apply_pressure_correction_to_gas_props = True` adds the pressure term to G and H.
-- `cancel_fugacity_coefficient_in_gas_props = False` keeps RT ln(phi) in G.
+By default `G(T, P) = G(T, Pr) + RT ln(P/Pr) + RT ln(phi)`, so `dG/dP = V`. Two preferences of the engine switch off one term each:
+
+| Preference | Default | With the other value |
+|---|---|---|
+| `apply_pressure_correction_to_gas_props` | `True` | `False`: no `RT ln(P/Pr)` in G, and no `-R ln(P/Pr)` in S. |
+| `cancel_fugacity_coefficient_in_gas_props` | `False` | `True`: no `RT ln(phi)` in G, as for an ideal gas. |
+
+With `False` and `True`, G stays G(T, Pr), the standard state. H and S keep the residual terms of the equation of state. The two preferences hold on every path: a gas has the same values alone, as a reactant, and in a substance defined by a reaction.
 
 <!-- file: gas.yaml -->
 ```yaml
@@ -341,9 +346,10 @@ substances:
 engine = tf.ThermoEngine("gas.yaml")
 low, high = (engine.thermoPropertiesSubstance(400.0, p, "CO2").volume.val for p in (1e5, 1e7))
 assert high < low
-assert engine.thermoPropertiesSubstance(400.0, 1e7, "CO2").gibbs_energy.val == engine.thermoPropertiesSubstance(400.0, 1e5, "CO2").gibbs_energy.val
-engine.preferences.apply_pressure_correction_to_gas_props = True
 assert engine.thermoPropertiesSubstance(400.0, 1e7, "CO2").gibbs_energy.val > engine.thermoPropertiesSubstance(400.0, 1e5, "CO2").gibbs_energy.val
+engine.preferences.apply_pressure_correction_to_gas_props = False
+engine.preferences.cancel_fugacity_coefficient_in_gas_props = True
+assert engine.thermoPropertiesSubstance(400.0, 1e7, "CO2").gibbs_energy.val == engine.thermoPropertiesSubstance(400.0, 1e5, "CO2").gibbs_energy.val
 ```
 
 ### 5.5 A substance from a reaction

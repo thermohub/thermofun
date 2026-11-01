@@ -27,14 +27,14 @@ static int failures = 0;
         }                                                                    \
     } while (false)
 
-static auto key(const std::string& symbol, double T = 300.0, double P = 1e5, int state = -1, bool gas = false) -> ResultKey
+static auto key(const std::string& symbol, double T = 300.0, double P = 1e5, int state = -1) -> ResultKey
 {
-    return {symbol, T, P, state, gas};
+    return {symbol, T, P, state};
 }
 
 int main()
 {
-    // an entry for each symbol, T, P, state and flag of the gas correction
+    // an entry for each symbol, T, P and state
     {
         ResultCache<int> cache;
         double P = 1e5;
@@ -44,14 +44,12 @@ int main()
         cache.store(key("A", 301.0), 3, P, 0);
         cache.store(key("A", 300.0, 2e5), 4, P, 0);
         cache.store(key("A", 300.0, 1e5, 1), 5, P, 0);
-        cache.store(key("A", 300.0, 1e5, -1, true), 6, P, 0);
-        CHECK(cache.size() == 6);
+        CHECK(cache.size() == 5);
         CHECK(*cache.find(key("A"), P) == 1);
         CHECK(*cache.find(key("B"), P) == 2);
         CHECK(*cache.find(key("A", 301.0), P) == 3);
         CHECK(*cache.find(key("A", 300.0, 2e5), P) == 4);
         CHECK(*cache.find(key("A", 300.0, 1e5, 1), P) == 5);
-        CHECK(*cache.find(key("A", 300.0, 1e5, -1, true), P) == 6);
     }
 
     // P == 0: a hit gives the saturation pressure that the calculation wrote, under the key of the pressure asked for

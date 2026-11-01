@@ -104,31 +104,23 @@ auto plainValue(const Scalar& x) -> double
 }
 
 template <typename Scalar>
-auto idealGas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, bool isGas) -> void
+auto idealGas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) -> void
 {
-    if (isGas && plainValue(in.P) > 0.0)
-        state.V = in.T / in.P * R;
-    if (in.options.apply_pressure_correction)
+    if (plainValue(in.P) <= 0.0)
+        return;
+    state.V = in.T / in.P * R;
+    if (in.options.apply_pressure_correction)  // G(T, P) = G(T, Pr) + RT ln(P/Pr), and H does not depend on P
     {
-        const Scalar term = state.V * (in.P - in.reference.P);
-        state.G += term;
-        state.H += term;
+        const Scalar lnP = log(in.P / in.reference.P);
+        state.G += R * in.T * lnP;
+        state.S -= R * lnP;
     }
 }
 
-auto idealGasInfo(PropertiesInfo& out, const InfoInputs& in, bool isGas) -> void
+auto idealGasInfo(PropertiesInfo& out, const InfoInputs& in) -> void
 {
-    if (isGas && in.P > 0.0)
+    if (in.P > 0.0)
         out.V = ValueInfo{ValueInfo::Status::Calculated, 0.0, ""};
-    if (in.options.apply_pressure_correction)
-    {
-        const double dP = in.P - in.Pr;
-        const ValueInfo g = out.G, h = out.H;
-        out.G.propagateFrom(g, out.V);
-        out.H.propagateFrom(h, out.V);
-        out.G.setError({{1.0, g.err}, {dP, out.V.err}});
-        out.H.setError({{1.0, h.err}, {dP, out.V.err}});
-    }
 }
 
 } // namespace
@@ -154,11 +146,11 @@ auto constantVolumeMethod() -> std::shared_ptr<const SubstanceMethod>
                       [](PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs&, const auto&) { constantVolumeInfo(out, reference); });
 }
 
-auto idealGasMethod(bool isGas) -> std::shared_ptr<const SubstanceMethod>
+auto idealGasMethod() -> std::shared_ptr<const SubstanceMethod>
 {
-    return makeMethod("IdealGas", MethodParameters<bool>{{}, isGas},
-                      [](auto& state, const auto& in, const auto& p) { idealGas(state, in, p.data); },
-                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const auto& p) { idealGasInfo(out, in, p.data); });
+    return makeMethod("IdealGas", MethodParameters<NoData>{},
+                      [](auto& state, const auto& in, const MethodParameters<NoData>&) { idealGas(state, in); },
+                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const MethodParameters<NoData>&) { idealGasInfo(out, in); });
 }
 
 } // namespace ThermoFun::v2

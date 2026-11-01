@@ -47,21 +47,6 @@
 namespace ThermoFun
 {
 
-/// Sets a flag and restores its previous value when the scope ends (also if an exception is thrown or the function returns
-/// early); release() restores it before that
-class FlagGuard
-{
-public:
-    FlagGuard(bool& flag, bool value) : flag_(&flag), previous_(flag) { flag = value; }
-    ~FlagGuard() { release(); }
-    auto release() -> void { if (flag_) { *flag_ = previous_; flag_ = nullptr; } }
-    FlagGuard(const FlagGuard&) = delete;
-    FlagGuard& operator=(const FlagGuard&) = delete;
-private:
-    bool* flag_;
-    bool previous_;
-};
-
 struct ThermoEngine::Impl
 {
     /// The database instance
@@ -137,15 +122,13 @@ struct ThermoEngine::Impl
         resultsAreCurrent();
     }
 
-    /// The result of a calculation from the cache, else calculated and kept. The reactants of a reaction-defined substance and of
-    /// a reaction from reactants are calculated with the pressure correction of gases switched on (FlagGuard): the key holds the flag,
-    /// so a result of a gas does not depend on the calculations made before it.
+    /// The result of a calculation from the cache, else calculated and kept. A substance has one result at T and P, also as a reactant.
     template <class Value, class Calculate>
     auto cached(v2::ResultCache<Value>& cache, double T, double& P, const std::string& symbol, int state, Calculate calculate) const -> Value
     {
         if (!preferences.enable_memoize)
             return calculate();
-        const v2::ResultKey key{symbol, T, P, state, preferences.apply_pressure_correction_to_gas_props};
+        const v2::ResultKey key{symbol, T, P, state};
         if (auto hit = cache.find(key, P))
             return *hit;
         const Value value = calculate();

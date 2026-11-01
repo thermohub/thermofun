@@ -44,7 +44,7 @@ MethodRegistry::MethodRegistry()
     add("ConstantCp", "", [](A, R) { return constantCpMethod(); });
     add("CpPolynomial", "", [](A a, R r) { return cpPolynomialMethod(a, r.symbol); });
     add("ConstantVolume", "", [](A, R) { return constantVolumeMethod(); });
-    add("IdealGas", "", [](A, R r) { return idealGasMethod(r.class_ == SubstanceClass::GasFluid); });
+    add("IdealGas", "", [](A, R) { return idealGasMethod(); });
 
     // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
     auto mineral = [this](const char* id, std::vector<std::string> names) {

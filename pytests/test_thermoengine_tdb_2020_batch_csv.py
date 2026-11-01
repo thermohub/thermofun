@@ -42,7 +42,11 @@ def assert_csv_equal(generated, reference, atol=1e-10, rtol=1e-10):
 @pytest.fixture
 def engine():
     db_path = Path(__file__).parent / "PsiTDB2020-subset-thermofun.json"
-    return thermofun.ThermoEngine(str(db_path))
+    engine = thermofun.ThermoEngine(str(db_path))
+    # the reference tables are of the state at the reference pressure
+    engine.preferences.apply_pressure_correction_to_gas_props = False
+    engine.preferences.cancel_fugacity_coefficient_in_gas_props = True
+    return engine
 
 def test_batch_csv_outputs(engine, tmp_path):
 

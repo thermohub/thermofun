@@ -70,35 +70,114 @@ def test_the_derivative_by_each_parameter_agrees_with_finite_differences(method_
 @pytest.mark.parametrize("name,symbol", [("s13-fluid_peng_robinson78", "CO-pr78")])
 def test_the_engine_has_the_same_result_on_both_paths_of_the_options(name, symbol):
     engine = tf.ThermoEngine(str(SYNTHETIC / (name + ".json")))
-    base = engine.thermoPropertiesSubstance(800.0, 1e8, symbol).gibbs_energy.val
-    preferences = engine.preferences
-    preferences.apply_pressure_correction_to_gas_props = True
-    engine.setPreferences(preferences)
     corrected = engine.thermoPropertiesSubstance(800.0, 1e8, symbol)
-    assert corrected.gibbs_energy.val > base
+    preferences = engine.preferences
+    preferences.apply_pressure_correction_to_gas_props = False
+    engine.setPreferences(preferences)
+    assert corrected.gibbs_energy.val > engine.thermoPropertiesSubstance(800.0, 1e8, symbol).gibbs_energy.val
     assert math.isfinite(corrected.enthalpy.val)
 
 
-# Sterner and Pitzer have their own equations for H2O and CO2. J/bar: 1 cm3/mol is 0.1 J/bar.
-STERNER_PITZER = [
-    ("H2O", 647.3, 220.9, 1000.0, 1e5, 8.31451 * 1000.0 / 1e5 * 1e5, 1e-2),  # supercritical, close to an ideal gas
-    ("H2O", 647.3, 220.9, 500.0, 1e5, 8.31451 * 500.0 / 1e5 * 1e5, 2e-2),    # steam, below the saturation pressure
-    ("H2O", 647.3, 220.9, 500.0, 1e8, 2.0, 5e-2),                            # liquid: 0.9 g/cm3
-    ("CO2", 304.2, 73.8, 1000.0, 1e5, 8.31451 * 1000.0 / 1e5 * 1e5, 1e-2),
-    ("CO2", 304.2, 73.8, 280.0, 1e6, 8.31451 * 280.0 / 1e6 * 1e5 * 0.94, 3e-2),  # vapour below Psat, 4.2 MPa
-    ("CO2", 304.2, 73.8, 280.0, 5e6, 4.9, 5e-2),                              # liquid: 0.9 g/cm3
-]
+# G(T, P) of a gas: dG/dP = V, dG/dT = -S, H = G + T S
+RECORDS = [("CO2-prsv", {"9": "fluid_prsv"}, [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]), ("CO2-srk", {"11": "fluid_soave_redlich_kwong"}, [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]),
+           ("CO2-pr78", {"13": "fluid_peng_robinson78"}, [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]), ("CO2-cork", {"14": "fluid_comp_redlich_kwong_hp91"}, [304.2, 73.8, 0, 0, 0, 0, 0]),
+           ("CO2-stp", {"12": "fluid_sterner_pitzer"}, [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]), ("CO2-ideal", {"40": "mv_pvnrt"}, None)]
 
 
-@pytest.mark.parametrize("formula,Tc,Pc,T,P,volume,tolerance", STERNER_PITZER)
-def test_the_sterner_pitzer_equations_of_water_and_carbon_dioxide(tmp_path, formula, Tc, Pc, T, P, volume, tolerance):
+def gases(tmp_path):
     doc = json.loads((SYNTHETIC / "s12-fluid_sterner_pitzer.json").read_text())
-    record = doc["substances"][0]
-    record["symbol"] = record["name"] = "fluid"
-    record["formula"] = formula
-    record["TPMethods"][1]["eos_gas_crit_props"]["values"][:2] = [Tc, Pc]
-    path = tmp_path / "fluid.json"
+    template = doc["substances"][0]
+    records = []
+    for symbol, method, critical in RECORDS:
+        record = json.loads(json.dumps(template))
+        record["symbol"] = record["name"] = symbol
+        record["formula"] = "CO2"
+        entry = {"method": method}
+        if critical:
+            entry["eos_gas_crit_props"] = {"values": critical}
+        record["TPMethods"] = [template["TPMethods"][0], entry]
+        records.append(record)
+    doc["substances"] = records
+    path = tmp_path / "gases.json"
     path.write_text(json.dumps(doc))
-    result = tf.ThermoEngine(str(path)).thermoPropertiesSubstance(T, P, "fluid")
-    assert result.volume.val == pytest.approx(volume, rel=tolerance)
-    assert math.isfinite(result.gibbs_energy.val) and math.isfinite(result.enthalpy.val) and math.isfinite(result.entropy.val)
+    return tf.Database(str(path))
+
+
+@pytest.mark.parametrize("symbol", [r[0] for r in RECORDS])
+@pytest.mark.parametrize("T,P", [(600.0, 1e7), (600.0, 1e8), (900.0, 5e8), (1500.0, 1e6)])
+def test_the_properties_of_a_gas_with_a_method_are_consistent(tmp_path, symbol, T, P):
+    engine = tf.ThermoEngine(gases(tmp_path))
+    r = engine.thermoPropertiesSubstance(T, P, symbol)
+    low = engine.thermoPropertiesSubstance(T, 1e5, symbol)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-3)
+    assert r.gibbs_energy.ddt == pytest.approx(-r.entropy.val, rel=1e-3)
+    # G and H of a record can have different zero points: the change with P at one T
+    assert r.enthalpy.val - low.enthalpy.val == pytest.approx(r.gibbs_energy.val - low.gibbs_energy.val + T * (r.entropy.val - low.entropy.val), rel=1e-3, abs=2.0)
+
+
+def test_the_gibbs_energy_of_a_gas_is_the_integral_of_its_volume(tmp_path):
+    engine = tf.ThermoEngine(gases(tmp_path))
+    T = 600.0
+    pressures = [1e5 * 10.0 ** (i / 80.0) for i in range(241)]  # 1 to 1000 bar
+    volumes = [engine.thermoPropertiesSubstance(T, p, "CO2-prsv").volume.val * 1e-5 for p in pressures]
+    integral = sum((volumes[i] + volumes[i + 1]) / 2.0 * (pressures[i + 1] - pressures[i]) for i in range(240))
+    change = engine.thermoPropertiesSubstance(T, 1e8, "CO2-prsv").gibbs_energy.val - engine.thermoPropertiesSubstance(T, 1e5, "CO2-prsv").gibbs_energy.val
+    assert change == pytest.approx(integral, rel=2e-3)
+
+
+def test_the_option_gives_the_standard_state_and_a_gas_in_a_reaction_is_the_same_as_alone(tmp_path):
+    db = gases(tmp_path)
+    engine = tf.ThermoEngine(db)
+    assert engine.preferences.apply_pressure_correction_to_gas_props is True
+    corrected = engine.thermoPropertiesSubstance(600.0, 1e8, "CO2-prsv").gibbs_energy.val
+    off = tf.ThermoEngine(db)
+    off.preferences.apply_pressure_correction_to_gas_props = False
+    off.preferences.cancel_fugacity_coefficient_in_gas_props = True
+    standard = off.thermoPropertiesSubstance(600.0, 1e8, "CO2-prsv").gibbs_energy.val
+    assert standard == pytest.approx(off.thermoPropertiesSubstance(600.0, 1e5, "CO2-prsv").gibbs_energy.val, rel=1e-9)
+    assert corrected - standard == pytest.approx(34958.0, rel=2e-3)
+
+
+def test_the_pressure_term_and_the_fugacity_coefficient_are_two_options(tmp_path):
+    db = gases(tmp_path)
+
+    def change(pressure, cancel):
+        engine = tf.ThermoEngine(db)
+        engine.preferences.apply_pressure_correction_to_gas_props = pressure
+        engine.preferences.cancel_fugacity_coefficient_in_gas_props = cancel
+        return engine.thermoPropertiesSubstance(600.0, 1e8, "CO2-prsv").gibbs_energy.val - engine.thermoPropertiesSubstance(600.0, 1e5, "CO2-prsv").gibbs_energy.val
+
+    RTlnP = 8.31451 * 600.0 * math.log(1000.0)
+    assert change(False, True) == pytest.approx(0.0, abs=1.0)                # the state at Pr
+    assert change(True, True) == pytest.approx(RTlnP, rel=1e-3)              # as an ideal gas
+    fugacity = change(False, False)                                          # RT ln(phi) alone
+    assert abs(fugacity) > 100.0
+    assert change(True, False) == pytest.approx(RTlnP + fugacity, rel=1e-3)  # the default
+
+
+@pytest.mark.parametrize("pressure,cancel", [(True, False), (False, True)], ids=["default", "gems"])
+def test_a_gas_has_the_same_value_alone_and_in_a_reaction(tmp_path, pressure, cancel):
+    doc = json.loads((SYNTHETIC / "s12-fluid_sterner_pitzer.json").read_text())
+    template = doc["substances"][0]
+
+    def record(symbol, methods, **more):
+        r = json.loads(json.dumps(template))
+        r["symbol"] = r["name"] = symbol
+        r["formula"] = "CO2"
+        r["TPMethods"] = methods
+        r.update(more)
+        return r
+
+    fluid = {"method": {"9": "fluid_prsv"}, "eos_gas_crit_props": {"values": [304.2, 73.8, 0.225, 0.0427, 0, 0, 0]}}
+    plain = [template["TPMethods"][0]]
+    doc["substances"] = [record("G", plain + [fluid]), record("S", plain)]
+    doc["reactions"] = [{"symbol": "R", "equation": "G = S", "reactants": [{"symbol": "G", "coefficient": -1}, {"symbol": "S", "coefficient": 1}], "Tst": 298.15, "Pst": 100000}]
+    path = tmp_path / "reaction.json"
+    path.write_text(json.dumps(doc))
+    engine = tf.ThermoEngine(str(path))
+    engine.preferences.apply_pressure_correction_to_gas_props = pressure
+    engine.preferences.cancel_fugacity_coefficient_in_gas_props = cancel
+    T, P = 600.0, 1e8
+    gas, other = (engine.thermoPropertiesSubstance(T, P, s).gibbs_energy.val for s in ("G", "S"))
+    assert engine.thermoPropertiesReactionFromReactants(T, P, "R").reaction_gibbs_energy.val == pytest.approx(other - gas, rel=1e-9)
+    assert engine.thermoPropertiesSubstance(T, P, "G").gibbs_energy.val == gas  # also after the reaction

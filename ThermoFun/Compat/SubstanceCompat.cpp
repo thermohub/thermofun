@@ -276,7 +276,7 @@ auto methodCodes(const v2::SubstanceRecord& record) -> MethodCodes
     MethodCodes out;
     for (const auto& a : record.methods)
     {
-        const auto* m = legacyMethodOf(a);
+        const auto* m = a.implied ? nullptr : legacyMethodOf(a);
         if (!m || m->thrift_code == 0)
             continue;
         if (m->thrift_code < 200)
@@ -404,7 +404,8 @@ auto isWaterVapour(const v2::SubstanceRecord& record) -> bool
 
 auto thermoCalculationType(const v2::SubstanceRecord& record) -> SubstanceThermoCalculationType::type
 {
-    return !record.defining_reaction.empty() && record.methods.empty() ? SubstanceThermoCalculationType::type::REACDC
+    const bool noneWritten = std::all_of(record.methods.begin(), record.methods.end(), [](const auto& a) { return a.implied; });
+    return !record.defining_reaction.empty() && noneWritten ? SubstanceThermoCalculationType::type::REACDC
                                                                        : SubstanceThermoCalculationType::type::DCOMP;
 }
 

@@ -163,6 +163,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Use the methods of the composite one by one."},
         {"V2-MTH-021", S::Warning, "A Method record of the dataset replaces a method of the project or a built-in one.",
          "Give the Method record another id if both are wanted."},
+        {"V2-MTH-023", S::Warning, "A record of a condensed substance prescribes the method IdealGas: its volume is RT/P.",
+         "Use ConstantVolume for a constant molar volume, or correct the aggregate state of the record."},
         {"V2-MTH-022", S::Warning, "The expression of a method and its code give different results on the test cases.",
          "Correct the expression or the code; the message names the test case."},
         // reactions and references

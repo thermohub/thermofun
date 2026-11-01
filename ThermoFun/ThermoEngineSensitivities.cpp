@@ -148,7 +148,6 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         raw = reacDCthermoProperties(T, P, substance);
         const Reaction reaction = database.getReaction(substance.reactionSymbol());
         const v2::DefiningReactionGuard no_cycle(symbol);
-        FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
         const auto r = reactionDerivative(T, P, reaction, ref);
         d = {r.reaction_gibbs_energy.val, r.reaction_enthalpy.val, r.reaction_entropy.val, r.reaction_heat_capacity_cp.val, r.reaction_volume.val};
         auto reactants = reaction.reactants();
@@ -168,11 +167,8 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         d.S /= nu;
         d.Cp /= nu;
         d.V /= nu;
-        gas_pressure_correction.release();
-        // a gas without a volume method has the ideal gas volume: see reacDCthermoProperties
-        const auto tpr = cachedReaction(T, P, substance.reactionSymbol());
-        if (substance.aggregateState() == AggregateState::type::GAS && substance.substanceClass() == SubstanceClass::type::GASFLUID && !substance.method_P() && P > 0.0 &&
-            !(tpr.reaction_volume.sta.first != Reaktoro_::Status::notdefined && tpr.reaction_volume.val != 0.0))
+        // the record prescribes the volume of an ideal gas: see reacDCthermoProperties
+        if (hasMethod(substance.record()->methods, "IdealGas") && P > 0.0)
             d.V = 0.0;
         if (hasMethod(substance.record()->methods, "ConstantVolume") &&
             !hasMethod(reaction.record()->methods, "ReactionConstantVolume") && !hasMethod(reaction.record()->methods, "ReactionVolumePolynomial"))
@@ -238,7 +234,6 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
     if (fromReactants)
     {
         d.reaction_gibbs_energy = d.reaction_enthalpy = d.reaction_entropy = d.reaction_heat_capacity_cp = d.reaction_volume = 0.0;
-        FlagGuard gas_pressure_correction(preferences.apply_pressure_correction_to_gas_props, true);
         for (const auto& [symbol, coefficient] : reaction.reactants())
         {
             const auto o = substanceDerivative(T, P, database.getSubstance(symbol), ref);

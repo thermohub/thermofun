@@ -272,8 +272,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
     }
 
     // gases and fluids
-    m.push_back(Spec("IdealGas", "Ideal gas", "Sets V = RT/P and adds RT ln(P/P0) to G.")
-                    .alias({"IdealGasVol"}).effects(E::Add, E::Add, E::None, E::None, E::Set, 200).classes({SC::GasFluid, SC::Component}));
+    m.push_back(Spec("IdealGas", "Ideal gas", "Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.")
+                    .alias({"IdealGasVol"}).effects(E::Add, E::None, E::Add, E::None, E::Set, 200).classes({SC::GasFluid, SC::Component}));
     auto fluid = [](Spec s) -> Spec { s.effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(fluids); return s; };
     m.push_back(fluid(Spec("PRSV86", "Peng-Robinson-Stryjek-Vera equation of state", "Adds the pressure terms of the PRSV equation of state to G, H and S, and sets V.",
                            "Stryjek and Vera (1986); Proust and Vera (1989)")

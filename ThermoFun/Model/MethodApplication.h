@@ -41,6 +41,7 @@ struct MethodApplication
     std::optional<TableData> table;              ///< tabulated methods
     std::optional<Interpolation> interpolation;  ///< tabulated methods; empty: the default of the method
     int interpolation_order = 3;                 ///< Lagrange only
+    bool implied = false;                        ///< the old format means this method without writing it: not written back there
     std::string extra_json;                      ///< fields of this entry that the format does not define, as JSON text
 
     auto operator==(const MethodApplication&) const -> bool = default;

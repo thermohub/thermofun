@@ -127,6 +127,13 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
         out.add(problem(record, "V2-MTH-005", spec->id + " is for " + classes + "; " + record.symbol + " is " + article + own + ".",
                         "Use a method for this class, or change the class."));
     }
+    const auto state = record.aggregate_state;
+    const bool condensed = state == AggregateState::Crystal || state == AggregateState::Liquid || state == AggregateState::Glass ||
+                           state == AggregateState::AmorphousSolid || state == AggregateState::Aqueous;
+    for (const auto* spec : specs)
+        if (condensed && spec->id == "IdealGas")
+            out.add(problem(record, "V2-MTH-023", record.symbol + " is " + toString(state) + " and prescribes IdealGas: its volume is RT/P.",
+                            "Use ConstantVolume for a constant molar volume, or correct the aggregate state of the record."));
     return out;
 }
 
