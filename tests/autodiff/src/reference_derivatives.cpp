@@ -4,6 +4,8 @@
 // The analytical derivatives of the Zhang-Duan water and of the Sverjensky and Fernandez dielectric constants against independent
 // references: exact derivatives with autodiff higher-order dual numbers (reference/Jets.hpp), which do not share any formula with the
 // analytical ones. Also against central finite differences of the values.
+#include "Methods/MethodCatalog.h"
+#include "Model/BuiltinParameterSets.h"
 #include <cmath>
 #include <cstdio>
 #include <functional>
@@ -145,8 +147,13 @@ int main(int argc, char** argv)
                     ro[1] = direction == 1 ? 1.0 : 0.0;
                     for (int i = 0; i < 12; ++i) cc[i] = real(c[i]);
 
+                    std::vector<double> values;
+                    for (const auto& p : v2::MethodCatalog::instance().find("ChurakovGottschalk03", v2::OperatesOn::Substance)->parameters)
+                        if (p.constant)
+                            values.push_back(v2::builtinConstants("ChurakovGottschalk03")->parameters.at(p.name).value);
+                    const cgf::Constants constants(values);
                     cgf::PureFluidDerivatives o;
-                    cgf::pureFluid(T, ro, cc, o);
+                    cgf::pureFluid(T, ro, cc, constants, o);
 
                     using namespace cgfref;
                     using M = Up<Dual0>;

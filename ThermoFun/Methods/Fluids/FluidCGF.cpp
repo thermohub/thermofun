@@ -17,7 +17,6 @@ namespace {
 /// The constants of the model.
 const real DELTA = 0.00001;
 const real R = R_CONSTANT;
-const real NA = 0.6023;
 constexpr int FIRSTSEED = 15;
 constexpr int NPOINT = 5;
 const real ROMIN = 1.E-2;
@@ -29,11 +28,12 @@ struct PureFluid
 {
     real sig, eps, m, a;  ///< the diameter, the depth of the well, the dipole moment and the polarizability
     real s3mix, emix;     ///< sig^3, and the energy that scales T
+    const ThermoFun::cgf::Constants* k = nullptr;
 };
 
-auto pureFluidOf(const real* data) -> PureFluid
+auto pureFluidOf(const real* data, const ThermoFun::cgf::Constants& k) -> PureFluid
 {
-    PureFluid out{data[0], data[1], data[2], data[3], 0.0, 0.0};
+    PureFluid out{data[0], data[1], data[2], data[3], 0.0, 0.0, &k};
     real sig3 = out.sig;
     sig3 = sig3*sig3*sig3;
     out.s3mix = sig3;
@@ -46,12 +46,13 @@ struct Work
 {
     real Tk, Pbar, R_CONST = R_CONSTANT;
     real Grs, Hrs, Srs, CPrs, Vrs;
+    const ThermoFun::cgf::Constants* k = nullptr;
 };
 
 
 long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps);
 long int CGResidualFunctPure(Work& w, const real *coeff, real ro, real T);
-long int CGFugacityPT(real *EoSparam, real *EoSparPT, real &Fugacity, real &Volume, real P, real T, real &roro);
+long int CGFugacityPT(const ThermoFun::cgf::Constants& k, real *EoSparam, real *EoSparPT, real &Fugacity, real &Volume, real P, real T, real &roro);
 real DENSITY(const PureFluid& fluid, real Pbar, real T);
 real ROTOTALMIX(real P,real TT,const PureFluid& fluid);
 void choose(real *pres, real P,unsigned long int &x1,unsigned long int &x2);
@@ -80,7 +81,7 @@ long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps)
     // Calling CG EoS functions here
     if( (w.Tk >= Tmin) && (w.Tk < 1e4) && (w.Pbar >= 1e-5) && (w.Pbar < 1e5) )
     {
-        retCode = CGFugacityPT(Coeff, Eos4parPT, Fugacity, Volume, P, T, roro );
+        retCode = CGFugacityPT(*w.k, Coeff, Eos4parPT, Fugacity, Volume, P, T, roro );
         FugProps[0] = Fugacity/w.Pbar;
         FugProps[1] = R_CONSTANT * w.Tk * log( Fugacity / P );
         FugProps[4] = Volume;
@@ -103,7 +104,7 @@ long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps)
 long int CGResidualFunctPure(Work& w, const real *coeff, real ro, real T)
 {
     ThermoFun::cgf::PureFluidDerivatives o;
-    ThermoFun::cgf::pureFluid(T, ro, coeff, o);
+    ThermoFun::cgf::pureFluid(T, ro, coeff, *w.k, o);
 
     w.Srs = - ( T*o.FT + o.F ) * w.R_CONST;
     w.Hrs = (o.F*w.Tk*w.R_CONST + w.Tk*w.Srs) + (1. + ro*o.Frho)*w.R_CONST*w.Tk;
@@ -114,7 +115,7 @@ long int CGResidualFunctPure(Work& w, const real *coeff, real ro, real T)
     return 0;
 }
 
-long int CGFugacityPT(real *EoSparam, real *EoSparPT, real &Fugacity, real &Volume, real P, real T, real &roro)
+long int CGFugacityPT(const ThermoFun::cgf::Constants& k, real *EoSparam, real *EoSparPT, real &Fugacity, real &Volume, real P, real T, real &roro)
 {
     long int iRet = 0;
 
@@ -123,7 +124,7 @@ long int CGFugacityPT(real *EoSparam, real *EoSparPT, real &Fugacity, real &Volu
     EoSparPT[1] = EoSparam[1] + EoSparam[6]*exp(T*EoSparam[7]);
     EoSparPT[2] = EoSparam[2] + EoSparam[8]/(T+EoSparam[9]);
     EoSparPT[3] = EoSparam[3] + EoSparam[10]/(T+EoSparam[11]);
-    const PureFluid fluid = pureFluidOf(EoSparPT);
+    const PureFluid fluid = pureFluidOf(EoSparPT, k);
 
     // returns density
     real fugacity = 0.;
@@ -170,7 +171,7 @@ real ROTOTALMIX(real P,real TT,const PureFluid& fluid)
 // real ptmp;
 
      T = TT/fluid.emix;
-     fact0 = 1./(fluid.s3mix*NA);
+     fact0 = 1./(fluid.s3mix*fluid.k->NA);
      fact = R*TT*fact0;
 
      romax = Melt(T);
@@ -347,14 +348,14 @@ real ZTOTALMIX(real T_Real,real ro_Real,const PureFluid& fluid)
 {
     // analytical derivative Z = 1 + ro dF/dro (was a finite difference, relative step DELTA)
     ThermoFun::cgf::PureFluidDerivatives o;
-    ThermoFun::cgf::pureFluid(T_Real, ro_Real, fluid.sig, fluid.eps, fluid.m, fluid.a, o);
+    ThermoFun::cgf::pureFluid(T_Real, ro_Real, fluid.sig, fluid.eps, fluid.m, fluid.a, *fluid.k, o);
     return 1. + ro_Real*o.Frho;
 }
 
 real FTOTALMIX(real T_Real,real ro_Real,const PureFluid& fluid)
 {
     ThermoFun::cgf::PureFluidDerivatives o;
-    ThermoFun::cgf::pureFluid(T_Real, ro_Real, fluid.sig, fluid.eps, fluid.m, fluid.a, o);
+    ThermoFun::cgf::pureFluid(T_Real, ro_Real, fluid.sig, fluid.eps, fluid.m, fluid.a, *fluid.k, o);
     return o.F;
 }
 
@@ -412,7 +413,9 @@ auto thermoPropertiesFluidCGF(real TK, real Pbar, const FluidInputs& subst, Ther
         CPg[i] = subst.parameters[i];
     }
 
+    const ThermoFun::cgf::Constants constants(subst.constants);
     Work work;
+    work.k = &constants;
     work.Tk = TK;
     work.Pbar = Pbar;
     CGcalcFugPure(work, TClow, CPg, FugProps);

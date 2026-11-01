@@ -1,0 +1,75 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  ChurakovGottschalk03_constants_v1:
+    method: ChurakovGottschalk03
+    description: "The universal constants of the perturbation equation of state: its reference is the Weeks-Chandler-Andersen fluid. P1 to P10 and hs_a3, hs_a9, hs_a12: the hard sphere diameter. AA, A4 to A6, BB, B4 to B6, A00 to A34: the WCA free energy, with rm = 2^(1/6). fi1_N, fi2_N: the polynomials of the induced term, highest place last. kd0 to kd5: the correction of the dipole term. dipole: the conversion of the dipole moment, 1.38048E-4 as the constant of Boltzmann in the units of the model. NA = 0.6023: the number of Avogadro in the units of the model. PISIX and TWOPI: pi/6 and 2 pi with the digits of the code. All are numbers in the reduced units of the model. The coefficients of each substance are in its record."
+    reference: "Churakov S.V., Gottschalk M. (2003) Geochim. Cosmochim. Acta 67, 2397-2414 and 2415-2425"
+    parameters:
+      PISIX: 0.523598775598298927
+      TWOPI: 6.283185307179586230
+      rm: 1.12246204830937302
+      P1: 1.186892378996
+      PP2: -0.4721963005527
+      P3: 3.259515855283
+      P4: 3.055229342609
+      P5: 1.095409321023
+      P6: 1.282306659774E-2
+      P7: 9.55712461425E-2
+      P8: 13.67807693107
+      P9: 35.75464856619
+      P10: 16.04724381643
+      AA1: -0.120078459237
+      AA2: -0.808712488307
+      AA3: 0.321543801337
+      A4: 1.16965477132
+      A5: -0.410564939543
+      A6: -0.516834310691
+      BB1: -2.18839961483
+      BB2: 1.59897428009
+      BB3: -0.392578806128
+      B4: -0.189396607904
+      B5: -0.576898496254
+      B6: -0.0185167641359
+      A00: 0.9985937977069455
+      A01: 0.5079834224407451
+      A10: 1.021887697885469
+      A11: -5.136619463333883
+      A12: -5.196188074016755
+      A21: -6.049240839050804
+      A22: 18.67848155616692
+      A23: 20.10652684217768
+      A31: 9.896491419756988
+      A32: 14.6738380473899
+      A33: -77.44825116542995
+      A34: -4.82871082941229
+      fi1_0: 1.20110
+      fi1_1: 0.064890
+      fi1_2: 76.860
+      fi1_3: 562.686
+      fi1_4: 2280.090
+      fi1_5: 6266.840
+      fi1_6: 11753.40
+      fi1_7: 14053.8
+      fi1_8: 9491.490
+      fi1_9: 2731.030
+      fi2_0: 0.588890
+      fi2_1: 7.455360
+      fi2_2: 40.57590
+      fi2_3: 104.8970
+      fi2_4: 60.25470
+      fi2_5: 390.6310
+      fi2_6: 1193.080
+      fi2_7: 1576.350
+      fi2_8: 1045.910
+      fi2_9: 283.7580
+      hs_a3: 3.75
+      hs_a9: 2.89325
+      hs_a12: 0.755
+      NA: 0.6023
+      dipole: 1.38048E-4
+      kd0: -1.050534
+      kd1: 1.747476
+      kd2: 1.749366
+      kd3: -1.999227
+      kd4: -0.661046
+      kd5: -3.028720

@@ -347,6 +347,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
                  {"sigma1", "see sigma0, angstrom"}, {"sigma2", "see sigma0, 1/K"}, {"eps1", "see eps0, K"}, {"eps2", "see eps0, 1/K"},
                  {"mu1", "see mu0, debye K"}, {"mu2", "see mu0, K"}, {"pol1", "see pol0, angstrom3 K"}, {"pol2", "see pol0, K"}})
             s.add(par(n, "1", "1", d));
+        s.add(builtIn({"PISIX", "TWOPI", "rm", "P1", "PP2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "AA1", "AA2", "AA3", "A4", "A5", "A6", "BB1", "BB2", "BB3", "B4", "B5", "B6", "A00", "A01", "A10", "A11", "A12", "A21", "A22", "A23", "A31", "A32", "A33", "A34", "fi1_0", "fi1_1", "fi1_2", "fi1_3", "fi1_4", "fi1_5", "fi1_6", "fi1_7", "fi1_8", "fi1_9", "fi2_0", "fi2_1", "fi2_2", "fi2_3", "fi2_4", "fi2_5", "fi2_6", "fi2_7", "fi2_8", "fi2_9", "hs_a3", "hs_a9", "hs_a12", "NA", "dipole", "kd0", "kd1", "kd2", "kd3", "kd4", "kd5"}));
         m.push_back(fluid(s));
     }
     m.push_back(fluid(Spec("SoaveRedlichKwong72", "Soave-Redlich-Kwong equation of state", "Adds the pressure terms of the SRK equation of state to G, H and S, and sets V.", "Soave (1972); Soave (1993)")

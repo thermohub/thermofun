@@ -16,25 +16,17 @@ Generates ThermoFun/Methods/Fluids/CGFanalytic.hpp (do not edit that file: chang
    (including the dependence of the parameters on T) by the chain rule.
 """
 import os
+import re
 import sympy as sp
 from sympy.printing.c import C99CodePrinter
 
 # ----------------------------------------------------------------------------------------------------------------------
-# constants of the model (TCGFcalc::set_internal)
-K = dict(PI=sp.pi, PISIX=sp.Float('0.523598775598298927'), TWOPI=sp.Float('6.283185307179586230'), rm=sp.Float('1.12246204830937302'),
-         P1=sp.Float('1.186892378996'), PP2=sp.Float('-0.4721963005527'), P3=sp.Float('3.259515855283'), P4=sp.Float('3.055229342609'),
-         P5=sp.Float('1.095409321023'), P6=sp.Float('1.282306659774E-2'), P7=sp.Float('9.55712461425E-2'), P8=sp.Float('13.67807693107'),
-         P9=sp.Float('35.75464856619'), P10=sp.Float('16.04724381643'),
-         AA1=sp.Float('-0.120078459237'), AA2=sp.Float('-.808712488307'), AA3=sp.Float('.321543801337'),
-         A4=sp.Float('1.16965477132'), A5=sp.Float('-.410564939543'), A6=sp.Float('-.516834310691'),
-         BB1=sp.Float('-2.18839961483'), BB2=sp.Float('1.59897428009'), BB3=sp.Float('-.392578806128'),
-         B4=sp.Float('-.189396607904'), B5=sp.Float('-.576898496254'), B6=sp.Float('-0.0185167641359'),
-         A00=sp.Float('.9985937977069455'), A01=sp.Float('.5079834224407451'), A10=sp.Float('1.021887697885469'),
-         A11=sp.Float('-5.136619463333883'), A12=sp.Float('-5.196188074016755'), A21=sp.Float('-6.049240839050804'),
-         A22=sp.Float('18.67848155616692'), A23=sp.Float('20.10652684217768'), A31=sp.Float('9.896491419756988'),
-         A32=sp.Float('14.6738380473899'), A33=sp.Float('-77.44825116542995'), A34=sp.Float('-4.82871082941229'))
+# constants of the model: only their names, from the parameter file. The code reads their values through k.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'ParameterSets', 'ChurakovGottschalk03.yaml')) as f:
+    NAMES = re.findall(r"^      (\w+): ", f.read(), re.M)
+K = {name: sp.Symbol(name) for name in NAMES}
+K['PI'] = sp.pi
 globals().update(K)
-NA = sp.Float('0.6023')
 
 b, r, d = sp.symbols('b r d', positive=True)   # beta, rho, hard sphere diameter
 
@@ -69,7 +61,7 @@ class Printer(C99CodePrinter):
         return '%d.0' % int(expr)
 
     def _print_Symbol(self, expr):
-        return str(expr)
+        return 'k.' + str(expr) if str(expr) in NAMES else str(expr)
 
 
 def code(exprs, names, prefix):
@@ -88,8 +80,8 @@ sb = sp.sqrt(b)
 delta = (P6 + P7*sb)/(1 + (P8 + (P9 + P10*sb)*sb)*sb)
 dbdl = dB*delta
 ri6ro = PISIX*r
-c0_, c3_, c4_, c6_, c7_, c9_, c12_ = dB + dbdl, (-sp.Rational(3, 2)*dB - sp.Float('3.75')*dbdl)*ri6ro, sp.Rational(3, 2)*ri6ro, \
-    (2*dB + dbdl)*sp.Rational(1, 4)*ri6ro**2, -sp.Rational(1, 2)*ri6ro**2, -sp.Float('2.89325')*ri6ro**3*dbdl, -sp.Float('0.755')*ri6ro**4*dbdl
+c0_, c3_, c4_, c6_, c7_, c9_, c12_ = dB + dbdl, (-sp.Rational(3, 2)*dB - hs_a3*dbdl)*ri6ro, sp.Rational(3, 2)*ri6ro, \
+    (2*dB + dbdl)*sp.Rational(1, 4)*ri6ro**2, -sp.Rational(1, 2)*ri6ro**2, -hs_a9*ri6ro**3*dbdl, -hs_a12*ri6ro**4*dbdl
 G = c0_ - d + c3_*d**3 + c4_*d**4 + c6_*d**6 + c7_*d**7 + c9_*d**9 + c12_*d**12
 
 nu = PISIX*d**3*r
@@ -114,10 +106,10 @@ tt6 = (fa2 - fa3)*rmdw**4*(-9)/64
 tt7 = fa3*(-3)/35*rmdw**5
 I2 = tt1 + tt2 + tt3 + tt4 + tt5 + tt6 + tt7
 F1 = 48*nuw*(I1_12*u**12 - I1_6*u**6 + I2)*b
-fi1 = (sp.Float('1.20110') + (sp.Float('0.064890') + (-sp.Float('76.860') + (sp.Float('562.686') + (-sp.Float('2280.090') + (sp.Float('6266.840') + (-sp.Float('11753.40') + (sp.Float('14053.8')
-      + (-sp.Float('9491.490') + sp.Float('2731.030')*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw
-fi2 = (sp.Float('0.588890') + (-sp.Float('7.455360') + (sp.Float('40.57590') + (-sp.Float('104.8970') + (sp.Float('60.25470') + (sp.Float('390.6310') + (-sp.Float('1193.080')
-      + (sp.Float('1576.350') + (-sp.Float('1045.910') + sp.Float('283.7580')*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw*nuw
+fi1 = (fi1_0 + (fi1_1 + (-fi1_2 + (fi1_3 + (-fi1_4 + (fi1_5 + (-fi1_6 + (fi1_7
+      + (-fi1_8 + fi1_9*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw
+fi2 = (fi2_0 + (-fi2_1 + (fi2_2 + (-fi2_3 + (fi2_4 + (fi2_5 + (-fi2_6
+      + (fi2_7 + (-fi2_8 + fi2_9*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw)*nuw*nuw
 FA = (-12*fi1 + 192*fi2*b)*b*b/sp.pi
 F = F0 + F1 + FA
 
@@ -150,19 +142,19 @@ eps = c[1] + c[6]*sp.exp(T*c[7])
 m = c[2] + c[8]/(T + c[9])
 a_ = c[3] + c[10]/(T + c[11])
 s3 = sigma**3
-m2r = m**2/sp.Float('1.38048E-4')
+m2r = m**2/dipole
 b0 = eps/T
 r0 = s3*NA*rho
 rotmp = NA*rho
 J = (r0*FWr - 4*b0*FWb)/(16*sp.pi*r0*b0)
 A0 = FW
-A2 = -(m2r*m2r*J/s3)*K['TWOPI']*rotmp/(3*T**2)
+A2 = -(m2r*m2r*J/s3)*TWOPI*rotmp/(3*T**2)
 logT = sp.log(T/eps)
-kd = [sp.Float('-1.050534'), sp.Float('1.747476'), sp.Float('1.749366'), sp.Float('-1.999227'), sp.Float('-0.661046'), sp.Float('-3.028720')]
+kd = [kd0, kd1, kd2, kd3, kd4, kd5]
 Kf = sp.exp((kd[0]*r0**2*logT + kd[1]*r0**2 + kd[2]*r0*logT + kd[3]*r0 + kd[4]*logT + kd[5])/3)
 A3 = m2r**3*Kf**3/s3*32*sp.sqrt(14*sp.pi/5)*rotmp**2*sp.pi**3/(135*T*T**2)
 AP = A2/(1 - A3/A2)
-A1 = -((a_*m2r + a_*m2r)*J/s3)*K['TWOPI']*rotmp/T
+A1 = -((a_*m2r + a_*m2r)*J/s3)*TWOPI*rotmp/T
 Theta = A0 + A1 + AP
 
 # total derivatives: the WCA quantities FW.. are functions of (b0, r0)
@@ -203,11 +195,19 @@ header = '''// SPDX-License-Identifier: LGPL-3.0-or-later
 #define THERMOFUN_CGFANALYTIC_HPP
 
 #include <cmath>
+#include <vector>
 
-#include "Common/Real.hpp"
+#include <ThermoFun/Common/Real.hpp>
 
 namespace ThermoFun {
 namespace cgf {
+
+/// The constants of the model, in the order of Methods/ParameterSets/ChurakovGottschalk03.yaml
+struct Constants
+{
+    double %(members)s;
+    explicit Constants(const std::vector<double>& v) : %(init)s {}
+};
 
 /// pi (the POSIX math macro is not defined by MSVC without _USE_MATH_DEFINES)
 constexpr double pi = 3.14159265358979323846;
@@ -219,7 +219,7 @@ struct WcaDerivatives
 };
 
 /// the diameter d(beta, rho) of the hard spheres: the root of the polynomial of the Newton's iterations of the model (values only)
-inline auto hardSphereDiameter(double beta, double ro) -> double
+inline auto hardSphereDiameter(double beta, double ro, const Constants& k) -> double
 {
     const double DV112 = 1./12., DV712 = 7./12.;
     const double T12 = std::sqrt(beta);
@@ -233,12 +233,12 @@ inline auto hardSphereDiameter(double beta, double ro) -> double
     const double ri6ro = %(PISIX)s*ro;
     const double ri6ro2 = ri6ro*ri6ro;
     const double a0 = dB+dbdl, a1 = -1.;
-    const double a3 = (-1.5*dB -3.75*dbdl)*ri6ro;
+    const double a3 = (-1.5*dB - k.hs_a3*dbdl)*ri6ro;
     const double a4 = (1.5*ri6ro);
     const double a6 = (2.*dB + dbdl)*0.25*ri6ro2;
     const double a7 = -0.5*ri6ro2;
-    const double a9 = -2.89325*ri6ro2*ri6ro*dbdl;
-    const double a12 = -0.755*ri6ro2*ri6ro2*dbdl;
+    const double a9 = -k.hs_a9*ri6ro2*ri6ro*dbdl;
+    const double a12 = -k.hs_a12*ri6ro2*ri6ro2*dbdl;
     const double p0 = -1., p2 = a3*3., p3 = a4*4., p5 = a6*6., p6 = a7*7., p8 = a9*9., p11 = a12*12.;
     double dd = dB;
     for (int i = 0; i < 100; ++i)
@@ -255,7 +255,7 @@ inline auto hardSphereDiameter(double beta, double ro) -> double
 }
 
 /// The WCA free energy and its derivatives at (beta, rho); the diameter is a number of the pass with its (analytical) derivatives
-inline auto wcaDerivatives(const real& b, const real& r, const real& d, WcaDerivatives& o) -> void
+inline auto wcaDerivatives(const real& b, const real& r, const real& d, const Constants& k, WcaDerivatives& o) -> void
 {
 %(wca)s
 }
@@ -268,7 +268,7 @@ struct PureFluidDerivatives
 };
 
 /// The arguments (b0, r0) of the WCA free energy of a pure fluid from the 12 coefficients of the substance
-inline auto pureFluidArguments(const real& T, const real& rho, const real* c, real& b0, real& r0) -> void
+inline auto pureFluidArguments(const real& T, const real& rho, const real* c, const Constants& k, real& b0, real& r0) -> void
 {
     const real& c0 = c[0]; const real& c1 = c[1]; const real& c2 = c[2]; const real& c3 = c[3]; const real& c4 = c[4]; const real& c5 = c[5];
     const real& c6 = c[6]; const real& c7 = c[7]; const real& c8 = c[8]; const real& c9 = c[9]; const real& c10 = c[10]; const real& c11 = c[11];
@@ -277,7 +277,7 @@ inline auto pureFluidArguments(const real& T, const real& rho, const real* c, re
 
 /// @param T temperature (K), rho density (units of the model), c the 12 coefficients of the substance
 /// @param w the WCA free energy and its derivatives at (b0, r0)
-inline auto pureFluidDerivatives(const real& T, const real& rho, const real* c, const WcaDerivatives& w, PureFluidDerivatives& o) -> void
+inline auto pureFluidDerivatives(const real& T, const real& rho, const real* c, const Constants& k, const WcaDerivatives& w, PureFluidDerivatives& o) -> void
 {
     const real& FW = w.F; const real& FWr = w.Fr; const real& FWb = w.Fb;
     const real& FWrr = w.Frr; const real& FWrb = w.Fbr; const real& FWbb = w.Fbb;
@@ -302,7 +302,8 @@ inline auto pureFluidDerivatives(const real& T, const real& rho, const real* c, 
 } // namespace ThermoFun
 
 #endif // THERMOFUN_CGFANALYTIC_HPP
-''' % dict({k: repr(float(v)) if k not in ('PI',) else 'pi' for k, v in K.items()},
+''' % dict({k: 'k.' + k for k in NAMES},
+           members=', '.join(NAMES), init=', '.join('%s(v[%d])' % (n, i) for i, n in enumerate(NAMES)),
            wca='\n'.join('    ' + l for l in wca_lines),
            bw='\n'.join('    ' + l for l in bw_lines),
            np='\n'.join('        ' + l for l in np_lines),
