@@ -31,6 +31,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | [CpPolynomial](CpPolynomial.md) | Heat capacity polynomial | base | substance | any |  |
 | [FernandezEtAl97](FernandezEtAl97.md) | Dielectric constant of Fernandez et al. | correction | substance | water_solvent |  |
 | [HKF88](HKF88.md) | Revised HKF equation of state | base | substance | aqueous_solute | reaktoro, gems |
+| [HelgesonKirkham74](HelgesonKirkham74.md) | Dielectric constant of Helgeson and Kirkham | correction | substance | water_solvent |  |
 | [IdealGas](IdealGas.md) | Ideal gas | correction | substance | gas_fluid, component |  |
 | [JohnsonNorton91](JohnsonNorton91.md) | Dielectric constant of Johnson and Norton | correction | substance | water_solvent | reaktoro, gems |
 | [LambdaBerman88](LambdaBerman88.md) | Lambda transition of Berman | correction | substance | component |  |

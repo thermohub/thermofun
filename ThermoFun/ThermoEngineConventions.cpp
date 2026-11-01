@@ -59,14 +59,18 @@ auto ThermoEngine::Impl::declaredConvention(const v2::SubstanceRecord& record) c
 }
 
 /// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
-auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double sign) const -> void
+auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign) const -> void
 {
     const auto wat = waterTripleData().at(database.conventions().water_triple_point_reference);
-    // constants: the derivatives, error and status are not changed
-    tps.gibbs_energy.val += sign * wat.Gtr;
+    // the entropy has a constant added, so G and A have also a term linear in T: G = G(steam) + Gtr - Str (T - Ttr). The error and status are not changed
+    const double Ttr = v2::builtinConstants("WaterHGK84", "reaktoro")->parameters.at("Ttr").value;
+    const double linear = wat.Str * (T - Ttr);
+    tps.gibbs_energy.val += sign * (wat.Gtr - linear);
+    tps.gibbs_energy.ddt -= sign * wat.Str;
     tps.enthalpy.val += sign * wat.Htr;
     tps.entropy.val += sign * wat.Str;
-    tps.helmholtz_energy.val += sign * wat.Atr;
+    tps.helmholtz_energy.val += sign * (wat.Atr - linear);
+    tps.helmholtz_energy.ddt -= sign * wat.Str;
     tps.internal_energy.val += sign * wat.Utr;
 }
 
@@ -122,7 +126,7 @@ auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, doubl
     {
         if (conventions.water_reference == v2::WaterReference::SteamTables)
         {
-            steamTablesShift(tps, -1.0);
+            steamTablesShift(tps, T, -1.0);
             label("steam_tables");
         }
         return tps;
@@ -150,7 +154,7 @@ auto ThermoEngine::Impl::canonicalReference(const Substance& substance) const ->
     if (record->class_ == v2::SubstanceClass::WaterSolvent)
     {
         if (declared.water_reference == v2::WaterReference::SteamTables)
-            steamTablesShift(tps, 1.0);
+            steamTablesShift(tps, substance.referenceT(), 1.0);
         return tps;
     }
     if (declared == v2::Convention{})

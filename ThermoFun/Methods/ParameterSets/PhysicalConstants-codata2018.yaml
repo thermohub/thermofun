@@ -1,0 +1,13 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  PhysicalConstants_codata2018:
+    method: PhysicalConstants
+    default: false
+    description: "The constants of physics of the whole library in the current standard, for a build with the CMake option THERMOFUN_PHYSICAL_CONSTANTS=codata2018. R in J/(mol K), NA in 1/mol, F in C/mol, e in C, k in J/K. R is about 6e-6 lower than in the default set, so stored G and log K values derived with the old R no longer match exactly. A record cannot choose this set."
+    reference: "Tiesinga E., Mohr P.J., Newell D.B., Taylor B.N. (2021) Rev. Mod. Phys. 93, 025010 (CODATA 2018)"
+    parameters:
+      R: 8.31446261815324
+      NA: 6.02214076e23
+      F: 96485.33212331
+      e: 1.602176634e-19
+      k: 1.380649e-23

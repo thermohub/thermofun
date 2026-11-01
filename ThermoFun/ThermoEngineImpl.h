@@ -202,7 +202,7 @@ struct ThermoEngine::Impl
     static auto toThermoProperties(const v2::SubstanceResult& r) -> ThermoPropertiesSubstance;
 
     /// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
-    auto steamTablesShift(ThermoPropertiesSubstance &tps, double sign) const -> void;
+    auto steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign) const -> void;
 
     static auto add(Reaktoro_::ThermoProperty& to, double factor, const Reaktoro_::ThermoScalar& term) -> void
     {

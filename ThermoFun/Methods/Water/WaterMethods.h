@@ -34,6 +34,9 @@ auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std
 auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
 auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const DielectricMethod>;
 
+/// HelgesonKirkham74. constants: in the order of the catalog
+auto helgesonKirkham74Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
+
 /// SverjenskyEtAl14. constants: in the order of the catalog, as for the two others of this form
 auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
 

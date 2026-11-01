@@ -39,9 +39,9 @@ class TestThermoEngine(unittest.TestCase):
               -self.engine.thermoPropertiesReaction(348.15, 1e5, "Cal = Ca+2 + CO3-2").reaction_entropy.val, 1e-5, 1e-14)
 
     def test_properties_reaction(self):
-        assert self.engine2.thermoPropertiesReaction(298.15, 1e5, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(80.873916, 1e-5, 1e-14)
-        assert self.engine2.thermoPropertiesReaction(423.15, 4.8E5, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(28.244026, 1e-5, 1e-14)
-        assert self.engine2.thermoPropertiesReaction(298.15, 0, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").log_equilibrium_constant.val == pytest.approx(80.873916, 1e-5, 1e-14)
+        assert self.engine2.thermoPropertiesReaction(298.15, 1e5, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(80.872540, 1e-5, 1e-14)
+        assert self.engine2.thermoPropertiesReaction(423.15, 4.8E5, "Meionite-Ca").log_equilibrium_constant.val == pytest.approx(28.243089, 1e-5, 1e-14)
+        assert self.engine2.thermoPropertiesReaction(298.15, 0, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").log_equilibrium_constant.val == pytest.approx(80.872585, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_heat_capacity_cp.val == pytest.approx(-1091.612, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_entropy.val == pytest.approx(-1704.130129, 1e-5, 1e-14)
         assert self.engine2.thermoPropertiesReaction(873.15, 5000e5, "Meionite-Ca + 25H+ = HCO3- + 6H4SiO4@ + 4Ca+2 + 6Al+3").reaction_volume.val == pytest.approx(-60.00281, 1e-5, 1e-14)

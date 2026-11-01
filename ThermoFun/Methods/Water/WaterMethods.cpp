@@ -14,6 +14,7 @@
 #include <ThermoFun/Methods/Water/Reaktoro/WaterThermoStateUtils.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterUtils.hpp>
 #include <ThermoFun/Methods/Water/WaterElectroFernandez1997.h>
+#include <ThermoFun/Methods/Water/WaterElectroHelgesonKirkham74.h>
 #include <ThermoFun/Methods/Water/WaterElectroSverjensky2014.h>
 #include <ThermoFun/Methods/Water/WaterHGK-JNgems.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
@@ -366,6 +367,15 @@ auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> cons
 {
     return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", [constants](double T, double P, const PropertiesSolvent& solvent, int) {
         return johnsonNorton91Gems(T, P, solvent, *constants);
+    });
+}
+
+auto helgesonKirkham74Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>
+{
+    return std::make_shared<const FunctionDielectricMethod>("HelgesonKirkham74", "", [constants = std::move(constants)](double T, double P, const PropertiesSolvent& solvent, int) {
+        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+            return electroPropertiesWaterHelgesonKirkham74(pass, solvent, constants);
+        });
     });
 }
 

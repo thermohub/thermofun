@@ -14,22 +14,22 @@ parameter_sets:
   WaterTriplePoint_NEA_HGK:
     method: WaterTriplePoint
     implementation: NEA_HGK
-    description: "Properties of liquid water at its triple point for the NEA convention with the HGK water: S in cal/(mol K), G, H, U, A in cal/mol. The implementation is the label a database names in its conventions (water_triple_point_reference)."
-    reference: "Not recorded in the code, which gives only the label NEA_HGK"
+    description: "Properties of liquid water at its triple point for the NEA convention with the HGK water: S in cal/(mol K), G, H, U, A in cal/mol. G, H and S come by difference from the CODATA 1989 values at 298.15 K and 1 bar (G -237140, H -285830 J/mol, S 69.95 J/(mol K)), with H-Htr, S-Str from the HGK84 (1888.803 J/mol, 6.6102 J/(mol K)) equation of state, and G-Gtr = (H-Htr) - 298.15 S + 273.16 Str. U and A use U = H - d(PV), with d(PV) = V - 1.5 R T of the formation reaction. The implementation is the label a database names in its conventions (water_triple_point_reference)."
+    reference: "Calculated from Cox J.D., Wagman D.D., Medvedev V.A. (1989) CODATA Key Values for Thermodynamics, and HGK84"
     parameters:
       Str: 15.1386
       Gtr: -56279.9
       Htr: -68766.44
-      Utr: -67921.9
-      Atr: -55434.49
+      Utr: -67877.71
+      Atr: -55391.17
   WaterTriplePoint_NEA_IAPWS:
     method: WaterTriplePoint
     implementation: NEA_IAPWS
-    description: "Properties of liquid water at its triple point for the NEA convention with the IAPWS water: S in cal/(mol K), G, H, U, A in cal/mol. The implementation is the label a database names in its conventions (water_triple_point_reference)."
-    reference: "Not recorded in the code, which gives only the label NEA_IAPWS"
+    description: "Properties of liquid water at its triple point for the NEA convention with the IAPWS water: S in cal/(mol K), G, H, U, A in cal/mol. G, H and S come by difference from the CODATA 1989 values at 298.15 K and 1 bar (G -237140, H -285830 J/mol, S 69.95 J/(mol K)), with H-Htr, S-Str from the IAPWS-95 (1890.142 J/mol, 6.6152 J/(mol K)) equation of state, and G-Gtr = (H-Htr) - 298.15 S + 273.16 Str. U and A use U = H - d(PV), with d(PV) = V - 1.5 R T of the formation reaction. The implementation is the label a database names in its conventions (water_triple_point_reference)."
+    reference: "Calculated from Cox J.D., Wagman D.D., Medvedev V.A. (1989) CODATA Key Values for Thermodynamics, and IAPWS-95"
     parameters:
       Str: 15.1374
       Gtr: -56279.9
       Htr: -68766.76
-      Utr: -67922.22
-      Atr: -55434.49
+      Utr: -67878.03
+      Atr: -55391.17

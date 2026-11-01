@@ -11,6 +11,7 @@
 #include <pybind11/stl.h>
 
 #include <ThermoFun/IO/Legacy/LegacyMethodMap.h>
+#include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Methods/Evaluate.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
@@ -120,6 +121,12 @@ void exportMethods(py::module& parent)
         .def_property_readonly("id", [](const ReactionMethod& s) { return s.spec().id; })
         .def("calculate", &ReactionMethod::calculate, "The properties at T [K], P [Pa], from those of the method before it. solvent: for a method that needs it",
              py::arg("T"), py::arg("P"), py::arg("incoming") = ThermoPropertiesReaction{}, py::arg("solvent") = nullptr);
+
+    m.def("physicalConstants", [] {
+        py::dict out;
+        out["name"] = ThermoFun::PHYSICAL_CONSTANTS_NAME; out["R"] = ThermoFun::R_CONSTANT; out["NA"] = ThermoFun::NA_CONSTANT; out["F"] = ThermoFun::F_CONSTANT; out["e"] = ThermoFun::e_CONSTANT; out["k"] = ThermoFun::k_CONSTANT;
+        return out;
+    }, "The constants of physics of this build");
 
     m.def("catalog", [] {
         py::list out;

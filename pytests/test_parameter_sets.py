@@ -330,3 +330,26 @@ def test_a_record_can_replace_the_range_of_a_model():
     doc = gems_water()
     water_of(doc)["parameters"] = {"visc_Tmax": 100.0}
     assert tf.ThermoEngine(tf.Database(json.dumps(doc))).propertiesSolvent(473.15, 1e7, solvent_symbol(doc)).dynamic_viscosity == 0.0
+
+
+def test_this_build_has_the_constants_of_one_file():
+    import pathlib
+    import re
+    values = tf.methods.physicalConstants()
+    folder = pathlib.Path(__file__).resolve().parent.parent / "ThermoFun" / "Methods" / "ParameterSets"
+    name = {"codata1986": "PhysicalConstants.yaml", "codata2018": "PhysicalConstants-codata2018.yaml"}[values["name"]]
+    text = (folder / name).read_text()
+    for symbol in ("R", "NA", "F", "e", "k"):
+        assert values[symbol] == float(re.search(r"^      %s: (\S+)$" % symbol, text, re.M).group(1)), symbol
+
+
+@pytest.mark.parametrize("method_id,implementation,label", [("WaterHGK84", "reaktoro", "NEA_HGK"), ("WaterHGK84", "gems", "NEA_HGK"), ("WaterIAPWS95", "reaktoro", "NEA_IAPWS")])
+def test_the_triple_point_data_give_the_values_of_codata_at_25_degrees(method_id, implementation, label):
+    water = tf.methods.solventMethod(method_id, implementation=implementation).substanceProperties(298.15, 1e5, 0, label)
+    assert water.gibbs_energy.val == pytest.approx(-237140.0, abs=0.1)
+    assert water.enthalpy.val == pytest.approx(-285830.0, abs=0.1)
+    assert water.entropy.val == pytest.approx(69.95, abs=0.002)
+    # the formation reaction H2 + 1/2 O2 = H2O: H - U = G - A = V - 1.5 R T, in J/mol at 1 bar
+    expected = 1.80684 - 1.5 * 8.31451 * 298.15
+    assert water.enthalpy.val - water.internal_energy.val == pytest.approx(expected, abs=0.1)
+    assert water.gibbs_energy.val - water.helmholtz_energy.val == pytest.approx(expected, abs=0.1)

@@ -26,6 +26,43 @@ foreach(file ${PARAMETER_SET_FILES})
     string(APPEND PARAMETER_SET_ROWS "    {\"${name}\", file_${PARAMETER_SET_COUNT}, ${bytes}},\n")
     math(EXPR PARAMETER_SET_COUNT "${PARAMETER_SET_COUNT} + 1")
 endforeach()
+
+# The constants of physics are fixed at build, from one of two files
+set(THERMOFUN_PHYSICAL_CONSTANTS "codata1986" CACHE STRING "The constants of physics: codata1986 or codata2018")
+set_property(CACHE THERMOFUN_PHYSICAL_CONSTANTS PROPERTY STRINGS codata1986 codata2018)
+if(THERMOFUN_PHYSICAL_CONSTANTS STREQUAL "codata1986")
+    set(PHYSICAL_CONSTANTS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Methods/ParameterSets/PhysicalConstants.yaml)
+elseif(THERMOFUN_PHYSICAL_CONSTANTS STREQUAL "codata2018")
+    set(PHYSICAL_CONSTANTS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Methods/ParameterSets/PhysicalConstants-codata2018.yaml)
+else()
+    message(FATAL_ERROR "THERMOFUN_PHYSICAL_CONSTANTS must be codata1986 or codata2018, not ${THERMOFUN_PHYSICAL_CONSTANTS}")
+endif()
+file(STRINGS ${PHYSICAL_CONSTANTS_FILE} PHYSICAL_CONSTANTS_LINES REGEX "^      [A-Za-z]+: ")
+foreach(name R NA F e k)
+    set(value "")
+    foreach(line ${PHYSICAL_CONSTANTS_LINES})
+        if(line MATCHES "^      ${name}: (.+)$")
+            set(value ${CMAKE_MATCH_1})
+        endif()
+    endforeach()
+    if(value STREQUAL "")
+        message(FATAL_ERROR "${PHYSICAL_CONSTANTS_FILE} has no value of ${name}")
+    endif()
+    set(PHYSICAL_CONSTANT_${name} ${value})
+endforeach()
+set(PHYSICAL_CONSTANTS_HEADER ${CMAKE_CURRENT_BINARY_DIR}/generated/ThermoFun/Common/PhysicalConstants.h)
+file(CONFIGURE OUTPUT ${PHYSICAL_CONSTANTS_HEADER} CONTENT "// Generated from Methods/ParameterSets/PhysicalConstants*.yaml: do not edit.
+#ifndef THERMOFUN_COMMON_PHYSICALCONSTANTS_H
+#define THERMOFUN_COMMON_PHYSICALCONSTANTS_H
+namespace ThermoFun {
+inline constexpr const char* PHYSICAL_CONSTANTS_NAME = \"@THERMOFUN_PHYSICAL_CONSTANTS@\";
+inline constexpr double R_CONSTANT = @PHYSICAL_CONSTANT_R@, NA_CONSTANT = @PHYSICAL_CONSTANT_NA@, F_CONSTANT = @PHYSICAL_CONSTANT_F@,
+                        e_CONSTANT = @PHYSICAL_CONSTANT_e@, k_CONSTANT = @PHYSICAL_CONSTANT_k@;
+}
+#endif
+")
+install(FILES ${PHYSICAL_CONSTANTS_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ThermoFun/Common)
+
 set(PARAMETER_SET_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/BuiltinParameterFiles.cpp)
 file(CONFIGURE OUTPUT ${PARAMETER_SET_SOURCE} CONTENT "// Generated from Methods/ParameterSets: do not edit.
 namespace ThermoFun::v2::detail {
@@ -68,6 +105,7 @@ set_source_files_properties(IO/Yaml/Yaml.cpp PROPERTIES
 target_include_directories(ThermoFun
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # Create install target for library

@@ -1799,6 +1799,87 @@
         "H2Og"
       ],
       "reason": "H2Og is water forced to the gas state. The baseline took the density of the gas, but calculated the dielectric constant of the GEMS code from its own water in the state of the engine, the liquid (35.3 at 473 K, 100 bar, with a density of 130.75 kg/m3). The dielectric constant now reads the water of the record (3.02)."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "water"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
     }
   ]
 }

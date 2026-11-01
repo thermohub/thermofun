@@ -24,7 +24,7 @@ enum Constant
 /// The state of one calculation. Fugpure: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
 struct Work
 {
-    real Tk, Pbar, R_CONST = 8.31451, RC, RR, TMIN, TMAX, PMIN, PMAX, Pkbar, Pkb, Pmpa;
+    real Tk, Pbar, R_CONST = R_CONSTANT, RC, RR, TMIN, TMAX, PMIN, PMAX, Pkbar, Pkb, Pmpa;
     const double* k = nullptr;  ///< the constants of the model
     char EosCode = 'G';
     real Tc, Pc, Psat, Rhol, Rhov, Mw;
@@ -61,7 +61,7 @@ void set_internal(Work& w)
     long int j, k;
 
     w.RC = w.R_CONST;  // gas constant (bar)
-    w.RR = 0.00831451;  // gas constant (kbar)
+    w.RR = R_CONSTANT/1000.;  // gas constant (kbar)
     w.TMIN = w.k[TMIN];
     w.TMAX = w.k[TMAX];
     w.PMIN = w.k[PMIN];
@@ -733,7 +733,7 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code
         for (int i = 1; i < 6; i++)
             out[i] = 0.;
         out[0] = 1.;
-        out[4] = 8.31451*Tk/Pbar;
+        out[4] = R_CONSTANT*Tk/Pbar;
     }
 }
 

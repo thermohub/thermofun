@@ -12,7 +12,7 @@ namespace ThermoFun {
 
 namespace {
 
-const real R_CONST = 8.31451;
+const real R_CONST = R_CONSTANT;
 
 /// The places of the constants of the model: the order of the catalog, and of its file in Methods/ParameterSets.
 enum Constant
@@ -188,7 +188,7 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
         for (int i = 1; i < 6; i++)
             out[i] = 0.;
         out[0] = 1.;
-        out[4] = 8.31451*Tk/Pbar;
+        out[4] = R_CONSTANT*Tk/Pbar;
     }
 }
 

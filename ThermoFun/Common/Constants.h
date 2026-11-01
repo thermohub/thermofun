@@ -7,21 +7,18 @@
 #include <string>
 #include <unordered_map>
 
-// Physical constants, conversion factors and the data of water at its triple point.
+#include <ThermoFun/Common/PhysicalConstants.h>
+
+// Conversion factors and the data of water at its triple point. The constants of physics are in the generated PhysicalConstants.h.
 
 namespace ThermoFun {
 
-static const double R_CONSTANT = 8.31451,
-                    NA_CONSTANT = 6.0221367e23,
-                    F_CONSTANT = 96485.309,
-                    e_CONSTANT = 1.60217733e-19,
-                    k_CONSTANT = 1.380658e-23,
 // Conversion factors
-                    cal_to_J = 4.184,
+static const double cal_to_J = 4.184,
                     C_to_K = 273.15,
                     K_to_C =-273.15,
-                    lg_to_ln = 2.302585093,
-                    ln_to_lg = 0.434294481,
+                    lg_to_ln = 2.302585092994046,
+                    ln_to_lg = 0.4342944819032518,
                     H2O_mol_to_kg = 55.50837344,
                     Min_phys_amount = 1.66e-24,
                     cm3_mol_to_J_bar = 0.1,

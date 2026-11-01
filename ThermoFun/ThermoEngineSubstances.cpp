@@ -272,7 +272,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             {
                 tps = toThermoProperties(v2::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
                 if (kind.isH2OSolvent && declaredConvention(*substance.record()).water_reference == v2::WaterReference::SteamTables)
-                    steamTablesShift(tps, 1.0);
+                    steamTablesShift(tps, T, 1.0);
                 cameFrom("reference");
             }
         }

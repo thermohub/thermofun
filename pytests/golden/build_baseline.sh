@@ -37,6 +37,17 @@ fi
 git -C "$ROOT" worktree add --detach "$BASE/src" "$TAG"
 echo "baseline: $TAG = $(git -C "$BASE/src" rev-parse HEAD)"
 
+# The corrections the code made on purpose in all results, with no error in the baseline to find: applying them to the
+# baseline keeps the comparison sensitive to anything else. Without them, ln(10) alone gives some 300000 tiny differences.
+sed -i -e 's/lg_to_ln = 2.302585093,/lg_to_ln = 2.302585092994046,/' -e 's/ln_to_lg = 0.434294481,/ln_to_lg = 0.4342944819032518,/' \
+    -e 's/-67921\.9 \* cal_to_J/-67877.71 * cal_to_J/' -e 's/-67922\.22 \* cal_to_J/-67878.03 * cal_to_J/' -e 's/-55434\.49 \* cal_to_J/-55391.17 * cal_to_J/' \
+    "$BASE/src/ThermoFun/GlobalVariables.h"
+sed -i 's/R = 8\.31439;/R = 8.31451;/' "$BASE/src/ThermoFun/Substances/Gases/s_solmod2_.cpp"
+sed -i -e 's/8\.2312e0 \* 0\.4342945 \* log/8.2312e0 * 0.4342944819032518 * log/' -e 's/pl = 2\.302585e0 + log/pl = 2.302585092994046 + log/' \
+    "$BASE/src/ThermoFun/Substances/Solvent/WaterHGK-JNgems.cpp"
+sed -i 's/const auto Ttr =  273\.15;/const auto Ttr =  273.16;/' "$BASE/src/ThermoFun/Substances/Solvent/WaterHGKreaktoro.cpp"
+git -C "$BASE/src" diff --stat
+
 GENERATOR=()
 if command -v ninja > /dev/null; then GENERATOR=(-GNinja); fi
 
@@ -47,7 +58,7 @@ if [ "$PREFIX" = "$BASE/install" ]; then rm -rf "$PREFIX"; fi
 # shellcheck disable=SC2086
 cmake -S "$BASE/src" -B "$BASE/build" "${GENERATOR[@]}" "${OPTIONS[@]}" \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" -DTHERMOFUN_PYTHON_INSTALL_PREFIX="$PREFIX" ${GOLDEN_CMAKE_ARGS:-}
-cmake --build "$BASE/build" -j "$(nproc 2> /dev/null || echo 4)"
+cmake --build "$BASE/build" -j 4
 # The install runs "pip install --prefix PREFIX", which first uninstalls a thermofun found in the active
 # environment. PIP_IGNORE_INSTALLED keeps the active environment unchanged.
 PIP_IGNORE_INSTALLED=1 cmake --install "$BASE/build"

@@ -1,0 +1,12 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  PhysicalConstants_codata1986:
+    method: PhysicalConstants
+    description: "The constants of physics of the whole library, fixed when it is built: the build makes the header ThermoFun/Common/PhysicalConstants.h from this file. R in J/(mol K), NA in 1/mol, F in C/mol, e in C, k in J/K. These are the default, because most stored G and log K values were derived with this R. Choose the other file with the CMake option THERMOFUN_PHYSICAL_CONSTANTS. A record cannot replace them. Constants that belong to a fitted equation, such as R of Zhang-Duan, stay in the file of that model."
+    reference: "Cohen E.R., Taylor B.N. (1987) Rev. Mod. Phys. 59, 1121-1148 (CODATA 1986)"
+    parameters:
+      R: 8.31451
+      NA: 6.0221367e23
+      F: 96485.309
+      e: 1.60217733e-19
+      k: 1.380658e-23

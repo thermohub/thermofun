@@ -16,7 +16,7 @@ namespace {
 
 /// The constants of the model.
 const real DELTA = 0.00001;
-const real R = 8.31439;
+const real R = R_CONSTANT;
 const real NA = 0.6023;
 constexpr int FIRSTSEED = 15;
 constexpr int NPOINT = 5;
@@ -44,7 +44,7 @@ auto pureFluidOf(const real* data) -> PureFluid
 /// The state of one calculation.
 struct Work
 {
-    real Tk, Pbar, R_CONST = 8.31451;
+    real Tk, Pbar, R_CONST = R_CONSTANT;
     real Grs, Hrs, Srs, CPrs, Vrs;
 };
 
@@ -82,7 +82,7 @@ long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps)
     {
         retCode = CGFugacityPT(Coeff, Eos4parPT, Fugacity, Volume, P, T, roro );
         FugProps[0] = Fugacity/w.Pbar;
-        FugProps[1] = 8.31451 * w.Tk * log( Fugacity / P );
+        FugProps[1] = R_CONSTANT * w.Tk * log( Fugacity / P );
         FugProps[4] = Volume;
         CGResidualFunctPure(w, Coeff, roro, T );
         FugProps[2] = w.Hrs;
@@ -95,7 +95,7 @@ long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps)
         for( int i=1; i<6; i++ )
             FugProps[i] = 0.;
         FugProps[0] = 1.;
-        FugProps[4] = 8.31451*w.Tk/w.Pbar;
+        FugProps[4] = R_CONSTANT*w.Tk/w.Pbar;
         return -1;
     }
 }

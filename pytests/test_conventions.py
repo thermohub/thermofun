@@ -379,7 +379,7 @@ def test_a_reaction_of_species_in_different_conventions_is_converted_by_hand():
 
     r = e.thermoPropertiesReaction(T, P, "R")
     assert r.reaction_gibbs_energy.val == pytest.approx(dG, rel=1e-10)
-    assert r.log_equilibrium_constant.val == pytest.approx(-dG / (R * T) * 0.434294481, rel=1e-10)
+    assert r.log_equilibrium_constant.val == pytest.approx(-dG / (R * T) * 0.4342944819032518, rel=1e-10)
 
 
 @pytest.mark.parametrize("field, word", [("energy_reference", "berman_brown"), ("energy_reference", "gibbs_helmholtz_formation"), ("water_reference", "steam_tables")])
@@ -496,3 +496,14 @@ def test_cnv_006_an_element_from_the_table_of_chemicalfun():
     # and the value of that table is used
     got = props(tf.ThermoEngine(database({"X": record}, elements={})))
     assert math.isfinite(got["G"])
+
+
+def test_water_on_the_steam_tables_has_its_own_entropy_scale():
+    # at the triple point S = G = 0, and G = H - T S at all T
+    steam = output(tf.ThermoEngine("pytests/test-aq17-gem-lma-thermofun.json"), water_reference="steam_tables")
+    symbol = "H2O@"
+    at = steam.thermoPropertiesSubstance(273.16, 611.655, symbol)
+    assert at.entropy.val == pytest.approx(0.0, abs=0.05)
+    assert at.gibbs_energy.val == pytest.approx(0.0, abs=2.0)
+    warm = steam.thermoPropertiesSubstance(298.15, 1e5, symbol)
+    assert warm.gibbs_energy.val == pytest.approx(warm.enthalpy.val - 298.15 * warm.entropy.val, abs=2.0)

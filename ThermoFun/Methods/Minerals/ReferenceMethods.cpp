@@ -5,13 +5,14 @@
 
 #include <cmath>
 
+#include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Methods/FunctionMethod.h>
 
 namespace ThermoFun::v2 {
 
 namespace {
 
-constexpr double R = 8.31451;  // J/(mol K), as the models of the library
+constexpr double R = R_CONSTANT;  // J/(mol K), as the models of the library
 
 template <typename Scalar>
 auto constantProperties(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) -> void

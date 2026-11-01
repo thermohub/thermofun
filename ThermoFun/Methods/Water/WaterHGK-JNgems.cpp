@@ -1045,7 +1045,7 @@ auto WaterHGKgems::Psublm(real Temp) -> real
     real TT, PmmHg, Psublm;
 
     TT = Temp + 2.731e2;
-    PmmHg = pow(1.0e1, (-2.4455646e3 / TT + 8.2312e0 * 0.4342945 * log(TT) -
+    PmmHg = pow(1.0e1, (-2.4455646e3 / TT + 8.2312e0 * ln_to_lg * log(TT) -
                         1.677006e-2 * TT + 1.20514e-5 * TT * TT - 6.757169e0));
     /*** convert mmHg to bars ***/
     Psublm = PmmHg * 1.33322e-3;
@@ -2256,7 +2256,7 @@ auto WaterHGKgems::TsHGK(real Ps_) -> real
     TsHGK = 0.0e0;
     if (Ps_ > 22.05e0)
         return(TsHGK);
-    pl = 2.302585e0 + log(Ps_);
+    pl = lg_to_ln + log(Ps_);
     tg = 372.83e0 + pl * (27.7589e0 + pl * (2.3819e0 +
                                             pl * (0.24834e0 + pl * 0.0193855e0)));
     /*  1   */
