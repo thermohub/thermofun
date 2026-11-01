@@ -4,6 +4,8 @@
 #ifndef THERMOFUN_ENGINE_BINDING_H
 #define THERMOFUN_ENGINE_BINDING_H
 
+#include <map>
+#include <ThermoFun/Model/MethodDefinition.h>
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <algorithm>
@@ -37,6 +39,7 @@ struct BoundSubstance
 struct BindConventions
 {
     Convention dataset;                          ///< the convention of the dataset
+    const std::map<std::string, MethodDefinition>* definitions = nullptr;  ///< the Method records of the database
     std::function<double()> element_entropy;     ///< the sum of the entropies of the elements of the record. Called only if needed.
 };
 
@@ -63,7 +66,7 @@ auto withParameterSets(std::shared_ptr<const Record> record, const std::map<std:
 }
 
 /// True if every method of the record has code, and exactly one of them is a base method.
-auto canBind(const SubstanceRecord& record) -> bool;
+auto canBind(const SubstanceRecord& record, const std::map<std::string, MethodDefinition>* definitions = nullptr) -> bool;
 
 /// The conflicts between the methods of a record, each with what to do. A load uses it for v2 files, and validate for all records:
 /// a legacy record is read as it is.

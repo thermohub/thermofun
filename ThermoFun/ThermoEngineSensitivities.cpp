@@ -71,7 +71,21 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
     }
     const auto* spec = v2::MethodCatalog::instance().find(ref.method);
     if (!spec)
-        fail("The catalog has no such method.");
+    {
+        if (!database.methods().count(ref.method))
+            fail("The catalog and the database have no such method.");
+        if (!database.containsSubstance(ref.symbol))
+            fail("The database has no substance with this symbol.");
+        if (const auto bound = boundMethods(database.getSubstance(ref.symbol)))
+            for (const auto& method : bound->order)
+                if (method->spec().id == ref.method)
+                {
+                    if (indexOf(method->parameterNames(), ref.parameter) < 0)
+                        fail("This method of the record has the parameters: " + joined(method->parameterNames()) + ".");
+                    return;
+                }
+        fail("The record does not use this method.");
+    }
     if (isConstant(ref))
     {
         const bool ofReaction = spec->operates_on == v2::OperatesOn::Reaction;
@@ -135,8 +149,9 @@ auto ThermoEngine::Impl::seedOf(const v2::BoundSubstance& bound, const Parameter
         return seed;
     }
     const auto* spec = v2::MethodCatalog::instance().find(ref.method);
-    for (std::size_t i = 0; spec && i < bound.order.size(); ++i)
-        if (bound.order[i]->spec().id == spec->id)
+    const std::string id = spec ? spec->id : ref.method;  // a Method record of the database is not in the catalog
+    for (std::size_t i = 0; i < bound.order.size(); ++i)
+        if (bound.order[i]->spec().id == id)
         {
             seed.method = static_cast<int>(i);
             seed.parameter = indexOf(bound.order[i]->parameterNames(), ref.parameter);

@@ -61,7 +61,7 @@ jobs:
           conda activate thermofun
           mkdir .build && cd .build
           # the checks of libstdc++ stop a read outside a vector, which a Release build lets pass in silence
-          CXXFLAGS="$CXXFLAGS -D_GLIBCXX_ASSERTIONS" cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON
+          CXXFLAGS="$CXXFLAGS -D_GLIBCXX_ASSERTIONS" cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON -DTFUN_USE_SYMENGINE=ON
           ninja
           ninja install
           python -c "import thermofun"

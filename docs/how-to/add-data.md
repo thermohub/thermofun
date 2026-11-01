@@ -801,10 +801,4 @@ assert [d.code for d in checked.all()] == ["V2-REF-001"]
 | `V2-RXN-001` | The equation and the stoichiometry do not agree. | Correct one, or remove one. |
 | `V2-YAML-001` | The text is not YAML. | Correct the place that the message gives. |
 
-## 13. What ThermoFun does not use yet
-
-ThermoFun reads these, but does not use them in a calculation:
-
-- Method records with `kind: symbolic`.
-
 **Check:** run `python -m pytest pytests/test_add_data_guide.py`. All examples of this page run and their results are correct.

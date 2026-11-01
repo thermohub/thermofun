@@ -30,6 +30,7 @@ if(TFUN_BUILD_ALL MATCHES ON)
 endif()
 
 option(TFUN_USE_AUTODIFF "Calculate the derivatives of the properties with autodiff. If OFF the models use plain numbers (faster, no autodiff dependency): all derivatives ddt and ddp are 0." ON)
+option(TFUN_USE_SYMENGINE "Run the symbolic methods of Method records. Needs SymEngine." OFF)
 
 if (TFUN_WASM MATCHES ON)
     # Define which types of libraries to build

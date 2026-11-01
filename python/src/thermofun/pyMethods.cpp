@@ -12,6 +12,7 @@
 
 #include <ThermoFun/IO/Legacy/LegacyMethodMap.h>
 #include <ThermoFun/Common/Constants.h>
+#include <ThermoFun/Methods/Symbolic/SymbolicExpression.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Methods/Evaluate.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
@@ -121,6 +122,8 @@ void exportMethods(py::module& parent)
         .def_property_readonly("id", [](const ReactionMethod& s) { return s.spec().id; })
         .def("calculate", &ReactionMethod::calculate, "The properties at T [K], P [Pa], from those of the method before it. solvent: for a method that needs it",
              py::arg("T"), py::arg("P"), py::arg("incoming") = ThermoPropertiesReaction{}, py::arg("solvent") = nullptr);
+
+    m.def("symbolicAvailable", [] { return SymbolicExpression::available(); }, "True if this build runs symbolic methods");
 
     m.def("physicalConstants", [] {
         py::dict out;

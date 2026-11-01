@@ -43,8 +43,8 @@ auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::
     if (it != bound_cache->substances.end())
         return it->second;
     const auto formula = record->formula;
-    const v2::BindConventions bind{database.thermoDataSet().convention, [this, formula] { return elementEntropy(formula); }};
-    auto bound = v2::canBind(*record) ? v2::bindSubstance(withImplementations(record), bind) : nullptr;
+    const v2::BindConventions bind{database.thermoDataSet().convention, &database.methods(), [this, formula] { return elementEntropy(formula); }};
+    auto bound = v2::canBind(*record, &database.methods()) ? v2::bindSubstance(withImplementations(record), bind) : nullptr;
     bound_cache->substances[record.get()] = bound;
     bound_cache->records.push_back(record);
     return bound;

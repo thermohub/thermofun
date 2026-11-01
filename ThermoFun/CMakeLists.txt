@@ -125,6 +125,14 @@ if(MSVC)
     )
 endif()
 
+# Symbolic methods need SymEngine, only inside the library
+if(TFUN_USE_SYMENGINE)
+    find_package(SymEngine REQUIRED)
+    target_include_directories(ThermoFun PRIVATE ${SYMENGINE_INCLUDE_DIRS})
+    target_link_libraries(ThermoFun PRIVATE ${SYMENGINE_LIBRARIES})
+    target_compile_definitions(ThermoFun PRIVATE TFUN_WITH_SYMENGINE=1)
+endif()
+
 # Install the header files preserving the directory hierarchy
 # (the folders "detail" hold headers that use nlohmann_json; they are not installed, nor the inside of the engine)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun

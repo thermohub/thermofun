@@ -4,6 +4,7 @@
 // Writes the records of a database, and checks them.
 
 #include "DatabaseImpl.h"
+#include <ThermoFun/Methods/Symbolic/SymbolicMethod.h>
 
 namespace ThermoFun {
 
@@ -129,6 +130,8 @@ auto Database::validate() const -> Diagnostics
     };
     const auto records = allRecords(*this);
     Diagnostics all = v2::validateRecords(records, parse);
+    for (const auto& definition : records.methods)
+        v2::checkSymbolicDefinition(definition, all);
     for (const auto& record : records.substances)
     {
         const Diagnostics conflicts = v2::checkMethods(record);

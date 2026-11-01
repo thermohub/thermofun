@@ -1,0 +1,49 @@
+# Shomate equations of the NIST WebBook. Each piece in T of a substance gives its own A to G.
+# The test case is CO2 at 500 K (NIST-JANAF: Cp 44.627, S 234.901 J/(mol K)).
+kind: symbolic
+tier: 1
+operates_on: substance
+contributes_to:
+- G
+- H
+- S
+- Cp
+parameter_definitions:
+  A:
+    unit: '1'
+  B:
+    unit: '1'
+  C:
+    unit: '1'
+  D:
+    unit: '1'
+  E:
+    unit: '1'
+  F:
+    unit: '1'
+  G:
+    unit: '1'
+source:
+  form: shomate
+citation: 1998CHA
+tests:
+- T: 500.0
+  P: 100000.0
+  parameters:
+    A: 24.99735
+    B: 55.18696
+    C: -33.69137
+    D: 7.948387
+    E: -0.136638
+    F: -403.6075
+    G: 228.2431
+  expected:
+    Cp: 44.627
+    S: 234.901
+  relative_tolerance: 0.001
+expression:
+  G: A*T + B*T**2/2000 + C*T**3/3000000 + D*T**4/4000000000 - 1000000*E/T + 1000*F
+    - T*(A*log(T/1000) + B*T/1000 + C*T**2/2000000 + D*T**3/3000000000 - 500000*E/T**2
+    + G)
+generator: 'thermofun.methods build '
+source_hash: sha256:1bd49157b2e52052697a7b79138553ffe7bb3a05f1639a8b81ca200a2d8045dc

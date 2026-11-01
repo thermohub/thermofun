@@ -10,6 +10,7 @@
 // One runAll() for each test_*.cpp
 void runSha256();
 void runCatalog();
+void runSymbolic();
 void runSubstanceMethods();
 void runDiagnostics();
 void runLegacyEquivalence();
@@ -25,6 +26,7 @@ int main()
     runDiagnostics();
     runSha256();
     runCatalog();
+    runSymbolic();
     runVocabulary();
     runUcum();
     runRecords();

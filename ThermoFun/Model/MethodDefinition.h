@@ -33,6 +33,8 @@ struct ReferenceTestCase
     std::map<std::string, double> parameters;    ///< SI
     std::map<std::string, double> expected;      ///< name of the property and its SI value
     double relative_tolerance = 1e-9;
+    std::map<std::string, double> reference;     ///< Gr, Hr, Sr, Cpr, Vr, Tr, Pr
+    int piece = 0;                               ///< of a method with pieces in T
 
     auto operator==(const ReferenceTestCase&) const -> bool = default;
 };
@@ -55,6 +57,7 @@ struct MethodDefinition
     std::map<std::string, std::string> expression;                         ///< generated expressions
     std::vector<std::map<std::string, std::string>> expression_segments;   ///< generated, one for each piece
     std::string generator;                       ///< tool and version that made `expression`
+    std::string source_json;                     ///< the source block as compact JSON text with sorted keys, for the hash
     std::string source_hash;                     ///< sha256 of the source block when `expression` was made
     std::vector<ReferenceTestCase> tests;
     std::string effects_json;                    ///< the block `effects` of the file as JSON text

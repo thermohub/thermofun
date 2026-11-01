@@ -182,6 +182,11 @@ auto ThermoEngine::parameters(const std::string& symbol) -> std::vector<Paramete
         if (!value.ref.method.empty())
         {
             const auto* spec = v2::MethodCatalog::instance().find(value.ref.method);
+            if (!spec && db.methods().count(value.ref.method))
+            {
+                out.emplace_back(*this, value.ref);
+                continue;
+            }
             if (!spec || spec->role != v2::MethodRole::SubstanceProperties)
                 continue;
             const auto base = value.ref.parameter.substr(0, value.ref.parameter.find('['));

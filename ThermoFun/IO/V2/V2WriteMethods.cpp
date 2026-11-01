@@ -232,6 +232,13 @@ auto methodRecordJson(const MethodDefinition& m) -> json
         for (const auto& t : m.tests)
         {
             json one = json{{"T", t.T}, {"P", t.P}};
+            if (t.piece != 0) one["piece"] = t.piece;
+            if (!t.reference.empty())
+            {
+                json r = json::object();
+                for (const auto& item : t.reference) r[item.first] = item.second;
+                one["reference"] = r;
+            }
             if (!t.parameters.empty())
             {
                 json p = json::object();

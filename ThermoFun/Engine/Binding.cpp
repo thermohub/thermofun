@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/Methods/Symbolic/SymbolicMethod.h>
 #include "Binding.h"
 
 #include <algorithm>
@@ -49,11 +50,17 @@ auto problem(const SubstanceRecord& record, const std::string& code, const std::
 
 } // namespace
 
-auto canBind(const SubstanceRecord& record) -> bool
+auto canBind(const SubstanceRecord& record, const std::map<std::string, MethodDefinition>* definitions) -> bool
 {
     int bases = 0;
     for (const auto& a : record.methods)
     {
+        if (definitions && !MethodCatalog::instance().find(a.method, OperatesOn::Substance))
+            if (const auto it = definitions->find(a.method); it != definitions->end() && isSymbolicSubstanceDefinition(it->second))
+            {
+                bases += isSymbolicBase(it->second);
+                continue;
+            }
         if (!MethodRegistry::instance().hasSubstanceMethod(a.method))
             return false;
         const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance);
@@ -141,7 +148,13 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConv
 {
     auto bound = std::make_shared<BoundSubstance>();
     for (const auto& a : record->methods)
-        bound->order.push_back(MethodRegistry::instance().create(a, *record));
+    {
+        const auto it = conventions.definitions && !MethodCatalog::instance().find(a.method, OperatesOn::Substance) ? conventions.definitions->find(a.method) : std::map<std::string, MethodDefinition>::const_iterator{};
+        if (conventions.definitions && it != conventions.definitions->end() && !MethodCatalog::instance().find(a.method, OperatesOn::Substance))
+            bound->order.push_back(symbolicMethod(it->second, a));
+        else
+            bound->order.push_back(MethodRegistry::instance().create(a, *record));
+    }
     std::stable_sort(bound->order.begin(), bound->order.end(), [](const auto& a, const auto& b) {
         return std::make_tuple(groupOf(a->spec()), a->spec().effects.rank, a->spec().id) <
                std::make_tuple(groupOf(b->spec()), b->spec().effects.rank, b->spec().id);

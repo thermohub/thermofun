@@ -294,6 +294,7 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
     {
         m.source_form = optionalString(node["source"], "form");
         m.source_expression = optionalString(node["source"], "expression");
+        m.source_json = node["source"].dump();
     }
     if (node.contains("expression") && node["expression"].is_object())
         for (const auto& item : node["expression"].items())
@@ -318,6 +319,11 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
             ReferenceTestCase test;
             if (t.contains("T") && t["T"].is_number()) test.T = t["T"].get<double>();
             if (t.contains("P") && t["P"].is_number()) test.P = t["P"].get<double>();
+            if (t.contains("piece") && t["piece"].is_number()) test.piece = t["piece"].get<int>();
+            if (t.contains("reference") && t["reference"].is_object())
+                for (const auto& item : t["reference"].items())
+                    if (item.value().is_number())
+                        test.reference[item.key()] = item.value().get<double>();
             if (t.contains("relative_tolerance") && t["relative_tolerance"].is_number())
                 test.relative_tolerance = t["relative_tolerance"].get<double>();
             for (const char* block : {"parameters", "expected"})

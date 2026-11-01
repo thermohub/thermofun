@@ -1,0 +1,30 @@
+kind: symbolic
+tier: 1
+operates_on: substance
+contributes_to:
+- G
+- H
+- S
+- Cp
+parameter_definitions:
+  a:
+    unit: J/(mol.K)
+  Tc:
+    unit: K
+source:
+  form: cp_increment
+  expression: a*(1 - T/Tc)**2
+tests:
+- T: 400.0
+  P: 100000.0
+  parameters:
+    a: 10.0
+    Tc: 800.0
+  expected:
+    Cp: 2.5
+  relative_tolerance: 1.0e-09
+expression:
+  G_increment: a*(2*T**3 - 3*T*(T**2 - 4*T*Tc + 4*Tc*Tr - Tr**2 + log(T**(2*Tc**2)/Tr**(2*Tc**2)))
+    + 6*Tc**2*(T - Tr) + 6*Tc*(-T**2 + Tr**2) - 2*Tr**3)/(6*Tc**2)
+generator: 'thermofun.methods build '
+source_hash: sha256:b01fe34dff683b1fa78f0eb09b3b77322a21940fc7954fd7ba95cc3a2c3a6993
