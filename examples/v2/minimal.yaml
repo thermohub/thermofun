@@ -1,0 +1,45 @@
+# A small database, written by hand. The values of Na+, Cl- and water are those of aq17; halite is from Robie and Hemingway (1995).
+thermohub: 2.0.0-draft.1
+thermodataset:
+  symbol: minimal
+  name: Water, Na+, Cl- and halite
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterIAPWS95
+      - method: JohnsonNorton91
+  Na+:
+    formula: Na+
+    charge: 1
+    class: aqueous_solute
+    aggregate_state: aqueous
+    standard_state_properties: {G: -256142.0, H: -234541.0, S: 58.40864, Cp: 38.11823, V: {value: -0.12079637, unit: J/bar}}
+    methods:
+      - method: HKF88
+        units: {energy: cal, pressure: bar}
+        parameters: {a1: 0.1839, a2: -228.50002, a3: 3.256, a4: -27260.0, c1: 18.18, c2: -29810.0, omega: 33060.0}
+  Cl-:
+    formula: Cl-
+    charge: -1
+    class: aqueous_solute
+    aggregate_state: aqueous
+    standard_state_properties: {G: -131290.0, H: -167080.0, S: 56.735043, Cp: -122.490364, V: {value: 1.7341, unit: J/bar}}
+    methods:
+      - method: HKF88
+        units: {energy: cal, pressure: bar}
+        parameters: {a1: 0.4032, a2: 480.1, a3: 5.563, a4: -28469.998, c1: -4.4, c2: -57140.004, omega: 145600.0}
+  Halite:
+    formula: NaCl
+    class: component
+    aggregate_state: crystal
+    standard_state_properties: {G: -384212.0, H: -411153.0, S: 72.13, Cp: 50.5, V: {value: 2.7015, unit: J/bar}}
+    methods:
+      - method: ConstantCp
+      - method: ConstantVolume
+reactions:
+  Halite-dissolution:
+    equation: Halite = Na+ + Cl-

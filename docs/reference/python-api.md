@@ -1,4 +1,9 @@
-# Python interface
+<!--
+ SPDX-License-Identifier: LGPL-3.0-or-later
+ Copyright (C) 2026 ThermoFun contributors
+-->
+
+# Python API
 
 The Python package (`import thermofun as tf`, built with pybind11 from `python/src/thermofun`) exposes the public
 C++ API of ThermoFun. This page lists what is available; the units are those of the C++ API (K, Pa, J/mol).
@@ -32,7 +37,7 @@ A method can be used alone, with no database and no engine. The module `thermofu
 - `solventMethod(id, implementation=...)` gives an equation of state of water with `properties(T, P, state)`;
 - `dielectricMethod(id, implementation=...)` gives a dielectric model with `properties(T, P, solvent, state)`;
 - `reactionMethod(id, ...)` gives a method of a reaction with `calculate(T, P, incoming, solvent)`;
-- `catalog()` lists all methods. The pages in `docs/reference/methods` describe them.
+- `catalog()` lists all methods. The pages in [Methods](methods/index.md) describe them.
 
 The pressure of the solvent models is an input (the saturation line, `P = 0`, is available through `ThermoEngine`).
 

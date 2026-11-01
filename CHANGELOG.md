@@ -19,8 +19,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   can be assigned as a whole.
 - `Database::revision`: a number that changes with each change of the records.
 
+- Built-in constants of the methods in `ThermoFun/Methods/ParameterSets/`, each with a description, its units and its source. A record can replace a value for itself, and a model can have variants (`default: false`, chosen with `parameter_set`).
+- `THERMOFUN_PARAMETER_PATH`: a folder with more variants, read with no rebuild.
+- The CMake option `THERMOFUN_PHYSICAL_CONSTANTS`: `codata1986` (the default) or `codata2018`.
+- The dielectric models `HelgesonKirkham74` and `BradleyPitzer79` (issue 82). The HKF coefficients of Tanger and Helgeson (1988) now give their published volume and heat capacity.
+- Symbolic methods of substances and reactions, with the CMake option `TFUN_USE_SYMENGINE`, and `python -m thermofun.method_tool` with its source forms.
+- `ThermoEngine::calculationPath`: how a record is calculated. It calculates nothing.
+- Derivatives by a built-in constant, also through the water into a solute.
+- Tutorials, how-to pages, a glossary, and reference and explanation pages in `docs/`.
+
+### Changed
+
+- A gas with a fluid method or `IdealGas` has `RT ln(P/Pr)` in G on every path. A consumer that adds this term sets the two options of the engine.
+- `WaterHGK84` with `reaktoro` has its triple point at 273.16 K, as the other water models. G of water changes by about 0.63 J/mol.
+- R is 8.31451 J/(mol K) in Churakov-Gottschalk too, and ln(10) has all its digits.
+- `JohnsonNorton91` with `gems` reads the water of the record. Water in the gas state now has a dielectric constant that agrees with its density.
+- `docs/GUIDE.md` and `docs/python.md` are now separate pages: see `docs/index.md`.
+
 ### Fixed
 
+- On the steam tables, G and A of water now have the term `-Str (T - Ttr)`. At 283 K and 100 bar, G was -466 J/mol and is now 166 J/mol.
+- U and A of the triple point data `NEA_HGK` and `NEA_IAPWS`: the volume of water was in J/bar and the volume of the gases in L.
+- A misspelled `parameter_set` is an error. Before, the record used the default values with no message.
+- A reaction from its reactants that needs a substance from this reaction gives an error that names the cycle.
+- The method tool keeps logarithms apart: `log(T**a/Tr**a)` overflowed for a large `a`.
 - Cached results are no longer returned after a change of the conventions, the preferences, the database
   conventions or the records. Before, a change in place (for example `engine.conventions.water_properties`)
   or `appendData` after a first calculation gave the old result.

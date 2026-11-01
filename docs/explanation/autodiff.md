@@ -205,9 +205,6 @@ it is given. Tests: `pytests/test_errors.py`.
 - Quartz `V` has zero `ddt`/`ddp` exactly at the reference state (298.15 K, 1 bar): `SolidMurnaghanHP98.cpp` takes a
   constant-volume branch there. CORK has a branch at 5 kbar.
 - Near the critical point the derivatives of the HGK/LVS water are more self-consistent than finite differences of the values.
-- Churakov-Gottschalk fluid mixtures (more than one component) still use the finite differences of the original code (`DELTA = 1e-5` in
-  the composition derivatives and in the residual functions); the pure fluids used by ThermoFun are exact (section 4). `G` of a CG fluid
-  has no residual contribution (the `back correction` in `FluidCGF.cpp` cancels it, as in master); not changed.
 - `Cv` follows `Cp - T V alpha^2/beta` only where the substance has a molar volume with `dV/dT != 0` and `dV/dP < 0`.
   For the aqueous ions (partial molar volumes with `dV/dP > 0`, the electrostriction term) the relation has no meaning
   and `Cv = Cp` is kept; the `ddt` and `ddp` of `Cv` are those of `Cp` (exact only for `dV/dT = 0`).

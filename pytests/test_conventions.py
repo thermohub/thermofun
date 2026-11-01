@@ -23,7 +23,7 @@ SIGMA_CO2 = 5.74 + 2 * 102.58
 SIGMA_NACL = 51.3 + 111.54
 BASE = {"G": -1.2e6, "H": -1.3e6, "S": 90.0, "Cp": 80.0, "V": 3e-5}
 WATER = json.loads(tf.Database("pytests/test-aq17-gem-lma-thermofun.json").toJson(True))["substances"]["H2O@"]
-LN_10 = 2.302585093   # the value of the engine
+LN_10 = math.log(10)
 VOLUME = [{"method": "ConstantCp"}, {"method": "ConstantVolume"}]   # U and A need a volume
 
 
