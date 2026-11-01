@@ -13,6 +13,7 @@ import argparse
 import difflib
 import json
 import os
+import re
 import sys
 
 import thermofun as tf
@@ -81,6 +82,25 @@ def example_lines(spec, example):
     return lines
 
 
+def _ranges(names):
+    """a1, a2, a3 as a1 to a3."""
+    out, run = [], []
+    def close():
+        if len(run) > 2:
+            out.append("`%s` to `%s`" % (run[0][0], run[-1][0]))
+        else:
+            out.extend("`%s`" % r[0] for r in run)
+        run.clear()
+    for name in names:
+        match = re.fullmatch(r"(.*?)(\d+)", name)
+        step = (name, match.group(1), int(match.group(2))) if match else (name, None, None)
+        if run and not (match and run[-1][1] == step[1] and run[-1][2] + 1 == step[2]):
+            close()
+        run.append(step)
+    close()
+    return out
+
+
 def method_page(spec, example):
     lines = ["# " + spec["id"], "", spec["title"] + ".", "", spec["summary"], ""]
     if spec["citation"]:
@@ -104,12 +124,22 @@ def method_page(spec, example):
         lines += ["## Implementations", "",
                   "%s. The default is `%s`. Use another only to reproduce the results of that code." %
                   (", ".join("`%s`" % i for i in spec["implementations"]), spec["implementations"][0]), ""]
-    if spec["parameters"]:
+    own = [p for p in spec["parameters"] if not p["constant"]]
+    built_in = [p["name"] for p in spec["parameters"] if p["constant"]]
+    if own:
         lines += ["## Parameters", "", "| Name | Unit of the source | SI unit | Required | Default | Description |", "|---|---|---|---|---|---|"]
-        for p in spec["parameters"]:
+        for p in own:
             default = "" if p["default"] is None else _number(p["default"])
             lines.append("| %s | %s | %s | %s | %s | %s |" % (p["name"], _cell(p["source_unit"]), _cell(p["si_unit"]), "yes" if p["required"] else "no", default, _cell(p["description"])))
         lines.append("")
+    if built_in:
+        lines += ["## Built-in constants", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
+                  "A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.", ""]
+        for s in spec["constant_sets"]:
+            if s["implementation"]:
+                lines += ["Implementation `%s`." % s["implementation"], ""]
+            lines += [s["description"], "", "Source: %s." % s["reference"], ""]
+        lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
     lines += ["## Example", ""]
     if example:
         lines += ["From %s in `%s`." % (example[2], example[0]), "", "```yaml"] + example_lines(spec, example) + ["```", ""]

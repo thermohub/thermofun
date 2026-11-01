@@ -14,6 +14,7 @@
 #include <ThermoFun/Methods/Fluids/FluidPRSV.h>
 #include <ThermoFun/Methods/Fluids/FluidSRK.h>
 #include <ThermoFun/Methods/Fluids/FluidSTP.h>
+#include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodHelpers.h>
 
 namespace ThermoFun::v2 {
@@ -49,6 +50,7 @@ auto fluid(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, con
         FluidInputs inputs;
         inputs.lower_T = data.record.lower_T;
         inputs.formula = data.record.formula;
+        inputs.constants = data.record.constants;
         for (std::size_t i = 0; i < parameters.values.size(); ++i)
         {
             const bool pressure = i == 1 && data.row->pressure_at_place_1;
@@ -100,6 +102,12 @@ auto rowOf(const std::string& id) -> const FluidRow&
 
 auto fluidMethod(const std::string& id, std::vector<double> parameters, FluidRecord record) -> std::shared_ptr<const SubstanceMethod>
 {
+    std::size_t expected = 0;
+    if (const auto* spec = MethodCatalog::instance().find(id, OperatesOn::Substance))
+        for (const auto& p : spec->parameters)
+            expected += p.constant ? 1 : 0;
+    if (record.constants.size() != expected)
+        funError("Cannot make the method " + id, "It needs " + std::to_string(expected) + " constants and has " + std::to_string(record.constants.size()) + ".", __LINE__, __FILE__);
     return makeMethod(id.c_str(), Parameters{std::move(parameters), {std::move(record), &rowOf(id)}},
                       [id](auto& state, const auto& in, const Parameters& p) { fluid(state, in, p, id.c_str()); },
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) { fluidInfo(out, in, p.data); });

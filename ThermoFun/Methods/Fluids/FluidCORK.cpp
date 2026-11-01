@@ -16,10 +16,17 @@ namespace {
 // The fluids that have an equation of their own; another fluid goes by corresponding states
 constexpr char CEM_GAS_ = 'G', CEM_H2O_ = 'V', CEM_CO2_ = 'C', CEM_CH4_ = 'M', CEM_N2_ = 'T', CEM_H2_ = 'H', CEM_O2_ = 'O', CEM_AR_ = 'A', CEM_PO_ = 'P', CEM_NP_ = 'Q';
 
+/// The places of the constants of the model: the order of the catalog, and of its file in Methods/ParameterSets.
+enum Constant
+{
+    cs_a0, cs_a1, cs_b0, cs_c0, cs_c1, cs_d0, cs_d1, co2_a0, co2_a1, co2_a2, co2_b, co2_c0, co2_c1, co2_d0, co2_d1, co2_e0, co2_p0, h2o_a0, h2o_a1, h2o_a2, h2o_a3, h2o_a4, h2o_a5, h2o_a6, h2o_a7, h2o_a8, h2o_a9, h2o_b, h2o_c0, h2o_c1, h2o_d0, h2o_d1, h2o_e0, h2o_p0, h2o_psat0, h2o_psat2, h2o_psat3, h2o_psat5, h2o_T0, h2o_Tsuper
+};
+
 /// The state of one calculation. Fugpure: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
 struct Work
 {
     real Tk, Pbar, R_CONST = 8.31451, RR = 0.00831451, Pkb;
+    const double* k = nullptr;  ///< the constants of the model
     char EosCode = 'G';
     real Eosparm[2];
     real Fugpure[6];
@@ -82,13 +89,13 @@ long int FugacityCorresponding(Work& w)
     real grs, hrs, srs, cprs, drt, drtt, drp, drpp, drtp,
             dvt, dvtt, dvp, dvpp, dvtp;
 
-    a0 = 5.45963e-5;
-    a1 = -8.6392e-6;
-    b0 = 9.18301e-4;
-    c0 = -3.30558e-5;
-    c1 = 2.30524e-6;
-    d0 = 6.93054e-7;
-    d1 = -8.38293e-8;
+    a0 = w.k[cs_a0];
+    a1 = w.k[cs_a1];
+    b0 = w.k[cs_b0];
+    c0 = w.k[cs_c0];
+    c1 = w.k[cs_c1];
+    d0 = w.k[cs_d0];
+    d1 = w.k[cs_d1];
     tcr = w.Eosparm[0];
     pcr = w.Eosparm[1]/1000.;  // kbar
     a = a0*pow(tcr,2.)*sqrt(tcr)/pcr + a1*tcr*sqrt(tcr)/pcr*w.Tk;
@@ -185,22 +192,22 @@ long int FugacityCO2(Work& w)
     real grs, hrs, srs, cprs, cvrs, dpr, dprr, dpt, dptt, dprt,
             drt, drtt, drp, drpp, drtp, dpv, dvt;
 
-    a0 = 659.8;
-    a1 = 0.21078;
-    a2 = -6.3976e-4;
-    b = 3.057;
-    c0 = -1.78198e-1;
-    c1 = 2.45317e-5;
-    d0 = 5.40776e-3;
-    d1 = -1.59046e-6;
-    e0 = 0.;
+    a0 = w.k[co2_a0];
+    a1 = w.k[co2_a1];
+    a2 = w.k[co2_a2];
+    b = w.k[co2_b];
+    c0 = w.k[co2_c0];
+    c1 = w.k[co2_c1];
+    d0 = w.k[co2_d0];
+    d1 = w.k[co2_d1];
+    e0 = w.k[co2_e0];
     a = a0 + a1*w.Tk + a2*pow(w.Tk,2.);
     da = a1 + 2.*a2*w.Tk;
     d2a = 2.*a2;
     c = c0 + c1*w.Tk;
     d = d0 + d1*w.Tk;
     e = e0;
-    p0 = 5.;
+    p0 = w.k[co2_p0];
 
     // molar volume and fugacity coefficient
     phState = 1;
@@ -361,56 +368,56 @@ long int FugacityH2O(Work& w)
     real grs, hrs, srs, cprs, cvrs, dpr, dprr, dpt, dptt, dprt,
             drt, drtt, drp, drpp, drtp, dpv, dvt;
 
-    a0 = 1113.4;
-    a1 = -0.88517;
-    a2 = 4.53e-3;
-    a3 = -1.3183e-5;
-    a4 = -0.22291;
-    a5 = -3.8022e-4;
-    a6 = 1.7791e-7;
-    a7 = 5.8487;
-    a8 = -2.1370e-2;
-    a9 = 6.8133e-5;
-    b = 1.465;
-    c0 = -8.909e-2;
-    c1 = 0.;
-    d0 = 1.9853e-3;
-    d1 = 0.;
-    e0 = 8.0331e-2;
+    a0 = w.k[h2o_a0];
+    a1 = w.k[h2o_a1];
+    a2 = w.k[h2o_a2];
+    a3 = w.k[h2o_a3];
+    a4 = w.k[h2o_a4];
+    a5 = w.k[h2o_a5];
+    a6 = w.k[h2o_a6];
+    a7 = w.k[h2o_a7];
+    a8 = w.k[h2o_a8];
+    a9 = w.k[h2o_a9];
+    b = w.k[h2o_b];
+    c0 = w.k[h2o_c0];
+    c1 = w.k[h2o_c1];
+    d0 = w.k[h2o_d0];
+    d1 = w.k[h2o_d1];
+    e0 = w.k[h2o_e0];
     c = c0 + c1*w.Tk;
     d = d0 + d1*w.Tk;
     e = e0;
     //dc = c1;
     //dd = d1;
-    p0 = 2.;
+    p0 = w.k[h2o_p0];
 
     // molar volume and fugacity coefficient
-    if (w.Tk > 695.)   // supercritical fluid phase
+    if (w.Tk > w.k[h2o_Tsuper])   // supercritical fluid phase
     {
         phState = 1;
-        a = a0 + a4*(w.Tk-673.) + a5*pow((w.Tk-673.),2.) + a6*pow((w.Tk-673.),3.);
-        da = -a4 - 2.*a5*(673.-w.Tk) - 3.*a6*pow((673.-w.Tk),2.);
-        d2a = 2.*a5 + 6.*a6*(673.-w.Tk);
+        a = a0 + a4*(w.Tk-w.k[h2o_T0]) + a5*pow((w.Tk-w.k[h2o_T0]),2.) + a6*pow((w.Tk-w.k[h2o_T0]),3.);
+        da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
+        d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
         VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc);
     }
 
     else   // subcritical region
     {
-        Psat = (-13.627e-3) + (7.29395e-7)*pow(w.Tk,2.) - (2.34622e-9)*pow(w.Tk,3.) + (4.83607e-15)*pow(w.Tk,5.);
+        Psat = w.k[h2o_psat0] + w.k[h2o_psat2]*pow(w.Tk,2.) - w.k[h2o_psat3]*pow(w.Tk,3.) + w.k[h2o_psat5]*pow(w.Tk,5.);
         if (w.Pkb < Psat)
         {
             phState = 1;   // vapor
-            if (w.Tk < 673.)
+            if (w.Tk < w.k[h2o_T0])
             {
-                a = a0 + a7*(673.-w.Tk) + a8*pow((673.-w.Tk),2.) + a9*pow((673.-w.Tk),3.);
-                da = -a7 - 2.*a8*(673.-w.Tk) - 3.*a9*pow((673.-w.Tk),2.);
-                d2a = 2.*a8 + 6.*a9*(673.-w.Tk);
+                a = a0 + a7*(w.k[h2o_T0]-w.Tk) + a8*pow((w.k[h2o_T0]-w.Tk),2.) + a9*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a7 - 2.*a8*(w.k[h2o_T0]-w.Tk) - 3.*a9*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a8 + 6.*a9*(w.k[h2o_T0]-w.Tk);
             }
             else
             {
-                a = a0 + a4*(673.-w.Tk) + a5*pow((673.-w.Tk),2.) + a6*pow((673.-w.Tk),3.);
-                da = -a4 - 2.*a5*(673.-w.Tk) - 3.*a6*pow((673.-w.Tk),2.);
-                d2a = 2.*a5 + 6.*a6*(673.-w.Tk);
+                a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
             VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc);
         }
@@ -418,47 +425,47 @@ long int FugacityH2O(Work& w)
         else
         {
             phState = 1;   // gaseous phase at Psat
-            if (w.Tk < 673.)
+            if (w.Tk < w.k[h2o_T0])
             {
-                a = a0 + a7*(673.-w.Tk) + a8*pow((673.-w.Tk),2.) + a9*pow((673.-w.Tk),3.);
-                da = -a7 - 2.*a8*(673.-w.Tk) - 3.*a9*pow((673.-w.Tk),2.);
-                d2a = 2.*a8 + 6.*a9*(673.-w.Tk);
+                a = a0 + a7*(w.k[h2o_T0]-w.Tk) + a8*pow((w.k[h2o_T0]-w.Tk),2.) + a9*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a7 - 2.*a8*(w.k[h2o_T0]-w.Tk) - 3.*a9*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a8 + 6.*a9*(w.k[h2o_T0]-w.Tk);
             }
             else
             {
-                a = a0 + a4*(673.-w.Tk) + a5*pow((673.-w.Tk),2.) + a6*pow((673.-w.Tk),3.);
-                da = -a4 - 2.*a5*(673.-w.Tk) - 3.*a6*pow((673.-w.Tk),2.);
-                d2a = 2.*a5 + 6.*a6*(673.-w.Tk);
+                a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
             VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g1);
 
             phState = 2; // liquid phase at Psat
-            if (w.Tk < 673.)
+            if (w.Tk < w.k[h2o_T0])
             {
-                a = a0 + a1*(673.-w.Tk) + a2*pow((673.-w.Tk),2.) + a3*pow((673.-w.Tk),3.);
-                da = -a1 - 2.*a2*(673.-w.Tk) - 3.*a3*pow((673.-w.Tk),2.);
-                d2a = 2.*a2 + 6.*a3*(673.-w.Tk);
+                a = a0 + a1*(w.k[h2o_T0]-w.Tk) + a2*pow((w.k[h2o_T0]-w.Tk),2.) + a3*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a1 - 2.*a2*(w.k[h2o_T0]-w.Tk) - 3.*a3*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a2 + 6.*a3*(w.k[h2o_T0]-w.Tk);
             }
             else
             {
-                a = a0 + a4*(673.-w.Tk) + a5*pow((673.-w.Tk),2.) + a6*pow((673.-w.Tk),3.);
-                da = -a4 - 2.*a5*(673.-w.Tk) - 3.*a6*pow((673.-w.Tk),2.);
-                d2a = 2.*a5 + 6.*a6*(673.-w.Tk);
+                a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
             VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g2);
 
             phState = 2; // fluid phase at w.Pkb
-            if (w.Tk < 673.)
+            if (w.Tk < w.k[h2o_T0])
             {
-                a = a0 + a1*(673.-w.Tk) + a2*pow((673.-w.Tk),2.) + a3*pow((673.-w.Tk),3.);
-                da = -a1 - 2.*a2*(673.-w.Tk) - 3.*a3*pow((673.-w.Tk),2.);
-                d2a = 2.*a2 + 6.*a3*(673.-w.Tk);
+                a = a0 + a1*(w.k[h2o_T0]-w.Tk) + a2*pow((w.k[h2o_T0]-w.Tk),2.) + a3*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a1 - 2.*a2*(w.k[h2o_T0]-w.Tk) - 3.*a3*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a2 + 6.*a3*(w.k[h2o_T0]-w.Tk);
             }
             else
             {
-                a = a0 + a4*(673.-w.Tk) + a5*pow((673.-w.Tk),2.) + a6*pow((673.-w.Tk),3.);
-                da = -a4 - 2.*a5*(673.-w.Tk) - 3.*a6*pow((673.-w.Tk),2.);
-                d2a = 2.*a5 + 6.*a6*(673.-w.Tk);
+                a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
+                da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
+                d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
             VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, g3);  // corrected from (phState, w.Pkb, psat ...)
             fc = g1/g2*g3;  // this formula needs checking
@@ -518,11 +525,12 @@ long int FugacityH2O(Work& w)
 }
 
 /// The fugacity and the residual functions of a pure fluid. Outside the range of the model, the fluid is an ideal gas.
-void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code, real* parameters, real* out)
+void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code, real* parameters, const double* constants, real* out)
 {
     if ((Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5))
     {
         Work w;
+        w.k = constants;
         w.Tk = Tk;
         w.Pbar = Pbar;
         w.Pkb = Pbar/1000.;
@@ -558,7 +566,7 @@ auto thermoPropertiesFluidCORK(real TK, real Pbar, const FluidInputs& subst, The
         CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    fugacityProperties(TK, Pbar, TClow, Eos_Code, CPg.data(), FugProps);
+    fugacityProperties(TK, Pbar, TClow, Eos_Code, CPg.data(), subst.constants.data(), FugProps);
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] ); // from ideal gas at 1 bar and givent T to pure real gas/fluid at T and P

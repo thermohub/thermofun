@@ -263,6 +263,7 @@ auto parameterSetJson(const MethodParameterSet& p, const std::vector<MethodDefin
                 slots[q.name] = q.unit.empty() ? "1" : q.unit;
     json out = json::object();
     out["method"] = p.method;
+    if (!p.description.empty()) out["description"] = p.description;
     if (!p.parameters.empty())
     {
         json values = json::object();

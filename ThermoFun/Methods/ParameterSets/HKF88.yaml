@@ -1,11 +1,9 @@
-# The universal constants of the HKF equation of state (Tanger and Helgeson 1988) and of its g function (Shock et al. 1992).
-# eta in A cal/mol, theta in K, psi and Pr in bar, Tr in K, zeta in A: as in the formulas. a_g, b_g in the units of the paper, a_f the coefficients of the shaded region.
-# The two implementations have different digits of these numbers: both are kept, as in decision 0026.
 thermohub: 2.0.0-draft.1
 parameter_sets:
   HKF88_reaktoro_constants_v1:
     method: HKF88
     implementation: reaktoro
+    description: "Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code."
     reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
     parameters:
       eta: 1.66027e+05
@@ -29,6 +27,7 @@ parameter_sets:
   HKF88_gems_constants_v1:
     method: HKF88
     implementation: gems
+    description: "Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code."
     reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
     parameters:
       eta: 0.166027e6

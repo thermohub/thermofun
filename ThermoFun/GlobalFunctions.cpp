@@ -63,7 +63,7 @@ auto availableReactionTPMethods() -> const std::string
 }
 
 const std::unordered_map<std::string, WaterTripleProperties>& getWaterTripleData() {
-    return waterTripleData;
+    return waterTripleData();
 }
 
 } // namespace ThermoFun

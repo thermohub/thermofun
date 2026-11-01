@@ -132,3 +132,32 @@ def test_a_record_can_replace_a_constant_of_hkf():
 def test_a_constant_is_not_a_parameter_to_fit():
     names = [h.key()[2] for h in tf.ThermoEngine("pytests/data/v2/hkf.json").parameters("Na+")]
     assert "a1" in names and "eta" not in names
+
+
+def test_each_built_in_set_says_what_it_holds_and_where_it_comes_from():
+    sets = [(spec["id"], s) for spec in tf.methods.catalog() for s in spec["constant_sets"]]
+    assert len(sets) >= 9
+    for method, s in sets:
+        assert len(s["description"]) > 40, method
+        assert s["reference"], method
+
+
+def test_the_page_of_a_method_gives_its_constants_in_one_place():
+    from thermofun import docs
+    spec = next(s for s in tf.methods.catalog() if s["id"] == "SverjenskyEtAl14")
+    page = docs.method_page(spec, None)
+    assert "## Built-in constants" in page and spec["constant_sets"][0]["description"] in page
+    assert "| a1 |" not in page
+
+
+def test_each_file_of_constants_describes_each_set():
+    import pathlib
+    import re
+    folder = pathlib.Path(__file__).resolve().parent.parent / "ThermoFun" / "Methods" / "ParameterSets"
+    files = list(folder.glob("*.yaml"))
+    assert files
+    for file in files:
+        text = file.read_text()
+        sets = len(re.findall(r"^  \w+:$", text, re.M))
+        assert sets and len(re.findall(r'^    description: ".{40,}"$', text, re.M)) == sets, file.name
+        assert len(re.findall(r'^    reference: ".+"$', text, re.M)) == sets, file.name

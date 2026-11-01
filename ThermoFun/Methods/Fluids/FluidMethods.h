@@ -19,6 +19,7 @@ struct FluidRecord
     double lower_T = 298.15;     ///< K, the lower T of the heat capacity of the record
     std::string formula;         ///< CORK and Sterner-Pitzer have special forms for CO2 and H2O
     Applicability applicability;
+    std::vector<double> constants; ///< of the model, in the order of the catalog
 };
 
 /// A fluid equation of state: PRSV86, ChurakovGottschalk03, SoaveRedlichKwong72, SternerPitzer94, PengRobinson78 or CorkHP91. It adds its terms to G, H

@@ -3,6 +3,7 @@
 
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 
+#include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/IO/V2/V2Reader.h>
 
@@ -45,3 +46,22 @@ auto builtinParameterSets() -> const std::map<std::string, MethodParameterSet>&
 }
 
 } // namespace ThermoFun::v2
+
+namespace ThermoFun {
+
+auto waterTripleData() -> const std::unordered_map<std::string, WaterTripleProperties>&
+{
+    static const auto data = [] {
+        std::unordered_map<std::string, WaterTripleProperties> out;
+        for (const auto& [key, set] : v2::builtinParameterSets())
+            if (set.method == "WaterTriplePoint")
+            {
+                const auto joules = [&set = set](const char* name) { return set.parameters.at(name).value * cal_to_J; };
+                out[set.implementation] = {joules("Str"), joules("Gtr"), joules("Htr"), joules("Utr"), joules("Atr")};
+            }
+        return out;
+    }();
+    return data;
+}
+
+} // namespace ThermoFun

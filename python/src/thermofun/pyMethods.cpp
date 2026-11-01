@@ -11,6 +11,7 @@
 #include <pybind11/stl.h>
 
 #include <ThermoFun/IO/Legacy/LegacyMethodMap.h>
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <ThermoFun/Methods/Evaluate.h>
 #include <ThermoFun/Methods/Minerals/CpPolynomial.h>
 #include <ThermoFun/Methods/Minerals/ReferenceMethods.h>
@@ -148,10 +149,21 @@ void exportMethods(py::module& parent)
                 py::dict one;
                 one["name"] = p.name; one["si_unit"] = p.si_unit; one["source_unit"] = p.source_unit; one["required"] = p.required;
                 one["description"] = p.description;
+                one["constant"] = p.constant;
                 one["default"] = p.default_si ? py::cast(*p.default_si) : py::none();
                 parameters.append(one);
             }
             row["parameters"] = parameters;
+            py::list constantSets;
+            for (const auto& [key, set] : v2::builtinParameterSets())
+                if (set.method == spec.id)
+                {
+                    py::dict one;
+                    one["symbol"] = set.symbol; one["implementation"] = set.implementation;
+                    one["description"] = set.description; one["reference"] = set.reference;
+                    constantSets.append(one);
+                }
+            row["constant_sets"] = constantSets;
             out.append(row);
         }
         return out;

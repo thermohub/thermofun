@@ -61,7 +61,7 @@ auto ThermoEngine::Impl::declaredConvention(const v2::SubstanceRecord& record) c
 /// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
 auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double sign) const -> void
 {
-    const auto wat = waterTripleData.at(database.conventions().water_triple_point_reference);
+    const auto wat = waterTripleData().at(database.conventions().water_triple_point_reference);
     // constants: the derivatives, error and status are not changed
     tps.gibbs_energy.val += sign * wat.Gtr;
     tps.enthalpy.val += sign * wat.Htr;

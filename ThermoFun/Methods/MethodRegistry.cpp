@@ -185,7 +185,7 @@ MethodRegistry::MethodRegistry()
                 const auto it = a.parameters.find(n);
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
-            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability};
+            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability, constantsOf(a)};
             bool found = false;
             for (const auto& other : r.methods)
                 if (other.method == "CpPolynomial" && !found)
@@ -239,7 +239,7 @@ MethodRegistry::MethodRegistry()
     });
     add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
     add("AndersonEtAl91", "", [](A, R) { return andersonEtAl91Method(); });
-    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a), r.symbol); });
+    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a), r.symbol, constantsOf(a).front()); });
 
     // "" is the default implementation, the first one of the catalog
     auto solvent = [this](const char* id, const char* implementation, SolventFactory f) {

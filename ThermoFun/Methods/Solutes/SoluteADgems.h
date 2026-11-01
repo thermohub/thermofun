@@ -9,7 +9,7 @@
 namespace ThermoFun {
 
 void Akinfiev_EOS_increments(real T, real P, real Gig, real Sig, real CPig,
-        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, const std::vector<real>& ADparam,
+        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, const std::vector<real>& ADparam, double MW,
         real &Geos, real &Veos, real &Seos, real &CPeos, real &Heos );
 
 /// Returns the thermodynamic properties of an aqueous solute using the Akinfiev and Diamond EOS
@@ -21,7 +21,7 @@ void Akinfiev_EOS_increments(real T, real P, real Gig, real Sig, real CPig,
 /// @param wtp water thermo properties
 /// @param wigp water ideal gas properties
 /// @param wp water solvent properties
-auto thermoPropertiesAqSoluteAD(real T, real P, const std::vector<real>& parameters, const std::string& symbol, ThermoPropertiesSubstanceAD tps, const ThermoPropertiesSubstanceAD& wtp,
+auto thermoPropertiesAqSoluteAD(real T, real P, const std::vector<real>& parameters, double MW, const std::string& symbol, ThermoPropertiesSubstanceAD tps, const ThermoPropertiesSubstanceAD& wtp,
                                 const ThermoPropertiesSubstanceAD&wigp, const PropertiesSolventAD&wp, const ThermoPropertiesSubstanceAD&wtpr, const ThermoPropertiesSubstanceAD&wigpr, const PropertiesSolventAD&wpr) -> ThermoPropertiesSubstanceAD;
 
 }

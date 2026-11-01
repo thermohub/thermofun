@@ -1,11 +1,9 @@
-# The equation of state and the other properties of water as in the code of GEMS: Haar, Gallagher and Kell (1984), Levelt Sengers et al. (1983),
-# viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). In a list, name_1 is the first place of the array of the code.
-# Units are those of the formulas: see the code in Methods/Water/WaterHGK-JNgems.cpp.
 thermohub: 2.0.0-draft.1
 parameter_sets:
   WaterHGK84_gems_constants_v1:
     method: WaterHGK84
     implementation: gems
+    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984); jn: dielectric constant of Johnson and Norton (1991). A record cannot replace these values: the GEMS code reads this table once for all its calculations."
     reference: "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991)"
     parameters:
       ac_wm: 0.1801520000e2

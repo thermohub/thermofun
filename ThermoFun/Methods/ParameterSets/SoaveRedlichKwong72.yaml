@@ -1,0 +1,12 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  SoaveRedlichKwong72_constants_v1:
+    method: SoaveRedlichKwong72
+    description: "Soave-Redlich-Kwong equation of state. a = Oa R2 Tc2/Pc alpha, b = Ob R Tc/Pc, alpha = (1 + m (1 - sqrt(T/Tc)))2, m = m0 + m1 w - m2 w2 with the omega w. All are numbers without units."
+    reference: "Soave G. (1972) Chem. Eng. Sci. 27, 1197-1203"
+    parameters:
+      m0: 0.48
+      m1: 1.574
+      m2: 0.176
+      Oa: 0.42747
+      Ob: 0.08664

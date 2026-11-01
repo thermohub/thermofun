@@ -1,0 +1,35 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  WaterTriplePoint_HKF_HGK_1974:
+    method: WaterTriplePoint
+    implementation: HKF_HGK_1974
+    description: "Properties of liquid water at its triple point, which tie the water models to the geochemical reference: S in cal/(mol K), G, H, U, A in cal/mol. The implementation is the label a database names in its conventions (water_triple_point_reference)."
+    reference: "Helgeson H.C., Kirkham D.H. (1974) Am. J. Sci. 274, 1089-1216, page 1098"
+    parameters:
+      Str: 15.1320
+      Gtr: -56290.0
+      Htr: -68767.0
+      Utr: -67887.0
+      Atr: -55415.0
+  WaterTriplePoint_NEA_HGK:
+    method: WaterTriplePoint
+    implementation: NEA_HGK
+    description: "Properties of liquid water at its triple point for the NEA convention with the HGK water: S in cal/(mol K), G, H, U, A in cal/mol. The implementation is the label a database names in its conventions (water_triple_point_reference)."
+    reference: "Not recorded in the code, which gives only the label NEA_HGK"
+    parameters:
+      Str: 15.1386
+      Gtr: -56279.9
+      Htr: -68766.44
+      Utr: -67921.9
+      Atr: -55434.49
+  WaterTriplePoint_NEA_IAPWS:
+    method: WaterTriplePoint
+    implementation: NEA_IAPWS
+    description: "Properties of liquid water at its triple point for the NEA convention with the IAPWS water: S in cal/(mol K), G, H, U, A in cal/mol. The implementation is the label a database names in its conventions (water_triple_point_reference)."
+    reference: "Not recorded in the code, which gives only the label NEA_IAPWS"
+    parameters:
+      Str: 15.1374
+      Gtr: -56279.9
+      Htr: -68766.76
+      Utr: -67922.22
+      Atr: -55434.49

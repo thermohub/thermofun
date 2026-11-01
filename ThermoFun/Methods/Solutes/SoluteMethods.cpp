@@ -58,6 +58,13 @@ auto soluteReference(const SubstanceInputs<Scalar>& in) -> SoluteReference
 using HKFParameters = MethodParameters<HKFSpecies>;
 using SymbolParameters = MethodParameters<std::string>;
 
+struct AkinfievData
+{
+    std::string symbol;
+    double water_molar_mass = 0.0;  ///< g/mol
+};
+using AkinfievParameters = MethodParameters<AkinfievData>;
+
 auto hkf88Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFSpecies& species) -> void
 {
     if (!in.solvent)
@@ -161,7 +168,7 @@ auto andersonEtAl91(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>
 }
 
 template <typename Scalar>
-auto akinfievDiamond03(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const SymbolParameters& p) -> void
+auto akinfievDiamond03(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const AkinfievParameters& p) -> void
 {
     if constexpr (std::is_same_v<Scalar, double>)
         needsAPass("AkinfievDiamond03");
@@ -174,7 +181,7 @@ auto akinfievDiamond03(SubstanceState<Scalar>& state, const SubstanceInputs<Scal
         const auto incoming = toModel(state);
         const auto& s = *in.solvent;
         const auto& r = *in.solvent_at_reference;
-        setFromModel(state, thermoPropertiesAqSoluteAD(in.T, in.P / bar_to_Pa, parameters, p.data, incoming, s.water, s.ideal_gas_water, s.properties, r.water, r.ideal_gas_water, r.properties));
+        setFromModel(state, thermoPropertiesAqSoluteAD(in.T, in.P / bar_to_Pa, parameters, p.data.water_molar_mass, p.data.symbol, incoming, s.water, s.ideal_gas_water, s.properties, r.water, r.ideal_gas_water, r.properties));
     }
 }
 
@@ -227,10 +234,10 @@ auto andersonEtAl91Method() -> std::shared_ptr<const SubstanceMethod>
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs&, const auto&) { allCalculated(out); });
 }
 
-auto akinfievDiamond03Method(std::vector<double> parameters, std::string symbol) -> std::shared_ptr<const SubstanceMethod>
+auto akinfievDiamond03Method(std::vector<double> parameters, std::string symbol, double water_molar_mass) -> std::shared_ptr<const SubstanceMethod>
 {
-    return makeMethod("AkinfievDiamond03", SymbolParameters{std::move(parameters), std::move(symbol)},
-                      [](auto& state, const auto& in, const SymbolParameters& p) { akinfievDiamond03(state, in, p); },
+    return makeMethod("AkinfievDiamond03", AkinfievParameters{std::move(parameters), {std::move(symbol), water_molar_mass}},
+                      [](auto& state, const auto& in, const AkinfievParameters& p) { akinfievDiamond03(state, in, p); },
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const auto&) { akinfievDiamond03Info(out, in); });
 }
 

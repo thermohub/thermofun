@@ -41,31 +41,8 @@ struct WaterTripleProperties {
     double Atr; // J/mol
 };
 
-// Create the map with source labels
-static const std::unordered_map<std::string, WaterTripleProperties> waterTripleData = {
-    // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-    { "HKF_HGK_1974", {
-        15.1320 * cal_to_J,
-       -56290.0 * cal_to_J,
-       -68767.0 * cal_to_J,
-       -67887.0 * cal_to_J,
-       -55415.0 * cal_to_J
-    }},
-    { "NEA_HGK", {
-        15.1386 * cal_to_J,
-       -56279.9 * cal_to_J,
-       -68766.44 * cal_to_J,
-       -67921.9 * cal_to_J,
-       -55434.49 * cal_to_J
-    }},
-    { "NEA_IAPWS", {
-        15.1374 * cal_to_J,
-       -56279.9 * cal_to_J,
-       -68766.76 * cal_to_J,
-       -67922.22 * cal_to_J,
-       -55434.49 * cal_to_J
-    }}
-};
+/// The data of water at its triple point, by source. From Methods/ParameterSets/WaterTriplePoint.yaml.
+auto waterTripleData() -> const std::unordered_map<std::string, WaterTripleProperties>&;
 
 } // namespace ThermoFun
 

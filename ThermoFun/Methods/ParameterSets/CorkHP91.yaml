@@ -1,0 +1,47 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  CorkHP91_constants_v1:
+    method: CorkHP91
+    description: "Compensated Redlich-Kwong equation of state, the constants of its three forms, in kJ, kbar and K as in the formulas. cs: any fluid, by corresponding states from Tc and Pc: a = a0 Tc^2.5/Pc + a1 Tc^1.5 T/Pc, b = b0 Tc/Pc, c = c0 Tc/Pc^1.5 + c1 T/Pc^1.5, d = d0 Tc/Pc2 + d1 T/Pc2. co2: a = a0 + a1 T + a2 T2, c = c0 + c1 T, d = d0 + d1 T above p0 in kbar. h2o: a is a polynomial in (T0 - T), with a1 to a3 for the liquid, a7 to a9 for the vapour below T0, a4 to a6 above T0; Tsuper: the T above which H2O is one fluid; psat0, psat2, psat3, psat5: Psat in kbar, a polynomial in T of powers 0, 2, 3, 5."
+    reference: "Holland T.J.B., Powell R. (1991) Contrib. Mineral. Petrol. 109, 265-273"
+    parameters:
+      cs_a0: 5.45963e-5
+      cs_a1: -8.6392e-6
+      cs_b0: 9.18301e-4
+      cs_c0: -3.30558e-5
+      cs_c1: 2.30524e-6
+      cs_d0: 6.93054e-7
+      cs_d1: -8.38293e-8
+      co2_a0: 659.8
+      co2_a1: 0.21078
+      co2_a2: -6.3976e-4
+      co2_b: 3.057
+      co2_c0: -1.78198e-1
+      co2_c1: 2.45317e-5
+      co2_d0: 5.40776e-3
+      co2_d1: -1.59046e-6
+      co2_e0: 0.0
+      co2_p0: 5.0
+      h2o_a0: 1113.4
+      h2o_a1: -0.88517
+      h2o_a2: 4.53e-3
+      h2o_a3: -1.3183e-5
+      h2o_a4: -0.22291
+      h2o_a5: -3.8022e-4
+      h2o_a6: 1.7791e-7
+      h2o_a7: 5.8487
+      h2o_a8: -2.1370e-2
+      h2o_a9: 6.8133e-5
+      h2o_b: 1.465
+      h2o_c0: -8.909e-2
+      h2o_c1: 0.0
+      h2o_d0: 1.9853e-3
+      h2o_d1: 0.0
+      h2o_e0: 8.0331e-2
+      h2o_p0: 2.0
+      h2o_psat0: -13.627e-3
+      h2o_psat2: 7.29395e-7
+      h2o_psat3: 2.34622e-9
+      h2o_psat5: 4.83607e-15
+      h2o_T0: 673.0
+      h2o_Tsuper: 695.0

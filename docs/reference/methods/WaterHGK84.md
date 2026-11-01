@@ -25,175 +25,25 @@ Source: Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983).
 
 | Name | Unit of the source | SI unit | Required | Default | Description |
 |---|---|---|---|---|---|
-| A0_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_5 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_6 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_7 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_8 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_9 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_10 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_11 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_12 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_13 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_14 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_15 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_16 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_17 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A0_18 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A1_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A1_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A1_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A1_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A1_5 | 1 | 1 | no |  | see Methods/ParameterSets |
-| yc_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| yc_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| yc_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| yc_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_5 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_6 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_7 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_8 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_9 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_10 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_11 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_12 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_13 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_14 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_15 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_16 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_17 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_18 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_19 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_20 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_21 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_22 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_23 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_24 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_25 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_26 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_27 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_28 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_29 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_30 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_31 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_32 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_33 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_34 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_35 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ki_36 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_5 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_6 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_7 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_8 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_9 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_10 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_11 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_12 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_13 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_14 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_15 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_16 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_17 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_18 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_19 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_20 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_21 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_22 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_23 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_24 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_25 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_26 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_27 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_28 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_29 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_30 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_31 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_32 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_33 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_34 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_35 | 1 | 1 | no |  | see Methods/ParameterSets |
-| li_36 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_5 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_6 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_7 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_8 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_9 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_10 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_11 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_12 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_13 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_14 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_15 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_16 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_17 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_18 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_19 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_20 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_21 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_22 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_23 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_24 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_25 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_26 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_27 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_28 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_29 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_30 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_31 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_32 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_33 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_34 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_35 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A3_36 | 1 | 1 | no |  | see Methods/ParameterSets |
-| mi_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| mi_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| mi_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| mi_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ni_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ni_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ni_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ni_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| alpha_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| alpha_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| alpha_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| alpha_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| beta_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| beta_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| beta_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| beta_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ri_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ri_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ri_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ri_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ti_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ti_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ti_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| ti_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A4_1 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A4_2 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A4_3 | 1 | 1 | no |  | see Methods/ParameterSets |
-| A4_4 | 1 | 1 | no |  | see Methods/ParameterSets |
-| referenceTemperature | 1 | 1 | no |  | K |
-| referenceDensity | 1 | 1 | no |  | kg/m3 |
-| referenceHelmholtz | 1 | 1 | no |  | J/kg |
-| A20 | 1 | 1 | no |  | coefficient |
-| z0 | 1 | 1 | no |  | coefficient |
 | state | 1 | 1 | no | 0 | 0: liquid, 1: gas |
+
+## Built-in constants
+
+A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+
+Implementation `gems`.
+
+All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984); jn: dielectric constant of Johnson and Norton (1991). A record cannot replace these values: the GEMS code reads this table once for all its calculations.
+
+Source: Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991).
+
+Implementation `reaktoro`.
+
+Helmholtz function of water, Reaktoro implementation. name_N is place N of the array of the code. A0 to A4: coefficients of its four parts; yc, ki, li, mi, ni, alpha, beta, ri, ti, A, z: their exponents and shape constants. referenceTemperature, referenceDensity, referenceHelmholtz: in SI.
+
+Source: Haar L., Gallagher J.S., Kell G.S. (1984) NBS/NRC Steam Tables.
+
+Names: `A0_1` to `A0_18`, `A1_1` to `A1_5`, `yc_1` to `yc_4`, `ki_1` to `ki_36`, `li_1` to `li_36`, `A3_1` to `A3_36`, `mi_1` to `mi_4`, `ni_1` to `ni_4`, `alpha_1` to `alpha_4`, `beta_1` to `beta_4`, `ri_1` to `ri_4`, `ti_1` to `ti_4`, `A4_1` to `A4_4`, `referenceTemperature`, `referenceDensity`, `referenceHelmholtz`, `A20`, `z0`.
 
 ## Example
 

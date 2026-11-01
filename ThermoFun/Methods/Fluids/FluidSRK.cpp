@@ -14,6 +14,12 @@ namespace {
 
 const real R_CONST = 8.31451;
 
+/// The places of the constants of the model: the order of the catalog, and of its file in Methods/ParameterSets.
+enum Constant
+{
+    m0, m1, m2, Oa, Ob
+};
+
 /// The roots of z3 + a2 z2 + a1 z + a0.
 void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
 {
@@ -46,16 +52,16 @@ void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
 }
 
 /// The attractive (a) and repulsive (b) parameters of the equation of state, and the T derivatives of a.
-void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apure, real &bpure, real &da, real &d2a )
+void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apure, real &bpure, real &da, real &d2a, const double* con )
 {
     real Tred, m, alph, ac, sqa, dsqa, d2sqa;
 
     Tred = Tk/Tcrit;
-    m = 0.48 + 1.574*omg - 0.176*pow(omg,2.);
+    m = con[m0] + con[m1]*omg - con[m2]*pow(omg,2.);
     alph = pow(1. + m*(1-sqrt(Tred)), 2.);
-    ac = (0.42747)*pow(R_CONST,2.)*pow(Tcrit,2.) / Pcrit;
+    ac = con[Oa]*pow(R_CONST,2.)*pow(Tcrit,2.) / Pcrit;
     apure = alph*ac;
-    bpure = (0.08664)*R_CONST*Tcrit/Pcrit;
+    bpure = con[Ob]*R_CONST*Tcrit/Pcrit;
     sqa = 1. + m*(1-sqrt(Tred));
     dsqa = -0.5*m/(sqrt(Tred)*Tcrit);
     da = 2.*ac*(sqa*dsqa);
@@ -66,7 +72,7 @@ void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apu
 
 /// The fugacity and the residual functions of a pure fluid. eos: Tcrit, Pcrit, omg, N. pure: a, b, da/dT, d2a/dT2.
 /// out: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
-void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, real* out)
+void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, const double* con, real* out)
 {
     real /*Tcrit, Pcrit, Tred,*/ asrk, bsrk, da, d2a, A, B, a2, a1, a0,
             z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
@@ -152,7 +158,7 @@ void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real*
 }
 
 /// The same with the check of the range: outside of it, the fluid is an ideal gas.
-void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const real* eos, real* out)
+void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const real* eos, const double* con, real* out)
 {
     if ((Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5))
     {
@@ -161,9 +167,9 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
         const real omg = eos[2];
         const real N = eos[3];
         real apure, bpure, da, d2a;
-        ab(Tk, Tcrit, Pcrit, omg, N, apure, bpure, da, d2a);
+        ab(Tk, Tcrit, Pcrit, omg, N, apure, bpure, da, d2a, con);
         const real pure[4] = {apure, bpure, da, d2a};
-        fugacityPure(Tk, Pbar, eos, pure, out);
+        fugacityPure(Tk, Pbar, eos, pure, con, out);
     }
     else
     {
@@ -188,7 +194,7 @@ auto thermoPropertiesFluidSRK(real TK, real Pbar, const FluidInputs& subst, Ther
         CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    fugacityProperties(TK, Pbar, TClow, CPg, FugProps);
+    fugacityProperties(TK, Pbar, TClow, CPg, subst.constants.data(), FugProps);
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );

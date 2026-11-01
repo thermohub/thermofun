@@ -1,9 +1,9 @@
-# The IAPWS-95 formulation of water (Wagner and Pruss 2002). In a list, name_1 is the first place of the array of the code. sat_a1 to sat_a6: the saturation pressure of Wagner and Pruss (1993).
 thermohub: 2.0.0-draft.1
 parameter_sets:
   WaterIAPWS95_reaktoro_constants_v1:
     method: WaterIAPWS95
     implementation: reaktoro
+    description: "IAPWS-95 formulation of water, Reaktoro implementation. name_N is place N of the array of the code. no, gammao: ideal gas part; c, d, t, n: residual part; alpha, beta, gamma, epsilon, a, b, A, B, C, F, E: its Gaussian and non-analytic terms. sat_a1 to sat_a6: saturation pressure of Wagner and Pruss (1993), used by all the water methods that take P = 0 as saturation, so a record cannot replace them."
     reference: "Wagner W., Pruss A. (2002) J. Phys. Chem. Ref. Data 31, 387-535"
     parameters:
       no_1: 0

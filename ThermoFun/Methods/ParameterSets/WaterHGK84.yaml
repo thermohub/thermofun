@@ -1,9 +1,9 @@
-# The Helmholtz function of water of Haar, Gallagher and Kell (1984). In a list, name_1 is the first place of the array of the code. The reference values are in SI.
 thermohub: 2.0.0-draft.1
 parameter_sets:
   WaterHGK84_reaktoro_constants_v1:
     method: WaterHGK84
     implementation: reaktoro
+    description: "Helmholtz function of water, Reaktoro implementation. name_N is place N of the array of the code. A0 to A4: coefficients of its four parts; yc, ki, li, mi, ni, alpha, beta, ri, ti, A, z: their exponents and shape constants. referenceTemperature, referenceDensity, referenceHelmholtz: in SI."
     reference: "Haar L., Gallagher J.S., Kell G.S. (1984) NBS/NRC Steam Tables"
     parameters:
       A0_1: -0.130840393653E+2

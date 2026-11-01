@@ -5,7 +5,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& parameters, const std::string& symbol,
+auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& parameters, double MW, const std::string& symbol,
                                 ThermoPropertiesSubstanceAD tps, const ThermoPropertiesSubstanceAD& wtp,
                                 const ThermoPropertiesSubstanceAD& wigp, const PropertiesSolventAD& wp,
                                 const ThermoPropertiesSubstanceAD& wtpr, const ThermoPropertiesSubstanceAD& wigpr,
@@ -59,7 +59,7 @@ auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& par
     auto bet   = wpr.Beta*1e05;
     auto dalpT = wpr.dAldT;
 
-    Akinfiev_EOS_increments(Tr, Pr, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
+    Akinfiev_EOS_increments(Tr, Pr, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam, MW,
                        Geos298, Veos298, Seos298, CPeos298, Heos298 );
 
     // Getting back ideal gas properties corrected for T of interest
@@ -83,7 +83,7 @@ auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& par
     bet     = wp.Beta*1e05;
     dalpT   = wp.dAldT;
 
-    Akinfiev_EOS_increments(Tk, Pbar, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam,
+    Akinfiev_EOS_increments(Tk, Pbar, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam, MW,
                        Geos, Veos, Seos, CPeos, Heos );
 
     // Getting dissolved gas properties corrected for T,P of interest
@@ -101,21 +101,20 @@ auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& par
 }
 
 void Akinfiev_EOS_increments(real Tk, real /*P*/, real Gig, real Sig, real CPig,
-        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, const std::vector<real>& ADparam,
+        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, const std::vector<real>& ADparam, double MW,
         real &Geos, real &Veos, real &Seos, real &CPeos, real &Heos )
 {
 
     real derP, derT, der2T;
     real deltaB, lnKH, Nw, xi, aa, bb, RT;
     real fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
-    real RR, R_CONST, MW;
+    real RR, R_CONST;
 
     derP = 0.0; derT = 0.0; der2T = 0.0;
     deltaB = 0.0; lnKH = 0.0; Nw = 0.0; xi = 0.0; aa = 0.0; bb = 0.0; RT = 0.0;
     fug = 0.0; vol = 0.0; drhoT = 0.0; drhoP = 0.0; d2rhoT = 0.0; lnfug = 0.0; Gres = 0.0; Sres = 0.0; CPres = 0.0;
     RR = 83.1451;
     R_CONST = R_CONSTANT;
-    MW = 18.01528;
 
     RT = Tk*R_CONST;
     // EOS coefficients

@@ -21,30 +21,17 @@ Source: Zhang and Duan (2005).
 | Name | Unit of the source | SI unit | Required | Default | Description |
 |---|---|---|---|---|---|
 | dew_gibbs | 1 | 1 | no | 0 | 1: the Gibbs energy of the model DEW (P >= 1 kbar) |
-| a1 | 1 | 1 | no |  | coefficient of the equation of state |
-| a2 | 1 | 1 | no |  | coefficient of the equation of state |
-| a3 | 1 | 1 | no |  | coefficient of the equation of state |
-| a4 | 1 | 1 | no |  | coefficient of the equation of state |
-| a5 | 1 | 1 | no |  | coefficient of the equation of state |
-| a6 | 1 | 1 | no |  | coefficient of the equation of state |
-| a7 | 1 | 1 | no |  | coefficient of the equation of state |
-| a8 | 1 | 1 | no |  | coefficient of the equation of state |
-| a9 | 1 | 1 | no |  | coefficient of the equation of state |
-| a10 | 1 | 1 | no |  | coefficient of the equation of state |
-| a11 | 1 | 1 | no |  | coefficient of the equation of state |
-| a12 | 1 | 1 | no |  | coefficient of the equation of state |
-| a13 | 1 | 1 | no |  | coefficient of the equation of state |
-| a14 | 1 | 1 | no |  | coefficient of the equation of state |
-| gamma | 1 | 1 | no |  | coefficient of the exponential term |
-| Tc | 1 | 1 | no |  | critical temperature, K |
-| Vc | 1 | 1 | no |  | critical volume, cm3/mol |
-| R | 1 | 1 | no |  | gas constant, cm3 bar/(K mol) |
-| g1kb_0 | 1 | 1 | no |  | coefficient of G(T, 1 kbar) of DEW, cal/mol, the highest power of T (degC) first |
-| g1kb_1 | 1 | 1 | no |  | coefficient of G(T, 1 kbar) of DEW |
-| g1kb_2 | 1 | 1 | no |  | coefficient of G(T, 1 kbar) of DEW |
-| g1kb_3 | 1 | 1 | no |  | coefficient of G(T, 1 kbar) of DEW |
-| g1kb_4 | 1 | 1 | no |  | coefficient of G(T, 1 kbar) of DEW |
 | state | 1 | 1 | no | 0 | 0: liquid, 1: gas |
+
+## Built-in constants
+
+A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+
+Water at high pressure and temperature. a1 to a14, gamma: coefficients of the equation of state; Tc in K, Vc in cm3/mol, R in cm3 bar/(K mol), as in the formulas. g1kb_0 to g1kb_4: G(T, 1 kbar) of the DEW model, a polynomial in T (degC) in cal/mol, highest power first.
+
+Source: Zhang Z., Duan Z. (2005) Phys. Earth Planet. Inter. 149, 335-354; Sverjensky et al. (2014).
+
+Names: `a1` to `a14`, `gamma`, `Tc`, `Vc`, `R`, `g1kb_0` to `g1kb_4`.
 
 ## Example
 

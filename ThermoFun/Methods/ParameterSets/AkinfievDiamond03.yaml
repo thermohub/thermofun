@@ -1,0 +1,8 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  AkinfievDiamond03_constants_v1:
+    method: AkinfievDiamond03
+    description: "Dissolved gases and neutral species. MW: the molar mass of water in g/mol that the model uses for the volume of water and its mole number. It has other digits than the molar mass of water of the rest of ThermoFun, and is kept to reproduce the model."
+    reference: "Akinfiev N.N., Diamond L.W. (2003) Geochim. Cosmochim. Acta 67, 613-629"
+    parameters:
+      MW: 18.01528

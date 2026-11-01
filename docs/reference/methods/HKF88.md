@@ -32,24 +32,24 @@ Source: Tanger and Helgeson (1988); Shock et al. (1992).
 | c1 | cal/(mol.K) | J/(mol.K) | yes |  | temperature coefficient c1 |
 | c2 | cal.K/mol | J.K/mol | yes |  | temperature coefficient c2 |
 | omega | cal/mol | J/mol | yes |  | conventional Born coefficient |
-| eta | 1 | 1 | no |  | constant of the Born term, A cal/mol |
-| theta | 1 | 1 | no |  | characteristic T of the solvent, K |
-| psi | 1 | 1 | no |  | characteristic P of the solvent, bar |
-| Tr | 1 | 1 | no |  | reference T, K |
-| Pr | 1 | 1 | no |  | reference P, bar |
-| Zr | 1 | 1 | no |  | Born function Z at the reference |
-| Yr | 1 | 1 | no |  | Born function Y at the reference |
-| zeta | 1 | 1 | no |  | constant of the effective radius, A |
-| gr | 1 | 1 | no |  | g function at the reference |
-| ag1 | 1 | 1 | no |  | coefficient of a_g |
-| ag2 | 1 | 1 | no |  | coefficient of a_g |
-| ag3 | 1 | 1 | no |  | coefficient of a_g |
-| bg1 | 1 | 1 | no |  | coefficient of b_g |
-| bg2 | 1 | 1 | no |  | coefficient of b_g |
-| bg3 | 1 | 1 | no |  | coefficient of b_g |
-| af1 | 1 | 1 | no |  | coefficient of f(T) |
-| af2 | 1 | 1 | no |  | coefficient of f(P) |
-| af3 | 1 | 1 | no |  | coefficient of f(P) |
+
+## Built-in constants
+
+A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+
+Implementation `gems`.
+
+Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code.
+
+Source: Tanger and Helgeson (1988); Shock et al. (1992).
+
+Implementation `reaktoro`.
+
+Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. The two implementations have different digits of these numbers, both kept to reproduce each code.
+
+Source: Tanger and Helgeson (1988); Shock et al. (1992).
+
+Names: `eta`, `theta`, `psi`, `Tr`, `Pr`, `Zr`, `Yr`, `zeta`, `gr`, `ag1` to `ag3`, `bg1` to `bg3`, `af1` to `af3`.
 
 ## Example
 

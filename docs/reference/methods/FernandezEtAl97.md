@@ -17,52 +17,15 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 | Legacy names | `water_diel_fern97` |
 | Other names | `Fernandez97Diel` |
 
-## Parameters
+## Built-in constants
 
-| Name | Unit of the source | SI unit | Required | Default | Description |
-|---|---|---|---|---|---|
-| n1 | 1 | 1 | no |  | coefficient of g |
-| n2 | 1 | 1 | no |  | coefficient of g |
-| n3 | 1 | 1 | no |  | coefficient of g |
-| n4 | 1 | 1 | no |  | coefficient of g |
-| n5 | 1 | 1 | no |  | coefficient of g |
-| n6 | 1 | 1 | no |  | coefficient of g |
-| n7 | 1 | 1 | no |  | coefficient of g |
-| n8 | 1 | 1 | no |  | coefficient of g |
-| n9 | 1 | 1 | no |  | coefficient of g |
-| n10 | 1 | 1 | no |  | coefficient of g |
-| n11 | 1 | 1 | no |  | coefficient of g |
-| n12 | 1 | 1 | no |  | coefficient of g |
-| I1 | 1 | 1 | no |  | exponent of the density |
-| I2 | 1 | 1 | no |  | exponent of the density |
-| I3 | 1 | 1 | no |  | exponent of the density |
-| I4 | 1 | 1 | no |  | exponent of the density |
-| I5 | 1 | 1 | no |  | exponent of the density |
-| I6 | 1 | 1 | no |  | exponent of the density |
-| I7 | 1 | 1 | no |  | exponent of the density |
-| I8 | 1 | 1 | no |  | exponent of the density |
-| I9 | 1 | 1 | no |  | exponent of the density |
-| I10 | 1 | 1 | no |  | exponent of the density |
-| I11 | 1 | 1 | no |  | exponent of the density |
-| J1 | 1 | 1 | no |  | exponent of the temperature |
-| J2 | 1 | 1 | no |  | exponent of the temperature |
-| J3 | 1 | 1 | no |  | exponent of the temperature |
-| J4 | 1 | 1 | no |  | exponent of the temperature |
-| J5 | 1 | 1 | no |  | exponent of the temperature |
-| J6 | 1 | 1 | no |  | exponent of the temperature |
-| J7 | 1 | 1 | no |  | exponent of the temperature |
-| J8 | 1 | 1 | no |  | exponent of the temperature |
-| J9 | 1 | 1 | no |  | exponent of the temperature |
-| J10 | 1 | 1 | no |  | exponent of the temperature |
-| J11 | 1 | 1 | no |  | exponent of the temperature |
-| Tc | 1 | 1 | no |  | critical temperature, K |
-| rhoc | 1 | 1 | no |  | critical density, kg/m3 |
-| k | 1 | 1 | no |  | constant of Boltzmann, SI |
-| Na | 1 | 1 | no |  | number of Avogadro, 1/mol |
-| alpha | 1 | 1 | no |  | mean molecular polarizability, SI |
-| epsilon0 | 1 | 1 | no |  | permittivity of vacuum, SI |
-| mu | 1 | 1 | no |  | dipole moment, SI |
-| M | 1 | 1 | no |  | molar mass, kg/mol |
+A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+
+Dielectric constant of water, IAPWS formulation: g = 1 + n12 r w^-1.2 + sum n_i r^I_i (Tc/T)^J_i, r = rho/rhoc, w = T/228 - 1. n: coefficients; I, J: exponents; Tc in K, rhoc in kg/m3. k, Na, alpha, epsilon, mu, M: the physical constants of the molecule and of vacuum, in SI, as in the paper.
+
+Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166.
+
+Names: `n1` to `n12`, `I1` to `I11`, `J1` to `J11`, `Tc`, `rhoc`, `k`, `Na`, `alpha`, `epsilon0`, `mu`, `M`.
 
 ## Example
 

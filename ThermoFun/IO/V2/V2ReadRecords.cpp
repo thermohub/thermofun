@@ -342,7 +342,7 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
         report(c, Severity::Error, "V2-ID-001", key, path, "A parameter set must be a mapping.");
         return set;
     }
-    static const std::set<std::string> known = {"symbol", "method", "implementation", "parameters", "auxiliary", "reference", "units"};
+    static const std::set<std::string> known = {"symbol", "method", "implementation", "description", "parameters", "auxiliary", "reference", "units"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return set;
@@ -379,6 +379,7 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
     };
     fill("parameters", set.parameters, true);
     fill("auxiliary", set.auxiliary, false);
+    set.description = optionalString(node, "description");
     set.reference = optionalString(node, "reference");
     set.extra_json = extraKeys(c, node, known, symbol, path);
     return set;

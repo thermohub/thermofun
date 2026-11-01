@@ -68,7 +68,7 @@ auto checkZhangDuan(double T, double P) -> void
 
 auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple) -> ThermoPropertiesSubstance
 {
-    WaterTripleProperties wtr = waterTripleData.at(triple);
+    WaterTripleProperties wtr = waterTripleData().at(triple);
 
     double Pout = P;
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -95,7 +95,7 @@ auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants&
 auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKConstants& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
-    WaterTripleProperties wtr = waterTripleData.at(triple);
+    WaterTripleProperties wtr = waterTripleData().at(triple);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state, constants), wtr);
     });
@@ -112,7 +112,7 @@ auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPruss
 auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
-    WaterTripleProperties wtr = waterTripleData.at(triple);
+    WaterTripleProperties wtr = waterTripleData().at(triple);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state, constants), wtr);
     });
@@ -180,7 +180,7 @@ auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, in
 
 auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent&, int state) -> ElectroPropertiesSolvent
 {
-    WaterTripleProperties wtr = waterTripleData.at("NEA_HGK");
+    WaterTripleProperties wtr = waterTripleData().at("NEA_HGK");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         WaterHGKgems water_hgk;
         real t = pass.T - C_to_K;
@@ -236,7 +236,7 @@ private:
 
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent
 {
-    WaterTripleProperties wtr = waterTripleData.at(triple);
+    WaterTripleProperties wtr = waterTripleData().at(triple);
 
     double Pout = P;
     auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {

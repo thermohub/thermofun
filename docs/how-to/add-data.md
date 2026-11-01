@@ -619,7 +619,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 
 | Id | What it is | Parameters, with the SI unit | Implementations |
 |---|---|---|---|
-| `AkinfievDiamond03` | Model of Akinfiev and Diamond (needs the solvent) | `xi`<br>`a` [m3/kg]<br>`b` [m3.K^0.5/kg] | `gems` |
+| `AkinfievDiamond03` | Model of Akinfiev and Diamond (needs the solvent) | `xi`<br>`a` [m3/kg]<br>`b` [m3.K^0.5/kg]<br>`MW` (optional) | `gems` |
 | `LandauHP98` | Landau transition of Holland and Powell | `Tc0` [K]<br>`Smax` [J/(mol.K)]<br>`Vmax` [m3/mol]<br>`alpha0` [1/K] (optional)<br>`kappa0` [Pa] (optional) | one |
 | `LandauHP11` | Landau transition of Holland and Powell (2011) | `Tc0` [K]<br>`Smax` [J/(mol.K)]<br>`Vmax` [m3/mol] | one |
 | `ConstantVolume` | Constant molar volume | none | one |
@@ -629,12 +629,12 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 | `MurnaghanHP98` | Murnaghan equation of Holland and Powell | `alpha0` [1/K]<br>`kappa0` [Pa] | one |
 | `TaitHP11` | Tait equation of Holland and Powell | `kappa0p`<br>`kappa0pp` [1/Pa]<br>`n_atoms`<br>`alpha0` [1/K]<br>`kappa0` [Pa] | one |
 | `IdealGas` | Ideal gas | none | one |
-| `PRSV86` | Peng-Robinson-Stryjek-Vera equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`k1` (optional)<br>`k2` (optional)<br>`k3` (optional) | one |
+| `PRSV86` | Peng-Robinson-Stryjek-Vera equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`k1` (optional)<br>`k2` (optional)<br>`k3` (optional)<br>`k0_0` (optional)<br>`k0_1` (optional)<br>`k0_2` (optional)<br>`k0_3` (optional)<br>`Oa` (optional)<br>`Ob` (optional) | one |
 | `ChurakovGottschalk03` | Equation of state of Churakov and Gottschalk | `sigma0`<br>`eps0`<br>`mu0`<br>`pol0`<br>`sigma1`<br>`sigma2`<br>`eps1`<br>`eps2`<br>`mu1`<br>`mu2`<br>`pol1`<br>`pol2` | one |
-| `SoaveRedlichKwong72` | Soave-Redlich-Kwong equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`N` (optional) | one |
-| `SternerPitzer94` | Equation of state of Sterner and Pitzer | `Tc` [K]<br>`Pc` [Pa] | one |
-| `PengRobinson78` | Peng-Robinson equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`N` (optional) | one |
-| `CorkHP91` | Compensated Redlich-Kwong equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`k1` (optional)<br>`k2` (optional)<br>`k3` (optional) | one |
+| `SoaveRedlichKwong72` | Soave-Redlich-Kwong equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`N` (optional)<br>`m0` (optional)<br>`m1` (optional)<br>`m2` (optional)<br>`Oa` (optional)<br>`Ob` (optional) | one |
+| `SternerPitzer94` | Equation of state of Sterner and Pitzer | `Tc` [K]<br>`Pc` [Pa]<br>`TMIN` (optional)<br>`TMAX` (optional)<br>`PMIN` (optional)<br>`PMAX` (optional)<br>`cfh_1` (optional)<br>`cfh_2` (optional)<br>`cfh_3` (optional)<br>`cfh_4` (optional)<br>`cfh_5` (optional)<br>`cfh_6` (optional)<br>`cfh_7` (optional)<br>`cfh_8` (optional)<br>`cfh_9` (optional)<br>`cfh_10` (optional)<br>`cfh_11` (optional)<br>`cfh_12` (optional)<br>`cfh_13` (optional)<br>`cfh_14` (optional)<br>`cfh_15` (optional)<br>`cfh_16` (optional)<br>`cfh_17` (optional)<br>`cfh_18` (optional)<br>`cfh_19` (optional)<br>`cfh_20` (optional)<br>`cfh_21` (optional)<br>`cfh_22` (optional)<br>`cfh_23` (optional)<br>`cfh_24` (optional)<br>`cfh_25` (optional)<br>`cfh_26` (optional)<br>`cfh_27` (optional)<br>`cfh_28` (optional)<br>`cfh_29` (optional)<br>`cfh_30` (optional)<br>`cfh_31` (optional)<br>`cfh_32` (optional)<br>`cfh_33` (optional)<br>`cfh_34` (optional)<br>`cfh_35` (optional)<br>`cfh_36` (optional)<br>`cfh_37` (optional)<br>`cfh_38` (optional)<br>`cfh_39` (optional)<br>`cfh_40` (optional)<br>`cfh_41` (optional)<br>`cfh_42` (optional)<br>`cfh_43` (optional)<br>`cfh_44` (optional)<br>`cfh_45` (optional)<br>`cfh_46` (optional)<br>`cfh_47` (optional)<br>`cfh_48` (optional)<br>`cfh_49` (optional)<br>`cfh_50` (optional)<br>`cfh_51` (optional)<br>`cfh_52` (optional)<br>`cfh_53` (optional)<br>`cfh_54` (optional)<br>`cfh_55` (optional)<br>`cfh_56` (optional)<br>`cfh_57` (optional)<br>`cfh_58` (optional)<br>`cfh_59` (optional)<br>`cfh_60` (optional)<br>`cfc_1` (optional)<br>`cfc_2` (optional)<br>`cfc_3` (optional)<br>`cfc_4` (optional)<br>`cfc_5` (optional)<br>`cfc_6` (optional)<br>`cfc_7` (optional)<br>`cfc_8` (optional)<br>`cfc_9` (optional)<br>`cfc_10` (optional)<br>`cfc_11` (optional)<br>`cfc_12` (optional)<br>`cfc_13` (optional)<br>`cfc_14` (optional)<br>`cfc_15` (optional)<br>`cfc_16` (optional)<br>`cfc_17` (optional)<br>`cfc_18` (optional)<br>`cfc_19` (optional)<br>`cfc_20` (optional)<br>`cfc_21` (optional)<br>`cfc_22` (optional)<br>`cfc_23` (optional)<br>`cfc_24` (optional)<br>`cfc_25` (optional)<br>`cfc_26` (optional)<br>`cfc_27` (optional)<br>`cfc_28` (optional)<br>`cfc_29` (optional)<br>`cfc_30` (optional)<br>`cfc_31` (optional)<br>`cfc_32` (optional)<br>`cfc_33` (optional)<br>`cfc_34` (optional)<br>`cfc_35` (optional)<br>`cfc_36` (optional)<br>`cfc_37` (optional)<br>`cfc_38` (optional)<br>`cfc_39` (optional)<br>`cfc_40` (optional)<br>`cfc_41` (optional)<br>`cfc_42` (optional)<br>`cfc_43` (optional)<br>`cfc_44` (optional)<br>`cfc_45` (optional)<br>`cfc_46` (optional)<br>`cfc_47` (optional)<br>`cfc_48` (optional)<br>`cfc_49` (optional)<br>`cfc_50` (optional)<br>`cfc_51` (optional)<br>`cfc_52` (optional)<br>`cfc_53` (optional)<br>`cfc_54` (optional)<br>`cfc_55` (optional)<br>`cfc_56` (optional)<br>`cfc_57` (optional)<br>`cfc_58` (optional)<br>`cfc_59` (optional)<br>`cfc_60` (optional)<br>`cs_a0` (optional)<br>`cs_a1` (optional)<br>`cs_b0` (optional)<br>`cs_c0` (optional)<br>`cs_c1` (optional)<br>`cs_d0` (optional)<br>`cs_d1` (optional)<br>`psat_co2_Rhoc` (optional)<br>`psat_co2_a1` (optional)<br>`psat_co2_a2` (optional)<br>`psat_co2_a3` (optional)<br>`psat_co2_a4` (optional)<br>`psat_co2_b1` (optional)<br>`psat_co2_b2` (optional)<br>`psat_co2_b3` (optional)<br>`psat_co2_b4` (optional)<br>`psat_co2_c1` (optional)<br>`psat_co2_c2` (optional)<br>`psat_co2_c3` (optional)<br>`psat_co2_c4` (optional)<br>`psat_co2_c5` (optional)<br>`psat_h2o_Rhoc` (optional)<br>`psat_h2o_a1` (optional)<br>`psat_h2o_a2` (optional)<br>`psat_h2o_a3` (optional)<br>`psat_h2o_a4` (optional)<br>`psat_h2o_a5` (optional)<br>`psat_h2o_a6` (optional)<br>`psat_h2o_b1` (optional)<br>`psat_h2o_b2` (optional)<br>`psat_h2o_b3` (optional)<br>`psat_h2o_b4` (optional)<br>`psat_h2o_b5` (optional)<br>`psat_h2o_b6` (optional)<br>`psat_h2o_c1` (optional)<br>`psat_h2o_c2` (optional)<br>`psat_h2o_c3` (optional)<br>`psat_h2o_c4` (optional)<br>`psat_h2o_c5` (optional)<br>`psat_h2o_c6` (optional)<br>`Mw_h2o` (optional)<br>`Mw_co2` (optional) | one |
+| `PengRobinson78` | Peng-Robinson equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`N` (optional)<br>`k1_0` (optional)<br>`k1_1` (optional)<br>`k1_2` (optional)<br>`k2_0` (optional)<br>`k2_1` (optional)<br>`k2_2` (optional)<br>`k2_3` (optional)<br>`omega_switch` (optional)<br>`Oa` (optional)<br>`Ob` (optional) | one |
+| `CorkHP91` | Compensated Redlich-Kwong equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`k1` (optional)<br>`k2` (optional)<br>`k3` (optional)<br>`cs_a0` (optional)<br>`cs_a1` (optional)<br>`cs_b0` (optional)<br>`cs_c0` (optional)<br>`cs_c1` (optional)<br>`cs_d0` (optional)<br>`cs_d1` (optional)<br>`co2_a0` (optional)<br>`co2_a1` (optional)<br>`co2_a2` (optional)<br>`co2_b` (optional)<br>`co2_c0` (optional)<br>`co2_c1` (optional)<br>`co2_d0` (optional)<br>`co2_d1` (optional)<br>`co2_e0` (optional)<br>`co2_p0` (optional)<br>`h2o_a0` (optional)<br>`h2o_a1` (optional)<br>`h2o_a2` (optional)<br>`h2o_a3` (optional)<br>`h2o_a4` (optional)<br>`h2o_a5` (optional)<br>`h2o_a6` (optional)<br>`h2o_a7` (optional)<br>`h2o_a8` (optional)<br>`h2o_a9` (optional)<br>`h2o_b` (optional)<br>`h2o_c0` (optional)<br>`h2o_c1` (optional)<br>`h2o_d0` (optional)<br>`h2o_d1` (optional)<br>`h2o_e0` (optional)<br>`h2o_p0` (optional)<br>`h2o_psat0` (optional)<br>`h2o_psat2` (optional)<br>`h2o_psat3` (optional)<br>`h2o_psat5` (optional)<br>`h2o_T0` (optional)<br>`h2o_Tsuper` (optional) | one |
 
 ### Equations of state of water
 
@@ -677,6 +677,12 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 | `ReactionConstantVolume` | Constant volume of reaction | none | one |
 
 <!-- methods end -->
+
+### Built-in constants
+
+Some methods have constants that do not belong to one substance, for example the coefficients of a water model. They are in the files of `ThermoFun/Methods/ParameterSets`, written like a `parameter_sets` section, each with a description and its source. The page of the method lists them.
+
+A record does not give them. To use another value, give it inline in the `parameters` of the method, or in a `parameter_set` of the same method. The value then holds only for that record. Where this is not possible, the page of the method says so.
 
 ## 10. Choose where properties come from
 
@@ -775,8 +781,6 @@ assert [d.code for d in checked.all()] == ["V2-REF-001"]
 
 ThermoFun reads these, but does not use them in a calculation:
 
-- `parameter_set` of a method and the record `parameter_sets`.
 - Method records with `kind: symbolic`.
-- Covariance blocks. `validate` checks them.
 
 **Check:** run `python -m pytest pytests/test_add_data_guide.py`. All examples of this page run and their results are correct.

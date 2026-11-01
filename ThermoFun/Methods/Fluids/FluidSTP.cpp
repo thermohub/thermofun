@@ -15,10 +15,17 @@ namespace {
 // The fluids that have an equation of their own; another fluid goes by corresponding states
 constexpr char CEM_GAS_ = 'G', CEM_H2O_ = 'V', CEM_CO2_ = 'C', CEM_CH4_ = 'M', CEM_N2_ = 'T', CEM_H2_ = 'H', CEM_O2_ = 'O', CEM_AR_ = 'A', CEM_PO_ = 'P', CEM_NP_ = 'Q';
 
+/// The places of the constants of the model: the order of the catalog, and of its file in Methods/ParameterSets.
+enum Constant
+{
+    TMIN, TMAX, PMIN, PMAX, cfh_1, cfh_2, cfh_3, cfh_4, cfh_5, cfh_6, cfh_7, cfh_8, cfh_9, cfh_10, cfh_11, cfh_12, cfh_13, cfh_14, cfh_15, cfh_16, cfh_17, cfh_18, cfh_19, cfh_20, cfh_21, cfh_22, cfh_23, cfh_24, cfh_25, cfh_26, cfh_27, cfh_28, cfh_29, cfh_30, cfh_31, cfh_32, cfh_33, cfh_34, cfh_35, cfh_36, cfh_37, cfh_38, cfh_39, cfh_40, cfh_41, cfh_42, cfh_43, cfh_44, cfh_45, cfh_46, cfh_47, cfh_48, cfh_49, cfh_50, cfh_51, cfh_52, cfh_53, cfh_54, cfh_55, cfh_56, cfh_57, cfh_58, cfh_59, cfh_60, cfc_1, cfc_2, cfc_3, cfc_4, cfc_5, cfc_6, cfc_7, cfc_8, cfc_9, cfc_10, cfc_11, cfc_12, cfc_13, cfc_14, cfc_15, cfc_16, cfc_17, cfc_18, cfc_19, cfc_20, cfc_21, cfc_22, cfc_23, cfc_24, cfc_25, cfc_26, cfc_27, cfc_28, cfc_29, cfc_30, cfc_31, cfc_32, cfc_33, cfc_34, cfc_35, cfc_36, cfc_37, cfc_38, cfc_39, cfc_40, cfc_41, cfc_42, cfc_43, cfc_44, cfc_45, cfc_46, cfc_47, cfc_48, cfc_49, cfc_50, cfc_51, cfc_52, cfc_53, cfc_54, cfc_55, cfc_56, cfc_57, cfc_58, cfc_59, cfc_60, cs_a0, cs_a1, cs_b0, cs_c0, cs_c1, cs_d0, cs_d1, psat_co2_Rhoc, psat_co2_a1, psat_co2_a2, psat_co2_a3, psat_co2_a4, psat_co2_b1, psat_co2_b2, psat_co2_b3, psat_co2_b4, psat_co2_c1, psat_co2_c2, psat_co2_c3, psat_co2_c4, psat_co2_c5, psat_h2o_Rhoc, psat_h2o_a1, psat_h2o_a2, psat_h2o_a3, psat_h2o_a4, psat_h2o_a5, psat_h2o_a6, psat_h2o_b1, psat_h2o_b2, psat_h2o_b3, psat_h2o_b4, psat_h2o_b5, psat_h2o_b6, psat_h2o_c1, psat_h2o_c2, psat_h2o_c3, psat_h2o_c4, psat_h2o_c5, psat_h2o_c6, Mw_h2o, Mw_co2
+};
+
 /// The state of one calculation. Fugpure: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
 struct Work
 {
     real Tk, Pbar, R_CONST = 8.31451, RC, RR, TMIN, TMAX, PMIN, PMAX, Pkbar, Pkb, Pmpa;
+    const double* k = nullptr;  ///< the constants of the model
     char EosCode = 'G';
     real Tc, Pc, Psat, Rhol, Rhov, Mw;
     real Phi, dPhiD, dPhiDD, dPhiT, dPhiTT, dPhiDT, dPhiDDD, dPhiDDT, dPhiDTT;
@@ -55,42 +62,20 @@ void set_internal(Work& w)
 
     w.RC = w.R_CONST;  // gas constant (bar)
     w.RR = 0.00831451;  // gas constant (kbar)
-    w.TMIN = 200.;
-    w.TMAX = 2000.;
-    w.PMIN = 1.0e-20;
-    w.PMAX = 10000.;
+    w.TMIN = w.k[TMIN];
+    w.TMAX = w.k[TMAX];
+    w.PMIN = w.k[PMIN];
+    w.PMAX = w.k[PMAX];
 
     // EoS coefficients (temperature dependence)
-    real cfh_[10][6] = { { 0.0, 0.0, 0.24657688e6, 0.51359951e2, 0.0, 0.0 },
-                           { 0.0, 0.0, 0.58638965, -0.28646939e-2, 0.31375577e-4, 0.0 },
-                           { 0.0, 0.0, -0.62783840e1, 0.14791599e-1, 0.35779579e-3, 0.15432925e-7 },
-                           { 0.0, 0.0, 0.0, -0.42719875, -0.16325155e-4, 0.0 },
-                           { 0.0, 0.0, 0.56654978e4, -0.16580167e2, 0.76560762e-1, 0.0 },
-                           { 0.0, 0.0, 0.0, 0.10917883, 0.0, 0.0 },
-                           { 0.38878656e13, -0.13494878e9, 0.30916564e6, 0.75591105e1, 0.0, 0.0 },
-                           { 0.0, 0.0, -0.65537898e5, 0.18810675e3, 0.0, 0.0 },
-                           { -0.14182435e14, 0.18165390e9, -0.19769068e6, -0.23530318e2, 0.0, 0.0 },
-                           { 0.0, 0.0, 0.92093375e5, 0.12246777e3, 0.0, 0.0 } };
-
-
-    real cfc_[10][6] = { { 0.0, 0.0, 0.18261340e7, 0.79224365e2, 0.0, 0.0 },
-                           { 0.0, 0.0, 0.0, 0.66560660e-4, 0.57152798e-5, 0.30222363e-9 },
-                           { 0.0, 0.0, 0.0, 0.59957845e-2, 0.71669631e-4, 0.62416103e-8 },
-                           { 0.0, 0.0, -0.13270279e1, -0.15210731, 0.53654244e-3, -0.71115142e-7 },
-                           { 0.0, 0.0, 0.12456776, 0.49045367e1, 0.98220560e-2, 0.55962121e-5 },
-                           { 0.0, 0.0, 0.0, 0.75522299, 0.0, 0.0 },
-                           { -0.39344644e12, 0.90918237e8, 0.42776716e6, -0.22347856e2, 0.0, 0.0 },
-                           { 0.0, 0.0, 0.40282608e3, 0.11971627e3, 0.0, 0.0 },
-                           { 0.0, 0.22995650e8, -0.78971817e5, -0.63376456e2, 0.0, 0.0 },
-                           { 0.0, 0.0, 0.95029765e5, 0.18038071e2, 0.0, 0.0 } };
 
     // transfer coefficients
     for (j=0; j<10; j++)
     {
             for (k=0; k<6; k++)
             {
-                    w.cfh[j][k] = cfh_[j][k];
-                    w.cfc[j][k] = cfc_[j][k];
+                    w.cfh[j][k] = w.k[cfh_1 + 6*j + k];
+                    w.cfc[j][k] = w.k[cfc_1 + 6*j + k];
             }
     }
 }
@@ -145,13 +130,13 @@ long int FugacityCorresponding(Work& w)
     real grs, hrs, srs, cprs, drt, drtt, drp, drpp, drtp,
             dvt, dvtt, dvp, dvpp, dvtp;
 
-    a0 = 5.45963e-5;
-    a1 = -8.6392e-6;
-    b0 = 9.18301e-4;
-    c0 = -3.30558e-5;
-    c1 = 2.30524e-6;
-    d0 = 6.93054e-7;
-    d1 = -8.38293e-8;
+    a0 = w.k[cs_a0];
+    a1 = w.k[cs_a1];
+    b0 = w.k[cs_b0];
+    c0 = w.k[cs_c0];
+    c1 = w.k[cs_c1];
+    d0 = w.k[cs_d0];
+    d1 = w.k[cs_d1];
     tcr = w.Tc;
     // pcr = Eosparm[j][1]/1000.;  // kbar
     pcr = w.Pc*(10.)/(1000.);  // kbar (convert from MPa)
@@ -541,20 +526,20 @@ long int PsatCO2(Work& w)
     real Rhoc, a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, c5, tau, ppc, psat,
                     rhol, rhov, rholc, rhovc;
 
-    Rhoc = 467.6;   // kg m-3
-    a1 = -7.0602087;
-    a2 = 1.9391218;
-    a3 = -1.6463597;
-    a4 = -3.2995634;
-    b1 = 1.9245108;
-    b2 = -0.62385555;
-    b3 = -0.32731127;
-    b4 = 0.39245142;
-    c1 = -1.7074879;
-    c2 = -0.82274670;
-    c3 = -4.6008549;
-    c4 = -10.111178;
-    c5 = -29.742252;
+    Rhoc = w.k[psat_co2_Rhoc];   // kg m-3
+    a1 = w.k[psat_co2_a1];
+    a2 = w.k[psat_co2_a2];
+    a3 = w.k[psat_co2_a3];
+    a4 = w.k[psat_co2_a4];
+    b1 = w.k[psat_co2_b1];
+    b2 = w.k[psat_co2_b2];
+    b3 = w.k[psat_co2_b3];
+    b4 = w.k[psat_co2_b4];
+    c1 = w.k[psat_co2_c1];
+    c2 = w.k[psat_co2_c2];
+    c3 = w.k[psat_co2_c3];
+    c4 = w.k[psat_co2_c4];
+    c5 = w.k[psat_co2_c5];
 
     tau = 1. - w.Tk/w.Tc;
     ppc = (w.Tc/w.Tk)*( a1*pow(tau,1.) + a2*pow(tau,1.5) + a3*pow(tau,2.) + a4*pow(tau,4.) );
@@ -577,25 +562,25 @@ long int PsatH2O(Work& w)
     real Rhoc, a1, a2, a3, a4, a5, a6, b1, b2, b3, b4, b5, b6, c1, c2, c3, c4, c5, c6,
                     tau, psat, rhol, rhov, ppc, rrc;
 
-    Rhoc = 322.0;   // kg m-3
-    a1 = -7.85951783;
-    a2 = 1.84408259;
-    a3 = -11.7866497;
-    a4 = 22.6807411;
-    a5 = -15.9618719;
-    a6 = 1.80122502;
-    b1 = 1.99274064;
-    b2 = 1.09965342;
-    b3 = -0.510839303;
-    b4 = -1.75493479;
-    b5 = -45.5170352;
-    b6 = -6.74694450e5;
-    c1 = -2.03150240;
-    c2 = -2.68302940;
-    c3 = -5.38626492;
-    c4 = -17.2991605;
-    c5 = -44.7586581;
-    c6 = -63.9201063;
+    Rhoc = w.k[psat_h2o_Rhoc];   // kg m-3
+    a1 = w.k[psat_h2o_a1];
+    a2 = w.k[psat_h2o_a2];
+    a3 = w.k[psat_h2o_a3];
+    a4 = w.k[psat_h2o_a4];
+    a5 = w.k[psat_h2o_a5];
+    a6 = w.k[psat_h2o_a6];
+    b1 = w.k[psat_h2o_b1];
+    b2 = w.k[psat_h2o_b2];
+    b3 = w.k[psat_h2o_b3];
+    b4 = w.k[psat_h2o_b4];
+    b5 = w.k[psat_h2o_b5];
+    b6 = w.k[psat_h2o_b6];
+    c1 = w.k[psat_h2o_c1];
+    c2 = w.k[psat_h2o_c2];
+    c3 = w.k[psat_h2o_c3];
+    c4 = w.k[psat_h2o_c4];
+    c5 = w.k[psat_h2o_c5];
+    c6 = w.k[psat_h2o_c6];
 
     tau = 1 - w.Tk/w.Tc;
     ppc = (w.Tc/w.Tk)*( a1*tau + a2*pow(tau,1.5) + a3*pow(tau,3.) + a4*pow(tau,3.5)
@@ -724,20 +709,21 @@ long int FugacityH2O(Work& w)
 }
 
 /// The fugacity and the residual functions of a pure fluid. Outside the range of the model, the fluid is an ideal gas.
-void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code, real* parameters, real* out)
+void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code, real* parameters, const double* constants, real* out)
 {
     if ((Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5))
     {
         Work w;
+        w.k = constants;
         w.Tk = Tk;
         w.Pbar = Pbar;
         UpdateTauP(w);
         set_internal(w);
         w.EosCode = code;
         if (code == CEM_H2O_)
-            w.Mw = 18.015268;
+            w.Mw = w.k[Mw_h2o];
         if (code == CEM_CO2_)
-            w.Mw = 44.0098;
+            w.Mw = w.k[Mw_co2];
         FugacityPT(w, parameters);
         for (int i = 0; i < 6; i++)
             out[i] = w.Fugpure[i];
@@ -769,7 +755,7 @@ auto thermoPropertiesFluidSTP(real TK, real Pbar, const FluidInputs& subst, Ther
         CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    fugacityProperties(TK, Pbar, TClow, Eos_Code, CPg, FugProps);
+    fugacityProperties(TK, Pbar, TClow, Eos_Code, CPg, subst.constants.data(), FugProps);
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );

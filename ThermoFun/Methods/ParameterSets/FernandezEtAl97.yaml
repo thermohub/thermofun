@@ -1,9 +1,8 @@
-# The dielectric constant of water of Fernandez et al. (1997): g = 1 + n12 r w^-1.2 + sum n_i r^I_i (Tc/T)^J_i, r = rho/rhoc, w = T/228 - 1.
-# Tc in K, rhoc in kg/m3; the constants of physics in SI, as in the paper.
 thermohub: 2.0.0-draft.1
 parameter_sets:
   FernandezEtAl97_constants_v1:
     method: FernandezEtAl97
+    description: "Dielectric constant of water, IAPWS formulation: g = 1 + n12 r w^-1.2 + sum n_i r^I_i (Tc/T)^J_i, r = rho/rhoc, w = T/228 - 1. n: coefficients; I, J: exponents; Tc in K, rhoc in kg/m3. k, Na, alpha, epsilon, mu, M: the physical constants of the molecule and of vacuum, in SI, as in the paper."
     reference: "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166"
     parameters:
       n1: 0.978224486826
