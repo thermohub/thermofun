@@ -256,12 +256,8 @@ MethodRegistry::MethodRegistry()
     solvent("WaterIAPWS95", "", iapws);
     solvent("WaterIAPWS95", "reaktoro", iapws);
     solvent("WaterZhangDuan05", "", [](A a) {
-        DewGibbsCoefficients coefficients;
-        for (int i = 0; i < 5; ++i)
-            if (const auto p = a.parameters.find("g1kb_" + std::to_string(i)); p != a.parameters.end())
-                coefficients.g1kb[i] = p->second.value;
         const auto dew = a.parameters.find("dew_gibbs");
-        return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, coefficients);
+        return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, ZhangDuanConstants(constantsOf(a)));
     });
     DielectricFactory jnReaktoro = [](A a) { return johnsonNorton91ReaktoroMethod(constantsOf(a)); };
     dielectric("JohnsonNorton91", "", jnReaktoro);

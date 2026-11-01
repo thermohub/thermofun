@@ -1,0 +1,31 @@
+# The equation of state of water of Zhang and Duan (2005). a1 to a14 and gamma: its coefficients. Tc in K, Vc in cm3/mol, R in cm3 bar/(K mol), as in the formulas.
+# g1kb_0 to g1kb_4: G(T, 1 kbar) of the model DEW, a polynomial in T (degC) in cal/mol, the highest power first.
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  WaterZhangDuan05_constants_v1:
+    method: WaterZhangDuan05
+    reference: "Zhang Z., Duan Z. (2005) Phys. Earth Planet. Inter. 149, 335-354; Sverjensky et al. (2014)"
+    parameters:
+      a1: 3.49824207e-01
+      a2: -2.91046273e+00
+      a3: 2.00914688e+00
+      a4: 1.12819964e-01
+      a5: 7.48997714e-01
+      a6: -8.73207040e-01
+      a7: 1.70609505e-02
+      a8: -1.46355822e-02
+      a9: 5.79768283e-02
+      a10: -8.41246372e-04
+      a11: 4.95186474e-03
+      a12: -9.16248538e-03
+      a13: -1.00358152e-01
+      a14: -1.82674744e-03
+      gamma: 1.05999998e-02
+      Tc: 647.25
+      Vc: 55.9480373
+      R: 83.14467
+      g1kb_0: 2.6880734e-09
+      g1kb_1: 6.3163061e-07
+      g1kb_2: -0.019372355
+      g1kb_3: -16.945093
+      g1kb_4: -55769.287

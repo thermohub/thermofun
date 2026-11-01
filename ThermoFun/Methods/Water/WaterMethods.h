@@ -23,7 +23,7 @@ auto waterHGK84GemsProperties(double T, double& P, int state, const std::string&
 auto waterIAPWS95ReaktoroMethod() -> std::shared_ptr<const SolventMethod>;
 
 /// WaterZhangDuan05: the volume, the density and its derivatives; with the option of DEW, also G (P >= 1 kbar).
-auto waterZhangDuan05Method(bool dew_gibbs = false, DewGibbsCoefficients coefficients = {}) -> std::shared_ptr<const SolventMethod>;
+auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>;
 
 /// JohnsonNorton91: implementation reaktoro, from the density of the solvent; or gems, from its own HGK calculation, without the solvent.
 auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;

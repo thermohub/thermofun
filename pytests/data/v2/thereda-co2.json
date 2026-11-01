@@ -1,0 +1,139 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "elements": {
+  "C": {
+   "molar_mass": 0.012011
+  },
+  "O": {
+   "molar_mass": 0.0159994
+  },
+  "H": {
+   "molar_mass": 0.00100794
+  },
+  "Zz": {
+   "molar_mass": 0.0,
+   "class": "charge"
+  }
+ },
+ "substances": {
+  "CO2(g)": {
+   "class": "gas_fluid",
+   "aggregate_state": "gas",
+   "formula": "CO2",
+   "charge": 0,
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -394372.5707088512,
+    "H": -393519.6559547789,
+    "S": 213.75269010254
+   },
+   "methods": [
+    {
+     "method": "PengRobinson78",
+     "parameters": {
+      "Tc": 304.12,
+      "Pc": 7374000.0,
+      "omega": 0.225,
+      "N": 0.0
+     }
+    }
+   ],
+   "defining_reaction": "CO2(g)"
+  },
+  "CO3<2->": {
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "formula": "CO3-2",
+   "charge": -2,
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -527899.7738,
+    "H": -675230,
+    "S": -50
+   },
+   "methods": [
+    {
+     "method": "ConstantProperties"
+    }
+   ]
+  },
+  "H2O(l)": {
+   "class": "component",
+   "aggregate_state": "liquid",
+   "formula": "H2O",
+   "charge": 0,
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -237140.3161,
+    "H": -285830,
+    "S": 69.95
+   },
+   "methods": [
+    {
+     "method": "ConstantProperties"
+    }
+   ]
+  },
+  "H<+>": {
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "formula": "H+",
+   "charge": 1,
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": 0,
+    "H": 0,
+    "S": 0,
+    "Cp": 0
+   },
+   "methods": [
+    {
+     "method": "ConstantProperties"
+    }
+   ]
+  }
+ },
+ "reactions": {
+  "CO2(g)": {
+   "stoichiometry": {
+    "CO2(g)": 1,
+    "CO3<2->": -1,
+    "H2O(l)": 1,
+    "H<+>": -2
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": 18.1521067697791
+   },
+   "methods": [
+    {
+     "method": "LogKPolynomial",
+     "parameters": {
+      "a0": -132.461253398587,
+      "a1": 0,
+      "a2": 6887.75534983129,
+      "a3": 22.3799162566922,
+      "a4": 0,
+      "a5": 0,
+      "a6": 0.0
+     }
+    }
+   ]
+  }
+ }
+}

@@ -642,7 +642,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 |---|---|---|---|
 | `WaterHGK84` | Water, Haar-Gallagher-Kell | `state` (optional) | `reaktoro`, `gems` |
 | `WaterIAPWS95` | Water, IAPWS-95 | `state` (optional) | `reaktoro` |
-| `WaterZhangDuan05` | Water, Zhang and Duan | `dew_gibbs` (optional)<br>`g1kb_0` (optional)<br>`g1kb_1` (optional)<br>`g1kb_2` (optional)<br>`g1kb_3` (optional)<br>`g1kb_4` (optional)<br>`state` (optional) | one |
+| `WaterZhangDuan05` | Water, Zhang and Duan | `dew_gibbs` (optional)<br>`a1` (optional)<br>`a2` (optional)<br>`a3` (optional)<br>`a4` (optional)<br>`a5` (optional)<br>`a6` (optional)<br>`a7` (optional)<br>`a8` (optional)<br>`a9` (optional)<br>`a10` (optional)<br>`a11` (optional)<br>`a12` (optional)<br>`a13` (optional)<br>`a14` (optional)<br>`gamma` (optional)<br>`Tc` (optional)<br>`Vc` (optional)<br>`R` (optional)<br>`g1kb_0` (optional)<br>`g1kb_1` (optional)<br>`g1kb_2` (optional)<br>`g1kb_3` (optional)<br>`g1kb_4` (optional)<br>`state` (optional) | one |
 
 ### Dielectric models of water
 

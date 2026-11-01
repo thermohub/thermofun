@@ -215,7 +215,7 @@ int main(int argc, char** argv)
     // Zhang and Duan (2005) water: the derivatives of the density up to the third order are exact (no finite differences)
     for (auto tp : {std::make_pair(400.0, 3e8), std::make_pair(600.0, 5e8), std::make_pair(800.0, 1e9)})
     {
-        const auto model = waterZhangDuan05Method();
+        const auto model = MethodRegistry::instance().createSolvent(MethodApplication{"WaterZhangDuan05"});
         auto ps = [&](double t, double p) { return model->properties(t, p, 0); };
         auto f = [&](auto member) { return [=](double t, double p) { return ps(t, p).*member; }; };
         const double t = tp.first, p = tp.second;

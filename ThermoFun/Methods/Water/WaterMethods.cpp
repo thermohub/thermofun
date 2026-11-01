@@ -118,21 +118,21 @@ auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string&
     });
 }
 
-auto zhangDuan05Properties(double T, double& P) -> PropertiesSolvent
+auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& constants) -> PropertiesSolvent
 {
     checkZhangDuan(T, P);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return propertiesWaterZhangDuan2005(pass);
+        return propertiesWaterZhangDuan2005(pass, constants);
     });
 }
 
-auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const DewGibbsCoefficients& coefficients) -> ThermoPropertiesSubstance
+auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const ZhangDuanConstants& constants) -> ThermoPropertiesSubstance
 {
     checkZhangDuan(T, P);
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        auto out = thermoPropertiesWaterZhangDuan2005(pass.T, pass.P / bar_to_Pa); // pressure in bar
+        auto out = thermoPropertiesWaterZhangDuan2005(pass.T, pass.P / bar_to_Pa, constants); // pressure in bar
         if (dew_gibbs)
-            out.gibbs_energy = waterGibbsEnergyDEW(pass.T, pass.P / bar_to_Pa, coefficients);
+            out.gibbs_energy = waterGibbsEnergyDEW(pass.T, pass.P / bar_to_Pa, constants);
         return out;
     });
     // the volume is calculated by this model, and the Gibbs energy of DEW if it is asked for
@@ -283,11 +283,11 @@ auto waterIAPWS95ReaktoroMethod() -> std::shared_ptr<const SolventMethod>
         [](double T, double& P, int state, const std::string&) { return iapws95ReaktoroProperties(T, P, state); }, iapws95ReaktoroSubstance, false);
 }
 
-auto waterZhangDuan05Method(bool dew_gibbs, DewGibbsCoefficients coefficients) -> std::shared_ptr<const SolventMethod>
+auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>
 {
     return std::make_shared<const FunctionSolventMethod>("WaterZhangDuan05", "",
-        [](double T, double& P, int, const std::string&) { return zhangDuan05Properties(T, P); },
-        [dew_gibbs, coefficients](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, coefficients); }, false);
+        [constants](double T, double& P, int, const std::string&) { return zhangDuan05Properties(T, P, constants); },
+        [dew_gibbs, constants](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, constants); }, false);
 }
 
 auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>

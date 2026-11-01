@@ -299,3 +299,22 @@ def test_no_second_term_on_a_fluid_when_the_reaction_has_a_volume(tmp_path):
     engine = fluid_from_a_reaction(tmp_path, [LOGK, {"method": {"13": "dr_volume_constant"}}], {"drsm_volume": {"values": [3.0]}})
     r = engine.thermoPropertiesSubstance(600.0, 1e8, "X")
     assert r.volume.val == pytest.approx(3.0 + 2.8, abs=3.0)  # from the reaction and the volume of A, not the fluid
+
+
+# CO2(g) of THEREDA 2026-01: the record has its critical data, and a forming reaction with log K(T)
+THEREDA = HERE / "data" / "v2" / "thereda-co2.json"
+
+
+def test_co2_of_thereda_with_peng_robinson_on_the_substance():
+    engine = tf.ThermoEngine(str(THEREDA))
+    assert engine.thermoPropertiesReaction(298.15, 1e5, "CO2(g)").log_equilibrium_constant.val == pytest.approx(18.1521, abs=1e-3)
+    r = engine.thermoPropertiesSubstance(323.15, 1e7, "CO2(g)")
+    assert r.volume.val == pytest.approx(11.46, rel=0.03)  # 384 kg/m3, Span and Wagner (1996)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-3)
+
+
+def test_co2_of_thereda_for_a_consumer_that_adds_the_terms_itself():
+    engine = tf.ThermoEngine(str(THEREDA))
+    engine.preferences.apply_pressure_correction_to_gas_props = False
+    engine.preferences.cancel_fugacity_coefficient_in_gas_props = True
+    assert engine.thermoPropertiesSubstance(298.15, 1e7, "CO2(g)").gibbs_energy.val == pytest.approx(-394372.57, abs=1.0)

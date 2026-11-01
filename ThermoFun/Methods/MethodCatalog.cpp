@@ -337,13 +337,12 @@ auto substanceMethods() -> std::vector<MethodSpec>
         dew.default_si = 0.0;
         dew.fittable = false;
         out.push_back(dew);
-        const DewGibbsCoefficients defaults;
-        for (int i = 0; i < 5; ++i)
-        {
-            auto c = par(("g1kb_" + std::to_string(i)).c_str(), "1", "1", "coefficient of G(T, 1 kbar) of DEW, cal/mol, T in degC, the highest power first", false);
-            c.default_si = defaults.g1kb[i];
+        for (auto& c : numbered("a", 14, "coefficient of the equation of state"))
             out.push_back(c);
-        }
+        for (auto& c : constants({{"gamma", "coefficient of the exponential term"}, {"Tc", "critical temperature, K"}, {"Vc", "critical volume, cm3/mol"}, {"R", "gas constant, cm3 bar/(K mol)"},
+                                  {"g1kb_0", "coefficient of G(T, 1 kbar) of DEW, cal/mol, the highest power of T (degC) first"}, {"g1kb_1", "coefficient of G(T, 1 kbar) of DEW"},
+                                  {"g1kb_2", "coefficient of G(T, 1 kbar) of DEW"}, {"g1kb_3", "coefficient of G(T, 1 kbar) of DEW"}, {"g1kb_4", "coefficient of G(T, 1 kbar) of DEW"}}))
+            out.push_back(c);
         return out;
     };
     auto waterEoS = [](Spec s) -> Spec

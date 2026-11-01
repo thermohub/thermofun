@@ -13,42 +13,17 @@
 
 namespace ThermoFun {
 
-const double waterCriticalTemperature = 647.25; // K
-const double waterCriticalVolume      = 55.9480373; // cm^3/mol
-const double waterCriticalPressure    = 22.064e+01; // bar
-const double RConstant                = 83.14467; // cm^3*bar/K*mol
-
-const double a[] =
-{
-    0.000000000000,
-    3.49824207e-01,
-   -2.91046273e+00,
-    2.00914688e+00,
-    1.12819964e-01,
-    7.48997714e-01,
-   -8.73207040e-01,
-    1.70609505e-02,
-   -1.46355822e-02,
-    5.79768283e-02,
-   -8.41246372e-04,
-    4.95186474e-03,
-   -9.16248538e-03,
-   -1.00358152e-01,
-   -1.82674744e-03
-};
-
-const double gamma = 1.05999998e-02;
-
 /// The molar volume (the reduced volume) of water at T (K) and P (bar), solved with Newton's iterations
-auto waterMolarVolume (real TK, real Pbar, real V0) -> real
+auto waterMolarVolume (real TK, real Pbar, real V0, const ZhangDuanConstants& c) -> real
 {
+    const auto a = c.a;
+    const double gamma = c.gamma, RConstant = c.R;
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
     const double tolerance = 1.0e-08;
 
-    const auto Tcr = waterCriticalTemperature;
-//    const auto Pcr = waterCriticalPressure;
-    const auto Vcr = waterCriticalVolume;
+    const auto Tcr = c.Tc;
+    const auto Vcr = c.Vc;
     const auto B = a[1] + a[2]/pow((TK/Tcr),2) + a[3]/pow((TK/Tcr),3);
     const auto C = a[4] + a[5]/pow((TK/Tcr),2) + a[6]/pow((TK/Tcr),3);
     const auto D = a[7] + a[8]/pow((TK/Tcr),2) + a[9]/pow((TK/Tcr),3);
@@ -86,11 +61,13 @@ auto waterMolarVolume (real TK, real Pbar, real V0) -> real
 }
 
 // Duan et al 1992a; F = F92*beta, G = F92*gamma
-auto waterFugacityCoeff (real T, real P, real Vr, real V) -> real
+auto waterFugacityCoeff (real T, real P, real Vr, real V, const ZhangDuanConstants& c) -> real
 {
+    const auto a = c.a;
+    const double gamma = c.gamma, RConstant = c.R;
     real lnFugCoef/*, lnFugCoef2, lnFugCoef3*/;
 
-    const auto Tc = waterCriticalTemperature;
+    const auto Tc = c.Tc;
     const auto B = a[1]  + a[2]/pow((T/Tc),2)  + a[3]/pow((T/Tc),3);
     const auto C = a[4]  + a[5]/pow((T/Tc),2)  + a[6]/pow((T/Tc),3);
     const auto D = a[7]  + a[8]/pow((T/Tc),2)  + a[9]/pow((T/Tc),3);
@@ -145,7 +122,7 @@ static auto gaussLegendre(int n, std::vector<double>& x, std::vector<double>& w)
     }
 }
 
-auto waterGibbsEnergyDEW(real TK, real Pbar, const DewGibbsCoefficients& c) -> real
+auto waterGibbsEnergyDEW(real TK, real Pbar, const ZhangDuanConstants& c) -> real
 {
     if (Pbar.val() < 1000.0)
     {
@@ -174,14 +151,14 @@ auto waterGibbsEnergyDEW(real TK, real Pbar, const DewGibbsCoefficients& c) -> r
         {
             const real p = lower + width * (0.5 * (x[i] + 1.0));
             real Vr = 0.3;
-            Vr = waterMolarVolume(TK, p, Vr);
-            integral += Vr * waterCriticalVolume * (0.5 * w[i]) * width;
+            Vr = waterMolarVolume(TK, p, Vr, c);
+            integral += Vr * c.Vc * (0.5 * w[i]) * width;
         }
     }
     return G + integral * 0.1;
 }
 
-auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesWaterZhangDuan2005(real T, real P, const ZhangDuanConstants& c) -> ThermoPropertiesSubstanceAD
 {
     ThermoPropertiesSubstanceAD tps;
 
@@ -190,10 +167,10 @@ auto thermoPropertiesWaterZhangDuan2005(real T, real P) -> ThermoPropertiesSubst
 
     Vr = 0.3;
 
-    Vr = waterMolarVolume(T, P, Vr);
+    Vr = waterMolarVolume(T, P, Vr, c);
 
-    const auto V = Vr * waterCriticalVolume;
-    FugCoef = exp(waterFugacityCoeff(T, P, Vr, V));
+    const auto V = Vr * c.Vc;
+    FugCoef = exp(waterFugacityCoeff(T, P, Vr, V, c));
 
     auto Gres = log(FugCoef)*R_CONSTANT * (T);
 
@@ -213,8 +190,10 @@ struct VolumeDerivatives
     real T, P, TT, TP, PP;
 };
 
-static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar) -> VolumeDerivatives
+static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar, const ZhangDuanConstants& c) -> VolumeDerivatives
 {
+    const auto a = c.a;
+    const double gamma = c.gamma, RConstant = c.R, waterCriticalTemperature = c.Tc, waterCriticalVolume = c.Vc;
     const real tau = TK/waterCriticalTemperature;
     const real t2 = pow(tau, -2), t3 = pow(tau, -3), t4 = pow(tau, -4), t5 = pow(tau, -5);
     const double Tc = waterCriticalTemperature;
@@ -273,23 +252,23 @@ static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar) -
     return v;
 }
 
-auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass) -> PropertiesSolventAD
+auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass, const ZhangDuanConstants& c) -> PropertiesSolventAD
 {
     PropertiesSolventAD ps;
 
     const double T0 = pass.T.val(), P0 = pass.P.val();   // K, Pa
 
     // the reduced volume and its first derivatives at the point (analytical), then the volume as a number of the pass
-    const real Vconv = waterMolarVolume(real(T0), real(P0/bar_to_Pa), real(0.3));
-    const auto v0 = volumeDerivatives(real(Vconv.val()), real(T0), real(P0/bar_to_Pa));
+    const real Vconv = waterMolarVolume(real(T0), real(P0/bar_to_Pa), real(0.3), c);
+    const auto v0 = volumeDerivatives(real(Vconv.val()), real(T0), real(P0/bar_to_Pa), c);
     const real x = Reaktoro_::along(pass, Vconv.val(), v0.T.val(), v0.P.val()/bar_to_Pa);
 
     // the second derivatives with the derivatives of the pass (the third-order derivatives of the volume)
     const real TK = pass.T, Pbar = pass.P/bar_to_Pa;
-    const auto v = volumeDerivatives(x, TK, Pbar);
+    const auto v = volumeDerivatives(x, TK, Pbar, c);
 
     // the density rho = kappa/x (kg/m3) and its derivatives with respect to T (K) and P (Pa); v.P, v.TP, v.PP are per bar
-    const double kappa = H2OMolarMass*1000.0/waterCriticalVolume;
+    const double kappa = H2OMolarMass*1000.0/c.Vc;
     const real xT = v.T, xP = v.P/bar_to_Pa;
     const real xTT = v.TT, xTP = v.TP/bar_to_Pa, xPP = v.PP/(bar_to_Pa*bar_to_Pa);
 

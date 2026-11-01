@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 {
     // --- Zhang and Duan -------------------------------------------------------------------------------------------------
     {
-        const auto model = v2::waterZhangDuan05Method();
+        const auto model = v2::MethodRegistry::instance().createSolvent(ThermoFun::v2::MethodApplication{"WaterZhangDuan05"});
         for (auto tp : {std::make_pair(400.0, 3e8), std::make_pair(600.0, 5e8), std::make_pair(800.0, 1e9)})
         {
             const double T = tp.first, P = tp.second;
