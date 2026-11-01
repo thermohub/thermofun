@@ -140,7 +140,7 @@ def method_page(spec, example):
                 lines += ["Implementation `%s`." % s["implementation"], ""]
             if not s["default"]:
                 lines += ["Variant `%s`: a record chooses it with `parameter_set`." % s["symbol"], ""]
-            lines += [s["description"], "", "Source: %s." % s["reference"], ""]
+            lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % s["reference"], ""]
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
     lines += ["## Example", ""]
     if example:

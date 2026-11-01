@@ -353,3 +353,14 @@ def test_the_triple_point_data_give_the_values_of_codata_at_25_degrees(method_id
     expected = 1.80684 - 1.5 * 8.31451 * 298.15
     assert water.enthalpy.val - water.internal_energy.val == pytest.approx(expected, abs=0.1)
     assert water.gibbs_energy.val - water.helmholtz_energy.val == pytest.approx(expected, abs=0.1)
+
+
+def test_each_set_says_the_units_of_its_values():
+    import pathlib
+    import re
+    folder = pathlib.Path(__file__).resolve().parent.parent / "ThermoFun" / "Methods" / "ParameterSets"
+    readme = (folder / "README.md").read_text()
+    for file in folder.glob("*.yaml"):
+        text = file.read_text()
+        assert len(re.findall(r"^    formula_units: \{.+\}$", text, re.M)) == len(re.findall(r"^  \w+:$", text, re.M)), file.name
+        assert file.stem in readme or file.stem.split("-")[0] in readme, file.name

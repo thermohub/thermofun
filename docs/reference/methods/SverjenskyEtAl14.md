@@ -21,6 +21,8 @@ Source: Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Act
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
+Units of the values: T: degC, rho: g/cm3. They are not converted.
+
 Dielectric constant of water at high pressure (Deep Earth Water model): eps = exp(u) rho^w, u = b1 t + b2 sqrt(t) + b3, w = a1 t + a2 sqrt(t) + a3, with t in degC and rho in g/cm3. The coefficients are those of the paper.
 
 Source: Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145.

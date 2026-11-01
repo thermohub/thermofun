@@ -88,6 +88,17 @@ jobs:
           conda activate thermofun
           pytest -ra -vv --color=yes .
 
+      # The variant of the constants of physics: the other tests hold numbers that were calculated with the default set
+      - name: Building and testing with the CODATA 2018 constants
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          cmake -S . -B .build2018 -G Ninja -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_PYTHON=ON -DTHERMOFUN_PHYSICAL_CONSTANTS=codata2018 -DCMAKE_INSTALL_PREFIX="$PWD/.install2018" -DTHERMOFUN_PYTHON_INSTALL_PREFIX="$PWD/.install2018"
+          cmake --build .build2018
+          PIP_IGNORE_INSTALLED=1 cmake --install .build2018
+          LD_PRELOAD="$PWD/.build2018/ThermoFun/libThermoFun.so" PYTHONPATH=$(ls -d "$PWD"/.install2018/lib/python*/site-packages | head -1) python -m pytest -q pytests/test_parameter_sets.py pytests/test_bradley_pitzer.py pytests/test_helgeson_kirkham.py
+
       - name: Building the examples
         if: matrix.os == 'ubuntu-latest'
         shell: bash -l {0}

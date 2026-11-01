@@ -25,6 +25,8 @@ Source: Johnson and Norton (1991).
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
+Units of the values: T: K, rho: kg/m3. They are not converted.
+
 Dielectric constant of water: eps = sum k_i(t) r^i, t = T/Tr, r = rho/Dr, with k0 = 1, k1 = a1/t, k2 = a2/t + a3 + a4 t, k3 = a5/t + a6 t + a7 t2, k4 = a8/t2 + a9/t + a10. Tr in K, Dr in kg/m3. Both implementations use these values.
 
 Source: Johnson J.W., Norton D. (1991) Am. J. Sci. 291, 541-648.

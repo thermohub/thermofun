@@ -3,6 +3,7 @@ parameter_sets:
   WaterHGK84_reaktoro_constants_v1:
     method: WaterHGK84
     implementation: reaktoro
+    formula_units: {T: K, rho: kg/m3}
     description: "Helmholtz function of water, Reaktoro implementation. name_N is place N of the array of the code. A0 to A4: coefficients of its four parts; yc, ki, li, mi, ni, alpha, beta, ri, ti, A, z: their exponents and shape constants. referenceTemperature, referenceDensity, referenceHelmholtz: in SI. Ttr: the temperature in K that the model takes as the triple point. Saturation and critical values: see WaterSaturation.yaml."
     reference: "Haar L., Gallagher J.S., Kell G.S. (1984) NBS/NRC Steam Tables"
     parameters:

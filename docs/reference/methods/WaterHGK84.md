@@ -33,15 +33,21 @@ A record does not give these: ThermoFun reads them from `ThermoFun/Methods/Param
 
 Implementation `gems`.
 
+Units of the values: T: K or degC by name, P: bar or MPa by name. They are not converted.
+
 All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; crit: the critical point of the near-critical branch; surf: surface tension; born: the T in degC and P in bar up to which the Born functions are calculated; trans: the reducing values of viscosity and thermal conductivity; cond_C: a constant of thermal conductivity; visc_ and cond_ Pmax, P2, T2, P3, T3, Tmax: the range of viscosity and of thermal conductivity, P in bar and T in degC, outside of which they are 0; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml.
 
 Source: Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991).
 
 Implementation `reaktoro`.
 
+Units of the values: T: K, rho: kg/m3. They are not converted.
+
 Helmholtz function of water, Reaktoro implementation. name_N is place N of the array of the code. A0 to A4: coefficients of its four parts; yc, ki, li, mi, ni, alpha, beta, ri, ti, A, z: their exponents and shape constants. referenceTemperature, referenceDensity, referenceHelmholtz: in SI. Ttr: the temperature in K that the model takes as the triple point. Saturation and critical values: see WaterSaturation.yaml.
 
 Source: Haar L., Gallagher J.S., Kell G.S. (1984) NBS/NRC Steam Tables.
+
+Units of the values: T: K, P: Pa, rho: kg/m3, M: kg/mol. They are not converted.
 
 Values that the Reaktoro implementations of HGK and IAPWS-95 share. Saturation of water: sat_a1 to sat_a6 for the pressure, sat_b1 to sat_b6 for the density of the liquid, sat_c1 to sat_c6 for the density of the vapour; numbers without units. Tcr in K, Pcr in Pa, Dcr in kg/m3: the critical point. M in kg/mol: the molar mass of water. A pressure of 0 means the saturation pressure at T. The code of GEMS has its own saturation equation (psat_a in WaterHGK84-gems.yaml).
 

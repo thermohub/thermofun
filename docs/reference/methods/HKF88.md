@@ -39,11 +39,15 @@ A record does not give these: ThermoFun reads them from `ThermoFun/Methods/Param
 
 Implementation `reaktoro`.
 
+Units of the values: T: K, P: bar, rho: g/cm3, energy: cal/mol. They are not converted.
+
 Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code.
 
 Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
 Implementation `gems`.
+
+Units of the values: T: K, P: bar, rho: g/cm3, energy: cal/mol. They are not converted.
 
 Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code.
 

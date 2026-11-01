@@ -2,6 +2,7 @@ thermohub: 2.0.0-draft.1
 parameter_sets:
   SternerPitzer94_constants_v1:
     method: SternerPitzer94
+    formula_units: {T: K, P: MPa, rho: kg/m3, M: g/mol}
     description: "Equation of state of Sterner and Pitzer, in the units of the formulas. cfh_N, cfc_N: its 10 x 6 tables of coefficients for H2O and for CO2, by rows, cfh_1 to cfh_6 being the first row. TMIN, TMAX in K and PMIN, PMAX in MPa: its range. cs: any other fluid, the corresponding states form of Holland and Powell (1991), from Tc and Pc. psat_co2, psat_h2o: saturation pressure and densities used for the starting density; Rhoc in kg/m3. Mw_h2o, Mw_co2 in g/mol."
     reference: "Sterner S.M., Pitzer K.S. (1994) Contrib. Mineral. Petrol. 117, 362-374"
     parameters:

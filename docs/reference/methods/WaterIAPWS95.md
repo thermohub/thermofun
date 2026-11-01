@@ -29,9 +29,13 @@ A record does not give these: ThermoFun reads them from `ThermoFun/Methods/Param
 
 Implementation `reaktoro`.
 
+Units of the values: T: K, rho: kg/m3. They are not converted.
+
 IAPWS-95 formulation of water, Reaktoro implementation. name_N is place N of the array of the code. no, gammao: ideal gas part; c, d, t, n: residual part; alpha, beta, gamma, epsilon, a, b, A, B, C, F, E: its Gaussian and non-analytic terms. Ttr: the temperature in K that the model takes as the triple point. Saturation and critical values: see WaterSaturation.yaml.
 
 Source: Wagner W., Pruss A. (2002) J. Phys. Chem. Ref. Data 31, 387-535.
+
+Units of the values: T: K, P: Pa, rho: kg/m3, M: kg/mol. They are not converted.
 
 Values that the Reaktoro implementations of HGK and IAPWS-95 share. Saturation of water: sat_a1 to sat_a6 for the pressure, sat_b1 to sat_b6 for the density of the liquid, sat_c1 to sat_c6 for the density of the vapour; numbers without units. Tcr in K, Pcr in Pa, Dcr in kg/m3: the critical point. M in kg/mol: the molar mass of water. A pressure of 0 means the saturation pressure at T. The code of GEMS has its own saturation equation (psat_a in WaterHGK84-gems.yaml).
 

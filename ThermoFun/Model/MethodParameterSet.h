@@ -20,6 +20,7 @@ struct MethodParameterSet
     std::map<std::string, Quantity> parameters;
     std::map<std::string, Quantity> auxiliary;
     bool is_default = true;                        ///< false: only a record that names it uses it
+    std::string formula_units;                     ///< the units of the formulas that the values are in, as text; values are not converted
     std::string description;                       ///< what the values are, and their units
     std::string reference;                         ///< symbol of a data source
     std::string extra_json;

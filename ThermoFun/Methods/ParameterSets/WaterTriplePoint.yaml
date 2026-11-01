@@ -3,6 +3,7 @@ parameter_sets:
   WaterTriplePoint_HKF_HGK_1974:
     method: WaterTriplePoint
     implementation: HKF_HGK_1974
+    formula_units: {energy: cal/mol, S: cal/(mol K)}
     description: "Properties of liquid water at its triple point, which tie the water models to the geochemical reference: S in cal/(mol K), G, H, U, A in cal/mol. The implementation is the label a database names in its conventions (water_triple_point_reference)."
     reference: "Helgeson H.C., Kirkham D.H. (1974) Am. J. Sci. 274, 1089-1216, page 1098"
     parameters:
@@ -14,6 +15,7 @@ parameter_sets:
   WaterTriplePoint_NEA_HGK:
     method: WaterTriplePoint
     implementation: NEA_HGK
+    formula_units: {energy: cal/mol, S: cal/(mol K)}
     description: "Properties of liquid water at its triple point for the NEA convention with the HGK water: S in cal/(mol K), G, H, U, A in cal/mol. G, H and S come by difference from the CODATA 1989 values at 298.15 K and 1 bar (G -237140, H -285830 J/mol, S 69.95 J/(mol K)), with H-Htr, S-Str from the HGK84 (1888.803 J/mol, 6.6102 J/(mol K)) equation of state, and G-Gtr = (H-Htr) - 298.15 S + 273.16 Str. U and A use U = H - d(PV), with d(PV) = V - 1.5 R T of the formation reaction. The implementation is the label a database names in its conventions (water_triple_point_reference)."
     reference: "Calculated from Cox J.D., Wagman D.D., Medvedev V.A. (1989) CODATA Key Values for Thermodynamics, and HGK84"
     parameters:
@@ -25,6 +27,7 @@ parameter_sets:
   WaterTriplePoint_NEA_IAPWS:
     method: WaterTriplePoint
     implementation: NEA_IAPWS
+    formula_units: {energy: cal/mol, S: cal/(mol K)}
     description: "Properties of liquid water at its triple point for the NEA convention with the IAPWS water: S in cal/(mol K), G, H, U, A in cal/mol. G, H and S come by difference from the CODATA 1989 values at 298.15 K and 1 bar (G -237140, H -285830 J/mol, S 69.95 J/(mol K)), with H-Htr, S-Str from the IAPWS-95 (1890.142 J/mol, 6.6152 J/(mol K)) equation of state, and G-Gtr = (H-Htr) - 298.15 S + 273.16 Str. U and A use U = H - d(PV), with d(PV) = V - 1.5 R T of the formation reaction. The implementation is the label a database names in its conventions (water_triple_point_reference)."
     reference: "Calculated from Cox J.D., Wagman D.D., Medvedev V.A. (1989) CODATA Key Values for Thermodynamics, and IAPWS-95"
     parameters:

@@ -21,6 +21,8 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
+Units of the values: T: K, rho: kg/m3. They are not converted.
+
 Dielectric constant of water, IAPWS formulation: g = 1 + n12 r w^-1.2 + sum n_i r^I_i (Tc/T)^J_i, r = rho/rhoc, w = T/228 - 1. n: coefficients; I, J: exponents; Tc in K, rhoc in kg/m3. k, Na, alpha, epsilon, mu, M: the physical constants of the molecule and of vacuum, in SI, as in the paper.
 
 Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166.

@@ -342,7 +342,7 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
         report(c, Severity::Error, "V2-ID-001", key, path, "A parameter set must be a mapping.");
         return set;
     }
-    static const std::set<std::string> known = {"symbol", "method", "implementation", "default", "description", "parameters", "auxiliary", "reference", "units"};
+    static const std::set<std::string> known = {"symbol", "method", "implementation", "default", "formula_units", "description", "parameters", "auxiliary", "reference", "units"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return set;
@@ -380,6 +380,9 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
     fill("parameters", set.parameters, true);
     fill("auxiliary", set.auxiliary, false);
     set.description = optionalString(node, "description");
+    if (node.contains("formula_units") && node["formula_units"].is_object())
+        for (const auto& item : node["formula_units"].items())
+            set.formula_units += (set.formula_units.empty() ? "" : ", ") + item.key() + ": " + (item.value().is_string() ? item.value().get<std::string>() : item.value().dump());
     set.is_default = !node.contains("default") || !node["default"].is_boolean() || node["default"].get<bool>();
     set.reference = optionalString(node, "reference");
     set.extra_json = extraKeys(c, node, known, symbol, path);

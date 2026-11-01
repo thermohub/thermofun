@@ -2,6 +2,7 @@ thermohub: 2.0.0-draft.1
 parameter_sets:
   BradleyPitzer79_constants_v1:
     method: BradleyPitzer79
+    formula_units: {T: K, P: bar}
     description: "Dielectric constant of water as a function of T and P, with no density: D = D1000 + C ln((B + P)/(B + 1000)), D1000 = U1 exp(U2 T + U3 T2), C = U4 + U5/(U6 + T), B = U7 + U8/T + U9 T, with T in K and P in bar. Tmin, Tmax in K, Pmax in bar: its range, up to Pmax_low below Tlow. Outside of it the method warns. Tanger and Helgeson (1988) used it below about 70 degC and above 1 kbar."
     reference: "Bradley D.J., Pitzer K.S. (1979) J. Phys. Chem. 83, 1599-1603, Table I"
     parameters:

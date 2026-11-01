@@ -2,6 +2,7 @@ thermohub: 2.0.0-draft.1
 parameter_sets:
   JohnsonNorton91_constants_v1:
     method: JohnsonNorton91
+    formula_units: {T: K, rho: kg/m3}
     description: "Dielectric constant of water: eps = sum k_i(t) r^i, t = T/Tr, r = rho/Dr, with k0 = 1, k1 = a1/t, k2 = a2/t + a3 + a4 t, k3 = a5/t + a6 t + a7 t2, k4 = a8/t2 + a9/t + a10. Tr in K, Dr in kg/m3. Both implementations use these values."
     reference: "Johnson J.W., Norton D. (1991) Am. J. Sci. 291, 541-648"
     parameters:

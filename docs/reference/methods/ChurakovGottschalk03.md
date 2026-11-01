@@ -38,6 +38,8 @@ Source: Churakov and Gottschalk (2003a, b).
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
+Units of the values: T: K, beta: epsilon/T without units, reduced density: sigma^3 NA rho without units. They are not converted.
+
 The universal constants of the perturbation equation of state: its reference is the Weeks-Chandler-Andersen fluid. P1 to P10 and hs_a3, hs_a9, hs_a12: the hard sphere diameter. AA, A4 to A6, BB, B4 to B6, A00 to A34: the WCA free energy, with rm = 2^(1/6). fi1_N, fi2_N: the polynomials of the induced term, highest place last. kd0 to kd5: the correction of the dipole term. dipole: the conversion of the dipole moment, 1.38048E-4 as the constant of Boltzmann in the units of the model. NA = 0.6023: the number of Avogadro in the units of the model. PISIX and TWOPI: pi/6 and 2 pi with the digits of the code. All are numbers in the reduced units of the model. The coefficients of each substance are in its record.
 
 Source: Churakov S.V., Gottschalk M. (2003) Geochim. Cosmochim. Acta 67, 2397-2414 and 2415-2425.
