@@ -152,7 +152,7 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         const v2::DefiningReactionGuard no_cycle(symbol);
         const bool ownTerm = pressureFromRecord(substance, reaction);
         double Pdata = dataPressure(T, substance);
-        const bool fromData = ownTerm && T < water_critical_T;
+        const bool fromData = ownTerm && T < waterCriticalT();
         double& Pcalc = fromData ? Pdata : P;
         const auto r = reactionDerivative(T, Pcalc, reaction, ref);
         d = {r.reaction_gibbs_energy.val, r.reaction_enthalpy.val, r.reaction_entropy.val, r.reaction_heat_capacity_cp.val, r.reaction_volume.val};

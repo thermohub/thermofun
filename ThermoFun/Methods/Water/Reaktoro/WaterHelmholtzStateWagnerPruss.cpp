@@ -21,14 +21,13 @@
 // Reaktoro includes (modified DM 11.05.2016)
 #include <Common/Real.hpp>
 #include <Methods/Water/Reaktoro/WaterThermoStateUtils.hpp>
-#include <Methods/Water/Reaktoro/WaterConstants.hpp>
 #include <Methods/Water/Reaktoro/WaterHelmholtzState.hpp>
 
 namespace ThermoFun {
 auto waterHelmholtzStateWagnerPruss(real T, real D, const WagnerPrussConstants& k) -> WaterHelmholtzState
 {
-    const real tau   = waterCriticalTemperature/T;
-    const real delta = D/waterCriticalDensity;
+    const real tau   = k.saturation.Tcr/T;
+    const real delta = D/k.saturation.Dcr;
 
 	auto phio     =  log(delta) + k.no[1] + k.no[2]*tau + k.no[3]*log(tau);
 	auto phio_d   =  1.0/delta;
@@ -239,8 +238,8 @@ auto waterHelmholtzStateWagnerPruss(real T, real D, const WagnerPrussConstants& 
 	const auto phi_dtt = phio_dtt + phir_dtt;
 	const auto phi_ddt = phio_ddt + phir_ddt;
 
-	const auto Tcr = waterCriticalTemperature;
-	const auto Dcr = waterCriticalDensity;
+	const auto Tcr = k.saturation.Tcr;
+	const auto Dcr = k.saturation.Dcr;
 
 	const auto tT   = -Tcr/(T*T);
 	const auto tTT  =  2*Tcr/(T*T*T);

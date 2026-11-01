@@ -156,7 +156,7 @@ void exportMethods(py::module& parent)
             row["parameters"] = parameters;
             py::list constantSets;
             for (const auto& [key, set] : v2::builtinParameterSets())
-                if (set.method == spec.id)
+                if (set.method == spec.id || (set.method == "WaterSaturation" && (spec.id == "WaterHGK84" || spec.id == "WaterIAPWS95")))
                 {
                     py::dict one;
                     one["symbol"] = set.symbol; one["implementation"] = set.implementation;

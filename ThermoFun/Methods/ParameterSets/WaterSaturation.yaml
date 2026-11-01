@@ -1,0 +1,29 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  WaterSaturation_constants_v1:
+    method: WaterSaturation
+    description: "Values that the Reaktoro implementations of HGK and IAPWS-95 share. Saturation of water: sat_a1 to sat_a6 for the pressure, sat_b1 to sat_b6 for the density of the liquid, sat_c1 to sat_c6 for the density of the vapour; numbers without units. Tcr in K, Pcr in Pa, Dcr in kg/m3: the critical point. M in kg/mol: the molar mass of water. A pressure of 0 means the saturation pressure at T. The code of GEMS has its own saturation equation (psat_a in WaterHGK84-gems.yaml)."
+    reference: "Wagner W., Pruss A. (1993) J. Phys. Chem. Ref. Data 22, 783-787; Wagner W., Pruss A. (2002) J. Phys. Chem. Ref. Data 31, 387-535"
+    parameters:
+      sat_a1: -7.85951783
+      sat_a2: 1.84408259
+      sat_a3: -11.7866497
+      sat_a4: 22.6807411
+      sat_a5: -15.9618719
+      sat_a6: 1.80122502
+      sat_b1: 1.99274064
+      sat_b2: 1.09965342
+      sat_b3: -0.510839303
+      sat_b4: -1.75493479
+      sat_b5: -45.5170352
+      sat_b6: -6.74694450e+05
+      sat_c1: -2.03150240
+      sat_c2: -2.68302940
+      sat_c3: -5.38626492
+      sat_c4: -17.2991605
+      sat_c5: -44.7586581
+      sat_c6: -63.9201063
+      Tcr: 647.096
+      Pcr: 22.064e+06
+      Dcr: 322.0
+      M: 0.018015268

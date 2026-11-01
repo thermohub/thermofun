@@ -41,11 +41,14 @@ auto withConstants(MethodApplication application) -> MethodApplication
     if (set != sets.end())
     {
         // a constant the record gives must belong to this implementation, or nothing would read it
+        auto values = set->second.parameters;
+        if (implementation == "reaktoro" && (application.method == "WaterHGK84" || application.method == "WaterIAPWS95"))
+            values.insert(sets.at("WaterSaturation").parameters.begin(), sets.at("WaterSaturation").parameters.end());
         if (const auto* spec = MethodCatalog::instance().find(application.method))
             for (const auto& p : spec->parameters)
-                if (p.constant && application.parameters.count(p.name) && !set->second.parameters.count(p.name))
+                if (p.constant && application.parameters.count(p.name) && !values.count(p.name))
                     funError("Cannot make the method " + application.method, "The constant " + p.name + " does not belong to the implementation " + implementation + ".", __LINE__, __FILE__);
-        application.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
+        application.parameters.insert(values.begin(), values.end());
     }
     return application;
 }

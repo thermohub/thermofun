@@ -398,7 +398,7 @@ auto ThermoEngine::Impl::reactionCarriesPressure(const Reaction& reaction) const
 auto ThermoEngine::Impl::dataPressure(double T, const Substance& substance) const -> double
 {
     double Psat = 0.0;
-    if (T >= water_critical_T || !database.containsSubstance(preferences.solvent_symbol))
+    if (T >= waterCriticalT() || !database.containsSubstance(preferences.solvent_symbol))
         return substance.referenceP();
     cachedSolvent(T, Psat, preferences.solvent_symbol, -1);
     return std::max(substance.referenceP(), Psat);
@@ -466,10 +466,10 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
 
     // A record that gives its own pressure term, and a reaction that does not: all at the pressure of the data of the reaction, then that term. Else all at P.
     const bool ownTerm = pressureFromRecord(subst, reaction);
-    if (ownTerm && P == 0.0 && T < water_critical_T && database.containsSubstance(preferences.solvent_symbol))
+    if (ownTerm && P == 0.0 && T < waterCriticalT() && database.containsSubstance(preferences.solvent_symbol))
         cachedSolvent(T, P, preferences.solvent_symbol, -1);  // the saturation pressure
     double Pdata = dataPressure(T, subst);
-    const bool fromData = ownTerm && T < water_critical_T;
+    const bool fromData = ownTerm && T < waterCriticalT();
     double& Pcalc = fromData ? Pdata : P;  // the calculation writes the saturation pressure to P
 
     tpr = cachedReaction(T, Pcalc, reactionSymbol);

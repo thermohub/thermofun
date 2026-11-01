@@ -207,3 +207,25 @@ def test_a_constant_of_another_implementation_is_an_error():
     water_of(doc)["parameters"] = {**water_of(doc).get("parameters", {}), "nc_g_1": 1.0}
     with pytest.raises(Exception, match="does not belong"):
         gibbs_of_water(doc)
+
+
+@pytest.mark.parametrize("method_id", ["WaterHGK84", "WaterIAPWS95"])
+def test_a_record_can_replace_the_saturation_pressure_and_only_for_itself(method_id):
+    doc = water_with_dielectric()
+    water = water_of(doc)
+    water["method"] = method_id
+    water["implementation"] = "reaktoro"
+    plain = gibbs_of_water(doc, P=0)
+    changed = json.loads(json.dumps(doc))
+    water_of_changed = next(m for m in changed["substances"][solvent_symbol(changed)]["methods"] if m["method"] == method_id)
+    water_of_changed["parameters"] = {**water_of_changed.get("parameters", {}), "sat_a1": -7.85951783 * 1.01}
+    assert gibbs_of_water(changed, P=0) != plain
+    assert gibbs_of_water(doc, P=0) == plain
+
+
+def test_a_record_can_replace_the_critical_point_of_the_water_model():
+    doc = water_with_dielectric()
+    plain = gibbs_of_water(doc)
+    water_of(doc)["implementation"] = "reaktoro"
+    water_of(doc)["parameters"] = {**water_of(doc).get("parameters", {}), "M": 0.018015268 * 1.01}
+    assert gibbs_of_water(doc) != plain

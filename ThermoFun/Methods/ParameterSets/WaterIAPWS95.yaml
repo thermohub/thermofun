@@ -3,7 +3,7 @@ parameter_sets:
   WaterIAPWS95_reaktoro_constants_v1:
     method: WaterIAPWS95
     implementation: reaktoro
-    description: "IAPWS-95 formulation of water, Reaktoro implementation. name_N is place N of the array of the code. no, gammao: ideal gas part; c, d, t, n: residual part; alpha, beta, gamma, epsilon, a, b, A, B, C, F, E: its Gaussian and non-analytic terms. sat_a1 to sat_a6: saturation pressure of Wagner and Pruss (1993), used by all the water methods that take P = 0 as saturation, so a record cannot replace them."
+    description: "IAPWS-95 formulation of water, Reaktoro implementation. name_N is place N of the array of the code. no, gammao: ideal gas part; c, d, t, n: residual part; alpha, beta, gamma, epsilon, a, b, A, B, C, F, E: its Gaussian and non-analytic terms. Ttr: the temperature in K that the model takes as the triple point. Saturation and critical values: see WaterSaturation.yaml."
     reference: "Wagner W., Pruss A. (2002) J. Phys. Chem. Ref. Data 31, 387-535"
     parameters:
       no_1: 0
@@ -268,9 +268,4 @@ parameter_sets:
       F_2: 800
       E_1: 0.3
       E_2: 0.3
-      sat_a1: -7.85951783
-      sat_a2: 1.84408259
-      sat_a3: -11.7866497
-      sat_a4: 22.6807411
-      sat_a5: -15.9618719
-      sat_a6: 1.80122502
+      Ttr: 273.16

@@ -19,7 +19,6 @@
 #include "WaterThermoStateUtils.hpp"
 
 // Reaktoro includes (modified DM 11.05.2016)
-#include <Methods/Water/Reaktoro/WaterConstants.hpp>
 #include <Methods/Water/Reaktoro/WaterHelmholtzStateHGK.hpp>
 #include <Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
 #include <Methods/Water/Reaktoro/WaterUtils.hpp>

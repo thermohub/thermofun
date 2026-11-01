@@ -87,7 +87,7 @@ auto hgk84GemsSubstance(double T, double& P, int state, const std::string& tripl
 
 auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants& constants) -> PropertiesSolvent
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
+    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return propertiesWaterHGKreaktoro(waterThermoStateHGK(pass.T, pass.P, state, constants));
     });
@@ -95,16 +95,16 @@ auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants&
 
 auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKConstants& constants) -> ThermoPropertiesSubstance
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
+    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     WaterTripleProperties wtr = waterTripleData().at(triple);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state, constants), wtr);
+        return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state, constants), wtr, constants.Ttr, constants.saturation.M);
     });
 }
 
 auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPrussConstants& constants) -> PropertiesSolvent
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
+    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return propertiesWaterWP95reaktoro(waterThermoStateWagnerPruss(pass.T, pass.P, state, constants));
     });
@@ -112,10 +112,10 @@ auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPruss
 
 auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
 {
-    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T)).val();
+    if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     WaterTripleProperties wtr = waterTripleData().at(triple);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state, constants), wtr);
+        return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state, constants), wtr, constants.Ttr, constants.saturation.M);
     });
 }
 
@@ -309,9 +309,27 @@ auto valueOf(const MethodApplication& a, const char* name) -> double
 
 } // namespace
 
+namespace {
+
+auto saturationOf(const MethodApplication& a) -> WaterSaturationConstants
+{
+    WaterSaturationConstants s;
+    for (int i = 1; i <= 6; ++i)
+    {
+        s.a.push_back(valueOf(a, ("sat_a" + std::to_string(i)).c_str()));
+        s.b.push_back(valueOf(a, ("sat_b" + std::to_string(i)).c_str()));
+        s.c.push_back(valueOf(a, ("sat_c" + std::to_string(i)).c_str()));
+    }
+    s.Tcr = valueOf(a, "Tcr"); s.Pcr = valueOf(a, "Pcr"); s.Dcr = valueOf(a, "Dcr"); s.M = valueOf(a, "M");
+    return s;
+}
+
+} // namespace
+
 auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
 {
     HGKConstants k;
+    k.saturation = saturationOf(a); k.Ttr = valueOf(a, "Ttr");
     k.A0 = listOf(a, "A0"); k.A1 = listOf(a, "A1"); k.yc = listOf(a, "yc"); k.A3 = listOf(a, "A3"); k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta");
     k.ri = listOf(a, "ri"); k.ti = listOf(a, "ti"); k.A4 = listOf(a, "A4");
     k.ki = listOf<int>(a, "ki"); k.li = listOf<int>(a, "li"); k.mi = listOf<int>(a, "mi"); k.ni = listOf<int>(a, "ni");
@@ -325,6 +343,7 @@ auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<con
 auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
 {
     WagnerPrussConstants k;
+    k.saturation = saturationOf(a); k.Ttr = valueOf(a, "Ttr");
     k.no = listOf(a, "no"); k.gammao = listOf(a, "gammao"); k.c = listOf(a, "c"); k.d = listOf(a, "d"); k.t = listOf(a, "t"); k.n = listOf(a, "n");
     k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta"); k.gamma = listOf(a, "gamma"); k.epsilon = listOf(a, "epsilon");
     k.a = listOf(a, "a"); k.b = listOf(a, "b"); k.A = listOf(a, "A"); k.B = listOf(a, "B"); k.C = listOf(a, "C"); k.F = listOf(a, "F"); k.E = listOf(a, "E");

@@ -1,15 +1,13 @@
 #include "WaterWP95reaktoro.h"
-#include "Reaktoro/WaterConstants.hpp"
 #include <ThermoFun/Common/Constants.h>
 #include "Reaktoro/WaterThermoState.hpp"
 #include <ThermoFun/Common/ThermoProperties.h>
 
 namespace ThermoFun {
 
-auto thermoPropertiesWaterWP95reaktoro(real T, const WaterThermoState& wt, const WaterTripleProperties& wtr) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesWaterWP95reaktoro(real T, const WaterThermoState& wt, const WaterTripleProperties& wtr, double Ttr, double waterMolarMass) -> ThermoPropertiesSubstanceAD
 {
     // Auxiliary data from Helgeson and Kirkham (1974), on page 1098
-    const auto Ttr =  273.16;                   // unit: K
 //    const auto Str =  15.1320 * cal_to_J; // unit: J/(mol*K)
 //    const auto Gtr = -56290.0 * cal_to_J; // unit: J/mol
 //    const auto Htr = -68767.0 * cal_to_J; // unit: J/mol

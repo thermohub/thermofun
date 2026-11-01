@@ -41,17 +41,17 @@ auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussConstan
 /// Calculate the saturated pressure of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated pressure of water (in units of Pa)
-auto waterSaturatedPressureWagnerPruss(real T) -> real;
+auto waterSaturatedPressureWagnerPruss(real T, const WaterSaturationConstants& s) -> real;
 
 /// Calculate the saturated liquid-density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated liquid-density of water (in units of kg/m3)
-auto waterSaturatedLiquidDensityWagnerPruss(real T) -> real;
+auto waterSaturatedLiquidDensityWagnerPruss(real T, const WaterSaturationConstants& s) -> real;
 
 /// Calculate the saturated vapour-density of water using the Wagner and Pruss (1995) equation of state
 /// @param T The temperature of water (in units of K)
 /// @return The saturated vapour-density of water (in units of kg/m3)
-auto waterSaturatedVapourDensityWagnerPruss(real T) -> real;
+auto waterSaturatedVapourDensityWagnerPruss(real T, const WaterSaturationConstants& s) -> real;
 
 } // namespace Reaktoro
 

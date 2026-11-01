@@ -6,6 +6,7 @@
 #ifndef THERMOFUN_THERMOENGINEIMPL_H
 #define THERMOFUN_THERMOENGINEIMPL_H
 
+#include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <algorithm>
 #include <limits>
 #include <map>
@@ -282,7 +283,11 @@ struct ThermoEngine::Impl
     /// The pressure of the log K data of a reaction at T: the larger of the reference pressure and the saturation pressure of water, where liquid water exists.
     /// Above the critical temperature of water there is no such pressure: a substance then has its species at P.
     auto dataPressure(double T, const Substance& substance) const -> double;
-    static constexpr double water_critical_T = 647.096;  // K
+    static auto waterCriticalT() -> double
+    {
+        static const double T = v2::builtinParameterSets().at("WaterSaturation").parameters.at("Tcr").value;
+        return T;
+    }
 
     static auto hasBaseMethod(const v2::SubstanceRecord& record) -> bool;
 
