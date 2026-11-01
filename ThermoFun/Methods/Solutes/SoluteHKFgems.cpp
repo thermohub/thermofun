@@ -6,21 +6,13 @@
 
 namespace ThermoFun {
 
-const double
-ZPrTr = -0.1278034682e-1,
-        YPrTr = -0.5798650444e-4,
-                Pref = 0.1e1,
-                       Tref = 0.29815e3,
-                              eta = 0.166027e6,
-                                    theta = 0.228e3,
-                                            psi = 0.26e4,
-                                                  gref = 0.0e0;
-
-
 auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
     const auto& hkf = subst.parameters;
+    const auto& constants = subst.constants;
+    const double ZPrTr = constants.Zr, YPrTr = constants.Yr, Pref = constants.Pr, Tref = constants.Tr, theta = constants.theta, psi = constants.psi;
+    (void)ZPrTr; (void)YPrTr; (void)Pref; (void)Tref;
 
     auto TK = TC + C_to_K;
 
@@ -134,7 +126,7 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst,
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG
 {
     real a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
@@ -148,9 +140,8 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
 //    if(ps.density > 1000.0 || ps.density < 350.0)
 //        return funcG;
 
-    double C[6]  = {-0.2037662e+01,  0.5747000e-02, -0.6557892e-05,
-                    0.6107361e+01, -0.1074377e-01,  0.1268348e-04 };
-    double cC[3] = { 0.3666666e+02, -0.1504956e-09,  0.5017997e-13 };
+    const double C[6]  = {constants.ag1, constants.ag2, constants.ag3, constants.bg1, constants.bg2, constants.bg3};
+    const double cC[3] = {constants.af1, constants.af2, constants.af3};
 
     const auto D        = ps.density / 1000; // in g/cm3
     const auto beta     = ps.Beta;
@@ -238,6 +229,7 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG
 
 auto omeg92(FunctionG g, const HKFInputs& species) -> ElectroPropertiesSubstance
 {
+    const double eta = species.constants.eta, gref = species.constants.gr, zeta = species.constants.zeta;
     real reref, re, Z3, Z4;
     const auto chg = species.charge;
 
@@ -256,11 +248,11 @@ auto omeg92(FunctionG g, const HKFInputs& species) -> ElectroPropertiesSubstance
     }
     else  // charged aqueous species
     {
-        reref = pow(chg,2.) / (wref / eta + chg / (3.082 + gref));
+        reref = pow(chg,2.) / (wref / eta + chg / (zeta + gref));
         re = reref + fabs(chg) * g.g;
-        eps.w = eta * (pow(chg,2.) / re - chg / (3.082 + g.g));
-        Z3 = fabs(pow(chg,3.)) / pow(re,2.) - chg / pow((3.082 + g.g),2.);
-        Z4 = fabs(pow(chg,4.)) / pow(re,3.) - chg / pow((3.082 + g.g),3.);
+        eps.w = eta * (pow(chg,2.) / re - chg / (zeta + g.g));
+        Z3 = fabs(pow(chg,3.)) / pow(re,2.) - chg / pow((zeta + g.g),2.);
+        Z4 = fabs(pow(chg,4.)) / pow(re,3.) - chg / pow((zeta + g.g),3.);
         eps.wP  = -eta * Z3 * g.gP;
         eps.wT  = -eta * Z3 * g.gT;
         eps.wTT = 2.0 * eta * Z4 * pow(g.gT,2.) - eta * Z3 * g.gTT;

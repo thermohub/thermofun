@@ -34,7 +34,10 @@ auto builtinParameterSets() -> const std::map<std::string, MethodParameterSet>&
             if (!diagnostics.ok())
                 funError(std::string("The constants of the methods in ") + file.name + " cannot be read", diagnostics.toString(), __LINE__, __FILE__);
             for (auto& set : document.parameter_sets)
-                out[set.method] = std::move(set);
+            {
+                const auto key = set.implementation.empty() ? set.method : set.method + "/" + set.implementation;
+                out[key] = std::move(set);
+            }
         }
         return out;
     }();

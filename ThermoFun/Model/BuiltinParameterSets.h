@@ -11,7 +11,8 @@
 
 namespace ThermoFun::v2 {
 
-/// The constants of the methods, by method: the files of Methods/ParameterSets, kept in the library when it is built. They are read once.
+/// The constants of the methods: the files of Methods/ParameterSets, kept in the library when it is built. They are read once.
+/// By method, or method/implementation for a set of one implementation.
 auto builtinParameterSets() -> const std::map<std::string, MethodParameterSet>&;
 
 } // namespace ThermoFun::v2

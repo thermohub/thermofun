@@ -342,12 +342,13 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
         report(c, Severity::Error, "V2-ID-001", key, path, "A parameter set must be a mapping.");
         return set;
     }
-    static const std::set<std::string> known = {"symbol", "method", "parameters", "auxiliary", "reference", "units"};
+    static const std::set<std::string> known = {"symbol", "method", "implementation", "parameters", "auxiliary", "reference", "units"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return set;
     set.symbol = symbol;
     set.method = optionalString(node, "method");
+    set.implementation = optionalString(node, "implementation");
     const UnitScope own = readScope(c, node, &scope, symbol, path);
     // the unit of a value: the parameter of the built-in method, or of the method record of the file, else none
     std::map<std::string, std::string> units;

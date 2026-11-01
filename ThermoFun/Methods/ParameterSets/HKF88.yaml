@@ -1,0 +1,51 @@
+# The universal constants of the HKF equation of state (Tanger and Helgeson 1988) and of its g function (Shock et al. 1992).
+# eta in A cal/mol, theta in K, psi and Pr in bar, Tr in K, zeta in A: as in the formulas. a_g, b_g in the units of the paper, a_f the coefficients of the shaded region.
+# The two implementations have different digits of these numbers: both are kept, as in decision 0026.
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  HKF88_reaktoro_constants_v1:
+    method: HKF88
+    implementation: reaktoro
+    reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
+    parameters:
+      eta: 1.66027e+05
+      theta: 228.0
+      psi: 2600.0
+      Tr: 298.15
+      Pr: 1.0
+      Zr: -1.278055636e-02
+      Yr: -5.795424563e-05
+      zeta: 3.082
+      gr: 0.0
+      ag1: -2.037662
+      ag2: 5.747000e-03
+      ag3: -6.557892e-06
+      bg1: 6.107361
+      bg2: -1.074377e-02
+      bg3: 1.268348e-05
+      af1: 3.666660e+01
+      af2: -1.504956e-10
+      af3: 5.017990e-14
+  HKF88_gems_constants_v1:
+    method: HKF88
+    implementation: gems
+    reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
+    parameters:
+      eta: 0.166027e6
+      theta: 0.228e3
+      psi: 0.26e4
+      Tr: 0.29815e3
+      Pr: 0.1e1
+      Zr: -0.1278034682e-1
+      Yr: -0.5798650444e-4
+      zeta: 3.082
+      gr: 0.0
+      ag1: -0.2037662e+01
+      ag2: 0.5747000e-02
+      ag3: -0.6557892e-05
+      bg1: 0.6107361e+01
+      bg2: -0.1074377e-01
+      bg3: 0.1268348e-04
+      af1: 0.3666666e+02
+      af2: -0.1504956e-09
+      af3: 0.5017997e-13

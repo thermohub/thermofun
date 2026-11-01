@@ -166,6 +166,29 @@ auto reactionCpCoefficients(bool required) -> std::vector<ParameterSpec>
             par("e", "J/(mol.K3)", "J/(mol.K3)", "term e T2", false)};
 }
 
+/// The constants of a model: built-in, so a record does not have to give them (see Methods/ParameterSets).
+auto constants(std::vector<std::pair<const char*, const char*>> rows) -> std::vector<ParameterSpec>
+{
+    std::vector<ParameterSpec> out;
+    for (const auto& [name, description] : rows)
+    {
+        out.push_back(par(name, "1", "1", description, false));
+        out.back().constant = true;
+    }
+    return out;
+}
+
+auto numbered(const char* prefix, int count, const char* description) -> std::vector<ParameterSpec>
+{
+    std::vector<ParameterSpec> out;
+    for (int i = 1; i <= count; ++i)
+    {
+        out.push_back(par((prefix + std::to_string(i)).c_str(), "1", "1", description, false));
+        out.back().constant = true;
+    }
+    return out;
+}
+
 auto substanceMethods() -> std::vector<MethodSpec>
 {
     std::vector<Spec> m;
@@ -215,7 +238,12 @@ auto substanceMethods() -> std::vector<MethodSpec>
     // aqueous solutes
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
                      "Tanger and Helgeson (1988); Shock et al. (1992)")
-                    .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters()));
+                    .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters())
+                    .add(constants({{"eta", "constant of the Born term, A cal/mol"}, {"theta", "characteristic T of the solvent, K"}, {"psi", "characteristic P of the solvent, bar"},
+                                    {"Tr", "reference T, K"}, {"Pr", "reference P, bar"}, {"Zr", "Born function Z at the reference"}, {"Yr", "Born function Y at the reference"},
+                                    {"zeta", "constant of the effective radius, A"}, {"gr", "g function at the reference"},
+                                    {"ag1", "coefficient of a_g"}, {"ag2", "coefficient of a_g"}, {"ag3", "coefficient of a_g"}, {"bg1", "coefficient of b_g"}, {"bg2", "coefficient of b_g"}, {"bg3", "coefficient of b_g"},
+                                    {"af1", "coefficient of f(T)"}, {"af2", "coefficient of f(P)"}, {"af3", "coefficient of f(P)"}})));
     {
         Spec s("AkinfievDiamond03", "Model of Akinfiev and Diamond", "Calculates the properties of a dissolved gas or neutral species from those of the gas and of water.",
                "Akinfiev and Diamond (2003)");
@@ -333,19 +361,6 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
                              .add(zhangDuanGibbs())));
-    // the constants of a model: built-in, so a record does not have to give them (see Methods/ParameterSets)
-    auto constants = [](std::vector<std::pair<const char*, const char*>> rows) {
-        std::vector<ParameterSpec> out;
-        for (const auto& [name, description] : rows)
-            out.push_back(par(name, "1", "1", description, false));
-        return out;
-    };
-    auto numbered = [](const char* prefix, int count, const char* description) {
-        std::vector<ParameterSpec> out;
-        for (int i = 1; i <= count; ++i)
-            out.push_back(par((prefix + std::to_string(i)).c_str(), "1", "1", description, false));
-        return out;
-    };
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})

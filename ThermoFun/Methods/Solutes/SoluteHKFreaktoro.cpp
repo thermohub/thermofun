@@ -5,42 +5,6 @@
 
 namespace ThermoFun {
 
-/// The reference temperature assumed in the HKF equations of state (in units of K)
-const double referenceTemperature = 298.15;
-
-/// The reference temperature assumed in the HKF equations of state (in units of bar)
-const double referencePressure = 1.0;
-
-/// The reference dielectric constant of water \epsilon
-const double referenceDielectricConstant = 78.24385513;
-
-/// The reference Born function Z (dimensionless)
-const double referenceBornZ = -1.278055636e-02;
-
-/// The reference Born function Y (dimensionless)
-const double referenceBornY = -5.795424563e-05;
-
-/// The reference Born function Q (dimensionless)
-const double referenceBornQ =  6.638388994e-12;
-
-/// The reference Born function N (dimensionless)
-const double referenceBornN = -2.321814455e-20;
-
-/// The reference Born function U (dimensionless)
-const double referenceBornU = 4.872982291e-14;
-
-/// The reference Born function X (dimensionless)
-const double referenceBornX = -3.060388224e-07;
-
-/// The \eta constant in the HKF model (in units of (A*cal)/mol)
-const double eta = 1.66027e+05;
-
-/// The constant characteristics \Theta of the solvent (in units of K)
-const double theta = 228;
-
-/// The constant characteristics \Psi of the solvent (in units of bar)
-const double psi = 2600;
-
 auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
@@ -64,10 +28,13 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& su
 //    }
 
     // Auxiliary variables
-    const auto Tr   = referenceTemperature;
-    const auto Pr   = referencePressure;
-    const auto Zr   = referenceBornZ;
-    const auto Yr   = referenceBornY;
+    const auto& constants = subst.constants;
+    const auto Tr   = constants.Tr;
+    const auto Pr   = constants.Pr;
+    const auto Zr   = constants.Zr;
+    const auto Yr   = constants.Yr;
+    const auto theta = constants.theta;
+    const auto psi  = constants.psi;
     const auto Gf   = subst.G / cal_to_J;
     const auto Hf   = subst.H / cal_to_J;
     const auto Sr   = subst.S / cal_to_J;
@@ -155,16 +122,18 @@ auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> Ele
     {
         const auto z = species.charge;
         const auto wref = hkf[6] /*hkf.wref*/;
+        const auto eta = species.constants.eta;
+        const auto zeta = species.constants.zeta;
 
-        const auto reref = z*z/(wref/eta + z/3.082);
+        const auto reref = z*z/(wref/eta + z/zeta);
         const auto re    = reref + std::abs(z) * g.g;
 
-        const auto X1 =  -eta * (std::abs(z*z*z)/(re*re) - z/pow(3.082 + g.g, 2));
-        const auto X2 = 2*eta * (z*z*z*z/(re*re*re) - z/pow(3.082 + g.g, 3));
+        const auto X1 =  -eta * (std::abs(z*z*z)/(re*re) - z/pow(zeta + g.g, 2));
+        const auto X2 = 2*eta * (z*z*z*z/(re*re*re) - z/pow(zeta + g.g, 3));
 
         se.re    = re;
         se.reref = reref;
-        se.w     = eta * (z*z/re - z/(3.082 + g.g));
+        se.w     = eta * (z*z/re - z/(zeta + g.g));
         se.wT    = X1 * g.gT;
         se.wP    = X1 * g.gP;
         se.wTT   = X1 * g.gTT + X2 * g.gT * g.gT;
@@ -176,7 +145,7 @@ auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> Ele
 }
 
 
-auto functionG(real T, real P, const PropertiesSolventAD& ps) -> FunctionG
+auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants& constants) -> FunctionG
 {
     // The function G
     FunctionG funcG;
@@ -213,13 +182,13 @@ auto functionG(real T, real P, const PropertiesSolventAD& ps) -> FunctionG
     auto& gPP = funcG.gPP;
 
     // Use equations (24)-(31) of Shock and others (1992) to compute `g` and its derivatives on region I
-    const auto ag1 = -2.037662;
-    const auto ag2 =  5.747000e-03;
-    const auto ag3 = -6.557892e-06;
+    const auto ag1 = constants.ag1;
+    const auto ag2 = constants.ag2;
+    const auto ag3 = constants.ag3;
 
-    const auto bg1 =  6.107361;
-    const auto bg2 = -1.074377e-02;
-    const auto bg3 =  1.268348e-05;
+    const auto bg1 = constants.bg1;
+    const auto bg2 = constants.bg2;
+    const auto bg3 = constants.bg3;
 
     const auto ag = ag1 + ag2*TdegC + ag3*TdegC*TdegC;
     const auto bg = bg1 + bg2*TdegC + bg3*TdegC*TdegC;
@@ -249,9 +218,9 @@ auto functionG(real T, real P, const PropertiesSolventAD& ps) -> FunctionG
     if ((TdegC > 155.0 && TdegC < 355.0 && Pbar < 1000.0) || (TdegC>=355 && Pbar >=500 && Pbar < 1000) || (TdegC>=355 && Pbar<500))
     {
         // Use equations (32)-(44) of Shock and others (1992) to compute the function g and its partial derivatives on region II
-        const auto af1 =  3.666660e+01; // unit: K
-        const auto af2 = -1.504956e-10; // unit: A:bar^{-3}
-        const auto af3 =  5.017990e-14; // unit: A:bar^{-4}
+        const auto af1 = constants.af1; // unit: K
+        const auto af2 = constants.af2; // unit: A:bar^{-3}
+        const auto af3 = constants.af3; // unit: A:bar^{-4}
 
         const auto auxT  = (TdegC - 155)/300;
         const auto auxT1 = pow(auxT, 4.8);

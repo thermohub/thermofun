@@ -44,6 +44,7 @@ auto hkfInputs(const std::vector<Scalar>& parameters, const HKFSpecies& species,
     out.S = in.reference.S ? *in.reference.S : Scalar(0.0);
     out.charge = species.charge;
     out.hydrogen_ion = species.hydrogen_ion;
+    out.constants = species.constants;
     return out;
 }
 
@@ -106,7 +107,7 @@ auto hkf88Reaktoro(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>&
         const auto inputs = hkfInputs(parameters, p.data, in);
         const Scalar t = in.T;
         const Scalar p = in.P / bar_to_Pa;
-        FunctionG g = functionG(t, p, in.solvent->properties);
+        FunctionG g = functionG(t, p, in.solvent->properties, inputs.constants);
         const ElectroPropertiesSubstance aes = parameters.empty() ? ElectroPropertiesSubstance{} : speciesElectroStateHKF(g, inputs);
         setFromModel(state, thermoPropertiesAqSoluteHKFreaktoro(t, p, inputs, aes, in.solvent->electro, in.solvent->properties));
     }
@@ -126,7 +127,7 @@ auto hkf88Gems(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in,
         const auto inputs = hkfInputs(parameters, p.data, in);
         const Scalar t = in.T - C_to_K;
         const Scalar p = in.P / bar_to_Pa;
-        FunctionG g = gShok2(t, p, in.solvent->properties);
+        FunctionG g = gShok2(t, p, in.solvent->properties, inputs.constants);
         const ElectroPropertiesSubstance aes = parameters.empty() ? ElectroPropertiesSubstance{} : omeg92(g, inputs);
         setFromModel(state, thermoPropertiesAqSoluteHKFgems(t, p, inputs, aes, in.solvent->electro, in.solvent->properties));
     }
@@ -196,15 +197,17 @@ auto akinfievDiamond03Info(PropertiesInfo& out, const InfoInputs& in) -> void
 
 } // namespace
 
-auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species) -> std::shared_ptr<const SubstanceMethod>
+auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species, HKFConstants constants) -> std::shared_ptr<const SubstanceMethod>
 {
+    species.constants = constants;
     return makeMethod("HKF88", HKFParameters{std::move(parameters), std::move(species)},
                       [](auto& state, const auto& in, const HKFParameters& p) { hkf88Reaktoro(state, in, p); },
                       [](PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFParameters& p) { hkf88Info(out, ref, in, p.data); });
 }
 
-auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species) -> std::shared_ptr<const SubstanceMethod>
+auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFConstants constants) -> std::shared_ptr<const SubstanceMethod>
 {
+    species.constants = constants;
     return makeMethod("HKF88", HKFParameters{std::move(parameters), std::move(species)},
                       [](auto& state, const auto& in, const HKFParameters& p) { hkf88Gems(state, in, p); },
                       [](PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFParameters& p) { hkf88Info(out, ref, in, p.data); });

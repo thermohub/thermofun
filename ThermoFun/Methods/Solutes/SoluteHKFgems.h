@@ -23,7 +23,7 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& specie
 /// @param T temparature (K)
 /// @param P pressure (Pa)
 /// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
-auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps ) -> FunctionG;
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG;
 
 /// Returns the electro-chemical properties of a substance (omeg92 in GEMS)
 /// @ref Johnson et al. (1991)

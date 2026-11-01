@@ -40,6 +40,7 @@ struct ParameterSpec
     bool required = true;
     std::optional<double> default_si;
     bool fittable = true;     ///< false for integers and switches, for example a number of atoms
+    bool constant = false;    ///< a constant of the model, built in (Methods/ParameterSets): not a value of each record
 };
 
 /// The effects of a substance method on G, H, S, Cp and V. U, A and Cv are always computed at the end.

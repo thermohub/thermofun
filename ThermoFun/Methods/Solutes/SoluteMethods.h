@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <ThermoFun/Methods/Method.h>
+#include <ThermoFun/Methods/Solutes/SoluteInputs.h>
 #include <ThermoFun/Model/Applicability.h>
 
 namespace ThermoFun::v2 {
@@ -21,12 +22,13 @@ struct HKFSpecies
     double charge = 0.0;
     bool hydrogen_ion = false;
     Applicability applicability;
+    HKFConstants constants{};
 };
 
 /// HKF88, in the implementation reaktoro or gems. The parameters in SI, in the order of the catalog: a1, a2, a3, a4, c1, c2, omega.
 /// No parameters: the method raises the error of a record without them.
-auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species) -> std::shared_ptr<const SubstanceMethod>;
-auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species) -> std::shared_ptr<const SubstanceMethod>;
+auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species, HKFConstants constants) -> std::shared_ptr<const SubstanceMethod>;
+auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFConstants constants) -> std::shared_ptr<const SubstanceMethod>;
 
 /// SoluteHP98: the density model of Holland and Powell (1998). The parameter: b, J/(mol K2).
 auto soluteHP98Method(std::vector<double> parameters, std::string symbol) -> std::shared_ptr<const SubstanceMethod>;

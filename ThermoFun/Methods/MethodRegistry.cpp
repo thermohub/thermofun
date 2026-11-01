@@ -26,13 +26,44 @@ namespace ThermoFun::v2 {
 namespace {
 
 /// The names of the parameters of a method, in the order of the catalog. alpha0 and kappa0 of a mineral are apart: its formulas get them on their own.
+/// The application with the built-in constants of its method, for each value that it does not give itself. An implementation can have its own.
+auto withConstants(MethodApplication application) -> MethodApplication
+{
+    const auto& sets = builtinParameterSets();
+    std::string implementation = application.implementation;
+    if (implementation.empty())
+        if (const auto* spec = MethodCatalog::instance().find(application.method); spec && !spec->implementations.empty())
+            implementation = spec->implementations.front();
+    auto set = sets.find(application.method + "/" + implementation);
+    if (set == sets.end())
+        set = sets.find(application.method);
+    if (set != sets.end())
+        application.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
+    return application;
+}
+
 auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::string>
 {
     std::vector<std::string> names;
     for (const auto& p : MethodCatalog::instance().find(id, OperatesOn::Substance)->parameters)
-        if (withModuli || (p.name != "alpha0" && p.name != "kappa0"))
+        if (!p.constant && (withModuli || (p.name != "alpha0" && p.name != "kappa0")))
             names.push_back(p.name);
     return names;
+}
+
+/// The values of the constants of a method, in the order of the catalog.
+auto constantsOf(const MethodApplication& application) -> std::vector<double>
+{
+    std::vector<double> values;
+    for (const auto& p : MethodCatalog::instance().find(application.method, OperatesOn::Substance)->parameters)
+        if (p.constant)
+        {
+            const auto it = application.parameters.find(p.name);
+            if (it == application.parameters.end())
+                funError("Cannot make the method " + application.method, "It has no value of " + p.name + ".", __LINE__, __FILE__);
+            values.push_back(it->second.value);
+        }
+    return values;
 }
 
 } // namespace
@@ -179,23 +210,27 @@ MethodRegistry::MethodRegistry()
     // the parameters in the order of the catalog; none if the record gives none
     auto parametersOf = [](A a) {
         std::vector<double> values;
-        if (a.parameters.empty())
-            return values;
+        bool any = false;  // the built-in constants do not count
         for (const auto& n : catalogNames(a.method.c_str()))
         {
             const auto it = a.parameters.find(n);
+            any = any || it != a.parameters.end();
             values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
         }
-        return values;
+        return any ? values : std::vector<double>{};
     };
     auto hkfSpecies = [](R r) { return HKFSpecies{r.symbol, static_cast<double>(r.charge.value_or(0)), isHydrogenIon(r), r.applicability}; };
-    auto hkfReaktoro = [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return hkf88ReaktoroMethod(parametersOf(a), hkfSpecies(r));
+    auto hkfConstants = [](A a) {
+        const auto c = constantsOf(a);
+        return HKFConstants{c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17]};
+    };
+    auto hkfReaktoro = [parametersOf, hkfSpecies, hkfConstants](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+        return hkf88ReaktoroMethod(parametersOf(a), hkfSpecies(r), hkfConstants(a));
     };
     add("HKF88", "", hkfReaktoro);
     add("HKF88", "reaktoro", hkfReaktoro);
-    add("HKF88", "gems", [parametersOf, hkfSpecies](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return hkf88GemsMethod(parametersOf(a), hkfSpecies(r));
+    add("HKF88", "gems", [parametersOf, hkfSpecies, hkfConstants](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+        return hkf88GemsMethod(parametersOf(a), hkfSpecies(r), hkfConstants(a));
     });
     add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
     add("AndersonEtAl91", "", [](A, R) { return andersonEtAl91Method(); });
@@ -223,24 +258,12 @@ MethodRegistry::MethodRegistry()
         const auto dew = a.parameters.find("dew_gibbs");
         return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, coefficients);
     });
-    // the values in the order of the catalog. Each one comes from the built-in constants, a parameter set or the record
-    auto constantsOf = [](A a) {
-        std::vector<double> values;
-        for (const auto& n : catalogNames(a.method.c_str()))
-        {
-            const auto it = a.parameters.find(n);
-            if (it == a.parameters.end())
-                funError("Cannot make the method " + a.method, "It has no value of " + n + ".", __LINE__, __FILE__);
-            values.push_back(it->second.value);
-        }
-        return values;
-    };
-    DielectricFactory jnReaktoro = [constantsOf](A a) { return johnsonNorton91ReaktoroMethod(constantsOf(a)); };
+    DielectricFactory jnReaktoro = [](A a) { return johnsonNorton91ReaktoroMethod(constantsOf(a)); };
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
     dielectric("JohnsonNorton91", "gems", [](A) { return johnsonNorton91GemsMethod(); });
-    dielectric("SverjenskyEtAl14", "", [constantsOf](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
-    dielectric("FernandezEtAl97", "", [constantsOf](A a) { return fernandezEtAl97Method(constantsOf(a)); });
+    dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
+    dielectric("FernandezEtAl97", "", [](A a) { return fernandezEtAl97Method(constantsOf(a)); });
 }
 
 auto MethodRegistry::instance() -> MethodRegistry&
@@ -286,7 +309,7 @@ auto MethodRegistry::create(const MethodApplication& application, const Substanc
         it = substance_.find({application.method, ""});
     if (it == substance_.end())
         funError("Cannot make the method " + application.method, "There is no code for this method and implementation \"" + application.implementation + "\".", __LINE__, __FILE__);
-    return it->second(application, record);
+    return it->second(withConstants(application), record);
 }
 
 auto MethodRegistry::hasSolventMethod(const std::string& id) const -> bool
@@ -295,15 +318,6 @@ auto MethodRegistry::hasSolventMethod(const std::string& id) const -> bool
 }
 
 namespace {
-
-/// The application with the built-in constants of its method, for each value that it does not give itself.
-auto withConstants(MethodApplication application) -> MethodApplication
-{
-    const auto& sets = builtinParameterSets();
-    if (const auto set = sets.find(application.method); set != sets.end())
-        application.parameters.insert(set->second.parameters.begin(), set->second.parameters.end());
-    return application;
-}
 
 template <class Factories, class... Inputs>
 auto makeFrom(const Factories& factories, const MethodApplication& application, const Inputs&... inputs)

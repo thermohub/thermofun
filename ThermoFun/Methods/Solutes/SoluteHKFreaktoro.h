@@ -15,7 +15,7 @@ struct FunctionG;
 /// @param T temparature (K)
 /// @param P pressure (Pa)
 /// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
-auto functionG(real T, real P, const PropertiesSolventAD&ps) -> FunctionG;
+auto functionG(real T, real P, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG;
 
 /// Calculate the electrostatic state of the aqueous species using the g-function state.
 /// @param g structure holding the g function values and its derivatives

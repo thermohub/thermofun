@@ -65,7 +65,7 @@ public:
         // the moduli of a mineral come after its coefficients
         std::vector<std::string> names;
         for (const auto& p : spec_->parameters)
-            if (p.name != "alpha0" && p.name != "kappa0")
+            if (!p.constant && p.name != "alpha0" && p.name != "kappa0")
                 names.push_back(p.name);
         for (const auto& p : spec_->parameters)
             if (p.name == "alpha0" || p.name == "kappa0")

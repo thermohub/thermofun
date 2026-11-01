@@ -105,3 +105,30 @@ def test_a_record_and_a_set_can_replace_a_built_in_constant():
     method["parameter_set"] = "mine"
     doc["parameter_sets"] = {"mine": {"method": "SverjenskyEtAl14", "parameters": {"b3": 5.0}}}
     assert epsilon(doc) == inline
+
+
+def test_each_implementation_of_hkf_has_its_own_constants():
+    doc, method, parameters = with_set()
+    doc["substances"]["Na+"]["methods"] = [dict(m, parameters=parameters) if m["method"] == "HKF88" else m for m in doc["substances"]["Na+"]["methods"]]
+    for m in doc["substances"]["Na+"]["methods"]:
+        m.pop("parameter_set", None)
+    doc.pop("parameter_sets")
+    values = {}
+    for implementation in ("reaktoro", "gems"):
+        next(m for m in doc["substances"]["Na+"]["methods"] if m["method"] == "HKF88")["implementation"] = implementation
+        values[implementation] = gibbs(doc)
+    # the digits of Shock et al. against those of SUPCRT: close, and not the same
+    assert values["reaktoro"] != values["gems"]
+    assert values["reaktoro"] == pytest.approx(values["gems"], rel=1e-3)
+
+
+def test_a_record_can_replace_a_constant_of_hkf():
+    doc, method, parameters = with_set()
+    plain = gibbs(doc)
+    method["parameters"] = {"eta": 1.7e5}
+    assert gibbs(doc) != plain
+
+
+def test_a_constant_is_not_a_parameter_to_fit():
+    names = [h.key()[2] for h in tf.ThermoEngine("pytests/data/v2/hkf.json").parameters("Na+")]
+    assert "a1" in names and "eta" not in names

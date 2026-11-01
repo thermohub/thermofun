@@ -16,6 +16,7 @@ struct MethodParameterSet
 {
     std::string symbol;                            ///< for example "IAPWS95_constants_v1"
     std::string method;                            ///< id of the method it belongs to
+    std::string implementation;                    ///< empty: all the implementations of the method
     std::map<std::string, Quantity> parameters;
     std::map<std::string, Quantity> auxiliary;
     std::string reference;                         ///< symbol of a data source
