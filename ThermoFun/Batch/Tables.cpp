@@ -1580,10 +1580,22 @@ auto TableSetup::toYaml() const -> std::string
 
 auto TableSetup::save(const std::string& path) const -> void
 {
+    // a database is found next to the file: write its path from there
+    TableSetup saved(*this);
+    auto& document = saved.pimpl->document;
+    if (document.contains("database") && document["database"].is_string())
+    {
+        const std::filesystem::path database(document["database"].get<std::string>());
+        if (!database.is_absolute())
+        {
+            const auto from = pimpl->base.empty() ? std::filesystem::absolute(database) : std::filesystem::path(pimpl->base) / database;
+            document["database"] = std::filesystem::proximate(from, std::filesystem::absolute(path).parent_path()).generic_string();
+        }
+    }
     std::ofstream file(path);
     if (!file)
         fail("Cannot write the file " + path + ".");
-    file << toYaml();
+    file << saved.toYaml();
 }
 
 auto TableSetup::run() const -> TableResults
@@ -1651,6 +1663,11 @@ auto TableSetup::applyTo(ThermoBatch& batch, const std::string& table) const -> 
             if (const auto digits = digitsOf(column, "digits"); digits || tableDigits)
                 batch.setPropertyDigit(batchField, digits ? *digits : *tableDigits);
         }
+
+    if (const auto digits = digitsOf(spec, "digits_T"))
+        batch.setPropertyDigit("temperature", *digits);
+    if (const auto digits = digitsOf(spec, "digits_P"))
+        batch.setPropertyDigit("pressure", *digits);
 
     auto& p = batch.preferences();
     if (spec.contains("format"))

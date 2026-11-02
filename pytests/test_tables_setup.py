@@ -308,3 +308,36 @@ def test_a_batch_grid_has_the_axis_of_the_setup(tmp_path, monkeypatch, across):
     table = made.run()["t"].property_grids()[0][1]
     assert [len(table[0]), len(table)] == [len(rows[0]), len(rows)]
     assert [float(x) for x in rows[1][2:]] == pytest.approx([float(x) for x in table[1][2:]], abs=1e-9)
+
+
+def test_a_saved_setup_finds_its_database_from_another_folder(tmp_path, monkeypatch):
+    (tmp_path / "data").mkdir()
+    (tmp_path / "work" / "keep").mkdir(parents=True)
+    (tmp_path / "data" / "aq.json").write_text(pathlib.Path(AQ).read_text())
+    monkeypatch.chdir(tmp_path / "work")
+    made = tf.tables.template(["species-properties", "batch-reference"], database="../data/aq.json", records=["Ca+2"])
+    path = made.save("keep/saved.yaml")
+    assert "../../data/aq.json" in pathlib.Path(path).read_text()
+    assert made.to_yaml().count("../data/aq.json") == 1             # the setup in memory keeps its path
+    again = tf.tables.load(path)
+    assert again.run()["species"].to_text() == made.run()["species"].to_text()
+    moved = again.save(str(tmp_path / "other.yaml"))                # a setup read from a file: from where that file was
+    assert "database: data/aq.json" in pathlib.Path(moved).read_text()
+    assert tf.table(moved)["species"].to_text() == made.run()["species"].to_text()
+
+
+def test_the_record_names_the_implementation_that_runs():
+    engine = tf.ThermoEngine(AQ)
+    assert engine.calculationPath("Ca+2")["methods"] == ["HKF88/reaktoro"]
+    preferences = engine.preferences
+    preferences.method_implementation = {"HKF88": "gems"}
+    engine.setPreferences(preferences)
+    assert engine.calculationPath("Ca+2")["methods"] == ["HKF88/gems"]
+    made = setup(options={"method_implementation": {"JohnsonNorton91": "gems"}})
+    assert any("JohnsonNorton91/gems" in line for line in tf.table(made)["t"].provenance.lines())
+
+
+def test_digits_of_the_conditions_go_on_a_batch():
+    b = tf.ThermoBatch(AQ)
+    tf.tables.load(setup(digits_T=1, digits_P=3)).apply_to(b)
+    assert b.propertyDigits()["temperature"] == 1 and b.propertyDigits()["pressure"] == 3

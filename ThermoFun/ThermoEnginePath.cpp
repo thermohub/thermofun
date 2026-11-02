@@ -9,11 +9,16 @@ namespace ThermoFun {
 
 namespace {
 
-auto methodsOf(const std::vector<v2::MethodApplication>& methods) -> std::vector<std::string>
+auto methodsOf(const std::vector<v2::MethodApplication>& methods, const std::map<std::string, std::string>& implementations) -> std::vector<std::string>
 {
     std::vector<std::string> names;
     for (const auto& a : methods)
-        names.push_back(a.implementation.empty() ? a.method : a.method + "/" + a.implementation);
+    {
+        // the preferences replace the implementation of a record
+        const auto chosen = implementations.find(a.method);
+        const std::string& implementation = chosen != implementations.end() ? chosen->second : a.implementation;
+        names.push_back(implementation.empty() ? a.method : a.method + "/" + implementation);
+    }
     return names;
 }
 
@@ -43,7 +48,7 @@ auto ThermoEngine::Impl::pathOfReaction(const std::string& symbol, std::vector<s
         return path;
     }
     const auto reaction = database.getReaction(symbol);
-    path.methods = methodsOf(reaction.record()->methods);
+    path.methods = methodsOf(reaction.record()->methods, preferences.method_implementation);
     above.push_back(symbol);
     try
     {
@@ -94,7 +99,7 @@ auto ThermoEngine::Impl::pathOfSubstance(const std::string& symbol, std::vector<
     }
     const auto substance = database.getSubstance(symbol);
     const auto record = substance.record();
-    path.methods = methodsOf(record->methods);
+    path.methods = methodsOf(record->methods, preferences.method_implementation);
     if (v2::isZeroHydrogenIon(*record, database.thermoDataSet().convention))
     {
         path.source = "hydrogen_ion";
