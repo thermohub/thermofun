@@ -46,6 +46,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `EnginePreferences::useStandardStateOfGases()` (C++ and Python): G(T, Pr) for a gas, the defaults before 1.0, in one call.
 - `Methods/ParameterSets/DataPressure.yaml` (`rho_min`) and `SolventMethod::pressureAtDensity`.
 - `Status.outofbounds` in Python.
+- CNV-008: a warning when data use the energy reference `dft_formation_0K`, which is an estimate (the energy at 0 K taken
+  as the enthalpy of formation at 298.15 K). The conventions page states it, and the approximation of
+  `gibbs_helmholtz_formation`.
 - `SoluteHP98` has two implementations: `consistent` (the default; S, H and Cp are the exact derivatives of G) and
   `published` (the formulas of Holland and Powell 1998, as ThermoFun had them before 1.0). G and V are the same in both.
   Choose with `implementation` on the method of a record, or `method_implementation` of the engine.

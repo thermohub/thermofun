@@ -30,6 +30,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | V2-MTH-004 | Error | A parameter that the method needs is missing. | Add the parameter, or give a `parameter_set` that has it. |
 | V2-MTH-005 | Error | The method cannot be used for this class of substance. | Use a method for the class of the record (see `Suits` in the method reference). |
 | CNV-007 | Warning | The hydrogen ion has values other than 0 in the geochemical convention. | Set the values to 0, or declare the convention of the record. |
+| CNV-008 | Warning | The energy reference dft_formation_0K is an estimate: the formation energy at 0 K is taken as the enthalpy of formation at 298.15 K (Berman-Brown), with no zero-point or thermal term. | Use the values as estimates (a few kJ/mol per atom), or give values at 298.15 K in another energy reference. |
 | V2-APP-001 | Error | The minimum of a range is not below its maximum. | Correct the limits of the range. |
 | V2-MTH-006 | Warning | The temperature segments overlap or leave gaps. | Make each segment start where the one before ends. |
 | V2-MTH-009 | Error | The method has no implementation with this name. | Use one of the implementations of the method, or remove the key `implementation`. |

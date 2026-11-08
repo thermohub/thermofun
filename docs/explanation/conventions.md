@@ -25,6 +25,8 @@ The same substance can have different values for G, because G has no absolute ze
 | `molality` to `molarity` | - RT ln(rho/1000), rho in kg/m3 | follows | H follows rho(T) |
 | 1 bar to 1 atm (gases) | + RT ln(1.01325) | - R ln(1.01325) | no change |
 
+Two of these are approximations. `dft_formation_0K` takes a formation energy at 0 K from a DFT calculation as the enthalpy of formation at 298.15 K, with no zero-point or thermal term: an estimate, typically within a few kJ/mol per atom, and the reader warns (CNV-008). `gibbs_helmholtz_formation` uses T S_el(Tr) for the elements at every T, which is exact only if their heat capacities were zero.
+
 U and A follow H, not G: U = H - P V and A = U - T S. With `benson_helgeson`, A is therefore not G - P V: the two differ by 298.15 S_el. This is the "apparent" Helmholtz and internal energy of Berman (1988) (Dolejš 2013, Eqs. 21-26), the same in every energy reference.
 
 **Water on two scales.** The steam tables set S = 0 and G = 0 for liquid water at its triple point, at 273.16 K. The geochemical scale uses the values of formation, with an absolute S. G on the two scales differs by a constant and a term in T, because S differs by a constant:

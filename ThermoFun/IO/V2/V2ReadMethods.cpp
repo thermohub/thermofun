@@ -264,6 +264,9 @@ auto readConvention(Context& c, const json& node, const std::string& record, con
     };
     Convention conv;
     conv.energy_reference = word(std::type_identity<EnergyReference>{}, "energy_reference");
+    if (conv.energy_reference == EnergyReference::DFTFormation0K)
+        report(c, Severity::Warning, "CNV-008", record, path + "/energy_reference",
+               "dft_formation_0K: the energy at 0 K is used as the enthalpy of formation at 298.15 K; the values are estimates.");
     conv.standard_pressure = word(std::type_identity<StandardPressure>{}, "standard_pressure");
     conv.concentration_scale = word(std::type_identity<ConcentrationScale>{}, "concentration_scale");
     conv.water_reference = word(std::type_identity<WaterReference>{}, "water_reference");

@@ -465,6 +465,16 @@ def test_cnv_001_no_source_has_the_entropy_of_an_element():
         props(e)
 
 
+def test_cnv_008_dft_energies_are_estimates():
+    """dft_formation_0K is converted as Berman-Brown, with the energy at 0 K as the enthalpy at 298.15 K: a warning at
+    reading, for a record and for a dataset (decision 5 of the review of v2)."""
+    def loaded(db):
+        return {d.code for d in db.loadDiagnostics().all()}
+    assert "CNV-008" in loaded(database({"X": substance(convention={"energy_reference": "dft_formation_0K"})}))
+    assert "CNV-008" in loaded(database({"X": substance()}, dataset={"symbol": "d", "convention": {"energy_reference": "dft_formation_0K"}}))
+    assert "CNV-008" not in loaded(database({"X": substance(convention={"energy_reference": "berman_brown"})}))
+
+
 def test_cnv_002_molarity_without_a_solvent():
     record = substance(formula="NaCl", state="aqueous", cls="aqueous_solute", convention={"concentration_scale": "molarity"})
     assert "CNV-002" in codes(database({"X": record}))

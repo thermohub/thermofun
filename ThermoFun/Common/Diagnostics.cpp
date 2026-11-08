@@ -136,6 +136,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
         {"V2-MTH-005", S::Error, "The method cannot be used for this class of substance.",
          "Use a method for the class of the record (see `Suits` in the method reference)."},
         {"CNV-007", S::Warning, "The hydrogen ion has values other than 0 in the geochemical convention.", "Set the values to 0, or declare the convention of the record."},
+        {"CNV-008", S::Warning, "The energy reference dft_formation_0K is an estimate: the formation energy at 0 K is taken as the enthalpy of formation at 298.15 K (Berman-Brown), with no zero-point or thermal term.",
+         "Use the values as estimates (a few kJ/mol per atom), or give values at 298.15 K in another energy reference."},
         {"V2-APP-001", S::Error, "The minimum of a range is not below its maximum.", "Correct the limits of the range."},
         {"V2-MTH-006", S::Warning, "The temperature segments overlap or leave gaps.",
          "Make each segment start where the one before ends."},
