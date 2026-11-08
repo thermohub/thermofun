@@ -83,8 +83,9 @@ jobs:
           conda activate thermofun
           ctest --test-dir .build --output-on-failure -R installed-headers
 
+      # Linux and macOS (arm64): the numbers of the tests must hold on both (review S10)
       - name: Running tests
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os != 'windows-latest'
         shell: bash -l {0}
         run: |
           conda activate thermofun
