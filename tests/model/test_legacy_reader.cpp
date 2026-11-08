@@ -356,14 +356,17 @@ void testRules()
     CHECK(readLegacyReaction(R"JSON({"symbol": "R"})JSON").preferred_property_source == PropertySource::Reactants);
     CHECK(!readLegacyReaction(R"JSON({"symbol": "R", "TPMethods": [{"method": {"7": "logk_3_term_extrap"}}]})JSON").preferred_property_source);
 
-    // a substance from a reaction: no methods, or only a constant volume
+    // a substance from a reaction: a reaction, and no methods or only a constant volume; without a reaction no mark (S7)
     {
         const SubstanceRecord noKey = readLegacySubstance(R"JSON({"symbol": "S", "reaction": "S"})JSON");
         CHECK(noKey.defining_reaction == "S" && noKey.preferred_property_source == PropertySource::Reaction);
         const SubstanceRecord emptyList = readLegacySubstance(R"JSON({"symbol": "S", "reaction": "S", "TPMethods": []})JSON");
         CHECK(emptyList.preferred_property_source == PropertySource::Reaction);
-        const SubstanceRecord volumeOnly = readLegacySubstance(R"JSON({"symbol": "S", "TPMethods": [{"method": {"34": "mv_constant"}}]})JSON");
+        const SubstanceRecord volumeOnly = readLegacySubstance(R"JSON({"symbol": "S", "reaction": "S", "TPMethods": [{"method": {"34": "mv_constant"}}]})JSON");
         CHECK(volumeOnly.preferred_property_source == PropertySource::Reaction);
+        const SubstanceRecord volumeNoReaction = readLegacySubstance(R"JSON({"symbol": "S", "TPMethods": [{"method": {"34": "mv_constant"}}]})JSON");
+        CHECK(!volumeNoReaction.preferred_property_source);
+        CHECK(!readLegacySubstance(R"JSON({"symbol": "H+"})JSON").preferred_property_source);
         const SubstanceRecord direct = readLegacySubstance(R"JSON({"symbol": "S", "reaction": "S", "TPMethods": [{"method": {"0": "cp_ft_equation"}}]})JSON");
         CHECK(direct.defining_reaction == "S" && !direct.preferred_property_source);
     }

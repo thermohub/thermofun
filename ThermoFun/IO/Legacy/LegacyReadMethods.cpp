@@ -507,9 +507,10 @@ void readSubstanceMethods(const json& j, SubstanceRecord& s, const Context& c)
     applyWaterVapourRule(s, flags);
     readHp98Values(j, s, c);
 
-    // from a reaction: a defining reaction and no methods, no method at all, or only a constant volume
+    // from a reaction: a defining reaction and no methods, or only a constant volume (a record without a reaction, for
+    // example H+, is not marked: it has no reaction to take its properties from)
     const bool onlyConstantVolume = s.methods.size() == 1 && s.methods[0].method == "ConstantVolume";
-    if (s.methods.empty() || onlyConstantVolume)
+    if (!s.defining_reaction.empty() && (s.methods.empty() || onlyConstantVolume))
         s.preferred_property_source = PropertySource::Reaction;
 }
 

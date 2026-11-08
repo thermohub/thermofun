@@ -111,6 +111,8 @@ auto numbersOfLine(const std::string& line) -> std::vector<double>
 // - the heat capacity or the volume of an element without that key: the old parser left the value of the key before it
 //   (the entropy, the atomic mass) in them; the library gives 0;
 // - the pressure limits of a record: the old parser did not read them; the library gives what the file says.
+// - the calculation type of a record with a reaction and only a constant volume: the old parser said DCOMP, but the engine
+//   (old and new) calculates it from the reaction; the library says REACDC (review of v2, S7).
 // Each difference that is left counts for its getter.
 template <class P>
 auto sameCoefficientErrors(const P& a, const P& b) -> bool
@@ -169,6 +171,9 @@ void compareGetters(const std::string& kind, const std::string& frozen, const st
         if (name == "reaction methodGenEOS")
             continue;
         if (name == "substance method_T" && (la == "method_T = 203" || la == "method_T = 202"))
+            continue;
+        if (name == "substance thermoCalculationType" && la == "thermoCalculationType = 0" && lb == "thermoCalculationType = 1" &&
+            std::find_if(fa.begin(), fa.end(), [](const std::string& l) { return l.rfind("reactionSymbol = ", 0) == 0 && l != "reactionSymbol = \"\""; }) != fa.end())
             continue;
         if ((name == "element heatCapacity" || name == "element volume") && numbersOfLine(lb).empty())
             continue;

@@ -377,3 +377,30 @@ def test_a_text_that_is_no_json_gives_an_empty_record():
     assert s.jsonString() == "not json"
     r = tf.Reaction("not json")
     assert r.reactants() == {}
+
+
+def test_the_calculation_type_is_kept_in_the_record_only():
+    """setThermoCalculationType(REACDC) then (DCOMP): the getter, the record, the engine and a JSON round trip agree on
+    DCOMP (review of v2, S7: the record kept the reaction, and the engine and the round trip followed it)."""
+    db = tf.Database("""
+thermohub: 2.0.0-draft.1
+substances:
+  A: {formula: SiO2, class: component, aggregate_state: crystal, standard_state_properties: {G: -856288, H: -910700, S: 41.46, Cp: 44.6, V: 2.269e-5}, methods: [{method: ConstantCp}]}
+  X: {formula: SiO2, class: component, aggregate_state: crystal, defining_reaction: R, standard_state_properties: {G: -850000, H: -905000, S: 43.0, Cp: 45.0, V: 2.3e-5}, methods: [{method: ConstantCp}]}
+reactions:
+  R: {equation: A = X, reaction_properties: {logK: -2.0}, methods: [{method: LogKConstant}]}
+""")
+    s = db.getSubstance("X")
+    assert s.thermoCalculationType() == tf.SubstanceThermoCalculationType.DCOMP
+    direct = tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "X").gibbs_energy.val
+    s.setThermoCalculationType(tf.SubstanceThermoCalculationType.REACDC)
+    assert s.thermoCalculationType() == tf.SubstanceThermoCalculationType.REACDC
+    assert s.record().preferred_property_source == tf.PropertySource.Reaction
+    db.setSubstance(s)
+    assert tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "X").gibbs_energy.val != direct
+    s.setThermoCalculationType(tf.SubstanceThermoCalculationType.DCOMP)
+    assert s.thermoCalculationType() == tf.SubstanceThermoCalculationType.DCOMP
+    assert s.record().preferred_property_source != tf.PropertySource.Reaction
+    db.setSubstance(s)
+    assert tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "X").gibbs_energy.val == direct
+    assert tf.Substance(s.jsonString()).thermoCalculationType() == tf.SubstanceThermoCalculationType.DCOMP

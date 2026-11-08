@@ -116,6 +116,24 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
                 if (std::isfinite(app.segments[i].t_min) && std::isfinite(app.segments[i - 1].t_max) &&
                     std::fabs(app.segments[i].t_min - app.segments[i - 1].t_max) > 1e-9)
                     report(diag, "V2-MTH-006", record, where, "The segments overlap or leave a gap.");
+            // each transition at a boundary between two segments (review of v2, S5)
+            std::vector<double> boundaries;
+            for (size_t i = 1; i < app.segments.size(); ++i)
+                if (std::isfinite(app.segments[i].t_min))
+                    boundaries.push_back(app.segments[i].t_min);
+            if (app.transitions.size() > boundaries.size() && !app.transitions.empty())
+                report(diag, "V2-MTH-025", record, where + "/transitions",
+                       std::to_string(app.transitions.size()) + " transitions and " + std::to_string(boundaries.size()) + " boundaries: the last ones are not used.");
+            for (size_t i = 0; i < app.transitions.size(); ++i)
+            {
+                const auto t = app.transitions[i].find("T");
+                if (t == app.transitions[i].end())
+                    continue;
+                const bool atBoundary = std::any_of(boundaries.begin(), boundaries.end(), [&](double b) { return std::fabs(b - t->second.value) <= 0.01; });
+                if (!atBoundary)
+                    report(diag, "V2-MTH-025", record, where + "/transitions/" + std::to_string(i),
+                           "The transition at " + std::to_string(t->second.value) + " K is not at a boundary of the segments.");
+            }
         }
         else if (!app.table)
             for (const auto& p : spec->parameters)

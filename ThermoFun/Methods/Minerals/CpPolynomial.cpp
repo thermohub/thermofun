@@ -192,7 +192,9 @@ auto cpPolynomial(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& 
             return;
         }
 
-        if (j && data.transitions[ft].T <= TrK)
+        // the next transition, at the first boundary at or above its T (the rule of GEMS); a record with fewer transitions
+        // than boundaries read past the end of the list before (review of v2, S5); validate warns (V2-MTH-025)
+        if (j && ft < data.transitions.size() && data.transitions[ft].T <= TrK)
         {
             const std::size_t first = coefficientCount(parameters) + 3 * ft;
             S += parameters.value<Scalar>(first, in);

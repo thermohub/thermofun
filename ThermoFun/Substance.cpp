@@ -29,8 +29,6 @@ struct Substance::Impl
     /// The old codes that a method of the record does not give back (for example CPM_NUL)
     compat::MethodCodes codes_without_method;
 
-    /// The calculation type, if an old setter gave it
-    std::optional<SubstanceThermoCalculationType::type> calculation_type;
 
     /// Arrays that an old setter gave and no method of the record reads yet: it can set them before the method
     ThermoParametersSubstance waiting_parameters;
@@ -72,9 +70,9 @@ struct Substance::Impl
     void setMethods(const compat::MethodCodes& wanted, const ThermoParametersSubstance& parameters)
     {
         edit([&](model::SubstanceRecord& r) {
+            const auto source = r.preferred_property_source;   // the choice of the record stays (setThermoCalculationType)
             compat::setMethods(r, wanted, parameters);
-            if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
-                r.preferred_property_source = model::PropertySource::Reaction;
+            r.preferred_property_source = source;
             const auto held = compat::methodCodes(r);
             codes_without_method = {};
             if (wanted.general != held.general)
@@ -210,9 +208,14 @@ auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
 
 auto Substance::setThermoCalculationType(SubstanceThermoCalculationType::type calculation_type) -> void
 {
-    pimpl->calculation_type = calculation_type;
-    if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
-        pimpl->edit([&](model::SubstanceRecord& r) { r.preferred_property_source = model::PropertySource::Reaction; });
+    // the record says it, and nothing beside it (review of v2, S7: REACDC then DCOMP kept Reaction in the record)
+    pimpl->edit([&](model::SubstanceRecord& r) {
+        r.preferred_property_source.reset();
+        if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
+            r.preferred_property_source = model::PropertySource::Reaction;
+        else if (compat::thermoCalculationType(r) == SubstanceThermoCalculationType::type::REACDC)
+            r.preferred_property_source = model::PropertySource::Direct;   // the default rule would take the reaction
+    });
 }
 
 auto Substance::setCharge(int charge) -> void
@@ -357,7 +360,12 @@ auto Substance::substanceClass() const -> SubstanceClass::type
 
 auto Substance::thermoCalculationType() const -> SubstanceThermoCalculationType::type
 {
-    return pimpl->calculation_type.value_or(compat::thermoCalculationType(*pimpl->record));
+    const auto& source = pimpl->record->preferred_property_source;
+    if (source == model::PropertySource::Reaction)
+        return SubstanceThermoCalculationType::type::REACDC;
+    if (source == model::PropertySource::Direct)
+        return SubstanceThermoCalculationType::type::DCOMP;
+    return compat::thermoCalculationType(*pimpl->record);
 }
 
 auto Substance::aggregateState() const -> AggregateState::type

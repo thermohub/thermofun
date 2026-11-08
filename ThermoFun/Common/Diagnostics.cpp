@@ -170,6 +170,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Use the methods of the composite one by one."},
         {"V2-MTH-021", S::Warning, "A Method record of the dataset replaces a method of the project or a built-in one.",
          "Give the Method record another id if both are wanted."},
+        {"V2-MTH-025", S::Warning, "A phase transition is not at a boundary of the temperature segments, or there are more transitions than boundaries.",
+         "Give each transition at the T where a segment begins, one for each boundary; a transition is applied at the first boundary at or above its T."},
         {"V2-MTH-024", S::Warning, "A method of log K lacks values at the reference: it falls back to a simpler form (constant log K, or no dCp term), or has no log K at all.",
          "Give log K or dG, and dH or dS (and dCp for LogKConstantCp), in reaction_properties."},
         {"V2-MTH-023", S::Warning, "A record of a condensed substance prescribes the method IdealGas: its volume is RT/P.",

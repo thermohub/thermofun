@@ -62,6 +62,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   terms. PSI/Nagra `PuO2(coll,hyd)` (log K -5.97, dH 0) gave log K 0. `LogKVantHoff` without dH and dS keeps log K
   constant (it gave 0); validate warns (V2-MTH-024) when a method of log K lacks its values. Tests against the closed
   forms at three T: `pytests/test_logk_forms.py`.
+- **CpPolynomial with fewer phase transitions than segment boundaries** read past the end of the list (review S5); a
+  boundary without a transition has none. V2-MTH-025 warns of a transition that is not at a boundary, and of more
+  transitions than boundaries.
+- **`Substance::setThermoCalculationType`** writes only the record (review S7): REACDC then DCOMP kept the reaction in
+  the record, so the engine and a JSON round trip went on using it. `thermoCalculationType()` answers from the record:
+  a legacy record with a reaction and only `mv_constant` now says REACDC (it said DCOMP, but was calculated from the
+  reaction). The legacy reader marks a record "from a reaction" only if it has one (H+ was marked); results do not change.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and
