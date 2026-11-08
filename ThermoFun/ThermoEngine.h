@@ -85,6 +85,9 @@ struct CalculationPath
  * @brief The ThermoEngine class calculates the thermodynamic properties of the substances
  * from the internal database. It also calculates the electro-chemical and other physico-chemical
  * properties of the solvent
+ *
+ * Threads: one engine for each thread. A calculation writes the results and settings of the engine, so an engine must not
+ * be shared by threads. A copy (constructor or assignment) has its own results and settings, and shares the records.
  */
 class ThermoEngine
 {
@@ -102,8 +105,13 @@ public:
     /// Construct a Thermo instance with given Database instance
     ThermoEngine(const Database &database);
 
-    /// Construct a copy of an ThermoEngine instance
+    /// Construct a copy of an ThermoEngine instance: its own settings and caches, the same records (shared, copy-on-write)
     ThermoEngine(const ThermoEngine &other);
+
+    /// Copy assignment: a copy, as the copy constructor makes (before, the two engines shared their settings and caches)
+    auto operator=(const ThermoEngine& other) -> ThermoEngine&;
+    ThermoEngine(ThermoEngine&&) noexcept = default;
+    auto operator=(ThermoEngine&&) noexcept -> ThermoEngine& = default;
 
     /// Where the properties of one substance or reaction come from. It replaces the preference property_source for that symbol.
     /// A substance and its defining reaction can have the same symbol, and each has its own choice:

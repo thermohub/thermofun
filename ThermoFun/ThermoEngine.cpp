@@ -85,6 +85,13 @@ ThermoEngine::ThermoEngine(const ThermoEngine &other)
     // the caches of results start empty
 }
 
+auto ThermoEngine::operator=(const ThermoEngine& other) -> ThermoEngine&
+{
+    if (this != &other)
+        pimpl.reset(new Impl(*other.pimpl));
+    return *this;
+}
+
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();

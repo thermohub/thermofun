@@ -11,7 +11,20 @@ A database holds records: elements, substances, reactions, method definitions, p
 
 **Missing is not zero.** A value that is not known is not there. A method that needs it gives the status `notdefined`.
 
-**A record does not change.** An engine binds a record to method objects once, and keeps them. A change makes a new record, and the engine calculates again only what depends on it.
+**A record does not change.** An engine binds a record to method objects once, and keeps them. A change makes a new record. An edit of a parameter through a `ParameterHandle` clears only the results that depend on it; any other change of the database, of a setting or of a convention clears all results of the engine, which are then calculated again.
+
+**One engine for each thread.** An engine keeps results and settings, and a calculation writes them, so threads must not share one engine. Copy it: a copy has its own settings and results, and shares the records, which do not change. Copying is cheap.
+
+```python
+import thermofun as tf
+
+shared = tf.ThermoEngine("examples/v2/minimal.yaml")
+mine = tf.ThermoEngine(shared)  # for one thread
+mine.preferences.round_to_uncertainty = True
+assert shared.preferences.round_to_uncertainty is False
+```
+
+In C++ the copy constructor and the copy assignment both make such a copy. A database can be shared by threads that only read it.
 
 **A method belongs to a record.** A record lists its methods. The class or the aggregate state of a substance does not decide a calculation. For example, a gas has a pressure term because its record has a fluid method or `IdealGas`.
 

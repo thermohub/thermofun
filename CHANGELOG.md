@@ -25,6 +25,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   calculation: T or P not finite, T <= 0, P < 0, and P = 0 (the saturation pressure of water) at or above the critical
   temperature of water, 647.096 K. Before, P = 0 above Tcr gave a value at 0 Pa for minerals and gases and an unclear
   error for water and solutes; a NaN temperature could be served from the cache.
+- **Copy assignment of `ThermoEngine` copies.** `b = a` made two names for one engine: settings and results were
+  shared. It now makes a copy, as the copy constructor does. **Threads:** one engine for each thread; copy it (cheap,
+  the records are shared). `docs/explanation/data-model.md` gives the rule.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

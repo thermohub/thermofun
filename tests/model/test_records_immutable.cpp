@@ -100,10 +100,59 @@ static void threadsShareRecords()
         CHECK(w == 0);
 }
 
+// A copy of an engine, by construction or by assignment, has its own settings and caches (review of v2, S2)
+static void engineCopiesAreIndependent()
+{
+    const Database db(database);
+    ThermoEngine a(db);
+    ThermoEngine constructed(a);
+    ThermoEngine assigned(db);
+    assigned = a;
+    constructed.preferences().round_to_uncertainty = true;
+    assigned.preferences().round_to_uncertainty = true;
+    CHECK(!a.preferences().round_to_uncertainty);
+    a.preferences().enable_memoize = false;
+    CHECK(constructed.preferences().enable_memoize && assigned.preferences().enable_memoize);
+    ThermoEngine moved(std::move(constructed));
+    CHECK(moved.preferences().round_to_uncertainty);
+}
+
+// The rule for threads: one engine for each thread, copied from a shared one. Threads that calculate different species
+// get the values of a serial calculation (a shared engine is not safe yet: review of v2, S1)
+static void oneEngineCopyForEachThread()
+{
+    const ThermoEngine shared{Database(database)};
+    double P = 1e7;
+    const double water = ThermoEngine(shared).thermoPropertiesSubstance(473.15, P, std::string("H2O@")).gibbs_energy.val;
+    P = 1e7;
+    const double calcium = ThermoEngine(shared).thermoPropertiesSubstance(473.15, P, std::string("Ca+2")).gibbs_energy.val;
+    std::vector<std::thread> threads;
+    std::vector<int> wrong(4, 0);
+    for (int t = 0; t < 4; ++t)
+        threads.emplace_back([&, t] {
+            ThermoEngine mine{Database(database)};
+            mine = shared;  // the copy of this thread
+            for (int i = 0; i < 200; ++i)
+            {
+                double p = 1e7;
+                const bool even = (i + t) % 2 == 0;
+                const double g = mine.thermoPropertiesSubstance(473.15, p, std::string(even ? "H2O@" : "Ca+2")).gibbs_energy.val;
+                if (g != (even ? water : calcium))
+                    ++wrong[t];
+            }
+        });
+    for (auto& thread : threads)
+        thread.join();
+    for (const int w : wrong)
+        CHECK(w == 0);
+}
+
 int main()
 {
     referenceStaysValidAfterAnEdit();
     threadsShareRecords();
+    engineCopiesAreIndependent();
+    oneEngineCopyForEachThread();
     if (failures)
     {
         std::printf("%d checks failed\n", failures);
