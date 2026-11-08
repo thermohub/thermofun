@@ -52,84 +52,48 @@ All models, including the GEMS implementations that had zero or incomplete deriv
 - the HGK/LVS water and the Johnson-Norton dielectric constant of GEMS (`WaterHGK-JNgems`);
 - the equations of state of fluids: CORK, PRSV, SRK, PR78, STP and Churakov-Gottschalk (`Methods/Fluids/Fluid*.cpp`).
 
-## 4. Derivative bugs fixed (present before)
+## 4. Analytical derivatives of some models
 
-1. Akinfiev-Diamond (for example CO2@): the reference-state increments carried temperature derivatives.
-2. `ln K = -dGr/(R T)` and `dS = (dH - dG)/T` used `T` as a plain number (the derivative of `1/T` was dropped).
-3. The Holland-Powell Landau volume was not `dG/dP` of its own Gibbs energy (about 0.07 % for Quartz). With
-   `dG/dQ = 0` (Holland and Powell 1992, Am. Min. 77:53), `V = dG/dP` at fixed Q:
-   `V = v_bis (1 + 4P/(1000 kT))^(-1/4) + Vmax (Q^6/3 - Q^2)`. **V, U and A change by up to 7e-4 relative** for the
-   Landau minerals; the Quartz reference volume in the tests was updated.
-4. Empirical Cp integration with several temperature intervals, standard entropy and Cp integration, Birch-Murnaghan:
-   constants (interval bounds, reference temperatures) were treated as temperatures.
-5. The pressure of the reaction volume correction was a plain number: `dG/dP` of substances calculated from such
-   reactions was 0.
-6. HKF (GEMS) g function: the exponent lost its temperature derivative.
-7. Zhang-Duan water: the pressure derivatives were scaled twice and the finite-difference points were not tied to `T` and `P`.
-8. Zhang-Duan water and the Sverjensky and Fernandez dielectric constants calculated the derivatives of the density and of
-   the dielectric constant with finite differences (steps of 0.1 %, four extra evaluations of the solvent). They are **analytical**
-   now, hand-derived formulas in `real` arithmetic: the implicit differentiation of the Zhang-Duan EOS (`V_T = -f_T/f_V`, ... with the
-   analytical partial derivatives of the compressibility factor), and the chain rule of the closed form dielectric constants
-   (`eps = exp(u(T)) rho^w(T)` of Sverjensky; the sums of power laws of Fernandez) with the derivatives of the density of the
-   solvent model. The first and second derivatives (`densityT/P/TT/TP/PP`, `epsilonT/P/TT/TP/PP`) are formulas, and their `ddt`/`ddp`
-   (third-order derivatives) are those of the formulas (the same machinery as every other property); the mixed derivatives are
-   symmetric and `densityTP`, `epsilonTP` are calculated. The solvent model is called once. The Zhang-Duan `densityPP` was 1e5 times
-   too large (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed. The analytical results agree to 1e-9 with
-   independent references calculated with autodiff higher-order dual numbers (`tests/autodiff/src/reference`, ctest `analytic-derivatives`).
-9. GEMS HGK water (`water_eos_hgk84_lvs83_gems`) did not set `densityPP` (and `densityTP`). `densityTP` is the derivative of
-   `densityT = -alpha rho` with respect to P (`densityTP.ddt = densityTT.ddp`). `densityPP = -rho beta^2 Gamma` is calculated analytically,
-   with `Gamma = rho P_rhorho/P_rho` at constant T (dimensionless), from the third derivative of the equation of state in both regions:
-   - HGK (Haar-Gallagher-Kell, `WaterHGKgems::resid`/`thmHGK`): `P_rhorho = RT (b1/4)(2 z' + y z'') + q6`, with `z0''` of the
-     base function and `q6`, the second density derivative of the residual pressure `q0` (the terms `rho^2 e^(-a rho)(1-e^(-a rho))^(k-1)`
-     and the Gaussian-like terms `dex tex`, through the derivatives of `ln(dex)`).
-   - LVS (Levelt Sengers et al. 1983 critical region, `WaterHGKgems::dFdMLVS`): `d3P/dM3 = dF/dM` with `F = d2P/dM2 = zz/a + 2c yy + c^2 a ww`
-     (functions of `r, theta`); `d/dM = (1/a) d/dH + c d/dX` with `X = r(1-b^2 th^2)`, `H = r^(beta delta) th(1-th^2)`, Jacobian
-     `J = r^(beta delta) g(th)`, the derivatives of `r, theta` with respect to `X, H` from the inverse Jacobian and the exact `r`, `theta`
-     derivatives of the closed forms of `aux()`; then `Gamma = 1 - rho (dF/dM)/F^2`.
-   Because they are written with `real`, the third-order terms (`ddt`, `ddp` of `densityPP`) are exact too. Checked against the exact
-   derivative of `densityP` (1e-6, limited by the density tolerance of the model) and finite differences (also near the critical point).
-10. Churakov-Gottschalk fluids (pure fluids): the compressibility `Z = 1 + rho dF/drho`, the internal energy of the Weeks-Chandler-Andersen
-   reference fluid, `U = dF/dbeta`, and the residual entropy (`dF/dT` with the T dependent parameters of the EoS) were finite
-   differences with a relative step of 1e-5. They are **analytical** now: the free energy of the reference fluid and of the pure fluid
-   and their derivatives (the hard-sphere diameter by implicit differentiation of its polynomial, the chain rule through the
-   polar terms and the T dependent parameters) were derived symbolically (sympy,
-   `Methods/Fluids/tools/generate_cgf_derivatives.py`) into `Methods/Fluids/CGFanalytic.hpp`. The values change by about 1e-5 (the
-   truncation error of the finite differences): the volume of a test fluid by 1e-5, its enthalpy by 4e-5; the derivatives with respect to T
-   and P agree to 2e-5 with finite differences and to 1e-9 with the autodiff reference (nonpolar, polar and T dependent parameters).
-11. `ReactionDolejsManning10` called the Frantz-Marshall function (reading past the end of its 5 coefficients). It now
-   calls the Dolejs-Manning function. **Behaviour change**; the units of its first coefficient were not checked
-   against the paper.
-12. Holland-Powell 98 aqueous solute: `T'` (= `T` up to 500 K) was a constant, so `dG/dT` was not the derivative of
-   the Gibbs energy below 500 K. `T'` now carries the derivative there. The published `S` and `Cp` were not the
-    derivatives of the published `G` (the `ln(rho/rho298)/T'` term of `S` had the opposite sign; `Cp` lacked
-    `2 alpha/T'`) and `H` was `G + T S298`. `S`, `V`, `Cp` and `H` are now the exact derivatives of `G`:
-    `S = -dG/dT`, `Cp = T dS/dT`, `H = G + T S`. **Behaviour change**: `S`, `Cp`, `H` (and `U`, `A`) of HP98 solutes
-    differ from the published formulas (G and V are unchanged). The published formulas stay available as the
-    implementation `published` of `SoluteHP98`; `consistent` is the default.
-13. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
-    was called by the engine for the volume pressure methods but returned an empty result (which replaced the
-    properties), and its dead implementation mixed Pa and bar. It is implemented and wired:
-    `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, `dG = int V dP`, `dS = -d(dG)/dT`,
-    `dH = dG - T d(dG)/dT`, `dCp = -T d2(dG)/dT2`, `ln K = -G/(RT)`. No database uses it yet (tested in
-    `model-derivatives`). **Behaviour change** for reactions that select it (before: empty properties).
-14. `ThermoParametersSubstance::isothermal_compresibility` and `isobaric_expansivity` were not initialized (undefined
-    values for records without them, for example Boehmite with the Murnaghan model); they are 0 now.
-19. GEMS `dalLVS` (the analytical `dalpha/dT` of the critical-region equation, `dAldT` of the water, used for the dielectric constant
-    derivatives) had two misplaced parentheses, `pow(r, (-1-gamma) * drdT)` instead of `pow(r, -1-gamma) * drdT` (in `dPdMMT`); near the critical
-    point it gave a wrong value and even the wrong sign (647.5 K, 22 MPa: +0.086 instead of -0.172 1/K^2). Fixed (it agrees with the exact
-    derivative `Alpha.ddt` to 1e-5). **Behaviour change** (only the LVS critical region).
-16. `U` and `A` of the HKF solutes (`SoluteHKFgems`, `SoluteHKFreaktoro`) multiplied `P V` by 41.84 (the conversion
-    from cal was applied to a quantity already in J). They are `U = H - P V`, `A = U - T S` after the unit conversion.
-    **Behaviour change** (U, A of aqueous species).
-17. `U`, `A` and `Cv` are completed centrally by `ThermoEngine` from the other properties (`completeThermoProperties`):
-    `U = H - P V`, `A = U - T S` (with the derivatives `dU/dT = Cp - P dV/dT`, `dU/dP = -T dV/dT - P dV/dP`,
-    in J/Pa units, and the errors propagated), and `Cv = Cp - T V alpha^2/beta = Cp - 1e-5 T (dV/dT)^2/(-dV/dP)`
-    for the substances other than the water solvent and vapour. Before, many models left `Cv` = 0 or = `Cp` and `U`, `A` as
-    set by each model. **Behaviour change** (U, A, Cv of substances).
-18. Reactions from reactants: `Cv`, `U` and `A` were those of the last reactant only; they are the sums over all
-    the reactants (as for G, H, S, V, Cp), and so are their errors (in quadrature).
-15. `ReactionFromReactantsProperties` returned an empty result; the combination of the reactants (formerly in
-    `ThermoEngine`) is now this class, and the engine calls it (results unchanged).
+The derivative fixes of the autodiff work are in the [CHANGELOG](../../CHANGELOG.md), under "Fixed". Some models have hand-derived derivatives, not autodiff:
+
+### Zhang-Duan water and the Sverjensky and Fernandez dielectric constants
+
+Zhang-Duan water and the Sverjensky and Fernandez dielectric constants calculated the derivatives of the density and of
+the dielectric constant with finite differences (steps of 0.1 %, four extra evaluations of the solvent). They are **analytical**
+now, hand-derived formulas in `real` arithmetic: the implicit differentiation of the Zhang-Duan EOS (`V_T = -f_T/f_V`, ... with the
+analytical partial derivatives of the compressibility factor), and the chain rule of the closed form dielectric constants
+(`eps = exp(u(T)) rho^w(T)` of Sverjensky; the sums of power laws of Fernandez) with the derivatives of the density of the
+solvent model. The first and second derivatives (`densityT/P/TT/TP/PP`, `epsilonT/P/TT/TP/PP`) are formulas, and their `ddt`/`ddp`
+(third-order derivatives) are those of the formulas (the same machinery as every other property); the mixed derivatives are
+symmetric and `densityTP`, `epsilonTP` are calculated. The solvent model is called once. The Zhang-Duan `densityPP` was 1e5 times
+too large (a bar to Pa factor of 1e-5 instead of 1e-10 on a second derivative): fixed. The analytical results agree to 1e-9 with
+independent references calculated with autodiff higher-order dual numbers (`tests/autodiff/src/reference`, ctest `analytic-derivatives`).
+
+### GEMS HGK water
+
+GEMS HGK water (`water_eos_hgk84_lvs83_gems`) did not set `densityPP` (and `densityTP`). `densityTP` is the derivative of
+`densityT = -alpha rho` with respect to P (`densityTP.ddt = densityTT.ddp`). `densityPP = -rho beta^2 Gamma` is calculated analytically,
+with `Gamma = rho P_rhorho/P_rho` at constant T (dimensionless), from the third derivative of the equation of state in both regions:
+- HGK (Haar-Gallagher-Kell, `WaterHGKgems::resid`/`thmHGK`): `P_rhorho = RT (b1/4)(2 z' + y z'') + q6`, with `z0''` of the
+ base function and `q6`, the second density derivative of the residual pressure `q0` (the terms `rho^2 e^(-a rho)(1-e^(-a rho))^(k-1)`
+ and the Gaussian-like terms `dex tex`, through the derivatives of `ln(dex)`).
+- LVS (Levelt Sengers et al. 1983 critical region, `WaterHGKgems::dFdMLVS`): `d3P/dM3 = dF/dM` with `F = d2P/dM2 = zz/a + 2c yy + c^2 a ww`
+ (functions of `r, theta`); `d/dM = (1/a) d/dH + c d/dX` with `X = r(1-b^2 th^2)`, `H = r^(beta delta) th(1-th^2)`, Jacobian
+ `J = r^(beta delta) g(th)`, the derivatives of `r, theta` with respect to `X, H` from the inverse Jacobian and the exact `r`, `theta`
+ derivatives of the closed forms of `aux()`; then `Gamma = 1 - rho (dF/dM)/F^2`.
+Because they are written with `real`, the third-order terms (`ddt`, `ddp` of `densityPP`) are exact too. Checked against the exact
+derivative of `densityP` (1e-6, limited by the density tolerance of the model) and finite differences (also near the critical point).
+
+### Churakov-Gottschalk fluids
+
+Churakov-Gottschalk fluids (pure fluids): the compressibility `Z = 1 + rho dF/drho`, the internal energy of the Weeks-Chandler-Andersen
+reference fluid, `U = dF/dbeta`, and the residual entropy (`dF/dT` with the T dependent parameters of the EoS) were finite
+differences with a relative step of 1e-5. They are **analytical** now: the free energy of the reference fluid and of the pure fluid
+and their derivatives (the hard-sphere diameter by implicit differentiation of its polynomial, the chain rule through the
+polar terms and the T dependent parameters) were derived symbolically (sympy,
+`Methods/Fluids/tools/generate_cgf_derivatives.py`) into `Methods/Fluids/CGFanalytic.hpp`. The values change by about 1e-5 (the
+truncation error of the finite differences): the volume of a test fluid by 1e-5, its enthalpy by 4e-5; the derivatives with respect to T
+and P agree to 2e-5 with finite differences and to 1e-9 with the autodiff reference (nonpolar, polar and T dependent parameters).
 
 ## 5. Errors (uncertainties)
 

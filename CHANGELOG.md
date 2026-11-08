@@ -121,6 +121,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Derivatives and properties fixed with autodiff (before in `docs/explanation/autodiff.md`):
+  - `AkinfievDiamond03`: the reference-state increments carried temperature derivatives.
+  - `ln K = -dGr/(R T)` and `dS = (dH - dG)/T` lost the derivative of `1/T`.
+  - `LandauHP98`: V is dG/dP of its own G at fixed Q (Holland and Powell 1992, Am. Min. 77:53):
+    `V = v_bis (1 + 4P/(1000 kT))^(-1/4) + Vmax (Q^6/3 - Q^2)`. V, U and A change by up to 7e-4 relative (Quartz).
+  - `CpPolynomial` with several intervals, `ConstantCp`, `BirchMurnaghan47`: the interval bounds and reference
+    temperatures were treated as variables in the derivatives.
+  - The pressure of the reaction volume correction was a plain number: dG/dP of a substance from such a reaction was 0.
+  - `HKF88` (gems): the exponent of the g function lost its temperature derivative.
+  - `WaterZhangDuan05`: the pressure derivatives were scaled twice, and `densityPP` was 1e5 times too large. Its
+    derivatives, and those of `SverjenskyEtAl14` and `FernandezEtAl97`, are analytical (they were finite differences).
+  - `WaterHGK84` (gems) did not set `densityPP` and `densityTP`.
+  - `ChurakovGottschalk03`: Z, U and the residual S are analytical (they were finite differences with a step of 1e-5).
+    Values change by about 1e-5: V 1e-5, H 4e-5.
+  - LVS critical region of GEMS water: `dalLVS` had misplaced parentheses. At 647.5 K and 22 MPa, dalpha/dT was
+    +0.086 instead of -0.172 1/K^2.
+  - `DolejsManning10` called the Frantz-Marshall function and read past its 5 coefficients. The units of its first
+    coefficient were not checked against the paper.
+  - `SoluteHP98`: `T'` was a constant below 500 K, so dG/dT was wrong there. S, Cp and H are the exact derivatives of G
+    (implementation `consistent`, the default); the published formulas are the implementation `published`.
+  - `ReactionVolumePolynomial` (`Reaction_Vol_fT`) returned empty properties, and mixed Pa and bar. It is implemented:
+    `V = Vst (1 + a0 dT + a1 dT^2 + a2 dT^3 + a3 dP + a4 dP^2)`, dG is the integral of V dP.
+  - The compressibility and expansivity of a record without them were not initialised; they are 0.
+  - U and A of `HKF88` solutes multiplied P V by 41.84 (a conversion from cal of a value in J).
+  - U, A and Cv of every substance come from the other properties, with their derivatives and errors: `U = H - P V`,
+    `A = U - T S`, `Cv = Cp - T V alpha^2/beta` (not for water). Before, many methods gave Cv = 0 or Cp.
+  - A reaction from its reactants had Cv, U and A of its last reactant only; they are the sums over all reactants.
 - On the steam tables, G and A of water now have the term `-Str (T - Ttr)`. At 283 K and 100 bar, G was -466 J/mol and is now 166 J/mol.
 - U and A of the triple point data `NEA_HGK` and `NEA_IAPWS`: the volume of water was in J/bar and the volume of the gases in L.
 - A misspelled `parameter_set` is an error. Before, the record used the default values with no message.
