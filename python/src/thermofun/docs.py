@@ -191,11 +191,68 @@ def preferences_page():
                      ["", "## EngineConventions", ""] + _options(tf.EngineConventions, words) + [""])
 
 
+def _type(node):
+    """The type of a schema node, in words."""
+    if not isinstance(node, dict) or not node:
+        return "any"
+    if "$ref" in node:
+        name = node["$ref"].split("/")[-1]
+        return "[%s](#%s)" % (name, name)
+    if "allOf" in node:   # a file of one record: record_type and the record
+        parts = [n for n in node["allOf"] if "$ref" in n]
+        const = [n["properties"]["record_type"]["const"] for n in node["allOf"] if "properties" in n and "record_type" in n["properties"]]
+        return "record_type `%s` and %s" % (const[0], _type(parts[0])) if const and parts else "all of the parts"
+    if "const" in node:
+        return "`%s`" % node["const"]
+    if "enum" in node:
+        return ", ".join("`%s`" % v for v in node["enum"])
+    if "oneOf" in node:
+        return " or ".join(_type(n) for n in node["oneOf"])
+    t = node.get("type", "any")
+    if t == "array" and "items" in node:
+        return "list of " + _type(node["items"])
+    if t == "object" and isinstance(node.get("additionalProperties"), dict):
+        return "mapping to " + _type(node["additionalProperties"])
+    return " or ".join(t) if isinstance(t, list) else t
+
+
+def schema_page():
+    from thermofun import schema
+    s = schema.schema()
+    defs = s["$defs"]
+    order = ["document", "single_record", "thermodataset", "element", "substance", "reaction", "method_application", "quantity",
+             "uncertainty", "convention", "reference_conditions", "applicability", "units", "covariances", "parameters",
+             "method_definition", "parameter_set", "data_source"]
+    lines = ["# The JSON Schema of the v2 format", "", NOTICE, "",
+             "The schema is `ThermoFun/IO/V2/thermohub.schema.json` (JSON Schema 2020-12), also installed with the headers. "
+             "A file that is valid there is read without a warning. A key that starts with `_` is allowed and ignored. "
+             "[The v2 format](format-v2.md) and [Add data](../how-to/add-data.md) explain the fields.", ""]
+    for name in order + sorted(set(defs) - set(order)):
+        node = defs[name]
+        lines += ["## %s" % name, ""]
+        if node.get("description"):
+            lines += [node["description"], ""]
+        if "properties" in node:
+            required = set(node.get("required", []))
+            lines += ["| Key | Type | Required | Note |", "|---|---|---|---|"]
+            for key, sub_node in node["properties"].items():
+                lines.append("| `%s` | %s | %s | %s |" % (key, _cell(_type(sub_node)), "yes" if key in required else "",
+                                                          _cell(sub_node.get("description", "") if isinstance(sub_node, dict) else "")))
+            lines.append("")
+        elif "oneOf" in node:
+            lines += ["One of: " + "; ".join(_cell(_type(n)) if "properties" not in n else
+                                            "an object with " + ", ".join("`%s`" % k for k in n["properties"]) for n in node["oneOf"]), ""]
+        else:
+            lines += ["Type: " + _cell(_type(node)), ""]
+    return "\n".join(lines)
+
+
 def pages(data=DATA):
     """The files as a dictionary: path relative to the folder of the reference -> text."""
     specs = sorted(tf.methods.catalog(), key=lambda s: (s["operates_on"], s["id"]))
     found = examples(data)
-    out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page()}
+    out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
+           "format-v2-schema.md": schema_page()}
     for s in specs:
         out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)))
     return out

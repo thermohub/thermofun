@@ -5,7 +5,7 @@
 
 # The v2 format
 
-A file is YAML or JSON. [Add data](../how-to/add-data.md) explains each field with examples. This page lists them.
+A file is YAML or JSON. [Add data](../how-to/add-data.md) explains each field with examples. This page lists them. The [JSON Schema](format-v2-schema.md) gives the type of each key, and checks a file.
 
 ## A file
 

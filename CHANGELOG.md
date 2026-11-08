@@ -66,6 +66,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `EnginePreferences::useStandardStateOfGases()` (C++ and Python): G(T, Pr) for a gas, the defaults before 1.0, in one call.
 - `Methods/ParameterSets/DataPressure.yaml` (`rho_min`) and `SolventMethod::pressureAtDensity`.
 - `Status.outofbounds` in Python.
+- The JSON Schema of format 2.0, `ThermoFun/IO/V2/thermohub.schema.json` (installed), made by `python -m thermofun.schema`
+  with the type of each key; `docs/reference/format-v2-schema.md` is generated from it. A test checks that its keys are
+  those of the reader, and that every v2 file of the repository and the v2 form of every bundled database are valid.
 - CNV-008: a warning when data use the energy reference `dft_formation_0K`, which is an estimate (the energy at 0 K taken
   as the enthalpy of formation at 298.15 K). The conventions page states it, and the approximation of
   `gibbs_helmholtz_formation`.

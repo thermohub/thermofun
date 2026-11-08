@@ -173,5 +173,5 @@ endforeach()
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     COMPONENT headers
-    FILES_MATCHING PATTERN "*.yaml" PATTERN "README.md"
+    FILES_MATCHING PATTERN "*.yaml" PATTERN "README.md" PATTERN "thermohub.schema.json"
     PATTERN "detail" EXCLUDE)

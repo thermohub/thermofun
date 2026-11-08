@@ -17,6 +17,7 @@ dependencies:
   - symengine
   - sympy
   - pyyaml
+  - jsonschema
   - python>=3.9
   - pytest
   - scipy

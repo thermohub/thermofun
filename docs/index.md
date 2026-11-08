@@ -52,6 +52,7 @@ Databases are in `Resources/databases/` of the repository. The words of these pa
 - [Results](reference/results.md): what a calculation gives.
 - [Batch options](reference/batch.md)
 - [The v2 format](reference/format-v2.md)
+- [The JSON Schema of the v2 format](reference/format-v2-schema.md)
 - [Units](reference/units.md)
 - [The legacy format](reference/legacy-format.md)
 - [Python API](reference/python-api.md)
