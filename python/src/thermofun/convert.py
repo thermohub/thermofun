@@ -3,10 +3,12 @@
 
 """Converts a database file between the legacy format and the v2 format.
 
-    python -m thermofun.convert INPUT OUTPUT [--to v2|legacy] [--format json|yaml] [--split] [--exact] [--report report.md]
+    python -m thermofun.convert INPUT OUTPUT [--to v2|legacy] [--format json|yaml] [--split] [--readable] [--report report.md]
 
 INPUT is a legacy or v2 file or folder (JSON or YAML). The C++ readers and writers do the work. With --split the output is a
-dataset folder with one file for each record (the layout of a ThermoHub dataset). A v2 file has short decimals, unless --exact is given.
+dataset folder with one file for each record (the layout of a ThermoHub dataset). A v2 file has each number so that it reads
+back to the same double, so a conversion does not change a result. With --readable the numbers are short decimals (for example
+-56.484 for the -56.484001159668 of a GEMS export): the values change a little, and the report says how many.
 """
 
 import argparse
@@ -51,7 +53,29 @@ def _write_split(data, folder, fmt, readable):
             _write(_text(one, fmt, readable), os.path.join(folder, section, _safe(symbol) + ext))
 
 
-def report_text(database, input_path, to):
+def _numbers(node, out):
+    if isinstance(node, dict):
+        for value in node.values():
+            _numbers(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            _numbers(value, out)
+    elif isinstance(node, (int, float)) and not isinstance(node, bool):
+        out.append(float(node))
+    return out
+
+
+def shortened_numbers(database):
+    """How many numbers the readable form writes otherwise than the exact one, and the largest relative change."""
+    exact = _numbers(json.loads(database.toJson(False)), [])
+    short = _numbers(json.loads(database.toJson(True)), [])
+    if len(exact) != len(short):
+        return None
+    changes = [abs(a - b) / max(abs(a), 1e-300) for a, b in zip(exact, short) if a != b]
+    return len(changes), max(changes, default=0.0)
+
+
+def report_text(database, input_path, to, readable=False):
     """The migration report as Markdown."""
     load = list(database.loadDiagnostics()) + list(tf.legacyFileDiagnostics(input_path))
     check = list(database.validate())
@@ -60,7 +84,15 @@ def report_text(database, input_path, to):
            "- elements: %d, substances: %d, reactions: %d" % (database.numberOfElements(), database.numberOfSubstances(),
                                                             database.numberOfReactions()),
            "- methods: %d, parameter sets: %d, data sources: %d" % (len(database.methods()), len(database.parameterSets()),
-                                                                   len(database.dataSources())), ""]
+                                                                   len(database.dataSources()))]
+    if to == "v2" and readable:
+        shortened = shortened_numbers(database)
+        if shortened:
+            out.append("- numbers written as short decimals (--readable): %d, the largest relative change %.2g; results can differ "
+                       "by that much from the input. Convert without --readable to keep every number." % shortened)
+    elif to == "v2":
+        out.append("- numbers written exactly: a result from the output is the same as from the input")
+    out.append("")
 
     def table(title, items, empty):
         out.extend(["## " + title, ""])
@@ -98,8 +130,12 @@ def report_text(database, input_path, to):
     return "\n".join(out)
 
 
-def convert_file(input, output, to="v2", fmt="json", split=False, report=None, exact=False):
-    """Converts a file. Returns the Diagnostics of the load."""
+def convert_file(input, output, to="v2", fmt="json", split=False, report=None, exact=None, readable=False):
+    """Converts a file. Returns the Diagnostics of the load. The numbers are exact unless readable is True (exact is kept for
+    the scripts that give it: exact=False asks for readable numbers)."""
+    if exact is False:
+        readable = True
+    exact = not readable
     if to not in ("v2", "legacy"):
         raise ValueError("to must be v2 or legacy")
     database = tf.Database(str(input))
@@ -112,7 +148,7 @@ def convert_file(input, output, to="v2", fmt="json", split=False, report=None, e
     else:
         _write(_text(database, fmt, not exact), str(output))
     if report:
-        _write(report_text(database, str(input), to), str(report))
+        _write(report_text(database, str(input), to, readable), str(report))
     return database.loadDiagnostics()
 
 
@@ -123,10 +159,11 @@ def main(argv=None):
     parser.add_argument("--to", choices=["v2", "legacy"], default="v2")
     parser.add_argument("--format", choices=["json", "yaml"], default="json", dest="fmt")
     parser.add_argument("--split", action="store_true", help="write a dataset folder with one file for each record")
-    parser.add_argument("--exact", action="store_true", help="write each number so that it reads back to the same double")
+    parser.add_argument("--readable", action="store_true", help="write short decimals: the values change a little (the report says how many)")
+    parser.add_argument("--exact", action="store_true", help="the default now: each number reads back to the same double (kept for old scripts)")
     parser.add_argument("--report", help="write the migration report (Markdown)")
     args = parser.parse_args(argv)
-    convert_file(args.input, args.output, args.to, args.fmt, args.split, args.report, args.exact)
+    convert_file(args.input, args.output, args.to, args.fmt, args.split, args.report, readable=args.readable and not args.exact)
     return 0
 
 

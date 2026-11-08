@@ -119,7 +119,7 @@ jobs:
           mkdir -p v2-copies
           for f in Resources/databases/*.json; do
             n=$(basename "$f" .json)
-            python -m thermofun.convert "$f" "v2-copies/$n.yaml" --format yaml --report "v2-copies/$n-report.md"
+            python -m thermofun.convert "$f" "v2-copies/$n.yaml" --format yaml --readable --report "v2-copies/$n-report.md"
             python -m thermofun.validate "v2-copies/$n.yaml" > "v2-copies/$n-validate.txt" || true
           done
 

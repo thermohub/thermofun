@@ -38,9 +38,26 @@ def test_legacy_to_v2_with_exact_numbers_gives_the_same_results(tmp_path, fmt):
     assert values(out) == values(LEGACY)
 
 
-def test_legacy_to_v2_with_short_decimals_is_close(tmp_path):
+def test_a_conversion_is_exact_by_default(tmp_path):
+    """A converter must not change results unless asked (review of v2, Q10, decision 9)."""
     out = tmp_path / "out.json"
     convert.convert_file(LEGACY, out)
+    assert values(out) == values(LEGACY)
+    assert convert.main([str(LEGACY), str(tmp_path / "cli.json")]) == 0
+    assert values(tmp_path / "cli.json") == values(LEGACY)
+
+
+def test_readable_numbers_are_counted_in_the_report(tmp_path):
+    report = tmp_path / "report.md"
+    convert.convert_file(LEGACY, tmp_path / "short.json", readable=True, report=str(report))
+    assert "numbers written as short decimals (--readable)" in report.read_text()
+    convert.convert_file(LEGACY, tmp_path / "exact.json", report=str(report))
+    assert "numbers written exactly" in report.read_text()
+
+
+def test_legacy_to_v2_with_short_decimals_is_close(tmp_path):
+    out = tmp_path / "out.json"
+    convert.convert_file(LEGACY, out, readable=True)
     (ga, ka), (gb, kb) = values(out), values(LEGACY)
     assert ga == pytest.approx(gb, rel=1e-5)
     assert ka == pytest.approx(kb, rel=1e-3, abs=1e-3)
@@ -98,7 +115,7 @@ def test_the_v2_copy_of_each_bundled_database_gives_the_same_results(tmp_path, p
             b = copy.thermoPropertiesSubstance(400.0, 1e7, symbol).gibbs_energy.val
             assert a == b or (math.isnan(a) and math.isnan(b)), symbol
     short = tmp_path / "short.yaml"
-    convert.convert_file(path, short, fmt="yaml")
+    convert.convert_file(path, short, fmt="yaml", readable=True)
     assert tf.Database(str(short)).numberOfSubstances() == db.numberOfSubstances()
 
 

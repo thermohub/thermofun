@@ -15,7 +15,7 @@
 
 2. Read the report. Records that the conversion cannot keep exactly are listed there.
 3. Use `--split` to write a folder with one file for each record.
-4. Use `--exact` to write each number so that it reads back exactly. Without it, the numbers are short decimals.
+4. Each number is written so that it reads back exactly: a result from the converted file is the same as from the original. With `--readable` the numbers are short decimals (for example -56.484 for the -56.484001159668 of a GEMS export); the values then change a little, and the report gives how many and the largest change.
 5. Use `--to legacy` to go back to the legacy format.
 
 The same in Python:

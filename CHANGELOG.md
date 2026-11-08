@@ -38,6 +38,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   ThermoBatch, Tables, the records (`Model/`), Diagnostics, the method catalog and Evaluate, and what they include
   (`ThermoFun/PublicHeaders.cmake`, checked in CI by `tests/layers/public_headers.py`). Include `ThermoFun/ThermoFun.h`
   (review Q6).
+- **`python -m thermofun.convert` writes exact numbers by default**, so a conversion does not change a result (review Q10).
+  `--readable` writes short decimals, and the report says how many numbers changed and by how much. `save()` and the
+  writers stay readable by default (decision 0023).
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and
