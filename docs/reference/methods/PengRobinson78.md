@@ -2,7 +2,7 @@
 
 Peng-Robinson equation of state.
 
-Adds the pressure terms of the Peng-Robinson equation of state (1978 form) to G, H and S, and sets V.
+Adds the pressure terms of the Peng-Robinson equation of state (1978 form) to G, H, S and Cp, and sets V.
 
 Source: Peng and Robinson (1976, 1978).
 
@@ -16,6 +16,10 @@ Source: Peng and Robinson (1976, 1978).
 | Has code | yes |
 | Legacy names | `fluid_peng_robinson78` |
 | Other names | `PR78` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

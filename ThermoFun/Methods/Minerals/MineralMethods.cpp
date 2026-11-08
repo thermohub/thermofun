@@ -57,6 +57,7 @@ struct MineralData
     std::size_t coefficients = 0;
     Applicability applicability;
     const MineralRow* row = nullptr;
+    bool gems = false;  ///< implementation gems (LandauHP98, MurnaghanHP98)
 };
 
 using Parameters = MethodParameters<MineralData>;
@@ -87,6 +88,7 @@ auto mineral(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, c
         }
         inputs.alpha0 = p.value(p.data.coefficients, in);
         inputs.kappa0 = p.value(p.data.coefficients + 1, in) * 1e-8;  // kbar
+        inputs.gems = p.data.gems;
         setFromModel(state, p.data.row->model(in.T, in.P / bar_to_Pa, inputs, toModel(state)));
     }
 }
@@ -148,7 +150,7 @@ auto variableVolumeInfo(PropertiesInfo& out, const PropertiesInfo& ref, bool var
 
 auto murnaghanHP98Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
-    const bool variable = (in.P != in.Pr || in.T != in.Tr) && std::fabs(in.Vr) > 1e-9 && std::fabs(p.values[p.data.coefficients]) > 1e-9 && std::fabs(p.values[p.data.coefficients + 1] * 1e-8) > 1e-9;
+    const bool variable = (!p.data.gems || in.P != in.Pr || in.T != in.Tr) && std::fabs(in.Vr) > 1e-9 && std::fabs(p.values[p.data.coefficients]) > 1e-9 && std::fabs(p.values[p.data.coefficients + 1] * 1e-8) > 1e-9;
     variableVolumeInfo(out, ref, variable);
     boundsOf(out, "Holland and Powell Murnaghan model", p.data.applicability, in);
 }
@@ -277,7 +279,7 @@ auto tpTableInfo(PropertiesInfo& out, const InfoInputs& in, const TableData& tab
 
 } // namespace
 
-auto mineralMethod(const std::string& id, std::vector<double> coefficients, double alpha0, double kappa0, Applicability applicability, std::vector<std::string> names) -> std::shared_ptr<const SubstanceMethod>
+auto mineralMethod(const std::string& id, std::vector<double> coefficients, double alpha0, double kappa0, Applicability applicability, std::vector<std::string> names, bool gems) -> std::shared_ptr<const SubstanceMethod>
 {
     const MineralRow& row = rowOf(id);
     const std::size_t count = coefficients.size();
@@ -288,7 +290,7 @@ auto mineralMethod(const std::string& id, std::vector<double> coefficients, doub
         names.push_back("alpha0");
         names.push_back("kappa0");
     }
-    return makeMethod(id.c_str(), Parameters{std::move(coefficients), {count, std::move(applicability), &row}, std::move(names)},
+    return makeMethod(id.c_str(), Parameters{std::move(coefficients), {count, std::move(applicability), &row, gems}, std::move(names)},
                       [id](auto& state, const auto& in, const Parameters& p) { mineral(state, in, p, id.c_str()); },
                       [](PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in, const Parameters& p) { p.data.row->info(out, reference, in, p); });
 }

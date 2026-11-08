@@ -2,6 +2,7 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "SolidHPLandau.h"
+#include "SolidMurnaghanHP98.h"
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Common/Constants.h>
@@ -38,7 +39,7 @@ auto thermoPropertiesHPLandau(real TK, real Pbar, const MineralInputs& subst, Th
         Tcr = Tcr0;
     }
     else
-        Tcr = Tcr0 + Vmax/Smax * (Pbar);
+        Tcr = Tcr0 + Vmax/Smax * (subst.gems ? Pbar : Pbar - subst.Pr/bar_to_Pa);  // Tc0 is at the reference pressure
 
     Tcr += C_to_K;
     Tcr0 += C_to_K;     // dT is a constant equal 273.15
@@ -61,6 +62,16 @@ auto thermoPropertiesHPLandau(real TK, real Pbar, const MineralInputs& subst, Th
                      - ((v_bis)*k298/3)*(1.5e-4) * (pow((1.+4.*(Pbar/1000)/kT),0.75)-1.)
                      + (v_bis)*(Pbar/1000)*(1.5e-4)/(1.-(1.5e-4)*(TK-TrK)) * pow((1.+4.*(Pbar/1000)/kT),-0.25) ) * (1000.);
     auto smq = Smax * Tcr0 *( pow(Q298,2.) - pow(Q298,6.)/3. );
+    real cpPressure = 0.0;
+    if (!subst.gems)
+    {
+        // implementation consistent: the volume term from Pr, not from P = 0, and its Cp, which GEMS left out
+        const auto t = murnaghanTermsHP98(Vmax*pow(Q298,2.), k298, a0, TK, TrK, Pbar);
+        const auto r = murnaghanTermsHP98(Vmax*pow(Q298,2.), k298, a0, TK, TrK, real(subst.Pr/bar_to_Pa));
+        ivdp = t.g - r.g;
+        idvdtdp = -(t.s - r.s);
+        cpPressure = t.cp - r.cp;
+    }
 
     // increment thermodynamic properties
     // The order parameter Qq is the equilibrium value (dG/dQ = 0), so V = dG/dP is obtained at fixed Q:
@@ -76,6 +87,7 @@ auto thermoPropertiesHPLandau(real TK, real Pbar, const MineralInputs& subst, Th
 
     if( TK<Tcr )  // Cp is corrected at subcritical T only
         tps.heat_capacity_cp += ( TK*Smax/(2.*sqrt(Tcr)*sqrt(Tcr-TK)) );
+    tps.heat_capacity_cp += cpPressure;
 
     tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
     tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;

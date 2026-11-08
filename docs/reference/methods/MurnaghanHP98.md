@@ -2,7 +2,7 @@
 
 Murnaghan equation of Holland and Powell.
 
-Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp.
+Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump.
 
 Source: Holland and Powell (1998).
 
@@ -16,6 +16,10 @@ Source: Holland and Powell (1998).
 | Has code | yes |
 | Legacy names | `mv_eos_murnaghan_hp98` |
 | Other names | `HP98Min` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

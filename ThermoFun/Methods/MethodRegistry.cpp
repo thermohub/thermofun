@@ -98,8 +98,11 @@ MethodRegistry::MethodRegistry()
     add("IdealGas", "", [](A, R) { return idealGasMethod(); });
 
     // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
+    // LandauHP98 and MurnaghanHP98 also have the implementations consistent (the default) and gems
     auto mineral = [this](const char* id, std::vector<std::string> names) {
-        add(id, "", [id, names = std::move(names)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+      const bool two = std::string(id) == "LandauHP98" || std::string(id) == "MurnaghanHP98";
+      for (const char* implementation : two ? std::vector<const char*>{"", "consistent", "gems"} : std::vector<const char*>{""})
+        add(id, implementation, [id, names, gems = std::string(implementation) == "gems"](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;
             bool any = false;
             for (const auto& n : names)
@@ -109,7 +112,7 @@ MethodRegistry::MethodRegistry()
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
             auto value = [&](const char* n) { const auto it = a.parameters.find(n); return it == a.parameters.end() ? 0.0 : it->second.value; };
-            return mineralMethod(id, any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability, any ? names : std::vector<std::string>{});
+            return mineralMethod(id, any ? values : std::vector<double>{}, value("alpha0"), value("kappa0"), r.applicability, any ? names : std::vector<std::string>{}, gems);
         });
     };
     mineral("LandauHP98", catalogNames("LandauHP98", false));
@@ -196,15 +199,17 @@ MethodRegistry::MethodRegistry()
     reaction_["ReactionConstantVolume"] = [reactionInputs](A a, RR r) { return makeReactionConstantVolume(reactionInputs(a, r, {})); };
 
     // a fluid: the parameters in the order of the names; the lower T of the record is that of its heat capacity
+    // consistent (the default): S = -dG/dT, H = G + T S and Cp = dH/dT; gems: the formulas of GEMS (review of v2, S10)
     auto gas = [this](const char* id) {
-        add(id, "", [names = catalogNames(id), id = std::string(id)](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+      for (const char* implementation : {"", "consistent", "gems"})
+        add(id, implementation, [names = catalogNames(id), id = std::string(id), gems = std::string(implementation) == "gems"](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;
             for (const auto& n : names)
             {
                 const auto it = a.parameters.find(n);
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
-            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability, constantsOf(a)};
+            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability, constantsOf(a), gems};
             bool found = false;
             for (const auto& other : r.methods)
                 if (other.method == "CpPolynomial" && !found)

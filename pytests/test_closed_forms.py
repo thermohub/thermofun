@@ -94,12 +94,9 @@ POINTS = [(298.15, 1e5), (373.15, 5e7), (573.15, 5e7), (773.15, 1e8)]
 DATABASES = sorted(glob.glob("Resources/databases/*-thermofun.json"))
 FLUIDS = {"PRSV86", "CorkHP91", "ChurakovGottschalk03", "SoaveRedlichKwong72", "SternerPitzer94", "PengRobinson78"}
 
-# Known, and left as they are until a decision (each has a strict xfail test below, which fails when it is fixed):
-# - the fluid methods add the residual H and S of their EoS, but not the residual Cp: dH/dT is not Cp;
-# - CorkHP91 for H2O: S is not -dG/dT;
-# - LandauHP98 with MurnaghanHP98 at exactly Tr and Pr: V is that of the record, dG/dP that of the model; and away from
-#   it, dH/dT and Cp of some of these minerals differ by about 1e-5 relative (Leucite);
-# - PRSV86 below the critical temperature of the gas (mines16: H2O, H2S, SO2): S is not -dG/dT, by up to 2.3 J/(mol K).
+# The fluid methods, LandauHP98 and MurnaghanHP98 are consistent since 2026-11-08 (implementation consistent, the default);
+# the implementation gems keeps the formulas of GEMS, which were not (tests at the end). The consistency is now checked
+# with a tighter dH/dT, and at more points of the fluids: below and above the critical points, and above p0 of CORK.
 # A substance from a reaction takes V from its record or from the reaction, and G changes with P as the reaction does:
 # for these, dG/dP and V agree to 1e-9 m3/mol (0.001 cm3/mol), not better.
 # HKF88 converts V with 41.84004 cm3 bar/cal, the constant of SUPCRT92, and G with 4.184 J/cal: dG/dP and V differ by
@@ -110,36 +107,22 @@ def close(a, b, rel, scale):
     return abs(a - b) <= rel * max(abs(a), abs(b), scale)
 
 
-def known(record, T, P):
-    methods = {m.method for m in record.methods}
-    skip = set()
-    if methods & FLUIDS:
-        skip.add("dH/dT")
-    if "CorkHP91" in methods and record.formula.startswith("H2O"):
-        skip |= {"dG/dT", "dH/dT", "dG/dP"}
-    if {"LandauHP98", "MurnaghanHP98"} <= methods:
-        skip.add("dG/dP" if (T, P) == (TR, PR) else "dH/dT")
-    if "PRSV86" in methods:
-        skip.add("dG/dT")
-    return skip
-
-
 def from_reaction(record):
     return bool(record.defining_reaction) and (not record.methods or str(record.preferred_property_source).endswith("Reaction"))
 
 
-def substance_problems(engine, symbol, T, P, skip=(), v_abs=0.0):
+def substance_problems(engine, symbol, T, P, v_abs=0.0):
     try:
         p = engine.thermoPropertiesSubstance(T, P, symbol)
     except Exception:
         return []        # outside the range of the record, or no data: other tests check the errors
     G, H, S, Cp, V = p.gibbs_energy, p.enthalpy, p.entropy, p.heat_capacity_cp, p.volume
     out = []
-    if "dG/dT" not in skip and not close(G.ddt, -S.val, 1e-6, 1.0):
+    if not close(G.ddt, -S.val, 1e-6, 1.0):
         out.append("dG/dT %.12g, -S %.12g" % (G.ddt, -S.val))
-    if "dH/dT" not in skip and not close(H.ddt, Cp.val, 1e-5, 1.0):
+    if not close(H.ddt, Cp.val, 1e-6, 1.0):
         out.append("dH/dT %.12g, Cp %.12g" % (H.ddt, Cp.val))
-    if "dG/dP" not in skip and not close(G.ddp, V.val, 2e-6, 1e-6) and abs(G.ddp - V.val) > v_abs:
+    if not close(G.ddp, V.val, 2e-6, 1e-6) and abs(G.ddp - V.val) > v_abs:
         out.append("dG/dP %.12g, V %.12g" % (G.ddp, V.val))
     return out
 
@@ -169,42 +152,81 @@ def test_every_record_is_consistent(path):
         record = db.getSubstance(symbol).record()
         for T, P in POINTS:
             problems += ["substance %s at %s K %s Pa: %s" % (symbol, T, P, m)
-                         for m in substance_problems(engine, symbol, T, P, known(record, T, P), 1e-9 if from_reaction(record) else 0.0)]
+                         for m in substance_problems(engine, symbol, T, P, 1e-9 if from_reaction(record) else 0.0)]
     for symbol in db.mapReactions():
         for T, P in POINTS:
             problems += ["reaction %s at %s K %s Pa: %s" % (symbol, T, P, m) for m in reaction_problems(engine, symbol, T, P)]
     assert not problems, "\n".join(problems[:40]) + "\n%d problems" % len(problems)
 
 
-def aq17(T, P, symbol):
-    return tf.ThermoEngine("Resources/databases/aq17-thermofun.json").thermoPropertiesSubstance(T, P, symbol)
+FLUID_POINTS = [(298.15, 1e5), (373.15, 5e7), (573.15, 5e7), (680.0, 1e8), (773.15, 1e8), (1073.15, 8e8)]
+FIXTURES = ["pytests/data/legacy-synthetic/s%s.json" % n for n in
+            ("10-fluid_churakov_gottschalk", "11-fluid_soave_redlich_kwong", "12-fluid_sterner_pitzer", "13-fluid_peng_robinson78")]
+GEMS = {m: "gems" for m in ("PRSV86", "CorkHP91", "SoaveRedlichKwong72", "PengRobinson78", "SternerPitzer94", "ChurakovGottschalk03",
+                            "LandauHP98", "MurnaghanHP98")}
 
 
-@pytest.mark.xfail(strict=True, reason="the fluid methods do not add the residual Cp of their EoS")
-def test_known_the_residual_cp_of_a_fluid():
-    p = aq17(373.15, 5e7, "CH4")                       # CorkHP91: dH/dT - Cp is 13 J/(mol K)
-    assert p.enthalpy.ddt == pytest.approx(p.heat_capacity_cp.val, rel=1e-5)
+def gas_records(path):
+    db = tf.Database(path)
+    return db, [s for s in db.mapSubstances() if {m.method for m in db.getSubstance(s).record().methods} & FLUIDS]
 
 
-@pytest.mark.xfail(strict=True, reason="CorkHP91 for H2O: S is not -dG/dT")
-def test_known_the_entropy_of_cork_water():
-    p = aq17(373.15, 5e7, "H2O")                       # the difference is 53 J/(mol K)
-    assert p.gibbs_energy.ddt == pytest.approx(-p.entropy.val, rel=1e-6)
+@pytest.mark.parametrize("path", ["Resources/databases/aq17-thermofun.json", "Resources/databases/mines16-thermofun.json"] + FIXTURES,
+                         ids=lambda p: p.split("/")[-1])
+def test_every_fluid_is_consistent_below_and_above_its_critical_point(path):
+    """PRSV86 below Tc (H was the form for a constant k, d2a had a sign wrong), CorkHP91 of H2O (da of the supercritical
+    branch, the virial term above p0, the parts at Psat of the liquid branch), CGF (S and H at the density), and the
+    residual Cp of every fluid. The residual Cp of ChurakovGottschalk03 is not made (see the xfail below)."""
+    db, symbols = gas_records(path)
+    engine = tf.ThermoEngine(db)
+    problems = []
+    for symbol in symbols:
+        cgf = "ChurakovGottschalk03" in {m.method for m in db.getSubstance(symbol).record().methods}
+        for T, P in FLUID_POINTS:
+            for m in substance_problems(engine, symbol, T, P):
+                # CGF: no residual Cp, and below about 1 bar an ideal-gas volume (both are xfail tests below)
+                if not (cgf and (m.startswith("dH/dT") or (m.startswith("dG/dP") and P <= 1e5))):
+                    problems.append("%s at %s K %s Pa: %s" % (symbol, T, P, m))
+    assert symbols and not problems, "\n".join(problems[:40])
 
 
-@pytest.mark.xfail(strict=True, reason="LandauHP98 with MurnaghanHP98 at Tr and Pr: V of the record, dG/dP of the model")
-def test_known_the_volume_of_a_landau_mineral_at_the_reference_point():
-    p = aq17(TR, PR, "Albite")                          # 0.23 %
-    assert p.gibbs_energy.ddp == pytest.approx(p.volume.val, rel=1e-6)
+def aq17(T, P, symbol, implementation=None):
+    engine = tf.ThermoEngine("Resources/databases/aq17-thermofun.json")
+    if implementation:
+        prefs = engine.preferences
+        prefs.method_implementation = {m: implementation for m in GEMS}
+        engine.setPreferences(prefs)
+    return engine.thermoPropertiesSubstance(T, P, symbol)
 
 
-@pytest.mark.xfail(strict=True, reason="LandauHP98 with MurnaghanHP98: dH/dT and Cp differ by about 1e-5 relative")
-def test_known_the_heat_capacity_of_a_landau_mineral():
-    p = aq17(773.15, 1e8, "Leucite")
+@pytest.mark.parametrize("implementation", [None, "consistent"])
+def test_a_hp98_mineral_is_continuous_at_the_reference_point(implementation):
+    """G(Tr, Pr) = G0, and G and V do not jump there (MurnaghanHP98 integrated V from P = 0 except at Tr, Pr)."""
+    G0 = tf.Database("Resources/databases/aq17-thermofun.json").getSubstance("Albite").record().standard_state_properties[tf.PropertyName.G].value
+    at, near = aq17(TR, PR, "Albite", implementation), aq17(TR + 1e-6, PR, "Albite", implementation)
+    assert at.gibbs_energy.val == pytest.approx(G0, abs=1e-6)
+    assert near.gibbs_energy.val == pytest.approx(at.gibbs_energy.val, abs=1e-3)
+    assert near.volume.val == pytest.approx(at.volume.val, rel=1e-8)
+
+
+def test_the_implementation_gems_keeps_the_formulas_of_gems():
+    """The values of GEMS stay reproducible: the jump of Albite at the reference point, no residual Cp of a fluid, and
+    S of CORK water that is not -dG/dT."""
+    at, near = aq17(TR, PR, "Albite", "gems"), aq17(TR + 1e-6, PR, "Albite", "gems")
+    assert near.gibbs_energy.val - at.gibbs_energy.val == pytest.approx(10.0, rel=0.01)   # about V x 1 bar
+    ch4 = aq17(373.15, 5e7, "CH4", "gems")
+    assert ch4.enthalpy.ddt - ch4.heat_capacity_cp.val == pytest.approx(13.4, rel=0.01)
+    water = aq17(373.15, 5e7, "H2O", "gems")
+    assert water.gibbs_energy.ddt + water.entropy.val == pytest.approx(53.1, rel=0.01)
+
+
+@pytest.mark.xfail(strict=True, reason="ChurakovGottschalk03 has no residual Cp: it needs the second derivatives of F")
+def test_known_the_residual_cp_of_churakov_gottschalk():
+    p = tf.ThermoEngine(FIXTURES[0]).thermoPropertiesSubstance(373.15, 5e7, "CO-cgf")
     assert p.enthalpy.ddt == pytest.approx(p.heat_capacity_cp.val, rel=1e-6)
 
 
-@pytest.mark.xfail(strict=True, reason="PRSV86 below the critical temperature of the gas: S is not -dG/dT")
-def test_known_the_entropy_of_a_prsv_gas_below_its_critical_temperature():
-    p = tf.ThermoEngine("Resources/databases/mines16-thermofun.json").thermoPropertiesSubstance(298.15, 1e5, "H2O")
-    assert p.gibbs_energy.ddt == pytest.approx(-p.entropy.val, rel=1e-6)    # 2.3 J/(mol K) apart
+@pytest.mark.xfail(strict=True, reason="ChurakovGottschalk03 below about 1 bar: V is RT/P (ROTOTALMIX), G is not that of an ideal gas")
+def test_known_the_volume_of_churakov_gottschalk_at_low_pressure():
+    p = tf.ThermoEngine(FIXTURES[0]).thermoPropertiesSubstance(298.15, 1e5, "CO-cgf")   # 4e-4 relative
+    assert p.gibbs_energy.ddp == pytest.approx(p.volume.val, rel=1e-6)

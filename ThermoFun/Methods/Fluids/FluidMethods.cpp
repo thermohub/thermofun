@@ -51,6 +51,7 @@ auto fluid(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, con
         inputs.lower_T = data.record.lower_T;
         inputs.formula = data.record.formula;
         inputs.constants = data.record.constants;
+        inputs.gems = data.record.gems;
         for (std::size_t i = 0; i < parameters.values.size(); ++i)
         {
             const bool pressure = i == 1 && data.row->pressure_at_place_1;

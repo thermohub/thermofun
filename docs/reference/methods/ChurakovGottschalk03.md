@@ -2,7 +2,7 @@
 
 Equation of state of Churakov and Gottschalk.
 
-Adds the pressure terms of the perturbation equation of state to G, H and S, and sets V.
+Adds the pressure terms of the perturbation equation of state to G, H, S and Cp, and sets V.
 
 Source: Churakov and Gottschalk (2003a, b).
 
@@ -16,6 +16,10 @@ Source: Churakov and Gottschalk (2003a, b).
 | Has code | yes |
 | Legacy names | `fluid_churakov_gottschalk` |
 | Other names | `CGF` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

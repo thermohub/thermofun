@@ -2,7 +2,7 @@
 
 Landau transition of Holland and Powell.
 
-Adds the Landau term of a phase transition to G, H, S and Cp, and sets V.
+Adds the Landau term of a phase transition to G, H, S and Cp, and sets V. Implementation consistent (the default): the volume term is integrated from the reference pressure, and has its Cp. Implementation gems: from P = 0, without that Cp.
 
 Source: Holland and Powell (1998).
 
@@ -16,6 +16,10 @@ Source: Holland and Powell (1998).
 | Has code | yes |
 | Legacy names | `landau_holland_powell98` |
 | Other names | `HP98Landau` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

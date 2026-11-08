@@ -28,6 +28,7 @@ struct Work
     real Tk, Pbar, R_CONST = R_CONSTANT, RR = R_CONSTANT/1000., Pkb;
     const double* k = nullptr;  ///< the constants of the model
     char EosCode = 'G';
+    bool gems = false;  ///< the formulas of GEMS; else H = -T^2 d(G/T)/dT and Cp = dH/dT
     real Eosparm[2];
     real Fugpure[6];
     real Rho[11];
@@ -37,7 +38,46 @@ struct Work
 long int FugacityPT(Work& w, real *EoSparam);
 long int FugacityCorresponding(Work& w);
 long int FugacityCO2(Work& w);
-long int VolumeFugacity(Work& w, long int phState, real pp, real p0, real a, real b, real c, real d, real e, real &vol, real &fc);
+long int VolumeFugacity(Work& w, long int phState, real pp, real p0, real a, real b, real c, real d, real e, real &vol, real &fc, real* vmrkOut = nullptr);
+
+/// The residual H (J/mol) and Cp (J/(mol K)) of the MRK part at the MRK volume v (kJ/kbar), and dv/dT, dv/dP (kJ/kbar/K, kJ/kbar2).
+struct MRK
+{
+    real h, cp, vT, vP;
+};
+
+auto mrkResidual(const Work& w, const real& a, const real& da, const real& d2a, const real& b, const real& p, const real& v) -> MRK
+{
+    const real z = p*v/(w.RR*w.Tk);
+    MRK out;
+    out.h = ((z-1.) - 1./(b*w.RR*w.Tk)*(sqrt(w.Tk)*da-(3./2.)*a/sqrt(w.Tk))*log(v/(v+b)))*w.R_CONST*w.Tk;
+    const real cv = (-1./(b*w.RR)*(-da/sqrt(w.Tk)+sqrt(w.Tk)*d2a+(3.*a)/(4.*pow(w.Tk,1.5))))*log(v/(v+b))*w.R_CONST;
+    const real dpt = w.RR/(v-b) - da/(sqrt(w.Tk)*v*(v+b)) + 0.5*a/(pow(w.Tk,1.5)*v*(v+b));
+    const real dpv = - w.RR*w.Tk/pow(v-b,2.) + a/(pow(v,2.)*(v+b)*sqrt(w.Tk)) + a/(v*pow(v+b,2.)*sqrt(w.Tk));
+    out.vT = -dpt/dpv;
+    out.vP = 1./dpv;
+    out.cp = cv + 1000.*w.Tk*dpt*out.vT - w.R_CONST;
+    return out;
+}
+
+/// The virial term above p0 (kbar), in J/mol and J/(mol K): G = int V dP, with c = c0 + c1 T, d = d0 + d1 T and e constant. Its Cp is 0.
+struct Virial
+{
+    real g = 0.0, s = 0.0, h = 0.0;
+};
+
+auto virialTerm(const Work& w, const real& c, const real& d, const real& e, const real& c1, const real& d1, const real& p, const real& p0) -> Virial
+{
+    Virial out;
+    if (p > p0)
+    {
+        const real x = p - p0;
+        out.g = 1000.*((2./3.)*c*x*sqrt(x) + d/2.*pow(x,2.) + (4./5.)*e*x*sqrt(sqrt(x)));
+        out.s = -1000.*((2./3.)*c1*x*sqrt(x) + d1/2.*pow(x,2.));
+        out.h = out.g + w.Tk*out.s;
+    }
+    return out;
+}
 long int Cardano(Work& w, real cb, real cc, real cd, real &v1, real &v2, real &v3);
 long int FugacityH2O(Work& w);
 
@@ -211,7 +251,8 @@ long int FugacityCO2(Work& w)
 
     // molar volume and fugacity coefficient
     phState = 1;
-    VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc);
+    real vmrk = 0.0;
+    VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc, &vmrk);
 
     // pressure and density derivatives (MRK part)
     rho = (1./vc);
@@ -242,6 +283,13 @@ long int FugacityCO2(Work& w)
             + a/(vc*pow((vc+b),2.)*pow(w.Tk,0.5)))*(1000.);
     dvt = (-1.)*(1./dpv)*(dpt*1000.);
     cprs = cvrs + w.Tk*(dpt*1000.)*dvt - w.R_CONST;
+    if (!w.gems)  // the MRK part at the MRK volume, and the virial term above p0, which GEMS left out of H, S and Cp
+    {
+        const auto mrk = mrkResidual(w, a, da, d2a, b, w.Pkb, vmrk);
+        hrs = mrk.h + virialTerm(w, c, d, e, c1, d1, w.Pkb, p0).h;
+        srs = (hrs-grs)/w.Tk;
+        cprs = mrk.cp;
+    }
 
     // copy results
     w.Fugpure[0] = fc;     // fugacity coefficient
@@ -265,7 +313,7 @@ long int FugacityCO2(Work& w)
     return 0;
 }
 
-long int VolumeFugacity(Work& w, long int phState, real pp, real p0, real a, real b, real c, real d, real e, real &vol, real &fc)
+long int VolumeFugacity(Work& w, long int phState, real pp, real p0, real a, real b, real c, real d, real e, real &vol, real &fc, real* vmrkOut)
 {
     real cb, cc, cd, v1, v2, v3, vmrk, vvir, lng, lnvir;
 
@@ -316,6 +364,8 @@ long int VolumeFugacity(Work& w, long int phState, real pp, real p0, real a, rea
     }
 
     vol = vmrk + vvir;
+    if (vmrkOut)
+        *vmrkOut = vmrk;
     lng = lng + lnvir;
     fc = exp(lng);
     return 0;
@@ -349,12 +399,13 @@ long int Cardano(Work& w, real cb, real cc, real cd, real &v1, real &v2, real &v
 
     else  //three real roots
     {
+        const double pi = w.gems ? 3.1415927 : 3.14159265358979323846;  // GEMS: 8 digits, and the roots are not exact
         co = atan(sqrt(1.-cp2/(cq3))/(cp/sqrt(cq3)));
         if (co<0.)
-            co = co + 3.1415927;
+            co = co + pi;
         v1 = (-2.)*sqrt(cq)*cos(co/3.) - cb/3.;
-        v2 = (-2.)*sqrt(cq)*cos((co+2.*3.1415927)/3.) - cb/3.;
-        v3 = (-2.)*sqrt(cq)*cos((co-2.*3.1415927)/3.) - cb/3.;
+        v2 = (-2.)*sqrt(cq)*cos((co+2.*pi)/3.) - cb/3.;
+        v3 = (-2.)*sqrt(cq)*cos((co-2.*pi)/3.) - cb/3.;
     }
 
     return 0;
@@ -390,15 +441,29 @@ long int FugacityH2O(Work& w)
     //dc = c1;
     //dd = d1;
     p0 = w.k[h2o_p0];
+    // the states that G is made of (implementation consistent): one, or vapour and liquid at Psat and liquid at P
+    struct State { real a, da, d2a, v, p; };
+    State states[3];
+    int nstates = 0;
+    real vm = 0.0;
 
     // molar volume and fugacity coefficient
     if (w.Tk > w.k[h2o_Tsuper])   // supercritical fluid phase
     {
         phState = 1;
         a = a0 + a4*(w.Tk-w.k[h2o_T0]) + a5*pow((w.Tk-w.k[h2o_T0]),2.) + a6*pow((w.Tk-w.k[h2o_T0]),3.);
-        da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
-        d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
-        VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc);
+        if (w.gems)  // the signs of a4 and a6 are not those of da/dT
+        {
+            da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
+            d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
+        }
+        else
+        {
+            da = a4 + 2.*a5*(w.Tk-w.k[h2o_T0]) + 3.*a6*pow((w.Tk-w.k[h2o_T0]),2.);
+            d2a = 2.*a5 + 6.*a6*(w.Tk-w.k[h2o_T0]);
+        }
+        VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc, &vm);
+        states[nstates++] = {a, da, d2a, vm, w.Pkb};
     }
 
     else   // subcritical region
@@ -419,7 +484,8 @@ long int FugacityH2O(Work& w)
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
-            VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc);
+            VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc, &vm);
+            states[nstates++] = {a, da, d2a, vm, w.Pkb};
         }
 
         else
@@ -437,7 +503,8 @@ long int FugacityH2O(Work& w)
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
-            VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g1);
+            VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g1, &vm);
+            states[nstates++] = {a, da, d2a, vm, Psat};
 
             phState = 2; // liquid phase at Psat
             if (w.Tk < w.k[h2o_T0])
@@ -452,7 +519,8 @@ long int FugacityH2O(Work& w)
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
-            VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g2);
+            VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g2, &vm);
+            states[nstates++] = {a, da, d2a, vm, Psat};
 
             phState = 2; // fluid phase at w.Pkb
             if (w.Tk < w.k[h2o_T0])
@@ -467,7 +535,8 @@ long int FugacityH2O(Work& w)
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
             }
-            VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, g3);  // corrected from (phState, w.Pkb, psat ...)
+            VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, g3, &vm);  // corrected from (phState, w.Pkb, psat ...)
+            states[nstates++] = {a, da, d2a, vm, w.Pkb};
             fc = g1/g2*g3;  // this formula needs checking
         }
     }
@@ -501,6 +570,31 @@ long int FugacityH2O(Work& w)
             + a/(vc*pow((vc+b),2.)*pow(w.Tk,0.5)))*(1000.);
     dvt = (-1.)*(1./dpv)*(dpt*1000.);
     cprs = cvrs + w.Tk*(dpt*1000.)*dvt - w.R_CONST;
+    if (!w.gems)
+    {
+        // G = G(vapour, Psat) - G(liquid, Psat) + G(liquid, P): H and Cp of each MRK part at its MRK volume, the virial term at P,
+        // and the terms of dPsat/dT. GEMS took H and Cp of the last part only, at the volume with the virial term.
+        const auto virial = virialTerm(w, c, d, e, c1, d1, w.Pkb, p0);
+        if (nstates == 1)
+        {
+            const auto m = mrkResidual(w, states[0].a, states[0].da, states[0].d2a, b, states[0].p, states[0].v);
+            hrs = m.h + virial.h;
+            cprs = m.cp;
+        }
+        else
+        {
+            const auto m1 = mrkResidual(w, states[0].a, states[0].da, states[0].d2a, b, states[0].p, states[0].v);
+            const auto m2 = mrkResidual(w, states[1].a, states[1].da, states[1].d2a, b, states[1].p, states[1].v);
+            const auto m3 = mrkResidual(w, states[2].a, states[2].da, states[2].d2a, b, states[2].p, states[2].v);
+            const real dPs = 2.*w.k[h2o_psat2]*w.Tk - 3.*w.k[h2o_psat3]*pow(w.Tk,2.) + 5.*w.k[h2o_psat5]*pow(w.Tk,4.);   // kbar/K
+            const real d2Ps = 2.*w.k[h2o_psat2] - 6.*w.k[h2o_psat3]*w.Tk + 20.*w.k[h2o_psat5]*pow(w.Tk,3.);
+            const real dV = states[0].v - states[1].v;   // kJ/kbar
+            hrs = m1.h - m2.h + m3.h + virial.h - 1000.*w.Tk*dV*dPs;
+            cprs = m1.cp - m2.cp + m3.cp
+                   - 1000.*w.Tk*(2.*dPs*(m1.vT - m2.vT) + pow(dPs,2.)*(m1.vP - m2.vP) + dV*d2Ps);
+        }
+        srs = (hrs-grs)/w.Tk;
+    }
 
     // copy results
     w.Fugpure[0] = fc;  // fugacity coefficient
@@ -525,7 +619,7 @@ long int FugacityH2O(Work& w)
 }
 
 /// The fugacity and the residual functions of a pure fluid. Outside the range of the model, the fluid is an ideal gas.
-void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code, real* parameters, const double* constants, real* out)
+void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code, real* parameters, const double* constants, real* out, bool gems)
 {
     if ((Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5))
     {
@@ -535,6 +629,7 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, char code
         w.Pbar = Pbar;
         w.Pkb = Pbar/1000.;
         w.EosCode = code;
+        w.gems = gems;
         FugacityPT(w, parameters);
         for (int i = 0; i < 6; i++)
             out[i] = w.Fugpure[i];
@@ -566,12 +661,14 @@ auto thermoPropertiesFluidCORK(real TK, real Pbar, const FluidInputs& subst, The
         CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    fugacityProperties(TK, Pbar, TClow, Eos_Code, CPg.data(), subst.constants.data(), FugProps);
+    fugacityProperties(TK, Pbar, TClow, Eos_Code, CPg.data(), subst.constants.data(), FugProps, subst.gems);
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] ); // from ideal gas at 1 bar and givent T to pure real gas/fluid at T and P
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
+    if (!subst.gems)
+        tps.heat_capacity_cp += FugProps[5];  // the residual Cp (GEMS did not add it)
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar); //FugProps[0] - fugacity coefficient
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it

@@ -2,7 +2,7 @@
 
 Soave-Redlich-Kwong equation of state.
 
-Adds the pressure terms of the SRK equation of state to G, H and S, and sets V.
+Adds the pressure terms of the SRK equation of state to G, H, S and Cp, and sets V.
 
 Source: Soave (1972); Soave (1993).
 
@@ -16,6 +16,10 @@ Source: Soave (1972); Soave (1993).
 | Has code | yes |
 | Legacy names | `fluid_soave_redlich_kwong` |
 | Other names | `SRK` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

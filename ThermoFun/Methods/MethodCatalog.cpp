@@ -293,8 +293,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
                     .alias({"Anderson91"}).base().classes(solutes).solvent(true));
 
     // minerals
-    m.push_back(Spec("LandauHP98", "Landau transition of Holland and Powell", "Adds the Landau term of a phase transition to G, H, S and Cp, and sets V.", "Holland and Powell (1998)")
-                    .alias({"HP98Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::Set, 100).classes(minerals)
+    m.push_back(Spec("LandauHP98", "Landau transition of Holland and Powell", "Adds the Landau term of a phase transition to G, H, S and Cp, and sets V. Implementation consistent (the default): the volume term is integrated from the reference pressure, and has its Cp. Implementation gems: from P = 0, without that Cp.", "Holland and Powell (1998)")
+                    .alias({"HP98Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::Set, 100).classes(minerals).impl({"consistent", "gems"})
                     .add({par("Tc0", "K", "Cel", "critical temperature at 1 bar"), par("Smax", "J/(mol.K)", "J/(mol.K)", "maximum entropy of the transition"),
                           par("Vmax", "m3/mol", "J/(mol.bar)", "maximum volume of the transition")})
                     .add(expansionAndBulkModulus(false)));
@@ -317,8 +317,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
                           par("a3", "K", "K", "thermal expansion, term a3 / T2", false), par("kt00", "Pa", "MPa", "bulk modulus at the reference temperature"),
                           par("dkdt", "Pa/K", "MPa/K", "temperature derivative of the bulk modulus", false), par("kp", "1", "1", "pressure derivative of the bulk modulus"),
                           par("kpp", "1/Pa", "1/MPa", "second pressure derivative of the bulk modulus; 0: computed from kp", false)}));
-    m.push_back(Spec("MurnaghanHP98", "Murnaghan equation of Holland and Powell", "Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp.", "Holland and Powell (1998)")
-                    .alias({"HP98Min"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 200).classes(minerals).add(expansionAndBulkModulus(true)));
+    m.push_back(Spec("MurnaghanHP98", "Murnaghan equation of Holland and Powell", "Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump.", "Holland and Powell (1998)")
+                    .alias({"HP98Min"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 200).classes(minerals).impl({"consistent", "gems"}).add(expansionAndBulkModulus(true)));
     {
         Spec s("TaitHP11", "Tait equation of Holland and Powell", "Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp.",
                "Holland and Powell (2011)");
@@ -334,12 +334,15 @@ auto substanceMethods() -> std::vector<MethodSpec>
     // gases and fluids
     m.push_back(Spec("IdealGas", "Ideal gas", "Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.")
                     .alias({"IdealGasVol"}).effects(E::Add, E::None, E::Add, E::None, E::Set, 200).classes({SC::GasFluid, SC::Component}));
-    auto fluid = [](Spec s) -> Spec { s.effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(fluids); return s; };
-    m.push_back(fluid(Spec("PRSV86", "Peng-Robinson-Stryjek-Vera equation of state", "Adds the pressure terms of the PRSV equation of state to G, H and S, and sets V.",
+    // consistent (the default): S = -dG/dT, H = G + T S and Cp = dH/dT of the equation of state (but no residual Cp for
+    // ChurakovGottschalk03: its second derivatives are not made); gems: the formulas of GEMS,
+    // with no residual Cp, and for PRSV86 below Tc, CorkHP91 of H2O and ChurakovGottschalk03 an H and S that are not those of G
+    auto fluid = [](Spec s) -> Spec { s.effects(E::Add, E::Add, E::Add, E::Add, E::Set, 200).classes(fluids).impl({"consistent", "gems"}); return s; };
+    m.push_back(fluid(Spec("PRSV86", "Peng-Robinson-Stryjek-Vera equation of state", "Adds the pressure terms of the PRSV equation of state to G, H, S and Cp, and sets V.",
                            "Stryjek and Vera (1986); Proust and Vera (1989)")
                           .alias({"PRSV"}).add(interactionParameters()).add(builtIn({"k0_0", "k0_1", "k0_2", "k0_3", "Oa", "Ob"}))));
     {
-        Spec s("ChurakovGottschalk03", "Equation of state of Churakov and Gottschalk", "Adds the pressure terms of the perturbation equation of state to G, H and S, and sets V.",
+        Spec s("ChurakovGottschalk03", "Equation of state of Churakov and Gottschalk", "Adds the pressure terms of the perturbation equation of state to G, H, S and Cp, and sets V.",
                "Churakov and Gottschalk (2003a, b)");
         s.alias({"CGF"});
         // the coefficients stay as published: their units are in the descriptions
@@ -352,13 +355,13 @@ auto substanceMethods() -> std::vector<MethodSpec>
         s.add(builtIn({"PISIX", "TWOPI", "rm", "P1", "PP2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "AA1", "AA2", "AA3", "A4", "A5", "A6", "BB1", "BB2", "BB3", "B4", "B5", "B6", "A00", "A01", "A10", "A11", "A12", "A21", "A22", "A23", "A31", "A32", "A33", "A34", "fi1_0", "fi1_1", "fi1_2", "fi1_3", "fi1_4", "fi1_5", "fi1_6", "fi1_7", "fi1_8", "fi1_9", "fi2_0", "fi2_1", "fi2_2", "fi2_3", "fi2_4", "fi2_5", "fi2_6", "fi2_7", "fi2_8", "fi2_9", "hs_a3", "hs_a9", "hs_a12", "NA", "dipole", "kd0", "kd1", "kd2", "kd3", "kd4", "kd5"}));
         m.push_back(fluid(s));
     }
-    m.push_back(fluid(Spec("SoaveRedlichKwong72", "Soave-Redlich-Kwong equation of state", "Adds the pressure terms of the SRK equation of state to G, H and S, and sets V.", "Soave (1972); Soave (1993)")
+    m.push_back(fluid(Spec("SoaveRedlichKwong72", "Soave-Redlich-Kwong equation of state", "Adds the pressure terms of the SRK equation of state to G, H, S and Cp, and sets V.", "Soave (1972); Soave (1993)")
                           .alias({"SRK"}).add(cubicParameters()).add(builtIn({"m0", "m1", "m2", "Oa", "Ob"}))));
-    m.push_back(fluid(Spec("SternerPitzer94", "Equation of state of Sterner and Pitzer", "Adds the pressure terms of the Sterner-Pitzer equation of state to G, H and S, and sets V.", "Sterner and Pitzer (1994)")
+    m.push_back(fluid(Spec("SternerPitzer94", "Equation of state of Sterner and Pitzer", "Adds the pressure terms of the Sterner-Pitzer equation of state to G, H, S and Cp, and sets V.", "Sterner and Pitzer (1994)")
                           .alias({"SternerPitzer"}).add({par("Tc", "K", "K", "critical temperature"), par("Pc", "Pa", "bar", "critical pressure")}).add(builtIn({"TMIN", "TMAX", "PMIN", "PMAX", "cfh_1", "cfh_2", "cfh_3", "cfh_4", "cfh_5", "cfh_6", "cfh_7", "cfh_8", "cfh_9", "cfh_10", "cfh_11", "cfh_12", "cfh_13", "cfh_14", "cfh_15", "cfh_16", "cfh_17", "cfh_18", "cfh_19", "cfh_20", "cfh_21", "cfh_22", "cfh_23", "cfh_24", "cfh_25", "cfh_26", "cfh_27", "cfh_28", "cfh_29", "cfh_30", "cfh_31", "cfh_32", "cfh_33", "cfh_34", "cfh_35", "cfh_36", "cfh_37", "cfh_38", "cfh_39", "cfh_40", "cfh_41", "cfh_42", "cfh_43", "cfh_44", "cfh_45", "cfh_46", "cfh_47", "cfh_48", "cfh_49", "cfh_50", "cfh_51", "cfh_52", "cfh_53", "cfh_54", "cfh_55", "cfh_56", "cfh_57", "cfh_58", "cfh_59", "cfh_60", "cfc_1", "cfc_2", "cfc_3", "cfc_4", "cfc_5", "cfc_6", "cfc_7", "cfc_8", "cfc_9", "cfc_10", "cfc_11", "cfc_12", "cfc_13", "cfc_14", "cfc_15", "cfc_16", "cfc_17", "cfc_18", "cfc_19", "cfc_20", "cfc_21", "cfc_22", "cfc_23", "cfc_24", "cfc_25", "cfc_26", "cfc_27", "cfc_28", "cfc_29", "cfc_30", "cfc_31", "cfc_32", "cfc_33", "cfc_34", "cfc_35", "cfc_36", "cfc_37", "cfc_38", "cfc_39", "cfc_40", "cfc_41", "cfc_42", "cfc_43", "cfc_44", "cfc_45", "cfc_46", "cfc_47", "cfc_48", "cfc_49", "cfc_50", "cfc_51", "cfc_52", "cfc_53", "cfc_54", "cfc_55", "cfc_56", "cfc_57", "cfc_58", "cfc_59", "cfc_60", "cs_a0", "cs_a1", "cs_b0", "cs_c0", "cs_c1", "cs_d0", "cs_d1", "psat_co2_Rhoc", "psat_co2_a1", "psat_co2_a2", "psat_co2_a3", "psat_co2_a4", "psat_co2_b1", "psat_co2_b2", "psat_co2_b3", "psat_co2_b4", "psat_co2_c1", "psat_co2_c2", "psat_co2_c3", "psat_co2_c4", "psat_co2_c5", "psat_h2o_Rhoc", "psat_h2o_a1", "psat_h2o_a2", "psat_h2o_a3", "psat_h2o_a4", "psat_h2o_a5", "psat_h2o_a6", "psat_h2o_b1", "psat_h2o_b2", "psat_h2o_b3", "psat_h2o_b4", "psat_h2o_b5", "psat_h2o_b6", "psat_h2o_c1", "psat_h2o_c2", "psat_h2o_c3", "psat_h2o_c4", "psat_h2o_c5", "psat_h2o_c6", "Mw_h2o", "Mw_co2"}))));
-    m.push_back(fluid(Spec("PengRobinson78", "Peng-Robinson equation of state", "Adds the pressure terms of the Peng-Robinson equation of state (1978 form) to G, H and S, and sets V.", "Peng and Robinson (1976, 1978)")
+    m.push_back(fluid(Spec("PengRobinson78", "Peng-Robinson equation of state", "Adds the pressure terms of the Peng-Robinson equation of state (1978 form) to G, H, S and Cp, and sets V.", "Peng and Robinson (1976, 1978)")
                           .alias({"PR78"}).add(cubicParameters()).add(builtIn({"k1_0", "k1_1", "k1_2", "k2_0", "k2_1", "k2_2", "k2_3", "omega_switch", "Oa", "Ob"}))));
-    m.push_back(fluid(Spec("CorkHP91", "Compensated Redlich-Kwong equation of state", "Adds the pressure terms of the CORK equation of state to G, H and S, and sets V.", "Holland and Powell (1991)")
+    m.push_back(fluid(Spec("CorkHP91", "Compensated Redlich-Kwong equation of state", "Adds the pressure terms of the CORK equation of state to G, H, S and Cp, and sets V.", "Holland and Powell (1991)")
                           .alias({"CORK"}).add(interactionParameters()).add(builtIn({"cs_a0", "cs_a1", "cs_b0", "cs_c0", "cs_c1", "cs_d0", "cs_d1", "co2_a0", "co2_a1", "co2_a2", "co2_b", "co2_c0", "co2_c1", "co2_d0", "co2_d1", "co2_e0", "co2_p0", "h2o_a0", "h2o_a1", "h2o_a2", "h2o_a3", "h2o_a4", "h2o_a5", "h2o_a6", "h2o_a7", "h2o_a8", "h2o_a9", "h2o_b", "h2o_c0", "h2o_c1", "h2o_d0", "h2o_d1", "h2o_e0", "h2o_p0", "h2o_psat0", "h2o_psat2", "h2o_psat3", "h2o_psat5", "h2o_T0", "h2o_Tsuper"}))));
 
     // water

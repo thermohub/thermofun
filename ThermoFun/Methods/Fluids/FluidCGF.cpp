@@ -45,6 +45,7 @@ auto pureFluidOf(const real* data, const ThermoFun::cgf::Constants& k) -> PureFl
 struct Work
 {
     real Tk, Pbar, R_CONST = R_CONSTANT;
+    bool gems = false;  ///< the formulas of GEMS: S and H of the residual at the density, not at the pressure
     real Grs, Hrs, Srs, CPrs, Vrs;
     const ThermoFun::cgf::Constants* k = nullptr;
 };
@@ -106,8 +107,16 @@ long int CGResidualFunctPure(Work& w, const real *coeff, real ro, real T)
     ThermoFun::cgf::PureFluidDerivatives o;
     ThermoFun::cgf::pureFluid(T, ro, coeff, *w.k, o);
 
-    w.Srs = - ( T*o.FT + o.F ) * w.R_CONST;
+    w.Srs = - ( T*o.FT + o.F ) * w.R_CONST;   // the residual at (T, V)
     w.Hrs = (o.F*w.Tk*w.R_CONST + w.Tk*w.Srs) + (1. + ro*o.Frho)*w.R_CONST*w.Tk;
+    if (!w.gems)
+    {
+        // at (T, P), as G = RT ln(phi): S has R ln Z, and H has (Z - 1) RT, not Z RT. The residual Cp needs the second
+        // derivatives of F, which CGFanalytic.hpp does not give: it stays 0
+        const real Z = 1. + ro*o.Frho;
+        w.Srs += w.R_CONST*log(Z);
+        w.Hrs -= w.R_CONST*w.Tk;
+    }
     w.Grs = w.Hrs - w.Tk*w.Srs;
     w.CPrs = 0.;
     w.Vrs = (1. + ro*o.Frho)*w.R_CONST*w.Tk/w.Pbar;
@@ -418,6 +427,7 @@ auto thermoPropertiesFluidCGF(real TK, real Pbar, const FluidInputs& subst, Ther
     work.k = &constants;
     work.Tk = TK;
     work.Pbar = Pbar;
+    work.gems = subst.gems;
     CGcalcFugPure(work, TClow, CPg, FugProps);
 
     // increment thermodynamic properties

@@ -22,6 +22,7 @@ struct MineralInputs
     real alpha0 = 0.0;               ///< thermal expansion, 1/K
     real kappa0 = 0.0;               ///< bulk modulus, kbar
     std::vector<real> coefficients;  ///< of the method, in the units of its formulas
+    bool gems = false;               ///< implementation gems of LandauHP98 and MurnaghanHP98: the integrals of V from P = 0, not from Pr
 };
 
 /// NASA polynomials: one row a1..a7, b1, b2 for each T interval.

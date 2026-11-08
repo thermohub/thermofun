@@ -71,6 +71,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the record, so the engine and a JSON round trip went on using it. `thermoCalculationType()` answers from the record:
   a legacy record with a reaction and only `mv_constant` now says REACDC (it said DCOMP, but was calculated from the
   reaction). The legacy reader marks a record "from a reaction" only if it has one (H+ was marked); results do not change.
+- **Fluids and HP98 minerals are thermodynamically consistent** (review S10: `pytests/test_closed_forms.py` found the
+  inconsistencies; all came from GEMS). The implementation `consistent` is the default of `PRSV86`, `CorkHP91`,
+  `SoaveRedlichKwong72`, `PengRobinson78`, `SternerPitzer94`, `ChurakovGottschalk03`, `LandauHP98` and `MurnaghanHP98`;
+  `gems` keeps the formulas of GEMS (the golden references are reproduced exactly with it). What changes:
+  - every fluid adds its residual Cp, which it calculated but did not add: Cp of CH4, CO2 and others changes by up to
+    38 J/(mol K) (CO2, 373 K, 500 bar);
+  - `PRSV86` below Tc: H took the Peng-Robinson form for a constant k (H2O: 675 J/mol at 298 K, 209 J/mol at 573 K and
+    500 bar), and d2a/dT2 had a sign wrong (Cp: 11 J/(mol K)); S and H follow;
+  - `CorkHP91` of H2O: da/dT of the supercritical branch had the signs of a4 and a6 wrong; the virial term above p0 was
+    not in H and S (also for CO2); in the liquid branch H and S were those of the last part only, without the parts at
+    Psat (S off by up to 53 J/(mol K)); the MRK part of H and Cp took the volume with the virial term; the cubic used
+    pi with 8 digits;
+  - `ChurakovGottschalk03`: S lacked R ln Z and H had Z RT instead of (Z - 1) RT (S and H at the density, not at P). It
+    still has no residual Cp: that needs second derivatives that are not made;
+  - `MurnaghanHP98` and `LandauHP98`: V is integrated from the reference pressure, not from P = 0, at every point. G
+    was higher by about V x 1 bar except at exactly 298.15 K and 1 bar, where it jumped (Albite 10.0 J/mol, Calcite
+    3.7, Quartz 2.3) and V lost the Landau term. The Landau volume term has its Cp, and Tc0 is at Pr.
+  G of a fluid does not change (the exact pi of CORK moves it by less than 1e-9), so its equilibria do not. G of the
+  HP98 minerals and of their reactions changes by 2-10 J/mol. A code that must keep the numbers of GEMS sets
+  `method_implementation` to `gems` for these methods.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

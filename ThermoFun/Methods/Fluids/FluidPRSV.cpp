@@ -50,7 +50,7 @@ void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
 }
 
 /// The attractive (a) and repulsive (b) parameters of the equation of state, and the T derivatives of a.
-void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real k1, real k2, real k3, real &apure, real &bpure, real &da, real &d2a, const double* con )
+void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real k1, real k2, real k3, real &apure, real &bpure, real &da, real &d2a, const double* con, bool gems )
 {
     real Tred, k0, k, alph, ac, sqa, dsqa, d2sqa;
 
@@ -73,7 +73,7 @@ void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real k1, real k2, rea
                 - (k0 + k1*(1.+sqrt(Tred))*(0.7-Tred))/(2*sqrt(Tred)*Tcrit);
     da = 2.*ac*(sqa*dsqa);
     d2sqa = ( - (k1*(0.7-Tred))/(4.*pow(Tred,1.5)*pow(Tcrit,2.)) - k1/(sqrt(Tred)*pow(Tcrit,2.)) ) * (1.-sqrt(Tred))
-                + ( - k1*(0.7-Tred)/(2.*sqrt(Tred)*Tcrit) - k1*(1.+sqrt(Tred))/Tcrit ) / (sqrt(Tred)*Tcrit)
+                + ( - k1*(0.7-Tred)/(2.*sqrt(Tred)*Tcrit) + (gems ? -1. : 1.)*k1*(1.+sqrt(Tred))/Tcrit ) / (sqrt(Tred)*Tcrit)  // GEMS: the sign of the second term
                 + ( k0 + k1*(1.+sqrt(Tred))*(0.7-Tred) ) / (4.*pow(Tred,1.5)*pow(Tcrit,2.));
     d2a = 2.*ac*(dsqa*dsqa + sqa*d2sqa);
 
@@ -81,7 +81,7 @@ void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real k1, real k2, rea
 
 /// The fugacity and the residual functions of a pure fluid. eos: Tcrit, Pcrit, omg, k1, k2, k3. pure: a, b, da/dT, d2a/dT2.
 /// out: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
-void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, const double* con, real* out)
+void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, const double* con, real* out, bool gems)
 {
     real Tcrit, Pcrit, Tred, aprsv, bprsv, alph, da, d2a, k, A, B, a2, a1, a0,
             z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
@@ -153,8 +153,11 @@ void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real*
     k = (sqrt(alph)-1.)/(1.-sqrt(Tred));
     grs = R_CONST*Tk*(z-1.-log(z-B)-A/(B*sqrt(8.))
                 *log((z+(1+sqrt(2.))*B)/(z+(1-sqrt(2.))*B)));
-    hrs = R_CONST*Tk*(z-1.-log((z+(1+sqrt(2.))*B)/(z+(1-sqrt(2.))*B))
-                *A/(B*sqrt(8.))*(1+k*sqrt(Tred)/sqrt(alph)));
+    if (gems)  // the form of Peng-Robinson, for a k that does not change with T: below Tc, k1 makes it change
+        hrs = R_CONST*Tk*(z-1.-log((z+(1+sqrt(2.))*B)/(z+(1-sqrt(2.))*B))
+                    *A/(B*sqrt(8.))*(1+k*sqrt(Tred)/sqrt(alph)));
+    else  // H = -T^2 d(G/T)/dT with da/dT of the equation (k2 and k3 are not in da: no data use them)
+        hrs = R_CONST*Tk*(z-1.) + (Tk*da - aprsv)/(bprsv*sqrt(8.))*log((z+(1+sqrt(2.))*B)/(z+(1-sqrt(2.))*B));
     srs = (hrs-grs)/Tk;
 
     // heat capacity part
@@ -177,7 +180,7 @@ void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real*
 }
 
 /// The same with the check of the range: outside of it, the fluid is an ideal gas.
-void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const real* eos, const double* con, real* out)
+void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const real* eos, const double* con, real* out, bool gems)
 {
     if ((Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5))
     {
@@ -188,9 +191,9 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
         const real k2 = eos[4];
         const real k3 = eos[5];
         real apure, bpure, da, d2a;
-        ab(Tk, Tcrit, Pcrit, omg, k1, k2, k3, apure, bpure, da, d2a, con);
+        ab(Tk, Tcrit, Pcrit, omg, k1, k2, k3, apure, bpure, da, d2a, con, gems);
         const real pure[4] = {apure, bpure, da, d2a};
-        fugacityPure(Tk, Pbar, eos, pure, con, out);
+        fugacityPure(Tk, Pbar, eos, pure, con, out, gems);
     }
     else
     {
@@ -215,12 +218,14 @@ auto thermoPropertiesFluidPRSV(real TK, real Pbar, const FluidInputs& subst, The
         CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    fugacityProperties(TK, Pbar, TClow, CPg, subst.constants.data(), FugProps);
+    fugacityProperties(TK, Pbar, TClow, CPg, subst.constants.data(), FugProps, subst.gems);
 
     // increment thermodynamic properties
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
+    if (!subst.gems)
+        tps.heat_capacity_cp += FugProps[5];  // the residual Cp (GEMS did not add it)
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it

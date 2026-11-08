@@ -2,7 +2,7 @@
 
 Peng-Robinson-Stryjek-Vera equation of state.
 
-Adds the pressure terms of the PRSV equation of state to G, H and S, and sets V.
+Adds the pressure terms of the PRSV equation of state to G, H, S and Cp, and sets V.
 
 Source: Stryjek and Vera (1986); Proust and Vera (1989).
 
@@ -16,6 +16,10 @@ Source: Stryjek and Vera (1986); Proust and Vera (1989).
 | Has code | yes |
 | Legacy names | `fluid_prsv` |
 | Other names | `PRSV` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

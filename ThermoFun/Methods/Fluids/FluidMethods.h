@@ -20,6 +20,7 @@ struct FluidRecord
     std::string formula;         ///< CORK and Sterner-Pitzer have special forms for CO2 and H2O
     Applicability applicability;
     std::vector<double> constants; ///< of the model, in the order of the catalog
+    bool gems = false;             ///< implementation gems: the formulas of GEMS (see FluidInputs)
 };
 
 /// A fluid equation of state: PRSV86, ChurakovGottschalk03, SoaveRedlichKwong72, SternerPitzer94, PengRobinson78 or CorkHP91. It adds its terms to G, H

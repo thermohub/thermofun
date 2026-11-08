@@ -7,6 +7,24 @@
 
 namespace ThermoFun {
 
+auto murnaghanTermsHP98(const real& V0, const real& k0, const real& a0, const real& TK, double Tr, const real& Pbar) -> MurnaghanTermsHP98
+{
+    const auto x = Pbar/1000.;  // kbar
+    const auto kap = k0 * (1. - (1.5e-4)*(TK-Tr));
+    const auto Vt = V0 * (1. + a0*(TK-Tr) - 20.*a0*(pow(TK,0.5)-pow(Tr,0.5)));
+    const auto f = pow(1.+4.*x/kap, 0.75) - 1.;
+    MurnaghanTermsHP98 out;
+    out.g = (1./3.)*Vt*kap*f*1000.;
+    out.s = -( (V0*kap/3.)*(a0-10.*a0*pow(TK,-0.5))*f - (Vt*k0/3.)*(1.5e-4)*f
+               + Vt*x*(1.5e-4)/(1.-(1.5e-4)*(TK-Tr))*pow(1.+4.*x/kap,-0.25) )*1000.;
+    out.v = Vt*pow(1.-4.*x/(kap+4.*x), 0.25);
+    out.cp = -TK*( (5./3.)*V0*a0*kap/pow(TK,1.5)*f
+                   - (2./3.)*V0*(a0-10.*a0/pow(TK,0.5))*k0*(1.5e-4)*f
+                   + 2.*V0*(a0-10.*a0/pow(TK,0.5))*x*(1.5e-4)/(1.-(1.5e-4)*(TK-Tr))*pow(1.+4.*x/kap,-0.25)
+                   - Vt*pow(x,2.)*pow(1.5e-4,2.)/(pow(1.-(1.5e-4)*(TK-Tr),3.)*k0)*pow(1.+4.*x/kap,-1.25) )*1000.;
+    return out;
+}
+
 auto thermoPropertiesMinMurnaghanEOSHP98(real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* variableVolume) -> ThermoPropertiesSubstanceAD
 {
     auto Pst = subst.Pr / bar_to_Pa; // in bar
@@ -25,6 +43,34 @@ auto thermoPropertiesMinMurnaghanEOSHP98(real TK, real Pbar, const MineralInputs
     auto dh  = tps.enthalpy;
     auto dv  = tps.volume;
     auto dcp = tps.heat_capacity_cp;
+
+    // implementation consistent: G(T, P) = G(T, Pr) + int from Pr to P of V dP, also at Tr and Pr, where GEMS used the
+    // reference volume; GEMS integrates from P = 0, so G is higher by about V x 1 bar except at the reference point
+    if (!subst.gems)
+    {
+        const bool variable = fabs(Vst.val()) > 1e-09 && fabs(a0.val()) > 1e-09 && fabs(k0.val()) > 1e-09;
+        if (variableVolume)
+            *variableVolume = variable;
+        if (variable)
+        {
+            const auto t = murnaghanTermsHP98(Vst, k0, a0, TK, Tst, Pbar);
+            const auto r = murnaghanTermsHP98(Vst, k0, a0, TK, Tst, real(Pst));
+            tps.gibbs_energy     += t.g - r.g;
+            tps.entropy          += t.s - r.s;
+            tps.enthalpy         += (t.g - r.g) + TK*(t.s - r.s);
+            tps.volume           += t.v;
+            tps.heat_capacity_cp += t.cp - r.cp;
+        }
+        else
+        {
+            tps.volume           += Vst;
+            tps.gibbs_energy     += Vst * (Pbar - Pst);
+            tps.enthalpy         += Vst * (Pbar - Pst);
+        }
+        tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+        tps.helmholtz_energy = tps.internal_energy - (TK)*tps.entropy;
+        return tps;
+    }
 
     if ((P_Pst != 0 || T_Tst !=0 ) && fabs(Vst.val()) > 1e-09 && fabs(a0.val()) > 1e-09 && fabs(k0.val()) > 1e-09)
     {

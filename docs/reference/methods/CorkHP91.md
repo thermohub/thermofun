@@ -2,7 +2,7 @@
 
 Compensated Redlich-Kwong equation of state.
 
-Adds the pressure terms of the CORK equation of state to G, H and S, and sets V.
+Adds the pressure terms of the CORK equation of state to G, H, S and Cp, and sets V.
 
 Source: Holland and Powell (1991).
 
@@ -16,6 +16,10 @@ Source: Holland and Powell (1991).
 | Has code | yes |
 | Legacy names | `fluid_comp_redlich_kwong_hp91` |
 | Other names | `CORK` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

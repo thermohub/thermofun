@@ -761,6 +761,8 @@ auto thermoPropertiesFluidSTP(real TK, real Pbar, const FluidInputs& subst, Ther
     tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
+    if (!subst.gems)
+        tps.heat_capacity_cp += FugProps[5];  // the residual Cp (GEMS did not add it)
     tps.volume        = FugProps[4];
     auto Fug = FugProps[0] * (Pbar);
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
