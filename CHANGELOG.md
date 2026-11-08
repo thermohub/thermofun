@@ -46,6 +46,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `EnginePreferences::useStandardStateOfGases()` (C++ and Python): G(T, Pr) for a gas, the defaults before 1.0, in one call.
 - `Methods/ParameterSets/DataPressure.yaml` (`rho_min`) and `SolventMethod::pressureAtDensity`.
 - `Status.outofbounds` in Python.
+- `SoluteHP98` has two implementations: `consistent` (the default; S, H and Cp are the exact derivatives of G) and
+  `published` (the formulas of Holland and Powell 1998, as ThermoFun had them before 1.0). G and V are the same in both.
+  Choose with `implementation` on the method of a record, or `method_implementation` of the engine.
 - `ThermoEngine::saturationPressure(T)` (C++ and Python): the pressure that P = 0 means, so Python can read it.
 
 - Built-in constants of the methods in `ThermoFun/Methods/ParameterSets/`, each with a description, its units and its source. A record can replace a value for itself, and a model can have variants (`default: false`, chosen with `parameter_set`).

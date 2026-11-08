@@ -141,7 +141,7 @@ auto hkf88Gems(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in,
 }
 
 template <typename Scalar>
-auto soluteHP98(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const SymbolParameters& p) -> void
+auto soluteHP98(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const SymbolParameters& p, bool published = false) -> void
 {
     if constexpr (std::is_same_v<Scalar, double>)
         needsAPass("SoluteHP98");
@@ -151,7 +151,8 @@ auto soluteHP98(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in
         std::vector<Scalar> parameters;
         for (std::size_t i = 0; i < p.values.size(); ++i)
             parameters.push_back(p.value(i, in) * 1e-3);  // the formula is in kJ
-        setFromModel(state, thermoPropertiesAqSoluteHP98(in.T, in.P / bar_to_Pa, soluteReference(in), parameters, p.data, in.solvent_at_reference->properties, in.solvent->properties));
+        const auto model = published ? thermoPropertiesAqSoluteHP98Published : thermoPropertiesAqSoluteHP98;
+        setFromModel(state, model(in.T, in.P / bar_to_Pa, soluteReference(in), parameters, p.data, in.solvent_at_reference->properties, in.solvent->properties));
     }
 }
 
@@ -224,6 +225,13 @@ auto soluteHP98Method(std::vector<double> parameters, std::string symbol) -> std
 {
     return makeMethod("SoluteHP98", SymbolParameters{std::move(parameters), std::move(symbol)},
                       [](auto& state, const auto& in, const SymbolParameters& p) { soluteHP98(state, in, p); },
+                      [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs&, const auto&) { allCalculated(out); });
+}
+
+auto soluteHP98PublishedMethod(std::vector<double> parameters, std::string symbol) -> std::shared_ptr<const SubstanceMethod>
+{
+    return makeMethod("SoluteHP98", SymbolParameters{std::move(parameters), std::move(symbol)},
+                      [](auto& state, const auto& in, const SymbolParameters& p) { soluteHP98(state, in, p, true); },
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs&, const auto&) { allCalculated(out); });
 }
 

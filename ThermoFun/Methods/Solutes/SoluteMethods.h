@@ -32,6 +32,7 @@ auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFCons
 
 /// SoluteHP98: the density model of Holland and Powell (1998). The parameter: b, J/(mol K2).
 auto soluteHP98Method(std::vector<double> parameters, std::string symbol) -> std::shared_ptr<const SubstanceMethod>;
+auto soluteHP98PublishedMethod(std::vector<double> parameters, std::string symbol) -> std::shared_ptr<const SubstanceMethod>;
 
 /// AndersonEtAl91: the density model of Anderson et al. (1991).
 auto andersonEtAl91Method() -> std::shared_ptr<const SubstanceMethod>;

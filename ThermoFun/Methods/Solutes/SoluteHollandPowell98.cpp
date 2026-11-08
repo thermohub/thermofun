@@ -78,4 +78,54 @@ auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, const SoluteReference& ref
 }
 
 
+
+auto thermoPropertiesAqSoluteHP98Published(real TK, real Pbar, const SoluteReference& reference, const std::vector<real>& parameters, const std::string& symbol, const PropertiesSolventAD& wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+{
+    auto T = TK;
+    ThermoPropertiesSubstanceAD tps;
+    double T298 = reference.T;
+    real G298 = reference.G;
+    real H298 = reference.H;
+    real S298 = reference.S;
+    real V298 = reference.V; // J/bar
+    real Cp298 = reference.Cp;
+    double ALPw298 = wpr.Alpha.val();
+    double BETw298 = wpr.Beta.val()*1e5; // 1/bar
+    double dALPdTw298 = wpr.dAldT.val();
+    double RHOw298 = wpr.density.val()/1000; // g/cm3
+    if (parameters.empty())
+    {
+        Exception exception;
+        exception.error << "Error in Holland and Powell aq solute model";
+        exception.reason << "There are no model parameters given for "<<symbol << ".";
+        exception.file = __FILE__;
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+    auto b = parameters[0];
+    auto RHOw = wp.density/1000; // g/cm3
+    auto ALPw = wp.Alpha;
+    auto BETw = wp.Beta*1e5; // 1/bar
+    auto dALPdTw = wp.dAldT;
+
+    // T' = T below 500 K, 500 K above: a constant here, as in the paper (the derivative of T' is not carried)
+    const double Tprime = (T.val() <= 500) ? T.val() : 500.0;
+
+    auto G_bb = H298 - T*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
+    auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
+    auto S = S298 - b*(T298 - T) - (Cp298 - T298*b)/(T298*dALPdTw298)*(ALPw298 - log(RHOw/RHOw298)/Tprime - (T/Tprime)*ALPw);
+    auto V = V298 + (Cp298 - T298*b)/(T298*dALPdTw298)*( -BETw298 + T/Tprime*BETw );
+    auto Cp = T*(b - ((T298*b - Cp298)*(T*dALPdTw))/(T298*dALPdTw298*Tprime));
+    auto H = G_bb + T*S298;
+
+    tps.gibbs_energy     = G;
+    tps.volume           = V;
+    tps.entropy          = S;
+    tps.heat_capacity_cp = Cp;
+    tps.enthalpy         = H;
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+    tps.helmholtz_energy = tps.internal_energy - T*tps.entropy;
+    return tps;
+}
+
 }

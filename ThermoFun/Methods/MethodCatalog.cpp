@@ -282,9 +282,11 @@ auto substanceMethods() -> std::vector<MethodSpec>
         s.add(constants({{"MW", "molar mass of water of the model, g/mol"}}));
         m.push_back(s);
     }
-    m.push_back(Spec("SoluteHP98", "Aqueous solute of Holland and Powell", "Calculates the properties of an aqueous species from the density model of Holland and Powell.",
+    m.push_back(Spec("SoluteHP98", "Aqueous solute of Holland and Powell", "Calculates the properties of an aqueous species from the density model of Holland and Powell. "
+                     "Implementation consistent (the default): S, H and Cp are the exact derivatives of G. Implementation published: the formulas of the paper, "
+                     "in which T' is a constant and S, Cp, H are not the derivatives of G. G and V are the same in both.",
                      "Holland and Powell (1998)")
-                    .alias({"HP98Sol"}).base().classes(solutes).solvent(true)
+                    .alias({"HP98Sol"}).base().classes(solutes).solvent(true).impl({"consistent", "published"})
                     .add(par("b", "J/(mol.K2)", "kJ/(mol.K2)", "coefficient b")));
     m.push_back(Spec("AndersonEtAl91", "Aqueous solute of Anderson et al.", "Calculates the properties of an aqueous species from the density model of Anderson et al.",
                      "Anderson et al. (1991)")

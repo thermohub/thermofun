@@ -42,3 +42,31 @@ def test_the_properties_of_a_solute_are_derivatives_of_its_gibbs_energy(symbol, 
     assert r.entropy.val == pytest.approx(-(up.gibbs_energy.val - down.gibbs_energy.val) / (2 * h), abs=1e-5)
     assert r.enthalpy.val - (r.gibbs_energy.val + T * r.entropy.val) == pytest.approx(OFFSET, abs=1e-6)
     assert r.heat_capacity_cp.val == pytest.approx((up.enthalpy.val - down.enthalpy.val) / (2 * h), rel=1e-5, abs=1e-4)
+
+
+@pytest.mark.parametrize("T", [373.15, 473.15, 573.15])
+def test_the_published_formulas_of_holland_and_powell_are_an_implementation(T):
+    """SoluteHP98: implementation consistent (the default) and published (the paper). G and V are the same; S, H, Cp
+    of the paper are not the derivatives of G (decision 4 of the review of v2)."""
+    consistent = tf.ThermoEngine(DB)
+    published = tf.ThermoEngine(DB)
+    published.preferences.method_implementation = {"SoluteHP98": "published"}
+    P, h = 1e7, 1e-2
+    c, p = (e.thermoPropertiesSubstance(T, P, "holland-powell") for e in (consistent, published))
+    assert p.gibbs_energy.val == pytest.approx(c.gibbs_energy.val, rel=1e-12)
+    assert p.volume.val == pytest.approx(c.volume.val, rel=1e-12)
+    dGdT = (published.thermoPropertiesSubstance(T + h, P, "holland-powell").gibbs_energy.val
+            - published.thermoPropertiesSubstance(T - h, P, "holland-powell").gibbs_energy.val) / (2 * h)
+    assert c.entropy.val == pytest.approx(-dGdT, abs=1e-5)
+    # S and H of the paper differ at every T; Cp only above 500 K, where T' = 500 K and the paper lacks 2 alpha/T'
+    for name in ("entropy", "enthalpy") + (("heat_capacity_cp",) if T > 500 else ()):
+        assert abs(getattr(p, name).val - getattr(c, name).val) > 1e-3, name
+    if T < 500:
+        assert p.heat_capacity_cp.val == pytest.approx(c.heat_capacity_cp.val, rel=1e-12)
+
+
+def test_the_default_implementation_of_holland_and_powell_is_consistent():
+    default, named = tf.ThermoEngine(DB), tf.ThermoEngine(DB)
+    named.preferences.method_implementation = {"SoluteHP98": "consistent"}
+    a, b = (e.thermoPropertiesSubstance(473.15, 1e7, "holland-powell") for e in (default, named))
+    assert (a.entropy.val, a.enthalpy.val) == (b.entropy.val, b.enthalpy.val)

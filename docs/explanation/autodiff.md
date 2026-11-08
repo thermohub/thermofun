@@ -109,7 +109,8 @@ All models, including the GEMS implementations that had zero or incomplete deriv
     derivatives of the published `G` (the `ln(rho/rho298)/T'` term of `S` had the opposite sign; `Cp` lacked
     `2 alpha/T'`) and `H` was `G + T S298`. `S`, `V`, `Cp` and `H` are now the exact derivatives of `G`:
     `S = -dG/dT`, `Cp = T dS/dT`, `H = G + T S`. **Behaviour change**: `S`, `Cp`, `H` (and `U`, `A`) of HP98 solutes
-    differ from the published formulas (G and V are unchanged).
+    differ from the published formulas (G and V are unchanged). The published formulas stay available as the
+    implementation `published` of `SoluteHP98`; `consistent` is the default.
 13. `Reaction_Vol_fT` (reaction volume as a polynomial of T and P, coefficients in 1/K, 1/K^2, 1/K^3, 1/bar, 1/bar^2)
     was called by the engine for the volume pressure methods but returned an empty result (which replaced the
     properties), and its dead implementation mixed Pa and bar. It is implemented and wired:

@@ -257,6 +257,8 @@ MethodRegistry::MethodRegistry()
         return hkf88GemsMethod(parametersOf(a), hkfSpecies(r), hkfConstants(a));
     });
     add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
+    add("SoluteHP98", "consistent", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
+    add("SoluteHP98", "published", [parametersOf](A a, R r) { return soluteHP98PublishedMethod(parametersOf(a), r.symbol); });
     add("AndersonEtAl91", "", [](A, R) { return andersonEtAl91Method(); });
     add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a), r.symbol, constantsOf(a).front()); });
 

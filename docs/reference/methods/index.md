@@ -43,7 +43,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | [PRSV86](PRSV86.md) | Peng-Robinson-Stryjek-Vera equation of state | correction | substance | gas_fluid |  |
 | [PengRobinson78](PengRobinson78.md) | Peng-Robinson equation of state | correction | substance | gas_fluid |  |
 | [SoaveRedlichKwong72](SoaveRedlichKwong72.md) | Soave-Redlich-Kwong equation of state | correction | substance | gas_fluid |  |
-| [SoluteHP98](SoluteHP98.md) | Aqueous solute of Holland and Powell | base | substance | aqueous_solute |  |
+| [SoluteHP98](SoluteHP98.md) | Aqueous solute of Holland and Powell | base | substance | aqueous_solute | consistent, published |
 | [SternerPitzer94](SternerPitzer94.md) | Equation of state of Sterner and Pitzer | correction | substance | gas_fluid |  |
 | [SverjenskyEtAl14](SverjenskyEtAl14.md) | Dielectric constant of Sverjensky et al. | correction | substance | water_solvent |  |
 | [TPTable](TPTable.md) | Table of T and P | base | substance | any |  |

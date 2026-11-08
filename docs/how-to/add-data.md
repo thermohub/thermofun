@@ -612,7 +612,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 | `NASA9` | NASA polynomials | `a1`<br>`a2`<br>`a3`<br>`a4`<br>`a5`<br>`a6`<br>`a7`<br>`b1` [K]<br>`b2` | one |
 | `TPTable` | Table of T and P | none | one |
 | `HKF88` | Revised HKF equation of state (needs the solvent) | `a1` [J/(mol.Pa)]<br>`a2` [J/mol]<br>`a3` [J.K/(mol.Pa)]<br>`a4` [J.K/mol]<br>`c1` [J/(mol.K)]<br>`c2` [J.K/mol]<br>`omega` [J/mol]<br>`eta` (optional)<br>`theta` (optional)<br>`psi` (optional)<br>`Tr` (optional)<br>`Pr` (optional)<br>`Zr` (optional)<br>`Yr` (optional)<br>`zeta` (optional)<br>`gr` (optional)<br>`ag1` (optional)<br>`ag2` (optional)<br>`ag3` (optional)<br>`bg1` (optional)<br>`bg2` (optional)<br>`bg3` (optional)<br>`af1` (optional)<br>`af2` (optional)<br>`af3` (optional)<br>`Dmax` (optional) | `reaktoro`, `gems` |
-| `SoluteHP98` | Aqueous solute of Holland and Powell (needs the solvent) | `b` [J/(mol.K2)] | one |
+| `SoluteHP98` | Aqueous solute of Holland and Powell (needs the solvent) | `b` [J/(mol.K2)] | `consistent`, `published` |
 | `AndersonEtAl91` | Aqueous solute of Anderson et al. (needs the solvent) | none | one |
 
 ### Corrections of a substance
