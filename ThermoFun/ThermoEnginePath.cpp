@@ -68,7 +68,7 @@ auto ThermoEngine::Impl::pathOfReaction(const std::string& symbol, std::vector<s
             for (const auto& a : reaction.record()->methods)
                 if (const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Reaction); spec && spec->needs.solvent)
                 {
-                    path.steps.push_back(pathOfSubstance(preferences.solvent_symbol, above));
+                    path.steps.push_back(pathOfSubstance(solvent_in_use, above));
                     path.steps.back().role = "solvent";
                     break;
                 }
@@ -130,7 +130,7 @@ auto ThermoEngine::Impl::pathOfSubstance(const std::string& symbol, std::vector<
         for (const auto& a : record->methods)
             if (const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance); !isWater && spec && spec->needs.solvent)
             {
-                path.steps.push_back(pathOfSubstance(preferences.solvent_symbol, above));
+                path.steps.push_back(pathOfSubstance(solvent_in_use, above));
                 path.steps.back().role = "solvent";
                 break;
             }

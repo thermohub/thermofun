@@ -32,7 +32,7 @@ Units of the values: T: K, rho: g/cm3. They are not converted.
 
 Log K of a complex from an electrostatic model, as a function of the ionization of water. pKw(T, rho) = -(a + b/T + c/T2 + d/T3 + (e + f/T + g/T2) log10(rho)), with T in K and rho in g/cm3. RHO298: the density of water at 298.15 K, g/cm3. zzH2O: the term of water in the model, a number. pK298, A and B belong to each reaction.
 
-Source: Ryzhenko B.N., Bryzgalin O.V., as in the code of GEMS; the coefficients are not traced to a page.
+Source: Marshall W.L., Franck E.U. (1981) J. Phys. Chem. Ref. Data 10, 295-304 (a to g, the ionization of water); Borisov M.V., Shvarov Yu.V. (1992); Shvarov Yu.V., Bastrakov E.N. (1999) AGSO Record 1999/25 (the model, zzH2O = 1.0107); both as written in Dolejs D. (2013) Rev. Mineral. Geochem. 76, 35-79, Eqs. 43-44.
 
 Names: `a`, `b`, `c`, `d`, `e`, `f`, `g`, `RHO298`, `zzH2O`.
 

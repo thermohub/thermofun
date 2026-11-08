@@ -305,7 +305,7 @@ void exportThermoEngine(py::module& m)
     .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size,
                    "size of memoization cache, default 1e6 (if 0 unlimited cache)")
     .def_readwrite("solventState", &EnginePreferences::solvent_state,
-                   "solvent aggregation state (0 liquid, 1 gas/vapour), default 0")
+                   "not read by the calculations (old API): the state of water comes from its record or from the state argument of propertiesSolvent, default 0")
     .def_readwrite("solventSymbol", &EnginePreferences::solvent_symbol,
                    "symbol of solvent used in EoS of solute properties (e.g., H2O@ for HKF model), default H2O@")
     .def_readwrite("fallback_to_reference_properties",
@@ -313,10 +313,13 @@ void exportThermoEngine(py::module& m)
                    "use reference properties if no calculation functions are available True/False (default: False)")
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
-                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)")
+                   "a gas with a fluid method or IdealGas has RT ln(P/Pr) in G and -R ln(P/Pr) in S True/False (default: True); False gives the state at Pr")
     .def_readwrite("cancel_fugacity_coefficient_in_gas_props",
                    &EnginePreferences::cancel_fugacity_coefficient_in_gas_props,
-                   "remove the fugacity coefficient term RT ln(phi) of the fluids from G, giving standard-state G(T, 1 bar) True/False (default: True); False keeps it and removes RT ln(P/1 bar) from G of steam (HGK)")
+                   "remove the fugacity coefficient term RT ln(phi) of the fluids from G True/False (default: False); the residual terms of H and S stay")
+    .def("useStandardStateOfGases", &EnginePreferences::useStandardStateOfGases, py::return_value_policy::reference_internal,
+         "G(T, Pr) for a gas: sets apply_pressure_correction_to_gas_props = False and cancel_fugacity_coefficient_in_gas_props = True "
+         "(the defaults before version 1.0), for a code that adds these terms itself; returns the preferences")
     .def_readwrite("round_to_uncertainty",
                    &EnginePreferences::round_to_uncertainty,
                    "round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded")

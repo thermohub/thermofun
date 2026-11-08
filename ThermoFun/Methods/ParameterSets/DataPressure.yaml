@@ -1,0 +1,9 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  DataPressure_JohnsonEtAl92:
+    method: DataPressure
+    formula_units: {rho: kg/m3}
+    description: "The state at which the engine takes the log K data of a reaction that does not change with P, for a substance defined by it with its own pressure method (ConstantVolume, IdealGas, a fluid). That pressure is the largest of the reference pressure, the saturation pressure of water, and the pressure at which water has the density rho_min (kg/m3) at T. So the species of the reaction stay in dense, liquid-like water, as where log K data are measured, also above the critical temperature, and G is continuous: the isochore starts on the saturation curve. 420 kg/m3 is the upper isochore of the critical region of water (Levelt Sengers et al. 1983, as drawn by Johnson et al. 1992, Fig. 1). It is a choice of the state, not a limit of a model. rho_min = 0 gives the critical pressure above the critical temperature."
+    reference: "Johnson J.W., Oelkers E.H., Helgeson H.C. (1992) Computers and Geosciences 18, 899-947, Fig. 1; Levelt Sengers J.M.H. et al. (1983) J. Phys. Chem. Ref. Data 12, 1-28"
+    parameters:
+      rho_min: 420.0

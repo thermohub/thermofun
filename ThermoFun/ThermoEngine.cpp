@@ -60,11 +60,7 @@ void ThermoEngine::Impl::dropStaleResults()
 {
     applyOldWords(conventions);
     const Database& db = database;
-    // solvent_state is not compared: each calculation of a substance sets it (to vapor for a gas), so it is
-    // working state of the engine, not a setting of the user
-    auto settings = cached_for.preferences;
-    settings.solvent_state = preferences.solvent_state;
-    if (db.revision() == cached_for.database_revision && preferences == settings &&
+    if (db.revision() == cached_for.database_revision && preferences == cached_for.preferences &&
         conventions == cached_for.conventions && db.conventions() == cached_for.database_conventions)
         return;
     checkPreferences(preferences);
@@ -280,10 +276,11 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     s.implementations = pimpl->preferences.method_implementation;
     s.physical_constants = PHYSICAL_CONSTANTS_NAME;
     const auto& p = pimpl->preferences;
-    if (database.containsSubstance(p.solvent_symbol))
+    pimpl->dropStaleResults();  // the solvent in use is chosen there
+    if (const auto& water = pimpl->solvent_in_use; database.containsSubstance(water))
     {
-        s.water_symbol = p.solvent_symbol;
-        s.water_methods = calculationPath(p.solvent_symbol).methods;
+        s.water_symbol = water;
+        s.water_methods = calculationPath(water).methods;
     }
     const EnginePreferences defaults;
     const auto word = [](bool value) { return std::string(value ? "true" : "false"); };

@@ -77,7 +77,7 @@ auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double
 /// The density terms of a change between molarity and molality at T, P. V in J/bar.
 auto ThermoEngine::Impl::molarityTermsAt(double T, double& P, const std::string& what) const -> v2::MolarityTerms<Reaktoro_::ThermoScalar>
 {
-    const auto symbol = preferences.solvent_symbol;
+    const auto symbol = solvent_in_use;
     if (!database.containsSubstance(symbol))
         throw std::runtime_error("CNV-002: " + what + " needs the solvent " + symbol + " for molarity, and the database does not have it.");
     const auto s = cachedSolvent(T, P, symbol, -1);

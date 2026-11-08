@@ -1697,7 +1697,7 @@
       "records": [
         "H2Se(g)"
       ],
-      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01. Above the critical temperature of water (2026-11-08, review S4): the pressure of the data is the largest of Pr, Psat (Pcr above Tcr) and the pressure at which water has rho_min = 420 kg/m3 (DataPressure.yaml); before, the other species were at P and the term of the record came on top, so the pressure counted twice and G jumped at Tcr."
     },
     {
       "database": "psinagra-12-07-thermofun",
@@ -1706,7 +1706,7 @@
       "records": [
         "H2Se(g)"
       ],
-      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01. Above the critical temperature of water (2026-11-08, review S4): the pressure of the data is the largest of Pr, Psat (Pcr above Tcr) and the pressure at which water has rho_min = 420 kg/m3 (DataPressure.yaml); before, the other species were at P and the term of the record came on top, so the pressure counted twice and G jumped at Tcr."
     },
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",
@@ -1743,7 +1743,7 @@
         "UO2HPO4w4(cr)",
         "UO3w2(cr)"
       ],
-      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01. Above the critical temperature of water (2026-11-08, review S4): the pressure of the data is the largest of Pr, Psat (Pcr above Tcr) and the pressure at which water has rho_min = 420 kg/m3 (DataPressure.yaml); before, the other species were at P and the term of the record came on top, so the pressure counted twice and G jumped at Tcr."
     },
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",
@@ -1780,7 +1780,7 @@
         "UO2HPO4w4(cr)",
         "UO3w2(cr)"
       ],
-      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01."
+      "reason": "A substance defined by a reaction that does not change with P, with its own method of the pressure: all at the pressure of the log K data, then that term, so dG/dP = V. Before, the other species were at P and the reaction at the reference pressure, so their pressure terms went into this substance, or (H2Se(g), a reaction with dV = 0) the substance had no term of its own. Below the critical temperature of water. Maintainer's decision, 2026-11-01. Above the critical temperature of water (2026-11-08, review S4): the pressure of the data is the largest of Pr, Psat (Pcr above Tcr) and the pressure at which water has rho_min = 420 kg/m3 (DataPressure.yaml); before, the other species were at P and the term of the record came on top, so the pressure counted twice and G jumped at Tcr."
     },
     {
       "database": "pytests--Substances--Solvent--water-thermofun",
@@ -1880,6 +1880,147 @@
         "H2O@"
       ],
       "reason": "On the steam tables the baseline shifted G and A of water by a constant, while the entropy has a constant added: they need also the term -Str (T - Ttr), so that G = H - T S. At 283 K and 100 bar G was -466 J/mol, and is 166 J/mol."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "14A-Am",
+        "7A-Csd",
+        "7A-Dph",
+        "Agt",
+        "Alm",
+        "Ams-7A",
+        "Brm",
+        "Ca-Php",
+        "Cbz",
+        "Cld",
+        "Cln",
+        "Cum",
+        "Dck",
+        "Ed",
+        "Eps",
+        "F-Phl",
+        "F-Tr",
+        "Fe-Ed",
+        "Fe-Ged",
+        "Fl-Ed",
+        "Gln",
+        "Gru",
+        "Hal",
+        "Hs",
+        "Hul",
+        "K-Php",
+        "Lnr",
+        "Lrn",
+        "Mg-Hs",
+        "Mg-Rbk",
+        "Mnn",
+        "Na-Php",
+        "Ntr",
+        "Pd-Oxn",
+        "Prp",
+        "Rbk",
+        "Rct",
+        "Sps",
+        "St",
+        "Stb"
+      ],
+      "reason": "G and H of these records are 7777777 J/mol in the file, the mark of GEMS exports for no value; the baseline used it as a value (G of 7.78 MJ/mol). It is read as missing now (LEG-QRK-013), so G and H are not defined. Found against the mineral table of DEW (almandine, pyrope, chloritoid)."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "14A-Am",
+        "7A-Csd",
+        "7A-Dph",
+        "Agt",
+        "Alm",
+        "Ams-7A",
+        "Brm",
+        "Ca-Php",
+        "Cbz",
+        "Cld",
+        "Cln",
+        "Cum",
+        "Dck",
+        "Ed",
+        "Eps",
+        "F-Phl",
+        "F-Tr",
+        "Fe-Ed",
+        "Fe-Ged",
+        "Fl-Ed",
+        "Gln",
+        "Gru",
+        "Hal",
+        "Hs",
+        "Hul",
+        "K-Php",
+        "Lnr",
+        "Lrn",
+        "Mg-Hs",
+        "Mg-Rbk",
+        "Mnn",
+        "Na-Php",
+        "Ntr",
+        "Pd-Oxn",
+        "Prp",
+        "Rbk",
+        "Rct",
+        "Sps",
+        "St",
+        "Stb"
+      ],
+      "reason": "G and H of these records are 7777777 J/mol in the file, the mark of GEMS exports for no value; the baseline used it as a value (G of 7.78 MJ/mol). It is read as missing now (LEG-QRK-013), so G and H are not defined. Found against the mineral table of DEW (almandine, pyrope, chloritoid)."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "OH-an91"
+      ],
+      "reason": "AndersonEtAl91: H was G_bb + T S298, without -T K (alpha(Tr) - alpha(T)), so dH/dT was not Cp. Now H = G + T S + (H298 - G298 - Tr S298) (Dolejs 2013, Eq. 106). Only H, U, A change; test: pytests/test_solute_consistency.py."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "OH-an91"
+      ],
+      "reason": "AndersonEtAl91: H was G_bb + T S298, without -T K (alpha(Tr) - alpha(T)), so dH/dT was not Cp. Now H = G + T S + (H298 - G298 - Tr S298) (Dolejs 2013, Eq. 106). Only H, U, A change; test: pytests/test_solute_consistency.py."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "OH-an91"
+      ],
+      "reason": "AndersonEtAl91: H was G_bb + T S298, without -T K (alpha(Tr) - alpha(T)), so dH/dT was not Cp. Now H = G + T S + (H298 - G298 - Tr S298) (Dolejs 2013, Eq. 106). Only H, U, A change; test: pytests/test_solute_consistency.py."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "OH-an91"
+      ],
+      "reason": "AndersonEtAl91: H was G_bb + T S298, without -T K (alpha(Tr) - alpha(T)), so dH/dT was not Cp. Now H = G + T S + (H298 - G298 - Tr S298) (Dolejs 2013, Eq. 106). Only H, U, A change; test: pytests/test_solute_consistency.py."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "OH-an91"
+      ],
+      "reason": "AndersonEtAl91: H was G_bb + T S298, without -T K (alpha(Tr) - alpha(T)), so dH/dT was not Cp. Now H = G + T S + (H298 - G298 - Tr S298) (Dolejs 2013, Eq. 106). Only H, U, A change; test: pytests/test_solute_consistency.py."
     }
   ]
 }

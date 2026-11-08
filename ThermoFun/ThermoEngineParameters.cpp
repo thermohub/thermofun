@@ -118,7 +118,7 @@ auto ThermoEngine::Impl::editValue(const ParameterRef& ref, Edit edit) -> void
         bound.corrections.erase(old.get());
     }
     // a solute can read the solvent as a substance: then every result goes
-    if (ref.symbol == preferences.solvent_symbol)
+    if (ref.symbol == solvent_in_use)
     {
         clearResults();
         return;

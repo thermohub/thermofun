@@ -31,12 +31,13 @@ auto thermoPropertiesAqSoluteAN91(real TK, real Pbar, const SoluteReference& ref
     auto BETw = wp.Beta*1e5; // 1/bar
     auto dALPdTw = wp.dAldT;
 
-    auto G_bb = H298 - T*S298 + Cp298/(T298*dALPdTw298)*(ALPw298*(T - T298) + log(RHOw/RHOw298));
     auto G = G298 - S298*(T-T298) + Cp298/(T298*dALPdTw298)*(ALPw298*(T - T298) + log(RHOw/RHOw298));
     auto S = S298 - (Cp298*(ALPw298 - ALPw))/(T298*dALPdTw298);
     real V(V298); //-(Cp298*ALPw)/(T298*dALPdTw298); // the model does not include a volume term!
     auto Cp = T*(Cp298*dALPdTw)/(T298*dALPdTw298);
-    auto H = G_bb + T*S298;
+    // H = G + T S, and the constant by which the reference values set G apart from H (the convention of G). It was
+    // G_bb + T S298, without -T K (alpha298 - alpha): then dH/dT was not Cp (Dolejs 2013, Eq. 106).
+    auto H = G + T*S + (H298 - G298 - T298*S298);
 
     tps.gibbs_energy     = G;
     tps.volume           = V;

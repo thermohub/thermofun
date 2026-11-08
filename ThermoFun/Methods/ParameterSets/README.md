@@ -17,6 +17,7 @@ Values are in the units of the formulas, as written in the paper, and are not co
 |---|---|---|---|---|
 | AkinfievDiamond03 | | | | M in g/mol |
 | BradleyPitzer79 | K | bar | | |
+| DataPressure | | | kg/m3 | |
 | ChurakovGottschalk03 | K | | reduced | the constants are for the dimensionless beta = epsilon/T and reduced density sigma^3 NA rho, with sigma and epsilon of each substance |
 | CorkHP91 | K | kbar | | V in kJ/kbar |
 | FernandezEtAl97 | K | | kg/m3 | SI |

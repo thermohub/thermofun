@@ -5,6 +5,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed, read before you update
+
+- **Gases:** G of a gas with a fluid method or `IdealGas` has `RT ln(P/Pr)` and `RT ln(phi)` by default, on every path (defaults `apply_pressure_correction_to_gas_props = true`, `cancel_fugacity_coefficient_in_gas_props = false`; before: `false` and `true`). A consumer that adds these terms itself counts them twice with the defaults: for example +26 to +30 kJ/mol for CH4, CO, CO2 and H2 at 473.15 K and 1 kbar. Call `EnginePreferences::useStandardStateOfGases()` to keep the old values. GEMS3K releases before this change must not be used with ThermoFun 1.0.
+- **A substance defined by a reaction that does not change with P, with its own pressure method** (for example
+  `ConstantVolume`): the other species of the reaction are taken at max(Pr, Psat, P at which water has 420 kg/m3).
+  Above the critical temperature of water they were at P, and the pressure came in twice (dG/dP was V of the record plus
+  that of the other species) with a jump of G at Tcr. Results change near and above 374 °C.
+- **`AndersonEtAl91`: H** is now G + T S plus the constant of the reference values. It lacked -T K (alpha(Tr) - alpha(T)),
+  so dH/dT was not Cp (checked against Dolejš 2013, Eq. 106). G, S, Cp do not change; H, U, A do.
+- **Legacy files: the value 7777777 is read as no value** (LEG-QRK-013), the mark of GEMS exports. In slop98, G and H of
+  40 minerals (for example almandine, pyrope, chloritoid) had it, and the engine used it as G = 7.78 MJ/mol. G and H of
+  these records are now not defined; the migration report lists them.
+- **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
+  solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
+  was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and
+  a calculation no longer changes `solvent_symbol` or `solvent_state` of the preferences.
+
 ### Added
 
 - Standard property models: Tait HP11 pressure correction, Extended UNIQUAC, NASA polynomials,
@@ -18,6 +35,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `ThermoEngine::setConventions` (C++ and Python). In Python, `engine.preferences` and `engine.conventions`
   can be assigned as a whole.
 - `Database::revision`: a number that changes with each change of the records.
+- `EnginePreferences::useStandardStateOfGases()` (C++ and Python): G(T, Pr) for a gas, the defaults before 1.0, in one call.
+- `Methods/ParameterSets/DataPressure.yaml` (`rho_min`) and `SolventMethod::pressureAtDensity`.
+- `Status.outofbounds` in Python.
 
 - Built-in constants of the methods in `ThermoFun/Methods/ParameterSets/`, each with a description, its units and its source. A record can replace a value for itself, and a model can have variants (`default: false`, chosen with `parameter_set`).
 - `THERMOFUN_PARAMETER_PATH`: a folder with more variants, read with no rebuild.

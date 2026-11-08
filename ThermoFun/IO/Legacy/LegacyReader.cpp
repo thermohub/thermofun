@@ -101,6 +101,13 @@ auto readQuantity(const json& j, const char* key, const std::string& unitDefault
         return std::nullopt;
     }
 
+    // 7777777 is the mark of GEMS exports for no value (slop98: G and H of 40 minerals)
+    if (entry["values"][0].get<double>() == 7777777.0)
+    {
+        legacy::reportQuirk(c.diagnostics, "LEG-QRK-013", where(c, key), "7777777 is the mark for no value: the property is missing");
+        return std::nullopt;
+    }
+
     Quantity q;
     q.unit_as_written = written;
     q.single_precision_source = isSinglePrecision(entry["values"][0].get<double>());

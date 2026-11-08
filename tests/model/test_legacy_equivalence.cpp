@@ -19,6 +19,7 @@
 #include "Compat/SubstanceCompat.h"
 #include <cmath>
 #include <map>
+#include <set>
 #include "frozen/ParseJsonToData_v073.h"
 
 namespace {
@@ -105,7 +106,7 @@ auto numbersOfLine(const std::string& line) -> std::vector<double>
 // - the end of an array that no method reads: the record does not hold it, and the migration report names it (LEG-QRK-010);
 // - the sign of an error: an error is positive in the record;
 // - the code of a method without code: the record does not hold it, and the migration report names it (LEG-MTH-002);
-// - the empty marker of GEMS (the smallest float, and 1e5 times it for alpha0): the record holds no value;
+// - the empty marker of GEMS (the smallest float, and 1e5 times it for alpha0), and its mark 7777777 for no value: the record holds no value;
 // - the general code of a reaction: the reader merges logk_fpt_function into the method of log K, and no user reads it.
 // - the heat capacity or the volume of an element without that key: the old parser left the value of the key before it
 //   (the entropy, the atomic mass) in them; the library gives 0;
@@ -151,11 +152,18 @@ void compareGetters(const std::string& kind, const std::string& frozen, const st
             std::printf("    %s: %zu lines in the frozen parser, %zu in the library\n", kind.c_str(), fa.size(), fb.size());
         return;
     }
+    // the properties whose value is the mark 7777777 for no value: their status is not defined in the library
+    std::set<std::string> marked;
+    for (const auto& la : fa)
+        if (const auto at = la.find(".val = 7777777"); at != std::string::npos && la.size() == at + 14)
+            marked.insert(la.substr(0, at));
     for (size_t line = 0; line < fa.size(); ++line)
     {
         const auto& la = fa[line];
         const auto& lb = fb[line];
         if (la == lb)
+            continue;
+        if (const auto at = la.find(".sta"); at != std::string::npos && marked.count(la.substr(0, at)))
             continue;
         const auto name = kind + " " + la.substr(0, la.find_first_of(" ["));
         if (name == "reaction methodGenEOS")
@@ -172,6 +180,8 @@ void compareGetters(const std::string& kind, const std::string& frozen, const st
         if (isArray && vb.size() < va.size() && (name.find("HKF_parameters") != std::string::npos || name.find("critical_parameters") != std::string::npos || name.find("volume_BirchM") != std::string::npos))
             va.resize(vb.size());
         if (va.size() == 1 && std::fabs(va[0]) < 1e-30)
+            va.clear();
+        if (va.size() == 1 && va[0] == 7777777.0)  // the mark of GEMS exports for no value (LEG-QRK-013): the record holds no value
             va.clear();
         bool same = va.size() == vb.size();
         for (size_t i = 0; same && i < va.size(); ++i)

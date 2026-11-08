@@ -39,6 +39,7 @@ auto exportStatus(py::module& m) -> void
         .value("calculated", r_::Status::calculated)
         .value("assigned", r_::Status::assigned)
         .value("initialized", r_::Status::initialized)
+        .value("outofbounds", r_::Status::outofbounds)
         ;
 }
 

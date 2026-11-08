@@ -13,6 +13,9 @@
 #include <ThermoFun/Methods/Water/Reaktoro/WaterThermoState.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterThermoStateUtils.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterUtils.hpp>
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzState.hpp>
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzStateHGK.hpp>
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzStateWagnerPruss.hpp>
 #include <ThermoFun/Methods/Water/WaterElectroFernandez1997.h>
 #include <ThermoFun/Methods/Water/WaterElectroBradleyPitzer79.h>
 #include <ThermoFun/Methods/Water/WaterElectroHelgesonKirkham74.h>
@@ -195,15 +198,23 @@ class FunctionSolventMethod final : public SolventMethod
 public:
     using Properties = std::function<PropertiesSolvent(double, double&, int, const std::string&)>;
     using Substance = std::function<ThermoPropertiesSubstance(double, double&, int, const std::string&)>;
+    using Pressure = std::function<double(double, double)>;
 
-    FunctionSolventMethod(const char* id, const char* implementation, Properties properties, Substance substance, bool containsRTlnP)
-    : spec_(specOf(id)), implementation_(implementation), properties_(std::move(properties)), substance_(std::move(substance)), contains_(containsRTlnP) {}
+    FunctionSolventMethod(const char* id, const char* implementation, Properties properties, Substance substance, bool containsRTlnP, Pressure pressure = {})
+    : spec_(specOf(id)), implementation_(implementation), properties_(std::move(properties)), substance_(std::move(substance)), contains_(containsRTlnP),
+      pressure_(std::move(pressure)) {}
 
     auto spec() const -> const MethodSpec& override { return spec_; }
     auto implementation() const -> std::string override { return implementation_; }
     auto properties(double T, double& P, int state) const -> PropertiesSolvent override { return properties_(T, P, state, "NEA_HGK"); }
     auto substanceProperties(double T, double& P, int state, const std::string& triple) const -> ThermoPropertiesSubstance override { return substance_(T, P, state, triple); }
     auto gibbsEnergyContainsRTlnP() const -> bool override { return contains_; }
+    auto pressureAtDensity(double T, double rho) const -> std::optional<double> override
+    {
+        if (!pressure_)
+            return std::nullopt;
+        return pressure_(T, rho);
+    }
 
 private:
     const MethodSpec& spec_;
@@ -211,6 +222,7 @@ private:
     Properties properties_;
     Substance substance_;
     bool contains_;
+    Pressure pressure_;
 };
 
 /// A dielectric model of water, made of a function.
@@ -335,7 +347,8 @@ auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<con
     k.referenceVolume = 1.0 / k.referenceDensity; k.A20 = valueOf(a, "A20"); k.z0 = valueOf(a, "z0");
     return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "reaktoro",
         [k](double T, double& P, int state, const std::string&) { return hgk84ReaktoroProperties(T, P, state, k); },
-        [k](double T, double& P, int state, const std::string& triple) { return hgk84ReaktoroSubstance(T, P, state, triple, k); }, true);
+        [k](double T, double& P, int state, const std::string& triple) { return hgk84ReaktoroSubstance(T, P, state, triple, k); }, true,
+        [k](double T, double rho) { const auto h = waterHelmholtzStateHGK(T, rho, k); return static_cast<double>(rho * rho * h.helmholtzD); });
 }
 
 auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
@@ -347,7 +360,8 @@ auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<c
     k.a = listOf(a, "a"); k.b = listOf(a, "b"); k.A = listOf(a, "A"); k.B = listOf(a, "B"); k.C = listOf(a, "C"); k.F = listOf(a, "F"); k.E = listOf(a, "E");
     return std::make_shared<const FunctionSolventMethod>("WaterIAPWS95", "reaktoro",
         [k](double T, double& P, int state, const std::string&) { return iapws95ReaktoroProperties(T, P, state, k); },
-        [k](double T, double& P, int state, const std::string& triple) { return iapws95ReaktoroSubstance(T, P, state, triple, k); }, true);
+        [k](double T, double& P, int state, const std::string& triple) { return iapws95ReaktoroSubstance(T, P, state, triple, k); }, true,
+        [k](double T, double rho) { const auto h = waterHelmholtzStateWagnerPruss(T, rho, k); return static_cast<double>(rho * rho * h.helmholtzD); });
 }
 
 auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>

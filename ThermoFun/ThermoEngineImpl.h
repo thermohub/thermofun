@@ -55,6 +55,11 @@ struct ThermoEngine::Impl
 
     mutable EnginePreferences preferences;
 
+    /// The solvent that the calculations use: preferences.solvent_symbol if the database has it, else the one chooseSolvent
+    /// finds. Chosen when the engine is made and when the database or a setting changes, never during a calculation, so a
+    /// result does not depend on what was calculated before.
+    mutable std::string solvent_in_use;
+
     mutable EngineConventions conventions;
 
     /// The source of the properties of single records (see setPropertySource). A substance and its defining reaction often have the same symbol: each has its own choice.
@@ -101,15 +106,28 @@ struct ThermoEngine::Impl
         : database(database)
     {
         // the solvent of the dataset
-        if (const auto& solvent = this->database.thermoDataSet().solvent; !solvent.empty())
-            preferences.solvent_symbol = solvent;
+        if (const auto& dataset_solvent = this->database.thermoDataSet().solvent; !dataset_solvent.empty())
+            preferences.solvent_symbol = dataset_solvent;
         resultsAreCurrent();
+    }
+
+    /// The solvent for preferences.solvent_symbol in this database
+    auto chosenSolvent() const -> std::string
+    {
+        if (database.containsSubstance(preferences.solvent_symbol))
+            return preferences.solvent_symbol;
+        std::map<std::string, v2::SubstanceClass> classes;
+        for (const auto& pair : database.mapSubstances())
+            classes[pair.first] = pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT ? v2::SubstanceClass::WaterSolvent : v2::SubstanceClass::Other;
+        const auto chosen = v2::chooseSolvent(preferences.solvent_symbol, "", classes);
+        return chosen.empty() ? preferences.solvent_symbol : chosen;
     }
 
     void resultsAreCurrent()
     {
         const Database& db = database;
         cached_for = {db.revision(), preferences, conventions, db.conventions()};
+        solvent_in_use = chosenSolvent();
     }
 
     void clearResults()
@@ -249,6 +267,7 @@ struct ThermoEngine::Impl
         bool isH2Ovapor = false;
         bool isH2OSolvent = false;
         bool isReacDC = false;
+        int state = 0;  ///< the state of water of the record: 0 liquid, 1 vapour
     };
 
     auto kindOf(const Substance &substance) const -> SubstanceKind;
@@ -293,13 +312,21 @@ struct ThermoEngine::Impl
     auto pathOfSubstance(const std::string& symbol, std::vector<std::string>& above) const -> CalculationPath;
     auto pathOfReaction(const std::string& symbol, std::vector<std::string>& above) const -> CalculationPath;
 
-    /// The pressure of the log K data of a reaction at T: the larger of the reference pressure and the saturation pressure of water, where liquid water exists.
-    /// Above the critical temperature of water there is no such pressure: a substance then has its species at P.
+    /// The pressure of the log K data of a reaction at T: the largest of the reference pressure, the saturation pressure of water
+    /// (the critical pressure above Tcr), and the pressure at which water has the density rho_min of DataPressure.yaml.
+    /// So the species stay in dense water, and G is continuous at Tcr.
     auto dataPressure(double T, const Substance& substance) const -> double;
+    /// The pressure at which the solvent has density rho (kg/m3) at T, at least P
+    auto pressureAtDensity(double T, double rho, double P) const -> double;
     static auto waterCriticalT() -> double
     {
         static const double T = v2::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
         return T;
+    }
+    static auto waterCriticalP() -> double
+    {
+        static const double P = v2::builtinConstants("WaterSaturation")->parameters.at("Pcr").value;
+        return P;
     }
 
     static auto hasBaseMethod(const v2::SubstanceRecord& record) -> bool;

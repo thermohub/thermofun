@@ -155,6 +155,17 @@ def test_the_pressure_term_and_the_fugacity_coefficient_are_two_options(tmp_path
     assert change(True, False) == pytest.approx(RTlnP + fugacity, rel=1e-3)  # the default
 
 
+def test_the_standard_state_of_gases_is_one_call(tmp_path):
+    db = gases(tmp_path)
+    engine = tf.ThermoEngine(db)
+    returned = engine.preferences.useStandardStateOfGases()
+    assert engine.preferences.apply_pressure_correction_to_gas_props is False
+    assert engine.preferences.cancel_fugacity_coefficient_in_gas_props is True
+    assert returned.apply_pressure_correction_to_gas_props is False
+    assert engine.thermoPropertiesSubstance(600.0, 1e8, "CO2-prsv").gibbs_energy.val == pytest.approx(
+        engine.thermoPropertiesSubstance(600.0, 1e5, "CO2-prsv").gibbs_energy.val, rel=1e-9)
+
+
 @pytest.mark.parametrize("pressure,cancel", [(True, False), (False, True)], ids=["default", "gems"])
 def test_a_gas_has_the_same_value_alone_and_in_a_reaction(tmp_path, pressure, cancel):
     doc = json.loads((SYNTHETIC / "s12-fluid_sterner_pitzer.json").read_text())
@@ -247,9 +258,67 @@ def test_the_data_of_a_reaction_are_on_the_saturation_curve(T):
     assert -140000.0 < saturated < -90000.0
 
 
-def test_above_the_critical_temperature_the_species_are_at_the_pressure():
-    value = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(673.15, 1e8, "AgCl(cr)").gibbs_energy.val
-    assert -140000.0 < value < -90000.0
+@pytest.mark.parametrize("T", [673.15, 773.15, 973.15])
+def test_above_the_critical_temperature_the_data_are_in_dense_water(T):
+    """The species of the reaction at the isochore rho_min of DataPressure.yaml, not at the low density of the critical pressure."""
+    r = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(T, 1e8, "AgCl(cr)")
+    assert -160000.0 < r.gibbs_energy.val < -60000.0
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-9)
+
+
+
+
+def test_a_result_does_not_depend_on_what_was_calculated_before():
+    """The database calls its water H2O(l), not H2O@: the engine chooses it once, not at the first aqueous species."""
+    fresh = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(573.15, 1e8, "AgCl(cr)").gibbs_energy.val
+    engine = tf.ThermoEngine(str(TDB))
+    engine.thermoPropertiesSubstance(573.15, 1e8, "Cl-")
+    assert engine.thermoPropertiesSubstance(573.15, 1e8, "AgCl(cr)").gibbs_energy.val == fresh
+    assert engine.preferences.solventSymbol == "H2O@"  # a calculation does not change a setting
+
+
+DEFINED = """
+thermohub: 2.0.0-draft.1
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods: [{method: WaterIAPWS95}, {method: JohnsonNorton91}]
+  A:
+    formula: SiO2
+    class: component
+    aggregate_state: crystal
+    standard_state_properties: {G: -856288, H: -910700, S: 41.46, Cp: 44.6, V: {value: 2.269, unit: J/bar}}
+    methods: [{method: ConstantCp}, {method: ConstantVolume}]
+  X:
+    formula: SiO2
+    class: component
+    aggregate_state: crystal
+    standard_state_properties: {V: {value: 5.0, unit: J/bar}}
+    defining_reaction: R
+    methods: [{method: ConstantVolume}]
+reactions:
+  R: {equation: A = X, reaction_properties: {logK: 1.0, dH: 0, dS: 19.1448, dCp: 0}, methods: [{method: LogKConstant}]}
+"""
+
+
+@pytest.mark.parametrize("T", [600.0, 647.0, 647.2, 700.0, 900.0])
+def test_the_pressure_term_of_a_substance_defined_by_a_reaction_is_its_own_volume(T):
+    """dG/dP = V of the record on both sides of Tcr: the other species do not give a second pressure term (review S4)."""
+    engine = tf.ThermoEngine(DEFINED)
+    low, high = (engine.thermoPropertiesSubstance(T, p, "X").gibbs_energy.val for p in (4e7, 5e7))
+    assert (high - low) / 100.0 == pytest.approx(5.0, rel=1e-9)
+
+
+def test_g_is_continuous_where_the_data_pressure_leaves_the_saturation_curve_and_at_the_critical_temperature():
+    """The data pressure follows Psat, then the isochore rho_min: steps of 0.05 K from 640 to 660 K have no jump (the old rule: +1731 J/mol at Tcr)."""
+    engine = tf.ThermoEngine(DEFINED)
+    temperatures = [640.0 + 0.05 * i for i in range(401)]
+    values = [engine.thermoPropertiesSubstance(T, 5e7, "X").gibbs_energy.val for T in temperatures]
+    steps = [abs(b - a) for a, b in zip(values, values[1:])]
+    assert max(steps) < 10.0, max(steps)
 
 
 def fluid_from_a_reaction(tmp_path, reaction_methods, reaction_values=None):

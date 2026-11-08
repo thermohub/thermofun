@@ -29,8 +29,8 @@ struct EnginePreferences
 {
     bool enable_memoize = true;
     size_t max_cache_size = 1e6; // if 0 unlimited cache
-    int solvent_state = 0; // 0: liquid; 1: vapor
-    std::string solvent_symbol = "H2O@"; // default
+    int solvent_state = 0; // not read by the calculations (kept for the old API): the state of water comes from its record (H2O(g) is vapour) or from the state argument of propertiesSolvent and electroPropertiesSolvent
+    std::string solvent_symbol = "H2O@"; // the solvent of the aqueous species; if the database has no such record, the engine uses the water solvent it has (chosen when the engine is made or a setting changes, not changed by a calculation)
     bool fallback_to_reference_properties = false; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain, value undefined only if not present in the database record
     bool apply_pressure_correction_to_gas_props = true; // a gas whose record prescribes a method for the pressure (a fluid equation of state, IdealGas): G has RT ln(P/Pr), and S has -R ln(P/Pr). False: the state at Pr. The same on every path: alone, as a reactant, and in a substance defined by a reaction
     bool cancel_fugacity_coefficient_in_gas_props = false; // fluid equations of state (CORK, PRSV, CG, SRK, PR78, STP): true removes RT ln(phi) from G; the residual terms of H and S stay. With both options at their defaults G(T, P) = G(T, Pr) + RT ln(P/Pr) + RT ln(phi), so dG/dP = V. Without the pressure term and with this false, steam from the HGK equation has RT ln(P/1 bar) removed from G
@@ -39,6 +39,16 @@ struct EnginePreferences
     v2::PropertySource property_source = v2::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
     std::map<std::string, std::string> method_implementation; // method id -> implementation, for example {"HKF88": "reaktoro"}; it replaces the implementation of the records
     bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
+
+    /// G(T, Pr) for a gas: no RT ln(P/Pr) and no RT ln(phi) in G. For a code that adds these terms itself.
+    /// The same as apply_pressure_correction_to_gas_props = false and cancel_fugacity_coefficient_in_gas_props = true,
+    /// which were the defaults before version 1.0.
+    auto useStandardStateOfGases() -> EnginePreferences&
+    {
+        apply_pressure_correction_to_gas_props = false;
+        cancel_fugacity_coefficient_in_gas_props = true;
+        return *this;
+    }
 
     bool operator==(const EnginePreferences&) const = default;
 };

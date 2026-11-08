@@ -242,6 +242,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Give one unit for each value, or convert the file to v2."},
         {"LEG-QRK-012", S::Warning, "The unit of m_expansivity is not \"kbar\". The value is read as the legacy parser reads it, which is not a thermal expansion.",
          "Give m_expansivity in 1/K with the label kbar, as the data do, or convert the file to v2."},
+        {"LEG-QRK-013", S::Warning, "A property has the value 7777777, the mark of GEMS exports for no value. The property is missing.",
+         "Give the value, or remove the property (slop98: 40 minerals have no G and H, for example almandine and pyrope)."},
         {"LEG-MTH-003", S::Warning, "The legacy method asks for a GEMS implementation that does not exist. The Reaktoro implementation of the same model is used.",
          "No action is needed if the results of the Reaktoro implementation are wanted; convert the file to v2 to remove the message."},
         {"LEG-MTH-001", S::Error, "The legacy method number is not known.",

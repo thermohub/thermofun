@@ -362,7 +362,7 @@ The pressure term comes from one place only:
 | The reaction | The substance | What happens |
 |---|---|---|
 | Changes with P: a model of log K with P, a volume method with a volume that is not 0, or its reactants | any | The reaction and the other substances at P. The method of the substance adds no second term. |
-| Does not change with P | has a method for the pressure, for example `ConstantVolume`, `IdealGas` or a fluid such as `PengRobinson78` | All at the pressure of the log K data, then that method, so dG/dP = V. This pressure is the larger of the reference pressure and the saturation pressure of water. Above the critical temperature of water it does not exist: the other substances are at P. |
+| Does not change with P | has a method for the pressure, for example `ConstantVolume`, `IdealGas` or a fluid such as `PengRobinson78` | All at the pressure of the log K data, then that method, so dG/dP = V. This pressure is the largest of the reference pressure, the saturation pressure of water (the critical pressure above the critical temperature) and the pressure at which water has the density `rho_min` of `DataPressure.yaml` (420 kg/m3). So the other substances stay in dense water, also above the critical temperature, and G has no jump. |
 | Does not change with P | no such method | The other substances at P. Log K does not depend on P. |
 
 The catalog says for each method if it depends on T, P or both: `tf.methods.catalog()`, key `depends_on`.

@@ -114,7 +114,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
             warnIfLogKFunctionDisagrees(reaction);
         std::optional<PropertiesSolvent> solvent;
         if (bound->needs_solvent)
-            solvent = cachedSolvent(T, P, preferences.solvent_symbol, -1);
+            solvent = cachedSolvent(T, P, solvent_in_use, -1);
         auto tpr = v2::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
         // the species of the record in another standard state: to the canonical one
         const auto shift = reactionShift(reaction, v2::mergeConvention(record->convention.value_or(v2::Convention{}), database.thermoDataSet().convention), true);

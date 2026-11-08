@@ -9,11 +9,28 @@
 
 Calculations do not change their names: `ThermoEngine`, `ThermoBatch`, `thermoPropertiesSubstance` and the other calls stay as they are.
 
-## Results that change
+## Gases: G has new terms by default
+
+**Warning:** from version 1.0, G of a gas with a fluid method or `IdealGas` has `RT ln(P/Pr)` and `RT ln(phi)` by default, on every path. Before 1.0 the default was G(T, Pr). A code that adds these terms itself, such as GEMS, counts them twice if it keeps the defaults, and no error tells it.
+
+The change is large at high pressure. aq17 at 473.15 K and 1 kbar: CH4 +28.9 kJ/mol, CO +29.6, CO2 +26.5, H2 +29.1. `RT ln(P/Pr)` alone is 27.2 kJ/mol.
+
+To keep the old values, call `useStandardStateOfGases()` on the preferences of the engine. It sets `apply_pressure_correction_to_gas_props = False` and `cancel_fugacity_coefficient_in_gas_props = True`.
+
+```python
+import thermofun as tf
+
+preferences = tf.EnginePreferences().useStandardStateOfGases()  # G(T, Pr) for a gas, as before 1.0
+assert preferences.apply_pressure_correction_to_gas_props is False
+assert preferences.cancel_fugacity_coefficient_in_gas_props is True
+```
+
+In C++: `engine.preferences().useStandardStateOfGases();`.
+
+## Other results that change
 
 | Change | What to do |
 |---|---|
-| A gas with a fluid method or `IdealGas` now has `RT ln(P/Pr)` in G on every path. | A code that adds this term itself, such as GEMS, sets `apply_pressure_correction_to_gas_props = False` and `cancel_fugacity_coefficient_in_gas_props = True`. |
 | A substance from a reaction with a pressure method now runs that method on what the reaction gives. | Nothing, unless your record had such a method and it was not used before. |
 | On the steam tables, G and A of water now have the term `-Str (T - Ttr)`. | Nothing. The old values were wrong. |
 | The `NEA_HGK` and `NEA_IAPWS` data of the triple point have new U and A. | Nothing. Equilibrium calculations do not read U or A. |

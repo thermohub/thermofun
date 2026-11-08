@@ -191,7 +191,7 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
         const v2::DefiningReactionGuard no_cycle(symbol);
         const bool ownTerm = pressureFromRecord(substance, reaction);
         double Pdata = dataPressure(T, substance);
-        const bool fromData = ownTerm && T < waterCriticalT();
+        const bool fromData = ownTerm;
         double& Pcalc = fromData ? Pdata : P;
         const auto r = reactionDerivative(T, Pcalc, reaction, ref);
         d = {r.reaction_gibbs_energy.val, r.reaction_enthalpy.val, r.reaction_entropy.val, r.reaction_heat_capacity_cp.val, r.reaction_volume.val};
@@ -302,7 +302,7 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
     {
         std::optional<PropertiesSolvent> solvent;
         if (bound->needs_solvent)
-            solvent = cachedSolvent(T, P, preferences.solvent_symbol, -1);
+            solvent = cachedSolvent(T, P, solvent_in_use, -1);
         return toSI(v2::reactionParameterDerivative(*bound, spec ? spec->id : ref.method, ref.parameter, T, P, solvent ? &*solvent : nullptr));
     }
     return d;

@@ -36,7 +36,8 @@
  "Resources/databases/slop98-thermofun.json": {
   "LEG-QRK-003": 762,
   "LEG-QRK-010": 1044,
-  "LEG-QRK-011": 160
+  "LEG-QRK-011": 160,
+  "LEG-QRK-013": 80
  },
  "pytests/test-aq17-gem-lma-thermofun.json": {
   "LEG-QRK-003": 43,

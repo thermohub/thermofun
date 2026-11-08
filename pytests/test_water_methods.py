@@ -184,3 +184,31 @@ def test_the_heat_capacity_of_a_solute_is_the_same_with_both_implementations_of_
         e.setPreferences(p)
         return e.thermoPropertiesSubstance(T, P, symbol).heat_capacity_cp.val
     assert cp("reaktoro") == pytest.approx(cp("gems"), abs=2e-3)
+
+
+# Fernandez et al. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166, Table 9: T (K), rho (kg/m3) and the predicted dielectric
+# constant, as printed. The density is rounded in the table, so the check allows the change of epsilon over half a unit of
+# the last printed digit of rho, plus half a unit of the last printed digit of epsilon.
+FERNANDEZ_TABLE_9 = [
+    ("238", "975.06", "106.31"), ("256", "995.25", "95.20"), ("273", "999.83", "87.96"), ("273", "1180", "107.06"),
+    ("323", "988.10", "69.96"), ("323", "1253", "97.02"), ("373", "958.46", "55.57"), ("373", "1110", "67.73"),
+    ("510", "15.8320", "1.122"), ("523", "900", "32.23"), ("614", "94.3", "1.77"), ("647", "357", "6.17"),
+    ("673", "100", "1.75"), ("673", "900", "23.60"), ("773", "100", "1.66"), ("773", "900", "20.16"), ("873", "450", "6.28"),
+]
+
+
+def half_unit(text):
+    return 0.5 * 10.0 ** -(len(text.split(".")[1]) if "." in text else 0)
+
+
+@pytest.mark.parametrize("T,rho,expected", FERNANDEZ_TABLE_9)
+def test_fernandez_reproduces_table_9_of_the_paper(T, rho, expected):
+    method = tf.methods.dielectricMethod("FernandezEtAl97")
+
+    def epsilon(density):
+        ps = tf.PropertiesSolvent()
+        ps.density = tf.ThermoScalar(density)
+        return method.properties(float(T), 1e5, ps, 0).epsilon.val
+
+    low, high = sorted(epsilon(float(rho) + s * half_unit(rho)) for s in (-1, 1))
+    assert low - half_unit(expected) <= float(expected) <= high + half_unit(expected)

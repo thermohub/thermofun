@@ -84,6 +84,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | LEG-QRK-010 | Info | A coefficient list is longer than the method uses. The extra values are not used. | Remove the values that the method does not use. |
 | LEG-QRK-011 | Info | The `units` list is shorter than `values`, or has empty units. The units of the method are used. | Give one unit for each value, or convert the file to v2. |
 | LEG-QRK-012 | Warning | The unit of m_expansivity is not "kbar". The value is read as the legacy parser reads it, which is not a thermal expansion. | Give m_expansivity in 1/K with the label kbar, as the data do, or convert the file to v2. |
+| LEG-QRK-013 | Warning | A property has the value 7777777, the mark of GEMS exports for no value. The property is missing. | Give the value, or remove the property (slop98: 40 minerals have no G and H, for example almandine and pyrope). |
 | LEG-MTH-003 | Warning | The legacy method asks for a GEMS implementation that does not exist. The Reaktoro implementation of the same model is used. | No action is needed if the results of the Reaktoro implementation are wanted; convert the file to v2 to remove the message. |
 | LEG-MTH-001 | Error | The legacy method number is not known. | Correct the method number; the method reference lists the legacy numbers. |
 | LEG-MTH-002 | Warning | The legacy method is not implemented, so it is not used. | Use another method for the record; the message names the replacement if there is one. |

@@ -4,6 +4,7 @@
 #ifndef THERMOFUN_METHODS_WATER_SOLVENTMETHOD_H
 #define THERMOFUN_METHODS_WATER_SOLVENTMETHOD_H
 
+#include <optional>
 #include <string>
 
 #include <ThermoFun/Common/ThermoProperties.h>
@@ -32,6 +33,9 @@ public:
 
     /// True if G of the gas state contains the term R T ln(P / 1 bar).
     virtual auto gibbsEnergyContainsRTlnP() const -> bool { return false; }
+
+    /// The pressure (Pa) at T (K) and density rho (kg/m3), if the model gives it directly (a Helmholtz model: P = rho^2 dA/drho).
+    virtual auto pressureAtDensity(double /*T*/, double /*rho*/) const -> std::optional<double> { return std::nullopt; }
 };
 
 /// A model of the dielectric constant of water, with the Born functions.

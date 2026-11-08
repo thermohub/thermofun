@@ -57,7 +57,7 @@ auto ThermoEngine::Impl::solventInputs(const v2::BoundSubstance& bound, double T
     if (!bound.needs.solvent)
         return std::nullopt;
     v2::SolventInputs in;
-    const auto symbol = preferences.solvent_symbol;
+    const auto symbol = solvent_in_use;
     if (!database.containsSubstance(symbol) && std::any_of(bound.to_canonical.begin(), bound.to_canonical.end(), [](const auto& s) { return s.needsSolvent(); }))
         throw std::runtime_error("CNV-002: " + bound.record->symbol + " is in molarity, and the database has no solvent " + symbol + ".");
     in.properties = cachedSolvent(T, P, symbol, -1);
@@ -194,19 +194,7 @@ auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKi
     kind.isH2Ovapor = compat::isWaterVapour(*record);
     kind.isH2OSolvent = record->class_ == v2::SubstanceClass::WaterSolvent;
     kind.isReacDC = comesFromReaction(substance);
-
-    preferences.solvent_state = v2::solventStateOf(*record);
-
-    // see if the solvent of an aqueous solute is in the database; if not, search for a solvent
-    if (record->class_ == v2::SubstanceClass::AqueousSolute && !database.containsSubstance(preferences.solvent_symbol))
-    {
-        std::map<std::string, v2::SubstanceClass> classes;
-        for (const auto& pair : database.mapSubstances())
-            classes[pair.first] = pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT ? v2::SubstanceClass::WaterSolvent : v2::SubstanceClass::Other;
-        const auto chosen = v2::chooseSolvent(preferences.solvent_symbol, "", classes);
-        if (!chosen.empty())
-            preferences.solvent_symbol = chosen;
-    }
+    kind.state = v2::solventStateOf(*record);
     return kind;
 }
 
@@ -270,7 +258,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             const auto solvent = boundSolvent(substance);
             if (solvent->equation_of_state)
             {
-                tps = solvent->equation_of_state->substanceProperties(T, P, preferences.solvent_state, database.conventions().water_triple_point_reference);
+                tps = solvent->equation_of_state->substanceProperties(T, P, kind.state, database.conventions().water_triple_point_reference);
                 water_g_contains_rt_ln_p = solvent->equation_of_state->gibbsEnergyContainsRTlnP();
                 cameFrom("water");
             }
@@ -352,14 +340,14 @@ auto ThermoEngine::Impl::electroPropertiesSolvent(double T, double &P, std::stri
 auto ThermoEngine::Impl::electroPropertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> ElectroPropertiesSolvent
 {
     const SubstanceKind kind = kindOf(solvent);
-    if (state>-1 && state<2)
-        preferences.solvent_state = state;
-    PropertiesSolvent ps = propertiesSolvent(T, P, solvent, preferences.solvent_state);
+    if (state < 0 || state > 1)
+        state = kind.state;  // the state of the record
+    PropertiesSolvent ps = propertiesSolvent(T, P, solvent, state);
     ElectroPropertiesSolvent eps;
 
     if (kind.isH2OSolvent)
         if (const auto bound = boundSolvent(solvent); bound->dielectric)
-            eps = bound->dielectric->properties(T, P, ps, preferences.solvent_state);
+            eps = bound->dielectric->properties(T, P, ps, state);
     return eps;
 }
 
@@ -371,13 +359,13 @@ auto ThermoEngine::Impl::propertiesSolvent(double T, double &P, std::string solv
 auto ThermoEngine::Impl::propertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> PropertiesSolvent
 {
     const SubstanceKind kind = kindOf(solvent);
-    if (state > -1 && state <2)
-        preferences.solvent_state = state;
+    if (state < 0 || state > 1)
+        state = kind.state;  // the state of the record
     PropertiesSolvent ps;
 
     if (kind.isH2OSolvent)
         if (const auto bound = boundSolvent(solvent); bound->equation_of_state)
-            ps = bound->equation_of_state->properties(T, P, preferences.solvent_state);
+            ps = bound->equation_of_state->properties(T, P, state);
     return ps;
 }
 
@@ -403,10 +391,46 @@ auto ThermoEngine::Impl::reactionCarriesPressure(const Reaction& reaction) const
 auto ThermoEngine::Impl::dataPressure(double T, const Substance& substance) const -> double
 {
     double Psat = 0.0;
-    if (T >= waterCriticalT() || !database.containsSubstance(preferences.solvent_symbol))
+    if (!database.containsSubstance(solvent_in_use))
         return substance.referenceP();
-    cachedSolvent(T, Psat, preferences.solvent_symbol, -1);
-    return std::max(substance.referenceP(), Psat);
+    if (T < waterCriticalT())
+        cachedSolvent(T, Psat, solvent_in_use, -1);
+    else
+        Psat = waterCriticalP();  // where the saturation curve ends
+    const double P = std::max(substance.referenceP(), Psat);
+    static const double rho_min = v2::builtinConstants("DataPressure")->parameters.at("rho_min").value;  // kg/m3
+    return rho_min > 0.0 ? pressureAtDensity(T, rho_min, P) : P;
+}
+
+auto ThermoEngine::Impl::pressureAtDensity(double T, double rho, double P) const -> double
+{
+    const auto bound = boundSolvent(database.getSubstance(solvent_in_use));
+    if (!bound->equation_of_state)
+        return P;
+    auto density = [&](double p) { return static_cast<double>(bound->equation_of_state->properties(T, p, 0).density.val); };  // p is a copy: a model writes P
+    // Below Tcr P is the saturation pressure: dense enough as long as the saturated liquid is. Above Tcr P is the critical
+    // pressure, where the density is the critical one: an iteration for the density may not converge there, so it is not asked.
+    static const double Dcr = v2::builtinConstants("WaterSaturation")->parameters.at("Dcr").value;
+    if ((T < waterCriticalT() || rho <= Dcr) && density(P) >= rho)
+        return P;
+    // a Helmholtz model gives P at (T, rho) directly; here rho is in the one-phase region
+    if (const auto direct = bound->equation_of_state->pressureAtDensity(T, rho))
+        return std::max(P, *direct);
+    // else bisection: the density grows with P in one phase, also where a model switches equations (critical region)
+    double low = P, high = 2.0 * P;
+    while (density(high) < rho)
+    {
+        low = high;
+        high *= 2.0;
+        if (high > 1e11)
+            return P;  // the water model does not reach this density
+    }
+    while (high - low > 1e-10 * high)
+    {
+        const double middle = 0.5 * (low + high);
+        (density(middle) < rho ? low : high) = middle;
+    }
+    return high;
 }
 
 auto ThermoEngine::Impl::hasBaseMethod(const v2::SubstanceRecord& record) -> bool
@@ -470,11 +494,12 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     const v2::DefiningReactionGuard no_cycle(subst.symbol());
 
     // A record that gives its own pressure term, and a reaction that does not: all at the pressure of the data of the reaction, then that term. Else all at P.
+    // Not the other species at P and then the term: their pressure effect would come into the substance twice.
     const bool ownTerm = pressureFromRecord(subst, reaction);
-    if (ownTerm && P == 0.0 && T < waterCriticalT() && database.containsSubstance(preferences.solvent_symbol))
-        cachedSolvent(T, P, preferences.solvent_symbol, -1);  // the saturation pressure
+    if (ownTerm && P == 0.0 && T < waterCriticalT() && database.containsSubstance(solvent_in_use))
+        cachedSolvent(T, P, solvent_in_use, -1);  // the saturation pressure
     double Pdata = dataPressure(T, subst);
-    const bool fromData = ownTerm && T < waterCriticalT();
+    const bool fromData = ownTerm;
     double& Pcalc = fromData ? Pdata : P;  // the calculation writes the saturation pressure to P
 
     tpr = cachedReaction(T, Pcalc, reactionSymbol);

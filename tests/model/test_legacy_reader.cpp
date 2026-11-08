@@ -553,7 +553,11 @@ void testAllDatabases()
             methods += written;
             for (const char* key : {"sm_gibbs_energy", "sm_enthalpy"})
                 if (rec.contains(key) && rec[key].contains("values") && !rec[key]["values"].empty() && rec[key]["values"][0].is_number())
-                    CHECK(s.standard_state_properties.count(key == std::string("sm_gibbs_energy") ? PropertyName::G : PropertyName::H) == 1);
+                {
+                    // 7777777 is the mark of GEMS exports for no value: the property is missing (LEG-QRK-013)
+                    const bool mark = rec[key]["values"][0].get<double>() == 7777777.0;
+                    CHECK(s.standard_state_properties.count(key == std::string("sm_gibbs_energy") ? PropertyName::G : PropertyName::H) == (mark ? 0u : 1u));
+                }
             ++substances;
         }
         for (const auto& rec : j.value("reactions", json::array()))
