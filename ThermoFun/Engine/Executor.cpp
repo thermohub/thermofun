@@ -61,10 +61,8 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
 {
     const auto reference = toReal(bound.reference);
     TPReal Tt(T), Pp(P);
-#ifndef THERMOFUN_NO_AUTODIFF
     Tt[1] = 1.0;
     Pp[1] = 1.0;
-#endif
     SubstanceInputs<TPReal> wrtT{Tt, TPReal(P), reference};
     SubstanceInputs<TPReal> wrtP{TPReal(T), Pp, reference};
     wrtT.options = options;
@@ -73,12 +71,8 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
     SolventState<TPReal> solventT, solventP, solventRef;
     if (solvent)
     {
-#ifndef THERMOFUN_NO_AUTODIFF
         solventT = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::T);
         solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::P);
-#else
-        solventT = solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
-#endif
         solventRef = solventAtReference(*solvent, T, P);
         wrtT.solvent = &solventT;
         wrtP.solvent = &solventP;
@@ -110,9 +104,7 @@ auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double 
     auto start = [&](bool wrtT) {
         auto one = [&](const PropertyValue& v) {
             TPReal x(v.val);
-#ifndef THERMOFUN_NO_AUTODIFF
             x[1] = wrtT ? v.ddt : v.ddp;
-#endif
             return x;
         };
         SubstanceState<TPReal> s;
@@ -125,10 +117,8 @@ auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double 
     };
     const auto reference = toReal(bound.reference);
     TPReal Tt(T), Pp(P);
-#ifndef THERMOFUN_NO_AUTODIFF
     Tt[1] = 1.0;
     Pp[1] = 1.0;
-#endif
     SubstanceInputs<TPReal> wrtT{Tt, TPReal(P), reference};
     SubstanceInputs<TPReal> wrtP{TPReal(T), Pp, reference};
     wrtT.options = options;
@@ -136,12 +126,8 @@ auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double 
     SolventState<TPReal> solventT, solventP, solventRef;
     if (solvent)
     {
-#ifndef THERMOFUN_NO_AUTODIFF
         solventT = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::T);
         solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::P);
-#else
-        solventT = solventP = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
-#endif
         solventRef = solventAtReference(*solvent, T, P);
         wrtT.solvent = &solventT;
         wrtP.solvent = &solventP;

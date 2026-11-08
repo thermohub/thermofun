@@ -28,6 +28,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Copy assignment of `ThermoEngine` copies.** `b = a` made two names for one engine: settings and results were
   shared. It now makes a copy, as the copy constructor does. **Threads:** one engine for each thread; copy it (cheap,
   the records are shared). `docs/explanation/data-model.md` gives the rule.
+- **autodiff is always used.** The CMake option `TFUN_USE_AUTODIFF` is gone (review Q2): a build with plain numbers had
+  other public types and derivatives silently 0. `-DTFUN_USE_AUTODIFF=OFF` stops the configuration. `thermofun.with_autodiff`
+  stays, always True.
+- **The installed CMake package finds its targets from its own folder**, also when spdlog is in another prefix (review B3).
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

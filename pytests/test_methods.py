@@ -10,7 +10,6 @@ import os
 import pytest
 import thermofun as tf
 
-needs_autodiff = pytest.mark.skipif(not getattr(tf, "with_autodiff", True), reason="built with -DTFUN_USE_AUTODIFF=OFF: the derivatives are 0")
 
 REF = tf.methods.Reference(T=298.15, P=1e5, G=-1129178.0, H=-1207600.0, S=91.7, Cp=83.47)
 
@@ -20,7 +19,6 @@ def test_constant_properties():
     assert r.G.val == -1129178.0 and r.Cp.val == 83.47 and r.V.val == 0.0
 
 
-@needs_autodiff
 def test_constant_cp():
     m = tf.methods.ConstantCp()
     assert m.id == "ConstantCp"
@@ -29,7 +27,6 @@ def test_constant_cp():
     assert r.H.ddt == pytest.approx(83.47, rel=1e-12)
 
 
-@needs_autodiff
 def test_cp_polynomial_and_parameters():
     a = [99.7, 0.027, -2148800.0, 0, 0, 0, 0, 0, 0, 0]
     m = tf.methods.CpPolynomial([(273.15, 2000.0)], a)

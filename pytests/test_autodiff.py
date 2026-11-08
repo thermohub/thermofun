@@ -5,8 +5,6 @@ import math
 import pytest
 import thermofun as thermofun
 
-# the derivatives are 0 if built with -DTFUN_USE_AUTODIFF=OFF
-pytestmark = pytest.mark.skipif(not getattr(thermofun, "with_autodiff", True), reason="built with -DTFUN_USE_AUTODIFF=OFF")
 
 # Substances: solid, gas, aqueous (HKF), and water solvent
 SUBSTANCES = ["Quartz", "CO2@", "Ca+2", "H2O@"]

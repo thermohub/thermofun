@@ -8,7 +8,6 @@ import os
 import pytest
 import thermofun as tf
 
-needs_autodiff = pytest.mark.skipif(not getattr(tf, "with_autodiff", True), reason="built with -DTFUN_USE_AUTODIFF=OFF: the derivatives are 0")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB = os.path.join(HERE, "test-thermoengine-thermofun.json")
@@ -178,19 +177,6 @@ def test_thermoscalar_arithmetic_and_variables():
 
 
 # --- exact derivatives of the Zhang-Duan water and of the dielectric models ---------------------------------------
-
-@needs_autodiff
-@pytest.mark.skipif(getattr(tf, "with_autodiff", True), reason="only for the build without autodiff (-DTFUN_USE_AUTODIFF=OFF)")
-def test_built_without_autodiff_all_the_derivatives_are_zero(engine):
-    """The models calculate with plain numbers: the values are those of the autodiff build, the derivatives are 0 and
-    the properties that need them (Cv) are not defined."""
-    for symbol in ("Quartz", "Ca+2", "CO2@", "H2O@"):
-        tps = engine.thermoPropertiesSubstance(373.15, 1e7, symbol)
-        for p in ("gibbs_energy", "enthalpy", "entropy", "volume", "heat_capacity_cp", "internal_energy", "helmholtz_energy"):
-            x = getattr(tps, p)
-            assert x.sta[0] != tf.Status.notdefined and x.ddt == 0.0 and x.ddp == 0.0, (symbol, p)
-    assert engine.thermoPropertiesSubstance(373.15, 1e7, "Quartz").heat_capacity_cv.sta[0] == tf.Status.notdefined
-
 
 def test_the_water_methods_alone():
     for implementation, method in (("reaktoro", "WaterHGK84"), ("gems", "WaterHGK84"), ("", "WaterIAPWS95")):

@@ -37,16 +37,27 @@ elseif(THERMOFUN_PHYSICAL_CONSTANTS STREQUAL "codata2018")
 else()
     message(FATAL_ERROR "THERMOFUN_PHYSICAL_CONSTANTS must be codata1986 or codata2018, not ${THERMOFUN_PHYSICAL_CONSTANTS}")
 endif()
-file(STRINGS ${PHYSICAL_CONSTANTS_FILE} PHYSICAL_CONSTANTS_LINES REGEX "^      [A-Za-z]+: ")
+# The values are read from the `parameters:` block of the file, with any indentation; a value is a number, or
+# {value: number, ...}. A comment after # is ignored. The library reads the same file at run time, and
+# pytests/test_parameter_sets.py checks that both agree.
+file(READ ${PHYSICAL_CONSTANTS_FILE} PHYSICAL_CONSTANTS_TEXT)
+string(FIND "${PHYSICAL_CONSTANTS_TEXT}" "parameters:" PHYSICAL_CONSTANTS_AT)
+if(PHYSICAL_CONSTANTS_AT EQUAL -1)
+    message(FATAL_ERROR "${PHYSICAL_CONSTANTS_FILE} has no parameters block")
+endif()
+string(SUBSTRING "${PHYSICAL_CONSTANTS_TEXT}" ${PHYSICAL_CONSTANTS_AT} -1 PHYSICAL_CONSTANTS_TEXT)
+string(REPLACE "\r" "" PHYSICAL_CONSTANTS_TEXT "${PHYSICAL_CONSTANTS_TEXT}")
 foreach(name R NA F e k)
-    set(value "")
-    foreach(line ${PHYSICAL_CONSTANTS_LINES})
-        if(line MATCHES "^      ${name}: (.+)$")
-            set(value ${CMAKE_MATCH_1})
+    if(PHYSICAL_CONSTANTS_TEXT MATCHES "\n[ \t]+${name}[ \t]*:[ \t]*([^\n#]*)")
+        string(STRIP "${CMAKE_MATCH_1}" value)
+        if(value MATCHES "^{.*value[ \t]*:[ \t]*([^,} \t]+)")
+            set(value "${CMAKE_MATCH_1}")
         endif()
-    endforeach()
-    if(value STREQUAL "")
-        message(FATAL_ERROR "${PHYSICAL_CONSTANTS_FILE} has no value of ${name}")
+    else()
+        set(value "")
+    endif()
+    if(NOT value MATCHES "^[-+]?[0-9.]+([eE][-+]?[0-9]+)?$")
+        message(FATAL_ERROR "${PHYSICAL_CONSTANTS_FILE}: no number for ${name} (found \"${value}\")")
     endif()
     set(PHYSICAL_CONSTANT_${name} ${value})
 endforeach()
@@ -106,14 +117,9 @@ target_compile_features(ThermoFun PUBLIC cxx_std_20)
 
 # Link ThermoFun against all required dependencies
 target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
-if(TFUN_USE_AUTODIFF)
-    target_link_libraries(ThermoFun PUBLIC
-        $<BUILD_INTERFACE:autodiff::autodiff>
-        $<INSTALL_INTERFACE:autodiff::autodiff>)
-else()
-    # plain numbers instead of autodiff::real (see Common/Real.hpp); also set for the projects that use ThermoFun
-    target_compile_definitions(ThermoFun PUBLIC THERMOFUN_NO_AUTODIFF)
-endif()
+target_link_libraries(ThermoFun PUBLIC
+    $<BUILD_INTERFACE:autodiff::autodiff>
+    $<INSTALL_INTERFACE:autodiff::autodiff>)
 
 set_source_files_properties(ThermoEngine.cpp PROPERTIES COMPILE_DEFINITIONS "THERMOFUN_VERSION_STRING=\"${PROJECT_VERSION}\"")
 

@@ -20,9 +20,7 @@ add_executable(tfun-unit
     frozen/ParseJsonToData_v073.cpp)
 target_include_directories(tfun-unit PRIVATE ${CMAKE_SOURCE_DIR}/ThermoFun ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(tfun-unit PRIVATE ThermoFun)
-if(TFUN_USE_AUTODIFF)
-    target_link_libraries(tfun-unit PRIVATE autodiff::autodiff)
-endif()
+target_link_libraries(tfun-unit PRIVATE autodiff::autodiff)
 add_test(NAME tfun-unit COMMAND tfun-unit WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Records never change, and threads can share them. The ThreadSanitizer job runs this program.

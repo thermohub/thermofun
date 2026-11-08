@@ -158,16 +158,12 @@ auto ThermoEngine::Impl::reactionJacobian(double T, double& P, const Reaction& r
 
 auto ThermoEngine::Impl::addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const v2::UncertainInputs& inputs) const -> void
 {
-    if (!Reaktoro_::kWithAutodiff)
-        funError("Cannot propagate the errors of the parameters", "ThermoFun is built without autodiff.", __LINE__, __FILE__);
     const auto canonical = thermoPropertiesSubstance(T, P, substance);
     setPropagatedErrors(fields(tps), inputs, [&](const ParameterRef& ref) { return substanceJacobian(T, P, substance, canonical, ref); });
 }
 
 auto ThermoEngine::Impl::addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const v2::UncertainInputs& inputs) const -> void
 {
-    if (!Reaktoro_::kWithAutodiff)
-        funError("Cannot propagate the errors of the parameters", "ThermoFun is built without autodiff.", __LINE__, __FILE__);
     setPropagatedErrors(fields(tpr), inputs, [&](const ParameterRef& ref) { return reactionJacobian(T, P, reaction, ref, fromReactants); });
 }
 

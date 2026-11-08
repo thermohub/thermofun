@@ -30,23 +30,17 @@ enum class Seed { T, P, Parameter };
 auto pass(const SubstanceMethod& method, double T, double P, const ReferenceState<TPReal>& reference, Seed seed, int parameter, const SolventInputs* solvent) -> SubstanceState<TPReal>
 {
     TPReal t(T), p(P);
-#ifndef THERMOFUN_NO_AUTODIFF
     if (seed == Seed::T)
         t[1] = 1.0;
     if (seed == Seed::P)
         p[1] = 1.0;
-#endif
     SubstanceInputs<TPReal> in{t, p, reference};
     if (seed == Seed::Parameter)
         in.seeded_parameter = parameter;
     SolventState<TPReal> atPoint, atReference;
     if (solvent)
     {
-#ifndef THERMOFUN_NO_AUTODIFF
         atPoint = solventOfPass(*solvent, T, P, seed == Seed::T ? Reaktoro_::Wrt::T : seed == Seed::P ? Reaktoro_::Wrt::P : Reaktoro_::Wrt::None);
-#else
-        atPoint = solventOfPass(*solvent, T, P, Reaktoro_::Wrt::None);
-#endif
         atReference = solventAtReference(*solvent, T, P);
         in.solvent = &atPoint;
         in.solvent_at_reference = &atReference;

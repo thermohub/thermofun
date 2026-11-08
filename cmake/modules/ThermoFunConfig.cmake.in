@@ -7,18 +7,17 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
 # Find all dependencies first: the targets file below refers to their targets.
 include(CMakeFindDependencyMacro)
 find_dependency(ChemicalFun)
-if(@TFUN_USE_AUTODIFF@)
-    find_dependency(autodiff CONFIG)
-    # autodiff's config defines AUTODIFF_EIGEN_FOUND when it finds Eigen, but does not give its target the Eigen headers
-    if(Eigen3_FOUND AND TARGET Eigen3::Eigen)
-        set_property(TARGET autodiff::autodiff APPEND PROPERTY INTERFACE_LINK_LIBRARIES Eigen3::Eigen)
-    endif()
+find_dependency(autodiff CONFIG)
+# autodiff's config defines AUTODIFF_EIGEN_FOUND when it finds Eigen, but does not give its target the Eigen headers
+if(Eigen3_FOUND AND TARGET Eigen3::Eigen)
+    set_property(TARGET autodiff::autodiff APPEND PROPERTY INTERFACE_LINK_LIBRARIES Eigen3::Eigen)
 endif()
 find_dependency(spdlog CONFIG)
 
 # Include the cmake targets of the project if they have not been yet.
 if(NOT TARGET ThermoFun::ThermoFun)
-    include("@PACKAGE_THERMOFUN_INSTALL_CONFIGDIR@/ThermoFunTargets.cmake")
+    # from the folder of this file: the config of a dependency (spdlog) can change PACKAGE_PREFIX_DIR of @PACKAGE_INIT@
+    include("${CMAKE_CURRENT_LIST_DIR}/ThermoFunTargets.cmake")
 endif()
 
 # Recommended check at the end of a cmake config file.

@@ -65,8 +65,6 @@ const Get properties[] = {&MethodResult::G, &MethodResult::H, &MethodResult::S, 
 
 void checkDerivatives(const SubstanceMethod& m)
 {
-    if (!Reaktoro_::kWithAutodiff)  // built without autodiff, the derivatives are 0
-        return;
     const auto r = reference();
     for (double T : {350.0, 900.0})
     {
@@ -147,8 +145,6 @@ void testCpPolynomial()
     CHECK(near(at.G.val, *r.G, 1e-12) && near(at.H.val, *r.H, 1e-12) && near(at.S.val, *r.S, 1e-12));
     for (double T : {350.0, 900.0})
     {
-        if (!Reaktoro_::kWithAutodiff)
-            break;
         const auto x = evaluate(m, T, 1e5, r);
         CHECK(near(x.H.ddt, x.Cp.val, 1e-10));
         CHECK(near(T * x.S.ddt, x.Cp.val, 1e-10));
