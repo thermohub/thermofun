@@ -78,7 +78,7 @@ def test_a_symbolic_increment_adds_to_a_coded_method():
     assert both["G"].val - base["G"].val == pytest.approx(1e-6 * (5e7 - PR), rel=1e-9)
     assert both["H"].val - base["H"].val == pytest.approx(1e-6 * (5e7 - PR), rel=1e-9)
     assert both["S"].val == pytest.approx(base["S"].val, rel=1e-12)
-    assert both["V"].val - base["V"].val == pytest.approx(1e-6 * 1e5, rel=1e-9)   # the volume is in J/bar
+    assert both["V"].val - base["V"].val == pytest.approx(1e-6, rel=1e-9)   # m3/mol
 
 
 def test_the_order_of_the_methods_does_not_change_the_result():
@@ -157,7 +157,7 @@ def test_a_reaction_from_its_expression_of_dg():
     assert r.reaction_gibbs_energy.val == pytest.approx(dG, rel=1e-12)
     assert r.reaction_entropy.val == pytest.approx(30.0, rel=1e-12)
     assert r.reaction_enthalpy.val == pytest.approx(dG + T * 30.0, rel=1e-12)
-    assert r.reaction_volume.val == pytest.approx(1.0, rel=1e-12)
+    assert r.reaction_volume.val == pytest.approx(1e-5, rel=1e-12)   # m3/mol
     assert r.reaction_heat_capacity_cp.val == pytest.approx(0.0, abs=1e-9)
     assert r.log_equilibrium_constant.val == pytest.approx(-dG / (8.31451 * T * math.log(10)), rel=1e-5)
     assert r.reaction_gibbs_energy.ddt == pytest.approx(-30.0, rel=1e-12)
