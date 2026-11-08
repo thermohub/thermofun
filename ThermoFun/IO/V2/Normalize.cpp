@@ -317,8 +317,8 @@ auto readQuantity(const json& node, const std::string& slot_si_unit, const UnitS
     q.value = toSi(number, unit, slot_si_unit);
     if (unit != slot_si_unit)
     {
-        q.unit_as_written = unit;
-        q.value_as_written = nlohmann::json(number).dump();
+        q.written.unit = unit;
+        q.written.value = nlohmann::json(number).dump();
     }
     if (uncertainty)
     {
@@ -332,10 +332,10 @@ auto readQuantity(const json& node, const std::string& slot_si_unit, const UnitS
 
 auto writeQuantity(const Quantity& q, const std::string& slot_si_unit) -> json
 {
-    const std::string& unit = q.unit_as_written;
+    const std::string& unit = q.written.unit;
     const bool inSlotUnit = unit.empty();
     const double written = inSlotUnit ? q.value
-                           : !q.value_as_written.empty() ? numbers::parseDouble(q.value_as_written)
+                           : !q.written.value.empty() ? numbers::parseDouble(q.written.value)
                                                 : units::convertAny(q.value, slot_si_unit, unit);
 
     json uncertainty;

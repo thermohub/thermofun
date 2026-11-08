@@ -68,8 +68,8 @@ void testSolute()
     CHECK(s.charge == 3);
     CHECK(s.class_ == SubstanceClass::AqueousSolute);
     CHECK(s.aggregate_state == AggregateState::Aqueous);
-    CHECK(s.source_format == DataFormat::Legacy);
-    CHECK(s.original_text == hkfRecord);
+    CHECK(s.file.format == DataFormat::Legacy);
+    CHECK(s.file.text == hkfRecord);
     CHECK(s.reference_conditions.T == 298.15 && s.reference_conditions.P == 1e5);
     CHECK(!s.molar_mass.has_value());
 
@@ -77,7 +77,7 @@ void testSolute()
     CHECK(s.standard_state_properties.at(PropertyName::G).value == -483708.0);
     CHECK(s.standard_state_properties.at(PropertyName::S).value == -325.097);
     CHECK(near(s.standard_state_properties.at(PropertyName::V).value, -4.5243e-5));
-    CHECK(s.standard_state_properties.at(PropertyName::G).unit_as_written == "J/mol");
+    CHECK(s.standard_state_properties.at(PropertyName::G).written.unit == "J/mol");
     CHECK(!s.standard_state_properties.at(PropertyName::G).uncertainty.has_value());
     // errors are standard uncertainties; an error of 0 is an uncertainty of 0
     const auto& cp = s.standard_state_properties.at(PropertyName::Cp);
@@ -156,7 +156,7 @@ void testSolventAndGas()
     CHECK(w.class_ == SubstanceClass::WaterSolvent);
     CHECK(w.methods.size() == 2);
     CHECK(w.methods[0].method == "WaterHGK84" && w.methods[1].method == "JohnsonNorton91");
-    CHECK(w.methods[0].method_as_written == "water_eos_hgk84_reaktoro");
+    CHECK(w.methods[0].written.method == "water_eos_hgk84_reaktoro");
 
     const char* gas = R"JSON({
       "symbol": "CO", "aggregate_state": {"0": "AS_GAS"}, "class_": {"1": "SC_GASFLUID"},
@@ -399,9 +399,9 @@ void testRules()
             "sm_entropy_abs": {"values": [65.20999908447266]}, "sm_enthalpy": {"values": [65.21]}, "sm_gibbs_energy": {"values": [-1029884]},
             "m_expansivity": {"units": ["kbar"], "values": [1.1754943508222875e-38]},
             "m_compressibility": {"units": ["1e-05/K"], "values": [1.1754943508222875e-38]}})JSON");
-        CHECK(s.standard_state_properties.at(PropertyName::S).single_precision_source);
-        CHECK(!s.standard_state_properties.at(PropertyName::H).single_precision_source);
-        CHECK(!s.standard_state_properties.at(PropertyName::G).single_precision_source);  // an integer says nothing
+        CHECK(s.standard_state_properties.at(PropertyName::S).written.single_precision);
+        CHECK(!s.standard_state_properties.at(PropertyName::H).written.single_precision);
+        CHECK(!s.standard_state_properties.at(PropertyName::G).written.single_precision);  // an integer says nothing
         CHECK(s.structural.empty());
     }
 
@@ -418,7 +418,7 @@ void testRules()
         const std::string text = R"JSON({"symbol": "S", "no_such_key": 1})JSON";
         const SubstanceRecord s = readLegacySubstance(text, {}, &d);
         CHECK(count(d, "LEG-KEY-001") == 1);
-        CHECK(s.extra_json.empty() && s.original_text == text);
+        CHECK(s.extra_json.empty() && s.file.text == text);
     }
 
     // every legacy method names a method of the catalog with the parameters of its specification
@@ -505,7 +505,7 @@ void testRecordLink()
     CHECK(b.record() != nullptr && b.record() != before && b.record()->name == "changed");
     CHECK(a.record() == before && before->name != "changed");
     CHECK(db.getSubstance("Cal").record()->name != "changed");
-    CHECK(!before->original_text.empty() && b.record()->original_text.empty());
+    CHECK(!before->file.text.empty() && b.record()->file.text.empty());
 
     ThermoFun::Reaction r = db.getReactions().front();
     r.setSymbol("changed");

@@ -32,7 +32,7 @@ struct Reaction::Impl
     {
         auto copy = std::make_shared<model::ReactionRecord>(*record);
         change(*copy);
-        copy->original_text.clear();
+        copy->file.text.clear();
         record = copy;
         jString.clear();
     }
@@ -111,7 +111,7 @@ Reaction::Reaction(std::shared_ptr<const model::ReactionRecord> record)
 : pimpl(new Impl())
 {
     pimpl->record = std::move(record);
-    pimpl->jString = pimpl->record->original_text;
+    pimpl->jString = pimpl->record->file.text;
 }
 
 Reaction::Reaction(const Reaction& other)
@@ -305,7 +305,7 @@ auto Reaction::jsonString() const -> std::string
     if (!pimpl->jString.empty())
         return pimpl->jString;
     // an edited record: written from its fields, in the format it came from
-    return pimpl->record->source_format == model::DataFormat::V2 ? model::writeV2Reaction(*pimpl->record) : model::writeLegacyReaction(*pimpl->record);
+    return pimpl->record->file.format == model::DataFormat::V2 ? model::writeV2Reaction(*pimpl->record) : model::writeLegacyReaction(*pimpl->record);
 }
 
 auto Reaction::fromEquation(const std::string &reactionEquation) -> void

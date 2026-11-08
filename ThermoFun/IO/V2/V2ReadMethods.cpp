@@ -168,16 +168,16 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
             continue;
         }
         MethodApplication app;
-        app.method_as_written = node["method"].get<std::string>();
-        const MethodSpec* spec = MethodCatalog::instance().find(app.method_as_written, operatesOn);
+        app.written.method = node["method"].get<std::string>();
+        const MethodSpec* spec = MethodCatalog::instance().find(app.written.method, operatesOn);
         if (!spec)
-            if (auto symbolic = c.symbolic_specs.find(app.method_as_written); symbolic != c.symbolic_specs.end() && symbolic->second.operates_on == operatesOn)
+            if (auto symbolic = c.symbolic_specs.find(app.written.method); symbolic != c.symbolic_specs.end() && symbolic->second.operates_on == operatesOn)
                 spec = &symbolic->second;
         if (!spec)
         {
-            const std::string near = MethodCatalog::instance().suggest(app.method_as_written);
+            const std::string near = MethodCatalog::instance().suggest(app.written.method);
             report(c, Severity::Error, "V2-MTH-001", record, where + "/method",
-                   "Unknown method " + app.method_as_written + (near.empty() ? "" : ". Did you mean " + near + "?"));
+                   "Unknown method " + app.written.method + (near.empty() ? "" : ". Did you mean " + near + "?"));
             continue;
         }
         app.method = spec->id;

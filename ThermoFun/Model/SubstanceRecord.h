@@ -56,8 +56,7 @@ struct SubstanceRecord
 
     // to write the record back
     std::string extra_json;                     ///< fields that the format does not define, as JSON text
-    DataFormat source_format = DataFormat::Legacy;
-    std::string original_text;
+    FileOrigin file;                            ///< the file it was read from; not data
 
     auto operator==(const SubstanceRecord&) const -> bool = default;
 };

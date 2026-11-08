@@ -19,7 +19,7 @@ void testDefaults()
     CHECK(s.reference_conditions.P == 1e5);
     CHECK(!s.charge.has_value());
     CHECK(!s.molar_mass.has_value());
-    CHECK(s.source_format == DataFormat::Legacy);
+    CHECK(s.file.format == DataFormat::Legacy);
 
     ReactionRecord r;
     CHECK(r.level == 0);
@@ -46,7 +46,10 @@ void testEquality()
 {
     SubstanceRecord a;
     a.symbol = "NaCl@";
-    a.standard_state_properties[PropertyName::G] = Quantity{-393000.0, "kJ/mol", "", std::nullopt, {}};
+    Quantity g;
+    g.value = -393000.0;
+    g.written.unit = "kJ/mol";
+    a.standard_state_properties[PropertyName::G] = g;
     MethodApplication m;
     m.method = "HKF88";
     m.implementation = "gems";
@@ -63,6 +66,13 @@ void testEquality()
     b = a;
     b.standard_state_properties[PropertyName::G].uncertainty = Uncertainty{};
     CHECK(!(a == b));
+
+    // what the files wrote is not data: records with the same data are equal (review of v2, Q7)
+    b = a;
+    b.file = FileOrigin{DataFormat::V2, "{\"formula\": \"NaCl\"}"};
+    b.standard_state_properties[PropertyName::G].written = AsWritten{"J/mol", "-393000", true};
+    b.methods[0].written.method = "solute_hkf88_gems";
+    CHECK(a == b);
 
     b = a;
     b.convention = Convention{};

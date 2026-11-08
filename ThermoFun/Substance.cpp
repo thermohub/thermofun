@@ -44,7 +44,7 @@ struct Substance::Impl
     {
         auto copy = std::make_shared<model::SubstanceRecord>(*record);
         change(*copy);
-        copy->original_text.clear();
+        copy->file.text.clear();
         record = copy;
         jString.clear();
     }
@@ -120,7 +120,7 @@ Substance::Substance(std::shared_ptr<const model::SubstanceRecord> record)
 : pimpl(new Impl())
 {
     pimpl->record = std::move(record);
-    pimpl->jString = pimpl->record->original_text;
+    pimpl->jString = pimpl->record->file.text;
 }
 
 Substance::Substance(const Substance& other)
@@ -255,7 +255,7 @@ auto Substance::setMolarMass(double molar_mass) -> void
     pimpl->edit([&](model::SubstanceRecord& r) {
         auto q = r.molar_mass.value_or(model::Quantity{});
         q.value = molar_mass * 1e-3;
-        q.value_as_written.clear();
+        q.written.value.clear();
         r.molar_mass = q;
     });
 }
@@ -380,7 +380,7 @@ auto Substance::jsonString() const -> std::string
     if (!pimpl->jString.empty())
         return pimpl->jString;
     // an edited record: written from its fields, in the format it came from
-    return pimpl->record->source_format == model::DataFormat::V2 ? model::writeV2Substance(*pimpl->record) : model::writeLegacySubstance(*pimpl->record);
+    return pimpl->record->file.format == model::DataFormat::V2 ? model::writeV2Substance(*pimpl->record) : model::writeLegacySubstance(*pimpl->record);
 }
 
 auto Substance::checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void

@@ -30,7 +30,6 @@ struct TableData
 struct MethodApplication
 {
     std::string method;                          ///< id of the method after the alias is resolved, for example "HKF88"
-    std::string method_as_written;               ///< id or legacy name as in the file, to write it back
     std::string implementation;                  ///< empty: the default implementation of the method; else "gems", "reaktoro", "symbolic"
     std::map<std::string, Quantity> parameters;  ///< named parameters, SI values
     std::string parameter_set;                   ///< name of a parameter set, empty if none
@@ -43,6 +42,12 @@ struct MethodApplication
     int interpolation_order = 3;                 ///< Lagrange only
     bool implied = false;                        ///< the old format means this method without writing it: not written back there
     std::string extra_json;                      ///< fields of this entry that the format does not define, as JSON text
+    /// The id or legacy name as in the file, to write it back. Not data: equality ignores it.
+    struct Written
+    {
+        std::string method;
+        auto operator==(const Written&) const -> bool { return true; }
+    } written;
 
     auto operator==(const MethodApplication&) const -> bool = default;
 };

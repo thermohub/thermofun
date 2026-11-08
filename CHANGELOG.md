@@ -45,6 +45,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   a/√6 (GUM); other words are an error (V2-UNC-005). `degrees_of_freedom` and `standard_state_convention` are not part of
   the format: a warning (V2-UNC-006, V2-KEY-003), and a label with 1atm sets `standard_pressure: 1atm`. The docs say that
   every `err` is a standard uncertainty (k = 1), also for data given at 95 %.
+- **Records with the same data are equal**, whatever their files wrote (review Q7): the text of the file, the unit and
+  number as written and the method as written are in members that equality ignores (`file`, `written`). In C++ the
+  fields have new places (`record.file.text`, `quantity.written.unit`, `application.written.method`); the Python names
+  stay.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

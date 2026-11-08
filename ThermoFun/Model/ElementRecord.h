@@ -34,8 +34,7 @@ struct ElementRecord
     std::vector<std::string> data_sources;
     std::string sourcetdb;
     std::string extra_json;                      ///< fields that the format does not define, as JSON text
-    DataFormat source_format = DataFormat::Legacy;
-    std::string original_text;                   ///< the text of the record as it was read
+    FileOrigin file;                            ///< the file it was read from; not data
 
     auto operator==(const ElementRecord&) const -> bool = default;
 };

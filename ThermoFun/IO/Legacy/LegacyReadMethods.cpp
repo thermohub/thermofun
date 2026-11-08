@@ -91,12 +91,12 @@ void readArray(const json& entry, const std::string& key, const legacy::LegacyMe
         const std::string si = siUnitOf(spec, p.name);
         const std::string unit = perMole(unitOfValue(i, from, p.unit));
         Quantity q;
-        q.single_precision_source = isSinglePrecision(*values[i]);
+        q.written.single_precision = isSinglePrecision(*values[i]);
         try
         {
             q.value = units::convertAny(*values[i], unit, si);
             if (i < from.size() && !from[i].empty())
-                q.unit_as_written = from[i];
+                q.written.unit = from[i];
             if (i < errors.size() && errors[i] && *errors[i] > 0.0)
             {
                 Uncertainty u;
@@ -291,7 +291,7 @@ auto readMethods(const json& j, OperatesOn operatesOn, const Context& c, MethodF
         {
             MethodApplication app;
             app.method = spec->id;
-            app.method_as_written = name;
+            app.written.method = name;
             app.implementation = method->implementation;
             apps.push_back(app);
         }
@@ -395,7 +395,7 @@ void applyWaterVapourRule(SubstanceRecord& s, const MethodFlags& flags)
     else if (vapourByHkf)
     {
         // the name of HKF stays on the water method: it says that this record is vapour
-        water->method_as_written = hkf->method_as_written;
+        water->written.method = hkf->written.method;
         s.methods.erase(s.methods.begin() + (hkf - s.methods.data()));
         water = nullptr;
     }
@@ -424,8 +424,8 @@ void readHp98Values(const json& j, SubstanceRecord& s, const Context& c)
         if (!values.empty() && values[0])
         {
             Quantity q;
-            q.single_precision_source = isSinglePrecision(*values[0]);
-            q.unit_as_written = unit == "1/K" ? "" : unit;
+            q.written.single_precision = isSinglePrecision(*values[0]);
+            q.written.unit = unit == "1/K" ? "" : unit;
             try
             {
                 if (legacy::expansivityLabelIsSwapped(unit, c.diagnostics, where(c, legacy::MExpansivity)))
@@ -455,8 +455,8 @@ void readHp98Values(const json& j, SubstanceRecord& s, const Context& c)
         if (!values.empty() && values[0])
         {
             Quantity q;
-            q.single_precision_source = isSinglePrecision(*values[0]);
-            q.unit_as_written = unit == "kbar" ? "" : unit;
+            q.written.single_precision = isSinglePrecision(*values[0]);
+            q.written.unit = unit == "kbar" ? "" : unit;
             try
             {
                 if (legacy::compressibilityLabelIsSwapped(unit, c.diagnostics, where(c, legacy::MCompressibility)))

@@ -52,7 +52,7 @@ auto siUnitOf(const MethodSpec& spec, const std::string& name) -> std::string
 auto legacyOf(const MethodApplication& a, const std::vector<LM>& all) -> const LM*
 {
     for (const auto& m : all)
-        if (a.method_as_written == m.name && a.method == m.method)
+        if (a.written.method == m.name && a.method == m.method)
             return &m;
     for (const auto& m : all)
         if (a.method == m.method && (a.implementation.empty() || a.implementation == m.implementation))
@@ -177,8 +177,8 @@ auto sourcesOf(const std::vector<std::string>& sources) -> std::vector<std::stri
 
 auto writeLegacySubstance(const SubstanceRecord& r, const LegacyWriteOptions& options, Diagnostics* diagnostics) -> std::string
 {
-    if (options.use_original_text && r.source_format == DataFormat::Legacy && !r.original_text.empty())
-        return r.original_text;
+    if (options.use_original_text && r.file.format == DataFormat::Legacy && !r.file.text.empty())
+        return r.file.text;
 
     json out = json::object();
     out[legacy::Symbol] = r.symbol;
@@ -289,8 +289,8 @@ auto writeLegacySubstance(const SubstanceRecord& r, const LegacyWriteOptions& op
 
 auto writeLegacyReaction(const ReactionRecord& r, const LegacyWriteOptions& options, Diagnostics* diagnostics) -> std::string
 {
-    if (options.use_original_text && r.source_format == DataFormat::Legacy && !r.original_text.empty())
-        return r.original_text;
+    if (options.use_original_text && r.file.format == DataFormat::Legacy && !r.file.text.empty())
+        return r.file.text;
 
     json out = json::object();
     out[legacy::Symbol] = r.symbol;
@@ -355,8 +355,8 @@ auto writeLegacyReaction(const ReactionRecord& r, const LegacyWriteOptions& opti
 
 auto writeLegacyElement(const ElementRecord& r, const LegacyWriteOptions& options, Diagnostics* diagnostics) -> std::string
 {
-    if (options.use_original_text && r.source_format == DataFormat::Legacy && !r.original_text.empty())
-        return r.original_text;
+    if (options.use_original_text && r.file.format == DataFormat::Legacy && !r.file.text.empty())
+        return r.file.text;
 
     json out = json::object();
     out[legacy::Symbol] = r.symbol;

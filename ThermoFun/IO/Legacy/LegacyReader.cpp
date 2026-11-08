@@ -109,8 +109,8 @@ auto readQuantity(const json& j, const char* key, const std::string& unitDefault
     }
 
     Quantity q;
-    q.unit_as_written = written;
-    q.single_precision_source = isSinglePrecision(entry["values"][0].get<double>());
+    q.written.unit = written;
+    q.written.single_precision = isSinglePrecision(entry["values"][0].get<double>());
     try
     {
         q.value = units::convertAny(entry["values"][0].get<double>(), unit, siConvert);
@@ -178,8 +178,8 @@ void checkReading(const Diagnostics& diagnostics)
 auto readLegacySubstance(const std::string& text, const LegacyReadOptions& options, Diagnostics* diagnostics) -> SubstanceRecord
 {
     SubstanceRecord s;
-    s.source_format = DataFormat::Legacy;
-    s.original_text = text;
+    s.file.format = DataFormat::Legacy;
+    s.file.text = text;
     Context c{options, diagnostics, ""};
     json j = unwrap(parse(text, c), c);
 
@@ -244,8 +244,8 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
 auto readLegacyReaction(const std::string& text, const LegacyReadOptions& options, Diagnostics* diagnostics) -> ReactionRecord
 {
     ReactionRecord r;
-    r.source_format = DataFormat::Legacy;
-    r.original_text = text;
+    r.file.format = DataFormat::Legacy;
+    r.file.text = text;
     Context c{options, diagnostics, ""};
     json j = unwrap(parse(text, c), c);
 
@@ -298,8 +298,8 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
 auto readLegacyElement(const std::string& text, const LegacyReadOptions& options, Diagnostics* diagnostics) -> ElementRecord
 {
     ElementRecord e;
-    e.source_format = DataFormat::Legacy;
-    e.original_text = text;
+    e.file.format = DataFormat::Legacy;
+    e.file.text = text;
     Context c{options, diagnostics, ""};
     json j = unwrap(parse(text, c), c);
 

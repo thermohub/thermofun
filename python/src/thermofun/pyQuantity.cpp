@@ -62,8 +62,8 @@ void exportQuantity(py::module& m)
     py::class_<Quantity>(m, "Quantity", "A value in the SI unit of its slot, with its unit as written and its uncertainty")
         .def(py::init<>())
         .def_readwrite("value", &Quantity::value)
-        .def_readwrite("unit_as_written", &Quantity::unit_as_written)
-        .def_readwrite("value_as_written", &Quantity::value_as_written)
+        .def_property("unit_as_written", [](const Quantity& x) { return x.written.unit; }, [](Quantity& x, const std::string& v) { x.written.unit = v; })
+        .def_property("value_as_written", [](const Quantity& x) { return x.written.value; }, [](Quantity& x, const std::string& v) { x.written.value = v; })
         .def_readwrite("uncertainty", &Quantity::uncertainty)
         .def_readwrite("meta", &Quantity::meta)
         .def("isBare", &Quantity::isBare, "True if the quantity has only a value in the default unit")
@@ -71,8 +71,8 @@ void exportQuantity(py::module& m)
         .def("__repr__", [](const Quantity& q) {
             std::ostringstream s;
             s << "Quantity(value=" << q.value;
-            if (!q.unit_as_written.empty())
-                s << ", unit_as_written='" << q.unit_as_written << "'";
+            if (!q.written.unit.empty())
+                s << ", unit_as_written='" << q.written.unit << "'";
             if (q.uncertainty)
                 s << ", standard_uncertainty=" << q.uncertainty->standard;
             s << ")";

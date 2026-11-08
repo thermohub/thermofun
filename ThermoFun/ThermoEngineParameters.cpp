@@ -100,7 +100,7 @@ auto ThermoEngine::Impl::editValue(const ParameterRef& ref, Edit edit) -> void
         const auto old = database.getReaction(ref.symbol).record();
         auto copy = std::make_shared<model::ReactionRecord>(*old);
         edit(*copy);
-        copy->original_text.clear();
+        copy->file.text.clear();
         database.setReaction(Reaction(std::shared_ptr<const model::ReactionRecord>(copy)));
         std::lock_guard<std::mutex> lock(bound.mutex);
         forget(bound.reactions, bound.reaction_records, old.get());
@@ -110,7 +110,7 @@ auto ThermoEngine::Impl::editValue(const ParameterRef& ref, Edit edit) -> void
         const auto old = database.getSubstance(ref.symbol).record();
         auto copy = std::make_shared<model::SubstanceRecord>(*old);
         edit(*copy);
-        copy->original_text.clear();
+        copy->file.text.clear();
         database.setSubstance(Substance(std::shared_ptr<const model::SubstanceRecord>(copy)));
         std::lock_guard<std::mutex> lock(bound.mutex);
         forget(bound.substances, bound.records, old.get());

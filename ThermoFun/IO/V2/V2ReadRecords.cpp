@@ -77,8 +77,8 @@ auto readElement(Context& c, const json& node, const std::string& key, const Uni
                 r.structural[item.key()] = *q;
         }
     r.extra_json = extraKeys(c, node, known, symbol, path);
-    r.source_format = DataFormat::V2;
-    r.original_text = node.dump();
+    r.file.format = DataFormat::V2;
+    r.file.text = node.dump();
     return r;
 }
 
@@ -154,8 +154,8 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     r.deprecated_in_favour_of = optionalString(node, "deprecated_in_favour_of");
     r.covariance = readCovariances(c, node, symbol, path);
     r.extra_json = extraKeys(c, node, known, symbol, path);
-    r.source_format = DataFormat::V2;
-    r.original_text = node.dump();
+    r.file.format = DataFormat::V2;
+    r.file.text = node.dump();
     return r;
 }
 
@@ -238,8 +238,8 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
     r.deprecated = node.contains("deprecated") && node["deprecated"].is_boolean() && node["deprecated"].get<bool>();
     r.covariance = readCovariances(c, node, symbol, path);
     r.extra_json = extraKeys(c, node, known, symbol, path);
-    r.source_format = DataFormat::V2;
-    r.original_text = node.dump();
+    r.file.format = DataFormat::V2;
+    r.file.text = node.dump();
     return r;
 }
 

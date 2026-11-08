@@ -77,7 +77,7 @@ auto structuralJson(const std::map<std::string, Quantity>& structural, const V2W
 // the molar mass: a bare number is in g/mol
 auto molarMassJson(const Quantity& q, const V2WriterOptions& options) -> json
 {
-    const std::string unit = q.unit_as_written.empty() || sameUnit(q.unit_as_written, "g/mol") ? "g/mol" : q.unit_as_written;
+    const std::string unit = q.written.unit.empty() || sameUnit(q.written.unit, "g/mol") ? "g/mol" : q.written.unit;
     return quantityJson(q, "kg/mol", {unit, unit == "g/mol"}, options);
 }
 
@@ -93,7 +93,7 @@ auto elementJson(const ElementRecord& r, const V2WriterOptions& options) -> json
     if (r.molar_mass) out["molar_mass"] = molarMassJson(*r.molar_mass, options);
     if (r.standard_entropy) out["standard_entropy"] = simpleQuantity(*r.standard_entropy, "J/(mol.K)", "", options);
     if (r.heat_capacity) out["heat_capacity"] = simpleQuantity(*r.heat_capacity, "J/(mol.K)", "", options);
-    if (r.volume) out["volume"] = simpleQuantity(*r.volume, "m3/mol", r.source_format == DataFormat::Legacy ? "J/bar" : "", options);
+    if (r.volume) out["volume"] = simpleQuantity(*r.volume, "m3/mol", r.file.format == DataFormat::Legacy ? "J/bar" : "", options);
     if (!r.reference_form.empty()) out["reference_form"] = r.reference_form;
     if (const auto sources = sourcesOf(r.data_sources); !sources.empty()) out["data_sources"] = sources;
     if (!r.sourcetdb.empty()) out["sourcetdb"] = r.sourcetdb;
@@ -119,10 +119,10 @@ auto substanceJson(const SubstanceRecord& r, const ThermoDataSetInfo& dataset, c
         json props = json::object();
         for (const PropertyName name : {PropertyName::G, PropertyName::H, PropertyName::S, PropertyName::Cp, PropertyName::V, PropertyName::U, PropertyName::A, PropertyName::Cv})
             if (const auto it = r.standard_state_properties.find(name); it != r.standard_state_properties.end())
-                props[toString(name)] = simpleQuantity(it->second, siUnit(name), name == PropertyName::V && r.source_format == DataFormat::Legacy ? "J/bar" : "", options);
+                props[toString(name)] = simpleQuantity(it->second, siUnit(name), name == PropertyName::V && r.file.format == DataFormat::Legacy ? "J/bar" : "", options);
         out["standard_state_properties"] = props;
     }
-    if (!r.methods.empty()) out["methods"] = methodsJson(r.methods, OperatesOn::Substance, r.source_format, options);
+    if (!r.methods.empty()) out["methods"] = methodsJson(r.methods, OperatesOn::Substance, r.file.format, options);
     if (!r.defining_reaction.empty()) out["defining_reaction"] = r.defining_reaction;
     if (r.preferred_property_source) out["preferred_property_source"] = toString(*r.preferred_property_source);
     const json a = applicabilityJson(r.applicability, options);
@@ -168,10 +168,10 @@ auto reactionJson(const ReactionRecord& r, const ThermoDataSetInfo& dataset, con
         for (const ReactionPropertyName name : {ReactionPropertyName::logK, ReactionPropertyName::lnK, ReactionPropertyName::dG, ReactionPropertyName::dH, ReactionPropertyName::dS,
                                                 ReactionPropertyName::dCp, ReactionPropertyName::dV, ReactionPropertyName::dU, ReactionPropertyName::dA})
             if (const auto it = r.reaction_properties.find(name); it != r.reaction_properties.end())
-                props[toString(name)] = simpleQuantity(it->second, siUnit(name), name == ReactionPropertyName::dV && r.source_format == DataFormat::Legacy ? "J/bar" : "", options);
+                props[toString(name)] = simpleQuantity(it->second, siUnit(name), name == ReactionPropertyName::dV && r.file.format == DataFormat::Legacy ? "J/bar" : "", options);
         out["reaction_properties"] = props;
     }
-    if (!r.methods.empty()) out["methods"] = methodsJson(r.methods, OperatesOn::Reaction, r.source_format, options);
+    if (!r.methods.empty()) out["methods"] = methodsJson(r.methods, OperatesOn::Reaction, r.file.format, options);
     if (r.level != 0) out["level"] = r.level;
     const json a = applicabilityJson(r.applicability, options);
     if (!a.empty()) out["applicability"] = a;

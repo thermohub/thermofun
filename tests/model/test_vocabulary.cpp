@@ -22,11 +22,11 @@ void testQuantity()
     CHECK(q.isBare());
     q.value = 5.0;
     CHECK(q.isBare());  // a value alone is bare
-    q.single_precision_source = true;
+    q.written.single_precision = true;
     CHECK(q.isBare());  // it changes how the number is written, nothing else
-    q.unit_as_written = "kJ/mol";
+    q.written.unit = "kJ/mol";
     CHECK(!q.isBare());
-    q.unit_as_written.clear();
+    q.written.unit.clear();
     q.uncertainty = model::Uncertainty{};
     CHECK(!q.isBare());
     q.uncertainty.reset();

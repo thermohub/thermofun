@@ -40,11 +40,11 @@ void runNormalize()
 
     // the table of the format
     auto q = read("-237183", "J/mol", code);
-    CHECK(q && q->value == -237183 && q->unit_as_written.empty() && !q->uncertainty && q->isBare() && code.empty());
+    CHECK(q && q->value == -237183 && q->written.unit.empty() && !q->uncertainty && q->isBare() && code.empty());
     q = read(R"({"value": -237183})", "J/mol", code);
     CHECK(q && q->value == -237183 && q->isBare());
     q = read(R"({"value": -237.183, "unit": "kJ/mol"})", "J/mol", code);
-    CHECK(q && close(q->value, -237183) && q->unit_as_written == "kJ/mol" && q->value_as_written == "-237.183");
+    CHECK(q && close(q->value, -237183) && q->written.unit == "kJ/mol" && q->written.value == "-237.183");
     q = read(R"({"value": -237183, "uncertainty": 100})", "J/mol", code);
     CHECK(q && q->uncertainty && q->uncertainty->standard == 100 && q->uncertainty->coverage_factor_as_written == 1.0);
     q = read(R"({"value": -237183, "uncertainty": {"standard": 100}})", "J/mol", code);
@@ -67,7 +67,7 @@ void runNormalize()
     CHECK(q && q->meta.quality == Quality::Core && q->meta.origin == Origin::Calculated && q->meta.calculation_path == "a+b" &&
           q->meta.source == "2018LOT/MAT");
     q = read(R"("-237.183 kJ/mol")", "J/mol", code);
-    CHECK(q && close(q->value, -237183) && q->unit_as_written == "kJ/mol");
+    CHECK(q && close(q->value, -237183) && q->written.unit == "kJ/mol");
     // a defined zero uncertainty is kept
     q = read(R"({"value": 5, "uncertainty": 0})", "J/mol", code);
     CHECK(q && q->uncertainty && q->uncertainty->standard == 0.0);
@@ -113,11 +113,11 @@ void runNormalize()
     CHECK(scopedUnit("m3/mol", inner) == "cm3/mol");
     CHECK(scopedUnit("Pa", inner) == "bar");
     q = read("1", "J/mol", code, outer);
-    CHECK(q && close(q->value, 4.184) && q->unit_as_written == "cal/mol" && q->value_as_written == "1.0");
+    CHECK(q && close(q->value, 4.184) && q->written.unit == "cal/mol" && q->written.value == "1.0");
     q = read("1", "J/mol", code, inner);
     CHECK(q && close(q->value, 1000));
     q = read(R"({"value": 1, "unit": "J/mol"})", "J/mol", code, inner);
-    CHECK(q && q->value == 1 && q->unit_as_written.empty());
+    CHECK(q && q->value == 1 && q->written.unit.empty());
     // a unit of the scope with the wrong dimension is refused
     Diagnostics bad;
     readUnitScope(json::parse(R"({"energy": "kg"})"), nullptr, bad, "/units");

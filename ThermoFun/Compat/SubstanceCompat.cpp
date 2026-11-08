@@ -24,10 +24,10 @@ auto legacyMethodOf(const model::MethodApplication& a) -> const model::legacy::L
     // the number counts. The water vapour rule of the reader also changes the method of an HKF entry.
     const auto& methods = model::legacy::legacySubstanceMethods();
     for (const auto& m : methods)
-        if (a.method_as_written == m.name && a.method == m.method && a.implementation == m.implementation)
+        if (a.written.method == m.name && a.method == m.method && a.implementation == m.implementation)
             return &m;
     for (const auto& m : methods)
-        if (a.method_as_written == m.name && a.method != m.method)
+        if (a.written.method == m.name && a.method != m.method)
             return &m;
     for (const auto& m : methods)
         if (a.method == m.method && (a.implementation.empty() || a.implementation == m.implementation))
@@ -87,7 +87,7 @@ auto legacyReactionMethodOf(const model::MethodApplication& a) -> const model::l
 {
     const auto& methods = model::legacy::legacyReactionMethods();
     for (const auto& m : methods)
-        if (a.method_as_written == m.name)
+        if (a.written.method == m.name)
             return &m;
     for (const auto& m : methods)
         if (a.method == m.method)
@@ -222,7 +222,7 @@ void keepWhatArraysCannotHold(std::vector<model::MethodApplication>& methods, co
         const auto old = std::find_if(before.begin(), before.end(), [&](const auto& b) { return b.method == a.method; });
         if (old == before.end())
             continue;
-        a.method_as_written = old->method_as_written;
+        a.written.method = old->written.method;
         a.parameter_set = old->parameter_set;
         a.applicability = old->applicability;
         a.interpolation = old->interpolation;
@@ -257,7 +257,7 @@ void setProperty(std::optional<model::Quantity> quantity, const Reaktoro_::Therm
         return;
     model::Quantity q = quantity.value_or(model::Quantity{});
     q.value = from.val * factor;
-    q.value_as_written.clear();
+    q.written.value.clear();
     if (from.err != 0.0)
     {
         model::Uncertainty u;

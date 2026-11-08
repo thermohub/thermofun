@@ -25,7 +25,7 @@ struct Element::Impl
     {
         auto copy = std::make_shared<model::ElementRecord>(*record);
         change(*copy);
-        copy->original_text.clear();
+        copy->file.text.clear();
         record = copy;
         jString.clear();
     }
@@ -60,7 +60,7 @@ Element::Element(std::shared_ptr<const model::ElementRecord> record)
 : pimpl(new Impl())
 {
     pimpl->record = std::move(record);
-    pimpl->jString = pimpl->record->original_text;
+    pimpl->jString = pimpl->record->file.text;
 }
 
 Element::Element(const Element& other)
@@ -108,7 +108,7 @@ auto Element::setMolarMass(double value) -> void
     pimpl->edit([&](model::ElementRecord& r) {
         auto q = r.molar_mass.value_or(model::Quantity{});
         q.value = value * 1e-3;
-        q.value_as_written.clear();
+        q.written.value.clear();
         r.molar_mass = q;
     });
 }
@@ -118,7 +118,7 @@ auto Element::setEntropy(double value) -> void
     pimpl->edit([&](model::ElementRecord& r) {
         auto q = r.standard_entropy.value_or(model::Quantity{});
         q.value = value;
-        q.value_as_written.clear();
+        q.written.value.clear();
         r.standard_entropy = q;
     });
 }
@@ -128,7 +128,7 @@ auto Element::setHeatCapacity(double value) -> void
     pimpl->edit([&](model::ElementRecord& r) {
         auto q = r.heat_capacity.value_or(model::Quantity{});
         q.value = value;
-        q.value_as_written.clear();
+        q.written.value.clear();
         r.heat_capacity = q;
     });
 }
@@ -138,7 +138,7 @@ auto Element::setVolume(double value) -> void
     pimpl->edit([&](model::ElementRecord& r) {
         auto q = r.volume.value_or(model::Quantity{});
         q.value = value * 1e-5;
-        q.value_as_written.clear();
+        q.written.value.clear();
         r.volume = q;
     });
 }
@@ -234,7 +234,7 @@ auto Element::jsonString() const -> std::string
     if (!pimpl->jString.empty())
         return pimpl->jString;
     // an edited record: written from its fields, in the format it came from
-    return pimpl->record->source_format == model::DataFormat::V2 ? model::writeV2Element(*pimpl->record) : model::writeLegacyElement(*pimpl->record);
+    return pimpl->record->file.format == model::DataFormat::V2 ? model::writeV2Element(*pimpl->record) : model::writeLegacyElement(*pimpl->record);
 }
 
 ChemicalFun::ElementKey Element::toElementKey(ChemicalFun::ElementValues &eldata)

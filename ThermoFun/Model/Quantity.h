@@ -57,17 +57,25 @@ struct ValueMeta
 };
 
 /// A number with its uncertainty and its data. The value is in SI units.
+/// How a file wrote a value, kept only to write it back the same way. It is not data: equality ignores it, so two
+/// quantities with the same value are equal whatever their files wrote (review of v2, Q7).
+struct AsWritten
+{
+    std::string unit;                ///< unit in the file. Empty if the default unit was used.
+    std::string value;               ///< the number as text in the file, to write it back. Empty if not kept.
+    /// True if the value came from a single-precision (float32) source, as the legacy GEMS exports. A writer then
+    /// writes the shortest decimal that gives the same float32, for example 162.3 and not 162.3000030517578.
+    bool single_precision = false;
+
+    auto operator==(const AsWritten&) const -> bool { return true; }
+};
+
 struct Quantity
 {
     double value = 0.0;                      ///< in the SI unit of the slot it fills
-    std::string unit_as_written;             ///< unit in the file. Empty if the default unit was used.
-    std::string value_as_written;            ///< the number as text in the file, to write it back. Empty if not kept.
     std::optional<Uncertainty> uncertainty;  ///< empty if the file gives none (not zero)
     ValueMeta meta;
-
-    /// True if the value came from a single-precision (float32) source, as the legacy GEMS exports. A writer then
-    /// writes the shortest decimal that gives the same float32, for example 162.3 and not 162.3000030517578.
-    bool single_precision_source = false;
+    AsWritten written;                       ///< how the file wrote it; not data
 
     /// True if the quantity has no data, no uncertainty and the default unit. v2 files write it as a bare number.
     auto isBare() const -> bool;

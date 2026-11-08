@@ -87,7 +87,7 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
     if (!unit.empty())
     {
         // in a readable file the float decides, so the double near it is enough
-        const auto found = options.readable && q.single_precision_source ? std::optional<double>(units::convertAny(q.value, slot, molar(unit, slot)))
+        const auto found = options.readable && q.written.single_precision ? std::optional<double>(units::convertAny(q.value, slot, molar(unit, slot)))
                                                                          : numberIn(q.value, unit, slot);
         if (found)
             number = *found;
@@ -98,7 +98,7 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
             fromScope = false;
         }
     }
-    const bool shorten = options.readable && q.single_precision_source;
+    const bool shorten = options.readable && q.written.single_precision;
     if (shorten)
         number = shortestFloat(number);
 
@@ -159,7 +159,7 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
 auto writtenUnit(const Quantity& q, const std::string& slot, const std::string& source_unit) -> std::string
 {
     // a label of a file that cannot hold the value, for example a swapped one, says nothing
-    const std::string& unit = !q.unit_as_written.empty() && usable(q.unit_as_written, slot) ? q.unit_as_written : source_unit;
+    const std::string& unit = !q.written.unit.empty() && usable(q.written.unit, slot) ? q.written.unit : source_unit;
     if (unit.empty() || !usable(unit, slot) || sameUnit(molar(unit, slot), slot))
         return "";
     return unit;
