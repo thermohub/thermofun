@@ -31,6 +31,7 @@ In C++: `engine.preferences().useStandardStateOfGases();`.
 
 | Change | What to do |
 |---|---|
+| P = 0 is the saturation pressure also for minerals and gases (before: 0 Pa). | Nothing; `engine.saturationPressure(T)` gives the pressure in Pa, also in Python. |
 | P = 0 at or above 647.096 K, a negative P, T <= 0, and NaN are refused with an error. | Give a pressure above the critical temperature of water: P = 0 means the saturation pressure, which ends there. |
 | A substance from a reaction with a pressure method now runs that method on what the reaction gives. | Nothing, unless your record had such a method and it was not used before. |
 | On the steam tables, G and A of water now have the term `-Str (T - Ttr)`. | Nothing. The old values were wrong. |

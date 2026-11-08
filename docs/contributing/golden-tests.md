@@ -43,6 +43,8 @@ It uses 15 temperatures and 6 pressures. The tolerance is 1e-10 (relative), as i
 - `refused_points` in `expected_changes.json` names state points that the new build refuses on purpose: P = 0 at or above
   the critical temperature of water. A difference there is accepted only if the new result is that refusal. The
   comparison stores the solvent with one entry per point (`aligned_solvent`), so such a point can be found in it too.
+- `saturation_points` in `expected_changes.json`: a substance or a reaction at P = 0 below the critical temperature may differ from the
+  baseline only if its new value equals the value at P = `saturationPressure(T)`, which the comparison also calculates.
 - `expected_changes.json` lists the records that differ on purpose, each with its reason. An entry with `property` and
   `max_rel` accepts only differences of that property up to that size: the rest of the record stays checked.
 

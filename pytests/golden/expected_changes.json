@@ -10,6 +10,9 @@
     "message": "saturation pressure of water",
     "reason": "P = 0 means the saturation pressure of water, which does not exist at or above the critical temperature (2026-11-08, review Q3). The baseline gave a value at 0 Pa for minerals and gases, an error about the density of water for solutes and water, and a value from 0 Pa for a substance defined by a reaction with its own pressure term. The new build refuses every such point with one message. Points of this rule are accepted only if the new result is that refusal."
   },
+  "saturation_points": {
+    "reason": "P = 0 means the saturation pressure of water for every record (2026-11-08, review Q3). The baseline calculated a record that does not use water (a mineral, a gas, a reaction with a volume term) at 0 Pa, and in a reaction from reactants the order of the reactants decided. A difference of a substance or a reaction at P = 0 below the critical temperature is accepted only if the new value equals the value the new build gives at P = saturationPressure(T) (compare_builds.py computes both)."
+  },
   "changes": [
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",

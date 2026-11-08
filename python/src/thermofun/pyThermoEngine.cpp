@@ -220,6 +220,8 @@ void exportThermoEngine(py::module& m)
              "Where the properties of one substance or reaction come from: PropertySource or the words record, direct, reaction, reactants. It replaces the preference property_source for that symbol", py::arg("symbol"), py::arg("source"))
         .def("propertySource", &ThermoEngine::propertySource, "The source of a symbol: its own, else the preference of the engine", py::arg("symbol"))
         .def("solventSymbol", &ThermoEngine::solventSymbol, "Returns the symbol of the solvent record used to calculate the solvent properties")
+        .def("saturationPressure", &ThermoEngine::saturationPressure, py::arg("T"),
+             "The saturation pressure of water at T (K), in Pa: what P = 0 means in a calculation. From the water record of the engine, else from the Wagner-Pruss curve; an error at or above the critical temperature of water")
         .def("setConventions", &ThermoEngine::setConventions, "Set the thermodynamic conventions used in the engine calculations", py::arg("conventions"))
         .def_property( "preferences", [](ThermoEngine& en) -> EnginePreferences& { return en.preferences(); }, &ThermoEngine::setPreferences, py::return_value_policy::reference_internal, "The preferences used in engine calculations. A change (also of one field) applies from the next calculation" )
         .def_property( "conventions", [](ThermoEngine& en) -> EngineConventions& { return en.conventions(); }, &ThermoEngine::setConventions, py::return_value_policy::reference_internal, "The thermodynamic conventions used in engine calculations. A change (also of one field) applies from the next calculation" )

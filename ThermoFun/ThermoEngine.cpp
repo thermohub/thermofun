@@ -232,6 +232,13 @@ auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
     pimpl->preferences.solvent_symbol = solvent_symbol;
 }
 
+auto ThermoEngine::saturationPressure(double T) const -> double
+{
+    pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, 0.0);
+    return pimpl->saturationPressure(T);
+}
+
 auto ThermoEngine::solventSymbol() -> std::string&
 {
     return pimpl->preferences.solvent_symbol;

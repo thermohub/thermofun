@@ -194,13 +194,15 @@ def _is_solvent(substance):
     return substance.substanceClass() == thermofun.SubstanceClass.AQSOLVENT
 
 
-def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False):
+def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False, at_saturation=False):
     """Properties of the records at every (T, P) pair, T outer loop, P inner loop.
 
     symbols: None for all records, or {"substances": [...], "reactions": [...]}.
     A point that raises an exception is stored as {"error": first line of the message}.
     aligned_solvent: the solvent too has one entry per point, an error in place (as the records); the committed
     references keep the older form, in which the solvent lists hold the points that succeeded and a separate error list.
+    at_saturation: also each substance and reaction at P = engine.saturationPressure(T), at the points with P = 0, in the section
+    "at_saturation" (None at the other points), if the library has saturationPressure. compare() does not read it.
     """
     engine = make_engine(db_path, variant)
     db = engine.database()
@@ -225,6 +227,38 @@ def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False):
                     rec[prop].append({"error": _first_line(exc)})
         out["substances"][sym] = rec
 
+    if at_saturation and hasattr(engine, "saturationPressure"):
+        sat = out.setdefault("at_saturation", {"substances": {}})["substances"]
+        for sym in subst:
+            rec = {prop: [] for prop in SUBST_PROPS}
+            for t, p in points:
+                value = None
+                if p == 0.0:
+                    try:
+                        res = engine.thermoPropertiesSubstance(t, engine.saturationPressure(t), sym)
+                        value = {prop: scalar(getattr(res, prop)) for prop in SUBST_PROPS}
+                    except Exception:
+                        value = None
+                for prop in SUBST_PROPS:
+                    rec[prop].append(value[prop] if value else None)
+            sat[sym] = rec
+
+    def reactions_at_saturation():
+        sat = out.setdefault("at_saturation", {}).setdefault("reactions", {})
+        for sym in reacs:
+            rec = {prop: [] for prop in REAC_PROPS}
+            for t, p in points:
+                value = None
+                if p == 0.0:
+                    try:
+                        res = engine.thermoPropertiesReaction(t, engine.saturationPressure(t), sym)
+                        value = {prop: scalar(getattr(res, prop)) for prop in REAC_PROPS}
+                    except Exception:
+                        value = None
+                for prop in REAC_PROPS:
+                    rec[prop].append(value[prop] if value else None)
+            sat[sym] = rec
+
     for sym in reacs:
         rec = {prop: [] for prop in REAC_PROPS}
         for t, p in points:
@@ -236,6 +270,9 @@ def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False):
                 for prop in REAC_PROPS:
                     rec[prop].append({"error": _first_line(exc)})
         out["reactions"][sym] = rec
+
+    if at_saturation and hasattr(engine, "saturationPressure"):
+        reactions_at_saturation()
 
     for sym in subst:
         if not _is_solvent(db.getSubstance(sym)):

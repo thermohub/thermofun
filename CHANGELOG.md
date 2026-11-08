@@ -17,6 +17,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Legacy files: the value 7777777 is read as no value** (LEG-QRK-013), the mark of GEMS exports. In slop98, G and H of
   40 minerals (for example almandine, pyrope, chloritoid) had it, and the engine used it as G = 7.78 MJ/mol. G and H of
   these records are now not defined; the migration report lists them.
+- **P = 0 is the saturation pressure for every record.** A record that does not use water (a mineral, a gas, a reaction
+  with a volume term) was calculated at 0 Pa, and in a reaction from its reactants the order of the reactants decided
+  which species got Psat. For example NpO2SiO3@ of PSI/Nagra moves by 293 J/mol at 573 K.
+  The saturation pressure comes from the water record of the engine, else from the Wagner-Pruss curve.
 - **A state point without a meaning is refused** (`ValueError` in Python, `std::invalid_argument` in C++), at every
   calculation: T or P not finite, T <= 0, P < 0, and P = 0 (the saturation pressure of water) at or above the critical
   temperature of water, 647.096 K. Before, P = 0 above Tcr gave a value at 0 Pa for minerals and gases and an unclear
@@ -42,6 +46,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `EnginePreferences::useStandardStateOfGases()` (C++ and Python): G(T, Pr) for a gas, the defaults before 1.0, in one call.
 - `Methods/ParameterSets/DataPressure.yaml` (`rho_min`) and `SolventMethod::pressureAtDensity`.
 - `Status.outofbounds` in Python.
+- `ThermoEngine::saturationPressure(T)` (C++ and Python): the pressure that P = 0 means, so Python can read it.
 
 - Built-in constants of the methods in `ThermoFun/Methods/ParameterSets/`, each with a description, its units and its source. A record can replace a value for itself, and a model can have variants (`default: false`, chosen with `parameter_set`).
 - `THERMOFUN_PARAMETER_PATH`: a folder with more variants, read with no rebuild.

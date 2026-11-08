@@ -132,6 +132,10 @@ public:
     /// Returns the symbol of the solvent which is used to calculate properties using the thermo instance
     auto solventSymbol() -> std::string&;
 
+    /// The saturation pressure of water at T (K), in Pa: what P = 0 means in a calculation. From the water record of the
+    /// engine, else from the Wagner-Pruss curve. An error at or above the critical temperature of water.
+    auto saturationPressure(double T) const -> double;
+
     /// Returns the instance of the database present inside thermo
     auto database() const -> const Database &;
 

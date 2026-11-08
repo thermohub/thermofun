@@ -39,7 +39,7 @@ Each property is a `ThermoScalar`.
 
 ## A pressure of 0
 
-P = 0 means the saturation pressure of the water at this T. It exists only below the critical temperature of water, 647.096 K: at or above it, P = 0 is an error. A negative P, T <= 0 and NaN are errors too.
+P = 0 means the saturation pressure of the water at this T, for every record of the calculation, also a mineral or a gas. `engine.saturationPressure(T)` gives its value in Pa: from the water record of the database, else from the Wagner-Pruss curve. It exists only below the critical temperature of water, 647.096 K: at or above it, P = 0 is an error. A negative P, T <= 0 and NaN are errors too.
 
 ## Changes between calculations
 

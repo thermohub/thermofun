@@ -73,6 +73,22 @@ def is_refused(d, rule):
             and rule["message"] in got.get("error", ""))
 
 
+def at_saturation(d, got):
+    """True if a substance or reaction at P = 0 below the critical temperature has, in the new build, the value it has at the saturation
+    pressure (expected_changes.json, saturation_points): P = 0 is the saturation pressure for every record."""
+    if d["kind"] not in ("substances", "reactions") or d["P"] != 0.0 or d["T"] is None or d["field"] not in gc.SCALAR_FIELDS:
+        return False
+    sat = got.get("at_saturation", {}).get(d["kind"], {}).get(d["record"], {}).get(d["property"])
+    if not sat:
+        return False
+    points = gc._grid(got["grid"]["T"], got["grid"]["P"])
+    value = sat[points.index((d["T"], d["P"]))]
+    if value is None or isinstance(value, dict):
+        return False
+    other = value[gc.SCALAR_FIELDS.index(d["field"])]
+    return other == d["got"] or (isinstance(other, float) and isinstance(d["got"], float) and gc._isclose(d["got"], other, REL_TOL))
+
+
 def rounding_limit():
     """The largest accepted number of differences between ROUNDING_TOL and REL_TOL."""
     with open(HERE / "expected_changes.json") as f:
@@ -138,7 +154,7 @@ def worker(outdir, variants, only_db):
     outdir = pathlib.Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     for index, (db, variant, symbols) in enumerate(jobs(variants, only_db)):
-        result = gc.compute(db, variant, gc.FULL_T, gc.FULL_P, symbols, aligned_solvent=True)
+        result = gc.compute(db, variant, gc.FULL_T, gc.FULL_P, symbols, aligned_solvent=True, at_saturation=True)
         result["database"] = gc.db_name(db)
         result["variant"] = variant
         with gzip.open(outdir / job_name(index, db, variant), "wt") as f:
@@ -178,7 +194,7 @@ def main():
         if any(code != 0 for code in codes):
             print("a worker failed")
             return 2
-        diffs, accepted, refused, rounding, files = [], 0, 0, 0, sorted(p.name for p in (tmp / "base").iterdir())
+        diffs, accepted, refused, saturated, rounding, files = [], 0, 0, 0, 0, sorted(p.name for p in (tmp / "base").iterdir())
         expected = expected_changes()
         rule = refused_points()
         if files != sorted(p.name for p in (tmp / "new").iterdir()):
@@ -193,6 +209,8 @@ def main():
                 d["database"], d["variant"] = base["database"], base["variant"]
                 if is_refused(d, rule):
                     refused += 1
+                elif at_saturation(d, got):
+                    saturated += 1
                 elif is_expected(d, expected):
                     accepted += 1
                 else:
@@ -201,10 +219,11 @@ def main():
                 d["database"], d["variant"] = base["database"], base["variant"]
                 # the errors of that variant come from exact derivatives now, the baseline from differences of large numbers: REL_TOL still holds for them
                 if not (d["variant"] == "errors" and d["field"] == "err"):
-                    rounding += not (is_expected(d, expected) or is_refused(d, rule))
+                    rounding += not (is_expected(d, expected) or is_refused(d, rule) or at_saturation(d, got))
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
         print("accepted differences (expected_changes.json): %d" % accepted)
         print("refused state points (expected_changes.json, refused_points): %d" % refused)
+        print("P = 0 equal to the saturation pressure (expected_changes.json, saturation_points): %d" % saturated)
         rounding -= sum(not (d["variant"] == "errors" and d["field"] == "err") for d in diffs)
         limit = rounding_limit()
         print("differences between %g and %g (rounding): %d, limit %d" % (ROUNDING_TOL, REL_TOL, rounding, limit))

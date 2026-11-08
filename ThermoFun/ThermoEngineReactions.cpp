@@ -115,6 +115,8 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
         std::optional<PropertiesSolvent> solvent;
         if (bound->needs_solvent)
             solvent = cachedSolvent(T, P, solvent_in_use, -1);
+        else if (P == 0.0)
+            P = saturationPressure(T);  // P = 0 is the saturation pressure of water also for a reaction that does not use water
         auto tpr = v2::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
         // the species of the record in another standard state: to the canonical one
         const auto shift = reactionShift(reaction, v2::mergeConvention(record->convention.value_or(v2::Convention{}), database.thermoDataSet().convention), true);

@@ -4,6 +4,8 @@
 // The properties of substances and of the solvent, in the canonical convention.
 
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Methods/Water/Reaktoro/WaterUtils.hpp>
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzConstants.hpp>
 
 namespace ThermoFun
 {
@@ -272,6 +274,10 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
         }
         else if (const auto bound = boundMethods(substance))
         {
+            // P = 0 is the saturation pressure of water for every record: a record that does not use water takes it here
+            // (one that does gets it from the water, in solventInputs), and writes it to P like the water does
+            if (P == 0.0 && !bound->needs.solvent)
+                P = saturationPressure(T);
             const auto solvent = solventInputs(*bound, T, P);
             std::vector<v2::ExplainStep> steps;
             tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions(), detailed ? &steps : nullptr, solvent ? &*solvent : nullptr));
@@ -400,6 +406,29 @@ auto ThermoEngine::Impl::dataPressure(double T, const Substance& substance) cons
     const double P = std::max(substance.referenceP(), Psat);
     static const double rho_min = v2::builtinConstants("DataPressure")->parameters.at("rho_min").value;  // kg/m3
     return rho_min > 0.0 ? pressureAtDensity(T, rho_min, P) : P;
+}
+
+auto ThermoEngine::Impl::saturationPressure(double T) const -> double
+{
+    if (database.containsSubstance(solvent_in_use))
+    {
+        double P = 0.0;
+        cachedSolvent(T, P, solvent_in_use, -1);  // the water model writes its saturation pressure to P
+        return P;
+    }
+    static const auto curve = [] {
+        const auto& c = v2::builtinConstants("WaterSaturation")->parameters;
+        WaterSaturationConstants s;
+        for (int i = 1; i <= 6; ++i)
+        {
+            s.a.push_back(c.at("sat_a" + std::to_string(i)).value);
+            s.b.push_back(c.at("sat_b" + std::to_string(i)).value);
+            s.c.push_back(c.at("sat_c" + std::to_string(i)).value);
+        }
+        s.Tcr = c.at("Tcr").value; s.Pcr = c.at("Pcr").value; s.Dcr = c.at("Dcr").value; s.M = c.at("M").value;
+        return s;
+    }();
+    return static_cast<double>(waterSaturatedPressureWagnerPruss(real(T), curve));
 }
 
 auto ThermoEngine::Impl::pressureAtDensity(double T, double rho, double P) const -> double

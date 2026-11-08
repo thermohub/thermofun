@@ -318,6 +318,9 @@ struct ThermoEngine::Impl
     /// (the critical pressure above Tcr), and the pressure at which water has the density rho_min of DataPressure.yaml.
     /// So the species stay in dense water, and G is continuous at Tcr.
     auto dataPressure(double T, const Substance& substance) const -> double;
+    /// The saturation pressure of water at T (Pa), below the critical temperature: from the water record of the engine,
+    /// else from the Wagner-Pruss curve of WaterSaturation.yaml. What P = 0 means, for every record of one call.
+    auto saturationPressure(double T) const -> double;
     /// The pressure at which the solvent has density rho (kg/m3) at T, at least P
     auto pressureAtDensity(double T, double rho, double P) const -> double;
     static auto waterCriticalT() -> double
