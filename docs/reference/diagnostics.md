@@ -49,6 +49,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | V2-MTH-018 | Error | The arrays of a table do not have nT x nP values, or a grid is not sorted. | Give nT x nP values in each array and sort the temperature and pressure grids. |
 | V2-MTH-020 | Error | A composite method is used in a calculation. | Use the methods of the composite one by one. |
 | V2-MTH-021 | Warning | A Method record of the dataset replaces a method of the project or a built-in one. | Give the Method record another id if both are wanted. |
+| V2-MTH-024 | Warning | A method of log K lacks values at the reference: it falls back to a simpler form (constant log K, or no dCp term), or has no log K at all. | Give log K or dG, and dH or dS (and dCp for LogKConstantCp), in reaction_properties. |
 | V2-MTH-023 | Warning | A record of a condensed substance prescribes the method IdealGas: its volume is RT/P. | Use ConstantVolume for a constant molar volume, or correct the aggregate state of the record. |
 | V2-MTH-022 | Warning | The expression of a method and its code give different results on the test cases. | Correct the expression or the code; the message names the test case. |
 | V2-RXN-001 | Error | The equation and the stoichiometry of the reaction are not the same. | Correct the equation or the stoichiometry, or give only one of them. |

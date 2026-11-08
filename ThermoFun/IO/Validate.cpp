@@ -227,6 +227,33 @@ void checkCovariances(Diagnostics& diag, const Record& record, const Properties&
 
 } // namespace
 
+namespace {
+
+/// What a method of log K can calculate from the reference values of the record (review of v2, B2): log K or dG is needed,
+/// and dH or dS for van 't Hoff, and also dCp for constant dCp; else the method falls back to a simpler form.
+void checkLogKInputs(Diagnostics& diag, const ReactionRecord& r, const std::string& path)
+{
+    const auto has = [&](ReactionPropertyName name) { return r.reaction_properties.count(name) > 0; };
+    const bool energy = has(ReactionPropertyName::logK) || has(ReactionPropertyName::lnK) || has(ReactionPropertyName::dG);
+    const bool heat = has(ReactionPropertyName::dH) || has(ReactionPropertyName::dS);
+    for (std::size_t i = 0; i < r.methods.size(); ++i)
+    {
+        const std::string& id = r.methods[i].method;
+        if (id != "LogKVantHoff" && id != "LogKConstantCp" && id != "LogKZeroEntropy")
+            continue;
+        const std::string where = path + "/methods/" + std::to_string(i);
+        if (!energy)
+            report(diag, "V2-MTH-024", r.symbol, where, "The method " + id + " needs log K or dG at the reference temperature; the record gives neither.");
+        else if (id == "LogKVantHoff" && !heat)
+            report(diag, "V2-MTH-024", r.symbol, where, "LogKVantHoff needs dH or dS at the reference temperature: log K stays constant.");
+        else if (id == "LogKConstantCp" && (!heat || !has(ReactionPropertyName::dCp)))
+            report(diag, "V2-MTH-024", r.symbol, where,
+                   std::string("LogKConstantCp needs dH or dS, and dCp: it falls back to ") + (heat ? "van 't Hoff (no dCp term)." : "a constant log K."));
+    }
+}
+
+} // namespace
+
 auto validateRecords(const V2Records& records, const FormulaParser& parseFormula) -> Diagnostics
 {
     Diagnostics diag;
@@ -298,6 +325,7 @@ auto validateRecords(const V2Records& records, const FormulaParser& parseFormula
         const std::string path = "/reactions/" + r.symbol;
         checkRange(diag, r.applicability, r.symbol, path + "/applicability");
         checkMethods(diag, records, r.methods, OperatesOn::Reaction, r.symbol, path);
+        checkLogKInputs(diag, r, path);
         checkCovariances(diag, r, r.reaction_properties, "reaction_properties", path);
         std::map<std::string, double> balance;
         bool complete = !r.stoichiometry.empty();

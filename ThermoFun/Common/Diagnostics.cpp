@@ -170,6 +170,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Use the methods of the composite one by one."},
         {"V2-MTH-021", S::Warning, "A Method record of the dataset replaces a method of the project or a built-in one.",
          "Give the Method record another id if both are wanted."},
+        {"V2-MTH-024", S::Warning, "A method of log K lacks values at the reference: it falls back to a simpler form (constant log K, or no dCp term), or has no log K at all.",
+         "Give log K or dG, and dH or dS (and dCp for LogKConstantCp), in reaction_properties."},
         {"V2-MTH-023", S::Warning, "A record of a condensed substance prescribes the method IdealGas: its volume is RT/P.",
          "Use ConstantVolume for a constant molar volume, or correct the aggregate state of the record."},
         {"V2-MTH-022", S::Warning, "The expression of a method and its code give different results on the test cases.",

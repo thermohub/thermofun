@@ -2030,6 +2030,42 @@
         "OH-an91"
       ],
       "reason": "AndersonEtAl91: H was G_bb + T S298, without -T K (alpha(Tr) - alpha(T)), so dH/dT was not Cp. Now H = G + T S + (H298 - G298 - Tr S298) (Dolejs 2013, Eq. 106). Only H, U, A change; test: pytests/test_solute_consistency.py."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "PuO2(coll,hyd)"
+      ],
+      "reason": "log K of a reaction with log K and dH = 0 only (logk_3_term_extrap): dG was not derived from log K, so the form with zero entropy took dG = 0 and log K was 0 at every T, also at 25 degC (-5.97 in the file). Now dG = -R Tr ln10 log K and dS = (dH - dG)/Tr at Tr, and log K is -5.97 at every T, as dH = 0 means (review of v2, B2)."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "default",
+      "kind": "reactions",
+      "records": [
+        "PuO2(coll,hyd)"
+      ],
+      "reason": "log K of a reaction with log K and dH = 0 only (logk_3_term_extrap): dG was not derived from log K, so the form with zero entropy took dG = 0 and log K was 0 at every T, also at 25 degC (-5.97 in the file). Now dG = -R Tr ln10 log K and dS = (dH - dG)/Tr at Tr, and log K is -5.97 at every T, as dH = 0 means (review of v2, B2)."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "PuO2(coll,hyd)"
+      ],
+      "reason": "log K of a reaction with log K and dH = 0 only (logk_3_term_extrap): dG was not derived from log K, so the form with zero entropy took dG = 0 and log K was 0 at every T, also at 25 degC (-5.97 in the file). Now dG = -R Tr ln10 log K and dS = (dH - dG)/Tr at Tr, and log K is -5.97 at every T, as dH = 0 means (review of v2, B2)."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "gas",
+      "kind": "reactions",
+      "records": [
+        "PuO2(coll,hyd)"
+      ],
+      "reason": "log K of a reaction with log K and dH = 0 only (logk_3_term_extrap): dG was not derived from log K, so the form with zero entropy took dG = 0 and log K was 0 at every T, also at 25 degC (-5.97 in the file). Now dG = -R Tr ln10 log K and dS = (dH - dG)/Tr at Tr, and log K is -5.97 at every T, as dH = 0 means (review of v2, B2)."
     }
   ]
 }

@@ -56,6 +56,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   stay.
 - **`max_cache_size` is for all the caches together, 100000 by default** (review Q11). It was 1e6 for each of four
   caches: up to about 2.8 GB; now about 70 MB at most.
+- **log K from the reference values** (review B2): dG is derived from log K (and log K from dG), and a missing dH or dS
+  is filled at Tr, not at the T of the call. Records with log K and dH gave log K -1.75 instead of 2 at 25 degC;
+  `LogKConstantCp` with log K, dH and dCp stayed constant; the polynomial from dCp(T) of a legacy record lost its dCp
+  terms. PSI/Nagra `PuO2(coll,hyd)` (log K -5.97, dH 0) gave log K 0. `LogKVantHoff` without dH and dS keeps log K
+  constant (it gave 0); validate warns (V2-MTH-024) when a method of log K lacks its values. Tests against the closed
+  forms at three T: `pytests/test_logk_forms.py`.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

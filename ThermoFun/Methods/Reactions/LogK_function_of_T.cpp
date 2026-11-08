@@ -55,25 +55,48 @@ auto prepareLogK_fT(const ReactionInputs& reaction, double T, LogKForm CE) -> Lo
     in.dGr  = ref_tpr.reaction_gibbs_energy;
     in.lgK  = ref_tpr.log_equilibrium_constant;
 
+    // The reference values at Tr, completed (review of v2, B2): dG from log K or log K from dG; then a missing dH or dS
+    // from the other two at Tr. Before, dG was not derived from log K, and dH or dS were filled at the T of the call.
+    const double Tr = reaction.Tr;
+    const double RTrln10 = R_CONSTANT * Tr * lg_to_ln;
+    const bool has_lgK = in.lgK.sta.first != Status::notdefined;
+    bool has_dGr  = in.dGr.sta.first  != Status::notdefined;
+    if (has_lgK && !has_dGr)
+    {
+        in.dGr.val = -RTrln10 * in.lgK.val;
+        in.dGr.propagateFrom(in.lgK);
+        in.dGr.setError({{RTrln10, in.lgK.err}});
+        has_dGr = true;
+    }
+    else if (has_dGr && !has_lgK)
+    {
+        in.lgK.val = -in.dGr.val / RTrln10;
+        in.lgK.propagateFrom(in.dGr);
+        in.lgK.setError({{1.0 / RTrln10, in.dGr.err}});
+    }
     const bool has_dHr  = in.dHr.sta.first  != Status::notdefined;
     const bool has_dSr  = in.dSr.sta.first  != Status::notdefined;
-    const bool has_dGr  = in.dGr.sta.first  != Status::notdefined;
 
     if(has_dSr && has_dGr && !has_dHr)
     {
-        in.dHr.val = in.dGr.val + in.dSr.val * T;
+        in.dHr.val = in.dGr.val + in.dSr.val * Tr;
         in.dHr.propagateFrom(in.dGr, in.dSr);
-        in.dHr.setError({{1.0, in.dGr.err}, {T, in.dSr.err}});
+        in.dHr.setError({{1.0, in.dGr.err}, {Tr, in.dSr.err}});
     }
     if(has_dHr && has_dGr && !has_dSr)
     {
-        in.dSr.val = (in.dHr.val - in.dGr.val) / T;
+        in.dSr.val = (in.dHr.val - in.dGr.val) / Tr;
         in.dSr.propagateFrom(in.dHr, in.dGr);
-        in.dSr.setError({{1.0/T, in.dHr.err}, {1.0/T, in.dGr.err}});
+        in.dSr.setError({{1.0/Tr, in.dHr.err}, {1.0/Tr, in.dGr.err}});
     }
+    (void)T;
 
     if (CE == LogKForm::ConstantCp)
         CE = determineMethod(in.dGr, in.dHr, in.dSr, in.dCpr);
+    // van 't Hoff needs dH and dS (one of them and log K or dG give the other): without them log K is constant, as in the
+    // rule of GEMS; before, the missing values were 0 and log K was 0 (validate warns, V2-MTH-024)
+    if (CE == LogKForm::VantHoff && (in.dHr.sta.first == Status::notdefined || in.dSr.sta.first == Status::notdefined))
+        CE = LogKForm::Constant;
 
     in.method = CE;
     return in;
@@ -157,12 +180,19 @@ auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& 
 
     const bool has_dHr  = ref_tpr.reaction_enthalpy.sta.first  != Status::notdefined;
     const bool has_dSr  = ref_tpr.reaction_entropy.sta.first  != Status::notdefined;
-    const bool has_dGr  = ref_tpr.reaction_gibbs_energy.sta.first != Status::notdefined;
+    const bool has_lgK  = ref_tpr.log_equilibrium_constant.sta.first != Status::notdefined;
+    bool has_dGr  = ref_tpr.reaction_gibbs_energy.sta.first != Status::notdefined;
 
+    // the reference values at Tr, completed as in prepareLogK_fT (autodiff numbers: the derivatives by the parameters follow)
+    if (has_lgK && !has_dGr)
+    {
+        dGr = -Rln10 * Tr * lgK;
+        has_dGr = true;
+    }
     if(has_dSr && has_dGr && !has_dHr)
-        dHr = dGr + dSr * TK;
+        dHr = dGr + dSr * Tr;
     if(has_dHr && has_dGr && !has_dSr)
-        dSr = (dHr-dGr)/TK;
+        dSr = (dHr-dGr)/Tr;
 
     // the method CE was determined from the reference properties (see prepareLogK_fT)
 
@@ -203,11 +233,13 @@ auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& 
                 CpCoeff.resize(5, 0.0);
 
                 // calculation of logK=f(T) coeffs (only first 5 Cp coefficients, conforming to Haas-Fisher function)
-                A[0] = (( dSr - CpCoeff[0] - CpCoeff[0]*log(TK) - CpCoeff[1]*TK + CpCoeff[2]/(2.0*TK*TK)
-                              + 2.0*CpCoeff[3]/pow(TK,0.5) - CpCoeff[4]*TK*TK/2.0 ) / Rln10);
+                // the integration constants are fixed at Tr by dS and dH there (review of v2, B2: they were taken at the
+                // T of the call, and the terms of dCp then cancelled)
+                A[0] = (( dSr - CpCoeff[0] - CpCoeff[0]*log(Tr) - CpCoeff[1]*Tr + CpCoeff[2]/(2.0*Tr*Tr)
+                              + 2.0*CpCoeff[3]/pow(Tr,0.5) - CpCoeff[4]*Tr*Tr/2.0 ) / Rln10);
                 A[1] = CpCoeff[1]/(2.0*Rln10);
-                A[2] = (-( dHr - CpCoeff[0]*TK - CpCoeff[1]*TK*TK/2.0 + CpCoeff[2]/TK
-                           - 2.0*CpCoeff[3]*pow(TK,0.5) - CpCoeff[4]*TK*TK*TK/3.0 ) / Rln10);
+                A[2] = (-( dHr - CpCoeff[0]*Tr - CpCoeff[1]*Tr*Tr/2.0 + CpCoeff[2]/Tr
+                           - 2.0*CpCoeff[3]*pow(Tr,0.5) - CpCoeff[4]*Tr*Tr*Tr/3.0 ) / Rln10);
                 A[3] = CpCoeff[0]/Rln10;
                 A[4] = CpCoeff[2]/(2.0*Rln10);
                 A[5] = CpCoeff[4]/(6.0*Rln10);
