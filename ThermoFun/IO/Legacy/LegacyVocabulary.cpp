@@ -10,49 +10,49 @@ namespace ThermoFun {
 
 namespace {
 
-const std::vector<std::pair<v2::SubstanceClass, SubstanceClass::type>> substanceClasses = {
-    {v2::SubstanceClass::Component, SubstanceClass::COMPONENT},
-    {v2::SubstanceClass::GasFluid, SubstanceClass::GASFLUID},
-    {v2::SubstanceClass::AqueousSolute, SubstanceClass::AQSOLUTE},
-    {v2::SubstanceClass::WaterSolvent, SubstanceClass::AQSOLVENT},
-    {v2::SubstanceClass::SurfaceSpecies, SubstanceClass::SURFSPECIES},
-    {v2::SubstanceClass::SiteMoiety, SubstanceClass::SITEMOIETY},
-    {v2::SubstanceClass::Other, SubstanceClass::OTHER_SC},
+const std::vector<std::pair<model::SubstanceClass, SubstanceClass::type>> substanceClasses = {
+    {model::SubstanceClass::Component, SubstanceClass::COMPONENT},
+    {model::SubstanceClass::GasFluid, SubstanceClass::GASFLUID},
+    {model::SubstanceClass::AqueousSolute, SubstanceClass::AQSOLUTE},
+    {model::SubstanceClass::WaterSolvent, SubstanceClass::AQSOLVENT},
+    {model::SubstanceClass::SurfaceSpecies, SubstanceClass::SURFSPECIES},
+    {model::SubstanceClass::SiteMoiety, SubstanceClass::SITEMOIETY},
+    {model::SubstanceClass::Other, SubstanceClass::OTHER_SC},
 };
 
-const std::vector<std::pair<v2::AggregateState, AggregateState::type>> aggregateStates = {
-    {v2::AggregateState::Gas, AggregateState::GAS},
-    {v2::AggregateState::Liquid, AggregateState::LIQUID},
-    {v2::AggregateState::Glass, AggregateState::GLASS},
-    {v2::AggregateState::Crystal, AggregateState::CRYSTAL},
-    {v2::AggregateState::Aqueous, AggregateState::AQUEOUS},
-    {v2::AggregateState::Surface, AggregateState::SURFACE},
-    {v2::AggregateState::IonExchange, AggregateState::IONEX},
-    {v2::AggregateState::Plasma, AggregateState::PLASMA},
-    {v2::AggregateState::Solid, AggregateState::SOLID},
-    {v2::AggregateState::Condensed, AggregateState::CONDENSED},
-    {v2::AggregateState::Fluid, AggregateState::FLUID},
-    {v2::AggregateState::LiquidCrystal, AggregateState::LIQUIDCRYSTAL},
-    {v2::AggregateState::AmorphousSolid, AggregateState::AMORPHOUSSOLID},
-    {v2::AggregateState::Monomeric, AggregateState::MONOMERIC},
-    {v2::AggregateState::Polymeric, AggregateState::POLYMERIC},
-    {v2::AggregateState::SolidSolution, AggregateState::SOLIDSOLUTION},
-    {v2::AggregateState::Other, AggregateState::OTHER},
+const std::vector<std::pair<model::AggregateState, AggregateState::type>> aggregateStates = {
+    {model::AggregateState::Gas, AggregateState::GAS},
+    {model::AggregateState::Liquid, AggregateState::LIQUID},
+    {model::AggregateState::Glass, AggregateState::GLASS},
+    {model::AggregateState::Crystal, AggregateState::CRYSTAL},
+    {model::AggregateState::Aqueous, AggregateState::AQUEOUS},
+    {model::AggregateState::Surface, AggregateState::SURFACE},
+    {model::AggregateState::IonExchange, AggregateState::IONEX},
+    {model::AggregateState::Plasma, AggregateState::PLASMA},
+    {model::AggregateState::Solid, AggregateState::SOLID},
+    {model::AggregateState::Condensed, AggregateState::CONDENSED},
+    {model::AggregateState::Fluid, AggregateState::FLUID},
+    {model::AggregateState::LiquidCrystal, AggregateState::LIQUIDCRYSTAL},
+    {model::AggregateState::AmorphousSolid, AggregateState::AMORPHOUSSOLID},
+    {model::AggregateState::Monomeric, AggregateState::MONOMERIC},
+    {model::AggregateState::Polymeric, AggregateState::POLYMERIC},
+    {model::AggregateState::SolidSolution, AggregateState::SOLIDSOLUTION},
+    {model::AggregateState::Other, AggregateState::OTHER},
 };
 
 const int elementClassOther = 101;
 
 } // namespace
 
-auto substanceClassFromLegacy(int code) -> v2::SubstanceClass
+auto substanceClassFromLegacy(int code) -> model::SubstanceClass
 {
     for (const auto& [value, legacy] : substanceClasses)
         if (static_cast<int>(legacy) == code)
             return value;
-    return v2::SubstanceClass::Other;
+    return model::SubstanceClass::Other;
 }
 
-auto toLegacy(v2::SubstanceClass value) -> SubstanceClass::type
+auto toLegacy(model::SubstanceClass value) -> SubstanceClass::type
 {
     for (const auto& [v, legacy] : substanceClasses)
         if (v == value)
@@ -60,15 +60,15 @@ auto toLegacy(v2::SubstanceClass value) -> SubstanceClass::type
     return SubstanceClass::OTHER_SC;
 }
 
-auto aggregateStateFromLegacy(int code) -> v2::AggregateState
+auto aggregateStateFromLegacy(int code) -> model::AggregateState
 {
     for (const auto& [value, legacy] : aggregateStates)
         if (static_cast<int>(legacy) == code)
             return value;
-    return v2::AggregateState::Other;
+    return model::AggregateState::Other;
 }
 
-auto toLegacy(v2::AggregateState value) -> AggregateState::type
+auto toLegacy(model::AggregateState value) -> AggregateState::type
 {
     for (const auto& [v, legacy] : aggregateStates)
         if (v == value)
@@ -76,51 +76,51 @@ auto toLegacy(v2::AggregateState value) -> AggregateState::type
     return AggregateState::OTHER;
 }
 
-auto elementClassFromLegacy(int code) -> v2::ElementClass
+auto elementClassFromLegacy(int code) -> model::ElementClass
 {
     if (code == 0)
-        return v2::ElementClass::Element;
+        return model::ElementClass::Element;
     if (code == 4)
-        return v2::ElementClass::Charge;
-    return v2::ElementClass::Other;
+        return model::ElementClass::Charge;
+    return model::ElementClass::Other;
 }
 
-auto toLegacy(v2::ElementClass value) -> int
+auto toLegacy(model::ElementClass value) -> int
 {
     switch (value)
     {
-    case v2::ElementClass::Element: return 0;
-    case v2::ElementClass::Charge: return 4;
-    case v2::ElementClass::Other: return elementClassOther;
+    case model::ElementClass::Element: return 0;
+    case model::ElementClass::Charge: return 4;
+    case model::ElementClass::Other: return elementClassOther;
     }
     return elementClassOther;
 }
 
-auto legacyKey(v2::PropertyName p) -> std::string
+auto legacyKey(model::PropertyName p) -> std::string
 {
     switch (p)
     {
-    case v2::PropertyName::G: return "sm_gibbs_energy";
-    case v2::PropertyName::H: return "sm_enthalpy";
-    case v2::PropertyName::S: return "sm_entropy_abs";
-    case v2::PropertyName::Cp: return "sm_heat_capacity_p";
-    case v2::PropertyName::V: return "sm_volume";
-    case v2::PropertyName::U: case v2::PropertyName::A: case v2::PropertyName::Cv: return "";
+    case model::PropertyName::G: return "sm_gibbs_energy";
+    case model::PropertyName::H: return "sm_enthalpy";
+    case model::PropertyName::S: return "sm_entropy_abs";
+    case model::PropertyName::Cp: return "sm_heat_capacity_p";
+    case model::PropertyName::V: return "sm_volume";
+    case model::PropertyName::U: case model::PropertyName::A: case model::PropertyName::Cv: return "";
     }
     return "";
 }
 
-auto legacyKey(v2::ReactionPropertyName p) -> std::string
+auto legacyKey(model::ReactionPropertyName p) -> std::string
 {
     switch (p)
     {
-    case v2::ReactionPropertyName::logK: return "logKr";
-    case v2::ReactionPropertyName::dG: return "drsm_gibbs_energy";
-    case v2::ReactionPropertyName::dH: return "drsm_enthalpy";
-    case v2::ReactionPropertyName::dS: return "drsm_entropy";
-    case v2::ReactionPropertyName::dCp: return "drsm_heat_capacity_p";
-    case v2::ReactionPropertyName::dV: return "drsm_volume";
-    case v2::ReactionPropertyName::lnK: case v2::ReactionPropertyName::dU: case v2::ReactionPropertyName::dA: return "";
+    case model::ReactionPropertyName::logK: return "logKr";
+    case model::ReactionPropertyName::dG: return "drsm_gibbs_energy";
+    case model::ReactionPropertyName::dH: return "drsm_enthalpy";
+    case model::ReactionPropertyName::dS: return "drsm_entropy";
+    case model::ReactionPropertyName::dCp: return "drsm_heat_capacity_p";
+    case model::ReactionPropertyName::dV: return "drsm_volume";
+    case model::ReactionPropertyName::lnK: case model::ReactionPropertyName::dU: case model::ReactionPropertyName::dA: return "";
     }
     return "";
 }

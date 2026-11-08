@@ -9,7 +9,7 @@
 #include <cctype>
 #include <regex>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 auto stoichiometryOfEquation(const std::string& equation) -> std::vector<std::pair<std::string, double>>
 {
@@ -55,4 +55,4 @@ auto stoichiometryOfEquation(const std::string& equation) -> std::vector<std::pa
     return out;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

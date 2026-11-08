@@ -65,13 +65,13 @@ struct ThermoEngine::Impl
     mutable EngineConventions conventions;
 
     /// The source of the properties of single records (see setPropertySource). A substance and its defining reaction often have the same symbol: each has its own choice.
-    std::map<std::string, v2::PropertySource> substance_sources, reaction_sources;
+    std::map<std::string, model::PropertySource> substance_sources, reaction_sources;
 
     /// The results of the calculations (see enable_memoize)
-    mutable v2::ResultCache<ThermoPropertiesSubstance> substance_results;
-    mutable v2::ResultCache<ElectroPropertiesSolvent> electro_results;
-    mutable v2::ResultCache<PropertiesSolvent> solvent_results;
-    mutable v2::ResultCache<ThermoPropertiesReaction> reaction_results;
+    mutable model::ResultCache<ThermoPropertiesSubstance> substance_results;
+    mutable model::ResultCache<ElectroPropertiesSolvent> electro_results;
+    mutable model::ResultCache<PropertiesSolvent> solvent_results;
+    mutable model::ResultCache<ThermoPropertiesReaction> reaction_results;
 
     /// The database revision and the settings with which the results were calculated
     struct CacheState
@@ -88,12 +88,12 @@ struct ThermoEngine::Impl
     struct BoundCache
     {
         std::mutex mutex;
-        std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> substances;
-        std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSolvent>> solvents;
-        std::map<const v2::SubstanceRecord*, std::shared_ptr<const v2::BoundSubstance>> corrections;
-        std::vector<std::shared_ptr<const v2::SubstanceRecord>> records;
-        std::map<const v2::ReactionRecord*, std::shared_ptr<const v2::BoundReaction>> reactions;
-        std::vector<std::shared_ptr<const v2::ReactionRecord>> reaction_records;
+        std::map<const model::SubstanceRecord*, std::shared_ptr<const model::BoundSubstance>> substances;
+        std::map<const model::SubstanceRecord*, std::shared_ptr<const model::BoundSolvent>> solvents;
+        std::map<const model::SubstanceRecord*, std::shared_ptr<const model::BoundSubstance>> corrections;
+        std::vector<std::shared_ptr<const model::SubstanceRecord>> records;
+        std::map<const model::ReactionRecord*, std::shared_ptr<const model::BoundReaction>> reactions;
+        std::vector<std::shared_ptr<const model::ReactionRecord>> reaction_records;
         std::mutex entropy_mutex;
         std::map<std::string, double> element_entropies;   ///< by formula
     };
@@ -118,10 +118,10 @@ struct ThermoEngine::Impl
     {
         if (database.containsSubstance(preferences.solvent_symbol))
             return preferences.solvent_symbol;
-        std::map<std::string, v2::SubstanceClass> classes;
+        std::map<std::string, model::SubstanceClass> classes;
         for (const auto& pair : database.mapSubstances())
-            classes[pair.first] = pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT ? v2::SubstanceClass::WaterSolvent : v2::SubstanceClass::Other;
-        const auto chosen = v2::chooseSolvent(preferences.solvent_symbol, "", classes);
+            classes[pair.first] = pair.second.substanceClass() == SubstanceClass::type::AQSOLVENT ? model::SubstanceClass::WaterSolvent : model::SubstanceClass::Other;
+        const auto chosen = model::chooseSolvent(preferences.solvent_symbol, "", classes);
         return chosen.empty() ? preferences.solvent_symbol : chosen;
     }
 
@@ -146,11 +146,11 @@ struct ThermoEngine::Impl
 
     /// The result of a calculation from the cache, else calculated and kept. A substance has one result at T and P, also as a reactant.
     template <class Value, class Calculate>
-    auto cached(v2::ResultCache<Value>& cache, double T, double& P, const std::string& symbol, int state, Calculate calculate) const -> Value
+    auto cached(model::ResultCache<Value>& cache, double T, double& P, const std::string& symbol, int state, Calculate calculate) const -> Value
     {
         if (!preferences.enable_memoize)
             return calculate();
-        const v2::ResultKey key{symbol, T, P, state};
+        const model::ResultKey key{symbol, T, P, state};
         if (auto hit = cache.find(key, P))
             return *hit;
         const Value value = calculate();
@@ -185,41 +185,41 @@ struct ThermoEngine::Impl
 
     /// Where the properties of a record come from: the source of the symbol, else the preference of the engine, else the
     /// record. Empty: the rule of the record.
-    auto sourceOf(const std::map<std::string, v2::PropertySource>& own, const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>;
+    auto sourceOf(const std::map<std::string, model::PropertySource>& own, const std::string& symbol, const std::optional<model::PropertySource>& preferred) const -> std::optional<model::PropertySource>;
 
     /// A record with the implementations of the preferences
-    auto withImplementations(std::shared_ptr<const v2::SubstanceRecord> record) const -> std::shared_ptr<const v2::SubstanceRecord>;
+    auto withImplementations(std::shared_ptr<const model::SubstanceRecord> record) const -> std::shared_ptr<const model::SubstanceRecord>;
 
     /// The sum of the entropies of the elements of a formula, for a change of the energy reference. A value that a record of the
     /// database does not give comes from the element table of ChemicalFun, with a warning.
     auto elementEntropy(const std::string& formula) const -> double;
 
     /// What a conversion needs to know about a record
-    auto subjectOf(const v2::SubstanceRecord& record) const -> v2::ConversionSubject;
+    auto subjectOf(const model::SubstanceRecord& record) const -> model::ConversionSubject;
 
     /// The convention that the engine returns
-    auto outputConvention() const -> v2::Convention;
+    auto outputConvention() const -> model::Convention;
 
     /// The convention of the values of a record: its own, else that of the dataset
-    auto declaredConvention(const v2::SubstanceRecord& record) const -> v2::Convention;
+    auto declaredConvention(const model::SubstanceRecord& record) const -> model::Convention;
 
     /// The methods of a substance. Null if they give no one base method: then no method runs.
-    auto boundMethods(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>;
+    auto boundMethods(const Substance& substance) const -> std::shared_ptr<const model::BoundSubstance>;
 
     /// The state of the solvent that the methods of a record need, calculated with the methods of the solvent record.
     /// A pressure of 0 is the saturation pressure: it is written to P.
-    auto solventInputs(const v2::BoundSubstance& bound, double T, double& P) const -> std::optional<v2::SolventInputs>;
+    auto solventInputs(const model::BoundSubstance& bound, double T, double& P) const -> std::optional<model::SolventInputs>;
 
     /// The methods of a reaction. Null if they give no one base method: then no method runs.
-    auto boundReaction(const Reaction& reaction) const -> std::shared_ptr<const v2::BoundReaction>;
+    auto boundReaction(const Reaction& reaction) const -> std::shared_ptr<const model::BoundReaction>;
 
     /// The methods of a water record.
-    auto boundSolvent(const Substance& substance) const -> std::shared_ptr<const v2::BoundSolvent>;
+    auto boundSolvent(const Substance& substance) const -> std::shared_ptr<const model::BoundSolvent>;
 
-    auto substanceOptions() const -> v2::SubstanceOptions;
+    auto substanceOptions() const -> model::SubstanceOptions;
 
     /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
-    static auto toThermoProperties(const v2::SubstanceResult& r) -> ThermoPropertiesSubstance;
+    static auto toThermoProperties(const model::SubstanceResult& r) -> ThermoPropertiesSubstance;
 
     /// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
     auto steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign) const -> void;
@@ -234,10 +234,10 @@ struct ThermoEngine::Impl
     static auto defined(const Reaktoro_::ThermoProperty& x) -> bool { return x.sta.first != Reaktoro_::Status::notdefined; }
 
     /// The density terms of a change between molarity and molality at T, P. V in J/bar.
-    auto molarityTermsAt(double T, double& P, const std::string& what) const -> v2::MolarityTerms<Reaktoro_::ThermoScalar>;
+    auto molarityTermsAt(double T, double& P, const std::string& what) const -> model::MolarityTerms<Reaktoro_::ThermoScalar>;
 
     /// A change of convention of the properties of a substance
-    auto convert(ThermoPropertiesSubstance &tps, const v2::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void;
+    auto convert(ThermoPropertiesSubstance &tps, const model::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void;
 
     /// The properties in the convention that the engine returns. Inside the engine all values are canonical.
     auto toOutput(ThermoPropertiesSubstance tps, double T, double& P, const Substance& substance, DetailedPropertiesSubstance* detailed = nullptr) const -> ThermoPropertiesSubstance;
@@ -247,10 +247,10 @@ struct ThermoEngine::Impl
 
     /// The change of a reaction for a change of convention of its species: the sum over the species. A balanced reaction has no change for the energy
     /// reference: the standard pressure and the concentration scale are what count.
-    auto reactionShift(const Reaction& reaction, const v2::Convention& convention, bool toCanonical) const -> v2::ConventionShift;
+    auto reactionShift(const Reaction& reaction, const model::Convention& convention, bool toCanonical) const -> model::ConventionShift;
 
     /// A change of convention of the properties of a reaction
-    auto convert(ThermoPropertiesReaction &tpr, const v2::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void;
+    auto convert(ThermoPropertiesReaction &tpr, const model::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void;
 
     auto toOutput(ThermoPropertiesReaction tpr, double T, double& P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
@@ -274,7 +274,7 @@ struct ThermoEngine::Impl
 
     auto kindOf(const Substance &substance) const -> SubstanceKind;
 
-    static auto hasMethod(const std::vector<v2::MethodApplication>& methods, const char* id) -> bool
+    static auto hasMethod(const std::vector<model::MethodApplication>& methods, const char* id) -> bool
     {
         return std::any_of(methods.begin(), methods.end(), [&](const auto& a) { return a.method == id; });
     }
@@ -325,7 +325,7 @@ struct ThermoEngine::Impl
     auto pressureAtDensity(double T, double rho, double P) const -> double;
     static auto waterCriticalT() -> double
     {
-        static const double T = v2::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
+        static const double T = model::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
         return T;
     }
     /// Refuses a state point that has no meaning: T or P not finite, T <= 0, P < 0, and P = 0 (the saturation pressure of
@@ -344,17 +344,17 @@ struct ThermoEngine::Impl
     }
     static auto waterCriticalP() -> double
     {
-        static const double P = v2::builtinConstants("WaterSaturation")->parameters.at("Pcr").value;
+        static const double P = model::builtinConstants("WaterSaturation")->parameters.at("Pcr").value;
         return P;
     }
 
-    static auto hasBaseMethod(const v2::SubstanceRecord& record) -> bool;
+    static auto hasBaseMethod(const model::SubstanceRecord& record) -> bool;
 
     /// The methods of a substance for the pressure, apart from ConstantVolume, to run on what its defining reaction gives
-    auto pressureCorrections(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>;
+    auto pressureCorrections(const Substance& substance) const -> std::shared_ptr<const model::BoundSubstance>;
 
     /// The properties in the form of the methods: V in m3/mol
-    static auto valuesOf(const ThermoPropertiesSubstance& tps) -> v2::MethodResult;
+    static auto valuesOf(const ThermoPropertiesSubstance& tps) -> model::MethodResult;
 
     /// True if a substance defined by this reaction takes its pressure term from its own method. Else there would be two of them.
     auto pressureFromRecord(const Substance& substance, const Reaction& reaction) const -> bool;
@@ -377,9 +377,9 @@ struct ThermoEngine::Impl
 
     auto checkParameter(const ParameterRef& ref) const -> void;
 
-    auto seedOf(const v2::BoundSubstance& bound, const ParameterRef& ref) const -> v2::ParameterSeed;
+    auto seedOf(const model::BoundSubstance& bound, const ParameterRef& ref) const -> model::ParameterSeed;
 
-    auto substanceDerivative(double T, double& P, const Substance& substance, const ParameterRef& ref) const -> v2::PropertyDerivatives;
+    auto substanceDerivative(double T, double& P, const Substance& substance, const ParameterRef& ref) const -> model::PropertyDerivatives;
 
     /// Each val holds a derivative, V in m3/mol per unit.
     auto reactionDerivative(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool alwaysFromReactants = false) const -> ThermoPropertiesReaction;
@@ -393,7 +393,7 @@ struct ThermoEngine::Impl
     auto editValue(const ParameterRef& ref, Edit edit) -> void;
 
     auto isOfReaction(const ParameterRef& ref) const -> bool;
-    auto valueOf(const ParameterRef& ref) const -> v2::Quantity;
+    auto valueOf(const ParameterRef& ref) const -> model::Quantity;
 
     /// The substances and reactions whose results use this record, and itself
     auto dependentsOf(const std::string& symbol) const -> std::set<std::string>;
@@ -420,7 +420,7 @@ struct ThermoEngine::Impl
     auto collectReaction(Records& r, const std::string& symbol) const -> void;
 
     /// The uncertain values of these records, and of a record that is not in the database
-    auto inputsOf(const Records& records, const Substance* given = nullptr, const Reaction* given_reaction = nullptr) const -> v2::UncertainInputs;
+    auto inputsOf(const Records& records, const Substance* given = nullptr, const Reaction* given_reaction = nullptr) const -> model::UncertainInputs;
 
     /// The derivatives of all the properties of a substance by one value, in the order of fields: V in J/bar. tps: the properties at T, P.
     auto substanceJacobian(double T, double& P, const Substance& substance, const ThermoPropertiesSubstance& tps, const ParameterRef& ref) const -> std::vector<double>;
@@ -429,8 +429,8 @@ struct ThermoEngine::Impl
     auto reactionJacobian(double T, double& P, const Reaction& reaction, const ParameterRef& ref, bool fromReactants) const -> std::vector<double>;
 
     /// The errors of the results from all the uncertain values: u^2 = J S J^T (first order; S is diagonal, apart from the covariance blocks of the records).
-    auto addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const v2::UncertainInputs& inputs) const -> void;
-    auto addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const v2::UncertainInputs& inputs) const -> void;
+    auto addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const model::UncertainInputs& inputs) const -> void;
+    auto addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const model::UncertainInputs& inputs) const -> void;
 
     /// Round the values of the properties to the decimals of their uncertainties (NEA TDB rules) if requested
     template<class Props>

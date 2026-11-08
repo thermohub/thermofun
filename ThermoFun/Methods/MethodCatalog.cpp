@@ -9,7 +9,7 @@
 #include <map>
 #include <cctype>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -561,4 +561,4 @@ auto MethodCatalog::suggest(const std::string& unknown) const -> std::string
     return best;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

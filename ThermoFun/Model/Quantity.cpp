@@ -3,7 +3,7 @@
 
 #include "Quantity.h"
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 auto Quantity::isBare() const -> bool
 {
@@ -11,4 +11,4 @@ auto Quantity::isBare() const -> bool
            meta.calculation_path.empty() && meta.source.empty();
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

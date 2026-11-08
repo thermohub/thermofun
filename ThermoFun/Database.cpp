@@ -266,22 +266,22 @@ auto Database::getReactionsList() const -> std::vector<std::string>
    return list;
 }
 
-auto Database::thermoDataSet() const -> const v2::ThermoDataSetInfo&
+auto Database::thermoDataSet() const -> const model::ThermoDataSetInfo&
 {
     return pimpl->dataset_info;
 }
 
-auto Database::methods() const -> const std::map<std::string, v2::MethodDefinition>&
+auto Database::methods() const -> const std::map<std::string, model::MethodDefinition>&
 {
     return pimpl->methods;
 }
 
-auto Database::parameterSets() const -> const std::map<std::string, v2::MethodParameterSet>&
+auto Database::parameterSets() const -> const std::map<std::string, model::MethodParameterSet>&
 {
     return pimpl->parameter_sets;
 }
 
-auto Database::dataSources() const -> const std::map<std::string, v2::DataSource>&
+auto Database::dataSources() const -> const std::map<std::string, model::DataSource>&
 {
     return pimpl->data_sources;
 }

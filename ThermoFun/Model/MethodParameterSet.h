@@ -9,7 +9,7 @@
 
 #include <ThermoFun/Model/Quantity.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A set of constants of a method, shared by many records.
 struct MethodParameterSet
@@ -28,6 +28,6 @@ struct MethodParameterSet
     auto operator==(const MethodParameterSet&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

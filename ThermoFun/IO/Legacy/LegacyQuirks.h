@@ -11,7 +11,7 @@
 
 #include <ThermoFun/Common/Diagnostics.h>
 
-namespace ThermoFun::v2::legacy {
+namespace ThermoFun::model::legacy {
 
 /// Where a quirk was found: used in the diagnostic.
 struct Where
@@ -40,6 +40,6 @@ auto expansivityLabelIsSwapped(const std::string& unit, Diagnostics* diagnostics
 /// LEG-QRK-005: true if m_compressibility has the unit label "1e-05/K". The value is a bulk modulus in kbar.
 auto compressibilityLabelIsSwapped(const std::string& unit, Diagnostics* diagnostics, const Where& where) -> bool;
 
-} // namespace ThermoFun::v2::legacy
+} // namespace ThermoFun::model::legacy
 
 #endif

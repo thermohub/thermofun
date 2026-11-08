@@ -12,9 +12,9 @@ namespace ThermoFun
 template <class E>
 auto checkedWord(const std::string& word) -> E
 {
-    const auto value = v2::fromString<E>(word);
+    const auto value = model::fromString<E>(word);
     if (!value)
-        throw std::invalid_argument(v2::unknownWordMessage<E>(word));
+        throw std::invalid_argument(model::unknownWordMessage<E>(word));
     return *value;
 }
 
@@ -26,10 +26,10 @@ void checkPreferences(const EnginePreferences& p)
         throw std::invalid_argument("The number of significant digits of an uncertainty is " + std::to_string(p.uncertainty_significant_digits) + ": it must be 1 or more.");
     for (const auto& [id, implementation] : p.method_implementation)
     {
-        const auto* spec = v2::MethodCatalog::instance().find(id);
+        const auto* spec = model::MethodCatalog::instance().find(id);
         if (!spec)
             throw std::invalid_argument("method_implementation: there is no method " + id + ".");
-        const auto known = v2::MethodRegistry::instance().implementations(spec->id);
+        const auto known = model::MethodRegistry::instance().implementations(spec->id);
         if (std::find(known.begin(), known.end(), implementation) == known.end())
         {
             std::string message = "method_implementation: the method " + spec->id + " has no implementation \"" + implementation + "\". Allowed:";
@@ -46,12 +46,12 @@ void applyOldWords(EngineConventions& c)
 {
     if (!c.apparent_properties.empty())
     {
-        c.energy_reference = checkedWord<v2::EnergyReference>(c.apparent_properties);
+        c.energy_reference = checkedWord<model::EnergyReference>(c.apparent_properties);
         c.apparent_properties.clear();
     }
     if (!c.water_properties.empty())
     {
-        c.water_reference = checkedWord<v2::WaterReference>(c.water_properties);
+        c.water_reference = checkedWord<model::WaterReference>(c.water_properties);
         c.water_properties.clear();
     }
 }
@@ -206,32 +206,32 @@ auto ThermoEngine::setConventions(const EngineConventions conventions) -> void
     pimpl->clearResults();
 }
 
-auto ThermoEngine::setPropertySource(const std::string& symbol, v2::PropertySource source) -> void
+auto ThermoEngine::setPropertySource(const std::string& symbol, model::PropertySource source) -> void
 {
-    if (source == v2::PropertySource::Record)
+    if (source == model::PropertySource::Record)
     {
         pimpl->substance_sources.erase(symbol);
         pimpl->reaction_sources.erase(symbol);
     }
-    if (source == v2::PropertySource::Direct || source == v2::PropertySource::Reaction)
+    if (source == model::PropertySource::Direct || source == model::PropertySource::Reaction)
         pimpl->substance_sources[symbol] = source;
-    if (source == v2::PropertySource::Direct || source == v2::PropertySource::Reactants)
+    if (source == model::PropertySource::Direct || source == model::PropertySource::Reactants)
         pimpl->reaction_sources[symbol] = source;
     pimpl->clearResults();
 }
 
 auto ThermoEngine::setPropertySource(const std::string& symbol, const std::string& source) -> void
 {
-    setPropertySource(symbol, checkedWord<v2::PropertySource>(source));
+    setPropertySource(symbol, checkedWord<model::PropertySource>(source));
 }
 
-auto ThermoEngine::propertySource(const std::string& symbol) const -> v2::PropertySource
+auto ThermoEngine::propertySource(const std::string& symbol) const -> model::PropertySource
 {
     // the choice that is not the plain one, if a substance and a reaction with this symbol differ
     for (const auto* own : {&pimpl->reaction_sources, &pimpl->substance_sources})
-        if (const auto it = own->find(symbol); it != own->end() && it->second != v2::PropertySource::Direct)
+        if (const auto it = own->find(symbol); it != own->end() && it->second != model::PropertySource::Direct)
             return it->second;
-    return pimpl->substance_sources.count(symbol) ? v2::PropertySource::Direct : pimpl->preferences.property_source;
+    return pimpl->substance_sources.count(symbol) ? model::PropertySource::Direct : pimpl->preferences.property_source;
 }
 
 auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
@@ -316,12 +316,12 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     if (p.round_to_uncertainty != defaults.round_to_uncertainty) s.options["round_to_uncertainty"] = word(p.round_to_uncertainty);
     if (p.uncertainty_significant_digits != defaults.uncertainty_significant_digits) s.options["uncertainty_significant_digits"] = std::to_string(p.uncertainty_significant_digits);
     if (p.propagate_parameter_errors != defaults.propagate_parameter_errors) s.options["propagate_parameter_errors"] = word(p.propagate_parameter_errors);
-    if (p.property_source != defaults.property_source) s.options["property_source"] = v2::toString(p.property_source);
+    if (p.property_source != defaults.property_source) s.options["property_source"] = model::toString(p.property_source);
     const auto& c = pimpl->conventions;
-    s.conventions["energy_reference"] = v2::toString(c.energy_reference);
-    s.conventions["standard_pressure"] = v2::toString(c.standard_pressure);
-    s.conventions["concentration_scale"] = v2::toString(c.concentration_scale);
-    s.conventions["water_reference"] = v2::toString(c.water_reference);
+    s.conventions["energy_reference"] = model::toString(c.energy_reference);
+    s.conventions["standard_pressure"] = model::toString(c.standard_pressure);
+    s.conventions["concentration_scale"] = model::toString(c.concentration_scale);
+    s.conventions["water_reference"] = model::toString(c.water_reference);
     return s;
 }
 
@@ -360,9 +360,9 @@ auto ThermoEngine::consistencyReport(const std::vector<std::pair<double, double>
     ThermoEngine direct(*this), derived(*this);
     EnginePreferences p = preferences();
     p.enable_memoize = false;
-    p.property_source = v2::PropertySource::Direct;
+    p.property_source = model::PropertySource::Direct;
     direct.setPreferences(p);
-    p.property_source = v2::PropertySource::Reaction;
+    p.property_source = model::PropertySource::Reaction;
     derived.setPreferences(p);
     const Database& database = pimpl->database;
 

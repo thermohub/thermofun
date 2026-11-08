@@ -5,7 +5,7 @@
 #ifndef THERMOFUN_IO_LEGACY_LEGACYKEYS_H
 #define THERMOFUN_IO_LEGACY_LEGACYKEYS_H
 
-namespace ThermoFun::v2::legacy {
+namespace ThermoFun::model::legacy {
 
 // file
 inline constexpr const char* ThermoDataset = "thermodataset";
@@ -62,6 +62,6 @@ inline constexpr const char* Number = "number";
 inline constexpr const char* MPhaseTransProps = "m_phase_trans_props";
 inline constexpr const char* TpTable = "tp_table";
 
-} // namespace ThermoFun::v2::legacy
+} // namespace ThermoFun::model::legacy
 
 #endif

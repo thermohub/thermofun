@@ -18,7 +18,7 @@
 #include <ThermoFun/Methods/Minerals/SolidTaitHP11.h>
 #include <ThermoFun/Methods/Minerals/StandardThermoModelsExtra.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -320,4 +320,4 @@ auto tpTableMethod(const MethodApplication& application) -> std::shared_ptr<cons
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const auto& p) { tpTableInfo(out, in, p.data); });
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

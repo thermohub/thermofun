@@ -6,7 +6,7 @@
 
 #include <ThermoFun/Methods/Method.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A property with its derivatives with respect to T and P.
 struct PropertyValue
@@ -37,6 +37,6 @@ auto evaluate(const SubstanceMethod& method, double T, double P, const Reference
 /// The derivatives of the properties with respect to parameter `index` of the method, one pass. SI.
 auto evaluateParameterDerivative(const SubstanceMethod& method, std::size_t index, double T, double P, const ReferenceValues& reference, const SolventInputs* solvent = nullptr) -> MethodResult;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

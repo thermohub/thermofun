@@ -13,7 +13,7 @@
 #include <ThermoFun/Model/Quantity.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// An element of the database, as the file says.
 struct ElementRecord
@@ -40,6 +40,6 @@ struct ElementRecord
     auto operator==(const ElementRecord&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

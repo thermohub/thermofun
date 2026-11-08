@@ -14,7 +14,7 @@
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include <rapidyaml.hpp>
 
-namespace ThermoFun::v2::detail {
+namespace ThermoFun::model::detail {
 
 namespace {
 
@@ -288,4 +288,4 @@ auto TextLocations::find(const std::string& path) const -> std::pair<int, int>
     }
 }
 
-} // namespace ThermoFun::v2::detail
+} // namespace ThermoFun::model::detail

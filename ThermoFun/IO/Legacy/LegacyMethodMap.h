@@ -10,7 +10,7 @@
 
 // The only place that knows the legacy method numbers, the old codes and the positions in coefficient arrays.
 
-namespace ThermoFun::v2::legacy {
+namespace ThermoFun::model::legacy {
 
 /// One value of a legacy coefficient array: the array, the position, the parameter of the method, the unit in the array.
 struct LegacyParameter
@@ -43,6 +43,6 @@ auto legacyReactionMethod(int id) -> const LegacyMethod*;
 /// All keys of coefficient arrays of the substance and of the reaction methods.
 auto legacyCoefficientKeys() -> const std::set<std::string>&;
 
-} // namespace ThermoFun::v2::legacy
+} // namespace ThermoFun::model::legacy
 
 #endif

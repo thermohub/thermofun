@@ -5,7 +5,7 @@
 
 #include <ThermoFun/IO/V2/detail/V2WriterParts.h>
 
-namespace ThermoFun::v2::v2writer {
+namespace ThermoFun::model::v2writer {
 
 // A word that YAML reads as the same text without quotes
 auto plainWord(const std::string& s) -> bool
@@ -103,4 +103,4 @@ void block(const json& node, size_t indent, std::string& out)
         }
 }
 
-} // namespace ThermoFun::v2::v2writer
+} // namespace ThermoFun::model::v2writer

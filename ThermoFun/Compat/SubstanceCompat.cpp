@@ -18,11 +18,11 @@ namespace ThermoFun::compat {
 namespace {
 
 // The legacy method of an application: by the name as written in the file, or the first one with this id
-auto legacyMethodOf(const v2::MethodApplication& a) -> const v2::legacy::LegacyMethod*
+auto legacyMethodOf(const model::MethodApplication& a) -> const model::legacy::LegacyMethod*
 {
     // the name, if it agrees with the method: a file can have the number of one method and the name of another, and
     // the number counts. The water vapour rule of the reader also changes the method of an HKF entry.
-    const auto& methods = v2::legacy::legacySubstanceMethods();
+    const auto& methods = model::legacy::legacySubstanceMethods();
     for (const auto& m : methods)
         if (a.method_as_written == m.name && a.method == m.method && a.implementation == m.implementation)
             return &m;
@@ -35,7 +35,7 @@ auto legacyMethodOf(const v2::MethodApplication& a) -> const v2::legacy::LegacyM
     return nullptr;
 }
 
-auto siUnitOf(const v2::MethodSpec* spec, const std::string& name) -> std::string
+auto siUnitOf(const model::MethodSpec* spec, const std::string& name) -> std::string
 {
     if (spec)
         for (const auto& p : spec->parameters)
@@ -83,9 +83,9 @@ auto arrayOf(ThermoParametersReaction& p, const std::string& key) -> std::vector
     return nullptr;
 }
 
-auto legacyReactionMethodOf(const v2::MethodApplication& a) -> const v2::legacy::LegacyMethod*
+auto legacyReactionMethodOf(const model::MethodApplication& a) -> const model::legacy::LegacyMethod*
 {
-    const auto& methods = v2::legacy::legacyReactionMethods();
+    const auto& methods = model::legacy::legacyReactionMethods();
     for (const auto& m : methods)
         if (a.method_as_written == m.name)
             return &m;
@@ -97,7 +97,7 @@ auto legacyReactionMethodOf(const v2::MethodApplication& a) -> const v2::legacy:
 
 // The values of one row of parameters in their array, in the units of the array, and their errors. row: the row of the
 // errors of this array.
-void fillArray(const v2::legacy::LegacyMethod& method, const v2::MethodSpec* spec, const std::map<std::string, v2::Quantity>& parameters,
+void fillArray(const model::legacy::LegacyMethod& method, const model::MethodSpec* spec, const std::map<std::string, model::Quantity>& parameters,
                const std::string& key, std::vector<double>& array, std::map<std::string, std::vector<std::vector<double>>>& errors, size_t row = 0)
 {
     for (const auto& p : method.parameters)
@@ -119,7 +119,7 @@ void fillArray(const v2::legacy::LegacyMethod& method, const v2::MethodSpec* spe
     }
 }
 
-auto limitsOf(const v2::Segment& s) -> std::vector<double>
+auto limitsOf(const model::Segment& s) -> std::vector<double>
 {
     std::vector<double> row;
     if (std::isfinite(s.t_min))
@@ -136,9 +136,9 @@ auto asksForNothing(int code) -> bool
 }
 
 // The legacy methods of the old codes, in the order of the slots
-auto methodsOfCodes(const MethodCodes& codes, const std::vector<v2::legacy::LegacyMethod>& all, const char* what) -> std::vector<const v2::legacy::LegacyMethod*>
+auto methodsOfCodes(const MethodCodes& codes, const std::vector<model::legacy::LegacyMethod>& all, const char* what) -> std::vector<const model::legacy::LegacyMethod*>
 {
-    std::vector<const v2::legacy::LegacyMethod*> out;
+    std::vector<const model::legacy::LegacyMethod*> out;
     for (const int code : {static_cast<int>(codes.general), static_cast<int>(codes.temperature), static_cast<int>(codes.pressure)})
     {
         if (code == 0)
@@ -158,9 +158,9 @@ auto errorsOf(const std::map<std::string, std::vector<std::vector<double>>>& err
     return it == errors.end() || row >= it->second.size() ? std::vector<double>{} : it->second[row];
 }
 
-auto methodEntry(const v2::legacy::LegacyMethod& m) -> v2::LegacyMethodEntry
+auto methodEntry(const model::legacy::LegacyMethod& m) -> model::LegacyMethodEntry
 {
-    v2::LegacyMethodEntry entry;
+    model::LegacyMethodEntry entry;
     entry.id = m.id;
     entry.name = m.name;
     return entry;
@@ -168,9 +168,9 @@ auto methodEntry(const v2::legacy::LegacyMethod& m) -> v2::LegacyMethodEntry
 
 // The arrays that one entry of a method holds
 template <class Parameters>
-void addArrays(v2::LegacyMethodEntry& entry, const v2::legacy::LegacyMethod& m, Parameters& parameters, v2::OperatesOn operatesOn)
+void addArrays(model::LegacyMethodEntry& entry, const model::legacy::LegacyMethod& m, Parameters& parameters, model::OperatesOn operatesOn)
 {
-    const auto* spec = v2::MethodCatalog::instance().find(m.method, operatesOn);
+    const auto* spec = model::MethodCatalog::instance().find(m.method, operatesOn);
     for (const auto& p : m.parameters)
     {
         const auto* array = arrayOf(parameters, p.key);
@@ -189,7 +189,7 @@ void addArrays(v2::LegacyMethodEntry& entry, const v2::legacy::LegacyMethod& m, 
 }
 
 // One entry for each segment of a piecewise method
-void addPiecewise(std::vector<v2::LegacyMethodEntry>& entries, const v2::legacy::LegacyMethod& m, const ThermoParametersSubstance& p)
+void addPiecewise(std::vector<model::LegacyMethodEntry>& entries, const model::legacy::LegacyMethod& m, const ThermoParametersSubstance& p)
 {
     const bool nasa = std::string(m.method) == "NASA9";
     const auto& rows = nasa ? p.nasa_coeff : p.Cp_coeff;
@@ -214,8 +214,8 @@ void addPiecewise(std::vector<v2::LegacyMethodEntry>& entries, const v2::legacy:
 }
 
 // What the old arrays cannot hold stays, for a method that stays
-void keepWhatArraysCannotHold(std::vector<v2::MethodApplication>& methods, const std::vector<v2::MethodApplication>& before,
-                              const std::vector<v2::legacy::LegacyMethod>& all)
+void keepWhatArraysCannotHold(std::vector<model::MethodApplication>& methods, const std::vector<model::MethodApplication>& before,
+                              const std::vector<model::legacy::LegacyMethod>& all)
 {
     for (auto& a : methods)
     {
@@ -245,22 +245,22 @@ void keepWhatArraysCannotHold(std::vector<v2::MethodApplication>& methods, const
 template <class Record>
 void useConstantProperties(Record& record, const char* method)
 {
-    v2::MethodApplication application;
+    model::MethodApplication application;
     application.method = method;
     record.methods = {application};
     record.preferred_property_source.reset();
 }
 
-void setProperty(std::optional<v2::Quantity> quantity, const Reaktoro_::ThermoProperty& from, double factor, const std::function<void(v2::Quantity)>& store)
+void setProperty(std::optional<model::Quantity> quantity, const Reaktoro_::ThermoProperty& from, double factor, const std::function<void(model::Quantity)>& store)
 {
     if (from.val == 0.0 && from.err == 0.0 && from.sta.first == Reaktoro_::Status::notdefined)
         return;
-    v2::Quantity q = quantity.value_or(v2::Quantity{});
+    model::Quantity q = quantity.value_or(model::Quantity{});
     q.value = from.val * factor;
     q.value_as_written.clear();
     if (from.err != 0.0)
     {
-        v2::Uncertainty u;
+        model::Uncertainty u;
         u.standard = std::fabs(from.err * factor);
         q.uncertainty = u;
     }
@@ -271,7 +271,7 @@ void setProperty(std::optional<v2::Quantity> quantity, const Reaktoro_::ThermoPr
 
 } // namespace
 
-auto methodCodes(const v2::SubstanceRecord& record) -> MethodCodes
+auto methodCodes(const model::SubstanceRecord& record) -> MethodCodes
 {
     MethodCodes out;
     for (const auto& a : record.methods)
@@ -286,13 +286,13 @@ auto methodCodes(const v2::SubstanceRecord& record) -> MethodCodes
         else
             out.pressure = static_cast<MethodCorrP_Thrift::type>(m->thrift_code);
         // a water equation of state in the state of a gas: the legacy flag fug_critical_param
-        if (const auto state = a.parameters.find("state"); state != a.parameters.end() && state->second.value == 1.0 && record.class_ != v2::SubstanceClass::WaterSolvent)
+        if (const auto state = a.parameters.find("state"); state != a.parameters.end() && state->second.value == 1.0 && record.class_ != model::SubstanceClass::WaterSolvent)
             out.pressure = MethodCorrP_Thrift::type::CPM_GAS;
     }
     return out;
 }
 
-auto thermoParameters(const v2::SubstanceRecord& record) -> ThermoParametersSubstance
+auto thermoParameters(const model::SubstanceRecord& record) -> ThermoParametersSubstance
 {
     ThermoParametersSubstance out;
     for (const auto& a : record.methods)
@@ -300,7 +300,7 @@ auto thermoParameters(const v2::SubstanceRecord& record) -> ThermoParametersSubs
         const auto* method = legacyMethodOf(a);
         if (!method)
             continue;
-        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance);
+        const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
         for (const auto& p : method->parameters)
         {
             // the coefficients of Churakov and Gottschalk have two possible keys: one array in the old API
@@ -367,10 +367,10 @@ auto thermoParameters(const v2::SubstanceRecord& record) -> ThermoParametersSubs
     return out;
 }
 
-auto thermoReferenceProperties(const v2::SubstanceRecord& record) -> ThermoPropertiesSubstance
+auto thermoReferenceProperties(const model::SubstanceRecord& record) -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance out;
-    auto load = [&](v2::PropertyName name, Reaktoro_::ThermoProperty& to, double factor = 1.0) {
+    auto load = [&](model::PropertyName name, Reaktoro_::ThermoProperty& to, double factor = 1.0) {
         const auto it = record.standard_state_properties.find(name);
         if (it == record.standard_state_properties.end())
             return;
@@ -379,37 +379,37 @@ auto thermoReferenceProperties(const v2::SubstanceRecord& record) -> ThermoPrope
         if (it->second.uncertainty)
             to.err = it->second.uncertainty->standard * factor;
     };
-    load(v2::PropertyName::G, out.gibbs_energy);
-    load(v2::PropertyName::H, out.enthalpy);
-    load(v2::PropertyName::S, out.entropy);
-    load(v2::PropertyName::Cp, out.heat_capacity_cp);
-    load(v2::PropertyName::V, out.volume, 1e5);
+    load(model::PropertyName::G, out.gibbs_energy);
+    load(model::PropertyName::H, out.enthalpy);
+    load(model::PropertyName::S, out.entropy);
+    load(model::PropertyName::Cp, out.heat_capacity_cp);
+    load(model::PropertyName::V, out.volume, 1e5);
     return out;
 }
 
-auto molarMass(const v2::SubstanceRecord& record) -> double
+auto molarMass(const model::SubstanceRecord& record) -> double
 {
     return record.molar_mass ? record.molar_mass->value * 1e3 : 0.0;
 }
 
-auto isWaterVapour(const v2::SubstanceRecord& record) -> bool
+auto isWaterVapour(const model::SubstanceRecord& record) -> bool
 {
     const auto codes = methodCodes(record);
     const auto t = codes.temperature;
     const bool waterEoS = t == MethodCorrT_Thrift::type::CTM_WAT || t == MethodCorrT_Thrift::type::CTM_WAR ||
                           t == MethodCorrT_Thrift::type::CTM_WWP || t == MethodCorrT_Thrift::type::CTM_WZD;
     return codes.general == MethodGenEoS_Thrift::type::CTPM_HKF &&
-           (codes.pressure == MethodCorrP_Thrift::type::CPM_GAS || (waterEoS && record.class_ != v2::SubstanceClass::AqueousSolute));
+           (codes.pressure == MethodCorrP_Thrift::type::CPM_GAS || (waterEoS && record.class_ != model::SubstanceClass::AqueousSolute));
 }
 
-auto thermoCalculationType(const v2::SubstanceRecord& record) -> SubstanceThermoCalculationType::type
+auto thermoCalculationType(const model::SubstanceRecord& record) -> SubstanceThermoCalculationType::type
 {
     const bool noneWritten = std::all_of(record.methods.begin(), record.methods.end(), [](const auto& a) { return a.implied; });
     return !record.defining_reaction.empty() && noneWritten ? SubstanceThermoCalculationType::type::REACDC
                                                                        : SubstanceThermoCalculationType::type::DCOMP;
 }
 
-auto methodCodes(const v2::ReactionRecord& record) -> MethodCodes
+auto methodCodes(const model::ReactionRecord& record) -> MethodCodes
 {
     MethodCodes out;
     for (const auto& a : record.methods)
@@ -426,12 +426,12 @@ auto methodCodes(const v2::ReactionRecord& record) -> MethodCodes
         // the reader keeps the coefficients of logk_fpt_function in a method of another form
         const bool ownNames = a.method != "LogKTable" && a.method.rfind("LogK", 0) == 0;
         if (a.parameters.count("a0") || (ownNames && a.parameters.count("a")))
-            out.general = static_cast<MethodGenEoS_Thrift::type>(v2::legacy::legacyReactionMethod(0)->thrift_code);
+            out.general = static_cast<MethodGenEoS_Thrift::type>(model::legacy::legacyReactionMethod(0)->thrift_code);
     }
     return out;
 }
 
-auto thermoParameters(const v2::ReactionRecord& record) -> ThermoParametersReaction
+auto thermoParameters(const model::ReactionRecord& record) -> ThermoParametersReaction
 {
     ThermoParametersReaction out;
     for (const auto& a : record.methods)
@@ -439,8 +439,8 @@ auto thermoParameters(const v2::ReactionRecord& record) -> ThermoParametersReact
         const auto* method = legacyReactionMethodOf(a);
         if (!method)
             continue;
-        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Reaction);
-        auto fill = [&](const v2::legacy::LegacyMethod& from) {
+        const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Reaction);
+        auto fill = [&](const model::legacy::LegacyMethod& from) {
             for (const auto& p : from.parameters)
                 if (auto* array = arrayOf(out, p.key))
                     if (const auto it = a.parameters.find(p.name); it != a.parameters.end())
@@ -460,13 +460,13 @@ auto thermoParameters(const v2::ReactionRecord& record) -> ThermoParametersReact
         // a log K method holds the coefficients of the merged logk_fpt_function and dr_heat_capacity_ft
         const bool ownNames = a.method != "LogKTable" && a.method.rfind("LogK", 0) == 0;
         if (ownNames || a.method == "ReactionCpPolynomial")
-            for (const auto& m : v2::legacy::legacyReactionMethods())
+            for (const auto& m : model::legacy::legacyReactionMethods())
                 if (std::string(m.name) == "logk_fpt_function" || std::string(m.name) == "dr_heat_capacity_ft")
                     fill(m);
         // other methods hold only the coefficients of log K: a, b, ... of those are their own parameters
         if (!ownNames && a.parameters.count("a0"))
         {
-            for (const auto& m : v2::legacy::legacyReactionMethods())
+            for (const auto& m : model::legacy::legacyReactionMethods())
                 if (std::string(m.name) == "logk_fpt_function")
                     for (const auto& p : m.parameters)
                         if (std::string(p.key) == "logk_ft_coeffs")
@@ -477,10 +477,10 @@ auto thermoParameters(const v2::ReactionRecord& record) -> ThermoParametersReact
     return out;
 }
 
-auto thermoReferenceProperties(const v2::ReactionRecord& record) -> ThermoPropertiesReaction
+auto thermoReferenceProperties(const model::ReactionRecord& record) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction out;
-    auto load = [&](v2::ReactionPropertyName name, Reaktoro_::ThermoProperty& to, double factor = 1.0) {
+    auto load = [&](model::ReactionPropertyName name, Reaktoro_::ThermoProperty& to, double factor = 1.0) {
         const auto it = record.reaction_properties.find(name);
         if (it == record.reaction_properties.end())
             return;
@@ -489,16 +489,16 @@ auto thermoReferenceProperties(const v2::ReactionRecord& record) -> ThermoProper
         if (it->second.uncertainty)
             to.err = it->second.uncertainty->standard * factor;
     };
-    load(v2::ReactionPropertyName::logK, out.log_equilibrium_constant);
-    load(v2::ReactionPropertyName::dG, out.reaction_gibbs_energy);
-    load(v2::ReactionPropertyName::dH, out.reaction_enthalpy);
-    load(v2::ReactionPropertyName::dS, out.reaction_entropy);
-    load(v2::ReactionPropertyName::dCp, out.reaction_heat_capacity_cp);
-    load(v2::ReactionPropertyName::dV, out.reaction_volume, 1e5);
+    load(model::ReactionPropertyName::logK, out.log_equilibrium_constant);
+    load(model::ReactionPropertyName::dG, out.reaction_gibbs_energy);
+    load(model::ReactionPropertyName::dH, out.reaction_enthalpy);
+    load(model::ReactionPropertyName::dS, out.reaction_entropy);
+    load(model::ReactionPropertyName::dCp, out.reaction_heat_capacity_cp);
+    load(model::ReactionPropertyName::dV, out.reaction_volume, 1e5);
     return out;
 }
 
-auto reactants(const v2::ReactionRecord& record) -> std::map<std::string, double>
+auto reactants(const model::ReactionRecord& record) -> std::map<std::string, double>
 {
     std::map<std::string, double> out;
     for (const auto& [symbol, coefficient] : record.stoichiometry)
@@ -506,11 +506,11 @@ auto reactants(const v2::ReactionRecord& record) -> std::map<std::string, double
     return out;
 }
 
-void setMethods(v2::SubstanceRecord& record, const MethodCodes& codes, const ThermoParametersSubstance& parameters)
+void setMethods(model::SubstanceRecord& record, const MethodCodes& codes, const ThermoParametersSubstance& parameters)
 {
-    const auto& all = v2::legacy::legacySubstanceMethods();
+    const auto& all = model::legacy::legacySubstanceMethods();
     auto p = parameters;
-    std::vector<v2::LegacyMethodEntry> entries;
+    std::vector<model::LegacyMethodEntry> entries;
     for (const auto* m : methodsOfCodes(codes, all, "substance"))
     {
         if (std::string(m->method) == "CpPolynomial" || std::string(m->method) == "NASA9")
@@ -519,7 +519,7 @@ void setMethods(v2::SubstanceRecord& record, const MethodCodes& codes, const The
             continue;
         }
         auto entry = methodEntry(*m);
-        addArrays(entry, *m, p, v2::OperatesOn::Substance);
+        addArrays(entry, *m, p, model::OperatesOn::Substance);
         if (std::string(m->method) == "TPTable")
         {
             entry.has_table = true;
@@ -531,17 +531,17 @@ void setMethods(v2::SubstanceRecord& record, const MethodCodes& codes, const The
         entries.push_back(entry);
     }
     const auto before = record.methods;
-    v2::readLegacyMethods(entries, p.isobaric_expansivity, p.isothermal_compresibility, record);
+    model::readLegacyMethods(entries, p.isobaric_expansivity, p.isothermal_compresibility, record);
     keepWhatArraysCannotHold(record.methods, before, all);
     if (codes.general == MethodGenEoS_Thrift::type::CTPM_CON)
         useConstantProperties(record, "ConstantProperties");
 }
 
-void setMethods(v2::ReactionRecord& record, const MethodCodes& codes, const ThermoParametersReaction& parameters)
+void setMethods(model::ReactionRecord& record, const MethodCodes& codes, const ThermoParametersReaction& parameters)
 {
-    const auto& all = v2::legacy::legacyReactionMethods();
+    const auto& all = model::legacy::legacyReactionMethods();
     auto p = parameters;
-    std::vector<v2::LegacyMethodEntry> entries;
+    std::vector<model::LegacyMethodEntry> entries;
     // on a reaction, CPM_NUL is the constant volume
     auto wanted = codes;
     if (wanted.pressure == MethodCorrP_Thrift::type::CPM_NUL)
@@ -549,43 +549,43 @@ void setMethods(v2::ReactionRecord& record, const MethodCodes& codes, const Ther
     for (const auto* m : methodsOfCodes(wanted, all, "reaction"))
     {
         auto entry = methodEntry(*m);
-        addArrays(entry, *m, p, v2::OperatesOn::Reaction);
+        addArrays(entry, *m, p, model::OperatesOn::Reaction);
         entries.push_back(entry);
     }
     const auto before = record.methods;
-    v2::readLegacyMethods(entries, record);
+    model::readLegacyMethods(entries, record);
     keepWhatArraysCannotHold(record.methods, before, all);
     if (codes.general == MethodGenEoS_Thrift::type::CTPM_CON)
         useConstantProperties(record, "ConstantReactionProperties");
 }
 
-void setThermoReferenceProperties(v2::SubstanceRecord& record, const ThermoPropertiesSubstance& properties)
+void setThermoReferenceProperties(model::SubstanceRecord& record, const ThermoPropertiesSubstance& properties)
 {
-    auto set = [&](v2::PropertyName name, const Reaktoro_::ThermoProperty& from, double factor = 1.0) {
+    auto set = [&](model::PropertyName name, const Reaktoro_::ThermoProperty& from, double factor = 1.0) {
         auto& slots = record.standard_state_properties;
         const auto it = slots.find(name);
-        setProperty(it == slots.end() ? std::nullopt : std::optional(it->second), from, factor, [&](v2::Quantity q) { slots[name] = q; });
+        setProperty(it == slots.end() ? std::nullopt : std::optional(it->second), from, factor, [&](model::Quantity q) { slots[name] = q; });
     };
-    set(v2::PropertyName::G, properties.gibbs_energy);
-    set(v2::PropertyName::H, properties.enthalpy);
-    set(v2::PropertyName::S, properties.entropy);
-    set(v2::PropertyName::Cp, properties.heat_capacity_cp);
-    set(v2::PropertyName::V, properties.volume, 1e-5);
+    set(model::PropertyName::G, properties.gibbs_energy);
+    set(model::PropertyName::H, properties.enthalpy);
+    set(model::PropertyName::S, properties.entropy);
+    set(model::PropertyName::Cp, properties.heat_capacity_cp);
+    set(model::PropertyName::V, properties.volume, 1e-5);
 }
 
-void setThermoReferenceProperties(v2::ReactionRecord& record, const ThermoPropertiesReaction& properties)
+void setThermoReferenceProperties(model::ReactionRecord& record, const ThermoPropertiesReaction& properties)
 {
-    auto set = [&](v2::ReactionPropertyName name, const Reaktoro_::ThermoProperty& from, double factor = 1.0) {
+    auto set = [&](model::ReactionPropertyName name, const Reaktoro_::ThermoProperty& from, double factor = 1.0) {
         auto& slots = record.reaction_properties;
         const auto it = slots.find(name);
-        setProperty(it == slots.end() ? std::nullopt : std::optional(it->second), from, factor, [&](v2::Quantity q) { slots[name] = q; });
+        setProperty(it == slots.end() ? std::nullopt : std::optional(it->second), from, factor, [&](model::Quantity q) { slots[name] = q; });
     };
-    set(v2::ReactionPropertyName::logK, properties.log_equilibrium_constant);
-    set(v2::ReactionPropertyName::dG, properties.reaction_gibbs_energy);
-    set(v2::ReactionPropertyName::dH, properties.reaction_enthalpy);
-    set(v2::ReactionPropertyName::dS, properties.reaction_entropy);
-    set(v2::ReactionPropertyName::dCp, properties.reaction_heat_capacity_cp);
-    set(v2::ReactionPropertyName::dV, properties.reaction_volume, 1e-5);
+    set(model::ReactionPropertyName::logK, properties.log_equilibrium_constant);
+    set(model::ReactionPropertyName::dG, properties.reaction_gibbs_energy);
+    set(model::ReactionPropertyName::dH, properties.reaction_enthalpy);
+    set(model::ReactionPropertyName::dS, properties.reaction_entropy);
+    set(model::ReactionPropertyName::dCp, properties.reaction_heat_capacity_cp);
+    set(model::ReactionPropertyName::dV, properties.reaction_volume, 1e-5);
 }
 
 void addWaiting(ThermoParametersSubstance& parameters, const ThermoParametersSubstance& waiting)

@@ -12,7 +12,7 @@
 #include <ThermoFun/Engine/Binding.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The methods of a water record, ready to run. Immutable.
 struct BoundSolvent
@@ -34,6 +34,6 @@ auto solventStateOf(const SubstanceRecord& record) -> int;
 /// the solvent of the dataset, the last record of the class water_solvent in the order of the map. Empty: no solvent.
 auto chooseSolvent(const std::string& preferred, const std::string& dataset_solvent, const std::map<std::string, SubstanceClass>& records) -> std::string;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

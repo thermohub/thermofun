@@ -3,7 +3,7 @@
 
 #include <ThermoFun/IO/V2/detail/V2WriterParts.h>
 
-namespace ThermoFun::v2::v2writer {
+namespace ThermoFun::model::v2writer {
 
 // a legacy record can have an empty citation
 auto sourcesOf(const std::vector<std::string>& sources) -> std::vector<std::string>
@@ -246,9 +246,9 @@ auto documentJson(const V2Records& r, const V2WriterOptions& options) -> json
     return root;
 }
 
-} // namespace ThermoFun::v2::v2writer
+} // namespace ThermoFun::model::v2writer
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 using namespace v2writer;
 
@@ -294,4 +294,4 @@ auto writeV2Yaml(const V2Records& records, const V2WriterOptions& options) -> st
     return out;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

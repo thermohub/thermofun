@@ -14,7 +14,7 @@
 #include <ThermoFun/Methods/Method.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// For a method that needs nothing beside its numbers.
 struct NoData
@@ -101,6 +101,6 @@ auto makeMethod(const char* id, MethodParameters<Data> parameters, Formula formu
     return std::make_shared<const FunctionMethod<Data, Formula, Info>>(id, std::move(parameters), std::move(formula), std::move(info));
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "LegacyQuirks.h"
 
-namespace ThermoFun::v2::legacy {
+namespace ThermoFun::model::legacy {
 
 auto reportQuirk(Diagnostics* diagnostics, const std::string& code, const Where& where, const std::string& message) -> void
 {
@@ -65,4 +65,4 @@ auto compressibilityLabelIsSwapped(const std::string& unit, Diagnostics* diagnos
     return true;
 }
 
-} // namespace ThermoFun::v2::legacy
+} // namespace ThermoFun::model::legacy

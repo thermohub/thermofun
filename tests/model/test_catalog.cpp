@@ -12,7 +12,7 @@
 #include "check.h"
 
 using namespace ThermoFun;
-using namespace ThermoFun::v2;
+using namespace ThermoFun::model;
 
 namespace {
 

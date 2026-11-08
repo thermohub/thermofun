@@ -12,7 +12,7 @@
 #include <string>
 #include <tuple>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// What identifies a calculation. The engine clears its caches when the database revision or a setting changes.
 struct ResultKey
@@ -110,6 +110,6 @@ private:
     Usage usage_;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

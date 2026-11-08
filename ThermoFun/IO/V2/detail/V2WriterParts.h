@@ -23,7 +23,7 @@
 #include <ThermoFun/IO/V2/detail/Normalize.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 
-namespace ThermoFun::v2::v2writer {
+namespace ThermoFun::model::v2writer {
 
 using json = nlohmann::ordered_json;
 
@@ -150,6 +150,6 @@ auto shortestThatReadsBack(double si, double start, ReadBack read) -> std::optio
     return best;
 }
 
-} // namespace ThermoFun::v2::v2writer
+} // namespace ThermoFun::model::v2writer
 
 #endif

@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// What a method computes.
 enum class MethodRole
@@ -113,6 +113,6 @@ struct MethodSpec
     std::vector<std::string> implementations;    ///< for example {"reaktoro", "gems"}; the first is the default
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -12,7 +12,7 @@
 
 // YAML through rapidyaml. Only this file and IO/Yaml/Yaml.cpp know the parser.
 
-namespace ThermoFun::v2::detail {
+namespace ThermoFun::model::detail {
 
 /// A problem in the text. Line and column start at 1; 0 if not known.
 struct TextProblem
@@ -54,6 +54,6 @@ private:
 /// True if the text is JSON, not YAML: the first character is a brace or a bracket. The JSON parser reads it faster.
 auto looksLikeJson(const std::string& text) -> bool;
 
-} // namespace ThermoFun::v2::detail
+} // namespace ThermoFun::model::detail
 
 #endif

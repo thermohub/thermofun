@@ -13,7 +13,7 @@
 // All words and aliases are in one table per list in Vocabulary.cpp. A reader accepts a word or an alias in any
 // case; a writer writes the canonical word. The legacy codes are in IO/Legacy/LegacyVocabulary.h.
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// Standard-state properties of a substance
 enum class PropertyName { G, H, S, Cp, V, U, A, Cv };
@@ -106,6 +106,6 @@ template <class E> auto unknownWordMessage(std::string_view word) -> std::string
 auto siUnit(PropertyName p) -> std::string;
 auto siUnit(ReactionPropertyName p) -> std::string;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

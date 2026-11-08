@@ -8,7 +8,7 @@
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Methods/FunctionMethod.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -154,4 +154,4 @@ auto idealGasMethod() -> std::shared_ptr<const SubstanceMethod>
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const MethodParameters<NoData>&) { idealGasInfo(out, in); });
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

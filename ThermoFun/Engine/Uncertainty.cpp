@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <map>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -171,4 +171,4 @@ auto UncertainInputs::variance(const std::vector<double>& J) const -> double
     return sum;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

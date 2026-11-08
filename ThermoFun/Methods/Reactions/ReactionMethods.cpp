@@ -15,7 +15,7 @@
 #include <ThermoFun/Methods/Reactions/RyzhenkoBryzgalyn.h>
 #include <ThermoFun/Methods/Reactions/Volume_function_of_T.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -418,4 +418,4 @@ auto constantVolumeProperties(const ReactionInputs& reaction, double T, double P
     return tpr;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

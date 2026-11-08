@@ -8,7 +8,7 @@
 
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The convention of a set of values. A field without a value is inherited from the record, the dataset or the default.
 /// Merging and conversion are in the layer Conventions/.
@@ -22,6 +22,6 @@ struct Convention
     auto operator==(const Convention&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

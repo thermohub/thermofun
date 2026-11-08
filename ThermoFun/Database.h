@@ -259,12 +259,12 @@ public:
     auto revision() const -> std::uint64_t;
 
     /// Data about the loaded dataset. Empty for a legacy file.
-    auto thermoDataSet() const -> const v2::ThermoDataSetInfo&;
+    auto thermoDataSet() const -> const model::ThermoDataSetInfo&;
 
     /// The Method records, parameter sets and data sources that the loaded files give.
-    auto methods() const -> const std::map<std::string, v2::MethodDefinition>&;
-    auto parameterSets() const -> const std::map<std::string, v2::MethodParameterSet>&;
-    auto dataSources() const -> const std::map<std::string, v2::DataSource>&;
+    auto methods() const -> const std::map<std::string, model::MethodDefinition>&;
+    auto parameterSets() const -> const std::map<std::string, model::MethodParameterSet>&;
+    auto dataSources() const -> const std::map<std::string, model::DataSource>&;
 
     /// All records in the v2 format, as JSON or as YAML text.
     /// @param readable true: a value from a single-precision source is written as the shortest decimal of that float
@@ -280,7 +280,7 @@ public:
     auto legacyWriteProblems() const -> Diagnostics;
 
     /// Writes all records to a file. V2: YAML if the name ends with .yaml or .yml, else JSON. Legacy: legacy JSON, from the fields of the records.
-    auto save(const std::string& path, v2::DataFormat format = v2::DataFormat::V2, bool readable = true) const -> void;
+    auto save(const std::string& path, model::DataFormat format = model::DataFormat::V2, bool readable = true) const -> void;
 
     /// All problems of the database, also those that a load does not refuse because a record can come from another file.
     auto validate() const -> Diagnostics;

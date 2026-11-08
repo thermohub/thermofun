@@ -3,7 +3,7 @@
 
 #include "LegacyMethodMap.h"
 
-namespace ThermoFun::v2::legacy {
+namespace ThermoFun::model::legacy {
 
 namespace {
 
@@ -189,4 +189,4 @@ auto legacyCoefficientKeys() -> const std::set<std::string>&
     return keys;
 }
 
-} // namespace ThermoFun::v2::legacy
+} // namespace ThermoFun::model::legacy

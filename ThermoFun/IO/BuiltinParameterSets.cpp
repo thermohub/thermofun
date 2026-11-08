@@ -14,7 +14,7 @@
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/IO/V2/V2Reader.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace detail {
 
@@ -140,7 +140,7 @@ auto parameterSetVariant(const std::string& symbol) -> const MethodParameterSet*
     return it == sets.end() ? nullptr : &it->second;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 namespace ThermoFun {
 
@@ -148,7 +148,7 @@ auto waterTripleData() -> const std::unordered_map<std::string, WaterTriplePrope
 {
     static const auto data = [] {
         std::unordered_map<std::string, WaterTripleProperties> out;
-        for (const auto& set : v2::builtinSetsOf("WaterTriplePoint"))
+        for (const auto& set : model::builtinSetsOf("WaterTriplePoint"))
         {
             const auto joules = [&set = set](const char* name) { return set.parameters.at(name).value * cal_to_J; };
             out[set.implementation] = {joules("Str"), joules("Gtr"), joules("Htr"), joules("Utr"), joules("Atr")};

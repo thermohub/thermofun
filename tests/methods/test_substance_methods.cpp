@@ -28,7 +28,7 @@
 #include "Substance.h"
 #include "check.h"
 
-using namespace ThermoFun::v2;
+using namespace ThermoFun::model;
 using nlohmann::json;
 
 namespace {

@@ -5,7 +5,7 @@
 
 #include <ThermoFun/IO/V2/detail/V2WriterParts.h>
 
-namespace ThermoFun::v2::v2writer {
+namespace ThermoFun::model::v2writer {
 
 // The `units` mapping of a method: the one that lets most values of the application be bare numbers in their unit
 auto chooseScope(const std::map<std::string, std::string>& wanted, const MethodSpec* spec) -> std::map<std::string, std::string>
@@ -288,4 +288,4 @@ auto parameterSetJson(const MethodParameterSet& p, const std::vector<MethodDefin
     return out;
 }
 
-} // namespace ThermoFun::v2::v2writer
+} // namespace ThermoFun::model::v2writer

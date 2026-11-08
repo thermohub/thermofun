@@ -11,7 +11,7 @@
 #include <ThermoFun/Methods/Method.h>
 #include <ThermoFun/Model/Applicability.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// What a fluid method knows of its record, beside the parameters.
 struct FluidRecord
@@ -27,6 +27,6 @@ struct FluidRecord
 /// pressure term is added.
 auto fluidMethod(const std::string& id, std::vector<double> parameters, FluidRecord record) -> std::shared_ptr<const SubstanceMethod>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -6,7 +6,7 @@
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodRegistry.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 auto bindSolvent(std::shared_ptr<const SubstanceRecord> record) -> std::shared_ptr<const BoundSolvent>
 {
@@ -54,4 +54,4 @@ auto chooseSolvent(const std::string& preferred, const std::string& dataset_solv
     return last;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

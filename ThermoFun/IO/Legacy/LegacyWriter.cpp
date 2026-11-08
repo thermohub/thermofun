@@ -15,7 +15,7 @@
 #include "LegacyMethodMap.h"
 #include "LegacyVocabulary.h"
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -395,4 +395,4 @@ auto writeLegacyDocument(const V2Records& records, const LegacyWriteOptions& opt
     return root.dump(1);
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

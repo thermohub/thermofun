@@ -24,7 +24,7 @@
 #include <ThermoFun/IO/Legacy/LegacyQuirks.h>
 #include <ThermoFun/IO/Legacy/LegacyVocabulary.h>
 
-namespace ThermoFun::v2::legacyreader {
+namespace ThermoFun::model::legacyreader {
 
 using json = nlohmann::json;
 
@@ -170,6 +170,6 @@ void reportUnknownKeys(const json& j, const std::set<std::string>& known, const 
 // "datasources" and "references": a string or a list of strings
 auto readSources(const json& j) -> std::vector<std::string>;
 
-} // namespace ThermoFun::v2::legacyreader
+} // namespace ThermoFun::model::legacyreader
 
 #endif

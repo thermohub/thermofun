@@ -24,7 +24,7 @@ namespace ThermoFun {
 struct Substance::Impl
 {
     /// The record
-    std::shared_ptr<const v2::SubstanceRecord> record;
+    std::shared_ptr<const model::SubstanceRecord> record;
 
     /// The old codes that a method of the record does not give back (for example CPM_NUL)
     compat::MethodCodes codes_without_method;
@@ -42,7 +42,7 @@ struct Substance::Impl
     template <class Change>
     void edit(Change change)
     {
-        auto copy = std::make_shared<v2::SubstanceRecord>(*record);
+        auto copy = std::make_shared<model::SubstanceRecord>(*record);
         change(*copy);
         copy->original_text.clear();
         record = copy;
@@ -71,10 +71,10 @@ struct Substance::Impl
     /// Replaces the methods. A code that a method does not give back is kept beside the record, for the getters.
     void setMethods(const compat::MethodCodes& wanted, const ThermoParametersSubstance& parameters)
     {
-        edit([&](v2::SubstanceRecord& r) {
+        edit([&](model::SubstanceRecord& r) {
             compat::setMethods(r, wanted, parameters);
             if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
-                r.preferred_property_source = v2::PropertySource::Reaction;
+                r.preferred_property_source = model::PropertySource::Reaction;
             const auto held = compat::methodCodes(r);
             codes_without_method = {};
             if (wanted.general != held.general)
@@ -94,29 +94,29 @@ Substance::Substance()
 : pimpl(new Impl())
 {
     // the old defaults: the codes 0
-    v2::SubstanceRecord empty;
+    model::SubstanceRecord empty;
     empty.class_ = substanceClassFromLegacy(0);
     empty.aggregate_state = aggregateStateFromLegacy(0);
-    pimpl->record = std::make_shared<const v2::SubstanceRecord>(empty);
+    pimpl->record = std::make_shared<const model::SubstanceRecord>(empty);
 }
 
 Substance::Substance(std::string jsonSubstance)
 : pimpl(new Impl())
 {
     Diagnostics diagnostics;
-    if (v2::detectRecordFormat(jsonSubstance) == v2::DataFormat::V2)
+    if (model::detectRecordFormat(jsonSubstance) == model::DataFormat::V2)
     {
-        pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readV2Substance(jsonSubstance, diagnostics));
+        pimpl->record = std::make_shared<const model::SubstanceRecord>(model::readV2Substance(jsonSubstance, diagnostics));
         if (!diagnostics.ok())
             funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
     }
     else
-        pimpl->record = std::make_shared<const v2::SubstanceRecord>(v2::readLegacySubstance(jsonSubstance, {}, &diagnostics));
-    v2::checkReading(diagnostics);
+        pimpl->record = std::make_shared<const model::SubstanceRecord>(model::readLegacySubstance(jsonSubstance, {}, &diagnostics));
+    model::checkReading(diagnostics);
     pimpl->jString = jsonSubstance;
 }
 
-Substance::Substance(std::shared_ptr<const v2::SubstanceRecord> record)
+Substance::Substance(std::shared_ptr<const model::SubstanceRecord> record)
 : pimpl(new Impl())
 {
     pimpl->record = std::move(record);
@@ -138,27 +138,27 @@ auto Substance::operator=(Substance other) -> Substance&
 
 auto Substance::setName(std::string name) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.name = name; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.name = name; });
 }
 
 auto Substance::setSymbol(std::string symbol) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.symbol = symbol; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.symbol = symbol; });
 }
 
 auto Substance::setFormula(std::string formula) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.formula = formula; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.formula = formula; });
 }
 
 auto Substance::setReactionSymbol(std::string reaction) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.defining_reaction = reaction; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.defining_reaction = reaction; });
 }
 
 auto Substance::setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { compat::setThermoReferenceProperties(r, thermo_ref_prop); });
+    pimpl->edit([&](model::SubstanceRecord& r) { compat::setThermoReferenceProperties(r, thermo_ref_prop); });
 }
 
 auto Substance::setThermoParameters(ThermoParametersSubstance thermo_param) -> void
@@ -193,7 +193,7 @@ auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
     // the rules of the methods read the class
     const auto codes = pimpl->codes();
     const auto parameters = pimpl->parameters();
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.class_ = substanceClassFromLegacy(substance_class); });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.class_ = substanceClassFromLegacy(substance_class); });
     if (!pimpl->record->methods.empty())
         pimpl->setMethods(codes, parameters);
 }
@@ -203,7 +203,7 @@ auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
     // the rules of the methods read the state
     const auto codes = pimpl->codes();
     const auto parameters = pimpl->parameters();
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.aggregate_state = aggregateStateFromLegacy(aggregate_state); });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.aggregate_state = aggregateStateFromLegacy(aggregate_state); });
     if (!pimpl->record->methods.empty())
         pimpl->setMethods(codes, parameters);
 }
@@ -212,48 +212,48 @@ auto Substance::setThermoCalculationType(SubstanceThermoCalculationType::type ca
 {
     pimpl->calculation_type = calculation_type;
     if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
-        pimpl->edit([&](v2::SubstanceRecord& r) { r.preferred_property_source = v2::PropertySource::Reaction; });
+        pimpl->edit([&](model::SubstanceRecord& r) { r.preferred_property_source = model::PropertySource::Reaction; });
 }
 
 auto Substance::setCharge(int charge) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.charge = charge; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.charge = charge; });
 }
 
 auto Substance::setReferenceT(double T) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.reference_conditions.T = T; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.reference_conditions.T = T; });
 }
 
 auto Substance::setReferenceP(double P) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.reference_conditions.P = P; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.reference_conditions.P = P; });
 }
 
 auto Substance::setLowerT(double T) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.t_min = T; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.t_min = T; });
 }
 
 auto Substance::setLowerP(double P) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.p_min = P; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.p_min = P; });
 }
 
 auto Substance::setUpperT(double T) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.t_max = T; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.t_max = T; });
 }
 
 auto Substance::setUpperP(double P) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) { r.applicability.p_max = P; });
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.p_max = P; });
 }
 
 auto Substance::setMolarMass(double molar_mass) -> void
 {
-    pimpl->edit([&](v2::SubstanceRecord& r) {
-        auto q = r.molar_mass.value_or(v2::Quantity{});
+    pimpl->edit([&](model::SubstanceRecord& r) {
+        auto q = r.molar_mass.value_or(model::Quantity{});
         q.value = molar_mass * 1e-3;
         q.value_as_written.clear();
         r.molar_mass = q;
@@ -370,7 +370,7 @@ auto Substance::charge() const -> int
     return pimpl->record->charge.value_or(0);
 }
 
-auto Substance::record() const -> std::shared_ptr<const v2::SubstanceRecord>
+auto Substance::record() const -> std::shared_ptr<const model::SubstanceRecord>
 {
     return pimpl->record;
 }
@@ -380,7 +380,7 @@ auto Substance::jsonString() const -> std::string
     if (!pimpl->jString.empty())
         return pimpl->jString;
     // an edited record: written from its fields, in the format it came from
-    return pimpl->record->source_format == v2::DataFormat::V2 ? v2::writeV2Substance(*pimpl->record) : v2::writeLegacySubstance(*pimpl->record);
+    return pimpl->record->source_format == model::DataFormat::V2 ? model::writeV2Substance(*pimpl->record) : model::writeLegacySubstance(*pimpl->record);
 }
 
 auto Substance::checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void

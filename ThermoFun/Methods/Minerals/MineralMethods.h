@@ -12,7 +12,7 @@
 #include <ThermoFun/Model/Applicability.h>
 #include <ThermoFun/Model/MethodApplication.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A method of a mineral with a formula of its own: LandauHP98, LandauHP11, MurnaghanHP98, TaitHP11, VolumeBerman88, VolumeDorogokupets88,
 /// BirchMurnaghan47 or CpExtendedUNIQUAC. coefficients: in SI, in the order of the catalog; none if the record gives none, and the formula then
@@ -25,6 +25,6 @@ auto nasa9Method(const MethodApplication& application) -> std::shared_ptr<const 
 /// TPTable: a table in T and P.
 auto tpTableMethod(const MethodApplication& application) -> std::shared_ptr<const SubstanceMethod>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

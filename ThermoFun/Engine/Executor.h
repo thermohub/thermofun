@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Engine/Binding.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The properties of a record at T and P, with their derivatives, status and errors. SI.
 struct SubstanceResult
@@ -52,6 +52,6 @@ struct ParameterSeed
 auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSeed& seed, double T, double P, const SubstanceOptions& options = {}, const SolventInputs* solvent = nullptr,
                                   const std::pair<MethodResult, PropertyDerivatives>* initial = nullptr) -> PropertyDerivatives;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

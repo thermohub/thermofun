@@ -5,7 +5,7 @@
 
 #include <ThermoFun/IO/Legacy/detail/LegacyReaderParts.h>
 
-namespace ThermoFun::v2::legacyreader {
+namespace ThermoFun::model::legacyreader {
 
 auto numbersOf(const json& entry, const char* field) -> std::vector<std::optional<double>>
 {
@@ -522,4 +522,4 @@ void readReactionMethods(const json& j, ReactionRecord& r, const Context& c)
         r.preferred_property_source = PropertySource::Reactants;
 }
 
-} // namespace ThermoFun::v2::legacyreader
+} // namespace ThermoFun::model::legacyreader

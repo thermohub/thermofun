@@ -5,7 +5,7 @@
 
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
-namespace ThermoFun::v2::v2reader {
+namespace ThermoFun::model::v2reader {
 
 auto readApplicability(Context& c, const json& node, const UnitScope& scope, const std::string& record, const std::string& path)
     -> Applicability
@@ -318,4 +318,4 @@ auto readCovariances(Context& c, const json& node, const std::string& record, co
     return out;
 }
 
-} // namespace ThermoFun::v2::v2reader
+} // namespace ThermoFun::model::v2reader

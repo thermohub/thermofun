@@ -30,7 +30,7 @@ struct Reaction::Impl
     template <class Change>
     void edit(Change change)
     {
-        auto copy = std::make_shared<v2::ReactionRecord>(*record);
+        auto copy = std::make_shared<model::ReactionRecord>(*record);
         change(*copy);
         copy->original_text.clear();
         record = copy;
@@ -59,7 +59,7 @@ struct Reaction::Impl
     /// Replaces the methods. A code that a method does not give back is kept beside the record, for the getters.
     void setMethods(const compat::MethodCodes& wanted, const ThermoParametersReaction& parameters)
     {
-        edit([&](v2::ReactionRecord& r) {
+        edit([&](model::ReactionRecord& r) {
             compat::setMethods(r, wanted, parameters);
             const auto held = compat::methodCodes(r);
             codes_without_method = {};
@@ -73,7 +73,7 @@ struct Reaction::Impl
     }
 
     /// The record
-    std::shared_ptr<const v2::ReactionRecord> record;
+    std::shared_ptr<const model::ReactionRecord> record;
 
     /// The old codes that a method of the record does not give back (for example CPM_NUL)
     compat::MethodCodes codes_without_method;
@@ -88,26 +88,26 @@ struct Reaction::Impl
 Reaction::Reaction()
 : pimpl(new Impl())
 {
-    pimpl->record = std::make_shared<const v2::ReactionRecord>();
+    pimpl->record = std::make_shared<const model::ReactionRecord>();
 }
 
 Reaction::Reaction(std::string jsonReaction)
 : pimpl(new Impl())
 {
     Diagnostics diagnostics;
-    if (v2::detectRecordFormat(jsonReaction) == v2::DataFormat::V2)
+    if (model::detectRecordFormat(jsonReaction) == model::DataFormat::V2)
     {
-        pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readV2Reaction(jsonReaction, diagnostics));
+        pimpl->record = std::make_shared<const model::ReactionRecord>(model::readV2Reaction(jsonReaction, diagnostics));
         if (!diagnostics.ok())
             funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
     }
     else
-        pimpl->record = std::make_shared<const v2::ReactionRecord>(v2::readLegacyReaction(jsonReaction, {}, &diagnostics));
-    v2::checkReading(diagnostics);
+        pimpl->record = std::make_shared<const model::ReactionRecord>(model::readLegacyReaction(jsonReaction, {}, &diagnostics));
+    model::checkReading(diagnostics);
     pimpl->jString = jsonReaction;
 }
 
-Reaction::Reaction(std::shared_ptr<const v2::ReactionRecord> record)
+Reaction::Reaction(std::shared_ptr<const model::ReactionRecord> record)
 : pimpl(new Impl())
 {
     pimpl->record = std::move(record);
@@ -129,47 +129,47 @@ auto Reaction::operator=(Reaction other) -> Reaction&
 
 auto Reaction::setName(std::string name) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.name = name; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.name = name; });
 }
 
 auto Reaction::setSymbol(std::string symbol) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.symbol = symbol; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.symbol = symbol; });
 }
 
 auto Reaction::setReactants(std::map<std::string, double> reactants) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.stoichiometry.assign(reactants.begin(), reactants.end()); });
+    pimpl->edit([&](model::ReactionRecord& r) { r.stoichiometry.assign(reactants.begin(), reactants.end()); });
 }
 
 auto Reaction::setReferenceT(double T) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.reference_conditions.T = T; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.reference_conditions.T = T; });
 }
 
 auto Reaction::setReferenceP(double P) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.reference_conditions.P = P; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.reference_conditions.P = P; });
 }
 
 auto Reaction::setLowerT(double T) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.t_min = T; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.t_min = T; });
 }
 
 auto Reaction::setLowerP(double P) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.p_min = P; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.p_min = P; });
 }
 
 auto Reaction::setUpperT(double T) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.t_max = T; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.t_max = T; });
 }
 
 auto Reaction::setUpperP(double P) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.applicability.p_max = P; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.p_max = P; });
 }
 
 auto Reaction::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
@@ -195,7 +195,7 @@ auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 
 auto Reaction::setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { compat::setThermoReferenceProperties(r, refprop); });
+    pimpl->edit([&](model::ReactionRecord& r) { compat::setThermoReferenceProperties(r, refprop); });
 }
 
 auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
@@ -206,7 +206,7 @@ auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
 
 auto Reaction::setEquation(std::string equation) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) { r.equation = equation; });
+    pimpl->edit([&](model::ReactionRecord& r) { r.equation = equation; });
 }
 
 auto Reaction::setJsonString(const std::string &jString) ->void
@@ -295,7 +295,7 @@ auto Reaction::equation() const -> std::string
     return pimpl->record->equation;
 }
 
-auto Reaction::record() const -> std::shared_ptr<const v2::ReactionRecord>
+auto Reaction::record() const -> std::shared_ptr<const model::ReactionRecord>
 {
     return pimpl->record;
 }
@@ -305,18 +305,18 @@ auto Reaction::jsonString() const -> std::string
     if (!pimpl->jString.empty())
         return pimpl->jString;
     // an edited record: written from its fields, in the format it came from
-    return pimpl->record->source_format == v2::DataFormat::V2 ? v2::writeV2Reaction(*pimpl->record) : v2::writeLegacyReaction(*pimpl->record);
+    return pimpl->record->source_format == model::DataFormat::V2 ? model::writeV2Reaction(*pimpl->record) : model::writeLegacyReaction(*pimpl->record);
 }
 
 auto Reaction::fromEquation(const std::string &reactionEquation) -> void
 {
-    pimpl->edit([&](v2::ReactionRecord& r) {
+    pimpl->edit([&](model::ReactionRecord& r) {
         r.equation = reactionEquation;
         if (r.symbol.empty())
             r.symbol = reactionEquation;
         // the coefficients of the equation are added to those that the record has
         auto all = compat::reactants(r);
-        for (const auto& [symbol, coefficient] : v2::stoichiometryOfEquation(reactionEquation))
+        for (const auto& [symbol, coefficient] : model::stoichiometryOfEquation(reactionEquation))
             all[symbol] = coefficient;
         r.stoichiometry.assign(all.begin(), all.end());
     });

@@ -22,7 +22,7 @@
 #include "Methods/Water/WaterMethods.h"
 
 using namespace ThermoFun;
-using namespace ThermoFun::v2;
+using namespace ThermoFun::model;
 
 static int failures = 0;
 

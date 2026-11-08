@@ -3,7 +3,7 @@
 
 #include "Executor.h"
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -192,4 +192,4 @@ auto substanceParameterDerivative(const BoundSubstance& bound, const ParameterSe
     return {state.G[1], state.H[1], state.S[1], state.Cp[1], state.V[1]};
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

@@ -16,7 +16,7 @@ namespace {
 
 using nlohmann::json;
 using namespace ThermoFun;
-using namespace ThermoFun::v2;
+using namespace ThermoFun::model;
 
 auto close(double a, double b) -> bool
 {

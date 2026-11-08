@@ -13,7 +13,7 @@
 
 // What the methods with formulas on the property structures have in common.
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 inline constexpr double jPerBarToM3 = 1e-5;
 
@@ -90,6 +90,6 @@ inline auto volumeInJPerBar(const ValueInfo& V) -> ValueInfo
     return out;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

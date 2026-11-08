@@ -4,7 +4,7 @@
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
-namespace ThermoFun::v2::v2reader {
+namespace ThermoFun::model::v2reader {
 
 void report(Context& c, Severity severity, const char* code, const std::string& record, const std::string& path,
             const std::string& message)
@@ -185,9 +185,9 @@ auto readDocument(const json& root, Diagnostics& diagnostics, const std::string&
     return doc;
 }
 
-} // namespace ThermoFun::v2::v2reader
+} // namespace ThermoFun::model::v2reader
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 using namespace v2reader;
 
@@ -362,4 +362,4 @@ auto resolveV2Document(const V2Document& document, Diagnostics& diagnostics) -> 
                        "The substance " + item.first + " is not in the document.");
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

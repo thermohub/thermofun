@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Model/MethodParameterSet.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 // The constants of the methods: the files of Methods/ParameterSets, kept in the library when it is built. A file is named
 // after its method, Method.yaml or Method-variant.yaml, and is read the first time that method needs it.
@@ -28,6 +28,6 @@ auto parameterSetVariant(const std::string& symbol) -> const MethodParameterSet*
 /// All the sets of the library, by symbol.
 auto builtinParameterSets() -> const std::map<std::string, MethodParameterSet>&;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

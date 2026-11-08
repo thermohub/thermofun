@@ -38,7 +38,9 @@ jobs:
 
       - name: Check the includes of the layers
         if: matrix.os == 'ubuntu-latest'
-        run: python3 tests/layers/check_includes.py
+        run: |
+          python3 tests/layers/check_includes.py
+          python3 tests/layers/public_headers.py
 
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v4

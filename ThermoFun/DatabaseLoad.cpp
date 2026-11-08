@@ -59,8 +59,8 @@ auto Database::Impl::addRecords(json j, std::string _label) -> void
 auto Database::Impl::fromV2(const std::string& text, const std::string& file) -> void
 {
     Diagnostics diagnostics;
-    v2::V2Document document = v2::readV2Document(text, diagnostics, file);
-    v2::resolveV2Document(document, diagnostics);
+    model::V2Document document = model::readV2Document(text, diagnostics, file);
+    model::resolveV2Document(document, diagnostics);
     for (const auto& d : diagnostics.all())
     {
         load_diagnostics.add(d);
@@ -70,7 +70,7 @@ auto Database::Impl::fromV2(const std::string& text, const std::string& file) ->
     // how the methods of each substance combine; a legacy record is read as it is, so only here
     for (const auto& record : document.substances)
     {
-        const Diagnostics conflicts = v2::checkMethods(record);
+        const Diagnostics conflicts = model::checkMethods(record);
         for (const auto& d : conflicts.all())
         {
             diagnostics.add(d);
@@ -97,19 +97,19 @@ auto Database::Impl::fromV2(const std::string& text, const std::string& file) ->
     {
         checkIfSymbolExists(elements_map, "element", record.symbol);
         const std::string symbol = record.symbol;
-        elements_map[symbol] = Element(std::make_shared<const v2::ElementRecord>(std::move(record)));
+        elements_map[symbol] = Element(std::make_shared<const model::ElementRecord>(std::move(record)));
     }
     for (auto& record : document.substances)
     {
         checkIfSymbolExists(substances_map, "substance", record.symbol);
         const std::string symbol = record.symbol;
-        substances_map[symbol] = Substance(std::make_shared<const v2::SubstanceRecord>(std::move(record)));
+        substances_map[symbol] = Substance(std::make_shared<const model::SubstanceRecord>(std::move(record)));
     }
     for (auto& record : document.reactions)
     {
         checkIfSymbolExists(reactions_map, "reaction", record.symbol);
         const std::string symbol = record.symbol;
-        reactions_map[symbol] = Reaction(std::make_shared<const v2::ReactionRecord>(std::move(record)));
+        reactions_map[symbol] = Reaction(std::make_shared<const model::ReactionRecord>(std::move(record)));
     }
 }
 
@@ -173,11 +173,11 @@ auto Database::Impl::loadV2File(const std::filesystem::path& path, std::vector<s
 
     using ordered = nlohmann::ordered_json;
     ordered tree;
-    if (v2::detail::looksLikeJson(text))
+    if (model::detail::looksLikeJson(text))
         tree = ordered::parse(text, nullptr, false);
     else
     {
-        auto yaml = v2::detail::readYaml(text);
+        auto yaml = model::detail::readYaml(text);
         if (yaml.ok)
             tree = std::move(yaml.tree);
         else
@@ -206,7 +206,7 @@ auto Database::Impl::loadV2File(const std::filesystem::path& path, std::vector<s
         bundle[section->second] = ordered::array({tree});
         fromV2(bundle.dump(), key);
     }
-    else if (tree.contains("thermohub") || !v2::detail::looksLikeJson(text))
+    else if (tree.contains("thermohub") || !model::detail::looksLikeJson(text))
         fromV2(text, key);
     else
         fromFile(key);
@@ -292,10 +292,10 @@ auto Database::Impl::fromFile(std::string filename) -> void
                 file = filename;
                 text.assign(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
             }
-            else if (v2::detail::looksLikeJson(filename) || filename.find("thermohub") == std::string::npos)
+            else if (model::detail::looksLikeJson(filename) || filename.find("thermohub") == std::string::npos)
                 funError("File reading error", std::string("Database file " + filename + " not found!"), __LINE__, __FILE__);
 
-            if (v2::detail::looksLikeJson(text))
+            if (model::detail::looksLikeJson(text))
                 j = json::parse(text);
             else
             {
@@ -305,7 +305,7 @@ auto Database::Impl::fromFile(std::string filename) -> void
             }
         }
 
-        if (v2::detail::detectDocumentFormat(j) == v2::DataFormat::V2)
+        if (model::detail::detectDocumentFormat(j) == model::DataFormat::V2)
         {
             fromV2File(text, file);
             return;
@@ -313,7 +313,7 @@ auto Database::Impl::fromFile(std::string filename) -> void
 
         // the data about the dataset, if the file is the first one of the database
         if (dataset_info.symbol.empty())
-            dataset_info = v2::readLegacyDocumentInfo(text);
+            dataset_info = model::readLegacyDocumentInfo(text);
 
         if (j.contains("conventions"))
             conventions = readConventions(j["conventions"].dump());

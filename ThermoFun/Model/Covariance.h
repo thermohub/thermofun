@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The covariance of some values of a record: standard-state properties and method parameters.
 struct CovarianceBlock
@@ -21,6 +21,6 @@ struct CovarianceBlock
     auto operator==(const CovarianceBlock&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

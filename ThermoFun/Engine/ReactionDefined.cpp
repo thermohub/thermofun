@@ -10,7 +10,7 @@
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Common/ThermoPropertiesStatus.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 auto substanceFromReaction(double T, double P, const ThermoPropertiesReaction& tpr, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& others, double coeff) -> ThermoPropertiesSubstance
 {
@@ -258,4 +258,4 @@ DefiningReactionGuard::~DefiningReactionGuard()
     stack().pop_back();
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

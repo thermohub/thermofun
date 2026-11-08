@@ -32,6 +32,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   other public types and derivatives silently 0. `-DTFUN_USE_AUTODIFF=OFF` stops the configuration. `thermofun.with_autodiff`
   stays, always True.
 - **The installed CMake package finds its targets from its own folder**, also when spdlog is in another prefix (review B3).
+- **The namespace of the model is `ThermoFun::model`** (was `ThermoFun::v2`, a name tied to a version of the file
+  format). `ThermoFun.h` keeps `ThermoFun::v2` as an alias until 2.0 (review Q5).
+- **Only the public headers are installed** (45 of 144): ThermoEngine, Database, Substance, Reaction, Element,
+  ThermoBatch, Tables, the records (`Model/`), Diagnostics, the method catalog and Evaluate, and what they include
+  (`ThermoFun/PublicHeaders.cmake`, checked in CI by `tests/layers/public_headers.py`). Include `ThermoFun/ThermoFun.h`
+  (review Q6).
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

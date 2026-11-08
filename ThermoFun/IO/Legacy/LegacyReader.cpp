@@ -3,7 +3,7 @@
 
 #include <ThermoFun/IO/Legacy/detail/LegacyReaderParts.h>
 
-namespace ThermoFun::v2::legacyreader {
+namespace ThermoFun::model::legacyreader {
 
 void report(const Context& c, Severity severity, const std::string& code, const std::string& path, const std::string& message)
 {
@@ -158,9 +158,9 @@ auto readSources(const json& j) -> std::vector<std::string>
     return out;
 }
 
-} // namespace ThermoFun::v2::legacyreader
+} // namespace ThermoFun::model::legacyreader
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 using namespace legacyreader;
 
@@ -408,4 +408,4 @@ auto readLegacyDocumentInfo(const std::string& text) -> ThermoDataSetInfo
     return info;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

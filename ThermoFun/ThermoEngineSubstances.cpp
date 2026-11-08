@@ -12,32 +12,32 @@ namespace ThermoFun
 
 /// Where the properties of a record come from: the source of the symbol, else the preference of the engine, else the
 /// record. Empty: the rule of the record.
-auto ThermoEngine::Impl::sourceOf(const std::map<std::string, v2::PropertySource>& own, const std::string& symbol, const std::optional<v2::PropertySource>& preferred) const -> std::optional<v2::PropertySource>
+auto ThermoEngine::Impl::sourceOf(const std::map<std::string, model::PropertySource>& own, const std::string& symbol, const std::optional<model::PropertySource>& preferred) const -> std::optional<model::PropertySource>
 {
     const auto it = own.find(symbol);
     if (it != own.end())
         return it->second;
-    if (preferences.property_source != v2::PropertySource::Record)
+    if (preferences.property_source != model::PropertySource::Record)
         return preferences.property_source;
     return preferred;
 }
 
 /// A record with the implementations of the preferences
-auto ThermoEngine::Impl::withImplementations(std::shared_ptr<const v2::SubstanceRecord> record) const -> std::shared_ptr<const v2::SubstanceRecord>
+auto ThermoEngine::Impl::withImplementations(std::shared_ptr<const model::SubstanceRecord> record) const -> std::shared_ptr<const model::SubstanceRecord>
 {
-    record = v2::withParameterSets(std::move(record), database.parameterSets());
+    record = model::withParameterSets(std::move(record), database.parameterSets());
     if (preferences.method_implementation.empty())
         return record;
-    auto copy = std::make_shared<v2::SubstanceRecord>(*record);
+    auto copy = std::make_shared<model::SubstanceRecord>(*record);
     for (const auto& [id, implementation] : preferences.method_implementation)
         for (auto& a : copy->methods)
-            if (a.method == v2::MethodCatalog::instance().find(id)->id)
+            if (a.method == model::MethodCatalog::instance().find(id)->id)
                 a.implementation = implementation;
     return copy;
 }
 
 /// The methods of a substance. Null if they give no one base method: then no method runs.
-auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>
+auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::shared_ptr<const model::BoundSubstance>
 {
     const auto record = substance.record();
     std::lock_guard<std::mutex> lock(bound_cache->mutex);
@@ -45,8 +45,8 @@ auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::
     if (it != bound_cache->substances.end())
         return it->second;
     const auto formula = record->formula;
-    const v2::BindConventions bind{database.thermoDataSet().convention, &database.methods(), [this, formula] { return elementEntropy(formula); }};
-    auto bound = v2::canBind(*record, &database.methods()) ? v2::bindSubstance(withImplementations(record), bind) : nullptr;
+    const model::BindConventions bind{database.thermoDataSet().convention, &database.methods(), [this, formula] { return elementEntropy(formula); }};
+    auto bound = model::canBind(*record, &database.methods()) ? model::bindSubstance(withImplementations(record), bind) : nullptr;
     bound_cache->substances[record.get()] = bound;
     bound_cache->records.push_back(record);
     return bound;
@@ -54,11 +54,11 @@ auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::
 
 /// The state of the solvent that the methods of a record need, calculated with the methods of the solvent record.
 /// A pressure of 0 is the saturation pressure: it is written to P.
-auto ThermoEngine::Impl::solventInputs(const v2::BoundSubstance& bound, double T, double& P) const -> std::optional<v2::SolventInputs>
+auto ThermoEngine::Impl::solventInputs(const model::BoundSubstance& bound, double T, double& P) const -> std::optional<model::SolventInputs>
 {
     if (!bound.needs.solvent)
         return std::nullopt;
-    v2::SolventInputs in;
+    model::SolventInputs in;
     const auto symbol = solvent_in_use;
     if (!database.containsSubstance(symbol) && std::any_of(bound.to_canonical.begin(), bound.to_canonical.end(), [](const auto& s) { return s.needsSolvent(); }))
         throw std::runtime_error("CNV-002: " + bound.record->symbol + " is in molarity, and the database has no solvent " + symbol + ".");
@@ -83,36 +83,36 @@ auto ThermoEngine::Impl::solventInputs(const v2::BoundSubstance& bound, double T
 }
 
 /// The methods of a water record.
-auto ThermoEngine::Impl::boundSolvent(const Substance& substance) const -> std::shared_ptr<const v2::BoundSolvent>
+auto ThermoEngine::Impl::boundSolvent(const Substance& substance) const -> std::shared_ptr<const model::BoundSolvent>
 {
     const auto record = substance.record();
     std::lock_guard<std::mutex> lock(bound_cache->mutex);
     const auto it = bound_cache->solvents.find(record.get());
     if (it != bound_cache->solvents.end())
         return it->second;
-    auto bound = v2::bindSolvent(withImplementations(record));
+    auto bound = model::bindSolvent(withImplementations(record));
     bound_cache->solvents[record.get()] = bound;
     bound_cache->records.push_back(record);
     return bound;
 }
 
-auto ThermoEngine::Impl::substanceOptions() const -> v2::SubstanceOptions
+auto ThermoEngine::Impl::substanceOptions() const -> model::SubstanceOptions
 {
     return {preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props};
 }
 
 /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
-auto ThermoEngine::Impl::toThermoProperties(const v2::SubstanceResult& r) -> ThermoPropertiesSubstance
+auto ThermoEngine::Impl::toThermoProperties(const model::SubstanceResult& r) -> ThermoPropertiesSubstance
 {
-    auto one = [](const v2::PropertyValue& v, const v2::ValueInfo& i, double factor = 1.0) {
+    auto one = [](const model::PropertyValue& v, const model::ValueInfo& i, double factor = 1.0) {
         Reaktoro_::ThermoProperty p;
         p.val = v.val * factor;
         p.ddt = v.ddt * factor;
         p.ddp = v.ddp * factor;
         p.err = i.err * factor;
-        p.sta = {i.status == v2::ValueInfo::Status::NotDefined ? Reaktoro_::Status::notdefined
-                 : i.status == v2::ValueInfo::Status::Assigned ? Reaktoro_::Status::assigned
-                 : i.status == v2::ValueInfo::Status::Read ? Reaktoro_::Status::read : Reaktoro_::Status::calculated, i.message};
+        p.sta = {i.status == model::ValueInfo::Status::NotDefined ? Reaktoro_::Status::notdefined
+                 : i.status == model::ValueInfo::Status::Assigned ? Reaktoro_::Status::assigned
+                 : i.status == model::ValueInfo::Status::Read ? Reaktoro_::Status::read : Reaktoro_::Status::calculated, i.message};
         return p;
     };
     ThermoPropertiesSubstance tps;
@@ -167,16 +167,16 @@ auto ThermoEngine::Impl::comesFromReaction(const Substance &substance) const -> 
 {
     const auto record = substance.record();
     bool fromReaction = substance.thermoCalculationType() == SubstanceThermoCalculationType::type::REACDC ||
-                        record->preferred_property_source == v2::PropertySource::Reaction || record->methods.empty();
+                        record->preferred_property_source == model::PropertySource::Reaction || record->methods.empty();
     // no base method: only corrections, which work on what the reaction gives
     if (!record->defining_reaction.empty() && !record->methods.empty() && !hasBaseMethod(*record))
         fromReaction = true;
 
     // the source can replace the rule, if the record has what that source needs
     const auto source = sourceOf(substance_sources, record->symbol, record->preferred_property_source);
-    if (source == v2::PropertySource::Reaction && !record->defining_reaction.empty())
+    if (source == model::PropertySource::Reaction && !record->defining_reaction.empty())
         fromReaction = true;
-    else if (source == v2::PropertySource::Direct && hasBaseMethod(*record))
+    else if (source == model::PropertySource::Direct && hasBaseMethod(*record))
         fromReaction = false;
     return fromReaction;
 }
@@ -185,11 +185,11 @@ auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKi
 {
     const auto record = substance.record();
     SubstanceKind kind;
-    kind.isHydrogen = v2::isZeroHydrogenIon(*record, database.thermoDataSet().convention);
+    kind.isHydrogen = model::isZeroHydrogenIon(*record, database.thermoDataSet().convention);
     kind.isH2Ovapor = compat::isWaterVapour(*record);
-    kind.isH2OSolvent = record->class_ == v2::SubstanceClass::WaterSolvent;
+    kind.isH2OSolvent = record->class_ == model::SubstanceClass::WaterSolvent;
     kind.isReacDC = comesFromReaction(substance);
-    kind.state = v2::solventStateOf(*record);
+    kind.state = model::solventStateOf(*record);
     return kind;
 }
 
@@ -259,8 +259,8 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             }
             else if (solvent->reference_values)
             {
-                tps = toThermoProperties(v2::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
-                if (kind.isH2OSolvent && declaredConvention(*substance.record()).water_reference == v2::WaterReference::SteamTables)
+                tps = toThermoProperties(model::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
+                if (kind.isH2OSolvent && declaredConvention(*substance.record()).water_reference == model::WaterReference::SteamTables)
                     steamTablesShift(tps, T, 1.0);
                 cameFrom("reference");
             }
@@ -272,8 +272,8 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             if (P == 0.0 && !bound->needs.solvent)
                 P = saturationPressure(T);
             const auto solvent = solventInputs(*bound, T, P);
-            std::vector<v2::ExplainStep> steps;
-            tps = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions(), detailed ? &steps : nullptr, solvent ? &*solvent : nullptr));
+            std::vector<model::ExplainStep> steps;
+            tps = toThermoProperties(model::executeSubstance(*bound, T, P, substanceOptions(), detailed ? &steps : nullptr, solvent ? &*solvent : nullptr));
             cameFrom("methods");
             if (detailed)
                 for (std::size_t i = 0; i < bound->order.size(); ++i)
@@ -373,12 +373,12 @@ auto ThermoEngine::Impl::reactionCarriesPressure(const Reaction& reaction) const
     const auto record = reaction.record();
     if (reactionFromReactants(reaction))
         return true;  // its species do
-    const auto volume = record->reaction_properties.find(v2::ReactionPropertyName::dV);
+    const auto volume = record->reaction_properties.find(model::ReactionPropertyName::dV);
     const bool hasVolume = volume != record->reaction_properties.end() && volume->second.value != 0.0;
     for (const auto& a : record->methods)
     {
-        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Reaction);
-        if (!spec || (spec->depends_on != v2::Dependence::P && spec->depends_on != v2::Dependence::TP))
+        const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Reaction);
+        if (!spec || (spec->depends_on != model::Dependence::P && spec->depends_on != model::Dependence::TP))
             continue;
         // a model of log K has P in it; a method of the volume works on the reference volume of the reaction
         if (spec->reaction_effects.base || hasVolume)
@@ -397,7 +397,7 @@ auto ThermoEngine::Impl::dataPressure(double T, const Substance& substance) cons
     else
         Psat = waterCriticalP();  // where the saturation curve ends
     const double P = std::max(substance.referenceP(), Psat);
-    static const double rho_min = v2::builtinConstants("DataPressure")->parameters.at("rho_min").value;  // kg/m3
+    static const double rho_min = model::builtinConstants("DataPressure")->parameters.at("rho_min").value;  // kg/m3
     return rho_min > 0.0 ? pressureAtDensity(T, rho_min, P) : P;
 }
 
@@ -410,7 +410,7 @@ auto ThermoEngine::Impl::saturationPressure(double T) const -> double
         return P;
     }
     static const auto curve = [] {
-        const auto& c = v2::builtinConstants("WaterSaturation")->parameters;
+        const auto& c = model::builtinConstants("WaterSaturation")->parameters;
         WaterSaturationConstants s;
         for (int i = 1; i <= 6; ++i)
         {
@@ -432,7 +432,7 @@ auto ThermoEngine::Impl::pressureAtDensity(double T, double rho, double P) const
     auto density = [&](double p) { return static_cast<double>(bound->equation_of_state->properties(T, p, 0).density.val); };  // p is a copy: a model writes P
     // Below Tcr P is the saturation pressure: dense enough as long as the saturated liquid is. Above Tcr P is the critical
     // pressure, where the density is the critical one: an iteration for the density may not converge there, so it is not asked.
-    static const double Dcr = v2::builtinConstants("WaterSaturation")->parameters.at("Dcr").value;
+    static const double Dcr = model::builtinConstants("WaterSaturation")->parameters.at("Dcr").value;
     if ((T < waterCriticalT() || rho <= Dcr) && density(P) >= rho)
         return P;
     // a Helmholtz model gives P at (T, rho) directly; here rho is in the one-phase region
@@ -455,10 +455,10 @@ auto ThermoEngine::Impl::pressureAtDensity(double T, double rho, double P) const
     return high;
 }
 
-auto ThermoEngine::Impl::hasBaseMethod(const v2::SubstanceRecord& record) -> bool
+auto ThermoEngine::Impl::hasBaseMethod(const model::SubstanceRecord& record) -> bool
 {
     return std::any_of(record.methods.begin(), record.methods.end(), [](const auto& a) {
-        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance);
+        const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
         return spec && spec->effects.base;
     });
 }
@@ -467,13 +467,13 @@ auto ThermoEngine::Impl::pressureFromRecord(const Substance& substance, const Re
 {
     const auto& methods = substance.record()->methods;
     const bool own = std::any_of(methods.begin(), methods.end(), [](const auto& a) {
-        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance);
-        return spec && !spec->effects.base && (spec->depends_on == v2::Dependence::P || spec->depends_on == v2::Dependence::TP);
+        const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
+        return spec && !spec->effects.base && (spec->depends_on == model::Dependence::P || spec->depends_on == model::Dependence::TP);
     });
     return own && !reactionCarriesPressure(reaction);
 }
 
-auto ThermoEngine::Impl::pressureCorrections(const Substance& substance) const -> std::shared_ptr<const v2::BoundSubstance>
+auto ThermoEngine::Impl::pressureCorrections(const Substance& substance) const -> std::shared_ptr<const model::BoundSubstance>
 {
     const auto record = substance.record();
     std::lock_guard<std::mutex> lock(bound_cache->mutex);
@@ -481,22 +481,22 @@ auto ThermoEngine::Impl::pressureCorrections(const Substance& substance) const -
     if (it != bound_cache->corrections.end())
         return it->second;
     // ConstantVolume starts from the pressure of the data: see reacDCthermoProperties
-    auto only = std::make_shared<v2::SubstanceRecord>(*withImplementations(record));
+    auto only = std::make_shared<model::SubstanceRecord>(*withImplementations(record));
     only->methods.erase(std::remove_if(only->methods.begin(), only->methods.end(), [](const auto& a) {
-        const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance);
-        return !spec || spec->effects.base || a.method == "ConstantVolume" || !v2::MethodRegistry::instance().hasSubstanceMethod(a.method) ||
-               (spec->depends_on != v2::Dependence::P && spec->depends_on != v2::Dependence::TP);
+        const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
+        return !spec || spec->effects.base || a.method == "ConstantVolume" || !model::MethodRegistry::instance().hasSubstanceMethod(a.method) ||
+               (spec->depends_on != model::Dependence::P && spec->depends_on != model::Dependence::TP);
     }), only->methods.end());
-    auto bound = v2::bindSubstance(only);
+    auto bound = model::bindSubstance(only);
     bound_cache->corrections[record.get()] = bound;
     bound_cache->records.push_back(record);
     return bound;
 }
 
-auto ThermoEngine::Impl::valuesOf(const ThermoPropertiesSubstance& tps) -> v2::MethodResult
+auto ThermoEngine::Impl::valuesOf(const ThermoPropertiesSubstance& tps) -> model::MethodResult
 {
-    auto one = [](const Reaktoro_::ThermoProperty& p, double factor = 1.0) { return v2::PropertyValue{p.val * factor, p.ddt * factor, p.ddp * factor}; };
-    v2::MethodResult out;
+    auto one = [](const Reaktoro_::ThermoProperty& p, double factor = 1.0) { return model::PropertyValue{p.val * factor, p.ddt * factor, p.ddp * factor}; };
+    model::MethodResult out;
     out.G = one(tps.gibbs_energy);
     out.H = one(tps.enthalpy);
     out.S = one(tps.entropy);
@@ -513,7 +513,7 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     const Reaction reaction = database.getReaction(reactionSymbol);
     std::map<std::string, double> reactants;
 
-    const v2::DefiningReactionGuard no_cycle(subst.symbol());
+    const model::DefiningReactionGuard no_cycle(subst.symbol());
 
     // A record that gives its own pressure term, and a reaction that does not: all at the pressure of the data of the reaction, then that term. Else all at P.
     // Not the other species at P and then the term: their pressure effect would come into the substance twice.
@@ -539,7 +539,7 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     const double coeff = reactants[subst.symbol()];
 
     // the properties of the substance from the properties of the reaction and of the other reactants
-    tps = v2::substanceFromReaction(T, Pcalc, tpr, others, coeff);
+    tps = model::substanceFromReaction(T, Pcalc, tpr, others, coeff);
     if (!ownTerm)
         return tps;
 
@@ -548,12 +548,12 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
             field->ddp = 0.0;  // the values of the data do not change with P
     tps = fallbackThermoPropertiesSubstance(tps, subst);
     if (hasMethod(subst.record()->methods, "ConstantVolume"))
-        tps = v2::constantVolumeCorrection(T, P, tps, subst.thermoReferenceProperties(), fromData ? Pdata : subst.referenceP());
+        tps = model::constantVolumeCorrection(T, P, tps, subst.thermoReferenceProperties(), fromData ? Pdata : subst.referenceP());
     if (const auto corrections = pressureCorrections(subst); corrections && !corrections->order.empty())
     {
         const auto solvent = solventInputs(*corrections, T, P);
-        const auto out = v2::executeOn(valuesOf(tps), *corrections, T, P, substanceOptions(), solvent ? &*solvent : nullptr);
-        auto keep = [](Reaktoro_::ThermoProperty& to, const v2::PropertyValue& value, double factor = 1.0) {
+        const auto out = model::executeOn(valuesOf(tps), *corrections, T, P, substanceOptions(), solvent ? &*solvent : nullptr);
+        auto keep = [](Reaktoro_::ThermoProperty& to, const model::PropertyValue& value, double factor = 1.0) {
             to.val = value.val * factor;
             to.ddt = value.ddt * factor;
             to.ddp = value.ddp * factor;

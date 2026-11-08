@@ -12,8 +12,8 @@
 
 #include <ThermoFun/Engine/ResultCache.h>
 
-using ThermoFun::v2::ResultCache;
-using ThermoFun::v2::ResultKey;
+using ThermoFun::model::ResultCache;
+using ThermoFun::model::ResultKey;
 
 // assert() is compiled out in the default Release build
 static int failures = 0;

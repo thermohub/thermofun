@@ -16,7 +16,7 @@ namespace ThermoFun {
 
 void exportRecords(py::module& m)
 {
-    using namespace v2;
+    using namespace model;
 
     // words: the names SubstanceClass and AggregateState are the enums of the old API
     auto wordOf = [](auto value) { return toString(value); };
@@ -84,12 +84,12 @@ void exportRecords(py::module& m)
     py::class_<SubstanceRecord>(m, "SubstanceRecord", "What a data file says about a substance")
         .def(py::init<>())
         .def_readwrite("symbol", &SubstanceRecord::symbol)
-        .def_property("class_", [wordOf](const SubstanceRecord& r) { return wordOf(r.class_); }, [](SubstanceRecord& r, const std::string& w) { r.class_ = fromString<v2::SubstanceClass>(w).value_or(v2::SubstanceClass::Other); })
+        .def_property("class_", [wordOf](const SubstanceRecord& r) { return wordOf(r.class_); }, [](SubstanceRecord& r, const std::string& w) { r.class_ = fromString<model::SubstanceClass>(w).value_or(model::SubstanceClass::Other); })
         .def_readwrite("sourcetdb", &SubstanceRecord::sourcetdb)
         .def_readwrite("name", &SubstanceRecord::name)
         .def_readwrite("formula", &SubstanceRecord::formula)
         .def_readwrite("charge", &SubstanceRecord::charge)
-        .def_property("aggregate_state", [wordOf](const SubstanceRecord& r) { return wordOf(r.aggregate_state); }, [](SubstanceRecord& r, const std::string& w) { r.aggregate_state = fromString<v2::AggregateState>(w).value_or(v2::AggregateState::Other); })
+        .def_property("aggregate_state", [wordOf](const SubstanceRecord& r) { return wordOf(r.aggregate_state); }, [](SubstanceRecord& r, const std::string& w) { r.aggregate_state = fromString<model::AggregateState>(w).value_or(model::AggregateState::Other); })
         .def_readwrite("molar_mass", &SubstanceRecord::molar_mass)
         .def_readwrite("standard_state_convention", &SubstanceRecord::standard_state_convention)
         .def_readwrite("convention", &SubstanceRecord::convention)

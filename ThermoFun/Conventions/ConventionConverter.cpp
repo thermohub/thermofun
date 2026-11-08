@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -66,4 +66,4 @@ auto shiftFromCanonical(const Convention& to, const ConversionSubject& subject) 
     return shift;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

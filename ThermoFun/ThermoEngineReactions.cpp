@@ -11,14 +11,14 @@ namespace ThermoFun
 {
 
 /// The methods of a reaction. Null if they give no one base method: then no method runs.
-auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::shared_ptr<const v2::BoundReaction>
+auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::shared_ptr<const model::BoundReaction>
 {
     const auto record = reaction.record();
     std::lock_guard<std::mutex> lock(bound_cache->mutex);
     const auto it = bound_cache->reactions.find(record.get());
     if (it != bound_cache->reactions.end())
         return it->second;
-    auto bound = v2::canBindReaction(*record, &database.methods()) ? v2::bindReaction(v2::withParameterSets(record, database.parameterSets()), &database.methods()) : nullptr;
+    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods()) : nullptr;
     bound_cache->reactions[record.get()] = bound;
     bound_cache->reaction_records.push_back(record);
     return bound;
@@ -60,7 +60,7 @@ auto ThermoEngine::Impl::warnIfLogKFunctionDisagrees(const Reaction &reaction) c
     inputs.coefficients.assign(logK.begin(), logK.end());
     const auto& cp = reaction.thermoParameters().reaction_Cp_fT_coeff;
     inputs.cp_coefficients.assign(cp.begin(), cp.end());
-    const auto fn = v2::logKProperties(inputs, LogKForm::Polynomial, Tr, reaction.referenceP());
+    const auto fn = model::logKProperties(inputs, LogKForm::Polynomial, Tr, reaction.referenceP());
     const double lgK_fn = fn.log_equilibrium_constant.val;
     if (!std::isfinite(lgK_fn) || std::fabs(lgK_fn - lgK_ref) <= 0.01)
         return;
@@ -77,7 +77,7 @@ auto ThermoEngine::Impl::reactionFromReactants(const Reaction& reaction) const -
 {
     const auto record = reaction.record();
     const auto source = sourceOf(reaction_sources, record->symbol, record->preferred_property_source);
-    if (!record->methods.empty() && (source != v2::PropertySource::Reactants || record->stoichiometry.empty()))
+    if (!record->methods.empty() && (source != model::PropertySource::Reactants || record->stoichiometry.empty()))
         return false;
     for (const auto& reactant : reaction.reactants())
     {
@@ -87,7 +87,7 @@ auto ThermoEngine::Impl::reactionFromReactants(const Reaction& reaction) const -
         if (substance.reactionSymbol() != reaction.symbol() || !comesFromReaction(substance))
             continue;
         const std::string loop = reactant.first + " -> " + reaction.symbol() + " -> " + reactant.first;
-        const bool forThisReaction = reaction_sources.count(record->symbol) || record->preferred_property_source == v2::PropertySource::Reactants;
+        const bool forThisReaction = reaction_sources.count(record->symbol) || record->preferred_property_source == model::PropertySource::Reactants;
         if (record->methods.empty() || forThisReaction)
             funError("Cannot calculate the reaction " + reaction.symbol() + " from its reactants",
                      "A cycle of defining reactions: " + loop + ". Give " + reactant.first + " a base method, or give the reaction a method and use it.", __LINE__, __FILE__);
@@ -117,9 +117,9 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
             solvent = cachedSolvent(T, P, solvent_in_use, -1);
         else if (P == 0.0)
             P = saturationPressure(T);  // P = 0 is the saturation pressure of water also for a reaction that does not use water
-        auto tpr = v2::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
+        auto tpr = model::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
         // the species of the record in another standard state: to the canonical one
-        const auto shift = reactionShift(reaction, v2::mergeConvention(record->convention.value_or(v2::Convention{}), database.thermoDataSet().convention), true);
+        const auto shift = reactionShift(reaction, model::mergeConvention(record->convention.value_or(model::Convention{}), database.thermoDataSet().convention), true);
         if (!shift.identity())
             convert(tpr, shift, T, P, reaction.symbol());
         return tpr;
@@ -160,7 +160,7 @@ auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double 
         symbols.push_back(substance);
     }
 
-    tpr = v2::reactionFromReactants(T, P, reaction.symbol(), components, symbols);
+    tpr = model::reactionFromReactants(T, P, reaction.symbol(), components, symbols);
 
     return tpr;
 }

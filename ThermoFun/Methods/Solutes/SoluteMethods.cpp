@@ -15,7 +15,7 @@
 #include <ThermoFun/Methods/Solutes/SoluteHKFreaktoro.h>
 #include <ThermoFun/Methods/Solutes/SoluteHollandPowell98.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -249,4 +249,4 @@ auto akinfievDiamond03Method(std::vector<double> parameters, std::string symbol,
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const auto&) { akinfievDiamond03Info(out, in); });
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

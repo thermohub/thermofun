@@ -7,7 +7,7 @@
 #include <ThermoFun/Methods/MethodRegistry.h>
 #include <ThermoFun/Methods/Symbolic/SymbolicMethod.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 auto canBindReaction(const ReactionRecord& record, const std::map<std::string, MethodDefinition>* definitions) -> bool
 {
@@ -73,4 +73,4 @@ auto reactionParameterDerivative(const BoundReaction& bound, const std::string& 
     return bound.volume->parameterDerivative(seedOf(*bound.volume), T, P, incoming, solvent);
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

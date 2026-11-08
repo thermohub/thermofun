@@ -12,7 +12,7 @@
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/IO/V2/V2Keys.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 

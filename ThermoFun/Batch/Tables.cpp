@@ -24,7 +24,7 @@
 
 namespace ThermoFun {
 
-namespace v2::detail {
+namespace model::detail {
 struct BuiltinFile
 {
     const char* name;
@@ -33,7 +33,7 @@ struct BuiltinFile
 };
 extern const BuiltinFile builtin_table_templates[];
 extern const unsigned long builtin_table_template_count;
-} // namespace v2::detail
+} // namespace model::detail
 
 namespace {
 
@@ -335,9 +335,9 @@ auto setOption(EnginePreferences& p, const std::string& key, const json& value) 
     else if (key == "method_implementation") p.method_implementation = value.get<std::map<std::string, std::string>>();
     else if (key == "property_source")
     {
-        const auto word = v2::fromString<v2::PropertySource>(value.get<std::string>());
+        const auto word = model::fromString<model::PropertySource>(value.get<std::string>());
         if (!word)
-            fail(v2::unknownWordMessage<v2::PropertySource>(value.get<std::string>()));
+            fail(model::unknownWordMessage<model::PropertySource>(value.get<std::string>()));
         p.property_source = *word;
     }
     else
@@ -347,18 +347,18 @@ auto setOption(EnginePreferences& p, const std::string& key, const json& value) 
 template <class E>
 auto wordOf(const json& value) -> E
 {
-    const auto word = v2::fromString<E>(value.get<std::string>());
+    const auto word = model::fromString<E>(value.get<std::string>());
     if (!word)
-        fail(v2::unknownWordMessage<E>(value.get<std::string>()));
+        fail(model::unknownWordMessage<E>(value.get<std::string>()));
     return *word;
 }
 
 auto setConvention(EngineConventions& c, const std::string& key, const json& value) -> void
 {
-    if (key == "energy_reference") c.energy_reference = wordOf<v2::EnergyReference>(value);
-    else if (key == "standard_pressure") c.standard_pressure = wordOf<v2::StandardPressure>(value);
-    else if (key == "concentration_scale") c.concentration_scale = wordOf<v2::ConcentrationScale>(value);
-    else if (key == "water_reference") c.water_reference = wordOf<v2::WaterReference>(value);
+    if (key == "energy_reference") c.energy_reference = wordOf<model::EnergyReference>(value);
+    else if (key == "standard_pressure") c.standard_pressure = wordOf<model::StandardPressure>(value);
+    else if (key == "concentration_scale") c.concentration_scale = wordOf<model::ConcentrationScale>(value);
+    else if (key == "water_reference") c.water_reference = wordOf<model::WaterReference>(value);
     else
         fail("The conventions have no field " + key + ".");
 }
@@ -434,11 +434,11 @@ auto parseText(const std::string& text) -> json
     try
     {
         if (start == std::string::npos || text[start] != '{')
-            return json::parse(v2::yamlToJson(text));
+            return json::parse(model::yamlToJson(text));
         if (json::accept(text))
             return json::parse(text);
         // {a: 1} is YAML too, and the reader of YAML starts from a block
-        return json::parse(v2::yamlToJson("setup: " + text))["setup"];
+        return json::parse(model::yamlToJson("setup: " + text))["setup"];
     }
     catch (const std::exception& error)
     {
@@ -486,15 +486,15 @@ auto userTemplateFiles() -> std::map<std::string, std::filesystem::path>
     return out;
 }
 
-auto templateFile(const std::string& name) -> const v2::detail::BuiltinFile*
+auto templateFile(const std::string& name) -> const model::detail::BuiltinFile*
 {
-    for (unsigned long i = 0; i < v2::detail::builtin_table_template_count; ++i)
-        if (std::filesystem::path(v2::detail::builtin_table_templates[i].name).stem().string() == name)
-            return &v2::detail::builtin_table_templates[i];
+    for (unsigned long i = 0; i < model::detail::builtin_table_template_count; ++i)
+        if (std::filesystem::path(model::detail::builtin_table_templates[i].name).stem().string() == name)
+            return &model::detail::builtin_table_templates[i];
     return nullptr;
 }
 
-auto textOf(const v2::detail::BuiltinFile& file) -> std::string
+auto textOf(const model::detail::BuiltinFile& file) -> std::string
 {
     return std::string(reinterpret_cast<const char*>(file.text), file.size);
 }
@@ -1364,9 +1364,9 @@ auto TableSetup::fromFile(const std::string& path) -> TableSetup
 auto TableSetup::templates() -> std::map<std::string, std::string>
 {
     std::map<std::string, std::string> out;
-    for (unsigned long i = 0; i < v2::detail::builtin_table_template_count; ++i)
+    for (unsigned long i = 0; i < model::detail::builtin_table_template_count; ++i)
     {
-        const auto& file = v2::detail::builtin_table_templates[i];
+        const auto& file = model::detail::builtin_table_templates[i];
         out[std::filesystem::path(file.name).stem().string()] = describedBy(textOf(file));
     }
     for (const auto& item : userTemplateFiles())

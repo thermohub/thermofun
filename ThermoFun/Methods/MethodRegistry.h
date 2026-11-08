@@ -17,7 +17,7 @@
 #include <ThermoFun/Model/ReactionRecord.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// Makes the method objects from what a record says. It has one factory for each method id and implementation.
 /// The application with the built-in constants of its method, for each value that it does not give itself.
@@ -78,6 +78,6 @@ private:
     std::map<std::string, ReactionFactory> reaction_;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

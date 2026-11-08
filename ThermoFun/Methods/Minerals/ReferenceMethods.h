@@ -8,7 +8,7 @@
 
 #include <ThermoFun/Methods/Method.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The reference properties at every T and P. A property that the record does not give is 0.
 auto constantPropertiesMethod() -> std::shared_ptr<const SubstanceMethod>;
@@ -23,6 +23,6 @@ auto constantVolumeMethod() -> std::shared_ptr<const SubstanceMethod>;
 /// V = RT/P, and with the correction of the options G(T, P) = G(T, Pr) + RT ln(P/Pr). The record decides, by prescribing this method.
 auto idealGasMethod() -> std::shared_ptr<const SubstanceMethod>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

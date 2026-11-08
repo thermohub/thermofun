@@ -48,10 +48,10 @@ namespace ThermoFun {
 struct Database::Impl
 {
     /// Data about the dataset, and the records of the project that a v2 file gives
-    v2::ThermoDataSetInfo dataset_info;
-    std::map<std::string, v2::MethodDefinition> methods;
-    std::map<std::string, v2::MethodParameterSet> parameter_sets;
-    std::map<std::string, v2::DataSource> data_sources;
+    model::ThermoDataSetInfo dataset_info;
+    std::map<std::string, model::MethodDefinition> methods;
+    std::map<std::string, model::MethodParameterSet> parameter_sets;
+    std::map<std::string, model::DataSource> data_sources;
     Diagnostics load_diagnostics;
 
     /// The files that a load has read, so that an included file is read once

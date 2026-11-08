@@ -12,7 +12,7 @@
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/Model/Records.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 struct LegacyReadOptions
 {
@@ -63,6 +63,6 @@ void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, ReactionRe
 /// The data about the dataset in the top-level keys of a legacy document.
 auto readLegacyDocumentInfo(const std::string& text) -> ThermoDataSetInfo;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

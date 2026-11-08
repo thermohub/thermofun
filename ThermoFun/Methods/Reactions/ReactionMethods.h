@@ -11,7 +11,7 @@
 #include <ThermoFun/Methods/MethodSpec.h>
 #include <ThermoFun/Methods/Reactions/ReactionInputs.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A method of a reaction, bound to its parameters. Immutable. Independent of the database, the engine and the record.
 class ReactionMethod
@@ -62,6 +62,6 @@ auto logKProperties(const ReactionInputs& inputs, LogKForm form, double T, doubl
 auto volumePolynomialProperties(const ReactionInputs& inputs, double T, double P, const ThermoPropertiesReaction& incoming) -> ThermoPropertiesReaction;
 auto constantVolumeProperties(const ReactionInputs& inputs, double T, double P, const ThermoPropertiesReaction& incoming) -> ThermoPropertiesReaction;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

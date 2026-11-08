@@ -15,42 +15,42 @@ auto ThermoEngine::Impl::isOfReaction(const ParameterRef& ref) const -> bool
 {
     if (ref.method.empty())
         return ref.parameter == "logK" || ref.parameter == "dG" || ref.parameter == "dH" || ref.parameter == "dS" || ref.parameter == "dCp" || ref.parameter == "dV";
-    const auto* spec = v2::MethodCatalog::instance().find(ref.method);
+    const auto* spec = model::MethodCatalog::instance().find(ref.method);
     if (!spec)
         if (const auto it = database.methods().find(ref.method); it != database.methods().end())
-            return it->second.operates_on == v2::OperatesOn::Reaction;
-    return spec && spec->operates_on == v2::OperatesOn::Reaction;
+            return it->second.operates_on == model::OperatesOn::Reaction;
+    return spec && spec->operates_on == model::OperatesOn::Reaction;
 }
 
 auto ThermoEngine::Impl::isConstant(const ParameterRef& ref) const -> bool
 {
     if (ref.method.empty())
         return false;
-    const auto* spec = v2::MethodCatalog::instance().find(ref.method);
+    const auto* spec = model::MethodCatalog::instance().find(ref.method);
     return spec && std::any_of(spec->parameters.begin(), spec->parameters.end(), [&](const auto& p) { return p.constant && p.name == ref.parameter; });
 }
 
-auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> v2::Quantity
+auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> model::Quantity
 {
-    const v2::Quantity* found = nullptr;
-    v2::SubstanceRecord s;
-    v2::ReactionRecord r;
+    const model::Quantity* found = nullptr;
+    model::SubstanceRecord s;
+    model::ReactionRecord r;
     if (isOfReaction(ref))
     {
-        r = *v2::withParameterSets(database.getReaction(ref.symbol).record(), database.parameterSets());
-        found = v2::findValue(r, ref);
+        r = *model::withParameterSets(database.getReaction(ref.symbol).record(), database.parameterSets());
+        found = model::findValue(r, ref);
     }
     else
     {
-        s = *v2::withParameterSets(database.getSubstance(ref.symbol).record(), database.parameterSets());
-        found = v2::findValue(s, ref);
+        s = *model::withParameterSets(database.getSubstance(ref.symbol).record(), database.parameterSets());
+        found = model::findValue(s, ref);
     }
     // a constant of the method that the record does not replace
     if (!found && isConstant(ref))
         for (const auto& a : isOfReaction(ref) ? r.methods : s.methods)
             if (a.method == ref.method)
             {
-                const auto all = v2::withBuiltinConstants(a);
+                const auto all = model::withBuiltinConstants(a);
                 if (const auto it = all.parameters.find(ref.parameter); it != all.parameters.end())
                     return it->second;
             }
@@ -98,20 +98,20 @@ auto ThermoEngine::Impl::editValue(const ParameterRef& ref, Edit edit) -> void
     if (isOfReaction(ref))
     {
         const auto old = database.getReaction(ref.symbol).record();
-        auto copy = std::make_shared<v2::ReactionRecord>(*old);
+        auto copy = std::make_shared<model::ReactionRecord>(*old);
         edit(*copy);
         copy->original_text.clear();
-        database.setReaction(Reaction(std::shared_ptr<const v2::ReactionRecord>(copy)));
+        database.setReaction(Reaction(std::shared_ptr<const model::ReactionRecord>(copy)));
         std::lock_guard<std::mutex> lock(bound.mutex);
         forget(bound.reactions, bound.reaction_records, old.get());
     }
     else
     {
         const auto old = database.getSubstance(ref.symbol).record();
-        auto copy = std::make_shared<v2::SubstanceRecord>(*old);
+        auto copy = std::make_shared<model::SubstanceRecord>(*old);
         edit(*copy);
         copy->original_text.clear();
-        database.setSubstance(Substance(std::shared_ptr<const v2::SubstanceRecord>(copy)));
+        database.setSubstance(Substance(std::shared_ptr<const model::SubstanceRecord>(copy)));
         std::lock_guard<std::mutex> lock(bound.mutex);
         forget(bound.substances, bound.records, old.get());
         bound.solvents.erase(old.get());
@@ -140,7 +140,7 @@ auto ParameterHandle::setValue(double value_si) -> void
     auto& impl = *engine_->pimpl;
     const auto current = impl.valueOf(ref);
     impl.editValue(ref, [&](auto& record) {
-        auto* value = v2::findValue(record, ref);
+        auto* value = model::findValue(record, ref);
         // a value of a parameter set: the record gets its own, and the set stays as it is for the other records
         if (!value)
             for (auto& a : record.methods)
@@ -173,24 +173,24 @@ auto ThermoEngine::parameters(const std::string& symbol) -> std::vector<Paramete
     const auto& db = pimpl->database;
     if (!db.containsSubstance(symbol) && !db.containsReaction(symbol))
         funError("Cannot list the parameters of " + symbol, "The database has no such record.", __LINE__, __FILE__);
-    std::vector<v2::RecordValue> values;
+    std::vector<model::RecordValue> values;
     if (db.containsSubstance(symbol))
-        values = v2::recordValues(*db.getSubstance(symbol).record());
+        values = model::recordValues(*db.getSubstance(symbol).record());
     if (db.containsReaction(symbol))
-        for (auto& value : v2::recordValues(*db.getReaction(symbol).record()))
+        for (auto& value : model::recordValues(*db.getReaction(symbol).record()))
             values.push_back(std::move(value));
     std::vector<ParameterHandle> out;
     for (const auto& value : values)
     {
         if (!value.ref.method.empty())
         {
-            const auto* spec = v2::MethodCatalog::instance().find(value.ref.method);
+            const auto* spec = model::MethodCatalog::instance().find(value.ref.method);
             if (!spec && db.methods().count(value.ref.method))
             {
                 out.emplace_back(*this, value.ref);
                 continue;
             }
-            if (!spec || spec->role != v2::MethodRole::SubstanceProperties)
+            if (!spec || spec->role != model::MethodRole::SubstanceProperties)
                 continue;
             const auto base = value.ref.parameter.substr(0, value.ref.parameter.find('['));
             const auto p = std::find_if(spec->parameters.begin(), spec->parameters.end(), [&](const auto& x) { return x.name == base; });
@@ -228,15 +228,15 @@ auto ThermoEngine::setParameterCovariance(const std::vector<ParameterRef>& param
         (void)record;
         const auto first = parameters[places.front()];
         pimpl->editValue(first, [&](auto& r) {
-            v2::CovarianceBlock block;
-            const auto values = v2::recordValues(r);
+            model::CovarianceBlock block;
+            const auto values = model::recordValues(r);
             for (const auto i : places)
             {
-                auto* q = v2::findValue(r, parameters[i]);
+                auto* q = model::findValue(r, parameters[i]);
                 if (!q)
                     continue;
                 if (!q->uncertainty)
-                    q->uncertainty = v2::Uncertainty{};
+                    q->uncertainty = model::Uncertainty{};
                 q->uncertainty->standard = std::sqrt(std::max(covariance[i * n + i], 0.0));
                 const auto it = std::find_if(values.begin(), values.end(), [&](const auto& v) { return v.ref.name() == parameters[i].name(); });
                 block.paths.push_back(it->path);

@@ -3,7 +3,7 @@
 
 #include "Evaluate.h"
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -102,4 +102,4 @@ auto evaluateParameterDerivative(const SubstanceMethod& method, std::size_t inde
     return out;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

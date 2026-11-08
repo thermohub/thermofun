@@ -17,7 +17,7 @@
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodHelpers.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -113,4 +113,4 @@ auto fluidMethod(const std::string& id, std::vector<double> parameters, FluidRec
                       [](PropertiesInfo& out, const PropertiesInfo&, const InfoInputs& in, const Parameters& p) { fluidInfo(out, in, p.data); });
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

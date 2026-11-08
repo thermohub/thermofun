@@ -15,7 +15,7 @@ namespace ThermoFun {
 struct WaterHGKgemsConstants;
 }
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// WaterHGK84: implementation gems (the code of SUPCRT and GEMS, with the LVS equation near the critical point), or reaktoro.
 auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const SolventMethod>;
@@ -46,6 +46,6 @@ auto sverjenskyEtAl14Method(std::vector<double> constants) -> std::shared_ptr<co
 /// FernandezEtAl97
 auto fernandezEtAl97Method(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

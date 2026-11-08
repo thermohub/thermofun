@@ -62,7 +62,7 @@ auto ruleOf(const std::string& text) -> json
         try
         {
             // the reader of YAML starts from a block
-            rule = json::parse(v2::yamlToJson("rule: " + text))["rule"];
+            rule = json::parse(model::yamlToJson("rule: " + text))["rule"];
         }
         catch (const std::exception& error)
         {
@@ -109,9 +109,9 @@ auto vocabularyWords(const json& rule, const char* key) -> std::set<E>
     std::set<E> out;
     for (const auto& word : wordsOf(rule, key))
     {
-        const auto value = v2::fromString<E>(word);
+        const auto value = model::fromString<E>(word);
         if (!value)
-            throw TableSetupError(v2::unknownWordMessage<E>(word));
+            throw TableSetupError(model::unknownWordMessage<E>(word));
         out.insert(*value);
     }
     return out;
@@ -176,8 +176,8 @@ auto selectSubstances(const Database& database, const std::string& text) -> std:
 {
     const json rule = ruleOf(text);
     checkKeys(rule, substanceKeys);
-    const auto classes = vocabularyWords<v2::SubstanceClass>(rule, "class");
-    const auto states = vocabularyWords<v2::AggregateState>(rule, "aggregate_state");
+    const auto classes = vocabularyWords<model::SubstanceClass>(rule, "class");
+    const auto states = vocabularyWords<model::AggregateState>(rule, "aggregate_state");
     const bool byElements = rule.contains("elements") || rule.contains("only_elements");
     std::vector<int> charges;
     if (rule.contains("charge"))

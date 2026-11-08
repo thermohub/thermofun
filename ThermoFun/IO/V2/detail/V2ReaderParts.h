@@ -21,7 +21,7 @@
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/IO/Equation.h>
 
-namespace ThermoFun::v2::v2reader {
+namespace ThermoFun::model::v2reader {
 
 using json = nlohmann::ordered_json;
 
@@ -155,6 +155,6 @@ auto readOne(const std::string& text, Diagnostics& diagnostics, Reader reader) -
     return reader(c, node, std::string(), scope, "");
 }
 
-} // namespace ThermoFun::v2::v2reader
+} // namespace ThermoFun::model::v2reader
 
 #endif

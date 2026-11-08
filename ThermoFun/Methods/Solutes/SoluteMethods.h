@@ -13,7 +13,7 @@
 #include <ThermoFun/Methods/Solutes/SoluteInputs.h>
 #include <ThermoFun/Model/Applicability.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// What the HKF method knows of its species, beside the parameters.
 struct HKFSpecies
@@ -40,6 +40,6 @@ auto andersonEtAl91Method() -> std::shared_ptr<const SubstanceMethod>;
 /// AkinfievDiamond03: from the state of the base method and of water. The parameters in SI: xi, a, b.
 auto akinfievDiamond03Method(std::vector<double> parameters, std::string symbol, double water_molar_mass) -> std::shared_ptr<const SubstanceMethod>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

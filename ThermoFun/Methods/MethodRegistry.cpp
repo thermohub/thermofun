@@ -22,7 +22,7 @@
 #include <ThermoFun/Methods/Solutes/SoluteMethods.h>
 #include <ThermoFun/Methods/Water/WaterMethods.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -383,4 +383,4 @@ auto MethodRegistry::createDielectric(const MethodApplication& application) cons
     return makeFrom(dielectric_, application, withConstants(application));
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

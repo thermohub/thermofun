@@ -19,7 +19,7 @@
 #include <ThermoFun/Model/ReferenceConditions.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A reaction of the database, as the file says. All values are in SI units.
 struct ReactionRecord
@@ -48,6 +48,6 @@ struct ReactionRecord
     auto operator==(const ReactionRecord&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

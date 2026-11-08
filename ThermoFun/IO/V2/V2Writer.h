@@ -9,7 +9,7 @@
 
 #include <ThermoFun/Model/Records.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 struct V2WriterOptions
 {
@@ -42,6 +42,6 @@ auto writeV2Json(const V2Records& records, const V2WriterOptions& options = {}) 
 /// The same document as YAML text, in block style, with short mappings and all lists of numbers on one line.
 auto writeV2Yaml(const V2Records& records, const V2WriterOptions& options = {}) -> std::string;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

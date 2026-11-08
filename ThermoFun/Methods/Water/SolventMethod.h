@@ -10,7 +10,7 @@
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// An equation of state of water. Immutable. Independent of the database, the engine and the record.
 /// A pressure of 0 means the saturation pressure: the method then writes this pressure to P.
@@ -54,6 +54,6 @@ public:
     virtual auto properties(double T, double P, const PropertiesSolvent& solvent, int state) const -> ElectroPropertiesSolvent = 0;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -13,7 +13,7 @@ namespace
 
 /// u^2 = J S J^T for each result. jacobian: the derivatives of each result by one value, in the order of the fields.
 template <class Fields, class Jacobian>
-auto setPropagatedErrors(const Fields& fields, const v2::UncertainInputs& inputs, Jacobian jacobian) -> void
+auto setPropagatedErrors(const Fields& fields, const model::UncertainInputs& inputs, Jacobian jacobian) -> void
 {
     if (inputs.inputs.empty())
         return;
@@ -100,18 +100,18 @@ auto ThermoEngine::Impl::recordsOfReactants(const Reaction& reaction) const -> R
     return r;
 }
 
-auto ThermoEngine::Impl::inputsOf(const Records& records, const Substance* given, const Reaction* givenReaction) const -> v2::UncertainInputs
+auto ThermoEngine::Impl::inputsOf(const Records& records, const Substance* given, const Reaction* givenReaction) const -> model::UncertainInputs
 {
-    v2::UncertainInputs inputs;
+    model::UncertainInputs inputs;
     const auto& sets = database.parameterSets();
     for (const auto& symbol : records.substances)
-        inputs.add(*v2::withParameterSets(database.getSubstance(symbol).record(), sets));
+        inputs.add(*model::withParameterSets(database.getSubstance(symbol).record(), sets));
     for (const auto& symbol : records.reactions)
-        inputs.add(*v2::withParameterSets(database.getReaction(symbol).record(), sets));
+        inputs.add(*model::withParameterSets(database.getReaction(symbol).record(), sets));
     if (given)
-        inputs.add(*v2::withParameterSets(given->record(), sets));
+        inputs.add(*model::withParameterSets(given->record(), sets));
     if (givenReaction)
-        inputs.add(*v2::withParameterSets(givenReaction->record(), sets));
+        inputs.add(*model::withParameterSets(givenReaction->record(), sets));
     return inputs;
 }
 
@@ -156,13 +156,13 @@ auto ThermoEngine::Impl::reactionJacobian(double T, double& P, const Reaction& r
     return {d.reaction_gibbs_energy.val, dU - T * dS, dU, dH, dS, dV * 1e5, d.reaction_heat_capacity_cp.val, dCv, d.ln_equilibrium_constant.val, d.log_equilibrium_constant.val};
 }
 
-auto ThermoEngine::Impl::addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const v2::UncertainInputs& inputs) const -> void
+auto ThermoEngine::Impl::addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const model::UncertainInputs& inputs) const -> void
 {
     const auto canonical = thermoPropertiesSubstance(T, P, substance);
     setPropagatedErrors(fields(tps), inputs, [&](const ParameterRef& ref) { return substanceJacobian(T, P, substance, canonical, ref); });
 }
 
-auto ThermoEngine::Impl::addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const v2::UncertainInputs& inputs) const -> void
+auto ThermoEngine::Impl::addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const model::UncertainInputs& inputs) const -> void
 {
     setPropagatedErrors(fields(tpr), inputs, [&](const ParameterRef& ref) { return reactionJacobian(T, P, reaction, ref, fromReactants); });
 }

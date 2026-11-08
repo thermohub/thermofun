@@ -12,7 +12,7 @@
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/MethodRegistry.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -206,4 +206,4 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConv
     return bound;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

@@ -14,7 +14,7 @@
 
 namespace ThermoFun {
 
-namespace v2 { struct ReactionRecord; }
+namespace model { struct ReactionRecord; }
 struct ThermoParametersReaction;
 
 /**
@@ -145,10 +145,10 @@ public:
 
     /// The record of this object, in SI units, if it was read from a legacy JSON text and not changed since.
     /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
-    auto record() const -> std::shared_ptr<const v2::ReactionRecord>;
+    auto record() const -> std::shared_ptr<const model::ReactionRecord>;
 
     /// An object of a record of any format.
-    explicit Reaction(std::shared_ptr<const v2::ReactionRecord> record);
+    explicit Reaction(std::shared_ptr<const model::ReactionRecord> record);
 
     /**
      * @brief jonString

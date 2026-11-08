@@ -8,7 +8,7 @@
 
 #include <ThermoFun/Model/DataFormat.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The format of a document, given as JSON text.
 /// V2 if the top level is an object with the key "thermohub". Legacy for every other document.

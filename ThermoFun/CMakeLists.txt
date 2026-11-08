@@ -93,7 +93,7 @@ endforeach()
 
 set(PARAMETER_SET_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/BuiltinParameterFiles.cpp)
 file(CONFIGURE OUTPUT ${PARAMETER_SET_SOURCE} CONTENT "// Generated from Methods/ParameterSets: do not edit.
-namespace ThermoFun::v2::detail {
+namespace ThermoFun::model::detail {
 struct BuiltinFile { const char* name; const unsigned char* text; unsigned long size; };
 namespace { @PARAMETER_SET_ARRAYS@ }
 extern const BuiltinFile builtin_parameter_files[] = {
@@ -162,9 +162,16 @@ endif()
 
 # Install the header files preserving the directory hierarchy
 # (the folders "detail" hold headers that use nlohmann_json; they are not installed, nor the inside of the engine)
+# The public headers and what they include (PublicHeaders.cmake, checked by tests/layers/public_headers.py); the other
+# headers are inside the library and are not installed
+include(${CMAKE_CURRENT_SOURCE_DIR}/PublicHeaders.cmake)
+foreach(header ${THERMOFUN_PUBLIC_HEADERS})
+    get_filename_component(folder ${header} DIRECTORY)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${header} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ThermoFun/${folder} COMPONENT headers)
+endforeach()
+# The constants of the methods and the templates of tables, to read (the library has them built in)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ThermoFun
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h" PATTERN "*.yaml" PATTERN "README.md"
-    PATTERN "detail" EXCLUDE
-    PATTERN "DatabaseImpl.h" EXCLUDE
-    PATTERN "ThermoEngineImpl.h" EXCLUDE)
+    COMPONENT headers
+    FILES_MATCHING PATTERN "*.yaml" PATTERN "README.md"
+    PATTERN "detail" EXCLUDE)

@@ -11,7 +11,7 @@
 #include <ThermoFun/Model/ReactionRecord.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// One value of a record that can be a parameter: its path, as a covariance block names it, and how a calculation names it.
 struct RecordValue
@@ -57,6 +57,6 @@ struct UncertainInputs
     auto variance(const std::vector<double>& J) const -> double;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -10,9 +10,9 @@ namespace ThermoFun {
 
 namespace {
 
-auto allRecords(const Database& db) -> v2::V2Records
+auto allRecords(const Database& db) -> model::V2Records
 {
-    v2::V2Records out;
+    model::V2Records out;
     out.dataset = db.thermoDataSet();
     out.dataset.water_triple_point_reference = db.conventions().water_triple_point_reference;
     for (const auto& item : db.mapElements())
@@ -34,18 +34,18 @@ auto allRecords(const Database& db) -> v2::V2Records
 
 auto Database::toJson(bool readable) const -> std::string
 {
-    return v2::writeV2Json(allRecords(*this), {readable});
+    return model::writeV2Json(allRecords(*this), {readable});
 }
 
 auto Database::toYaml(bool readable) const -> std::string
 {
-    return v2::writeV2Yaml(allRecords(*this), {readable});
+    return model::writeV2Yaml(allRecords(*this), {readable});
 }
 
 auto Database::toLegacyJson(bool useOriginalText) const -> std::string
 {
     Diagnostics problems;
-    const std::string text = v2::writeLegacyDocument(allRecords(*this), {useOriginalText}, &problems);
+    const std::string text = model::writeLegacyDocument(allRecords(*this), {useOriginalText}, &problems);
     for (const auto& d : problems.all())
         thfun_logger->warn("{} {}: {}", d.code, d.record, d.message);
     return text;
@@ -54,14 +54,14 @@ auto Database::toLegacyJson(bool useOriginalText) const -> std::string
 auto Database::legacyWriteProblems() const -> Diagnostics
 {
     Diagnostics problems;
-    v2::writeLegacyDocument(allRecords(*this), {false}, &problems);
+    model::writeLegacyDocument(allRecords(*this), {false}, &problems);
     return problems;
 }
 
 namespace {
 
 /// The checks of the conventions of the records (14 section 5 and section 7)
-void checkConventions(const Database& db, const v2::V2Records& records, Diagnostics& all)
+void checkConventions(const Database& db, const model::V2Records& records, Diagnostics& all)
 {
     const auto add = [&](Severity severity, const char* code, const std::string& record, const std::string& path, const std::string& message) {
         Diagnostic d;
@@ -78,23 +78,23 @@ void checkConventions(const Database& db, const v2::V2Records& records, Diagnost
             text += (text.empty() ? "" : ", ") + w;
         return text;
     };
-    const auto datasetReference = records.dataset.convention.energy_reference.value_or(v2::EnergyReference::BensonHelgeson);
+    const auto datasetReference = records.dataset.convention.energy_reference.value_or(model::EnergyReference::BensonHelgeson);
     bool hasSolvent = false;
-    std::map<std::string, v2::EnergyReference> references;
+    std::map<std::string, model::EnergyReference> references;
     for (const auto& r : records.substances)
     {
-        hasSolvent = hasSolvent || r.class_ == v2::SubstanceClass::WaterSolvent;
-        const v2::Convention own = r.convention.value_or(v2::Convention{});
-        std::optional<v2::EnergyReference> native;
+        hasSolvent = hasSolvent || r.class_ == model::SubstanceClass::WaterSolvent;
+        const model::Convention own = r.convention.value_or(model::Convention{});
+        std::optional<model::EnergyReference> native;
         for (const auto& a : r.methods)
-            if (const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance); spec && spec->effects.base && spec->native_convention)
+            if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); spec && spec->effects.base && spec->native_convention)
                 native = spec->native_convention;
         if (native && !own.energy_reference && *native != datasetReference)
             add(Severity::Warning, "CNV-003", r.symbol, "/substances/" + r.symbol + "/methods",
-                "The method gives " + v2::toString(*native) + ", the dataset uses " + v2::toString(datasetReference) + ", and the record declares no convention. The values are converted.");
+                "The method gives " + model::toString(*native) + ", the dataset uses " + model::toString(datasetReference) + ", and the record declares no convention. The values are converted.");
         const auto reference = native ? *native : own.energy_reference.value_or(datasetReference);
         references[r.symbol] = reference;
-        if (reference != v2::EnergyReference::BensonHelgeson && !r.formula.empty())
+        if (reference != model::EnergyReference::BensonHelgeson && !r.formula.empty())
         {
             const auto sources = db.elementEntropySources(r.formula);
             if (!sources.missing.empty())
@@ -104,12 +104,12 @@ void checkConventions(const Database& db, const v2::V2Records& records, Diagnost
         }
     }
     for (const auto& r : records.substances)
-        if (r.class_ == v2::SubstanceClass::AqueousSolute && !hasSolvent &&
-            mergeConvention(r.convention.value_or(v2::Convention{}), records.dataset.convention).concentration_scale == v2::ConcentrationScale::Molarity)
+        if (r.class_ == model::SubstanceClass::AqueousSolute && !hasSolvent &&
+            mergeConvention(r.convention.value_or(model::Convention{}), records.dataset.convention).concentration_scale == model::ConcentrationScale::Molarity)
             add(Severity::Error, "CNV-002", r.symbol, "/substances/" + r.symbol + "/convention", "A solute in molarity needs a solvent, and the database has none.");
     for (const auto& r : records.reactions)
     {
-        std::set<v2::EnergyReference> seen;
+        std::set<model::EnergyReference> seen;
         for (const auto& [symbol, coefficient] : r.stoichiometry)
             if (const auto it = references.find(symbol); it != references.end())
                 seen.insert(it->second);
@@ -129,15 +129,15 @@ auto Database::validate() const -> Diagnostics
         return out;
     };
     const auto records = allRecords(*this);
-    Diagnostics all = v2::validateRecords(records, parse);
+    Diagnostics all = model::validateRecords(records, parse);
     for (const auto& definition : records.methods)
-        v2::checkSymbolicDefinition(definition, all);
+        model::checkSymbolicDefinition(definition, all);
     for (const auto& record : records.substances)
     {
-        const Diagnostics conflicts = v2::checkMethods(record);
+        const Diagnostics conflicts = model::checkMethods(record);
         for (const auto& d : conflicts.all())
             all.add(d);
-        if (v2::isHydrogenIon(record) && v2::hydrogenIonConventionIsZero(record, records.dataset.convention) && v2::recordHasOwnValues(record))
+        if (model::isHydrogenIon(record) && model::hydrogenIonConventionIsZero(record, records.dataset.convention) && model::recordHasOwnValues(record))
         {
             Diagnostic d;
             d.severity = Severity::Warning;
@@ -152,10 +152,10 @@ auto Database::validate() const -> Diagnostics
     return all;
 }
 
-auto Database::save(const std::string& path, v2::DataFormat format, bool readable) const -> void
+auto Database::save(const std::string& path, model::DataFormat format, bool readable) const -> void
 {
     const auto endsWith = [&](const std::string& tail) { return path.size() >= tail.size() && path.compare(path.size() - tail.size(), tail.size(), tail) == 0; };
-    const std::string text = format == v2::DataFormat::Legacy ? toLegacyJson(false) : endsWith(".yaml") || endsWith(".yml") ? toYaml(readable) : toJson(readable);
+    const std::string text = format == model::DataFormat::Legacy ? toLegacyJson(false) : endsWith(".yaml") || endsWith(".yml") ? toYaml(readable) : toJson(readable);
     std::ofstream out(path);
     if (!out.good())
         funError("File writing error", "The file " + path + " cannot be written.", __LINE__, __FILE__);
@@ -167,7 +167,7 @@ auto checkRecord(const std::string& section, const std::string& symbol, const st
     nlohmann::json document = {{"thermohub", "2.0.0-draft.1"}, {section, {{symbol, nlohmann::json::parse(record)}}}};
     const std::string text = document.dump();
     Diagnostics found, out;
-    v2::readV2Document(text, found);
+    model::readV2Document(text, found);
     if (found.ok())
     {
         const Diagnostics problems = Database(text).validate();
@@ -189,15 +189,15 @@ auto legacyFileDiagnostics(const std::string& file) -> Diagnostics
     std::stringstream text;
     text << in.rdbuf();
     const auto j = nlohmann::json::parse(text.str(), nullptr, false);
-    if (j.is_discarded() || v2::detail::detectDocumentFormat(j) == v2::DataFormat::V2)
+    if (j.is_discarded() || model::detail::detectDocumentFormat(j) == model::DataFormat::V2)
         return diagnostics;
     const auto read = [&](const nlohmann::json& record, const std::string& kind) {
         if (kind == "element")
-            v2::readLegacyElement(record.dump(), {}, &diagnostics);
+            model::readLegacyElement(record.dump(), {}, &diagnostics);
         else if (kind == "substance")
-            v2::readLegacySubstance(record.dump(), {}, &diagnostics);
+            model::readLegacySubstance(record.dump(), {}, &diagnostics);
         else if (kind == "reaction")
-            v2::readLegacyReaction(record.dump(), {}, &diagnostics);
+            model::readLegacyReaction(record.dump(), {}, &diagnostics);
     };
     for (const auto* section : {"element", "substance", "reaction"})
         if (const auto key = std::string(section) + "s"; j.is_object() && j.contains(key))

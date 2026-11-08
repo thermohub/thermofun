@@ -261,7 +261,7 @@ struct STORE
 struct WaterHGKgemsConstants;
 
 /// The constants from the values of the method of water and of the dielectric constant, both with all their names.
-auto makeWaterHGKgemsConstants(const std::map<std::string, v2::Quantity>& water, const std::map<std::string, v2::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>;
+auto makeWaterHGKgemsConstants(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>;
 
 class WaterHGKgems
 {

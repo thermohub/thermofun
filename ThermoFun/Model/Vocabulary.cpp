@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cctype>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -267,4 +267,4 @@ auto siUnit(ReactionPropertyName p) -> std::string
     return "";
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

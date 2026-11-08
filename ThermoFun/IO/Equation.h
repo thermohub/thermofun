@@ -8,11 +8,11 @@
 #include <utility>
 #include <vector>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The symbols and coefficients of "A + 2 B = C": below 0 on the left, above 0 on the right, in the order of the equation.
 auto stoichiometryOfEquation(const std::string& equation) -> std::vector<std::pair<std::string, double>>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

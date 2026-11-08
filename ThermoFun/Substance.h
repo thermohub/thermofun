@@ -14,7 +14,7 @@
 
 namespace ThermoFun {
 
-namespace v2 { struct SubstanceRecord; }
+namespace model { struct SubstanceRecord; }
 struct ThermoParametersSubstance;
 
 /// A type used to describe a chemical substance (species, dependent components) 
@@ -184,10 +184,10 @@ public:
 
     /// The record of this object, in SI units, if it was read from a legacy JSON text and not changed since.
     /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
-    auto record() const -> std::shared_ptr<const v2::SubstanceRecord>;
+    auto record() const -> std::shared_ptr<const model::SubstanceRecord>;
 
     /// An object of a record of any format.
-    explicit Substance(std::shared_ptr<const v2::SubstanceRecord> record);
+    explicit Substance(std::shared_ptr<const model::SubstanceRecord> record);
 
     /**
      * @brief jonString

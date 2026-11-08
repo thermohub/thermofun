@@ -6,7 +6,7 @@
 
 #include <ThermoFun/Model/Convention.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The convention that the engine uses inside: benson_helgeson, 1bar, molality, geochemical.
 inline auto canonicalConvention() -> Convention
@@ -25,6 +25,6 @@ inline auto mergeConvention(const Convention& specific, const Convention& genera
     return c;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

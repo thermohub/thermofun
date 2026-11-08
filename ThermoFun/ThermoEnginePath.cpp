@@ -9,7 +9,7 @@ namespace ThermoFun {
 
 namespace {
 
-auto methodsOf(const std::vector<v2::MethodApplication>& methods, const std::map<std::string, std::string>& implementations) -> std::vector<std::string>
+auto methodsOf(const std::vector<model::MethodApplication>& methods, const std::map<std::string, std::string>& implementations) -> std::vector<std::string>
 {
     std::vector<std::string> names;
     for (const auto& a : methods)
@@ -66,7 +66,7 @@ auto ThermoEngine::Impl::pathOfReaction(const std::string& symbol, std::vector<s
         {
             path.source = "methods";
             for (const auto& a : reaction.record()->methods)
-                if (const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Reaction); spec && spec->needs.solvent)
+                if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Reaction); spec && spec->needs.solvent)
                 {
                     path.steps.push_back(pathOfSubstance(solvent_in_use, above));
                     path.steps.back().role = "solvent";
@@ -100,13 +100,13 @@ auto ThermoEngine::Impl::pathOfSubstance(const std::string& symbol, std::vector<
     const auto substance = database.getSubstance(symbol);
     const auto record = substance.record();
     path.methods = methodsOf(record->methods, preferences.method_implementation);
-    if (v2::isZeroHydrogenIon(*record, database.thermoDataSet().convention))
+    if (model::isZeroHydrogenIon(*record, database.thermoDataSet().convention))
     {
         path.source = "hydrogen_ion";
         return path;
     }
     above.push_back(symbol);
-    const bool isWater = record->class_ == v2::SubstanceClass::WaterSolvent;
+    const bool isWater = record->class_ == model::SubstanceClass::WaterSolvent;
     if (comesFromReaction(substance) && !substance.reactionSymbol().empty())
     {
         path.source = "reaction";
@@ -128,7 +128,7 @@ auto ThermoEngine::Impl::pathOfSubstance(const std::string& symbol, std::vector<
     {
         path.source = isWater ? "water" : "methods";
         for (const auto& a : record->methods)
-            if (const auto* spec = v2::MethodCatalog::instance().find(a.method, v2::OperatesOn::Substance); !isWater && spec && spec->needs.solvent)
+            if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); !isWater && spec && spec->needs.solvent)
             {
                 path.steps.push_back(pathOfSubstance(solvent_in_use, above));
                 path.steps.back().role = "solvent";

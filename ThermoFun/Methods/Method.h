@@ -18,7 +18,7 @@
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The number type of a pass with derivatives: the derivative is with respect to T, to P or to one parameter.
 using TPReal = ThermoFun::real;
@@ -155,6 +155,6 @@ public:
     virtual auto auxiliary(const SubstanceInputs<double>&) const -> std::map<std::string, double> { return {}; }
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

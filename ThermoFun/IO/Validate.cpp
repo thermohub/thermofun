@@ -11,7 +11,7 @@
 
 #include <ThermoFun/Methods/MethodCatalog.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -333,4 +333,4 @@ auto validateRecords(const V2Records& records, const FormulaParser& parseFormula
     return diag;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

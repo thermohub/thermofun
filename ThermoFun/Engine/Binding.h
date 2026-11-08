@@ -22,7 +22,7 @@
 #include <ThermoFun/Model/MethodParameterSet.h>
 #include <ThermoFun/Model/SubstanceRecord.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The methods of one record, ready to run. Immutable. Nothing of it is made at a call of T and P.
 struct BoundSubstance
@@ -78,6 +78,6 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics;
 /// its own convention, else the canonical one: it does not use the reference values. An increment has no energy offset, so it is not changed.
 auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConventions& conventions = {}) -> std::shared_ptr<const BoundSubstance>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

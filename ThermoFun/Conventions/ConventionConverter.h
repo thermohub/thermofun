@@ -10,7 +10,7 @@
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Conventions/Convention.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// What a conversion needs to know about a substance.
 struct ConversionSubject
@@ -67,6 +67,6 @@ auto molarityTerms(const TScalar& T, const Scalar& rho, const Scalar& rhoT, cons
     return m;
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

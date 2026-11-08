@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 // Records are immutable once they are in a database: everything holds them through these pointers, and a change
 // makes a new record.
@@ -32,6 +32,6 @@ using ElementRecordPtr = std::shared_ptr<const ElementRecord>;
 using SubstanceRecordPtr = std::shared_ptr<const SubstanceRecord>;
 using ReactionRecordPtr = std::shared_ptr<const ReactionRecord>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

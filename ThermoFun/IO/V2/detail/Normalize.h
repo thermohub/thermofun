@@ -16,7 +16,7 @@
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/Model/Quantity.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The default units of a part of a file. The nearest scope that names a dimension decides.
 /// The dimensions are energy, pressure, temperature, length, mass and quantity.

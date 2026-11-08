@@ -9,7 +9,7 @@
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/IO/V2/V2Writer.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 struct LegacyWriteOptions
 {
@@ -26,6 +26,6 @@ auto writeLegacyReaction(const ReactionRecord& record, const LegacyWriteOptions&
 /// A whole file: the dataset, `elements`, `substances` and `reactions`.
 auto writeLegacyDocument(const V2Records& records, const LegacyWriteOptions& options = {}, Diagnostics* diagnostics = nullptr) -> std::string;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

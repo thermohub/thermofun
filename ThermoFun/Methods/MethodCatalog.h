@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Methods/MethodSpec.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The specifications of all built-in methods. Data only: it has no code of the methods.
 class MethodCatalog
@@ -33,6 +33,6 @@ private:
     std::vector<MethodSpec> specs_;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Model/SubstanceRecord.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// True for the record of the hydrogen ion. The rule looks at the class and the formula, not at the symbol. A record may have no
 /// charge: it is then the charge of the formula.
@@ -48,6 +48,6 @@ inline auto isZeroHydrogenIon(const SubstanceRecord& record, const Convention& d
     return isHydrogenIon(record) && hydrogenIonConventionIsZero(record, dataset) && !recordHasOwnValues(record);
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

@@ -13,7 +13,7 @@
 #include <ThermoFun/Model/Quantity.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A table of property values on a grid of T and P, in SI units: values[name][i + j * temperatures.size()].
 struct TableData
@@ -47,6 +47,6 @@ struct MethodApplication
     auto operator==(const MethodApplication&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

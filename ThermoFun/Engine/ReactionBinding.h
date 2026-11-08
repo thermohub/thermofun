@@ -12,7 +12,7 @@
 #include <ThermoFun/Methods/Reactions/ReactionMethods.h>
 #include <ThermoFun/Model/ReactionRecord.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The methods of a reaction, ready to run. Immutable.
 struct BoundReaction
@@ -36,6 +36,6 @@ auto executeReaction(const BoundReaction& bound, double T, double P, const Prope
 /// empty for a reference value (logK, dG, dH, dS, dCp, dV), which every method reads.
 auto reactionParameterDerivative(const BoundReaction& bound, const std::string& method, const std::string& parameter, double T, double P, const PropertiesSolvent* solvent) -> ThermoPropertiesReaction;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

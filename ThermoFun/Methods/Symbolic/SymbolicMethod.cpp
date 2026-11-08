@@ -17,7 +17,7 @@
 #include <ThermoFun/Methods/MethodHelpers.h>
 #include <ThermoFun/Methods/Symbolic/SymbolicExpression.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -439,4 +439,4 @@ auto symbolicMethod(const MethodDefinition& definition, const MethodApplication&
     return std::make_shared<const SymbolicSubstanceMethod>(definition, application);
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

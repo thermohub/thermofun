@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 {
     // --- Zhang and Duan -------------------------------------------------------------------------------------------------
     {
-        const auto model = v2::MethodRegistry::instance().createSolvent(ThermoFun::v2::MethodApplication{"WaterZhangDuan05"});
+        const auto model = model::MethodRegistry::instance().createSolvent(ThermoFun::model::MethodApplication{"WaterZhangDuan05"});
         for (auto tp : {std::make_pair(400.0, 3e8), std::make_pair(600.0, 5e8), std::make_pair(800.0, 1e9)})
         {
             const double T = tp.first, P = tp.second;
@@ -148,9 +148,9 @@ int main(int argc, char** argv)
                     for (int i = 0; i < 12; ++i) cc[i] = real(c[i]);
 
                     std::vector<double> values;
-                    for (const auto& p : v2::MethodCatalog::instance().find("ChurakovGottschalk03", v2::OperatesOn::Substance)->parameters)
+                    for (const auto& p : model::MethodCatalog::instance().find("ChurakovGottschalk03", model::OperatesOn::Substance)->parameters)
                         if (p.constant)
-                            values.push_back(v2::builtinConstants("ChurakovGottschalk03")->parameters.at(p.name).value);
+                            values.push_back(model::builtinConstants("ChurakovGottschalk03")->parameters.at(p.name).value);
                     const cgf::Constants constants(values);
                     cgf::PureFluidDerivatives o;
                     cgf::pureFluid(T, ro, cc, constants, o);
@@ -179,7 +179,7 @@ int main(int argc, char** argv)
 
     // --- GEMS HGK water: densityPP and densityTP (were not set) against central finite differences of the first derivatives ---------
     {
-        auto ps = [&](double t, double p) { double pp = p; return v2::waterHGK84GemsProperties(t, pp, 0, "NEA_HGK"); };
+        auto ps = [&](double t, double p) { double pp = p; return model::waterHGK84GemsProperties(t, pp, 0, "NEA_HGK"); };
         // 640 K, 2e7 Pa is in the critical region (LVS equation), the others in the HGK region
         for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(700.0, 3e8), std::make_pair(900.0, 1e9), std::make_pair(640.0, 2e7),
                         std::make_pair(700.0, 2.3e7), std::make_pair(647.5, 2.2e7), std::make_pair(650.0, 2.25e7)})
@@ -210,10 +210,10 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
-        const auto sverjensky = v2::MethodRegistry::instance().createDielectric(ThermoFun::v2::MethodApplication{"SverjenskyEtAl14"});
-        const auto fernandez = v2::MethodRegistry::instance().createDielectric(ThermoFun::v2::MethodApplication{"FernandezEtAl97"});
+        const auto sverjensky = model::MethodRegistry::instance().createDielectric(ThermoFun::model::MethodApplication{"SverjenskyEtAl14"});
+        const auto fernandez = model::MethodRegistry::instance().createDielectric(ThermoFun::model::MethodApplication{"FernandezEtAl97"});
 
-        auto check = [&](const char* name, const std::shared_ptr<const v2::DielectricMethod>& model, jets::Dual (*epsilon)(jets::Dual, jets::Dual), double T, double P) {
+        auto check = [&](const char* name, const std::shared_ptr<const model::DielectricMethod>& model, jets::Dual (*epsilon)(jets::Dual, jets::Dual), double T, double P) {
             double p = P;
             const auto psol = engine.propertiesSolvent(T, p, "H2O@", 0);
             const auto rho = jets::densityJet(psol);

@@ -5,7 +5,7 @@
 
 #include <ThermoFun/IO/V2/detail/V2WriterParts.h>
 
-namespace ThermoFun::v2::v2writer {
+namespace ThermoFun::model::v2writer {
 
 // J/bar on a molar volume is for one mole, as in the reader
 auto molar(const std::string& unit, const std::string& slot) -> std::string
@@ -167,4 +167,4 @@ auto simpleQuantity(const Quantity& q, const std::string& slot, const std::strin
     return quantityJson(q, slot, {writtenUnit(q, slot, source_unit), false}, options);
 }
 
-} // namespace ThermoFun::v2::v2writer
+} // namespace ThermoFun::model::v2writer

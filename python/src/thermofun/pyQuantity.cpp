@@ -18,7 +18,7 @@ namespace ThermoFun {
 
 void exportQuantity(py::module& m)
 {
-    using namespace v2;
+    using namespace model;
 
     py::enum_<PropertyName>(m, "PropertyName", "Standard-state property of a substance")
         .value("G", PropertyName::G).value("H", PropertyName::H).value("S", PropertyName::S)

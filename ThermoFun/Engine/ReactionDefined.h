@@ -10,7 +10,7 @@
 
 #include <ThermoFun/Common/ThermoProperties.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The properties of a substance from the properties of its defining reaction and of the other reactants, each with its
 /// coefficient. coefficient: of the substance in the reaction.
@@ -34,6 +34,6 @@ public:
     auto operator=(const DefiningReactionGuard&) -> DefiningReactionGuard& = delete;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

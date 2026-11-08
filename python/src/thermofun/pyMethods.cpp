@@ -27,7 +27,7 @@ namespace ThermoFun {
 
 namespace {
 
-using namespace v2;
+using namespace model;
 
 auto makeReference(py::object T, py::object P, py::object G, py::object H, py::object S, py::object Cp, py::object V) -> ReferenceValues
 {
@@ -147,7 +147,7 @@ void exportMethods(py::module& parent)
             std::vector<std::string> classes, legacy_names;
             for (const auto c : spec.applies_to_classes)
                 classes.push_back(toString(c));
-            for (const auto& l : spec.operates_on == OperatesOn::Substance ? v2::legacy::legacySubstanceMethods() : v2::legacy::legacyReactionMethods())
+            for (const auto& l : spec.operates_on == OperatesOn::Substance ? model::legacy::legacySubstanceMethods() : model::legacy::legacyReactionMethods())
                 if (spec.id == l.method)
                     legacy_names.push_back(l.name);
             row["classes"] = classes;
@@ -166,7 +166,7 @@ void exportMethods(py::module& parent)
             row["parameters"] = parameters;
             py::list constantSets;
             auto addSets = [&](const std::string& method) {
-                for (const auto& set : v2::builtinSetsOf(method))
+                for (const auto& set : model::builtinSetsOf(method))
                 {
                     py::dict one;
                     one["symbol"] = set.symbol; one["implementation"] = set.implementation; one["default"] = set.is_default;

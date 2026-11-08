@@ -50,9 +50,9 @@ int main(int argc, char** argv)
         // the reference values of these two models are in the native convention of the model; the engine converts to the requested one
         EngineConventions conventions;
         if (sym == "UQ")
-            conventions.energy_reference = v2::EnergyReference::GibbsHelmholtzFormation;
+            conventions.energy_reference = model::EnergyReference::GibbsHelmholtzFormation;
         if (sym == "NS")
-            conventions.energy_reference = v2::EnergyReference::AssignedEnthalpy;
+            conventions.energy_reference = model::EnergyReference::AssignedEnthalpy;
         engine.setConventions(conventions);
         ThermoPropertiesSubstance r = engine.thermoPropertiesSubstance(T, P, sym);
         const double got[5] = {static_cast<double>(r.gibbs_energy), static_cast<double>(r.enthalpy), static_cast<double>(r.entropy),

@@ -36,7 +36,7 @@ struct EnginePreferences
     bool cancel_fugacity_coefficient_in_gas_props = false; // fluid equations of state (CORK, PRSV, CG, SRK, PR78, STP): true removes RT ln(phi) from G; the residual terms of H and S stay. With both options at their defaults G(T, P) = G(T, Pr) + RT ln(P/Pr) + RT ln(phi), so dG/dP = V. Without the pressure term and with this false, steam from the HGK equation has RT ln(P/1 bar) removed from G
     bool round_to_uncertainty = false; // round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (the derivatives are not rounded); only for properties with an error > 0
     int uncertainty_significant_digits = 2; // significant digits of the (rounded up) uncertainties, used if round_to_uncertainty is true (NEA TDB tables give one or two)
-    v2::PropertySource property_source = v2::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
+    model::PropertySource property_source = model::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
     std::map<std::string, std::string> method_implementation; // method id -> implementation, for example {"HKF88": "reaktoro"}; it replaces the implementation of the records
     bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
 
@@ -54,10 +54,10 @@ struct EnginePreferences
 };
 
 struct EngineConventions {
-    v2::EnergyReference energy_reference = v2::EnergyReference::BensonHelgeson;
-    v2::StandardPressure standard_pressure = v2::StandardPressure::OneBar;
-    v2::ConcentrationScale concentration_scale = v2::ConcentrationScale::Molality;
-    v2::WaterReference water_reference = v2::WaterReference::Geochemical;
+    model::EnergyReference energy_reference = model::EnergyReference::BensonHelgeson;
+    model::StandardPressure standard_pressure = model::StandardPressure::OneBar;
+    model::ConcentrationScale concentration_scale = model::ConcentrationScale::Molality;
+    model::WaterReference water_reference = model::WaterReference::Geochemical;
 
     // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine.
     std::string apparent_properties;   // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
@@ -120,13 +120,13 @@ public:
     ///   Direct: both come from their own methods.
     ///   Record: removes both choices.
     /// So the substance from its methods and the reaction from its reactants is Direct, then Reactants.
-    auto setPropertySource(const std::string& symbol, v2::PropertySource source) -> void;
+    auto setPropertySource(const std::string& symbol, model::PropertySource source) -> void;
 
     /// The same with a word: "record", "direct", "reaction" or "reactants". An unknown word raises an error with the words allowed.
     auto setPropertySource(const std::string& symbol, const std::string& source) -> void;
 
     /// The source of a symbol: its own, else the preference of the engine.
-    auto propertySource(const std::string& symbol) const -> v2::PropertySource;
+    auto propertySource(const std::string& symbol) const -> model::PropertySource;
 
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
     auto setSolventSymbol(const std::string solvent_symbol) -> void;

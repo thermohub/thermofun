@@ -44,6 +44,8 @@ The old calls still work, through `Compat/`. They will go in version 2.0.
 
 | Old call | New form |
 |---|---|
+| `ThermoFun::v2::...` in C++ | `ThermoFun::model::...`; the old name is an alias until 2.0 |
+| An include of a header other than `ThermoFun/ThermoFun.h` | `#include <ThermoFun/ThermoFun.h>`: only the public headers are installed |
 | `setMethodGenEoS`, `setMethod_T`, `setMethod_P` | The `methods` list of a record |
 | `setThermoParameters`, `thermoParameters` | The `parameters` of a method, by name |
 | `setThermoReferenceProperties` | `standard_state_properties` |

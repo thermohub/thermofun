@@ -6,7 +6,7 @@
 #ifndef THERMOFUN_IO_V2_V2KEYS_H
 #define THERMOFUN_IO_V2_V2KEYS_H
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 namespace v2key {
 
 // a quantity

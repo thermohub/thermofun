@@ -18,7 +18,7 @@ namespace {
 
 void testQuantity()
 {
-    v2::Quantity q;
+    model::Quantity q;
     CHECK(q.isBare());
     q.value = 5.0;
     CHECK(q.isBare());  // a value alone is bare
@@ -27,16 +27,16 @@ void testQuantity()
     q.unit_as_written = "kJ/mol";
     CHECK(!q.isBare());
     q.unit_as_written.clear();
-    q.uncertainty = v2::Uncertainty{};
+    q.uncertainty = model::Uncertainty{};
     CHECK(!q.isBare());
     q.uncertainty.reset();
     q.meta.source = "1995ROB/HEM";
     CHECK(!q.isBare());
     q.meta.source.clear();
-    q.meta.quality = v2::Quality::Core;
+    q.meta.quality = model::Quality::Core;
     CHECK(!q.isBare());
     q.meta.quality.reset();
-    q.meta.origin = v2::Origin::Measured;
+    q.meta.origin = model::Origin::Measured;
     CHECK(!q.isBare());
 }
 
@@ -45,21 +45,21 @@ template <class E>
 void roundTrip(const std::vector<E>& values, const std::vector<std::string>& expected)
 {
     CHECK(values.size() == expected.size());
-    CHECK(v2::words<E>() == expected);
+    CHECK(model::words<E>() == expected);
     for (size_t i = 0; i < values.size(); ++i)
     {
-        CHECK(v2::toString(values[i]) == expected[i]);
-        CHECK(v2::fromString<E>(expected[i]) == values[i]);
-        CHECK(v2::fromString<E>(v2::toString(values[i])) == values[i]);
+        CHECK(model::toString(values[i]) == expected[i]);
+        CHECK(model::fromString<E>(expected[i]) == values[i]);
+        CHECK(model::fromString<E>(model::toString(values[i])) == values[i]);
     }
-    CHECK(!v2::fromString<E>("no_such_word"));
-    CHECK(!v2::fromString<E>(""));
-    CHECK(!v2::vocabularyName<E>().empty());
+    CHECK(!model::fromString<E>("no_such_word"));
+    CHECK(!model::fromString<E>(""));
+    CHECK(!model::vocabularyName<E>().empty());
 }
 
 void testLists()
 {
-    using namespace v2;
+    using namespace model;
     using PN = PropertyName;
     roundTrip<PN>({PN::G, PN::H, PN::S, PN::Cp, PN::V, PN::U, PN::A, PN::Cv}, {"G", "H", "S", "Cp", "V", "U", "A", "Cv"});
     using RP = ReactionPropertyName;
@@ -73,10 +73,10 @@ void testLists()
     roundTrip<DatasetStatus>({DatasetStatus::Draft, DatasetStatus::Published}, {"draft", "published"});
     roundTrip<MethodKind>({MethodKind::Symbolic, MethodKind::Reference, MethodKind::Composite}, {"symbolic", "reference", "composite"});
     roundTrip<OperatesOn>({OperatesOn::Substance, OperatesOn::Reaction}, {"substance", "reaction"});
-    using SC = v2::SubstanceClass;
+    using SC = model::SubstanceClass;
     roundTrip<SC>({SC::Component, SC::GasFluid, SC::AqueousSolute, SC::WaterSolvent, SC::SurfaceSpecies, SC::SiteMoiety, SC::Other},
                   {"component", "gas_fluid", "aqueous_solute", "water_solvent", "surface_species", "site_moiety", "other"});
-    using AS = v2::AggregateState;
+    using AS = model::AggregateState;
     roundTrip<AS>({AS::Gas, AS::Liquid, AS::Glass, AS::Crystal, AS::Aqueous, AS::Surface, AS::IonExchange, AS::Plasma, AS::Solid,
                    AS::Condensed, AS::Fluid, AS::LiquidCrystal, AS::AmorphousSolid, AS::Monomeric, AS::Polymeric,
                    AS::SolidSolution, AS::Other},
@@ -96,8 +96,8 @@ void testLists()
 
 void testAliasesAndCase()
 {
-    using namespace v2;
-    CHECK(fromString<v2::AggregateState>("crystalline") == v2::AggregateState::Crystal);
+    using namespace model;
+    CHECK(fromString<model::AggregateState>("crystalline") == model::AggregateState::Crystal);
     CHECK(fromString<Interpolation>("spline") == Interpolation::CubicSpline);
     CHECK(fromString<StandardPressure>("1 bar") == StandardPressure::OneBar);
     CHECK(fromString<StandardPressure>("1 atm") == StandardPressure::OneAtm);
@@ -107,22 +107,22 @@ void testAliasesAndCase()
     CHECK(fromString<WaterReference>("STEAM_TABLES") == WaterReference::SteamTables);
     CHECK(fromString<WaterReference>("GEOCHEMICAL") == WaterReference::Geochemical);
     // any case, and '-' for '_'
-    CHECK(fromString<v2::AggregateState>("GAS") == v2::AggregateState::Gas);
+    CHECK(fromString<model::AggregateState>("GAS") == model::AggregateState::Gas);
     CHECK(fromString<WaterReference>("Steam-Tables") == WaterReference::SteamTables);
     CHECK(fromString<EnergyReference>("dft_formation_0k") == EnergyReference::DFTFormation0K);
     // a writer writes the canonical word, never the alias
-    CHECK(toString(*fromString<v2::AggregateState>("crystalline")) == "crystal");
+    CHECK(toString(*fromString<model::AggregateState>("crystalline")) == "crystal");
 }
 
 void testUnknownWords()
 {
-    using namespace v2;
-    CHECK(nearestWord<v2::AggregateState>("crystl") == "crystal");
+    using namespace model;
+    CHECK(nearestWord<model::AggregateState>("crystl") == "crystal");
     CHECK(nearestWord<EnergyReference>("berman_browne") == "berman_brown");
     CHECK(nearestWord<WaterReference>("steam_table") == "steam_tables");
-    CHECK(nearestWord<v2::AggregateState>("xxxxxxxxxx").empty());  // nothing near
+    CHECK(nearestWord<model::AggregateState>("xxxxxxxxxx").empty());  // nothing near
     CHECK(nearestWord<PropertyName>("X").empty());                 // no guess for one letter
-    CHECK(nearestWord<v2::AggregateState>("cristalline") == "crystal");  // near an alias: the canonical word
+    CHECK(nearestWord<model::AggregateState>("cristalline") == "crystal");  // near an alias: the canonical word
 
     const auto message = unknownWordMessage<WaterReference>("steam_table");
     CHECK(message == "\"steam_table\" is not a value of water_reference. Did you mean \"steam_tables\"? "
@@ -132,7 +132,7 @@ void testUnknownWords()
 
 void testUnits()
 {
-    using namespace v2;
+    using namespace model;
     CHECK(siUnit(PropertyName::G) == "J/mol");
     CHECK(siUnit(PropertyName::S) == "J/(mol.K)");
     CHECK(siUnit(PropertyName::V) == "m3/mol");
@@ -144,35 +144,35 @@ void testUnits()
 void testLegacy()
 {
     // every word has a code, and the code gives the word back
-    for (const auto& word : v2::words<v2::SubstanceClass>())
+    for (const auto& word : model::words<model::SubstanceClass>())
     {
-        const auto value = *v2::fromString<v2::SubstanceClass>(word);
+        const auto value = *model::fromString<model::SubstanceClass>(word);
         CHECK(substanceClassFromLegacy(static_cast<int>(toLegacy(value))) == value);
     }
-    for (const auto& word : v2::words<v2::AggregateState>())
+    for (const auto& word : model::words<model::AggregateState>())
     {
-        const auto value = *v2::fromString<v2::AggregateState>(word);
+        const auto value = *model::fromString<model::AggregateState>(word);
         CHECK(aggregateStateFromLegacy(static_cast<int>(toLegacy(value))) == value);
     }
-    for (const auto& word : v2::words<v2::ElementClass>())
+    for (const auto& word : model::words<model::ElementClass>())
     {
-        const auto value = *v2::fromString<v2::ElementClass>(word);
+        const auto value = *model::fromString<model::ElementClass>(word);
         CHECK(elementClassFromLegacy(toLegacy(value)) == value);
     }
-    CHECK(toLegacy(v2::SubstanceClass::AqueousSolute) == SubstanceClass::AQSOLUTE);
-    CHECK(toLegacy(v2::AggregateState::Gas) == AggregateState::GAS);
-    CHECK(toLegacy(v2::ElementClass::Charge) == 4);
+    CHECK(toLegacy(model::SubstanceClass::AqueousSolute) == SubstanceClass::AQSOLUTE);
+    CHECK(toLegacy(model::AggregateState::Gas) == AggregateState::GAS);
+    CHECK(toLegacy(model::ElementClass::Charge) == 4);
     // a code that is not known gives Other
-    CHECK(substanceClassFromLegacy(77) == v2::SubstanceClass::Other);
-    CHECK(aggregateStateFromLegacy(77) == v2::AggregateState::Other);
-    CHECK(elementClassFromLegacy(2) == v2::ElementClass::Other);
-    CHECK(toLegacy(v2::ElementClass::Other) == 101);
+    CHECK(substanceClassFromLegacy(77) == model::SubstanceClass::Other);
+    CHECK(aggregateStateFromLegacy(77) == model::AggregateState::Other);
+    CHECK(elementClassFromLegacy(2) == model::ElementClass::Other);
+    CHECK(toLegacy(model::ElementClass::Other) == 101);
     // the keys of legacy records
-    CHECK(legacyKey(v2::PropertyName::G) == "sm_gibbs_energy");
-    CHECK(legacyKey(v2::PropertyName::V) == "sm_volume");
-    CHECK(legacyKey(v2::PropertyName::U).empty());
-    CHECK(legacyKey(v2::ReactionPropertyName::logK) == "logKr");
-    CHECK(legacyKey(v2::ReactionPropertyName::dU).empty());
+    CHECK(legacyKey(model::PropertyName::G) == "sm_gibbs_energy");
+    CHECK(legacyKey(model::PropertyName::V) == "sm_volume");
+    CHECK(legacyKey(model::PropertyName::U).empty());
+    CHECK(legacyKey(model::ReactionPropertyName::logK) == "logKr");
+    CHECK(legacyKey(model::ReactionPropertyName::dU).empty());
 }
 
 } // namespace

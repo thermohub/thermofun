@@ -12,7 +12,7 @@
 #include <ThermoFun/Model/Applicability.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// Declares one parameter of a method.
 struct ParameterDefinition
@@ -67,6 +67,6 @@ struct MethodDefinition
     auto operator==(const MethodDefinition&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

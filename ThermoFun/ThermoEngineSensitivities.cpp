@@ -69,7 +69,7 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
             fail("A reference value is one of G, H, S, Cp, V of a substance, or logK, dG, dH, dS, dCp, dV of a reaction.");
         return;
     }
-    const auto* spec = v2::MethodCatalog::instance().find(ref.method);
+    const auto* spec = model::MethodCatalog::instance().find(ref.method);
     if (!spec)
     {
         if (!database.methods().count(ref.method))
@@ -99,7 +99,7 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
     }
     if (isConstant(ref))
     {
-        const bool ofReaction = spec->operates_on == v2::OperatesOn::Reaction;
+        const bool ofReaction = spec->operates_on == model::OperatesOn::Reaction;
         if (ofReaction ? !database.containsReaction(ref.symbol) : !database.containsSubstance(ref.symbol))
             fail("The database has no such record.");
         const auto& methods = ofReaction ? database.getReaction(ref.symbol).record()->methods : database.getSubstance(ref.symbol).record()->methods;
@@ -110,7 +110,7 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
                 fail("This constant is an integer of a table: it has no derivative.");
         return;
     }
-    if (spec->operates_on == v2::OperatesOn::Reaction)
+    if (spec->operates_on == model::OperatesOn::Reaction)
     {
         if (!database.containsReaction(ref.symbol))
             fail("The database has no reaction with this symbol.");
@@ -127,7 +127,7 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
     }
     if (!database.containsSubstance(ref.symbol))
         fail("The database has no substance with this symbol.");
-    if (spec->role != v2::MethodRole::SubstanceProperties)
+    if (spec->role != model::MethodRole::SubstanceProperties)
         fail("A method of water has no derivatives by its parameters.");
     auto bound = boundMethods(database.getSubstance(ref.symbol));
     if (!bound)  // only corrections, on what a reaction gives
@@ -145,9 +145,9 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
 }
 
 /// What a pass by the parameter sets in the bound methods of a record: nothing if the parameter is of another record.
-auto ThermoEngine::Impl::seedOf(const v2::BoundSubstance& bound, const ParameterRef& ref) const -> v2::ParameterSeed
+auto ThermoEngine::Impl::seedOf(const model::BoundSubstance& bound, const ParameterRef& ref) const -> model::ParameterSeed
 {
-    v2::ParameterSeed seed;
+    model::ParameterSeed seed;
     if (ref.symbol != bound.record->symbol)
         return seed;
     if (ref.method.empty())
@@ -159,7 +159,7 @@ auto ThermoEngine::Impl::seedOf(const v2::BoundSubstance& bound, const Parameter
         seed.V = ref.parameter == "V";
         return seed;
     }
-    const auto* spec = v2::MethodCatalog::instance().find(ref.method);
+    const auto* spec = model::MethodCatalog::instance().find(ref.method);
     const std::string id = spec ? spec->id : ref.method;  // a Method record of the database is not in the catalog
     for (std::size_t i = 0; i < bound.order.size(); ++i)
         if (bound.order[i]->spec().id == id)
@@ -171,11 +171,11 @@ auto ThermoEngine::Impl::seedOf(const v2::BoundSubstance& bound, const Parameter
 }
 
 /// In the canonical convention: the changes of convention do not depend on a parameter. P is known here: a pressure of 0 was changed by the calculation of the properties.
-auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substance& substance, const ParameterRef& ref) const -> v2::PropertyDerivatives
+auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substance& substance, const ParameterRef& ref) const -> model::PropertyDerivatives
 {
     const auto symbol = substance.symbol();
     const SubstanceKind kind = kindOf(substance);
-    v2::PropertyDerivatives d;
+    model::PropertyDerivatives d;
     if (kind.isHydrogen)
         return d;
 
@@ -188,7 +188,7 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
     {
         raw = reacDCthermoProperties(T, P, substance);
         const Reaction reaction = database.getReaction(substance.reactionSymbol());
-        const v2::DefiningReactionGuard no_cycle(symbol);
+        const model::DefiningReactionGuard no_cycle(symbol);
         const bool ownTerm = pressureFromRecord(substance, reaction);
         double Pdata = dataPressure(T, substance);
         const bool fromData = ownTerm;
@@ -226,8 +226,8 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
             if (const auto corrections = pressureCorrections(substance); corrections && !corrections->order.empty())
             {
                 const auto solvent = solventInputs(*corrections, T, P);
-                const std::pair<v2::MethodResult, v2::PropertyDerivatives> initial{valuesOf(raw), d};
-                d = v2::substanceParameterDerivative(*corrections, seedOf(*corrections, ref), T, P, substanceOptions(), solvent ? &*solvent : nullptr, &initial);
+                const std::pair<model::MethodResult, model::PropertyDerivatives> initial{valuesOf(raw), d};
+                d = model::substanceParameterDerivative(*corrections, seedOf(*corrections, ref), T, P, substanceOptions(), solvent ? &*solvent : nullptr, &initial);
             }
         }
     }
@@ -243,16 +243,16 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
             return d;  // the equation of state does not read the reference values
         if (solvent->reference_values)
         {
-            raw = toThermoProperties(v2::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
-            d = v2::substanceParameterDerivative(*solvent->reference_values, seedOf(*solvent->reference_values, ref), T, P, substanceOptions());
+            raw = toThermoProperties(model::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
+            d = model::substanceParameterDerivative(*solvent->reference_values, seedOf(*solvent->reference_values, ref), T, P, substanceOptions());
         }
     }
     else if (const auto bound = boundMethods(substance))
     {
         const auto solvent = solventInputs(*bound, T, P);
         const auto* inputs = solvent ? &*solvent : nullptr;
-        raw = toThermoProperties(v2::executeSubstance(*bound, T, P, substanceOptions(), nullptr, inputs));
-        d = v2::substanceParameterDerivative(*bound, seedOf(*bound, ref), T, P, substanceOptions(), inputs);
+        raw = toThermoProperties(model::executeSubstance(*bound, T, P, substanceOptions(), nullptr, inputs));
+        d = model::substanceParameterDerivative(*bound, seedOf(*bound, ref), T, P, substanceOptions(), inputs);
     }
 
     if (preferences.fallback_to_reference_properties)
@@ -295,15 +295,15 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
     // the parameter of another reaction, or of a substance
     if (ref.symbol != record->symbol || (ref.method.empty() && !isIn(reactionValues, ref.parameter)))
         return d;
-    const auto* spec = ref.method.empty() ? nullptr : v2::MethodCatalog::instance().find(ref.method);
-    if (spec && spec->operates_on != v2::OperatesOn::Reaction)
+    const auto* spec = ref.method.empty() ? nullptr : model::MethodCatalog::instance().find(ref.method);
+    if (spec && spec->operates_on != model::OperatesOn::Reaction)
         return d;
     if (const auto bound = boundReaction(reaction))
     {
         std::optional<PropertiesSolvent> solvent;
         if (bound->needs_solvent)
             solvent = cachedSolvent(T, P, solvent_in_use, -1);
-        return toSI(v2::reactionParameterDerivative(*bound, spec ? spec->id : ref.method, ref.parameter, T, P, solvent ? &*solvent : nullptr));
+        return toSI(model::reactionParameterDerivative(*bound, spec ? spec->id : ref.method, ref.parameter, T, P, solvent ? &*solvent : nullptr));
     }
     return d;
 }

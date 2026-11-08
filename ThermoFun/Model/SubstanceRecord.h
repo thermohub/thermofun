@@ -18,7 +18,7 @@
 #include <ThermoFun/Model/ReferenceConditions.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A substance of the database, as the file says. All values are in SI units.
 struct SubstanceRecord
@@ -63,6 +63,6 @@ struct SubstanceRecord
     auto operator==(const SubstanceRecord&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

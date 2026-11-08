@@ -5,7 +5,7 @@
 
 #include "detail/JsonDetect.h"
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 

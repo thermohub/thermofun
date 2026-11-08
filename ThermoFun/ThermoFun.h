@@ -16,3 +16,7 @@
 #include <ThermoFun/Model/DataFormat.h>
 #include <ThermoFun/Model/Records.h>
 
+namespace ThermoFun {
+/// The records and the rest of the model were in the namespace ThermoFun::v2 before 1.0; this name stays until 2.0
+namespace v2 = model;
+}

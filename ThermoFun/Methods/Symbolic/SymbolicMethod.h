@@ -15,7 +15,7 @@
 #include <ThermoFun/Model/MethodApplication.h>
 #include <ThermoFun/Model/MethodDefinition.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The names that an expression of a substance method can use: T, P, the reference values, R and the parameters of the method.
 auto symbolicVariables(const MethodDefinition& definition) -> std::vector<std::string>;
@@ -38,6 +38,6 @@ auto symbolicReactionMethod(const MethodDefinition& definition, const MethodAppl
 /// The checks of a symbolic Method record: its expressions (V2-SYM-001, 002, 006), its source (003), its test cases (004) and its units (005).
 auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& diagnostics) -> void;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

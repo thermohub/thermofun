@@ -17,13 +17,13 @@ namespace ThermoFun {
 struct Element::Impl
 {
     /// The record
-    std::shared_ptr<const v2::ElementRecord> record;
+    std::shared_ptr<const model::ElementRecord> record;
 
     /// Changes a copy of the record: a reference to the old record stays valid.
     template <class Change>
     void edit(Change change)
     {
-        auto copy = std::make_shared<v2::ElementRecord>(*record);
+        auto copy = std::make_shared<model::ElementRecord>(*record);
         change(*copy);
         copy->original_text.clear();
         record = copy;
@@ -37,26 +37,26 @@ struct Element::Impl
 Element::Element()
 : pimpl(new Impl())
 {
-    pimpl->record = std::make_shared<const v2::ElementRecord>();
+    pimpl->record = std::make_shared<const model::ElementRecord>();
 }
 
 Element::Element(std::string jsonElement)
 : pimpl(new Impl())
 {
     Diagnostics diagnostics;
-    if (v2::detectRecordFormat(jsonElement) == v2::DataFormat::V2)
+    if (model::detectRecordFormat(jsonElement) == model::DataFormat::V2)
     {
-        pimpl->record = std::make_shared<const v2::ElementRecord>(v2::readV2Element(jsonElement, diagnostics));
+        pimpl->record = std::make_shared<const model::ElementRecord>(model::readV2Element(jsonElement, diagnostics));
         if (!diagnostics.ok())
             funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
     }
     else
-        pimpl->record = std::make_shared<const v2::ElementRecord>(v2::readLegacyElement(jsonElement, {}, &diagnostics));
-    v2::checkReading(diagnostics);
+        pimpl->record = std::make_shared<const model::ElementRecord>(model::readLegacyElement(jsonElement, {}, &diagnostics));
+    model::checkReading(diagnostics);
     pimpl->jString = jsonElement;
 }
 
-Element::Element(std::shared_ptr<const v2::ElementRecord> record)
+Element::Element(std::shared_ptr<const model::ElementRecord> record)
 : pimpl(new Impl())
 {
     pimpl->record = std::move(record);
@@ -71,7 +71,7 @@ Element::Element(const ChemicalFun::ElementKey &elKey,
                  const ChemicalFun::ElementValues &elValues)
 : pimpl(new Impl())
 {
-    pimpl->record = std::make_shared<const v2::ElementRecord>();
+    pimpl->record = std::make_shared<const model::ElementRecord>();
     setClass(elKey.Class());
     setIsotopeMass(elKey.Isotope());
     setSymbol(elKey.Symbol());
@@ -95,18 +95,18 @@ auto Element::operator=(Element other) -> Element&
 
 auto Element::setName(std::string name) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) { r.name = name; });
+    pimpl->edit([&](model::ElementRecord& r) { r.name = name; });
 }
 
 auto Element::setSymbol(std::string symbol) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) { r.symbol = symbol; });
+    pimpl->edit([&](model::ElementRecord& r) { r.symbol = symbol; });
 }
 
 auto Element::setMolarMass(double value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) {
-        auto q = r.molar_mass.value_or(v2::Quantity{});
+    pimpl->edit([&](model::ElementRecord& r) {
+        auto q = r.molar_mass.value_or(model::Quantity{});
         q.value = value * 1e-3;
         q.value_as_written.clear();
         r.molar_mass = q;
@@ -115,8 +115,8 @@ auto Element::setMolarMass(double value) -> void
 
 auto Element::setEntropy(double value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) {
-        auto q = r.standard_entropy.value_or(v2::Quantity{});
+    pimpl->edit([&](model::ElementRecord& r) {
+        auto q = r.standard_entropy.value_or(model::Quantity{});
         q.value = value;
         q.value_as_written.clear();
         r.standard_entropy = q;
@@ -125,8 +125,8 @@ auto Element::setEntropy(double value) -> void
 
 auto Element::setHeatCapacity(double value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) {
-        auto q = r.heat_capacity.value_or(v2::Quantity{});
+    pimpl->edit([&](model::ElementRecord& r) {
+        auto q = r.heat_capacity.value_or(model::Quantity{});
         q.value = value;
         q.value_as_written.clear();
         r.heat_capacity = q;
@@ -135,8 +135,8 @@ auto Element::setHeatCapacity(double value) -> void
 
 auto Element::setVolume(double value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) {
-        auto q = r.volume.value_or(v2::Quantity{});
+    pimpl->edit([&](model::ElementRecord& r) {
+        auto q = r.volume.value_or(model::Quantity{});
         q.value = value * 1e-5;
         q.value_as_written.clear();
         r.volume = q;
@@ -145,14 +145,14 @@ auto Element::setVolume(double value) -> void
 
 auto Element::setValence(int value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) { r.valence = value; });
+    pimpl->edit([&](model::ElementRecord& r) { r.valence = value; });
 }
 
 auto Element::setClass(int value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) {
+    pimpl->edit([&](model::ElementRecord& r) {
         r.class_ = elementClassFromLegacy(value);
-        if (r.class_ == v2::ElementClass::Other)
+        if (r.class_ == model::ElementClass::Other)
             r.legacy_class = value;
         else
             r.legacy_class.reset();
@@ -161,12 +161,12 @@ auto Element::setClass(int value) -> void
 
 auto Element::setIsotopeMass(int value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) { r.isotope_mass = value; });
+    pimpl->edit([&](model::ElementRecord& r) { r.isotope_mass = value; });
 }
 
 auto Element::setNumber(int value) -> void
 {
-    pimpl->edit([&](v2::ElementRecord& r) { r.number = value; });
+    pimpl->edit([&](model::ElementRecord& r) { r.number = value; });
 }
 
 auto Element::setJsonString(const std::string &jString) ->void
@@ -224,7 +224,7 @@ auto Element::number() const -> int
     return pimpl->record->number.value_or(0);
 }
 
-auto Element::record() const -> std::shared_ptr<const v2::ElementRecord>
+auto Element::record() const -> std::shared_ptr<const model::ElementRecord>
 {
     return pimpl->record;
 }
@@ -234,7 +234,7 @@ auto Element::jsonString() const -> std::string
     if (!pimpl->jString.empty())
         return pimpl->jString;
     // an edited record: written from its fields, in the format it came from
-    return pimpl->record->source_format == v2::DataFormat::V2 ? v2::writeV2Element(*pimpl->record) : v2::writeLegacyElement(*pimpl->record);
+    return pimpl->record->source_format == model::DataFormat::V2 ? model::writeV2Element(*pimpl->record) : model::writeLegacyElement(*pimpl->record);
 }
 
 ChemicalFun::ElementKey Element::toElementKey(ChemicalFun::ElementValues &eldata)

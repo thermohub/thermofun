@@ -8,7 +8,7 @@
 
 #include <ThermoFun/Methods/FunctionMethod.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -295,4 +295,4 @@ auto cpPolynomialMethod(const MethodApplication& application, const std::string&
     return cpPolynomialMethod(std::move(intervals), std::move(coefficients), std::move(transitions), name);
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

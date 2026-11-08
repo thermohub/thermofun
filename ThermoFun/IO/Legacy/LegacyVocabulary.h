@@ -14,20 +14,20 @@
 
 namespace ThermoFun {
 
-auto substanceClassFromLegacy(int code) -> v2::SubstanceClass;
-auto toLegacy(v2::SubstanceClass value) -> SubstanceClass::type;
+auto substanceClassFromLegacy(int code) -> model::SubstanceClass;
+auto toLegacy(model::SubstanceClass value) -> SubstanceClass::type;
 
-auto aggregateStateFromLegacy(int code) -> v2::AggregateState;
-auto toLegacy(v2::AggregateState value) -> AggregateState::type;
+auto aggregateStateFromLegacy(int code) -> model::AggregateState;
+auto toLegacy(model::AggregateState value) -> AggregateState::type;
 
 /// Only the codes 0 (element) and 4 (charge) have a word: the meaning of 1, 2 and 3 is not verified, so they give
 /// Other. A reader keeps the raw code of such an element.
-auto elementClassFromLegacy(int code) -> v2::ElementClass;
-auto toLegacy(v2::ElementClass value) -> int;
+auto elementClassFromLegacy(int code) -> model::ElementClass;
+auto toLegacy(model::ElementClass value) -> int;
 
 /// The key of a property in a legacy record, or "" if legacy records do not have it.
-auto legacyKey(v2::PropertyName p) -> std::string;
-auto legacyKey(v2::ReactionPropertyName p) -> std::string;
+auto legacyKey(model::PropertyName p) -> std::string;
+auto legacyKey(model::ReactionPropertyName p) -> std::string;
 
 } // namespace ThermoFun
 

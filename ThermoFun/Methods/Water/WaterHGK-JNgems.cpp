@@ -289,7 +289,7 @@ struct WaterHGKgemsConstants
 
 namespace {
 
-auto readConstants(const std::map<std::string, v2::Quantity>& values, const std::map<std::string, v2::Quantity>& dielectric) -> WaterHGKgemsConstants
+auto readConstants(const std::map<std::string, model::Quantity>& values, const std::map<std::string, model::Quantity>& dielectric) -> WaterHGKgemsConstants
 {
     WaterHGKgemsConstants out;
     auto number = [&](const std::string& name) { return values.at(name).value; };
@@ -422,7 +422,7 @@ auto readConstants(const std::map<std::string, v2::Quantity>& values, const std:
 
 } // namespace
 
-auto makeWaterHGKgemsConstants(const std::map<std::string, v2::Quantity>& water, const std::map<std::string, v2::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>
+auto makeWaterHGKgemsConstants(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>
 {
     return std::make_shared<const WaterHGKgemsConstants>(readConstants(water, dielectric));
 }

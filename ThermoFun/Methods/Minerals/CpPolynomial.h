@@ -13,7 +13,7 @@
 #include <ThermoFun/Methods/Method.h>
 #include <ThermoFun/Model/MethodApplication.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// A phase transition at the start of a T segment. K, J/(mol K), J/mol, m3/mol.
 struct PhaseTransition
@@ -31,6 +31,6 @@ auto cpPolynomialMethod(std::vector<std::pair<double, double>> intervals, std::v
 /// The method of what a record says.
 auto cpPolynomialMethod(const MethodApplication& application, const std::string& name = "") -> std::shared_ptr<const SubstanceMethod>;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

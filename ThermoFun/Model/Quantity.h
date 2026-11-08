@@ -10,7 +10,7 @@
 
 #include "Vocabulary.h"
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// Uncertainty of a value, as a standard uncertainty (k = 1) in the SI unit of the value.
 struct Uncertainty
@@ -76,6 +76,6 @@ struct Quantity
     auto operator==(const Quantity&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

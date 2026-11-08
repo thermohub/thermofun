@@ -12,7 +12,7 @@
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/Model/Records.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The records of one v2 file
 struct V2Document

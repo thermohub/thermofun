@@ -9,7 +9,7 @@
 
 #include <ThermoFun/Model/DataFormat.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 namespace detail {
 
 /// See detectDocumentFormat(const std::string&).

@@ -27,7 +27,7 @@
 #include <ThermoFun/Methods/Water/WaterWP95reaktoro.h>
 #include <ThermoFun/Methods/Water/WaterZhangDuan2005.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 namespace {
 
@@ -420,4 +420,4 @@ auto fernandezEtAl97Method(std::vector<double> constants) -> std::shared_ptr<con
     });
 }
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model

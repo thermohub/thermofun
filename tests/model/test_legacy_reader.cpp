@@ -24,7 +24,7 @@
 #include "Methods/MethodCatalog.h"
 #include "check.h"
 
-using namespace ThermoFun::v2;
+using namespace ThermoFun::model;
 using ThermoFun::Diagnostics;
 using ThermoFun::Severity;
 using nlohmann::json;

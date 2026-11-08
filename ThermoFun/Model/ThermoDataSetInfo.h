@@ -12,7 +12,7 @@
 #include <ThermoFun/Model/ReferenceConditions.h>
 #include <ThermoFun/Model/Vocabulary.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// Data about the dataset that is loaded, and its conventions.
 struct ThermoDataSetInfo
@@ -37,6 +37,6 @@ struct ThermoDataSetInfo
     auto operator==(const ThermoDataSetInfo&) const -> bool = default;
 };
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif

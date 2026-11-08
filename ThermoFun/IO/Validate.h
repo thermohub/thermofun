@@ -11,7 +11,7 @@
 #include <ThermoFun/Common/Diagnostics.h>
 #include <ThermoFun/IO/V2/V2Writer.h>
 
-namespace ThermoFun::v2 {
+namespace ThermoFun::model {
 
 /// The elements of a formula and their counts. It raises an error if the formula cannot be read.
 using FormulaParser = std::function<std::map<std::string, double>(const std::string&)>;
@@ -20,6 +20,6 @@ using FormulaParser = std::function<std::map<std::string, double>(const std::str
 /// from another file. How the methods of one substance combine is checked by checkMethods of Engine/Binding.
 auto validateRecords(const V2Records& records, const FormulaParser& parseFormula) -> Diagnostics;
 
-} // namespace ThermoFun::v2
+} // namespace ThermoFun::model
 
 #endif
