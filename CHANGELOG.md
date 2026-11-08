@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+"Review Xn" names a finding of the external review of the v2 branch (November 2026); the entry says what it was.
+
 ### Changed, read before you update
 
 - **V is in m3/mol** in all results (`volume`, `reaction_volume`, and `substanceProperties` of the water methods), SI as P
@@ -45,7 +47,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (review Q6).
 - **`python -m thermofun.convert` writes exact numbers by default**, so a conversion does not change a result (review Q10).
   `--readable` writes short decimals, and the report says how many numbers changed and by how much. `save()` and the
-  writers stay readable by default (decision 0023).
+  writers stay readable by default: a short decimal reads back to about 6e-8 relative.
 - **Uncertainties of format 2.0** (review Q8): `{half_width: a, distribution: uniform}` gives u = a/√3, `triangular`
   a/√6 (GUM); other words are an error (V2-UNC-005). `degrees_of_freedom` and `standard_state_convention` are not part of
   the format: a warning (V2-UNC-006, V2-KEY-003), and a label with 1atm sets `standard_pressure: 1atm`. The docs say that
@@ -75,6 +77,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   a calculation no longer changes `solvent_symbol` or `solvent_state` of the preferences.
 
 ### Added
+
+- `EngineConventions::apparentPropertiesWord()` and `waterPropertiesWord()` in C++: the old words of the conventions. The
+  fields `apparent_properties` and `water_properties` are empty after a call of the engine (review Q9).
+- `pytests/test_closed_forms.py`: each family of methods against its closed formula in a sweep of T, and every record
+  of the bundled databases against dG/dT = -S, dH/dT = Cp, dG/dP = V, log K and dG = dH - T dS (review S10). The pytests
+  run on macOS (arm64) too.
 
 - Standard property models: Tait HP11 pressure correction, Extended UNIQUAC, NASA polynomials,
   and T-P table interpolation (from the branch `new_models`).
@@ -121,6 +129,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- `ThermoBatch` wrote every volume as 0.000 by default: its 3 decimals were those of J/bar. The default is 8 decimals
+  of m3/mol, the same resolution.
+- On macOS, errors of a table setup reached Python as RuntimeError, not `TableSetupError`: its type information is now
+  in the library only. And without `from_chars` for double (libc++ before 16), a number in a text was read to its last
+  point, so "1.5.2 J/mol" was 1.5 J/mol and not an error.
+- The library links spdlog itself when it uses the compiled spdlog (and so fmt), not only through ChemicalFun (review N9).
 - Derivatives and properties fixed with autodiff (before in `docs/explanation/autodiff.md`):
   - `AkinfievDiamond03`: the reference-state increments carried temperature derivatives.
   - `ln K = -dGr/(R T)` and `dS = (dH - dG)/T` lost the derivative of `1/T`.

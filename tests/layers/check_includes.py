@@ -5,7 +5,7 @@
 
     python tests/layers/check_includes.py
 
-The rules are those of the plan (02 section 1). A file in a layer folder of ThermoFun/ may include headers of the
+The rules are in LAYERS below. A file in a layer folder of ThermoFun/ may include headers of the
 layers listed for it, the standard library and the external libraries allowed for it. Known violations of old
 files are listed in known_violations.txt with the step that removes them; any other violation, or a listed one
 that is gone, makes the exit code 1.

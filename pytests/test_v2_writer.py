@@ -62,7 +62,7 @@ def test_the_exact_file_gives_the_results_of_the_legacy_file(path):
 def test_the_readable_file_stays_within_the_precision_of_the_source(path):
     legacy = tf.Database(path)
     # float rounding of a parameter is up to 6e-8 relative; it grows where terms nearly cancel, most in the derivatives.
-    # A small value of A or U can differ by 0.1 J/mol: its terms are large (decision 0023).
+    # A small value of A or U can differ by 0.1 J/mol: its terms are large, and the file has short decimals.
     assert compare(legacy, tf.Database(legacy.toJson()), 2e-5, derivatives=1e-3, energy=0.1) > 0
 
 

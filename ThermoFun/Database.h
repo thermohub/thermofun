@@ -229,12 +229,12 @@ public:
     /// @param symbol The name of the reaction
     auto containsReaction(std::string symbol) const -> bool;
 
-    /// Pareses a given substance formula present in the database
+    /// Parses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
     auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
 
-    /// Pareses a given substance formula present in the database
+    /// Parses a given substance formula present in the database
     /// @param formula
     /// @return elemental entropy
     auto elementalEntropyFormula(std::string formula) const -> double;

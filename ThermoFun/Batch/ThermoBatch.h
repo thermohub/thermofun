@@ -317,7 +317,7 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"entropy",                        3               },
     {"heat_capacity_cp",               3               },
     {"heat_capacity_cv",               3               },
-    {"volume",                         3               },
+    {"volume",                         8               },   // m3/mol: 1e-8 m3/mol is the 1e-3 J/bar of before 1.0
     {"helmholtz_energy",               0               },
     {"internal_energy",                0               },
 
@@ -326,7 +326,7 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"reaction_internal_energy",       0               },
     {"reaction_enthalpy",              0               },
     {"reaction_entropy",               3               },
-    {"reaction_volume",                3               },
+    {"reaction_volume",                8               },
     {"reaction_heat_capacity_cp",      3               },
     {"reaction_heat_capacity_cv",      3               },
     {"logKr",                          3               },

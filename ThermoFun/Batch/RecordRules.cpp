@@ -22,6 +22,9 @@
 
 namespace ThermoFun {
 
+TableSetupError::~TableSetupError() = default;
+
+
 namespace {
 
 using json = nlohmann::ordered_json;

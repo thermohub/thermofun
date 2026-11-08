@@ -3,6 +3,8 @@
 
 // ThermoFun includes
 #include "ThermoEngineImpl.h"
+#include <algorithm>
+#include <cctype>
 #include <ThermoFun/Common/PhysicalConstants.h>
 
 namespace ThermoFun
@@ -55,6 +57,15 @@ void checkPreferences(const EnginePreferences& p)
     }
 }
 
+/// The old word of a value: the word of the vocabulary in capitals
+template <typename E>
+auto oldWordOf(E value) -> std::string
+{
+    auto word = model::toString(value);
+    std::transform(word.begin(), word.end(), word.begin(), [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+    return word;
+}
+
 /// A word set in an old field replaces the typed value, and the field is empty after it
 void applyOldWords(EngineConventions& c)
 {
@@ -68,6 +79,16 @@ void applyOldWords(EngineConventions& c)
         c.water_reference = checkedWord<model::WaterReference>(c.water_properties);
         c.water_properties.clear();
     }
+}
+
+auto EngineConventions::apparentPropertiesWord() const -> std::string
+{
+    return apparent_properties.empty() ? oldWordOf(energy_reference) : apparent_properties;
+}
+
+auto EngineConventions::waterPropertiesWord() const -> std::string
+{
+    return water_properties.empty() ? oldWordOf(water_reference) : water_properties;
 }
 
 void ThermoEngine::Impl::dropStaleResults()

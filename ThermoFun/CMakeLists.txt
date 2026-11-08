@@ -117,6 +117,10 @@ target_compile_features(ThermoFun PUBLIC cxx_std_20)
 
 # Link ThermoFun against all required dependencies
 target_link_libraries(ThermoFun PUBLIC ChemicalFun::ChemicalFun)
+# ThermoFun includes spdlog itself (Common/Exception.h): link it, and fmt with it, not only through ChemicalFun (review N9)
+if(USE_SPDLOG_PRECOMPILED AND TARGET spdlog::spdlog)
+    target_link_libraries(ThermoFun PUBLIC spdlog::spdlog)
+endif()
 target_link_libraries(ThermoFun PUBLIC
     $<BUILD_INTERFACE:autodiff::autodiff>
     $<INSTALL_INTERFACE:autodiff::autodiff>)

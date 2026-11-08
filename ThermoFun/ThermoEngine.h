@@ -38,7 +38,7 @@ struct EnginePreferences
     int uncertainty_significant_digits = 2; // significant digits of the (rounded up) uncertainties, used if round_to_uncertainty is true (NEA TDB tables give one or two)
     model::PropertySource property_source = model::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
     std::map<std::string, std::string> method_implementation; // method id -> implementation, for example {"HKF88": "reaktoro"}; it replaces the implementation of the records
-    bool propagate_parameter_errors = false; // propagate the errors of the reference properties and of the coefficients of the models (given in the database as errors) to the calculated properties; costs two extra calculations per parameter with an error
+    bool propagate_parameter_errors = false; // also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances of the records (u^2 = J S J^T). Without it, only the uncertainties of the reference values propagate. Costs two extra calculations per uncertain value
 
     /// G(T, Pr) for a gas: no RT ln(P/Pr) and no RT ln(phi) in G. For a code that adds these terms itself.
     /// The same as apply_pressure_correction_to_gas_props = false and cancel_fugacity_coefficient_in_gas_props = true,
@@ -59,9 +59,15 @@ struct EngineConventions {
     model::ConcentrationScale concentration_scale = model::ConcentrationScale::Molality;
     model::WaterReference water_reference = model::WaterReference::Geochemical;
 
-    // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine.
+    // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine,
+    // and the field is then empty: read the words with apparentPropertiesWord() and waterPropertiesWord().
     std::string apparent_properties;   // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
     std::string water_properties;      // e.g. "GEOCHEMICAL", "STEAM_TABLES"
+
+    /// The old word of energy_reference, for example "BENSON_HELGESON" (review of v2, Q9)
+    auto apparentPropertiesWord() const -> std::string;
+    /// The old word of water_reference, for example "GEOCHEMICAL"
+    auto waterPropertiesWord() const -> std::string;
 
     bool operator==(const EngineConventions&) const = default;
 };
@@ -238,10 +244,10 @@ public:
     auto explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>;
 
     /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
-    /// @param P The pressure value (in units of Pa); 0 means the saturation pressure, which is written back
     /// How a substance, or a reaction if there is no such substance, is calculated with the sources of this engine. It calculates nothing.
     auto calculationPath(const std::string& symbol) const -> CalculationPath;
 
+    /// @param P The pressure value (in units of Pa); 0 means the saturation pressure, which is written back
     auto thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance;
 
     /// What the results depend on: the version of ThermoFun, the format and dataset of the loaded data, the SHA-256 of all records,
@@ -277,7 +283,7 @@ public:
     /// Information for the owners of the data.
     auto consistencyReport(const std::vector<std::pair<double, double>>& TP, const ConsistencyOptions& options = {}) const -> std::vector<ConsistencyItem>;
 
-    /// Pareses a given substance formula present in the database
+    /// Parses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
     auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;

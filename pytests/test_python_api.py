@@ -158,6 +158,14 @@ def test_batch_units_and_digits(database, tmp_path):
     assert lines[0].endswith("gibbs_energy(kJ/mol)") and lines[1].split(",")[-1] == "-1129.178"
 
 
+
+def test_the_default_digits_show_a_volume_in_m3_per_mol(database, tmp_path):
+    """V is in m3/mol: with the 3 decimals of J/bar, every volume was written as 0.000."""
+    batch = tf.ThermoBatch(database)
+    batch.thermoPropertiesSubstance(298.15, 1e5, ["Cal"], ["volume"]).toCSV(str(tmp_path / "v.csv"))
+    value = (tmp_path / "v.csv").read_text().splitlines()[1].split(",")[-1]
+    assert float(value) == pytest.approx(3.6934e-5, rel=1e-3), value
+
 # --- ThermoScalar ------------------------------------------------------------------------------------------------
 
 def test_thermoscalar_arithmetic_and_variables():

@@ -14,7 +14,7 @@ namespace ThermoFun::model {
 struct V2WriterOptions
 {
     /// True: a value from a single-precision source is written as the shortest decimal of that float, for example -56.484.
-    /// Such a file reads back up to about 6e-8 relative from the value in memory (decision 0023).
+    /// Such a file reads back up to about 6e-8 relative from the value in memory.
     /// False: every value reads back as the same double, for example -56.484001159668.
     bool readable = true;
 };

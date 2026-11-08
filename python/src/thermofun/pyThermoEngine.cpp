@@ -63,13 +63,6 @@ auto valueOf(const py::object& given) -> E
 }
 
 // The word of a value in capitals, as the old fields had it
-template <class E>
-auto oldWord(E value) -> std::string
-{
-    auto word = model::toString(value);
-    std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
-    return word;
-}
 
 } // namespace
 
@@ -330,7 +323,7 @@ void exportThermoEngine(py::module& m)
                    "number of significant digits of the (rounded up) uncertainties if round_to_uncertainty is True (default: 2)")
     .def_readwrite("propagate_parameter_errors",
                    &EnginePreferences::propagate_parameter_errors,
-                   "propagate the errors of the reference properties and of the coefficients of the models to the err of the calculated properties True/False (default: False)");
+                   "also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False)");
 
     m.def("round_to_uncertainty",
           [](double value, double error, int significant_digits) {
@@ -353,9 +346,9 @@ void exportThermoEngine(py::module& m)
         .def_property("water_reference", [](const EngineConventions& c) { return c.water_reference; },
                       [](EngineConventions& c, py::object v) { c.water_reference = valueOf<model::WaterReference>(v); c.water_properties.clear(); })
         // the old names: the same values as checked words in capitals
-        .def_property("apparent_properties", [](const EngineConventions& c) { return oldWord(c.energy_reference); },
+        .def_property("apparent_properties", [](const EngineConventions& c) { return c.apparentPropertiesWord(); },
                       [](EngineConventions& c, const std::string& word) { c.energy_reference = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); })
-        .def_property("water_properties", [](const EngineConventions& c) { return oldWord(c.water_reference); },
+        .def_property("water_properties", [](const EngineConventions& c) { return c.waterPropertiesWord(); },
                       [](EngineConventions& c, const std::string& word) { c.water_reference = wordOf<model::WaterReference>(word); c.water_properties.clear(); });
 }
 

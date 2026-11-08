@@ -2,6 +2,7 @@
 // Copyright (C) 2026 ThermoFun contributors
 
 #include "ConventionConverter.h"
+#include "Common/Constants.h"
 
 #include <stdexcept>
 
@@ -9,7 +10,7 @@ namespace ThermoFun::model {
 
 namespace {
 
-const double kMolarMassWater = 18.01528;  // g/mol
+const double kMolarMassWater = H2OMolarMassAtomicWeights;  // g/mol
 
 /// G of a reference minus G of Berman-Brown: a constant and a term linear in T. All in terms of the entropies of the elements.
 auto energyOffset(EnergyReference reference, const ConversionSubject& subject) -> ConventionShift

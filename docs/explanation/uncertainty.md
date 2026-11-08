@@ -11,7 +11,7 @@ Every uncertainty is kept as a standard uncertainty u (k = 1): an expanded one i
 
 | Source | How it counts |
 |---|---|
-| Reference values | Always. G(T) = G(Tr) - S(Tr) (T - Tr) + ... has (T - Tr) u(S). |
+| Reference values | Always. G(T) = G(Tr) - S(Tr) (T - Tr) + ... has (T - Tr) u(S). With `propagate_parameter_errors`, they count together with the parameters and the `covariances`. |
 | A reaction from reactants | The errors are weighted by the coefficients. u(ln K) = u(dG)/(R T), and u(log K) = u(ln K)/ln 10. |
 | Other properties | From U = H - P V and A = U - T S. |
 | Parameters of methods | Only with `propagate_parameter_errors`. |

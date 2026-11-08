@@ -27,7 +27,7 @@ Build and install it first. Use a clean checkout, not a tree with unfinished edi
 
 | Test file | What it checks |
 |---|---|
-| `test_golden.py` | The values, the derivatives, the errors and the status of each stored property. The tolerance is 1e-10 (relative). |
+| `test_golden.py` | The values, the derivatives, the errors and the status of each stored property. The tolerance is 1e-10 (relative) on Linux x86-64, where the references are made, and 1e-9 on other platforms (macOS arm64 gives up to 2.2e-10). |
 | `test_key_inventory.py` | Each key in the legacy files is known. Each method number is valid. Each method has a golden record. |
 
 ## Compare two builds

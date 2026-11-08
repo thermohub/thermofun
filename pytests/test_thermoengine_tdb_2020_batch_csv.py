@@ -54,6 +54,7 @@ def test_batch_csv_outputs(engine, tmp_path):
 
     # the reference tables have V in J/bar: asked for here, so the conversion from m3/mol is tested too
     batch.setPropertiesUnits(["temperature", "pressure", "volume", "reaction_volume"], ["degC", "bar", "J/bar", "J/bar"])
+    batch.setPropertiesDigits(["volume", "reaction_volume"], [3, 3])   # the reference files: 3 decimals of J/bar
     batch.setSolventSymbol("H2O(l)")
 
     prefs = thermofun.BatchPreferences()

@@ -81,7 +81,7 @@ def test_constant_volume(T, P):
 @pytest.mark.parametrize("T", TS)
 @pytest.mark.parametrize("P", [PR, 1e7])
 def test_ideal_gas(T, P):
-    """G has RT ln(P/Pr) by default (decision 0027); V = RT/P."""
+    """G has RT ln(P/Pr) by default (apply_pressure_correction_to_gas_props); V = RT/P."""
     p = engine(["{method: ConstantCp}", "{method: IdealGas}"]).thermoPropertiesSubstance(T, P, "X")
     G, H, S = from_integrals(T, CP0 * (T - TR), CP0 * math.log(T / TR))
     check(p, G + R * T * math.log(P / PR), H, S - R * math.log(P / PR), CP0, T)

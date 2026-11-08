@@ -27,8 +27,12 @@ static const double cal_to_J = 4.184,
                     TEMPER_PREC     = 0.5,
                     PRESSURE_PREC   = 0.1;
 
-/// The molar mass of water in units of g/mol
+/// The molar mass of water in units of g/mol (IAPWS-95, the water methods)
 static const double H2OMolarMass = 18.015268;
+
+/// The molar mass of water in units of g/mol from the standard atomic weights, as GEMS and SUPCRT92 use it to convert
+/// molality to mole fraction (ln(1000/Mw) = 4.0165)
+static const double H2OMolarMassAtomicWeights = 18.01528;
 
 struct WaterTripleProperties {
     double Str; // J/(mol*K)

@@ -7,7 +7,7 @@
 
 **You need:** a C++20 compiler, CMake, and the packages in `environment.devenv.yml`.
 
-1. Configure and build. Use conda to get the dependencies, or see the `README.md`.
+1. Configure and build. Use conda to get the dependencies: see the `README.md`.
 
    ```
    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -25,7 +25,7 @@
 | `THERMOFUN_PHYSICAL_CONSTANTS` | `codata1986` | `codata2018` uses the current values of R, NA, F, e and k. See `ThermoFun/Methods/ParameterSets/`. |
 | `BUILD_SHARED_LIBS`, `BUILD_STATIC_LIBS` | ON | The type of the library. |
 
-Without autodiff, these properties are `notdefined`, because their value needs a derivative: `heat_capacity_cv` of substances, and `densityTP` of HGK water.
+autodiff is always used. If CMake does not find it, the build fetches it from GitHub.
 
 **Check:** run the tests.
 

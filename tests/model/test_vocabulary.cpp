@@ -10,6 +10,8 @@
 #include "IO/Legacy/LegacyVocabulary.h"
 #include "Model/Quantity.h"
 #include "Model/Vocabulary.h"
+#include "ThermoEngine.h"
+#include "Common/Numbers.h"
 #include "check.h"
 
 using namespace ThermoFun;
@@ -177,8 +179,40 @@ void testLegacy()
 
 } // namespace
 
+// The old words of the conventions are read in C++ too: the fields are empty after a call of the engine (review Q9)
+void testOldWordsOfTheConventions()
+{
+    ThermoFun::EngineConventions c;
+    CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON" && c.waterPropertiesWord() == "GEOCHEMICAL");
+    c.energy_reference = ThermoFun::model::EnergyReference::BermanBrown;
+    c.water_reference = ThermoFun::model::WaterReference::SteamTables;
+    CHECK(c.apparentPropertiesWord() == "BERMAN_BROWN" && c.waterPropertiesWord() == "STEAM_TABLES");
+    c.apparent_properties = "BENSON_HELGESON";   // a word not yet applied is the answer
+    CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON");
+}
+
+// The parser by hand (macOS before libc++ 16) reads as from_chars: it read "1.5.2" as a number to its end (review S10)
+void testTheNumberParserByHand()
+{
+    for (const char* text : {"1.5.2 J/mol", "1.5 J/mol", "-2.5e3 x", "1e J", "abc", "1,5", ".5 x", "5. x", ". x", "-", "-.e1",
+                             "12", "0.000001", "6.02214076e23", "1e-310", "+3.25", " 7 bar"})
+    {
+        std::size_t usedLibrary = 0, usedHand = 0;
+        const std::string_view t = text;
+        const double a = ThermoFun::numbers::parseDouble(t, usedLibrary);
+        std::size_t start = 0;
+        while (start < t.size() && t[start] == ' ')
+            ++start;
+        const double b = ThermoFun::numbers::parseDoubleByHand(t, start < t.size() && t[start] == '+' ? start + 1 : start, usedHand);
+        CHECK(usedLibrary == usedHand);
+        CHECK(usedLibrary == 0 || a == b);
+    }
+}
+
 void runVocabulary()
 {
+    testTheNumberParserByHand();
+    testOldWordsOfTheConventions();
     testQuantity();
     testLists();
     testAliasesAndCase();
