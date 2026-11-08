@@ -82,13 +82,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - `CorkHP91` of H2O: da/dT of the supercritical branch had the signs of a4 and a6 wrong; the virial term above p0 was
     not in H and S (also for CO2); in the liquid branch H and S were those of the last part only, without the parts at
     Psat (S off by up to 53 J/(mol K)); the MRK part of H and Cp took the volume with the virial term; the cubic used
-    pi with 8 digits;
+    pi with 8 digits; between 673 and 695 K, a(T) was a polynomial in (673 - T), where Holland and Powell (1991, Eq. 6)
+    and Perple_X have (T - 673): G of H2O was off there by up to about 140 J/mol and jumped at 695 K (112 J/mol at
+    1 kbar). Checked against the paper and Perple_X (`crkh2o`, `crkco2`): the other constants agree; the a(T) of CO2 is
+    that of Perple_X ("from Roger" Powell), not the one of Table 1 of 1991, and its virial terms are those of Holland and
+    Powell (1998);
   - `ChurakovGottschalk03`: S lacked R ln Z and H had Z RT instead of (Z - 1) RT (S and H at the density, not at P). It
     still has no residual Cp: that needs second derivatives that are not made;
   - `MurnaghanHP98` and `LandauHP98`: V is integrated from the reference pressure, not from P = 0, at every point. G
     was higher by about V x 1 bar except at exactly 298.15 K and 1 bar, where it jumped (Albite 10.0 J/mol, Calcite
     3.7, Quartz 2.3) and V lost the Landau term. The Landau volume term has its Cp, and Tc0 is at Pr.
-  G of a fluid does not change (the exact pi of CORK moves it by less than 1e-9), so its equilibria do not. G of the
+  G of a fluid does not change (the exact pi of CORK moves it by less than 1e-9), except CORK H2O between 673 and 695 K. G of the
   HP98 minerals and of their reactions changes by 2-10 J/mol. A code that must keep the numbers of GEMS sets
   `method_implementation` to `gems` for these methods.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the

@@ -220,6 +220,14 @@ def test_the_implementation_gems_keeps_the_formulas_of_gems():
     assert water.gibbs_energy.ddt + water.entropy.val == pytest.approx(53.1, rel=0.01)
 
 
+@pytest.mark.parametrize("implementation, step", [(None, -3.2), ("gems", 108.9)])
+def test_cork_water_is_continuous_at_695_K(implementation, step):
+    """Between 673 and 695 K, a(T) of H2O is a0 + a4 (T - 673) + ... (Holland and Powell 1991, Eq. 6; Perple_X crkh2o).
+    GEMS had (673 - T), so G jumped by 112 J/mol at 695 K and 1 kbar (the step here is that, with -S dT = -3.2 J/mol)."""
+    below, above = aq17(694.99, 1e8, "H2O", implementation), aq17(695.01, 1e8, "H2O", implementation)
+    assert above.gibbs_energy.val - below.gibbs_energy.val == pytest.approx(step, abs=0.5)
+
+
 @pytest.mark.xfail(strict=True, reason="ChurakovGottschalk03 has no residual Cp: it needs the second derivatives of F")
 def test_known_the_residual_cp_of_churakov_gottschalk():
     p = tf.ThermoEngine(FIXTURES[0]).thermoPropertiesSubstance(373.15, 5e7, "CO-cgf")

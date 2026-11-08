@@ -38,7 +38,7 @@ A record does not give these: ThermoFun reads them from `ThermoFun/Methods/Param
 
 Units of the values: T: K, P: kbar, V: kJ/kbar. They are not converted.
 
-Compensated Redlich-Kwong equation of state, the constants of its three forms, in kJ, kbar and K as in the formulas. cs: any fluid, by corresponding states from Tc and Pc: a = a0 Tc^2.5/Pc + a1 Tc^1.5 T/Pc, b = b0 Tc/Pc, c = c0 Tc/Pc^1.5 + c1 T/Pc^1.5, d = d0 Tc/Pc2 + d1 T/Pc2. co2: a = a0 + a1 T + a2 T2, c = c0 + c1 T, d = d0 + d1 T above p0 in kbar. h2o: a is a polynomial in (T0 - T), with a1 to a3 for the liquid, a7 to a9 for the vapour below T0, a4 to a6 above T0; Tsuper: the T above which H2O is one fluid; psat0, psat2, psat3, psat5: Psat in kbar, a polynomial in T of powers 0, 2, 3, 5.
+Compensated Redlich-Kwong equation of state, the constants of its three forms, in kJ, kbar and K as in the formulas. cs: any fluid, by corresponding states from Tc and Pc: a = a0 Tc^2.5/Pc + a1 Tc^1.5 T/Pc, b = b0 Tc/Pc, c = c0 Tc/Pc^1.5 + c1 T/Pc^1.5, d = d0 Tc/Pc2 + d1 T/Pc2. co2: a = a0 + a1 T + a2 T2, c = c0 + c1 T, d = d0 + d1 T above p0 in kbar. h2o: a is a polynomial in (T0 - T), with a1 to a3 for the liquid and a7 to a9 for the vapour below T0, and in (T - T0) with a4 to a6 above T0 (Eq. 6 of the paper; the implementation gems has (T0 - T) between T0 and Tsuper); co2: a and the virial terms are those of Perple_X (a from R. Powell) and of Holland and Powell (1998), not of Table 1 of 1991; Tsuper: the T above which H2O is one fluid; psat0, psat2, psat3, psat5: Psat in kbar, a polynomial in T of powers 0, 2, 3, 5.
 
 Source: Holland T.J.B., Powell R. (1991) Contrib. Mineral. Petrol. 109, 265-273.
 

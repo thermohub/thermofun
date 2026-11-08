@@ -478,11 +478,17 @@ long int FugacityH2O(Work& w)
                 da = -a7 - 2.*a8*(w.k[h2o_T0]-w.Tk) - 3.*a9*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a8 + 6.*a9*(w.k[h2o_T0]-w.Tk);
             }
-            else
+            else if (w.gems)  // T0 <= T < Tsuper: (T0 - T), where HP91 (Eq. 6) has (T - T0); a jumps at Tsuper
             {
                 a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
+            }
+            else  // Holland and Powell (1991), Eq. 6 for T > 673 K, as Perple_X: the same a as above Tsuper
+            {
+                a = a0 + a4*(w.Tk-w.k[h2o_T0]) + a5*pow((w.Tk-w.k[h2o_T0]),2.) + a6*pow((w.Tk-w.k[h2o_T0]),3.);
+                da = a4 + 2.*a5*(w.Tk-w.k[h2o_T0]) + 3.*a6*pow((w.Tk-w.k[h2o_T0]),2.);
+                d2a = 2.*a5 + 6.*a6*(w.Tk-w.k[h2o_T0]);
             }
             VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, fc, &vm);
             states[nstates++] = {a, da, d2a, vm, w.Pkb};
@@ -497,11 +503,17 @@ long int FugacityH2O(Work& w)
                 da = -a7 - 2.*a8*(w.k[h2o_T0]-w.Tk) - 3.*a9*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a8 + 6.*a9*(w.k[h2o_T0]-w.Tk);
             }
-            else
+            else if (w.gems)  // T0 <= T < Tsuper: (T0 - T), where HP91 (Eq. 6) has (T - T0); a jumps at Tsuper
             {
                 a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
+            }
+            else  // Holland and Powell (1991), Eq. 6 for T > 673 K, as Perple_X: the same a as above Tsuper
+            {
+                a = a0 + a4*(w.Tk-w.k[h2o_T0]) + a5*pow((w.Tk-w.k[h2o_T0]),2.) + a6*pow((w.Tk-w.k[h2o_T0]),3.);
+                da = a4 + 2.*a5*(w.Tk-w.k[h2o_T0]) + 3.*a6*pow((w.Tk-w.k[h2o_T0]),2.);
+                d2a = 2.*a5 + 6.*a6*(w.Tk-w.k[h2o_T0]);
             }
             VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g1, &vm);
             states[nstates++] = {a, da, d2a, vm, Psat};
@@ -513,11 +525,17 @@ long int FugacityH2O(Work& w)
                 da = -a1 - 2.*a2*(w.k[h2o_T0]-w.Tk) - 3.*a3*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a2 + 6.*a3*(w.k[h2o_T0]-w.Tk);
             }
-            else
+            else if (w.gems)  // T0 <= T < Tsuper: (T0 - T), where HP91 (Eq. 6) has (T - T0); a jumps at Tsuper
             {
                 a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
+            }
+            else  // Holland and Powell (1991), Eq. 6 for T > 673 K, as Perple_X: the same a as above Tsuper
+            {
+                a = a0 + a4*(w.Tk-w.k[h2o_T0]) + a5*pow((w.Tk-w.k[h2o_T0]),2.) + a6*pow((w.Tk-w.k[h2o_T0]),3.);
+                da = a4 + 2.*a5*(w.Tk-w.k[h2o_T0]) + 3.*a6*pow((w.Tk-w.k[h2o_T0]),2.);
+                d2a = 2.*a5 + 6.*a6*(w.Tk-w.k[h2o_T0]);
             }
             VolumeFugacity(w, phState, Psat, p0, a, b, c, d, e, v, g2, &vm);
             states[nstates++] = {a, da, d2a, vm, Psat};
@@ -529,11 +547,17 @@ long int FugacityH2O(Work& w)
                 da = -a1 - 2.*a2*(w.k[h2o_T0]-w.Tk) - 3.*a3*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a2 + 6.*a3*(w.k[h2o_T0]-w.Tk);
             }
-            else
+            else if (w.gems)  // T0 <= T < Tsuper: (T0 - T), where HP91 (Eq. 6) has (T - T0); a jumps at Tsuper
             {
                 a = a0 + a4*(w.k[h2o_T0]-w.Tk) + a5*pow((w.k[h2o_T0]-w.Tk),2.) + a6*pow((w.k[h2o_T0]-w.Tk),3.);
                 da = -a4 - 2.*a5*(w.k[h2o_T0]-w.Tk) - 3.*a6*pow((w.k[h2o_T0]-w.Tk),2.);
                 d2a = 2.*a5 + 6.*a6*(w.k[h2o_T0]-w.Tk);
+            }
+            else  // Holland and Powell (1991), Eq. 6 for T > 673 K, as Perple_X: the same a as above Tsuper
+            {
+                a = a0 + a4*(w.Tk-w.k[h2o_T0]) + a5*pow((w.Tk-w.k[h2o_T0]),2.) + a6*pow((w.Tk-w.k[h2o_T0]),3.);
+                da = a4 + 2.*a5*(w.Tk-w.k[h2o_T0]) + 3.*a6*pow((w.Tk-w.k[h2o_T0]),2.);
+                d2a = 2.*a5 + 6.*a6*(w.Tk-w.k[h2o_T0]);
             }
             VolumeFugacity(w, phState, w.Pkb, p0, a, b, c, d, e, vc, g3, &vm);  // corrected from (phState, w.Pkb, psat ...)
             states[nstates++] = {a, da, d2a, vm, w.Pkb};

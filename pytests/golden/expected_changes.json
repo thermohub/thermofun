@@ -2079,7 +2079,7 @@
         "H2O",
         "O2"
       ],
-      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. G does not change above 1e-10. The implementation gems gives the baseline values exactly (review of v2, S10)."
+      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. For H2O between 673 and 695 K, a(T) has the form (T - 673) of Holland and Powell (1991, Eq. 6) and of Perple_X, not (673 - T): G changes there (up to about 140 J/mol) and no longer jumps at 695 K. The implementation gems gives the baseline values exactly (review of v2, S10)."
     },
     {
       "database": "aq17-thermofun",
@@ -2204,7 +2204,7 @@
         "H2O",
         "O2"
       ],
-      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. G does not change above 1e-10. The implementation gems gives the baseline values exactly (review of v2, S10)."
+      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. For H2O between 673 and 695 K, a(T) has the form (T - 673) of Holland and Powell (1991, Eq. 6) and of Perple_X, not (673 - T): G changes there (up to about 140 J/mol) and no longer jumps at 695 K. The implementation gems gives the baseline values exactly (review of v2, S10)."
     },
     {
       "database": "aq17-thermofun",
@@ -2329,7 +2329,7 @@
         "H2O",
         "O2"
       ],
-      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. G does not change above 1e-10. The implementation gems gives the baseline values exactly (review of v2, S10)."
+      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. For H2O between 673 and 695 K, a(T) has the form (T - 673) of Holland and Powell (1991, Eq. 6) and of Perple_X, not (673 - T): G changes there (up to about 140 J/mol) and no longer jumps at 695 K. The implementation gems gives the baseline values exactly (review of v2, S10)."
     },
     {
       "database": "aq17-thermofun",
@@ -2565,7 +2565,7 @@
         "H2O",
         "O2"
       ],
-      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. G does not change above 1e-10. The implementation gems gives the baseline values exactly (review of v2, S10)."
+      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. For H2O between 673 and 695 K, a(T) has the form (T - 673) of Holland and Powell (1991, Eq. 6) and of Perple_X, not (673 - T): G changes there (up to about 140 J/mol) and no longer jumps at 695 K. The implementation gems gives the baseline values exactly (review of v2, S10)."
     },
     {
       "database": "aq17-thermofun",
@@ -3377,7 +3377,7 @@
         "H2O",
         "O2"
       ],
-      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. G does not change above 1e-10. The implementation gems gives the baseline values exactly (review of v2, S10)."
+      "reason": "CorkHP91, implementation consistent (the default): the residual Cp is added (GEMS calculated it and did not add it); for H2O, H and S follow G (da/dT of the supercritical branch, the virial term above p0, the parts at Psat of the liquid branch) and the MRK part takes the MRK volume; the cubic uses the exact pi, which moves V and G by less than 1e-9. For H2O between 673 and 695 K, a(T) has the form (T - 673) of Holland and Powell (1991, Eq. 6) and of Perple_X, not (673 - T): G changes there (up to about 140 J/mol) and no longer jumps at 695 K. The implementation gems gives the baseline values exactly (review of v2, S10)."
     },
     {
       "database": "pytests--test-aq17-gem-lma-thermofun",

@@ -58,6 +58,7 @@ Each row is a change of a result for the same data. The [CHANGELOG](../../CHANGE
 | S, Cp and H of `SoluteHP98` are the exact derivatives of G. | G and V do not change | To keep the published formulas, use the implementation `published`. |
 | Cp of a gas with a fluid method (`PRSV86`, `CorkHP91`, `SoaveRedlichKwong72`, `PengRobinson78`, `SternerPitzer94`) has its residual Cp. | CO2, 373 K, 500 bar: 38 J/(mol K) | To keep the values of GEMS, set the implementation `gems` of the method. |
 | H and S of `PRSV86` below the critical temperature of the gas, of `CorkHP91` H2O, and of `ChurakovGottschalk03` are those of G. | H2O (PRSV86), 298 K: H 675 J/mol; H2O (CORK), 373 K, 500 bar: S 53 J/(mol K); CGF: H by RT | The same. G does not change. |
+| G of `CorkHP91` H2O between 673 and 695 K follows Holland and Powell (1991), and does not jump at 695 K. | Up to about 140 J/mol (112 J/mol jump at 695 K, 1 kbar) | The same. |
 | G of `MurnaghanHP98` and `LandauHP98` minerals integrates V from 1 bar, not from 0, and does not jump at 298.15 K and 1 bar. | G 2-10 J/mol (Albite 10.0 J/mol), and log K of their reactions | The same. |
 | U and A of `HKF88` solutes: P V is not multiplied by 41.84. | U and A of aqueous species | Nothing. |
 | U, A and Cv of every substance come from the other properties: `U = H - P V`, `A = U - T S`, `Cv = Cp - T V alpha^2/beta`. | Before, many methods gave Cv = 0 or Cv = Cp | Nothing. |
