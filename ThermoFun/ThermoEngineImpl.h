@@ -154,7 +154,15 @@ struct ThermoEngine::Impl
         if (auto hit = cache.find(key, P))
             return *hit;
         const Value value = calculate();
-        cache.store(key, value, P, preferences.max_cache_size);
+        // max_cache_size is for all four caches together: this one may hold what the others leave
+        std::size_t limit = preferences.max_cache_size;
+        if (limit > 0)
+        {
+            const std::size_t all = substance_results.size() + electro_results.size() + solvent_results.size() + reaction_results.size();
+            const std::size_t others = all - cache.size();
+            limit = others < limit ? limit - others : 1;
+        }
+        cache.store(key, value, P, limit);
         return value;
     }
 

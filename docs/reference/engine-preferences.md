@@ -10,7 +10,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | cancel_fugacity_coefficient_in_gas_props | False |  | remove the fugacity coefficient term RT ln(phi) of the fluids from G True/False (default: False); the residual terms of H and S stay |
 | enable_memoize | True |  | enable/disable memoization of calculated properties (default: True) |
 | fallback_to_reference_properties | False |  | use reference properties if no calculation functions are available True/False (default: False) |
-| max_cache_size | 1000000 |  | size of memoization cache, default 1e6 (if 0 unlimited cache) |
+| max_cache_size | 100000 |  | results kept in all the caches together, default 100000 (about 0.7 kB each); 0: no limit |
 | method_implementation | {} |  | method id -> implementation, for example {'HKF88': 'reaktoro'}; it replaces the implementation of the records |
 | propagate_parameter_errors | False |  | propagate the errors of the reference properties and of the coefficients of the models to the err of the calculated properties True/False (default: False) |
 | property_source | Record | direct, reaction, reactants, record | where the properties of a record come from: PropertySource or the words record (default), direct, reaction, reactants |

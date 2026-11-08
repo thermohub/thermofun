@@ -28,7 +28,7 @@ class Element;
 struct EnginePreferences
 {
     bool enable_memoize = true;
-    size_t max_cache_size = 1e6; // if 0 unlimited cache
+    size_t max_cache_size = 100000; // results kept in all the caches together (about 0.7 kB each); 0: no limit
     int solvent_state = 0; // not read by the calculations (kept for the old API): the state of water comes from its record (H2O(g) is vapour) or from the state argument of propertiesSolvent and electroPropertiesSolvent
     std::string solvent_symbol = "H2O@"; // the solvent of the aqueous species; if the database has no such record, the engine uses the water solvent it has (chosen when the engine is made or a setting changes, not changed by a calculation)
     bool fallback_to_reference_properties = false; // leave properties as is given in substance record database, if no functions to calculate them are defined or there are missing data in the calculation chain, value undefined only if not present in the database record

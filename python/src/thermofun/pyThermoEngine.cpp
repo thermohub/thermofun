@@ -305,7 +305,7 @@ void exportThermoEngine(py::module& m)
     .def_readwrite("enable_memoize", &EnginePreferences::enable_memoize,
                    "enable/disable memoization of calculated properties (default: True)")
     .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size,
-                   "size of memoization cache, default 1e6 (if 0 unlimited cache)")
+                   "results kept in all the caches together, default 100000 (about 0.7 kB each); 0: no limit")
     .def_readwrite("solventState", &EnginePreferences::solvent_state,
                    "not read by the calculations (old API): the state of water comes from its record or from the state argument of propertiesSolvent, default 0")
     .def_readwrite("solventSymbol", &EnginePreferences::solvent_symbol,

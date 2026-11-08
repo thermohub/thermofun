@@ -54,6 +54,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   number as written and the method as written are in members that equality ignores (`file`, `written`). In C++ the
   fields have new places (`record.file.text`, `quantity.written.unit`, `application.written.method`); the Python names
   stay.
+- **`max_cache_size` is for all the caches together, 100000 by default** (review Q11). It was 1e6 for each of four
+  caches: up to about 2.8 GB; now about 70 MB at most.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and
