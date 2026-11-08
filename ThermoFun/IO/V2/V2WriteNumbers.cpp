@@ -117,13 +117,18 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
         double standard = differenceIn(u->standard, from, slot);
         if (shorten)
             standard = shortestFloat(standard);
-        const bool simple = u->coverage_factor_as_written == 1.0 && u->kind == Uncertainty::Kind::Primary && u->distribution.empty() && !u->degrees_of_freedom;
+        const bool simple = u->coverage_factor_as_written == 1.0 && u->kind == Uncertainty::Kind::Primary && u->distribution.empty();
         if (simple)
             out["uncertainty"] = standard;
         else
         {
             json one = json::object();
-            if (u->coverage_factor_as_written != 1.0)
+            if (u->distribution == "uniform" || u->distribution == "triangular")
+            {
+                double a = standard * std::sqrt(u->distribution == "uniform" ? 3.0 : 6.0);
+                one["half_width"] = shorten ? shortestFloat(a) : a;
+            }
+            else if (u->coverage_factor_as_written != 1.0)
             {
                 one["expanded"] = standard * u->coverage_factor_as_written;
                 one["coverage_factor"] = u->coverage_factor_as_written;
@@ -132,8 +137,6 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
                 one["standard"] = standard;
             if (!u->distribution.empty())
                 one["distribution"] = u->distribution;
-            if (u->degrees_of_freedom)
-                one["degrees_of_freedom"] = *u->degrees_of_freedom;
             if (u->kind == Uncertainty::Kind::Derived)
                 one["kind"] = "derived";
             out["uncertainty"] = one;

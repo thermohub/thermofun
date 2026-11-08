@@ -96,6 +96,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Update ThermoFun to read all fields of the file."},
         {"V2-KEY-001", S::Warning, "The key is not known. It is kept and written back.",
          "Correct the spelling of the key, or move it into `extensions`."},
+        {"V2-KEY-003", S::Warning, "standard_state_convention is not part of the format: the typed convention says it. A label with 1atm sets standard_pressure: 1atm.",
+         "Give `convention: {standard_pressure: 1bar or 1atm, ...}` instead."},
         {"V2-KEY-002", S::Warning, "An extension field has the name of a standard field. The standard field is written.",
          "Rename the extension field."},
         // identity
@@ -121,6 +123,9 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
         {"V2-UNC-003", S::Error, "The uncertainty is negative.", "Give the uncertainty as a positive number."},
         {"V2-UNC-004", S::Error, "The coverage factor is not a positive number.",
          "Give a coverage factor larger than 0, for example 2."},
+        {"V2-UNC-005", S::Error, "The distribution is not normal, uniform or triangular, or a uniform or triangular distribution is not given by its half_width.",
+         "Give {standard: u} or {expanded: U, coverage_factor: k} for a normal distribution, {half_width: a, distribution: uniform} (u = a/sqrt(3)) or triangular (u = a/sqrt(6))."},
+        {"V2-UNC-006", S::Warning, "degrees_of_freedom is not part of the format: it is not read.", "Remove it."},
         {"V2-DS-001", S::Error, "A published thermodynamic dataset has no version.", "Add `version` to the dataset."},
         {"V2-VOC-001", S::Warning, "The value is not in the list of allowed words. The word `other` is used.",
          "Use one of the allowed words; the message names the nearest one."},

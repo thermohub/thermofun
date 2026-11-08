@@ -112,7 +112,6 @@ auto substanceJson(const SubstanceRecord& r, const ThermoDataSetInfo& dataset, c
     out["aggregate_state"] = toString(r.aggregate_state);
     if (!r.sourcetdb.empty()) out["sourcetdb"] = r.sourcetdb;
     if (r.molar_mass) out["molar_mass"] = molarMassJson(*r.molar_mass, options);
-    if (!r.standard_state_convention.empty()) out["standard_state_convention"] = r.standard_state_convention;
     if (r.convention) out["convention"] = conventionJson(*r.convention);
     if (!(r.reference_conditions == dataset.reference_conditions)) out["reference_conditions"] = referenceJson(r.reference_conditions);
     if (!r.standard_state_properties.empty())
@@ -207,7 +206,6 @@ auto datasetJson(const ThermoDataSetInfo& d) -> json
     if (!d.name.empty()) out["name"] = d.name;
     if (!d.version.empty()) out["version"] = d.version;
     if (d.status != defaults.status) out["status"] = toString(d.status);
-    if (d.standard_state_convention != defaults.standard_state_convention) out["standard_state_convention"] = d.standard_state_convention;
     if (!(d.reference_conditions == defaults.reference_conditions)) out["reference_conditions"] = referenceJson(d.reference_conditions);
     if (!d.sourcetdb.empty()) out["sourcetdb"] = d.sourcetdb;
     if (!d.solvent.empty()) out["solvent"] = d.solvent;

@@ -30,11 +30,10 @@ struct Uncertainty
     /// Primary: from a measurement or an evaluation, stored. Derived: computed by propagation.
     Kind kind = Kind::Primary;
 
-    /// Name of the distribution ("normal", "uniform", ...). Empty if the file gives none.
+    /// The distribution: empty or "normal" (standard or expanded), "uniform" or "triangular" (given by its half-width a:
+    /// u = a/sqrt(3) or a/sqrt(6)). Only these words are read.
     std::string distribution;
 
-    /// Degrees of freedom. Empty if the file gives none.
-    std::optional<double> degrees_of_freedom;
 
     /// For kind Derived: the records the value comes from, and the snapshot of the calculation.
     std::vector<std::string> sources;

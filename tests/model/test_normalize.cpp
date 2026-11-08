@@ -51,10 +51,18 @@ void runNormalize()
     CHECK(q && q->uncertainty && q->uncertainty->standard == 100);
     q = read(R"({"value": -237183, "uncertainty": {"expanded": 200, "coverage_factor": 2}})", "J/mol", code);
     CHECK(q && q->uncertainty && q->uncertainty->standard == 100 && q->uncertainty->coverage_factor_as_written == 2.0);
-    q = read(R"({"value": 1, "uncertainty": {"standard": 0.1, "distribution": "normal", "degrees_of_freedom": 12, "kind": "primary"}})",
-             "J/mol", code);
-    CHECK(q && q->uncertainty && q->uncertainty->distribution == "normal" && *q->uncertainty->degrees_of_freedom == 12 &&
-          q->uncertainty->kind == Uncertainty::Kind::Primary);
+    q = read(R"({"value": 1, "uncertainty": {"standard": 0.1, "distribution": "normal", "kind": "primary"}})", "J/mol", code);
+    CHECK(q && q->uncertainty && q->uncertainty->distribution == "normal" && q->uncertainty->kind == Uncertainty::Kind::Primary);
+    // a uniform or triangular distribution by its half-width (GUM): u = a/sqrt(3), a/sqrt(6)
+    q = read(R"({"value": 1, "uncertainty": {"half_width": 3, "distribution": "uniform"}})", "J/mol", code);
+    CHECK(q && q->uncertainty && std::fabs(q->uncertainty->standard - 3.0 / std::sqrt(3.0)) < 1e-15 && q->uncertainty->distribution == "uniform");
+    q = read(R"({"value": 1, "uncertainty": {"half_width": 6, "distribution": "triangular"}})", "J/mol", code);
+    CHECK(q && q->uncertainty && std::fabs(q->uncertainty->standard - 6.0 / std::sqrt(6.0)) < 1e-15);
+    for (const char* bad_uncertainty : {R"({"value": 1, "uncertainty": {"standard": 2, "distribution": "uniform"}})",
+                                        R"({"value": 1, "uncertainty": {"half_width": 2}})",
+                                        R"({"value": 1, "uncertainty": {"half_width": 2, "distribution": "normal"}})",
+                                        R"({"value": 1, "uncertainty": {"standard": 2, "distribution": "lognormal"}})"})
+        CHECK(!read(bad_uncertainty, "J/mol", code) && code == "V2-UNC-005");
     q = read(R"({"value": 1, "quality": "core", "origin": "calculated", "calculation_path": "a+b", "source": "2018LOT/MAT"})", "J/mol", code);
     CHECK(q && q->meta.quality == Quality::Core && q->meta.origin == Origin::Calculated && q->meta.calculation_path == "a+b" &&
           q->meta.source == "2018LOT/MAT");
@@ -118,7 +126,8 @@ void runNormalize()
     // the writer: the shortest form, and the read of what was written gives the same quantity
     for (const char* text : {"-237183", R"({"value":-237.183,"unit":"kJ/mol"})", R"({"value":-237183,"uncertainty":100})",
                              R"({"value":-237183,"uncertainty":{"expanded":200,"coverage_factor":2}})",
-                             R"({"value":1,"uncertainty":{"standard":0.1,"distribution":"normal","degrees_of_freedom":12}})",
+                             R"({"value":1,"uncertainty":{"standard":0.1,"distribution":"normal"}})",
+                             R"({"value":1,"uncertainty":{"half_width":3,"distribution":"uniform"}})",
                              R"({"value":1,"quality":"core","origin":"calculated","source":"2018LOT/MAT"})",
                              R"({"value":-237.183,"unit":"kJ/mol","uncertainty":0.1})"})
     {

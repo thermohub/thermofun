@@ -22,7 +22,6 @@ struct ThermoDataSetInfo
     std::string version;                ///< required if the status is Published
     DatasetStatus status = DatasetStatus::Draft;
     std::string schema_version;         ///< version of the v2 format of the file, empty for a legacy file
-    std::string standard_state_convention = "IUPAC_1bar";
     Convention convention;              ///< convention of the dataset; the records may declare their own
     ReferenceConditions reference_conditions;
     std::vector<std::string> sourcetdb;

@@ -23,7 +23,8 @@ inline constexpr const char* standard = "standard";
 inline constexpr const char* expanded = "expanded";
 inline constexpr const char* coverage_factor = "coverage_factor";
 inline constexpr const char* distribution = "distribution";
-inline constexpr const char* degrees_of_freedom = "degrees_of_freedom";
+inline constexpr const char* degrees_of_freedom = "degrees_of_freedom";   // not part of format 2.0: read only to warn
+inline constexpr const char* half_width = "half_width";
 inline constexpr const char* kind = "kind";
 
 // scoped default units

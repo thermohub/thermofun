@@ -36,7 +36,6 @@ struct SubstanceRecord
     std::optional<Quantity> molar_mass;  ///< kg/mol (the legacy key mass_per_mole is in g/mol)
 
     // standard state
-    std::string standard_state_convention;   ///< empty: the convention of the dataset
     std::optional<Convention> convention;    ///< empty: inherited
     ReferenceConditions reference_conditions;
     std::map<PropertyName, Quantity> standard_state_properties;   ///< G, H, S, Cp, V

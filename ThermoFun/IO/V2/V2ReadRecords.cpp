@@ -109,9 +109,9 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     r.aggregate_state = vocabulary<AggregateState>(c, optionalString(node, "aggregate_state"), symbol, path + "/aggregate_state").value_or(AggregateState::Other);
     r.sourcetdb = optionalString(node, "sourcetdb");
     r.molar_mass = quantity(c, node, "molar_mass", "kg/mol", mass, symbol, path);
-    r.standard_state_convention = optionalString(node, "standard_state_convention");
     if (node.contains("convention"))
         r.convention = readConvention(c, node["convention"], symbol, path + "/convention");
+    standardStateLabel(c, node, r.convention, symbol, path);
     r.reference_conditions = readReferenceConditions(c, node, scope, symbol, path,
                                                      c.dataset ? c.dataset->reference_conditions : ReferenceConditions{});
     if (node.contains("standard_state_properties") && node["standard_state_properties"].is_object())
@@ -436,9 +436,6 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
         info.status = vocabulary<DatasetStatus>(c, node["status"].get<std::string>(), info.symbol, "/thermodataset/status").value_or(info.status);
     if (info.status == DatasetStatus::Published && info.version.empty())
         report(c, Severity::Error, "V2-DS-001", info.symbol, "/thermodataset", "A published dataset needs a version.");
-    const std::string convention = optionalString(node, "standard_state_convention");
-    if (!convention.empty())
-        info.standard_state_convention = convention;
     info.reference_conditions = readReferenceConditions(c, node, scope, info.symbol, "/thermodataset", ReferenceConditions{});
     info.sourcetdb = stringList(node, "sourcetdb");
     info.solvent = optionalString(node, "solvent");
@@ -457,6 +454,11 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
     if (node.contains("convention"))
         if (auto conv = readConvention(c, node["convention"], info.symbol, "/thermodataset/convention"))
             info.convention = *conv;
+    {
+        std::optional<Convention> conv = info.convention;
+        standardStateLabel(c, node, conv, info.symbol, "/thermodataset");
+        info.convention = *conv;
+    }
     info.extra_json = extraKeys(c, node, known, info.symbol, "/thermodataset");
     return info;
 }

@@ -192,7 +192,7 @@ def test_a_symbol_reads_back_from_yaml(symbol):
 
 
 def test_values_with_uncertainty_units_and_metadata_read_back():
-    q = {"value": -237.183, "unit": "kJ/mol", "uncertainty": {"expanded": 0.2, "coverage_factor": 2, "distribution": "normal", "degrees_of_freedom": 12}, "quality": "core", "origin": "calculated", "source": "2018LOT/MAT"}
+    q = {"value": -237.183, "unit": "kJ/mol", "uncertainty": {"expanded": 0.2, "coverage_factor": 2, "distribution": "normal"}, "quality": "core", "origin": "calculated", "source": "2018LOT/MAT"}
     document = {"thermohub": "2.0.0-draft.1", "substances": {"A": {"formula": "Ca", "standard_state_properties": {"G": q, "H": {"value": 1.0, "unit": "kcal/mol", "uncertainty": 0.0}}}}}
     db = tf.Database(json.dumps(document))
     again = tf.Database(db.toYaml())
@@ -200,7 +200,7 @@ def test_values_with_uncertainty_units_and_metadata_read_back():
     ga, gb = a.standard_state_properties[tf.PropertyName.G], b.standard_state_properties[tf.PropertyName.G]
     assert gb.value == ga.value and gb.unit_as_written == "kJ/mol"
     assert gb.uncertainty.standard == pytest.approx(ga.uncertainty.standard, rel=1e-14)
-    assert gb.uncertainty.coverage_factor_as_written == 2.0 and gb.uncertainty.distribution == "normal" and gb.uncertainty.degrees_of_freedom == 12
+    assert gb.uncertainty.coverage_factor_as_written == 2.0 and gb.uncertainty.distribution == "normal"
     assert gb.meta.quality == "core" and gb.meta.origin == "calculated" and gb.meta.source == "2018LOT/MAT"
     assert b.standard_state_properties[tf.PropertyName.H].uncertainty.standard == 0.0     # a defined zero stays
 
@@ -249,3 +249,29 @@ def test_save_chooses_the_format_by_the_name(name, parse, tmp_path):
 def test_save_to_a_place_that_does_not_exist_gives_an_error(tmp_path):
     with pytest.raises(RuntimeError, match="cannot be written"):
         tf.Database("pytests/data/v2/minimal.json").save(str(tmp_path / "no" / "such" / "data.yaml"))
+
+
+def test_a_uniform_uncertainty_is_read_by_its_half_width_and_written_back():
+    """distribution: uniform with half_width a means u = a/sqrt(3) (GUM; review of v2, Q8, decision 9)."""
+    q = {"value": -1.2e6, "uncertainty": {"half_width": 3000, "distribution": "uniform"}}
+    db = tf.Database(json.dumps({"thermohub": "2.0.0-draft.1", "substances": {"A": {"formula": "Ca", "standard_state_properties": {"G": q}}}}))
+    g = db.getSubstance("A").record().standard_state_properties[tf.PropertyName.G]
+    assert g.uncertainty.standard == pytest.approx(3000 / 3 ** 0.5, rel=1e-15)
+    written = json.loads(db.toJson(False))["substances"]["A"]["standard_state_properties"]["G"]["uncertainty"]
+    assert written == {"half_width": pytest.approx(3000, rel=1e-15), "distribution": "uniform"}
+
+
+def test_standard_state_convention_is_not_read_and_a_label_with_1atm_sets_the_pressure():
+    record = {"formula": "CO2", "class": "gas_fluid", "aggregate_state": "gas", "standard_state_convention": "IUPAC_1atm",
+              "standard_state_properties": {"G": 1}}
+    db = tf.Database(json.dumps({"thermohub": "2.0.0-draft.1", "substances": {"A": record}}))
+    assert "V2-KEY-003" in {d.code for d in db.loadDiagnostics().all()}
+    assert db.getSubstance("A").record().convention.standard_pressure == tf.StandardPressure.OneAtm
+    assert "standard_state_convention" not in db.toJson(False)
+
+
+def test_degrees_of_freedom_are_not_read():
+    q = {"value": 1.0, "uncertainty": {"standard": 0.1, "degrees_of_freedom": 12}}
+    db = tf.Database(json.dumps({"thermohub": "2.0.0-draft.1", "substances": {"A": {"formula": "Ca", "standard_state_properties": {"G": q}}}}))
+    assert "V2-UNC-006" in {d.code for d in db.loadDiagnostics().all()}
+    assert "degrees_of_freedom" not in db.toJson(False)

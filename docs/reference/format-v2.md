@@ -25,7 +25,7 @@ A key that starts with `_` is ignored. A file with one record has `record_type`,
 
 ## A substance
 
-`name`, `formula`, `charge`, `class`, `aggregate_state`, `molar_mass`, `sourcetdb`, `convention`, `standard_state_convention`, `reference_conditions`, `standard_state_properties`, `methods`, `defining_reaction`, `preferred_property_source`, `applicability`, `data_source`, `data_sources`, `structural`, `deprecated`, `deprecated_in_favour_of`, `units`, `covariances`.
+`name`, `formula`, `charge`, `class`, `aggregate_state`, `molar_mass`, `sourcetdb`, `convention`, `reference_conditions`, `standard_state_properties`, `methods`, `defining_reaction`, `preferred_property_source`, `applicability`, `data_source`, `data_sources`, `structural`, `deprecated`, `deprecated_in_favour_of`, `units`, `covariances`.
 
 ## A reaction
 

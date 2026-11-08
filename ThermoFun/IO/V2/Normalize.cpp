@@ -124,6 +124,32 @@ auto readUncertainty(const json& node, const std::string& unit, const std::strin
         return std::nullopt;
     }
     const bool hasStandard = node.contains(v2key::standard), hasExpanded = node.contains(v2key::expanded);
+    const bool hasHalfWidth = node.contains(v2key::half_width);
+    const std::string distribution = node.contains(v2key::distribution) && node[v2key::distribution].is_string() ? node[v2key::distribution].get<std::string>() : std::string();
+    const bool bounded = distribution == "uniform" || distribution == "triangular";
+    if (node.contains(v2key::degrees_of_freedom))
+        report(diag, Severity::Warning, "V2-UNC-006", path, "degrees_of_freedom is not read.");
+    if (!(distribution.empty() || distribution == "normal" || bounded) || bounded != hasHalfWidth || (hasHalfWidth && (hasStandard || hasExpanded)))
+    {
+        report(diag, Severity::Error, "V2-UNC-005", path,
+               "The distribution must be normal (standard or expanded), or uniform or triangular with its half_width (not \"" + distribution + "\").");
+        return std::nullopt;
+    }
+    if (hasHalfWidth)
+    {
+        const json& n = node[v2key::half_width];
+        if (!n.is_number() || n.get<double>() < 0.0)
+        {
+            report(diag, Severity::Error, "V2-UNC-003", path, "The half_width must be a number of 0 or more.");
+            return std::nullopt;
+        }
+        // GUM: a rectangular distribution of half-width a has u = a/sqrt(3), a triangular one u = a/sqrt(6)
+        u.standard = toSiDifference(n.get<double>() / std::sqrt(distribution == "uniform" ? 3.0 : 6.0), unit, slot);
+        u.distribution = distribution;
+        if (node.contains(v2key::kind) && node[v2key::kind].is_string())
+            u.kind = node[v2key::kind].get<std::string>() == "derived" ? Uncertainty::Kind::Derived : Uncertainty::Kind::Primary;
+        return u;
+    }
     if (hasStandard && hasExpanded)
     {
         report(diag, Severity::Error, "V2-UNC-002", path, "Both standard and expanded uncertainty are given.");
@@ -163,10 +189,7 @@ auto readUncertainty(const json& node, const std::string& unit, const std::strin
     }
     u.coverage_factor_as_written = k;
     u.standard = toSiDifference(written / (hasExpanded ? k : 1.0), unit, slot);
-    if (node.contains(v2key::distribution) && node[v2key::distribution].is_string())
-        u.distribution = node[v2key::distribution].get<std::string>();
-    if (node.contains(v2key::degrees_of_freedom) && node[v2key::degrees_of_freedom].is_number())
-        u.degrees_of_freedom = node[v2key::degrees_of_freedom].get<double>();
+    u.distribution = distribution;
     if (node.contains(v2key::kind) && node[v2key::kind].is_string())
         u.kind = node[v2key::kind].get<std::string>() == "derived" ? Uncertainty::Kind::Derived : Uncertainty::Kind::Primary;
     return u;
@@ -323,13 +346,15 @@ auto writeQuantity(const Quantity& q, const std::string& slot_si_unit) -> json
         const Uncertainty& u = *q.uncertainty;
         const double standard = inSlotUnit ? u.standard : units::convertDifference(u.standard, slot_si_unit, unit);
         const bool simple = u.coverage_factor_as_written == 1.0 && u.kind == Uncertainty::Kind::Primary &&
-                            u.distribution.empty() && !u.degrees_of_freedom;
+                            u.distribution.empty();
         if (simple)
             uncertainty = standard;
         else
         {
             uncertainty = json::object();
-            if (u.coverage_factor_as_written != 1.0)
+            if (u.distribution == "uniform" || u.distribution == "triangular")
+                uncertainty[v2key::half_width] = standard * std::sqrt(u.distribution == "uniform" ? 3.0 : 6.0);
+            else if (u.coverage_factor_as_written != 1.0)
             {
                 uncertainty[v2key::expanded] = standard * u.coverage_factor_as_written;
                 uncertainty[v2key::coverage_factor] = u.coverage_factor_as_written;
@@ -338,8 +363,6 @@ auto writeQuantity(const Quantity& q, const std::string& slot_si_unit) -> json
                 uncertainty[v2key::standard] = standard;
             if (!u.distribution.empty())
                 uncertainty[v2key::distribution] = u.distribution;
-            if (u.degrees_of_freedom)
-                uncertainty[v2key::degrees_of_freedom] = *u.degrees_of_freedom;
             if (u.kind == Uncertainty::Kind::Derived)
                 uncertainty[v2key::kind] = "derived";
         }

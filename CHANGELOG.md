@@ -41,6 +41,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **`python -m thermofun.convert` writes exact numbers by default**, so a conversion does not change a result (review Q10).
   `--readable` writes short decimals, and the report says how many numbers changed and by how much. `save()` and the
   writers stay readable by default (decision 0023).
+- **Uncertainties of format 2.0** (review Q8): `{half_width: a, distribution: uniform}` gives u = a/√3, `triangular`
+  a/√6 (GUM); other words are an error (V2-UNC-005). `degrees_of_freedom` and `standard_state_convention` are not part of
+  the format: a warning (V2-UNC-006, V2-KEY-003), and a label with 1atm sets `standard_pressure: 1atm`. The docs say that
+  every `err` is a standard uncertainty (k = 1), also for data given at 95 %.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and

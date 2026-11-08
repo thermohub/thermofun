@@ -273,6 +273,22 @@ auto readConvention(Context& c, const json& node, const std::string& record, con
     return conv;
 }
 
+auto standardStateLabel(Context& c, const json& node, std::optional<Convention>& convention, const std::string& record, const std::string& path) -> void
+{
+    const std::string label = optionalString(node, "standard_state_convention");
+    if (!node.contains("standard_state_convention"))
+        return;
+    report(c, Severity::Warning, "V2-KEY-003", record, path + "/standard_state_convention",
+           "standard_state_convention \"" + label + "\" is not read; give convention: {standard_pressure: ...}.");
+    if (label.find("1atm") != std::string::npos)
+    {
+        if (!convention)
+            convention = Convention{};
+        if (!convention->standard_pressure)
+            convention->standard_pressure = StandardPressure::OneAtm;
+    }
+}
+
 // The source that a record prefers; `record` is a setting of the engine, not of a file
 auto readPropertySource(Context& c, const json& node, const std::string& record, const std::string& path) -> std::optional<PropertySource>
 {

@@ -7,7 +7,7 @@
 
 `err` is a first-order propagation: u(y)^2 = J S J^T. J holds the exact derivatives of y by each uncertain value. S is the covariance matrix of those values. Without `covariances`, S is diagonal.
 
-It keeps the meaning of the inputs. With 95 % uncertainties in the data, a result is at 95 % too.
+Every uncertainty is kept as a standard uncertainty u (k = 1): an expanded one is divided by its coverage factor, the half-width of a uniform or triangular distribution by √3 or √6, and a legacy `error` is read as u. So `err` of a result is a standard uncertainty. Multiply it by k yourself for an expanded one, for example 2 for about 95 %.
 
 | Source | How it counts |
 |---|---|
@@ -16,7 +16,7 @@ It keeps the meaning of the inputs. With 95 % uncertainties in the data, a resul
 | Other properties | From U = H - P V and A = U - T S. |
 | Parameters of methods | Only with `propagate_parameter_errors`. |
 
-Values of different records are independent. If a derivative is not known, `err` is `NaN` and the status says that the uncertainty is not complete. Without autodiff, `propagate_parameter_errors` is an error.
+Values of different records are independent. If a derivative is not known, `err` is `NaN` and the status says that the uncertainty is not complete.
 
 ThermoFun does not make uncertainties. Weighted means and extrapolations belong to data evaluation.
 
