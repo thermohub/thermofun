@@ -58,6 +58,21 @@ def is_expected(d, expected):
     return limit is None or (d["property"] == limit[0] and d["rel"] is not None and d["rel"] <= limit[1])
 
 
+def refused_points():
+    """The state points that the new build refuses on purpose (expected_changes.json, refused_points)."""
+    with open(HERE / "expected_changes.json") as f:
+        return json.load(f).get("refused_points")
+
+
+def is_refused(d, rule):
+    """True if the new build refuses this point as the rule says: P = 0 at or above the critical temperature of water."""
+    if not rule or d["P"] is None or d["T"] is None:
+        return False
+    got = d["got"]
+    return (d["P"] == rule["P"] and d["T"] >= rule["T_min"] and isinstance(got, dict)
+            and rule["message"] in got.get("error", ""))
+
+
 def rounding_limit():
     """The largest accepted number of differences between ROUNDING_TOL and REL_TOL."""
     with open(HERE / "expected_changes.json") as f:
@@ -123,7 +138,7 @@ def worker(outdir, variants, only_db):
     outdir = pathlib.Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     for index, (db, variant, symbols) in enumerate(jobs(variants, only_db)):
-        result = gc.compute(db, variant, gc.FULL_T, gc.FULL_P, symbols)
+        result = gc.compute(db, variant, gc.FULL_T, gc.FULL_P, symbols, aligned_solvent=True)
         result["database"] = gc.db_name(db)
         result["variant"] = variant
         with gzip.open(outdir / job_name(index, db, variant), "wt") as f:
@@ -163,8 +178,9 @@ def main():
         if any(code != 0 for code in codes):
             print("a worker failed")
             return 2
-        diffs, accepted, rounding, files = [], 0, 0, sorted(p.name for p in (tmp / "base").iterdir())
+        diffs, accepted, refused, rounding, files = [], 0, 0, 0, sorted(p.name for p in (tmp / "base").iterdir())
         expected = expected_changes()
+        rule = refused_points()
         if files != sorted(p.name for p in (tmp / "new").iterdir()):
             print("the two builds produced different work items")
             return 2
@@ -175,7 +191,9 @@ def main():
                 got = json.load(f)
             for d in gc.compare(base, got, REL_TOL):
                 d["database"], d["variant"] = base["database"], base["variant"]
-                if is_expected(d, expected):
+                if is_refused(d, rule):
+                    refused += 1
+                elif is_expected(d, expected):
                     accepted += 1
                 else:
                     diffs.append(d)
@@ -183,9 +201,10 @@ def main():
                 d["database"], d["variant"] = base["database"], base["variant"]
                 # the errors of that variant come from exact derivatives now, the baseline from differences of large numbers: REL_TOL still holds for them
                 if not (d["variant"] == "errors" and d["field"] == "err"):
-                    rounding += not is_expected(d, expected)
+                    rounding += not (is_expected(d, expected) or is_refused(d, rule))
         print(gc.format_report(diffs, "compared %d work items" % len(files), args.max_report))
         print("accepted differences (expected_changes.json): %d" % accepted)
+        print("refused state points (expected_changes.json, refused_points): %d" % refused)
         rounding -= sum(not (d["variant"] == "errors" and d["field"] == "err") for d in diffs)
         limit = rounding_limit()
         print("differences between %g and %g (rounding): %d, limit %d" % (ROUNDING_TOL, REL_TOL, rounding, limit))

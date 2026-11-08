@@ -4,6 +4,12 @@
     "count": 50,
     "reason": "Differences between 1e-12 and 1e-10 on the whole grid: 39 on 2026-10-30, on the local build and in CI. Parameters and V pass through SI (decision 0022). A change that raises the count above this limit updates it in the same commit, and says why. 47 on 2026-11-01: the constants of Churakov-Gottschalk are now read by name, which changes the order of the arithmetic in the generated code."
   },
+  "refused_points": {
+    "P": 0.0,
+    "T_min": 647.096,
+    "message": "saturation pressure of water",
+    "reason": "P = 0 means the saturation pressure of water, which does not exist at or above the critical temperature (2026-11-08, review Q3). The baseline gave a value at 0 Pa for minerals and gases, an error about the density of water for solutes and water, and a value from 0 Pa for a substance defined by a reaction with its own pressure term. The new build refuses every such point with one message. Points of this rule are accepted only if the new result is that refusal."
+  },
   "changes": [
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",

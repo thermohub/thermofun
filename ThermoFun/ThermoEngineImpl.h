@@ -8,7 +8,9 @@
 
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include <algorithm>
+#include <cmath>
 #include <limits>
+#include <stdexcept>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -322,6 +324,20 @@ struct ThermoEngine::Impl
     {
         static const double T = v2::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
         return T;
+    }
+    /// Refuses a state point that has no meaning: T or P not finite, T <= 0, P < 0, and P = 0 (the saturation pressure of
+    /// water) at or above the critical temperature of water, where the saturation curve has ended.
+    static auto checkStatePoint(double T, double P) -> void
+    {
+        if (!std::isfinite(T) || !std::isfinite(P))
+            throw std::invalid_argument("T = " + std::to_string(T) + " K, P = " + std::to_string(P) + " Pa: a temperature and a pressure must be finite numbers.");
+        if (T <= 0.0)
+            throw std::invalid_argument("T = " + std::to_string(T) + " K: the temperature must be above 0 K.");
+        if (P < 0.0)
+            throw std::invalid_argument("P = " + std::to_string(P) + " Pa: the pressure must not be negative.");
+        if (P == 0.0 && T >= waterCriticalT())
+            throw std::invalid_argument("T = " + std::to_string(T) + " K, P = 0: P = 0 means the saturation pressure of water, which does not exist at or above "
+                                        "the critical temperature of water (" + std::to_string(waterCriticalT()) + " K). Give a pressure.");
     }
     static auto waterCriticalP() -> double
     {

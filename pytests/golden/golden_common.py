@@ -194,11 +194,13 @@ def _is_solvent(substance):
     return substance.substanceClass() == thermofun.SubstanceClass.AQSOLVENT
 
 
-def compute(db_path, variant, T, P, symbols=None):
+def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False):
     """Properties of the records at every (T, P) pair, T outer loop, P inner loop.
 
     symbols: None for all records, or {"substances": [...], "reactions": [...]}.
     A point that raises an exception is stored as {"error": first line of the message}.
+    aligned_solvent: the solvent too has one entry per point, an error in place (as the records); the committed
+    references keep the older form, in which the solvent lists hold the points that succeeded and a separate error list.
     """
     engine = make_engine(db_path, variant)
     db = engine.database()
@@ -240,6 +242,19 @@ def compute(db_path, variant, T, P, symbols=None):
             continue
         rec = {}
         for call in SOLVENT_CALLS:
+            if aligned_solvent:
+                results = []
+                for t, p in points:
+                    try:
+                        results.append(getattr(engine, call)(t, p, sym))
+                    except Exception as exc:
+                        results.append({"error": _first_line(exc)})
+                names = next((_scalar_members(r) for r in results if not isinstance(r, dict)), [])
+                for name in names:
+                    rec[call + "." + name] = [r if isinstance(r, dict) else scalar(getattr(r, name)) for r in results]
+                if not names:
+                    rec[call + ".error"] = results
+                continue
             for t, p in points:
                 try:
                     res = getattr(engine, call)(t, p, sym)

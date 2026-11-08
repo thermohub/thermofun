@@ -331,6 +331,7 @@ auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string
     if (!Reaktoro_::kWithAutodiff)
         funError("Cannot calculate derivatives by parameters", "ThermoFun is built without autodiff.", __LINE__, __FILE__);
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     pimpl->cachedSubstance(T, P, symbol);
     SensitivityResult out;
     for (const auto& ref : parameters)
@@ -371,6 +372,7 @@ auto ThermoEngine::reactionParameterSensitivities(double T, double& P, const std
     if (!Reaktoro_::kWithAutodiff)
         funError("Cannot calculate derivatives by parameters", "ThermoFun is built without autodiff.", __LINE__, __FILE__);
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     pimpl->cachedReaction(T, P, symbol);
     const Reaction reaction = pimpl->reactionOfSymbol(symbol);
     SensitivityResult out;

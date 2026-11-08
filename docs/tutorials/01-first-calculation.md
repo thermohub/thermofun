@@ -57,7 +57,7 @@ assert -9.0 < reaction.log_equilibrium_constant.val < -8.0
 
 ## 5. Use the saturation pressure
 
-A pressure of 0 means the saturation pressure of water at this T.
+A pressure of 0 means the saturation pressure of water at this T. It exists only below 647.096 K, the critical temperature of water; above it, give a pressure.
 
 ```python
 at_saturation = engine.propertiesSolvent(473.15, 0.0, "H2O@")

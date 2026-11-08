@@ -40,6 +40,9 @@ It uses 15 temperatures and 6 pressures. The tolerance is 1e-10 (relative), as i
 - The differences between 1e-12 and 1e-10 are counted and shown. They are the rounding of the parameters between the
   units of a model and SI, where large terms nearly cancel. The comparison fails if their count is above
   `rounding_limit` in `expected_changes.json`: a change that raises the count updates the limit and says why.
+- `refused_points` in `expected_changes.json` names state points that the new build refuses on purpose: P = 0 at or above
+  the critical temperature of water. A difference there is accepted only if the new result is that refusal. The
+  comparison stores the solvent with one entry per point (`aligned_solvent`), so such a point can be found in it too.
 - `expected_changes.json` lists the records that differ on purpose, each with its reason. An entry with `property` and
   `max_rel` accepts only differences of that property up to that size: the rest of the record stays checked.
 

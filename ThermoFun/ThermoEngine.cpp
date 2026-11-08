@@ -88,6 +88,7 @@ ThermoEngine::ThermoEngine(const ThermoEngine &other)
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     auto tps = pimpl->toOutput(pimpl->cachedSubstance(T, P, substance), T, P, pimpl->database.getSubstance(substance));
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addSubstanceErrors(tps, T, P, pimpl->database.getSubstance(substance), pimpl->inputsOf(pimpl->recordsOfSubstance(substance)));
@@ -98,18 +99,21 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     return pimpl->cachedElectro(T, P, solvent, state);
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     return pimpl->cachedSolvent(T, P, solvent, state);
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     auto tps = pimpl->toOutput(pimpl->thermoPropertiesSubstance(T, P, substance), T, P, substance);
     if (pimpl->preferences.propagate_parameter_errors)
     {
@@ -124,12 +128,14 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substanc
 auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> ElectroPropertiesSolvent
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     return pimpl->electroPropertiesSolvent(T, P, solvent, state);
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> PropertiesSolvent
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     return pimpl->propertiesSolvent(T, P, solvent, state);
 }
 
@@ -137,6 +143,7 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solv
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     auto tpr = pimpl->toOutput(pimpl->cachedReaction(T, P, reaction), T, P, pimpl->reactionOfSymbol(reaction));
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(reaction), false, pimpl->inputsOf(pimpl->recordsOfReaction(reaction)));
@@ -147,6 +154,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, symbol), T, P, pimpl->reactionOfSymbol(symbol));
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(symbol), true, pimpl->inputsOf(pimpl->recordsOfReaction(symbol)));
@@ -157,6 +165,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, st
 auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReaction(T, P, reaction), T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, reaction, false, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
@@ -167,6 +176,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction&
 auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, reaction), T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, reaction, true, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
@@ -258,6 +268,7 @@ auto ThermoEngine::explain(double T, double P, std::string substance) const -> s
 auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance
 {
     pimpl->dropStaleResults();
+    Impl::checkStatePoint(T, P);
     return pimpl->detailedSubstance(T, P, pimpl->database.getSubstance(substance));
 }
 
