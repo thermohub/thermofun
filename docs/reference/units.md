@@ -21,7 +21,7 @@ Write another unit with `{value: 1.8, unit: J/bar}`, with text `"1.8 J/bar"`, or
 
 ## In the results of the engine
 
-SI, except V, which is in J/bar. 1 J/bar is 1e-5 m3/mol. Results of `explain`, `parameterSensitivities` and `tf.methods` are in m3/mol.
+SI, also V, in m3/mol (before 1.0: J/bar; 1 J/bar is 1e-5 m3/mol). So dG/dP is V. Results of `explain`, `parameterSensitivities` and `tf.methods` are in SI too. A `ThermoBatch` or a table gives V in m3/mol unless you ask for another unit, for example J/bar or cm3/mol.
 
 ## In the parameter files
 

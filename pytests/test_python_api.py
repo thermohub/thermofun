@@ -126,7 +126,7 @@ def test_internal_helmholtz_energy_and_cv_are_completed_from_the_other_propertie
     for symbol in ["H2O@", "Al(OH)2+", "Al(OH)3@", "Al(OH)4-", "Quartz"]:
         for T, P in [(298.15, 1e5), (473.15, 5e7)]:
             x = engine.thermoPropertiesSubstance(T, P, symbol)
-            u = x.enthalpy.val - P / 1e5 * x.volume.val
+            u = x.enthalpy.val - P * x.volume.val  # V in m3/mol, P in Pa
             assert x.internal_energy.val == pytest.approx(u, rel=1e-9, abs=1e-6)
             assert x.helmholtz_energy.val == pytest.approx(u - T * x.entropy.val, rel=1e-9, abs=1e-6)
             if symbol != "H2O@":

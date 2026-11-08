@@ -56,7 +56,7 @@ int main(int argc, char** argv)
         engine.setConventions(conventions);
         ThermoPropertiesSubstance r = engine.thermoPropertiesSubstance(T, P, sym);
         const double got[5] = {static_cast<double>(r.gibbs_energy), static_cast<double>(r.enthalpy), static_cast<double>(r.entropy),
-                               static_cast<double>(r.heat_capacity_cp), static_cast<double>(r.volume)};
+                               static_cast<double>(r.heat_capacity_cp), static_cast<double>(r.volume) * 1e5};  // V in J/bar, the unit of the reference table
         const char* names[5] = {"G", "H", "S", "Cp", "V"};
         ++rows;
         for (int k = 0; k < 5; ++k)
@@ -87,10 +87,10 @@ int main(int argc, char** argv)
                            r.heat_capacity_cp.sta.first != Reaktoro_::Status::calculated;
         const double Gexp = Gtab + Vref * (100.0 - 1.0); // volume term, reference pressure 1 bar
         ++rows;
-        if (!unset || std::fabs(static_cast<double>(r.volume) - Vref) > 1e-9 || std::fabs(static_cast<double>(r.gibbs_energy) - Gexp) > 1e-6)
+        if (!unset || std::fabs(static_cast<double>(r.volume) * 1e5 - Vref) > 1e-9 || std::fabs(static_cast<double>(r.gibbs_energy) - Gexp) > 1e-6)
         {
             ++failures;
-            printf("  FAIL table with only G: V %.10g (expected %g), G %.10g (expected %.10g), H, S, Cp unset: %d\n", static_cast<double>(r.volume), Vref,
+            printf("  FAIL table with only G: V %.10g (expected %g), G %.10g (expected %.10g), H, S, Cp unset: %d\n", static_cast<double>(r.volume) * 1e5, Vref,
                    static_cast<double>(r.gibbs_energy), Gexp, unset);
         }
     }

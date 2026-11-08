@@ -110,7 +110,14 @@ void exportMethods(py::module& parent)
         .def_property_readonly("id", [](const SolventMethod& s) { return s.spec().id; })
         .def("properties", [](const SolventMethod& s, double T, double P, int state) { return s.properties(T, P, state); },
              "The properties of the solvent at T [K], P [Pa]. State: 0 liquid, 1 gas", py::arg("T"), py::arg("P"), py::arg("state") = 0)
-        .def("substanceProperties", [](const SolventMethod& s, double T, double P, int state, const std::string& triple) { return s.substanceProperties(T, P, state, triple); },
+        .def("substanceProperties", [](const SolventMethod& s, double T, double P, int state, const std::string& triple) {
+                 auto tps = s.substanceProperties(T, P, state, triple);
+                 // V in m3/mol, as the results of the engine (the models work in J/bar)
+                 tps.volume.val *= 1e-5;
+                 tps.volume.ddt *= 1e-5;
+                 tps.volume.ddp *= 1e-5;
+                 tps.volume.err *= 1e-5;
+                 return tps; },
              "The properties of water as a substance at T [K], P [Pa]", py::arg("T"), py::arg("P"), py::arg("state") = 0, py::arg("triple") = "NEA_HGK");
 
     py::class_<DielectricMethod, std::shared_ptr<DielectricMethod>>(m, "DielectricMethod", "A model of the dielectric constant of water")

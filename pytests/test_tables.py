@@ -134,7 +134,7 @@ def test_units_of_each_kind():
     spec = setup(records=["Calcite"], columns=[{"property": "V", "unit": "cm3/mol", "digits": 3}, {"property": "S", "unit": "J/(mol K)"}, {"property": "H", "unit": "kcal/mol"}])
     table = tf.table(spec)["t"]
     engine = tf.ThermoEngine(AQ).thermoPropertiesSubstance(298.15, 1e5, "Calcite")
-    assert table.value("Calcite", 25.0, 1.0, "V") == pytest.approx(engine.volume.val * 10.0, rel=1e-9)
+    assert table.value("Calcite", 25.0, 1.0, "V") == pytest.approx(engine.volume.val * 1e6, rel=1e-9)
     assert table.value("Calcite", 25.0, 1.0, "H") == pytest.approx(engine.enthalpy.val / 4184.0, rel=1e-9)
 
 

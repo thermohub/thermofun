@@ -305,7 +305,7 @@ def test_constant_properties_give_the_reference_values_and_stop_other_methods():
     p = engine_with(s).thermoPropertiesSubstance(500.0, 1e8, "X")
     assert p.gibbs_energy.val == pytest.approx(-1e5)
     assert p.enthalpy.val == pytest.approx(-1.2e5)
-    assert p.volume.val == pytest.approx(3.0)
+    assert p.volume.val == pytest.approx(3.0e-5)  # 3 J/bar, in m3/mol
 
 
 def test_a_record_without_methods_and_reaction_has_its_reference_values():
@@ -325,7 +325,7 @@ def test_cpm_off_is_the_ideal_gas_volume():
     s.setMethod_P(tf.MethodCorrP_Thrift.CPM_OFF)
     assert s.method_P() == tf.MethodCorrP_Thrift.CPM_OFF
     p = engine_with(s).thermoPropertiesSubstance(500.0, 1e6, "X")
-    assert p.volume.val == pytest.approx(8.31451 * 500.0 / 10.0, rel=1e-3)   # J/bar at 10 bar
+    assert p.volume.val == pytest.approx(8.31451 * 500.0 / 1e6, rel=1e-3)   # RT/P in m3/mol at 10 bar
 
 
 @pytest.mark.parametrize("second", [{"31": "water_eos_hgk84_reaktoro"}, None])

@@ -163,7 +163,7 @@ def test_mixed_record_a_base_in_its_convention_and_a_correction_in_the_default()
     G, _, _ = nasa_raw(T)
     got = props(e, T=T, P=P)
     assert got["G"] == pytest.approx(G + Tr * SIGMA_CO2 + 2e-5 * (P - Pr), rel=1e-12)
-    assert got["V"] == pytest.approx(2.0, rel=1e-12)   # J/bar
+    assert got["V"] == pytest.approx(2e-5, rel=1e-12)   # m3/mol
 
 
 def test_mixed_record_of_a_declared_base_and_a_correction():
@@ -325,7 +325,7 @@ def test_a_solute_in_molarity_converts_to_molality_with_the_density_of_water(T, 
     dVdiff = (term(T, P + dp) - term(T, P - dp)) / (2 * dp)
     assert b["S"] - a["S"] == pytest.approx(dSdiff, rel=1e-5, abs=1e-6)
     assert b["H"] - a["H"] == pytest.approx(b["G"] - a["G"] + T * (b["S"] - a["S"]), rel=1e-10)
-    assert (b["V"] - a["V"]) * 1e-5 == pytest.approx(dVdiff, rel=1e-4, abs=1e-12)
+    assert b["V"] - a["V"] == pytest.approx(dVdiff, rel=1e-4, abs=1e-12)
     h = lambda t: R * t * math.log(density(e, t, P) / 1000.0) + t * -(term(t + dt, P) - term(t - dt, P)) / (2 * dt)
     assert b["Cp"] - a["Cp"] == pytest.approx((h(T + 0.5) - h(T - 0.5)) / 1.0, rel=2e-3, abs=2e-3)
 

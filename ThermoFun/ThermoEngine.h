@@ -89,6 +89,9 @@ struct CalculationPath
  * Threads: one engine for each thread. A calculation writes the results and settings of the engine, so an engine must not
  * be shared by threads. A copy (constructor or assignment) has its own results and settings, and shares the records.
  */
+/// Defined since 1.0: the volumes of the results (volume, reaction_volume) are in m3/mol; before, in J/bar
+#define THERMOFUN_VOLUME_SI 1
+
 class ThermoEngine
 {
     friend class Interface;

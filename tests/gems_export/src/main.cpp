@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     };
 
     // Volume equation m_volume_fpt_coeffs with the pressure term of second order (reference: 2.97098715 J/bar)
-    double v = static_cast<double>(props("Magnesite", 25., 1000.).volume);
+    double v = static_cast<double>(props("Magnesite", 25., 1000.).volume) * 1e5;  // m3/mol to J/bar
     check(near(v, 2.970987, 1e-4), "Magnesite V at 25 C, 1000 bar", v, 2.970987);
 
     // Water solvent given by reference values and a constant Cp (reference: -243043.965 J/mol)
@@ -51,11 +51,11 @@ int main(int argc, char** argv)
     check(near(g, -243043.965, 1e-2), "H2O(l) G at 100 C, 1 bar", g, -243043.965);
 
     // Gas defined by a reaction without volume method: ideal gas volume (reference: 3102.5594 J/bar)
-    v = static_cast<double>(props("H2Se(g)", 100., 1.).volume);
+    v = static_cast<double>(props("H2Se(g)", 100., 1.).volume) * 1e5;
     check(near(v, 3102.5594, 1e-2), "H2Se(g) V at 100 C, 1 bar", v, 3102.5594);
 
     // CG fluid: the coefficients of eos_churakov_gottschalk_coeffs are read (reference: 4.82426 J/bar)
-    v = static_cast<double>(props("CO", 25., 1000.).volume);
+    v = static_cast<double>(props("CO", 25., 1000.).volume) * 1e5;
     check(near(v, 4.82426, 1e-3), "CO V at 25 C, 1000 bar", v, 4.82426);
 
     // A reaction with a logK(T) function and the method of 3-term extrapolation: the reaction is extrapolated from the reference values

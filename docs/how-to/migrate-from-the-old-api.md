@@ -27,6 +27,18 @@ assert preferences.cancel_fugacity_coefficient_in_gas_props is True
 
 In C++: `engine.preferences().useStandardStateOfGases();`.
 
+## Volumes are in m3/mol
+
+**Warning:** from version 1.0, `volume` and `reaction_volume` are in m3/mol, SI as the pressure in Pa, so dG/dP = V. Before 1.0 they were in J/bar. 1 J/bar is 1e-5 m3/mol, so a value is 100000 times smaller, and a code that converted it with a factor gets wrong numbers without an error. For cm3/mol: multiply by 1e6 (it was 10).
+
+```python
+import thermofun as tf
+
+assert tf.volume_unit == "m3/mol"   # absent before 1.0: the volumes were in J/bar
+```
+
+In C++, `THERMOFUN_VOLUME_SI` is defined from 1.0 on. `ThermoBatch` gives m3/mol unless you ask for another unit, for example `batch.setPropertiesUnits(["volume"], ["J/bar"])`.
+
 ## Other results that change
 
 | Change | What to do |

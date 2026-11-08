@@ -38,7 +38,7 @@ def test_dolejs_manning_2010_table2(mineral):
     engine = tf.ThermoEngine(os.path.join(HERE, "DolejsManning2010-thermofun.json"))
     p = engine.thermoPropertiesReaction(298.15, 1e5, mineral + "-dissolution")
     got = (p.log_equilibrium_constant.val, p.reaction_gibbs_energy.val / 1e3, p.reaction_enthalpy.val / 1e3,
-           p.reaction_entropy.val, p.reaction_heat_capacity_cp.val, p.reaction_volume.val * 10)
+           p.reaction_entropy.val, p.reaction_heat_capacity_cp.val, p.reaction_volume.val * 1e6)
     for i, (value, expected, tol) in enumerate(zip(got, DM10_TABLE2[mineral], DM10_TOL)):
         if (mineral, i) in DM10_SKIP:
             continue

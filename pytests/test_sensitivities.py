@@ -19,7 +19,7 @@ STEP = 1e-4
 SUBSTANCE = {"G": "gibbs_energy", "H": "enthalpy", "S": "entropy", "Cp": "heat_capacity_cp", "V": "volume"}
 REACTION = {"logK": "log_equilibrium_constant", "dG": "reaction_gibbs_energy", "dH": "reaction_enthalpy", "dS": "reaction_entropy", "dCp": "reaction_heat_capacity_cp", "dV": "reaction_volume"}
 # the engine gives V in J/bar, the derivatives are SI
-FACTOR = {"V": 1e-5, "dV": 1e-5}
+FACTOR = {}  # the public results and the sensitivities both give V in m3/mol
 # the size of the noise of S and H of Birch-Murnaghan: see test_the_entropy_of_birch_murnaghan_with_a_large_step
 NOISE = {"S": 1e-7, "H": 5e-5}
 

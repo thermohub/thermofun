@@ -53,9 +53,9 @@ const std::map<std::string, std::string> reactionNames = {{"logK", "log_equilibr
                                                           {"dCv", "reaction_heat_capacity_cv"}, {"dV", "reaction_volume"}, {"dU", "reaction_internal_energy"}, {"dA", "reaction_helmholtz_energy"}};
 const std::map<std::string, std::string> baseUnits = {
     {"gibbs_energy", "J/mol"}, {"enthalpy", "J/mol"}, {"internal_energy", "J/mol"}, {"helmholtz_energy", "J/mol"}, {"entropy", "J/K/mol"}, {"heat_capacity_cp", "J/K/mol"},
-    {"heat_capacity_cv", "J/K/mol"}, {"volume", "J/bar"}, {"reaction_gibbs_energy", "J/mol"}, {"reaction_enthalpy", "J/mol"}, {"reaction_internal_energy", "J/mol"},
+    {"heat_capacity_cv", "J/K/mol"}, {"volume", "m3/mol"}, {"reaction_gibbs_energy", "J/mol"}, {"reaction_enthalpy", "J/mol"}, {"reaction_internal_energy", "J/mol"},
     {"reaction_helmholtz_energy", "J/mol"}, {"reaction_entropy", "J/K/mol"}, {"reaction_heat_capacity_cp", "J/K/mol"}, {"reaction_heat_capacity_cv", "J/K/mol"},
-    {"reaction_volume", "J/bar"}, {"density", "kg/m3"}, {"Alpha", "1/K"}, {"Beta", "1/Pa"}, {"dAldT", "1/K2"}, {"bornY", "1/K"}, {"bornQ", "1/Pa"}, {"bornX", "1/K2"},
+    {"reaction_volume", "m3/mol"}, {"density", "kg/m3"}, {"Alpha", "1/K"}, {"Beta", "1/Pa"}, {"dAldT", "1/K2"}, {"bornY", "1/K"}, {"bornQ", "1/Pa"}, {"bornX", "1/K2"},
     {"log_equilibrium_constant", "1"}, {"ln_equilibrium_constant", "1"}, {"epsilon", "1"}, {"bornZ", "1"}};
 
 auto substanceScalar(const ThermoPropertiesSubstance& x, const std::string& n) -> const Scalar*
@@ -167,10 +167,10 @@ auto convert(double value, const std::string& from, const std::string& to) -> do
     return units::convert(value, unitOf(from), unitOf(to));
 }
 
-/// The volume of the engine is for one mole, and a unit such as cm3/mol has the mole in it.
+/// The volume of the engine is in m3 for one mole, and a unit such as cm3/mol has the mole in it.
 auto volumeBase(const std::string& to) -> std::string
 {
-    return to.find("/mol") != std::string::npos ? "J/bar/mol" : "J/bar";
+    return to.find("/mol") != std::string::npos ? "m3/mol" : "m3";
 }
 
 auto shortest(double value) -> std::string

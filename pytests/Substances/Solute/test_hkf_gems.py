@@ -171,7 +171,7 @@ class TestHKFGems(unittest.TestCase):
             assert tps.enthalpy.val == pytest.approx(H, abs=tolAbs['H'], rel=tolRel['H'])
             assert tps.entropy.val == pytest.approx(S, abs=tolAbs['S'], rel=tolRel['S'])
             assert tps.heat_capacity_cp.val == pytest.approx(Cp, abs=tolAbs['Cp'], rel=tolRel['Cp'])
-            assert tps.volume.val == pytest.approx(V, abs=tolAbs['V'], rel=tolRel['V'])
+            assert tps.volume.val * 1e5 == pytest.approx(V, abs=tolAbs['V'], rel=tolRel['V'])  # the table is in J/bar
 
 
         #     row1 = T-273.15, P/1e5, tps.gibbs_energy.val, tps.enthalpy.val, tps.entropy.val, tps.heat_capacity_cp.val, tps.volume.val

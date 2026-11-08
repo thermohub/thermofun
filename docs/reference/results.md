@@ -26,7 +26,7 @@ Each property is a `ThermoScalar`.
 |---|---|
 | `gibbs_energy`, `enthalpy`, `internal_energy`, `helmholtz_energy` | J/mol |
 | `entropy`, `heat_capacity_cp`, `heat_capacity_cv` | J/(mol K) |
-| `volume` | J/bar. 1 J/bar is 1e-5 m3/mol. |
+| `volume` | m3/mol (J/bar before 1.0; 1 J/bar is 1e-5 m3/mol). |
 
 ## A reaction
 

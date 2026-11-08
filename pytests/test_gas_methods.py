@@ -109,7 +109,7 @@ def test_the_properties_of_a_gas_with_a_method_are_consistent(tmp_path, symbol, 
     engine = tf.ThermoEngine(gases(tmp_path))
     r = engine.thermoPropertiesSubstance(T, P, symbol)
     low = engine.thermoPropertiesSubstance(T, 1e5, symbol)
-    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-3)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val, rel=1e-3)
     assert r.gibbs_energy.ddt == pytest.approx(-r.entropy.val, rel=1e-3)
     # G and H of a record can have different zero points: the change with P at one T
     assert r.enthalpy.val - low.enthalpy.val == pytest.approx(r.gibbs_energy.val - low.gibbs_energy.val + T * (r.entropy.val - low.entropy.val), rel=1e-3, abs=2.0)
@@ -119,7 +119,7 @@ def test_the_gibbs_energy_of_a_gas_is_the_integral_of_its_volume(tmp_path):
     engine = tf.ThermoEngine(gases(tmp_path))
     T = 600.0
     pressures = [1e5 * 10.0 ** (i / 80.0) for i in range(241)]  # 1 to 1000 bar
-    volumes = [engine.thermoPropertiesSubstance(T, p, "CO2-prsv").volume.val * 1e-5 for p in pressures]
+    volumes = [engine.thermoPropertiesSubstance(T, p, "CO2-prsv").volume.val for p in pressures]
     integral = sum((volumes[i] + volumes[i + 1]) / 2.0 * (pressures[i + 1] - pressures[i]) for i in range(240))
     change = engine.thermoPropertiesSubstance(T, 1e8, "CO2-prsv").gibbs_energy.val - engine.thermoPropertiesSubstance(T, 1e5, "CO2-prsv").gibbs_energy.val
     assert change == pytest.approx(integral, rel=2e-3)
@@ -207,7 +207,7 @@ def defined(reaction_methods, reaction_values, substance_methods, tmp_path):
     path.write_text(json.dumps(doc))
     engine = tf.ThermoEngine(str(path))
     high, low = (engine.thermoPropertiesSubstance(298.15, p, "X") for p in (1e8, 1e5))
-    return high.gibbs_energy.val - low.gibbs_energy.val, high.volume.val, high.gibbs_energy.ddp
+    return high.gibbs_energy.val - low.gibbs_energy.val, high.volume.val * 1e5, high.gibbs_energy.ddp  # V in J/bar, the unit of the data here
 
 
 LOGK = {"method": {"4": "logk_1_term_extrap0"}}
@@ -247,7 +247,7 @@ TDB = HERE / "PsiTDB2020-subset-thermofun.json"
 @pytest.mark.parametrize("T,P", [(298.15, 1e8), (473.15, 1e8), (573.15, 2e7)])
 def test_a_solid_defined_by_a_reaction_without_pressure_has_the_term_of_its_volume(T, P):
     r = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(T, P, "AgCl(cr)")
-    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-9)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val, rel=1e-9)
 
 
 @pytest.mark.parametrize("T", [298.15, 473.15, 573.15, 623.15])
@@ -263,7 +263,7 @@ def test_above_the_critical_temperature_the_data_are_in_dense_water(T):
     """The species of the reaction at the isochore rho_min of DataPressure.yaml, not at the low density of the critical pressure."""
     r = tf.ThermoEngine(str(TDB)).thermoPropertiesSubstance(T, 1e8, "AgCl(cr)")
     assert -160000.0 < r.gibbs_energy.val < -60000.0
-    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-9)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val, rel=1e-9)
 
 
 
@@ -348,7 +348,7 @@ def fluid_from_a_reaction(tmp_path, reaction_methods, reaction_values=None):
 def test_a_fluid_on_a_substance_defined_by_a_reaction(tmp_path, T, P):
     engine = fluid_from_a_reaction(tmp_path, [LOGK])
     r = engine.thermoPropertiesSubstance(T, P, "X")
-    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-3)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val, rel=1e-3)
     assert r.volume.val > 0.0
     # the same term as the same fluid with a Cp of its own: G from the state at the data pressure
     low = engine.thermoPropertiesSubstance(T, 1e5, "X").gibbs_energy.val
@@ -367,7 +367,7 @@ def test_the_option_of_the_pressure_term_holds_for_it(tmp_path):
 def test_no_second_term_on_a_fluid_when_the_reaction_has_a_volume(tmp_path):
     engine = fluid_from_a_reaction(tmp_path, [LOGK, {"method": {"13": "dr_volume_constant"}}], {"drsm_volume": {"values": [3.0]}})
     r = engine.thermoPropertiesSubstance(600.0, 1e8, "X")
-    assert r.volume.val == pytest.approx(3.0 + 2.8, abs=3.0)  # from the reaction and the volume of A, not the fluid
+    assert r.volume.val == pytest.approx((3.0 + 2.8) * 1e-5, abs=3.0e-5)  # from the reaction and the volume of A, not the fluid (m3/mol)
 
 
 # CO2(g) of THEREDA 2026-01: the record has its critical data, and a forming reaction with log K(T)
@@ -378,8 +378,8 @@ def test_co2_of_thereda_with_peng_robinson_on_the_substance():
     engine = tf.ThermoEngine(str(THEREDA))
     assert engine.thermoPropertiesReaction(298.15, 1e5, "CO2(g)").log_equilibrium_constant.val == pytest.approx(18.1521, abs=1e-3)
     r = engine.thermoPropertiesSubstance(323.15, 1e7, "CO2(g)")
-    assert r.volume.val == pytest.approx(11.46, rel=0.03)  # 384 kg/m3, Span and Wagner (1996)
-    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val * 1e-5, rel=1e-3)
+    assert r.volume.val == pytest.approx(11.46e-5, rel=0.03)  # 384 kg/m3, Span and Wagner (1996)
+    assert r.gibbs_energy.ddp == pytest.approx(r.volume.val, rel=1e-3)
 
 
 def test_co2_of_thereda_for_a_consumer_that_adds_the_terms_itself():

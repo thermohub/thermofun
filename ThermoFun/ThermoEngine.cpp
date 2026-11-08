@@ -8,6 +8,20 @@
 namespace ThermoFun
 {
 
+namespace {
+
+/// The public results give V in m3/mol, SI as P in Pa (so dG/dP = V); inside, the engine works in J/bar (1 J/bar = 1e-5 m3)
+void volumeToSI(Reaktoro_::ThermoProperty& V)
+{
+    V.val *= 1e-5;
+    V.ddt *= 1e-5;
+    V.ddp *= 1e-5;
+    V.err *= 1e-5;
+}
+
+} // namespace
+
+
 // The checks of the settings: an error says what is allowed
 template <class E>
 auto checkedWord(const std::string& word) -> E
@@ -99,6 +113,7 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
     auto tps = pimpl->toOutput(pimpl->cachedSubstance(T, P, substance), T, P, pimpl->database.getSubstance(substance));
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addSubstanceErrors(tps, T, P, pimpl->database.getSubstance(substance), pimpl->inputsOf(pimpl->recordsOfSubstance(substance)));
+    volumeToSI(tps.volume);
     pimpl->roundResults(tps);
     return tps;
 }
@@ -128,6 +143,7 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substanc
         if (!substance.reactionSymbol().empty()) pimpl->collectReaction(records, substance.reactionSymbol());
         pimpl->addSubstanceErrors(tps, T, P, substance, pimpl->inputsOf(records, &substance));
     }
+    volumeToSI(tps.volume);
     pimpl->roundResults(tps);
     return tps;
 }
@@ -154,6 +170,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
     auto tpr = pimpl->toOutput(pimpl->cachedReaction(T, P, reaction), T, P, pimpl->reactionOfSymbol(reaction));
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(reaction), false, pimpl->inputsOf(pimpl->recordsOfReaction(reaction)));
+    volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -165,6 +182,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, st
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, symbol), T, P, pimpl->reactionOfSymbol(symbol));
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(symbol), true, pimpl->inputsOf(pimpl->recordsOfReaction(symbol)));
+    volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -176,6 +194,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction&
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReaction(T, P, reaction), T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, reaction, false, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
+    volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -187,6 +206,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
     auto tpr = pimpl->toOutput(pimpl->thermoPropertiesReactionFromReactants(T, P, reaction), T, P, reaction);
     if (pimpl->preferences.propagate_parameter_errors)
         pimpl->addReactionErrors(tpr, T, P, reaction, true, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
+    volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
     return tpr;
 }
@@ -283,7 +303,9 @@ auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const 
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
-    return pimpl->detailedSubstance(T, P, pimpl->database.getSubstance(substance));
+    auto detailed = pimpl->detailedSubstance(T, P, pimpl->database.getSubstance(substance));
+    volumeToSI(detailed.properties.volume);
+    return detailed;
 }
 
 auto ThermoEngine::snapshot() const -> CalculationSnapshot

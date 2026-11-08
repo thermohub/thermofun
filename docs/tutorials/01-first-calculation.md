@@ -27,7 +27,7 @@ Make an engine. Give T in K, P in Pa and the symbol.
 engine = tf.ThermoEngine(database)
 calcite = engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
 print(calcite.gibbs_energy.val, "J/mol")
-print(calcite.volume.val, "J/bar")
+print(calcite.volume.val, "m3/mol")
 assert -1.2e6 < calcite.gibbs_energy.val < -1.1e6
 ```
 
@@ -39,7 +39,7 @@ Each property has a value, two derivatives, an uncertainty and a status.
 G = calcite.gibbs_energy
 print(G.val, G.ddt, G.ddp, G.err, G.sta)
 assert abs(G.ddt + calcite.entropy.val) < 1e-6                # dG/dT = -S
-assert abs(G.ddp * 1e5 - calcite.volume.val) < 1e-6           # dG/dP = V, with V in J/bar
+assert abs(G.ddp - calcite.volume.val) < 1e-11                 # dG/dP = V, with V in m3/mol and P in Pa
 assert G.sta[0] == tf.Status.calculated
 ```
 

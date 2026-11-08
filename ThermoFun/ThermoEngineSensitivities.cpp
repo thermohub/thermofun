@@ -348,7 +348,7 @@ auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string
             out["H"][name] = slope(up.enthalpy, down.enthalpy);
             out["S"][name] = slope(up.entropy, down.entropy);
             out["Cp"][name] = slope(up.heat_capacity_cp, down.heat_capacity_cp);
-            out["V"][name] = slope(up.volume, down.volume) * 1e-5;
+            out["V"][name] = slope(up.volume, down.volume);  // the public results are in m3/mol
             out["U"][name] = out["H"][name] - P * out["V"][name];
             out["A"][name] = out["U"][name] - T * out["S"][name];
             continue;
@@ -390,7 +390,7 @@ auto ThermoEngine::reactionParameterSensitivities(double T, double& P, const std
             out["dH"][name] = slope(up.reaction_enthalpy, down.reaction_enthalpy);
             out["dS"][name] = slope(up.reaction_entropy, down.reaction_entropy);
             out["dCp"][name] = slope(up.reaction_heat_capacity_cp, down.reaction_heat_capacity_cp);
-            out["dV"][name] = slope(up.reaction_volume, down.reaction_volume) * 1e-5;
+            out["dV"][name] = slope(up.reaction_volume, down.reaction_volume);  // the public results are in m3/mol
             continue;
         }
         const auto d = pimpl->reactionDerivative(T, P, reaction, ref);

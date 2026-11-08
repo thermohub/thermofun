@@ -95,7 +95,7 @@ def test_zhang_duan_and_sverjensky_agree_with_chnosz(row):
     ps = water.properties(T, P)
     assert ps.density.val == pytest.approx(row["rho"], rel=1e-5)
     assert tf.methods.dielectricMethod("SverjenskyEtAl14").properties(T, P, ps).epsilon.val == pytest.approx(row["epsilon"], rel=1e-5)
-    assert water.substanceProperties(T, P).volume.val * 10 == pytest.approx(row["V"], rel=1e-5)  # J/bar to cm3/mol
+    assert water.substanceProperties(T, P).volume.val * 1e6 == pytest.approx(row["V"], rel=1e-5)  # m3/mol to cm3/mol
 
 
 def chnosz_integral(water, T, P):
@@ -104,7 +104,7 @@ def chnosz_integral(water, T, P):
     spacing = 20.0 if (P - 1000.0) / 500.0 < 20 else (P - 1000.0) / 500.0
     total, p = 0.0, 1000.0
     while p <= P + 1e-9:
-        total += water.substanceProperties(T, p * 1e5).volume.val * spacing  # J/bar x bar
+        total += water.substanceProperties(T, p * 1e5).volume.val * 1e5 * spacing  # m3/mol to J/bar, x bar
         p += spacing
     return total
 
@@ -130,7 +130,7 @@ def test_the_gibbs_energy_of_water_is_consistent(row):
     water = dew_water()
     T, P = row["T_C"] + 273.15, row["P_bar"] * 1e5
     p = water.substanceProperties(T, P)
-    assert p.gibbs_energy.ddp * 1e5 == pytest.approx(p.volume.val, rel=1e-6)  # dG/dP = V, in J/bar
+    assert p.gibbs_energy.ddp == pytest.approx(p.volume.val, rel=1e-6)  # dG/dP = V, in m3/mol
     h = 0.01
     lo, hi = (water.substanceProperties(T + d, P).gibbs_energy.val for d in (-h, h))
     assert (hi - lo) / (2 * h) == pytest.approx(p.gibbs_energy.ddt, rel=1e-6)

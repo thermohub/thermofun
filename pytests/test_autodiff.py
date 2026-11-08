@@ -85,7 +85,7 @@ def test_status_notdefined_is_preserved(engine):
 def test_landau_volume_is_pressure_derivative_of_gibbs_energy(engine, T, P):
     # Quartz (Holland-Powell Landau model): V = dG/dP, below and above the critical temperature
     tps = engine.thermoPropertiesSubstance(T, P, "Quartz")
-    assert tps.gibbs_energy.ddp * 1e5 == pytest.approx(tps.volume.val, rel=1e-9)
+    assert tps.gibbs_energy.ddp == pytest.approx(tps.volume.val, rel=1e-9)
 
 
 def test_multi_interval_cp_integration_derivatives():
@@ -134,8 +134,8 @@ def test_gems_water_derivatives_match_finite_differences(gems_engine, T, P):
     assert tps.gibbs_energy.ddt == pytest.approx(-tps.entropy.val, rel=1e-6)
     assert tps.enthalpy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
     assert T * tps.entropy.ddt == pytest.approx(tps.heat_capacity_cp.val, rel=1e-6)
-    # Maxwell relation: dS/dP = -dV/dT (V in J/bar, P in Pa)
-    assert tps.entropy.ddp == pytest.approx(-tps.volume.ddt * 1e-5, rel=1e-4)
+    # Maxwell relation: dS/dP = -dV/dT (V in m3/mol, P in Pa)
+    assert tps.entropy.ddp == pytest.approx(-tps.volume.ddt, rel=1e-4)
 
 
 @pytest.mark.parametrize("T,P", GEMS_WATER_POINTS)
@@ -161,9 +161,9 @@ def test_substance_from_reaction_pressure_derivative(gems_engine):
     # H2PO4- is calculated from a reaction with a constant reaction volume: dG/dP = V
     for T, P in [(299.15, 1e5), (423.15, 4.8e5), (573.15, 1e7)]:
         tpr = gems_engine.thermoPropertiesReaction(T, P, "H2PO4-")
-        assert tpr.reaction_gibbs_energy.ddp * 1e5 == pytest.approx(tpr.reaction_volume.val, rel=1e-9)
+        assert tpr.reaction_gibbs_energy.ddp == pytest.approx(tpr.reaction_volume.val, rel=1e-9)
         tps = gems_engine.thermoPropertiesSubstance(T, P, "H2PO4-")
-        assert tps.gibbs_energy.ddp * 1e5 == pytest.approx(tps.volume.val, rel=1e-3)
+        assert tps.gibbs_energy.ddp == pytest.approx(tps.volume.val, rel=1e-3)
 
 
 def test_gas_derivatives_match_finite_differences():

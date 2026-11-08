@@ -12,6 +12,17 @@
 
 namespace ThermoFun {
 
+namespace {
+
+/// The volumes of the engine are in m3 for one mole: a unit such as J/bar or cm3, without /mol, is converted from m3
+auto baseFor(const std::string& from, const std::string& to) -> std::string
+{
+    return from == "m3/mol" && to.find("/mol") == std::string::npos ? "m3" : from;
+}
+
+} // namespace
+
+
 struct Output::Impl
 {
     /// Interface instance
@@ -240,7 +251,7 @@ auto Output::foutResults()-> void
                 if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
                     pimpl->fProperties << s << "NaN";
                 else
-                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(prop), toUnits.at(prop));
+                    pimpl->fProperties << s << units::convert(result.val, baseFor(fromUnits.at(prop), toUnits.at(prop)), toUnits.at(prop));
             }
             pimpl->fProperties << std::endl;
         }
@@ -303,7 +314,7 @@ auto Output::foutResultsTransposed()-> void
                 if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
                     pimpl->fProperties << s << "NaN";
                 else
-                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(property), toUnits.at(property));
+                    pimpl->fProperties << s << units::convert(result.val, baseFor(fromUnits.at(property), toUnits.at(property)), toUnits.at(property));
             }
             pimpl->fProperties << std::endl;
         }
@@ -364,7 +375,7 @@ auto Output::foutPropertyGrid(const std::string &property, const size_t &index_p
                 if (result.sta.first == Reaktoro_::Status::notdefined && outSettings.writeNaNifNotDefinedValue)
                     pimpl->fProperties << s << "NaN";
                 else
-                    pimpl->fProperties << s << units::convert(result.val, fromUnits.at(property), toUnits.at(property));
+                    pimpl->fProperties << s << units::convert(result.val, baseFor(fromUnits.at(property), toUnits.at(property)), toUnits.at(property));
                     
                 count++;
             }

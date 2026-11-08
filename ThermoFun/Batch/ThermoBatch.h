@@ -291,7 +291,7 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"entropy",                        "J/K/mol"       },
     {"heat_capacity_cp",               "J/K/mol"       },
     {"heat_capacity_cv",               "J/K/mol"       },
-    {"volume", "J/bar"},
+    {"volume",                         "m3/mol"        },
     {"helmholtz_energy",               "J/mol"         },
     {"internal_energy",                "J/mol"         },
 
@@ -300,7 +300,7 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"reaction_internal_energy",       "J/mol"         },
     {"reaction_enthalpy",              "J/mol"         },
     {"reaction_entropy",               "J/K/mol"       },
-    {"reaction_volume",                "J/bar"         },
+    {"reaction_volume",                "m3/mol"        },
     {"reaction_heat_capacity_cp",      "J/K/mol"       },
     {"reaction_heat_capacity_cv",      "J/K/mol"       },
     {"logKr",                          "1"             },

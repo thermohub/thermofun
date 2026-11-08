@@ -7,6 +7,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed, read before you update
 
+- **V is in m3/mol** in all results (`volume`, `reaction_volume`, and `substanceProperties` of the water methods), SI as P
+  in Pa, so dG/dP = V (review Q4, decision 10). Before: J/bar (1 J/bar = 1e-5 m3/mol). A consumer that converts V must
+  change its factor: J/bar to cm3/mol was 10, m3/mol to cm3/mol is 1e6. C++: `THERMOFUN_VOLUME_SI` is defined in
+  `ThermoEngine.h`; Python: `thermofun.volume_unit == "m3/mol"`. `ThermoBatch` and the tables give m3/mol unless another
+  unit is asked for (J/bar and cm3/mol still work).
 - **Gases:** G of a gas with a fluid method or `IdealGas` has `RT ln(P/Pr)` and `RT ln(phi)` by default, on every path (defaults `apply_pressure_correction_to_gas_props = true`, `cancel_fugacity_coefficient_in_gas_props = false`; before: `false` and `true`). A consumer that adds these terms itself counts them twice with the defaults: for example +26 to +30 kJ/mol for CH4, CO, CO2 and H2 at 473.15 K and 1 kbar. Call `EnginePreferences::useStandardStateOfGases()` to keep the old values. GEMS3K releases before this change must not be used with ThermoFun 1.0.
 - **A substance defined by a reaction that does not change with P, with its own pressure method** (for example
   `ConstantVolume`): the other species of the reaction are taken at max(Pr, Psat, P at which water has 420 kg/m3).

@@ -160,9 +160,18 @@ def make_engine(db_path, variant):
     return engine
 
 
-def scalar(x):
+def scalar(x, factor=1.0):
     """[val, ddt, ddp, err, status code] of a ThermoScalar; the code is the integer of the Status enum."""
-    return [x.val, x.ddt, x.ddp, x.err, int(x.sta[0])]
+    return [x.val * factor, x.ddt * factor, x.ddp * factor, x.err * factor, int(x.sta[0])]
+
+
+def unit_factor(prop):
+    """The references keep V in J/bar. A library that gives V in m3/mol (thermofun.volume_unit, since 1.0) is scaled to it,
+    so the references and a baseline build of before 1.0 compare with it."""
+    import thermofun as tf
+    if prop in ("volume", "reaction_volume") and getattr(tf, "volume_unit", "J/bar") == "m3/mol":
+        return 1e5
+    return 1.0
 
 
 def _grid(T, P):
@@ -221,7 +230,7 @@ def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False, at_satu
             try:
                 res = engine.thermoPropertiesSubstance(t, p, sym)
                 for prop in SUBST_PROPS:
-                    rec[prop].append(scalar(getattr(res, prop)))
+                    rec[prop].append(scalar(getattr(res, prop), unit_factor(prop)))
             except Exception as exc:
                 for prop in SUBST_PROPS:
                     rec[prop].append({"error": _first_line(exc)})
@@ -236,7 +245,7 @@ def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False, at_satu
                 if p == 0.0:
                     try:
                         res = engine.thermoPropertiesSubstance(t, engine.saturationPressure(t), sym)
-                        value = {prop: scalar(getattr(res, prop)) for prop in SUBST_PROPS}
+                        value = {prop: scalar(getattr(res, prop), unit_factor(prop)) for prop in SUBST_PROPS}
                     except Exception:
                         value = None
                 for prop in SUBST_PROPS:
@@ -252,7 +261,7 @@ def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False, at_satu
                 if p == 0.0:
                     try:
                         res = engine.thermoPropertiesReaction(t, engine.saturationPressure(t), sym)
-                        value = {prop: scalar(getattr(res, prop)) for prop in REAC_PROPS}
+                        value = {prop: scalar(getattr(res, prop), unit_factor(prop)) for prop in REAC_PROPS}
                     except Exception:
                         value = None
                 for prop in REAC_PROPS:
@@ -265,7 +274,7 @@ def compute(db_path, variant, T, P, symbols=None, aligned_solvent=False, at_satu
             try:
                 res = engine.thermoPropertiesReaction(t, p, sym)
                 for prop in REAC_PROPS:
-                    rec[prop].append(scalar(getattr(res, prop)))
+                    rec[prop].append(scalar(getattr(res, prop), unit_factor(prop)))
             except Exception as exc:
                 for prop in REAC_PROPS:
                     rec[prop].append({"error": _first_line(exc)})

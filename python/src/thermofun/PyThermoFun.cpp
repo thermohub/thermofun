@@ -26,6 +26,8 @@ PYBIND11_MODULE(PyThermoFun, m)
     update_loggers(false, "thermofun.log", 2);
     // Always True since 1.0 (the option TFUN_USE_AUTODIFF is gone); kept for scripts that read it
     m.attr("with_autodiff") = true;
+    // The unit of the volumes of the results (volume, reaction_volume): m3/mol since 1.0, J/bar before (THERMOFUN_VOLUME_SI in C++)
+    m.attr("volume_unit") = "m3/mol";
     // Enumerations (before the classes that use them)
     exportGlobalVariables(m);
     // Common module

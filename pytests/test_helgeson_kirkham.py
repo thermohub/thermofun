@@ -60,11 +60,11 @@ def al3(dielectric):
 
 def test_published_hkf_coefficients_give_the_published_properties_with_this_dielectric_constant():
     result = al3({"method": "HelgesonKirkham74"})
-    assert result.volume.val * 10 == pytest.approx(-44.4, abs=0.05)
+    assert result.volume.val * 1e6 == pytest.approx(-44.4, abs=0.05)
     assert result.heat_capacity_cp.val == pytest.approx(-134.5, abs=0.15)
 
 
 def test_and_they_do_not_with_johnson_norton():
     result = al3({"method": "JohnsonNorton91", "implementation": "reaktoro"})
-    assert result.volume.val * 10 == pytest.approx(-45.28, abs=0.05)
+    assert result.volume.val * 1e6 == pytest.approx(-45.28, abs=0.05)
     assert result.heat_capacity_cp.val == pytest.approx(-133.2, abs=0.15)

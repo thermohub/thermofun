@@ -53,7 +53,7 @@ def test_hkf88_alone_gives_the_result_of_the_engine(symbol, T, P):
     assert now.H.val == pytest.approx(old.enthalpy.val, rel=1e-12)
     assert now.S.val == pytest.approx(old.entropy.val, rel=1e-12, abs=1e-9)
     assert now.Cp.val == pytest.approx(old.heat_capacity_cp.val, rel=1e-12, abs=1e-9)
-    assert now.V.val * 1e5 == pytest.approx(old.volume.val, rel=1e-12, abs=1e-12)
+    assert now.V.val == pytest.approx(old.volume.val, rel=1e-12, abs=1e-17)
     assert now.G.ddt == pytest.approx(old.gibbs_energy.ddt, rel=1e-10)
     assert now.G.ddp * 1e5 == pytest.approx(old.gibbs_energy.ddp * 1e5, rel=1e-10)
 
