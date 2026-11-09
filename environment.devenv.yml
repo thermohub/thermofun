@@ -21,4 +21,6 @@ dependencies:
   - python>=3.9
   - pytest
   - scipy
+  - pandas
+  - matplotlib-base
 

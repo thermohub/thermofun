@@ -1,0 +1,4 @@
+# written by the tutorials when they run
+output/
+*.log
+.ipynb_checkpoints/

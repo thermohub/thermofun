@@ -1,0 +1,3 @@
+# the site, built by sphinx-build (docs/conf.py)
+_build/
+jupyter_execute/

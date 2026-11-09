@@ -159,6 +159,8 @@ def index_page(specs):
     for s in specs:
         lines.append("| [%s](%s.md) | %s | %s | %s | %s | %s |" % (s["id"], s["id"], _cell(s["title"]), "base" if s["base"] else "correction", s["operates_on"],
                                                                    ", ".join(s["classes"]) or "any", ", ".join(s["implementations"])))
+    # the pages of the site (Sphinx) are those of a toctree; it is hidden, the table above is the list
+    lines += ["", "```{toctree}", ":hidden:", ""] + [s["id"] for s in specs] + ["```"]
     lines.append("")
     return "\n".join(lines)
 

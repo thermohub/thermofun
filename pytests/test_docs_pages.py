@@ -15,7 +15,8 @@ DOCS = ROOT / "docs"
 # these have their own tests
 OWN_TEST = {"add-data.md", "add-a-method-as-data.md", "fit-parameters.md"}
 PAGES = sorted(p for folder in ("tutorials", "how-to", "reference", "explanation") for p in (DOCS / folder).glob("*.md") if p.name not in OWN_TEST)
-BLOCK = re.compile(r"(?:<!-- file: (?P<file>[^ ]+) -->\n)?```(?P<kind>[a-z+]+)\n(?P<text>.*?)```", re.S)
+# a code block, or a cell of a notebook page (MyST: ```{code-cell} with options on lines that start with ":")
+BLOCK = re.compile(r"(?:<!-- file: (?P<file>[^ ]+) -->\n)?```(?:(?P<kind>[a-z+]+)|\{code-cell\}[^\n]*(?P<cell>)(?:\n:[^\n]*)*)\n(?P<text>.*?)```", re.S)
 LINK = re.compile(r"\]\((?!https?:|#)([^)#]+)(#[^)]*)?\)")
 
 
@@ -24,7 +25,10 @@ def test_the_code_of_a_page_runs(page, tmp_path, monkeypatch):
     text = page.read_text()
     if "fitting" in text:
         pytest.importorskip("scipy")
+    monkeypatch.setenv("MPLBACKEND", "Agg")
     shutil.copy(ROOT / "Resources" / "databases" / "aq17-thermofun.json", tmp_path)
+    for name in ("minimal.yaml", "mineral-methods.yaml"):                  # the tutorials have them in their folder
+        shutil.copy(ROOT / "examples" / "v2" / name, tmp_path)
     shutil.copytree(ROOT / "examples" / "v2", tmp_path / "examples" / "v2")
     monkeypatch.chdir(tmp_path)
     names = {}
@@ -32,7 +36,7 @@ def test_the_code_of_a_page_runs(page, tmp_path, monkeypatch):
         if match["file"]:
             (tmp_path / match["file"]).parent.mkdir(parents=True, exist_ok=True)
             (tmp_path / match["file"]).write_text(match["text"])
-        elif match["kind"] == "python":
+        elif match["kind"] == "python" or match["cell"] is not None:
             exec(compile(match["text"], page.name, "exec"), names)
 
 

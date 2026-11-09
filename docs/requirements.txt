@@ -1,0 +1,8 @@
+# The tools of the site of the documentation (docs/conf.py). ThermoFun itself comes from the build.
+sphinx>=8
+myst-nb>=1.2
+pydata-sphinx-theme>=0.16
+sphinx-copybutton
+jupytext
+matplotlib
+pandas

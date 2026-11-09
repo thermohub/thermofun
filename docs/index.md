@@ -21,11 +21,16 @@ Databases are in `Resources/databases/` of the repository. The words of these pa
 
 ## Tutorials: learn by doing
 
-1. [Your first calculation](tutorials/01-first-calculation.md)
-2. [Your own data](tutorials/02-your-own-data.md)
-3. [Combine methods](tutorials/03-combine-methods.md)
-4. [Fit parameters](tutorials/04-fit-parameters.md)
-5. [Batch calculations](tutorials/05-batch-calculations.md)
+1. [Your first calculation](tutorials/01-first-calculation.md): a substance, a reaction and water, and what a result holds.
+2. [Load data](tutorials/02-load-data.md): read, choose, check and write records.
+3. [Change the models](tutorials/03-change-models.md): methods, how they combine, implementations, options and conventions.
+4. [Where the files are](tutorials/04-where-the-files-are.md)
+5. [Templates](tutorials/05-templates.md)
+6. [Output tables](tutorials/06-output-tables.md)
+7. [Batch calculations](tutorials/07-batch-calculations.md)
+8. [Fit parameters](tutorials/08-fit-parameters.md)
+
+Each tutorial is a notebook. It runs each time the site is built, so its results come from the current code. To run one in Jupyter, download it from its page as `.ipynb`, or use the copies in [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter), which also has workshops and longer examples with other codes.
 
 ## How-to: steps for one job
 
@@ -71,3 +76,13 @@ Databases are in `Resources/databases/` of the repository. The words of these pa
 
 - [Golden tests](contributing/golden-tests.md)
 - [Writing rules](contributing/writing-rules.md)
+
+```{toctree}
+:hidden:
+
+tutorials/index
+how-to/index
+reference/index
+explanation/index
+contributing/index
+```

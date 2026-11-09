@@ -102,6 +102,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A site of the documentation** built with Sphinx from `docs/` (`docs/conf.py`, `docs/requirements.txt`, workflow
+  `docs.yml`, published on GitHub Pages). The tutorials are notebooks (MyST Markdown) that run at each build, and in
+  `pytests/test_docs_pages.py`. They are eight now: the five before and the seven notebooks `thermofun-basics` of
+  thermofun-jupyter, merged; thermofun-jupyter takes its copies from here. `pandas` and `matplotlib-base` are in
+  `environment.devenv.yml` for them.
 - `EngineConventions::apparentPropertiesWord()` and `waterPropertiesWord()` in C++: the old words of the conventions. The
   fields `apparent_properties` and `water_properties` are empty after a call of the engine (review Q9).
 - `pytests/test_closed_forms.py`: each family of methods against its closed formula in a sweep of T, and every record
