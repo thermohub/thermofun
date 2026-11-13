@@ -77,3 +77,4 @@ CLAUDE.md
 
 # Baseline build of the golden comparison
 .golden-baseline/
+thermofun.code-workspace
