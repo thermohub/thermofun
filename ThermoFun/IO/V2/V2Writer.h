@@ -17,6 +17,9 @@ struct V2WriterOptions
     /// Such a file reads back up to about 6e-8 relative from the value in memory.
     /// False: every value reads back as the same double, for example -56.484001159668.
     bool readable = true;
+    /// False: no thermodataset block. For a file of a dataset folder that holds records: such a block would replace the
+    /// dataset of thermodataset.json when the folder is read.
+    bool dataset_block = true;
 };
 
 /// All records of a document.

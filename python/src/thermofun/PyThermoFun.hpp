@@ -30,6 +30,7 @@ namespace ThermoFun {
     // Common module
     void exportQuantity(py::module& m);
     void exportRecords(py::module& m);
+    void exportRecordBuilder(py::module& m);
     void exportDiagnostics(py::module& m);
     void exportThermoScalar(py::module& m);
     void exportStatus(py::module& m);

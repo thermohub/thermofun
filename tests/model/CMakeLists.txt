@@ -12,6 +12,7 @@ add_executable(tfun-unit
     test_vocabulary.cpp
     test_ucum.cpp
     test_records.cpp
+    test_convert.cpp
     test_format_detect.cpp
     test_normalize.cpp
     test_sha256.cpp

@@ -102,6 +102,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **The conversion and the record builders in C++** (`Convert.h`, `RecordBuilder.h`), so a C++ program has what Python
+  has. `convertFile` (legacy or v2 to v2 JSON, YAML, a dataset folder, or legacy JSON), `conversionReport` (the
+  migration report), `shortenedNumbers`, `Database::saveDataset` (a dataset folder), and `RecordBuilder` with
+  `RecordValue`. `python -m thermofun.convert` and `thermofun.records` now call them; their Python API is the same.
 - **A site of the documentation** built with Sphinx from `docs/` (`docs/conf.py`, `docs/requirements.txt`, workflow
   `docs.yml`, published on GitHub Pages). The tutorials are notebooks (MyST Markdown) that run at each build, and in
   `pytests/test_docs_pages.py`. They are eight now: the five before and the seven notebooks `thermofun-basics` of
@@ -158,6 +162,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- A dataset folder written by `python -m thermofun.convert --split` had a `thermodataset` block in each record file,
+  with only the default water convention. Read back, these blocks replaced the dataset of `thermodataset.json`: its
+  symbol and name were lost, and a convention other than `HKF_HGK_1974` (for example `NEA_IAPWS`) was replaced by
+  `HKF_HGK_1974`. A record file now has no `thermodataset` block (`V2WriterOptions::dataset_block`).
 - `ThermoBatch` wrote every volume as 0.000 by default: its 3 decimals were those of J/bar. The default is 8 decimals
   of m3/mol, the same resolution.
 - On macOS, errors of a table setup reached Python as RuntimeError, not `TableSetupError`: its type information is now

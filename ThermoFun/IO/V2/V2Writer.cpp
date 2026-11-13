@@ -226,7 +226,8 @@ auto documentJson(const V2Records& r, const V2WriterOptions& options) -> json
     json root = json::object();
     root["thermohub"] = formatVersion;
     root["generator"] = "ThermoFun";
-    root["thermodataset"] = datasetJson(r.dataset);
+    if (options.dataset_block)
+        root["thermodataset"] = datasetJson(r.dataset);
     auto section = [&](const char* key, const auto& records, auto write) {
         if (records.empty())
             return;

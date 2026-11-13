@@ -5,151 +5,29 @@
 
     python -m thermofun.convert INPUT OUTPUT [--to v2|legacy] [--format json|yaml] [--split] [--readable] [--report report.md]
 
-INPUT is a legacy or v2 file or folder (JSON or YAML). The C++ readers and writers do the work. With --split the output is a
+INPUT is a legacy or v2 file or folder (JSON or YAML). The C++ library does the work (convertFile). With --split the output is a
 dataset folder with one file for each record (the layout of a ThermoHub dataset). A v2 file has each number so that it reads
 back to the same double, so a conversion does not change a result. With --readable the numbers are short decimals (for example
 -56.484 for the -56.484001159668 of a GEMS export): the values change a little, and the report says how many.
 """
 
 import argparse
-import collections
-import json
-import os
-import re
 import sys
 
 import thermofun as tf
 
 
-def _write(text, path):
-    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(text)
-        if not text.endswith("\n"):
-            f.write("\n")
-
-
-def _text(database, fmt, readable):
-    return database.toYaml(readable) if fmt == "yaml" else database.toJson(readable)
-
-
-def _safe(symbol):
-    return re.sub(r"[^A-Za-z0-9_.+()-]", "_", symbol)
-
-
-def _write_split(data, folder, fmt, readable):
-    ext = ".yaml" if fmt == "yaml" else ".json"
-    head = {"thermohub": data["thermohub"]}
-    first = dict(head)
-    first["thermodataset"] = data.get("thermodataset", {})
-    # the project records are in the file of the dataset
-    for section in ("methods", "parameter_sets", "data_sources"):
-        if section in data:
-            first[section] = data[section]
-    _write(_text(tf.Database(json.dumps(first)), fmt, readable), os.path.join(folder, "thermodataset" + ext))
-    for section in ("elements", "substances", "reactions"):
-        for symbol, record in data.get(section, {}).items():
-            one = tf.Database(json.dumps(dict(head, **{section: {symbol: record}})))
-            _write(_text(one, fmt, readable), os.path.join(folder, section, _safe(symbol) + ext))
-
-
-def _numbers(node, out):
-    if isinstance(node, dict):
-        for value in node.values():
-            _numbers(value, out)
-    elif isinstance(node, list):
-        for value in node:
-            _numbers(value, out)
-    elif isinstance(node, (int, float)) and not isinstance(node, bool):
-        out.append(float(node))
-    return out
-
-
-def shortened_numbers(database):
-    """How many numbers the readable form writes otherwise than the exact one, and the largest relative change."""
-    exact = _numbers(json.loads(database.toJson(False)), [])
-    short = _numbers(json.loads(database.toJson(True)), [])
-    if len(exact) != len(short):
-        return None
-    changes = [abs(a - b) / max(abs(a), 1e-300) for a, b in zip(exact, short) if a != b]
-    return len(changes), max(changes, default=0.0)
-
-
-def report_text(database, input_path, to, readable=False):
-    """The migration report as Markdown."""
-    load = list(database.loadDiagnostics()) + list(tf.legacyFileDiagnostics(input_path))
-    check = list(database.validate())
-    out = ["# Conversion report", "", "## Summary", "",
-           "- input: `%s`" % input_path, "- output format: %s" % to,
-           "- elements: %d, substances: %d, reactions: %d" % (database.numberOfElements(), database.numberOfSubstances(),
-                                                            database.numberOfReactions()),
-           "- methods: %d, parameter sets: %d, data sources: %d" % (len(database.methods()), len(database.parameterSets()),
-                                                                   len(database.dataSources()))]
-    if to == "v2" and readable:
-        shortened = shortened_numbers(database)
-        if shortened:
-            out.append("- numbers written as short decimals (--readable): %d, the largest relative change %.2g; results can differ "
-                       "by that much from the input. Convert without --readable to keep every number." % shortened)
-    elif to == "v2":
-        out.append("- numbers written exactly: a result from the output is the same as from the input")
-    out.append("")
-
-    def table(title, items, empty):
-        out.extend(["## " + title, ""])
-        if not items:
-            out.extend([empty, ""])
-            return
-        counts = collections.OrderedDict()
-        for d in items:
-            entry = counts.setdefault(d.code, [0, []])
-            entry[0] += 1
-            if d.record and len(entry[1]) < 5 and d.record not in entry[1]:
-                entry[1].append(d.record)
-        out.extend(["| Code | Count | First records |", "|---|---|---|"])
-        for code in sorted(counts):
-            out.append("| %s | %d | %s |" % (code, counts[code][0], ", ".join(counts[code][1])))
-        out.append("")
-
-    table("Quirks applied", [d for d in load if d.code.startswith("LEG-QRK")], "None.")
-    table("Unread legacy keys", [d for d in load if d.code in ("LEG-KEY-001", "LEG-KEY-002")], "None.")
-    table("Unresolved references", [d for d in check if d.code.startswith("V2-REF")], "None.")
-    table("Other problems of the data", [d for d in check if not d.code.startswith("V2-REF")], "None.")
-    used = collections.Counter()
-    for s in database.getSubstancesList():
-        for m in database.getSubstance(s).record().methods:
-            used[m.method] += 1
-    for r in database.getReactionsList():
-        for m in database.getReaction(r).record().methods:
-            used[m.method] += 1
-    out.extend(["## Methods used", "", "| Method | Records |", "|---|---|"])
-    out.extend("| %s | %d |" % (m, n) for m, n in sorted(used.items()))
-    out.extend(["", "## Uncertainty convention notice", "",
-                "A legacy `error` is read as a standard uncertainty (coverage factor 1). The legacy format does not say if an error is a "
-                "standard uncertainty, an expanded one or a confidence interval. Check the source of the data before you use the "
-                "uncertainties.", ""])
-    return "\n".join(out)
-
-
 def convert_file(input, output, to="v2", fmt="json", split=False, report=None, exact=None, readable=False):
-    """Converts a file. Returns the Diagnostics of the load. The numbers are exact unless readable is True (exact is kept for
-    the scripts that give it: exact=False asks for readable numbers)."""
+    """Converts a file (the C++ convertFile). Returns the Diagnostics of the load. The numbers are exact unless readable is
+    True (exact is kept for the scripts that give it: exact=False asks for readable numbers)."""
     if exact is False:
         readable = True
-    exact = not readable
     if to not in ("v2", "legacy"):
         raise ValueError("to must be v2 or legacy")
-    database = tf.Database(str(input))
-    if to == "legacy":
-        if split or fmt == "yaml":
-            raise ValueError("The legacy format is one JSON file")
-        _write(database.toLegacyJson(True), str(output))
-    elif split:
-        _write_split(json.loads(database.toJson(not exact)), str(output), fmt, not exact)
-    else:
-        _write(_text(database, fmt, not exact), str(output))
-    if report:
-        _write(report_text(database, str(input), to, readable), str(report))
-    return database.loadDiagnostics()
+    if fmt not in ("json", "yaml"):
+        raise ValueError("fmt must be json or yaml")
+    return tf.convertFile(str(input), str(output), tf.DataFormat.V2 if to == "v2" else tf.DataFormat.Legacy,
+                          yaml=fmt == "yaml", split=split, readable=readable, report=str(report) if report else "")
 
 
 def main(argv=None):

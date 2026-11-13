@@ -19,6 +19,7 @@ void runNormalize();
 void runVocabulary();
 void runUcum();
 void runRecords();
+void runConvert();
 void runFormatDetect();
 void runLegacyReader();
 
@@ -32,6 +33,7 @@ int main()
     runVocabulary();
     runUcum();
     runRecords();
+    runConvert();
     runFormatDetect();
     runLegacyReader();
     runSubstanceMethods();

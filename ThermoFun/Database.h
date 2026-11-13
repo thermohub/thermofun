@@ -282,6 +282,13 @@ public:
     /// Writes all records to a file. V2: YAML if the name ends with .yaml or .yml, else JSON. Legacy: legacy JSON, from the fields of the records.
     auto save(const std::string& path, model::DataFormat format = model::DataFormat::V2, bool readable = true) const -> void;
 
+    /// Writes all records as a dataset folder, the layout of a ThermoHub dataset: thermodataset.json (or .yaml) with the
+    /// dataset, the Method records, parameter sets and data sources, and one file for each record in elements/, substances/
+    /// and reactions/, named after its symbol. The folder reads back as a Database(folder).
+    /// @param yaml true: YAML files, false: JSON files
+    /// @param readable as for toJson
+    auto saveDataset(const std::string& folder, bool yaml = false, bool readable = true) const -> void;
+
     /// All problems of the database, also those that a load does not refuse because a record can come from another file.
     auto validate() const -> Diagnostics;
 

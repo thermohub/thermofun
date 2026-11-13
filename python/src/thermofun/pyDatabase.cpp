@@ -28,6 +28,7 @@ namespace py = pybind11;
 
 // ThermoFun includes
 #include <ThermoFun/Database.h>
+#include <ThermoFun/Convert.h>
 #include <ThermoFun/Element.h>
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/Reaction.h>
@@ -39,6 +40,33 @@ void exportDatabase(py::module& m)
     m.def("legacyFileDiagnostics", &legacyFileDiagnostics, py::arg("file"), "What the legacy reader finds in a legacy file: the quirks and the keys that it does not read");
     m.def("checkRecord", &checkRecord, py::arg("section"), py::arg("symbol"), py::arg("record"),
           "The problems of one v2 record given as JSON text: section is elements, substances or reactions");
+
+    py::class_<ShortenedNumbers>(m, "ShortenedNumbers", "How many numbers the readable form writes otherwise than the exact one")
+        .def_readonly("count", &ShortenedNumbers::count)
+        .def_readonly("largest", &ShortenedNumbers::largest, "the largest relative change")
+        .def("__iter__", [](const ShortenedNumbers& s) { return py::iter(py::make_tuple(s.count, s.largest)); })
+        .def("__repr__", [](const ShortenedNumbers& s) { return "ShortenedNumbers(count=" + std::to_string(s.count) + ", largest=" + std::to_string(s.largest) + ")"; });
+    m.def("shortenedNumbers", &shortenedNumbers, py::arg("database"),
+          "The numbers that toJson(True) writes otherwise than toJson(False): count and largest relative change; None if they do not pair up");
+    const auto options = [](model::DataFormat to, bool yaml, bool split, bool readable, const std::string& report) {
+        ConvertOptions o;
+        o.to = to;
+        o.yaml = yaml;
+        o.split = split;
+        o.readable = readable;
+        o.report = report;
+        return o;
+    };
+    m.def("conversionReport", [options](const Database& database, const std::string& input, model::DataFormat to, bool readable) {
+              return conversionReport(database, input, options(to, false, false, readable, ""));
+          }, py::arg("database"), py::arg("input"), py::arg("to") = model::DataFormat::V2, py::arg("readable") = false,
+          "The migration report as Markdown");
+    m.def("convertFile", [options](const std::string& input, const std::string& output, model::DataFormat to, bool yaml, bool split, bool readable, const std::string& report) {
+              return convertFile(input, output, options(to, yaml, split, readable, report));
+          }, py::arg("input"), py::arg("output"), py::arg("to") = model::DataFormat::V2, py::arg("yaml") = false, py::arg("split") = false,
+          py::arg("readable") = false, py::arg("report") = "",
+          "Reads input (legacy or v2 file or folder) and writes output: v2 JSON or YAML, a dataset folder (split), or legacy JSON. "
+          "Writes the migration report if report is a file name. Returns the diagnostics of the load");
 
     auto appendData1 = static_cast<void(Database::*)(std::string)>(&Database::appendData);
     auto appendData2 = static_cast<void(Database::*)(std::vector<std::string>, std::string)>(&Database::appendData);
@@ -112,6 +140,8 @@ void exportDatabase(py::module& m)
         .def("legacyWriteProblems", &Database::legacyWriteProblems, "What toLegacyJson leaves out")
         .def("validate", &Database::validate, "All problems of the database, also those that a load does not refuse because a record can come from another file")
         .def("save", &Database::save, py::arg("path"), py::arg("format") = model::DataFormat::V2, py::arg("readable") = true, "Write all records. V2: YAML if the name ends with .yaml or .yml, else JSON. Legacy: legacy JSON")
+        .def("saveDataset", &Database::saveDataset, py::arg("folder"), py::arg("yaml") = false, py::arg("readable") = true,
+             "Write all records as a dataset folder: thermodataset.json (or .yaml) and one file for each record in elements/, substances/ and reactions/")
         .def("thermoDataSet", &Database::thermoDataSet, py::return_value_policy::copy, "Data about the loaded dataset (a copy)")
         .def("methods", &Database::methods, py::return_value_policy::copy, "The Method records that the database gives (a copy)")
         .def("parameterSets", &Database::parameterSets, py::return_value_policy::copy, "The parameter sets that the database gives (a copy)")

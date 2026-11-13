@@ -5,6 +5,9 @@
 
 #include "DatabaseImpl.h"
 #include <ThermoFun/Methods/Symbolic/SymbolicMethod.h>
+#include <cctype>
+#include <fstream>
+#include <string_view>
 
 namespace ThermoFun {
 
@@ -160,6 +163,74 @@ auto Database::save(const std::string& path, model::DataFormat format, bool read
     if (!out.good())
         funError("File writing error", "The file " + path + " cannot be written.", __LINE__, __FILE__);
     out << text;
+}
+
+namespace {
+
+/// The name of the file of a record: the symbol with each character that a file name cannot safely have replaced by "_"
+/// (one "_" for each character, also for a character of several UTF-8 bytes).
+auto fileName(const std::string& symbol) -> std::string
+{
+    std::string out;
+    for (const unsigned char c : symbol)
+    {
+        if (std::isalnum(c) && c < 0x80)
+            out += static_cast<char>(c);
+        else if (std::string_view("_.+()-").find(static_cast<char>(c)) != std::string_view::npos)
+            out += static_cast<char>(c);
+        else if ((c & 0xC0) != 0x80)
+            out += '_';
+    }
+    return out;
+}
+
+void writeText(const std::filesystem::path& path, const std::string& text)
+{
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream out(path, std::ios::binary);
+    if (!out.good())
+        funError("File writing error", "The file " + path.string() + " cannot be written.", __LINE__, __FILE__);
+    out << text;
+    if (text.empty() || text.back() != '\n')
+        out << '\n';
+}
+
+} // namespace
+
+auto Database::saveDataset(const std::string& folder, bool yaml, bool readable) const -> void
+{
+    const auto all = allRecords(*this);
+    const std::string ext = yaml ? ".yaml" : ".json";
+    const auto write = [&](const model::V2Records& records, const std::filesystem::path& path) {
+        // a record file has no thermodataset block: it would replace the dataset of the folder when it is read
+        const model::V2WriterOptions options{readable, records.elements.empty() && records.substances.empty() && records.reactions.empty()};
+        writeText(path, yaml ? model::writeV2Yaml(records, options) : model::writeV2Json(records, options));
+    };
+    const std::filesystem::path root(folder);
+    model::V2Records head;
+    head.dataset = all.dataset;
+    head.methods = all.methods;
+    head.parameter_sets = all.parameter_sets;
+    head.data_sources = all.data_sources;
+    write(head, root / ("thermodataset" + ext));
+    for (const auto& record : all.elements)
+    {
+        model::V2Records one;
+        one.elements.push_back(record);
+        write(one, root / "elements" / (fileName(record.symbol) + ext));
+    }
+    for (const auto& record : all.substances)
+    {
+        model::V2Records one;
+        one.substances.push_back(record);
+        write(one, root / "substances" / (fileName(record.symbol) + ext));
+    }
+    for (const auto& record : all.reactions)
+    {
+        model::V2Records one;
+        one.reactions.push_back(record);
+        write(one, root / "reactions" / (fileName(record.symbol) + ext));
+    }
 }
 
 auto checkRecord(const std::string& section, const std::string& symbol, const std::string& record) -> Diagnostics

@@ -7,6 +7,8 @@
 #include <ThermoFun/Batch/OutputBatch.h>
 #include <ThermoFun/ThermoEngine.h>
 #include <ThermoFun/Database.h>
+#include <ThermoFun/Convert.h>
+#include <ThermoFun/RecordBuilder.h>
 #include <ThermoFun/Element.h>
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/Reaction.h>

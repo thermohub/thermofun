@@ -23,10 +23,12 @@ The same in Python:
 ```python
 import thermofun as tf
 
-database = tf.Database("aq17-thermofun.json")
-with open("aq17.yaml", "w") as f:
-    f.write(database.toYaml(True))
+tf.convertFile("aq17-thermofun.json", "aq17.yaml", yaml=True, report="report.md")
+tf.Database("aq17-thermofun.json").saveDataset("aq17-folder", yaml=True)   # as --split
 ```
+
+In C++ the same calls are `ThermoFun::convertFile` (with `ConvertOptions`) and `Database::saveDataset`, in
+`ThermoFun/Convert.h` and `ThermoFun/Database.h`.
 
 **Check:** the two files give the same results.
 
