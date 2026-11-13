@@ -228,6 +228,34 @@ void exportThermoEngine(py::module& m)
                  }
                  return out;
              }, "The methods that calculate a substance, in the order they run, with the state after each one (SI). Empty if no such methods run: water, a substance defined by a reaction, a record without a base method.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
+        .def("contributions", [](const ThermoEngine& en, const std::string& symbol, const py::object& T, const py::object& P) {
+                 const auto values = [](const py::object& x) {
+                     return py::isinstance<py::iterable>(x) ? x.cast<std::vector<double>>() : std::vector<double>{x.cast<double>()};
+                 };
+                 py::list rows;
+                 for (const auto& c : en.contributions(symbol, values(T), values(P)))
+                 {
+                     py::dict row;
+                     row["T"] = c.T; row["P"] = c.P;
+                     const auto put = [&](const std::string& suffix, const ExplainStep& s) {
+                         const std::pair<const char*, double> values[] = {{"G", s.G}, {"H", s.H}, {"S", s.S}, {"Cp", s.Cp}, {"V", s.V}};
+                         for (const auto& [name, v] : values)
+                         {
+                             const auto key = py::str(suffix.empty() ? std::string(name) : std::string(name) + ":" + suffix);
+                             row[key] = row.contains(key) ? row[key].cast<double>() + v : v;  // a method twice in a record: one column
+                         }
+                     };
+                     put("", c.total);
+                     for (const auto& m : c.methods)
+                         put(m.method, m);
+                     put("other", c.other);
+                     rows.append(row);
+                 }
+                 return rows;
+             }, py::arg("symbol"), py::arg("T"), py::arg("P"),
+             "What each method of a substance changes, at each (T, P) in K and Pa: a row for each point, as a dict for a table (pandas.DataFrame(rows)). "
+             "Columns T, P, then G, H, S, Cp, V (the result), then X:<method> (the state after the method minus before it) and X:other (what changed after the methods). "
+             "The columns of a property add up to it. T or P can be one number. SI units. Whether a method sets or adds a property: thermofun.methods.catalog(), 'effects'.")
         .def("calculationPath", [](const ThermoEngine& en, const std::string& symbol) { return pathToDict(en.calculationPath(symbol)); }, py::arg("symbol"),
              "How a substance or a reaction is calculated with the sources of this engine, as a dict: kind, symbol, source, methods, coefficient, role, steps, problem. It calculates nothing.")
         .def("thermoPropertiesSubstanceDetailed", [](const ThermoEngine& en, double T, double P, std::string symbol) {

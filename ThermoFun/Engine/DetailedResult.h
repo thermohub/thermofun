@@ -30,6 +30,17 @@ struct DetailedPropertiesSubstance
     std::vector<std::string> conversions;   ///< "<method> to canonical", and the words of the output convention: "steam_tables", "berman_brown", ...
 };
 
+/// What each method of a substance changed at one T and P, in SI. For each property, the increments of the methods and
+/// `other` add up to the total. A method that sets a property (see its effects in the catalog) replaces what came before:
+/// its increment also removes the earlier value.
+struct MethodContributions
+{
+    double T = 0.0, P = 0.0;           ///< P as calculated: the saturation pressure for P = 0
+    ExplainStep total;                 ///< the result (method empty)
+    std::vector<ExplainStep> methods;  ///< the state after each method minus the state before it, in the order they ran
+    ExplainStep other;                 ///< what changed after the methods (the conventions of the engine, the options of gases); method "other"
+};
+
 } // namespace ThermoFun
 
 #endif

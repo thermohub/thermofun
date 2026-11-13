@@ -151,6 +151,17 @@ void exportMethods(py::module& parent)
             row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
             row["implementations"] = spec.implementations;
             row["needs_solvent"] = spec.needs.solvent;
+            {
+                // what the method does to each property of a substance: set, add, read or none
+                const auto word = [](Effect e) { return e == Effect::Set ? "set" : e == Effect::Add ? "add" : e == Effect::Read ? "read" : "none"; };
+                const auto& e = spec.effects;
+                py::dict effects;
+                if (spec.operates_on == OperatesOn::Substance)
+                {
+                    effects["G"] = word(e.G); effects["H"] = word(e.H); effects["S"] = word(e.S); effects["Cp"] = word(e.Cp); effects["V"] = word(e.V);
+                }
+                row["effects"] = effects;
+            }
             std::vector<std::string> classes, legacy_names;
             for (const auto c : spec.applies_to_classes)
                 classes.push_back(toString(c));

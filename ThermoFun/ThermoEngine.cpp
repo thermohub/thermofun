@@ -4,6 +4,7 @@
 // ThermoFun includes
 #include "ThermoEngineImpl.h"
 #include <algorithm>
+#include <stdexcept>
 #include <cctype>
 #include <ThermoFun/Common/PhysicalConstants.h>
 
@@ -318,6 +319,33 @@ auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string 
 auto ThermoEngine::explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>
 {
     return thermoPropertiesSubstanceDetailed(T, P, substance).steps;
+}
+
+auto ThermoEngine::contributions(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<MethodContributions>
+{
+    const size_t n = std::max(T.size(), P.size());
+    if (T.empty() || P.empty() || (T.size() != n && T.size() != 1) || (P.size() != n && P.size() != 1))
+        throw std::invalid_argument("contributions: T and P have " + std::to_string(T.size()) + " and " + std::to_string(P.size()) +
+                                    " values; give lists of the same length, or one value.");
+    std::vector<MethodContributions> out;
+    for (size_t i = 0; i < n; ++i)
+    {
+        MethodContributions c;
+        c.T = T.size() == 1 ? T[0] : T[i];
+        c.P = P.size() == 1 ? P[0] : P[i];
+        const auto detailed = thermoPropertiesSubstanceDetailed(c.T, c.P, substance);
+        const auto& r = detailed.properties;
+        c.total = {"", r.gibbs_energy.val, r.enthalpy.val, r.entropy.val, r.heat_capacity_cp.val, r.volume.val};
+        ExplainStep before;
+        for (const auto& step : detailed.steps)
+        {
+            c.methods.push_back({step.method, step.G - before.G, step.H - before.H, step.S - before.S, step.Cp - before.Cp, step.V - before.V});
+            before = step;
+        }
+        c.other = {"other", c.total.G - before.G, c.total.H - before.H, c.total.S - before.S, c.total.Cp - before.Cp, c.total.V - before.V};
+        out.push_back(std::move(c));
+    }
+    return out;
 }
 
 auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance

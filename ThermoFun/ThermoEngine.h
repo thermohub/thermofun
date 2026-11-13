@@ -243,6 +243,11 @@ public:
     /// Empty if no such methods run: water, a substance defined by a reaction, a record without a base method.
     auto explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>;
 
+    /// What each method of a substance changes, at each (T[i], P[i]) in K and Pa, in SI. T or P can have one value: it goes
+    /// with each value of the other. A substance calculated without methods of its own (water, from its defining reaction)
+    /// has no methods: its total is all in `other`.
+    auto contributions(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<MethodContributions>;
+
     /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
     /// How a substance, or a reaction if there is no such substance, is calculated with the sources of this engine. It calculates nothing.
     auto calculationPath(const std::string& symbol) const -> CalculationPath;
