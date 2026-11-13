@@ -15,6 +15,8 @@
 #include "Substances/Solute/SoluteHollandPowell98.h"
 #include "Substances/Solute/SoluteAnderson91.h"
 #include "Substances/Solids/SolidMurnaghanHP98.h"
+#include "Substances/Solids/SolidTaitHP11.h"
+#include "Substances/StandardThermoModelsExtra.h"
 #include "Substances/Solids/SolidBerman88.h"
 #include "Substances/Solids/SolidBMGottschalk.h"
 #include "Substances/Solids/SolidHPLandau.h"
@@ -410,6 +412,165 @@ auto SoluteAnderson91::thermoProperties(double T, double P, const PropertiesSolv
     tps.heat_capacity_cv = Reaktoro_::ThermoProperty();
 
     return tps;
+}
+
+//=======================================================================================================
+// Tait equation of state of Holland and Powell (2011)
+//=======================================================================================================
+
+struct MinTaitHP11::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+MinTaitHP11::MinTaitHP11(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+auto MinTaitHP11::thermoProperties(double T, double P, ThermoPropertiesSubstance tps) -> ThermoPropertiesSubstance
+{
+    bool variableVolume = false;
+    auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesMinTaitHP11(pass.T, pass.P / bar_to_Pa, pimpl->substance, lift(pass, tps), &variableVolume);
+    });
+
+    const auto ref = pimpl->substance.thermoReferenceProperties();
+    copyStatus(out, tps);
+    out.gibbs_energy.propagateFrom(tps.gibbs_energy, ref.volume);
+    out.enthalpy.propagateFrom(tps.enthalpy, ref.volume);
+    if (variableVolume)
+    {
+        out.entropy.propagateFrom(tps.entropy, ref.volume);
+        out.volume.propagateFrom(tps.volume, ref.volume);
+        out.heat_capacity_cp.propagateFrom(tps.heat_capacity_cp, ref.volume);
+    }
+    else // the molar volume does not depend on T and P
+    {
+        out.volume.sta = ref.volume.sta;
+        out.volume.err = ref.volume.err;
+    }
+    setStatusUA(out, T, P);
+
+    pimpl->substance.checkCalcMethodBounds("Holland and Powell Tait model", T, P, out);
+
+    return out;
+}
+
+
+//=======================================================================================================
+// Extra standard properties models: Extended UNIQUAC, NASA polynomials, interpolation in T and P
+//=======================================================================================================
+
+/// Sets the status of every property of a model that calculates all of them
+static auto statusCalculated(ThermoPropertiesSubstance& tps, double T, double P) -> void
+{
+    for (auto* p : {&tps.gibbs_energy, &tps.enthalpy, &tps.entropy, &tps.volume, &tps.heat_capacity_cp})
+        p->sta = {Reaktoro_::Status::calculated, ""};
+    setStatusUA(tps, T, P);
+}
+
+struct ExtendedUNIQUAC::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+ExtendedUNIQUAC::ExtendedUNIQUAC(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+auto ExtendedUNIQUAC::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    bool outsideBounds = false;
+    auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesExtendedUNIQUAC(pass.T, pass.P / bar_to_Pa, pimpl->substance);
+    });
+    statusCalculated(out, T, P);
+    return out;
+}
+
+struct NasaPolynomials::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+NasaPolynomials::NasaPolynomials(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+auto NasaPolynomials::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    bool outsideBounds = false;
+    auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesNasaPolynomials(pass.T, pass.P / bar_to_Pa, pimpl->substance, &outsideBounds);
+    });
+    statusCalculated(out, T, P);
+    if (outsideBounds)
+        setMessage(Reaktoro_::Status::calculated, "NASA polynomials: Outside temperature bounds", out);
+    return out;
+}
+
+struct TPTableInterpolation::Impl
+{
+    /// the substance instance
+   Substance substance;
+
+   Impl()
+   {}
+
+   Impl(const Substance& substance)
+   : substance(substance)
+   {}
+};
+
+TPTableInterpolation::TPTableInterpolation(const Substance &substance)
+: pimpl(new Impl(substance))
+{}
+
+auto TPTableInterpolation::thermoProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    bool outsideBounds = false;
+    auto out = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return thermoPropertiesTPTableInterpolation(pass.T, pass.P / bar_to_Pa, pimpl->substance, &outsideBounds);
+    });
+    statusCalculated(out, T, P);
+    // properties that the table does not have stay unset
+    const auto& values = pimpl->substance.thermoParameters().tp_table.values;
+    if (!values.count("enthalpy"))
+    {
+        out.enthalpy = Reaktoro_::ThermoProperty();
+        out.entropy = Reaktoro_::ThermoProperty();
+        out.internal_energy = Reaktoro_::ThermoProperty();
+        out.helmholtz_energy = Reaktoro_::ThermoProperty();
+    }
+    if (!values.count("heat_capacity_cp"))
+        out.heat_capacity_cp = Reaktoro_::ThermoProperty();
+    if (outsideBounds)
+        setMessage(Reaktoro_::Status::calculated, "Interpolation table: Outside the table", out);
+    return out;
 }
 
 //=======================================================================================================

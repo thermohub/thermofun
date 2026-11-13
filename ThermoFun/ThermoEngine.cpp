@@ -388,6 +388,21 @@ struct ThermoEngine::Impl
                         tps = EntropyCpIntegration(pref.workSubstance).thermoProperties(T, P);
                     break;
                 }
+                case MethodCorrT_Thrift::type::CTM_UQC:
+                {
+                    tps = ExtendedUNIQUAC(pref.workSubstance).thermoProperties(T, P);
+                    break;
+                }
+                case MethodCorrT_Thrift::type::CTM_NAS:
+                {
+                    tps = NasaPolynomials(pref.workSubstance).thermoProperties(T, P);
+                    break;
+                }
+                case MethodCorrT_Thrift::type::CTM_ITP:
+                {
+                    tps = TPTableInterpolation(pref.workSubstance).thermoProperties(T, P);
+                    break;
+                }
                     //                default:
                     //               // Exception
                     //                errorMethodNotFound("substance", pref.workSubstance.symbol(), __LINE__);
@@ -407,6 +422,11 @@ struct ThermoEngine::Impl
                                                                                         thermo_properties_substance_fn(Tr, Pr, Pr, preferences.solvent_symbol),
                                                                                         WaterIdealGasWoolley(database.getSubstance(preferences.solvent_symbol)).thermoProperties(Tr, Pr),
                                                                                         properties_solvent_fn(Tr, Pr, Pr, preferences.solvent_symbol, -1));
+                    break;
+                }
+                case MethodCorrP_Thrift::type::CPM_VTA:
+                {
+                    tps = MinTaitHP11(pref.workSubstance).thermoProperties(T, P, tps);
                     break;
                 }
                 case MethodCorrP_Thrift::type::CPM_CEH:

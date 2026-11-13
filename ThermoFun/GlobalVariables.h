@@ -127,7 +127,10 @@ enum SubstanceTPMethodType {
     mv_pvnrt = 40,
     solute_holland_powell98 = 41,
     solute_anderson91 = 42,
-    standard_entropy_cp_integration = 43
+    standard_entropy_cp_integration = 43,
+    cp_ft_equation_uniquac = 44,
+    cp_nasa_polynomials = 45,
+    standard_thermo_interpolation = 46
 };
 
 enum ReactionTPMethodType {
@@ -192,7 +195,10 @@ const std::map<const unsigned int, const std::string> enum_method_substance = {
 {40,"mv_pvnrt"},
 {41,"solute_holland_powell98"},
 {42,"solute_anderson91"},
-{43,"standard_entropy_cp_integration"}
+{43,"standard_entropy_cp_integration"},
+{44,"cp_ft_equation_uniquac"},
+{45,"cp_nasa_polynomials"},
+{46,"standard_thermo_interpolation"}
 };
 
 const std::map<const unsigned int, const std::string> enum_method_reaction = {
@@ -254,7 +260,7 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> subs
 {SubstanceTPMethodType::mv_equation_berman88, {"m_volume_fpt_coeffs"} },
 {SubstanceTPMethodType::mv_eos_birch_murnaghan_gott97, {"eos_birch_murnaghan_coeffs"} },
 {SubstanceTPMethodType::mv_eos_murnaghan_hp98, {"eos_birch_murnaghan_coeffs"} },
-{SubstanceTPMethodType::mv_eos_tait_hp11, {""} },
+{SubstanceTPMethodType::mv_eos_tait_hp11, {"eos_tait_hp11_coeffs"} },
 {SubstanceTPMethodType::fug_critical_param, {"eos_gas_crit_props"} },
 {SubstanceTPMethodType::fluid_prsv, {""} },
 {SubstanceTPMethodType::fluid_churakov_gottschalk, {"eos_churakov_gottschalk_coeffs"} },
@@ -265,7 +271,10 @@ const std::map<const SubstanceTPMethodType, const std::vector<std::string>> subs
 {SubstanceTPMethodType::solute_aknifiev_diamond03, {"eos_akinfiev_diamond_coeffs"} },
 {SubstanceTPMethodType::solute_holland_powell98, {"solute_holland_powell98_coeffs"} },
 {SubstanceTPMethodType::solute_anderson91, {"solute_anderson91_coeffs"} },
-{SubstanceTPMethodType::standard_entropy_cp_integration, {""} }
+{SubstanceTPMethodType::standard_entropy_cp_integration, {""} },
+{SubstanceTPMethodType::cp_ft_equation_uniquac, {"eos_extended_uniquac_coeffs"} },
+{SubstanceTPMethodType::cp_nasa_polynomials, {"nasa_polynomial_coeffs"} },
+{SubstanceTPMethodType::standard_thermo_interpolation, {"tp_table"} }
 };
 
 
@@ -377,6 +386,9 @@ typedef struct {
     CTM_WWP = 222,
     CTM_WZD = 223,
     CTM_DMD = 224,
+    CTM_UQC = 225, /// Extended UNIQUAC standard properties
+    CTM_NAS = 226, /// NASA polynomials
+    CTM_ITP = 227, /// interpolation over a table of T and P
   };
 } MethodCorrT_Thrift;
 static const int MethodCorrT_ndxThrift[] = {
@@ -404,7 +416,10 @@ static const int MethodCorrT_ndxThrift[] = {
   MethodCorrT_Thrift::CTM_WAR,      /// calculation of H2O water (steam) properties from Reaktoro (HGK implementation)
   MethodCorrT_Thrift::CTM_WWP,      /// Wagner and Pruss 1995 H2O EOS as implemented in reaktoro
   MethodCorrT_Thrift::CTM_WZD,       /// calculation of water proeprties using the Zhang and Duan (2005) EOS
-  MethodCorrT_Thrift::CTM_DMD
+  MethodCorrT_Thrift::CTM_DMD,
+  MethodCorrT_Thrift::CTM_UQC,
+  MethodCorrT_Thrift::CTM_NAS,
+  MethodCorrT_Thrift::CTM_ITP
 };
 /// Codes for temperature correction methods used in GEMS
 //static const char* MethodCorrT_GEMS[] = {
@@ -545,7 +560,10 @@ static const std::map<const SubstanceTPMethodType, const int> new_old_s_methodty
   {SubstanceTPMethodType::fluid_comp_redlich_kwong_hp91, 317},
   {SubstanceTPMethodType::solute_aknifiev_diamond03, 320},
   {SubstanceTPMethodType::mv_pvnrt, 300},
-  {SubstanceTPMethodType::standard_entropy_cp_integration, 200}
+  {SubstanceTPMethodType::standard_entropy_cp_integration, 200},
+  {SubstanceTPMethodType::cp_ft_equation_uniquac, 225},
+  {SubstanceTPMethodType::cp_nasa_polynomials, 226},
+  {SubstanceTPMethodType::standard_thermo_interpolation, 227}
 };
 
 static const std::map<const ReactionTPMethodType, const int> new_old_r_methodtype = {
