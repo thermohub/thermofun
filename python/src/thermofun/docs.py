@@ -154,14 +154,42 @@ def _key(spec):
     return ("substances" if spec["operates_on"] == "substance" else "reactions", spec["id"])
 
 
-def index_page(specs):
-    lines = ["# Methods", "", NOTICE, "", "| Method | Title | Kind | Works on | Classes | Implementations |", "|---|---|---|---|---|---|"]
+def groups(specs):
+    """The groups in the order of the catalog, each with its methods sorted by id."""
+    out = {}
     for s in specs:
-        lines.append("| [%s](%s.md) | %s | %s | %s | %s | %s |" % (s["id"], s["id"], _cell(s["title"]), "base" if s["base"] else "correction", s["operates_on"],
-                                                                   ", ".join(s["classes"]) or "any", ", ".join(s["implementations"])))
-    # the pages of the site (Sphinx) are those of a toctree; it is hidden, the table above is the list
-    lines += ["", "```{toctree}", ":hidden:", ""] + [s["id"] for s in specs] + ["```"]
-    lines.append("")
+        if not s["group"]:
+            raise ValueError("method %s has no group in the catalog" % s["id"])
+        out.setdefault(s["group"], []).append(s)
+    return {g: sorted(members, key=lambda s: s["id"]) for g, members in out.items()}
+
+
+def group_file(group):
+    """The page of a group: the anchor MyST gives its heading, for example reactions-log-k."""
+    return re.sub(r"[^a-z0-9 -]", "", group.lower()).strip().replace(" ", "-")
+
+
+def _table(members):
+    lines = ["| Method | Title | Kind | Classes | Implementations |", "|---|---|---|---|---|"]
+    for s in members:
+        lines.append("| [%s](%s.md) | %s | %s | %s | %s |" % (s["id"], s["id"], _cell(s["title"]), "base" if s["base"] else "correction",
+                                                         ", ".join(s["classes"]) or "any", ", ".join(s["implementations"])))
+    return lines
+
+
+def index_page(specs):
+    """All methods, one section for each group; the side bar of the site goes through the page of each group."""
+    lines = ["# Methods", "", NOTICE, ""]
+    for g, members in groups(specs).items():
+        lines += ["## " + g, ""] + _table(members) + [""]
+    # the pages of the site (Sphinx) are those of a toctree; hidden: the tables above are the list
+    lines += ["```{toctree}", ":hidden:", ""] + [group_file(g) for g in groups(specs)] + ["```", ""]
+    return "\n".join(lines)
+
+
+def group_page(group, members):
+    lines = ["# " + group, "", NOTICE, ""] + _table(members)
+    lines += ["", "```{toctree}", ":hidden:", ""] + [s["id"] for s in members] + ["```", ""]
     return "\n".join(lines)
 
 
@@ -251,12 +279,14 @@ def schema_page():
 
 def pages(data=DATA):
     """The files as a dictionary: path relative to the folder of the reference -> text."""
-    specs = sorted(tf.methods.catalog(), key=lambda s: (s["operates_on"], s["id"]))
+    specs = list(tf.methods.catalog())  # the order of the catalog gives the order of the groups
     found = examples(data)
     out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
            "format-v2-schema.md": schema_page()}
     for s in specs:
         out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)))
+    for g, members in groups(specs).items():
+        out["methods/%s.md" % group_file(g)] = group_page(g, members)
     return out
 
 

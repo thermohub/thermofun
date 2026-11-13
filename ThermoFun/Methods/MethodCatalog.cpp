@@ -43,6 +43,7 @@ struct Spec
     auto alias(std::vector<std::string> names) -> Spec& { s.aliases = std::move(names); return *this; }
     auto classes(std::vector<SC> c) -> Spec& { s.applies_to_classes = std::move(c); return *this; }
     auto role(MethodRole r) -> Spec& { s.role = r; return *this; }
+    auto group(const char* name) -> Spec& { s.group = name; return *this; }
     auto impl(std::vector<std::string> i) -> Spec& { s.implementations = std::move(i); return *this; }
     auto solvent(bool atReference = false) -> Spec&
     {
@@ -217,9 +218,23 @@ auto saturation() -> std::vector<ParameterSpec>
     return out;
 }
 
+// Gives the group to the methods added since the last call that have none.
+struct Sections
+{
+    std::vector<Spec>& m;
+    size_t from = 0;
+    void end(const char* group)
+    {
+        for (; from < m.size(); ++from)
+            if (m[from].s.group.empty())
+                m[from].s.group = group;
+    }
+};
+
 auto substanceMethods() -> std::vector<MethodSpec>
 {
     std::vector<Spec> m;
+    Sections sections{m};
     m.push_back(Spec("ConstantProperties", "Constant properties", "Gives the reference properties at every T and P.").base());
 
     // heat capacity
@@ -262,6 +277,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     }
     m.push_back(Spec("TPTable", "Table of T and P", "Interpolates a table of G, H, V and Cp on a grid of T and P.")
                     .alias({"TPTableInterpolation", "StandardThermoModelInterpolation"}).base());
+    sections.end("Reference properties and heat capacity");
 
     // aqueous solutes
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
@@ -291,6 +307,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("AndersonEtAl91", "Aqueous solute of Anderson et al.", "Calculates the properties of an aqueous species from the density model of Anderson et al.",
                      "Anderson et al. (1991)")
                     .alias({"Anderson91"}).base().classes(solutes).solvent(true));
+    sections.end("Aqueous solutes");
 
     // minerals
     m.push_back(Spec("LandauHP98", "Landau transition of Holland and Powell", "Adds the Landau term of a phase transition to G, H, S and Cp, and sets V. Implementation consistent (the default): the volume term is integrated from the reference pressure, and has its Cp. Implementation gems: from P = 0, without that Cp.", "Holland and Powell (1998)")
@@ -305,7 +322,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("LambdaBerman88", "Lambda transition of Berman", "Adds the lambda transition of Berman.", "Berman (1988)")
                     .alias({"Berman88Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::None, 100).classes(minerals).notImplemented());
     m.push_back(Spec("ConstantVolume", "Constant molar volume", "Adds V dP to G and H, with the reference volume.")
-                    .alias({"ConMolVol"}).effects(E::Add, E::Add, E::None, E::None, E::Set, 200));
+                    .alias({"ConMolVol"}).group("Reference properties and heat capacity").effects(E::Add, E::Add, E::None, E::None, E::Set, 200));
     m.push_back(Spec("VolumeBerman88", "Molar volume of Berman", "Calculates V(T, P) from expansion and compressibility terms, and adds the terms to G, H and S.", "Berman (1988)")
                     .alias({"Berman88Vol"}).effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(minerals).add(volumeParameters()));
     m.push_back(Spec("VolumeDorogokupets88", "Molar volume of Dorogokupets et al.", "Calculates V(T, P) as VolumeBerman88, with another form of the coefficients.", "Dorogokupets et al. (1988)")
@@ -330,6 +347,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
         s.add(expansionAndBulkModulus(true));
         m.push_back(s);
     }
+    sections.end("Minerals");
 
     // gases and fluids
     m.push_back(Spec("IdealGas", "Ideal gas", "Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.")
@@ -363,6 +381,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
                           .alias({"PR78"}).add(cubicParameters()).add(builtIn({"k1_0", "k1_1", "k1_2", "k2_0", "k2_1", "k2_2", "k2_3", "omega_switch", "Oa", "Ob"}))));
     m.push_back(fluid(Spec("CorkHP91", "Compensated Redlich-Kwong equation of state", "Adds the pressure terms of the CORK equation of state to G, H, S and Cp, and sets V.", "Holland and Powell (1991)")
                           .alias({"CORK"}).add(interactionParameters()).add(builtIn({"cs_a0", "cs_a1", "cs_b0", "cs_c0", "cs_c1", "cs_d0", "cs_d1", "co2_a0", "co2_a1", "co2_a2", "co2_b", "co2_c0", "co2_c1", "co2_d0", "co2_d1", "co2_e0", "co2_p0", "h2o_a0", "h2o_a1", "h2o_a2", "h2o_a3", "h2o_a4", "h2o_a5", "h2o_a6", "h2o_a7", "h2o_a8", "h2o_a9", "h2o_b", "h2o_c0", "h2o_c1", "h2o_d0", "h2o_d1", "h2o_e0", "h2o_p0", "h2o_psat0", "h2o_psat2", "h2o_psat3", "h2o_psat5", "h2o_T0", "h2o_Tsuper"}))));
+    sections.end("Gases and fluids");
 
     // water
     // the option of the model DEW: the Gibbs energy of water from the volume of Zhang and Duan
@@ -397,6 +416,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
                              .add(zhangDuanGibbs())));
+    sections.end("Water");
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})
@@ -414,6 +434,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
                                .add(numbered("n", 12, "coefficient of g")).add(numbered("I", 11, "exponent of the density")).add(numbered("J", 11, "exponent of the temperature"))
                                .add(constants({{"Tc", "critical temperature, K"}, {"rhoc", "critical density, kg/m3"}, {"k", "constant of Boltzmann, SI"}, {"Na", "number of Avogadro, 1/mol"},
                                                {"alpha", "mean molecular polarizability, SI"}, {"epsilon0", "permittivity of vacuum, SI"}, {"mu", "dipole moment, SI"}, {"M", "molar mass, kg/mol"}}))));
+    sections.end("Dielectric constant of water");
 
     std::vector<MethodSpec> out;
     for (auto& s : m)
@@ -424,6 +445,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
 auto reactionMethods() -> std::vector<MethodSpec>
 {
     std::vector<Spec> m;
+    Sections sections{m};
     {
         Spec s("ConstantReactionProperties", "Constant reaction properties", "Gives the reference reaction properties at every T and P.");
         s.reaction().s.reaction_effects = {E::Set, E::Set, E::Set, E::Set, E::Set, E::Set, true, false, 0};
@@ -455,12 +477,14 @@ auto reactionMethods() -> std::vector<MethodSpec>
                     .add({par("a", "J/mol", "kJ/mol", "enthalpy term"), par("b", "J/(mol.K)", "J/(mol.K)", "entropy term"),
                           par("c", "J/(mol.K)", "J/(mol.K)", "heat capacity, constant term", false), par("d", "J/(mol.K2)", "J/(mol.K2)", "heat capacity, linear term", false),
                           par("e", "J/(mol.K)", "J/(mol.K)", "density term")}));
+    sections.end("Reactions: log K");
     m.push_back(Spec("ReactionCpPolynomial", "Heat capacity of reaction", "Gives dCp = a + b T + c/T2 + d/sqrt(T) + e T2; the log K methods use it.")
                     .alias({"DrCpIntegration"}).reaction().add(reactionCpCoefficients(true)));
     m.push_back(Spec("ReactionVolumePolynomial", "Volume of reaction, T and P", "Calculates dV(T, P) from expansion and compressibility terms, and adds the terms to log K, dG and dH.")
                     .alias({"DrVolumeFT"}).volume().add(volumeParameters()));
     m.push_back(Spec("ReactionConstantVolume", "Constant volume of reaction", "Adds dV dP to dG and dH, and the same term to log K.")
                     .alias({"DrVolumeConst"}).volume());
+    sections.end("Reactions: heat capacity and volume");
 
     std::vector<MethodSpec> out;
     for (auto& s : m)

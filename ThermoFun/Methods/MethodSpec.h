@@ -98,6 +98,7 @@ struct MethodSpec
     std::string title;                           ///< one line
     std::string summary;                         ///< what it does, one sentence for the reference page
     std::string citation;                        ///< the source of the model; empty if no publication defines it
+    std::string group;                           ///< the section of the reference, for example "Minerals"
     OperatesOn operates_on = OperatesOn::Substance;
     std::vector<SubstanceClass> applies_to_classes;   ///< empty: any class
     MethodRole role = MethodRole::SubstanceProperties;

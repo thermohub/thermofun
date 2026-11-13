@@ -144,7 +144,7 @@ void exportMethods(py::module& parent)
         {
             py::dict row;
             row["id"] = spec.id; row["aliases"] = spec.aliases; row["title"] = spec.title; row["summary"] = spec.summary;
-            row["citation"] = spec.citation; row["operates_on"] = toString(spec.operates_on);
+            row["citation"] = spec.citation; row["operates_on"] = toString(spec.operates_on); row["group"] = spec.group;
             row["depends_on"] = spec.depends_on == Dependence::None ? "none" : spec.depends_on == Dependence::T ? "T" : spec.depends_on == Dependence::P ? "P" : spec.depends_on == Dependence::TP ? "T, P" : "";
             row["base"] = spec.operates_on == OperatesOn::Substance ? spec.effects.base : spec.reaction_effects.base;
             row["piecewise"] = spec.piecewise; row["implemented"] = spec.implemented;
