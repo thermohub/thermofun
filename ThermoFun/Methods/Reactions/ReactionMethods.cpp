@@ -88,13 +88,22 @@ public:
 
     auto parameterNames() const -> std::vector<std::string> override
     {
+        // a parameter the formulas do not read has no derivative: it is not one to fit
+        const auto read = [&](const std::string& name) {
+            for (const auto& p : spec_.parameters)
+                if (p.name == name)
+                    return p.used;
+            return true;
+        };
         std::vector<std::string> names;
         if (!inputs_.coefficients.empty())
             for (const auto& u : inputs_.coefficient_units)
-                names.push_back(u.name);
+                if (read(u.name))
+                    names.push_back(u.name);
         if (!inputs_.cp_coefficients.empty())
             for (const auto& u : inputs_.cp_coefficient_units)
-                names.push_back(u.name);
+                if (read(u.name))
+                    names.push_back(u.name);
         return names;
     }
 

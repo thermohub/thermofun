@@ -30,6 +30,8 @@ def cell(text):
 def parameter_text(method):
     parts = []
     for p in method["parameters"]:
+        if not p["used"]:
+            continue
         unit = "" if p["si_unit"] == "1" else " [" + p["si_unit"] + "]"
         parts.append("`" + p["name"] + "`" + unit + ("" if p["required"] else " (optional)"))
     return "<br>".join(parts) if parts else "none"

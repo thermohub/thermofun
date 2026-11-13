@@ -37,6 +37,10 @@ def change(holder, key, factor):
         holder[key] *= factor
 
 
+# parameters a record can give but the formulas do not read (the coefficients legacy files write with every method of log K)
+UNUSED = {(m["id"], p["name"]) for m in tf.methods.catalog() for p in m["parameters"] if not p["used"]}
+
+
 def parameters_of(section, symbol, record):
     """Each parameter of a record that has a value: (reference, method, name, holder path)."""
     out = []
@@ -46,7 +50,7 @@ def parameters_of(section, symbol, record):
             out.append(("", name, lambda doc, n=name, key="standard_state_properties" if section == "substances" else "reaction_properties": (doc[section][symbol][key], n)))
     for i, method in enumerate(record.get("methods", [])):
         for name, value in method.get("parameters", {}).items():
-            if not isinstance(value, (int, float, dict)) or not numeric(method["parameters"], name):
+            if not isinstance(value, (int, float, dict)) or not numeric(method["parameters"], name) or (method["method"], name) in UNUSED:
                 continue
             out.append((method["method"], name, lambda doc, i=i, n=name: (doc[section][symbol]["methods"][i]["parameters"], n)))
         for k, segment in enumerate(method.get("segments", [])):
@@ -443,3 +447,20 @@ def test_a_constant_of_the_method_of_a_reaction():
 def test_a_method_that_the_record_does_not_use_is_an_error():
     with pytest.raises(RuntimeError, match="does not use"):
         tf.ThermoEngine(AQ).parameterSensitivities(473.15, 5e7, "Na+", [("Na+", "CorkHP91", "cs_a0")])
+
+
+def test_the_unused_coefficients_change_nothing():
+    """The extrapolations of log K read the reference values only: the coefficients a file gives with them are not parameters."""
+    doc = json.loads(tf.Database("pytests/data/v2/hkf.json").toJson(readable=False))
+    coefficients = {"a0": 1.8, "a1": -0.0026, "a2": 300.0, "a3": 0.5, "a5": 4.4e-6, "a": 20.0, "b": 0.05, "c": 1000.0}
+    for method in ("LogKConstant", "LogKZeroEntropy", "LogKVantHoff", "LogKConstantCp"):
+        results = []
+        for factor in (1.0, 3.0):
+            doc["reactions"]["r-x"] = {**copy.deepcopy(EQUATION), "name": "r-x", "reaction_properties": dict(LOGK),
+                                       "methods": [{"method": method, "parameters": {k: v * factor for k, v in coefficients.items()}}]}
+            engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+            results.append(engine.thermoPropertiesReaction(450.0, 2e7, "r-x").log_equilibrium_constant.val)
+            assert not [h for h in engine.parameters("r-x") if h.key()[1] == method], method
+        assert results[0] == results[1], method
+        assert {p for m, p in UNUSED if m == method} == set(coefficients) | {"a4", "a6", "d", "e"}
+

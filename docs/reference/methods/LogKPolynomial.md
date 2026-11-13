@@ -2,7 +2,9 @@
 
 log K polynomial.
 
-Calculates log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T).
+Calculates log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T), and dH, dS and dCp from its derivatives. Without a0 to a6, it calculates them from the dCp coefficients a to e and the reference dH and dS: this equation is the integral of dCp = a + b T + c/T2 + d/sqrt(T) + e T2.
+
+Source: Nordstrom and Munoz (1988); Anderson and Crerar (1993).
 
 | | |
 |---|---|

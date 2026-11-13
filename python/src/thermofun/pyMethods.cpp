@@ -166,7 +166,7 @@ void exportMethods(py::module& parent)
                 py::dict one;
                 one["name"] = p.name; one["si_unit"] = p.si_unit; one["source_unit"] = p.source_unit; one["required"] = p.required;
                 one["description"] = p.description;
-                one["constant"] = p.constant;
+                one["constant"] = p.constant; one["used"] = p.used;
                 one["default"] = p.default_si ? py::cast(*p.default_si) : py::none();
                 parameters.append(one);
             }

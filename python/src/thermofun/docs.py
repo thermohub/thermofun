@@ -35,7 +35,7 @@ def _plain(value):
 
 
 def examples(data=DATA):
-    """For each method id: (database file, section, symbol, application). The first record with parameters, in a fixed order."""
+    """For each method id: (database file, section, symbol, application, has values, record). The first record with parameters, in a fixed order."""
     found = {}
     if not os.path.isdir(data):
         return found
@@ -50,7 +50,7 @@ def examples(data=DATA):
                     has_values = application.get("parameters") or application.get("segments")
                     key = (section, method)
                     if key not in found or (has_values and not found[key][4]):
-                        found[key] = (name, section, symbol, application, bool(has_values))
+                        found[key] = (name, section, symbol, application, bool(has_values), document[section][symbol])
     return found
 
 
@@ -124,7 +124,8 @@ def method_page(spec, example):
         lines += ["## Implementations", "",
                   "%s. The default is `%s`. Use another only to reproduce the results of that code." %
                   (", ".join("`%s`" % i for i in spec["implementations"]), spec["implementations"][0]), ""]
-    own = [p for p in spec["parameters"] if not p["constant"]]
+    own = [p for p in spec["parameters"] if not p["constant"] and p["used"]]
+    unused = [p["name"] for p in spec["parameters"] if not p["constant"] and not p["used"]]
     built_in = [p["name"] for p in spec["parameters"] if p["constant"]]
     if own:
         lines += ["## Parameters", "", "| Name | Unit of the source | SI unit | Required | Default | Description |", "|---|---|---|---|---|---|"]
@@ -132,6 +133,10 @@ def method_page(spec, example):
             default = "" if p["default"] is None else _number(p["default"])
             lines.append("| %s | %s | %s | %s | %s | %s |" % (p["name"], _cell(p["source_unit"]), _cell(p["si_unit"]), "yes" if p["required"] else "no", default, _cell(p["description"])))
         lines.append("")
+    if unused:
+        lines += ["## Parameters", "", "None: the method reads only the reference values of the reaction.", "",
+                  "Accepted and not used: %s. Legacy files give these coefficients of log K(T) and dCp(T) with every method of log K, "
+                  "as GEMS calculated them from the reference values." % ", ".join(_ranges(unused)), ""]
     if built_in:
         lines += ["## Built-in constants", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
                   "A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.", ""]
@@ -143,7 +148,13 @@ def method_page(spec, example):
             lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % s["reference"], ""]
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
     lines += ["## Example", ""]
-    if example:
+    if example and unused:
+        # the method reads the reference values of the reaction, not the coefficients that the legacy file gave with it
+        values = example[5].get("reaction_properties", {})
+        shown = ["  %s: %s" % (n, _number(_plain(values[n]))) for n in ("logK", "dG", "dH", "dS", "dCp") if n in values]
+        lines += ["From %s in `%s`: the reference values it reads, and the method." % (example[2], example[0]), "", "```yaml", "reaction_properties:"]
+        lines += shown + ["methods:", "  - method: " + spec["id"], "```", ""]
+    elif example:
         lines += ["From %s in `%s`." % (example[2], example[0]), "", "```yaml"] + example_lines(spec, example) + ["```", ""]
     else:
         lines += ["No bundled record uses this method.", ""]

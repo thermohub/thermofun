@@ -2,7 +2,7 @@
 
 log K with constant heat capacity of reaction.
 
-Calculates log K with a dCp that does not change with T; without dCp, dH or dS it uses the simpler form that the data allow. The coefficients of log K(T), if given, only check the reference value.
+Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K.
 
 | | |
 |---|---|
@@ -17,29 +17,21 @@ Calculates log K with a dCp that does not change with T; without dCp, dH or dS i
 
 ## Parameters
 
-| Name | Unit of the source | SI unit | Required | Default | Description |
-|---|---|---|---|---|---|
-| a0 | 1 | 1 | no |  | constant term |
-| a1 | 1/K | 1/K | no |  | term a1 T |
-| a2 | K | K | no |  | term a2 / T |
-| a3 | 1 | 1 | no |  | term a3 ln T |
-| a4 | K2 | K2 | no |  | term a4 / T2 |
-| a5 | 1/K2 | 1/K2 | no |  | term a5 T2 |
-| a6 | K^0.5 | K^0.5 | no |  | term a6 / sqrt(T) |
-| a | J/(mol.K) | J/(mol.K) | no |  | constant term |
-| b | J/(mol.K2) | J/(mol.K2) | no |  | term b T |
-| c | J.K/mol | J.K/mol | no |  | term c / T2 |
-| d | J/(mol.K^0.5) | J/(mol.K^0.5) | no |  | term d / sqrt(T) |
-| e | J/(mol.K3) | J/(mol.K3) | no |  | term e T2 |
+None: the method reads only the reference values of the reaction.
+
+Accepted and not used: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files give these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated them from the reference values.
 
 ## Example
 
-From M075SH in `cemdata18-thermofun.json`.
+From M075SH in `cemdata18-thermofun.json`: the reference values it reads, and the method.
 
 ```yaml
-- method: LogKConstantCp
-  parameters:
-    a0: 189.002
-    a2: -12089.2
-    a3: -31.0813
+reaction_properties:
+  logK: -28.8
+  dG: 161635
+  dH: 57008.6
+  dS: -356.903
+  dCp: -595.047
+methods:
+  - method: LogKConstantCp
 ```

@@ -2,7 +2,7 @@
 
 log K of Nordstrom and Munoz.
 
-Calculates log K from the same equation as LogKPolynomial, in the form of Nordstrom and Munoz.
+The same calculation as LogKPolynomial, with the same parameters. The id comes from the legacy code logk_nordstrom_munoz88, which named the equation after its source. Use LogKPolynomial in new records.
 
 Source: Nordstrom and Munoz (1988).
 
