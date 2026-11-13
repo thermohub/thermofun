@@ -475,16 +475,18 @@ auto reactionMethods() -> std::vector<MethodSpec>
                      "The same calculation as LogKPolynomial, with the same parameters. The id comes from the legacy code logk_nordstrom_munoz88, "
                      "which named the equation after its source. Use LogKPolynomial in new records.", "Nordstrom and Munoz (1988)")
                     .sameAs("LogKPolynomial").logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
-    m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or dG at Tr.")
+    m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or dG at Tr. It is LogKPolynomial with one term: a0 = log K(Tr).")
                     .alias({"LogKExtrap1T0"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
-    m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K or dG at Tr.")
+    m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K or dG at Tr. It is LogKPolynomial with one term: a2 = -dG(Tr) / (R ln 10).")
                     .alias({"LogKExtrap1T1"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKVantHoff", "log K of van 't Hoff", "Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change with T (dCp = 0). "
-                     "Reads log K or dG, and dH or dS, at Tr (the third of log K, dH, dS follows from the other two); without dH and dS, log K stays constant.")
+                     "Reads log K or dG, and dH or dS, at Tr (the third of log K, dH, dS follows from the other two); without dH and dS, log K stays constant. "
+                     "It is LogKPolynomial with two terms: a0 = dS / (R ln 10), a2 = -dH / (R ln 10).")
                     .alias({"LogKExtrap2T"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKConstantCp", "log K with constant heat capacity of reaction",
                      "Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. "
-                     "Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K.")
+                     "Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K. "
+                     "It is LogKPolynomial with three terms: a0 = (dS - dCp (1 + ln Tr)) / (R ln 10), a2 = -(dH - dCp Tr) / (R ln 10), a3 = dCp / (R ln 10).")
                     .alias({"LogKExtrap3T"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKTable", "Table of log K", "Interpolates a table of log K(T), with Lagrange polynomials or a cubic spline.")
                     .alias({"LogKLagrange"}).logK());

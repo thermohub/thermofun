@@ -107,3 +107,32 @@ def test_a_method_of_log_k_without_its_values_falls_back_and_is_reported():
     for T in (TR, 373.15):
         assert engine.thermoPropertiesReaction(T, 1e5, "vh").log_equilibrium_constant.val == pytest.approx(LOGK)
         assert engine.thermoPropertiesReaction(T, 1e5, "cp").log_equilibrium_constant.val == pytest.approx(vant_hoff(T), rel=1e-10)
+
+
+def test_the_extrapolations_are_the_polynomial_with_the_terms_their_pages_give():
+    """docs/reference/methods: LogKConstant is a0, LogKZeroEntropy a2, LogKVantHoff a0 and a2, LogKConstantCp a0, a2 and a3."""
+    import copy
+    import json
+    import math
+    R, Tr = 8.31451, 298.15
+    Rln10 = R * math.log(10.0)
+    logK, dH, dS, dCp = 2.7, 25000.0, 0.0, 40.0
+    dG = -Rln10 * Tr * logK
+    dS = (dH - dG) / Tr
+    terms = {"LogKConstant": {"a0": logK},
+             "LogKZeroEntropy": {"a0": 0.0, "a2": -dG / Rln10},
+             "LogKVantHoff": {"a0": dS / Rln10, "a2": -dH / Rln10},
+             "LogKConstantCp": {"a0": (dS - dCp * (1 + math.log(Tr))) / Rln10, "a2": -(dH - dCp * Tr) / Rln10, "a3": dCp / Rln10}}
+    doc = json.loads(tf.Database("pytests/data/v2/hkf.json").toJson(readable=False))
+    equation = {"reference_conditions": {"T": Tr, "P": 100000.0}, "stoichiometry": {"H4SiO4@": -1.0, "SiO2@": 1.0, "H2O@": 2.0}}
+    for method, a in terms.items():
+        doc["reactions"]["r-" + method] = {**copy.deepcopy(equation), "name": method,
+                                           "reaction_properties": {"logK": logK, "dH": dH, "dCp": dCp}, "methods": [{"method": method}]}
+        doc["reactions"]["p-" + method] = {**copy.deepcopy(equation), "name": method, "reaction_properties": {"logK": logK},
+                                           "methods": [{"method": "LogKPolynomial", "parameters": a}]}
+    engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    for method in terms:
+        for T in (273.15, 298.15, 373.15, 473.15):
+            got = engine.thermoPropertiesReaction(T, 1e5, "r-" + method).log_equilibrium_constant.val
+            want = engine.thermoPropertiesReaction(T, 1e5, "p-" + method).log_equilibrium_constant.val
+            assert got == pytest.approx(want, rel=1e-12, abs=1e-12), (method, T)

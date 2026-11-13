@@ -137,9 +137,10 @@ def method_page(spec, example, same=()):
             lines.append("| %s | %s | %s | %s | %s | %s |" % (p["name"], _cell(p["source_unit"]), _cell(p["si_unit"]), "yes" if p["required"] else "no", default, _cell(p["description"])))
         lines.append("")
     if unused:
-        lines += ["## Parameters", "", "None: the method reads only the reference values of the reaction.", "",
-                  "Accepted and not used: %s. Legacy files give these coefficients of log K(T) and dCp(T) with every method of log K, "
-                  "as GEMS calculated them from the reference values." % ", ".join(_ranges(unused)), ""]
+        lines += ["## Parameters", "", "None. The method reads only the reference values of the reaction, and makes its terms of log K from them "
+                  "(see above).", "",
+                  "Not read: %s. Legacy files write these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated "
+                  "them; a file can keep them, and they change nothing." % ", ".join(_ranges(unused)), ""]
     if built_in:
         lines += ["## Built-in constants", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
                   "A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.", ""]

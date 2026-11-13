@@ -2,7 +2,7 @@
 
 log K of van 't Hoff.
 
-Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change with T (dCp = 0). Reads log K or dG, and dH or dS, at Tr (the third of log K, dH, dS follows from the other two); without dH and dS, log K stays constant.
+Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change with T (dCp = 0). Reads log K or dG, and dH or dS, at Tr (the third of log K, dH, dS follows from the other two); without dH and dS, log K stays constant. It is LogKPolynomial with two terms: a0 = dS / (R ln 10), a2 = -dH / (R ln 10).
 
 | | |
 |---|---|
@@ -17,9 +17,9 @@ Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change wit
 
 ## Parameters
 
-None: the method reads only the reference values of the reaction.
+None. The method reads only the reference values of the reaction, and makes its terms of log K from them (see above).
 
-Accepted and not used: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files give these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated them from the reference values.
+Not read: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files write these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated them; a file can keep them, and they change nothing.
 
 ## Example
 

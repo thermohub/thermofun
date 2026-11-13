@@ -2,7 +2,7 @@
 
 log K with constant heat capacity of reaction.
 
-Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K.
+Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K. It is LogKPolynomial with three terms: a0 = (dS - dCp (1 + ln Tr)) / (R ln 10), a2 = -(dH - dCp Tr) / (R ln 10), a3 = dCp / (R ln 10).
 
 | | |
 |---|---|
@@ -17,9 +17,9 @@ Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dC
 
 ## Parameters
 
-None: the method reads only the reference values of the reaction.
+None. The method reads only the reference values of the reaction, and makes its terms of log K from them (see above).
 
-Accepted and not used: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files give these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated them from the reference values.
+Not read: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files write these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated them; a file can keep them, and they change nothing.
 
 ## Example
 
