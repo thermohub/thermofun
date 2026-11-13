@@ -42,4 +42,21 @@ Names: `TMIN`, `TMAX`, `PMIN`, `PMAX`, `cfh_1` to `cfh_60`, `cfc_1` to `cfc_60`,
 
 ## Example
 
-No bundled record uses this method.
+From Sterner and Pitzer (1994); the critical constants of CO2 in THEREDA. No bundled database has this method yet.
+
+The model has built-in coefficients for H2O and CO2 only; the record gives which one by its critical constants.
+
+```yaml
+substances:
+  CO2(g):
+    formula: CO2
+    class: gas_fluid
+    aggregate_state: gas
+    standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+    methods:
+      - method: ConstantCp
+      - method: SternerPitzer94
+        parameters: {Tc: 304.12, Pc: {value: 73.74, unit: bar}}
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 773.15 K and 1000 bar. There is no published value here to compare with.

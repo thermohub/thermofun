@@ -23,4 +23,19 @@ Not read: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files write these coeffi
 
 ## Example
 
-No bundled record uses this method.
+From Plummer and Busenberg (1982), as written in phreeqc.dat (log_k -8.48, delta_h -2.297 kcal). No bundled database has this method yet.
+
+```yaml
+reactions:
+  Calcite-dissolution:
+    equation: Calcite = Ca+2 + CO3-2
+    reaction_properties: {logK: -8.48, dH: -9610.6}
+    methods:
+      - method: LogKVantHoff
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| Calcite-dissolution | 298.15 | 1 bar | logK | -8.48 | 1e-09 |

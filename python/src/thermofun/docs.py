@@ -19,6 +19,38 @@ import sys
 import thermofun as tf
 
 DATA = "Resources/databases"
+# examples from published sources, written by hand and checked by pytests/test_method_examples.py
+EXAMPLES = "docs/reference/method-examples.yaml"
+
+
+def published_examples(path=EXAMPLES):
+    """For each method id: the hand-written example of docs/reference/method-examples.yaml."""
+    if not os.path.exists(path):
+        return {}
+    import yaml  # only to generate the pages
+    with open(path, encoding="utf-8") as f:
+        return {x["method"]: x for x in yaml.safe_load(f)}
+
+
+def _pressure(P):
+    return "saturation" if P == 0 else "%s bar" % _number(P / 1e5)
+
+
+def published_lines(example):
+    lines = ["From %s. No bundled database has this method yet." % example["source"], ""]
+    if example.get("note"):
+        lines += [example["note"].strip(), ""]
+    lines += ["```yaml"] + example["record"].rstrip("\n").split("\n") + ["```", ""]
+    test = "`pytests/test_method_examples.py`"
+    if example.get("checks"):
+        lines += ["Published values, checked by %s:" % test, "", "| Record | T, K | P | Property | Published | Tolerance |", "|---|---|---|---|---|---|"]
+        for c in example["checks"]:
+            lines.append("| %s | %s | %s | %s | %s | %s |" % (c["symbol"], _number(c["T"]), _pressure(c["P"]), c["property"], _number(c["value"]), _number(c["tolerance"])))
+        lines.append("")
+    else:
+        points = ", ".join("%s K and %s" % (_number(c["T"]), _pressure(c["P"])) for c in example.get("calculates", []))
+        lines += ["%s checks that it calculates, at %s. There is no published value here to compare with." % (test, points), ""]
+    return lines
 NOTICE = "Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/reference`."
 
 
@@ -101,7 +133,7 @@ def _ranges(names):
     return out
 
 
-def method_page(spec, example, same=()):
+def method_page(spec, example, same=(), published=None):
     lines = ["# " + spec["id"], "", spec["title"] + ".", "", spec["summary"], ""]
     for other in same:
         lines += ["The id `%s` is the same method: the same calculation and parameters, under a name of the legacy files (%s). "
@@ -152,7 +184,9 @@ def method_page(spec, example, same=()):
             lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % s["reference"], ""]
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
     lines += ["## Example", ""]
-    if example and unused:
+    if published and not example:
+        lines += published_lines(published)
+    elif example and unused:
         # the method reads the reference values of the reaction, not the coefficients that the legacy file gave with it
         values = example[5].get("reaction_properties", {})
         shown = ["  %s: %s" % (n, _number(_plain(values[n]))) for n in ("logK", "dG", "dH", "dS", "dCp") if n in values]
@@ -297,10 +331,11 @@ def pages(data=DATA):
     catalog = list(tf.methods.catalog())  # the order of the catalog gives the order of the groups
     specs = [s for s in catalog if not s["same_as"]]  # another name of a method: a note on the page of that method
     found = examples(data)
+    written = published_examples()
     out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
            "format-v2-schema.md": schema_page()}
     for s in specs:
-        out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]])
+        out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]], written.get(s["id"]))
     for g, members in groups(specs).items():
         out["methods/%s.md" % group_file(g)] = group_page(g, members)
     return out

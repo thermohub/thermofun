@@ -37,4 +37,20 @@ Names: `a1` to `a14`, `gamma`, `Tc`, `Vc`, `R`, `g1kb_0` to `g1kb_4`, `Tmax`, `P
 
 ## Example
 
-No bundled record uses this method.
+From the Deep Earth Water model, Zhang and Duan (2005) and Sverjensky et al. (2014). No bundled database has this method yet.
+
+Valid from 1 kbar. The standard-state values are those of aq17.
+
+```yaml
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterZhangDuan05
+      - method: SverjenskyEtAl14
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 773.15 K and 5000 bar. There is no published value here to compare with.

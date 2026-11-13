@@ -29,4 +29,24 @@ Names: `e_0_0` to `e_0_4`, `e_1_0` to `e_1_3`, `e_2_0` to `e_2_2`, `e_3_0`, `e_3
 
 ## Example
 
-No bundled record uses this method.
+From Fernandez et al. (1997), Table 7, column H&K. No bundled database has this method yet.
+
+```yaml
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterHGK84
+      - method: HelgesonKirkham74
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| H2O@ | 298.15 | saturation | epsilon | 78.47 | 0.02 |
+| H2O@ | 373.15 | 1000 bar | epsilon | 58.55 | 0.02 |
+| H2O@ | 473.15 | 1000 bar | epsilon | 38.27 | 0.02 |

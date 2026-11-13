@@ -23,4 +23,21 @@ Not read: `a0` to `a6`, `a`, `b`, `c`, `d`, `e`. Legacy files write these coeffi
 
 ## Example
 
-No bundled record uses this method.
+From Plummer and Busenberg (1982), log K of calcite at 25 degC. No bundled database has this method yet.
+
+Without dH, dS and dCp a record keeps log K at every T. That is reasonable near 25 degC only.
+
+```yaml
+reactions:
+  Calcite-dissolution:
+    equation: Calcite = Ca+2 + CO3-2
+    reaction_properties: {logK: -8.48}
+    methods:
+      - method: LogKConstant
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| Calcite-dissolution | 323.15 | 1 bar | logK | -8.48 | 1e-09 |

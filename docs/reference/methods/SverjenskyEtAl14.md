@@ -31,4 +31,20 @@ Names: `a1` to `a3`, `b1` to `b3`.
 
 ## Example
 
-No bundled record uses this method.
+From the Deep Earth Water model, Sverjensky et al. (2014), Geochim. Cosmochim. Acta 129, 125-145. No bundled database has this method yet.
+
+The water of the model DEW, from 1 kbar. The standard-state values are those of aq17.
+
+```yaml
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterZhangDuan05
+      - method: SverjenskyEtAl14
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 1073.15 K and 10000 bar. There is no published value here to compare with.

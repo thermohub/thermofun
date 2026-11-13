@@ -52,4 +52,22 @@ Names: `PISIX`, `TWOPI`, `rm`, `P1`, `PP2`, `P3` to `P10`, `AA1` to `AA3`, `A4` 
 
 ## Example
 
-No bundled record uses this method.
+From Churakov and Gottschalk (2003); CO2 in Appendix 1 of the description of the CG equation of state in GEM-Selektor. No bundled database has this method yet.
+
+sigma = 3.81773 - 0.203782 exp(-0.00101206 T) angstrom and epsilon/k = 192.192 - 136.307 exp(-0.00353196 T) K; CO2 has no dipole moment; its polarizability is 2.65 angstrom3.
+
+```yaml
+substances:
+  CO2(g):
+    formula: CO2
+    class: gas_fluid
+    aggregate_state: gas
+    standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+    methods:
+      - method: ConstantCp
+      - method: ChurakovGottschalk03
+        parameters: {sigma0: 3.81773, sigma1: -0.203782, sigma2: -0.00101206, eps0: 192.192, eps1: -136.307, eps2: -0.00353196,
+                     mu0: 0.0, mu1: 0.0, mu2: 0.0, pol0: 2.65, pol1: 0.0, pol2: 0.0}
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 773.15 K and 1000 bar. There is no published value here to compare with.

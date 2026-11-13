@@ -29,4 +29,24 @@ Names: `U1` to `U9`, `Tmin`, `Tmax`, `Tlow`, `Pmax_low`, `Pmax`.
 
 ## Example
 
-No bundled record uses this method.
+From Fernandez et al. (1997), Table 7, column B&P. No bundled database has this method yet.
+
+```yaml
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterHGK84
+      - method: BradleyPitzer79
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| H2O@ | 298.15 | saturation | epsilon | 78.38 | 0.02 |
+| H2O@ | 473.15 | 1000 bar | epsilon | 38.19 | 0.02 |
+| H2O@ | 298.15 | 5000 bar | epsilon | 92.24 | 0.02 |

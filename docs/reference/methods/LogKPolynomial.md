@@ -38,4 +38,22 @@ Source: Nordstrom and Munoz (1988); Anderson and Crerar (1993).
 
 ## Example
 
-No bundled record uses this method.
+From Plummer and Busenberg (1982), Geochim. Cosmochim. Acta 46, 1011-1040; the analytic expression of calcite in phreeqc.dat. No bundled database has this method yet.
+
+PHREEQC writes the fourth term as A4 log10(T). ThermoFun has a3 ln(T), so a3 = A4 / ln(10) = 71.595 / 2.302585.
+
+```yaml
+reactions:
+  Calcite-dissolution:
+    equation: Calcite = Ca+2 + CO3-2
+    reaction_properties: {logK: -8.48}
+    methods:
+      - method: LogKPolynomial
+        parameters: {a0: -171.9065, a1: -0.077993, a2: 2839.319, a3: 31.093313}
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| Calcite-dissolution | 298.15 | 1 bar | logK | -8.48 | 0.005 |

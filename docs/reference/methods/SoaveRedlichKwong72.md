@@ -44,4 +44,19 @@ Names: `m0` to `m2`, `Oa`, `Ob`.
 
 ## Example
 
-No bundled record uses this method.
+From the critical constants of CO2 in THEREDA (pytests/data/v2/thereda-co2.json). No bundled database has this method yet.
+
+```yaml
+substances:
+  CO2(g):
+    formula: CO2
+    class: gas_fluid
+    aggregate_state: gas
+    standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+    methods:
+      - method: ConstantCp
+      - method: SoaveRedlichKwong72
+        parameters: {Tc: 304.12, Pc: {value: 73.74, unit: bar}, omega: 0.225}
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 373.15 K and 100 bar. There is no published value here to compare with.

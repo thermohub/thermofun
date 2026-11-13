@@ -31,4 +31,26 @@ Names: `n1` to `n12`, `I1` to `I11`, `J1` to `J11`, `Tc`, `rhoc`, `k`, `Na`, `al
 
 ## Example
 
-No bundled record uses this method.
+From Fernandez et al. (1997), J. Phys. Chem. Ref. Data 26, 1125-1166, Table 7 (column "This work"). No bundled database has this method yet.
+
+The water of the IAPWS release on the dielectric constant. The standard-state values are those of aq17.
+
+```yaml
+substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterIAPWS95
+      - method: FernandezEtAl97
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| H2O@ | 298.15 | saturation | epsilon | 78.41 | 0.02 |
+| H2O@ | 373.15 | 1000 bar | epsilon | 58.67 | 0.02 |
+| H2O@ | 673.15 | 1000 bar | epsilon | 15.82 | 0.02 |

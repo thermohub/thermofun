@@ -1,0 +1,316 @@
+# Examples of methods from published sources, for the methods that no bundled database uses yet.
+#
+# Written by hand. `python -m thermofun.docs generate docs/reference` puts each one on the page of its method, and
+# pytests/test_method_examples.py loads each record, calculates it, and compares it with the published values in `checks`.
+# So an example that stops working, or that stops giving the published value, fails the tests.
+#
+# Each item:
+#   method   the method of the page
+#   source   where the values come from
+#   note     optional: what to know to read the example
+#   record   a v2 document without the `thermohub:` line (substances and/or reactions), shown as it is written here
+#   checks   optional: published values; property is G, H, S, Cp, V of a substance, logK of a reaction, or epsilon of water.
+#            P = 0 is the saturation pressure. tolerance is absolute, in the unit of the property.
+
+- method: LogKPolynomial
+  source: Plummer and Busenberg (1982), Geochim. Cosmochim. Acta 46, 1011-1040; the analytic expression of calcite in phreeqc.dat
+  note: >-
+    PHREEQC writes the fourth term as A4 log10(T). ThermoFun has a3 ln(T), so a3 = A4 / ln(10) = 71.595 / 2.302585.
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48}
+        methods:
+          - method: LogKPolynomial
+            parameters: {a0: -171.9065, a1: -0.077993, a2: 2839.319, a3: 31.093313}
+  checks:
+    - {symbol: Calcite-dissolution, T: 298.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 0.005}
+
+- method: LogKVantHoff
+  source: Plummer and Busenberg (1982), as written in phreeqc.dat (log_k -8.48, delta_h -2.297 kcal)
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48, dH: -9610.6}
+        methods:
+          - method: LogKVantHoff
+  checks:
+    - {symbol: Calcite-dissolution, T: 298.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 1.0e-9}
+
+- method: LogKConstant
+  source: Plummer and Busenberg (1982), log K of calcite at 25 degC
+  note: Without dH, dS and dCp a record keeps log K at every T. That is reasonable near 25 degC only.
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48}
+        methods:
+          - method: LogKConstant
+  checks:
+    - {symbol: Calcite-dissolution, T: 323.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 1.0e-9}
+
+- method: ConstantReactionProperties
+  source: Plummer and Busenberg (1982), as written in phreeqc.dat
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48, dH: -9610.6}
+        methods:
+          - method: ConstantReactionProperties
+  checks:
+    - {symbol: Calcite-dissolution, T: 323.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 1.0e-9}
+
+- method: LogKTable
+  source: values of the equation of Plummer and Busenberg (1982) for calcite at 0, 25, 50, 75 and 100 degC
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48}
+        methods:
+          - method: LogKTable
+            interpolation: lagrange
+            order: 3
+            table:
+              temperatures: [273.15, 298.15, 323.15, 348.15, 373.15]
+              logK: [-8.3814, -8.4798, -8.6628, -8.9266, -9.2665]
+  checks:
+    - {symbol: Calcite-dissolution, T: 310.15, P: 1.0e+5, property: logK, value: -8.5573, tolerance: 0.002}
+
+- method: MarshallFranck81
+  source: Marshall and Franck (1981), J. Phys. Chem. Ref. Data 10, 295-304; coefficients as in Dolejs (2013), Eq. 44
+  note: The ion product of water. The method reads the density of water from the water record of the database.
+  record: |
+    reactions:
+      Water-dissociation:
+        equation: H2O@ = H+ + OH-
+        reaction_properties: {logK: -13.995}
+        methods:
+          - method: MarshallFranck81
+            parameters: {a: -4.098, b: -3245.2, c: 2.2362e+5, d: -3.984e+7, e: 13.957, f: -1262.3, g: 8.5641e+5}
+  checks:
+    - {symbol: Water-dissociation, T: 298.15, P: 0, property: logK, value: -13.995, tolerance: 0.005}
+
+- method: FernandezEtAl97
+  source: Fernandez et al. (1997), J. Phys. Chem. Ref. Data 26, 1125-1166, Table 7 (column "This work")
+  note: The water of the IAPWS release on the dielectric constant. The standard-state values are those of aq17.
+  record: |
+    substances:
+      H2O@:
+        formula: H2O@
+        class: water_solvent
+        aggregate_state: aqueous
+        standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+        methods:
+          - method: WaterIAPWS95
+          - method: FernandezEtAl97
+  checks:
+    - {symbol: H2O@, T: 298.15, P: 0, property: epsilon, value: 78.41, tolerance: 0.02}
+    - {symbol: H2O@, T: 373.15, P: 1.0e+8, property: epsilon, value: 58.67, tolerance: 0.02}
+    - {symbol: H2O@, T: 673.15, P: 1.0e+8, property: epsilon, value: 15.82, tolerance: 0.02}
+
+- method: HelgesonKirkham74
+  source: Fernandez et al. (1997), Table 7, column H&K
+  record: |
+    substances:
+      H2O@:
+        formula: H2O@
+        class: water_solvent
+        aggregate_state: aqueous
+        standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+        methods:
+          - method: WaterHGK84
+          - method: HelgesonKirkham74
+  checks:
+    - {symbol: H2O@, T: 298.15, P: 0, property: epsilon, value: 78.47, tolerance: 0.02}
+    - {symbol: H2O@, T: 373.15, P: 1.0e+8, property: epsilon, value: 58.55, tolerance: 0.02}
+    - {symbol: H2O@, T: 473.15, P: 1.0e+8, property: epsilon, value: 38.27, tolerance: 0.02}
+
+- method: BradleyPitzer79
+  source: Fernandez et al. (1997), Table 7, column B&P
+  record: |
+    substances:
+      H2O@:
+        formula: H2O@
+        class: water_solvent
+        aggregate_state: aqueous
+        standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+        methods:
+          - method: WaterHGK84
+          - method: BradleyPitzer79
+  checks:
+    - {symbol: H2O@, T: 298.15, P: 0, property: epsilon, value: 78.38, tolerance: 0.02}
+    - {symbol: H2O@, T: 473.15, P: 1.0e+8, property: epsilon, value: 38.19, tolerance: 0.02}
+    - {symbol: H2O@, T: 298.15, P: 5.0e+8, property: epsilon, value: 92.24, tolerance: 0.02}
+
+- method: SverjenskyEtAl14
+  source: the Deep Earth Water model, Sverjensky et al. (2014), Geochim. Cosmochim. Acta 129, 125-145
+  note: The water of the model DEW, from 1 kbar. The standard-state values are those of aq17.
+  record: |
+    substances:
+      H2O@:
+        formula: H2O@
+        class: water_solvent
+        aggregate_state: aqueous
+        standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+        methods:
+          - method: WaterZhangDuan05
+          - method: SverjenskyEtAl14
+  calculates:
+    - {symbol: H2O@, T: 1073.15, P: 1.0e+9}
+
+- method: WaterZhangDuan05
+  source: the Deep Earth Water model, Zhang and Duan (2005) and Sverjensky et al. (2014)
+  note: Valid from 1 kbar. The standard-state values are those of aq17.
+  record: |
+    substances:
+      H2O@:
+        formula: H2O@
+        class: water_solvent
+        aggregate_state: aqueous
+        standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+        methods:
+          - method: WaterZhangDuan05
+          - method: SverjenskyEtAl14
+  calculates:
+    - {symbol: H2O@, T: 773.15, P: 5.0e+8}
+
+- method: NASA9
+  source: McBride, Zehe and Gordon (2002), NASA/TP-2002-211556, CO2 from 200 to 1000 K
+  note: >-
+    NASA polynomials give H on the scale of the assigned enthalpy (the enthalpy of formation at 298.15 K); ThermoFun converts
+    the results to the convention of the engine.
+  record: |
+    substances:
+      CO2(g):
+        formula: CO2
+        class: gas_fluid
+        aggregate_state: gas
+        methods:
+          - method: NASA9
+            segments:
+              - t_min: 200.0
+                t_max: 1000.0
+                parameters: {a1: 4.943650540e+4, a2: -6.264116010e+2, a3: 5.301725240, a4: 2.503813816e-3, a5: -2.127308728e-7,
+                             a6: -7.689988780e-10, a7: 2.849677801e-13, b1: -4.528198460e+4, b2: -7.048279440}
+  checks:
+    - {symbol: CO2(g), T: 298.15, P: 1.0e+5, property: Cp, value: 37.135, tolerance: 0.01}
+
+- method: PengRobinson78
+  source: the critical constants of CO2 in THEREDA (pytests/data/v2/thereda-co2.json)
+  record: |
+    substances:
+      CO2(g):
+        formula: CO2
+        class: gas_fluid
+        aggregate_state: gas
+        standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+        methods:
+          - method: ConstantCp
+          - method: PengRobinson78
+            parameters: {Tc: 304.12, Pc: {value: 73.74, unit: bar}, omega: 0.225}
+  calculates:
+    - {symbol: CO2(g), T: 373.15, P: 1.0e+7}
+
+- method: SoaveRedlichKwong72
+  source: the critical constants of CO2 in THEREDA (pytests/data/v2/thereda-co2.json)
+  record: |
+    substances:
+      CO2(g):
+        formula: CO2
+        class: gas_fluid
+        aggregate_state: gas
+        standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+        methods:
+          - method: ConstantCp
+          - method: SoaveRedlichKwong72
+            parameters: {Tc: 304.12, Pc: {value: 73.74, unit: bar}, omega: 0.225}
+  calculates:
+    - {symbol: CO2(g), T: 373.15, P: 1.0e+7}
+
+- method: SternerPitzer94
+  source: Sterner and Pitzer (1994); the critical constants of CO2 in THEREDA
+  note: The model has built-in coefficients for H2O and CO2 only; the record gives which one by its critical constants.
+  record: |
+    substances:
+      CO2(g):
+        formula: CO2
+        class: gas_fluid
+        aggregate_state: gas
+        standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+        methods:
+          - method: ConstantCp
+          - method: SternerPitzer94
+            parameters: {Tc: 304.12, Pc: {value: 73.74, unit: bar}}
+  calculates:
+    - {symbol: CO2(g), T: 773.15, P: 1.0e+8}
+
+- method: ChurakovGottschalk03
+  source: Churakov and Gottschalk (2003); CO2 in Appendix 1 of the description of the CG equation of state in GEM-Selektor
+  note: >-
+    sigma = 3.81773 - 0.203782 exp(-0.00101206 T) angstrom and epsilon/k = 192.192 - 136.307 exp(-0.00353196 T) K;
+    CO2 has no dipole moment; its polarizability is 2.65 angstrom3.
+  record: |
+    substances:
+      CO2(g):
+        formula: CO2
+        class: gas_fluid
+        aggregate_state: gas
+        standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+        methods:
+          - method: ConstantCp
+          - method: ChurakovGottschalk03
+            parameters: {sigma0: 3.81773, sigma1: -0.203782, sigma2: -0.00101206, eps0: 192.192, eps1: -136.307, eps2: -0.00353196,
+                         mu0: 0.0, mu1: 0.0, mu2: 0.0, pol0: 2.65, pol1: 0.0, pol2: 0.0}
+  calculates:
+    - {symbol: CO2(g), T: 773.15, P: 1.0e+8}
+
+- method: LandauHP11
+  source: Holland and Powell (2011), data set ds62, quartz; the other values of the record are Quartz of aq17
+  record: |
+    substances:
+      Quartz:
+        formula: SiO2
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -856433.0, H: -910830.0, S: 41.5, Cp: 44.89092, V: {value: 2.2688, unit: J/bar}}
+        methods:
+          - method: ConstantCp
+          - method: LandauHP11
+            parameters: {Tc0: {value: 847.0, unit: K}, Smax: 4.95, Vmax: {value: 0.1188, unit: J/(mol.bar)}}
+  calculates:
+    - {symbol: Quartz, T: 773.15, P: 1.0e+8}
+
+- method: ConstantProperties
+  source: Quartz of aq17
+  note: The reference values at every T and P. For a substance whose data are known only at 25 degC, near 25 degC.
+  record: |
+    substances:
+      Quartz:
+        formula: SiO2
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -856433.0, H: -910830.0, S: 41.5, Cp: 44.89092, V: {value: 2.2688, unit: J/bar}}
+        methods:
+          - method: ConstantProperties
+  checks:
+    - {symbol: Quartz, T: 373.15, P: 1.0e+7, property: G, value: -856433.0, tolerance: 1.0e-6}
+
+- method: AndersonEtAl91
+  source: Anderson, Castet, Schott and Mesmer (1991); the reference values are SiO2@ of aq17 (SUPCRT92)
+  note: The density model needs only the reference values of the species and the water of the database.
+  record: |
+    substances:
+      SiO2@:
+        formula: SiO2@
+        class: aqueous_solute
+        aggregate_state: aqueous
+        standard_state_properties: {G: -834041.0, H: -878357.0, S: 75.312, Cp: -318.484, V: {value: 1.60633, unit: J/bar}}
+        methods:
+          - method: AndersonEtAl91
+  calculates:
+    - {symbol: SiO2@, T: 473.15, P: 0}
