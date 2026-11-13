@@ -8,7 +8,6 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | [DolejsManning10](DolejsManning10.md) | Density model of Dolejs and Manning | base | any |  |
 | [LogKConstant](LogKConstant.md) | Constant log K | base | any |  |
 | [LogKConstantCp](LogKConstantCp.md) | log K with constant heat capacity of reaction | base | any |  |
-| [LogKNordstromMunoz88](LogKNordstromMunoz88.md) | log K of Nordstrom and Munoz | base | any |  |
 | [LogKPolynomial](LogKPolynomial.md) | log K polynomial | base | any |  |
 | [LogKTable](LogKTable.md) | Table of log K | base | any |  |
 | [LogKVantHoff](LogKVantHoff.md) | log K of van 't Hoff | base | any |  |
@@ -23,7 +22,6 @@ ConstantReactionProperties
 DolejsManning10
 LogKConstant
 LogKConstantCp
-LogKNordstromMunoz88
 LogKPolynomial
 LogKTable
 LogKVantHoff

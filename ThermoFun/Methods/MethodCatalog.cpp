@@ -44,6 +44,7 @@ struct Spec
     auto classes(std::vector<SC> c) -> Spec& { s.applies_to_classes = std::move(c); return *this; }
     auto role(MethodRole r) -> Spec& { s.role = r; return *this; }
     auto group(const char* name) -> Spec& { s.group = name; return *this; }
+    auto sameAs(const char* id) -> Spec& { s.same_as = id; return *this; }
     auto impl(std::vector<std::string> i) -> Spec& { s.implementations = std::move(i); return *this; }
     auto solvent(bool atReference = false) -> Spec&
     {
@@ -473,7 +474,7 @@ auto reactionMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("LogKNordstromMunoz88", "log K of Nordstrom and Munoz",
                      "The same calculation as LogKPolynomial, with the same parameters. The id comes from the legacy code logk_nordstrom_munoz88, "
                      "which named the equation after its source. Use LogKPolynomial in new records.", "Nordstrom and Munoz (1988)")
-                    .logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
+                    .sameAs("LogKPolynomial").logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
     m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or dG at Tr.")
                     .alias({"LogKExtrap1T0"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K or dG at Tr.")

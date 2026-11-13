@@ -225,7 +225,10 @@ def test_a_page_for_each_method_with_what_10_section_2_asks():
     pages = docs.pages(DATA)
     catalog = tf.methods.catalog()
     for s in catalog:
-        assert "methods/%s.md" % s["id"] in pages
+        if s["same_as"]:  # another name of a method: a note on the page of that method, no page of its own
+            assert "methods/%s.md" % s["id"] not in pages and "`%s` is the same method" % s["id"] in pages["methods/%s.md" % s["same_as"]]
+        else:
+            assert "methods/%s.md" % s["id"] in pages
     assert {"methods/index.md", "diagnostics.md", "engine-preferences.md"} <= set(pages)
     assert "Use another only to reproduce" in pages["methods/HKF88.md"]
     assert "solute_hkf88_gems" in pages["methods/HKF88.md"]

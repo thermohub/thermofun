@@ -42,6 +42,9 @@ def table(methods):
     for m in methods:
         implementations = ", ".join("`" + i + "`" for i in m["implementations"]) or "one"
         title = m["title"] + (" (needs the solvent)" if m["needs_solvent"] else "")
+        if m["same_as"]:
+            lines.append(f"| `{m['id']}` | The same as `{m['same_as']}` (a legacy name) | as `{m['same_as']}` | {implementations} |")
+            continue
         lines.append(f"| `{m['id']}` | {cell(title)} | {cell(parameter_text(m))} | {implementations} |")
     return lines
 

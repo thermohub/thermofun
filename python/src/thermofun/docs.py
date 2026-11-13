@@ -101,8 +101,11 @@ def _ranges(names):
     return out
 
 
-def method_page(spec, example):
+def method_page(spec, example, same=()):
     lines = ["# " + spec["id"], "", spec["title"] + ".", "", spec["summary"], ""]
+    for other in same:
+        lines += ["The id `%s` is the same method: the same calculation and parameters, under a name of the legacy files (%s). "
+                  "It has no page of its own." % (other["id"], ", ".join("`%s`" % n for n in other["legacy_names"]) or "no legacy code"), ""]
     if spec["citation"]:
         lines += ["Source: " + spec["citation"] + ".", ""]
     needs = ", ".join(n for n, on in (("the solvent", spec["needs_solvent"]),) if on) or "nothing from outside its record"
@@ -290,12 +293,13 @@ def schema_page():
 
 def pages(data=DATA):
     """The files as a dictionary: path relative to the folder of the reference -> text."""
-    specs = list(tf.methods.catalog())  # the order of the catalog gives the order of the groups
+    catalog = list(tf.methods.catalog())  # the order of the catalog gives the order of the groups
+    specs = [s for s in catalog if not s["same_as"]]  # another name of a method: a note on the page of that method
     found = examples(data)
     out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
            "format-v2-schema.md": schema_page()}
     for s in specs:
-        out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)))
+        out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]])
     for g, members in groups(specs).items():
         out["methods/%s.md" % group_file(g)] = group_page(g, members)
     return out

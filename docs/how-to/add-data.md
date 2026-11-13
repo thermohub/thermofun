@@ -662,7 +662,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 |---|---|---|---|
 | `ConstantReactionProperties` | Constant reaction properties | none | one |
 | `LogKPolynomial` | log K polynomial | `a0`<br>`a1` [1/K] (optional)<br>`a2` [K] (optional)<br>`a3` (optional)<br>`a4` [K2] (optional)<br>`a5` [1/K2] (optional)<br>`a6` [K^0.5] (optional)<br>`a` [J/(mol.K)] (optional)<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | one |
-| `LogKNordstromMunoz88` | log K of Nordstrom and Munoz | `a0`<br>`a1` [1/K] (optional)<br>`a2` [K] (optional)<br>`a3` (optional)<br>`a4` [K2] (optional)<br>`a5` [1/K2] (optional)<br>`a6` [K^0.5] (optional)<br>`a` [J/(mol.K)] (optional)<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | one |
+| `LogKNordstromMunoz88` | The same as `LogKPolynomial` (a legacy name) | as `LogKPolynomial` | one |
 | `LogKConstant` | Constant log K | none | one |
 | `LogKZeroEntropy` | log K with zero entropy of reaction | none | one |
 | `LogKVantHoff` | log K of van 't Hoff | none | one |

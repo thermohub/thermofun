@@ -100,6 +100,7 @@ struct MethodSpec
     std::string summary;                         ///< what it does, one sentence for the reference page
     std::string citation;                        ///< the source of the model; empty if no publication defines it
     std::string group;                           ///< the section of the reference, for example "Minerals"
+    std::string same_as;                         ///< the id of a method with the same calculation and parameters (a legacy name); empty if none
     OperatesOn operates_on = OperatesOn::Substance;
     std::vector<SubstanceClass> applies_to_classes;   ///< empty: any class
     MethodRole role = MethodRole::SubstanceProperties;
