@@ -38,4 +38,36 @@ Names: `a`, `b`, `c`, `d`, `e`, `f`, `g`, `RHO298`, `zzH2O`.
 
 ## Example
 
-No bundled record uses this method.
+From Ryzhenko and Bryzgalin, the electrostatic model of the complexes; pK298, A and B are illustrative values. No bundled database has this method yet.
+
+```yaml
+reactions:
+  NaCl-dissociation:
+    equation: NaCl@ = Na+ + Cl-
+    reaction_properties: {logK: -0.8}
+    methods:
+      - method: RyzhenkoBryzgalin
+        parameters: {pK298: 0.8, A: 0.35, B: 0.0}
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 473.15 K and 100 bar, 573.15 K and 1000 bar. There is no published value here to compare with.
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(473.15, 1e+07), (573.15, 1e+08)]:  # K, Pa
+    p = engine.thermoPropertiesReaction(T, P, "NaCl-dissociation")
+    print(T, P, p.log_equilibrium_constant.val, p.reaction_gibbs_energy.val, p.reaction_enthalpy.val, p.reaction_entropy.val, p.reaction_heat_capacity_cp.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  logK  dG  dH  dS  dCp` (no unit, J/mol, J/mol, J/(mol K), J/(mol K)):
+
+```text
+473.15  1e+07  -1.343  12165  -16218  -59.987  -117.79
+573.15  1e+08  -1.5328  16819  -22178  -68.04  -128.47
+```

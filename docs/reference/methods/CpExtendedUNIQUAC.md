@@ -31,4 +31,42 @@ Source: Thomsen and Rasmussen (1999).
 
 ## Example
 
-No bundled record uses this method.
+From Thomsen and Rasmussen (1999), Chem. Eng. Sci. 54, 1787-1802, the form Cp = a + b T + c / (T - Theta); the coefficients are illustrative values. No bundled database has this method yet.
+
+```yaml
+substances:
+  Na+:
+    formula: Na+
+    class: aqueous_solute
+    aggregate_state: aqueous
+    standard_state_properties: {G: -261881.0, H: -240300.0, S: 58.45, Cp: 46.4, V: -1.2e-6}
+    methods:
+      - method: CpExtendedUNIQUAC
+        parameters: {a: 40.0, b: 0.1, c: -2000.0, alpha: 0.0, beta: 0.0}
+```
+
+Published values, checked by `pytests/test_method_examples.py`:
+
+| Record | T, K | P | Property | Published | Tolerance |
+|---|---|---|---|---|---|
+| Na+ | 298.15 | 1 bar | Cp | 49.438 | 0.001 |
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "Na+")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+298.15  100000  -2.6188e+05  -2.403e+05  58.343  49.438  -1.2e-06
+373.15  1e+07  -2.6674e+05  -2.3592e+05  71.386  65.764  -1.2e-06
+```

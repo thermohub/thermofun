@@ -314,3 +314,209 @@
           - method: AndersonEtAl91
   calculates:
     - {symbol: SiO2@, T: 473.15, P: 0}
+
+- method: LogKZeroEntropy
+  source: the definition of the method (dS = 0, so log K = log K(Tr) Tr / T); the log K of calcite of Plummer and Busenberg (1982) at 25 degC
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48}
+        methods:
+          - method: LogKZeroEntropy
+  checks:
+    - {symbol: Calcite-dissolution, T: 298.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 1.0e-9}
+    - {symbol: Calcite-dissolution, T: 373.15, P: 1.0e+5, property: logK, value: -6.775592, tolerance: 1.0e-5}
+
+- method: ReactionCpPolynomial
+  source: the closed form of a constant dCp (Dolejs 2013, Eqs. 36 and 38) with the log K and dH of calcite of Plummer and Busenberg (1982); dCp = 50 J/(mol K) is an illustrative value
+  note: >-
+    The method gives dCp only. A method of log K, here `LogKVantHoff`, integrates it, so the two are given together.
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48, dH: -9610.6}
+        methods:
+          - method: ReactionCpPolynomial
+            parameters: {a: 50.0}
+          - method: LogKVantHoff
+  checks:
+    - {symbol: Calcite-dissolution, T: 298.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 1.0e-9}
+    - {symbol: Calcite-dissolution, T: 373.15, P: 1.0e+5, property: logK, value: -8.757317, tolerance: 1.0e-5}
+
+- method: ReactionVolumePolynomial
+  source: the form of the method (dV = dVr (1 + a1 dT + a2 dT2 + a3 dT3 + b1 dP + b2 dP2)); the coefficients are illustrative values of the order of a solid
+  note: >-
+    The reference volume dV is of the reaction. The volume adds a pressure term to log K, so log K at 1 bar is the value
+    of the record, and it changes with pressure.
+  record: |
+    reactions:
+      Calcite-dissolution:
+        equation: Calcite = Ca+2 + CO3-2
+        reaction_properties: {logK: -8.48, dH: -9610.6, dV: -3.0e-5}
+        methods:
+          - method: LogKVantHoff
+          - method: ReactionVolumePolynomial
+            parameters: {a1: 2.0e-5, a2: 0.0, a3: 0.0, b1: -2.0e-11, b2: 0.0}
+  checks:
+    - {symbol: Calcite-dissolution, T: 298.15, P: 1.0e+5, property: logK, value: -8.48, tolerance: 1.0e-9}
+  calculates:
+    - {symbol: Calcite-dissolution, T: 298.15, P: 1.0e+8}
+
+- method: VolumeBerman88
+  source: Berman (1988), J. Petrology 29, 445-522, the form V = V0 (1 + a1 dT + a2 dT2 + a3 dT3 + b1 dP + b2 dP2); the coefficients are illustrative values of the order of a silicate
+  record: |
+    substances:
+      Q:
+        formula: SiO2
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -856288.0, H: -910700.0, S: 41.46, Cp: 44.6, V: 2.2688e-5}
+        methods:
+          - method: ConstantCp
+          - method: VolumeBerman88
+            parameters: {a1: 2.4e-5, a2: 1.0e-8, a3: 0.0, b1: -2.0e-11, b2: 1.0e-22}
+  checks:
+    - {symbol: Q, T: 298.15, P: 1.0e+5, property: V, value: 2.2688e-5, tolerance: 1.0e-12}
+    - {symbol: Q, T: 298.15, P: 1.0e+8, property: V, value: 2.264269e-5, tolerance: 1.0e-10}
+
+- method: VolumeDorogokupets88
+  source: Dorogokupets, Sokolova, Danilov and Litasov (1988), as given in GEMS; the coefficients are illustrative values of the order of a silicate
+  record: |
+    substances:
+      Q:
+        formula: SiO2
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -856288.0, H: -910700.0, S: 41.46, Cp: 44.6, V: 2.2688e-5}
+        methods:
+          - method: ConstantCp
+          - method: VolumeDorogokupets88
+            parameters: {a1: 2.4e-5, a2: 1.0e-8, a3: 0.0, b1: -2.0e-11, b2: 1.0e-22}
+  checks:
+    - {symbol: Q, T: 298.15, P: 1.0e+5, property: V, value: 2.2688e-5, tolerance: 1.0e-12}
+  calculates:
+    - {symbol: Q, T: 600.0, P: 1.0e+8}
+
+- method: BirchMurnaghan47
+  source: Birch (1947), Phys. Rev. 71, 809-824; the coefficients are illustrative values of the order of corundum (K = 252 GPa, K' = 4.3)
+  note: >-
+    The method adds its volume to the one before it, so the record gives the volume at the reference state with `ConstantVolume` first.
+    Known problem, inherited from the code of GEMS: the volume that it adds is `V0 + V(T, P)`, so away from the reference state
+    V is about V0 larger than the equation gives (G, H and S are not affected). It is kept because the results are those of the old code.
+  record: |
+    substances:
+      Co:
+        formula: Al2O3
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -1582300.0, H: -1675700.0, S: 50.92, Cp: 79.0, V: 2.558e-5}
+        methods:
+          - method: ConstantCp
+          - method: ConstantVolume
+          - method: BirchMurnaghan47
+            parameters: {a1: 1.9e-5, kt00: 2.52e+11, kp: 4.3}
+  checks:
+    - {symbol: Co, T: 298.15, P: 1.0e+5, property: V, value: 2.558e-5, tolerance: 1.0e-12}
+  calculates:
+    - {symbol: Co, T: 600.0, P: 1.0e+9}
+
+- method: TaitHP11
+  source: Holland and Powell (2011), J. Metamorphic Geol. 29, 333-383, the form of the equation; the coefficients are illustrative values of the order of periclase
+  record: |
+    substances:
+      Per:
+        formula: MgO
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -569300.0, H: -601600.0, S: 26.94, Cp: 37.8, V: 1.125e-5}
+        methods:
+          - method: ConstantCp
+          - method: TaitHP11
+            parameters: {kappa0p: 4.0, kappa0pp: -2.4e-11, n_atoms: 2, alpha0: 3.1e-5, kappa0: 1.6e+11}
+  checks:
+    - {symbol: Per, T: 298.15, P: 1.0e+5, property: V, value: 1.125e-5, tolerance: 1.0e-9}
+  calculates:
+    - {symbol: Per, T: 600.0, P: 1.0e+9}
+
+- method: CpExtendedUNIQUAC
+  source: Thomsen and Rasmussen (1999), Chem. Eng. Sci. 54, 1787-1802, the form Cp = a + b T + c / (T - Theta); the coefficients are illustrative values
+  record: |
+    substances:
+      Na+:
+        formula: Na+
+        class: aqueous_solute
+        aggregate_state: aqueous
+        standard_state_properties: {G: -261881.0, H: -240300.0, S: 58.45, Cp: 46.4, V: -1.2e-6}
+        methods:
+          - method: CpExtendedUNIQUAC
+            parameters: {a: 40.0, b: 0.1, c: -2000.0, alpha: 0.0, beta: 0.0}
+  checks:
+    - {symbol: Na+, T: 298.15, P: 1.0e+5, property: Cp, value: 49.438, tolerance: 1.0e-3}
+  calculates:
+    - {symbol: Na+, T: 373.15, P: 1.0e+7}
+
+- method: TPTable
+  source: the table of the how-to "Add data" (section 5.6), values chosen for the example
+  record: |
+    substances:
+      T:
+        formula: Ca
+        class: component
+        aggregate_state: crystal
+        standard_state_properties: {G: -1000, H: -900, S: 10, Cp: 20, V: 1.0e-5}
+        methods:
+          - method: TPTable
+            table:
+              temperatures: [298.15, 400, 500, 600]
+              pressures: [1.0e5]
+              G: [-1000, -1100, -1200, -1300]
+  checks:
+    - {symbol: T, T: 400.0, P: 1.0e+5, property: G, value: -1100.0, tolerance: 1.0e-6}
+    - {symbol: T, T: 500.0, P: 1.0e+5, property: G, value: -1200.0, tolerance: 1.0e-6}
+
+- method: DolejsManning10
+  source: the form of the method (Dolejs and Manning 2010, Geofluids 10, 20-40), dG = a + b T + c T ln T + d T2 + e T ln(density of water); the coefficients are illustrative values
+  record: |
+    reactions:
+      Quartz-solution:
+        equation: Qz = SiO2@
+        reaction_properties: {logK: -4.0}
+        methods:
+          - method: DolejsManning10
+            parameters: {a: 25000.0, b: -50.0, e: -20.0}
+  calculates:
+    - {symbol: Quartz-solution, T: 573.15, P: 1.0e+8}
+    - {symbol: Quartz-solution, T: 673.15, P: 5.0e+8}
+
+- method: RyzhenkoBryzgalin
+  source: Ryzhenko and Bryzgalin, the electrostatic model of the complexes; pK298, A and B are illustrative values
+  record: |
+    reactions:
+      NaCl-dissociation:
+        equation: NaCl@ = Na+ + Cl-
+        reaction_properties: {logK: -0.8}
+        methods:
+          - method: RyzhenkoBryzgalin
+            parameters: {pK298: 0.8, A: 0.35, B: 0.0}
+  calculates:
+    - {symbol: NaCl-dissociation, T: 473.15, P: 1.0e+7}
+    - {symbol: NaCl-dissociation, T: 573.15, P: 1.0e+8}
+
+- method: SoluteHP98
+  source: Holland and Powell (1998), J. Metamorphic Geol. 16, 309-343, the density model of the aqueous species; b is an illustrative value
+  record: |
+    substances:
+      Na+:
+        formula: Na+
+        class: aqueous_solute
+        aggregate_state: aqueous
+        standard_state_properties: {G: -261881.0, H: -240300.0, S: 58.45, Cp: 46.4, V: -1.2e-6}
+        methods:
+          - method: SoluteHP98
+            parameters: {b: 0.1}
+  checks:
+    - {symbol: Na+, T: 298.15, P: 1.0e+5, property: G, value: -261881.0, tolerance: 1.0}
+  calculates:
+    - {symbol: Na+, T: 473.15, P: 1.0e+7}
