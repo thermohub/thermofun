@@ -3665,6 +3665,76 @@
         "Quartz"
       ],
       "reason": "MurnaghanHP98 and LandauHP98, implementation consistent (the default): V is integrated from the reference pressure, not from P = 0, at every T and P. G was higher by about V x 1 bar except at exactly 298.15 K and 1 bar, where G and V jumped (Albite 10.0 J/mol); the Landau volume term has its Cp, and Tc0 is at Pr. A species or a reaction from such a mineral follows. The implementation gems gives the baseline values exactly (review of v2, S10)."
+    },
+    {
+      "database": "pytests/data/legacy-synthetic/s37-mv_eos_birch_murnaghan_gott97.json",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "MgCO3-bm"
+      ],
+      "properties": [
+        "helmholtz_energy",
+        "internal_energy",
+        "volume"
+      ],
+      "reason": "BirchMurnaghan47 set V to V0 plus the volume of the equation (the code of GEMS); V is now the volume of the equation (implementation consistent, the default; gems keeps the old value). G, H, S and Cp do not change. Test: test_birch_murnaghan_volume_is_that_of_the_equation in pytests/test_mineral_methods.py."
+    },
+    {
+      "database": "pytests/data/legacy-synthetic/s37-mv_eos_birch_murnaghan_gott97.json",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "MgCO3-bm"
+      ],
+      "properties": [
+        "helmholtz_energy",
+        "internal_energy",
+        "volume"
+      ],
+      "reason": "BirchMurnaghan47 set V to V0 plus the volume of the equation (the code of GEMS); V is now the volume of the equation (implementation consistent, the default; gems keeps the old value). G, H, S and Cp do not change. Test: test_birch_murnaghan_volume_is_that_of_the_equation in pytests/test_mineral_methods.py."
+    },
+    {
+      "database": "pytests/data/legacy-synthetic/s37-mv_eos_birch_murnaghan_gott97.json",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "MgCO3-bm"
+      ],
+      "properties": [
+        "helmholtz_energy",
+        "internal_energy",
+        "volume"
+      ],
+      "reason": "BirchMurnaghan47 set V to V0 plus the volume of the equation (the code of GEMS); V is now the volume of the equation (implementation consistent, the default; gems keeps the old value). G, H, S and Cp do not change. Test: test_birch_murnaghan_volume_is_that_of_the_equation in pytests/test_mineral_methods.py."
+    },
+    {
+      "database": "pytests/data/legacy-synthetic/s37-mv_eos_birch_murnaghan_gott97.json",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "MgCO3-bm"
+      ],
+      "properties": [
+        "helmholtz_energy",
+        "internal_energy",
+        "volume"
+      ],
+      "reason": "BirchMurnaghan47 set V to V0 plus the volume of the equation (the code of GEMS); V is now the volume of the equation (implementation consistent, the default; gems keeps the old value). G, H, S and Cp do not change. Test: test_birch_murnaghan_volume_is_that_of_the_equation in pytests/test_mineral_methods.py."
+    },
+    {
+      "database": "pytests/data/legacy-synthetic/s37-mv_eos_birch_murnaghan_gott97.json",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "MgCO3-bm"
+      ],
+      "properties": [
+        "helmholtz_energy",
+        "internal_energy",
+        "volume"
+      ],
+      "reason": "BirchMurnaghan47 set V to V0 plus the volume of the equation (the code of GEMS); V is now the volume of the equation (implementation consistent, the default; gems keeps the old value). G, H, S and Cp do not change. Test: test_birch_murnaghan_volume_is_that_of_the_equation in pytests/test_mineral_methods.py."
     }
   ]
 }

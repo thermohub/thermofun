@@ -401,10 +401,6 @@
 
 - method: BirchMurnaghan47
   source: Birch (1947), Phys. Rev. 71, 809-824; the coefficients are illustrative values of the order of corundum (K = 252 GPa, K' = 4.3)
-  note: >-
-    The method adds its volume to the one before it, so the record gives the volume at the reference state with `ConstantVolume` first.
-    Known problem, inherited from the code of GEMS: the volume that it adds is `V0 + V(T, P)`, so away from the reference state
-    V is about V0 larger than the equation gives (G, H and S are not affected). It is kept because the results are those of the old code.
   record: |
     substances:
       Co:
@@ -414,7 +410,6 @@
         standard_state_properties: {G: -1582300.0, H: -1675700.0, S: 50.92, Cp: 79.0, V: 2.558e-5}
         methods:
           - method: ConstantCp
-          - method: ConstantVolume
           - method: BirchMurnaghan47
             parameters: {a1: 1.9e-5, kt00: 2.52e+11, kp: 4.3}
   checks:

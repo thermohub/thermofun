@@ -627,7 +627,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 | `ConstantVolume` | Constant molar volume | none | one |
 | `VolumeBerman88` | Molar volume of Berman | `a1` [1/K]<br>`a2` [1/K2]<br>`a3` [1/K3]<br>`b1` [1/Pa]<br>`b2` [1/Pa2] | one |
 | `VolumeDorogokupets88` | Molar volume of Dorogokupets et al. | `a1` [1/K]<br>`a2` [1/K2]<br>`a3` [1/K3]<br>`b1` [1/Pa]<br>`b2` [1/Pa2] | one |
-| `BirchMurnaghan47` | Birch-Murnaghan equation of state | `a1` [1/K]<br>`a2` [1/K2] (optional)<br>`a3` [K] (optional)<br>`kt00` [Pa]<br>`dkdt` [Pa/K] (optional)<br>`kp`<br>`kpp` [1/Pa] (optional) | `gems` |
+| `BirchMurnaghan47` | Birch-Murnaghan equation of state | `a1` [1/K]<br>`a2` [1/K2] (optional)<br>`a3` [K] (optional)<br>`kt00` [Pa]<br>`dkdt` [Pa/K] (optional)<br>`kp`<br>`kpp` [1/Pa] (optional) | `consistent`, `gems` |
 | `MurnaghanHP98` | Murnaghan equation of Holland and Powell | `alpha0` [1/K]<br>`kappa0` [Pa] | `consistent`, `gems` |
 | `TaitHP11` | Tait equation of Holland and Powell | `kappa0p`<br>`kappa0pp` [1/Pa]<br>`n_atoms`<br>`alpha0` [1/K]<br>`kappa0` [Pa] | one |
 | `IdealGas` | Ideal gas | none | one |

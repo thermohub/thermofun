@@ -47,7 +47,7 @@ def test_a_good_database_has_no_problems():
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [1.0, 0.5, 0.2, 1.0]}]), "V2-COV-001"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [1.0, 2.0, 2.0, 1.0]}]), "V2-COV-002"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/U"], "matrix": [1.0, 0.0, 0.0, 1.0]}]), "V2-COV-004"),
-    (mineral(methods=[{"method": "ConstantCp"}, {"method": "MurnaghanHP98", "parameters": {"alpha0": 1e-5, "kappa0": 1e10}}, {"method": "ConstantVolume"}, {"method": "BirchMurnaghan47", "parameters": {"a1": 1e-5, "kt00": 1e10, "kp": 4}}]), None),
+    (mineral(methods=[{"method": "ConstantCp"}, {"method": "MurnaghanHP98", "parameters": {"alpha0": 1e-5, "kappa0": 1e10}}, {"method": "BirchMurnaghan47", "parameters": {"a1": 1e-5, "kt00": 1e10, "kp": 4}}]), None),
 ])
 def test_a_problem_of_a_substance_has_its_code(record, code):
     extra = {"data_sources": {"1998HOL/POW": {"title": "t"}}} if code == "V2-REF-005" else {}

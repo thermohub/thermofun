@@ -28,7 +28,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 | Method | Title | Kind | Classes | Implementations |
 |---|---|---|---|---|
-| [BirchMurnaghan47](BirchMurnaghan47.md) | Birch-Murnaghan equation of state | correction | component | gems |
+| [BirchMurnaghan47](BirchMurnaghan47.md) | Birch-Murnaghan equation of state | correction | component | consistent, gems |
 | [LambdaBerman88](LambdaBerman88.md) | Lambda transition of Berman | correction | component |  |
 | [LandauHP11](LandauHP11.md) | Landau transition of Holland and Powell (2011) | correction | component |  |
 | [LandauHP98](LandauHP98.md) | Landau transition of Holland and Powell | correction | component | consistent, gems |

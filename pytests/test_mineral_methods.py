@@ -124,3 +124,44 @@ def test_extended_uniquac_is_consistent():
     r = method.evaluate(T, P, reference)
     assert r.G.ddt == pytest.approx(-r.S.val, rel=1e-6)
     assert r.H.ddt == pytest.approx(r.Cp.val, rel=1e-6)
+
+
+# BirchMurnaghan47: V is the volume of the equation. The implementation gems keeps the code of GEMS, which adds V0 + V to the
+# volume before it (V0 too large).
+def birch_murnaghan_volume(P, V0, K, Kp):
+    """Third-order Birch-Murnaghan at the reference temperature, with K'' = -(35/9 + (3 - K')(4 - K'))/K, by bisection."""
+    Kpp = -(35.0 / 9.0 + (3.0 - Kp) * (4.0 - Kp)) / K
+
+    def pressure(V):
+        x = (V0 / V) ** (2.0 / 3.0) - 1.0
+        return 1.5 * K * (x + 1.0) ** 2.5 * x * (1.0 + 0.75 * (Kp - 4.0) * x + 3.0 / 8.0 * (143.0 / 9.0 - 7.0 * Kp + Kp * Kp + K * Kpp) * x * x)
+
+    low, high = 0.5 * V0, V0
+    for _ in range(200):
+        middle = 0.5 * (low + high)
+        low, high = (middle, high) if pressure(middle) > P else (low, middle)
+    return 0.5 * (low + high)
+
+
+@pytest.mark.parametrize("implementation", ["", "gems"])
+def test_birch_murnaghan_volume_is_that_of_the_equation(implementation):
+    V0, K, Kp = 2.558e-5, 2.52e11, 4.3
+    record = f"""thermohub: 2.0.0-draft.1
+substances:
+  Co:
+    formula: Al2O3
+    class: component
+    aggregate_state: crystal
+    standard_state_properties: {{G: -1582300.0, H: -1675700.0, S: 50.92, Cp: 79.0, V: {V0}}}
+    methods:
+      - method: ConstantCp
+      - method: BirchMurnaghan47
+        {"implementation: " + implementation if implementation else ""}
+        parameters: {{a1: 0.0, kt00: {K}, kp: {Kp}}}
+"""
+    engine = tf.ThermoEngine(tf.Database(record))
+    for P in (1e8, 1e9, 5e9):
+        wanted = birch_murnaghan_volume(P, V0, K, Kp)
+        got = engine.thermoPropertiesSubstance(298.15, P, "Co").volume.val
+        assert got == pytest.approx(wanted + (V0 if implementation else 0.0), rel=1e-6)
+    assert engine.thermoPropertiesSubstance(298.15, 1e5, "Co").volume.val == pytest.approx(0.0 if implementation else V0)

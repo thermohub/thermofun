@@ -17,6 +17,10 @@ Source: Birch (1947); code of M. Gottschalk.
 | Legacy names | `mv_eos_birch_murnaghan_gott97` |
 | Other names | `BirchMurnaghanGottschalk97`, `BirchMurnaghanGott97` |
 
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
+
 ## Parameters
 
 | Name | Unit of the source | SI unit | Required | Default | Description |
@@ -33,8 +37,6 @@ Source: Birch (1947); code of M. Gottschalk.
 
 From Birch (1947), Phys. Rev. 71, 809-824; the coefficients are illustrative values of the order of corundum (K = 252 GPa, K' = 4.3). No bundled database has this method yet.
 
-The method adds its volume to the one before it, so the record gives the volume at the reference state with `ConstantVolume` first. Known problem, inherited from the code of GEMS: the volume that it adds is `V0 + V(T, P)`, so away from the reference state V is about V0 larger than the equation gives (G, H and S are not affected). It is kept because the results are those of the old code.
-
 ```yaml
 substances:
   Co:
@@ -44,7 +46,6 @@ substances:
     standard_state_properties: {G: -1582300.0, H: -1675700.0, S: 50.92, Cp: 79.0, V: 2.558e-5}
     methods:
       - method: ConstantCp
-      - method: ConstantVolume
       - method: BirchMurnaghan47
         parameters: {a1: 1.9e-5, kt00: 2.52e+11, kp: 4.3}
 ```
@@ -72,5 +73,5 @@ Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mo
 
 ```text
 298.15  100000  -1.5823e+06  -1.6757e+06  50.92  79  2.558e-05
-600  1e+09  -1.5557e+06  -1.6003e+06  106.66  79  7.6786e-05
+600  1e+09  -1.5813e+06  -1.6259e+06  106.66  79  2.5626e-05
 ```

@@ -343,7 +343,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
                     .alias({"Dorogokupets88Vol"}).effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(minerals).add(volumeParameters()));
     m.push_back(Spec("BirchMurnaghan47", "Birch-Murnaghan equation of state", "Calculates V(T, P) from the third-order Birch-Murnaghan equation, with alpha(T) = a1 + a2 T + a3/T2 and K(T) linear in T.",
                      "Birch (1947); code of M. Gottschalk")
-                    .alias({"BirchMurnaghanGottschalk97", "BirchMurnaghanGott97"}).effects(E::Add, E::Add, E::Add, E::None, E::Add, 200).classes(minerals).impl({"gems"})
+                    .alias({"BirchMurnaghanGottschalk97", "BirchMurnaghanGott97"}).effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(minerals).impl({"consistent", "gems"})
                     .add({par("a1", "1/K", "1/K", "thermal expansion, constant term"), par("a2", "1/K2", "1/K2", "thermal expansion, term a2 T", false),
                           par("a3", "K", "K", "thermal expansion, term a3 / T2", false), par("kt00", "Pa", "MPa", "bulk modulus at the reference temperature"),
                           par("dkdt", "Pa/K", "MPa/K", "temperature derivative of the bulk modulus", false), par("kp", "1", "1", "pressure derivative of the bulk modulus"),

@@ -166,6 +166,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`BirchMurnaghan47` gave V about V0 too large** away from the reference state: the code of GEMS added `V0 + V(T, P)` to the
+  volume before it. The default implementation `consistent` sets V to the volume of the equation (G, H and S were right and
+  do not change). The implementation `gems` keeps the old result. Tested against an independent solution of the equation.
+
 - A dataset folder written by `python -m thermofun.convert --split` had a `thermodataset` block in each record file,
   with only the default water convention. Read back, these blocks replaced the dataset of `thermodataset.json`: its
   symbol and name were lost, and a convention other than `HKF_HGK_1974` (for example `NEA_IAPWS`) was replaced by

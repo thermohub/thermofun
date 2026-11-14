@@ -98,9 +98,9 @@ MethodRegistry::MethodRegistry()
     add("IdealGas", "", [](A, R) { return idealGasMethod(); });
 
     // a correction of a mineral: the coefficients of the names; none if the record gives none of them. "": an unused place
-    // LandauHP98 and MurnaghanHP98 also have the implementations consistent (the default) and gems
+    // LandauHP98, MurnaghanHP98 and BirchMurnaghan47 also have the implementations consistent (the default) and gems
     auto mineral = [this](const char* id, std::vector<std::string> names) {
-      const bool two = std::string(id) == "LandauHP98" || std::string(id) == "MurnaghanHP98";
+      const bool two = std::string(id) == "LandauHP98" || std::string(id) == "MurnaghanHP98" || std::string(id) == "BirchMurnaghan47";
       for (const char* implementation : two ? std::vector<const char*>{"", "consistent", "gems"} : std::vector<const char*>{""})
         add(id, implementation, [id, names, gems = std::string(implementation) == "gems"](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
             std::vector<double> values;

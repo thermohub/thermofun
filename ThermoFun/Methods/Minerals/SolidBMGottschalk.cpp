@@ -168,6 +168,11 @@ auto thermoPropertiesMinBMGottschalk (real TK, real Pbar, const MineralInputs& s
     if (applied)
         *applied = false;
 
+    // the volume is the one of the equation (set, as VolumeBerman88 does); the implementation gems adds Vst + V to the volume
+    // before, which is V0 too large (the code of GEMS)
+    if (!subst.gems)
+        tps.volume = Vst;
+
     if( (P_Pst != 0.0 || T_Tst != 0.) && BMc.size() >= 8 )
     {
        if (applied)
@@ -177,7 +182,10 @@ auto thermoPropertiesMinBMGottschalk (real TK, real Pbar, const MineralInputs& s
        BirchMurnaghan( Pst, P, Tst, T, Vst*10., BMc,
                        VV0, aC, aE, GG0, HH0, SS0 );
        // increments to V, G, H, S
-       tps.volume += Vst+VV0/10.;    // fixed by KD on 22.11.04
+       if (subst.gems)
+           tps.volume += Vst+VV0/10.;    // fixed by KD on 22.11.04
+       else
+           tps.volume = VV0/10.;
            // aW.twp->V += VV0/10.;
        tps.entropy      += SS0;
        tps.gibbs_energy += GG0;
