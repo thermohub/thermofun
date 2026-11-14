@@ -58,3 +58,22 @@ Published values, checked by `pytests/test_method_examples.py`:
 | Record | T, K | P | Property | Published | Tolerance |
 |---|---|---|---|---|---|
 | CO2(g) | 298.15 | 1 bar | Cp | 37.135 | 0.01 |
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(298.15, 100000)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "CO2(g)")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+298.15  100000  -3.9438e+05  -3.9351e+05  213.79  37.135  0
+```

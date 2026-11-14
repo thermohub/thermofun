@@ -57,3 +57,21 @@ From CH4 in `mines16-thermofun.json`.
     omega: 0.01045
     k1: -0.00159
 ```
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("mines16-thermofun.json")
+for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "CH4")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+298.15  100000  -50514  -74588  186.36  35.811  0.024735
+373.15  1e+07  -50775  -72910  154.1  45.113  0.00028991
+```

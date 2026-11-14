@@ -48,3 +48,20 @@ substances:
 ```
 
 `pytests/test_method_examples.py` checks that it calculates, at 1073.15 K and 10000 bar. There is no published value here to compare with.
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(1073.15, 1e+09)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "H2O@")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+1073.15  1e+09  0  0  0  0  2.0606e-05
+```

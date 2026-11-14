@@ -65,3 +65,14 @@ def test_each_example_has_a_source_and_something_to_test():
         assert example["method"] in known
         assert example["source"]
         assert example.get("checks") or example.get("calculates"), example["method"]
+
+
+def test_each_page_with_an_example_shows_the_calculation_and_its_output():
+    import glob
+    shown = 0
+    for page in glob.glob("docs/reference/methods/*.md"):
+        text = open(page, encoding="utf-8").read()
+        if "```yaml" in text:
+            assert "Calculation, with the record as above:" in text and "```text" in text, page
+            shown += 1
+    assert shown > 50

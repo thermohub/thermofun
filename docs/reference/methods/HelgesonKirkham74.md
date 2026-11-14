@@ -50,3 +50,21 @@ Published values, checked by `pytests/test_method_examples.py`:
 | H2O@ | 298.15 | saturation | epsilon | 78.47 | 0.02 |
 | H2O@ | 373.15 | 1000 bar | epsilon | 58.55 | 0.02 |
 | H2O@ | 473.15 | 1000 bar | epsilon | 38.27 | 0.02 |
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(373.15, 1e+08), (473.15, 1e+08)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "H2O@")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+373.15  1e+08  -2.4125e+05  -2.788e+05  85.6  72.767  1.8021e-05
+473.15  1e+08  -2.5071e+05  -2.7144e+05  103.07  74.593  1.9503e-05
+```

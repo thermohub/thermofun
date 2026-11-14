@@ -35,3 +35,22 @@ Published values, checked by `pytests/test_method_examples.py`:
 | Record | T, K | P | Property | Published | Tolerance |
 |---|---|---|---|---|---|
 | Quartz | 373.15 | 100 bar | G | -856433 | 1e-06 |
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "Quartz")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+373.15  1e+07  -8.5643e+05  -9.1083e+05  41.5  44.891  2.2688e-05
+```

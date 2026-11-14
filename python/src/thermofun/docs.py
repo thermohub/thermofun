@@ -31,6 +31,81 @@ def published_examples(path=EXAMPLES):
     with open(path, encoding="utf-8") as f:
         return {x["method"]: x for x in yaml.safe_load(f)}
 
+# the points tried for the calculation shown under an example: the first two that work are shown
+POINTS = [(298.15, 1e5), (373.15, 1e7), (573.15, 1e8), (773.15, 1e8)]
+HEADER = "thermohub: 2.0.0-draft.1\n"
+# a water for an example that needs one and does not give it (as in pytests/test_method_examples.py)
+WATER = """substances:
+  H2O@:
+    formula: H2O@
+    class: water_solvent
+    aggregate_state: aqueous
+    standard_state_properties: {G: -237183.0, H: -285881.0, S: 69.923, Cp: 75.36053, V: {value: 1.8068397, unit: J/bar}}
+    methods:
+      - method: WaterIAPWS95
+      - method: JohnsonNorton91
+"""
+SUBSTANCE_COLUMNS = (("G", "gibbs_energy"), ("H", "enthalpy"), ("S", "entropy"), ("Cp", "heat_capacity_cp"), ("V", "volume"))
+REACTION_COLUMNS = (("logK", "log_equilibrium_constant"), ("dG", "reaction_gibbs_energy"), ("dH", "reaction_enthalpy"),
+                    ("dS", "reaction_entropy"), ("dCp", "reaction_heat_capacity_cp"))
+_engines = {}
+
+
+def _engine(key, make):
+    if key not in _engines:
+        _engines[key] = make()
+    return _engines[key]
+
+
+def published_engine(example):
+    """The engine of a published example, with a water if it has none."""
+    def make():
+        if "H2O@:" in example["record"]:
+            return tf.ThermoEngine(tf.Database(HEADER + example["record"]))
+        database = tf.Database(HEADER + WATER)
+        database.appendData(HEADER + example["record"])
+        return tf.ThermoEngine(database)
+    return _engine(("published", example["method"]), make)
+
+
+def calculated(engine, reaction, symbol, points):
+    """Rows (T, P, values) for the first two points that give finite numbers."""
+    import math
+    columns = REACTION_COLUMNS if reaction else SUBSTANCE_COLUMNS
+    rows = []
+    for T, P in points:
+        try:
+            result = engine.thermoPropertiesReaction(T, P, symbol) if reaction else engine.thermoPropertiesSubstance(T, P, symbol)
+            values = [getattr(result, attribute).val for _, attribute in columns]
+        except Exception:
+            continue
+        if all(math.isfinite(v) for v in values):
+            rows.append((T, P, values))
+        if len(rows) == 2:
+            break
+    return rows
+
+
+def calculation_lines(source, reaction, symbol, rows, note=None):
+    """The code that calculates the example, and what it prints."""
+    if not rows:
+        return []
+    columns = REACTION_COLUMNS if reaction else SUBSTANCE_COLUMNS
+    call = "thermoPropertiesReaction" if reaction else "thermoPropertiesSubstance"
+    points = ", ".join("(%s, %s)" % (_number(T), _number(P)) for T, P, _ in rows)
+    lines = ["Calculation, with the record as above:", "", "```python", "import thermofun as tf", "", source,
+             "for T, P in [%s]:  # K, Pa" % points,
+             "    p = engine.%s(T, P, \"%s\")" % (call, symbol),
+             "    print(T, P, %s)" % ", ".join("p.%s.val" % a for _, a in columns), "```", ""]
+    if note:
+        lines += [note, ""]
+    units = "J/mol, J/mol, J/(mol K), J/(mol K), m3/mol" if not reaction else "no unit, J/mol, J/mol, J/(mol K), J/(mol K)"
+    lines += ["Output, as `T  P  %s` (%s):" % ("  ".join(n for n, _ in columns), units), "", "```text"]
+    for T, P, values in rows:
+        lines.append("%s  %s  %s" % (_number(T), _number(P), "  ".join("%.5g" % v for v in values)))
+    lines += ["```", ""]
+    return lines
+
 
 def _pressure(P):
     return "saturation" if P == 0 else "%s bar" % _number(P / 1e5)
@@ -50,6 +125,14 @@ def published_lines(example):
     else:
         points = ", ".join("%s K and %s" % (_number(c["T"]), _pressure(c["P"])) for c in example.get("calculates", []))
         lines += ["%s checks that it calculates, at %s. There is no published value here to compare with." % (test, points), ""]
+    import yaml
+    symbol = (example.get("checks") or example.get("calculates"))[0]["symbol"]
+    reaction = symbol not in (yaml.safe_load(example["record"]).get("substances") or {})
+    given = [(c["T"], c["P"]) for c in example.get("checks", []) + example.get("calculates", [])]
+    wanted = [(T, P) for T, P in dict.fromkeys(given) if P != 0] or POINTS
+    rows = calculated(published_engine(example), reaction, symbol, wanted)
+    note = None if "H2O@:" in example["record"] else "The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does."
+    lines += calculation_lines('engine = tf.ThermoEngine("record.yaml")  # the record above, in a file', reaction, symbol, rows, note)
     return lines
 NOTICE = "Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/reference`."
 
@@ -133,7 +216,15 @@ def _ranges(names):
     return out
 
 
-def method_page(spec, example, same=(), published=None):
+def bundled_calculation(example, data):
+    name, section, symbol = example[0], example[1], example[2]
+    path = os.path.join(data, name)
+    engine = _engine(("bundled", path), lambda: tf.ThermoEngine(path))
+    rows = calculated(engine, section == "reactions", symbol, POINTS)
+    return calculation_lines('engine = tf.ThermoEngine("%s")' % name, section == "reactions", symbol, rows)
+
+
+def method_page(spec, example, same=(), published=None, data=DATA):
     lines = ["# " + spec["id"], "", spec["title"] + ".", "", spec["summary"], ""]
     for other in same:
         lines += ["The id `%s` is the same method: the same calculation and parameters, under a name of the legacy files (%s). "
@@ -192,8 +283,10 @@ def method_page(spec, example, same=(), published=None):
         shown = ["  %s: %s" % (n, _number(_plain(values[n]))) for n in ("logK", "dG", "dH", "dS", "dCp") if n in values]
         lines += ["From %s in `%s`: the reference values it reads, and the method." % (example[2], example[0]), "", "```yaml", "reaction_properties:"]
         lines += shown + ["methods:", "  - method: " + spec["id"], "```", ""]
+        lines += bundled_calculation(example, data)
     elif example:
         lines += ["From %s in `%s`." % (example[2], example[0]), "", "```yaml"] + example_lines(spec, example) + ["```", ""]
+        lines += bundled_calculation(example, data)
     else:
         lines += ["No bundled record uses this method.", ""]
     return "\n".join(lines)
@@ -335,7 +428,7 @@ def pages(data=DATA):
     out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
            "format-v2-schema.md": schema_page()}
     for s in specs:
-        out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]], written.get(s["id"]))
+        out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]], written.get(s["id"]), data)
     for g, members in groups(specs).items():
         out["methods/%s.md" % group_file(g)] = group_page(g, members)
     return out

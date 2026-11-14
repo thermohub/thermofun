@@ -40,3 +40,21 @@ From H2O@ in `aq17-thermofun.json`.
 ```yaml
 - method: JohnsonNorton91
 ```
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("aq17-thermofun.json")
+for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "H2O@")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+298.15  100000  -2.3718e+05  -2.8583e+05  69.927  75.328  1.8069e-05
+373.15  1e+07  -2.429e+05  -2.8004e+05  86.724  75.547  1.8709e-05
+```

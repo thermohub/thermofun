@@ -45,3 +45,21 @@ From Albite in `aq17-thermofun.json`.
     alpha0: 4.56e-05
     kappa0: 593
 ```
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("aq17-thermofun.json")
+for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "Albite")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+298.15  100000  -3.712e+06  -3.9346e+06  210.1  207.73  0.00010029
+373.15  1e+07  -3.7287e+06  -3.9168e+06  260.09  237.2  0.00010046
+```

@@ -102,6 +102,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A calculation under each method example** on the method pages: the code that calculates the record at two points
+  and the values it prints (G, H, S, Cp, V, or log K and the reaction values). The generator runs it, so a page cannot
+  show a value that the code does not give. Fourteen methods still have no example.
 - **The conversion and the record builders in C++** (`Convert.h`, `RecordBuilder.h`), so a C++ program has what Python
   has. `convertFile` (legacy or v2 to v2 JSON, YAML, a dataset folder, or legacy JSON), `conversionReport` (the
   migration report), `shortenedNumbers`, `Database::saveDataset` (a dataset folder), and `RecordBuilder` with

@@ -50,3 +50,23 @@ Published values, checked by `pytests/test_method_examples.py`:
 | Record | T, K | P | Property | Published | Tolerance |
 |---|---|---|---|---|---|
 | Water-dissociation | 298.15 | saturation | logK | -13.995 | 0.005 |
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesReaction(T, P, "Water-dissociation")
+    print(T, P, p.log_equilibrium_constant.val, p.reaction_gibbs_energy.val, p.reaction_enthalpy.val, p.reaction_entropy.val, p.reaction_heat_capacity_cp.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  logK  dG  dH  dS  dCp` (no unit, J/mol, J/mol, J/(mol K), J/(mol K)):
+
+```text
+298.15  100000  -13.995  79884  55581  -81.512  -220.06
+373.15  1e+07  -12.23  87369  42446  -120.39  -164.24
+```

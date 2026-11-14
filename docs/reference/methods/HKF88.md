@@ -71,3 +71,21 @@ From Al(OH)2+ in `aq17-thermofun.json`.
     c2: -10465
     omega: 53240
 ```
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("aq17-thermofun.json")
+for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "Al(OH)2+")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+298.15  100000  -8.9829e+05  -9.9558e+05  -27.53  40.832  3.8498e-06
+373.15  1e+07  -8.9655e+05  -9.9241e+05  -18.172  38.014  4.3457e-06
+```

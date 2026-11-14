@@ -60,3 +60,22 @@ substances:
 ```
 
 `pytests/test_method_examples.py` checks that it calculates, at 373.15 K and 100 bar. There is no published value here to compare with.
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(373.15, 1e+07)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "CO2(g)")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+
+```text
+373.15  1e+07  -3.9726e+05  -3.9399e+05  177.28  62.892  0.00023033
+```
