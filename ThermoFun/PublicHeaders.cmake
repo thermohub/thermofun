@@ -11,6 +11,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Common/ThermoProperties.h
     Common/ThermoProperty.hpp
     Common/ThermoScalar.hpp
+    Convert.h
     Database.h
     Element.h
     Engine/Consistency.h
@@ -40,6 +41,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Model/ThermoDataSetInfo.h
     Model/Vocabulary.h
     Reaction.h
+    RecordBuilder.h
     Substance.h
     ThermoEngine.h
     ThermoFun.h
