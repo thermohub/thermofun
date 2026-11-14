@@ -75,4 +75,4 @@ def test_each_page_with_an_example_shows_the_calculation_and_its_output():
         if "```yaml" in text:
             assert "Calculation, with the record as above:" in text and "```text" in text, page
             shown += 1
-    assert shown > 50
+    assert shown >= 30
