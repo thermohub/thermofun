@@ -150,6 +150,16 @@ void exportMethods(py::module& parent)
             row["piecewise"] = spec.piecewise; row["implemented"] = spec.implemented;
             row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
             row["implementations"] = spec.implementations;
+            {
+                py::list outputs;
+                for (const auto& o : spec.auxiliary_outputs)
+                {
+                    py::dict item;
+                    item["name"] = o.name; item["si_unit"] = o.si_unit; item["description"] = o.description;
+                    outputs.append(item);
+                }
+                row["auxiliary_outputs"] = outputs;
+            }
             row["needs_solvent"] = spec.needs.solvent;
             {
                 // what the method does to each property of a substance: set, add, read or none

@@ -14,9 +14,11 @@ kernelspec:
 
 # 1. Your first calculation
 
-You learn to calculate a substance, a reaction and water, and to read a result. It takes 15 minutes.
+You learn to calculate a substance, a reaction and water, and to read a result.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
+
+**Related:** [Results](../reference/results.md) · [The v2 format](../reference/format-v2.md) (the paths of a record) (what a calculation gives) · [Units](../reference/units.md) · [Methods](../reference/methods/index.md) · [Uncertainties](../reference/uncertainty.md) · [See what each method gives](../how-to/get-per-method-results.md) · [Glossary](../glossary.md)
 
 ## Make an engine
 
@@ -47,12 +49,26 @@ assert -1.2e6 < calcite.gibbs_energy.val < -1.1e6
 
 ## Read a result
 
-Each property has a value, its derivatives by T and P, its uncertainty and a status.
+Each property is not one number. It has five parts:
+
+| Part | Name | What it is |
+|---|---|---|
+| value | `val` | the property, here G in J/mol |
+| derivative by T | `ddt` | dG/dT, in J/(mol K) |
+| derivative by P | `ddp` | dG/dP, in J/(mol Pa) |
+| uncertainty | `err` | the uncertainty of the value, in the units of the value; 0 if the record has none |
+| status | `sta` | whether the value was calculated |
 
 ```{code-cell} ipython3
 G = calcite.gibbs_energy
-print("value", G.val, " dG/dT", G.ddt, " dG/dP", G.ddp, " uncertainty", G.err, " status", G.sta)
+print("value         ", G.val, "J/mol")
+print("dG/dT         ", G.ddt, "J/(mol K)")
+print("dG/dP         ", G.ddp, "J/(mol Pa)")
+print("uncertainty   ", G.err, "J/mol")
+print("status        ", G.sta)
 ```
+
+The uncertainty is 0 because the record of Calcite in aq17 has none. See [Add an uncertainty](#add-an-uncertainty) below.
 
 The derivatives agree with the other properties: dG/dT = -S, and dG/dP = V with V in m3/mol and P in Pa.
 
@@ -67,7 +83,7 @@ assert abs(G.ddp - calcite.volume.val) < 1e-11
 assert G.sta[0] == tf.Status.calculated
 ```
 
-Always look at the status. If it is `notdefined`, a value that the calculation needs is missing, and `val` has no meaning.
+Always look at the status. If it is `notdefined`, a value that the calculation needs is missing, and `val` has no meaning. If `G.outside_range` is True, the model was used outside its range (for example the HKF model of aqueous species where water is not dense enough): the value is there, and `G.sta[1]` says which range.
 
 ## Use the saturation pressure
 
@@ -112,49 +128,48 @@ assert 997.0 < water.density.val < 997.1
 assert 860.0 < engine.propertiesSolvent(473.15, 0.0, "H2O@").density.val < 870.0
 ```
 
-## Calculate many values with a loop
+## Calculate many values
 
-For a few values, a loop is enough. For many, [batch calculations](07-batch-calculations.md) and [output tables](06-output-tables.md) are shorter.
+To calculate many values, make a table. The template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. [Output tables](06-output-tables.md) and [batch calculations](07-batch-calculations.md) tell more.
 
 ```{code-cell} ipython3
-rows = []
-for t in [25, 50, 100, 150, 200]:
-    result = engine.thermoPropertiesReaction(t + 273.15, 0.0, dissolution)
-    rows.append({"T (degC)": t, "log K": result.log_equilibrium_constant.val})
-pd.DataFrame(rows)
+results = tf.table(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
+print(results["reactions"].to_text("md"))
 ```
 
+(add-an-uncertainty)=
 ## Add an uncertainty
 
-A value in a record can have an uncertainty, and the engine propagates it. aq17 has none for Calcite, so add them to the record. [Tutorial 3](03-change-models.md) shows this way to change a record.
+A value in a record can have an uncertainty, and the engine propagates it to every result. aq17 has none for Calcite, so add them to the record. A value of a record is found by its **path**: the section (`substances`), the symbol of the record, and the keys of the record, separated by `/`. `get` reads a value, `set` changes it. [Tutorial 3](03-change-models.md) shows more changes.
 
 ```{code-cell} ipython3
-import json
+database = tf.Database("aq17-thermofun.json")
 
-records = json.loads(tf.Database("aq17-thermofun.json").toJson(False))
-properties = records["substances"]["Calcite"]["standard_state_properties"]
-properties["G"] = {"value": properties["G"], "uncertainty": 1500.0}
-properties["S"] = {"value": properties["S"], "uncertainty": 0.5}
+G0 = database.get("/substances/Calcite/standard_state_properties/G")
+S0 = database.get("/substances/Calcite/standard_state_properties/S")
+database.set("/substances/Calcite/standard_state_properties/G", {"value": G0, "uncertainty": 1500.0})
+database.set("/substances/Calcite/standard_state_properties/S", {"value": S0, "uncertainty": 0.5})
 
-uncertain = tf.ThermoEngine(tf.Database(json.dumps(records)))
-G = uncertain.thermoPropertiesSubstance(373.15, 1e8, "Calcite").gibbs_energy
+calcite_engine = tf.ThermoEngine(database)
+G = calcite_engine.thermoPropertiesSubstance(373.15, 1e8, "Calcite").gibbs_energy
 print(G.val, "+-", G.err, "J/mol")
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-assert G.err > 1500.0
+assert G.err >= 1500.0
 ```
+
+The file is not changed. Make the engine after the change: an engine that exists already keeps the records it had.
 
 ## See how a result is calculated
 
-`calculationPath` shows the methods of a record, and what else the record needs. `explain` gives the state after each method.
+`calculationPath` shows the methods of a record, and what else the record needs. `explain` gives the properties after each method: each row is the total after that method was applied, so the last row is the result. The part that each method adds is in [See what each method gives](../how-to/get-per-method-results.md).
 
 ```{code-cell} ipython3
 path = engine.calculationPath("Ca+2")
-print(path["symbol"], path["methods"])
-for step in path["steps"]:
-    print(" needs", step["symbol"], step["methods"], "as", step["role"])
+print(path["symbol"], "uses the methods", path["methods"])
+print("and needs the record", path["steps"][0]["symbol"], "as", path["steps"][0]["role"])
 ```
 
 ```{code-cell} ipython3

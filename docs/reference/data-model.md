@@ -21,8 +21,14 @@ import thermofun as tf
 shared = tf.ThermoEngine("examples/v2/minimal.yaml")
 mine = tf.ThermoEngine(shared)  # for one thread
 mine.preferences.round_to_uncertainty = True
+print(shared.preferences.round_to_uncertainty)  # prints False
+```
+
+<!-- check
+```python
 assert shared.preferences.round_to_uncertainty is False
 ```
+-->
 
 In C++ the copy constructor and the copy assignment both make such a copy. A database can be shared by threads that only read it.
 

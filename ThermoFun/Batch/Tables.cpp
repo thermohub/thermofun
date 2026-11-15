@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <cctype>
 #include <ThermoFun/Batch/Tables.h>
 
 #include <algorithm>
@@ -16,7 +17,9 @@
 #include <nlohmann/json.hpp>
 
 #include <ThermoFun/Common/Units.hpp>
+#include <ThermoFun/Common/OutsideRange.h>
 #include <ThermoFun/Database.h>
+#include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/IO/V2/V2Reader.h>
 #include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoEngine.h>
@@ -130,7 +133,22 @@ auto electroScalar(const ElectroPropertiesSolvent& x, const std::string& n) -> c
     return nullptr;
 }
 
-enum class Where { Thermo, Solvent, Electro };
+enum class Where { Thermo, Solvent, Electro, Auxiliary };
+
+/// The catalog entry of a named output "<method>:<name>" of a substance method; nullptr if there is none.
+auto auxiliaryOutput(const std::string& name) -> const model::AuxiliaryOutputSpec*
+{
+    const auto colon = name.find(':');
+    if (colon == std::string::npos)
+        return nullptr;
+    const auto* spec = model::MethodCatalog::instance().find(name.substr(0, colon), model::OperatesOn::Substance);
+    if (!spec)
+        return nullptr;
+    for (const auto& output : spec->auxiliary_outputs)
+        if (output.name == name.substr(colon + 1))
+            return &output;
+    return nullptr;
+}
 
 /// Where a property comes from, and the name of its field.
 auto fieldOf(bool reaction, const std::string& name) -> std::pair<Where, std::string>
@@ -148,7 +166,12 @@ auto fieldOf(bool reaction, const std::string& name) -> std::pair<Where, std::st
         return {Where::Solvent, name};
     if (electroScalar(ElectroPropertiesSolvent{}, name))
         return {Where::Electro, name};
-    fail("A substance has no property " + name + ". Use one of: G, H, S, Cp, Cv, V, U, A, or a property of water such as density or epsilon.");
+    if (auxiliaryOutput(name))
+        return {Where::Auxiliary, name};
+    if (name.find(':') != std::string::npos)
+        fail("The method " + name.substr(0, name.find(':')) + " has no named output " + name.substr(name.find(':') + 1) +
+             ". The named outputs of a method are on its page, and in the catalog (auxiliary_outputs).");
+    fail("A substance has no property " + name + ". Use one of: G, H, S, Cp, Cv, V, U, A, a property of water such as density or epsilon, or a named output of a method such as HKF88:born_G.");
 }
 
 /// J/(mol K) as the converter writes it: J/K/mol.
@@ -273,8 +296,12 @@ auto labelOf(const json& column, const std::string& field, const std::string& va
         const auto show = column["show"].get<std::string>();
         std::string unit = stringOr(column, "unit", "");
         if (unit.empty())
+        {
             if (const auto it = baseUnits.find(field); it != baseUnits.end())
                 unit = it->second;
+            else if (const auto* output = auxiliaryOutput(field))
+                unit = output->si_unit;
+        }
         if (show == "err") text += "_err";
         if (show == "ddt") text += "_ddT";
         if (show == "ddp") text += "_ddP";
@@ -731,6 +758,14 @@ auto Table::values() const -> std::vector<std::vector<double>>
     return out;
 }
 
+auto Table::pressureUsed(const std::string& record, double T, double P, bool at_saturation) const -> double
+{
+    for (const auto& row : rows_)
+        if (row.record == record && row.T == T && row.saturation == at_saturation && (at_saturation || row.P == P))
+            return !row.saturation ? row.P : row.P_used ? *row.P_used : std::nan("");
+    fail("The table " + name_ + " has no row " + record + " at T = " + std::to_string(T) + (at_saturation ? " and saturation." : " and P = " + std::to_string(P) + "."));
+}
+
 auto Table::cell(const std::string& record, double T, double P, const std::string& column, bool at_saturation) const -> const TableCell&
 {
     std::size_t index = columns_.size();
@@ -772,10 +807,12 @@ auto Table::number(const TableColumn& column, const TableCell* cell) const -> st
     return format(column, cell->value);
 }
 
-auto Table::condition(double value, bool saturation, const std::optional<int>& digits) const -> std::string
+auto Table::condition(double value, bool saturation, const std::optional<int>& digits, const std::optional<double>& used) const -> std::string
 {
-    if (saturation)
+    if (saturation && !used)
         return "saturation";
+    if (saturation)
+        value = *used;
     char text[64];
     if (digits)
         std::snprintf(text, sizeof text, "%.*f", *digits, value);
@@ -807,7 +844,7 @@ auto Table::lines() const -> std::vector<std::vector<std::string>>
         }
         for (const auto& row : ordered)
         {
-            std::vector<std::string> line = {row.record, condition(row.T, false, digits_T_), condition(row.P, row.saturation, digits_P_)};
+            std::vector<std::string> line = {row.record, condition(row.T, false, digits_T_), condition(row.P, row.saturation, digits_P_, row.P_used)};
             for (std::size_t i = 0; i < columns_.size(); ++i)
                 line.push_back(number(columns_[i], i < row.cells.size() ? &row.cells[i] : nullptr));
             out.push_back(std::move(line));
@@ -831,7 +868,7 @@ auto Table::lines() const -> std::vector<std::vector<std::string>>
     for (std::size_t i = 0; i < columns_.size(); ++i)
         for (const auto* point : points)
         {
-            std::vector<std::string> line = {columns_[i].label, condition(point->T, false, digits_T_), condition(point->P, point->saturation, digits_P_)};
+            std::vector<std::string> line = {columns_[i].label, condition(point->T, false, digits_T_), condition(point->P, point->saturation, digits_P_, point->P_used)};
             for (const auto& record : records)
             {
                 const auto row = std::find_if(rows_.begin(), rows_.end(), [&](const TableRow& r) { return r.record == record && r.T == point->T && r.P == point->P && r.saturation == point->saturation; });
@@ -1281,6 +1318,7 @@ struct TableSetup::Impl
                     {
                         const auto [where, field] = fieldOf(reaction, column["property"].get<std::string>());
                         double Pcall = P;
+                        const std::size_t cellsBefore = row.cells.size();
                         try
                         {
                             if (where == Where::Solvent)
@@ -1298,6 +1336,22 @@ struct TableSetup::Impl
                             }
                             else if (where == Where::Electro)
                                 row.cells.push_back(cellOf(*electroScalar(engine.electroPropertiesSolvent(T, Pcall, record), field), field, column));
+                            else if (where == Where::Auxiliary)
+                            {
+                                if (column["show"] != "val")
+                                    fail("The column " + field + " is a named output of a method: it has a value only, not " + column["show"].get<std::string>() + ".");
+                                const auto outputs = engine.auxiliaryOutputs(record, {T}, {Pcall});
+                                const auto it = outputs.front().values.find(field);
+                                if (it == outputs.front().values.end())
+                                    throw std::runtime_error("The record " + record + " has no named output " + field +
+                                                             ": it does not use that method, or the implementation of the method gives none.");
+                                if (point.saturation && !row.P_used && outputs.front().P > 0.0)
+                                    row.P_used = convert(outputs.front().P, "Pa", axisP.unit);
+                                TableCell cell;
+                                cell.value = convert(it->second, auxiliaryOutput(field)->si_unit, stringOr(column, "unit", ""));
+                                cell.defined = std::isfinite(it->second);
+                                row.cells.push_back(cell);
+                            }
                             else if (reaction)
                             {
                                 const auto x = sourceWord == "reactants" ? engine.thermoPropertiesReactionFromReactants(T, Pcall, record) : engine.thermoPropertiesReaction(T, Pcall, record);
@@ -1326,6 +1380,33 @@ struct TableSetup::Impl
                             problem.message = std::regex_replace(std::string(error.what()), std::regex(R"(\s*\*+\s*)"), " ");
                             table.problems_.push_back(std::move(problem));
                             row.cells.emplace_back();
+                        }
+                        if (row.cells.size() > cellsBefore && row.cells.back().has_result)
+                        {
+                            // a saturation point: the pressure that the calculation used
+                            if (point.saturation && !row.P_used && Pcall > 0.0)
+                                row.P_used = convert(Pcall, "Pa", axisP.unit);
+                            // a value that is calculated, with a message: for example a point outside the range of a method
+                            std::string note = row.cells.back().result.sta.second;
+                            while (!note.empty() && (note.back() == ' ' || note.back() == ';' || note.back() == '\n'))
+                                note.pop_back();
+                            const bool known = std::any_of(table.problems_.begin(), table.problems_.end(), [&](const TableProblem& q) {
+                                return q.record == record && q.T == point.T && q.P == point.P && q.saturation == point.saturation && q.message == note;
+                            });
+                            // a value calculated outside the range of its model (the methods mark the message, see OutsideRange.h)
+                            const bool outside = outsideRange(row.cells.back().result);
+                            if (outside && !known)
+                            {
+                                TableProblem problem;
+                                problem.table = name;
+                                problem.record = record;
+                                problem.T = point.T;
+                                problem.P = point.P;
+                                problem.saturation = point.saturation;
+                                problem.has_point = true;
+                                problem.message = note;
+                                table.problems_.push_back(std::move(problem));
+                            }
                         }
                     }
                 table.rows_.push_back(std::move(row));
@@ -1623,6 +1704,8 @@ namespace {
 auto batchName(bool reaction, const std::string& property) -> std::string
 {
     const auto [where, field] = fieldOf(reaction, property);
+    if (where == Where::Auxiliary)
+        fail("A ThermoBatch does not calculate the named output " + property + " of a method: use a table.");
     if (where != Where::Thermo)
         fail("A ThermoBatch does not calculate the property " + property + " of water: use a table.");
     return field == "log_equilibrium_constant" ? "logKr" : field == "ln_equilibrium_constant" ? "lnKr" : field;

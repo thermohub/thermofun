@@ -9,7 +9,7 @@ Source: Berman (1988).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

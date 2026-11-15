@@ -19,8 +19,14 @@ import thermofun as tf
 results = tf.table(template="species-properties", database="aq17-thermofun.json", records=["Ca+2", "Calcite"])
 species = results["species"]
 print(species.to_text("md"))
+print(species.columns[0]["label"])  # prints G(kJ/mol)
+```
+
+<!-- check
+```python
 assert species.columns[0]["label"] == "G(kJ/mol)"
 ```
+-->
 
 `tf.tables.templates()` lists them, and `python -m thermofun.tables --list` too.
 
@@ -55,16 +61,27 @@ setup.column("G", unit="J/mol", digits=1)
 setup.remove_column("V")
 setup.add_column("A", unit="kJ/mol", digits=2)
 results = setup.run()
+print(results.write())  # prints ['mine.md']
+```
+
+<!-- check
+```python
 assert results.write() == ["mine.md"]
 ```
+-->
 
 Keep your changes as a file. It records how you made the table.
 
 ```python
 setup.save("mine.yaml")
 again = tf.table("mine.yaml")
+```
+
+<!-- check
+```python
 assert again["species"].to_text() == results["species"].to_text()
 ```
+-->
 
 ## 3. Write a setup
 
@@ -102,8 +119,14 @@ Run it from a shell with `python -m thermofun.tables setup.yaml`, or in Python:
 
 ```python
 results = tf.table("setup.yaml")
+print(sorted(results.write()))  # prints ['logk.md', 'species.csv', 'water.csv']
+```
+
+<!-- check
+```python
 assert sorted(results.write()) == ["logk.md", "species.csv", "water.csv"]
 ```
+-->
 
 ## 4. Choose records by a rule
 
@@ -112,11 +135,16 @@ assert sorted(results.write()) == ["logk.md", "species.csv", "water.csv"]
 ```python
 results = tf.table(template="species-properties", database="aq17-thermofun.json",
                    records={"class": "aqueous_solute", "elements": ["Ca"]})
-assert "Ca+2" in {row[0] for row in results["species"].rows}
 
 database = tf.Database("aq17-thermofun.json")
+```
+
+<!-- check
+```python
+assert "Ca+2" in {row[0] for row in results["species"].rows}
 assert "Calcite" in tf.tables.select_substances(database, {"elements": ["Ca", "C"], "exclude": ["CaCO3@"]})
 ```
+-->
 
 In YAML:
 
@@ -135,7 +163,7 @@ records: [H2O@, {class: aqueous_solute, only_elements: [Ca, C, O, H]}]
 | `match` | both | With a symbol like this, or one of a list: `Ca*`. `*` is any text, and `?` is one character. |
 | `exclude` | both | Leaves out these symbols, with `*` and `?` too. |
 
-**Check:** a rule that chooses nothing is an error, and so is a misspelled key. The message gives the nearest word.
+A rule that chooses nothing is an error, and so is a misspelled key. The message gives the nearest word.
 
 ## 5. Use templates of your own
 
@@ -156,11 +184,17 @@ tables:
 import os
 os.environ["THERMOFUN_TEMPLATE_PATH"] = "my-templates"
 
+print(tf.tables.templates()["my-table"])  # prints G and S at 25 and 50 degC, for my group
+results = tf.table(template="my-table", database="aq17-thermofun.json", records=["Ca+2"])
+```
+
+<!-- check
+```python
 assert tf.tables.templates()["my-table"] == "G and S at 25 and 50 degC, for my group"
 assert tf.tables.template_source("my-table") == os.path.join("my-templates", "my-table.yaml")
-results = tf.table(template="my-table", database="aq17-thermofun.json", records=["Ca+2"])
 del os.environ["THERMOFUN_TEMPLATE_PATH"]
 ```
+-->
 
 A file with the name of a template of the library replaces it. `template_source` says which one you have, and the output names the path. The first folder that has a name wins.
 
@@ -178,8 +212,14 @@ tables:
 
 ```python
 results = tf.table("from-templates.yaml")
+print(results["species"].columns[0]["unit"])  # prints kJ/mol
+```
+
+<!-- check
+```python
 assert results["species"].columns[0]["unit"] == "kJ/mol"
 ```
+-->
 
 In Python, give a list: `tf.table(template=["species-properties", "batch-saturation"], ...)`, or call `setup.use("batch-saturation")`. In C++, call `setup.useTemplate("batch-saturation")`.
 
@@ -190,10 +230,14 @@ A file starts with how it was made, as comments that a table program can skip: t
 ```python
 results = tf.table(template="species-properties", database="aq17-thermofun.json", records=["Ca+2"])
 species = results["species"]
-for line in species.provenance.lines():
-    print(line)
+print("\n".join(species.provenance.lines()))
+```
+
+<!-- check
+```python
 assert species.to_text("csv", with_provenance=True).startswith("# database: aq17-thermofun.json")
 ```
+-->
 
 `provenance` is a setting of a table:
 
@@ -215,14 +259,20 @@ To read a CSV file with its lines in pandas: `pandas.read_csv(path, comment="#")
 setup = tf.tables.template(["species-properties", "batch-reference"], database="aq17-thermofun.json",
                            records={"class": "aqueous_solute", "elements": ["Ca"]})
 calculation = setup.batch("species")
-assert calculation.properties[0] == "gibbs_energy"
+print(calculation.properties[0])  # prints gibbs_energy
 
 output = calculation.run()                  # the Output of ThermoBatch
-assert len(output.to2DVectorDouble()) == len(calculation.symbols)
 
 path = calculation.write("batch.csv")       # in the layout of the setup, with how it was made
+```
+
+<!-- check
+```python
+assert calculation.properties[0] == "gibbs_energy"
+assert len(output.to2DVectorDouble()) == len(calculation.symbols)
 assert open(path).read().startswith("# database:")
 ```
+-->
 
 ```cpp
 auto calculation = setup.batch("species");
@@ -237,8 +287,13 @@ batch = tf.ThermoBatch("aq17-thermofun.json")
 tf.tables.template("species-properties").apply_to(batch)          # units, digits, preferences
 symbols = batch.selectSubstances({"class": "aqueous_solute", "elements": ["Ca"]})
 output = batch.thermoPropertiesSubstance([[298.15, 1e5]], symbols, ["gibbs_energy"])
+```
+
+<!-- check
+```python
 assert any("sha256" in line for line in output.provenance())
 ```
+-->
 
 A `ThermoBatch` writes no record of how it was made unless you ask, as before: set `batch.preferences.writeProvenance = True`. A setup sets it for you, from `provenance`.
 
@@ -270,9 +325,9 @@ Settings at the top of a setup are the defaults of its tables.
 |---|---|
 | `database` | A file. In Python, also a `Database` or an engine. |
 | `template` | A name or a list of names, under the other settings. |
-| `conditions` | `T` and `P`: a list, `{values, unit}` or `{from, to, step, unit}`. `saturation` is a value of `P`. `pairs: true` goes through T and P together. `order: P_first` changes the order. |
+| `conditions` | `T` and `P`: a list, `{values, unit}` or `{from, to, step, unit}`. `saturation` is a value of `P`: the table then shows the saturation pressure that the calculation used, and a value is asked for with the word `saturation`. `pairs: true` goes through T and P together. `order: P_first` changes the order. |
 | `records`, `reactions` | Symbols, or a rule, or a list with rules in it. A reaction can be an equation. |
-| `columns` | A property, or `{property, show, unit, digits, format, label}`. |
+| `columns` | A property, or `{property, show, unit, digits, format, label}`. A property is G, H, S, Cp, Cv, V, U, A (or logK, dG, ... for reactions), a property of water such as `density`, `epsilon` or `bornQ`, or a named output of a method such as `HKF88:born_G` (its value only). |
 | `show` | `val`, `err`, `ddt`, `ddp`, `status`. |
 | property | Substance: `G`, `H`, `S`, `Cp`, `Cv`, `V`, `U`, `A`. Reaction: `logK`, `lnK`, `dG`, `dH`, `dS`, `dCp`, `dCv`, `dV`, `dU`, `dA`. Water: `density`, `Alpha`, `Beta`, `dAldT`, `epsilon`, `bornZ`, `bornY`, `bornQ`, `bornX` and others. |
 | `layout` | `long`, `transposed`, `grid`. |
@@ -314,9 +369,14 @@ Settings at the top of a setup are the defaults of its tables.
 | `writeNaNifNotDefinedValue` | `write_not_defined` |
 | `writeProvenance` | `provenance` |
 
-**Check:** a calculation that fails leaves an empty value and a message. The other values are there.
+A calculation that fails leaves an empty value and a message. The other values are there.
 
 ```python
 bad = tf.table(template="species-properties", database="aq17-thermofun.json", records=["Ca+2", "NoSuch"])
+```
+
+<!-- check
+```python
 assert bad["species"].rows and bad.problems[0][1] == "NoSuch"
 ```
+-->

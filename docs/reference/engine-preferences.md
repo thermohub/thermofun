@@ -21,11 +21,13 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 ## EngineConventions
 
+A convention says what the zero of an energy is, and what a standard state is. The same substance has different G and H in different conventions. The engine converts each record from the convention of the record to the one asked for here, so the results are in the convention of your choice. They change only the zero and the scale, not the physics. See [Conventions](conventions.md).
+
 | Option | Default | Valid words | Description |
 |---|---|---|---|
-| apparent_properties | 'BENSON_HELGESON' |  |  |
-| concentration_scale | Molality | molality, mole_fraction, molarity |  |
-| energy_reference | BensonHelgeson | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K |  |
-| standard_pressure | OneBar | 1bar, 1atm |  |
-| water_properties | 'GEOCHEMICAL' |  |  |
-| water_reference | Geochemical | geochemical, steam_tables |  |
+| apparent_properties | 'BENSON_HELGESON' |  | the old name of energy_reference, in capitals (BENSON_HELGESON). It is kept for code that uses it; use energy_reference |
+| concentration_scale | Molality | molality, mole_fraction, molarity | the concentration scale of the standard state of aqueous species: molality (default), mole_fraction or molarity |
+| energy_reference | BensonHelgeson | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K | the reference of the energies: what G and H of a substance are measured from. benson_helgeson (default): the apparent energies of formation from the elements at 298.15 K and 1 bar, as in geochemical databases; berman_brown: G differs from it by 298.15 times the entropies of the elements; ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K: see Conventions |
+| standard_pressure | OneBar | 1bar, 1atm | the standard pressure of gases: 1bar (default) or 1atm |
+| water_properties | 'GEOCHEMICAL' |  | the old name of water_reference, in capitals (GEOCHEMICAL). It is kept for code that uses it; use water_reference |
+| water_reference | Geochemical | geochemical, steam_tables | the reference of the energies of water: geochemical (default, G of formation from the elements) or steam_tables (G = 0 and S = 0 for liquid water at its triple point) |

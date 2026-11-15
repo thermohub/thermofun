@@ -57,6 +57,7 @@ struct TableRow
     std::string record;
     double T = 0.0, P = 0.0;          ///< in the units of the conditions
     bool saturation = false;          ///< P is the saturation pressure
+    std::optional<double> P_used;     ///< for a saturation point: the saturation pressure that the calculation used, in the units of the conditions
     std::vector<TableCell> cells;
 };
 
@@ -84,6 +85,10 @@ public:
     /// One cell. column: its label or its property. At the saturation pressure, give at_saturation.
     auto cell(const std::string& record, double T, double P, const std::string& column, bool at_saturation = false) const -> const TableCell&;
 
+    /// The pressure that the calculation of a row used, in the unit of the conditions: P itself, or the saturation pressure at T for a
+    /// row at saturation (NaN if no value of that row could be calculated).
+    auto pressureUsed(const std::string& record, double T, double P, bool at_saturation = false) const -> double;
+
     /// The header and the rows as text, in the layout long or transposed.
     auto lines() const -> std::vector<std::vector<std::string>>;
 
@@ -102,7 +107,7 @@ private:
     friend class TableSetup;
     auto number(const TableColumn& column, const TableCell* cell) const -> std::string;
     auto format(const TableColumn& column, double value) const -> std::string;
-    auto condition(double value, bool saturation, const std::optional<int>& digits) const -> std::string;
+    auto condition(double value, bool saturation, const std::optional<int>& digits, const std::optional<double>& used = std::nullopt) const -> std::string;
 
     std::string name_, output_, layout_ = "long", separator_ = ",", not_defined_ = "NaN", number_format_, across_ = "P", loop_ = "records", file_format_, provenance_mode_ = "header";
     TableProvenance provenance_;

@@ -14,7 +14,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 # these have their own tests
 OWN_TEST = {"add-data.md", "add-a-method-as-data.md", "fit-parameters.md"}
-PAGES = sorted(p for folder in ("tutorials", "how-to", "reference", "explanation") for p in (DOCS / folder).glob("*.md") if p.name not in OWN_TEST)
+PAGES = sorted(p for folder in ("tutorials", "how-to", "reference") for p in (DOCS / folder).glob("*.md") if p.name not in OWN_TEST)
 # a code block, or a cell of a notebook page (MyST: ```{code-cell} with options on lines that start with ":")
 BLOCK = re.compile(r"(?:<!-- file: (?P<file>[^ ]+) -->\n)?```(?:(?P<kind>[a-z+]+)|\{code-cell\}[^\n]*(?P<cell>)(?:\n:[^\n]*)*)\n(?P<text>.*?)```", re.S)
 LINK = re.compile(r"\]\((?!https?:|#)([^)#]+)(#[^)]*)?\)")

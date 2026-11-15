@@ -9,13 +9,13 @@ Source: Bradley and Pitzer (1979).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | water_solvent |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
 | Has code | yes |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -62,7 +62,7 @@ for T, P in [(473.15, 1e+08), (298.15, 5e+08)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 473.15  1e+08  -2.5071e+05  -2.7144e+05  103.07  74.593  1.9503e-05

@@ -55,6 +55,24 @@ auto legacyFileDiagnostics(const std::string& file) -> Diagnostics;
 auto readConventions(const std::string& data) -> DatabaseConventions;
 
 
+/// How many substances of each class and aggregate state a database holds. See Database::summary.
+struct DatabaseSummary
+{
+    struct Count
+    {
+        std::string substance_class;   ///< a word of `class`, see the allowed words of the format
+        std::string aggregate_state;   ///< a word of `aggregate_state`
+        std::size_t substances = 0;
+    };
+    std::string name;                  ///< the name of the dataset, empty if the file has none
+    std::size_t elements = 0, substances = 0, reactions = 0;
+    std::vector<Count> classes;        ///< sorted by class, then by aggregate state
+    std::size_t substances_with_methods = 0, substances_from_reaction = 0;
+
+    /// A table as text, for a person to read.
+    auto text() const -> std::string;
+};
+
 /**
  * @brief The Database class stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance
  * which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P
@@ -288,6 +306,25 @@ public:
     /// @param yaml true: YAML files, false: JSON files
     /// @param readable as for toJson
     auto saveDataset(const std::string& folder, bool yaml = false, bool readable = true) const -> void;
+
+    /// The version of the v2 format that this ThermoFun writes, for example "2.0.0-draft.1": the value of the key `thermohub`.
+    static auto formatVersion() -> std::string;
+
+    /// The size of the database and its substances by class and aggregate state.
+    auto summary() const -> DatabaseSummary;
+
+    /// A value of a record, as JSON text. The path is a JSON pointer (RFC 6901): the section, the symbol of the record, then the keys
+    /// of the v2 format and the indices of lists, for example `/substances/Calcite/standard_state_properties/G`,
+    /// `/substances/Ca+2/methods/0/parameters/omega` or `/reactions/Calcite-dissolution/equation`. The path of a record alone
+    /// (`/substances/Calcite`) gives the whole record. A `/` in a symbol is written `~1` and a `~` is written `~0`.
+    /// @throws std::invalid_argument if the path is not a path of a record of this database
+    auto value(const std::string& path) const -> std::string;
+
+    /// Sets a value of a record: reads the record, changes the value at the path, and sets the record (see setSubstance). Keys that
+    /// the path needs and the record does not have are made. A path of a record alone replaces the record.
+    /// @param jsonValue the new value, as JSON text: `-1.5e6`, `"text"`, `{"value": 1, "uncertainty": 2}`, `[{"method": "ConstantCp"}]`
+    /// @throws std::invalid_argument if the path or the text is not valid
+    auto setValue(const std::string& path, const std::string& jsonValue) -> void;
 
     /// All problems of the database, also those that a load does not refuse because a record can come from another file.
     auto validate() const -> Diagnostics;

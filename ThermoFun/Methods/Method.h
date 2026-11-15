@@ -151,8 +151,10 @@ public:
     /// The status and the error of what the method gives. out holds those of the incoming properties.
     virtual auto info(PropertiesInfo& /*out*/, const PropertiesInfo& /*reference*/, const InfoInputs&) const -> void {}
 
-    /// Named outputs beside the properties, calculated only on request.
-    virtual auto auxiliary(const SubstanceInputs<double>&) const -> std::map<std::string, double> { return {}; }
+    /// Named outputs beside the properties (the terms and intermediate functions of the model), in SI, for the state of the inputs
+    /// (the pass with respect to T: the values only). The names are those of the spec (auxiliary_outputs). Calculated only on request,
+    /// by explain and the auxiliary outputs of the engine. Empty if the method has none.
+    virtual auto auxiliary(const SubstanceInputs<TPReal>&) const -> std::map<std::string, double> { return {}; }
 };
 
 } // namespace ThermoFun::model

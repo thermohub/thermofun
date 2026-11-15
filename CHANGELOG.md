@@ -102,6 +102,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `Database::value(path)` and `setValue(path, json)` (Python `get(path)` and `set(path, value)`) read and change a value of a record by
+  its path, a JSON pointer such as `/substances/Calcite/standard_state_properties/G`. Python takes and gives Python objects, so a
+  record is changed without `json.dumps`. `Database(dict)` reads a dict in the v2 format. `Database::summary()` gives the size of
+  a database and its substances by class and aggregate state.
+- A table at the saturation pressure writes the pressure that the calculation used, in the units of the conditions (before: the word
+  `saturation`; the key `"saturation"` of `value()`, `scalar()` and `rows` is unchanged). A value that is calculated outside the range of
+  its model (for example the HKF model outside 600-1400 kg/m3 of water) is listed in `problems` of the table, with the message.
+- **Named outputs of a method** (the terms and intermediate functions of a model): `ThermoEngine::auxiliaryOutputs(symbol, T, P)`
+  (Python `auxiliaryOutputs`) gives them as a table with the columns `<method>:<name>`, and `explain` has them for each method.
+  The catalog lists them (`auxiliary_outputs`, with unit and meaning) and the method page has a section. First method: `HKF88`
+  (`reaktoro` implementation) gives the g function, the effective radius, the Born coefficient, and the Born terms of G, H, S,
+  Cp and V. The terms agree with each other (S = -dG/dT, Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity
+  coefficient of the gas methods, the order parameter of Landau and the thermal pressure of Tait (CHECK-LATER item 38).
+  A table takes a named output as a column, `{property: HKF88:born_G, unit: kJ/mol}`; a record without the method gets an empty
+  cell and a problem.
+- **A value outside the range of its model is marked:** `ThermoScalar.outside_range` (C++ `ThermoFun::outsideRange`). All methods
+  write such messages with one function, which starts them with "Outside the range of the model:"; the status stays `calculated`.
+  Tables list these values in `problems` by that mark, not by the words of the message.
+- `Table::pressureUsed` (Python `pressure_used(record, T, "saturation")`): the pressure that a row used.
+- `class` accepts `condensed_species` for `component` and `solvent` for `water_solvent`; the record is written with the word of the
+  format. The `gems` implementation of HKF88 gives the same named outputs, from its own g function and Born coefficient.
+- Test that every record of `psinagra-12-07` calculates without a crash. The released 0.6.x library crashed on it (segmentation
+  fault at `Pd`: `cp_ft_equation` with T limits and no T intervals, the interval index -1 of the old Cp integration); v2 does not.
+- **A v2 document without the key `thermohub`** (a section that is a map of records) is refused with V2-VER-003. Before, it was
+  read as a legacy file and gave records with no symbol. `Database(dict)` adds the key if it is missing.
+- The text of V2-MTH-004 names the method, says what the parameter is (with its unit), and on which properties the method works.
+
 - **A calculation under each method example** on the method pages: the code that calculates the record at two points
   and the values it prints (G, H, S, Cp, V, or log K and the reaction values). The generator runs it, so a page cannot
   show a value that the code does not give. Twelve methods got an example for this (log K and volume forms, solutes, a table);
@@ -128,7 +155,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Test of the legacy keys and method numbers (`pytests/golden/test_key_inventory.py`).
 - Synthetic legacy fixtures for the methods that no bundled database uses (`pytests/data/legacy-synthetic/`).
 - Comparison of two builds (`pytests/golden/compare_builds.py`) and the CI job `golden-diff`.
-- Guide to the golden tests (`docs/contributing/golden-tests.md`).
+- Guide to the golden tests (`pytests/golden/GOLDEN-TESTS.md`).
 - `ThermoEngine::setConventions` (C++ and Python). In Python, `engine.preferences` and `engine.conventions`
   can be assigned as a whole.
 - `Database::revision`: a number that changes with each change of the records.

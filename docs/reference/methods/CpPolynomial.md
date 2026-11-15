@@ -57,7 +57,7 @@ for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -3.6699e+06  -3.8664e+06  212.5  216.21  9.254e-05

@@ -248,6 +248,16 @@ public:
     /// has no methods: its total is all in `other`.
     auto contributions(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<MethodContributions>;
 
+    /// The named outputs of the methods of a substance (the terms and intermediate functions of the model, for example the g function and
+    /// the Born terms of HKF88): one entry for each (T, P), with the keys "<method>:<name>" in SI units. The names and their meaning are
+    /// the `auxiliary_outputs` of the method in the catalog. A method with no named outputs gives none. T or P can have one value.
+    struct AuxiliaryPoint
+    {
+        double T = 0.0, P = 0.0;                   ///< P as calculated: the saturation pressure for P = 0
+        std::map<std::string, double> values;
+    };
+    auto auxiliaryOutputs(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<AuxiliaryPoint>;
+
     /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
     /// How a substance, or a reaction if there is no such substance, is calculated with the sources of this engine. It calculates nothing.
     auto calculationPath(const std::string& symbol) const -> CalculationPath;

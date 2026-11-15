@@ -72,7 +72,7 @@ for T, P in [(298.15, 100000)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -3.9438e+05  -3.9351e+05  213.79  37.135  0

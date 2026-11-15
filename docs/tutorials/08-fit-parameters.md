@@ -14,7 +14,14 @@ kernelspec:
 
 # 8. Fit parameters
 
-You learn to fit a parameter of a mineral to measured heat capacities. It takes 15 minutes.
+You learn to fit a parameter of a mineral to measured heat capacities.
+
+```{admonition} Under development
+:class: warning
+Fitting is under development. It will move to a separate library, ThermoFit, and ThermoFun will keep the sensitivities (derivatives by parameters) and the contributions of the methods. The interface of `thermofun.fitting` can change.
+```
+
+**Related:** [Fit parameters to measured data](../how-to/fit-parameters.md) · [Derivatives with autodiff](../reference/derivatives.md) · [Uncertainties](../reference/uncertainty.md) · [Methods](../reference/methods/index.md)
 
 **You need:** ThermoFun with autodiff, SciPy (`pip install thermofun[fitting]`), and the file `mineral-methods.yaml` from `examples/v2/` of the repository, in your folder.
 

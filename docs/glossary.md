@@ -14,7 +14,7 @@ Each word has one meaning in these pages.
 | Canonical convention | The convention that the engine calculates in: `benson_helgeson`, molality, geochemical water, 1 bar. |
 | Catalog | The list of all methods of the library, with their parameters. `tf.methods.catalog()` gives it. |
 | Convention | How values are defined: energy reference, concentration scale, water reference, standard pressure. |
-| Correction | A method that changes what the methods before it give. |
+| Increment | A method that adds to what the base method gives: a phase transition, a volume, a term of the pressure. |
 | Dataset | The information about a database: symbol, name, version, conventions. The key is `thermodataset`. |
 | Defining reaction | The reaction that gives the properties of a substance. |
 | Dielectric model | A method that gives the dielectric constant of water and the Born functions. |

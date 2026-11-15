@@ -23,7 +23,7 @@ Source: Zhang and Duan (2005).
 | dew_gibbs | 1 | 1 | no | 0 | 1: the Gibbs energy of the model DEW (P >= 1 kbar) |
 | state | 1 | 1 | no | 0 | 0: liquid, 1: gas |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -66,7 +66,7 @@ for T, P in [(773.15, 5e+08)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 773.15  5e+08  0  0  0  0  2.0788e-05

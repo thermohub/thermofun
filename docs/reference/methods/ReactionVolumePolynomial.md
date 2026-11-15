@@ -7,7 +7,7 @@ Calculates dV(T, P) from expansion and compressibility terms, and adds the terms
 | | |
 |---|---|
 | Works on | reaction |
-| Kind | correction |
+| Kind | increment |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

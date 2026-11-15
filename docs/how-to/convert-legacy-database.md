@@ -30,12 +30,17 @@ tf.Database("aq17-thermofun.json").saveDataset("aq17-folder", yaml=True)   # as 
 In C++ the same calls are `ThermoFun::convertFile` (with `ConvertOptions`) and `Database::saveDataset`, in
 `ThermoFun/Convert.h` and `ThermoFun/Database.h`.
 
-**Check:** the two files give the same results.
+The two files give the same results.
 
 ```python
 old = tf.ThermoEngine("aq17-thermofun.json").thermoPropertiesSubstance(473.15, 1e7, "Calcite")
 new = tf.ThermoEngine("aq17.yaml").thermoPropertiesSubstance(473.15, 1e7, "Calcite")
-assert abs(old.gibbs_energy.val - new.gibbs_energy.val) < 0.1   # J/mol
 ```
 
-The formats are in [Two formats](../explanation/legacy-and-v2.md).
+<!-- check
+```python
+assert abs(old.gibbs_energy.val - new.gibbs_energy.val) < 0.1   # J/mol
+```
+-->
+
+The formats are in [Two formats](../reference/legacy-and-v2.md).

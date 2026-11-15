@@ -15,6 +15,7 @@ Each property is a `ThermoScalar`.
 | `ddt`, `ddp` | The derivatives by T and by P. |
 | `err` | The uncertainty. It is 0 if the data give none. |
 | `sta` | The status and a message: `notdefined`, `read`, `assigned`, `calculated`, `initialized`. |
+| `outside_range` | True if a model calculated the value outside its range (of T, P, the density of water, its T intervals or its table). The status stays `calculated`; the message (`sta[1]`) starts with "Outside the range of the model:" and says which range. In C++: `ThermoFun::outsideRange(x)` (`Common/OutsideRange.h`). |
 
 `ThermoScalar` has `+ - * /` and `**`. They carry the derivatives, the errors and the status.
 

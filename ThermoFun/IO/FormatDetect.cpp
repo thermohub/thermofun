@@ -31,8 +31,15 @@ namespace detail {
 
 auto detectDocumentFormat(const nlohmann::json& j) -> DataFormat
 {
-    if (j.is_object() && j.contains("thermohub"))
+    if (!j.is_object())
+        return DataFormat::Legacy;
+    if (j.contains("thermohub"))
         return DataFormat::V2;
+    // a section that is a map of records is v2 (legacy files have lists): the v2 reader then reports the missing key thermohub,
+    // instead of the legacy reader reading the map as records with no symbol
+    for (const char* section : {"elements", "substances", "reactions", "methods", "parameter_sets"})
+        if (j.contains(section) && j[section].is_object())
+            return DataFormat::V2;
     return DataFormat::Legacy;
 }
 

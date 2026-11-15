@@ -27,7 +27,7 @@
 
 autodiff is always used. If CMake does not find it, the build fetches it from GitHub.
 
-**Check:** run the tests.
+Run the tests.
 
 ```
 ctest --test-dir build

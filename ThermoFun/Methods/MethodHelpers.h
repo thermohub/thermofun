@@ -4,6 +4,7 @@
 #ifndef THERMOFUN_METHODS_METHODHELPERS_H
 #define THERMOFUN_METHODS_METHODHELPERS_H
 
+#include <ThermoFun/Common/OutsideRange.h>
 #include <string>
 
 #include <ThermoFun/Common/Exception.h>
@@ -60,7 +61,7 @@ inline auto setMessage(PropertiesInfo& out, const std::string& message) -> void
 {
     for (auto* x : {&out.G, &out.H, &out.S, &out.Cp, &out.V})
         if (x->status == ValueInfo::Status::Calculated)
-            x->message += message + "; ";
+            x->message += outsideRangeMessage(message) + "; ";
 }
 
 /// The message of a point outside the range of the record; empty if it is inside.

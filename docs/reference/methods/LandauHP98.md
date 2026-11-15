@@ -9,7 +9,7 @@ Source: Holland and Powell (1998).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -57,7 +57,7 @@ for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -3.712e+06  -3.9346e+06  210.1  207.73  0.00010029

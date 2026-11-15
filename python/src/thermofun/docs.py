@@ -234,7 +234,7 @@ def method_page(spec, example, same=(), published=None, data=DATA):
     needs = ", ".join(n for n, on in (("the solvent", spec["needs_solvent"]),) if on) or "nothing from outside its record"
     lines += ["| | |", "|---|---|",
               "| Works on | %s |" % spec["operates_on"],
-              "| Kind | %s |" % ("base method" if spec["base"] else "correction"),
+              "| Kind | %s |" % ("base method" if spec["base"] else "increment"),
               "| Classes | %s |" % (", ".join(spec["classes"]) or "any"),
               "| Needs | %s |" % needs,
               "| Temperature segments | %s |" % ("yes" if spec["piecewise"] else "no"),
@@ -265,7 +265,7 @@ def method_page(spec, example, same=(), published=None, data=DATA):
                   "Not read: %s. Legacy files write these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated "
                   "them; a file can keep them, and they change nothing." % ", ".join(_ranges(unused)), ""]
     if built_in:
-        lines += ["## Built-in constants", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
+        lines += ["## Built-in coefficients", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
                   "A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.", ""]
         for s in spec["constant_sets"]:
             if s["implementation"]:
@@ -274,6 +274,13 @@ def method_page(spec, example, same=(), published=None, data=DATA):
                 lines += ["Variant `%s`: a record chooses it with `parameter_set`." % s["symbol"], ""]
             lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % s["reference"], ""]
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
+    if spec.get("auxiliary_outputs"):
+        lines += ["## Named outputs", "",
+                  "Besides G, H, S, Cp and V, the method gives these terms and intermediate functions of the model, in SI units, on request: "
+                  "`engine.auxiliaryOutputs(symbol, T, P)` gives them as rows (the column is `%s:<name>`), a table setup takes them as columns with the same name, and `engine.explain` has them for each method." % spec["id"], "",
+                  "| Name | SI unit | What it is |", "|---|---|---|"]
+        lines += ["| `%s` | %s | %s |" % (o["name"], o["si_unit"], o["description"]) for o in spec["auxiliary_outputs"]]
+        lines += [""]
     lines += ["## Example", ""]
     if published and not example:
         lines += published_lines(published)
@@ -314,7 +321,7 @@ def group_file(group):
 def _table(members):
     lines = ["| Method | Title | Kind | Classes | Implementations |", "|---|---|---|---|---|"]
     for s in members:
-        lines.append("| [%s](%s.md) | %s | %s | %s | %s |" % (s["id"], s["id"], _cell(s["title"]), "base" if s["base"] else "correction",
+        lines.append("| [%s](%s.md) | %s | %s | %s | %s |" % (s["id"], s["id"], _cell(s["title"]), "base" if s["base"] else "increment",
                                                          ", ".join(s["classes"]) or "any", ", ".join(s["implementations"])))
     return lines
 
@@ -360,7 +367,11 @@ def _options(cls, words):
 def preferences_page():
     words = tf.optionWords()
     return "\n".join(["# Options of the engine", "", NOTICE, "", "## EnginePreferences", ""] + _options(tf.EnginePreferences, words) +
-                     ["", "## EngineConventions", ""] + _options(tf.EngineConventions, words) + [""])
+                     ["", "## EngineConventions", "",
+                      "A convention says what the zero of an energy is, and what a standard state is. The same substance has different G and H in different "
+                      "conventions. The engine converts each record from the convention of the record to the one asked for here, so the results are in the "
+                      "convention of your choice. They change only the zero and the scale, not the physics. See [Conventions](conventions.md).", ""]
+                     + _options(tf.EngineConventions, words) + [""])
 
 
 def _type(node):

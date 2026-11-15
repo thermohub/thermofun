@@ -3,6 +3,7 @@
 
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include "Validate.h"
+#include "MissingParameter.h"
 
 #include <algorithm>
 #include <cmath>
@@ -111,7 +112,7 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
             for (const auto& segment : app.segments)
                 for (const auto& p : spec->parameters)
                     if (p.required && !p.default_si && !has(segment.parameters, p.name))
-                        report(diag, "V2-MTH-004", record, where, "The parameter " + p.name + " is missing in a segment.");
+                        report(diag, "V2-MTH-004", record, where, missingParameterMessage(*spec, p, " in a segment"));
             for (size_t i = 1; i < app.segments.size(); ++i)
                 if (std::isfinite(app.segments[i].t_min) && std::isfinite(app.segments[i - 1].t_max) &&
                     std::fabs(app.segments[i].t_min - app.segments[i - 1].t_max) > 1e-9)
@@ -138,7 +139,7 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
         else if (!app.table)
             for (const auto& p : spec->parameters)
                 if (p.required && !p.default_si && !has(app.parameters, p.name))
-                    report(diag, "V2-MTH-004", record, where, "The parameter " + p.name + " is missing.");
+                    report(diag, "V2-MTH-004", record, where, missingParameterMessage(*spec, p));
     }
 }
 

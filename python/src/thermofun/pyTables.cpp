@@ -95,6 +95,11 @@ void ThermoFun::exportTables(py::module& m)
             const double p = pressureOf(P, saturation);
             return cellValue(t.cell(record, T, p, column, saturation));
         }, py::arg("record"), py::arg("T"), py::arg("P"), py::arg("column"), "One number, in the unit of its column. P can be \"saturation\"")
+        .def("pressure_used", [](const Table& t, const std::string& record, double T, const py::object& P) {
+            bool saturation = false;
+            const double p = pressureOf(P, saturation);
+            return t.pressureUsed(record, T, p, saturation);
+        }, py::arg("record"), py::arg("T"), py::arg("P"), "The pressure that the calculation of a row used, in the unit of the conditions. P can be \"saturation\": then the saturation pressure at T")
         .def("scalar", [](const Table& t, const std::string& record, double T, const py::object& P, const std::string& column) {
             bool saturation = false;
             const double p = pressureOf(P, saturation);

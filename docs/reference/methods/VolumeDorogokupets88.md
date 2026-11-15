@@ -9,7 +9,7 @@ Source: Dorogokupets et al. (1988).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -63,7 +63,7 @@ for T, P in [(298.15, 100000), (600, 1e+08)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -8.5629e+05  -9.107e+05  41.46  44.6  2.2688e-05

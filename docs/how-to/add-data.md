@@ -26,7 +26,7 @@ ThermoFun keeps all data in **records**. A record says what a data file says. Al
 | Data source | a citation | `data_sources` |
 
 A **method** is one model, for example `HKF88` or `CpPolynomial`. A substance or a reaction names its methods. The engine
-runs them at the T and P that you ask for. Section 9 lists all methods.
+runs them at the T and P that you ask for. [Parameters of all methods](../reference/method-parameters.md) lists them all.
 
 Data has one of two formats:
 
@@ -58,11 +58,17 @@ legacy file to v2:
 import thermofun as tf
 
 legacy = tf.Database('{"substances": [{"symbol": "A", "formula": "Ca", "sm_gibbs_energy": {"values": [-56.484001159668]}}]}')
-legacy.save("converted.yaml")                    # short decimals, for people
-assert "-56.484\n" in open("converted.yaml").read() or "G: -56.484" in open("converted.yaml").read()
+legacy.save("converted.yaml")                    # the values are written with short decimals
 exact = tf.Database(legacy.toJson(readable=False))
+print(exact.getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value)  # prints -56.484001159668
+```
+
+<!-- check
+```python
+assert "-56.484\n" in open("converted.yaml").read() or "G: -56.484" in open("converted.yaml").read()
 assert exact.getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value == -56.484001159668
 ```
+-->
 
 `database.save("old.json", format=tf.DataFormat.Legacy)` writes the legacy format. `database.legacyWriteProblems()` lists what that format cannot hold.
 
@@ -74,6 +80,8 @@ No information is lost. A short decimal gives the same single-precision number a
 number that reads back as the same value in SI units. A number in a file always has a point as the decimal mark, in all locales.
 
 ## 3. The smallest file
+
+The words of `class` and `aggregate_state` (and of the other fields with a fixed list) are in [Allowed words](../reference/vocabulary.md). The fields of a substance are in Section 5, the methods in Section 9.
 
 Write this file:
 
@@ -96,9 +104,15 @@ Then calculate with it:
 ```python
 engine = tf.ThermoEngine("small.yaml")
 result = engine.thermoPropertiesSubstance(373.15, 1e5, "Corundum")
+print(result.heat_capacity_cp.val)  # prints 79.0
+```
+
+<!-- check
+```python
 assert result.heat_capacity_cp.val == 79.0                   # J/(mol K)
 assert abs(result.gibbs_energy.val + 1586508.58) < 0.01      # J/mol
 ```
+-->
 
 The results of the engine have volumes in J/bar: `result.volume.val` is 2.558 for this record.
 
@@ -109,11 +123,18 @@ Add more data to this database:
 ```python
 db = tf.Database("small.yaml")
 one = '{"symbol": "Corundum", "formula": "X", "standard_state_properties": {"G": 1}}'
-db.addSubstance(one)                                         # the symbol is there: nothing changes
-assert db.getSubstance("Corundum").formula() == "Al2O3"
-db.setSubstance(one)                                         # the record is replaced
+db.addSubstance(one)       # the symbol is there: nothing changes
+print(db.getSubstance("Corundum").formula())   # Al2O3
+
+db.setSubstance(one)       # the record is replaced
+print(db.getSubstance("Corundum").formula())   # X
+```
+
+<!-- check
+```python
 assert db.getSubstance("Corundum").formula() == "X"
 ```
+-->
 
 A record given as text is JSON. It is in the v2 format if it has a key such as `standard_state_properties` or `methods`.
 
@@ -133,7 +154,7 @@ Every number in a file can have one of these forms:
 | `{value: -237183, quality: core, origin: calculated, source: 2018LOT/MAT}` | Data about the value. |
 
 **Default units.** Standard-state properties are in J/mol, J/(mol K) and m3/mol. Reaction properties use the same units. Molar
-mass is in g/mol. Temperature is in K. Pressure is in Pa. A method parameter has the SI unit of Section 9.
+mass is in g/mol. Temperature is in K. Pressure is in Pa. A method parameter has the SI unit of [Parameters of all methods](../reference/method-parameters.md).
 
 **Other units.** A `units` block sets the default units of everything inside its level. It can be at the top of a file, in a record,
 or in a method. The inner block replaces the outer block for the same dimension. The dimensions are `energy`, `pressure`,
@@ -161,9 +182,14 @@ substances:
 
 ```python
 lime = tf.Database("units.yaml").getSubstance("Lime").record()
+```
+
+<!-- check
+```python
 assert abs(lime.standard_state_properties[tf.PropertyName.G].value + 604169.6) < 1e-6    # J/mol
 assert abs(lime.standard_state_properties[tf.PropertyName.V].value - 16.76e-6) < 1e-15   # m3/mol
 ```
+-->
 
 A molar volume can also be in J/bar. That is the unit of the legacy data: 1 J/bar is 1e-5 m3.
 
@@ -176,8 +202,8 @@ A molar volume can also be in J/bar. That is the unit of the legacy data: 1 J/ba
 | `formula` | The chemical formula, for example `Al2O3` or `Ca+2`. Required by the methods that read the formula. |
 | `name`, `sourcetdb` | Free text. |
 | `charge` | The formula charge, a whole number. |
-| `class` | `component`, `gas_fluid`, `aqueous_solute`, `water_solvent`, `surface_species`, `site_moiety` or `other` (the default). |
-| `aggregate_state` | `gas`, `liquid`, `crystal`, `aqueous`, `solid` and more; `other` is the default. An unknown word gives a warning with the allowed words. |
+| `class` | `component`, `gas_fluid`, `aqueous_solute`, `water_solvent`, `surface_species`, `site_moiety` or `other` (the default). All words: [Allowed words](../reference/vocabulary.md). |
+| `aggregate_state` | `gas`, `liquid`, `crystal`, `aqueous`, `solid` and more; `other` is the default. All words: [Allowed words](../reference/vocabulary.md). An unknown word gives a warning with the nearest word. |
 | `molar_mass` | The molar mass. |
 | `reference_conditions` | `{T: 298.15, P: 1.0e5}`. The default comes from the dataset, else it is 298.15 K and 1e5 Pa. |
 | `standard_state_properties` | `G`, `H`, `S`, `Cp`, `V` at the reference conditions. |
@@ -193,10 +219,10 @@ The **symbol** is the key of the record in the map. In a list of records, each r
 
 ### 5.1 Choose the methods
 
-Each substance has **one base method** and any number of corrections. The base method makes all properties. A correction changes
+Each substance has **one base method** and any number of increments. The base method makes all properties. An increment changes
 some of them. You can list the methods in any order, because the engine finds the order.
 
-| Substance | Base method | Corrections |
+| Substance | Base method | Increments |
 |---|---|---|
 | Mineral, simple | `ConstantCp` or `CpPolynomial` | `ConstantVolume`, or `MurnaghanHP98`, `TaitHP11`, `BirchMurnaghan47`, `VolumeBerman88`; `LandauHP98` for a phase transition |
 | Mineral, other forms | `NASA9`, `CpExtendedUNIQUAC`, `TPTable` | as above |
@@ -242,8 +268,13 @@ substances:
 
 ```python
 quartz = tf.ThermoEngine("mineral.yaml").thermoPropertiesSubstance(500.0, 1e5, "Quartz")
+```
+
+<!-- check
+```python
 assert abs(quartz.heat_capacity_cp.val - (44.603 + 0.03778 * 500 - 1.0018e6 / 500**2)) < 1e-6
 ```
+-->
 
 ### 5.3 An aqueous solute and its solvent
 
@@ -278,8 +309,14 @@ substances:
 ```python
 engine = tf.ThermoEngine("aqueous.yaml")
 ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
+print(engine.explain(373.15, 1e6, "Ca+2")[0]["method"])  # prints HKF88
+```
+
+<!-- check
+```python
 assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
 ```
+-->
 
 **Conventions.** Give `convention` in a record, or in the dataset, if the values are not in the defaults (`benson_helgeson`, `1bar`, `molality`, `geochemical`). For example: `convention: {energy_reference: berman_brown, standard_pressure: 1atm}`.
 
@@ -288,7 +325,7 @@ assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
 - `concentration_scale`: `molality`, `mole_fraction`, `molarity`. It changes aqueous solutes only. `molarity` needs the water solvent in the database.
 - `water_reference`: `geochemical`, `steam_tables`. It changes the water solvent only.
 
-The engine converts the result of the base method. It does not convert corrections. Species with different conventions can be in one reaction. A change of the energy reference needs the
+The engine converts the result of the base method. It does not convert increments. Species with different conventions can be in one reaction. A change of the energy reference needs the
 entropies of the elements. Put them in `elements`. If they are not there, the engine uses the table of ChemicalFun and gives a warning (`CNV-006`). If no source has them, the engine gives an error (`CNV-001`).
 `NASA9` is always in `assigned_enthalpy` and `CpExtendedUNIQUAC` in `gibbs_helmholtz_formation`, whatever the record says. Results come in the defaults. To ask for others, set `EngineConventions`.
 
@@ -298,7 +335,7 @@ the record, or in the dataset, with the values and the methods. ThermoFun then u
 
 ```python
 hydrogen = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  H+: {formula: H+, class: aqueous_solute, aggregate_state: aqueous}\n")
-assert tf.ThermoEngine(hydrogen).thermoPropertiesSubstance(400.0, 1e6, "H+").gibbs_energy.val == 0.0
+print(tf.ThermoEngine(hydrogen).thermoPropertiesSubstance(400.0, 1e6, "H+").gibbs_energy.val)  # prints 0.0
 other = tf.Database("""thermohub: 2.0.0-draft.1
 substances:
   H+:
@@ -310,8 +347,15 @@ substances:
     methods:
       - {method: ConstantCp}
 """)
+print(tf.ThermoEngine(other).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val)  # prints -1000.0
+```
+
+<!-- check
+```python
+assert tf.ThermoEngine(hydrogen).thermoPropertiesSubstance(400.0, 1e6, "H+").gibbs_energy.val == 0.0
 assert tf.ThermoEngine(other).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val == -1000.0
 ```
+-->
 
 ### 5.4 A gas
 
@@ -346,13 +390,28 @@ substances:
 
 ```python
 engine = tf.ThermoEngine("gas.yaml")
-low, high = (engine.thermoPropertiesSubstance(400.0, p, "CO2").volume.val for p in (1e5, 1e7))
+low, high = (engine.thermoPropertiesSubstance(400.0, p, "CO2").volume.val for p in (1e5, 1e7))   # the volume at 1 bar and at 100 bar
+```
+
+<!-- check
+```python
 assert high < low
 assert engine.thermoPropertiesSubstance(400.0, 1e7, "CO2").gibbs_energy.val > engine.thermoPropertiesSubstance(400.0, 1e5, "CO2").gibbs_energy.val
+```
+-->
+
+Two options of the engine remove the terms of the pressure from G:
+
+```python
 engine.preferences.apply_pressure_correction_to_gas_props = False
 engine.preferences.cancel_fugacity_coefficient_in_gas_props = True
+```
+
+<!-- check
+```python
 assert engine.thermoPropertiesSubstance(400.0, 1e7, "CO2").gibbs_energy.val == engine.thermoPropertiesSubstance(400.0, 1e5, "CO2").gibbs_energy.val
 ```
+-->
 
 ### 5.5 A substance from a reaction
 
@@ -397,9 +456,15 @@ reactions:
 ```python
 engine = tf.ThermoEngine("defined.yaml")
 b = engine.thermoPropertiesSubstance(298.15, 1e5, "B")
+print(engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"])  # prints reaction
+```
+
+<!-- check
+```python
 assert abs(b.gibbs_energy.val - (-1000 - 8.31451 * 298.15 * 2.302585093)) < 1
 assert engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"] == "reaction"
 ```
+-->
 
 ### 5.6 A table of properties
 
@@ -424,8 +489,13 @@ substances:
 
 ```python
 t = tf.ThermoEngine("table.yaml").thermoPropertiesSubstance(400.0, 1e5, "T")
+```
+
+<!-- check
+```python
 assert abs(t.gibbs_energy.val + 1100) < 1e-6
 ```
+-->
 
 ## 6. Write a reaction
 
@@ -478,10 +548,15 @@ reactions:
 
 ```python
 engine = tf.ThermoEngine("reaction.yaml")
+```
+
+<!-- check
+```python
 assert abs(engine.thermoPropertiesReaction(298.15, 1e5, "fixed").log_equilibrium_constant.val - 2.0) < 1e-9
 assert abs(engine.thermoPropertiesReaction(300.0, 1e5, "polynomial").log_equilibrium_constant.val - 0.0) < 1e-9
 assert abs(engine.thermoPropertiesReaction(298.15, 1e5, "from-a-table").log_equilibrium_constant.val - 1.1) < 1e-9
 ```
+-->
 
 The name of a reaction can also be its equation in a calculation: `engine.thermoPropertiesReaction(T, P, "A = B")`. All its substances
 must be in the database.
@@ -518,11 +593,19 @@ substances:
 
 ```python
 db = tf.Database("dataset.yaml")
+print(db.thermoDataSet().symbol)  # prints my-data
+print(db.dataSources()["1998HOL/POW"].year)  # prints 1998
+print(tf.ThermoEngine(db).solventSymbol())  # prints WATER
+```
+
+<!-- check
+```python
 assert db.thermoDataSet().symbol == "my-data"
 assert db.dataSources()["1998HOL/POW"].year == 1998
 assert tf.ThermoEngine(db).solventSymbol() == "WATER"
 assert abs(db.getElement("Ca").molarMass() - 40.078) < 1e-9
 ```
+-->
 
 ### 7.1 A dataset in many files
 
@@ -549,8 +632,14 @@ substances:
 ```
 
 ```python
+print(tf.Database("main.yaml").getSubstancesList())  # prints ['First', 'Second']
+```
+
+<!-- check
+```python
 assert tf.Database("main.yaml").getSubstancesList() == ["First", "Second"]
 ```
+-->
 
 A **dataset folder** holds one dataset. Give the name of the folder to `Database`:
 
@@ -592,99 +681,35 @@ substances:
 
 ```python
 x = tf.Database("covariance.yaml").getSubstance("X").record()
+print(x.covariance[0].matrix)  # prints [4.0, 1.0, 1.0, 9.0]
+print(x.standard_state_properties[tf.PropertyName.G].uncertainty.standard)  # prints 2.0
+```
+
+<!-- check
+```python
 assert x.covariance[0].matrix == [4.0, 1.0, 1.0, 9.0]
 assert x.standard_state_properties[tf.PropertyName.G].uncertainty.standard == 2.0
 ```
+-->
 
 The engine reads the block now. Its calculation with covariance comes with a later step.
 
-## 9. All methods
+## 9. Methods and their parameters
 
-<!-- methods begin -->
-These tables come from the code. A parameter without a unit has no unit. A method can have aliases: old ids stay readable.
+A record names its methods in the list `methods`. Each entry has the id of the method and, if the method has them, its parameters. The parameters that belong to one substance (for example `a1` and `omega` of an aqueous species) are in the record:
 
-### Base methods of a substance
+```
+methods:
+  - method: HKF88
+    units: {energy: cal, pressure: bar}      # the units of the published parameters
+    parameters: {a1: 0.1839, a2: -228.5, omega: 33060.0}
+```
 
-| Id | What it is | Parameters, with the SI unit | Implementations |
-|---|---|---|---|
-| `ConstantProperties` | Constant properties | none | one |
-| `CpPolynomial` | Heat capacity polynomial | `a0` [J/(mol.K)]<br>`a1` [J/(mol.K2)] (optional)<br>`a2` [J.K/mol] (optional)<br>`a3` [J/(mol.K^0.5)] (optional)<br>`a4` [J/(mol.K3)] (optional)<br>`a5` [J/(mol.K4)] (optional)<br>`a6` [J/(mol.K5)] (optional)<br>`a7` [J.K2/mol] (optional)<br>`a8` [J/mol] (optional)<br>`a9` [J/(mol.K^1.5)] (optional) | one |
-| `ConstantCp` | Constant heat capacity | none | one |
-| `CpExtendedUNIQUAC` | Heat capacity of Extended UNIQUAC | `a` [J/(mol.K)]<br>`b` [J/(mol.K2)]<br>`c` [J/mol]<br>`alpha` [1/Pa]<br>`beta` [1/Pa2]<br>`Theta` [K] (optional) | one |
-| `NASA9` | NASA polynomials | `a1`<br>`a2`<br>`a3`<br>`a4`<br>`a5`<br>`a6`<br>`a7`<br>`b1` [K]<br>`b2` | one |
-| `TPTable` | Table of T and P | none | one |
-| `HKF88` | Revised HKF equation of state (needs the solvent) | `a1` [J/(mol.Pa)]<br>`a2` [J/mol]<br>`a3` [J.K/(mol.Pa)]<br>`a4` [J.K/mol]<br>`c1` [J/(mol.K)]<br>`c2` [J.K/mol]<br>`omega` [J/mol]<br>`eta` (optional)<br>`theta` (optional)<br>`psi` (optional)<br>`Tr` (optional)<br>`Pr` (optional)<br>`Zr` (optional)<br>`Yr` (optional)<br>`zeta` (optional)<br>`gr` (optional)<br>`ag1` (optional)<br>`ag2` (optional)<br>`ag3` (optional)<br>`bg1` (optional)<br>`bg2` (optional)<br>`bg3` (optional)<br>`af1` (optional)<br>`af2` (optional)<br>`af3` (optional)<br>`Dmax` (optional) | `reaktoro`, `gems` |
-| `SoluteHP98` | Aqueous solute of Holland and Powell (needs the solvent) | `b` [J/(mol.K2)] | `consistent`, `published` |
-| `AndersonEtAl91` | Aqueous solute of Anderson et al. (needs the solvent) | none | one |
+The tables of all methods, with their parameters and units, are on their own page: [Parameters of all methods](../reference/method-parameters.md). Each method also has its page in the [list of methods](../reference/methods/index.md).
 
-### Corrections of a substance
+### Built-in coefficients
 
-| Id | What it is | Parameters, with the SI unit | Implementations |
-|---|---|---|---|
-| `AkinfievDiamond03` | Model of Akinfiev and Diamond (needs the solvent) | `xi`<br>`a` [m3/kg]<br>`b` [m3.K^0.5/kg]<br>`MW` (optional) | `gems` |
-| `LandauHP98` | Landau transition of Holland and Powell | `Tc0` [K]<br>`Smax` [J/(mol.K)]<br>`Vmax` [m3/mol]<br>`alpha0` [1/K] (optional)<br>`kappa0` [Pa] (optional) | `consistent`, `gems` |
-| `LandauHP11` | Landau transition of Holland and Powell (2011) | `Tc0` [K]<br>`Smax` [J/(mol.K)]<br>`Vmax` [m3/mol] | one |
-| `ConstantVolume` | Constant molar volume | none | one |
-| `VolumeBerman88` | Molar volume of Berman | `a1` [1/K]<br>`a2` [1/K2]<br>`a3` [1/K3]<br>`b1` [1/Pa]<br>`b2` [1/Pa2] | one |
-| `VolumeDorogokupets88` | Molar volume of Dorogokupets et al. | `a1` [1/K]<br>`a2` [1/K2]<br>`a3` [1/K3]<br>`b1` [1/Pa]<br>`b2` [1/Pa2] | one |
-| `BirchMurnaghan47` | Birch-Murnaghan equation of state | `a1` [1/K]<br>`a2` [1/K2] (optional)<br>`a3` [K] (optional)<br>`kt00` [Pa]<br>`dkdt` [Pa/K] (optional)<br>`kp`<br>`kpp` [1/Pa] (optional) | `consistent`, `gems` |
-| `MurnaghanHP98` | Murnaghan equation of Holland and Powell | `alpha0` [1/K]<br>`kappa0` [Pa] | `consistent`, `gems` |
-| `TaitHP11` | Tait equation of Holland and Powell | `kappa0p`<br>`kappa0pp` [1/Pa]<br>`n_atoms`<br>`alpha0` [1/K]<br>`kappa0` [Pa] | one |
-| `IdealGas` | Ideal gas | none | one |
-| `PRSV86` | Peng-Robinson-Stryjek-Vera equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`k1` (optional)<br>`k2` (optional)<br>`k3` (optional)<br>`k0_0` (optional)<br>`k0_1` (optional)<br>`k0_2` (optional)<br>`k0_3` (optional)<br>`Oa` (optional)<br>`Ob` (optional) | `consistent`, `gems` |
-| `ChurakovGottschalk03` | Equation of state of Churakov and Gottschalk | `sigma0`<br>`eps0`<br>`mu0`<br>`pol0`<br>`sigma1`<br>`sigma2`<br>`eps1`<br>`eps2`<br>`mu1`<br>`mu2`<br>`pol1`<br>`pol2`<br>`PISIX` (optional)<br>`TWOPI` (optional)<br>`rm` (optional)<br>`P1` (optional)<br>`PP2` (optional)<br>`P3` (optional)<br>`P4` (optional)<br>`P5` (optional)<br>`P6` (optional)<br>`P7` (optional)<br>`P8` (optional)<br>`P9` (optional)<br>`P10` (optional)<br>`AA1` (optional)<br>`AA2` (optional)<br>`AA3` (optional)<br>`A4` (optional)<br>`A5` (optional)<br>`A6` (optional)<br>`BB1` (optional)<br>`BB2` (optional)<br>`BB3` (optional)<br>`B4` (optional)<br>`B5` (optional)<br>`B6` (optional)<br>`A00` (optional)<br>`A01` (optional)<br>`A10` (optional)<br>`A11` (optional)<br>`A12` (optional)<br>`A21` (optional)<br>`A22` (optional)<br>`A23` (optional)<br>`A31` (optional)<br>`A32` (optional)<br>`A33` (optional)<br>`A34` (optional)<br>`fi1_0` (optional)<br>`fi1_1` (optional)<br>`fi1_2` (optional)<br>`fi1_3` (optional)<br>`fi1_4` (optional)<br>`fi1_5` (optional)<br>`fi1_6` (optional)<br>`fi1_7` (optional)<br>`fi1_8` (optional)<br>`fi1_9` (optional)<br>`fi2_0` (optional)<br>`fi2_1` (optional)<br>`fi2_2` (optional)<br>`fi2_3` (optional)<br>`fi2_4` (optional)<br>`fi2_5` (optional)<br>`fi2_6` (optional)<br>`fi2_7` (optional)<br>`fi2_8` (optional)<br>`fi2_9` (optional)<br>`hs_a3` (optional)<br>`hs_a9` (optional)<br>`hs_a12` (optional)<br>`NA` (optional)<br>`dipole` (optional)<br>`kd0` (optional)<br>`kd1` (optional)<br>`kd2` (optional)<br>`kd3` (optional)<br>`kd4` (optional)<br>`kd5` (optional) | `consistent`, `gems` |
-| `SoaveRedlichKwong72` | Soave-Redlich-Kwong equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`N` (optional)<br>`m0` (optional)<br>`m1` (optional)<br>`m2` (optional)<br>`Oa` (optional)<br>`Ob` (optional) | `consistent`, `gems` |
-| `SternerPitzer94` | Equation of state of Sterner and Pitzer | `Tc` [K]<br>`Pc` [Pa]<br>`TMIN` (optional)<br>`TMAX` (optional)<br>`PMIN` (optional)<br>`PMAX` (optional)<br>`cfh_1` (optional)<br>`cfh_2` (optional)<br>`cfh_3` (optional)<br>`cfh_4` (optional)<br>`cfh_5` (optional)<br>`cfh_6` (optional)<br>`cfh_7` (optional)<br>`cfh_8` (optional)<br>`cfh_9` (optional)<br>`cfh_10` (optional)<br>`cfh_11` (optional)<br>`cfh_12` (optional)<br>`cfh_13` (optional)<br>`cfh_14` (optional)<br>`cfh_15` (optional)<br>`cfh_16` (optional)<br>`cfh_17` (optional)<br>`cfh_18` (optional)<br>`cfh_19` (optional)<br>`cfh_20` (optional)<br>`cfh_21` (optional)<br>`cfh_22` (optional)<br>`cfh_23` (optional)<br>`cfh_24` (optional)<br>`cfh_25` (optional)<br>`cfh_26` (optional)<br>`cfh_27` (optional)<br>`cfh_28` (optional)<br>`cfh_29` (optional)<br>`cfh_30` (optional)<br>`cfh_31` (optional)<br>`cfh_32` (optional)<br>`cfh_33` (optional)<br>`cfh_34` (optional)<br>`cfh_35` (optional)<br>`cfh_36` (optional)<br>`cfh_37` (optional)<br>`cfh_38` (optional)<br>`cfh_39` (optional)<br>`cfh_40` (optional)<br>`cfh_41` (optional)<br>`cfh_42` (optional)<br>`cfh_43` (optional)<br>`cfh_44` (optional)<br>`cfh_45` (optional)<br>`cfh_46` (optional)<br>`cfh_47` (optional)<br>`cfh_48` (optional)<br>`cfh_49` (optional)<br>`cfh_50` (optional)<br>`cfh_51` (optional)<br>`cfh_52` (optional)<br>`cfh_53` (optional)<br>`cfh_54` (optional)<br>`cfh_55` (optional)<br>`cfh_56` (optional)<br>`cfh_57` (optional)<br>`cfh_58` (optional)<br>`cfh_59` (optional)<br>`cfh_60` (optional)<br>`cfc_1` (optional)<br>`cfc_2` (optional)<br>`cfc_3` (optional)<br>`cfc_4` (optional)<br>`cfc_5` (optional)<br>`cfc_6` (optional)<br>`cfc_7` (optional)<br>`cfc_8` (optional)<br>`cfc_9` (optional)<br>`cfc_10` (optional)<br>`cfc_11` (optional)<br>`cfc_12` (optional)<br>`cfc_13` (optional)<br>`cfc_14` (optional)<br>`cfc_15` (optional)<br>`cfc_16` (optional)<br>`cfc_17` (optional)<br>`cfc_18` (optional)<br>`cfc_19` (optional)<br>`cfc_20` (optional)<br>`cfc_21` (optional)<br>`cfc_22` (optional)<br>`cfc_23` (optional)<br>`cfc_24` (optional)<br>`cfc_25` (optional)<br>`cfc_26` (optional)<br>`cfc_27` (optional)<br>`cfc_28` (optional)<br>`cfc_29` (optional)<br>`cfc_30` (optional)<br>`cfc_31` (optional)<br>`cfc_32` (optional)<br>`cfc_33` (optional)<br>`cfc_34` (optional)<br>`cfc_35` (optional)<br>`cfc_36` (optional)<br>`cfc_37` (optional)<br>`cfc_38` (optional)<br>`cfc_39` (optional)<br>`cfc_40` (optional)<br>`cfc_41` (optional)<br>`cfc_42` (optional)<br>`cfc_43` (optional)<br>`cfc_44` (optional)<br>`cfc_45` (optional)<br>`cfc_46` (optional)<br>`cfc_47` (optional)<br>`cfc_48` (optional)<br>`cfc_49` (optional)<br>`cfc_50` (optional)<br>`cfc_51` (optional)<br>`cfc_52` (optional)<br>`cfc_53` (optional)<br>`cfc_54` (optional)<br>`cfc_55` (optional)<br>`cfc_56` (optional)<br>`cfc_57` (optional)<br>`cfc_58` (optional)<br>`cfc_59` (optional)<br>`cfc_60` (optional)<br>`cs_a0` (optional)<br>`cs_a1` (optional)<br>`cs_b0` (optional)<br>`cs_c0` (optional)<br>`cs_c1` (optional)<br>`cs_d0` (optional)<br>`cs_d1` (optional)<br>`psat_co2_Rhoc` (optional)<br>`psat_co2_a1` (optional)<br>`psat_co2_a2` (optional)<br>`psat_co2_a3` (optional)<br>`psat_co2_a4` (optional)<br>`psat_co2_b1` (optional)<br>`psat_co2_b2` (optional)<br>`psat_co2_b3` (optional)<br>`psat_co2_b4` (optional)<br>`psat_co2_c1` (optional)<br>`psat_co2_c2` (optional)<br>`psat_co2_c3` (optional)<br>`psat_co2_c4` (optional)<br>`psat_co2_c5` (optional)<br>`psat_h2o_Rhoc` (optional)<br>`psat_h2o_a1` (optional)<br>`psat_h2o_a2` (optional)<br>`psat_h2o_a3` (optional)<br>`psat_h2o_a4` (optional)<br>`psat_h2o_a5` (optional)<br>`psat_h2o_a6` (optional)<br>`psat_h2o_b1` (optional)<br>`psat_h2o_b2` (optional)<br>`psat_h2o_b3` (optional)<br>`psat_h2o_b4` (optional)<br>`psat_h2o_b5` (optional)<br>`psat_h2o_b6` (optional)<br>`psat_h2o_c1` (optional)<br>`psat_h2o_c2` (optional)<br>`psat_h2o_c3` (optional)<br>`psat_h2o_c4` (optional)<br>`psat_h2o_c5` (optional)<br>`psat_h2o_c6` (optional)<br>`Mw_h2o` (optional)<br>`Mw_co2` (optional) | `consistent`, `gems` |
-| `PengRobinson78` | Peng-Robinson equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`N` (optional)<br>`k1_0` (optional)<br>`k1_1` (optional)<br>`k1_2` (optional)<br>`k2_0` (optional)<br>`k2_1` (optional)<br>`k2_2` (optional)<br>`k2_3` (optional)<br>`omega_switch` (optional)<br>`Oa` (optional)<br>`Ob` (optional) | `consistent`, `gems` |
-| `CorkHP91` | Compensated Redlich-Kwong equation of state | `Tc` [K]<br>`Pc` [Pa]<br>`omega`<br>`k1` (optional)<br>`k2` (optional)<br>`k3` (optional)<br>`cs_a0` (optional)<br>`cs_a1` (optional)<br>`cs_b0` (optional)<br>`cs_c0` (optional)<br>`cs_c1` (optional)<br>`cs_d0` (optional)<br>`cs_d1` (optional)<br>`co2_a0` (optional)<br>`co2_a1` (optional)<br>`co2_a2` (optional)<br>`co2_b` (optional)<br>`co2_c0` (optional)<br>`co2_c1` (optional)<br>`co2_d0` (optional)<br>`co2_d1` (optional)<br>`co2_e0` (optional)<br>`co2_p0` (optional)<br>`h2o_a0` (optional)<br>`h2o_a1` (optional)<br>`h2o_a2` (optional)<br>`h2o_a3` (optional)<br>`h2o_a4` (optional)<br>`h2o_a5` (optional)<br>`h2o_a6` (optional)<br>`h2o_a7` (optional)<br>`h2o_a8` (optional)<br>`h2o_a9` (optional)<br>`h2o_b` (optional)<br>`h2o_c0` (optional)<br>`h2o_c1` (optional)<br>`h2o_d0` (optional)<br>`h2o_d1` (optional)<br>`h2o_e0` (optional)<br>`h2o_p0` (optional)<br>`h2o_psat0` (optional)<br>`h2o_psat2` (optional)<br>`h2o_psat3` (optional)<br>`h2o_psat5` (optional)<br>`h2o_T0` (optional)<br>`h2o_Tsuper` (optional) | `consistent`, `gems` |
-
-### Equations of state of water
-
-| Id | What it is | Parameters, with the SI unit | Implementations |
-|---|---|---|---|
-| `WaterHGK84` | Water, Haar-Gallagher-Kell | `A0_1` (optional)<br>`A0_2` (optional)<br>`A0_3` (optional)<br>`A0_4` (optional)<br>`A0_5` (optional)<br>`A0_6` (optional)<br>`A0_7` (optional)<br>`A0_8` (optional)<br>`A0_9` (optional)<br>`A0_10` (optional)<br>`A0_11` (optional)<br>`A0_12` (optional)<br>`A0_13` (optional)<br>`A0_14` (optional)<br>`A0_15` (optional)<br>`A0_16` (optional)<br>`A0_17` (optional)<br>`A0_18` (optional)<br>`A1_1` (optional)<br>`A1_2` (optional)<br>`A1_3` (optional)<br>`A1_4` (optional)<br>`A1_5` (optional)<br>`yc_1` (optional)<br>`yc_2` (optional)<br>`yc_3` (optional)<br>`yc_4` (optional)<br>`ki_1` (optional)<br>`ki_2` (optional)<br>`ki_3` (optional)<br>`ki_4` (optional)<br>`ki_5` (optional)<br>`ki_6` (optional)<br>`ki_7` (optional)<br>`ki_8` (optional)<br>`ki_9` (optional)<br>`ki_10` (optional)<br>`ki_11` (optional)<br>`ki_12` (optional)<br>`ki_13` (optional)<br>`ki_14` (optional)<br>`ki_15` (optional)<br>`ki_16` (optional)<br>`ki_17` (optional)<br>`ki_18` (optional)<br>`ki_19` (optional)<br>`ki_20` (optional)<br>`ki_21` (optional)<br>`ki_22` (optional)<br>`ki_23` (optional)<br>`ki_24` (optional)<br>`ki_25` (optional)<br>`ki_26` (optional)<br>`ki_27` (optional)<br>`ki_28` (optional)<br>`ki_29` (optional)<br>`ki_30` (optional)<br>`ki_31` (optional)<br>`ki_32` (optional)<br>`ki_33` (optional)<br>`ki_34` (optional)<br>`ki_35` (optional)<br>`ki_36` (optional)<br>`li_1` (optional)<br>`li_2` (optional)<br>`li_3` (optional)<br>`li_4` (optional)<br>`li_5` (optional)<br>`li_6` (optional)<br>`li_7` (optional)<br>`li_8` (optional)<br>`li_9` (optional)<br>`li_10` (optional)<br>`li_11` (optional)<br>`li_12` (optional)<br>`li_13` (optional)<br>`li_14` (optional)<br>`li_15` (optional)<br>`li_16` (optional)<br>`li_17` (optional)<br>`li_18` (optional)<br>`li_19` (optional)<br>`li_20` (optional)<br>`li_21` (optional)<br>`li_22` (optional)<br>`li_23` (optional)<br>`li_24` (optional)<br>`li_25` (optional)<br>`li_26` (optional)<br>`li_27` (optional)<br>`li_28` (optional)<br>`li_29` (optional)<br>`li_30` (optional)<br>`li_31` (optional)<br>`li_32` (optional)<br>`li_33` (optional)<br>`li_34` (optional)<br>`li_35` (optional)<br>`li_36` (optional)<br>`A3_1` (optional)<br>`A3_2` (optional)<br>`A3_3` (optional)<br>`A3_4` (optional)<br>`A3_5` (optional)<br>`A3_6` (optional)<br>`A3_7` (optional)<br>`A3_8` (optional)<br>`A3_9` (optional)<br>`A3_10` (optional)<br>`A3_11` (optional)<br>`A3_12` (optional)<br>`A3_13` (optional)<br>`A3_14` (optional)<br>`A3_15` (optional)<br>`A3_16` (optional)<br>`A3_17` (optional)<br>`A3_18` (optional)<br>`A3_19` (optional)<br>`A3_20` (optional)<br>`A3_21` (optional)<br>`A3_22` (optional)<br>`A3_23` (optional)<br>`A3_24` (optional)<br>`A3_25` (optional)<br>`A3_26` (optional)<br>`A3_27` (optional)<br>`A3_28` (optional)<br>`A3_29` (optional)<br>`A3_30` (optional)<br>`A3_31` (optional)<br>`A3_32` (optional)<br>`A3_33` (optional)<br>`A3_34` (optional)<br>`A3_35` (optional)<br>`A3_36` (optional)<br>`mi_1` (optional)<br>`mi_2` (optional)<br>`mi_3` (optional)<br>`mi_4` (optional)<br>`ni_1` (optional)<br>`ni_2` (optional)<br>`ni_3` (optional)<br>`ni_4` (optional)<br>`alpha_1` (optional)<br>`alpha_2` (optional)<br>`alpha_3` (optional)<br>`alpha_4` (optional)<br>`beta_1` (optional)<br>`beta_2` (optional)<br>`beta_3` (optional)<br>`beta_4` (optional)<br>`ri_1` (optional)<br>`ri_2` (optional)<br>`ri_3` (optional)<br>`ri_4` (optional)<br>`ti_1` (optional)<br>`ti_2` (optional)<br>`ti_3` (optional)<br>`ti_4` (optional)<br>`A4_1` (optional)<br>`A4_2` (optional)<br>`A4_3` (optional)<br>`A4_4` (optional)<br>`sat_a1` (optional)<br>`sat_a2` (optional)<br>`sat_a3` (optional)<br>`sat_a4` (optional)<br>`sat_a5` (optional)<br>`sat_a6` (optional)<br>`sat_b1` (optional)<br>`sat_b2` (optional)<br>`sat_b3` (optional)<br>`sat_b4` (optional)<br>`sat_b5` (optional)<br>`sat_b6` (optional)<br>`sat_c1` (optional)<br>`sat_c2` (optional)<br>`sat_c3` (optional)<br>`sat_c4` (optional)<br>`sat_c5` (optional)<br>`sat_c6` (optional)<br>`Tcr` (optional)<br>`Pcr` (optional)<br>`Dcr` (optional)<br>`M` (optional)<br>`Ttr` (optional)<br>`referenceTemperature` (optional)<br>`referenceDensity` (optional)<br>`referenceHelmholtz` (optional)<br>`A20` (optional)<br>`z0` (optional)<br>`visc_Pmax` (optional)<br>`visc_P2` (optional)<br>`visc_T2` (optional)<br>`visc_P3` (optional)<br>`visc_T3` (optional)<br>`visc_Tmax` (optional)<br>`cond_Pmax` (optional)<br>`cond_P2` (optional)<br>`cond_T2` (optional)<br>`cond_P3` (optional)<br>`cond_T3` (optional)<br>`cond_Tmax` (optional)<br>`surf_Ttripl` (optional)<br>`surf_Tcrit` (optional)<br>`surf_Tstar` (optional)<br>`surf_Tcstar` (optional)<br>`surf_v` (optional)<br>`surf_B` (optional)<br>`surf_stref` (optional)<br>`born_TMAX` (optional)<br>`born_PMAX` (optional)<br>`trans_Tstar` (optional)<br>`trans_Dstar` (optional)<br>`trans_Pstar` (optional)<br>`trans_ustar` (optional)<br>`cond_C` (optional)<br>`crit_T` (optional)<br>`crit_P` (optional)<br>`ac_wm` (optional)<br>`ac_gascon` (optional)<br>`ac_tz` (optional)<br>`ac_aa` (optional)<br>`ac_uref` (optional)<br>`ac_sref` (optional)<br>`ac_zb` (optional)<br>`ac_dzb` (optional)<br>`ac_yb` (optional)<br>`nc_nc` (optional)<br>`el_g1` (optional)<br>`el_g2` (optional)<br>`el_gf` (optional)<br>`el_b1` (optional)<br>`el_b2` (optional)<br>`el_b1t` (optional)<br>`el_b2t` (optional)<br>`el_b1tt` (optional)<br>`el_b2tt` (optional)<br>`hc_tcHGK` (optional)<br>`hc_dcHGK` (optional)<br>`hc_pcHGK` (optional)<br>`hb_Ttop` (optional)<br>`hb_Tbtm` (optional)<br>`hb_Ptop` (optional)<br>`hb_Pbtm` (optional)<br>`hb_Dtop` (optional)<br>`hb_Dbtm` (optional)<br>`li_sDli1` (optional)<br>`li_sPli1` (optional)<br>`li_sDli37` (optional)<br>`li_sPli37` (optional)<br>`li_sDIB30` (optional)<br>`li_Tli13` (optional)<br>`li_Pli13` (optional)<br>`li_Dli13` (optional)<br>`li_TnIB30` (optional)<br>`li_DnIB30` (optional)<br>`tt_Utri` (optional)<br>`tt_Stri` (optional)<br>`tt_Htri` (optional)<br>`tt_Atri` (optional)<br>`tt_Gtri` (optional)<br>`tt_Ttr` (optional)<br>`tt_Ptripl` (optional)<br>`tt_Dltrip` (optional)<br>`tt_Dvtrip` (optional)<br>`cr_Tc` (optional)<br>`cr_rhoC` (optional)<br>`cr_Pc` (optional)<br>`cr_Pcon` (optional)<br>`cr_Ucon` (optional)<br>`cr_Scon` (optional)<br>`cr_dPcon` (optional)<br>`nc_g_1` (optional)<br>`nc_g_2` (optional)<br>`nc_g_3` (optional)<br>`nc_g_4` (optional)<br>`nc_g_5` (optional)<br>`nc_g_6` (optional)<br>`nc_g_7` (optional)<br>`nc_g_8` (optional)<br>`nc_g_9` (optional)<br>`nc_g_10` (optional)<br>`nc_g_11` (optional)<br>`nc_g_12` (optional)<br>`nc_g_13` (optional)<br>`nc_g_14` (optional)<br>`nc_g_15` (optional)<br>`nc_g_16` (optional)<br>`nc_g_17` (optional)<br>`nc_g_18` (optional)<br>`nc_g_19` (optional)<br>`nc_g_20` (optional)<br>`nc_g_21` (optional)<br>`nc_g_22` (optional)<br>`nc_g_23` (optional)<br>`nc_g_24` (optional)<br>`nc_g_25` (optional)<br>`nc_g_26` (optional)<br>`nc_g_27` (optional)<br>`nc_g_28` (optional)<br>`nc_g_29` (optional)<br>`nc_g_30` (optional)<br>`nc_g_31` (optional)<br>`nc_g_32` (optional)<br>`nc_g_33` (optional)<br>`nc_g_34` (optional)<br>`nc_g_35` (optional)<br>`nc_g_36` (optional)<br>`nc_g_37` (optional)<br>`nc_g_38` (optional)<br>`nc_g_39` (optional)<br>`nc_g_40` (optional)<br>`nc_ii_1` (optional)<br>`nc_ii_2` (optional)<br>`nc_ii_3` (optional)<br>`nc_ii_4` (optional)<br>`nc_ii_5` (optional)<br>`nc_ii_6` (optional)<br>`nc_ii_7` (optional)<br>`nc_ii_8` (optional)<br>`nc_ii_9` (optional)<br>`nc_ii_10` (optional)<br>`nc_ii_11` (optional)<br>`nc_ii_12` (optional)<br>`nc_ii_13` (optional)<br>`nc_ii_14` (optional)<br>`nc_ii_15` (optional)<br>`nc_ii_16` (optional)<br>`nc_ii_17` (optional)<br>`nc_ii_18` (optional)<br>`nc_ii_19` (optional)<br>`nc_ii_20` (optional)<br>`nc_ii_21` (optional)<br>`nc_ii_22` (optional)<br>`nc_ii_23` (optional)<br>`nc_ii_24` (optional)<br>`nc_ii_25` (optional)<br>`nc_ii_26` (optional)<br>`nc_ii_27` (optional)<br>`nc_ii_28` (optional)<br>`nc_ii_29` (optional)<br>`nc_ii_30` (optional)<br>`nc_ii_31` (optional)<br>`nc_ii_32` (optional)<br>`nc_ii_33` (optional)<br>`nc_ii_34` (optional)<br>`nc_ii_35` (optional)<br>`nc_ii_36` (optional)<br>`nc_ii_37` (optional)<br>`nc_ii_38` (optional)<br>`nc_ii_39` (optional)<br>`nc_ii_40` (optional)<br>`nc_jj_1` (optional)<br>`nc_jj_2` (optional)<br>`nc_jj_3` (optional)<br>`nc_jj_4` (optional)<br>`nc_jj_5` (optional)<br>`nc_jj_6` (optional)<br>`nc_jj_7` (optional)<br>`nc_jj_8` (optional)<br>`nc_jj_9` (optional)<br>`nc_jj_10` (optional)<br>`nc_jj_11` (optional)<br>`nc_jj_12` (optional)<br>`nc_jj_13` (optional)<br>`nc_jj_14` (optional)<br>`nc_jj_15` (optional)<br>`nc_jj_16` (optional)<br>`nc_jj_17` (optional)<br>`nc_jj_18` (optional)<br>`nc_jj_19` (optional)<br>`nc_jj_20` (optional)<br>`nc_jj_21` (optional)<br>`nc_jj_22` (optional)<br>`nc_jj_23` (optional)<br>`nc_jj_24` (optional)<br>`nc_jj_25` (optional)<br>`nc_jj_26` (optional)<br>`nc_jj_27` (optional)<br>`nc_jj_28` (optional)<br>`nc_jj_29` (optional)<br>`nc_jj_30` (optional)<br>`nc_jj_31` (optional)<br>`nc_jj_32` (optional)<br>`nc_jj_33` (optional)<br>`nc_jj_34` (optional)<br>`nc_jj_35` (optional)<br>`nc_jj_36` (optional)<br>`nc_jj_37` (optional)<br>`nc_jj_38` (optional)<br>`nc_jj_39` (optional)<br>`nc_jj_40` (optional)<br>`bc_bp_1` (optional)<br>`bc_bp_2` (optional)<br>`bc_bp_3` (optional)<br>`bc_bp_4` (optional)<br>`bc_bp_5` (optional)<br>`bc_bp_6` (optional)<br>`bc_bp_7` (optional)<br>`bc_bp_8` (optional)<br>`bc_bp_9` (optional)<br>`bc_bp_10` (optional)<br>`bc_bq_1` (optional)<br>`bc_bq_2` (optional)<br>`bc_bq_3` (optional)<br>`bc_bq_4` (optional)<br>`bc_bq_5` (optional)<br>`bc_bq_6` (optional)<br>`bc_bq_7` (optional)<br>`bc_bq_8` (optional)<br>`bc_bq_9` (optional)<br>`bc_bq_10` (optional)<br>`ad_atz_1` (optional)<br>`ad_atz_2` (optional)<br>`ad_atz_3` (optional)<br>`ad_atz_4` (optional)<br>`ad_adz_1` (optional)<br>`ad_adz_2` (optional)<br>`ad_adz_3` (optional)<br>`ad_adz_4` (optional)<br>`ad_aat_1` (optional)<br>`ad_aat_2` (optional)<br>`ad_aat_3` (optional)<br>`ad_aat_4` (optional)<br>`ad_aad_1` (optional)<br>`ad_aad_2` (optional)<br>`ad_aad_3` (optional)<br>`ad_aad_4` (optional)<br>`co_a_1` (optional)<br>`co_a_2` (optional)<br>`co_a_3` (optional)<br>`co_a_4` (optional)<br>`co_a_5` (optional)<br>`co_a_6` (optional)<br>`co_a_7` (optional)<br>`co_a_8` (optional)<br>`co_a_9` (optional)<br>`co_a_10` (optional)<br>`co_a_11` (optional)<br>`co_a_12` (optional)<br>`co_a_13` (optional)<br>`co_a_14` (optional)<br>`co_a_15` (optional)<br>`co_a_16` (optional)<br>`co_a_17` (optional)<br>`co_a_18` (optional)<br>`co_a_19` (optional)<br>`co_a_20` (optional)<br>`co_q_1` (optional)<br>`co_q_2` (optional)<br>`co_q_3` (optional)<br>`co_q_4` (optional)<br>`co_q_5` (optional)<br>`co_q_6` (optional)<br>`co_q_7` (optional)<br>`co_q_8` (optional)<br>`co_q_9` (optional)<br>`co_q_10` (optional)<br>`co_q_11` (optional)<br>`co_q_12` (optional)<br>`co_q_13` (optional)<br>`co_q_14` (optional)<br>`co_q_15` (optional)<br>`co_q_16` (optional)<br>`co_q_17` (optional)<br>`co_q_18` (optional)<br>`co_q_19` (optional)<br>`co_q_20` (optional)<br>`co_x_1` (optional)<br>`co_x_2` (optional)<br>`co_x_3` (optional)<br>`co_x_4` (optional)<br>`co_x_5` (optional)<br>`co_x_6` (optional)<br>`co_x_7` (optional)<br>`co_x_8` (optional)<br>`co_x_9` (optional)<br>`co_x_10` (optional)<br>`co_x_11` (optional)<br>`psat_a_1` (optional)<br>`psat_a_2` (optional)<br>`psat_a_3` (optional)<br>`psat_a_4` (optional)<br>`psat_a_5` (optional)<br>`psat_a_6` (optional)<br>`psat_a_7` (optional)<br>`psat_a_8` (optional)<br>`ideal_c_1` (optional)<br>`ideal_c_2` (optional)<br>`ideal_c_3` (optional)<br>`ideal_c_4` (optional)<br>`ideal_c_5` (optional)<br>`ideal_c_6` (optional)<br>`ideal_c_7` (optional)<br>`ideal_c_8` (optional)<br>`ideal_c_9` (optional)<br>`ideal_c_10` (optional)<br>`ideal_c_11` (optional)<br>`ideal_c_12` (optional)<br>`ideal_c_13` (optional)<br>`ideal_c_14` (optional)<br>`ideal_c_15` (optional)<br>`ideal_c_16` (optional)<br>`ideal_c_17` (optional)<br>`ideal_c_18` (optional)<br>`visc_a_1` (optional)<br>`visc_a_2` (optional)<br>`visc_a_3` (optional)<br>`visc_a_4` (optional)<br>`visc_b_1` (optional)<br>`visc_b_2` (optional)<br>`visc_b_3` (optional)<br>`visc_b_4` (optional)<br>`visc_b_5` (optional)<br>`visc_b_6` (optional)<br>`visc_b_7` (optional)<br>`visc_b_8` (optional)<br>`visc_b_9` (optional)<br>`visc_b_10` (optional)<br>`visc_b_11` (optional)<br>`visc_b_12` (optional)<br>`visc_b_13` (optional)<br>`visc_b_14` (optional)<br>`visc_b_15` (optional)<br>`visc_b_16` (optional)<br>`visc_b_17` (optional)<br>`visc_b_18` (optional)<br>`visc_b_19` (optional)<br>`visc_b_20` (optional)<br>`visc_b_21` (optional)<br>`visc_b_22` (optional)<br>`visc_b_23` (optional)<br>`visc_b_24` (optional)<br>`visc_b_25` (optional)<br>`visc_b_26` (optional)<br>`visc_b_27` (optional)<br>`visc_b_28` (optional)<br>`visc_b_29` (optional)<br>`visc_b_30` (optional)<br>`visc_b_31` (optional)<br>`visc_b_32` (optional)<br>`visc_b_33` (optional)<br>`visc_b_34` (optional)<br>`visc_b_35` (optional)<br>`visc_b_36` (optional)<br>`visc_b_37` (optional)<br>`visc_b_38` (optional)<br>`visc_b_39` (optional)<br>`visc_b_40` (optional)<br>`visc_b_41` (optional)<br>`visc_b_42` (optional)<br>`cond_aL_1` (optional)<br>`cond_aL_2` (optional)<br>`cond_aL_3` (optional)<br>`cond_aL_4` (optional)<br>`cond_au_1` (optional)<br>`cond_au_2` (optional)<br>`cond_au_3` (optional)<br>`cond_au_4` (optional)<br>`cond_bL_1` (optional)<br>`cond_bL_2` (optional)<br>`cond_bL_3` (optional)<br>`cond_bL_4` (optional)<br>`cond_bL_5` (optional)<br>`cond_bL_6` (optional)<br>`cond_bL_7` (optional)<br>`cond_bL_8` (optional)<br>`cond_bL_9` (optional)<br>`cond_bL_10` (optional)<br>`cond_bL_11` (optional)<br>`cond_bL_12` (optional)<br>`cond_bL_13` (optional)<br>`cond_bL_14` (optional)<br>`cond_bL_15` (optional)<br>`cond_bL_16` (optional)<br>`cond_bL_17` (optional)<br>`cond_bL_18` (optional)<br>`cond_bL_19` (optional)<br>`cond_bL_20` (optional)<br>`cond_bL_21` (optional)<br>`cond_bL_22` (optional)<br>`cond_bL_23` (optional)<br>`cond_bL_24` (optional)<br>`cond_bL_25` (optional)<br>`cond_bL_26` (optional)<br>`cond_bL_27` (optional)<br>`cond_bL_28` (optional)<br>`cond_bL_29` (optional)<br>`cond_bL_30` (optional)<br>`cond_bu_1` (optional)<br>`cond_bu_2` (optional)<br>`cond_bu_3` (optional)<br>`cond_bu_4` (optional)<br>`cond_bu_5` (optional)<br>`cond_bu_6` (optional)<br>`cond_bu_7` (optional)<br>`cond_bu_8` (optional)<br>`cond_bu_9` (optional)<br>`cond_bu_10` (optional)<br>`cond_bu_11` (optional)<br>`cond_bu_12` (optional)<br>`cond_bu_13` (optional)<br>`cond_bu_14` (optional)<br>`cond_bu_15` (optional)<br>`cond_bu_16` (optional)<br>`cond_bu_17` (optional)<br>`cond_bu_18` (optional)<br>`cond_bu_19` (optional)<br>`cond_bu_20` (optional)<br>`cond_bu_21` (optional)<br>`cond_bu_22` (optional)<br>`cond_bu_23` (optional)<br>`cond_bu_24` (optional)<br>`cond_bu_25` (optional)<br>`cond_bu_26` (optional)<br>`cond_bu_27` (optional)<br>`cond_bu_28` (optional)<br>`cond_bu_29` (optional)<br>`cond_bu_30` (optional)<br>`state` (optional) | `reaktoro`, `gems` |
-| `WaterIAPWS95` | Water, IAPWS-95 | `sat_a1` (optional)<br>`sat_a2` (optional)<br>`sat_a3` (optional)<br>`sat_a4` (optional)<br>`sat_a5` (optional)<br>`sat_a6` (optional)<br>`sat_b1` (optional)<br>`sat_b2` (optional)<br>`sat_b3` (optional)<br>`sat_b4` (optional)<br>`sat_b5` (optional)<br>`sat_b6` (optional)<br>`sat_c1` (optional)<br>`sat_c2` (optional)<br>`sat_c3` (optional)<br>`sat_c4` (optional)<br>`sat_c5` (optional)<br>`sat_c6` (optional)<br>`Tcr` (optional)<br>`Pcr` (optional)<br>`Dcr` (optional)<br>`M` (optional)<br>`Ttr` (optional)<br>`no_1` (optional)<br>`no_2` (optional)<br>`no_3` (optional)<br>`no_4` (optional)<br>`no_5` (optional)<br>`no_6` (optional)<br>`no_7` (optional)<br>`no_8` (optional)<br>`no_9` (optional)<br>`gammao_1` (optional)<br>`gammao_2` (optional)<br>`gammao_3` (optional)<br>`gammao_4` (optional)<br>`gammao_5` (optional)<br>`c_1` (optional)<br>`c_2` (optional)<br>`c_3` (optional)<br>`c_4` (optional)<br>`c_5` (optional)<br>`c_6` (optional)<br>`c_7` (optional)<br>`c_8` (optional)<br>`c_9` (optional)<br>`c_10` (optional)<br>`c_11` (optional)<br>`c_12` (optional)<br>`c_13` (optional)<br>`c_14` (optional)<br>`c_15` (optional)<br>`c_16` (optional)<br>`c_17` (optional)<br>`c_18` (optional)<br>`c_19` (optional)<br>`c_20` (optional)<br>`c_21` (optional)<br>`c_22` (optional)<br>`c_23` (optional)<br>`c_24` (optional)<br>`c_25` (optional)<br>`c_26` (optional)<br>`c_27` (optional)<br>`c_28` (optional)<br>`c_29` (optional)<br>`c_30` (optional)<br>`c_31` (optional)<br>`c_32` (optional)<br>`c_33` (optional)<br>`c_34` (optional)<br>`c_35` (optional)<br>`c_36` (optional)<br>`c_37` (optional)<br>`c_38` (optional)<br>`c_39` (optional)<br>`c_40` (optional)<br>`c_41` (optional)<br>`c_42` (optional)<br>`c_43` (optional)<br>`c_44` (optional)<br>`c_45` (optional)<br>`c_46` (optional)<br>`c_47` (optional)<br>`c_48` (optional)<br>`c_49` (optional)<br>`c_50` (optional)<br>`c_51` (optional)<br>`c_52` (optional)<br>`c_53` (optional)<br>`c_54` (optional)<br>`c_55` (optional)<br>`d_1` (optional)<br>`d_2` (optional)<br>`d_3` (optional)<br>`d_4` (optional)<br>`d_5` (optional)<br>`d_6` (optional)<br>`d_7` (optional)<br>`d_8` (optional)<br>`d_9` (optional)<br>`d_10` (optional)<br>`d_11` (optional)<br>`d_12` (optional)<br>`d_13` (optional)<br>`d_14` (optional)<br>`d_15` (optional)<br>`d_16` (optional)<br>`d_17` (optional)<br>`d_18` (optional)<br>`d_19` (optional)<br>`d_20` (optional)<br>`d_21` (optional)<br>`d_22` (optional)<br>`d_23` (optional)<br>`d_24` (optional)<br>`d_25` (optional)<br>`d_26` (optional)<br>`d_27` (optional)<br>`d_28` (optional)<br>`d_29` (optional)<br>`d_30` (optional)<br>`d_31` (optional)<br>`d_32` (optional)<br>`d_33` (optional)<br>`d_34` (optional)<br>`d_35` (optional)<br>`d_36` (optional)<br>`d_37` (optional)<br>`d_38` (optional)<br>`d_39` (optional)<br>`d_40` (optional)<br>`d_41` (optional)<br>`d_42` (optional)<br>`d_43` (optional)<br>`d_44` (optional)<br>`d_45` (optional)<br>`d_46` (optional)<br>`d_47` (optional)<br>`d_48` (optional)<br>`d_49` (optional)<br>`d_50` (optional)<br>`d_51` (optional)<br>`d_52` (optional)<br>`d_53` (optional)<br>`d_54` (optional)<br>`d_55` (optional)<br>`t_1` (optional)<br>`t_2` (optional)<br>`t_3` (optional)<br>`t_4` (optional)<br>`t_5` (optional)<br>`t_6` (optional)<br>`t_7` (optional)<br>`t_8` (optional)<br>`t_9` (optional)<br>`t_10` (optional)<br>`t_11` (optional)<br>`t_12` (optional)<br>`t_13` (optional)<br>`t_14` (optional)<br>`t_15` (optional)<br>`t_16` (optional)<br>`t_17` (optional)<br>`t_18` (optional)<br>`t_19` (optional)<br>`t_20` (optional)<br>`t_21` (optional)<br>`t_22` (optional)<br>`t_23` (optional)<br>`t_24` (optional)<br>`t_25` (optional)<br>`t_26` (optional)<br>`t_27` (optional)<br>`t_28` (optional)<br>`t_29` (optional)<br>`t_30` (optional)<br>`t_31` (optional)<br>`t_32` (optional)<br>`t_33` (optional)<br>`t_34` (optional)<br>`t_35` (optional)<br>`t_36` (optional)<br>`t_37` (optional)<br>`t_38` (optional)<br>`t_39` (optional)<br>`t_40` (optional)<br>`t_41` (optional)<br>`t_42` (optional)<br>`t_43` (optional)<br>`t_44` (optional)<br>`t_45` (optional)<br>`t_46` (optional)<br>`t_47` (optional)<br>`t_48` (optional)<br>`t_49` (optional)<br>`t_50` (optional)<br>`t_51` (optional)<br>`t_52` (optional)<br>`t_53` (optional)<br>`t_54` (optional)<br>`t_55` (optional)<br>`n_1` (optional)<br>`n_2` (optional)<br>`n_3` (optional)<br>`n_4` (optional)<br>`n_5` (optional)<br>`n_6` (optional)<br>`n_7` (optional)<br>`n_8` (optional)<br>`n_9` (optional)<br>`n_10` (optional)<br>`n_11` (optional)<br>`n_12` (optional)<br>`n_13` (optional)<br>`n_14` (optional)<br>`n_15` (optional)<br>`n_16` (optional)<br>`n_17` (optional)<br>`n_18` (optional)<br>`n_19` (optional)<br>`n_20` (optional)<br>`n_21` (optional)<br>`n_22` (optional)<br>`n_23` (optional)<br>`n_24` (optional)<br>`n_25` (optional)<br>`n_26` (optional)<br>`n_27` (optional)<br>`n_28` (optional)<br>`n_29` (optional)<br>`n_30` (optional)<br>`n_31` (optional)<br>`n_32` (optional)<br>`n_33` (optional)<br>`n_34` (optional)<br>`n_35` (optional)<br>`n_36` (optional)<br>`n_37` (optional)<br>`n_38` (optional)<br>`n_39` (optional)<br>`n_40` (optional)<br>`n_41` (optional)<br>`n_42` (optional)<br>`n_43` (optional)<br>`n_44` (optional)<br>`n_45` (optional)<br>`n_46` (optional)<br>`n_47` (optional)<br>`n_48` (optional)<br>`n_49` (optional)<br>`n_50` (optional)<br>`n_51` (optional)<br>`n_52` (optional)<br>`n_53` (optional)<br>`n_54` (optional)<br>`n_55` (optional)<br>`n_56` (optional)<br>`n_57` (optional)<br>`alpha_1` (optional)<br>`alpha_2` (optional)<br>`alpha_3` (optional)<br>`beta_1` (optional)<br>`beta_2` (optional)<br>`beta_3` (optional)<br>`gamma_1` (optional)<br>`gamma_2` (optional)<br>`gamma_3` (optional)<br>`epsilon_1` (optional)<br>`epsilon_2` (optional)<br>`epsilon_3` (optional)<br>`a_1` (optional)<br>`a_2` (optional)<br>`b_1` (optional)<br>`b_2` (optional)<br>`A_1` (optional)<br>`A_2` (optional)<br>`B_1` (optional)<br>`B_2` (optional)<br>`C_1` (optional)<br>`C_2` (optional)<br>`F_1` (optional)<br>`F_2` (optional)<br>`E_1` (optional)<br>`E_2` (optional)<br>`state` (optional) | `reaktoro` |
-| `WaterZhangDuan05` | Water, Zhang and Duan | `dew_gibbs` (optional)<br>`a1` (optional)<br>`a2` (optional)<br>`a3` (optional)<br>`a4` (optional)<br>`a5` (optional)<br>`a6` (optional)<br>`a7` (optional)<br>`a8` (optional)<br>`a9` (optional)<br>`a10` (optional)<br>`a11` (optional)<br>`a12` (optional)<br>`a13` (optional)<br>`a14` (optional)<br>`gamma` (optional)<br>`Tc` (optional)<br>`Vc` (optional)<br>`R` (optional)<br>`g1kb_0` (optional)<br>`g1kb_1` (optional)<br>`g1kb_2` (optional)<br>`g1kb_3` (optional)<br>`g1kb_4` (optional)<br>`Tmax` (optional)<br>`Pmax` (optional)<br>`Pmin` (optional)<br>`state` (optional) | one |
-
-### Dielectric models of water
-
-| Id | What it is | Parameters, with the SI unit | Implementations |
-|---|---|---|---|
-| `JohnsonNorton91` | Dielectric constant of Johnson and Norton | `a1` (optional)<br>`a2` (optional)<br>`a3` (optional)<br>`a4` (optional)<br>`a5` (optional)<br>`a6` (optional)<br>`a7` (optional)<br>`a8` (optional)<br>`a9` (optional)<br>`a10` (optional)<br>`Tr` (optional)<br>`Dr` (optional) | `reaktoro`, `gems` |
-| `BradleyPitzer79` | Dielectric constant of Bradley and Pitzer | `U1` (optional)<br>`U2` (optional)<br>`U3` (optional)<br>`U4` (optional)<br>`U5` (optional)<br>`U6` (optional)<br>`U7` (optional)<br>`U8` (optional)<br>`U9` (optional)<br>`Tmin` (optional)<br>`Tmax` (optional)<br>`Tlow` (optional)<br>`Pmax_low` (optional)<br>`Pmax` (optional) | one |
-| `HelgesonKirkham74` | Dielectric constant of Helgeson and Kirkham | `e_0_0` (optional)<br>`e_0_1` (optional)<br>`e_0_2` (optional)<br>`e_0_3` (optional)<br>`e_0_4` (optional)<br>`e_1_0` (optional)<br>`e_1_1` (optional)<br>`e_1_2` (optional)<br>`e_1_3` (optional)<br>`e_2_0` (optional)<br>`e_2_1` (optional)<br>`e_2_2` (optional)<br>`e_3_0` (optional)<br>`e_3_1` (optional)<br>`e_4_0` (optional) | one |
-| `SverjenskyEtAl14` | Dielectric constant of Sverjensky et al. | `a1` (optional)<br>`a2` (optional)<br>`a3` (optional)<br>`b1` (optional)<br>`b2` (optional)<br>`b3` (optional) | one |
-| `FernandezEtAl97` | Dielectric constant of Fernandez et al. | `n1` (optional)<br>`n2` (optional)<br>`n3` (optional)<br>`n4` (optional)<br>`n5` (optional)<br>`n6` (optional)<br>`n7` (optional)<br>`n8` (optional)<br>`n9` (optional)<br>`n10` (optional)<br>`n11` (optional)<br>`n12` (optional)<br>`I1` (optional)<br>`I2` (optional)<br>`I3` (optional)<br>`I4` (optional)<br>`I5` (optional)<br>`I6` (optional)<br>`I7` (optional)<br>`I8` (optional)<br>`I9` (optional)<br>`I10` (optional)<br>`I11` (optional)<br>`J1` (optional)<br>`J2` (optional)<br>`J3` (optional)<br>`J4` (optional)<br>`J5` (optional)<br>`J6` (optional)<br>`J7` (optional)<br>`J8` (optional)<br>`J9` (optional)<br>`J10` (optional)<br>`J11` (optional)<br>`Tc` (optional)<br>`rhoc` (optional)<br>`k` (optional)<br>`Na` (optional)<br>`alpha` (optional)<br>`epsilon0` (optional)<br>`mu` (optional)<br>`M` (optional) | one |
-
-### Base methods of a reaction
-
-| Id | What it is | Parameters, with the SI unit | Implementations |
-|---|---|---|---|
-| `ConstantReactionProperties` | Constant reaction properties | none | one |
-| `LogKPolynomial` | log K polynomial | `a0`<br>`a1` [1/K] (optional)<br>`a2` [K] (optional)<br>`a3` (optional)<br>`a4` [K2] (optional)<br>`a5` [1/K2] (optional)<br>`a6` [K^0.5] (optional)<br>`a` [J/(mol.K)] (optional)<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | one |
-| `LogKNordstromMunoz88` | The same as `LogKPolynomial` (a legacy name) | as `LogKPolynomial` | one |
-| `LogKConstant` | Constant log K | none | one |
-| `LogKZeroEntropy` | log K with zero entropy of reaction | none | one |
-| `LogKVantHoff` | log K of van 't Hoff | none | one |
-| `LogKConstantCp` | log K with constant heat capacity of reaction | none | one |
-| `LogKTable` | Table of log K | none | one |
-| `MarshallFranck81` | Ion product of water of Marshall and Franck (needs the solvent) | `a`<br>`b` [K]<br>`c` [K2]<br>`d` [K3]<br>`e`<br>`f` [K]<br>`g` [K2] | one |
-| `RyzhenkoBryzgalin` | Model of Ryzhenko and Bryzgalin (needs the solvent) | `pK298`<br>`A`<br>`B`<br>`a` (optional)<br>`b` (optional)<br>`c` (optional)<br>`d` (optional)<br>`e` (optional)<br>`f` (optional)<br>`g` (optional)<br>`RHO298` (optional)<br>`zzH2O` (optional) | one |
-| `DolejsManning10` | Density model of Dolejs and Manning (needs the solvent) | `a` [J/mol]<br>`b` [J/(mol.K)]<br>`c` [J/(mol.K)] (optional)<br>`d` [J/(mol.K2)] (optional)<br>`e` [J/(mol.K)] | one |
-
-### Other methods of a reaction
-
-| Id | What it is | Parameters, with the SI unit | Implementations |
-|---|---|---|---|
-| `ReactionCpPolynomial` | Heat capacity of reaction | `a` [J/(mol.K)]<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | one |
-| `ReactionVolumePolynomial` | Volume of reaction, T and P | `a1` [1/K]<br>`a2` [1/K2]<br>`a3` [1/K3]<br>`b1` [1/Pa]<br>`b2` [1/Pa2] | one |
-| `ReactionConstantVolume` | Constant volume of reaction | none | one |
-
-<!-- methods end -->
-
-### Built-in constants
-
-Some methods have constants that do not belong to one substance, for example the coefficients of a water model. They are in the files of `ThermoFun/Methods/ParameterSets`, written like a `parameter_sets` section, each with a description and its source. The page of the method lists them.
+Some methods have coefficients that do not belong to one substance, for example the coefficients of a water model. They are not in the record but in default YAML files, one for each set, in the folder `ThermoFun/Methods/ParameterSets/` of the source (a copy is in `include/ThermoFun/Methods/ParameterSets/` of an installation). Each file has a description and its source, written like a `parameter_sets` section. The page of the method lists them.
 
 A record does not give them. To use another value, give it inline in the `parameters` of the method, or in a `parameter_set` of the same method. The value then holds only for that record. Where this is not possible, the page of the method says so.
 
@@ -720,7 +745,15 @@ Derivatives and propagated errors use the same path as the values. To see the pa
 ```python
 engine = tf.ThermoEngine("defined.yaml")
 engine.setPropertySource("makes-B", "reactants")          # one record
+```
+
+<!-- check
+```python
 assert engine.propertySource("makes-B") == tf.PropertySource.Reactants
+```
+-->
+
+```python
 engine.setPropertySource("makes-B", "record")             # back to what the record says
 engine.preferences.property_source = "direct"             # all records
 ```
@@ -735,9 +768,16 @@ To see the path that the engine takes for a record, without calculating:
 ```python
 engine = tf.ThermoEngine("small.yaml")
 path = engine.calculationPath("Corundum")
+print(path["source"])  # prints methods
+print(path["methods"])  # prints ['ConstantCp', 'ConstantVolume']
+```
+
+<!-- check
+```python
 assert path["source"] == "methods"
 assert path["methods"] == ["ConstantCp", "ConstantVolume"]
 ```
+-->
 
 A reaction and a substance can define each other. If a reaction with `reactants` needs a substance that comes from this reaction, the calculation stops with an error that names the cycle. With `reactants` set for all records in the preferences of the engine, this reaction keeps its own methods, with a warning.
 
@@ -754,8 +794,14 @@ parameters = tf.ThermoParametersSubstance()
 parameters.Cp_coeff = [[100.0]]
 parameters.temperature_intervals = [[273.15, 2000.0]]
 s.setThermoParameters(parameters)
+print(s.record().methods[0].method)  # prints CpPolynomial
+```
+
+<!-- check
+```python
 assert s.record().methods[0].method == "CpPolynomial"
 ```
+-->
 
 ## 12. Find and correct problems
 
@@ -774,33 +820,45 @@ substances:
 
 ```python
 problem = tf.Database("problem.yaml").loadDiagnostics().all()[0]
+print(problem.code)  # prints V2-VOC-001
+print(problem.path)  # prints /substances/A/aggregate_state
+print(problem.line)  # prints 5
+```
+
+<!-- check
+```python
 assert problem.code == "V2-VOC-001"
 assert problem.path == "/substances/A/aggregate_state"
 assert problem.line == 5
 assert 'Did you mean "crystal"' in problem.message
 ```
+-->
 
 A load cannot see some problems, because a record can come from another file. `database.validate()` reports them: a missing reaction, an equation that is not balanced, a cycle of
 defining reactions, a missing parameter, a covariance matrix that is wrong.
 
 ```python
 checked = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  A: {defining_reaction: nothing, standard_state_properties: {G: 1}}\n").validate()
+```
+
+<!-- check
+```python
 assert [d.code for d in checked.all()] == ["V2-REF-001"]
 ```
+-->
 
 | Code | What is wrong | What to do |
 |---|---|---|
 | `V2-VER-003` | The file has no key `thermohub`. | Add it at the top of the file. |
 | `V2-MTH-012` | The record has two base methods, or no method and no values. | Keep one base method, or give the values. |
 | `V2-MTH-005` | The method is for another class of substance. | Use another method, or correct `class`. |
-| `V2-MTH-001` | The method id is not known. | Use an id of Section 9. |
-| `V2-MTH-002` | The method has no parameter with this name. | Use a name of Section 9. |
+| `V2-MTH-001` | The method id is not known. | Use an id of [the list of methods](../reference/methods/index.md). |
+| `V2-MTH-002` | The method has no parameter with this name. | Use a name of [Parameters of all methods](../reference/method-parameters.md). |
 | `V2-MTH-003` | The method has two of `parameters`, `segments` and `table`. | Keep one. |
 | `V2-MTH-004` | A required parameter is missing. | Add it. |
-| `V2-MTH-009` | The method has no such implementation. | Use one of Section 9, or remove the key. |
+| `V2-MTH-009` | The method has no such implementation. | Use one of the implementations on the page of the method, or remove the key. |
 | `V2-MTH-018` | A table has the wrong size, or a grid is not ascending. | Give nT x nP values. |
 | `V2-UNIT-001`, `V2-UNIT-002` | The unit is not known, or has the wrong dimension. | Correct the unit. |
 | `V2-RXN-001` | The equation and the stoichiometry do not agree. | Correct one, or remove one. |
 | `V2-YAML-001` | The text is not YAML. | Correct the place that the message gives. |
 
-**Check:** run `python -m pytest pytests/test_add_data_guide.py`. All examples of this page run and their results are correct.

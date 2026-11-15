@@ -9,7 +9,7 @@ Source: Holland and Powell (2011).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -56,7 +56,7 @@ for T, P in [(773.15, 1e+08)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 773.15  1e+08  -8.8834e+05  -8.8818e+05  86.578  51.539  5.5258e-07

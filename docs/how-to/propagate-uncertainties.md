@@ -40,8 +40,13 @@ import thermofun as tf
 T = 500.0
 engine = tf.ThermoEngine("uncertain.yaml")
 G = engine.thermoPropertiesSubstance(T, 1e5, "X").gibbs_energy
+```
+
+<!-- check
+```python
 assert abs(G.err - math.hypot(1000.0, (T - 298.15) * 0.5)) < 1e-6   # J/mol
 ```
+-->
 
 3. Set `propagate_parameter_errors` to count the parameters of the methods too. It takes more time.
 
@@ -50,7 +55,12 @@ preferences = engine.preferences
 preferences.propagate_parameter_errors = True
 engine.setPreferences(preferences)
 with_parameters = engine.thermoPropertiesSubstance(T, 1e5, "X").gibbs_energy
-assert with_parameters.err > G.err
 ```
 
-**Check:** see the text in [Uncertainties and rounding](../explanation/uncertainty.md) for the formula and its limits.
+<!-- check
+```python
+assert with_parameters.err > G.err
+```
+-->
+
+See the text in [Uncertainties and rounding](../reference/uncertainty.md) for the formula and its limits.

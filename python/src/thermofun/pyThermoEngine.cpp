@@ -224,6 +224,8 @@ void exportThermoEngine(py::module& m)
                  {
                      py::dict row;
                      row["method"] = step.method; row["G"] = step.G; row["H"] = step.H; row["S"] = step.S; row["Cp"] = step.Cp; row["V"] = step.V;
+                     if (!step.auxiliary.empty())
+                         row["auxiliary"] = step.auxiliary;
                      out.append(row);
                  }
                  return out;
@@ -256,6 +258,23 @@ void exportThermoEngine(py::module& m)
              "What each method of a substance changes, at each (T, P) in K and Pa: a row for each point, as a dict for a table (pandas.DataFrame(rows)). "
              "Columns T, P, then G, H, S, Cp, V (the result), then X:<method> (the state after the method minus before it) and X:other (what changed after the methods). "
              "The columns of a property add up to it. T or P can be one number. SI units. Whether a method sets or adds a property: thermofun.methods.catalog(), 'effects'.")
+        .def("auxiliaryOutputs", [](const ThermoEngine& en, const std::string& symbol, const py::object& T, const py::object& P) {
+                 const auto values = [](const py::object& x) {
+                     return py::isinstance<py::iterable>(x) ? x.cast<std::vector<double>>() : std::vector<double>{x.cast<double>()};
+                 };
+                 py::list rows;
+                 for (const auto& point : en.auxiliaryOutputs(symbol, values(T), values(P)))
+                 {
+                     py::dict row;
+                     row["T"] = point.T; row["P"] = point.P;
+                     for (const auto& [name, value] : point.values)
+                         row[py::str(name)] = value;
+                     rows.append(row);
+                 }
+                 return rows;
+             }, py::arg("symbol"), py::arg("T"), py::arg("P"),
+             "The named outputs of the methods of a substance (the terms and intermediate functions of a model), at each (T, P) in K and Pa: a row for each point, as a dict for a table (pandas.DataFrame(rows)). "
+             "Columns T, P, then <method>:<name>, in SI units. The names, units and meaning of the outputs of a method: thermofun.methods.catalog(), 'auxiliary_outputs', and the page of the method. Only some methods have them, for example HKF88.")
         .def("calculationPath", [](const ThermoEngine& en, const std::string& symbol) { return pathToDict(en.calculationPath(symbol)); }, py::arg("symbol"),
              "How a substance or a reaction is calculated with the sources of this engine, as a dict: kind, symbol, source, methods, coefficient, role, steps, problem. It calculates nothing.")
         .def("thermoPropertiesSubstanceDetailed", [](const ThermoEngine& en, double T, double P, std::string symbol) {
@@ -366,18 +385,24 @@ void exportThermoEngine(py::module& m)
     py::class_<EngineConventions>(m, "EngineConventions")
         .def(py::init<>())
         .def_property("energy_reference", [](const EngineConventions& c) { return c.energy_reference; },
-                      [](EngineConventions& c, py::object v) { c.energy_reference = valueOf<model::EnergyReference>(v); c.apparent_properties.clear(); })
+                      [](EngineConventions& c, py::object v) { c.energy_reference = valueOf<model::EnergyReference>(v); c.apparent_properties.clear(); },
+                      "the reference of the energies: what G and H of a substance are measured from. benson_helgeson (default): the apparent energies of formation from the elements at 298.15 K and 1 bar, as in geochemical databases; berman_brown: G differs from it by 298.15 times the entropies of the elements; ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K: see Conventions")
         .def_property("standard_pressure", [](const EngineConventions& c) { return c.standard_pressure; },
-                      [](EngineConventions& c, py::object v) { c.standard_pressure = valueOf<model::StandardPressure>(v); })
+                      [](EngineConventions& c, py::object v) { c.standard_pressure = valueOf<model::StandardPressure>(v); },
+                      "the standard pressure of gases: 1bar (default) or 1atm")
         .def_property("concentration_scale", [](const EngineConventions& c) { return c.concentration_scale; },
-                      [](EngineConventions& c, py::object v) { c.concentration_scale = valueOf<model::ConcentrationScale>(v); })
+                      [](EngineConventions& c, py::object v) { c.concentration_scale = valueOf<model::ConcentrationScale>(v); },
+                      "the concentration scale of the standard state of aqueous species: molality (default), mole_fraction or molarity")
         .def_property("water_reference", [](const EngineConventions& c) { return c.water_reference; },
-                      [](EngineConventions& c, py::object v) { c.water_reference = valueOf<model::WaterReference>(v); c.water_properties.clear(); })
+                      [](EngineConventions& c, py::object v) { c.water_reference = valueOf<model::WaterReference>(v); c.water_properties.clear(); },
+                      "the reference of the energies of water: geochemical (default, G of formation from the elements) or steam_tables (G = 0 and S = 0 for liquid water at its triple point)")
         // the old names: the same values as checked words in capitals
         .def_property("apparent_properties", [](const EngineConventions& c) { return c.apparentPropertiesWord(); },
-                      [](EngineConventions& c, const std::string& word) { c.energy_reference = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); })
+                      [](EngineConventions& c, const std::string& word) { c.energy_reference = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); },
+                      "the old name of energy_reference, in capitals (BENSON_HELGESON). It is kept for code that uses it; use energy_reference")
         .def_property("water_properties", [](const EngineConventions& c) { return c.waterPropertiesWord(); },
-                      [](EngineConventions& c, const std::string& word) { c.water_reference = wordOf<model::WaterReference>(word); c.water_properties.clear(); });
+                      [](EngineConventions& c, const std::string& word) { c.water_reference = wordOf<model::WaterReference>(word); c.water_properties.clear(); },
+                      "the old name of water_reference, in capitals (GEOCHEMICAL). It is kept for code that uses it; use water_reference");
 }
 
 }

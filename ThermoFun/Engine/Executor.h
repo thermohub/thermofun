@@ -4,6 +4,7 @@
 #ifndef THERMOFUN_ENGINE_EXECUTOR_H
 #define THERMOFUN_ENGINE_EXECUTOR_H
 
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -24,6 +25,7 @@ struct ExplainStep
 {
     std::string method;
     MethodResult values;
+    std::map<std::string, double> auxiliary;   ///< the named outputs of the method, SI
 };
 
 /// Run the bound methods of a record at T (K) and P (Pa). If steps is given, it gets the state after each method.

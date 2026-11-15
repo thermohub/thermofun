@@ -9,7 +9,7 @@ Source: Soave (1972); Soave (1993).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -30,7 +30,7 @@ Source: Soave (1972); Soave (1993).
 | omega | 1 | 1 | yes |  | acentric factor |
 | N | 1 | 1 | no |  | empirical parameter of the attraction term |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -74,7 +74,7 @@ for T, P in [(373.15, 1e+07)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 373.15  1e+07  -3.9715e+05  -3.9386e+05  177.31  63.284  0.00024

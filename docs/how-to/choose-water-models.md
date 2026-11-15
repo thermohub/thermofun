@@ -32,17 +32,31 @@ The dielectric model changes the volume and the heat capacity of a solute. Use t
 import thermofun as tf
 
 water = tf.methods.solventMethod("WaterHGK84", implementation="reaktoro").properties(298.15, 1e5, 0)
-for model, Q in (("HelgesonKirkham74", 5.90e-12), ("JohnsonNorton91", 6.63e-12)):
-    born = tf.methods.dielectricMethod(model, implementation="reaktoro" if model == "JohnsonNorton91" else "").properties(298.15, 1e5, water, 0)
-    assert abs(born.bornQ.val - Q) < 0.01e-12                   # 1/Pa
+born_hk74 = tf.methods.dielectricMethod("HelgesonKirkham74").properties(298.15, 1e5, water, 0)
+born_jn91 = tf.methods.dielectricMethod("JohnsonNorton91", implementation="reaktoro").properties(298.15, 1e5, water, 0)
+print(born_hk74.bornQ.val, born_jn91.bornQ.val)   # the Born function Q in 1/Pa: 5.90e-12 and 6.63e-12
 ```
 
-**Check:** the solvent of your engine is the record that you changed.
+<!-- check
+```python
+assert abs(born_hk74.bornQ.val - 5.90e-12) < 0.01e-12
+assert abs(born_jn91.bornQ.val - 6.63e-12) < 0.01e-12
+```
+-->
+
+The solvent of your engine is the record that you changed.
 
 ```python
 engine = tf.ThermoEngine("examples/v2/minimal.yaml")
+print(engine.solventSymbol())  # prints H2O@
+print(engine.calculationPath("Na+")["steps"][0]["methods"])  # prints ['WaterIAPWS95', 'JohnsonNorton91']
+```
+
+<!-- check
+```python
 assert engine.solventSymbol() == "H2O@"
 assert engine.calculationPath("Na+")["steps"][0]["methods"] == ["WaterIAPWS95", "JohnsonNorton91"]
 ```
+-->
 
 Use `engine.setSolventSymbol("...")` if your database has another name for water.

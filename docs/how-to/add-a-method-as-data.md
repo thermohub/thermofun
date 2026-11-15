@@ -1,7 +1,11 @@
 # Add a method as data
 
 A closed-form model can be a Method record with an expression. No C++ change is needed.
-The code in this page is run by `pytests/test_method_guide.py`. It needs SymPy and a build with `TFUN_USE_SYMENGINE=ON`.
+
+```{admonition} For people who add models
+:class: note
+You do not need this page to use the methods that ThermoFun has: they are in the [list of methods](../reference/methods/index.md). This page is for adding a new equation from a paper. It needs SymPy and a build with `TFUN_USE_SYMENGINE=ON`.
+```
 
 The engine runs the forms that give the Gibbs energy of a substance:
 
@@ -29,7 +33,6 @@ The source is the model as in the paper. The names T, P, Tr, Pr, R, Gr, Hr, Sr, 
 Declare each parameter with its SI unit. `python -m thermofun.method_tool new cp` prints a template.
 
 ```python
-import json
 from thermofun import method_tool as methods
 
 record = {
@@ -47,8 +50,13 @@ From a shell the command is `python -m thermofun.method_tool build record.yaml`.
 ```python
 built = methods.build(record)
 print(built["expression"]["G"])
+```
+
+<!-- check
+```python
 assert "G" in built["expression"]
 ```
+-->
 
 ## Step 3. Add a test case from the paper
 
@@ -60,8 +68,14 @@ built["tests"] = [{"T": 500.0, "P": 1e5,
                    "reference": {"Gr": -1.2e6, "Hr": -1.1731665e6, "Sr": 90.0, "Cpr": 80.0},
                    "parameters": {"a": 80.0, "b": 0.012, "c": -1.1e6},
                    "expected": {"Cp": 80.0 + 0.012 * 500.0 - 1.1e6 / 500.0**2}, "relative_tolerance": 1e-9}]
+print(methods.check(built))  # prints []
+```
+
+<!-- check
+```python
 assert methods.check(built) == []
 ```
+-->
 
 ## Step 4. Use the method
 
@@ -75,11 +89,16 @@ substance = {
     "methods": [{"method": "MaierKelleyCp", "parameters": {"a": 80.0, "b": 0.012, "c": -1.1e6}}],
 }
 document = {"thermohub": "2.0.0-draft.1", "methods": {"MaierKelleyCp": built}, "substances": {"X": substance}}
-engine = tf.ThermoEngine(tf.Database(json.dumps(document)))
+engine = tf.ThermoEngine(tf.Database(document))
 props = engine.thermoPropertiesSubstance(500.0, 1e5, "X")
 print(props.heat_capacity_cp.val)
+```
+
+<!-- check
+```python
 assert abs(props.heat_capacity_cp.val - (80.0 + 0.012 * 500.0 - 1.1e6 / 500.0**2)) < 1e-9
 ```
+-->
 
 The engine differentiates the expression. S is −∂G/∂T, V is ∂G/∂P and Cp is −T ∂²G/∂T².
 Several methods on one record give the same result in any order.
@@ -89,7 +108,9 @@ Several methods on one record give the same result in any order.
 Examples are in `examples/v2/methods/`. Open a pull request with the Method record to `thermohub-data/methods/definitions/`.
 A reviewer checks the source against the paper. The checks `V2-SYM-001`, `002` and `006` run when the file is read.
 
-## A method of a reaction
+## Expert: a method of a reaction
+
+This section is for model authors who need a method for a reaction, for example a new equation of log K. You can skip it.
 
 A method of a reaction has `operates_on: reaction`. Its expression gives dG in J/mol. All other properties come from it: dS = -d(dG)/dT, dH = dG + T dS, dCp = -T d2(dG)/dT2, dV = d(dG)/dP, and log K = -dG/(R T ln 10).
 
@@ -106,28 +127,40 @@ Write what the paper gives. The tool makes the expression of dG:
 | `drcp` | dCp = a + b T | `a + b*T` | `logK`, and `dS` or `dH` | `dGr - dSr*(T - Tr) + a*(T - Tr - T*log(T/Tr)) - b*(T - Tr)**2/2` |
 | `dg` | dG(T, P) | the expression | what it uses | the expression |
 
-A method with a polynomial of log K:
+An example: log K = a + b/T. The method is made as for a substance, with one test case from the paper (at 400 K, log K is 0.75):
 
 ```python
-import json
 from thermofun import method_tool as tool
-import thermofun as tf
 
-logk = tool.build({
+logk_method = tool.build({
     "kind": "symbolic", "tier": 1, "operates_on": "reaction",
     "parameter_definitions": {"a": {"unit": "1"}, "b": {"unit": "K"}},
     "source": {"form": "logk", "expression": "a + b/T"},
     "tests": [{"T": 400.0, "P": 1e5, "parameters": {"a": -3.0, "b": 1500.0}, "expected": {"logK": 0.75}}],
 })
-assert tool.check(logk) == []
+print(tool.check(logk_method))  # prints []
+```
 
-doc = {"thermohub": "2.0.0-draft.1", "methods": {"MyLogK": logk},
-       "substances": {"Y": {"formula": "Ca", "class": "component", "standard_state_properties": {"G": -1000.0, "H": -900.0, "S": 10.0, "Cp": 10.0, "V": 1e-5}},
-                      "Z": {"formula": "Ca", "class": "component", "defining_reaction": "R"}},
-       "reactions": {"R": {"equation": "Y = Z", "methods": [{"method": "MyLogK", "parameters": {"a": -3.0, "b": 1500.0}}]}}}
-engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+The reaction names the method and gives a and b. A small database holds the method, the reaction and its two substances:
+
+```python
+substances = {
+    "Y": {"formula": "Ca", "class": "component", "standard_state_properties": {"G": -1000.0, "H": -900.0, "S": 10.0, "Cp": 10.0, "V": 1e-5}},
+    "Z": {"formula": "Ca", "class": "component", "defining_reaction": "R"},
+}
+reactions = {"R": {"equation": "Y = Z", "methods": [{"method": "MyLogK", "parameters": {"a": -3.0, "b": 1500.0}}]}}
+
+database = tf.Database({"thermohub": "2.0.0-draft.1", "methods": {"MyLogK": logk_method}, "substances": substances, "reactions": reactions})
+engine = tf.ThermoEngine(database)
+print(engine.thermoPropertiesReaction(400.0, 1e5, "R").log_equilibrium_constant.val)  # prints 0.75 (to 1e-10)
+```
+
+<!-- check
+```python
+assert tool.check(logk_method) == []
 assert abs(engine.thermoPropertiesReaction(400.0, 1e5, "R").log_equilibrium_constant.val - 0.75) < 1e-10
 ```
+-->
 
 `python -m thermofun.method_tool new logk` prints a template for a form. Examples are in `examples/v2/methods/`.
 

@@ -21,9 +21,16 @@ To keep the old values, call `useStandardStateOfGases()` on the preferences of t
 import thermofun as tf
 
 preferences = tf.EnginePreferences().useStandardStateOfGases()  # G(T, Pr) for a gas, as before 1.0
+print(preferences.apply_pressure_correction_to_gas_props)  # prints False
+print(preferences.cancel_fugacity_coefficient_in_gas_props)  # prints True
+```
+
+<!-- check
+```python
 assert preferences.apply_pressure_correction_to_gas_props is False
 assert preferences.cancel_fugacity_coefficient_in_gas_props is True
 ```
+-->
 
 In C++: `engine.preferences().useStandardStateOfGases();`.
 
@@ -34,8 +41,14 @@ In C++: `engine.preferences().useStandardStateOfGases();`.
 ```python
 import thermofun as tf
 
+print(tf.volume_unit)  # prints m3/mol
+```
+
+<!-- check
+```python
 assert tf.volume_unit == "m3/mol"   # absent before 1.0: the volumes were in J/bar
 ```
+-->
 
 In C++, `THERMOFUN_VOLUME_SI` is defined from 1.0 on. `ThermoBatch` gives m3/mol unless you ask for another unit, for example `batch.setPropertiesUnits(["volume"], ["J/bar"])`.
 
@@ -100,12 +113,18 @@ The old calls still work, through `Compat/`. They will go in version 2.0.
 | Keys such as `sm_gibbs_energy`, `TPMethods` | The v2 format: see [The legacy format](../reference/legacy-format.md) |
 | `uncertainCoefficients()` | `uncertainty` of a value, and `covariances` |
 
-**Check:** compare your results before and after, and read the changes above if they differ.
+Compare your results before and after, and read the changes above if they differ.
 
 ```python
 import thermofun as tf
 
 substance = tf.Substance()
 substance.setSymbol("X")
+print(substance.symbol())  # prints X
+```
+
+<!-- check
+```python
 assert substance.symbol() == "X"                                # an old setter still works
 ```
+-->

@@ -6,7 +6,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 |---|---|---|---|---|
 | [ConstantCp](ConstantCp.md) | Constant heat capacity | base | any |  |
 | [ConstantProperties](ConstantProperties.md) | Constant properties | base | any |  |
-| [ConstantVolume](ConstantVolume.md) | Constant molar volume | correction | any |  |
+| [ConstantVolume](ConstantVolume.md) | Constant molar volume | increment | any |  |
 | [CpExtendedUNIQUAC](CpExtendedUNIQUAC.md) | Heat capacity of Extended UNIQUAC | base | aqueous_solute |  |
 | [CpFeiSaxena86](CpFeiSaxena86.md) | Heat capacity of Fei and Saxena | base | component |  |
 | [CpPolynomial](CpPolynomial.md) | Heat capacity polynomial | base | any |  |

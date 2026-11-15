@@ -12,6 +12,8 @@ substances:
     methods:
       - method: WaterIAPWS95
       - method: JohnsonNorton91
+  # standard_state_properties are in J/mol, J/(mol K) and the unit given for V. The parameters of HKF88 are the published
+  # ones, in cal and bar, so the method says so with `units`. They are converted: the results are in J/mol.
   Na+:
     formula: Na+
     charge: 1

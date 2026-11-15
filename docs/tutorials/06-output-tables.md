@@ -14,11 +14,13 @@ kernelspec:
 
 # 6. Output tables
 
-You learn to write a table with your units, digits and layout, and to see how a table was made. It takes 15 minutes.
+You learn to write a table with your units, digits and layout, and to see how a table was made.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
-A setup says what to calculate and how to write it. Here it is a dict. In a file it is YAML, with the same keys.
+**Related:** [Make tables](../how-to/make-tables.md) (all settings) · [Templates](05-templates.md) · [Batch options](../reference/batch.md) · [Units](../reference/units.md) · [Results](../reference/results.md) · [Provenance and conventions](../reference/conventions.md)
+
+In [tutorial 5](05-templates.md) you used a ready setup, a template. Here you write the setup yourself, key by key. A template is only a setup that someone saved, so everything here also works with a template. A setup says what to calculate (records, conditions, columns) and how to write it (units, digits, layout, format). Here it is a dict. In a file it is YAML, with the same keys.
 
 ```{code-cell} ipython3
 import os, pathlib
@@ -44,6 +46,8 @@ setup = {
 table = tf.table(setup)["species"]
 print(table.to_text("csv"))
 ```
+
+At the saturation pressure, the table gives the pressure that the calculation used, here in bar. To ask for a value by its point, say `"saturation"`: `table.value("Ca+2", 25, "saturation", "G")`, and `table.pressure_used("Ca+2", 25, "saturation")` gives that pressure.
 
 ## Get the numbers
 
@@ -124,7 +128,33 @@ print(table.provenance.lines())
 
 ## Water
 
-A table of the water record gives its properties.
+A table of the water record gives its properties. The template `water-properties` has the density and its derivatives, the dielectric constant and the others.
+
+For a table of your own, name the columns. For example, the dielectric constant of water and the Born functions Z, Y and Q at three temperatures, which the HKF model of aqueous species uses:
+
+```{code-cell} ipython3
+born = {
+    "database": AQ,
+    "conditions": {"T": {"values": [25, 100, 200], "unit": "degC"}, "P": {"values": [1000], "unit": "bar"}},
+    "tables": [{"name": "born", "records": ["H2O@"],
+                "columns": [{"property": "epsilon", "digits": 3}, {"property": "bornZ", "digits": 5}, {"property": "bornY"}, {"property": "bornQ"}]}],
+}
+print(tf.table(born)["born"].to_text("md"))
+```
+
+The terms of a model are columns too. A named output of a method is written `<method>:<name>`; the names are on the [page of the method](../reference/methods/HKF88.md). Here the Born coefficient and the Born term of G of two ions:
+
+```{code-cell} ipython3
+terms = {
+    "database": AQ,
+    "conditions": {"T": {"values": [25, 200, 300], "unit": "degC"}, "P": {"values": ["saturation"], "unit": "bar"}},
+    "tables": [{"name": "terms", "records": ["Ca+2", "Na+"],
+                "columns": [{"property": "HKF88:omega", "unit": "kJ/mol", "digits": 2}, {"property": "HKF88:born_G", "unit": "kJ/mol", "digits": 3}]}],
+}
+print(tf.table(terms)["terms"].to_text("md"))
+```
+
+The template `water-properties`:
 
 ```{code-cell} ipython3
 results = tf.table(template="water-properties", database=AQ)
@@ -133,11 +163,31 @@ print(results["water"].to_text("md"))
 
 ## When a value cannot be calculated
 
-A value that cannot be calculated stays empty, with a message. The other values are there.
+A value that cannot be calculated is written as `NaN`, and `problems` says why. The other values are there. The saturation pressure of water does not exist above the critical temperature (374 degC), so the cell at 400 degC has no value.
+
+```{code-cell} ipython3
+setup = {
+    "database": AQ,
+    "conditions": {"T": {"values": [300, 350, 400], "unit": "degC"}, "P": {"values": ["saturation"], "unit": "bar"}},
+    "tables": [{"name": "water", "records": ["Ca+2"], "columns": [{"property": "G", "unit": "kJ/mol", "digits": 2}]}],
+}
+results = tf.table(setup)
+print(results["water"].to_text("md"))
+print(results.problems)
+```
+
+A value can also be calculated and still be outside what its model is made for. It is in the table, and `problems` says so, so that you can decide. Here Ca+2 is calculated with the HKF model at a high T, where the density of water is below the range of the model:
+
+```{code-cell} ipython3
+results = tf.table(template="species-properties", database=AQ, records=["Ca+2"], T={"values": [300, 400], "unit": "degC"}, P={"values": [500], "unit": "bar"})
+print(results["species"].to_text("md"))
+print(results.problems)
+```
+
+A record that is not in the database is a problem too:
 
 ```{code-cell} ipython3
 results = tf.table(template="species-properties", database=AQ, records=["Ca+2", "NoSuch"])
-print(results["species"].to_text("md"))
 print(results.problems)
 ```
 

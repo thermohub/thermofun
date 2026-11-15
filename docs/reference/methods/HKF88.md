@@ -33,7 +33,7 @@ Source: Tanger and Helgeson (1988); Shock et al. (1992).
 | c2 | cal.K/mol | J.K/mol | yes |  | temperature coefficient c2 |
 | omega | cal/mol | J/mol | yes |  | conventional Born coefficient |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -54,6 +54,22 @@ Universal constants of the HKF equation of state of aqueous species and of its g
 Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
 Names: `eta`, `theta`, `psi`, `Tr`, `Pr`, `Zr`, `Yr`, `zeta`, `gr`, `ag1` to `ag3`, `bg1` to `bg3`, `af1` to `af3`, `Dmax`.
+
+## Named outputs
+
+Besides G, H, S, Cp and V, the method gives these terms and intermediate functions of the model, in SI units, on request: `engine.auxiliaryOutputs(symbol, T, P)` gives them as rows (the column is `HKF88:<name>`), a table setup takes them as columns with the same name, and `engine.explain` has them for each method.
+
+| Name | SI unit | What it is |
+|---|---|---|
+| `g` | Ao | the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species) |
+| `re` | Ao | the effective electrostatic radius of the species at T and P (0 for a neutral species) |
+| `omega` | J/mol | the conventional Born coefficient at T and P |
+| `omega_reference` | J/mol | the Born coefficient at the reference T and P (the parameter omega) |
+| `born_G` | J/mol | the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr) |
+| `born_H` | J/mol | the Born term of H |
+| `born_S` | J/(mol.K) | the Born term of S |
+| `born_Cp` | J/(mol.K) | the Born term of Cp |
+| `born_V` | m3/mol | the Born term of V: -w Q - (Z + 1) dw/dP |
 
 ## Example
 
@@ -83,7 +99,7 @@ for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -8.9829e+05  -9.9558e+05  -27.53  40.832  3.8498e-06

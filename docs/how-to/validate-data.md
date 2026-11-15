@@ -38,12 +38,23 @@ try:
     problems = database.validate()
 except RuntimeError as error:
     problems = str(error)
-assert "V2-MTH-001" in str(problems) or any(p.code == "V2-MTH-001" for p in problems)
 ```
 
-**Check:** a file in order has no errors.
+<!-- check
+```python
+assert "V2-MTH-001" in str(problems) or any(p.code == "V2-MTH-001" for p in problems)
+```
+-->
+
+A file in order has no errors.
 
 ```python
 errors = [d for d in tf.Database("examples/v2/minimal.yaml").validate() if d.severity == tf.Severity.Error]
+print(errors)  # prints []
+```
+
+<!-- check
+```python
 assert errors == []
 ```
+-->

@@ -13,8 +13,9 @@
 import thermofun as tf
 
 engine = tf.ThermoEngine("examples/v2/mineral-methods.yaml")
-for step in engine.explain(473.15, 1e7, "Calcite"):
-    print(step["method"], step["G"], step["S"], step["V"])
+import pandas as pd
+
+pd.DataFrame(engine.explain(473.15, 1e7, "Calcite"))[["method", "G", "S", "V"]]
 ```
 
 2. Call `thermoPropertiesSubstanceDetailed` to see also where the result comes from.
@@ -46,11 +47,15 @@ print(table)
    says which methods set and which add: `{m["id"]: m["effects"] for m in tf.methods.catalog()}`. In C++ the same is
    `ThermoEngine::contributions(symbol, T, P)`, a `MethodContributions` for each point.
 
-**Check:**
+```python
+print(path["source"])  # prints methods
+```
 
+<!-- check
 ```python
 assert [s["method"] for s in detailed["steps"]] == ["CpPolynomial", "LandauHP98", "MurnaghanHP98"]
 assert path["source"] == "methods"
 assert abs(table["Cp"][1] - table.iloc[1, 2:].sum()) < 1e-9
 assert abs(table["Cp:LandauHP98"][2]) < 1e-3   # above the transition: only the small term of the pressure
 ```
+-->

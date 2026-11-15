@@ -9,7 +9,7 @@ Source: Birch (1947); code of M. Gottschalk.
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -69,7 +69,7 @@ for T, P in [(298.15, 100000), (600, 1e+09)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -1.5823e+06  -1.6757e+06  50.92  79  2.558e-05

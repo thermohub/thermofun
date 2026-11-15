@@ -348,6 +348,27 @@ auto ThermoEngine::contributions(const std::string& substance, const std::vector
     return out;
 }
 
+auto ThermoEngine::auxiliaryOutputs(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<AuxiliaryPoint>
+{
+    const size_t n = std::max(T.size(), P.size());
+    if (T.empty() || P.empty() || (T.size() != n && T.size() != 1) || (P.size() != n && P.size() != 1))
+        throw std::invalid_argument("auxiliaryOutputs: T and P have " + std::to_string(T.size()) + " and " + std::to_string(P.size()) +
+                                    " values; give lists of the same length, or one value.");
+    std::vector<AuxiliaryPoint> out;
+    for (size_t i = 0; i < n; ++i)
+    {
+        AuxiliaryPoint point;
+        point.T = T.size() == 1 ? T[0] : T[i];
+        point.P = P.size() == 1 ? P[0] : P[i];
+        const auto detailed = thermoPropertiesSubstanceDetailed(point.T, point.P, substance);
+        for (const auto& step : detailed.steps)
+            for (const auto& [name, value] : step.auxiliary)
+                point.values[step.method + ":" + name] = value;
+        out.push_back(std::move(point));
+    }
+    return out;
+}
+
 auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance
 {
     pimpl->dropStaleResults();

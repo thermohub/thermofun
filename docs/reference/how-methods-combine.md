@@ -5,7 +5,7 @@
 
 # How methods combine
 
-A record has one base method and any number of corrections. A base method gives all the properties. A correction changes what comes before it.
+A record has one base method and any number of increments. A base method gives all the properties. An increment changes what comes before it.
 
 **The order comes from the effects.** Each method says what it does to G, H, S, Cp and V: nothing, set, add, or read. The engine sorts the methods from this. So the order in a file does not count, and two files with the same methods give the same result.
 

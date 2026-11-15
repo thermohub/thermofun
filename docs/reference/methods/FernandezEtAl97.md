@@ -9,7 +9,7 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | water_solvent |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -17,7 +17,7 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 | Legacy names | `water_diel_fern97` |
 | Other names | `Fernandez97Diel` |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -66,7 +66,7 @@ for T, P in [(373.15, 1e+08), (673.15, 1e+08)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 373.15  1e+08  -2.4125e+05  -2.788e+05  85.606  72.755  1.802e-05

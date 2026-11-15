@@ -3,6 +3,7 @@
 
 // Reads the methods of a record, and what belongs to them, from a v2 file.
 
+#include "../MissingParameter.h"
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
 namespace ThermoFun::model::v2reader {
@@ -87,7 +88,7 @@ auto readParameters(Context& c, const json& node, const MethodSpec& spec, const 
         for (const auto& p : spec.parameters)
             if (p.required && !out.count(p.name) && !p.default_si)
                 report(c, out.empty() ? Severity::Warning : Severity::Error, "V2-MTH-004", record, path,
-                       "The method " + spec.id + " needs the parameter " + p.name);
+                       missingParameterMessage(spec, p));
     return out;
 }
 

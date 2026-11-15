@@ -15,11 +15,17 @@ import thermofun as tf
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GUIDE = os.path.join(ROOT, "docs", "how-to", "add-data.md")
+TABLES = os.path.join(ROOT, "docs", "reference", "method-parameters.md")
 BEGIN, END = "<!-- methods begin -->", "<!-- methods end -->"
 
 
 def read_guide():
     with open(GUIDE) as f:
+        return f.read()
+
+
+def read_tables():
+    with open(TABLES) as f:
         return f.read()
 
 
@@ -53,7 +59,7 @@ def method_tables():
     catalog = [m for m in tf.methods.catalog() if m["implemented"]]
     groups = [
         ("Base methods of a substance", lambda m: m["operates_on"] == "substance" and m["base"] and not m["water"]),
-        ("Corrections of a substance", lambda m: m["operates_on"] == "substance" and not m["base"] and not m["dielectric"]),
+        ("Increments of a substance", lambda m: m["operates_on"] == "substance" and not m["base"] and not m["dielectric"]),
         ("Equations of state of water", lambda m: m["water"]),
         ("Dielectric models of water", lambda m: m["dielectric"]),
         ("Base methods of a reaction", lambda m: m["operates_on"] == "reaction" and m["base"]),
@@ -61,7 +67,7 @@ def method_tables():
     ]
     lines = ["These tables come from the code. A parameter without a unit has no unit. A method can have aliases: old ids stay readable.", ""]
     for title, wanted in groups:
-        lines += ["### " + title, ""] + table([m for m in catalog if wanted(m)]) + [""]
+        lines += ["## " + title, ""] + table([m for m in catalog if wanted(m)]) + [""]
     return "\n".join(lines)
 
 
@@ -71,7 +77,7 @@ def with_tables(text):
 
 
 def test_the_method_tables_are_those_of_the_code():
-    text = read_guide()
+    text = read_tables()
     assert text == with_tables(text), "run: python pytests/test_add_data_guide.py --write"
     for m in tf.methods.catalog():
         if m["implemented"]:
@@ -79,10 +85,8 @@ def test_the_method_tables_are_those_of_the_code():
 
 
 def test_the_method_names_in_the_text_exist():
-    text = read_guide()
-    start = text.index(BEGIN)
+    prose = read_guide()
     known = {m["id"] for m in tf.methods.catalog() if m["implemented"]}
-    prose = text[:start]
     named = set(re.findall(r"`((?:Cp|Log[K]|Water|Reaction|Landau|Murnaghan|Tait|Birch|Volume|Constant|Ideal|PRSV|Peng|Soave|Sterner|Churakov|Cork|HKF|Solute|Anderson|Akinfiev|Johnson|Sverjensky|Fernandez|NASA|TP|Dolejs|Marshall|Ryzhenko)[A-Za-z0-9]+)`", prose))
     assert named and named <= known, sorted(named - known)
 
@@ -120,7 +124,7 @@ def test_the_aqueous_example_gives_the_properties_of_the_legacy_record(tmp_path,
 
 
 if __name__ == "__main__" and "--write" in sys.argv:
-    with open(GUIDE) as f:
+    with open(TABLES) as f:
         written = with_tables(f.read())
-    with open(GUIDE, "w") as f:
+    with open(TABLES, "w") as f:
         f.write(written)

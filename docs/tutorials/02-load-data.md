@@ -14,9 +14,11 @@ kernelspec:
 
 # 2. Load data
 
-You learn to load a database, look at its records, check them, and write your own data. It takes 15 minutes.
+You learn to load a database, look at its records, check them, and write your own data.
 
 **You need:** ThermoFun, and the files `aq17-thermofun.json` from `Resources/databases/` and `minimal.yaml` from `examples/v2/` of the repository, in your folder.
+
+**Related:** [Add data](../how-to/add-data.md) (all fields of a record) · [Allowed words of the fields](../reference/vocabulary.md) (`class`, `aggregate_state`, ...) · [Validate data](../how-to/validate-data.md) · [Diagnostics](../reference/diagnostics.md) (each code of a problem) · [The v2 format](../reference/format-v2.md) · [Units](../reference/units.md)
 
 A `Database` holds the records. A `ThermoEngine` calculates from them.
 
@@ -28,8 +30,10 @@ Give the path of a file. ThermoFun finds the format: the old ThermoFun JSON form
 import thermofun as tf
 
 database = tf.Database("aq17-thermofun.json")
-print(database.numberOfElements(), "elements,", database.numberOfSubstances(), "substances,", database.numberOfReactions(), "reactions")
+print(database.summary())
 ```
+
+The summary gives the size of the database, and its substances by class and aggregate state. The words are in [Allowed words](../reference/vocabulary.md).
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
@@ -48,6 +52,13 @@ print(database.containsSubstance("Calcite"), database.containsSubstance("Quartzz
 calcite = database.getSubstance("Calcite")
 print(calcite.name(), calcite.formula())
 print("G at the reference conditions:", calcite.thermoReferenceProperties().gibbs_energy.val, "J/mol")
+```
+
+`get` reads any value of a record by its path, as Python objects: a number, a text, a list or a dict.
+
+```{code-cell} ipython3
+print(database.get("/substances/Calcite/standard_state_properties"))
+print(database.get("/substances/Ca+2/methods/0/method"), database.get("/substances/Ca+2/methods/0/parameters/omega"))
 ```
 
 ## Choose records by a rule
@@ -70,9 +81,11 @@ print(open("minimal.yaml").read())
 
 Each substance has:
 
-- `formula`, `class` and `aggregate_state`;
-- `standard_state_properties`: G and H in J/mol, S and Cp in J/(mol K), V in m3/mol unless a unit is given;
+- `formula`, `class` and `aggregate_state`. The allowed words of `class` (`component`, `aqueous_solute`, `water_solvent`, ...) and of `aggregate_state` (`crystal`, `gas`, `aqueous`, ...) are in [Allowed words](../reference/vocabulary.md);
+- `standard_state_properties`: G and H in J/mol, S and Cp in J/(mol K), V in m3/mol unless a unit is given (here J/bar);
 - `methods`: how to calculate at other T and P.
+
+The standard properties are in J/mol, but the method `HKF88` of Na+ says `units: {energy: cal, pressure: bar}`. That unit is only for the **parameters of the method**, which are published in cal and bar. ThermoFun converts them, and every result is in J/mol.
 
 ```{code-cell} ipython3
 my_data = tf.Database("minimal.yaml")
@@ -83,11 +96,12 @@ sodium = engine.thermoPropertiesSubstance(373.15, 1e7, "Na+")
 print(sodium.gibbs_energy.val, "J/mol")
 ```
 
-`Na+` needs water. `HKF88` reads the density and the dielectric constant from the record `H2O@`, which has an equation of state of water and a dielectric model.
+`Na+` needs water. `HKF88` reads the density and the dielectric constant from the record `H2O@`, which has an equation of state of water and a dielectric model. `calculationPath` shows what a record uses:
 
 ```{code-cell} ipython3
 path = engine.calculationPath("Na+")
-print(path["source"], [(s["symbol"], s["role"]) for s in path["steps"]])
+print("methods of Na+:", path["methods"])
+print("needs the record", path["steps"][0]["symbol"], "as", path["steps"][0]["role"])
 ```
 
 ```{code-cell} ipython3
@@ -114,13 +128,14 @@ All fields are in [Add data](../how-to/add-data.md).
 
 ## Check the data
 
-`validate` lists all problems of the records. Loading a file refuses only what makes the file unusable, so check your data with `validate`. aq17 has two records whose volume method has no parameters.
+`validate` lists the problems of the records. Loading a file refuses only what makes the file unusable, so check your data with `validate`. Each problem has a `code`. The [diagnostics](../reference/diagnostics.md) page explains each code and how to correct it.
 
 ```{code-cell} ipython3
 print("problems in minimal.yaml:", len(my_data.validate()))
-for problem in database.validate():
-    print(problem.severity, problem.code, problem.record, problem.message)
+print(database.validate())
 ```
+
+Here two records of aq17 use a volume method (`V2-MTH-004`, a parameter that the method needs is missing) and give no `alpha0` and `kappa0`. These are the thermal expansion and the compressibility. The method cannot calculate V at another T and P without them, so the volume of these two minerals does not change with T and P.
 
 ```{code-cell} ipython3
 :tags: [remove-cell]

@@ -46,6 +46,8 @@ struct Spec
     auto group(const char* name) -> Spec& { s.group = name; return *this; }
     auto sameAs(const char* id) -> Spec& { s.same_as = id; return *this; }
     auto impl(std::vector<std::string> i) -> Spec& { s.implementations = std::move(i); return *this; }
+    /// A named output beside the properties: a term or an intermediate function of the model, in SI.
+    auto output(std::string name, std::string unit, std::string description) -> Spec& { s.auxiliary_outputs.push_back({std::move(name), std::move(unit), std::move(description)}); return *this; }
     auto solvent(bool atReference = false) -> Spec&
     {
         s.needs.solvent = true;
@@ -297,6 +299,15 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
                      "Tanger and Helgeson (1988); Shock et al. (1992)")
                     .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters())
+                    .output("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species)")
+                    .output("re", "Ao", "the effective electrostatic radius of the species at T and P (0 for a neutral species)")
+                    .output("omega", "J/mol", "the conventional Born coefficient at T and P")
+                    .output("omega_reference", "J/mol", "the Born coefficient at the reference T and P (the parameter omega)")
+                    .output("born_G", "J/mol", "the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr)")
+                    .output("born_H", "J/mol", "the Born term of H")
+                    .output("born_S", "J/(mol.K)", "the Born term of S")
+                    .output("born_Cp", "J/(mol.K)", "the Born term of Cp")
+                    .output("born_V", "m3/mol", "the Born term of V: -w Q - (Z + 1) dw/dP")
                     .add(constants({{"eta", "constant of the Born term, A cal/mol"}, {"theta", "characteristic T of the solvent, K"}, {"psi", "characteristic P of the solvent, bar"},
                                     {"Tr", "reference T, K"}, {"Pr", "reference P, bar"}, {"Zr", "Born function Z at the reference"}, {"Yr", "Born function Y at the reference"},
                                     {"zeta", "constant of the effective radius, A"}, {"gr", "g function at the reference"},

@@ -86,10 +86,40 @@ void exportDatabase(py::module& m)
     auto setReaction1 = static_cast<void(Database::*)(const std::string&)>(&Database::setReaction);
     auto setReaction2 = static_cast<void(Database::*)(const Reaction&)>(&Database::setReaction);
 
+    py::class_<DatabaseSummary::Count>(m, "DatabaseSummaryCount", "Substances of one class and aggregate state")
+        .def_readonly("substance_class", &DatabaseSummary::Count::substance_class)
+        .def_readonly("aggregate_state", &DatabaseSummary::Count::aggregate_state)
+        .def_readonly("substances", &DatabaseSummary::Count::substances);
+    py::class_<DatabaseSummary>(m, "DatabaseSummary", "The size of a database and its substances by class and aggregate state. print() shows it as a table.")
+        .def_readonly("name", &DatabaseSummary::name)
+        .def_readonly("elements", &DatabaseSummary::elements)
+        .def_readonly("substances", &DatabaseSummary::substances)
+        .def_readonly("reactions", &DatabaseSummary::reactions)
+        .def_readonly("classes", &DatabaseSummary::classes, "a list of counts, by class and aggregate state")
+        .def_readonly("substances_with_methods", &DatabaseSummary::substances_with_methods)
+        .def_readonly("substances_from_reaction", &DatabaseSummary::substances_from_reaction)
+        .def("text", &DatabaseSummary::text)
+        .def("__str__", &DatabaseSummary::text);
+
     py::class_<Database>(m, "Database", "Stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P")
         .def(py::init<>())
         .def(py::init<const std::string>(), "constructor using a JSON string with the thermofun database format")
         .def(py::init<const Database&>())
+        .def(py::init([](const py::dict& records) {
+            // the version of the format can be left out: a dict is always in the format of this ThermoFun
+            py::dict document = records.attr("copy")();   // a copy: the dict of the caller does not change
+            if (!document.contains("thermohub"))
+                document["thermohub"] = Database::formatVersion();
+            return Database(py::module_::import("json").attr("dumps")(document).cast<std::string>());
+        }), py::arg("records"), "constructor using a dict in the v2 format, for example {'substances': {...}}; the key 'thermohub' (the version of the format) can be left out")
+        .def_static("formatVersion", &Database::formatVersion, "The version of the v2 format that this ThermoFun writes: the value of the key thermohub")
+        .def("get", [](const Database& self, const std::string& path) {
+            return py::module_::import("json").attr("loads")(self.value(path));
+        }, py::arg("path"), "A value of a record by its path, as Python objects (dict, list, number, text). The path is a JSON pointer: the section, the symbol of the record, then the keys, for example '/substances/Calcite/standard_state_properties/G'.")
+        .def("set", [](Database& self, const std::string& path, const py::object& value) {
+            self.setValue(path, py::module_::import("json").attr("dumps")(value).cast<std::string>());
+        }, py::arg("path"), py::arg("value"), "Sets a value of a record by its path (see get). The value can be a number, text, a dict or a list. A path of a record alone sets the whole record.")
+        .def("summary", &Database::summary, "The size of the database and its substances by class and aggregate state")
         .def_property_readonly( "conventions", [](Database& db) -> const DatabaseConventions& { return db.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used by this database" )
         .def("appendData", appendData1, "Append records to the database from a file.")
         .def("appendData", appendData2, "Append records of given type (elements, substances, reactions) to the database from a list of JSON strings.")

@@ -12,8 +12,8 @@ C++ API of ThermoFun. This page lists what is available; the units are those of 
 
 | Python | C++ | Notes |
 |---|---|---|
-| `Database`, `Element`, `Substance`, `Reaction` | same | records, `getX`, `addX`, `setX`, `addMapX`, `setMapX`, `containsX`, JSON strings |
-| `ThermoEngine` | same | `thermoPropertiesSubstance`, `thermoPropertiesReaction`, `thermoPropertiesReactionFromReactants`, `propertiesSolvent`, `electroPropertiesSolvent` (by symbol or by object), `preferences`, `setPreferences`, `conventions`, `database()` |
+| `Database`, `Element`, `Substance`, `Reaction` | same | records, `getX`, `addX`, `setX`, `addMapX`, `setMapX`, `containsX`, JSON strings. `Database(dict)` reads a dict in the v2 format; the key `thermohub` can be left out (`Database.formatVersion()` is the version). `get(path)` and `set(path, value)` read and change a value of a record by its path, a JSON pointer such as `/substances/Calcite/standard_state_properties/G`, with Python objects (C++: `value`, `setValue`, with JSON text). `summary()` gives the size and the substances by class and state |
+| `ThermoEngine` | same | `auxiliaryOutputs` (the named outputs of the methods), `contributions`, `explain`, `thermoPropertiesSubstance`, `thermoPropertiesReaction`, `thermoPropertiesReactionFromReactants`, `propertiesSolvent`, `electroPropertiesSolvent` (by symbol or by object), `preferences`, `setPreferences`, `conventions`, `database()` |
 | `ThermoBatch`, `Output`, `BatchPreferences` | same | batch calculations, `setUnits`, `setDigits`, `setPropertyUnit`, ... |
 | `ThermoPropertiesSubstance`, `ThermoPropertiesReaction`, `PropertiesSolvent`, `ElectroPropertiesSolvent` | same | members are `ThermoScalar` |
 | `ThermoParametersSubstance`, `ThermoParametersReaction` | same | parameters of the models, `coefficient_errors` |

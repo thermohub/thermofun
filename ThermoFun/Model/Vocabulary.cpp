@@ -68,8 +68,8 @@ THERMOFUN_VOCABULARY(OperatesOn, "operates_on",
 
 using SC = SubstanceClass;
 THERMOFUN_VOCABULARY(SubstanceClass, "class",
-    {SC::Component, "component", {}}, {SC::GasFluid, "gas_fluid", {}}, {SC::AqueousSolute, "aqueous_solute", {}},
-    {SC::WaterSolvent, "water_solvent", {}}, {SC::SurfaceSpecies, "surface_species", {}},
+    {SC::Component, "component", {"condensed_species"}}, {SC::GasFluid, "gas_fluid", {}}, {SC::AqueousSolute, "aqueous_solute", {}},
+    {SC::WaterSolvent, "water_solvent", {"solvent"}}, {SC::SurfaceSpecies, "surface_species", {}},
     {SC::SiteMoiety, "site_moiety", {}}, {SC::Other, "other", {}})
 
 using AS = AggregateState;

@@ -5,6 +5,11 @@
 
 # Fit parameters to measured data
 
+```{admonition} Under development
+:class: warning
+Fitting is under development. It will move to a separate library, ThermoFit; ThermoFun will keep the sensitivities and the contributions of the methods. The interface of `thermofun.fitting` can change.
+```
+
 This page tells you how to fit the parameters of a record to measured properties, and how to read the uncertainty of the result.
 
 **You need:** ThermoFun with autodiff, and SciPy (`pip install thermofun[fitting]`). All numbers are in SI: V in m3/mol.
@@ -26,7 +31,6 @@ A parameter is three words: the symbol of the record, the method, and the name o
 ## 2. Get the derivatives
 
 ```python
-import json
 import thermofun as tf
 
 mineral = {"class": "component", "aggregate_state": "crystal", "formula": "SiO2", "charge": 0,
@@ -35,11 +39,16 @@ mineral = {"class": "component", "aggregate_state": "crystal", "formula": "SiO2"
            "methods": [{"method": "CpPolynomial", "segments": [{"t_min": 273.15, "t_max": 2273.15, "parameters": {
                "a0": 100.0, "a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0, "a5": 0.0, "a6": 0.0, "a7": 0.0, "a8": 0.0, "a9": 0.0}}]}]}
 data = {"thermohub": "2.0.0-draft.1", "elements": {"Si": {"molar_mass": 0.0280855}, "O": {"molar_mass": 0.0159994}}, "substances": {"Qtz": mineral}}
-engine = tf.ThermoEngine(tf.Database(json.dumps(data)))
+engine = tf.ThermoEngine(tf.Database(data))
 
 derivatives = engine.parameterSensitivities(500.0, 1e5, "Qtz", [("Qtz", "", "S"), ("Qtz", "CpPolynomial", "a0")])
+```
+
+<!-- check
+```python
 assert derivatives["G"]["Qtz/S"] == -(500.0 - 298.15)
 ```
+-->
 
 The result has the properties first and the parameters second, so `pandas.DataFrame(derivatives)` gives a table. For a reaction, use
 `reactionParameterSensitivities`.
@@ -74,8 +83,14 @@ A handle changes one value in the database of the engine. The engine calculates 
 ```python
 a0 = engine.parameter("Qtz", "CpPolynomial", "a0")
 a0.setValue(110.0)
+print(engine.thermoPropertiesSubstance(500.0, 1e5, "Qtz").heat_capacity_cp.val)  # prints 110.0
+```
+
+<!-- check
+```python
 assert engine.thermoPropertiesSubstance(500.0, 1e5, "Qtz").heat_capacity_cp.val == 110.0
 ```
+-->
 
 The handle needs its engine. `engine.parameters("Qtz")` gives the handles of all the values of a record that you can fit.
 
@@ -85,21 +100,25 @@ The handle needs its engine. `engine.parameters("Qtz")` gives the handles of all
 from thermofun import fitting
 
 # measured: here calculated with known values, to see the fit find them
-truth = tf.ThermoEngine(tf.Database(json.dumps(data)))
+truth = tf.ThermoEngine(tf.Database(data))
 measured = []
 for T in (300.0, 500.0, 700.0, 900.0):
     r = truth.thermoPropertiesSubstance(T, 1e5, "Qtz")
     measured.append(fitting.Observation("Qtz", "Cp", T, 1e5, r.heat_capacity_cp.val, 0.5))
     measured.append(fitting.Observation("Qtz", "G", T, 1e5, r.gibbs_energy.val, 50.0))
 
-engine = tf.ThermoEngine(tf.Database(json.dumps(data)))
+engine = tf.ThermoEngine(tf.Database(data))
 engine.parameter("Qtz", "CpPolynomial", "a0").setValue(80.0)   # a wrong start
 problem = fitting.Problem(engine, [("Qtz", "", "G"), ("Qtz", "", "S"), ("Qtz", "CpPolynomial", "a0")], measured)
 result = problem.solve()
+```
 
+<!-- check
+```python
 assert abs(result.values["Qtz/CpPolynomial/a0"] - 100.0) < 1e-6
 assert result.chi2 < 1e-6
 ```
+-->
 
 The weight of an observation is its uncertainty. `Observation.property` is one of `G`, `H`, `S`, `Cp`, `V`, `U`, `A` of a substance, or `logK`, `lnK`, `dG`, `dH`, `dS`, `dCp`, `dV` of a reaction.
 
@@ -116,8 +135,13 @@ fitted.save(path)
 
 engine = tf.ThermoEngine(tf.Database(path))
 engine.preferences.propagate_parameter_errors = True
+```
+
+<!-- check
+```python
 assert engine.thermoPropertiesSubstance(500.0, 1e5, "Qtz").gibbs_energy.err > 0.0
 ```
+-->
 
 The saved records hold the fitted values, their uncertainties, and a `covariances` block. With `propagate_parameter_errors`, each result gets `err = sqrt(J S J^T)` from them.
 

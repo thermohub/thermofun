@@ -27,7 +27,7 @@ Source: Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983).
 |---|---|---|---|---|---|
 | state | 1 | 1 | no | 0 | 0: liquid, 1: gas |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -76,7 +76,7 @@ for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  0  0  0  0  0

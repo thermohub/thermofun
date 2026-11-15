@@ -9,7 +9,7 @@ Source: Churakov and Gottschalk (2003a, b).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -38,7 +38,7 @@ Source: Churakov and Gottschalk (2003a, b).
 | pol1 | 1 | 1 | yes |  | see pol0, angstrom3 K |
 | pol2 | 1 | 1 | yes |  | see pol0, K |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -85,7 +85,7 @@ for T, P in [(773.15, 1e+08)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 773.15  1e+08  -4.5949e+05  -3.7622e+05  189.03  37.135  8.7869e-05

@@ -29,10 +29,14 @@ dielectric = tf.methods.dielectricMethod("BradleyPitzer79").properties(298.15, 1
 
 `tf.methods.catalog()` lists all methods and their parameters. The pages are in [Methods](../reference/methods/index.md).
 
-**Check:**
+```python
+print(result.V.val)  # prints 2e-05
+```
 
+<!-- check
 ```python
 assert result.V.val == 2e-5
 assert abs(water.density.val - 997.05) < 0.01                   # kg/m3
 assert abs(dielectric.epsilon.val - 78.38) < 0.01
 ```
+-->

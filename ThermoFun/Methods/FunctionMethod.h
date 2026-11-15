@@ -4,6 +4,8 @@
 #ifndef THERMOFUN_METHODS_FUNCTIONMETHOD_H
 #define THERMOFUN_METHODS_FUNCTIONMETHOD_H
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -87,7 +89,17 @@ public:
 
     auto info(PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in) const -> void override { info_(out, reference, in, parameters_); }
 
+    auto auxiliary(const SubstanceInputs<TPReal>& in) const -> std::map<std::string, double> override
+    {
+        return auxiliary_ ? auxiliary_(in, parameters_) : std::map<std::string, double>{};
+    }
+
+    /// Gives the method its named outputs: a function of the inputs (the pass with respect to T) and the parameters.
+    using AuxiliaryFunction = std::function<std::map<std::string, double>(const SubstanceInputs<TPReal>&, const MethodParameters<Data>&)>;
+    auto withAuxiliary(AuxiliaryFunction f) -> FunctionMethod& { auxiliary_ = std::move(f); return *this; }
+
 private:
+    AuxiliaryFunction auxiliary_;
     const MethodSpec* spec_;
     MethodParameters<Data> parameters_;
     Formula formula_;
@@ -99,6 +111,15 @@ template <typename Data, typename Formula, typename Info>
 auto makeMethod(const char* id, MethodParameters<Data> parameters, Formula formula, Info info) -> std::shared_ptr<const SubstanceMethod>
 {
     return std::make_shared<const FunctionMethod<Data, Formula, Info>>(id, std::move(parameters), std::move(formula), std::move(info));
+}
+
+/// The same, with named outputs (the terms of the model), listed in `auxiliary_outputs` of the spec.
+template <typename Data, typename Formula, typename Info, typename Auxiliary>
+auto makeMethod(const char* id, MethodParameters<Data> parameters, Formula formula, Info info, Auxiliary auxiliary) -> std::shared_ptr<const SubstanceMethod>
+{
+    auto method = std::make_shared<FunctionMethod<Data, Formula, Info>>(id, std::move(parameters), std::move(formula), std::move(info));
+    method->withAuxiliary(std::move(auxiliary));
+    return method;
 }
 
 } // namespace ThermoFun::model

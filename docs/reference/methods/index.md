@@ -8,7 +8,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 |---|---|---|---|---|
 | [ConstantCp](ConstantCp.md) | Constant heat capacity | base | any |  |
 | [ConstantProperties](ConstantProperties.md) | Constant properties | base | any |  |
-| [ConstantVolume](ConstantVolume.md) | Constant molar volume | correction | any |  |
+| [ConstantVolume](ConstantVolume.md) | Constant molar volume | increment | any |  |
 | [CpExtendedUNIQUAC](CpExtendedUNIQUAC.md) | Heat capacity of Extended UNIQUAC | base | aqueous_solute |  |
 | [CpFeiSaxena86](CpFeiSaxena86.md) | Heat capacity of Fei and Saxena | base | component |  |
 | [CpPolynomial](CpPolynomial.md) | Heat capacity polynomial | base | any |  |
@@ -19,7 +19,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 | Method | Title | Kind | Classes | Implementations |
 |---|---|---|---|---|
-| [AkinfievDiamond03](AkinfievDiamond03.md) | Model of Akinfiev and Diamond | correction | aqueous_solute | gems |
+| [AkinfievDiamond03](AkinfievDiamond03.md) | Model of Akinfiev and Diamond | increment | aqueous_solute | gems |
 | [AndersonEtAl91](AndersonEtAl91.md) | Aqueous solute of Anderson et al. | base | aqueous_solute |  |
 | [HKF88](HKF88.md) | Revised HKF equation of state | base | aqueous_solute | reaktoro, gems |
 | [SoluteHP98](SoluteHP98.md) | Aqueous solute of Holland and Powell | base | aqueous_solute | consistent, published |
@@ -28,26 +28,26 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 | Method | Title | Kind | Classes | Implementations |
 |---|---|---|---|---|
-| [BirchMurnaghan47](BirchMurnaghan47.md) | Birch-Murnaghan equation of state | correction | component | consistent, gems |
-| [LambdaBerman88](LambdaBerman88.md) | Lambda transition of Berman | correction | component |  |
-| [LandauHP11](LandauHP11.md) | Landau transition of Holland and Powell (2011) | correction | component |  |
-| [LandauHP98](LandauHP98.md) | Landau transition of Holland and Powell | correction | component | consistent, gems |
-| [MurnaghanHP98](MurnaghanHP98.md) | Murnaghan equation of Holland and Powell | correction | component | consistent, gems |
-| [TaitHP11](TaitHP11.md) | Tait equation of Holland and Powell | correction | component |  |
-| [VolumeBerman88](VolumeBerman88.md) | Molar volume of Berman | correction | component |  |
-| [VolumeDorogokupets88](VolumeDorogokupets88.md) | Molar volume of Dorogokupets et al. | correction | component |  |
+| [BirchMurnaghan47](BirchMurnaghan47.md) | Birch-Murnaghan equation of state | increment | component | consistent, gems |
+| [LambdaBerman88](LambdaBerman88.md) | Lambda transition of Berman | increment | component |  |
+| [LandauHP11](LandauHP11.md) | Landau transition of Holland and Powell (2011) | increment | component |  |
+| [LandauHP98](LandauHP98.md) | Landau transition of Holland and Powell | increment | component | consistent, gems |
+| [MurnaghanHP98](MurnaghanHP98.md) | Murnaghan equation of Holland and Powell | increment | component | consistent, gems |
+| [TaitHP11](TaitHP11.md) | Tait equation of Holland and Powell | increment | component |  |
+| [VolumeBerman88](VolumeBerman88.md) | Molar volume of Berman | increment | component |  |
+| [VolumeDorogokupets88](VolumeDorogokupets88.md) | Molar volume of Dorogokupets et al. | increment | component |  |
 
 ## Gases and fluids
 
 | Method | Title | Kind | Classes | Implementations |
 |---|---|---|---|---|
-| [ChurakovGottschalk03](ChurakovGottschalk03.md) | Equation of state of Churakov and Gottschalk | correction | gas_fluid | consistent, gems |
-| [CorkHP91](CorkHP91.md) | Compensated Redlich-Kwong equation of state | correction | gas_fluid | consistent, gems |
-| [IdealGas](IdealGas.md) | Ideal gas | correction | gas_fluid, component |  |
-| [PRSV86](PRSV86.md) | Peng-Robinson-Stryjek-Vera equation of state | correction | gas_fluid | consistent, gems |
-| [PengRobinson78](PengRobinson78.md) | Peng-Robinson equation of state | correction | gas_fluid | consistent, gems |
-| [SoaveRedlichKwong72](SoaveRedlichKwong72.md) | Soave-Redlich-Kwong equation of state | correction | gas_fluid | consistent, gems |
-| [SternerPitzer94](SternerPitzer94.md) | Equation of state of Sterner and Pitzer | correction | gas_fluid | consistent, gems |
+| [ChurakovGottschalk03](ChurakovGottschalk03.md) | Equation of state of Churakov and Gottschalk | increment | gas_fluid | consistent, gems |
+| [CorkHP91](CorkHP91.md) | Compensated Redlich-Kwong equation of state | increment | gas_fluid | consistent, gems |
+| [IdealGas](IdealGas.md) | Ideal gas | increment | gas_fluid, component |  |
+| [PRSV86](PRSV86.md) | Peng-Robinson-Stryjek-Vera equation of state | increment | gas_fluid | consistent, gems |
+| [PengRobinson78](PengRobinson78.md) | Peng-Robinson equation of state | increment | gas_fluid | consistent, gems |
+| [SoaveRedlichKwong72](SoaveRedlichKwong72.md) | Soave-Redlich-Kwong equation of state | increment | gas_fluid | consistent, gems |
+| [SternerPitzer94](SternerPitzer94.md) | Equation of state of Sterner and Pitzer | increment | gas_fluid | consistent, gems |
 
 ## Water
 
@@ -61,11 +61,11 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 | Method | Title | Kind | Classes | Implementations |
 |---|---|---|---|---|
-| [BradleyPitzer79](BradleyPitzer79.md) | Dielectric constant of Bradley and Pitzer | correction | water_solvent |  |
-| [FernandezEtAl97](FernandezEtAl97.md) | Dielectric constant of Fernandez et al. | correction | water_solvent |  |
-| [HelgesonKirkham74](HelgesonKirkham74.md) | Dielectric constant of Helgeson and Kirkham | correction | water_solvent |  |
-| [JohnsonNorton91](JohnsonNorton91.md) | Dielectric constant of Johnson and Norton | correction | water_solvent | reaktoro, gems |
-| [SverjenskyEtAl14](SverjenskyEtAl14.md) | Dielectric constant of Sverjensky et al. | correction | water_solvent |  |
+| [BradleyPitzer79](BradleyPitzer79.md) | Dielectric constant of Bradley and Pitzer | increment | water_solvent |  |
+| [FernandezEtAl97](FernandezEtAl97.md) | Dielectric constant of Fernandez et al. | increment | water_solvent |  |
+| [HelgesonKirkham74](HelgesonKirkham74.md) | Dielectric constant of Helgeson and Kirkham | increment | water_solvent |  |
+| [JohnsonNorton91](JohnsonNorton91.md) | Dielectric constant of Johnson and Norton | increment | water_solvent | reaktoro, gems |
+| [SverjenskyEtAl14](SverjenskyEtAl14.md) | Dielectric constant of Sverjensky et al. | increment | water_solvent |  |
 
 ## Reactions: log K
 
@@ -86,9 +86,9 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 
 | Method | Title | Kind | Classes | Implementations |
 |---|---|---|---|---|
-| [ReactionConstantVolume](ReactionConstantVolume.md) | Constant volume of reaction | correction | any |  |
-| [ReactionCpPolynomial](ReactionCpPolynomial.md) | Heat capacity of reaction | correction | any |  |
-| [ReactionVolumePolynomial](ReactionVolumePolynomial.md) | Volume of reaction, T and P | correction | any |  |
+| [ReactionConstantVolume](ReactionConstantVolume.md) | Constant volume of reaction | increment | any |  |
+| [ReactionCpPolynomial](ReactionCpPolynomial.md) | Heat capacity of reaction | increment | any |  |
+| [ReactionVolumePolynomial](ReactionVolumePolynomial.md) | Volume of reaction, T and P | increment | any |  |
 
 ```{toctree}
 :hidden:

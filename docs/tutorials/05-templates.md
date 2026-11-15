@@ -14,11 +14,20 @@ kernelspec:
 
 # 5. Templates
 
-You learn to make a table from a template, to change it, and to make your own template. It takes 15 minutes.
+You learn to make a table from a template, to change it, and to make your own template.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
-A template is a ready setup of a table. You give your records, and the template has the rest: conditions, columns, units and digits.
+A template is a ready setup of a table. You give your records, and the template has the rest: the conditions (T and P), the columns, the units and the digits. The table is then calculated and written as text (`md`, `csv`, `tex`) or read as numbers.
+
+There are two kinds of templates:
+
+- **templates of tables** say what to calculate, for example `species-properties`: G, H, S, Cp and V of substances;
+- **templates of settings** do not calculate anything. They give a part of a setup: `batch-*` give the conditions (T and P), and `output-*` give the units and the digits. You combine them with a template of tables.
+
+You can also write your own templates, to export the data as you want them: see [Make your own template](#make-your-own-template) at the end. A template is a short YAML file.
+
+**Related:** [Make tables](../how-to/make-tables.md) (all settings of a setup) · [Output tables](06-output-tables.md) · [Batch options](../reference/batch.md) · [Units](../reference/units.md) · [Properties and their symbols](../reference/results.md)
 
 ```{code-cell} ipython3
 import os, pathlib
@@ -30,11 +39,12 @@ os.makedirs("output", exist_ok=True)
 
 ## Which templates are there
 
-The templates `batch-*` and `output-*` have no tables. They give settings to one of the others.
+The first line of a template says what it makes. The templates `batch-*` and `output-*` have no tables: they are settings to combine with the others.
 
 ```{code-cell} ipython3
-for name, what in tf.tables.templates().items():
-    print(f"{name:22} {what}")
+import pandas as pd
+
+pd.Series(tf.tables.templates(), name="what it makes").to_frame()
 ```
 
 ## See what a template says
@@ -56,11 +66,11 @@ print(list(results), "\n")
 print(results[list(results)[0]].to_text("md")[:900])
 ```
 
-Records can come from a rule too:
+Instead of a list of symbols, give a rule. The records that fit the rule are the rows of the table. This rule takes all aqueous solutes that have the element Ca. The rules are in [Make tables](../how-to/make-tables.md).
 
 ```{code-cell} ipython3
 results = tf.table(template="species-properties", database=AQ, records={"class": "aqueous_solute", "elements": ["Ca"]})
-print(sorted({row[0] for row in results["species"].rows}))
+print(results["species"].to_text("md"))
 ```
 
 ## Change any setting
@@ -75,6 +85,12 @@ print(setup.run()["species"].to_text("md"))
 ```
 
 ## Combine templates
+
+Give a list of templates. Here the three templates bring:
+
+- `species-properties`: the table, with the columns G, H, S, Cp and V of the records;
+- `batch-saturation`: the conditions, 25 to 300 degC at the saturation pressure of water;
+- `output-publication`: the units and the digits of a publication, kJ/mol with 2 decimals.
 
 A later template replaces what an earlier one says. Your settings come last.
 
@@ -107,9 +123,10 @@ tables:
 
 Run it with `tf.table("my-setup.yaml")`, or from a shell with `python -m thermofun.tables my-setup.yaml`.
 
+(make-your-own-template)=
 ## Make your own template
 
-A template is a YAML file. Its first line is a comment that says what it makes. Put it in a folder, and name the folder in `THERMOFUN_TEMPLATE_PATH`. To use it always, set the variable in your shell before you start Python.
+A template is a YAML file. It has the same keys as a setup, and you can give as many or as few as you like: only the columns, only the conditions, or a whole table. Its first line is a comment that says what it makes. Put it in a folder, and name the folder in `THERMOFUN_TEMPLATE_PATH`. To use it always, set the variable in your shell before you start Python. Here is a template for G and S of any record at two temperatures.
 
 ```{code-cell} ipython3
 pathlib.Path("output/my-templates").mkdir(exist_ok=True)

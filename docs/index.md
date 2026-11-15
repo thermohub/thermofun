@@ -11,8 +11,14 @@ ThermoFun calculates the standard-state thermodynamic properties of substances a
 import thermofun as tf
 
 engine = tf.ThermoEngine("aq17-thermofun.json")
-calcium = engine.thermoPropertiesSubstance(473.15, 2e8, "Ca+2")   # T in K, P in Pa
-assert calcium.gibbs_energy.val < 0.0                             # J/mol
+
+# Gibbs energy of Ca+2 at 473.15 K and 2e8 Pa (T in K, P in Pa)
+G = engine.thermoPropertiesSubstance(473.15, 2e8, "Ca+2").gibbs_energy
+
+print("value      ", G.val, "J/mol")
+print("derivatives", G.ddt, "J/(mol K) by T,", G.ddp, "J/(mol Pa) by P")
+print("uncertainty", G.err, "J/mol")
+print("status     ", G.sta)
 ```
 
 Install it with `conda install -c conda-forge thermofun`, or [install it from the source](how-to/install-from-source.md).
@@ -34,48 +40,36 @@ Each tutorial is a notebook. It runs each time the site is built, so its results
 
 ## How-to: steps for one job
 
-- [Add data](how-to/add-data.md): the complete guide to substances, reactions, methods, units and datasets.
+Calculate:
+
 - [Make tables](how-to/make-tables.md): from a YAML setup or a template, in C++ and Python.
-- [Convert a legacy database](how-to/convert-legacy-database.md)
-- [Validate data](how-to/validate-data.md)
 - [Choose water models](how-to/choose-water-models.md)
 - [Choose conventions](how-to/choose-conventions.md)
 - [Propagate uncertainties](how-to/propagate-uncertainties.md)
-- [Fit parameters to measured data](how-to/fit-parameters.md), with derivatives by parameters and parameter handles.
-- [Use a method alone](how-to/use-a-method-alone.md)
 - [See what each method gives](how-to/get-per-method-results.md)
-- [Migrate from the old API](how-to/migrate-from-the-old-api.md)
-- [Add a method as data](how-to/add-a-method-as-data.md)
-- [Add a method in C++](how-to/add-a-cpp-method.md)
+- [Use a method alone](how-to/use-a-method-alone.md)
+- [Fit parameters to measured data](how-to/fit-parameters.md) (under development)
+
+Data:
+
+- [Add data](how-to/add-data.md): the complete guide to substances, reactions, methods, units and datasets.
+- [Validate data](how-to/validate-data.md)
+- [Convert a legacy database](how-to/convert-legacy-database.md)
+
+Technical guides:
+
 - [Install from the source](how-to/install-from-source.md)
+- [Migrate from the old API](how-to/migrate-from-the-old-api.md)
+- [Add a method as data](how-to/add-a-method-as-data.md) and [in C++](how-to/add-a-cpp-method.md), for model authors
 
 ## Reference: facts
 
-- [Methods](reference/methods/index.md), one page for each method. Generated from the code.
-- [Diagnostics](reference/diagnostics.md): each code and how to correct it. Generated from the code.
-- [Options of the engine](reference/engine-preferences.md). Generated from the code.
-- [Results](reference/results.md): what a calculation gives.
-- [Batch options](reference/batch.md)
-- [The v2 format](reference/format-v2.md)
-- [The JSON Schema of the v2 format](reference/format-v2-schema.md)
-- [Units](reference/units.md)
-- [The legacy format](reference/legacy-format.md)
-- [Python API](reference/python-api.md)
-- [C++ API](https://docs.hdoc.io/dmiron/thermofun/search.html)
-
-## Explanation: background and reasons
-
-- [The data model](explanation/data-model.md)
-- [How methods combine](explanation/how-methods-combine.md)
-- [Uncertainties and rounding](explanation/uncertainty.md)
-- [Conventions](explanation/conventions.md)
-- [Two formats](explanation/legacy-and-v2.md)
-- [Derivatives with autodiff](explanation/autodiff.md)
-
-## Contributing
-
-- [Golden tests](contributing/golden-tests.md)
-- [Writing rules](contributing/writing-rules.md)
+- [Methods](reference/methods/index.md), one page for each method, with their [parameters](reference/method-parameters.md) and [how they combine](reference/how-methods-combine.md).
+- Options: [options of the engine](reference/engine-preferences.md), [conventions](reference/conventions.md) and [batch options](reference/batch.md).
+- Formats: [the data model](reference/data-model.md), [the v2 format](reference/format-v2.md) with its [JSON Schema](reference/format-v2-schema.md), [allowed words](reference/vocabulary.md), [the legacy format](reference/legacy-format.md) and [how it differs](reference/legacy-and-v2.md).
+- [Diagnostics](reference/diagnostics.md): each code and how to correct it.
+- Results and units: [results](reference/results.md), [units](reference/units.md), [derivatives](reference/derivatives.md) and [uncertainties and rounding](reference/uncertainty.md).
+- API: [Python](reference/python-api.md) and [C++](https://docs.hdoc.io/dmiron/thermofun/search.html).
 
 ```{toctree}
 :hidden:
@@ -83,6 +77,5 @@ Each tutorial is a notebook. It runs each time the site is built, so its results
 tutorials/index
 how-to/index
 reference/index
-explanation/index
-contributing/index
+glossary
 ```

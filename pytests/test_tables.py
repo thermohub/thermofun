@@ -176,8 +176,11 @@ tables:
 """)
     results = tf.table(str(tmp_path / "setup.yaml"))
     assert [r[1] for r in results["species"].rows] == [25, 50, 75]
-    assert results["species"].rows[0][2] == "saturation"
-    assert results["species"].grid()[1][2] == "saturation"
+    assert results["species"].rows[0][2] == "saturation"        # the key of the point, for value() and scalar()
+    # the text shows the pressure that the calculation used at the saturation point, in bar
+    lines = [l.split(",") for l in results["species"].to_text("csv").splitlines() if l and not l.startswith("#")][1:]
+    for line, T in zip(lines, (25.0, 50.0, 75.0)):
+        assert float(line[2]) == pytest.approx(tf.ThermoEngine(AQ).saturationPressure(T + 273.15) / 1e5, rel=1e-5)
 
 
 def test_the_command_writes_the_files(tmp_path, monkeypatch):
@@ -244,3 +247,27 @@ def test_an_engine_or_a_database_can_be_given():
     del spec["database"]
     assert tf.table(spec, database=engine)["t"].rows
     assert tf.table(spec, database=tf.Database(AQ))["t"].rows
+
+
+def test_a_value_with_a_message_is_a_problem_of_the_table_and_a_saturation_point_shows_its_pressure():
+    results = tf.table(template=["species-properties", "batch-grid"], database=AQ, records=["Ca+2"])
+    assert any("HKF model: outside" in message for *_, message in results.problems)    # the solute is outside the range of the density of water
+    assert not any(message.endswith(";") or message.endswith(" ") for *_, message in results.problems)
+
+
+def test_a_value_outside_the_range_of_its_model_is_marked_and_listed():
+    engine = tf.ThermoEngine(AQ)
+    inside = engine.thermoPropertiesSubstance(298.15, 1e5, "Ca+2").gibbs_energy
+    outside = engine.thermoPropertiesSubstance(673.15, 5e7, "Ca+2").gibbs_energy      # water below 600 kg/m3
+    assert not inside.outside_range and outside.outside_range
+    assert outside.sta[0] == tf.Status.calculated                                    # the value is there
+    results = tf.table(template="species-properties", database=AQ, records=["Ca+2"], T={"values": [400], "unit": "degC"}, P={"values": [500], "unit": "bar"})
+    assert any("Outside the range of the model" in message for *_, message in results.problems)
+
+
+def test_the_pressure_used_at_saturation():
+    results = tf.table(template=["species-properties", "batch-saturation"], database=AQ, records=["Ca+2"])
+    table = results["species"]
+    assert table.pressure_used("Ca+2", 100, "saturation") == pytest.approx(tf.ThermoEngine(AQ).saturationPressure(373.15) / 1e5, rel=1e-6)
+    with pytest.raises(tf.tables.SetupError, match="no row"):
+        table.pressure_used("Ca+2", 101, "saturation")

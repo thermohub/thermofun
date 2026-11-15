@@ -24,7 +24,7 @@ Source: Ryzhenko and Bryzgalin.
 | A | 1 | 1 | yes |  | coefficient A |
 | B | 1 | 1 | yes |  | coefficient B |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 

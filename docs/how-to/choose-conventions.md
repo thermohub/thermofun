@@ -5,7 +5,7 @@
 
 # Choose conventions
 
-**You need:** ThermoFun. The reasons are in [Conventions](../explanation/conventions.md).
+**You need:** ThermoFun. The reasons are in [Conventions](../reference/conventions.md).
 
 There are two questions: what the data are in, and what you want the results in.
 
@@ -29,12 +29,14 @@ engine.setConventions(conventions)
 steam = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
 ```
 
-**Check:** on the steam tables, G = H - T S, and S is 0 at the triple point of water.
+On the steam tables, G = H - T S, and S is 0 at the triple point of water.
 
+<!-- check
 ```python
 assert abs(steam.gibbs_energy.val - (steam.enthalpy.val - 298.15 * steam.entropy.val)) < 2.0   # J/mol
 assert abs(engine.thermoPropertiesSubstance(273.16, 611.655, "H2O@").entropy.val) < 0.1        # J/(mol K)
 assert steam.gibbs_energy.val != geochemical.gibbs_energy.val
 ```
+-->
 
 A change applies from the next calculation.

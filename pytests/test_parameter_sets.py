@@ -146,7 +146,7 @@ def test_the_page_of_a_method_gives_its_constants_in_one_place():
     from thermofun import docs
     spec = next(s for s in tf.methods.catalog() if s["id"] == "SverjenskyEtAl14")
     page = docs.method_page(spec, None)
-    assert "## Built-in constants" in page and spec["constant_sets"][0]["description"] in page
+    assert "## Built-in coefficients" in page and spec["constant_sets"][0]["description"] in page
     assert "| a1 |" not in page
 
 

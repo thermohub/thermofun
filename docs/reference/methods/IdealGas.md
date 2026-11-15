@@ -7,7 +7,7 @@ Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | gas_fluid, component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -34,7 +34,7 @@ for T, P in [(298.15, 100000), (373.15, 1e+07)]:  # K, Pa
     print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
 ```
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 298.15  100000  -50659  -74810  186.26  35.745  0.02479

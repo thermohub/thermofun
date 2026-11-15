@@ -14,9 +14,13 @@ kernelspec:
 
 # 7. Batch calculations
 
-You learn to calculate many records at many temperatures and pressures with `ThermoBatch`, directly or from a template or a YAML setup. It takes 15 minutes.
+You learn to calculate many records at many temperatures and pressures with `ThermoBatch`, directly or from a template or a YAML setup.
 
 **You need:** ThermoFun, matplotlib, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
+
+**Related:** [Batch options](../reference/batch.md) · [Make tables](../how-to/make-tables.md) · [Migrate from the old API](../how-to/migrate-from-the-old-api.md) · [Units](../reference/units.md) · [Templates](05-templates.md) · [Output tables](06-output-tables.md)
+
+**Batch calculation or table?** Both calculate many records at many T and P, and both write files. `ThermoBatch` is the original interface of ThermoFun, with the same methods as the old API: you give the records, the points and the properties in code, and you set the units and digits with functions. A table (tutorials [5](05-templates.md) and [6](06-output-tables.md)) is the newer way: the same things are written in a setup, with the keys of a YAML file, and the setup can come from a template. A table also does what a batch cannot: compare models, uncertainties and derivatives in columns, water, and a record of how the table was made. Inside, a setup can give you the batch of its table (`setup.batch()`, see below).
 
 ```{code-cell} ipython3
 import os, pathlib
@@ -83,9 +87,7 @@ print(pathlib.Path("output/logKr_grid.csv").read_text())
 batch = tf.ThermoBatch(AQ)
 symbols = batch.selectSubstances({"class": "aqueous_solute", "elements": ["Ca"]})
 print(symbols)
-values = batch.thermoPropertiesSubstance([[298.15, 1e5]], symbols, ["gibbs_energy"]).to2DVectorDouble()
-for symbol, row in zip(symbols, values):
-    print(f"{symbol:10} {row[0]:12.1f} J/mol")
+print(batch.thermoPropertiesSubstance([[298.15, 1e5]], symbols, ["gibbs_energy"]).to2DVectorDouble())
 ```
 
 ## A batch from a template or a setup

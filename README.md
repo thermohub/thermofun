@@ -116,4 +116,4 @@ later" of Reaktoro's license allows to combine.
 
 Report a bug at [ThermoFun's issues](https://github.com/thermohub/thermofun/issues/new), with a small example that shows
 it. To contribute, fork the repository, make your change in a branch, and open a pull request to
-`thermohub/thermofun`. The [contributing pages](docs/contributing/golden-tests.md) say how the results are checked.
+`thermohub/thermofun`. The [golden tests guide](pytests/golden/GOLDEN-TESTS.md) say how the results are checked.

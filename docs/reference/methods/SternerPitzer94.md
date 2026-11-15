@@ -9,7 +9,7 @@ Source: Sterner and Pitzer (1994).
 | | |
 |---|---|
 | Works on | substance |
-| Kind | correction |
+| Kind | increment |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -28,7 +28,7 @@ Source: Sterner and Pitzer (1994).
 | Tc | K | K | yes |  | critical temperature |
 | Pc | bar | Pa | yes |  | critical pressure |
 
-## Built-in constants
+## Built-in coefficients
 
 A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
@@ -74,7 +74,7 @@ for T, P in [(773.15, 1e+08)]:  # K, Pa
 
 The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
 
-Output, as `T  P  G  H  S  Cp  V` (J/mol, J/(mol K), J/(mol K), J/(mol K), m3/mol):
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
 
 ```text
 773.15  1e+08  -4.5986e+05  -3.7757e+05  187.75  45.212  8.6705e-05
