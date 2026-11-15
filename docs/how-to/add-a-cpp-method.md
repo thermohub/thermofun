@@ -5,7 +5,7 @@
 
 # Add a method in C++
 
-**You need:** a build from the source. For a closed-form model, [a method as data](add-a-method-as-data.md) needs no C++.
+**You need:** a build from the source. For a closed-form model, [a method as data](add-a-method-as-data.md) needs no C++ and no build: the example below is written there as data too ([the same method as data](add-a-method-as-data.md#the-same-method-in-c-and-as-data)). Python code cannot be a method; Python gives a method as data.
 
 A method is a function and a table entry.
 
@@ -16,8 +16,9 @@ A method is a function and a table entry.
    auto myMethod(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const MethodParameters<>& p) -> void
    {
        const Scalar a = p.value(0, in);
-       state.G += a * (in.T - in.reference.T);
-       state.S -= a;
+       state.G += a * (in.T - in.reference.T);   // dG = a (T - Tr)
+       state.S -= a;                             // dS = -d(dG)/dT
+       state.H -= a * in.reference.T;            // dH = dG + T dS
    }
    ```
 

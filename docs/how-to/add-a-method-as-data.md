@@ -103,6 +103,62 @@ assert abs(props.heat_capacity_cp.val - (80.0 + 0.012 * 500.0 - 1.1e6 / 500.0**2
 The engine differentiates the expression. S is −∂G/∂T, V is ∂G/∂P and Cp is −T ∂²G/∂T².
 Several methods on one record give the same result in any order.
 
+(the-same-method-in-c-and-as-data)=
+## The same method in C++ and as data
+
+A method can be written in C++ ([Add a method in C++](add-a-cpp-method.md)) or as data, as on this page. Python code cannot be a method (a calculation calls a method many times, for each T, P and derivative); in Python you write the method as data. Here is one method both ways: it adds a (T - Tr) to G.
+
+In C++, you write G and each property that follows from it:
+
+```cpp
+template <typename Scalar>
+auto myMethod(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const MethodParameters<>& p) -> void
+{
+    const Scalar a = p.value(0, in);
+    state.G += a * (in.T - in.reference.T);   // dG = a (T - Tr)
+    state.S -= a;                             // dS = -d(dG)/dT
+    state.H -= a * in.reference.T;            // dH = dG + T dS
+}
+```
+
+As data, you write only G. The engine takes S, H, Cp and V from it, so they cannot disagree:
+
+```python
+shift = methods.build({
+    "kind": "symbolic", "tier": 1, "operates_on": "substance", "contributes_to": ["G", "H", "S"],
+    "parameter_definitions": {"a": {"unit": "J/(mol.K)"}},
+    "source": {"form": "gibbs_increment", "expression": "a*(T - Tr)"},
+    "tests": [{"T": 400.0, "P": 1e5, "parameters": {"a": 2.0},
+               "expected": {"G": 2.0 * (400.0 - 298.15), "S": -2.0, "H": -2.0 * 298.15}, "relative_tolerance": 1e-12}],
+})
+print(shift["expression"])   # prints {'G_increment': 'a*(T - Tr)'}
+print(methods.check(shift))  # prints []: the test case agrees
+```
+
+A record uses it after its base method, like any increment:
+
+```python
+mineral = {"formula": "CaCO3", "class": "component", "aggregate_state": "crystal",
+           "standard_state_properties": {"G": -1.2e6, "H": -1.1731665e6, "S": 90.0, "Cp": 80.0, "V": 3e-5}}
+with_shift = tf.Database({"methods": {"EntropyShift": shift},
+                          "substances": {"X": {**mineral, "methods": [{"method": "ConstantCp"}, {"method": "EntropyShift", "parameters": {"a": 2.0}}]}}})
+without = tf.Database({"substances": {"X": {**mineral, "methods": [{"method": "ConstantCp"}]}}})
+
+x = tf.ThermoEngine(with_shift).thermoPropertiesSubstance(400.0, 1e5, "X")
+y = tf.ThermoEngine(without).thermoPropertiesSubstance(400.0, 1e5, "X")
+print(x.gibbs_energy.val - y.gibbs_energy.val)   # a (T - Tr) = 203.7 J/mol
+print(x.entropy.val - y.entropy.val)             # -a = -2.0 J/(mol K)
+```
+
+<!-- check
+```python
+assert methods.check(shift) == []
+assert abs((x.gibbs_energy.val - y.gibbs_energy.val) - 2.0 * (400.0 - 298.15)) < 1e-8
+assert abs((x.entropy.val - y.entropy.val) + 2.0) < 1e-10
+assert abs((x.enthalpy.val - y.enthalpy.val) + 2.0 * 298.15) < 1e-8
+```
+-->
+
 ## Step 5. Share the method
 
 Examples are in `examples/v2/methods/`. Open a pull request with the Method record to `thermohub-data/methods/definitions/`.
