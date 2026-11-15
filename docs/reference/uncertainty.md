@@ -35,8 +35,15 @@ With `round_to_uncertainty` (off by default), the engine rounds each result that
 ```python
 import thermofun as tf
 
-print(tf.round_to_uncertainty(25.4478, 1.0834, 2))  # prints (25.4, 1.1)
-print(tf.round_half_even(2.5, 0))  # prints 2.0
+print(tf.round_to_uncertainty(25.4478, 1.0834, 2))
+print(tf.round_half_even(2.5, 0))
+```
+
+Output:
+
+```text
+(25.4, 1.1)
+2.0
 ```
 
 <!-- check

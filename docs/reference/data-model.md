@@ -21,7 +21,13 @@ import thermofun as tf
 shared = tf.ThermoEngine("examples/v2/minimal.yaml")
 mine = tf.ThermoEngine(shared)  # for one thread
 mine.preferences.round_to_uncertainty = True
-print(shared.preferences.round_to_uncertainty)  # prints False
+print(shared.preferences.round_to_uncertainty)
+```
+
+Output:
+
+```text
+False
 ```
 
 <!-- check

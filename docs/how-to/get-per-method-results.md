@@ -25,6 +25,12 @@ detailed = engine.thermoPropertiesSubstanceDetailed(473.15, 1e7, "Calcite")
 print(detailed["source"], detailed["conversions"])
 ```
 
+Output:
+
+```text
+methods []
+```
+
 3. Call `calculationPath` to see the path of a record before you calculate. It also shows the other records that it needs.
 
 ```python
@@ -43,12 +49,29 @@ table = pd.DataFrame(rows)[["T", "Cp", "Cp:CpPolynomial", "Cp:LandauHP98", "Cp:M
 print(table)
 ```
 
+Output:
+
+```text
+        T          Cp  ...  Cp:MurnaghanHP98  Cp:other
+0   400.0   96.004551  ...         -0.004017       0.0
+1   800.0  118.497846  ...         -0.002839       0.0
+2  1400.0  124.511680  ...         -0.002144       0.0
+
+[3 rows x 6 columns]
+```
+
    A method that sets a property replaces what came before it, so its column also removes the earlier value. The catalog
    says which methods set and which add: `{m["id"]: m["effects"] for m in tf.methods.catalog()}`. In C++ the same is
    `ThermoEngine::contributions(symbol, T, P)`, a `MethodContributions` for each point.
 
 ```python
-print(path["source"])  # prints methods
+print(path["source"])
+```
+
+Output:
+
+```text
+methods
 ```
 
 <!-- check

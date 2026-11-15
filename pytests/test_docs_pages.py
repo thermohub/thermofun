@@ -10,6 +10,8 @@ import shutil
 import pytest
 import thermofun as tf
 
+from docs_outputs import expected_output, run_console, run_python
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 # these have their own tests
@@ -36,8 +38,12 @@ def test_the_code_of_a_page_runs(page, tmp_path, monkeypatch):
         if match["file"]:
             (tmp_path / match["file"]).parent.mkdir(parents=True, exist_ok=True)
             (tmp_path / match["file"]).write_text(match["text"])
-        elif match["kind"] == "python" or match["cell"] is not None:
+        elif match["kind"] == "python":
+            run_python(match["text"], names, page.name, expected_output(text, match.end()))
+        elif match["cell"] is not None:
             exec(compile(match["text"], page.name, "exec"), names)
+        elif match["kind"] == "console":
+            run_console(match["text"], page.name, tmp_path)
 
 
 @pytest.mark.parametrize("page", sorted(DOCS.rglob("*.md")) + [ROOT / "README.md"], ids=lambda p: p.name)

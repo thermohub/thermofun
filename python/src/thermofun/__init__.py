@@ -8,5 +8,13 @@ enabling thermodynamic property calculations for substances and reactions.
 """
 
 from thermofun.PyThermoFun import *
-from thermofun import tables
-from thermofun.tables import table
+
+
+def __getattr__(name):
+    # tables is imported when it is first used, so that `python -m thermofun.tables` does not find it imported already
+    # (Python then warns that the module may run twice)
+    if name in ("tables", "table"):
+        import importlib
+        tables = importlib.import_module("thermofun.tables")
+        return tables if name == "tables" else tables.table
+    raise AttributeError(f"module 'thermofun' has no attribute {name!r}")

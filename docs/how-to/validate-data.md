@@ -7,15 +7,37 @@
 
 **You need:** ThermoFun, and a database file.
 
-1. Run the check from a shell. It prints each problem with its code, and how to correct it.
+The tool `thermofun.validate` reads a file, and prints each problem with its code, the record, the place in the file and
+how to correct it. The last line is a summary. The exit code is 1 if there is an error, so a script can stop on it.
+Each code is explained in [Diagnostics](../reference/diagnostics.md).
 
-   ```
-   python -m thermofun.validate my-database.yaml
-   ```
+## 1. A file in order
 
-2. Correct each error. [Diagnostics](../reference/diagnostics.md) lists all codes.
+```console
+$ python -m thermofun.validate minimal.yaml
+minimal.yaml: no problems
+```
 
-3. Or run it in Python:
+## 2. A file with problems
+
+A load refuses only what makes the file unusable. The other problems are found when the whole database is checked. Here
+two minerals of aq17 miss parameters of their volume method:
+
+```console
+$ python -m thermofun.validate aq17-thermofun.json
+error V2-MTH-004 Boehmite /substances/Boehmite/methods/1: The method MurnaghanHP98 needs the parameter alpha0 (thermal expansion at the reference state, in 1/K). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
+error V2-MTH-004 Boehmite /substances/Boehmite/methods/1: The method MurnaghanHP98 needs the parameter kappa0 (bulk modulus at 298 K, in kbar). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
+error V2-MTH-004 Gibbsite /substances/Gibbsite/methods/1: The method MurnaghanHP98 needs the parameter alpha0 (thermal expansion at the reference state, in 1/K). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
+error V2-MTH-004 Gibbsite /substances/Gibbsite/methods/1: The method MurnaghanHP98 needs the parameter kappa0 (bulk modulus at 298 K, in kbar). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
+aq17-thermofun.json: 4 errors, 0 warnings
+```
+
+Each line has the severity, the code, the record, and the path of the value in the record (`methods/1` is the second
+method).
+
+## 3. A file that cannot be read
+
+This file names a method that does not exist:
 
 <!-- file: bad.yaml -->
 ```yaml
@@ -29,32 +51,47 @@ substances:
       - method: NoSuchMethod
 ```
 
+The line and the column of the problem come first:
+
+```console
+$ python -m thermofun.validate bad.yaml
+bad.yaml:8:9: error V2-MTH-001 X /substances/X/methods/0/method: Unknown method NoSuchMethod Use a method id from the method reference; the message names the nearest one.
+bad.yaml: the file cannot be read
+```
+
+## 4. The same in Python
+
+`validate()` gives the problems of a database that could be read, and `loadDiagnostics()` the warnings of the reading.
+Each problem has `severity`, `code`, `record`, `path` and `message`.
+
 ```python
 import thermofun as tf
 
-database = tf.Database()
+problems = tf.Database("aq17-thermofun.json").validate()
+for problem in problems.all()[:2]:
+    print(problem.severity, problem.code, problem.record, problem.path)
+print(problems.ok())
+```
+
+Output:
+
+```text
+Severity.Error V2-MTH-004 Boehmite /substances/Boehmite/methods/1
+Severity.Error V2-MTH-004 Boehmite /substances/Boehmite/methods/1
+False
+```
+
+A file that cannot be read raises an error with the same text:
+
+```python
 try:
-    database = tf.Database("bad.yaml")
-    problems = database.validate()
+    tf.Database("bad.yaml")
 except RuntimeError as error:
-    problems = str(error)
+    print("V2-MTH-001" in str(error))
 ```
 
-<!-- check
-```python
-assert "V2-MTH-001" in str(problems) or any(p.code == "V2-MTH-001" for p in problems)
-```
--->
+Output:
 
-A file in order has no errors.
-
-```python
-errors = [d for d in tf.Database("examples/v2/minimal.yaml").validate() if d.severity == tf.Severity.Error]
-print(errors)  # prints []
+```text
+True
 ```
-
-<!-- check
-```python
-assert errors == []
-```
--->

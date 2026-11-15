@@ -135,7 +135,7 @@ print("problems in minimal.yaml:", len(my_data.validate()))
 print(database.validate())
 ```
 
-Here two records of aq17 use a volume method (`V2-MTH-004`, a parameter that the method needs is missing) and give no `alpha0` and `kappa0`. These are the thermal expansion and the compressibility. The method cannot calculate V at another T and P without them, so the volume of these two minerals does not change with T and P.
+Here two records of aq17 use a volume method (`V2-MTH-004`, a parameter that the method needs is missing) and give no `alpha0` and `kappa0`. These are the thermal expansion and the bulk modulus. The method cannot calculate V at another T and P without them, so the volume of these two minerals does not change with T and P.
 
 ```{code-cell} ipython3
 :tags: [remove-cell]

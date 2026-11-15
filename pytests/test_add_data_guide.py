@@ -13,6 +13,8 @@ import sys
 import pytest
 import thermofun as tf
 
+from docs_outputs import expected_output, run_python
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GUIDE = os.path.join(ROOT, "docs", "how-to", "add-data.md")
 TABLES = os.path.join(ROOT, "docs", "reference", "method-parameters.md")
@@ -97,16 +99,18 @@ def blocks():
     return [(m["kind"], m["text"], m["file"]) for m in pattern.finditer(read_guide())]
 
 
-def test_the_examples_run(tmp_path, monkeypatch):
+def test_the_examples_run_and_print_what_the_page_shows(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     namespace = {}
     ran = 0
-    for kind, text, name in blocks():
-        if kind == "yaml":
-            assert name, text[:60]
-            (tmp_path / name).write_text(text)
-        elif kind == "python":
-            exec(compile(text, "add-data.md", "exec"), namespace)
+    guide = read_guide()
+    pattern = re.compile(r"(?:<!-- file: (?P<file>[^ ]+) -->\n)?```(?P<kind>[a-z]+)\n(?P<text>.*?)```", re.S)
+    for m in pattern.finditer(guide):
+        if m["kind"] == "yaml":
+            assert m["file"], m["text"][:60]
+            (tmp_path / m["file"]).write_text(m["text"])
+        elif m["kind"] == "python":
+            run_python(m["text"], namespace, "add-data.md", expected_output(guide, m.end()))
             ran += 1
     assert ran >= 10
 

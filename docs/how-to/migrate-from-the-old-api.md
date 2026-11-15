@@ -21,8 +21,15 @@ To keep the old values, call `useStandardStateOfGases()` on the preferences of t
 import thermofun as tf
 
 preferences = tf.EnginePreferences().useStandardStateOfGases()  # G(T, Pr) for a gas, as before 1.0
-print(preferences.apply_pressure_correction_to_gas_props)  # prints False
-print(preferences.cancel_fugacity_coefficient_in_gas_props)  # prints True
+print(preferences.apply_pressure_correction_to_gas_props)
+print(preferences.cancel_fugacity_coefficient_in_gas_props)
+```
+
+Output:
+
+```text
+False
+True
 ```
 
 <!-- check
@@ -41,7 +48,13 @@ In C++: `engine.preferences().useStandardStateOfGases();`.
 ```python
 import thermofun as tf
 
-print(tf.volume_unit)  # prints m3/mol
+print(tf.volume_unit)
+```
+
+Output:
+
+```text
+m3/mol
 ```
 
 <!-- check
@@ -120,7 +133,13 @@ import thermofun as tf
 
 substance = tf.Substance()
 substance.setSymbol("X")
-print(substance.symbol())  # prints X
+print(substance.symbol())
+```
+
+Output:
+
+```text
+X
 ```
 
 <!-- check

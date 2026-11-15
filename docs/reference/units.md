@@ -32,7 +32,13 @@ The built-in constants are in the units of the formulas, and are not converted. 
 ```python
 import thermofun as tf
 
-print(tf.convert_units(1.0, "kJ", "J"))  # prints 1000.0
+print(tf.convert_units(1.0, "kJ", "J"))
+```
+
+Output:
+
+```text
+1000.0
 ```
 
 <!-- check

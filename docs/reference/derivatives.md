@@ -15,6 +15,12 @@ calcite = engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
 print(calcite.gibbs_energy.ddt, -calcite.entropy.val)   # dG/dT is -S
 ```
 
+Output:
+
+```text
+-135.56702246071714 -135.5670224607171
+```
+
 ## What the derivatives satisfy
 
 The derivatives agree with the other properties, as thermodynamics says:

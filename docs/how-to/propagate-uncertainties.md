@@ -40,6 +40,15 @@ import thermofun as tf
 T = 500.0
 engine = tf.ThermoEngine("uncertain.yaml")
 G = engine.thermoPropertiesSubstance(T, 1e5, "X").gibbs_energy
+print(round(G.val, 3), "+-", round(G.err, 3), "J/mol")
+print(round(math.hypot(1000.0, (T - 298.15) * 0.5), 3), "J/mol: u(G) = sqrt(u(G0)^2 + ((T - Tr) u(S0))^2)")
+```
+
+Output:
+
+```text
+-870042.344 +- 1005.08 J/mol
+1005.08 J/mol: u(G) = sqrt(u(G0)^2 + ((T - Tr) u(S0))^2)
 ```
 
 <!-- check
@@ -55,6 +64,13 @@ preferences = engine.preferences
 preferences.propagate_parameter_errors = True
 engine.setPreferences(preferences)
 with_parameters = engine.thermoPropertiesSubstance(T, 1e5, "X").gibbs_energy
+print(round(G.err, 3), "J/mol without the parameters,", round(with_parameters.err, 3), "J/mol with them")
+```
+
+Output:
+
+```text
+1005.08 J/mol without the parameters, 1011.447 J/mol with them
 ```
 
 <!-- check

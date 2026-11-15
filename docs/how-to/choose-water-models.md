@@ -37,6 +37,12 @@ born_jn91 = tf.methods.dielectricMethod("JohnsonNorton91", implementation="reakt
 print(born_hk74.bornQ.val, born_jn91.bornQ.val)   # the Born function Q in 1/Pa: 5.90e-12 and 6.63e-12
 ```
 
+Output:
+
+```text
+5.902710719960798e-12 6.634151525225638e-12
+```
+
 <!-- check
 ```python
 assert abs(born_hk74.bornQ.val - 5.90e-12) < 0.01e-12
@@ -48,8 +54,15 @@ The solvent of your engine is the record that you changed.
 
 ```python
 engine = tf.ThermoEngine("examples/v2/minimal.yaml")
-print(engine.solventSymbol())  # prints H2O@
-print(engine.calculationPath("Na+")["steps"][0]["methods"])  # prints ['WaterIAPWS95', 'JohnsonNorton91']
+print(engine.solventSymbol())
+print(engine.calculationPath("Na+")["steps"][0]["methods"])
+```
+
+Output:
+
+```text
+H2O@
+['WaterIAPWS95', 'JohnsonNorton91']
 ```
 
 <!-- check

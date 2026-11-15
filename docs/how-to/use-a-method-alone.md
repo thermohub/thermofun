@@ -20,6 +20,12 @@ result = method.evaluate(400.0, 1e7, reference)
 print(result.V.val)                                             # m3/mol
 ```
 
+Output:
+
+```text
+2e-05
+```
+
 Water and dielectric models work in the same way:
 
 ```python
@@ -30,7 +36,13 @@ dielectric = tf.methods.dielectricMethod("BradleyPitzer79").properties(298.15, 1
 `tf.methods.catalog()` lists all methods and their parameters. The pages are in [Methods](../reference/methods/index.md).
 
 ```python
-print(result.V.val)  # prints 2e-05
+print(result.V.val)
+```
+
+Output:
+
+```text
+2e-05
 ```
 
 <!-- check

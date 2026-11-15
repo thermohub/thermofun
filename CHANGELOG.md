@@ -125,6 +125,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   format. The `gems` implementation of HKF88 gives the same named outputs, from its own g function and Born coefficient.
 - Test that every record of `psinagra-12-07` calculates without a crash. The released 0.6.x library crashed on it (segmentation
   fault at `Pd`: `cp_ft_equation` with T limits and no T intervals, the interval index -1 of the old Cp integration); v2 does not.
+- `python -m thermofun.validate` prints one line for each problem, with the file name as given, also the warnings of the
+  reading, then a summary (`minimal.yaml: no problems`, `aq17-thermofun.json: 4 errors, 0 warnings`). A file that cannot be
+  read gives its diagnostics without the frame of the C++ message. Before, it printed nothing for a file in order and the raw
+  exception for one that could not be read.
+- `python -m thermofun.tables` no longer prints a RuntimeWarning of Python: `thermofun.tables` is imported on first use.
+- The how-to pages show what each step prints: an `Output:` block under a code block, and `console` blocks with the commands
+  of `thermofun.convert`, `thermofun.validate` and `thermofun.method_tool` and what they print. The tests run them and
+  compare (`pytests/docs_outputs.py`), so the shown outputs stay true.
 - **A v2 document without the key `thermohub`** (a section that is a map of records) is refused with V2-VER-003. Before, it was
   read as a legacy file and gave records with no symbol. `Database(dict)` adds the key if it is missing.
 - The text of V2-MTH-004 names the method, says what the parameter is (with its unit), and on which properties the method works.

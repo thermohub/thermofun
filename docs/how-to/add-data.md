@@ -60,7 +60,13 @@ import thermofun as tf
 legacy = tf.Database('{"substances": [{"symbol": "A", "formula": "Ca", "sm_gibbs_energy": {"values": [-56.484001159668]}}]}')
 legacy.save("converted.yaml")                    # the values are written with short decimals
 exact = tf.Database(legacy.toJson(readable=False))
-print(exact.getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value)  # prints -56.484001159668
+print(exact.getSubstance("A").record().standard_state_properties[tf.PropertyName.G].value)
+```
+
+Output:
+
+```text
+-56.484001159668
 ```
 
 <!-- check
@@ -104,7 +110,13 @@ Then calculate with it:
 ```python
 engine = tf.ThermoEngine("small.yaml")
 result = engine.thermoPropertiesSubstance(373.15, 1e5, "Corundum")
-print(result.heat_capacity_cp.val)  # prints 79.0
+print(result.heat_capacity_cp.val)
+```
+
+Output:
+
+```text
+79.0
 ```
 
 <!-- check
@@ -128,6 +140,13 @@ print(db.getSubstance("Corundum").formula())   # Al2O3
 
 db.setSubstance(one)       # the record is replaced
 print(db.getSubstance("Corundum").formula())   # X
+```
+
+Output:
+
+```text
+Al2O3
+X
 ```
 
 <!-- check
@@ -309,7 +328,13 @@ substances:
 ```python
 engine = tf.ThermoEngine("aqueous.yaml")
 ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
-print(engine.explain(373.15, 1e6, "Ca+2")[0]["method"])  # prints HKF88
+print(engine.explain(373.15, 1e6, "Ca+2")[0]["method"])
+```
+
+Output:
+
+```text
+HKF88
 ```
 
 <!-- check
@@ -335,7 +360,7 @@ the record, or in the dataset, with the values and the methods. ThermoFun then u
 
 ```python
 hydrogen = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  H+: {formula: H+, class: aqueous_solute, aggregate_state: aqueous}\n")
-print(tf.ThermoEngine(hydrogen).thermoPropertiesSubstance(400.0, 1e6, "H+").gibbs_energy.val)  # prints 0.0
+print(tf.ThermoEngine(hydrogen).thermoPropertiesSubstance(400.0, 1e6, "H+").gibbs_energy.val)
 other = tf.Database("""thermohub: 2.0.0-draft.1
 substances:
   H+:
@@ -347,7 +372,14 @@ substances:
     methods:
       - {method: ConstantCp}
 """)
-print(tf.ThermoEngine(other).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val)  # prints -1000.0
+print(tf.ThermoEngine(other).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val)
+```
+
+Output:
+
+```text
+0.0
+-1000.0
 ```
 
 <!-- check
@@ -456,7 +488,13 @@ reactions:
 ```python
 engine = tf.ThermoEngine("defined.yaml")
 b = engine.thermoPropertiesSubstance(298.15, 1e5, "B")
-print(engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"])  # prints reaction
+print(engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"])
+```
+
+Output:
+
+```text
+reaction
 ```
 
 <!-- check
@@ -593,9 +631,17 @@ substances:
 
 ```python
 db = tf.Database("dataset.yaml")
-print(db.thermoDataSet().symbol)  # prints my-data
-print(db.dataSources()["1998HOL/POW"].year)  # prints 1998
-print(tf.ThermoEngine(db).solventSymbol())  # prints WATER
+print(db.thermoDataSet().symbol)
+print(db.dataSources()["1998HOL/POW"].year)
+print(tf.ThermoEngine(db).solventSymbol())
+```
+
+Output:
+
+```text
+my-data
+1998
+WATER
 ```
 
 <!-- check
@@ -632,7 +678,13 @@ substances:
 ```
 
 ```python
-print(tf.Database("main.yaml").getSubstancesList())  # prints ['First', 'Second']
+print(tf.Database("main.yaml").getSubstancesList())
+```
+
+Output:
+
+```text
+['First', 'Second']
 ```
 
 <!-- check
@@ -681,8 +733,15 @@ substances:
 
 ```python
 x = tf.Database("covariance.yaml").getSubstance("X").record()
-print(x.covariance[0].matrix)  # prints [4.0, 1.0, 1.0, 9.0]
-print(x.standard_state_properties[tf.PropertyName.G].uncertainty.standard)  # prints 2.0
+print(x.covariance[0].matrix)
+print(x.standard_state_properties[tf.PropertyName.G].uncertainty.standard)
+```
+
+Output:
+
+```text
+[4.0, 1.0, 1.0, 9.0]
+2.0
 ```
 
 <!-- check
@@ -768,8 +827,15 @@ To see the path that the engine takes for a record, without calculating:
 ```python
 engine = tf.ThermoEngine("small.yaml")
 path = engine.calculationPath("Corundum")
-print(path["source"])  # prints methods
-print(path["methods"])  # prints ['ConstantCp', 'ConstantVolume']
+print(path["source"])
+print(path["methods"])
+```
+
+Output:
+
+```text
+methods
+['ConstantCp', 'ConstantVolume']
 ```
 
 <!-- check
@@ -794,7 +860,13 @@ parameters = tf.ThermoParametersSubstance()
 parameters.Cp_coeff = [[100.0]]
 parameters.temperature_intervals = [[273.15, 2000.0]]
 s.setThermoParameters(parameters)
-print(s.record().methods[0].method)  # prints CpPolynomial
+print(s.record().methods[0].method)
+```
+
+Output:
+
+```text
+CpPolynomial
 ```
 
 <!-- check
@@ -820,9 +892,17 @@ substances:
 
 ```python
 problem = tf.Database("problem.yaml").loadDiagnostics().all()[0]
-print(problem.code)  # prints V2-VOC-001
-print(problem.path)  # prints /substances/A/aggregate_state
-print(problem.line)  # prints 5
+print(problem.code)
+print(problem.path)
+print(problem.line)
+```
+
+Output:
+
+```text
+V2-VOC-001
+/substances/A/aggregate_state
+5
 ```
 
 <!-- check

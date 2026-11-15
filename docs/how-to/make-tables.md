@@ -19,7 +19,40 @@ import thermofun as tf
 results = tf.table(template="species-properties", database="aq17-thermofun.json", records=["Ca+2", "Calcite"])
 species = results["species"]
 print(species.to_text("md"))
-print(species.columns[0]["label"])  # prints G(kJ/mol)
+print(species.columns[0]["label"])
+```
+
+Output:
+
+```text
+| Symbol | T(degC) | P(bar) | G(kJ/mol) | H(kJ/mol) | S(J/K/mol) | Cp(J/K/mol) | V(J/bar) |
+|---|---|---|---|---|---|---|---|
+| Ca+2 | 25 | 0.0316982 | -552.819 | -543.098 | -56.48 | -31.04 | -1.8449 |
+| Ca+2 | 50 | 0.123525 | -551.378 | -543.790 | -58.71 | -26.48 | -1.8277 |
+| Ca+2 | 75 | 0.385967 | -549.885 | -544.494 | -60.81 | -30.79 | -1.8682 |
+| Ca+2 | 100 | 1.01418 | -548.337 | -545.374 | -63.24 | -40.45 | -1.9572 |
+| Ca+2 | 125 | 2.32234 | -546.722 | -546.554 | -66.29 | -54.62 | -2.0995 |
+| Ca+2 | 150 | 4.76159 | -545.024 | -548.130 | -70.11 | -72.08 | -2.3063 |
+| Ca+2 | 175 | 8.92601 | -543.225 | -550.157 | -74.74 | -91.95 | -2.5906 |
+| Ca+2 | 200 | 15.5494 | -541.307 | -552.795 | -80.42 | -124.66 | -2.9732 |
+| Ca+2 | 225 | 25.4975 | -539.240 | -556.474 | -87.92 | -180.12 | -3.5180 |
+| Ca+2 | 250 | 39.762 | -536.977 | -561.709 | -98.05 | -257.43 | -4.3541 |
+| Ca+2 | 275 | 59.464 | -534.469 | -568.627 | -110.77 | -326.93 | -5.6161 |
+| Ca+2 | 300 | 85.8787 | -531.705 | -575.943 | -123.53 | -283.35 | -7.1252 |
+| Calcite | 25 | 0.0316982 | -1129.199 | -1207.474 | 92.50 | 83.37 | 3.6978 |
+| Calcite | 50 | 0.123525 | -1131.597 | -1205.340 | 99.37 | 87.18 | 3.6997 |
+| Calcite | 75 | 0.385967 | -1134.164 | -1203.118 | 105.99 | 90.46 | 3.7017 |
+| Calcite | 100 | 1.01418 | -1136.891 | -1200.817 | 112.36 | 93.31 | 3.7038 |
+| Calcite | 125 | 2.32234 | -1139.773 | -1198.448 | 118.50 | 95.83 | 3.7059 |
+| Calcite | 150 | 4.76159 | -1142.800 | -1196.014 | 124.40 | 98.09 | 3.7082 |
+| Calcite | 175 | 8.92601 | -1145.966 | -1193.521 | 130.09 | 100.13 | 3.7104 |
+| Calcite | 200 | 15.5494 | -1149.263 | -1190.969 | 135.58 | 102.00 | 3.7128 |
+| Calcite | 225 | 25.4975 | -1152.682 | -1188.361 | 140.87 | 103.71 | 3.7152 |
+| Calcite | 250 | 39.762 | -1156.215 | -1185.696 | 145.99 | 105.30 | 3.7176 |
+| Calcite | 275 | 59.464 | -1159.854 | -1182.973 | 150.93 | 106.78 | 3.7201 |
+| Calcite | 300 | 85.8787 | -1163.589 | -1180.189 | 155.73 | 108.18 | 3.7225 |
+
+G(kJ/mol)
 ```
 
 <!-- check
@@ -61,7 +94,13 @@ setup.column("G", unit="J/mol", digits=1)
 setup.remove_column("V")
 setup.add_column("A", unit="kJ/mol", digits=2)
 results = setup.run()
-print(results.write())  # prints ['mine.md']
+print(results.write())
+```
+
+Output:
+
+```text
+['mine.md']
 ```
 
 <!-- check
@@ -119,7 +158,13 @@ Run it from a shell with `python -m thermofun.tables setup.yaml`, or in Python:
 
 ```python
 results = tf.table("setup.yaml")
-print(sorted(results.write()))  # prints ['logk.md', 'species.csv', 'water.csv']
+print(sorted(results.write()))
+```
+
+Output:
+
+```text
+['logk.md', 'species.csv', 'water.csv']
 ```
 
 <!-- check
@@ -184,8 +229,14 @@ tables:
 import os
 os.environ["THERMOFUN_TEMPLATE_PATH"] = "my-templates"
 
-print(tf.tables.templates()["my-table"])  # prints G and S at 25 and 50 degC, for my group
+print(tf.tables.templates()["my-table"])
 results = tf.table(template="my-table", database="aq17-thermofun.json", records=["Ca+2"])
+```
+
+Output:
+
+```text
+G and S at 25 and 50 degC, for my group
 ```
 
 <!-- check
@@ -212,7 +263,13 @@ tables:
 
 ```python
 results = tf.table("from-templates.yaml")
-print(results["species"].columns[0]["unit"])  # prints kJ/mol
+print(results["species"].columns[0]["unit"])
+```
+
+Output:
+
+```text
+kJ/mol
 ```
 
 <!-- check
@@ -231,6 +288,17 @@ A file starts with how it was made, as comments that a table program can skip: t
 results = tf.table(template="species-properties", database="aq17-thermofun.json", records=["Ca+2"])
 species = results["species"]
 print("\n".join(species.provenance.lines()))
+```
+
+Output:
+
+```text
+database: aq17-thermofun.json
+templates: species-properties
+ThermoFun ..., physical constants codata1986
+data: format legacy, dataset aq17-gem, sha256 ...
+water: H2O@: WaterIAPWS95/reaktoro, JohnsonNorton91/reaktoro
+conventions: concentration_scale = molality, energy_reference = benson_helgeson, standard_pressure = 1bar, water_reference = geochemical
 ```
 
 <!-- check
@@ -259,11 +327,17 @@ To read a CSV file with its lines in pandas: `pandas.read_csv(path, comment="#")
 setup = tf.tables.template(["species-properties", "batch-reference"], database="aq17-thermofun.json",
                            records={"class": "aqueous_solute", "elements": ["Ca"]})
 calculation = setup.batch("species")
-print(calculation.properties[0])  # prints gibbs_energy
+print(calculation.properties[0])
 
 output = calculation.run()                  # the Output of ThermoBatch
 
 path = calculation.write("batch.csv")       # in the layout of the setup, with how it was made
+```
+
+Output:
+
+```text
+gibbs_energy
 ```
 
 <!-- check

@@ -27,6 +27,16 @@ conventions = tf.EngineConventions()
 conventions.water_reference = "steam_tables"
 engine.setConventions(conventions)
 steam = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
+
+print(round(geochemical.gibbs_energy.val, 2), "J/mol: G of water on the geochemical scale")
+print(round(steam.gibbs_energy.val, 2), "J/mol: G of water on the scale of the steam tables")
+```
+
+Output:
+
+```text
+-237181.72 J/mol: G of water on the geochemical scale
+-82.18 J/mol: G of water on the scale of the steam tables
 ```
 
 On the steam tables, G = H - T S, and S is 0 at the triple point of water.
