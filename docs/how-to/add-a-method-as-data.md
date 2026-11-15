@@ -29,8 +29,11 @@ if not tf.methods.symbolicAvailable():
 
 ## Step 1. Write the source
 
-The source is the model as in the paper. The names T, P, Tr, Pr, R, Gr, Hr, Sr, Cpr and Vr are known.
-Declare each parameter with its SI unit. `python -m thermofun.method_tool new cp` prints a template.
+The source is the model as in the paper: here the heat capacity Cp(T) = a + b T + c/T² of Maier and Kelley.
+`"form": "cp"` says that the expression is Cp. It is all you write: the record does not say how G, H and S follow from Cp,
+because that is the same for every Cp, and Step 2 does it. The names T, P, Tr, Pr, R, Gr, Hr, Sr, Cpr and Vr are known
+(Gr, Hr, Sr, Cpr and Vr are the reference values of the record that uses the method). Declare each parameter with its SI unit.
+`python -m thermofun.method_tool new cp` prints a template.
 
 ```python
 from thermofun import method_tool as methods
@@ -44,13 +47,25 @@ record = {
 
 ## Step 2. Build the expression
 
-`build` integrates the source with SymPy. It writes `expression`, `generator` and `source_hash`.
-From a shell the command is `python -m thermofun.method_tool build record.yaml`.
+`build` turns the source into G, with SymPy, once. For the form `cp` it integrates from the reference temperature Tr to T:
+
+- ΔH = ∫ Cp dT and ΔS = ∫ Cp/T dT;
+- G = Gr - Sr (T - Tr) + ΔH - T ΔS.
+
+It writes this G into the record, under `expression`, with `generator` and `source_hash`. From a shell the command is
+`python -m thermofun.method_tool build record.yaml`.
 
 ```python
 built = methods.build(record)
 print(built["expression"]["G"])
 ```
+
+The record now holds G written out (for example `examples/v2/methods/maier-kelley-cp.yaml`, the key `expression` at the end).
+The engine reads only this G, never the form: S = -∂G/∂T, H = G + T S, Cp = -T ∂²G/∂T² and V = ∂G/∂P, with exact
+derivatives. So the Cp that the engine gives back is the Cp of the source, and S starts at Sr. The other forms work the same
+way: `cp_increment` and `volume` are integrated to a ΔG, and `gibbs` and `gibbs_increment` are G or ΔG as written.
+`source_hash` ties the G to the source: if one changes without the other, the checks V2-SYM-001 and 002 report it when the file
+is read.
 
 <!-- check
 ```python
