@@ -169,6 +169,102 @@ def test_wrong_input_of_a_problem():
         fitting.Problem(engine_of(), KEYS[:1], [fitting.Observation("Q", "G", 300.0, 1e5, 0.0, 0.0)])
 
 
+def target_Cp(T):
+    return tf.ThermoEngine(tf.Database(json.dumps(dataset()))).thermoPropertiesSubstance(T, 1e5, "Q").heat_capacity_cp.val
+
+
+def test_a_property_constraint_holds_exactly():
+    data = observations(dataset(), noise=0.2)
+    wanted = target_Cp(700.0)
+    free = fitting.Problem(wrong_start(), KEYS, data).solve()
+    engine = wrong_start()
+    result = fitting.Problem(engine, KEYS, data, constraints=[fitting.PropertyConstraint("Q", "Cp", 700.0, 1e5, wanted)]).solve()
+    assert result.success
+    assert abs(engine.thermoPropertiesSubstance(700.0, 1e5, "Q").heat_capacity_cp.val - wanted) < 1e-9 * wanted
+    assert abs(result.constraint_residuals[0]) < 1e-9 * wanted
+    assert abs(free.values["Q/CpPolynomial/a0"] + 700.0 * free.values["Q/CpPolynomial/a1"] - wanted) > 1e-6   # without it, not held
+    assert result.degrees_of_freedom == len(data) + 1 - len(KEYS)
+    for name, value in result.values.items():
+        truth = {"Q/G": TRUTH["G"], "Q/S": TRUTH["S"], "Q/CpPolynomial/a0": TRUTH["a0"], "Q/CpPolynomial/a1": TRUTH["a1"]}[name]
+        assert abs(value - truth) < 4.0 * result.uncertainties[name] + 1e-9 * abs(truth)
+
+
+def test_a_relation_holds_exactly_and_the_covariance_follows_it():
+    import numpy
+    data = observations(dataset(), noise=0.2)
+    terms = {("Q", "CpPolynomial", "a0"): 1.0, ("Q", "CpPolynomial", "a1"): 1000.0}
+    value = TRUTH["a0"] + 1000.0 * TRUTH["a1"]
+    result = fitting.Problem(wrong_start(), KEYS, data, constraints=[fitting.Relation(terms, value)]).solve()
+    assert result.values["Q/CpPolynomial/a0"] + 1000.0 * result.values["Q/CpPolynomial/a1"] == pytest.approx(value, rel=1e-12)
+    # the combination the relation fixes has no variance; the others keep theirs
+    C = numpy.array(result.covariance)
+    v = numpy.array([1000.0 if n.endswith("a1") else 1.0 if n.endswith("a0") else 0.0 for n in result.names])
+    assert abs(v @ C @ v) < 1e-12 * C[result.names.index("Q/CpPolynomial/a0")][result.names.index("Q/CpPolynomial/a0")]
+    assert result.uncertainties["Q/G"] > 0.0
+
+
+def test_a_relation_may_name_a_parameter_that_is_not_fitted():
+    data = observations(dataset())
+    engine = wrong_start()
+    engine.parameter("Q", "CpPolynomial", "a1").setValue(TRUTH["a1"])
+    # a0 = 2 a1 + const, with a1 fixed at its value: a0 is set by the relation alone
+    relation = fitting.Relation({("Q", "CpPolynomial", "a0"): 1.0, ("Q", "CpPolynomial", "a1"): -2.0}, TRUTH["a0"] - 2.0 * TRUTH["a1"])
+    result = fitting.Problem(engine, KEYS[:3], data, constraints=[relation]).solve()
+    assert result.values["Q/CpPolynomial/a0"] == pytest.approx(TRUTH["a0"], rel=1e-12)
+    assert result.values["Q/G"] == pytest.approx(TRUTH["G"], rel=1e-8)
+
+
+HKF = [("Na+", "HKF88", n) for n in ("a1", "a2", "a3", "a4", "c1", "c2", "omega")]
+
+
+def hkf_observations():
+    engine = engine_of()
+    out = []
+    for P in (0.0, 500e5, 1000e5, 2000e5):
+        for t in range(0, 301, 25):
+            T = 273.15 + max(t, 1)
+            out.append(fitting.Observation("Na+", "G", T, P, engine.thermoPropertiesSubstance(T, P, "Na+").gibbs_energy.val, 10.0))
+    return out
+
+
+def test_a_searched_parameter_and_the_others_are_recovered():
+    engine = engine_of()
+    truth = {h.name(): h.value() for h in (engine.parameter(*k) for k in HKF)}
+    start = engine_of()
+    for k, f in zip(HKF, (1.2, 0.8, 1.1, 0.9, 1.3, 0.7, 1.4)):
+        h = start.parameter(*k)
+        h.setValue(h.value() * f)
+    result = fitting.Problem(start, HKF, hkf_observations(), search=("Na+", "HKF88", "omega")).solve(search_tol=1e-3)
+    assert result.success, result.message
+    assert result.values["Na+/HKF88/omega"] == pytest.approx(truth["Na+/HKF88/omega"], rel=1e-7)
+    for name in ("Na+/HKF88/c1", "Na+/HKF88/c2", "Na+/HKF88/a4"):
+        assert result.values[name] == pytest.approx(truth[name], rel=1e-5)
+    assert result.weighted_rms < 1e-4
+
+
+def test_a_volume_is_fitted_in_m3_per_mol():
+    engine = engine_of()
+    a1 = engine.parameter("Na+", "HKF88", "a1").value()
+    data = [fitting.Observation("Na+", "V", T, P, engine.thermoPropertiesSubstance(T, P, "Na+").volume.val, 1e-8)
+            for T in (298.15, 350.0, 400.0) for P in (1e5, 500e5)]
+    start = engine_of()
+    start.parameter("Na+", "HKF88", "a1").setValue(a1 * 1.5)
+    result = fitting.Problem(start, [("Na+", "HKF88", "a1")], data).solve()
+    assert result.values["Na+/HKF88/a1"] == pytest.approx(a1, rel=1e-8)
+
+
+def test_wrong_constraints_and_search():
+    data = observations(dataset())
+    with pytest.raises(ValueError, match="Unknown property"):
+        fitting.Problem(engine_of(), KEYS, data, constraints=[fitting.PropertyConstraint("Q", "Cv", 300.0, 1e5, 1.0)])
+    with pytest.raises(ValueError, match="PropertyConstraint or a Relation"):
+        fitting.Problem(engine_of(), KEYS, data, constraints=[("Q", "Cp", 300.0, 1e5, 1.0)])
+    with pytest.raises(ValueError, match="searched parameter"):
+        fitting.Problem(engine_of(), KEYS, data, search=("Q", "", "H"))
+    # constraints count: two observations and two constraints fix four parameters
+    fitting.Problem(engine_of(), KEYS, data[:2], constraints=[fitting.Relation({KEYS[0]: 1.0}, 0.0), fitting.Relation({KEYS[1]: 1.0}, 0.0)])
+
+
 def test_the_examples_of_the_guide_run():
     text = open("docs/how-to/fit-parameters.md").read()
     blocks = re.findall(r"```python\n(.*?)```", text, re.S)

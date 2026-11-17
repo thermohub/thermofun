@@ -102,6 +102,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **`thermofun.fitting`: exact constraints and a searched parameter.** `PropertyConstraint(symbol, property, T, P, value, terms)`
+  holds a property at T, P at a given value (for example Cp and V of an HKF species at 25 °C); `Relation(terms, value)` holds a
+  linear relation among parameters (for example a4 = -4.134 a2 - 27790 cal of Shock and Helgeson 1988). `Problem(...,
+  search=key)` searches one parameter in one dimension and solves the others for each of its values, the method of OptimB
+  (Shvarov 2015) for omega of HKF. `Result.weighted_rms` and `Result.constraint_residuals` are new; the covariance keeps to the
+  directions the constraints leave free. Test: the UO2+2 example of OptimB (`pytests/test_fitting_hkf.py`).
 - `Database::value(path)` and `setValue(path, json)` (Python `get(path)` and `set(path, value)`) read and change a value of a record by
   its path, a JSON pointer such as `/substances/Calcite/standard_state_properties/G`. Python takes and gives Python objects, so a
   record is changed without `json.dumps`. `Database(dict)` reads a dict in the v2 format. `Database::summary()` gives the size of
@@ -201,6 +207,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`thermofun.fitting` scaled observations of V and dV by 1e-5** (a factor left from J/bar), and not their derivatives: a fit to
+  volumes was wrong. V is in m3/mol, as the engine gives it.
 - **`BirchMurnaghan47` gave V about V0 too large** away from the reference state: the code of GEMS added `V0 + V(T, P)` to the
   volume before it. The default implementation `consistent` sets V to the volume of the equation (G, H and S were right and
   do not change). The implementation `gems` keeps the old result. Tested against an independent solution of the equation.
