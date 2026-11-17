@@ -102,6 +102,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Fit templates and tasks** (`thermofun.fitting`): a template (`thermofun/fit_templates/HKF88.yaml`) holds what a fit of one
+  method needs (the parameters and their units, the searched one, the constraints of the method as switches, conventions,
+  rules that warn, plausible ranges, presets); a task names the template, a record, a preset, given values and data (rows or
+  CSV), as a dict, YAML or JSON. `fitting.Task(engine, task)` builds the `Problem`; `task.solve()`, `task.report(result)` in the
+  units of the template, `task.warnings`. Constraints are expressions linear in the parameters (`fitting.evaluate`: arithmetic
+  only). The `fitting` extra now also installs PyYAML. How-to: "Fit parameters to measured data", section 7.
 - **`thermofun.fitting`: exact constraints and a searched parameter.** `PropertyConstraint(symbol, property, T, P, value, terms)`
   holds a property at T, P at a given value (for example Cp and V of an HKF species at 25 °C); `Relation(terms, value)` holds a
   linear relation among parameters (for example a4 = -4.134 a2 - 27790 cal of Shock and Helgeson 1988). `Problem(...,

@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+#
+# Fit template of the HKF88 method: what can be fitted, and how. A fit task names this template, a record, its data
+# and the given values; thermofun.fitting.Task turns both into one fitting.Problem.
+#
+# Units: `unit` of a parameter is the unit in which the template and the task write it (start values, search step);
+# the fit itself is in SI. Expressions are in SI and linear in the parameters; their names: Tr, Pr (the reference
+# T, P), cal (4.184 J), given.<property> (the given values of the task), solvent.bornQ, solvent.bornX, solvent.bornY
+# (Born functions of the engine's water at Tr, Pr), born_reference.Q, .X (of the chosen convention), and in rules
+# span_T, span_P (the range of T, P of the data).
+
+fit_template:
+  name: HKF88
+  method: HKF88
+  description: >-
+    HKF parameters of one aqueous species from G (or other properties) at T, P, with the constraints and the search of
+    OptimB (Shvarov 2015): omega searched in one dimension, the other parameters solved exactly for each omega.
+  reference: >-
+    Shvarov (2015) Appl. Geochem. 55, 17; Shock and Helgeson (1988) GCA 52, 2009; Sverjensky, Shock and Helgeson
+    (1997) GCA 61, 1359.
+
+  parameters:
+    G:     {method: "", unit: cal/mol}
+    S:     {method: "", unit: cal/(mol*K)}
+    a1:    {unit: cal/(mol*bar), display_scale: 10}
+    a2:    {unit: cal/mol, display_scale: 1.0e-2}
+    a3:    {unit: cal*K/(mol*bar)}
+    a4:    {unit: cal*K/mol, display_scale: 1.0e-4}
+    c1:    {unit: cal/(mol*K)}
+    c2:    {unit: cal*K/mol, display_scale: 1.0e-4}
+    omega: {unit: cal/mol, display_scale: 1.0e-5, search: {step: 1000, tol: 0.01}}   # step and tol in cal/mol
+
+  conventions:
+    born_reference:    # the Born functions at Tr, Pr in the constraints on Cp and V at 25 C
+      default: solvent
+      choices:
+        solvent: {}    # those of the water methods of the engine: Q = solvent.bornQ, X = solvent.bornX
+        SH88_fixed: {Q: 5.903e-12, X: -3.09e-7}   # 1/Pa, 1/K2: Shock and Helgeson (1988); OptimB, SUPCRT-era fits
+
+  constraints:         # all off unless a preset or the task switches them on
+    Cp_reference:
+      property: Cp
+      value: given.Cp
+      terms: {omega: "-Tr*(solvent.bornX - born_reference.X)"}
+      needs_any_free: [c1, c2, omega]
+      description: Cp at Tr, Pr equals the given value
+    V_reference:
+      property: V
+      value: given.V
+      terms: {omega: "solvent.bornQ - born_reference.Q"}
+      needs_any_free: [a1, a2, a3, a4, omega]
+      description: V at Tr, Pr equals the given value
+    a2_a4_SH88:
+      relation: {a4: 1, a2: 4.134}
+      value: "-27790*cal"
+      description: a4 = -4.134 a2 - 27790 cal K/mol (Shock and Helgeson 1988)
+    c2_from_Cp_SSH97:
+      relation: {c2: 1}
+      value: "2037*given.Cp - 30346*cal"
+      description: c2 = 2037 Cp - 30346 (cal; Sverjensky, Shock and Helgeson 1997)
+    c1_from_Cp_SSH97:
+      relation: {c1: 1, omega: "Tr*(-3.09e-7)"}
+      value: "0.58606*given.Cp + 6.1666*cal"
+      description: c1 = 0.58606 Cp - omega Tr X + 6.1666 (cal; Sverjensky, Shock and Helgeson 1997, X of SH88)
+
+  rules:               # warnings before the fit (the advice of the OptimB manual)
+    - when: "span_P < 100e5"
+      of: [a1, a2, a3, a4]
+      max_free: 1
+      unless_on: [V_reference, a2_a4_SH88]
+      message: data only near one pressure fix at most one of a1-a4; use V_reference or a2_a4_SH88
+    - when: "span_T < 50"
+      of: [c1, c2]
+      max_free: 1
+      unless_on: [Cp_reference, c2_from_Cp_SSH97, c1_from_Cp_SSH97]
+      message: data in a narrow T range do not fix both c1 and c2; use Cp_reference
+
+  plausible: {}        # ranges in display units, to warn after a fit; to be measured from the slop98 records
+
+  presets:
+    psat_only:         # data along the saturation curve (the UO2+2 example of OptimB)
+      free: [a1, a4, c1, c2, omega]
+      constraints: [Cp_reference, V_reference, a2_a4_SH88]
+    wide_TP:           # data to high T and P (the OH- example of OptimB)
+      free: [a2, a4, c1, c2, omega]
+      constraints: [Cp_reference, V_reference, a2_a4_SH88]

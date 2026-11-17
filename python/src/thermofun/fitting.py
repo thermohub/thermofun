@@ -355,3 +355,301 @@ class Problem:
                     return x0, ok, message, SimpleNamespace(evaluations=evaluations[0], steps=steps)
         except StopIteration:
             return x0, False, f"search stopped after {max_evaluations} evaluations", SimpleNamespace(evaluations=evaluations[0], steps=steps)
+
+
+# ---- fit templates and tasks -------------------------------------------------------------------------------------
+# A fit template (fit_templates/<name>.yaml) says what can be fitted for one method and how: the parameters and their
+# units, the constraints (each a switch), conventions, rules and presets. A task names a template, a record, its
+# data and given values. Task(engine, task) turns both into one Problem.
+
+import ast as _ast
+import operator as _operator
+import os as _os
+
+TEMPLATE_FOLDER = _os.path.join(_os.path.dirname(__file__), "fit_templates")
+_SI_OF_PROPERTY = {"G": "J/mol", "H": "J/mol", "S": "J/(mol*K)", "Cp": "J/(mol*K)", "V": "m3/mol", "U": "J/mol", "A": "J/mol",
+                   "logK": "1", "lnK": "1", "dG": "J/mol", "dH": "J/mol", "dS": "J/(mol*K)", "dCp": "J/(mol*K)", "dV": "m3/mol"}
+_OPERATORS = {_ast.Add: _operator.add, _ast.Sub: _operator.sub, _ast.Mult: _operator.mul, _ast.Div: _operator.truediv,
+              _ast.Pow: _operator.pow}
+_COMPARISONS = {_ast.Lt: _operator.lt, _ast.LtE: _operator.le, _ast.Gt: _operator.gt, _ast.GtE: _operator.ge}
+
+
+def evaluate(expression, names):
+    """The value of an expression of a template: numbers, names (dotted, as given.Cp), + - * / **, parentheses, and
+    one comparison (< <= > >=) for the rules. Nothing else: no calls, no other attributes."""
+    if isinstance(expression, (int, float)) and not isinstance(expression, bool):
+        return float(expression)
+
+    def name_of(node):
+        if isinstance(node, _ast.Name):
+            return node.id
+        if isinstance(node, _ast.Attribute):
+            return f"{name_of(node.value)}.{node.attr}"
+        raise ValueError(f"Not allowed in an expression of a fit template: {expression!r}")
+
+    def value(node):
+        if isinstance(node, _ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+            return float(node.value)
+        if isinstance(node, _ast.BinOp) and type(node.op) in _OPERATORS:
+            return _OPERATORS[type(node.op)](value(node.left), value(node.right))
+        if isinstance(node, _ast.UnaryOp) and isinstance(node.op, (_ast.USub, _ast.UAdd)):
+            v = value(node.operand)
+            return -v if isinstance(node.op, _ast.USub) else v
+        if isinstance(node, _ast.Compare) and len(node.ops) == 1 and type(node.ops[0]) in _COMPARISONS:
+            return _COMPARISONS[type(node.ops[0])](value(node.left), value(node.comparators[0]))
+        if isinstance(node, (_ast.Name, _ast.Attribute)):
+            name = name_of(node)
+            if name not in names:
+                raise ValueError(f"Unknown name {name} in {expression!r}. Known: {', '.join(sorted(names))}.")
+            return names[name]
+        raise ValueError(f"Not allowed in an expression of a fit template: {expression!r}")
+
+    return value(_ast.parse(str(expression).strip(), mode="eval").body)
+
+
+def _read_document(source, key):
+    """A dict, or the path of a YAML or JSON file; the part under `key` if the document has it."""
+    if isinstance(source, dict):
+        document = source
+    else:
+        with open(source, encoding="utf-8") as f:
+            text = f.read()
+        if str(source).endswith((".yaml", ".yml")):
+            try:
+                import yaml
+            except ImportError as error:
+                raise ImportError("Fit templates and tasks in YAML need PyYAML: pip install thermofun[fitting]") from error
+            document = yaml.safe_load(text)
+        else:
+            import json
+            document = json.loads(text)
+    return document.get(key, document)
+
+
+def load_template(name_or_path):
+    """A fit template: a name of the templates of ThermoFun (template_names()), a path, or a dict."""
+    if isinstance(name_or_path, str) and not _os.path.exists(name_or_path):
+        path = _os.path.join(TEMPLATE_FOLDER, f"{name_or_path}.yaml")
+        if not _os.path.exists(path):
+            raise ValueError(f"No fit template {name_or_path!r}. ThermoFun has: {', '.join(template_names())}.")
+        name_or_path = path
+    return _read_document(name_or_path, "fit_template")
+
+
+def template_names():
+    """The fit templates that come with ThermoFun."""
+    if not _os.path.isdir(TEMPLATE_FOLDER):
+        return []
+    return sorted(f[:-5] for f in _os.listdir(TEMPLATE_FOLDER) if f.endswith(".yaml"))
+
+
+def _unit(text):
+    return str(text).replace(".", "*")   # the units of the catalog write J/(mol.K); the converter wants J/(mol*K)
+
+
+def _to_si(quantity, si_unit):
+    """A number (SI) or a text "number unit" in SI."""
+    from thermofun import convert_units
+    if isinstance(quantity, (int, float)):
+        return float(quantity)
+    number, _, unit = str(quantity).strip().partition(" ")
+    unit = unit.strip()
+    return float(number) if not unit else convert_units(float(number), _unit(unit), _unit(si_unit))
+
+
+class Task:
+    """A fit set up from a template and a task (a dict or a YAML or JSON file under the key fit_task):
+
+        template: HKF88                  # a name of template_names(), a path, or a dict
+        record: UO2+2
+        preset: psat_only                # optional: the free parameters and the constraints that are on
+        free: [a1, a4, c1, c2, omega]    # optional: instead of those of the preset
+        switches: {V_reference: off}     # optional: constraints on or off, after the preset
+        conventions: {born_reference: SH88_fixed}
+        given: {Cp: 10.04 cal/(mol*K), V: 6.1 cm3/mol}   # values the constraints use; a number is SI
+        start: {omega: 144618}           # optional: start values, in the units of the template
+        data:                            # the observations
+          property: G                    # the default of the rows; a column "property" can change it
+          unit: kJ/mol                   # of the values and the uncertainties
+          columns: [T_C, P_bar, value, uncertainty]   # T_C or T_K; P_bar, P_MPa or P_Pa (0 = Psat); uncertainty or weight (= 1/uncertainty)
+          rows: [[10, 0, -954.45, 0.5], ...]          # or file: data.csv (a header row with the column names)
+        solve: {search_step: 1000}       # optional: options of Problem.solve, the search ones in the unit of the parameter
+
+    Attributes: problem, warnings (from the rules of the template), free, constraints_on. solve() gives a Result;
+    report(result) gives the values in the units of the template."""
+
+    def __init__(self, engine, task):
+        spec = _read_document(task, "fit_task")
+        self.engine = engine
+        self.spec = spec
+        self.template = load_template(spec["template"])
+        t = self.template
+        self.record = spec["record"]
+        self.method = t["method"]
+        parameters = t["parameters"]
+        preset = t.get("presets", {}).get(spec["preset"]) if spec.get("preset") else {}
+        if preset is None:
+            raise ValueError(f"No preset {spec['preset']!r} in the template {t['name']}. It has: {', '.join(t.get('presets', {}))}.")
+        self.free = list(spec.get("free", preset.get("free", [])))
+        if not self.free:
+            raise ValueError("The task fits no parameters: give a preset or free.")
+        for name in self.free:
+            if name not in parameters:
+                raise ValueError(f"{name} is not a parameter of the template {t['name']}. It has: {', '.join(parameters)}.")
+        on = {name: False for name in t.get("constraints", {})}
+        for name in preset.get("constraints", []):
+            on[name] = True
+        for name, state in spec.get("switches", {}).items():
+            if name not in on:
+                raise ValueError(f"No constraint {name} in the template {t['name']}. It has: {', '.join(on)}.")
+            on[name] = state is True or str(state).lower() in ("on", "true", "yes")
+        self.constraints_on = [name for name, state in on.items() if state]
+
+        for name, value in spec.get("start", {}).items():
+            self._handle(name).setValue(_to_si(f"{value} {parameters[name]['unit']}", self._si_unit(name)))
+        self.observations = self._observations(spec["data"])
+        self.names = self._names(spec)
+        self.warnings = self._rules()
+        constraints = [self._constraint(name) for name in self.constraints_on]
+        search = None
+        for name in self.free:
+            if "search" in parameters[name]:
+                search = self._key(name)
+        self.solve_options = self._solve_options(spec.get("solve", {}), search)
+        self.problem = Problem(engine, [self._key(n) for n in self.free], self.observations, constraints, search)
+
+    # parameters
+    def _key(self, name):
+        method = self.template["parameters"][name].get("method", self.method)
+        return (self.record, method, name)
+
+    def _handle(self, name):
+        return self.engine.parameter(*self._key(name))
+
+    def _si_unit(self, name):
+        if self.template["parameters"][name].get("method", self.method) == "":
+            return _SI_OF_PROPERTY[name]
+        from thermofun.PyThermoFun import methods
+        spec = next(s for s in methods.catalog() if s["id"] == self.method)
+        return next(p["si_unit"] for p in spec["parameters"] if p["name"] == name)
+
+    def _from_template_unit(self, name, value):
+        return _to_si(f"{value} {self.template['parameters'][name]['unit']}", self._si_unit(name))
+
+    # data
+    def _observations(self, data):
+        if "file" in data:
+            import csv
+            with open(data["file"], newline="", encoding="utf-8") as f:
+                rows = list(csv.reader(f))
+            columns, rows = rows[0], rows[1:]
+        else:
+            columns, rows = data["columns"], data["rows"]
+        columns = [c.strip() for c in columns]
+        unit = data.get("unit")
+        out = []
+        for row in rows:
+            r = dict(zip(columns, row))
+            prop = str(r.get("property", data.get("property", "G"))).strip()
+            T = float(r["T_C"]) + 273.15 if "T_C" in r else float(r["T_K"])
+            P = float(r["P_bar"]) * 1e5 if "P_bar" in r else float(r["P_MPa"]) * 1e6 if "P_MPa" in r else float(r["P_Pa"])
+            factor = _to_si(f"1 {unit}", _SI_OF_PROPERTY[prop]) if unit else 1.0
+            if "uncertainty" in r:
+                u = float(r["uncertainty"])
+            elif "weight" in r:
+                if float(r["weight"]) == 0.0:
+                    continue          # weight 0: the point is not used (OptimB)
+                u = 1.0 / float(r["weight"])
+            else:
+                u = 1.0
+            out.append(Observation(str(r.get("symbol", self.record)).strip(), prop, T, P, float(r["value"]) * factor, u * factor))
+        if not out:
+            raise ValueError("The task has no data.")
+        return out
+
+    # names of the expressions
+    def _names(self, spec):
+        t = self.template
+        Tr, Pr = 298.15, 1e5
+        names = {"Tr": Tr, "Pr": Pr, "cal": 4.184}
+        for prop, value in spec.get("given", {}).items():
+            names[f"given.{prop}"] = _to_si(value, _SI_OF_PROPERTY.get(prop, "1"))
+        try:
+            born = self.engine.electroPropertiesSolvent(Tr, Pr, "H2O@")
+            names.update({"solvent.bornQ": born.bornQ.val, "solvent.bornX": born.bornX.val, "solvent.bornY": born.bornY.val})
+        except Exception:
+            pass                      # no water: the expressions that need it fail with the list of names
+        for convention, setup in t.get("conventions", {}).items():
+            choice = spec.get("conventions", {}).get(convention, setup.get("default"))
+            if choice not in setup.get("choices", {}):
+                raise ValueError(f"No choice {choice!r} of {convention} in the template {t['name']}. It has: {', '.join(setup.get('choices', {}))}.")
+            values = setup["choices"][choice] or {}
+            if convention == "born_reference" and not values:
+                values = {"Q": names.get("solvent.bornQ"), "X": names.get("solvent.bornX")}
+            for k, v in values.items():
+                if v is not None:
+                    names[f"{convention}.{k}"] = float(v)
+        self.conventions = {c: spec.get("conventions", {}).get(c, s.get("default")) for c, s in t.get("conventions", {}).items()}
+        T = [o.T for o in self.observations]
+        P = [o.P if o.P > 0.0 else max(Pr, self.engine.saturationPressure(o.T)) for o in self.observations]
+        names["span_T"], names["span_P"] = max(T) - min(T), max(P) - min(P)
+        return names
+
+    def _constraint(self, name):
+        c = self.template["constraints"][name]
+        needs = c.get("needs_any_free")
+        if needs and not any(n in self.free for n in needs):
+            raise ValueError(f"The constraint {name} needs one of {', '.join(needs)} fitted.")
+        terms = {self._key(p): evaluate(e, self.names) for p, e in c.get("terms", {}).items()}
+        value = evaluate(c["value"], self.names)
+        if "property" in c:
+            T = evaluate(c.get("T", "Tr"), self.names)
+            P = evaluate(c.get("P", "Pr"), self.names)
+            return PropertyConstraint(self.record, c["property"], T, P, value, terms)
+        relation = {self._key(p): evaluate(e, self.names) for p, e in c["relation"].items()}
+        for key, coefficient in terms.items():
+            relation[key] = relation.get(key, 0.0) + coefficient
+        return Relation(relation, value)
+
+    def _rules(self):
+        warnings = []
+        for rule in self.template.get("rules", []):
+            if not evaluate(rule["when"], self.names):
+                continue
+            free = [n for n in rule["of"] if n in self.free]
+            if len(free) > rule["max_free"] and not any(n in self.constraints_on for n in rule.get("unless_on", [])):
+                warnings.append(f"{', '.join(free)} fitted together: {rule['message']}")
+        return warnings
+
+    def _solve_options(self, options, search):
+        options = dict(options)
+        if search is not None:
+            setup = self.template["parameters"][search[2]]["search"]
+            for option, key in (("search_step", "step"), ("search_tol", "tol")):
+                value = options.get(option, setup.get(key))
+                if value is not None:
+                    options[option] = self._from_template_unit(search[2], value)
+        return options
+
+    def solve(self):
+        """Solve the problem; then add to warnings the values outside the plausible ranges of the template."""
+        result = self.problem.solve(**self.solve_options)
+        for name, (low, high) in (self.template.get("plausible") or {}).items():
+            if name in self.free:
+                shown = self.report(result)[name]["value"]
+                if not low <= shown <= high:
+                    self.warnings.append(f"{name} = {shown:g} is outside the plausible range [{low:g}, {high:g}] of the template")
+        return result
+
+    def report(self, result):
+        """The fitted values and their uncertainties in the units of the template, times display_scale (the
+        convention of OptimB and SUPCRT: a1*10, a2*1e-2, a4*1e-4, c2*1e-4, omega*1e-5)."""
+        out = {}
+        for name in self.free:
+            p = self.template["parameters"][name]
+            per_si = 1.0 / self._from_template_unit(name, 1.0)
+            scale = float(p.get("display_scale", 1.0))
+            key = "/".join(k for k in self._key(name) if k)
+            out[name] = {"value": result.values[key] * per_si * scale, "uncertainty": result.uncertainties[key] * per_si * scale,
+                         "unit": p["unit"], "display_scale": scale}
+        return out

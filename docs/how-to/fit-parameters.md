@@ -250,3 +250,55 @@ assert same.success and abs(same.values["UO2+2/HKF88/omega"] / CAL - 96871) < 5
 -->
 
 With them, omega is 96871 cal/mol: OptimB gives 96374 with its own water model.
+
+## 7. Fit from a template and a task
+
+A **fit template** holds what a fit of one method needs: which parameters can be fitted and in which units, which is
+searched, the constraints of the method (each one a switch), conventions such as the Born functions above, warnings
+for fits the data cannot carry, and presets. ThermoFun has `HKF88` (`fitting.template_names()` lists them). A **task**
+names the template, the record, a preset, the given values and the data. The fit of section 6, as a task:
+
+```python
+task = fitting.Task(tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water, "UO2+2": uo2}})), {
+    "template": "HKF88", "record": "UO2+2", "preset": "psat_only",
+    "given": {"Cp": "10.04 cal/(mol*K)", "V": "6.1 cm3/mol"},
+    "data": {"property": "G", "unit": "kJ/mol", "columns": ["T_C", "P_bar", "value", "uncertainty"],
+             "rows": [[t, 0, g, u] for t, g, u in hovey]}})
+print(task.free, task.constraints_on, task.warnings)
+result = task.solve()
+shown = task.report(result)
+print("omega", round(shown["omega"]["value"], 4), shown["omega"]["unit"], "x", shown["omega"]["display_scale"])
+```
+
+Output:
+
+```text
+['a1', 'a4', 'c1', 'c2', 'omega'] ['Cp_reference', 'V_reference', 'a2_a4_SH88'] []
+omega 0.9738 cal/mol x 1e-05
+```
+
+<!-- check
+```python
+assert abs(result.values["UO2+2/HKF88/omega"] / CAL - 97378) < 1
+```
+-->
+
+The preset `psat_only` frees a1, a4, c1, c2 and omega and switches on the three constraints. What a task can change:
+
+| Key | Does |
+|---|---|
+| `preset` | the free parameters and the constraints that are on |
+| `free` | the free parameters, instead of those of the preset |
+| `switches` | constraints on or off, for example `{"V_reference": "off", "c2_from_Cp_SSH97": "on"}` |
+| `conventions` | for example `{"born_reference": "SH88_fixed"}`: Cp and V as OptimB imposes them |
+| `start` | start values, in the units of the template |
+| `data` | `rows` or `file` (CSV with a header); columns `T_C` or `T_K`, `P_bar`, `P_MPa` or `P_Pa` (0: Psat), `value`, and `uncertainty` or `weight` (1/uncertainty; 0 leaves the point out) |
+
+A task is also a YAML or JSON file with the same keys under `fit_task`: `fitting.Task(engine, "uo2.yaml")`.
+`task.warnings` lists what the rules of the template find before the fit (for example a1-a4 all free with data at one
+pressure) and values outside the plausible ranges after it. `task.report(result)` gives the values in the units of the
+template, times `display_scale`: a1×10, a2×10⁻², a4×10⁻⁴, c2×10⁻⁴, omega×10⁻⁵, as in SUPCRT and OptimB.
+
+The template itself is a YAML file in `thermofun/fit_templates`. Its constraints are written as expressions linear in
+the parameters, in SI, for example `value: "2037*given.Cp - 30346*cal"`; the names they may use are listed at the top
+of `HKF88.yaml`.
