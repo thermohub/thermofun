@@ -265,10 +265,12 @@ def test_wrong_constraints_and_search():
     fitting.Problem(engine_of(), KEYS, data[:2], constraints=[fitting.Relation({KEYS[0]: 1.0}, 0.0), fitting.Relation({KEYS[1]: 1.0}, 0.0)])
 
 
-def test_the_examples_of_the_guide_run():
+def test_the_examples_of_the_guide_run_and_print_what_the_page_shows():
+    from docs_outputs import expected_output, run_python
     text = open("docs/how-to/fit-parameters.md").read()
-    blocks = re.findall(r"```python\n(.*?)```", text, re.S)
-    assert len(blocks) >= 4        # the examples, and the checks that the page does not show
     scope = {}
-    for block in blocks:
-        exec(block, scope)
+    ran = 0
+    for m in re.finditer(r"```python\n(.*?)```", text, re.S):   # the examples, and the checks that the page does not show
+        run_python(m[1], scope, "fit-parameters.md", expected_output(text, m.end()))
+        ran += 1
+    assert ran >= 9
