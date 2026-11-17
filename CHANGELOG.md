@@ -9,6 +9,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed, read before you update
 
+- **HKF88: the g function as SUPCRT92, and held in steam.** The difference function f of Shock et al. (1992) is used only in
+  its region, 155-355 °C and P below 1000 bar, as SUPCRT92 does. From 2017 ThermoFun used it also above 355 °C below 1000 bar,
+  where it grows as ((T - 155)/300)^16: g was +0.35 Å at 450 °C and 500 bar, +800 Å at 600 °C and 300 bar, where it is
+  about -0.1 Å. g now jumps at 355 °C below 1000 bar (by -0.008 Å at 300 bar), as in SUPCRT92. Below 350 kg/m3 of water
+  (steam; HKF is not valid there and SUPCRT92 refuses it) g is held at its value at 350 kg/m3: without this, g goes to
+  about -2 Å, the effective radius of an ion to 0 or below, and G to as much as 1e8 kJ/mol. Results of aqueous species
+  change above 355 °C below 1000 bar and wherever water is below 350 kg/m3; for example CoCl4-2 (defined by a reaction)
+  at 400 °C and 800 bar: G -658.40 instead of -654.89 kJ/mol. G and V of Na+ now agree with the program OptimB
+  (Shvarov 2015) to 0.01 cm3/mol. Test: `pytests/test_hkf_g_region.py`.
 - **V is in m3/mol** in all results (`volume`, `reaction_volume`, and `substanceProperties` of the water methods), SI as P
   in Pa, so dG/dP = V (review Q4, decision 10). Before: J/bar (1 J/bar = 1e-5 m3/mol). A consumer that converts V must
   change its factor: J/bar to cm3/mol was 10, m3/mol to cm3/mol is 1e6. C++: `THERMOFUN_VOLUME_SI` is defined in
@@ -214,6 +223,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Golden comparison:** the entries of `MgCO3-bm` (BirchMurnaghan47) in `expected_changes.json` named the database by its
+  path, so they matched nothing and `golden-diff` failed. An entry can now also name state points (`points`), and several
+  entries of one record add up.
 - **`thermofun.fitting` scaled observations of V and dV by 1e-5** (a factor left from J/bar), and not their derivatives: a fit to
   volumes was wrong. V is in m3/mol, as the engine gives it.
 - **`BirchMurnaghan47` gave V about V0 too large** away from the reference state: the code of GEMS added `V0 + V(T, P)` to the

@@ -145,6 +145,10 @@ auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> Ele
 }
 
 
+// The lowest density of water (g/cm3) at which g is calculated from the density: the lower limit of HKF in SUPCRT92
+// (Shock et al. 1992). Below it g is held at its value at this density (owner, 2026-11-17).
+constexpr double kGDensityMin = 0.35;
+
 auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants& constants) -> FunctionG
 {
     // The function G
@@ -199,23 +203,40 @@ auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants
     const auto agTT = 2*ag3;
     const auto bgTT = 2*bg3;
 
-    const auto r =  ps.density/1000.0;
+    if (ps.density < kGDensityMin * 1000.0)
+    {
+        // Below the density range of HKF (SUPCRT92 refuses it): g at the lowest density of the range, a function of T
+        // only. Without this, g goes to ag (about -2 A) as the density goes to 0, the effective radius of an ion goes to 0
+        // or below, and its G to +-1e8 kJ/mol.
+        const auto r = kGDensityMin;
+        g   = ag * pow(1 - r, bg);
+        gT  = g * (agT/ag + bgT*log(1 - r));
+        gTT = g * (agTT/ag - pow(agT/ag, 2) + bgTT*log(1 - r)) + gT*gT/g;
+        // gP, gTP, gPP stay 0
+    }
+    else
+    {
+        const auto r =  ps.density/1000.0;
 
-    const auto alpha  = -ps.densityT/ps.density;
-    const auto beta   =  ps.densityP/ps.density;
-    const auto alphaT = -ps.densityTT/ps.density + alpha*alpha;
-    const auto alphaP = -ps.densityTP/ps.density - alpha*beta;
-    const auto betaP  =  ps.densityPP/ps.density - beta*beta;
+        const auto alpha  = -ps.densityT/ps.density;
+        const auto beta   =  ps.densityP/ps.density;
+        const auto alphaT = -ps.densityTT/ps.density + alpha*alpha;
+        const auto alphaP = -ps.densityTP/ps.density - alpha*beta;
+        const auto betaP  =  ps.densityPP/ps.density - beta*beta;
 
-    g   =  ag * pow(1 - r, bg);
-    gT  =   g * (agT/ag + bgT*log(1 - r) + r*alpha*bg/(1 - r));
-    gP  =  -g * r*beta*bg/(1 - r);
-    gTT =   g * (agTT/ag - pow(agT/ag, 2) + bgTT*log(1 - r) + r*alpha*bg/(1 - r) * (2*bgT/bg + alphaT/alpha - alpha - r*alpha/(1 - r))) + gT*gT/g;
-    gTP =  gP * (bgT/bg - alpha - alphaP/beta - r*alpha/(1 - r)) + gP*gT/g;
-    gPP =  gP * (gP/g + beta + betaP/beta + r*beta/(1 - r));
+        g   =  ag * pow(1 - r, bg);
+        gT  =   g * (agT/ag + bgT*log(1 - r) + r*alpha*bg/(1 - r));
+        gP  =  -g * r*beta*bg/(1 - r);
+        gTT =   g * (agTT/ag - pow(agT/ag, 2) + bgTT*log(1 - r) + r*alpha*bg/(1 - r) * (2*bgT/bg + alphaT/alpha - alpha - r*alpha/(1 - r))) + gT*gT/g;
+        gTP =  gP * (bgT/bg - alpha - alphaP/beta - r*alpha/(1 - r)) + gP*gT/g;
+        gPP =  gP * (gP/g + beta + betaP/beta + r*beta/(1 - r));
+    }
 
-    // Check if the point (T,P) is inside region II, as depicted in Fig. 6 of Shock and others (1992), on page 809
-    if ((TdegC > 155.0 && TdegC < 355.0 && Pbar < 1000.0) || (TdegC>=355 && Pbar >=500 && Pbar < 1000) || (TdegC>=355 && Pbar<500))
+    // Region II of Shock and others (1992), Fig. 6 on page 809: 155-355 C and P <= 1000 bar, where the difference function f
+    // was fitted; the rule of SUPCRT92 (and of this code before 2017). Outside it f is not used: g jumps at 355 C below
+    // 1000 bar (by -0.008 A at 300 bar), but f grows as ((T - 155)/300)^16 and gives g of +5 to +800 A at 500-600 C.
+    // Open at 155 C and 1000 bar, where f and its derivatives are 0 (the derivatives divide by T - 155 and 1000 - P)
+    if (TdegC > 155.0 && TdegC <= 355.0 && Pbar < 1000.0)
     {
         // Use equations (32)-(44) of Shock and others (1992) to compute the function g and its partial derivatives on region II
         const auto af1 = constants.af1; // unit: K

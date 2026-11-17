@@ -46,7 +46,8 @@ It uses 15 temperatures and 6 pressures. The tolerance is 1e-10 (relative), as i
 - `saturation_points` in `expected_changes.json`: a substance or a reaction at P = 0 below the critical temperature may differ from the
   baseline only if its new value equals the value at P = `saturationPressure(T)`, which the comparison also calculates.
 - `expected_changes.json` lists the records that differ on purpose, each with its reason. An entry with `property` and
-  `max_rel` accepts only differences of that property up to that size: the rest of the record stays checked.
+  `max_rel` accepts only differences of that property up to that size: the rest of the record stays checked. An entry
+  with `points` (`[[T, P], ...]`) accepts differences only at those state points. Several entries of one record add up.
 
 ```bash
 bash pytests/golden/build_baseline.sh                 # once: builds the tag golden-baseline

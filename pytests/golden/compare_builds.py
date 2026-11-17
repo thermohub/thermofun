@@ -34,9 +34,10 @@ CHUNK = 150  # records per work item, to bound the memory
 
 
 def expected_changes():
-    """The (database, variant, kind, record) keys whose differences are expected. The value is None for any difference
-    of the record, (property, max_rel) if the entry accepts only small differences of one property, or a set of properties
-    if it accepts any difference of those."""
+    """The (database, variant, kind, record) keys whose differences are expected, each with the list of its entries.
+    An entry is (limit, points). limit: None for any difference of the record, (property, max_rel) if the entry accepts
+    only small differences of one property, or a set of properties if it accepts any difference of those. points: None,
+    or the set of (T, P) where the entry accepts differences (key points: [[T, P], ...] in expected_changes.json)."""
     with open(HERE / "expected_changes.json") as f:
         changes = json.load(f)["changes"]
 
@@ -45,17 +46,26 @@ def expected_changes():
             return frozenset(c["properties"])
         return (c["property"], c["max_rel"]) if "property" in c else None
 
-    return {(c["database"], c["variant"], c["kind"], r): limit(c) for c in changes for r in c["records"]}
+    def points(c):
+        return frozenset((round(float(T), 6), round(float(P), 6)) for T, P in c["points"]) if "points" in c else None
+
+    expected = {}
+    for c in changes:
+        for r in c["records"]:
+            expected.setdefault((c["database"], c["variant"], c["kind"], r), []).append((limit(c), points(c)))
+    return expected
 
 
 def is_expected(d, expected):
-    key = (d["database"], d["variant"], d["kind"], d["record"])
-    if key not in expected:
-        return False
-    limit = expected[key]
-    if isinstance(limit, frozenset):
-        return d["property"] in limit
-    return limit is None or (d["property"] == limit[0] and d["rel"] is not None and d["rel"] <= limit[1])
+    for limit, points in expected.get((d["database"], d["variant"], d["kind"], d["record"]), []):
+        if points is not None and (round(float(d["T"]), 6), round(float(d["P"]), 6)) not in points:
+            continue
+        if isinstance(limit, frozenset):
+            if d["property"] in limit:
+                return True
+        elif limit is None or (d["property"] == limit[0] and d["rel"] is not None and d["rel"] <= limit[1]):
+            return True
+    return False
 
 
 def refused_points():

@@ -41,7 +41,7 @@ Implementation `reaktoro`.
 
 Units of the values: T: K, P: bar, rho: g/cm3, energy: cal/mol. They are not converted.
 
-Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code.
+Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: the difference function f of the g function, used at 155-355 C below 1000 bar (region II). Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code.
 
 Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
@@ -49,7 +49,7 @@ Implementation `gems`.
 
 Units of the values: T: K, P: bar, rho: g/cm3, energy: cal/mol. They are not converted.
 
-Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: g function in the shaded region. Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code.
+Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: the difference function f of the g function, used at 155-355 C below 1000 bar (region II). Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code.
 
 Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
@@ -61,7 +61,7 @@ Besides G, H, S, Cp and V, the method gives these terms and intermediate functio
 
 | Name | SI unit | What it is |
 |---|---|---|
-| `g` | Ao | the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species) |
+| `g` | Ao | the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species); its term f only at 155-355 C below 1000 bar, as SUPCRT92; below 350 kg/m3 of water held at its value at 350 kg/m3 |
 | `re` | Ao | the effective electrostatic radius of the species at T and P (0 for a neutral species) |
 | `omega` | J/mol | the conventional Born coefficient at T and P |
 | `omega_reference` | J/mol | the Born coefficient at the reference T and P (the parameter omega) |

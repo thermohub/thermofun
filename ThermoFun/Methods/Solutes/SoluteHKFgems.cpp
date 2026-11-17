@@ -143,10 +143,15 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants
     const double C[6]  = {constants.ag1, constants.ag2, constants.ag3, constants.bg1, constants.bg2, constants.bg3};
     const double cC[3] = {constants.af1, constants.af2, constants.af3};
 
-    const auto D        = ps.density / 1000; // in g/cm3
-    const auto beta     = ps.Beta;
-    const auto alpha    = ps.Alpha;
-    const auto daldT    = ps.dAldT;
+    // Below the density range of HKF (SUPCRT92 refuses it), g is held at its value at the lowest density of the range,
+    // a function of T only (owner, 2026-11-17). Without this, g goes to a (about -2 A) as the density goes to 0, the
+    // effective radius of an ion goes to 0 or below, and its G to +-1e8 kJ/mol.
+    const double Dmin   = 0.35;  // g/cm3: the lower limit of HKF in SUPCRT92 (Shock et al. 1992)
+    const bool held     = ps.density.val() < Dmin * 1000;
+    const real D        = held ? real(Dmin) : real(ps.density / 1000); // in g/cm3
+    const real beta     = held ? real(0.0) : real(ps.Beta);
+    const real alpha    = held ? real(0.0) : real(ps.Alpha);
+    const real daldT    = held ? real(0.0) : real(ps.dAldT);
 
     FunctionG g; 
 
@@ -202,8 +207,11 @@ auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants
     g.gT = a * dDbdT + Db * dadT;
     g.gTT = a * dDbdTT + 2.0e0 * dDbdT * dadT + Db * dadTT;
 
-    // Check if the point (T,P) is inside region II, as depicted in Fig. 6 of Shock and others (1992), on page 809
-    if ((TC > 155.0 && TC < 355.0 && Pbar < 1000.0) || (TC>=355 && Pbar >=500 && Pbar < 1000) || (TC>=355 && Pbar<500))
+    // Region II of Shock and others (1992), Fig. 6 on page 809: 155-355 C and P <= 1000 bar, where the difference function f
+    // was fitted; the rule of SUPCRT92 (and of this code before 2017). Outside it f is not used: g jumps at 355 C below
+    // 1000 bar (by -0.008 A at 300 bar), but f grows as ((T - 155)/300)^16 and gives g of +5 to +800 A at 500-600 C.
+    // Open at 155 C and 1000 bar, where f and its derivatives are 0 (the derivatives divide by T - 155 and 1000 - P)
+    if (TC > 155.0 && TC <= 355.0 && Pbar < 1000.0)
     {
         tempy = ((TC - 155.0) / 300.0);
         ft = pow(tempy,4.8) + cC[0] * pow(tempy,16.);

@@ -299,7 +299,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
                      "Tanger and Helgeson (1988); Shock et al. (1992)")
                     .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters())
-                    .output("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species)")
+                    .output("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species); its term f only at 155-355 C below 1000 bar, as SUPCRT92; below 350 kg/m3 of water held at its value at 350 kg/m3")
                     .output("re", "Ao", "the effective electrostatic radius of the species at T and P (0 for a neutral species)")
                     .output("omega", "J/mol", "the conventional Born coefficient at T and P")
                     .output("omega_reference", "J/mol", "the Born coefficient at the reference T and P (the parameter omega)")

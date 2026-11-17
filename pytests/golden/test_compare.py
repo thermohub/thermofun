@@ -56,17 +56,31 @@ def test_the_margin_is_only_for_the_energies():
 
 def test_an_expected_change_can_be_limited_to_one_property_and_a_size():
     key = ("db", "v", "substances", "H2O")
-    limited = {key: ("heat_capacity_cv", 2e-8)}
-    diff = lambda prop, rel: {"database": "db", "variant": "v", "kind": "substances", "record": "H2O", "property": prop, "rel": rel}
+    limited = {key: [(("heat_capacity_cv", 2e-8), None)]}
+    diff = lambda prop, rel, T=300.0, P=1e5: {"database": "db", "variant": "v", "kind": "substances", "record": "H2O", "property": prop, "rel": rel, "T": T, "P": P}
     assert cb.is_expected(diff("heat_capacity_cv", 1e-8), limited)
     assert not cb.is_expected(diff("heat_capacity_cv", 1e-6), limited)
     assert not cb.is_expected(diff("enthalpy", 1e-8), limited)
     assert not cb.is_expected(diff("heat_capacity_cv", None), limited)
-    assert cb.is_expected(diff("enthalpy", 1.0), {key: None})
-    some = {key: frozenset({"heat_capacity_cp"})}
+    assert cb.is_expected(diff("enthalpy", 1.0), {key: [(None, None)]})
+    some = {key: [(frozenset({"heat_capacity_cp"}), None)]}
     assert cb.is_expected(diff("heat_capacity_cp", 3.0), some)
     assert not cb.is_expected(diff("enthalpy", 3.0), some)
     assert not cb.is_expected(diff("enthalpy", 1e-8), {})
+
+
+def test_an_expected_change_can_be_limited_to_state_points_and_entries_add_up():
+    key = ("db", "v", "substances", "Na+")
+    diff = lambda prop, T, P: {"database": "db", "variant": "v", "kind": "substances", "record": "Na+", "property": prop, "rel": 1.0, "T": T, "P": P}
+    expected = {key: [(None, frozenset({(673.15, 100000.0)})), (frozenset({"volume"}), None)]}
+    assert cb.is_expected(diff("enthalpy", 673.15, 1e5), expected)          # the first entry: at its point
+    assert not cb.is_expected(diff("enthalpy", 673.15, 1e7), expected)      # elsewhere not
+    assert cb.is_expected(diff("volume", 300.0, 1e7), expected)             # the second entry: everywhere, its property
+
+
+def test_the_entries_of_expected_changes_json_are_read():
+    expected = cb.expected_changes()
+    assert expected and all(isinstance(v, list) and v for v in expected.values())
 
 
 def test_the_count_of_rounding_differences_has_a_limit():
