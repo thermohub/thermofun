@@ -94,9 +94,11 @@ def test_a_substance_defined_by_a_reaction_with_a_volume_is_at_the_saturation_pr
 
 def _na_engine(implementation):
     cal = 4.184
+    # the GEMS water: WaterLVS83 near the critical point, HGK elsewhere
+    near_critical = [{"method": "WaterLVS83"}] if implementation == "gems" else []
     water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181},
-             "methods": [{"method": "WaterHGK84", "implementation": implementation},
-                         {"method": "JohnsonNorton91", "implementation": implementation}]}
+             "methods": near_critical + [{"method": "WaterHGK84", "implementation": implementation},
+                                         {"method": "JohnsonNorton91", "implementation": implementation}]}
     na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous",
           "standard_state_properties": {"G": -62591 * cal, "H": -57433 * cal, "S": 13.96 * cal},
           "methods": [{"method": "HKF88", "implementation": implementation, "units": {"energy": "cal", "pressure": "bar"},

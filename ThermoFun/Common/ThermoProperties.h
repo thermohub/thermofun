@@ -87,24 +87,21 @@ struct ThermoPropertiesReactionT
 template<class S>
 struct PropertiesSolventT
 {
-    /// speed of sound
-    double speed_of_sound,
-//       Alpha,            /// constant pressure expansion (alpha)
-//       Beta,             /// constant temperature compressibility (beta)
-    /// dynamic viscosity
-       dynamic_viscosity,
-    /// thermal conductivity
-       thermal_conductivity,
-    /// surface tension
-       surface_tension,
-    /// not clear (currently not used)
-       Tdiff,
-    /// Prandtl number (currently not used)
-       Prndtl,
-    /// kinetic viscosity (currently not used)
-       Visck;
-//       Albe,             /// alpha/beta ratio
-//       dAldT;            /// T derivative of isobaric expansion
+    // Transport properties, in SI; 0 if the method does not give them (the GEMS water code gives them)
+    /// speed of sound (m/s)
+    double speed_of_sound = 0.0;
+    /// dynamic viscosity (Pa s)
+    double dynamic_viscosity = 0.0;
+    /// thermal conductivity (W/(m K))
+    double thermal_conductivity = 0.0;
+    /// surface tension (N/m), at saturation only
+    double surface_tension = 0.0;
+    /// thermal diffusivity (m2/s)
+    double Tdiff = 0.0;
+    /// Prandtl number
+    double Prndtl = 0.0;
+    /// kinematic viscosity (m2/s)
+    double Visck = 0.0;
     /// constant pressure expansion (alpha) (in units of 1/K)
     S Alpha;
 
@@ -114,7 +111,7 @@ struct PropertiesSolventT
     /// constant temperature compressibility (beta) (in units of (1/Pa)
     S Beta;
 
-    /// alpha/beta ratio (in units of K/Pa)
+    /// alpha/beta ratio, (dP/dT) at constant volume (in units of Pa/K)
     S Albe;
 
 //    /// ideal gas Gibbs energy (in units of J/mol)

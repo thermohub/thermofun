@@ -35,7 +35,10 @@ Each property is a `ThermoScalar`.
 
 ## Water
 
-- `propertiesSolvent(T, P, symbol)`: `density` in kg/m3, its derivatives, `Alpha`, `Beta`, `dAldT`, `dynamic_viscosity`, `surface_tension` and others.
+- `propertiesSolvent(T, P, symbol)`: `density` in kg/m3 and its derivatives, `Alpha` in 1/K, `Beta` in 1/Pa, `dAldT` in 1/K2,
+  `Albe` (alpha/beta) in Pa/K. The GEMS water (`WaterHGK84` and `WaterLVS83`) also gives `speed_of_sound` in m/s,
+  `dynamic_viscosity` in Pa s, `thermal_conductivity` in W/(m K), `surface_tension` in N/m (at saturation), `Tdiff` and
+  `Visck` in m2/s, `Prndtl`; the other water methods give 0 for these.
 - `electroPropertiesSolvent(T, P, symbol)`: `epsilon`, its derivatives, and the Born functions `bornZ`, `bornY`, `bornQ`, `bornX`.
 
 ## A pressure of 0

@@ -110,6 +110,7 @@ struct MethodSpec
     MethodNeeds needs;
     std::optional<EnergyReference> native_convention; ///< empty: that of the reference values
     bool piecewise = false;                      ///< the parameters come in temperature segments
+    bool regional = false;                       ///< used only in its own region (decision 0028): the next base method of the record elsewhere
     bool implemented = true;                     ///< false: the id is known, but there is no code
     std::vector<ParameterSpec> parameters;
     std::vector<AuxiliaryOutputSpec> auxiliary_outputs;

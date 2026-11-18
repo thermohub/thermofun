@@ -9,6 +9,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed, read before you update
 
+- **The GEMS water is two methods: `WaterLVS83` before `WaterHGK84` (implementation `gems`).** The equation of Levelt Sengers
+  et al. (1983), which the code used near the critical point, is now the method `WaterLVS83`, used only in its region
+  (decision 0028). `WaterHGK84` `gems` alone is the HGK equation everywhere. A GEMS record in the old format
+  (`water_eos_hgk84_lvs83_gems`) gets both methods when it is read, and is written back as before. A v2 record that lists
+  only `WaterHGK84` `gems` and calculates within about 4 K of the critical point should add `WaterLVS83` before it: HGK alone
+  has no usable saturation in the last kelvin below its critical point (an error says so).
+- **Units of the transport properties of the GEMS water: SI.** `speed_of_sound` in m/s (was cm/s), `dynamic_viscosity` in Pa s
+  (was g/(cm s)), `thermal_conductivity` in W/(m K) (was cal/(s cm K)), `surface_tension` in N/m (was dyn/cm),
+  `Tdiff` and `Visck` in m2/s, and `Albe` (alpha/beta) in Pa/K (was bar/K). The other water methods give 0 for the transport
+  properties (they were not initialised).
+
 - **HKF88: the g function as SUPCRT92, and held in steam.** The difference function f of Shock et al. (1992) is used only in
   its region, 155-355 °C and P below 1000 bar, as SUPCRT92 does. From 2017 ThermoFun used it also above 355 °C below 1000 bar,
   where it grows as ((T - 155)/300)^16: g was +0.35 Å at 450 °C and 500 bar, +800 Å at 600 °C and 300 bar, where it is
@@ -111,6 +122,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **`WaterLVS83`**: the equation of state of water near the critical point of Levelt Sengers et al. (1983), as in SUPCRT92, in
+  its region (about 643 to 695 K between the isochores 200 and 420 kg/m3, its saturation from 643 K). The first method used
+  in a region and combined with another method for the same properties (decision 0028): a record may list several equations
+  of state of water; at each T, P and state the first that covers the point is used, in the order of the record. In the
+  catalog a method used in a region is `regional`; such a method needs a base method after it (V2-MTH-012). It gives the
+  stable phase only (the equation has no metastable states); a liquid below the saturation pressure comes from the next
+  method. Tests: `pytests/test_water_lvs83.py`.
 - **Fit templates and tasks** (`thermofun.fitting`): a template (`thermofun/fit_templates/HKF88.yaml`) holds what a fit of one
   method needs (the parameters and their units, the searched one, the constraints of the method as switches, conventions,
   rules that warn, plausible ranges, presets); a task names the template, a record, a preset, given values and data (rows or
@@ -223,6 +241,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Water `gems` near the critical point (643 to 647 K):** off the saturation curve the liquid had density 0 and Na+ was
+  wrong by 130 kJ/mol, the vapour had no properties, and a P whose saturation temperature was within 0.01 K of T was taken
+  as saturated. The code swapped the two phases (`wl`, `wr`) after the LVS calculation; now each phase is kept apart, and
+  the density of LVS is found on the stable side of the coexistence curve to 1e-13 (before 1e-6, with its inversion to the
+  parametric variables to 1e-5).
+- **Viscosity and thermal conductivity of the GEMS water** summed only part of their double series (the inner index was not
+  reset): 0.555 instead of 0.890 mPa s at 25 °C. They now agree with IAPWS (0.890 mPa s, 0.607 W/(m K)).
+- **The saturation of `WaterHGK84` `gems` above 646.6 K** (HGK alone): its iteration returned 3e-5 MPa or NaN; it now solves
+  both conditions of coexistence, and stops with an error where HGK has no usable saturation.
 - **Water `WaterHGK84` implementation `gems` gave vapour at P = 0 at some T** (34 temperatures between 299 and 327.5 °C in
   0.1 K steps, and 371.9 °C; an aqueous species off by 74–130 kJ/mol). It takes the saturation branch at P = 0 or P = Psat,
   and tested Psat to 1e-14 bar: the engine writes Psat in Pa and calls the water again with it (for the dielectric constant), and

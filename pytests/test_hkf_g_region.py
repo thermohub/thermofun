@@ -22,7 +22,8 @@ OPTIMB = [(300, 500, -0.001681),     # in region II: f is used
 
 def engine(implementation):
     water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181.0},
-             "methods": [{"method": "WaterHGK84", "implementation": implementation}, {"method": "JohnsonNorton91", "implementation": implementation}]}
+             "methods": ([{"method": "WaterLVS83"}] if implementation == "gems" else [])
+                        + [{"method": "WaterHGK84", "implementation": implementation}, {"method": "JohnsonNorton91", "implementation": implementation}]}
     na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": {"G": -261881.0, "S": 58.4},
           "methods": [{"method": "HKF88", "implementation": implementation, "units": {"energy": "cal", "pressure": "bar"},
                        "parameters": {"a1": 0.1839, "a2": -228.5, "a3": 3.256, "a4": -27260, "c1": 18.18, "c2": -29810, "omega": 33060}}]}

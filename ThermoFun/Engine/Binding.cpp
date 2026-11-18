@@ -79,10 +79,18 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
         if (const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance))
             specs.push_back(spec);
 
+    // a base method used only in its region (decision 0028) needs a base method after it, which is used elsewhere
     std::vector<std::string> bases;
-    for (const auto* spec : specs)
-        if (spec->effects.base)
-            bases.push_back(spec->id);
+    for (std::size_t i = 0; i < specs.size(); ++i)
+    {
+        if (!specs[i]->effects.base)
+            continue;
+        if (!specs[i]->regional)
+            bases.push_back(specs[i]->id);
+        else if (std::none_of(specs.begin() + static_cast<std::ptrdiff_t>(i) + 1, specs.end(), [](const auto* s) { return s->effects.base && !s->regional; }))
+            out.add(problem(record, "V2-MTH-012", record.symbol + ": " + specs[i]->id + " is used only in its region, and no base method follows it.",
+                            "Add the base method for the rest after it, for example WaterHGK84 after WaterLVS83."));
+    }
     const bool fromReaction = !record.defining_reaction.empty() || record.preferred_property_source == PropertySource::Reaction;
     // the geochemical convention defines the properties of the hydrogen ion as 0: it needs no values there
     if (bases.empty() && !fromReaction && record.standard_state_properties.empty() && !isZeroHydrogenIon(record, Convention{}))

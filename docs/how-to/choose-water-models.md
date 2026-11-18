@@ -25,6 +25,21 @@ A water record has two methods: an equation of state and a dielectric model.
 
 1. Write the two methods in the record of water.
 2. Set `implementation` only to reproduce the results of another code. `WaterHGK84` and `JohnsonNorton91` have `reaktoro` and `gems`.
+3. To reproduce SUPCRT92 and GEMS, list `WaterLVS83` before `WaterHGK84` with `implementation: gems`. `WaterLVS83` is the equation of
+   Levelt Sengers et al. (1983) near the critical point, and it is used only in its region: about 643 to 695 K between two
+   isochores, and the saturation from 643 K to the critical point. `WaterHGK84` gives the water everywhere else. A record of
+   GEMS in the old format gets both methods when it is read.
+
+```yaml
+H2O@:
+  formula: H2O@
+  class: water_solvent
+  aggregate_state: aqueous
+  methods:
+    - method: WaterLVS83
+    - {method: WaterHGK84, implementation: gems}
+    - {method: JohnsonNorton91, implementation: gems}
+```
 
 The dielectric model changes the volume and the heat capacity of a solute. Use the model that its coefficients were fitted with:
 
