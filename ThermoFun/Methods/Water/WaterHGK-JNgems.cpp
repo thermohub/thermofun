@@ -30,7 +30,7 @@ auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSu
         wp.heat_capacity_cp         = wl.Cpw * cal_to_J;
 
         // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[1] * H2OMolarMass * cm3_mol_to_J_bar;
+        wp.volume                   = 1/aSta.Dens[1] * gemsWaterMolarMass() * cm3_mol_to_J_bar;
     } else
     if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) ) // liquid properties at Psat or vapor properties not at Psat, also supercritical fluid
     {
@@ -43,7 +43,7 @@ auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSu
         wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
 
         // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[0] * H2OMolarMass * cm3_mol_to_J_bar;
+        wp.volume                   = 1/aSta.Dens[0] * gemsWaterMolarMass() * cm3_mol_to_J_bar;
     }
 
 return wp;

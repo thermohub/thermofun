@@ -103,7 +103,7 @@ auto lvsSubstance(const LVSContext& c, const WaterLVS83Phase& ph, const WaterTri
     wp.enthalpy = H * cal_to_J;
     wp.heat_capacity_cv = Cv * cal_to_J;
     wp.heat_capacity_cp = Cp * cal_to_J;
-    wp.volume = 1 / (ph.D / 1.0e3) * H2OMolarMass * cm3_mol_to_J_bar;  // g/cm3, as the GEMS code
+    wp.volume = 1 / (ph.D / 1.0e3) * gemsWaterMolarMass() * cm3_mol_to_J_bar;  // g/cm3, as the GEMS code
     return wp;
 }
 

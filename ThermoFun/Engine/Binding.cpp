@@ -75,21 +75,38 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
 {
     Diagnostics out;
     std::vector<const MethodSpec*> specs;
+    std::vector<const MethodApplication*> apps;
     for (const auto& a : record.methods)
         if (const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance))
+        {
             specs.push_back(spec);
+            apps.push_back(&a);
+        }
 
-    // a base method used only in its region (decision 0028) needs a base method after it, which is used elsewhere
+    // Regions (decision 0028): a method used only in a region, its own (catalog flag regional) or one given in the record,
+    // needs a method of its kind without a region after it, which is used elsewhere; regions only for kinds that can be
+    // combined by region
+    auto inRegion = [&](std::size_t i) { return specs[i]->regional || !apps[i]->region.empty(); };
     std::vector<std::string> bases;
     for (std::size_t i = 0; i < specs.size(); ++i)
     {
-        if (!specs[i]->effects.base)
-            continue;
-        if (!specs[i]->regional)
+        if (!apps[i]->region.empty() && !combinableByRegion(*specs[i]))
+            out.add(problem(record, "V2-MTH-027", record.symbol + ": " + specs[i]->id + " has a region, but methods of its kind cannot be combined by region.",
+                            "Remove the region: regions select among water equations of state or among dielectric models."));
+        if (inRegion(i))
+        {
+            bool followed = false;
+            for (std::size_t j = i + 1; j < specs.size(); ++j)
+                followed = followed || (specs[j]->role == specs[i]->role && !inRegion(j));
+            if (!followed && specs[i]->effects.base)
+                out.add(problem(record, "V2-MTH-012", record.symbol + ": " + specs[i]->id + " is used only in its region, and no base method follows it.",
+                                "Add the base method for the rest after it, for example WaterHGK84 after WaterLVS83."));
+            else if (!followed && combinableByRegion(*specs[i]))
+                out.add(problem(record, "V2-MTH-027", record.symbol + ": " + specs[i]->id + " is used only in its region, and no method of its kind follows it.",
+                                "Add a method of the same kind without a region after it, used elsewhere."));
+        }
+        else if (specs[i]->effects.base)
             bases.push_back(specs[i]->id);
-        else if (std::none_of(specs.begin() + static_cast<std::ptrdiff_t>(i) + 1, specs.end(), [](const auto* s) { return s->effects.base && !s->regional; }))
-            out.add(problem(record, "V2-MTH-012", record.symbol + ": " + specs[i]->id + " is used only in its region, and no base method follows it.",
-                            "Add the base method for the rest after it, for example WaterHGK84 after WaterLVS83."));
     }
     const bool fromReaction = !record.defining_reaction.empty() || record.preferred_property_source == PropertySource::Reaction;
     // the geochemical convention defines the properties of the hydrogen ion as 0: it needs no values there

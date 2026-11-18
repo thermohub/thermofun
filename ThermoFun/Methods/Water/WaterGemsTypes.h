@@ -276,6 +276,14 @@ inline auto gemsWaterUnits() -> UNITS
     return u;
 }
 
+/// The molar mass (g/mol) that the energies of the code imply: they are per gram, times fh = 4.305816 (SUPCRT92: 18.0152 g/mol
+/// times 0.23901, a rounded 1/4.184) to cal/mol, times 4.184 to J/mol. The molar volume uses it too, so that dG/dP = V
+/// (with 18.015268 g/mol it was 1.5e-5 smaller).
+inline auto gemsWaterMolarMass() -> double
+{
+    return 4.305816e0 * 4.184;
+}
+
 } // namespace ThermoFun
 
 #endif

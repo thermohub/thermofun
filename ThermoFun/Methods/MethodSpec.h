@@ -117,6 +117,14 @@ struct MethodSpec
     std::vector<std::string> implementations;    ///< for example {"reaktoro", "gems"}; the first is the default
 };
 
+/// True if methods of this kind can be combined by region (decision 0028): they give the value directly at each T and P,
+/// so the method may change from point to point. Water equations of state and dielectric models; not the methods of a
+/// substance, whose values are integrated from the reference state.
+inline auto combinableByRegion(const MethodSpec& spec) -> bool
+{
+    return spec.role == MethodRole::SolventProperties || spec.role == MethodRole::SolventElectro;
+}
+
 } // namespace ThermoFun::model
 
 #endif

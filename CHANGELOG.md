@@ -241,6 +241,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **The molar volume of the GEMS water** (`WaterHGK84` `gems`, `WaterLVS83`) used 18.015268 g/mol while its energies imply
+  18.015534 g/mol (per gram times 4.305816, a rounded 18.0152/4.184, times 4.184): dG/dP was 1.5e-5 larger than V. V now
+  uses the molar mass of the energies (1.5e-5 larger), and dG/dP = V.
+- **`Albe` (alpha/beta, Pa/K) of the water methods `reaktoro` (HGK), `WaterIAPWS95` and `WaterZhangDuan05`** was 0; it is set.
 - **Water `gems` near the critical point (643 to 647 K):** off the saturation curve the liquid had density 0 and Na+ was
   wrong by 130 kJ/mol, the vapour had no properties, and a P whose saturation temperature was within 0.01 K of T was taken
   as saturated. The code swapped the two phases (`wl`, `wr`) after the LVS calculation; now each phase is kept apart, and

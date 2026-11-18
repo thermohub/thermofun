@@ -29,6 +29,8 @@ A water record has two methods: an equation of state and a dielectric model.
    Levelt Sengers et al. (1983) near the critical point, and it is used only in its region: about 643 to 695 K between two
    isochores, and the saturation from 643 K to the critical point. `WaterHGK84` gives the water everywhere else. A record of
    GEMS in the old format gets both methods when it is read.
+4. To use two dielectric models, or two equations of state, each in a region, give the first a `region`. See
+   [Methods by region](../reference/how-methods-combine.md#methods-by-region).
 
 ```yaml
 H2O@:

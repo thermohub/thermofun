@@ -108,3 +108,14 @@ def test_lvs_is_consistent(T, P):
     dP = P * 1e-6
     dGdP = (e.thermoPropertiesSubstance(T, P + dP, "H2O@").gibbs_energy.val - e.thermoPropertiesSubstance(T, P - dP, "H2O@").gibbs_energy.val) / (2 * dP)
     assert t.gibbs_energy.ddp == pytest.approx(dGdP, rel=1e-5)
+
+
+@pytest.mark.parametrize("methods", [GEMS, [{"method": "WaterHGK84", "implementation": "reaktoro"}], [{"method": "WaterIAPWS95"}]])
+@pytest.mark.parametrize("T,P", [(298.15, 1e5), (600.0, 5e7), (670.0, 2.8e7)])
+def test_the_volume_of_water_is_dG_dP_and_albe_is_alpha_over_beta(methods, T, P):
+    """The GEMS water used 18.015268 g/mol for V and 18.015534 g/mol (4.305816 x 4.184) in its energies: 1.5e-5 apart."""
+    e = engine(methods)
+    t = e.thermoPropertiesSubstance(T, P, "H2O@")
+    assert t.volume.val == pytest.approx(t.gibbs_energy.ddp, rel=1e-9)
+    s = e.propertiesSolvent(T, P, "H2O@")
+    assert s.Albe.val == pytest.approx(s.Alpha.val / s.Beta.val, rel=1e-12)

@@ -11963,7 +11963,7 @@
       "records": [
         "H2O(l)"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",
@@ -12075,7 +12075,7 @@
         "UO2PO4-",
         "UOH+3"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",
@@ -12084,7 +12084,7 @@
       "records": [
         "H2O(l)"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--PsiTDB2020-subset-thermofun",
@@ -12196,7 +12196,7 @@
         "UO2PO4-",
         "UOH+3"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12205,7 +12205,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12216,7 +12216,7 @@
         "H2O@",
         "SiO2@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12225,7 +12225,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12236,7 +12236,7 @@
         "H2O@",
         "SiO2@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12245,7 +12245,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12256,7 +12256,7 @@
         "H2O@",
         "SiO2@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12265,7 +12265,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12276,7 +12276,7 @@
         "H2O@",
         "SiO2@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12285,7 +12285,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solute--test-hkf-thermofun",
@@ -12295,7 +12295,7 @@
         "Al+3",
         "SiO2@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solvent--water-thermofun",
@@ -12304,7 +12304,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solvent--water-thermofun",
@@ -12315,7 +12315,7 @@
         "H2Og",
         "my_Al(OH)2+"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solvent--water-thermofun",
@@ -12324,7 +12324,7 @@
       "records": [
         "H2O@"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "pytests--Substances--Solvent--water-thermofun",
@@ -12335,7 +12335,7 @@
         "H2Og",
         "my_Al(OH)2+"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "slop98-thermofun",
@@ -12344,7 +12344,7 @@
       "records": [
         "Yb+4"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
     },
     {
       "database": "slop98-thermofun",
@@ -12353,7 +12353,751 @@
       "records": [
         "Yb+4"
       ],
-      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). Tests: pytests/test_state_points.py."
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. (3) The equation near the critical point is the method WaterLVS83 (pytests/test_water_lvs83.py), converged to 1e-13: records at the data pressure above Tc (P at 420 kg/m3, its region) change by about 1e-7. Albe (alpha/beta) is in Pa/K, as the other outputs in SI (it was in bar/K). (4) The molar volume uses the molar mass that the energies imply (4.305816 x 4.184 = 18.015534 g/mol, not 18.015268): V larger by 1.5e-5, now dG/dP = V. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "aq17-thermofun",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "cemdata18-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "cemdata18-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "mines16-thermofun",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "psinagra-12-07-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--Reactions--Co_Cu_aq-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--Reactions--Co_Cu_aq-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--Substances--Gases--mines16-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@reak"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@reak"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s33-water_pvt_zhang_duan05",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--mines16-sub-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--mines16-sub-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--test-database-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--test-database-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--test-thermoengine-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--test-thermoengine-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "slop98-organic-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "slop98-organic-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "water"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "water"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "water"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "water"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "synthetic-api",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "water"
+      ],
+      "properties": [
+        "propertiesSolvent.Albe"
+      ],
+      "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
     }
   ]
 }

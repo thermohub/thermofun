@@ -84,7 +84,7 @@ void exportRecordBuilder(py::module& m)
              }, py::return_value_policy::reference_internal, "The reaction properties logK, dG, dH, dS, dCp, dV")
         .def("method", [](RecordBuilder& self, const std::string& name, const py::object& segments, const py::object& parameters,
                           const py::object& parameter_set, const py::object& applicability, const py::object& table,
-                          const py::object& transitions, const py::object& implementation, const py::kwargs& values) -> RecordBuilder& {
+                          const py::object& transitions, const py::object& implementation, const py::object& region, const py::kwargs& values) -> RecordBuilder& {
                  RecordMethod m;
                  m.method = name;
                  if (truthy(implementation))
@@ -109,11 +109,13 @@ void exportRecordBuilder(py::module& m)
                      m.table = value(table);
                  if (truthy(applicability))
                      m.applicability = value(applicability);
+                 if (truthy(region))
+                     m.region = value(region);
                  return self.method(m);
              }, py::arg("name"), py::arg("segments") = py::none(), py::arg("parameters") = py::none(), py::arg("parameter_set") = py::none(),
              py::arg("applicability") = py::none(), py::arg("table") = py::none(), py::arg("transitions") = py::none(),
-             py::arg("implementation") = py::none(), py::return_value_policy::reference_internal,
-             "Adds a method. The keywords that are not named are the parameters of the method")
+             py::arg("implementation") = py::none(), py::arg("region") = py::none(), py::return_value_policy::reference_internal,
+             "Adds a method. region: where it is used among the methods of its kind, {t_min, t_max, p_min, p_max}. The keywords that are not named are the parameters of the method")
         .def("to_json", &RecordBuilder::toJson, "The record as JSON text, with its symbol")
         .def("to_dict", [](const RecordBuilder& self) { return py::module_::import("json").attr("loads")(self.toJson()); }, "The record as a dictionary")
         .def("check", [](const RecordBuilder& self) { return self.check().all(); },

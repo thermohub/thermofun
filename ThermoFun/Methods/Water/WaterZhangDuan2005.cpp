@@ -281,6 +281,7 @@ auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass, const ZhangDuanCo
     ps.Alpha     = -ps.densityT/ps.density;
     ps.Beta      = ps.densityP/ps.density; // 1/Pa
     ps.dAldT     = -ps.densityTT/ps.density + ps.Alpha*ps.Alpha;
+    ps.Albe      = ps.Alpha/ps.Beta;  // Pa/K
 
     return ps;
 }

@@ -60,6 +60,9 @@ public:
 
     /// The electrochemical properties at T (K) and P (Pa), from the properties of the solvent at this T and P.
     virtual auto properties(double T, double P, const PropertiesSolvent& solvent, int state) const -> ElectroPropertiesSolvent = 0;
+
+    /// True if the method gives the dielectric constant at T (K) and P (Pa): false outside its region (decision 0028).
+    virtual auto covers(double /*T*/, double /*P*/) const -> bool { return true; }
 };
 
 } // namespace ThermoFun::model

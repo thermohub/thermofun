@@ -22,6 +22,20 @@ struct Applicability
     auto operator==(const Applicability&) const -> bool = default;
 };
 
+/// The T-P region in which a method application is used (decision 0028), in SI units; a missing bound is no limit. Methods
+/// of the same kind in a record are tried in their order, and the first whose region holds T and P is used. Unlike
+/// Applicability (where a method is valid, a warning outside), a region selects.
+struct Region
+{
+    std::optional<double> t_min, t_max;  ///< K
+    std::optional<double> p_min, p_max;  ///< Pa
+
+    auto empty() const -> bool { return !t_min && !t_max && !p_min && !p_max; }
+    auto holdsT(double T) const -> bool { return (!t_min || T >= *t_min) && (!t_max || T <= *t_max); }
+    auto holds(double T, double P) const -> bool { return holdsT(T) && (!p_min || P >= *p_min) && (!p_max || P <= *p_max); }
+    auto operator==(const Region&) const -> bool = default;
+};
+
 /// One piece of a method that is piecewise in T (several Cp intervals).
 struct Segment
 {
