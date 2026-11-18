@@ -278,6 +278,8 @@ private:
     ABC2 a2;
     ABC1 a1;
     TERM_PR trp;
+    /// The last saturation of pcorr in this object (one object is one calculation at one T)
+    struct { bool valid = false; int itripl = 0; double t = 0.0; real p, dL, dV, delg; } pcorr_cache;
     UNITS un;
     SATUR sa;
     QQQQ qq;
@@ -391,6 +393,8 @@ public:
 
     /// Calculate the properties of water; T in degrees Celsius and P in bar (changed to the saturation pressure if it is zero)
     auto calculateWaterHGKgems(real T, real &P, WaterTripleProperties wtr) -> void;
+    /// The saturation pressure of the model at T (deg C), bar: that of the calculation at saturation.
+    auto modelSaturationPressure(real T, WaterTripleProperties wtr) const -> real;
 
     auto propertiesWaterHGKgems(int state) -> PropertiesSolventAD;
 

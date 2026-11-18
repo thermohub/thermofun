@@ -115,3 +115,26 @@ def test_water_gems_is_liquid_at_the_saturation_pressure(tc):
     for P in (0.0, Psat):
         G = _na_engine("gems").thermoPropertiesSubstance(T, P, "Na+").gibbs_energy.val
         assert G == pytest.approx(expected, abs=200.0), (tc, P)  # vapour was 74-130 kJ/mol off
+
+
+# One saturation pressure in the water gems: that of its equation of state. Before, the correlation PsHGK (up to 7e-5 lower)
+# was written back, and a P between the two was vapour. The values at P = 0 follow the saturation curve of the equation of state,
+# and their T derivatives are those of that curve.
+@pytest.mark.parametrize("tc", [100.0, 181.6, 250.0, 300.0, 360.0])
+def test_water_gems_is_the_same_liquid_at_and_next_to_its_saturation_pressure(tc):
+    T = tc + 273.15
+    engine = _na_engine("gems")
+    Psat = engine.saturationPressure(T)
+    at_sat = engine.thermoPropertiesSubstance(T, 0.0, "Na+").gibbs_energy.val
+    for f in (1 - 1e-6, 1 + 1e-6):
+        G = engine.thermoPropertiesSubstance(T, Psat * f, "Na+").gibbs_energy.val
+        assert G == pytest.approx(at_sat, abs=1.0), (tc, f)
+
+
+@pytest.mark.parametrize("T", [373.15, 473.15, 573.15, 623.15])
+def test_water_gems_temperature_derivative_at_the_saturation_pressure(T):
+    engine = tf.ThermoEngine(str(HERE / "Substances" / "Solvent" / "water-thermofun.json"))
+    h = 1e-3
+    exact = engine.thermoPropertiesSubstance(T, 0.0, "H2O@").enthalpy.ddt
+    fd = (engine.thermoPropertiesSubstance(T + h, 0.0, "H2O@").enthalpy.val - engine.thermoPropertiesSubstance(T - h, 0.0, "H2O@").enthalpy.val) / (2 * h)
+    assert exact == pytest.approx(fd, rel=1e-6)

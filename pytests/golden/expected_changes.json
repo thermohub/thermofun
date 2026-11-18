@@ -11955,6 +11955,405 @@
         ]
       ],
       "reason": "HKF g function: the f term of Shock et al. (1992) only at 155-355 C and P < 1000 bar, as SUPCRT92 (it was also used above 355 C since 2017 and gave g of +5 to +800 A at 500-600 C), and below 350 kg/m3 of water g is held at its value at 350 kg/m3 (without it g goes to about -2 A in steam, the effective radius to 0 or below, G to 1e8 kJ/mol). Owner, 2026-11-17. At these points water is below 350 kg/m3: 1 and 100 bar at 623-1273 K, 1000 bar at 1073 and 1273 K. Tests: pytests/test_hkf_g_region.py."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O(l)"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "(HgOH)3PO4(s)",
+        "(UO2)2(OH)2+2",
+        "(UO2)2CO3(OH)3-",
+        "(UO2)2OH+3",
+        "(UO2)3(CO3)6-6",
+        "(UO2)3(OH)4+2",
+        "(UO2)3(OH)5+",
+        "(UO2)3(OH)7-",
+        "(UO2)3O(OH)2(HCO3)+",
+        "(UO2)4(OH)7+",
+        "Ag(OH)2-",
+        "AgCO3-",
+        "AgCl(aq)",
+        "AgCl2-",
+        "AgCl3-2",
+        "AgCl4-3",
+        "AgHPO4-",
+        "AgOH(aq)",
+        "CH4(aq)",
+        "CO2(aq)",
+        "CO3-2",
+        "Ca+2",
+        "Ca2UO2(CO3)3(aq)",
+        "CaCO3(aq)",
+        "CaH2PO4+",
+        "CaHCO3+",
+        "CaHPO4(aq)",
+        "CaOH+",
+        "CaPO4-",
+        "CaUO2(CO3)3-2",
+        "Cl-",
+        "ClO4-",
+        "Fe(CO3)2-2",
+        "Fe(CO3)3-3",
+        "Fe(H2PO4)3(aq)",
+        "Fe(OH)2(aq)",
+        "Fe(OH)2+",
+        "Fe(OH)3(aq)",
+        "Fe(OH)3-",
+        "Fe(OH)4-",
+        "Fe(OH)CO3(aq)",
+        "Fe+2",
+        "Fe+3",
+        "Fe2(OH)2+4",
+        "Fe3(OH)4+5",
+        "FeCO3(aq)",
+        "FeCl+",
+        "FeCl+2",
+        "FeCl2+",
+        "FeCl3(aq)",
+        "FeCl4-",
+        "FeH2PO4+",
+        "FeHPO4(aq)",
+        "FeOH+",
+        "FeOH+2",
+        "FePO4(aq)",
+        "H2O(l)",
+        "H2PO4-",
+        "H3PO4(aq)",
+        "HCO3-",
+        "HP2O7-3",
+        "HPO4-2",
+        "Hg(OH)2(aq)",
+        "Hg(OH)3-",
+        "Hg2OH+",
+        "Hg3(PO4)2(s)",
+        "HgCl+",
+        "HgCl2(aq)",
+        "HgCl3-",
+        "HgCl4-2",
+        "HgHPO4(aq)",
+        "HgOH+",
+        "HgOHCO3-",
+        "HgOHCl(aq)",
+        "HgPO4-",
+        "O2(aq)",
+        "OH-",
+        "P2O7-4",
+        "PO4-3",
+        "U(CO3)4-4",
+        "U(CO3)5-6",
+        "U(OH)2+2",
+        "U(OH)3+",
+        "U(OH)4(aq)",
+        "UCO3(OH)3-",
+        "UCl+3",
+        "UH2PO4+3",
+        "UO2(CO3)2-2",
+        "UO2(CO3)3-4",
+        "UO2(CO3)3-5",
+        "UO2(H2PO4)(H3PO4)+",
+        "UO2(H2PO4)2(aq)",
+        "UO2(OH)2(aq)",
+        "UO2(OH)3-",
+        "UO2(OH)4-2",
+        "UO2CO3(aq)",
+        "UO2Cl+",
+        "UO2Cl2(aq)",
+        "UO2H2PO4+",
+        "UO2H3PO4+2",
+        "UO2HPO4(aq)",
+        "UO2OH+",
+        "UO2PO4-",
+        "UOH+3"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O(l)"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "(HgOH)3PO4(s)",
+        "(UO2)2(OH)2+2",
+        "(UO2)2CO3(OH)3-",
+        "(UO2)2OH+3",
+        "(UO2)3(CO3)6-6",
+        "(UO2)3(OH)4+2",
+        "(UO2)3(OH)5+",
+        "(UO2)3(OH)7-",
+        "(UO2)3O(OH)2(HCO3)+",
+        "(UO2)4(OH)7+",
+        "Ag(OH)2-",
+        "AgCO3-",
+        "AgCl(aq)",
+        "AgCl2-",
+        "AgCl3-2",
+        "AgCl4-3",
+        "AgHPO4-",
+        "AgOH(aq)",
+        "CH4(aq)",
+        "CO2(aq)",
+        "CO3-2",
+        "Ca+2",
+        "Ca2UO2(CO3)3(aq)",
+        "CaCO3(aq)",
+        "CaH2PO4+",
+        "CaHCO3+",
+        "CaHPO4(aq)",
+        "CaOH+",
+        "CaPO4-",
+        "CaUO2(CO3)3-2",
+        "Cl-",
+        "ClO4-",
+        "Fe(CO3)2-2",
+        "Fe(CO3)3-3",
+        "Fe(H2PO4)3(aq)",
+        "Fe(OH)2(aq)",
+        "Fe(OH)2+",
+        "Fe(OH)3(aq)",
+        "Fe(OH)3-",
+        "Fe(OH)4-",
+        "Fe(OH)CO3(aq)",
+        "Fe+2",
+        "Fe+3",
+        "Fe2(OH)2+4",
+        "Fe3(OH)4+5",
+        "FeCO3(aq)",
+        "FeCl+",
+        "FeCl+2",
+        "FeCl2+",
+        "FeCl3(aq)",
+        "FeCl4-",
+        "FeH2PO4+",
+        "FeHPO4(aq)",
+        "FeOH+",
+        "FeOH+2",
+        "FePO4(aq)",
+        "H2O(l)",
+        "H2PO4-",
+        "H3PO4(aq)",
+        "HCO3-",
+        "HP2O7-3",
+        "HPO4-2",
+        "Hg(OH)2(aq)",
+        "Hg(OH)3-",
+        "Hg2OH+",
+        "Hg3(PO4)2(s)",
+        "HgCl+",
+        "HgCl2(aq)",
+        "HgCl3-",
+        "HgCl4-2",
+        "HgHPO4(aq)",
+        "HgOH+",
+        "HgOHCO3-",
+        "HgOHCl(aq)",
+        "HgPO4-",
+        "O2(aq)",
+        "OH-",
+        "P2O7-4",
+        "PO4-3",
+        "U(CO3)4-4",
+        "U(CO3)5-6",
+        "U(OH)2+2",
+        "U(OH)3+",
+        "U(OH)4(aq)",
+        "UCO3(OH)3-",
+        "UCl+3",
+        "UH2PO4+3",
+        "UO2(CO3)2-2",
+        "UO2(CO3)3-4",
+        "UO2(CO3)3-5",
+        "UO2(H2PO4)(H3PO4)+",
+        "UO2(H2PO4)2(aq)",
+        "UO2(OH)2(aq)",
+        "UO2(OH)3-",
+        "UO2(OH)4-2",
+        "UO2CO3(aq)",
+        "UO2Cl+",
+        "UO2Cl2(aq)",
+        "UO2H2PO4+",
+        "UO2H3PO4+2",
+        "UO2HPO4(aq)",
+        "UO2OH+",
+        "UO2PO4-",
+        "UOH+3"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "Al+3",
+        "H2O@",
+        "SiO2@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Al+3",
+        "H2O@",
+        "SiO2@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "Al+3",
+        "H2O@",
+        "SiO2@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Al+3",
+        "H2O@",
+        "SiO2@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solute--test-hkf-thermofun",
+      "variant": "steam",
+      "kind": "substances",
+      "records": [
+        "Al+3",
+        "SiO2@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "H2Og",
+        "my_Al(OH)2+"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "pytests--Substances--Solvent--water-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O@",
+        "H2Og",
+        "my_Al(OH)2+"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Yb+4"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
+    },
+    {
+      "database": "slop98-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Yb+4"
+      ],
+      "reason": "Water WaterHGK84 gems, 2026-11-18. (1) One saturation pressure, that of the equation of state: pcorr converged to 1e-12 (before: |delg| < 1e-4, about 1e-5 in P, with the densities of the step before), written back at P = 0 instead of the correlation PsHGK (up to 7e-5 lower), and used for the branch and the phase. Values at Psat change by about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state); records taken at the data pressure max(P, Psat, ...) change at every P. (2) The density converged to 1e-12 in P or in density whatever the guess (before: 1e-8 to 1e-6 in P by the guess): values change by about 1e-9, Cp up to 2e-5 near Psat. Tests: pytests/test_state_points.py."
     }
   ]
 }

@@ -1,4 +1,6 @@
 // ThermoFun includes
+#include <cstdlib>
+#include <cstdio>
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
 
@@ -511,16 +513,19 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
     aSpc.ih=4;
     aSpc.itripl=1; // 1 aparent molal properties convention; 0 steam tables convention
 
+    // One saturation pressure: that of the model, the pressure that the calculation at saturation gives (HGK, LVS near the
+    // critical point). The correlation PsHGK is only its first guess; it is up to 2e-5 lower, and a P between the two was vapour.
+    // The model value is needed only near PsHGK: there it decides the branch and the phase, elsewhere PsHGK decides the same.
     if (Tk <= 647.067e0)
         aSta.Psat = PsHGK(Tk)*10;
     else
         aSta.Psat = 0;
+    if (P != 0.0 && aSta.Psat > 0.0 && fabs(P - aSta.Psat) < 1e-3 * aSta.Psat)
+        aSta.Psat = modelSaturationPressure(T, wtr);
 
-    // P equal to Psat is the saturation branch too. Relative: a Psat that went to Pa and back (the engine writes it to P, then
-    // calls again with it) differs by a few ulp, more than any absolute 1e-14 bar, and then gave vapour at some T.
-    auto diff = fabs(fabs(P) - fabs(aSta.Psat));
-
-    if( (fabs( P ) == 0) || (diff <= 1e-12 * fabs(aSta.Psat)) )
+    // P equal to Psat is the saturation branch too, to 1e-12 relative: a Psat that went to Pa and back (the engine writes it to
+    // P, then calls again with it) differs by a few ulp.
+    if( (fabs( P ) == 0) || (fabs(P - aSta.Psat) <= 1e-12 * fabs(aSta.Psat)) )
     { // set only T, for Psat
         aSpc.isat=1;
         aSpc.iopt=1;
@@ -544,6 +549,7 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
 //    aSpc.isat = 1;
 //    aSpc.iopt = 1;
 
+    pcorr_cache.valid = false;
     memset( &wl, 0, sizeof(WPROPS));
     memset( &wr, 0, sizeof(WPROPS));
     memset( &a2, 0, sizeof(ABC2));
@@ -629,9 +635,17 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
         aSta.Dens[0] /= un.fd;
         aSta.Dens[1] /= un.fd;
     }
-//    P = aSta.Pres;
-//    aWp.init = true;
+    if (aSpc.isat == 1)
+        P = aSta.Pres;  // the saturation pressure of the model
 
+}
+
+auto WaterHGKgems::modelSaturationPressure(real T, WaterTripleProperties wtr) const -> real
+{
+    WaterHGKgems saturation(*k_);
+    real P = 0.0;
+    saturation.calculateWaterHGKgems(T, P, wtr);
+    return P;
 }
 
 auto WaterHGKgems::unit(int it, int id, int ip, int ih, int itripl, WaterTripleProperties wtr) ->void
@@ -1838,6 +1852,8 @@ auto WaterHGKgems::calcv3(int iopt, int itripl, real Temp, real *Pres,
         if (Temp < ac->tz)
         {
             pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
+            if (aSta.Psat > 0.0)
+                ps = aSta.Psat / 10;  // the saturation pressure of the model (LVS near the critical point), MPa
         }
         else
         {
@@ -2408,17 +2424,21 @@ OTHER:
         dpdx = *dpdd * 1.1e0;
         if (dpdx < 0.1e0)
             dpdx = 0.1e0;
+        if (fabs(1.0e0 - pp / *p) < 1.0e-6)
+            dpdx = *dpdd;  // near the root: a full Newton step
+        // Converged to 1e-12 in P or in density, whatever the guess (before: 1e-8, 1e-7 or 1e-6 in P by the guess, so the
+        // density and its derivatives depended on where the iteration started). A liquid at low P has a pressure that is a
+        // small difference of large terms (noise about 1e-7 of P): the density test ends it.
         dp   = fabs(1.0e0 - pp / *p);
-        if ((dp < 1.0e-8) || ((dguess > 0.3e0) && (dp < 1.0e-7)) ||
-                ((dguess > 0.7e0) && (dp < 1.0e-6)))
-            return;
         x = (*p - pp) / dpdx;
+        if (dp < 1.0e-12 || fabs(x) < 1.0e-12 * *d)
+            return;
         if (fabs(x)  >  0.1e0)
             x *= 0.1e0 / fabs(x);
         *d += x;
         if (*d <= 0.0e0)
             *d = 1.0e-8;
-        if ( i <= 30 ) goto FIRST;
+        if ( i <= 100 ) goto FIRST;
     }
 }
 
@@ -2643,17 +2663,32 @@ auto WaterHGKgems::triple(real T, WPROPS  *wr) -> void
 auto WaterHGKgems::pcorr(int itripl, real t, real *p, real *dL,
                     real *dV, int epseqn) -> void
 {
+    // The same T in one calculation (calcv2, calcv3, HGKsat): the result of the first call
+    if (pcorr_cache.valid && pcorr_cache.t == t.val() && pcorr_cache.itripl == itripl)
+    {
+        *p = pcorr_cache.p;
+        *dL = pcorr_cache.dL;
+        *dV = pcorr_cache.dV;
+        trp.delg = pcorr_cache.delg;
+        return;
+    }
+    // Newton on Gl = Gv from the correlation PsHGK, to 1e-12 in P (before: to |delg| < 1e-4, about 1e-5 in P, and the
+    // densities were those of the pressure before the last step). dL and dV are those of the pressure returned.
     real dp;
     *p  = PsHGK(t);
     *dL= 0.0e0;
     *dV = 0.0e0;
-    do
+    // After convergence one more step gives the exact derivatives of P (implicit function), then the densities at that P.
+    for (int iter = 0; iter < 50; ++iter)
     {
         corr(itripl, t, p, dL, dV, &trp.delg, epseqn);
         dp   = trp.delg * ac->gascon * t / (1.0e0 / *dV - 1.0e0 / *dL);
         *p  += dp;
+        if (fabs(dp) <= 1e-12 * fabs(*p))
+            break;
     }
-    while ( fabs(trp.delg) > 1.0e-4 );
+    corr(itripl, t, p, dL, dV, &trp.delg, epseqn);
+    pcorr_cache = {true, itripl, t.val(), *p, *dL, *dV, trp.delg};
 }
 
 auto WaterHGKgems::resid(real t, real *d) -> void

@@ -227,6 +227,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   0.1 K steps, and 371.9 °C; an aqueous species off by 74–130 kJ/mol). It takes the saturation branch at P = 0 or P = Psat,
   and tested Psat to 1e-14 bar: the engine writes Psat in Pa and calls the water again with it (for the dielectric constant), and
   that value, back in bar, missed the test. The test is now relative (1e-12). P = `saturationPressure(T)` is liquid too.
+- **The water `WaterHGK84` implementation `gems` has one saturation pressure, that of its equation of state.** It wrote
+  back the correlation PsHGK (up to 7e-5 lower: 85.8315 against 85.8378 bar at 300 °C) and chose the phase by it, so a
+  P between the two gave vapour; the iteration for the saturation stopped at about 1e-5 in P. Now it converges to 1e-12,
+  `saturationPressure(T)` gives that value, and the branch and the phase are decided by it. Values at P = 0 change by
+  about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state).
+  Its density is now converged to 1e-12 in P or in density whatever the starting guess (before 1e-8 to 1e-6 in P, by the
+  guess): values change by about 1e-9, Cp by up to 2e-5 near Psat.
 - **Golden comparison:** the entries of `MgCO3-bm` (BirchMurnaghan47) in `expected_changes.json` named the database by its
   path, so they matched nothing and `golden-diff` failed. An entry can now also name state points (`points`), and several
   entries of one record add up.
