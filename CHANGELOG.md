@@ -223,6 +223,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Water `WaterHGK84` implementation `gems` gave vapour at P = 0 at some T** (34 temperatures between 299 and 327.5 °C in
+  0.1 K steps, and 371.9 °C; an aqueous species off by 74–130 kJ/mol). It takes the saturation branch at P = 0 or P = Psat,
+  and tested Psat to 1e-14 bar: the engine writes Psat in Pa and calls the water again with it (for the dielectric constant), and
+  that value, back in bar, missed the test. The test is now relative (1e-12). P = `saturationPressure(T)` is liquid too.
 - **Golden comparison:** the entries of `MgCO3-bm` (BirchMurnaghan47) in `expected_changes.json` named the database by its
   path, so they matched nothing and `golden-diff` failed. An entry can now also name state points (`points`), and several
   entries of one record add up.

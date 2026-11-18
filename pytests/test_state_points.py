@@ -90,3 +90,28 @@ def test_a_substance_defined_by_a_reaction_with_a_volume_is_at_the_saturation_pr
         at_psat = tf.ThermoEngine(db).thermoPropertiesSubstance(T, Psat, symbol)
         assert at_zero.gibbs_energy.val == pytest.approx(at_psat.gibbs_energy.val, rel=1e-9), symbol
         assert at_zero.enthalpy.val == pytest.approx(at_psat.enthalpy.val, rel=1e-9), symbol
+
+
+def _na_engine(implementation):
+    cal = 4.184
+    water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181},
+             "methods": [{"method": "WaterHGK84", "implementation": implementation},
+                         {"method": "JohnsonNorton91", "implementation": implementation}]}
+    na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous",
+          "standard_state_properties": {"G": -62591 * cal, "H": -57433 * cal, "S": 13.96 * cal},
+          "methods": [{"method": "HKF88", "implementation": implementation, "units": {"energy": "cal", "pressure": "bar"},
+                       "parameters": {"a1": 0.1839, "a2": -228.5, "a3": 3.256, "a4": -27260, "c1": 18.18, "c2": -29810, "omega": 33060}}]}
+    return tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water, "Na+": na}}))
+
+
+# The water of the implementation gems took the saturation branch only at P == Psat to 1e-14 bar. The engine writes Psat in Pa to
+# P and calls the water again with it (for the dielectric constant): back in bar it missed that test at these T, and gave vapour.
+@pytest.mark.parametrize("tc", [299.0, 299.3, 300.9, 301.0, 301.6, 312.7, 320.8, 327.5, 371.9])
+def test_water_gems_is_liquid_at_the_saturation_pressure(tc):
+    T = tc + 273.15
+    gems, reaktoro = _na_engine("gems"), _na_engine("reaktoro")
+    expected = reaktoro.thermoPropertiesSubstance(T, 0.0, "Na+").gibbs_energy.val
+    Psat = gems.saturationPressure(T)
+    for P in (0.0, Psat):
+        G = _na_engine("gems").thermoPropertiesSubstance(T, P, "Na+").gibbs_energy.val
+        assert G == pytest.approx(expected, abs=200.0), (tc, P)  # vapour was 74-130 kJ/mol off

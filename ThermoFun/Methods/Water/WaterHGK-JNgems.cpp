@@ -516,9 +516,11 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
     else
         aSta.Psat = 0;
 
+    // P equal to Psat is the saturation branch too. Relative: a Psat that went to Pa and back (the engine writes it to P, then
+    // calls again with it) differs by a few ulp, more than any absolute 1e-14 bar, and then gave vapour at some T.
     auto diff = fabs(fabs(P) - fabs(aSta.Psat));
 
-    if( (fabs( P ) == 0) || (diff < 1e-14) )
+    if( (fabs( P ) == 0) || (diff <= 1e-12 * fabs(aSta.Psat)) )
     { // set only T, for Psat
         aSpc.isat=1;
         aSpc.iopt=1;
