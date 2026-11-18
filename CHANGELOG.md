@@ -245,6 +245,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   18.015534 g/mol (per gram times 4.305816, a rounded 18.0152/4.184, times 4.184): dG/dP was 1.5e-5 larger than V. V now
   uses the molar mass of the energies (1.5e-5 larger), and dG/dP = V.
 - **`Albe` (alpha/beta, Pa/K) of the water methods `reaktoro` (HGK), `WaterIAPWS95` and `WaterZhangDuan05`** was 0; it is set.
+- **Water `WaterHGK84` `gems`, liquid and vapour kept apart:** each phase has its own root, from its saturated density, and
+  all its properties are calculated at that root; the state of the record picks the phase. Before, the vapour above the
+  saturation pressure (for example H2O gas at 25 °C and 1 bar) mixed the residual terms of the vapour root with the density of
+  the liquid: G was 112 J/mol too high and Cp 4.5 J/(mol K) too low at 25 °C and 1 bar; it now agrees with the `reaktoro`
+  HGK to 0.2 J/mol. Beyond the spinodal of a phase there is no root of that phase, and the other root is used (as
+  `reaktoro`); before, the iteration stopped between the roots, with a negative compressibility and heat capacity (the
+  liquid at 350 °C and 40 bar had 452 kg/m3; it now gets the vapour, 15.05 kg/m3).
 - **Water `gems` near the critical point (643 to 647 K):** off the saturation curve the liquid had density 0 and Na+ was
   wrong by 130 kJ/mol, the vapour had no properties, and a P whose saturation temperature was within 0.01 K of T was taken
   as saturated. The code swapped the two phases (`wl`, `wr`) after the LVS calculation; now each phase is kept apart, and

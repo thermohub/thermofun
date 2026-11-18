@@ -18,137 +18,43 @@ namespace ThermoFun {
 auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstanceAD
 {
     ThermoPropertiesSubstanceAD wp;
+    const HGKPhase& ph = (state == 1) ? vap_ : liq_;  // the state of the record: 0 liquid, 1 vapour
 
-    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
-    {
-        wp.helmholtz_energy         = wl.Aw * cal_to_J;
-        wp.gibbs_energy             = wl.Gw * cal_to_J;
-        wp.entropy                  = wl.Sw * cal_to_J;
-        wp.internal_energy          = wl.Uw * cal_to_J;
-        wp.enthalpy                 = wl.Hw * cal_to_J;
-        wp.heat_capacity_cv         = wl.Cvw * cal_to_J;
-        wp.heat_capacity_cp         = wl.Cpw * cal_to_J;
+    wp.helmholtz_energy         = ph.w.Aw * cal_to_J;
+    wp.gibbs_energy             = ph.w.Gw * cal_to_J;
+    wp.entropy                  = ph.w.Sw * cal_to_J;
+    wp.internal_energy          = ph.w.Uw * cal_to_J;
+    wp.enthalpy                 = ph.w.Hw * cal_to_J;
+    wp.heat_capacity_cv         = ph.w.Cvw * cal_to_J;
+    wp.heat_capacity_cp         = ph.w.Cpw * cal_to_J;
+    wp.volume                   = 1/ph.d * gemsWaterMolarMass() * cm3_mol_to_J_bar;
 
-        // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[1] * gemsWaterMolarMass() * cm3_mol_to_J_bar;
-    } else
-    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) ) // liquid properties at Psat or vapor properties not at Psat, also supercritical fluid
-    {
-        wp.helmholtz_energy         = wr.Aw * cal_to_J;
-        wp.gibbs_energy             = wr.Gw * cal_to_J;
-        wp.entropy                  = wr.Sw * cal_to_J;
-        wp.internal_energy          = wr.Uw * cal_to_J;
-        wp.enthalpy                 = wr.Hw * cal_to_J;
-        wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
-        wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
-
-        // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[0] * gemsWaterMolarMass() * cm3_mol_to_J_bar;
-    }
-
-return wp;
+    return wp;
 }
 
 auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolventAD
 {
     PropertiesSolventAD wp;
-    real rho=0., alp=0., dal=0., bet=0., gam=0.;
+    const HGKPhase& ph = (state == 1) ? vap_ : liq_;  // the state of the record: 0 liquid, 1 vapour
 
-    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
-    {
-        wp.surface_tension   = wl.Surtenw.val();
-        wp.Alpha    = wl.Alphaw;
-        wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
-        wp.thermal_conductivity    = wl.Tcondw.val();
-        wp.Tdiff    = wl.Tdiffw.val();
-        wp.Prndtl   = wl.Prndtlw.val();
-        wp.dAldT    = wl.dAldT;
-        wp.Albe     = wl.Albew;
-        wp.speed_of_sound    = wl.Speedw.val();
-        wp.dynamic_viscosity     = wl.Viscw.val();
-        wp.Visck    = wl.Visckw.val();
+    wp.surface_tension   = ph.w.Surtenw.val();
+    wp.Alpha    = ph.w.Alphaw;
+    wp.Beta     = ph.w.Betaw / 1e05; // from bar-1 to Pa-1
+    wp.thermal_conductivity    = ph.w.Tcondw.val();
+    wp.Tdiff    = ph.w.Tdiffw.val();
+    wp.Prndtl   = ph.w.Prndtlw.val();
+    wp.dAldT    = ph.w.dAldT;
+    wp.Albe     = ph.w.Albew;
+    wp.speed_of_sound    = ph.w.Speedw.val();
+    wp.dynamic_viscosity     = ph.w.Viscw.val();
+    wp.Visck    = ph.w.Visckw.val();
+    wp.density  = ph.d * 1000; // in kg/m3
 
-        alp = wl.Alphaw;
-        dal = wl.dAldT;
-        bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
-        gam = wl.Gamw;
-
-        wp.density          = aSta.Dens[1] * 1000; // in kg/m3
-        rho = aSta.Dens[1] * 1000;
-    } else
-    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) )
-    {
-        wp.surface_tension   = wr.Surtenw.val();
-        wp.Alpha    = wr.Alphaw;
-        wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
-        wp.thermal_conductivity    = wr.Tcondw.val();
-        wp.Tdiff    = wr.Tdiffw.val();
-        wp.Prndtl   = wr.Prndtlw.val();
-        wp.dAldT    = wr.dAldT;
-        wp.Albe     = wr.Albew;
-        wp.speed_of_sound    = wr.Speedw.val();
-        wp.dynamic_viscosity     = wr.Viscw.val();
-        wp.Visck    = wr.Visckw.val();
-
-        alp = wr.Alphaw;
-        dal = wr.dAldT;
-        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
-        gam = wr.Gamw;
-
-        wp.density          = aSta.Dens[0] * 1000; // in kg/m3
-        rho = aSta.Dens[0] * 1000;
-    }
-
-//    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
-//    {
-//        wp.Surten   = wl.Surtenw;
-//        wp.Alpha    = wl.Alphaw;
-//        wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
-//        wp.Tcond    = wl.Tcondw;
-//        wp.Tdiff    = wl.Tdiffw.val();
-//        wp.Prndtl   = wl.Prndtlw.val();
-//        wp.dAldT    = wl.dAldT;
-//        wp.Albe     = wl.Albew;
-//        wp.Speed    = wl.Speedw;
-//        wp.Visc     = wl.Viscw;
-//        wp.Visck    = wl.Visckw.val();
-
-//        alp = wl.Alphaw;
-//        dal = wl.dAldT;
-//        bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
-
-//    } else
-//    {
-//        wp.Surten   = wr.Surtenw;
-//        wp.Alpha    = wr.Alphaw;
-//        wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
-//        wp.Tcond    = wr.Tcondw;
-//        wp.Tdiff    = wr.Tdiffw.val();
-//        wp.Prndtl   = wr.Prndtlw.val();
-//        wp.dAldT    = wr.dAldT;
-//        wp.Albe     = wr.Albew;
-//        wp.Speed    = wr.Speedw;
-//        wp.Visc     = wr.Viscw;
-//        wp.Visck    = wr.Visckw.val();
-
-//        alp = wr.Alphaw;
-//        dal = wr.dAldT;
-//        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
-//    }
-
-//    wp.gibbsIdealGas    = id.gi;
-//    wp.entropyIdealGas  = id.si;
-//    wp.cpIdealGas       = id.cpi;
-
-//    if (aSpc.metastable && !aSpc.isat)
-//    {
-//        wp.density          = aSta.Dens[!aSpc.isat] * 1000; // in kg/m3
-//        rho = aSta.Dens[!aSpc.isat] * 1000;
-//    } else
-//    {
-//        wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
-//        rho = aSta.Dens[aSpc.isat] * 1000;
-//    }
+    const real rho = ph.d * 1000;
+    const real alp = ph.w.Alphaw;
+    const real dal = ph.w.dAldT;
+    const real bet = ph.w.Betaw / 1e05; // from bar-1 to Pa-1
+    const real gam = ph.w.Gamw;
 
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
@@ -443,7 +349,8 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
 //    aSpc.iopt = 1;
 
     pcorr_cache.valid = false;
-    memset( &wl, 0, sizeof(WPROPS));
+    liq_ = HGKPhase{};
+    vap_ = HGKPhase{};
     memset( &wr, 0, sizeof(WPROPS));
     memset( &a2, 0, sizeof(ABC2));
     memset( &a1, 0, sizeof(ABC1));
@@ -768,137 +675,54 @@ auto WaterHGKgems::HGKsat(int& isat, int iopt, int itripl, real Temp,
 }
 
 //--------------------------------------------------------------------//
-// Calc dependent state values
-auto WaterHGKgems::calcv3(int iopt, int itripl, real Temp, real *Pres,
-                     real *Dens, int epseqn) -> void
-{
-    real ps=0., dll=0., dvv=0., dguess;
-
-    if (iopt == 1)
-    {
-        resid(Temp, Dens);
-        base(Dens, Temp);
-        ideal(Temp);
-        *Pres  = a1.rt * *Dens * ac->zb + qq.q0;
-    }
-    else
-    {
-        if (Temp < ac->tz)
-        {
-            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
-            if (aSta.Psat > 0.0)
-                ps = aSta.Psat / 10;  // the saturation pressure of the model (LVS near the critical point), MPa
-        }
-        else
-        {
-            ps   = 2.0e4;
-            dll  = 0.0e0;
-        }
-        if (*Pres >  ps)
-            dguess = dll;
-        else
-        {
-            dguess = *Pres / Temp / 0.4e0;
-        }
-        denHGK(&aSta.Dens[0], Pres, dguess, Temp, &fct.dpdd);   /* Dens ???*/
-        ideal(Temp);
-    }
-}
-
-//--------------------------------------------------------------------//
-// Calc dependent state values
-auto WaterHGKgems::calcv2(int iopt, int itripl, real Temp, real *Pres,
-                     real *Dens, int epseqn) -> void
-{
-    real ps=0., dll=0., dvv=0., dguess;
-
-    if (iopt == 1)
-    {
-        resid(Temp, Dens);
-        base(Dens, Temp);
-        ideal(Temp);
-        *Pres  = a1.rt * *Dens * ac->zb + qq.q0;
-    }
-    else
-    {
-        if (Temp < ac->tz)
-        {
-            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
-        }
-        else
-        {
-            ps   = 2.0e4;
-            dll  = 0.0e0;
-        }
-
-        if (iopt == 3)
-        {
-            ps   = 2.0e4;
-            dll  = 0.0e0;
-        }
-//        if (*Pres >  ps)
-            dguess = dll;
-//        else
-//        {
-//            dguess = *Pres / Temp / 0.4e0;
-//        }
-        denHGK(&aSta.Dens[1], Pres, dguess, Temp, &fct.dpdd);   /* Dens ???*/
-        ideal(Temp);
-    }
-}
-
-//--------------------------------------------------------------------//
-// Calculation thermodinamic and transport H2O fitches for equation of
-// state Haar, Gallagher, & Kell (1984).
+// The properties of water at T and P by the equation of state of Haar, Gallagher and Kell (1984): the liquid and the vapour,
+// each at its own density. At saturation the densities of pcorr. Elsewhere the root of each branch from its saturated
+// density (the vapour from a nearly ideal gas), a metastable root if there is one, the other root beyond the spinodal of the
+// branch; above tz one fluid root.
 auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, real Temp,
                      real *Pres, real *Dens0, int epseqn) -> void
 {
     a1.rt = ac->gascon * Temp;
-    HGKsat(isat, iopt, itripl, Temp, Pres, Dens0, epseqn);
-//    if (!aSpc.metastable)
-//    {
-//        if (isat == 0)
-//        {
-//            bb(Temp);
-//            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-//            thmHGK(Dens0, Temp);
-//            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-//        }
-//        else
-//        {
-//            memcpy(&wl, &wr, sizeof(WPROPS));
-//            dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-//        }
-//    } else
+    bb(Temp);
+    real dl = 0.0, dv = 0.0;
+    if (isat == 1)
     {
-        bb(Temp);
-        calcv2(iopt, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-        thmHGK(&aSta.Dens[1], Temp);
-        dimHGK(isat, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-
-        memcpy(&wl, &wr, sizeof(WPROPS));
-
-        calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-        thmHGK(Dens0, Temp);
-        dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-
-        if ((aSta.Pres*10 > aSta.Psat) && (Temp < 0.647126e3) && (!aSpc.isat))
-        {
-            calcv2(3, itripl, Temp, Pres, &aSta.Dens[0], epseqn);
-            thmHGK(&aSta.Dens[0], Temp);
-            dimHGK(1, itripl, Temp, Pres, &aSta.Dens[0], epseqn);
-
-            real temp = aSta.Dens[0];
-            aSta.Dens[0] = aSta.Dens[1];
-            aSta.Dens[1] = temp;
-
-//            memcpy(&wl, &wr, sizeof(WPROPS));
-//            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-//            thmHGK(Dens0, Temp);
-//            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-        }
-
+        HGKsat(isat, iopt, itripl, Temp, Pres, Dens0, epseqn);
+        dl = aSta.Dens[0];
+        dv = aSta.Dens[1];
     }
+    else
+    {
+        real ps = 0.0, dll = 0.0, dvv = 0.0;
+        if (Temp < ac->tz)
+            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
+        const real gas = *Pres / Temp / 0.4e0;
+        dl = rootHGK(Pres, Temp, dll, gas);
+        dv = rootHGK(Pres, Temp, gas, dll);
+        aSta.Dens[0] = dl;
+        aSta.Dens[1] = dv;
+    }
+    liq_ = HGKPhase{phaseHGK(isat, itripl, Temp, Pres, dl, epseqn), dl};
+    vap_ = HGKPhase{phaseHGK(isat, itripl, Temp, Pres, dv, epseqn), dv};
+}
+
+auto WaterHGKgems::rootHGK(real *p, real t, real guess, real other) -> real
+{
+    real d = 0.0;
+    if (denHGK(&d, p, guess, t, &fct.dpdd))
+        return d;
+    denHGK(&d, p, other, t, &fct.dpdd);
+    return d;
+}
+
+auto WaterHGKgems::phaseHGK(int isat, int itripl, real t, real *p, real d, int epseqn) -> WPROPS
+{
+    resid(t, &d);
+    base(&d, t);
+    ideal(t);
+    thmHGK(&d, t);
+    dimHGK(isat, itripl, t, p, &d, epseqn);
+    return wr;
 }
 
 //--------------------------------------------------------------------//
@@ -1076,7 +900,7 @@ auto WaterHGKgems::bb(real t) -> void
 //--------------------------------------------------------------------//
 //calc density (d in g/cm3) and dP/dD (dPdd) as f(p(MPa), t(degK))
 // from an initial density guess (dguess).
-auto WaterHGKgems::denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> void
+auto WaterHGKgems::denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> bool
 {
     real pp, dp, dpdx, x;
     int  i= 0;
@@ -1097,7 +921,7 @@ FIRST:
         if (dguess < 0.2967e0)    *d *= 0.98e0;
     }
     while (i <= 10);
-    return;
+    return false;
 OTHER:
     {
         dpdx = *dpdd * 1.1e0;
@@ -1111,7 +935,7 @@ OTHER:
         dp   = fabs(1.0e0 - pp / *p);
         x = (*p - pp) / dpdx;
         if (dp < 1.0e-12 || fabs(x) < 1.0e-12 * *d)
-            return;
+            return true;
         if (fabs(x)  >  0.1e0)
             x *= 0.1e0 / fabs(x);
         *d += x;
@@ -1119,6 +943,7 @@ OTHER:
             *d = 1.0e-8;
         if ( i <= 100 ) goto FIRST;
     }
+    return false;
 }
 
 

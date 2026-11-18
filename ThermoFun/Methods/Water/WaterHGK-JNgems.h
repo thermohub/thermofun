@@ -28,8 +28,11 @@ private:
 
     HGK_SPECS aSpc; HGK_STATES aSta;
 
-    WPROPS wl;
-    WPROPS wr;
+    WPROPS wr;  ///< the properties of the last call of dimHGK
+    /// One phase at T and P: its properties and density (g/cm3). The liquid and the vapour are kept apart; the state of the
+    /// record picks one. Above the critical temperature both are the one fluid.
+    struct HGKPhase { WPROPS w; real d = 0.0; };
+    HGKPhase liq_, vap_;
     ABC2 a2;
     ABC1 a1;
     TERM_PR trp;
@@ -90,7 +93,12 @@ private:
     auto bb(real t) -> void;
     auto resid(real t, real *d) -> void;
     auto base(real *d, real t) -> void;
-    auto denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> void;
+    /// The density d (g/cm3) at which P(d) = p, from dguess; false if the iteration did not converge.
+    auto denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> bool;
+    /// The root of a branch from its guess; if there is none (P beyond the spinodal of the branch), the root from the other guess.
+    auto rootHGK(real *p, real t, real guess, real other) -> real;
+    /// The properties at density d (g/cm3), all parts computed at d.
+    auto phaseHGK(int isat, int itripl, real t, real *p, real d, int epseqn) -> WPROPS;
     auto ideal(real t) -> void;
     auto thmHGK(real *d, real t) -> void;
     auto dalHGK(real *d, real t, real alpha) -> real;
@@ -108,10 +116,6 @@ private:
     auto Psublm(real Temp) -> real;
     auto HGKsat(int& isat, int iopt, int itripl, real Temp,
                          real *Pres, real *Dens, int epseqn) -> void;
-    auto calcv3(int iopt, int itripl, real Temp, real *Pres,
-                         real *Dens, int epseqn) -> void;
-    auto calcv2(int iopt, int itripl, real Temp, real *Pres,
-                         real *Dens, int epseqn) -> void;
     auto TdegUS(int it, real t) -> real;
     auto tcorr(int itripl, real *t, real *p, real *dL, real *dV,
                         int epseqn) -> void;

@@ -28,8 +28,10 @@ class TestWaterEoS(unittest.TestCase):
         T = 350+273.15
         assert self.engine.propertiesSolvent(T,P, "H2O@", 1).density.val == pytest.approx(15.05176552064709, 1e-5, 1e-14)
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val == pytest.approx(1.1120564097130872, 1e-5, 1e-14)
-        assert self.engine.propertiesSolvent(T,P, "H2O@", 0).density.val == pytest.approx(452.42695689302792, 1e-5, 1e-14)
-        assert self.engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val == pytest.approx(9.4564825264140211, 1e-5, 1e-14)
+        # no liquid root: 40 bar is below the liquid spinodal of HGK at 350 C (between 120 and 140 bar), so the liquid record
+        # gets the other root, the vapour, as reaktoro. Before, 452.4 kg/m3, where the iteration stopped (beta < 0, Cp < 0).
+        assert self.engine.propertiesSolvent(T,P, "H2O@", 0).density.val == pytest.approx(15.05176552064709, 1e-5, 1e-14)
+        assert self.engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val == pytest.approx(1.1120564097130872, 1e-5, 1e-14)
 
         assert self.engine.propertiesSolvent(T,P, "H2O@reak", 1).density.val == pytest.approx(15.043737111107781, 1e-5, 1e-14)
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@reak", 1).epsilon.val == pytest.approx(1.1119933554710066, 1e-5, 1e-14)
