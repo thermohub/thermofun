@@ -112,7 +112,7 @@ auto ThermoEngine::Impl::toThermoProperties(const model::SubstanceResult& r) -> 
         p.err = i.err * factor;
         p.sta = {i.status == model::ValueInfo::Status::NotDefined ? Reaktoro_::Status::notdefined
                  : i.status == model::ValueInfo::Status::Assigned ? Reaktoro_::Status::assigned
-                 : i.status == model::ValueInfo::Status::Read ? Reaktoro_::Status::read : Reaktoro_::Status::calculated, i.message};
+                 : i.status == model::ValueInfo::Status::Read ? Reaktoro_::Status::read : Reaktoro_::Status::calculated, render(i.notes)};
         return p;
     };
     ThermoPropertiesSubstance tps;
@@ -121,6 +121,9 @@ auto ThermoEngine::Impl::toThermoProperties(const model::SubstanceResult& r) -> 
     tps.entropy = one(r.values.S, r.info.S);
     tps.heat_capacity_cp = one(r.values.Cp, r.info.Cp);
     tps.volume = one(r.values.V, r.info.V, 1e5);  // 1 J/bar = 1e-5 m3
+    for (const auto* i : {&r.info.G, &r.info.H, &r.info.S, &r.info.Cp, &r.info.V})
+        for (const auto& note : i->notes)
+            addNote(tps.notes, note);
     return tps;
 }
 

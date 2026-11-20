@@ -239,12 +239,13 @@ auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const 
     if (TdegC > Tmax + tol || Pbar > Pmax + tol)
     {
         char text[200];
-        std::snprintf(text, sizeof(text), "JohnsonNorton91: T = %.6g degC, P = %.6g bar, above %.6g degC or %.6g bar", TdegC, Pbar, Tmax, Pmax);
-        const std::string message = outsideRangeMessage(text) + "; ";
+        std::snprintf(text, sizeof(text), "T = %.6g degC, P = %.6g bar, above %.6g degC or %.6g bar", TdegC, Pbar, Tmax, Pmax);
+        const Note note{Note::Kind::Range, Note::Severity::Soft, "JohnsonNorton91", text, {}};
+        addNote(eps.notes, note);
         for (auto* x : {&eps.epsilon, &eps.epsilonT, &eps.epsilonP, &eps.epsilonTT, &eps.epsilonTP, &eps.epsilonPP,
                         &eps.bornZ, &eps.bornY, &eps.bornQ, &eps.bornN, &eps.bornU, &eps.bornX})
             if (x->sta.first == Reaktoro_::Status::calculated)
-                x->sta.second += message;
+                x->sta.second += render(note);
     }
     return eps;
 }

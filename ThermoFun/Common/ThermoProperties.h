@@ -5,6 +5,7 @@
 #define THERMOPROPERTIES_H
 
 // TCorPT includes
+#include <ThermoFun/Common/Notes.h>
 #include <ThermoFun/Common/ThermoProperty.hpp>
 
 namespace ThermoFun {
@@ -258,10 +259,11 @@ struct FunctionG
 
 /// The thermodynamic properties returned by the engine: ThermoScalar properties with the value, the derivatives with
 /// respect to T and P, the error and the status (the interface of ThermoFun is not changed by the use of autodiff).
-struct ThermoPropertiesSubstance : ThermoPropertiesSubstanceT<Reaktoro_::ThermoScalar> {};
-struct ThermoPropertiesReaction  : ThermoPropertiesReactionT<Reaktoro_::ThermoScalar> {};
-struct PropertiesSolvent         : PropertiesSolventT<Reaktoro_::ThermoScalar> {};
-struct ElectroPropertiesSolvent  : ElectroPropertiesSolventT<Reaktoro_::ThermoScalar> {};
+/// notes: why the values can be doubted (decision 0029); the status message of each property is made from them.
+struct ThermoPropertiesSubstance : ThermoPropertiesSubstanceT<Reaktoro_::ThermoScalar> { Notes notes; };
+struct ThermoPropertiesReaction  : ThermoPropertiesReactionT<Reaktoro_::ThermoScalar> { Notes notes; };
+struct PropertiesSolvent         : PropertiesSolventT<Reaktoro_::ThermoScalar> { Notes notes; };
+struct ElectroPropertiesSolvent  : ElectroPropertiesSolventT<Reaktoro_::ThermoScalar> { Notes notes; };
 
 /// The same properties as autodiff numbers, used inside the models while calculating
 using ThermoPropertiesSubstanceAD = ThermoPropertiesSubstanceT<real>;

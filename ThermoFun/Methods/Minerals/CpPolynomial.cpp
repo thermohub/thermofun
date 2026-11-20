@@ -72,10 +72,10 @@ auto cpPolynomialInfo(PropertiesInfo& out, const PropertiesInfo& ref, const Info
     out.V.status = ValueInfo::Status::Assigned;
     if (in.outside)
     {
-        const std::string message = outsideRangeMessage("Empirical Cp integration: Outside temperature bounds") + "; ";
+        const Note note{Note::Kind::Range, Note::Severity::Soft, "", "Empirical Cp integration: Outside temperature bounds", {}};
         for (ValueInfo* v : {&out.G, &out.H, &out.S, &out.Cp})
             if (v->status == ValueInfo::Status::Calculated)
-                v->message += message;
+                addNote(v->notes, note);
     }
 }
 

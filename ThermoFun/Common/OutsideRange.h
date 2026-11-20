@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include <ThermoFun/Common/Notes.h>
 #include <ThermoFun/Common/ThermoScalar.hpp>
 
 namespace ThermoFun {
@@ -13,7 +14,7 @@ namespace ThermoFun {
 /// The words that start the message of a value that a model calculated outside its range (of T, P, the density of water,
 /// its T intervals or table). The status of such a value stays `calculated`: the value is there, and the message says why it
 /// can be wrong. All methods write these messages with one function, so outsideRange() finds them all.
-inline constexpr const char* outsideRangeMark = "Outside the range of the model: ";
+inline constexpr const char* outsideRangeMark = rangeNoteMark;
 
 /// The message of a point outside the range of a model, as the methods write it.
 inline auto outsideRangeMessage(const std::string& what) -> std::string

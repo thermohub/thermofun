@@ -42,3 +42,24 @@ def test_inside_the_range_there_is_no_note():
     e = engine("gems")
     assert not e.electroPropertiesSolvent(1273.15, 5e8, "H2O@").epsilon.outside_range
     assert not e.thermoPropertiesSubstance(1273.15, 5e8, "Na+").gibbs_energy.outside_range
+
+
+def test_the_notes_are_data_with_the_method_and_the_path():
+    e = engine("gems")
+    water = e.electroPropertiesSolvent(1274.0, 5e8, "H2O@").notes
+    assert len(water) == 1 and water[0].method == "JohnsonNorton91" and water[0].via == []
+    assert water[0].severity == tf.Note.Severity.Soft and water[0].kind == tf.Note.Kind.Range
+    solute = e.thermoPropertiesSubstance(1274.0, 5e8, "Na+").notes
+    assert len(solute) == 1 and solute[0].method == "JohnsonNorton91" and solute[0].via == ["the water"]
+
+
+def test_the_status_message_is_made_from_the_notes():
+    r = engine("gems").thermoPropertiesSubstance(1274.0, 5e8, "Na+")
+    assert r.gibbs_energy.sta[1] == "".join(repr(n)[len("<Note "):-1] for n in r.notes)
+    assert str(r.notes[0]).startswith("Outside the range of the model: via the water: JohnsonNorton91: T = 1000.85 degC")
+
+
+def test_inside_the_range_the_result_has_no_notes():
+    e = engine("gems")
+    assert e.thermoPropertiesSubstance(1273.15, 5e8, "Na+").notes == []
+    assert e.electroPropertiesSolvent(1273.15, 5e8, "H2O@").notes == []
