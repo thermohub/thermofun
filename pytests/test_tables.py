@@ -199,7 +199,10 @@ def test_each_template_makes_its_tables():
         results = tf.table(template=name, database=AQ, **given)
         for table in results.values():
             assert table.rows and table.to_text("csv"), name
-            assert not results.problems, (name, results.problems[:2])
+            # every value is there; a note of a point outside the range of a model is allowed (logk-grid reaches 400 degC at
+            # 500 bar, where the water is below the density range of HKF: the reaction says so, via Ca+2, decision 0029)
+            missing = [p for p in results.problems if "Outside the range of the model" not in p[-1]]
+            assert not missing, (name, missing[:2])
 
 
 def test_a_template_needs_your_records():

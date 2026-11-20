@@ -132,6 +132,12 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
             copyValues(tpr.reaction_helmholtz_energy, values.reaction_helmholtz_energy);
         }
 
+        // the notes of the components, with the component in the path (decision 0029); the message of a defined property
+        // says where the values come from and carries the notes
+        for (size_t i = 0; i < components.size(); ++i)
+            inheritNotes(tpr.notes, components[i].first.notes, symbols[i]);
+        message += render(tpr.notes);
+
         // the errors and statuses, and the messages of the properties that are not defined
         for (size_t i = 0; i < components.size(); ++i)
         {
@@ -149,13 +155,13 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
             tpr.reaction_internal_energy.propagateFrom(tpr.reaction_internal_energy, tps.internal_energy);
             tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_helmholtz_energy, tps.helmholtz_energy);
 
-            setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);
-            setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message+tps.enthalpy.sta.second,         tpr.reaction_enthalpy.sta.second);
-            setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message+tps.entropy.sta.second,          tpr.reaction_entropy.sta.second);
-            setMessage(tps.volume.sta.first,           "V0 of component " + substance, message+tps.volume.sta.second,           tpr.reaction_volume.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.log_equilibrium_constant.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
+            setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message, tpr.reaction_heat_capacity_cp.sta.second);
+            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.reaction_gibbs_energy.sta.second);
+            setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message, tpr.reaction_enthalpy.sta.second);
+            setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message, tpr.reaction_entropy.sta.second);
+            setMessage(tps.volume.sta.first,           "V0 of component " + substance, message, tpr.reaction_volume.sta.second);
+            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.log_equilibrium_constant.sta.second);
+            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.ln_equilibrium_constant.sta.second);
         }
 
     // the errors: first-order propagation of the errors of the reactants (independent), weighted by the

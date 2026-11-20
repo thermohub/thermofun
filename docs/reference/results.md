@@ -32,7 +32,7 @@ message of each value (`sta[1]`) is made from the notes.
 | `text` | What is outside, and of what. |
 | `via` | The path of a note that comes from another record, nearest first. A solute calculated on water that is outside the range of its model gets the note of the water, with `via` `['the water']`. |
 
-A note travels with the result: a method that is inside its own range, but uses one that is outside, says so.
+A note travels with the result: a method that is inside its own range, but uses one that is outside, says so. A reaction calculated from its species gets their notes (`via` the species, then its path), and so does a record defined by a reaction (`via` `the reaction R` and the other species).
 
 ```python
 import thermofun as tf

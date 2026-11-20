@@ -533,18 +533,36 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
 
     // the properties of the other reactants
     std::vector<std::pair<ThermoPropertiesSubstance, double>> others;
+    std::vector<std::string> otherSymbols;
     for (const auto& reactant : reactants)
     {
         if (reactant.first != subst.symbol())
+        {
             others.push_back({cachedSubstance(T, Pcalc, reactant.first), reactant.second});
+            otherSymbols.push_back(reactant.first);
+        }
     }
 
     const double coeff = reactants[subst.symbol()];
 
     // the properties of the substance from the properties of the reaction and of the other reactants
     tps = model::substanceFromReaction(T, Pcalc, tpr, others, coeff);
+    // the notes of the reaction and of the other reactants, with the path (decision 0029), on the result that is returned
+    Notes notes;
+    inheritNotes(notes, tpr.notes, "the reaction " + reactionSymbol);
+    for (std::size_t i = 0; i < others.size(); ++i)
+        inheritNotes(notes, others[i].first.notes, otherSymbols[i]);
+    auto withNotes = [&](ThermoPropertiesSubstance result) {
+        for (const auto& note : notes)
+            addNote(result.notes, note);
+        if (!notes.empty())
+            for (auto* field : fields(result))
+                if (field->sta.first == Reaktoro_::Status::calculated)
+                    field->sta.second += render(notes);
+        return result;
+    };
     if (!ownTerm)
-        return tps;
+        return withNotes(tps);
 
     if (fromData)
         for (auto* field : fields(tps))
@@ -568,7 +586,7 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
         keep(tps.volume, out.V, 1e5);  // 1 J/bar = 1e-5 m3
         tps.volume.sta = {Reaktoro_::Status::calculated, ""};
     }
-    return tps;
+    return withNotes(tps);
 }
 
 } // namespace ThermoFun
