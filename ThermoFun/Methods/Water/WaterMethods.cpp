@@ -4,10 +4,13 @@
 #include "WaterMethods.h"
 
 #include <algorithm>
+#include <cstdio>
+#include <utility>
 #include <functional>
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/OutsideRange.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterElectroState.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.hpp>
@@ -226,10 +229,24 @@ auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, in
 
 auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const WaterHGKgemsConstants& constants) -> ElectroPropertiesSolvent
 {
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+    auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         WaterHGKgems water_hgk(constants);
         return water_hgk.electroPropertiesWaterJNgems(pass.T, pass.P / bar_to_Pa, pass(ps.density) / 1000.0, pass(ps.Beta) * bar_to_Pa, pass(ps.Alpha), pass(ps.dAldT));
     });
+    // the range of Johnson and Norton (1991): up to born_TMAX degC and born_PMAX bar
+    const auto [Tmax, Pmax] = johnsonNorton91Range(constants);
+    const double tol = 1.0e-3, TdegC = T - C_to_K, Pbar = P / bar_to_Pa;
+    if (TdegC > Tmax + tol || Pbar > Pmax + tol)
+    {
+        char text[200];
+        std::snprintf(text, sizeof(text), "JohnsonNorton91: T = %.6g degC, P = %.6g bar, above %.6g degC or %.6g bar", TdegC, Pbar, Tmax, Pmax);
+        const std::string message = outsideRangeMessage(text) + "; ";
+        for (auto* x : {&eps.epsilon, &eps.epsilonT, &eps.epsilonP, &eps.epsilonTT, &eps.epsilonTP, &eps.epsilonPP,
+                        &eps.bornZ, &eps.bornY, &eps.bornQ, &eps.bornN, &eps.bornU, &eps.bornX})
+            if (x->sta.first == Reaktoro_::Status::calculated)
+                x->sta.second += message;
+    }
+    return eps;
 }
 
 /// An equation of state of water, made of functions.

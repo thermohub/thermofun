@@ -254,6 +254,11 @@ TOLERS  to_ = { /* TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL */
 
      /* x[11] */
 
+auto johnsonNorton91Range(const WaterHGKgemsConstants& constants) -> std::pair<double, double>
+{
+    return {constants.born_TMAX, constants.born_PMAX};
+}
+
 auto WaterHGKgems::errorHKFH2OValidity(std::string type, real P, real T, std::string name, int line) -> void
 {
     Exception exception;
@@ -1007,13 +1012,10 @@ auto WaterHGKgems::Born92(real TK, real Pbars, real Dgcm3, real betab,
     *Q   = 0.0e0;
     *X   = 0.0e0;
     TdegC = TK - 273.15e0;
-    /*  The following line can be commented out to facilitate probably
-    *   unreliable, yet potentially useful, predictive calculations
-    *   at state conditions beyond the validity limits of the aqueous
-    *   species equation of state.                                   */
-
-    if ( (TdegC > TMAX + TOL) || (Pbars > PMAX + TOL) )
-        return;
+    // Beyond TMAX or PMAX (the range of Johnson and Norton 1991) SUPCRT92 and GEMS returned 0 for epsilon and the Born
+    // functions, which silently changed the solutes by tens of kJ/mol. The values are calculated there, and the caller
+    // (johnsonNorton91Gems) marks them as outside the range of the model (decision 0029).
+    (void)TMAX; (void)PMAX; (void)TOL; (void)TdegC;
     if (epseqn == 4)
     {
         /* d2edT2=0.; */

@@ -98,6 +98,16 @@ auto hkf88Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs&
     const double density = in.solvent->properties.density.val;
     if (density >= 1400 || density <= 600)
         setMessage(out, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval");
+    // a dielectric model outside its range: the solute inherits the note, with the path (decision 0029)
+    if (outsideRange(wes.bornZ))
+    {
+        std::string note = wes.bornZ.sta.second;
+        for (std::string::size_type at; (at = note.find(outsideRangeMark)) != std::string::npos;)
+            note.erase(at, std::string(outsideRangeMark).size());
+        while (!note.empty() && (note.back() == ' ' || note.back() == ';'))
+            note.pop_back();
+        setMessage(out, "via the water: " + note);
+    }
 }
 
 template <typename Scalar>
