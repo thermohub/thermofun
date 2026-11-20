@@ -82,7 +82,7 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
     tpr.reaction_helmholtz_energy = 0.0;
 
     // where the values come from (decision 0029)
-    addNote(tpr.notes, Note{Note::Kind::Source, Note::Severity::Soft, "", "Calculated from the reaction components: " + reaction, {}, {}});
+    addNote(tpr.info.notes, Note{Note::Kind::Source, Note::Severity::Soft, "", "Calculated from the reaction components: " + reaction, {}, {}});
 
         // the values and derivatives of the properties of the reaction
         if (!components.empty())
@@ -135,7 +135,7 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
 
         // the notes of the components, with the component in the path (decision 0029)
         for (size_t i = 0; i < components.size(); ++i)
-            inheritNotes(tpr.notes, components[i].first.notes, symbols[i]);
+            inheritNotes(tpr.info.notes, components[i].first.info.notes, symbols[i]);
 
         // the errors and statuses; what is missing for a property that is not defined
         for (size_t i = 0; i < components.size(); ++i)
@@ -159,16 +159,31 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
                 {&tps.entropy, {"S", "S0"}}, {&tps.volume, {"V", "V0"}}};
             for (const auto& [value, names] : parts)
                 if (value->sta.first == Reaktoro_::Status::notdefined)
-                    addNote(tpr.notes, Note{Note::Kind::Undefined, Note::Severity::Hard, "", std::string(names.second) + " of component " + substance, {}, {names.first}});
+                    addNote(tpr.info.notes, Note{Note::Kind::Undefined, Note::Severity::Hard, "", std::string(names.second) + " of component " + substance, {}, {names.first}});
         }
         // the message of each property, made from the notes about it (log K and ln K follow G)
-        tpr.reaction_heat_capacity_cp.sta.second = render(tpr.notes, "Cp");
-        tpr.reaction_gibbs_energy.sta.second = render(tpr.notes, "G");
-        tpr.reaction_enthalpy.sta.second = render(tpr.notes, "H");
-        tpr.reaction_entropy.sta.second = render(tpr.notes, "S");
-        tpr.reaction_volume.sta.second = render(tpr.notes, "V");
-        tpr.log_equilibrium_constant.sta.second = render(tpr.notes, "G");
-        tpr.ln_equilibrium_constant.sta.second = render(tpr.notes, "G");
+        tpr.reaction_heat_capacity_cp.sta.second = render(tpr.info.notes, "Cp");
+        tpr.reaction_gibbs_energy.sta.second = render(tpr.info.notes, "G");
+        tpr.reaction_enthalpy.sta.second = render(tpr.info.notes, "H");
+        tpr.reaction_entropy.sta.second = render(tpr.info.notes, "S");
+        tpr.reaction_volume.sta.second = render(tpr.info.notes, "V");
+        tpr.log_equilibrium_constant.sta.second = render(tpr.info.notes, "G");
+        tpr.ln_equilibrium_constant.sta.second = render(tpr.info.notes, "G");
+        // the info of each value: the notes about it
+        auto about = [&](const char* property) {
+            Notes out;
+            for (const auto& note : tpr.info.notes)
+                if (isAbout(note, property))
+                    out.push_back(note);
+            return out;
+        };
+        tpr.reaction_heat_capacity_cp.info.notes = about("Cp");
+        tpr.reaction_gibbs_energy.info.notes = about("G");
+        tpr.reaction_enthalpy.info.notes = about("H");
+        tpr.reaction_entropy.info.notes = about("S");
+        tpr.reaction_volume.info.notes = about("V");
+        tpr.log_equilibrium_constant.info.notes = about("G");
+        tpr.ln_equilibrium_constant.info.notes = about("G");
 
     // the errors: first-order propagation of the errors of the reactants (independent), weighted by the
     // stoichiometric coefficients; ln K = -G/(R T)

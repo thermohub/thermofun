@@ -262,7 +262,7 @@ def test_a_value_outside_the_range_of_its_model_is_marked_and_listed():
     engine = tf.ThermoEngine(AQ)
     inside = engine.thermoPropertiesSubstance(298.15, 1e5, "Ca+2").gibbs_energy
     outside = engine.thermoPropertiesSubstance(673.15, 5e7, "Ca+2").gibbs_energy      # water below 600 kg/m3
-    assert not inside.outside_range and outside.outside_range
+    assert inside.info.validity == tf.Validity.within and outside.info.validity == tf.Validity.extrapolated
     assert outside.sta[0] == tf.Status.calculated                                    # the value is there
     results = tf.table(template="species-properties", database=AQ, records=["Ca+2"], T={"values": [400], "unit": "degC"}, P={"values": [500], "unit": "bar"})
     assert any("Outside the range of the model" in message for *_, message in results.problems)

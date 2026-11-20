@@ -27,6 +27,7 @@ namespace py = pybind11;
 
 // thermofun includes
 #include <ThermoFun/Common/OutsideRange.h>
+#include "pyInfo.h"
 #include <ThermoFun/Common/ThermoScalar.hpp>
 namespace r_ = Reaktoro_;
 
@@ -46,6 +47,26 @@ auto exportStatus(py::module& m) -> void
 
 void exportThermoScalar(py::module& m)
 {
+    py::enum_<Validity>(m, "Validity", "How far a value can be used: within every range it depends on, extrapolated beyond one, or undefined (no value)")
+        .value("within", Validity::within)
+        .value("extrapolated", Validity::extrapolated)
+        .value("undefined", Validity::undefined);
+    py::enum_<ErrorState>(m, "ErrorState", "Whether err can be trusted: known (the uncertainty of the data), partial (a contribution could not be propagated: err is NaN), unknown (the data give none: err is 0, which does not mean exact)")
+        .value("known", ErrorState::known)
+        .value("partial", ErrorState::partial)
+        .value("unknown", ErrorState::unknown);
+    py::class_<InfoView>(m, "Info", "What a value says about itself besides its number and its error (decision 0029)")
+        .def_readonly("validity", &InfoView::validity, "within, extrapolated or undefined: made from the status and the notes")
+        .def_readonly("status", &InfoView::status, "notdefined, read, assigned or calculated; None for a whole result")
+        .def_readonly("error", &InfoView::error, "known, partial or unknown: whether err can be trusted; made from the notes and err")
+        .def_readonly("source", &InfoView::source, "where the value came from: methods, reaction, reactants, reference, water, hydrogen_ion")
+        .def_readonly("pressure", &InfoView::pressure, "the pressure used, Pa (the saturation pressure at P = 0); None if not known")
+        .def_readonly("notes", &InfoView::notes, "the list of Note behind it: range, source, undefined, uncertainty")
+        .def("__repr__", [](const InfoView& v) {
+            const char* names[] = {"within", "extrapolated", "undefined"};
+            return std::string("<Info ") + names[static_cast<int>(v.validity)] + ", " + std::to_string(v.notes.size()) + " notes>";
+        });
+
     py::class_<r_::ThermoScalar>(m, "ThermoScalar")
         .def(py::init<>())
         .def(py::init<double>())
@@ -55,8 +76,8 @@ void exportThermoScalar(py::module& m)
         .def_property("ddp", [](const r_::ThermoScalar& x) { return x.ddp(); }, [](r_::ThermoScalar& x, double v) { x.ddp = v; })
         .def_readwrite("err", &r_::ThermoScalar::err)
         .def_readwrite("sta", &r_::ThermoScalar::sta)
-        .def_property_readonly("outside_range", [](const r_::ThermoScalar& x) { return outsideRange(x); },
-                               "True if the value was calculated outside the range of its model; sta[1] says which range")
+        .def_property_readonly("info", [](const r_::ThermoScalar& x) { return infoOf(x); },
+                               "validity, status, error, source, pressure and the notes behind them (decision 0029)")
         // arithmetic with the propagation of the derivatives, the errors and the statuses (as in C++)
         .def("__add__", [](const r_::ThermoScalar& l, const r_::ThermoScalar& r) { return r_::ThermoScalar(l + r); }, py::is_operator())
         .def("__add__", [](const r_::ThermoScalar& l, double r) { return r_::ThermoScalar(l + r); }, py::is_operator())

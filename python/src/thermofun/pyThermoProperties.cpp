@@ -27,13 +27,14 @@ namespace py = pybind11;
 
 #include <ThermoFun/Common/ThermoScalar.hpp>
 #include <ThermoFun/ThermoProperties.h>
+#include "Common/pyInfo.h"
 
 namespace ThermoFun {
 
 void exportThermoPropertiesSubstance(py::module& m)
 {
     py::class_<Note> note(m, "Note", "Why a value can be doubted (decision 0029): a value outside the range of a model, with the path "
-                                     "it came by. The status message of each property is made from the notes.");
+                                     "it came by; or where the values come from, what is missing, an incomplete uncertainty. The status message of each value is made from its notes.");
     py::enum_<Note::Kind>(note, "Kind").value("Range", Note::Kind::Range).value("Source", Note::Kind::Source).value("Undefined", Note::Kind::Undefined).value("Uncertainty", Note::Kind::Uncertainty);
     py::enum_<Note::Severity>(note, "Severity").value("Soft", Note::Severity::Soft).value("Hard", Note::Severity::Hard);
     note.def(py::init<>())
@@ -48,7 +49,7 @@ void exportThermoPropertiesSubstance(py::module& m)
 
     py::class_<ThermoPropertiesSubstance>(m, "ThermoPropertiesSubstance", "Standard molar properties of a substance")
         .def(py::init<>())
-        .def_readwrite("notes", &ThermoPropertiesSubstance::notes, "why the values can be doubted: a list of Note")
+        .def_property_readonly("info", [](const ThermoPropertiesSubstance& r) { return infoOf(r.info); }, "the notes of all values, the source and the pressure; extrapolated if one value is")
         .def_readwrite("gibbs_energy", &ThermoPropertiesSubstance::gibbs_energy)
         .def_readwrite("helmholtz_energy", &ThermoPropertiesSubstance::helmholtz_energy)
         .def_readwrite("internal_energy", &ThermoPropertiesSubstance::internal_energy)
@@ -64,7 +65,7 @@ void exportThermoPropertiesReaction(py::module& m)
 {
     py::class_<ThermoPropertiesReaction>(m, "ThermoPropertiesReaction", "Standard molar properties of a reaction")
         .def(py::init<>())
-        .def_readwrite("notes", &ThermoPropertiesReaction::notes, "why the values can be doubted: a list of Note")
+        .def_property_readonly("info", [](const ThermoPropertiesReaction& r) { return infoOf(r.info); }, "the notes of all values, the source and the pressure; extrapolated if one value is")
         .def_readwrite("ln_equilibrium_constant",   &ThermoPropertiesReaction::ln_equilibrium_constant)
         .def_readwrite("log_equilibrium_constant",  &ThermoPropertiesReaction::log_equilibrium_constant)
         .def_readwrite("reaction_gibbs_energy",     &ThermoPropertiesReaction::reaction_gibbs_energy)
@@ -82,7 +83,7 @@ void exportElectroPropertiesSolvent(py::module& m)
 {
     py::class_<ElectroPropertiesSolvent>(m, "ElectroPropertiesSolvent", "Dielectric constant, its derivatives  with T and P, and Born functions")
         .def(py::init<>())
-        .def_readwrite("notes", &ElectroPropertiesSolvent::notes, "why the values can be doubted: a list of Note")
+        .def_property_readonly("info", [](const ElectroPropertiesSolvent& r) { return infoOf(r.info); }, "the notes of all values, the source and the pressure; extrapolated if one value is")
         .def_readwrite("epsilon", &ElectroPropertiesSolvent::epsilon)
         .def_readwrite("epsilonT", &ElectroPropertiesSolvent::epsilonT)
         .def_readwrite("epsilonP", &ElectroPropertiesSolvent::epsilonP)
@@ -102,7 +103,7 @@ void exportPropertiesSolvent(py::module& m)
 {
     py::class_<PropertiesSolvent>(m, "PropertiesSolvent", "Physical properties of water solvent")
         .def(py::init<>())
-        .def_readwrite("notes", &PropertiesSolvent::notes, "why the values can be doubted: a list of Note")
+        .def_property_readonly("info", [](const PropertiesSolvent& r) { return infoOf(r.info); }, "the notes of all values, the source and the pressure; extrapolated if one value is")
         .def_readwrite("speed_of_sound", &PropertiesSolvent::speed_of_sound)
         .def_readwrite("dynamic_viscosity", &PropertiesSolvent::dynamic_viscosity)
         .def_readwrite("thermal_conductivity", &PropertiesSolvent::thermal_conductivity)

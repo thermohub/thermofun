@@ -83,7 +83,7 @@ assert abs(G.ddp - calcite.volume.val) < 1e-11
 assert G.sta[0] == tf.Status.calculated
 ```
 
-Always look at the status. If it is `notdefined`, a value that the calculation needs is missing, and `val` has no meaning. If `G.outside_range` is True, the model was used outside its range (for example the HKF model of aqueous species where water is not dense enough): the value is there, and `G.sta[1]` says which range.
+Always look at the status. If it is `notdefined`, a value that the calculation needs is missing, and `val` has no meaning. If `G.info.validity` is `extrapolated`, a model was used outside its range (for example the HKF model of aqueous species where water is not dense enough): the value is there, and `G.info.notes` say which range (see [Results](../reference/results.md#info)).
 
 ## Use the saturation pressure
 

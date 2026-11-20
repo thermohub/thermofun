@@ -80,7 +80,7 @@ void exportMethods(py::module& parent)
         .def_readonly("S", &MethodResult::S)
         .def_readonly("Cp", &MethodResult::Cp)
         .def_readonly("V", &MethodResult::V)
-        .def_readonly("outside_range", &MethodResult::outside_range);
+        .def_readonly("extrapolated", &MethodResult::extrapolated, "True if the method used a value outside its range");
 
     py::class_<ReferenceValues>(m, "Reference", "The reference state of a substance, in SI; a value that is None is not given")
         .def(py::init(&makeReference), py::arg("T") = py::none(), py::arg("P") = py::none(), py::arg("G") = py::none(),

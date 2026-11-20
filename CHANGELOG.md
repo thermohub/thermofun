@@ -122,11 +122,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- **Notes on a result** (decision 0029): `ThermoPropertiesSubstance`, `ThermoPropertiesReaction`, `PropertiesSolvent` and
-  `ElectroPropertiesSolvent` have `notes`, a list of `Note` (kind, severity, method, text, and `via`, the path of a note that
-  comes from another record). The status message of each value is made from them. A solute calculated on water that is
-  outside the range of its model gets the note of the water (`via` `['the water']`). Python: `tf.Note`, `.notes`. See
-  `docs/reference/results.md`, Notes.
+- **`info` of each value** (decision 0029): `validity` (`within`, `extrapolated`, `undefined`), `status`, `error`
+  (`known`, `partial`, `unknown`: whether `err` can be trusted; `unknown` is `err` 0 because the data give none), `source` (`methods`, `reaction`, `reactants`, `reference`, `water`), `pressure` (the pressure
+  used: the saturation pressure at P = 0), and `notes`, the list of `Note` behind them (range, source, undefined,
+  uncertainty; with the method and `via`, the path of a note that comes from another record). The status message of each
+  value is made from its notes. A solute calculated on water that is outside the range of its model gets the note of the
+  water, a reaction those of its species. Results have `info` too, the notes of all their values. Replaces `outside_range`
+  (never released); the `MethodResult` of a method alone has `extrapolated`. Python: `tf.Note`, `tf.Validity`,
+  `tf.ErrorState`. See `docs/reference/results.md`, Info.
 - **Published ranges of models as data** (decision 0029): `JohnsonNorton91` (0 to 1000 degC, up to 5000 bar, both
   implementations), `WaterIAPWS95` (251.165 to 1273 K, up to 1000 MPa) and `FernandezEtAl97` (238 to 873 K, up to 1200 MPa)
   carry their range in the catalog, shown on their pages. One check, for every water equation and dielectric model, adds a

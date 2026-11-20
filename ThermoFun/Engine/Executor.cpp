@@ -66,7 +66,7 @@ auto combine(const SubstanceState<TPReal>& wrtT, const SubstanceState<TPReal>& w
     out.S = one(wrtT.S, wrtP.S);
     out.Cp = one(wrtT.Cp, wrtP.Cp);
     out.V = one(wrtT.V, wrtP.V);
-    out.outside_range = wrtT.outside_range;
+    out.extrapolated = wrtT.outside_range;
     return out;
 }
 

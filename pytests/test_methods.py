@@ -34,7 +34,7 @@ def test_cp_polynomial_and_parameters():
     r = m.evaluate(600.0, 1e5, REF)
     assert r.H.ddt == pytest.approx(r.Cp.val, rel=1e-10)
     assert r.Cp.val == pytest.approx(99.7 + 0.027 * 600 - 2148800.0 / 600**2, rel=1e-14)
-    assert not r.outside_range and m.evaluate(3000.0, 1e5, REF).outside_range
+    assert not r.extrapolated and m.evaluate(3000.0, 1e5, REF).extrapolated
 
     # a parameter derivative against finite differences; the original does not change
     d = m.parameterDerivative(1, 600.0, 1e5, REF)

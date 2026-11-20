@@ -4,6 +4,7 @@
 // The properties of substances and of the solvent, in the canonical convention.
 
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Common/OutsideRange.h>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterUtils.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzConstants.hpp>
 
@@ -113,6 +114,7 @@ auto ThermoEngine::Impl::toThermoProperties(const model::SubstanceResult& r) -> 
         p.sta = {i.status == model::ValueInfo::Status::NotDefined ? Reaktoro_::Status::notdefined
                  : i.status == model::ValueInfo::Status::Assigned ? Reaktoro_::Status::assigned
                  : i.status == model::ValueInfo::Status::Read ? Reaktoro_::Status::read : Reaktoro_::Status::calculated, render(i.notes)};
+        p.info.notes = i.notes;
         return p;
     };
     ThermoPropertiesSubstance tps;
@@ -123,7 +125,7 @@ auto ThermoEngine::Impl::toThermoProperties(const model::SubstanceResult& r) -> 
     tps.volume = one(r.values.V, r.info.V, 1e5);  // 1 J/bar = 1e-5 m3
     for (const auto* i : {&r.info.G, &r.info.H, &r.info.S, &r.info.Cp, &r.info.V})
         for (const auto& note : i->notes)
-            addNote(tps.notes, note);
+            addNote(tps.info.notes, note);
     return tps;
 }
 
@@ -212,7 +214,8 @@ auto ThermoEngine::Impl::detailedSubstance(double T, double &P, const Substance 
 auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Substance &substance, DetailedPropertiesSubstance* detailed) const -> ThermoPropertiesSubstance
 {
     // where the result came from, if it is asked for
-    const auto cameFrom = [&](const char* source) { if (detailed) detailed->source = source; };
+    std::string source;  // also on the result (decision 0029)
+    const auto cameFrom = [&](const char* from) { source = from; if (detailed) detailed->source = from; };
     cameFrom("none");
     const SubstanceKind kind = kindOf(substance);
     ThermoPropertiesSubstance tps;
@@ -228,6 +231,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
         tps.heat_capacity_cv = 0.0;
         tps.helmholtz_energy = 0.0;
         cameFrom("hydrogen_ion");
+        stampSource(tps, source);
         return tps;
     }
 
@@ -305,6 +309,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
     // check properties
     tps = fallbackThermoPropertiesSubstance(tps, substance);
 
+    stampSource(tps, source == "none" ? std::string() : source);
     return tps;
 }
 
@@ -549,16 +554,20 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     tps = model::substanceFromReaction(T, Pcalc, tpr, others, coeff);
     // the notes of the reaction and of the other reactants, with the path (decision 0029), on the result that is returned
     Notes notes;
-    inheritNotes(notes, tpr.notes, "the reaction " + reactionSymbol);
+    inheritNotes(notes, tpr.info.notes, "the reaction " + reactionSymbol);
     for (std::size_t i = 0; i < others.size(); ++i)
-        inheritNotes(notes, others[i].first.notes, otherSymbols[i]);
+        inheritNotes(notes, others[i].first.info.notes, otherSymbols[i]);
     auto withNotes = [&](ThermoPropertiesSubstance result) {
         for (const auto& note : notes)
-            addNote(result.notes, note);
+            addNote(result.info.notes, note);
         if (!notes.empty())
             for (auto* field : fields(result))
                 if (field->sta.first == Reaktoro_::Status::calculated)
+                {
                     field->sta.second += render(notes);
+                    for (const auto& note : notes)
+                        addNote(field->info.notes, note);
+                }
         return result;
     };
     if (!ownTerm)

@@ -1394,7 +1394,7 @@ struct TableSetup::Impl
                                 return q.record == record && q.T == point.T && q.P == point.P && q.saturation == point.saturation && q.message == note;
                             });
                             // a value calculated outside the range of its model (the methods mark the message, see OutsideRange.h)
-                            const bool outside = outsideRange(row.cells.back().result);
+                            const bool outside = extrapolated(row.cells.back().result);
                             if (outside && !known)
                             {
                                 TableProblem problem;

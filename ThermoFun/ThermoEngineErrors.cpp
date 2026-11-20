@@ -66,7 +66,10 @@ auto setPropagatedErrors(const Fields& fields, const std::vector<std::string>& n
             note.properties.push_back(name);
     addNote(notes, note);
     for (auto* field : fieldsWithNote)
+    {
         field->sta.second += render(note);
+        addNote(field->info.notes, note);
+    }
 }
 
 } // namespace
@@ -175,13 +178,13 @@ auto ThermoEngine::Impl::addSubstanceErrors(ThermoPropertiesSubstance& tps, doub
 {
     const auto canonical = thermoPropertiesSubstance(T, P, substance);
     static const std::vector<std::string> names = {"G", "A", "U", "H", "S", "V", "Cp", "Cv"};  // the order of fields()
-    setPropagatedErrors(fields(tps), names, tps.notes, inputs, [&](const ParameterRef& ref) { return substanceJacobian(T, P, substance, canonical, ref); });
+    setPropagatedErrors(fields(tps), names, tps.info.notes, inputs, [&](const ParameterRef& ref) { return substanceJacobian(T, P, substance, canonical, ref); });
 }
 
 auto ThermoEngine::Impl::addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const model::UncertainInputs& inputs) const -> void
 {
     static const std::vector<std::string> names = {"G", "A", "U", "H", "S", "V", "Cp", "Cv", "G", "G"};  // the order of fields(); ln K and log K follow G
-    setPropagatedErrors(fields(tpr), names, tpr.notes, inputs, [&](const ParameterRef& ref) { return reactionJacobian(T, P, reaction, ref, fromReactants); });
+    setPropagatedErrors(fields(tpr), names, tpr.info.notes, inputs, [&](const ParameterRef& ref) { return reactionJacobian(T, P, reaction, ref, fromReactants); });
 }
 
 } // namespace ThermoFun

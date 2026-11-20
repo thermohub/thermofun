@@ -14,50 +14,72 @@ Each property is a `ThermoScalar`.
 | `val` | The value. |
 | `ddt`, `ddp` | The derivatives by T and by P. |
 | `err` | The uncertainty. It is 0 if the data give none. |
-| `sta` | The status and a message: `notdefined`, `read`, `assigned`, `calculated`, `initialized`. The message is made from the [notes](#notes) of the result. |
-| `outside_range` | True if a model calculated the value outside its range (of T, P, the density of water, its T intervals or its table). The status stays `calculated`; the message (`sta[1]`) starts with "Outside the range of the model:" and says which range. In C++: `ThermoFun::outsideRange(x)` (`Common/OutsideRange.h`). |
+| `sta` | The status and a message: `notdefined`, `read`, `assigned`, `calculated`, `initialized`. The message is the text of the notes in `info`. |
+| `info` | What the value says about itself: see [Info](#info). |
 
-`ThermoScalar` has `+ - * /` and `**`. They carry the derivatives, the errors and the status.
+`ThermoScalar` has `+ - * /` and `**`. They carry the derivatives, the errors, the status and the notes of range and
+uncertainty.
 
-## Notes
+## Info
 
-A result of a substance, a reaction or water has `notes`: why its values can be doubted, and where they come from. A note
-is kept as data, and the message of each value (`sta[1]`) is made from the notes about it.
+`info` of a value:
 
-| Member of a note | Meaning |
+| Member | Meaning |
 |---|---|
-| `kind` | `Note.Kind.Range`: a value outside the range of a model. `Note.Kind.Source`: where the values come from, for example "Calculated from the reaction components". `Note.Kind.Undefined`: what is missing for a value that is not defined, for example "H0 of component C". `Note.Kind.Uncertainty`: the uncertainty `err` is not complete (a parameter error could not be propagated): `err` is then not a number. |
+| `validity` | `Validity.within`: inside the range of every model and data that the value depends on. `Validity.extrapolated`: calculated, but one of them is used outside its range; the notes say which. `Validity.undefined`: there is no value. |
+| `status` | `notdefined`, `read`, `assigned` or `calculated`, as in `sta`. |
+| `error` | Whether `err` can be trusted. `ErrorState.known`: the uncertainty of the data, propagated. `ErrorState.partial`: a contribution could not be propagated, and `err` is not a number. `ErrorState.unknown`: the data give no uncertainty; `err` is 0, which does not mean that the value is exact. |
+| `source` | Where the value came from: `methods`, `reaction` (a record defined by a reaction), `reactants` (a reaction from its species), `reference`, `water`, `hydrogen_ion`. |
+| `pressure` | The pressure used, in Pa. At P = 0 it is the saturation pressure of water. |
+| `notes` | The list of notes behind the other members. |
+
+`validity`, `status` and `error` are made from the notes, the status and `err`, so they always agree with them. A result
+(of a substance, a reaction or water) has `info` too: the notes of all its values, and `extrapolated` if one of them is.
+
+A note:
+
+| Member | Meaning |
+|---|---|
+| `kind` | `Note.Kind.Range`: a value outside the range of a model. `Note.Kind.Source`: where the values come from, for example "Calculated from the reaction components". `Note.Kind.Undefined`: what is missing for a value that is not defined, for example "H0 of component C". `Note.Kind.Uncertainty`: a contribution to `err` could not be propagated. |
 | `severity` | `Note.Severity.Soft`: the value is calculated, use it with care. `Note.Severity.Hard`: the model gives no value. |
 | `method` | The method that made the note, for example `JohnsonNorton91`. |
 | `text` | What is outside, and of what. |
 | `via` | The path of a note that comes from another record, nearest first. A solute calculated on water that is outside the range of its model gets the note of the water, with `via` `['the water']`. |
 | `properties` | The properties the note is about: `G`, `H`, `S`, `Cp`, `V`. Empty: all of them. |
 
-A range note travels with the result: a method that is inside its own range, but uses one that is outside, says so. A reaction calculated from its species gets their range notes (`via` the species, then its path), and so does a record defined by a reaction (`via` `the reaction R` and the other species). Source and undefined notes stay with their record.
+A range note travels with the value: a method that is inside its own range, but uses one that is outside, says so. A
+reaction calculated from its species gets their range notes (`via` the species, then its path), and so does a record defined
+by a reaction (`via` `the reaction R` and the other species). Source and undefined notes stay with their record. The range
+of a model is on its [method page](methods/index.md).
 
 ```python
 import thermofun as tf
 
 engine = tf.ThermoEngine("aq17-thermofun.json")
-sodium = engine.thermoPropertiesSubstance(1373.15, 1e8, "Na+")
-print(sodium.gibbs_energy.outside_range)
-for note in sodium.notes:
+G = engine.thermoPropertiesSubstance(1373.15, 1e8, "Na+").gibbs_energy
+print(G.info.validity, G.info.source, G.info.pressure)
+for note in G.info.notes:
     print(note)
 ```
 
 Output:
 
 ```text
-True
+Validity.extrapolated methods 100000000.0
 Outside the range of the model: HKF model: outside of 600-1400 kg/m3 density of pure H2O interval
 Outside the range of the model: via the water: WaterIAPWS95: T = 1373.15 K, P = 1000 bar, outside its range: T 251.165 to 1273 K, P up to 10000 bar (Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa)
 Outside the range of the model: via the water: JohnsonNorton91: T = 1373.15 K, P = 1000 bar, outside its range: T 273.15 to 1273.15 K, P up to 5000 bar (Johnson et al. (1992), SUPCRT92: 0 to 1000 degC, 1 to 5000 bar)
 ```
 
+The first note is of the HKF model itself; the other two come from the water, which is outside the range of its equation
+of state and of its dielectric model at 1100 degC.
+
 `engine.explain(T, P, symbol)` gives the notes that each method added, under `notes` of its step.
 
-In C++ the notes are `ThermoFun::Note` in `Common/Notes.h`, and `notes` is a member of `ThermoPropertiesSubstance`,
-`ThermoPropertiesReaction`, `PropertiesSolvent` and `ElectroPropertiesSolvent`.
+In C++: `x.info` (`Reaktoro_::Info`: `notes`, `source`, `pressure`) of each `ThermoScalar`, `ThermoFun::validity(x)` and
+`ThermoFun::errorState(x)` in `Common/OutsideRange.h`, and `info` of `ThermoPropertiesSubstance`,
+`ThermoPropertiesReaction`, `PropertiesSolvent` and `ElectroPropertiesSolvent`. The notes are `ThermoFun::Note` in
+`Common/Notes.h`.
 
 ## A substance
 
