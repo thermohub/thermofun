@@ -97,6 +97,11 @@ private:
     auto denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> bool;
     /// The root of a branch from its guess; if there is none (P beyond the spinodal of the branch), the root from the other guess.
     auto rootHGK(real *p, real t, real guess, real other) -> real;
+    /// The call was at saturation: the derivative of the caller's P (kept apart), the temperature, for the pressure derivatives
+    bool saturated_ = false;
+    real dP_pass_ = 0.0;
+    real T_sat_ = 0.0;
+    real P_sat_ = 0.0;
     /// True if both densities of the last corr() converged
     bool corr_converged_ = true;
     /// The properties at density d (g/cm3), all parts computed at d.

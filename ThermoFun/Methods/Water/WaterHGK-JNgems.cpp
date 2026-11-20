@@ -29,6 +29,25 @@ auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSu
     wp.heat_capacity_cp         = ph.w.Cpw * cal_to_J;
     wp.volume                   = 1/ph.d * gemsWaterMolarMass() * cm3_mol_to_J_bar;
 
+    if (saturated_)
+    {
+        // The pressure derivatives at constant T of the phase (P in bar, V in J/bar): dG/dP = V, dS/dP = -V alpha,
+        // dH/dP = V (1 - alpha T), dV/dP = -V beta, dCp/dP = -T V (alpha^2 + dalpha/dT); U = H - PV, A = G - PV.
+        // The heat capacity Cv has no pressure derivative here (it stays 0).
+        const real V = wp.volume;
+        const real alpha = ph.w.Alphaw, beta = ph.w.Betaw, dal = ph.w.dAldT;
+        const real Pbar = P_sat_;
+        const real T = T_sat_;
+        const real dp = dP_pass_;
+        wp.gibbs_energy = wp.gibbs_energy + V * dp;
+        wp.entropy = wp.entropy - V * alpha * dp;
+        wp.enthalpy = wp.enthalpy + V * (1 - alpha * T) * dp;
+        wp.heat_capacity_cp = wp.heat_capacity_cp - T * V * (alpha * alpha + dal) * dp;
+        wp.internal_energy = wp.internal_energy + V * (Pbar * beta - alpha * T) * dp;
+        wp.helmholtz_energy = wp.helmholtz_energy + Pbar * V * beta * dp;
+        wp.volume = wp.volume - V * beta * dp;
+    }
+
     return wp;
 }
 
@@ -298,6 +317,8 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
     int eR;
     real tempy;
     real Tk = T + 273.15;
+    saturated_ = false;
+    const double dP_in = P[1];  // the derivative of the caller's P (autodiff), before P is changed below
 
     if( T < 0.01 && T >= 0.0 ) // Deg. C!
         T = 0.01;
@@ -329,7 +350,15 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
         aSpc.isat=1;
         aSpc.iopt=1;
         aSpc.metastable = 0;
+        // At saturation P is a function of T alone, so the derivative of P of the caller is lost here. It is kept apart: the
+        // properties of the phase at P + dP follow to first order from its own volume, expansivity and compressibility
+        // (thermoPropertiesWaterHGKgems).
+        saturated_ = true;
+        dP_pass_ = real(0.0);
+        dP_pass_[1] = dP_in;
+        T_sat_ = Tk;
         P = PsHGK(Tk)*10;
+        P_sat_ = P;
     }
     else
     { //set T and P

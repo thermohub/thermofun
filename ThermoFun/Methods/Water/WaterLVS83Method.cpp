@@ -163,7 +163,24 @@ public:
             WaterLVS83 lvs(c_.lvs);
             bool saturated = false;
             const auto ph = lvsPhase(lvs, pass.T, pass.P, state, Pout, saturated);
-            return lvsSubstance(c_, ph, wtr);
+            auto wp = lvsSubstance(c_, ph, wtr);
+            if (saturated)
+            {
+                // At saturation P is a function of T alone: the derivative of the caller's P is added to first order from the phase
+                // (P in bar, V in J/bar): dG/dP = V, dS/dP = -V alpha, dH/dP = V (1 - alpha T), dV/dP = -V beta,
+                // dCp/dP = -T V (alpha^2 + dalpha/dT), U = H - PV, A = G - PV. Cv has no pressure derivative here.
+                const real dp = (pass.P - pass.P.val()) / bar_to_Pa;
+                const real V = wp.volume, alpha = ph.alpha, beta = ph.beta / 10.0, dal = ph.dAldT, T = pass.T;
+                const double Pbar = Pout / bar_to_Pa;
+                wp.gibbs_energy = wp.gibbs_energy + V * dp;
+                wp.entropy = wp.entropy - V * alpha * dp;
+                wp.enthalpy = wp.enthalpy + V * (1 - alpha * T) * dp;
+                wp.heat_capacity_cp = wp.heat_capacity_cp - T * V * (alpha * alpha + dal) * dp;
+                wp.internal_energy = wp.internal_energy + V * (Pbar * beta - alpha * T) * dp;
+                wp.helmholtz_energy = wp.helmholtz_energy + Pbar * V * beta * dp;
+                wp.volume = wp.volume - V * beta * dp;
+            }
+            return wp;
         });
         P = Pout;
         return tps;

@@ -13098,6 +13098,654 @@
         "propertiesSolvent.Albe"
       ],
       "reason": "Albe (alpha/beta, Pa/K) is now set by the water methods reaktoro (HGK), IAPWS-95 and Zhang-Duan; it was 0. 2026-11-18."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r09-logk_marshall_frank78",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--r14-logk_dolejs_manning10",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s27-water_diel_sverj14",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "berman",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "berman",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "errors",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "errors",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--data--legacy-synthetic--s28-water_diel_fern97",
+      "variant": "steam",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "default",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "Al(OH)3@",
+        "CH4@",
+        "CO2@",
+        "CO@",
+        "CaCO3@",
+        "CaCl2@",
+        "CaSiO3@",
+        "H2@",
+        "H2O@",
+        "H4SiO4@",
+        "HCl@",
+        "KAlO2@",
+        "KCl@",
+        "KHCO3@",
+        "KOH@",
+        "MgCO3@",
+        "MgCl2@",
+        "MgSiO3@",
+        "NaAl(OH)4@",
+        "NaCl@",
+        "NaHCO3@",
+        "NaHSiO3@",
+        "NaOH@",
+        "O2@",
+        "SiO2@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "solvent",
+      "records": [
+        "H2O@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--test-aq17-gem-lma-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "Al(OH)3@",
+        "CH4@",
+        "CO2@",
+        "CO@",
+        "CaCO3@",
+        "CaCl2@",
+        "CaSiO3@",
+        "H2@",
+        "H2O@",
+        "H4SiO4@",
+        "HCl@",
+        "KAlO2@",
+        "KCl@",
+        "KHCO3@",
+        "KOH@",
+        "MgCO3@",
+        "MgCl2@",
+        "MgSiO3@",
+        "NaAl(OH)4@",
+        "NaCl@",
+        "NaHCO3@",
+        "NaHSiO3@",
+        "NaOH@",
+        "O2@",
+        "SiO2@"
+      ],
+      "points": [
+        [
+          623.15,
+          10000000.0
+        ]
+      ],
+      "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
     }
   ]
 }
