@@ -97,6 +97,8 @@ private:
     auto denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> bool;
     /// The root of a branch from its guess; if there is none (P beyond the spinodal of the branch), the root from the other guess.
     auto rootHGK(real *p, real t, real guess, real other) -> real;
+    /// True if both densities of the last corr() converged
+    bool corr_converged_ = true;
     /// The properties at density d (g/cm3), all parts computed at d.
     auto phaseHGK(int isat, int itripl, real t, real *p, real d, int epseqn) -> WPROPS;
     auto ideal(real t) -> void;

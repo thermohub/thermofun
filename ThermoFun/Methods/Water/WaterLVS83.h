@@ -51,7 +51,9 @@ struct WaterLVS83Phase
 class WaterLVS83
 {
 public:
-    explicit WaterLVS83(const WaterLVS83Constants& constants);
+    /// Keeps the constants alive as long as the object lives
+    explicit WaterLVS83(std::shared_ptr<const WaterLVS83Constants> constants);
+    WaterLVS83(const WaterLVS83Constants&&) = delete;
 
     /// The critical temperature of the equation, K
     auto criticalTemperature() const -> double { return k_->cr.Tc.val(); }
@@ -73,6 +75,7 @@ public:
     auto fluid(real T, real P) -> WaterLVS83Phase;
 
 private:
+    std::shared_ptr<const WaterLVS83Constants> keep_;
     const WaterLVS83Constants* k_;
     const COEFS* co;
     const CRITS* cr;

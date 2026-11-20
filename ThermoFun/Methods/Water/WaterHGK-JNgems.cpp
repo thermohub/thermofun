@@ -704,6 +704,7 @@ auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, real Temp,
     }
     liq_ = HGKPhase{phaseHGK(isat, itripl, Temp, Pres, dl, epseqn), dl};
     vap_ = HGKPhase{phaseHGK(isat, itripl, Temp, Pres, dv, epseqn), dv};
+    vap_.w.Surtenw = real(0.0);  // surface tension is given for the saturated liquid only, as WaterLVS83 does
 }
 
 auto WaterHGKgems::rootHGK(real *p, real t, real guess, real other) -> real
@@ -711,7 +712,13 @@ auto WaterHGKgems::rootHGK(real *p, real t, real guess, real other) -> real
     real d = 0.0;
     if (denHGK(&d, p, guess, t, &fct.dpdd))
         return d;
-    denHGK(&d, p, other, t, &fct.dpdd);
+    if (denHGK(&d, p, other, t, &fct.dpdd))
+        return d;
+    Exception exception;
+    exception.error << "Unable to calculate the density of water (HGK).";
+    exception.reason << "The density did not converge at temperature " << t.val() << " K and pressure " << p->val() << " bar.";
+    exception.line = __LINE__;
+    RaiseError(exception);
     return d;
 }
 
@@ -1044,7 +1051,8 @@ auto WaterHGKgems::pcorr(int itripl, real t, real *p, real *dL,
     corr(itripl, t, p, dL, dV, &trp.delg, epseqn);
     // Near the critical point of HGK (above about 646.6 K) the two density roots at a pressure merge and this iteration
     // fails: then both conditions of coexistence are solved for the two densities
-    if (!std::isfinite(p->val()) || !(dL->val() > dV->val() * (1.0 + 1e-6)) || !(p->val() > 0.0))
+    // A pair is accepted only if both densities converged and the two Gibbs energies are equal (|delg| < 1e-8, in RT)
+    if (!std::isfinite(p->val()) || !(dL->val() > dV->val() * (1.0 + 1e-6)) || !(p->val() > 0.0) || !corr_converged_ || !(std::fabs(trp.delg.val()) < 1e-8))
         coexistenceHGK(t, p, dL, dV);
     // coexistenceHGK can return early at an intermediate temperature after coexistenceNewton set a1.rt and bb for it
     a1.rt = ac->gascon * t;
@@ -1385,7 +1393,7 @@ auto  WaterHGKgems::corr(int itripl, real t, real *p, real *dL,
     dguess = *dL;
     if (*dL <= 0.0e0)
         dguess = 1.11e0 - 0.0004e0 * t;
-    denHGK(dL,p,dguess,t, &fct.dpdd);
+    corr_converged_ = denHGK(dL,p,dguess,t, &fct.dpdd);
     ideal(t);
     thmHGK(dL,t);
     dimHGK(1,itripl,t,p,dL,epseqn);
@@ -1393,7 +1401,7 @@ auto  WaterHGKgems::corr(int itripl, real t, real *p, real *dL,
     dguess = *dV;
     if (*dV <= 0.0e0)
         dguess = *p / a1.rt;
-    denHGK(dV,p,dguess,t,&fct.dpdd);
+    corr_converged_ = denHGK(dV,p,dguess,t,&fct.dpdd) && corr_converged_;
     if (*dV < 5.0e-7)
         *dV = 5.0e-7;
     ideal(t);

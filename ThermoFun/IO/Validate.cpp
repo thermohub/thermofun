@@ -83,6 +83,9 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
         if (!spec->implemented)
             report(diag, "V2-MTH-008", record, where, "The method " + spec->id + " is known but does nothing.");
         checkRange(diag, app.applicability, record, where + "/applicability");
+        if (operatesOn == OperatesOn::Reaction && !app.region.empty())
+            report(diag, "V2-MTH-027", record, where + "/region",
+                   spec->id + " has a region, but methods of its kind cannot be combined by region: regions select among water equations of state or among dielectric models.");
 
         const MethodParameterSet* set = nullptr;
         if (!app.parameter_set.empty())

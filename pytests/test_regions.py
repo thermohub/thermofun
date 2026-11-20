@@ -62,3 +62,26 @@ def test_a_region_on_a_method_of_a_substance_is_refused():
 def test_a_method_in_a_region_needs_one_of_its_kind_after_it():
     with pytest.raises(RuntimeError, match="V2-MTH-027"):
         engine([HGK, HK, dict(BP, region={"t_max": 343.15})])
+
+
+def test_p_zero_picks_the_equation_whose_region_holds_its_own_saturation_pressure():
+    """IAPWS-95 in p_min 1e9: at 500 K its saturation pressure (2.6 MPa) is outside, so P = 0 gives the HGK water, and the dielectric
+    constant at the written pressure uses the same one."""
+    combined = engine([{"method": "WaterIAPWS95", "region": {"p_min": 1.0e9}}, HGK, HK])
+    hgk = engine([HGK, HK])
+    assert combined.propertiesSolvent(500.0, 0.0, "H2O@").density.val == hgk.propertiesSolvent(500.0, 0.0, "H2O@").density.val
+    assert eps(combined, 500.0, 0.0) == eps(hgk, 500.0, 0.0)
+
+
+def test_zhang_duan_has_no_saturation_so_p_zero_goes_to_the_next_equation():
+    combined = engine([{"method": "WaterZhangDuan05", "region": {"p_min": 1.0e8}}, {"method": "WaterIAPWS95"}, HK])
+    iapws = engine([{"method": "WaterIAPWS95"}, HK])
+    assert combined.propertiesSolvent(500.0, 0.0, "H2O@").density.val == iapws.propertiesSolvent(500.0, 0.0, "H2O@").density.val
+
+
+def test_a_region_on_a_method_of_a_reaction_is_refused():
+    doc = {"thermohub": "2.0.0-draft.1",
+           "substances": {"A": {"formula": "A", "class": "component", "aggregate_state": "crystal", "standard_state_properties": {"G": 1.0, "H": 1.0, "S": 1.0, "Cp": 1.0, "V": 1e-5}, "methods": [{"method": "ConstantCp"}]},
+                          "B": {"formula": "B", "class": "component", "aggregate_state": "crystal", "standard_state_properties": {"G": 1.0, "H": 1.0, "S": 1.0, "Cp": 1.0, "V": 1e-5}, "methods": [{"method": "ConstantCp"}]}},
+           "reactions": {"r": {"equation": "A = B", "methods": [{"method": "LogKConstant", "region": {"t_max": 400.0}, "parameters": {"a0": 1.0}}]}}}
+    assert "V2-MTH-027" in {d.code for d in tf.Database(doc).validate().all()}

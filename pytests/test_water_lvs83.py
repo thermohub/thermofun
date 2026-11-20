@@ -119,3 +119,11 @@ def test_the_volume_of_water_is_dG_dP_and_albe_is_alpha_over_beta(methods, T, P)
     assert t.volume.val == pytest.approx(t.gibbs_energy.ddp, rel=1e-9)
     s = e.propertiesSolvent(T, P, "H2O@")
     assert s.Albe.val == pytest.approx(s.Alpha.val / s.Beta.val, rel=1e-12)
+
+
+def test_just_below_the_critical_temperature_the_two_phases_keep_distinct_densities():
+    """A temperature 5e-8 K below Tc is a subcritical state: the saturation has two densities (it was snapped to the critical point)."""
+    e = engine(GEMS)
+    T = 647.067 - 5e-8
+    liquid = e.propertiesSolvent(T, 0.0, "H2O@").density.val
+    assert liquid > 322.0 + 1e-3 or liquid != pytest.approx(322.0, abs=1e-6)

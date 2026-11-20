@@ -32,7 +32,8 @@ public:
         return at(T, P, state).substanceProperties(T, P, state, triple);
     }
 
-    auto pressureAtDensity(double T, double rho) const -> std::optional<double> override { return methods_.back()->pressureAtDensity(T, rho); }
+    // the equation of state at (T, rho) is not known before P: the engine finds P from the density of the whole record
+    auto pressureAtDensity(double, double) const -> std::optional<double> override { return std::nullopt; }
 
     auto covers(double T, double P, int state) const -> bool override
     {
@@ -79,7 +80,25 @@ public:
     }
     auto pressureAtDensity(double T, double rho) const -> std::optional<double> override { return inner_->pressureAtDensity(T, rho); }
     auto covers(double T, double P, int state) const -> bool override { return region_.holds(T, P) && inner_->covers(T, P, state); }
-    auto coversSaturation(double T) const -> bool override { return region_.holdsT(T) && inner_->coversSaturation(T); }
+    // P = 0 selects the method whose region holds its own saturation pressure: the pressure that the engine writes back and
+    // calls again with, which then selects the same method
+    auto coversSaturation(double T) const -> bool override
+    {
+        if (!region_.holdsT(T) || !inner_->coversSaturation(T))
+            return false;
+        if (!region_.p_min && !region_.p_max)
+            return true;
+        try
+        {
+            double P = 0.0;
+            inner_->properties(T, P, 0);
+            return region_.holds(T, P);
+        }
+        catch (const std::exception&)
+        {
+            return false;
+        }
+    }
 
 private:
     std::shared_ptr<const SolventMethod> inner_;

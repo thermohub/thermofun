@@ -47,7 +47,7 @@ auto makeWaterLVS83Constants(const std::map<std::string, model::Quantity>& value
     return out;
 }
 
-WaterLVS83::WaterLVS83(const WaterLVS83Constants& constants) : k_(&constants), co(&constants.co), cr(&constants.cr) {}
+WaterLVS83::WaterLVS83(std::shared_ptr<const WaterLVS83Constants> constants) : keep_(std::move(constants)), k_(keep_.get()), co(&keep_->co), cr(&keep_->cr) {}
 
 auto WaterLVS83::coversSaturation(double T) const -> bool
 {
@@ -234,7 +234,8 @@ auto  WaterLVS83::Pfind(int isat, real T, real DD) -> real
     dv.xk[0] = xk0;
     dv.xk[1] = xk1;
 
-    if (fabs(T - cr->Tc) < 1.0e-7)
+    // the critical point itself (a temperature a few 1e-8 K below it is a subcritical state with two distinct densities)
+    if (fabs(T - cr->Tc) < 1.0e-12)
         T = cr->Tc;
     Tee     = (T - cr->Tc) / cr->Tc;
     dv.Tw  = - cr->Tc / T;

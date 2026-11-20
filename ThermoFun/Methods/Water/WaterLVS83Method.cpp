@@ -118,14 +118,14 @@ public:
 
     auto coversSaturation(double T) const -> bool override
     {
-        WaterLVS83 lvs(*c_.lvs);
+        WaterLVS83 lvs(c_.lvs);
         return lvs.coversSaturation(T);
     }
 
     // In the region, and the stable phase: the equation has no metastable states
     auto covers(double T, double P, int state) const -> bool override
     {
-        WaterLVS83 lvs(*c_.lvs);
+        WaterLVS83 lvs(c_.lvs);
         const double PMPa = P / bar_to_Pa / 10.0;
         if (!lvs.coversSaturation(T))
             return T >= lvs.criticalTemperature() && lvs.inRegion(T, PMPa);
@@ -141,7 +141,7 @@ public:
     {
         double Pout = P;
         auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-            WaterLVS83 lvs(*c_.lvs);
+            WaterLVS83 lvs(c_.lvs);
             bool saturated = false;
             const auto ph = lvsPhase(lvs, pass.T, pass.P, state, Pout, saturated);
             return lvsSolvent(c_, ph, saturated && state != 1);
@@ -160,7 +160,7 @@ public:
         const WaterTripleProperties wtr = waterTripleData().at(triple);
         double Pout = P;
         auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-            WaterLVS83 lvs(*c_.lvs);
+            WaterLVS83 lvs(c_.lvs);
             bool saturated = false;
             const auto ph = lvsPhase(lvs, pass.T, pass.P, state, Pout, saturated);
             return lvsSubstance(c_, ph, wtr);
