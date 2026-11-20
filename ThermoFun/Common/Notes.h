@@ -17,7 +17,9 @@ struct Note
 {
     enum class Kind
     {
-        Range,  ///< a value outside the range of a model, or of the data of a record
+        Range,      ///< a value outside the range of a model, or of the data of a record
+        Source,     ///< where the values come from, for example "Calculated from the reaction components: ..."
+        Undefined,  ///< what is missing for a value that is not defined, for example "G0 of component X"
     };
     enum class Severity
     {
@@ -30,6 +32,7 @@ struct Note
     std::string method;            ///< the method that made the note, for example "JohnsonNorton91"
     std::string text;              ///< what is outside, and of what, for example "T = 1000.85 degC, P = 5000 bar, above 1000 degC or 5000 bar"
     std::vector<std::string> via;  ///< the path of an inherited note, nearest first, for example {"the water"}
+    std::vector<std::string> properties;  ///< the properties it is about ("G", "H", "S", "Cp", "V"); empty: all
 
     auto operator==(const Note&) const -> bool = default;
 };
@@ -43,6 +46,10 @@ inline constexpr const char* rangeNoteMark = "Outside the range of the model: ";
 /// via the water: JohnsonNorton91: T = ...; "
 inline auto render(const Note& note) -> std::string
 {
+    if (note.kind == Note::Kind::Source)
+        return note.text + "; ";
+    if (note.kind == Note::Kind::Undefined)
+        return note.text + " not defined; ";
     std::string out = rangeNoteMark;
     for (const auto& step : note.via)
         out += "via " + step + ": ";
@@ -51,12 +58,24 @@ inline auto render(const Note& note) -> std::string
     return out + note.text + "; ";
 }
 
-/// The status message made from the notes.
-inline auto render(const Notes& notes) -> std::string
+/// True if the note is about the property ("G", "H", "S", "Cp", "V"); a note without properties is about all.
+inline auto isAbout(const Note& note, const std::string& property) -> bool
+{
+    if (note.properties.empty() || property.empty())
+        return true;
+    for (const auto& p : note.properties)
+        if (p == property)
+            return true;
+    return false;
+}
+
+/// The status message made from the notes; with a property, only the notes about it.
+inline auto render(const Notes& notes, const std::string& property = "") -> std::string
 {
     std::string out;
     for (const auto& note : notes)
-        out += render(note);
+        if (isAbout(note, property))
+            out += render(note);
     return out;
 }
 
@@ -74,6 +93,8 @@ inline auto inheritNotes(Notes& notes, const Notes& from, const std::string& ste
 {
     for (auto note : from)
     {
+        if (note.kind != Note::Kind::Range)  // where the values of the other record come from, or what it misses, stays there
+            continue;
         note.via.insert(note.via.begin(), step);
         addNote(notes, note);
     }

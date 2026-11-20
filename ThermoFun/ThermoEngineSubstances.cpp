@@ -284,7 +284,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
                         detailed->conversions.push_back(bound->order[i]->spec().id + " to canonical");
             if (detailed)
                 for (const auto& step : steps)
-                    detailed->steps.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val, step.auxiliary});
+                    detailed->steps.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val, step.auxiliary, step.notes});
         }
 
         // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the

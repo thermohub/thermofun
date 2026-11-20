@@ -331,7 +331,12 @@ auto Reaction::checkCalcMethodBounds(std::string modelName, double T, double P, 
                                     "T(" + std::to_string(lowerT()) + "-" + std::to_string(upperT()) +" K) and "
                                     "P(" + std::to_string(lowerP()) + "-" + std::to_string(upperP()) +" Pa) bounds";
 
-        setMessage(Reaktoro_::Status::calculated, message, tpr );
+        // a note (decision 0029); the message of each calculated value says it as the methods do
+        const Note note{Note::Kind::Range, Note::Severity::Soft, "", message, {}, {}};
+        addNote(tpr.notes, note);
+        std::string text = render(note);
+        text.erase(text.size() - 2);  // setMessage adds "; "
+        setMessage(Reaktoro_::Status::calculated, text, tpr );
     }
 }
 

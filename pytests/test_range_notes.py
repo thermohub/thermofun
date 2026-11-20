@@ -85,7 +85,7 @@ def engine_with_reactions():
 
 def test_a_reaction_from_its_species_gets_their_notes():
     r = engine_with_reactions().thermoPropertiesReaction(1274.0, 5e8, "RB")
-    assert [(n.method, n.via) for n in r.notes] == [("JohnsonNorton91", ["Na+", "the water"])]
+    assert [(n.method, n.via) for n in r.notes if n.kind == tf.Note.Kind.Range] == [("JohnsonNorton91", ["Na+", "the water"])]
     assert "via Na+: via the water: JohnsonNorton91" in r.log_equilibrium_constant.sta[1]
     assert r.log_equilibrium_constant.outside_range
 
@@ -98,5 +98,46 @@ def test_a_record_defined_by_a_reaction_gets_the_notes_of_the_other_species():
 
 def test_inside_the_range_reactions_and_derived_records_have_no_notes():
     e = engine_with_reactions()
-    assert e.thermoPropertiesReaction(1273.15, 5e8, "RB").notes == []
-    assert e.thermoPropertiesSubstance(1273.15, 5e8, "Z").notes == []
+    ranges = lambda notes: [n for n in notes if n.kind == tf.Note.Kind.Range]
+    assert ranges(e.thermoPropertiesReaction(1273.15, 5e8, "RB").notes) == []
+    assert ranges(e.thermoPropertiesSubstance(1273.15, 5e8, "Z").notes) == []
+
+
+def engine_with_a_record_that_has_only_G():
+    import json
+    b = {"formula": "Na", "class": "component", "aggregate_state": "crystal",
+         "standard_state_properties": {"G": -260000.0, "H": -240000.0, "S": 60.0, "Cp": 40.0, "V": 2e-5}, "methods": [{"method": "ConstantCp"}]}
+    c = {"formula": "Na", "class": "component", "aggregate_state": "crystal", "standard_state_properties": {"G": -250000.0},
+         "methods": [{"method": "ConstantProperties"}]}
+    doc = {"thermohub": "2.0.0-draft.1", "substances": {"B": b, "C": c}, "reactions": {"RC": {"equation": "C = B"}}}
+    return tf.ThermoEngine(tf.Database(json.dumps(doc)))
+
+
+def test_a_reaction_from_its_species_says_where_its_values_come_from_and_what_is_missing():
+    r = engine_with_a_record_that_has_only_G().thermoPropertiesReaction(298.15, 1e5, "RC")
+    source = [n for n in r.notes if n.kind == tf.Note.Kind.Source]
+    assert [n.text for n in source] == ["Calculated from the reaction components: RC"]
+    missing = [(n.text, n.properties) for n in r.notes if n.kind == tf.Note.Kind.Undefined]
+    assert ("H0 of component C", ["H"]) in missing and ("S0 of component C", ["S"]) in missing
+    assert not any("G" in props for _, props in missing)
+    # each property says what concerns it
+    assert r.reaction_gibbs_energy.sta[1] == "Calculated from the reaction components: RC; "
+    assert "H0 of component C not defined" in r.reaction_enthalpy.sta[1]
+    assert "H0 of component C" not in r.reaction_gibbs_energy.sta[1]
+
+
+def test_explain_gives_the_notes_of_each_method():
+    steps = engine("gems").explain(1274.0, 5e8, "Na+")
+    hkf = [s for s in steps if s["method"] == "HKF88"][0]
+    assert [n.method for n in hkf["notes"]] == ["JohnsonNorton91"] and hkf["notes"][0].via == ["the water"]
+    assert all("notes" not in s for s in engine("gems").explain(1273.15, 5e8, "Na+"))
+
+
+def test_the_legacy_bounds_check_makes_a_note():
+    na = engine("gems").thermoPropertiesSubstance(298.15, 1e5, "Na+")
+    db = tf.Database('{"thermohub": "2.0.0-draft.1", "substances": {"X": {"formula": "Na", "class": "component", "aggregate_state": "crystal", '
+                     '"standard_state_properties": {"G": 1.0}, "applicability": {"t_min": 273.15, "t_max": 300.0, "p_min": 0.0, "p_max": 1e6}, '
+                     '"methods": [{"method": "ConstantProperties"}]}}}')
+    checked = db.getSubstance("X").checkCalcMethodBounds("model", 400.0, 1e5, na)
+    assert any(n.text.startswith("model: out of T(") for n in checked.notes)
+    assert checked.gibbs_energy.outside_range

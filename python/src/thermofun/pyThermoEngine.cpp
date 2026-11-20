@@ -226,6 +226,8 @@ void exportThermoEngine(py::module& m)
                      row["method"] = step.method; row["G"] = step.G; row["H"] = step.H; row["S"] = step.S; row["Cp"] = step.Cp; row["V"] = step.V;
                      if (!step.auxiliary.empty())
                          row["auxiliary"] = step.auxiliary;
+                     if (!step.notes.empty())
+                         row["notes"] = step.notes;
                      out.append(row);
                  }
                  return out;

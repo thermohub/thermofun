@@ -26,6 +26,7 @@ struct ExplainStep
     std::string method;
     MethodResult values;
     std::map<std::string, double> auxiliary;   ///< the named outputs of the method, SI
+    Notes notes;                               ///< the notes this method added (decision 0029)
 };
 
 /// Run the bound methods of a record at T (K) and P (Pa). If steps is given, it gets the state after each method.

@@ -34,7 +34,7 @@ void exportThermoPropertiesSubstance(py::module& m)
 {
     py::class_<Note> note(m, "Note", "Why a value can be doubted (decision 0029): a value outside the range of a model, with the path "
                                      "it came by. The status message of each property is made from the notes.");
-    py::enum_<Note::Kind>(note, "Kind").value("Range", Note::Kind::Range);
+    py::enum_<Note::Kind>(note, "Kind").value("Range", Note::Kind::Range).value("Source", Note::Kind::Source).value("Undefined", Note::Kind::Undefined);
     py::enum_<Note::Severity>(note, "Severity").value("Soft", Note::Severity::Soft).value("Hard", Note::Severity::Hard);
     note.def(py::init<>())
         .def_readwrite("kind", &Note::kind)
@@ -42,6 +42,7 @@ void exportThermoPropertiesSubstance(py::module& m)
         .def_readwrite("method", &Note::method, "the method that made the note")
         .def_readwrite("text", &Note::text, "what is outside, and of what")
         .def_readwrite("via", &Note::via, "the path of an inherited note, nearest first, for example ['the water']")
+        .def_readwrite("properties", &Note::properties, "the properties it is about ('G', 'H', 'S', 'Cp', 'V'); empty: all")
         .def("__str__", [](const Note& n) { std::string s = render(n); while (!s.empty() && (s.back() == ' ' || s.back() == ';')) s.pop_back(); return s; })
         .def("__repr__", [](const Note& n) { return "<Note " + render(n) + ">"; });
 

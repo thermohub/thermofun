@@ -18,6 +18,7 @@ struct ExplainStep
     std::string method;
     double G = 0.0, H = 0.0, S = 0.0, Cp = 0.0, V = 0.0;
     std::map<std::string, double> auxiliary;   ///< the named outputs of the method (see `auxiliary_outputs` of its catalog entry), SI
+    Notes notes;                               ///< the notes this method added (decision 0029)
 };
 
 /// The result of a calculation and how it came.

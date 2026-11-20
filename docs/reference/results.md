@@ -21,18 +21,19 @@ Each property is a `ThermoScalar`.
 
 ## Notes
 
-A result of a substance, a reaction or water has `notes`: why its values can be doubted. A note is kept as data, and the
-message of each value (`sta[1]`) is made from the notes.
+A result of a substance, a reaction or water has `notes`: why its values can be doubted, and where they come from. A note
+is kept as data, and the message of each value (`sta[1]`) is made from the notes about it.
 
 | Member of a note | Meaning |
 |---|---|
-| `kind` | `Note.Kind.Range`: a value outside the range of a model. |
+| `kind` | `Note.Kind.Range`: a value outside the range of a model. `Note.Kind.Source`: where the values come from, for example "Calculated from the reaction components". `Note.Kind.Undefined`: what is missing for a value that is not defined, for example "H0 of component C". |
 | `severity` | `Note.Severity.Soft`: the value is calculated, use it with care. `Note.Severity.Hard`: the model gives no value. |
 | `method` | The method that made the note, for example `JohnsonNorton91`. |
 | `text` | What is outside, and of what. |
 | `via` | The path of a note that comes from another record, nearest first. A solute calculated on water that is outside the range of its model gets the note of the water, with `via` `['the water']`. |
+| `properties` | The properties the note is about: `G`, `H`, `S`, `Cp`, `V`. Empty: all of them. |
 
-A note travels with the result: a method that is inside its own range, but uses one that is outside, says so. A reaction calculated from its species gets their notes (`via` the species, then its path), and so does a record defined by a reaction (`via` `the reaction R` and the other species).
+A range note travels with the result: a method that is inside its own range, but uses one that is outside, says so. A reaction calculated from its species gets their range notes (`via` the species, then its path), and so does a record defined by a reaction (`via` `the reaction R` and the other species). Source and undefined notes stay with their record.
 
 ```python
 import thermofun as tf
@@ -50,6 +51,8 @@ Output:
 True
 Outside the range of the model: HKF model: outside of 600-1400 kg/m3 density of pure H2O interval
 ```
+
+`engine.explain(T, P, symbol)` gives the notes that each method added, under `notes` of its step.
 
 In C++ the notes are `ThermoFun::Note` in `Common/Notes.h`, and `notes` is a member of `ThermoPropertiesSubstance`,
 `ThermoPropertiesReaction`, `PropertiesSolvent` and `ElectroPropertiesSolvent`.

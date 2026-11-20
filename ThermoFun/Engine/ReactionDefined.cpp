@@ -81,7 +81,8 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
     tpr.reaction_internal_energy = 0.0;
     tpr.reaction_helmholtz_energy = 0.0;
 
-    std::string message = "Calculated from the reaction components: " + reaction + "; ";
+    // where the values come from (decision 0029)
+    addNote(tpr.notes, Note{Note::Kind::Source, Note::Severity::Soft, "", "Calculated from the reaction components: " + reaction, {}, {}});
 
         // the values and derivatives of the properties of the reaction
         if (!components.empty())
@@ -132,13 +133,11 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
             copyValues(tpr.reaction_helmholtz_energy, values.reaction_helmholtz_energy);
         }
 
-        // the notes of the components, with the component in the path (decision 0029); the message of a defined property
-        // says where the values come from and carries the notes
+        // the notes of the components, with the component in the path (decision 0029)
         for (size_t i = 0; i < components.size(); ++i)
             inheritNotes(tpr.notes, components[i].first.notes, symbols[i]);
-        message += render(tpr.notes);
 
-        // the errors and statuses, and the messages of the properties that are not defined
+        // the errors and statuses; what is missing for a property that is not defined
         for (size_t i = 0; i < components.size(); ++i)
         {
             const auto& tps = components[i].first;
@@ -155,14 +154,21 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
             tpr.reaction_internal_energy.propagateFrom(tpr.reaction_internal_energy, tps.internal_energy);
             tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_helmholtz_energy, tps.helmholtz_energy);
 
-            setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message, tpr.reaction_heat_capacity_cp.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.reaction_gibbs_energy.sta.second);
-            setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message, tpr.reaction_enthalpy.sta.second);
-            setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message, tpr.reaction_entropy.sta.second);
-            setMessage(tps.volume.sta.first,           "V0 of component " + substance, message, tpr.reaction_volume.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.log_equilibrium_constant.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message, tpr.ln_equilibrium_constant.sta.second);
+            const std::pair<const Reaktoro_::ThermoScalar*, std::pair<const char*, const char*>> parts[] = {
+                {&tps.heat_capacity_cp, {"Cp", "Cp"}}, {&tps.gibbs_energy, {"G", "G0"}}, {&tps.enthalpy, {"H", "H0"}},
+                {&tps.entropy, {"S", "S0"}}, {&tps.volume, {"V", "V0"}}};
+            for (const auto& [value, names] : parts)
+                if (value->sta.first == Reaktoro_::Status::notdefined)
+                    addNote(tpr.notes, Note{Note::Kind::Undefined, Note::Severity::Hard, "", std::string(names.second) + " of component " + substance, {}, {names.first}});
         }
+        // the message of each property, made from the notes about it (log K and ln K follow G)
+        tpr.reaction_heat_capacity_cp.sta.second = render(tpr.notes, "Cp");
+        tpr.reaction_gibbs_energy.sta.second = render(tpr.notes, "G");
+        tpr.reaction_enthalpy.sta.second = render(tpr.notes, "H");
+        tpr.reaction_entropy.sta.second = render(tpr.notes, "S");
+        tpr.reaction_volume.sta.second = render(tpr.notes, "V");
+        tpr.log_equilibrium_constant.sta.second = render(tpr.notes, "G");
+        tpr.ln_equilibrium_constant.sta.second = render(tpr.notes, "G");
 
     // the errors: first-order propagation of the errors of the reactants (independent), weighted by the
     // stoichiometric coefficients; ln K = -G/(R T)
