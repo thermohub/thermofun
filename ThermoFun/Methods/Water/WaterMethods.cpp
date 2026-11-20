@@ -3,6 +3,7 @@
 
 #include "WaterMethods.h"
 
+#include <algorithm>
 #include <functional>
 
 #include <ThermoFun/Common/Constants.h>
@@ -241,9 +242,9 @@ public:
     using Covers = std::function<bool(double, double, int)>;
 
     FunctionSolventMethod(const char* id, const char* implementation, Properties properties, Substance substance, bool containsRTlnP, Pressure pressure = {},
-                          Covers covers = {})
+                          Covers covers = {}, bool hasSaturation = true)
     : spec_(specOf(id)), implementation_(implementation), properties_(std::move(properties)), substance_(std::move(substance)), contains_(containsRTlnP),
-      pressure_(std::move(pressure)), covers_(std::move(covers)) {}
+      pressure_(std::move(pressure)), covers_(std::move(covers)), has_saturation_(hasSaturation) {}
 
     auto spec() const -> const MethodSpec& override { return spec_; }
     auto implementation() const -> std::string override { return implementation_; }
@@ -258,7 +259,7 @@ public:
     }
     // a method with its own region (covers given) has no saturation: the next one of the record gives it
     auto covers(double T, double P, int state) const -> bool override { return covers_ ? covers_(T, P, state) : true; }
-    auto coversSaturation(double) const -> bool override { return !covers_; }
+    auto coversSaturation(double) const -> bool override { return !covers_ && has_saturation_; }
 
 private:
     const MethodSpec& spec_;
@@ -268,6 +269,7 @@ private:
     bool contains_;
     Pressure pressure_;
     Covers covers_;
+    bool has_saturation_;
 };
 
 /// A dielectric model of water, made of a function.
@@ -420,13 +422,14 @@ auto waterIAPWS95GasMethod(const MethodApplication& a) -> std::shared_ptr<const 
     const auto n = listOf(a, "n"), d = listOf(a, "d"), t = listOf(a, "t");
     if (n.size() != 8 || d.size() != 8 || t.size() != 8)
         funError("Cannot make the method " + a.method, "It needs n, d and t with 8 places: place 1 is not used, places 2 to 8 are the 7 terms.", __LINE__, __FILE__);
-    for (std::size_t i = 0; i < k.n.size(); ++i)
+    // n has one place more than d, t and c in the data of IAPWS-95: zero all of n, then set the 7 terms only
+    std::fill(k.n.begin(), k.n.end(), 0.0);
+    for (std::size_t i = 1; i <= 7; ++i)
     {
-        const bool gas = i >= 1 && i <= 7;
-        k.n[i] = gas ? n[i] : 0.0;
-        k.d[i] = gas ? d[i] : k.d[i];
-        k.t[i] = gas ? t[i] : k.t[i];
-        k.c[i] = gas ? 0.0 : k.c[i];
+        k.n[i] = n[i];
+        k.d[i] = d[i];
+        k.t[i] = t[i];
+        k.c[i] = 0.0;
     }
     return std::make_shared<const FunctionSolventMethod>("WaterIAPWS95Gas", "",
         [k](double T, double& P, int state, const std::string&) { return iapws95GasProperties(T, P, state, k); },
@@ -439,7 +442,8 @@ auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std
 {
     return std::make_shared<const FunctionSolventMethod>("WaterZhangDuan05", "",
         [constants](double T, double& P, int, const std::string&) { return zhangDuan05Properties(T, P, constants); },
-        [dew_gibbs, constants](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, constants); }, false);
+        [dew_gibbs, constants](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, constants); }, false,
+        FunctionSolventMethod::Pressure{}, FunctionSolventMethod::Covers{}, false);  // it has no saturation: P = 0 goes to the next equation of state of the record
 }
 
 auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>

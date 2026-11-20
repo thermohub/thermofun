@@ -132,7 +132,9 @@ auto waterSurfaceTensionGems(const WaterTransportGemsConstants& k, real Tsat) ->
 {
     if ((Tsat < k.surf_Ttripl) || (Tsat > k.surf_Tcrit))
         return 0.0;
-    const real Tnorm = (Tsat >= k.surf_Tcrit - 1.0e-10) ? real(0.0) : (k.surf_Tcstar - Tsat / k.surf_Tstar) / k.surf_Tcstar;
+    real Tnorm = (Tsat >= k.surf_Tcrit - 1.0e-10) ? real(0.0) : (k.surf_Tcstar - Tsat / k.surf_Tstar) / k.surf_Tcstar;
+    if (Tnorm.val() < 0.0)  // Tstar * Tcstar is a little below Tcrit: no negative base for the power
+        Tnorm = 0.0;
     return k.surf_stref * pow(Tnorm, k.surf_v) * (1.0 + k.surf_B * Tnorm);
 }
 

@@ -1046,6 +1046,9 @@ auto WaterHGKgems::pcorr(int itripl, real t, real *p, real *dL,
     // fails: then both conditions of coexistence are solved for the two densities
     if (!std::isfinite(p->val()) || !(dL->val() > dV->val() * (1.0 + 1e-6)) || !(p->val() > 0.0))
         coexistenceHGK(t, p, dL, dV);
+    // coexistenceHGK can return early at an intermediate temperature after coexistenceNewton set a1.rt and bb for it
+    a1.rt = ac->gascon * t;
+    bb(t);
     pcorr_cache = {true, itripl, t.val(), *p, *dL, *dV, trp.delg};
 }
 

@@ -66,7 +66,8 @@ auto solveWaterDensity(real T, real P, int solvent_state, const WaterSaturationC
 
             if(std::abs(f.val()) < tolerance)
             {
-                converged = df.val() > 0;
+                // the residual and the slope are those of the density before this step: a stable root, and a step that stays near it
+                converged = df.val() > 0 && std::abs(f.val()/df.val()) < 0.01 * D.val();
                 return D;
             }
         }
