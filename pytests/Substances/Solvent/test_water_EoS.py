@@ -63,3 +63,20 @@ class TestWaterEoS(unittest.TestCase):
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@reak", 1).epsilon.val == pytest.approx(8.626211060320887, 1e-5, 1e-14)
         assert self.engine.propertiesSolvent(T,P, "H2O@reak", 0).density.val == pytest.approx(479.5064053309655, 1e-5, 1e-14)
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@reak", 0).epsilon.val == pytest.approx(8.626211060320887, 1e-5, 1e-14)
+
+class TestWaterReaktoroBeyondSpinodal(unittest.TestCase):
+    """A branch with no root at P (beyond its spinodal) gives the root of the other branch, as the HGK of GEMS."""
+
+    def setUp(self):
+        self.engine = thermofun.ThermoEngine('pytests/Substances/Solvent/water-thermofun.json')
+
+    def test_vapour_record_beyond_the_vapour_spinodal_gets_the_liquid_root(self):
+        for T, P in ((473.15, 50e5), (298.15, 1e5)):
+            vapour = self.engine.propertiesSolvent(T, P, "H2O@reak", 1).density.val
+            liquid = self.engine.propertiesSolvent(T, P, "H2O@reak", 0).density.val
+            assert vapour == pytest.approx(liquid, 1e-9)
+            assert liquid > 800
+
+    def test_vapour_below_the_saturation_pressure_is_unchanged(self):
+        vapour = self.engine.propertiesSolvent(473.15, 10e5, "H2O@reak", 1).density.val
+        assert 4 < vapour < 6
