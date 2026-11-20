@@ -14,10 +14,45 @@ Each property is a `ThermoScalar`.
 | `val` | The value. |
 | `ddt`, `ddp` | The derivatives by T and by P. |
 | `err` | The uncertainty. It is 0 if the data give none. |
-| `sta` | The status and a message: `notdefined`, `read`, `assigned`, `calculated`, `initialized`. |
+| `sta` | The status and a message: `notdefined`, `read`, `assigned`, `calculated`, `initialized`. The message is made from the [notes](#notes) of the result. |
 | `outside_range` | True if a model calculated the value outside its range (of T, P, the density of water, its T intervals or its table). The status stays `calculated`; the message (`sta[1]`) starts with "Outside the range of the model:" and says which range. In C++: `ThermoFun::outsideRange(x)` (`Common/OutsideRange.h`). |
 
 `ThermoScalar` has `+ - * /` and `**`. They carry the derivatives, the errors and the status.
+
+## Notes
+
+A result of a substance, a reaction or water has `notes`: why its values can be doubted. A note is kept as data, and the
+message of each value (`sta[1]`) is made from the notes.
+
+| Member of a note | Meaning |
+|---|---|
+| `kind` | `Note.Kind.Range`: a value outside the range of a model. |
+| `severity` | `Note.Severity.Soft`: the value is calculated, use it with care. `Note.Severity.Hard`: the model gives no value. |
+| `method` | The method that made the note, for example `JohnsonNorton91`. |
+| `text` | What is outside, and of what. |
+| `via` | The path of a note that comes from another record, nearest first. A solute calculated on water that is outside the range of its model gets the note of the water, with `via` `['the water']`. |
+
+A note travels with the result: a method that is inside its own range, but uses one that is outside, says so.
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("aq17-thermofun.json")
+sodium = engine.thermoPropertiesSubstance(1373.15, 1e8, "Na+")
+print(sodium.gibbs_energy.outside_range)
+for note in sodium.notes:
+    print(note)
+```
+
+Output:
+
+```text
+True
+Outside the range of the model: HKF model: outside of 600-1400 kg/m3 density of pure H2O interval
+```
+
+In C++ the notes are `ThermoFun::Note` in `Common/Notes.h`, and `notes` is a member of `ThermoPropertiesSubstance`,
+`ThermoPropertiesReaction`, `PropertiesSolvent` and `ElectroPropertiesSolvent`.
 
 ## A substance
 

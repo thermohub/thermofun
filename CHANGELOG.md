@@ -122,6 +122,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Notes on a result** (decision 0029): `ThermoPropertiesSubstance`, `ThermoPropertiesReaction`, `PropertiesSolvent` and
+  `ElectroPropertiesSolvent` have `notes`, a list of `Note` (kind, severity, method, text, and `via`, the path of a note that
+  comes from another record). The status message of each value is made from them. A solute calculated on water that is
+  outside the range of its model gets the note of the water (`via` `['the water']`). Python: `tf.Note`, `.notes`. See
+  `docs/reference/results.md`, Notes.
+- **`WaterIAPWS95Gas`**: the gas equation of Wagner and Pruss (2002), Eq. 3.2, for the metastable vapour of a vapour record
+  (above the saturation pressure, below 10 MPa, up to 55 kg/m3), where IAPWS-95 is not reliable. Listed before `WaterIAPWS95`
+  and used only in its region; stable vapour, the saturation and liquid water stay with `WaterIAPWS95`.
+
 - **`WaterLVS83`**: the equation of state of water near the critical point of Levelt Sengers et al. (1983), as in SUPCRT92, in
   its region (about 643 to 695 K between the isochores 200 and 420 kg/m3, its saturation from 643 K). The first method used
   in a region and combined with another method for the same properties (decision 0028): a record may list several equations
@@ -240,6 +249,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docs/GUIDE.md` and `docs/python.md` are now separate pages: see `docs/index.md`.
 
 ### Fixed
+
+- **`JohnsonNorton91` `gems` above 1000 degC or 5 kbar** returned 0 for the dielectric constant and the Born functions, as
+  SUPCRT92 and GEMS did: the solutes changed by tens of kJ/mol there (Na+ G by 20 kJ/mol at 1274 K) without a word. They are
+  now calculated, and marked outside the range of the model; the solutes get the note.
+- **Pressure derivatives of the GEMS water at saturation** (P = 0 or P = Psat): they were 0. They are those of the phase at
+  constant T: dG/dP = V, dS/dP = -V alpha, dH/dP = V (1 - alpha T), dV/dP = -V beta, dCp/dP = -T V (alpha^2 + dalpha/dT).
+- **Water of reaktoro (HGK, IAPWS-95) beyond a spinodal**: the density failed ("Unable to calculate the density of water"),
+  for example the liquid at 350 C below about 130 bar. A branch with no stable root now gives the root of the other branch, as
+  the HGK of GEMS does.
 
 - **The molar volume of the GEMS water** (`WaterHGK84` `gems`, `WaterLVS83`) used 18.015268 g/mol while its energies imply
   18.015534 g/mol (per gram times 4.305816, a rounded 18.0152/4.184, times 4.184): dG/dP was 1.5e-5 larger than V. V now
