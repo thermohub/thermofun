@@ -5,6 +5,8 @@
 
 #include "ThermoEngineImpl.h"
 
+#include <algorithm>
+
 namespace ThermoFun
 {
 
@@ -12,8 +14,9 @@ namespace
 {
 
 /// u^2 = J S J^T for each result. jacobian: the derivatives of each result by one value, in the order of the fields.
+/// names: the property of each field, for the note of an incomplete uncertainty (decision 0029)
 template <class Fields, class Jacobian>
-auto setPropagatedErrors(const Fields& fields, const model::UncertainInputs& inputs, Jacobian jacobian) -> void
+auto setPropagatedErrors(const Fields& fields, const std::vector<std::string>& names, Notes& notes, const model::UncertainInputs& inputs, Jacobian jacobian) -> void
 {
     if (inputs.inputs.empty())
         return;
@@ -32,6 +35,8 @@ auto setPropagatedErrors(const Fields& fields, const model::UncertainInputs& inp
             std::fill(incomplete.begin(), incomplete.end(), 1);
         }
     }
+    std::vector<std::string> incompleteNames;
+    std::vector<Reaktoro_::ThermoProperty*> fieldsWithNote;
     for (std::size_t k = 0; k < fields.size(); ++k)
     {
         const double variance = inputs.variance(byResult[k]);
@@ -48,10 +53,20 @@ auto setPropagatedErrors(const Fields& fields, const model::UncertainInputs& inp
         }
         // not a number instead of an error that is too small (or 0) and looks complete
         fields[k]->err = std::numeric_limits<double>::quiet_NaN();
-        auto& message = fields[k]->sta.second;
-        message += std::string(message.empty() ? "" : " ") +
-            "The uncertainty from the parameter errors is incomplete (the calculation failed, or the result is not finite): err is not a number.";
+        incompleteNames.push_back(names[k]);
+        fieldsWithNote.push_back(fields[k]);
     }
+    if (incompleteNames.empty())
+        return;
+    // one note for the result, about the properties whose uncertainty is incomplete; their messages say it too
+    Note note{Note::Kind::Uncertainty, Note::Severity::Soft, "",
+              "The uncertainty from the parameter errors is incomplete (the calculation failed, or the result is not finite): err is not a number", {}, {}};
+    for (const auto& name : incompleteNames)
+        if (std::find(note.properties.begin(), note.properties.end(), name) == note.properties.end())
+            note.properties.push_back(name);
+    addNote(notes, note);
+    for (auto* field : fieldsWithNote)
+        field->sta.second += render(note);
 }
 
 } // namespace
@@ -159,12 +174,14 @@ auto ThermoEngine::Impl::reactionJacobian(double T, double& P, const Reaction& r
 auto ThermoEngine::Impl::addSubstanceErrors(ThermoPropertiesSubstance& tps, double T, double& P, const Substance& substance, const model::UncertainInputs& inputs) const -> void
 {
     const auto canonical = thermoPropertiesSubstance(T, P, substance);
-    setPropagatedErrors(fields(tps), inputs, [&](const ParameterRef& ref) { return substanceJacobian(T, P, substance, canonical, ref); });
+    static const std::vector<std::string> names = {"G", "A", "U", "H", "S", "V", "Cp", "Cv"};  // the order of fields()
+    setPropagatedErrors(fields(tps), names, tps.notes, inputs, [&](const ParameterRef& ref) { return substanceJacobian(T, P, substance, canonical, ref); });
 }
 
 auto ThermoEngine::Impl::addReactionErrors(ThermoPropertiesReaction& tpr, double T, double& P, const Reaction& reaction, bool fromReactants, const model::UncertainInputs& inputs) const -> void
 {
-    setPropagatedErrors(fields(tpr), inputs, [&](const ParameterRef& ref) { return reactionJacobian(T, P, reaction, ref, fromReactants); });
+    static const std::vector<std::string> names = {"G", "A", "U", "H", "S", "V", "Cp", "Cv", "G", "G"};  // the order of fields(); ln K and log K follow G
+    setPropagatedErrors(fields(tpr), names, tpr.notes, inputs, [&](const ParameterRef& ref) { return reactionJacobian(T, P, reaction, ref, fromReactants); });
 }
 
 } // namespace ThermoFun

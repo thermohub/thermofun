@@ -26,7 +26,7 @@ is kept as data, and the message of each value (`sta[1]`) is made from the notes
 
 | Member of a note | Meaning |
 |---|---|
-| `kind` | `Note.Kind.Range`: a value outside the range of a model. `Note.Kind.Source`: where the values come from, for example "Calculated from the reaction components". `Note.Kind.Undefined`: what is missing for a value that is not defined, for example "H0 of component C". |
+| `kind` | `Note.Kind.Range`: a value outside the range of a model. `Note.Kind.Source`: where the values come from, for example "Calculated from the reaction components". `Note.Kind.Undefined`: what is missing for a value that is not defined, for example "H0 of component C". `Note.Kind.Uncertainty`: the uncertainty `err` is not complete (a parameter error could not be propagated): `err` is then not a number. |
 | `severity` | `Note.Severity.Soft`: the value is calculated, use it with care. `Note.Severity.Hard`: the model gives no value. |
 | `method` | The method that made the note, for example `JohnsonNorton91`. |
 | `text` | What is outside, and of what. |

@@ -20,6 +20,7 @@ struct Note
         Range,      ///< a value outside the range of a model, or of the data of a record
         Source,     ///< where the values come from, for example "Calculated from the reaction components: ..."
         Undefined,  ///< what is missing for a value that is not defined, for example "G0 of component X"
+        Uncertainty,  ///< the uncertainty (err) of a value is not complete, for example a parameter error that could not be propagated
     };
     enum class Severity
     {
@@ -32,7 +33,7 @@ struct Note
     std::string method;            ///< the method that made the note, for example "JohnsonNorton91"
     std::string text;              ///< what is outside, and of what, for example "T = 1000.85 degC, P = 5000 bar, above 1000 degC or 5000 bar"
     std::vector<std::string> via;  ///< the path of an inherited note, nearest first, for example {"the water"}
-    std::vector<std::string> properties;  ///< the properties it is about ("G", "H", "S", "Cp", "V"); empty: all
+    std::vector<std::string> properties;  ///< the properties it is about ("G", "H", "S", "Cp", "V", "Cv", "U", "A"); empty: all
 
     auto operator==(const Note&) const -> bool = default;
 };
@@ -50,6 +51,8 @@ inline auto render(const Note& note) -> std::string
         return note.text + "; ";
     if (note.kind == Note::Kind::Undefined)
         return note.text + " not defined; ";
+    if (note.kind == Note::Kind::Uncertainty)
+        return note.text + "; ";
     std::string out = rangeNoteMark;
     for (const auto& step : note.via)
         out += "via " + step + ": ";

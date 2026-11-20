@@ -34,7 +34,7 @@ void exportThermoPropertiesSubstance(py::module& m)
 {
     py::class_<Note> note(m, "Note", "Why a value can be doubted (decision 0029): a value outside the range of a model, with the path "
                                      "it came by. The status message of each property is made from the notes.");
-    py::enum_<Note::Kind>(note, "Kind").value("Range", Note::Kind::Range).value("Source", Note::Kind::Source).value("Undefined", Note::Kind::Undefined);
+    py::enum_<Note::Kind>(note, "Kind").value("Range", Note::Kind::Range).value("Source", Note::Kind::Source).value("Undefined", Note::Kind::Undefined).value("Uncertainty", Note::Kind::Uncertainty);
     py::enum_<Note::Severity>(note, "Severity").value("Soft", Note::Severity::Soft).value("Hard", Note::Severity::Hard);
     note.def(py::init<>())
         .def_readwrite("kind", &Note::kind)

@@ -234,6 +234,9 @@ def test_an_incomplete_parameter_uncertainty_is_not_reported_as_complete(data, t
     assert math.isnan(tps.gibbs_energy.err)
     assert "incomplete" in tps.gibbs_energy.sta[1]
     assert math.isfinite(tps.gibbs_energy.val)
+    # one note of the result says it, with the properties it is about (decision 0029)
+    notes = [n for n in tps.notes if n.kind == tf.Note.Kind.Uncertainty]
+    assert len(notes) == 1 and "G" in notes[0].properties and "incomplete" in notes[0].text
 
 
 def test_too_many_coefficients_are_rejected(data, tmp_path):
