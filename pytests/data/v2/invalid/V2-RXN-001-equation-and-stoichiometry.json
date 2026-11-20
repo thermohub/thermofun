@@ -1,0 +1,13 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "reactions": {
+  "R": {
+   "equation": "1 Na+ + 1 Cl- = 1 NaCl@",
+   "stoichiometry": {
+    "NaCl@": 1,
+    "Na+": -1,
+    "Cl-": -2
+   }
+  }
+ }
+}

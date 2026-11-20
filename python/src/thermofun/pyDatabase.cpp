@@ -28,6 +28,7 @@ namespace py = pybind11;
 
 // ThermoFun includes
 #include <ThermoFun/Database.h>
+#include <ThermoFun/Convert.h>
 #include <ThermoFun/Element.h>
 #include <ThermoFun/Substance.h>
 #include <ThermoFun/Reaction.h>
@@ -36,6 +37,37 @@ namespace ThermoFun {
 
 void exportDatabase(py::module& m)
 {
+    m.def("legacyFileDiagnostics", &legacyFileDiagnostics, py::arg("file"), "What the legacy reader finds in a legacy file: the quirks and the keys that it does not read");
+    m.def("checkRecord", &checkRecord, py::arg("section"), py::arg("symbol"), py::arg("record"),
+          "The problems of one v2 record given as JSON text: section is elements, substances or reactions");
+
+    py::class_<ShortenedNumbers>(m, "ShortenedNumbers", "How many numbers the readable form writes otherwise than the exact one")
+        .def_readonly("count", &ShortenedNumbers::count)
+        .def_readonly("largest", &ShortenedNumbers::largest, "the largest relative change")
+        .def("__iter__", [](const ShortenedNumbers& s) { return py::iter(py::make_tuple(s.count, s.largest)); })
+        .def("__repr__", [](const ShortenedNumbers& s) { return "ShortenedNumbers(count=" + std::to_string(s.count) + ", largest=" + std::to_string(s.largest) + ")"; });
+    m.def("shortenedNumbers", &shortenedNumbers, py::arg("database"),
+          "The numbers that toJson(True) writes otherwise than toJson(False): count and largest relative change; None if they do not pair up");
+    const auto options = [](model::DataFormat to, bool yaml, bool split, bool readable, const std::string& report) {
+        ConvertOptions o;
+        o.to = to;
+        o.yaml = yaml;
+        o.split = split;
+        o.readable = readable;
+        o.report = report;
+        return o;
+    };
+    m.def("conversionReport", [options](const Database& database, const std::string& input, model::DataFormat to, bool readable) {
+              return conversionReport(database, input, options(to, false, false, readable, ""));
+          }, py::arg("database"), py::arg("input"), py::arg("to") = model::DataFormat::V2, py::arg("readable") = false,
+          "The migration report as Markdown");
+    m.def("convertFile", [options](const std::string& input, const std::string& output, model::DataFormat to, bool yaml, bool split, bool readable, const std::string& report) {
+              return convertFile(input, output, options(to, yaml, split, readable, report));
+          }, py::arg("input"), py::arg("output"), py::arg("to") = model::DataFormat::V2, py::arg("yaml") = false, py::arg("split") = false,
+          py::arg("readable") = false, py::arg("report") = "",
+          "Reads input (legacy or v2 file or folder) and writes output: v2 JSON or YAML, a dataset folder (split), or legacy JSON. "
+          "Writes the migration report if report is a file name. Returns the diagnostics of the load");
+
     auto appendData1 = static_cast<void(Database::*)(std::string)>(&Database::appendData);
     auto appendData2 = static_cast<void(Database::*)(std::vector<std::string>, std::string)>(&Database::appendData);
 
@@ -54,10 +86,40 @@ void exportDatabase(py::module& m)
     auto setReaction1 = static_cast<void(Database::*)(const std::string&)>(&Database::setReaction);
     auto setReaction2 = static_cast<void(Database::*)(const Reaction&)>(&Database::setReaction);
 
+    py::class_<DatabaseSummary::Count>(m, "DatabaseSummaryCount", "Substances of one class and aggregate state")
+        .def_readonly("substance_class", &DatabaseSummary::Count::substance_class)
+        .def_readonly("aggregate_state", &DatabaseSummary::Count::aggregate_state)
+        .def_readonly("substances", &DatabaseSummary::Count::substances);
+    py::class_<DatabaseSummary>(m, "DatabaseSummary", "The size of a database and its substances by class and aggregate state. print() shows it as a table.")
+        .def_readonly("name", &DatabaseSummary::name)
+        .def_readonly("elements", &DatabaseSummary::elements)
+        .def_readonly("substances", &DatabaseSummary::substances)
+        .def_readonly("reactions", &DatabaseSummary::reactions)
+        .def_readonly("classes", &DatabaseSummary::classes, "a list of counts, by class and aggregate state")
+        .def_readonly("substances_with_methods", &DatabaseSummary::substances_with_methods)
+        .def_readonly("substances_from_reaction", &DatabaseSummary::substances_from_reaction)
+        .def("text", &DatabaseSummary::text)
+        .def("__str__", &DatabaseSummary::text);
+
     py::class_<Database>(m, "Database", "Stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P")
         .def(py::init<>())
         .def(py::init<const std::string>(), "constructor using a JSON string with the thermofun database format")
         .def(py::init<const Database&>())
+        .def(py::init([](const py::dict& records) {
+            // the version of the format can be left out: a dict is always in the format of this ThermoFun
+            py::dict document = records.attr("copy")();   // a copy: the dict of the caller does not change
+            if (!document.contains("thermohub"))
+                document["thermohub"] = Database::formatVersion();
+            return Database(py::module_::import("json").attr("dumps")(document).cast<std::string>());
+        }), py::arg("records"), "constructor using a dict in the v2 format, for example {'substances': {...}}; the key 'thermohub' (the version of the format) can be left out")
+        .def_static("formatVersion", &Database::formatVersion, "The version of the v2 format that this ThermoFun writes: the value of the key thermohub")
+        .def("get", [](const Database& self, const std::string& path) {
+            return py::module_::import("json").attr("loads")(self.value(path));
+        }, py::arg("path"), "A value of a record by its path, as Python objects (dict, list, number, text). The path is a JSON pointer: the section, the symbol of the record, then the keys, for example '/substances/Calcite/standard_state_properties/G'.")
+        .def("set", [](Database& self, const std::string& path, const py::object& value) {
+            self.setValue(path, py::module_::import("json").attr("dumps")(value).cast<std::string>());
+        }, py::arg("path"), py::arg("value"), "Sets a value of a record by its path (see get). The value can be a number, text, a dict or a list. A path of a record alone sets the whole record.")
+        .def("summary", &Database::summary, "The size of the database and its substances by class and aggregate state")
         .def_property_readonly( "conventions", [](Database& db) -> const DatabaseConventions& { return db.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used by this database" )
         .def("appendData", appendData1, "Append records to the database from a file.")
         .def("appendData", appendData2, "Append records of given type (elements, substances, reactions) to the database from a list of JSON strings.")
@@ -102,6 +164,19 @@ void exportDatabase(py::module& m)
         .def("containsReaction", &Database::containsReaction, "Check if the database contains a given reaction")
         .def("elementalEntropyFormula", &Database::elementalEntropyFormula, "Returns the sum of the standard entropies of the elements of a formula")
         .def("parseSubstanceFormula", &Database::parseSubstanceFormula, "Parses a given substance formula present in the database")
+        .def("toJson", &Database::toJson, py::arg("readable") = true, "All records in the v2 format as JSON text. readable: a value from a single-precision source is written as the shortest decimal of that float")
+        .def("toYaml", &Database::toYaml, py::arg("readable") = true, "All records in the v2 format as YAML text")
+        .def("toLegacyJson", &Database::toLegacyJson, py::arg("use_original_text") = true, "All records as legacy JSON text. What the format cannot hold is left out, with a warning")
+        .def("legacyWriteProblems", &Database::legacyWriteProblems, "What toLegacyJson leaves out")
+        .def("validate", &Database::validate, "All problems of the database, also those that a load does not refuse because a record can come from another file")
+        .def("save", &Database::save, py::arg("path"), py::arg("format") = model::DataFormat::V2, py::arg("readable") = true, "Write all records. V2: YAML if the name ends with .yaml or .yml, else JSON. Legacy: legacy JSON")
+        .def("saveDataset", &Database::saveDataset, py::arg("folder"), py::arg("yaml") = false, py::arg("readable") = true,
+             "Write all records as a dataset folder: thermodataset.json (or .yaml) and one file for each record in elements/, substances/ and reactions/")
+        .def("thermoDataSet", &Database::thermoDataSet, py::return_value_policy::copy, "Data about the loaded dataset (a copy)")
+        .def("methods", &Database::methods, py::return_value_policy::copy, "The Method records that the database gives (a copy)")
+        .def("parameterSets", &Database::parameterSets, py::return_value_policy::copy, "The parameter sets that the database gives (a copy)")
+        .def("dataSources", &Database::dataSources, py::return_value_policy::copy, "The data sources that the database gives (a copy)")
+        .def("loadDiagnostics", &Database::loadDiagnostics, py::return_value_policy::copy, "What the load of v2 files reported")
         .def("setSubstancesChargeFromFromula", &Database::setSubstancesChargeFromFromula, "Sets the charge of all substances based in their formulas, uses the formula parser")
         .def("__str__", [](const Database& self) { std::stringstream ss; ss << self.getElements(); ss << self.getSubstances(); ss << self.getReactions(); return ss.str(); })
         ;

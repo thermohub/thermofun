@@ -69,6 +69,12 @@ struct BatchPreferences
      * @value False wrtites the calculated value, danger - this value is probably not correct
      */
     bool writeNaNifNotDefinedValue = true;
+
+    /// True: a CSV file starts with lines "# ..." that say how it was made (see Output::provenance)
+    bool writeProvenance = false;
+
+    /// Lines that go before those of the engine: where the setup came from
+    std::vector<std::string> provenanceNotes;
 };
 
 ///
@@ -143,6 +149,14 @@ public:
     BatchPreferences& preferences();
     const BatchPreferences& preferences() const;
     auto setSolventSymbol           (const std::string solventSymbol) ->void;
+
+    /// The substances or reactions of the database that a rule chooses, for example "{class: aqueous_solute, elements: [Ca]}".
+    /// See selectSubstances in Batch/RecordRules.h.
+    auto selectSubstances           (const std::string &rule) const -> vstr;
+    auto selectReactions            (const std::string &rule) const -> vstr;
+
+    /// What the results depend on: lines of text from the engine (see ThermoEngine::snapshot)
+    auto provenance                 () const -> vstr;
 
     auto temperatureIncrement  () -> const std::map<std::string, double>&;
     auto pressureIncrement  () -> const std::map<std::string, double>&;
@@ -277,7 +291,7 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"entropy",                        "J/K/mol"       },
     {"heat_capacity_cp",               "J/K/mol"       },
     {"heat_capacity_cv",               "J/K/mol"       },
-    {"volume", "J/bar"},
+    {"volume",                         "m3/mol"        },
     {"helmholtz_energy",               "J/mol"         },
     {"internal_energy",                "J/mol"         },
 
@@ -286,7 +300,7 @@ const std::map<std::string, std::string> defaultPropertyUnits =
     {"reaction_internal_energy",       "J/mol"         },
     {"reaction_enthalpy",              "J/mol"         },
     {"reaction_entropy",               "J/K/mol"       },
-    {"reaction_volume",                "J/bar"         },
+    {"reaction_volume",                "m3/mol"        },
     {"reaction_heat_capacity_cp",      "J/K/mol"       },
     {"reaction_heat_capacity_cv",      "J/K/mol"       },
     {"logKr",                          "1"             },
@@ -303,7 +317,7 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"entropy",                        3               },
     {"heat_capacity_cp",               3               },
     {"heat_capacity_cv",               3               },
-    {"volume",                         3               },
+    {"volume",                         8               },   // m3/mol: 1e-8 m3/mol is the 1e-3 J/bar of before 1.0
     {"helmholtz_energy",               0               },
     {"internal_energy",                0               },
 
@@ -312,7 +326,7 @@ const std::map<std::string, int> defaultPropertyDigits =
     {"reaction_internal_energy",       0               },
     {"reaction_enthalpy",              0               },
     {"reaction_entropy",               3               },
-    {"reaction_volume",                3               },
+    {"reaction_volume",                8               },
     {"reaction_heat_capacity_cp",      3               },
     {"reaction_heat_capacity_cv",      3               },
     {"logKr",                          3               },

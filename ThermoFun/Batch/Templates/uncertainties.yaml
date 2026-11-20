@@ -1,0 +1,14 @@
+# Values with their uncertainties, for substances.
+conditions:
+  T: {from: 25, to: 300, step: 25, unit: degC}
+  P: {values: [saturation], unit: bar}
+options: {propagate_parameter_errors: true}
+tables:
+  - name: uncertainties
+    records: []
+    columns:
+      - {property: G, unit: kJ/mol, digits: 3}
+      - {property: G, show: err, unit: kJ/mol, digits: 3}
+      - {property: S, unit: J/K/mol, digits: 2}
+      - {property: S, show: err, unit: J/K/mol, digits: 2}
+    output: uncertainties.csv

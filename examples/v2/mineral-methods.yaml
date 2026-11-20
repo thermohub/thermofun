@@ -1,0 +1,20 @@
+# Calcite of aq17: a heat capacity, a phase transition and a volume. The order of the methods in the file does not count.
+thermohub: 2.0.0-draft.1
+substances:
+  Calcite:
+    formula: CaCO3
+    class: component
+    aggregate_state: crystal
+    standard_state_properties: {G: -1129195.0, H: -1207470.0, S: 92.5, Cp: 83.37073, V: {value: 3.689, unit: J/bar}}
+    methods:
+      - method: CpPolynomial
+        segments:
+          - t_min: 273.15
+            t_max: 2273.15
+            parameters: {a0: 140.9, a1: 0.005029, a2: -950700.0, a3: -858.4}
+      - method: LandauHP98
+        units: {pressure: kbar}
+        parameters: {Tc0: {value: 966.85, unit: Cel}, Smax: 10.0, Vmax: {value: 0.04, unit: J/(mol.bar)}, alpha0: 4.4e-05, kappa0: 760.0}
+      - method: MurnaghanHP98
+        units: {pressure: kbar}
+        parameters: {alpha0: 4.4e-05, kappa0: 760.0}

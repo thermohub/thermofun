@@ -1,0 +1,40 @@
+# log K as a polynomial of T. The source is what a paper gives; `build` writes the expression of dG.
+kind: symbolic
+tier: 1
+operates_on: reaction
+contributes_to:
+- logK
+- dG
+- dH
+- dS
+- dCp
+- dV
+parameter_definitions:
+  A0:
+    unit: '1'
+  A1:
+    unit: 1/K
+  A2:
+    unit: K
+  A3:
+    unit: '1'
+  A4:
+    unit: K2
+source:
+  form: logk
+  expression: A0 + A1*T + A2/T + A3*log(T)/log(10) + A4/T**2
+tests:
+- T: 400.0
+  P: 100000.0
+  parameters:
+    A0: 2.0
+    A1: 0.0
+    A2: 0.0
+    A3: 0.0
+    A4: 0.0
+  expected:
+    logK: 2.0
+expression:
+  dG: -R*(A3*T**2*log(T) + (A2*T + A4 + T**2*(A0 + A1*T))*log(10))/T
+generator: 'thermofun.method_tool build '
+source_hash: sha256:11944bfef53e96d88e24e0b05080decfca00f098eeb71cab6e2fad9932213660

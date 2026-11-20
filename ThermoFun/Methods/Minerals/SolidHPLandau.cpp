@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#include "SolidHPLandau.h"
+#include "SolidMurnaghanHP98.h"
+#include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+auto thermoPropertiesHPLandau(real TK, real Pbar, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* subcritical) -> ThermoPropertiesSubstanceAD
+{
+    real Tcr, Qq;
+    Tcr = 0.0; Qq = 0.0;
+    const auto& transProp = subst.coefficients;
+//    auto (P/1000) = Reaktoro::Pressure (p.val() /1000);  // in kbar
+    auto TrK = subst.Tr;
+
+    if (transProp.size() < 3)
+    {
+        thfun_logger->error(" transition properties size {} ", transProp.size());
+        errorModelParameters("transition properties", "HP Landau", __LINE__, __FILE__);
+    }
+
+    // Parameters of lambda-transition
+    real Tcr0 = transProp[0];   // given in centigrade
+    real Smax = transProp[1];
+    real Vmax = transProp[2];
+
+    const real k298 = subst.kappa0; // This is the bulk modulus k in kbar at 298 K!
+    const real a0 = subst.alpha0; // This is the a parameter (at one bar) in 1/K!
+
+    if ( Smax <= 0)
+        Smax = 1.0e-20;
+
+    if(  Vmax == 0.0 )
+    {
+        Tcr = Tcr0;
+    }
+    else
+        Tcr = Tcr0 + Vmax/Smax * (subst.gems ? Pbar : Pbar - subst.Pr/bar_to_Pa);  // Tc0 is at the reference pressure
+
+    Tcr += C_to_K;
+    Tcr0 += C_to_K;     // dT is a constant equal 273.15
+    auto Q298 = pow( 1.- TrK/Tcr0, 0.25 );
+
+    if( TK<Tcr )
+    {
+        Qq = pow( 1.- TK/Tcr, 0.25 );
+    }
+    else
+    {
+        Qq = 0.;
+    }
+
+    auto kT = k298 * (1. - (1.5e-4) * ( TK-TrK ));
+    auto v_bis = Vmax *pow(Q298,2.) * ( 1.+a0*(TK-TrK) - 20.*a0*( sqrt(TK) - sqrt(TrK) ));
+    auto ivdp = (v_bis*kT/3.) * ( pow((1.+4.*(Pbar/1000)/kT),0.75) - 1. ) * (1000.);
+    // idvdtdp = Vmax*(P/1000)*(a0-10.*a0/sqrt(T)) * (1000.);
+    auto idvdtdp = ( ((Vmax*pow(Q298,2.))*kT/3.)*(a0-10.*a0*pow(TK,-0.5)) * (pow((1.+4.*(Pbar/1000)/kT),0.75)-1.)
+                     - ((v_bis)*k298/3)*(1.5e-4) * (pow((1.+4.*(Pbar/1000)/kT),0.75)-1.)
+                     + (v_bis)*(Pbar/1000)*(1.5e-4)/(1.-(1.5e-4)*(TK-TrK)) * pow((1.+4.*(Pbar/1000)/kT),-0.25) ) * (1000.);
+    auto smq = Smax * Tcr0 *( pow(Q298,2.) - pow(Q298,6.)/3. );
+    real cpPressure = 0.0;
+    if (!subst.gems)
+    {
+        // implementation consistent: the volume term from Pr, not from P = 0, and its Cp, which GEMS left out
+        const auto t = murnaghanTermsHP98(Vmax*pow(Q298,2.), k298, a0, TK, TrK, Pbar);
+        const auto r = murnaghanTermsHP98(Vmax*pow(Q298,2.), k298, a0, TK, TrK, real(subst.Pr/bar_to_Pa));
+        ivdp = t.g - r.g;
+        idvdtdp = -(t.s - r.s);
+        cpPressure = t.cp - r.cp;
+    }
+
+    // increment thermodynamic properties
+    // The order parameter Qq is the equilibrium value (dG/dQ = 0), so V = dG/dP is obtained at fixed Q:
+    // dG/dTcr = Smax*(Q^6/3 - Q^2) and dTcr/dP = Vmax/Smax
+    auto Qq2 = pow(Qq, 2.);
+    auto Qq6 = pow(Qq, 6.);
+    tps.gibbs_energy += ( smq - TK*Smax*pow(Q298,2.) + ivdp + Smax*((TK-Tcr)*Qq2 + Tcr*Qq6/3.) );
+    tps.entropy      += ( Smax * ( pow(Q298,2.) - Qq2 ) - idvdtdp );
+    tps.enthalpy     += ( smq - Smax*Tcr*( Qq2 - Qq6/3.) + ivdp - TK*idvdtdp );
+    tps.volume        = ( v_bis*pow((1.+4.*(Pbar/1000)/kT),-0.25) + Vmax*(Qq6/3. - Qq2) );  // in J/bar
+    if (subcritical)
+        *subcritical = TK < Tcr;
+
+    if( TK<Tcr )  // Cp is corrected at subcritical T only
+        tps.heat_capacity_cp += ( TK*Smax/(2.*sqrt(Tcr)*sqrt(Tcr-TK)) );
+    tps.heat_capacity_cp += cpPressure;
+
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+    tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
+
+    return tps;
+}
+
+}

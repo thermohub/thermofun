@@ -1,0 +1,14 @@
+# One column for each dielectric model of water. Change `compare` for other models.
+conditions:
+  T: {from: 25, to: 300, step: 25, unit: degC}
+  P: {values: [1000], unit: bar}
+tables:
+  - name: comparison
+    records: []
+    columns:
+      - {property: V, unit: J/bar, digits: 4}
+      - {property: Cp, unit: J/K/mol, digits: 2}
+    compare:
+      - {label: JN91}
+      - {label: HK74, replace: {H2O@: {JohnsonNorton91: HelgesonKirkham74}}}
+    output: comparison.csv

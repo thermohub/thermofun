@@ -2,6 +2,8 @@
 // Copyright (C) 2019-2026 ThermoFun contributors
 
 #include "ThermoBatch.h"
+#include <ThermoFun/Batch/RecordRules.h>
+#include <ThermoFun/Engine/Snapshot.h>
 
 // C++ includes
 #include <algorithm>
@@ -565,6 +567,24 @@ const BatchPreferences& ThermoBatch::preferences() const {
 auto ThermoBatch::setSolventSymbol(const std::string solventSymbol) -> void
 {
     pimpl->thermo.setSolventSymbol(solventSymbol);
+}
+
+auto ThermoBatch::selectSubstances(const std::string &rule) const -> vstr
+{
+    return ThermoFun::selectSubstances(pimpl->thermo.database(), rule);
+}
+
+auto ThermoBatch::selectReactions(const std::string &rule) const -> vstr
+{
+    return ThermoFun::selectReactions(pimpl->thermo.database(), rule);
+}
+
+auto ThermoBatch::provenance() const -> vstr
+{
+    vstr lines = pimpl->outSettings.provenanceNotes;
+    const auto engine = snapshotLines(pimpl->thermo.snapshot());
+    lines.insert(lines.end(), engine.begin(), engine.end());
+    return lines;
 }
 
 auto ThermoBatch::setTemperatureIncrement (const double& Tmin, const double& Tmax, const double& Tstep) -> void

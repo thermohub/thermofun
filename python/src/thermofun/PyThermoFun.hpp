@@ -28,6 +28,10 @@ namespace py = pybind11;
 
 namespace ThermoFun {
     // Common module
+    void exportQuantity(py::module& m);
+    void exportRecords(py::module& m);
+    void exportRecordBuilder(py::module& m);
+    void exportDiagnostics(py::module& m);
     void exportThermoScalar(py::module& m);
     void exportStatus(py::module& m);
     void exportTemperature(py::module& m);
@@ -42,16 +46,17 @@ namespace ThermoFun {
     void exportThermoParametersSubstance(py::module& m);
     // Core module
     void exportThermoEngine(py::module& m);
+    void exportTables(py::module& m);
     void exportThermoBatch(py::module& m);
     void exportBatchPreferences(py::module& m);
     void exportOutput(py::module& m);
     // Data
     void exportDatabase(py::module& m);
+    void exportMethods(py::module& m);
     void exportSubstance(py::module& m);
     void exportReaction(py::module& m);
     void exportElement(py::module& m);
     // Enumerations, models, units and parsing
     void exportGlobalVariables(py::module& m);
-    void exportModels(py::module& m);
     void exportUtilities(py::module& m);
 } // namespace ThermoFun

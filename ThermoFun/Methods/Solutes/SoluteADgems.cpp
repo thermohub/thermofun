@@ -1,0 +1,155 @@
+#include "Methods/Solutes/SoluteADgems.h"
+#include "Common/Exception.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+auto thermoPropertiesAqSoluteAD(real Tk, real Pbar, const std::vector<real>& parameters, double MW, const std::string& symbol,
+                                ThermoPropertiesSubstanceAD tps, const ThermoPropertiesSubstanceAD& wtp,
+                                const ThermoPropertiesSubstanceAD& wigp, const PropertiesSolventAD& wp,
+                                const ThermoPropertiesSubstanceAD& wtpr, const ThermoPropertiesSubstanceAD& wigpr,
+                                const PropertiesSolventAD& wpr) -> ThermoPropertiesSubstanceAD
+{
+    real Geos, Veos, Seos, CPeos, Heos;
+    real Gids, /*Vids,*/ Sids, CPids, Hids;
+    real Geos298, Veos298, Seos298, CPeos298, Heos298;
+
+    Geos298 = 0.0;
+    Veos298 = 0.0;
+    Seos298 = 0.0;
+    CPeos298 = 0.0;
+    Heos298 = 0.0;
+    Geos    = 0.0;
+    Veos    = 0.0;
+    Seos    = 0.0;
+    CPeos   = 0.0;
+    Heos    = 0.0;
+    Gids    = 0.0;
+ // Vids    = 0.0;
+    Sids    = 0.0;
+    CPids   = 0.0;
+    Hids    = 0.0;
+
+    auto Tr = 298.15;
+    auto Pr = 1.0;
+
+    ThermoPropertiesSubstanceAD state = tps;
+
+    const auto& ADparam = parameters;
+
+    if (ADparam.size() == 0)
+    {
+        Exception exception;
+        exception.error << "Error in Akinfiev Diamond EOS";
+        exception.reason << "There are no model parameters given for "<<symbol << ".";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+
+    auto Gig    = wigpr.gibbs_energy;
+    auto Sig    = wigpr.entropy;
+    auto CPig   = wigpr.heat_capacity_cp;
+
+    auto Gw    = wtpr.gibbs_energy;
+    auto Sw    = wtpr.entropy;
+    auto CPw   = wtpr.heat_capacity_cp;
+    auto rho   = wpr.density/1000;
+    auto alp   = wpr.Alpha;
+    auto bet   = wpr.Beta*1e05;
+    auto dalpT = wpr.dAldT;
+
+    Akinfiev_EOS_increments(Tr, Pr, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam, MW,
+                       Geos298, Veos298, Seos298, CPeos298, Heos298 );
+
+    // Getting back ideal gas properties corrected for T of interest
+    // by substracting properties of hydration at Tr, Pr
+    Gids    = state.gibbs_energy    -= Geos298;
+ // Vids    = aW.twp->V             -= Veos298;
+    Sids    = state.entropy         -= Seos298;
+ // CPids   = aW.twp->Cp            -= CPeos298;
+    CPids   = state.heat_capacity_cp;
+    Hids    = state.enthalpy        -= Heos298;
+
+    // Properties of water at T,P of interest, modified 06.02.2008 (TW)
+    Gig     = wigp.gibbs_energy;   // converting normalized ideal gas values
+    Sig     = wigp.entropy;
+    CPig    = wigp.heat_capacity_cp;
+    Gw      = wtp.gibbs_energy;
+    Sw      = wtp.entropy;
+    CPw     = wtp.heat_capacity_cp;
+    rho     = wp.density / 1000;
+    alp     = wp.Alpha;
+    bet     = wp.Beta*1e05;
+    dalpT   = wp.dAldT;
+
+    Akinfiev_EOS_increments(Tk, Pbar, Gig, Sig, CPig, Gw, Sw, CPw, rho, alp, bet, dalpT, ADparam, MW,
+                       Geos, Veos, Seos, CPeos, Heos );
+
+    // Getting dissolved gas properties corrected for T,P of interest
+    // by adding properties of hydration at T,P
+    state.gibbs_energy     = Gids + Geos + Seos298*(Tk-Tr);  // S(T-Tr) corrected for dSh at Tr,Pr
+    // aW.twp->V = Vids + Veos;
+    state.volume           = Veos;
+    state.entropy          = Sids + Seos;
+    state.heat_capacity_cp = CPids + CPeos;
+    state.enthalpy         = Hids + Heos;
+    state.internal_energy  = state.enthalpy - Pbar*state.volume;
+    state.helmholtz_energy = state.internal_energy - Tk*state.entropy;
+
+    return state;
+}
+
+void Akinfiev_EOS_increments(real Tk, real /*P*/, real Gig, real Sig, real CPig,
+        real Gw, real Sw, real CPw, real rho, real alp, real bet, real dalpT, const std::vector<real>& ADparam, double MW,
+        real &Geos, real &Veos, real &Seos, real &CPeos, real &Heos )
+{
+
+    real derP, derT, der2T;
+    real deltaB, lnKH, Nw, xi, aa, bb, RT;
+    real fug, vol, drhoT, drhoP, d2rhoT, lnfug, Gres, Sres, CPres;
+    real RR, R_CONST;
+
+    derP = 0.0; derT = 0.0; der2T = 0.0;
+    deltaB = 0.0; lnKH = 0.0; Nw = 0.0; xi = 0.0; aa = 0.0; bb = 0.0; RT = 0.0;
+    fug = 0.0; vol = 0.0; drhoT = 0.0; drhoP = 0.0; d2rhoT = 0.0; lnfug = 0.0; Gres = 0.0; Sres = 0.0; CPres = 0.0;
+    RR = R_CONSTANT*10.;  // cm3 bar/(K mol)
+    R_CONST = R_CONSTANT;
+
+    RT = Tk*R_CONST;
+    // EOS coefficients
+    xi = ADparam[0];
+    aa = ADparam[1];
+    bb = ADparam[2];
+
+    Gres = Gw-Gig;
+    Sres = Sw-Sig;
+    CPres = CPw - CPig;
+    lnfug = Gres/RT;
+    fug = exp(lnfug);
+    vol = MW/rho;
+    drhoT = - alp*rho;
+    drhoP = bet*rho;
+    d2rhoT = rho*(pow(alp,2.)-dalpT);
+
+    // calculation of infinite dilution properties
+    Nw = 1000./MW;
+    deltaB = 0.5*(aa + bb*pow((1000./Tk),0.5));
+    lnKH = (1.-xi)*log(fug) + xi*log(RR*Tk/MW*rho) + 2.*rho*deltaB;
+
+    Geos = - R_CONST*Tk*log(Nw) + (1.-xi)*R_CONST*Tk*log(fug) + R_CONST*Tk*xi*log(RR*Tk/MW*rho)
+                + R_CONST*Tk*rho*(aa+bb*pow((1000./Tk),0.5));
+    derP = aa*Tk*drhoP + bb*pow(10.,1.5)*pow(Tk,0.5)*drhoP;
+    derT = aa*(rho+Tk*drhoT) + bb*(0.5*pow(10.,1.5)*pow(Tk,-0.5)*rho + pow(10.,1.5)*pow(Tk,0.5)*drhoT);
+    der2T = aa*(2.*drhoT+Tk*d2rhoT) + bb*((-0.25)*pow(10.,1.5)*pow(Tk,-1.5)*rho
+                + pow(10.,1.5)*pow(Tk,-0.5)*drhoT + pow(10.,1.5)*pow(Tk,0.5)*d2rhoT);
+
+    Veos = (vol*(1.-xi) + xi*RR*Tk*(1./rho)*drhoP + RR*derP)/10.;
+    Seos = (1.-xi)*(Sres) + R_CONST*log(Nw) - R_CONST*(xi + xi*log(RR*Tk/MW) + xi*log(rho)
+                + xi*Tk*(1./rho)*drhoT) - R_CONST*derT;
+    CPeos = (1.-xi)*(CPres) - R_CONST*(xi + 2.*xi*Tk*(1./rho)*drhoT
+                - xi*pow(Tk,2.)/pow(rho,2.)*pow(drhoT,2.) + xi*pow(Tk,2.)/rho*d2rhoT) - R_CONST*Tk*der2T;
+    Heos = Geos + Tk*Seos;
+}
+
+}

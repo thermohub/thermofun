@@ -23,7 +23,13 @@
 // pybind11 includes
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tuple>
 namespace py = pybind11;
+
+// C++ includes
+#include <algorithm>
+#include <cctype>
+#include <string>
 
 // ThermoFun includes
 #include <ThermoFun/ThermoEngine.h>
@@ -35,8 +41,64 @@ namespace py = pybind11;
 
 namespace ThermoFun {
 
+namespace {
+
+// The value of a checked word: an unknown word gives the words allowed and a hint
+template <class E>
+auto wordOf(const std::string& word) -> E
+{
+    const auto value = model::fromString<E>(word);
+    if (!value)
+        throw py::value_error(model::unknownWordMessage<E>(word));
+    return *value;
+}
+
+// A setting given as the enum or as a word
+template <class E>
+auto valueOf(const py::object& given) -> E
+{
+    if (py::isinstance<py::str>(given))
+        return wordOf<E>(given.cast<std::string>());
+    return given.cast<E>();
+}
+
+// The word of a value in capitals, as the old fields had it
+
+} // namespace
+
+namespace {
+
+auto pathToDict(const ThermoFun::CalculationPath& path) -> py::dict
+{
+    py::dict out;
+    out["kind"] = path.kind; out["symbol"] = path.symbol; out["source"] = path.source; out["methods"] = path.methods;
+    out["coefficient"] = path.coefficient; out["role"] = path.role; out["problem"] = path.problem;
+    py::list steps;
+    for (const auto& step : path.steps)
+        steps.append(pathToDict(step));
+    out["steps"] = steps;
+    return out;
+}
+
+} // namespace
+
 void exportThermoEngine(py::module& m)
 {
+    py::enum_<model::PropertySource>(m, "PropertySource", "Where the properties of a substance or a reaction come from")
+        .value("Direct", model::PropertySource::Direct).value("Reaction", model::PropertySource::Reaction)
+        .value("Reactants", model::PropertySource::Reactants).value("Record", model::PropertySource::Record);
+    py::enum_<model::EnergyReference>(m, "EnergyReference", "The reference of the energies of a substance")
+        .value("BensonHelgeson", model::EnergyReference::BensonHelgeson).value("BermanBrown", model::EnergyReference::BermanBrown)
+        .value("SER", model::EnergyReference::SER).value("AssignedEnthalpy", model::EnergyReference::AssignedEnthalpy)
+        .value("GibbsHelmholtzFormation", model::EnergyReference::GibbsHelmholtzFormation).value("DFTFormation0K", model::EnergyReference::DFTFormation0K);
+    py::enum_<model::StandardPressure>(m, "StandardPressure", "The standard-state pressure")
+        .value("OneBar", model::StandardPressure::OneBar).value("OneAtm", model::StandardPressure::OneAtm);
+    py::enum_<model::ConcentrationScale>(m, "ConcentrationScale", "The concentration scale of aqueous solutes")
+        .value("Molality", model::ConcentrationScale::Molality).value("MoleFraction", model::ConcentrationScale::MoleFraction)
+        .value("Molarity", model::ConcentrationScale::Molarity);
+    py::enum_<model::WaterReference>(m, "WaterReference", "The reference of the properties of water")
+        .value("Geochemical", model::WaterReference::Geochemical).value("SteamTables", model::WaterReference::SteamTables);
+
     auto appendData1 = static_cast<void(ThermoEngine::*)(std::string)>(&ThermoEngine::appendData);
     auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>, std::string)>(&ThermoEngine::appendData);
 
@@ -85,6 +147,58 @@ void exportThermoEngine(py::module& m)
     auto thermoPropertiesReaction2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&) const>(&ThermoEngine::thermoPropertiesReaction);
     auto thermoPropertiesReactionFromReactants2 = static_cast<ThermoPropertiesReaction(ThermoEngine::*)(double, double&, const Reaction&) const>(&ThermoEngine::thermoPropertiesReactionFromReactants);
 
+    m.def("optionWords", [] {
+        std::map<std::string, std::vector<std::string>> out;
+        out["property_source"] = model::words<model::PropertySource>();
+        out["energy_reference"] = model::words<model::EnergyReference>();
+        out["standard_pressure"] = model::words<model::StandardPressure>();
+        out["concentration_scale"] = model::words<model::ConcentrationScale>();
+        out["water_reference"] = model::words<model::WaterReference>();
+        return out;
+    }, "The valid words of the options of the engine");
+
+    py::class_<CalculationSnapshot>(m, "CalculationSnapshot", "What a calculation depends on")
+        .def_readonly("thermofun_version", &CalculationSnapshot::thermofun_version)
+        .def_readonly("format_version", &CalculationSnapshot::format_version)
+        .def_readonly("dataset", &CalculationSnapshot::dataset)
+        .def_readonly("dataset_version", &CalculationSnapshot::dataset_version)
+        .def_readonly("content_hash", &CalculationSnapshot::content_hash)
+        .def_readonly("implementations", &CalculationSnapshot::implementations)
+        .def_readonly("physical_constants", &CalculationSnapshot::physical_constants)
+        .def_readonly("water_symbol", &CalculationSnapshot::water_symbol)
+        .def_readonly("water_methods", &CalculationSnapshot::water_methods)
+        .def_readonly("options", &CalculationSnapshot::options)
+        .def_readonly("conventions", &CalculationSnapshot::conventions)
+        .def("lines", &snapshotLines, "The snapshot as short lines of text");
+
+    const auto sensitivities = [](const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
+        std::vector<ParameterRef> out;
+        for (const auto& [symbol, method, parameter] : parameters)
+            out.push_back({symbol, method, parameter});
+        return out;
+    };
+
+    py::class_<ParameterHandle>(m, "ParameterHandle", "One parameter of a record of an engine, for a fit")
+        .def("name", &ParameterHandle::name)
+        .def("value", &ParameterHandle::value, "The value in SI")
+        .def("setValue", &ParameterHandle::setValue, py::arg("value"), "Changes the value (SI); only the results that depend on the record are cleared")
+        .def("uncertainty", &ParameterHandle::uncertainty, "The standard uncertainty in SI, or None")
+        .def("key", [](const ParameterHandle& h) { return std::make_tuple(h.ref().symbol, h.ref().method, h.ref().parameter); }, "(symbol, method, parameter)");
+
+    py::class_<ConsistencyOptions>(m, "ConsistencyOptions", "The options of ThermoEngine.consistencyReport")
+        .def(py::init<>())
+        .def_readwrite("delta_G_threshold", &ConsistencyOptions::delta_G_threshold, "J/mol; a larger difference is inconsistent");
+
+    py::class_<ConsistencyItem>(m, "ConsistencyItem", "One record at one T and P that has two ways to its properties")
+        .def_readonly("symbol", &ConsistencyItem::symbol)
+        .def_readonly("kind", &ConsistencyItem::kind)
+        .def_readonly("T", &ConsistencyItem::T)
+        .def_readonly("P", &ConsistencyItem::P)
+        .def_readonly("delta_G", &ConsistencyItem::delta_G)
+        .def_readonly("delta_logK", &ConsistencyItem::delta_logK)
+        .def_readonly("flag", &ConsistencyItem::flag)
+        .def_readonly("message", &ConsistencyItem::message);
+
     py::class_<ThermoEngine>(m, "ThermoEngine", "Contains methods for calculating the thermodynamic properties of the substances and reactions")
 //        .def(py::init<>())
         .def(py::init<const std::string>(), "Constructor using a thermofun database as a JSON string")
@@ -95,9 +209,116 @@ void exportThermoEngine(py::module& m)
         .def("setPreferences", &ThermoEngine::setPreferences, "Set the preferences used in the engine calculations", py::arg("preferences"))
         .def("database", &ThermoEngine::database, py::return_value_policy::reference_internal, "The database of the engine")
         .def("setSolventSymbol", &ThermoEngine::setSolventSymbol, "Sets the symbol of the solvent record present in the thermodynamic dataset. Will be used to calculate the solvent properties ", py::arg("symbol"))
+        .def("setPropertySource", [](ThermoEngine& en, const std::string& symbol, py::object source) { en.setPropertySource(symbol, valueOf<model::PropertySource>(source)); },
+             "Where the properties of one substance or reaction come from: PropertySource or the words record, direct, reaction, reactants. It replaces the preference property_source for that symbol", py::arg("symbol"), py::arg("source"))
+        .def("propertySource", &ThermoEngine::propertySource, "The source of a symbol: its own, else the preference of the engine", py::arg("symbol"))
         .def("solventSymbol", &ThermoEngine::solventSymbol, "Returns the symbol of the solvent record used to calculate the solvent properties")
-        .def_property_readonly( "preferences", [](ThermoEngine& en) -> const EnginePreferences& { return en.preferences(); }, py::return_value_policy::reference_internal, "Access the preferences used in engine calculations" )
-        .def_property_readonly( "conventions", [](ThermoEngine& en) -> const EngineConventions& { return en.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used in engine calculations" )
+        .def("saturationPressure", &ThermoEngine::saturationPressure, py::arg("T"),
+             "The saturation pressure of water at T (K), in Pa: what P = 0 means in a calculation. From the water record of the engine, else from the Wagner-Pruss curve; an error at or above the critical temperature of water")
+        .def("setConventions", &ThermoEngine::setConventions, "Set the thermodynamic conventions used in the engine calculations", py::arg("conventions"))
+        .def_property( "preferences", [](ThermoEngine& en) -> EnginePreferences& { return en.preferences(); }, &ThermoEngine::setPreferences, py::return_value_policy::reference_internal, "The preferences used in engine calculations. A change (also of one field) applies from the next calculation" )
+        .def_property( "conventions", [](ThermoEngine& en) -> EngineConventions& { return en.conventions(); }, &ThermoEngine::setConventions, py::return_value_policy::reference_internal, "The thermodynamic conventions used in engine calculations. A change (also of one field) applies from the next calculation" )
+        .def("explain", [](const ThermoEngine& en, double T, double P, std::string symbol) {
+                 py::list out;
+                 for (const auto& step : en.explain(T, P, symbol))
+                 {
+                     py::dict row;
+                     row["method"] = step.method; row["G"] = step.G; row["H"] = step.H; row["S"] = step.S; row["Cp"] = step.Cp; row["V"] = step.V;
+                     if (!step.auxiliary.empty())
+                         row["auxiliary"] = step.auxiliary;
+                     out.append(row);
+                 }
+                 return out;
+             }, "The methods that calculate a substance, in the order they run, with the state after each one (SI). Empty if no such methods run: water, a substance defined by a reaction, a record without a base method.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
+        .def("contributions", [](const ThermoEngine& en, const std::string& symbol, const py::object& T, const py::object& P) {
+                 const auto values = [](const py::object& x) {
+                     return py::isinstance<py::iterable>(x) ? x.cast<std::vector<double>>() : std::vector<double>{x.cast<double>()};
+                 };
+                 py::list rows;
+                 for (const auto& c : en.contributions(symbol, values(T), values(P)))
+                 {
+                     py::dict row;
+                     row["T"] = c.T; row["P"] = c.P;
+                     const auto put = [&](const std::string& suffix, const ExplainStep& s) {
+                         const std::pair<const char*, double> values[] = {{"G", s.G}, {"H", s.H}, {"S", s.S}, {"Cp", s.Cp}, {"V", s.V}};
+                         for (const auto& [name, v] : values)
+                         {
+                             const auto key = py::str(suffix.empty() ? std::string(name) : std::string(name) + ":" + suffix);
+                             row[key] = row.contains(key) ? row[key].cast<double>() + v : v;  // a method twice in a record: one column
+                         }
+                     };
+                     put("", c.total);
+                     for (const auto& m : c.methods)
+                         put(m.method, m);
+                     put("other", c.other);
+                     rows.append(row);
+                 }
+                 return rows;
+             }, py::arg("symbol"), py::arg("T"), py::arg("P"),
+             "What each method of a substance changes, at each (T, P) in K and Pa: a row for each point, as a dict for a table (pandas.DataFrame(rows)). "
+             "Columns T, P, then G, H, S, Cp, V (the result), then X:<method> (the state after the method minus before it) and X:other (what changed after the methods). "
+             "The columns of a property add up to it. T or P can be one number. SI units. Whether a method sets or adds a property: thermofun.methods.catalog(), 'effects'.")
+        .def("auxiliaryOutputs", [](const ThermoEngine& en, const std::string& symbol, const py::object& T, const py::object& P) {
+                 const auto values = [](const py::object& x) {
+                     return py::isinstance<py::iterable>(x) ? x.cast<std::vector<double>>() : std::vector<double>{x.cast<double>()};
+                 };
+                 py::list rows;
+                 for (const auto& point : en.auxiliaryOutputs(symbol, values(T), values(P)))
+                 {
+                     py::dict row;
+                     row["T"] = point.T; row["P"] = point.P;
+                     for (const auto& [name, value] : point.values)
+                         row[py::str(name)] = value;
+                     rows.append(row);
+                 }
+                 return rows;
+             }, py::arg("symbol"), py::arg("T"), py::arg("P"),
+             "The named outputs of the methods of a substance (the terms and intermediate functions of a model), at each (T, P) in K and Pa: a row for each point, as a dict for a table (pandas.DataFrame(rows)). "
+             "Columns T, P, then <method>:<name>, in SI units. The names, units and meaning of the outputs of a method: thermofun.methods.catalog(), 'auxiliary_outputs', and the page of the method. Only some methods have them, for example HKF88.")
+        .def("calculationPath", [](const ThermoEngine& en, const std::string& symbol) { return pathToDict(en.calculationPath(symbol)); }, py::arg("symbol"),
+             "How a substance or a reaction is calculated with the sources of this engine, as a dict: kind, symbol, source, methods, coefficient, role, steps, problem. It calculates nothing.")
+        .def("thermoPropertiesSubstanceDetailed", [](const ThermoEngine& en, double T, double P, std::string symbol) {
+                 const auto d = en.thermoPropertiesSubstanceDetailed(T, P, symbol);
+                 py::list steps;
+                 for (const auto& step : d.steps)
+                 {
+                     py::dict row;
+                     row["method"] = step.method; row["G"] = step.G; row["H"] = step.H; row["S"] = step.S; row["Cp"] = step.Cp; row["V"] = step.V;
+                     steps.append(row);
+                 }
+                 py::dict out;
+                 out["properties"] = d.properties; out["source"] = d.source; out["reaction"] = d.reaction; out["steps"] = steps; out["conversions"] = d.conversions;
+                 return out;
+             }, "The result of a calculation and how it came: properties, source, reaction, steps (the methods in order, SI) and conversions.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
+        .def("parameterSensitivities", [sensitivities](const ThermoEngine& self, double T, double P, const std::string& symbol, const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
+                 return self.parameterSensitivities(T, P, symbol, sensitivities(parameters));
+             }, py::arg("T"), py::arg("P"), py::arg("symbol"), py::arg("parameters"),
+             "The exact derivatives of the properties of a substance by parameters, each (symbol, method, parameter): method \"\" for a reference value. A dict: property, then the name of the parameter. SI")
+        .def("reactionParameterSensitivities", [sensitivities](const ThermoEngine& self, double T, double P, const std::string& symbol, const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
+                 return self.reactionParameterSensitivities(T, P, symbol, sensitivities(parameters));
+             }, py::arg("T"), py::arg("P"), py::arg("symbol"), py::arg("parameters"),
+             "The exact derivatives of the properties of a reaction by parameters, each (symbol, method, parameter): method \"\" for a reference value. A dict: property, then the name of the parameter. SI")
+        .def("parameter", &ThermoEngine::parameter, py::keep_alive<0, 1>(), py::arg("symbol"), py::arg("method"), py::arg("parameter"),
+             "A handle on one parameter of a record: method \"\" for a reference value")
+        .def("parameters", [](py::object self, const std::string& symbol) {
+                 py::list out;
+                 for (auto& handle : self.cast<ThermoEngine&>().parameters(symbol))
+                 {
+                     py::object item = py::cast(handle);
+                     py::detail::keep_alive_impl(item, self);  // a handle needs its engine
+                     out.append(item);
+                 }
+                 return out;
+             }, py::arg("symbol"), "The handles of all the values of a record that can be fitted")
+        .def("commitParameters", &ThermoEngine::commitParameters, "A database with the current values of the handles")
+        .def("setParameterCovariance", [sensitivities](ThermoEngine& self, const std::vector<std::tuple<std::string, std::string, std::string>>& parameters, const std::vector<double>& covariance) {
+                 return self.setParameterCovariance(sensitivities(parameters), covariance);
+             }, py::arg("parameters"), py::arg("covariance"),
+             "Gives parameters a covariance, SI, row after row: one block for each record. Returns the number of the values dropped, between different records")
+        .def("numberOfCachedResults", &ThermoEngine::numberOfCachedResults, "The number of results kept in the caches")
+        .def("snapshot", &ThermoEngine::snapshot, "What the results depend on: versions, dataset, SHA-256 of the records, implementations")
+        .def("consistencyReport", &ThermoEngine::consistencyReport, py::arg("TP"), py::arg("options") = ConsistencyOptions{},
+             "The records that can be calculated in two ways, and the difference at each pair (T [K], P [Pa])")
         .def("thermoPropertiesSubstance", thermoPropertiesSubstance1, "Calculate the thermodynamic properties of a substance with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"))
         .def("electroPropertiesSolvent", electroPropertiesSolvent1, "Calculate the electro-chemical properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
         .def("propertiesSolvent", propertiesSolvent1, "Calculate the properties of a substance solvent with a given symbol.", py::arg("temperature"), py::arg("pressure"), py::arg("symbol"), py::arg("state"))
@@ -116,12 +337,17 @@ void exportThermoEngine(py::module& m)
 
    py::class_<EnginePreferences>(m, "EnginePreferences")
     .def(py::init<>())  // default constructor
+    .def_property("property_source", [](const EnginePreferences& p) { return p.property_source; },
+                  [](EnginePreferences& p, py::object source) { p.property_source = valueOf<model::PropertySource>(source); },
+                  "where the properties of a record come from: PropertySource or the words record (default), direct, reaction, reactants")
+    .def_readwrite("method_implementation", &EnginePreferences::method_implementation,
+                   "method id -> implementation, for example {'HKF88': 'reaktoro'}; it replaces the implementation of the records")
     .def_readwrite("enable_memoize", &EnginePreferences::enable_memoize,
                    "enable/disable memoization of calculated properties (default: True)")
     .def_readwrite("max_cache_size", &EnginePreferences::max_cache_size,
-                   "size of memoization cache, default 1e6 (if 0 unlimited cache)")
+                   "results kept in all the caches together, default 100000 (about 0.7 kB each); 0: no limit")
     .def_readwrite("solventState", &EnginePreferences::solvent_state,
-                   "solvent aggregation state (0 liquid, 1 gas/vapour), default 0")
+                   "not read by the calculations (old API): the state of water comes from its record or from the state argument of propertiesSolvent, default 0")
     .def_readwrite("solventSymbol", &EnginePreferences::solvent_symbol,
                    "symbol of solvent used in EoS of solute properties (e.g., H2O@ for HKF model), default H2O@")
     .def_readwrite("fallback_to_reference_properties",
@@ -129,10 +355,13 @@ void exportThermoEngine(py::module& m)
                    "use reference properties if no calculation functions are available True/False (default: False)")
     .def_readwrite("apply_pressure_correction_to_gas_props",
                    &EnginePreferences::apply_pressure_correction_to_gas_props,
-                   "apply pressure/fugacity correction to gas standard properties True/False (default: False)")
+                   "a gas with a fluid method or IdealGas has RT ln(P/Pr) in G and -R ln(P/Pr) in S True/False (default: True); False gives the state at Pr")
     .def_readwrite("cancel_fugacity_coefficient_in_gas_props",
                    &EnginePreferences::cancel_fugacity_coefficient_in_gas_props,
-                   "remove the fugacity coefficient term RT ln(phi) of the fluids from G, giving standard-state G(T, 1 bar) True/False (default: True); False keeps it and removes RT ln(P/1 bar) from G of steam (HGK)")
+                   "remove the fugacity coefficient term RT ln(phi) of the fluids from G True/False (default: False); the residual terms of H and S stay")
+    .def("useStandardStateOfGases", &EnginePreferences::useStandardStateOfGases, py::return_value_policy::reference_internal,
+         "G(T, Pr) for a gas: sets apply_pressure_correction_to_gas_props = False and cancel_fugacity_coefficient_in_gas_props = True "
+         "(the defaults before version 1.0), for a code that adds these terms itself; returns the preferences")
     .def_readwrite("round_to_uncertainty",
                    &EnginePreferences::round_to_uncertainty,
                    "round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded")
@@ -141,7 +370,7 @@ void exportThermoEngine(py::module& m)
                    "number of significant digits of the (rounded up) uncertainties if round_to_uncertainty is True (default: 2)")
     .def_readwrite("propagate_parameter_errors",
                    &EnginePreferences::propagate_parameter_errors,
-                   "propagate the errors of the reference properties and of the coefficients of the models to the err of the calculated properties True/False (default: False)");
+                   "also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False)");
 
     m.def("round_to_uncertainty",
           [](double value, double error, int significant_digits) {
@@ -155,8 +384,25 @@ void exportThermoEngine(py::module& m)
 
     py::class_<EngineConventions>(m, "EngineConventions")
         .def(py::init<>())
-        .def_readwrite("apparent_properties", &EngineConventions::apparent_properties)
-        .def_readwrite("water_properties", &EngineConventions::water_properties);
+        .def_property("energy_reference", [](const EngineConventions& c) { return c.energy_reference; },
+                      [](EngineConventions& c, py::object v) { c.energy_reference = valueOf<model::EnergyReference>(v); c.apparent_properties.clear(); },
+                      "the reference of the energies: what G and H of a substance are measured from. benson_helgeson (default): the apparent energies of formation from the elements at 298.15 K and 1 bar, as in geochemical databases; berman_brown: G differs from it by 298.15 times the entropies of the elements; ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K: see Conventions")
+        .def_property("standard_pressure", [](const EngineConventions& c) { return c.standard_pressure; },
+                      [](EngineConventions& c, py::object v) { c.standard_pressure = valueOf<model::StandardPressure>(v); },
+                      "the standard pressure of gases: 1bar (default) or 1atm")
+        .def_property("concentration_scale", [](const EngineConventions& c) { return c.concentration_scale; },
+                      [](EngineConventions& c, py::object v) { c.concentration_scale = valueOf<model::ConcentrationScale>(v); },
+                      "the concentration scale of the standard state of aqueous species: molality (default), mole_fraction or molarity")
+        .def_property("water_reference", [](const EngineConventions& c) { return c.water_reference; },
+                      [](EngineConventions& c, py::object v) { c.water_reference = valueOf<model::WaterReference>(v); c.water_properties.clear(); },
+                      "the reference of the energies of water: geochemical (default, G of formation from the elements) or steam_tables (G = 0 and S = 0 for liquid water at its triple point)")
+        // the old names: the same values as checked words in capitals
+        .def_property("apparent_properties", [](const EngineConventions& c) { return c.apparentPropertiesWord(); },
+                      [](EngineConventions& c, const std::string& word) { c.energy_reference = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); },
+                      "the old name of energy_reference, in capitals (BENSON_HELGESON). It is kept for code that uses it; use energy_reference")
+        .def_property("water_properties", [](const EngineConventions& c) { return c.waterPropertiesWord(); },
+                      [](EngineConventions& c, const std::string& word) { c.water_reference = wordOf<model::WaterReference>(word); c.water_properties.clear(); },
+                      "the old name of water_reference, in capitals (GEOCHEMICAL). It is kept for code that uses it; use water_reference");
 }
 
 }

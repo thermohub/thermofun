@@ -16,6 +16,8 @@ struct ElementValues;
 
 namespace ThermoFun {
 
+namespace model { struct ElementRecord; }
+
 /// A type used to define a chemical element and its attributes
 class Element
 {
@@ -102,6 +104,13 @@ public:
 
     /// Return the Mendeleev table number of the element
     auto number() const -> int;
+
+    /// The record of this object, in SI units, if it was read from a legacy JSON text and not changed since.
+    /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
+    auto record() const -> std::shared_ptr<const model::ElementRecord>;
+
+    /// An object of a record of any format.
+    explicit Element(std::shared_ptr<const model::ElementRecord> record);
 
     /**
      * @brief jonString

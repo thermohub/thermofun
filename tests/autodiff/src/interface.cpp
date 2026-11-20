@@ -13,6 +13,8 @@
 namespace ThermoFun { struct ThermoPropertiesSubstance; struct ThermoPropertiesReaction; struct PropertiesSolvent; }
 
 #include "ThermoEngine.h"
+#include "ThermoFun.h"
+#include <type_traits>
 #include "ThermoProperties.h"
 
 static int failures = 0;
@@ -26,6 +28,10 @@ static bool close(double a, double b, double tol = 1e-12)
 {
     return std::fabs(a - b) <= tol * (1.0 + std::fabs(b));
 }
+
+// The model was in ThermoFun::v2 before 1.0: the name stays an alias of ThermoFun::model until 2.0
+static_assert(std::is_same_v<ThermoFun::v2::SubstanceRecord, ThermoFun::model::SubstanceRecord>);
+static_assert(std::is_same_v<ThermoFun::v2::EnergyReference, ThermoFun::model::EnergyReference>);
 
 int main(int argc, char** argv)
 {

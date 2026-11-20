@@ -8,7 +8,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <ThermoFun/ThermoProperties.h>
 #include <spdlog/spdlog.h>
 
 namespace ThermoFun {
@@ -75,25 +74,14 @@ std::string message(const Exception& exception, const std::string& file, int lin
 
 auto errorMethodNotFound(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorReactionNotDefined(std::string name, int line, std::string file) -> void;
 
-auto errorSolventNotDefined(std::string type, std::string name, int line, std::string file) -> void;
 
 auto errorModelParameters(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorSameSymbol(std::string type, std::string name, int line, std::string file) -> void;
 
-auto errorNotMatchingLevel(std::string type, std::string name, int line, std::string file) -> void;
 
-auto setMessage(Reaktoro_::Status sta, std::string propertyOfsymbol, std::string calcMessage, std::string &message_ ) -> void;
+[[noreturn]] auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
 
-auto setMessage(Reaktoro_::Status sta, std::string message , ThermoPropertiesSubstance &tps) -> void;
-
-auto setMessage(Reaktoro_::Status sta, std::string message, ThermoPropertiesReaction &tpr ) -> void;
-
-auto funError(const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
-
-auto funErrorIf(bool condition, const std::string& error, const std::string& reason, const int& line, const std::string& file) -> void;
 
 } // namespace ThermoFun
 

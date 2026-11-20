@@ -10,7 +10,6 @@ to the **GNU Lesser General Public License version 2.1 or (at your option) any l
 commit `a8abc79e`, "Updated the license from GPLv3.0 to LGPLv2.1"), and the headers of these files carry the notice of
 that license (as in Reaktoro today). Reaktoro depends on ThermoFun, so ThermoFun must stay compatible with the LGPL-2.1+ of Reaktoro:
 
-- `ThermoFun/Common/ScalarTypes.hpp`
 - `ThermoFun/Common/ThermoProperty.hpp`
 - `ThermoFun/Common/ThermoScalar.hpp`
 - `ThermoFun/Common/Units.cpp`
@@ -35,10 +34,12 @@ that license (as in Reaktoro today). Reaktoro depends on ThermoFun, so ThermoFun
 Copyright by T. Wagner, D. Kulik, S. Dmitrieva, F. Hingerl, S. Churakov, A. Rysin and others (see each header), GNU Lesser
 General Public License version 3 or (at your option) any later version:
 
-- `ThermoFun/Substances/Gases/s_solmod2_.cpp`
-- `ThermoFun/Substances/Gases/s_solmod_.cpp`
-- `ThermoFun/Substances/Gases/s_solmod_.h`
-- `ThermoFun/Substances/Gases/verror.h`
+- `ThermoFun/Methods/Fluids/FluidCGF.cpp`
+- `ThermoFun/Methods/Fluids/FluidCORK.cpp`
+- `ThermoFun/Methods/Fluids/FluidPR78.cpp`
+- `ThermoFun/Methods/Fluids/FluidPRSV.cpp`
+- `ThermoFun/Methods/Fluids/FluidSRK.cpp`
+- `ThermoFun/Methods/Fluids/FluidSTP.cpp`
 
 ## Files whose origin is to be confirmed
 

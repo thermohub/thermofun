@@ -1,0 +1,421 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "generator": "make_v2_fixtures.py",
+ "thermodataset": {
+  "symbol": "reactions"
+ },
+ "substances": {
+  "Al+3": {
+   "name": "Al+3 ion",
+   "formula": "Al+3",
+   "charge": 3,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -486594.0,
+    "H": -537882.0,
+    "S": -339.73999023438,
+    "Cp": {
+     "value": -119.34440612793,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": -4.5337700843811e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": -1.4217232007980144e-05,
+      "a2": -6727.411821288906,
+      "a3": 0.0005050045975494387,
+      "a4": -88462.312,
+      "c1": 60.37302643585344,
+      "c2": -370380.232,
+      "omega": 1146541.52
+     }
+    }
+   ]
+  },
+  "HCO3-": {
+   "name": "HCO3- bicarbonate ion",
+   "formula": "HCO3-",
+   "charge": -1,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -586855.0,
+    "H": -690463.0,
+    "S": 96.625,
+    "Cp": {
+     "value": -34.845699310303,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 2.420910358429e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": 1.2525222694873677e-05,
+      "a2": 2083.088059570323,
+      "a3": 0.0009870265148925912,
+      "a4": -124884.032,
+      "c1": 54.366897819521185,
+      "c2": -199070.53600000002,
+      "omega": 535217.28
+     }
+    }
+   ]
+  },
+  "H+": {
+   "name": "H+",
+   "formula": "H+",
+   "charge": 1,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": 0.0,
+    "H": 0.0,
+    "S": 0.0,
+    "Cp": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    }
+   },
+   "preferred_property_source": "reaction"
+  },
+  "Ca+2": {
+   "name": "Ca+2 ion",
+   "formula": "Ca+2",
+   "charge": 2,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -552821.0,
+    "H": -543100.0,
+    "S": -56.484001159668,
+    "Cp": {
+     "value": -30.922517776489,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": -1.8438742160797e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": -8.146248267591069e-07,
+      "a2": -3034.2368510742135,
+      "a3": 0.00022160973834991387,
+      "a4": -103729.719828125,
+      "c1": 37.656,
+      "c2": -105520.48000000001,
+      "omega": 517393.4726875
+     }
+    }
+   ]
+  },
+  "Meionite-Ca": {
+   "name": "Meionite-Ca (me)",
+   "formula": "Ca4Al6Si6O24(CO3)",
+   "charge": 0,
+   "class": "component",
+   "aggregate_state": "crystal",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -13106507.0,
+    "H": -13843570.0,
+    "S": 752.0,
+    "Cp": {
+     "value": 717.31079101562,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 0.0003398500061035201,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "CpPolynomial",
+     "segments": [
+      {
+       "t_min": 273.15,
+       "t_max": 2273.15,
+       "parameters": {
+        "a0": 1359.0,
+        "a1": 0.036442000418901,
+        "a2": -8594700.0,
+        "a3": -9598.2001953125,
+        "a4": 0.0,
+        "a5": 0.0,
+        "a6": 0.0,
+        "a7": 0.0,
+        "a8": 0.0,
+        "a9": 0.0
+       }
+      }
+     ]
+    },
+    {
+     "method": "MurnaghanHP98",
+     "parameters": {
+      "alpha0": 3.1600000511389e-05,
+      "kappa0": 87000000000.0
+     }
+    }
+   ],
+   "defining_reaction": "Meionite-Ca"
+  },
+  "H4SiO4@": {
+   "name": "H4SiO4 (aq)",
+   "formula": "H4SiO4@",
+   "charge": 0,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -1308407.0,
+    "H": -1450119.0,
+    "S": 215.158,
+    "Cp": {
+     "value": -167.762,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 5.22e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "defining_reaction": "H4SiO4@",
+   "preferred_property_source": "reaction"
+  },
+  "H2O@": {
+   "name": "Water HGK",
+   "formula": "H2O@",
+   "charge": 0,
+   "class": "water_solvent",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": {
+     "value": -237183.0,
+     "uncertainty": 100.0
+    },
+    "H": {
+     "value": -285881.0,
+     "uncertainty": 200.0
+    },
+    "S": {
+     "value": 69.922996520996,
+     "uncertainty": 0.10000000149012
+    },
+    "Cp": {
+     "value": 75.360527038574,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 1.8068397045136e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "WaterHGK84",
+     "implementation": "reaktoro"
+    },
+    {
+     "method": "JohnsonNorton91",
+     "implementation": "reaktoro"
+    }
+   ]
+  },
+  "SiO2@": {
+   "name": "SiO2 (aq)",
+   "formula": "SiO2@",
+   "charge": 0,
+   "class": "aqueous_solute",
+   "aggregate_state": "aqueous",
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "standard_state_properties": {
+    "G": -834041.0,
+    "H": -878357.0,
+    "S": 75.311996459961,
+    "Cp": {
+     "value": -318.48419189453,
+     "uncertainty": 0.0
+    },
+    "V": {
+     "value": 1.6063253879547002e-05,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "HKF88",
+     "implementation": "reaktoro",
+     "parameters": {
+      "a1": 7.949599900245491e-06,
+      "a2": 711.28,
+      "a3": 0.0008368000000000002,
+      "a4": -112968.0,
+      "c1": 121.75440159607048,
+      "c2": -2142208.0,
+      "omega": 54015.44
+     }
+    }
+   ]
+  }
+ },
+ "reactions": {
+  "Meionite-Ca": {
+   "name": "",
+   "stoichiometry": {
+    "H4SiO4@": 6.0,
+    "Meionite-Ca": -1.0,
+    "Ca+2": 4.0,
+    "H+": -25.0,
+    "HCO3-": 1.0,
+    "Al+3": 6.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 80.875017,
+     "uncertainty": 0.0
+    },
+    "dG": {
+     "value": -461638.0,
+     "uncertainty": 0.0
+    },
+    "dH": {
+     "value": -947299.0,
+     "uncertainty": 0.0
+    },
+    "dS": {
+     "value": -1628.802946,
+     "uncertainty": 0.0
+    },
+    "dCp": {
+     "value": -2598.484998,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": -0.0003482220800000001,
+     "uncertainty": 0.0
+    }
+   },
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 298.15,
+    "p_min": 0.1,
+    "p_max": 1000000.0
+   }
+  },
+  "H4SiO4@": {
+   "name": "",
+   "stoichiometry": {
+    "H4SiO4@": -1.0,
+    "SiO2@": 1.0,
+    "H2O@": 2.0
+   },
+   "reference_conditions": {
+    "T": 298.15,
+    "P": 100000.0
+   },
+   "reaction_properties": {
+    "logK": {
+     "value": 0.0,
+     "uncertainty": 0.035038
+    },
+    "dG": {
+     "value": 0.0,
+     "uncertainty": 200.0
+    },
+    "dH": {
+     "value": 0.0,
+     "uncertainty": 400.0
+    },
+    "dS": {
+     "value": 0.0,
+     "uncertainty": 0.2
+    },
+    "dCp": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    },
+    "dV": {
+     "value": 0.0,
+     "uncertainty": 0.0
+    }
+   },
+   "methods": [
+    {
+     "method": "LogKConstant",
+     "parameters": {
+      "a0": 0.0,
+      "a1": 0.0,
+      "a2": 0.0,
+      "a3": 0.0,
+      "a4": 0.0,
+      "a5": 0.0,
+      "a6": 0.0
+     }
+    }
+   ],
+   "applicability": {
+    "t_min": 273.15,
+    "t_max": 1073.15,
+    "p_min": 0.1,
+    "p_max": 5000000000.0
+   }
+  }
+ }
+}

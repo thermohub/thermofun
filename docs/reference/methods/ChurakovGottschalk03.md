@@ -1,0 +1,92 @@
+# ChurakovGottschalk03
+
+Equation of state of Churakov and Gottschalk.
+
+Adds the pressure terms of the perturbation equation of state to G, H, S and Cp, and sets V.
+
+Source: Churakov and Gottschalk (2003a, b).
+
+| | |
+|---|---|
+| Works on | substance |
+| Kind | increment |
+| Classes | gas_fluid |
+| Needs | nothing from outside its record |
+| Temperature segments | no |
+| Has code | yes |
+| Legacy names | `fluid_churakov_gottschalk` |
+| Other names | `CGF` |
+
+## Implementations
+
+`consistent`, `gems`. The default is `consistent`. Use another only to reproduce the results of that code.
+
+## Parameters
+
+| Name | Unit of the source | SI unit | Required | Default | Description |
+|---|---|---|---|---|---|
+| sigma0 | 1 | 1 | yes |  | sigma = sigma0 + sigma1 exp(sigma2 T), angstrom |
+| eps0 | 1 | 1 | yes |  | epsilon = eps0 + eps1 exp(eps2 T), K |
+| mu0 | 1 | 1 | yes |  | dipole = mu0 + mu1 / (T + mu2), debye |
+| pol0 | 1 | 1 | yes |  | polarizability = pol0 + pol1 / (T + pol2), angstrom3 |
+| sigma1 | 1 | 1 | yes |  | see sigma0, angstrom |
+| sigma2 | 1 | 1 | yes |  | see sigma0, 1/K |
+| eps1 | 1 | 1 | yes |  | see eps0, K |
+| eps2 | 1 | 1 | yes |  | see eps0, 1/K |
+| mu1 | 1 | 1 | yes |  | see mu0, debye K |
+| mu2 | 1 | 1 | yes |  | see mu0, K |
+| pol1 | 1 | 1 | yes |  | see pol0, angstrom3 K |
+| pol2 | 1 | 1 | yes |  | see pol0, K |
+
+## Built-in coefficients
+
+A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+
+Units of the values: T: K, beta: epsilon/T without units, reduced density: sigma^3 NA rho without units. They are not converted.
+
+The universal constants of the perturbation equation of state: its reference is the Weeks-Chandler-Andersen fluid. P1 to P10 and hs_a3, hs_a9, hs_a12: the hard sphere diameter. AA, A4 to A6, BB, B4 to B6, A00 to A34: the WCA free energy, with rm = 2^(1/6). fi1_N, fi2_N: the polynomials of the induced term, highest place last. kd0 to kd5: the correction of the dipole term. dipole: the conversion of the dipole moment, 1.38048E-4 as the constant of Boltzmann in the units of the model. NA = 0.6023: the number of Avogadro in the units of the model. PISIX and TWOPI: pi/6 and 2 pi with the digits of the code. All are numbers in the reduced units of the model. The coefficients of each substance are in its record.
+
+Source: Churakov S.V., Gottschalk M. (2003) Geochim. Cosmochim. Acta 67, 2397-2414 and 2415-2425.
+
+Names: `PISIX`, `TWOPI`, `rm`, `P1`, `PP2`, `P3` to `P10`, `AA1` to `AA3`, `A4` to `A6`, `BB1` to `BB3`, `B4` to `B6`, `A00`, `A01`, `A10` to `A12`, `A21` to `A23`, `A31` to `A34`, `fi1_0` to `fi1_9`, `fi2_0` to `fi2_9`, `hs_a3`, `hs_a9`, `hs_a12`, `NA`, `dipole`, `kd0` to `kd5`.
+
+## Example
+
+From Churakov and Gottschalk (2003); CO2 in Appendix 1 of the description of the CG equation of state in GEM-Selektor. No bundled database has this method yet.
+
+sigma = 3.81773 - 0.203782 exp(-0.00101206 T) angstrom and epsilon/k = 192.192 - 136.307 exp(-0.00353196 T) K; CO2 has no dipole moment; its polarizability is 2.65 angstrom3.
+
+```yaml
+substances:
+  CO2(g):
+    formula: CO2
+    class: gas_fluid
+    aggregate_state: gas
+    standard_state_properties: {G: -394372.57, H: -393519.66, S: 213.7527, Cp: 37.135}
+    methods:
+      - method: ConstantCp
+      - method: ChurakovGottschalk03
+        parameters: {sigma0: 3.81773, sigma1: -0.203782, sigma2: -0.00101206, eps0: 192.192, eps1: -136.307, eps2: -0.00353196,
+                     mu0: 0.0, mu1: 0.0, mu2: 0.0, pol0: 2.65, pol1: 0.0, pol2: 0.0}
+```
+
+`pytests/test_method_examples.py` checks that it calculates, at 773.15 K and 1000 bar. There is no published value here to compare with.
+
+Calculation, with the record as above:
+
+```python
+import thermofun as tf
+
+engine = tf.ThermoEngine("record.yaml")  # the record above, in a file
+for T, P in [(773.15, 1e+08)]:  # K, Pa
+    p = engine.thermoPropertiesSubstance(T, P, "CO2(g)")
+    print(T, P, p.gibbs_energy.val, p.enthalpy.val, p.entropy.val, p.heat_capacity_cp.val, p.volume.val)
+```
+
+The record has no water: the calculation adds `H2O@` with `WaterIAPWS95`, as the test does.
+
+Output, as `T  P  G  H  S  Cp  V` (J/mol, J/mol, J/(mol K), J/(mol K), m3/mol):
+
+```text
+773.15  1e+08  -4.5949e+05  -3.7622e+05  189.03  37.135  8.7869e-05
+```

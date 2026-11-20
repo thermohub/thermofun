@@ -1,0 +1,288 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#include "Methods/Water/WaterZhangDuan2005.h"
+
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
+#include "Common/Exception.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+/// The molar volume (the reduced volume) of water at T (K) and P (bar), solved with Newton's iterations
+auto waterMolarVolume (real TK, real Pbar, real V0, const ZhangDuanConstants& c) -> real
+{
+    const auto a = c.a;
+    const double gamma = c.gamma, RConstant = c.R;
+    // Auxiliary constants for the Newton's iterations
+    const int max_iters = 100;
+    const double tolerance = 1.0e-08;
+
+    const auto Tcr = c.Tc;
+    const auto Vcr = c.Vc;
+    const auto B = a[1] + a[2]/pow((TK/Tcr),2) + a[3]/pow((TK/Tcr),3);
+    const auto C = a[4] + a[5]/pow((TK/Tcr),2) + a[6]/pow((TK/Tcr),3);
+    const auto D = a[7] + a[8]/pow((TK/Tcr),2) + a[9]/pow((TK/Tcr),3);
+    const auto E = a[10] + a[11]/pow((TK/Tcr),2) + a[12]/pow((TK/Tcr),3);
+    const auto F = a[13]/(TK/Tcr);
+    const auto G = a[14]*(TK/Tcr);
+    auto Vr = V0;
+
+    for(int i = 1; i <= max_iters; ++i)
+    {
+        const auto f  = ( 1 + B/Vr + C/pow(Vr,2) + D/pow(Vr,4) + E/pow(Vr,5) +
+                          (F/pow(Vr,2) + G/pow(Vr,4))*exp(-gamma/pow(Vr,2)))* RConstant
+                        * TK/Pbar - Vr*Vcr;
+        const auto df = ( -B/pow(Vr,2) - 2*C/pow(Vr,3) - 4*D/pow(Vr,5) - 5*E/pow(Vr,6) -
+                          (2*exp(-gamma/pow(Vr,2))*(-F*gamma*pow(Vr,2) + F*pow(Vr,4) - gamma*G + 2*G*pow(Vr,2)))/pow(Vr,7)) * RConstant
+                        * TK/Pbar - Vcr;
+        const auto Vr_plus_1 = Vr - f/df;
+
+        if (std::abs(Vr_plus_1.val() - Vr.val()) < tolerance)
+        {
+            return Vr_plus_1;
+        }
+
+        Vr = Vr_plus_1;
+    }
+
+    ThermoFun::Exception exception;
+    exception.error << "Unable to calculate the molar volume of water, Zhang and Duan (2005) EOS.";
+    exception.reason << "The calculations did not converge at temperature "
+        << TK.val() << " K and pressure " << Pbar.val() << "Pa.";
+    exception.line = __LINE__;
+    RaiseError(exception);
+
+    return {};
+}
+
+// Duan et al 1992a; F = F92*beta, G = F92*gamma
+auto waterFugacityCoeff (real T, real P, real Vr, real V, const ZhangDuanConstants& c) -> real
+{
+    const auto a = c.a;
+    const double gamma = c.gamma, RConstant = c.R;
+    real lnFugCoef/*, lnFugCoef2, lnFugCoef3*/;
+
+    const auto Tc = c.Tc;
+    const auto B = a[1]  + a[2]/pow((T/Tc),2)  + a[3]/pow((T/Tc),3);
+    const auto C = a[4]  + a[5]/pow((T/Tc),2)  + a[6]/pow((T/Tc),3);
+    const auto D = a[7]  + a[8]/pow((T/Tc),2)  + a[9]/pow((T/Tc),3);
+    const auto E = a[10] + a[11]/pow((T/Tc),2) + a[12]/pow((T/Tc),3);
+    const auto F = a[13]/(T/Tc);
+    const auto G = a[14]*(T/Tc);
+    const auto expf = exp(-gamma/pow(Vr,2));
+    const auto Z = (P*V)/(RConstant*T);
+
+    const auto H = F/(2*gamma) + G/(2*pow(gamma,2)) - expf*F/(2*gamma) - expf*G/(2*pow(gamma,2)) - expf*G/(pow(Vr,2)*(2*gamma));
+
+//    const auto H2 = G/(2*pow(gamma,2)) * (F*gamma/G + 1 - (F*gamma/G+1+gamma/pow(Vr,2)) * exp(-gamma/pow(Vr,2)));
+
+//    const auto H = (1/(2*gamma))*(F + G/pow(Vr,2) + G/gamma)*exp(-gamma/pow(Vr,2)) - F/(2*gamma) - G/(2*pow(gamma,2));
+
+//    lnFugCoef = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) - H;
+
+//    lnFugCoef2 = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + H2;
+
+    lnFugCoef = Z - 1 - log(Z) + B/Vr + C/(2*pow(Vr,2)) + D/(4*pow(Vr,4)) + E/(5*pow(Vr,5)) + H;
+
+    return lnFugCoef;
+}
+
+
+/// Nodes and weights of the Gauss-Legendre rule with n points on [-1, 1]
+static auto gaussLegendre(int n, std::vector<double>& x, std::vector<double>& w) -> void
+{
+    x.assign(n, 0.0);
+    w.assign(n, 0.0);
+    for (int i = 0; i < (n + 1) / 2; ++i)
+    {
+        double z = std::cos(3.14159265358979323846 * (i + 0.75) / (n + 0.5)), dp = 1.0;
+        for (int it = 0; it < 100; ++it)
+        {
+            double p1 = 1.0, p2 = 0.0;
+            for (int j = 0; j < n; ++j)
+            {
+                const double p3 = p2;
+                p2 = p1;
+                p1 = ((2.0 * j + 1.0) * z * p2 - j * p3) / (j + 1.0);
+            }
+            dp = n * (z * p1 - p2) / (z * z - 1.0);
+            const double dz = p1 / dp;
+            z -= dz;
+            if (std::fabs(dz) < 1e-15)
+                break;
+        }
+        x[i] = -z;
+        x[n - 1 - i] = z;
+        w[i] = w[n - 1 - i] = 2.0 / ((1.0 - z * z) * dp * dp);
+    }
+}
+
+auto waterGibbsEnergyDEW(real TK, real Pbar, const ZhangDuanConstants& c) -> real
+{
+    if (Pbar.val() < 1000.0)
+    {
+        ThermoFun::Exception exception;
+        exception.error << "The Gibbs energy of water of the model DEW is defined for P >= 1 kbar.";
+        exception.reason << "The pressure is " << Pbar.val() << " bar.";
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+    // G(T, 1 kbar): a polynomial in the temperature in degC, in cal/mol
+    const real tc = TK - 273.15;
+    real G = ((((c.g1kb[0] * tc + c.g1kb[1]) * tc + c.g1kb[2]) * tc + c.g1kb[3]) * tc + c.g1kb[4]) * 4.184;
+
+    // the integral of V dP from 1 kbar to P (V in cm3/mol, bar: 0.1 J), in panels of at most 4 kbar with 12 points each
+    struct Rule { std::vector<double> x, w; };
+    static const Rule rule = [] { Rule r; gaussLegendre(12, r.x, r.w); return r; }();
+    const std::vector<double>& x = rule.x;
+    const std::vector<double>& w = rule.w;
+    const int panels = std::max(1, static_cast<int>(std::ceil((Pbar.val() - 1000.0) / 4000.0)));
+    const real width = (Pbar - 1000.0) / panels;
+    real integral = 0.0;
+    for (int k = 0; k < panels; ++k)
+    {
+        const real lower = 1000.0 + width * k;
+        for (size_t i = 0; i < x.size(); ++i)
+        {
+            const real p = lower + width * (0.5 * (x[i] + 1.0));
+            real Vr = 0.3;
+            Vr = waterMolarVolume(TK, p, Vr, c);
+            integral += Vr * c.Vc * (0.5 * w[i]) * width;
+        }
+    }
+    return G + integral * 0.1;
+}
+
+auto thermoPropertiesWaterZhangDuan2005(real T, real P, const ZhangDuanConstants& c) -> ThermoPropertiesSubstanceAD
+{
+    ThermoPropertiesSubstanceAD tps;
+
+    real Vr (18.0684); // cm^3/mol, initial value at 298.15 K, 1 bar
+    real FugCoef;
+
+    Vr = 0.3;
+
+    Vr = waterMolarVolume(T, P, Vr, c);
+
+    const auto V = Vr * c.Vc;
+    FugCoef = exp(waterFugacityCoeff(T, P, Vr, V, c));
+
+    auto Gres = log(FugCoef)*R_CONSTANT * (T);
+
+    tps.volume = V / 10;
+
+    return tps;
+}
+
+/// The partial derivatives of the reduced volume Vr(T, P) of the Zhang and Duan (2005) EOS, obtained analytically by the implicit
+/// differentiation of f(Vr, T, P) = s - Vcr Vr = 0, with s = R T Z(Vr, T)/P (T in K, P in bar):
+///   Z = 1 + B/x + C/x^2 + D/x^4 + E/x^5 + (F/x^2 + G/x^4) exp(-gamma/x^2),  x = Vr,  B..G power laws of T/Tc
+///   V_T = -f_T/f_x, V_P = -f_P/f_x, V_TT = -(f_TT + 2 f_xT V_T + f_xx V_T^2)/f_x,
+///   V_TP = -(f_TP + f_xT V_P + f_xP V_T + f_xx V_T V_P)/f_x, V_PP = -(f_PP + 2 f_xP V_P + f_xx V_P^2)/f_x
+/// (s is proportional to 1/P: f_P = -s/P, f_PP = 2 s/P^2, f_xP = -s_x/P, f_TP = -s_T/P)
+struct VolumeDerivatives
+{
+    real T, P, TT, TP, PP;
+};
+
+static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar, const ZhangDuanConstants& c) -> VolumeDerivatives
+{
+    const auto a = c.a;
+    const double gamma = c.gamma, RConstant = c.R, waterCriticalTemperature = c.Tc, waterCriticalVolume = c.Vc;
+    const real tau = TK/waterCriticalTemperature;
+    const real t2 = pow(tau, -2), t3 = pow(tau, -3), t4 = pow(tau, -4), t5 = pow(tau, -5);
+    const double Tc = waterCriticalTemperature;
+
+    // the coefficients and their derivatives with respect to tau
+    const real B = a[1] + a[2]*t2 + a[3]*t3,    B1 = -2*a[2]*t3 - 3*a[3]*t4,    B2 = 6*a[2]*t4 + 12*a[3]*t5;
+    const real C = a[4] + a[5]*t2 + a[6]*t3,    C1 = -2*a[5]*t3 - 3*a[6]*t4,    C2 = 6*a[5]*t4 + 12*a[6]*t5;
+    const real D = a[7] + a[8]*t2 + a[9]*t3,    D1 = -2*a[8]*t3 - 3*a[9]*t4,    D2 = 6*a[8]*t4 + 12*a[9]*t5;
+    const real E = a[10] + a[11]*t2 + a[12]*t3, E1 = -2*a[11]*t3 - 3*a[12]*t4,  E2 = 6*a[11]*t4 + 12*a[12]*t5;
+    const real F = a[13]/tau,                   F1 = -a[13]*t2,                 F2 = 2*a[13]*t3;
+    const real G = a[14]*tau;
+    const double G1 = a[14];
+
+    // powers of x and the exponential
+    const real x2 = x*x, x3 = x2*x, x4 = x2*x2, x5 = x4*x, x6 = x3*x3, x7 = x6*x;
+    const real q = exp(-gamma/x2);
+    const real qx = q*2*gamma/x3, qxx = q*(4*gamma*gamma/x6 - 6*gamma/x4);
+
+    const real P0 = B/x + C/x2 + D/x4 + E/x5;
+    const real P0x = -B/x2 - 2*C/x3 - 4*D/x5 - 5*E/x6;
+    const real P0xx = 2*B/x3 + 6*C/x4 + 20*D/x6 + 30*E/x7;
+    const real H = F/x2 + G/x4;
+    const real Hx = -2*F/x3 - 4*G/x5;
+    const real Hxx = 6*F/x4 + 20*G/x6;
+
+    const real Z = 1 + P0 + H*q;
+    const real Zx = P0x + Hx*q + H*qx;
+    const real Zxx = P0xx + Hxx*q + 2*Hx*qx + H*qxx;
+
+    // derivatives with respect to tau: Z_tau, Z_tau tau, Z_x tau
+    const real H1 = F1/x2 + G1/x4, H1x = -2*F1/x3 - 4*G1/x5, H2 = F2/x2;
+    const real Zt = B1/x + C1/x2 + D1/x4 + E1/x5 + H1*q;
+    const real Ztt = B2/x + C2/x2 + D2/x4 + E2/x5 + H2*q;
+    const real Zxt = -B1/x2 - 2*C1/x3 - 4*D1/x5 - 5*E1/x6 + H1x*q + H1*qx;
+
+    // f = s - Vcr x with s = Rg T Z/P
+    const real K = RConstant/Pbar;
+    const real s  = K*TK*Z;
+    const real sx = K*TK*Zx;
+    const real sxx = K*TK*Zxx;
+    const real sT = K*Z + K*TK*Zt/Tc;
+    const real sTT = 2*K*Zt/Tc + K*TK*Ztt/(Tc*Tc);
+    const real sxT = K*Zx + K*TK*Zxt/Tc;
+
+    const real fx = sx - waterCriticalVolume;
+    const real fxx = sxx;
+    const real fT = sT, fTT = sTT, fxT = sxT;
+    const real fP = -s/Pbar, fPP = 2*s/(Pbar*Pbar), fxP = -sx/Pbar, fTP = -sT/Pbar;
+
+    VolumeDerivatives v;
+    v.T = -fT/fx;
+    v.P = -fP/fx;
+    v.TT = -(fTT + 2*fxT*v.T + fxx*v.T*v.T)/fx;
+    v.TP = -(fTP + fxT*v.P + fxP*v.T + fxx*v.T*v.P)/fx;
+    v.PP = -(fPP + 2*fxP*v.P + fxx*v.P*v.P)/fx;
+    return v;
+}
+
+auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass, const ZhangDuanConstants& c) -> PropertiesSolventAD
+{
+    PropertiesSolventAD ps;
+
+    const double T0 = pass.T.val(), P0 = pass.P.val();   // K, Pa
+
+    // the reduced volume and its first derivatives at the point (analytical), then the volume as a number of the pass
+    const real Vconv = waterMolarVolume(real(T0), real(P0/bar_to_Pa), real(0.3), c);
+    const auto v0 = volumeDerivatives(real(Vconv.val()), real(T0), real(P0/bar_to_Pa), c);
+    const real x = Reaktoro_::along(pass, Vconv.val(), v0.T.val(), v0.P.val()/bar_to_Pa);
+
+    // the second derivatives with the derivatives of the pass (the third-order derivatives of the volume)
+    const real TK = pass.T, Pbar = pass.P/bar_to_Pa;
+    const auto v = volumeDerivatives(x, TK, Pbar, c);
+
+    // the density rho = kappa/x (kg/m3) and its derivatives with respect to T (K) and P (Pa); v.P, v.TP, v.PP are per bar
+    const double kappa = H2OMolarMass*1000.0/c.Vc;
+    const real xT = v.T, xP = v.P/bar_to_Pa;
+    const real xTT = v.TT, xTP = v.TP/bar_to_Pa, xPP = v.PP/(bar_to_Pa*bar_to_Pa);
+
+    ps.density   = kappa/x;
+    ps.densityT  = -kappa*xT/(x*x);
+    ps.densityP  = -kappa*xP/(x*x);
+    ps.densityTT = kappa*(2*xT*xT/(x*x*x) - xTT/(x*x));
+    ps.densityTP = kappa*(2*xT*xP/(x*x*x) - xTP/(x*x));
+    ps.densityPP = kappa*(2*xP*xP/(x*x*x) - xPP/(x*x));
+    ps.Alpha     = -ps.densityT/ps.density;
+    ps.Beta      = ps.densityP/ps.density; // 1/Pa
+    ps.dAldT     = -ps.densityTT/ps.density + ps.Alpha*ps.Alpha;
+
+    return ps;
+}
+
+}

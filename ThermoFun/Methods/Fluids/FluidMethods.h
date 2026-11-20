@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
+#ifndef THERMOFUN_METHODS_FLUIDS_FLUIDMETHODS_H
+#define THERMOFUN_METHODS_FLUIDS_FLUIDMETHODS_H
+
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <ThermoFun/Methods/Method.h>
+#include <ThermoFun/Model/Applicability.h>
+
+namespace ThermoFun::model {
+
+/// What a fluid method knows of its record, beside the parameters.
+struct FluidRecord
+{
+    double lower_T = 298.15;     ///< K, the lower T of the heat capacity of the record
+    std::string formula;         ///< CORK and Sterner-Pitzer have special forms for CO2 and H2O
+    Applicability applicability;
+    std::vector<double> constants; ///< of the model, in the order of the catalog
+    bool gems = false;             ///< implementation gems: the formulas of GEMS (see FluidInputs)
+};
+
+/// A fluid equation of state: PRSV86, ChurakovGottschalk03, SoaveRedlichKwong72, SternerPitzer94, PengRobinson78 or CorkHP91. It adds its terms to G, H
+/// and S of the ideal gas, and sets V. Parameters in SI, in the order of the catalog. The options of the engine say if G keeps RT ln(phi), and if the
+/// pressure term is added.
+auto fluidMethod(const std::string& id, std::vector<double> parameters, FluidRecord record) -> std::shared_ptr<const SubstanceMethod>;
+
+} // namespace ThermoFun::model
+
+#endif

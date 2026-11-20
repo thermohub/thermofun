@@ -1,0 +1,78 @@
+name: docs
+
+# The site of the documentation: Sphinx builds docs/, and runs each tutorial with the thermofun built here.
+# A push to v2 or master publishes it on GitHub Pages (Settings > Pages > Source: GitHub Actions).
+on:
+  push:
+    branches:
+      - master
+      - v2
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-activate: false
+          activate-environment: base
+          channels: conda-forge
+
+      - name: Configuring Conda Environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda run -n base python -m conda_devenv
+
+      - name: Building & Installing thermofun
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          cmake -S . -B .build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build .build
+          cmake --install .build
+          python -c "import thermofun"
+
+      - name: Building the site
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          pip install -r docs/requirements.txt
+          python -m ipykernel install --user --name python3
+          python -m sphinx -W --keep-going -b html docs docs/_build/html
+
+      - name: Keeping the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publishing on GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

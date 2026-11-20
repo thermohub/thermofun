@@ -3,82 +3,86 @@
 
 #include "Substance.h"
 
+#include <optional>
+
+#include "Compat/SubstanceCompat.h"
+#include "IO/Legacy/LegacyVocabulary.h"
+
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
-#include "Common/ParseJsonToData.h"
+#include "Common/ThermoPropertiesStatus.h"
+#include "IO/FormatDetect.h"
+#include "IO/Legacy/LegacyReader.h"
+#include "IO/Legacy/LegacyWriter.h"
+#include "IO/V2/V2Writer.h"
+#include "IO/V2/V2Reader.h"
 
 namespace ThermoFun {
 
 struct Substance::Impl
 {
-    /// The name of the chemical Substance
-    std::string name;
+    /// The record
+    std::shared_ptr<const model::SubstanceRecord> record;
 
-    /// The name of the chemical Substance
-    std::string symbol;
+    /// The old codes that a method of the record does not give back (for example CPM_NUL)
+    compat::MethodCodes codes_without_method;
 
-    /// The chemical formula of the chemical Substance
-    std::string formula;
 
-    /// The symbol of the reaction that defines the properties of this substance
-    std::string reactionSymbol;
+    /// Arrays that an old setter gave and no method of the record reads yet: it can set them before the method
+    ThermoParametersSubstance waiting_parameters;
 
-    /// The molar mass of the chemical Substance (in units of g/mol)
-    double molar_mass;
-
-    /// Reference temperature (in K, 298.15 default)
-    double reference_T = 298.15;
-
-    /// Reference pressure (in Pa, 1e5 Pa default)
-    double reference_P = 1e5;
-
-    /// Lower temperature limit (in K)
-    double lower_T;
-
-    /// Lower pressure limit (in Pa)
-    double lower_P;
-
-    /// Upper temperature limit (in K)
-    double upper_T;
-
-    /// Upper pressure limit (in Pa)
-    double upper_P;
-
-    /// list of Temperature and pressure correction methods in the order they will be executed
-    listmethods TPMethods;
-
-    /// General method (or equation of state for both T and P correction)
-    MethodGenEoS_Thrift::type method_genEoS;
-
-    /// Method of temperature correction of thermodynamic properties
-    MethodCorrT_Thrift::type  method_T;
-
-    /// Method of pressure correction of thermodynamic properties
-    MethodCorrP_Thrift::type  method_P;
-
-    /// Class of the substance  COMPONENT, GASFLUID, AQSOLUTE, AQSOLVENT, SURFSPECIES, SITEMOIETY, OTHER_SC
-    SubstanceClass::type substance_class;
-
-    /// Agregate state of the substance
-    AggregateState::type aggregate_state;
-
-    /// Type of calculation used for determining the substance properties
-    /// using a defined PT correction model or from a reaction
-    SubstanceThermoCalculationType::type thermo_calculation_type;
-
-    /// Thermodynamic properties of the substance at temperature and pressure
-    /// and at reference tempearature and reference presure (usually 298.15 K and 1e05 Pa)
-    ThermoPropertiesSubstance thermo_prop, thermo_ref_prop;
-
-    /// Parameters used to calculate the thermodynamic properties of the substance at the desired
-    /// temperature and pressure using a certain calculation model
-    ThermoParametersSubstance thermo_param;
-
-    int charge;
-
+    /// The text of the record as it was read; empty after an edit: then the writer of its format gives it
     std::string jString;
+
+    /// Changes a copy of the record: a reference to the old record stays valid.
+    template <class Change>
+    void edit(Change change)
+    {
+        auto copy = std::make_shared<model::SubstanceRecord>(*record);
+        change(*copy);
+        copy->file.text.clear();
+        record = copy;
+        jString.clear();
+    }
+
+    auto parameters() const -> ThermoParametersSubstance
+    {
+        auto out = compat::thermoParameters(*record);
+        compat::addWaiting(out, waiting_parameters);
+        return out;
+    }
+
+    auto codes() const -> compat::MethodCodes
+    {
+        auto out = compat::methodCodes(*record);
+        if (codes_without_method.general)
+            out.general = codes_without_method.general;
+        if (codes_without_method.temperature)
+            out.temperature = codes_without_method.temperature;
+        if (codes_without_method.pressure)
+            out.pressure = codes_without_method.pressure;
+        return out;
+    }
+
+    /// Replaces the methods. A code that a method does not give back is kept beside the record, for the getters.
+    void setMethods(const compat::MethodCodes& wanted, const ThermoParametersSubstance& parameters)
+    {
+        edit([&](model::SubstanceRecord& r) {
+            const auto source = r.preferred_property_source;   // the choice of the record stays (setThermoCalculationType)
+            compat::setMethods(r, wanted, parameters);
+            r.preferred_property_source = source;
+            const auto held = compat::methodCodes(r);
+            codes_without_method = {};
+            if (wanted.general != held.general)
+                codes_without_method.general = wanted.general;
+            if (wanted.temperature != held.temperature)
+                codes_without_method.temperature = wanted.temperature;
+            if (wanted.pressure != held.pressure)
+                codes_without_method.pressure = wanted.pressure;
+        });
+    }
 
 //    /// Concentration scale used in defining the properties of the substance
 //    ConcentrationScales::type StdConcentration_scale;
@@ -86,14 +90,35 @@ struct Substance::Impl
 
 Substance::Substance()
 : pimpl(new Impl())
-{}
+{
+    // the old defaults: the codes 0
+    model::SubstanceRecord empty;
+    empty.class_ = substanceClassFromLegacy(0);
+    empty.aggregate_state = aggregateStateFromLegacy(0);
+    pimpl->record = std::make_shared<const model::SubstanceRecord>(empty);
+}
 
 Substance::Substance(std::string jsonSubstance)
 : pimpl(new Impl())
 {
-    Substance other = parseSubstance(jsonSubstance);
-    pimpl = std::move(other.pimpl);
-    setJsonString(jsonSubstance);
+    Diagnostics diagnostics;
+    if (model::detectRecordFormat(jsonSubstance) == model::DataFormat::V2)
+    {
+        pimpl->record = std::make_shared<const model::SubstanceRecord>(model::readV2Substance(jsonSubstance, diagnostics));
+        if (!diagnostics.ok())
+            funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
+    }
+    else
+        pimpl->record = std::make_shared<const model::SubstanceRecord>(model::readLegacySubstance(jsonSubstance, {}, &diagnostics));
+    model::checkReading(diagnostics);
+    pimpl->jString = jsonSubstance;
+}
+
+Substance::Substance(std::shared_ptr<const model::SubstanceRecord> record)
+: pimpl(new Impl())
+{
+    pimpl->record = std::move(record);
+    pimpl->jString = pimpl->record->file.text;
 }
 
 Substance::Substance(const Substance& other)
@@ -111,102 +136,131 @@ auto Substance::operator=(Substance other) -> Substance&
 
 auto Substance::setName(std::string name) -> void
 {
-    pimpl->name = name;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.name = name; });
 }
 
 auto Substance::setSymbol(std::string symbol) -> void
 {
-    pimpl->symbol = symbol;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.symbol = symbol; });
 }
 
 auto Substance::setFormula(std::string formula) -> void
 {
-    pimpl->formula = formula;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.formula = formula; });
 }
 
 auto Substance::setReactionSymbol(std::string reaction) -> void
 {
-    pimpl->reactionSymbol = reaction;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.defining_reaction = reaction; });
 }
 
 auto Substance::setThermoReferenceProperties(ThermoPropertiesSubstance thermo_ref_prop) -> void
 {
-    pimpl->thermo_ref_prop = thermo_ref_prop;
+    pimpl->edit([&](model::SubstanceRecord& r) { compat::setThermoReferenceProperties(r, thermo_ref_prop); });
 }
 
 auto Substance::setThermoParameters(ThermoParametersSubstance thermo_param) -> void
 {
-    pimpl->thermo_param = thermo_param;
+    pimpl->setMethods(pimpl->codes(), thermo_param);
+    pimpl->waiting_parameters = thermo_param;
 }
 
 auto Substance::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
 {
-    pimpl->method_genEoS = method_genEoS;
+    auto codes = pimpl->codes();
+    codes.general = method_genEoS;
+    pimpl->setMethods(codes, pimpl->parameters());
 }
 
 auto Substance::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 {
-    pimpl->method_T = method_T;
+    auto codes = pimpl->codes();
+    codes.temperature = method_T;
+    pimpl->setMethods(codes, pimpl->parameters());
 }
 
 auto Substance::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
-    pimpl->method_P = method_P;
+    auto codes = pimpl->codes();
+    codes.pressure = method_P;
+    pimpl->setMethods(codes, pimpl->parameters());
 }
 
 auto Substance::setSubstanceClass(SubstanceClass::type substance_class) -> void
 {
-    pimpl->substance_class = substance_class;
+    // the rules of the methods read the class
+    const auto codes = pimpl->codes();
+    const auto parameters = pimpl->parameters();
+    pimpl->edit([&](model::SubstanceRecord& r) { r.class_ = substanceClassFromLegacy(substance_class); });
+    if (!pimpl->record->methods.empty())
+        pimpl->setMethods(codes, parameters);
 }
 
 auto Substance::setAggregateState(AggregateState::type aggregate_state) -> void
 {
-    pimpl->aggregate_state = aggregate_state;
+    // the rules of the methods read the state
+    const auto codes = pimpl->codes();
+    const auto parameters = pimpl->parameters();
+    pimpl->edit([&](model::SubstanceRecord& r) { r.aggregate_state = aggregateStateFromLegacy(aggregate_state); });
+    if (!pimpl->record->methods.empty())
+        pimpl->setMethods(codes, parameters);
 }
 
 auto Substance::setThermoCalculationType(SubstanceThermoCalculationType::type calculation_type) -> void
 {
-    pimpl->thermo_calculation_type = calculation_type;
+    // the record says it, and nothing beside it (review of v2, S7: REACDC then DCOMP kept Reaction in the record)
+    pimpl->edit([&](model::SubstanceRecord& r) {
+        r.preferred_property_source.reset();
+        if (calculation_type == SubstanceThermoCalculationType::type::REACDC)
+            r.preferred_property_source = model::PropertySource::Reaction;
+        else if (compat::thermoCalculationType(r) == SubstanceThermoCalculationType::type::REACDC)
+            r.preferred_property_source = model::PropertySource::Direct;   // the default rule would take the reaction
+    });
 }
 
 auto Substance::setCharge(int charge) -> void
 {
-    pimpl->charge = charge;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.charge = charge; });
 }
 
 auto Substance::setReferenceT(double T) -> void
 {
-    pimpl->reference_T = T;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.reference_conditions.T = T; });
 }
 
 auto Substance::setReferenceP(double P) -> void
 {
-    pimpl->reference_P = P;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.reference_conditions.P = P; });
 }
 
 auto Substance::setLowerT(double T) -> void
 {
-    pimpl->lower_T = T;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.t_min = T; });
 }
 
 auto Substance::setLowerP(double P) -> void
 {
-    pimpl->lower_P = P;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.p_min = P; });
 }
 
 auto Substance::setUpperT(double T) -> void
 {
-    pimpl->upper_T = T;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.t_max = T; });
 }
 
 auto Substance::setUpperP(double P) -> void
 {
-    pimpl->upper_P = P;
+    pimpl->edit([&](model::SubstanceRecord& r) { r.applicability.p_max = P; });
 }
 
 auto Substance::setMolarMass(double molar_mass) -> void
 {
-    pimpl->molar_mass = molar_mass;
+    pimpl->edit([&](model::SubstanceRecord& r) {
+        auto q = r.molar_mass.value_or(model::Quantity{});
+        q.value = molar_mass * 1e-3;
+        q.written.value.clear();
+        r.molar_mass = q;
+    });
 }
 
 auto Substance::setJsonString(const std::string &jString) ->void
@@ -216,122 +270,135 @@ auto Substance::setJsonString(const std::string &jString) ->void
 
 auto Substance::name() const -> std::string
 {
-    return pimpl->name;
+    return pimpl->record->name;
 }
 
 auto Substance::symbol() const -> std::string
 {
-    return pimpl->symbol;
+    return pimpl->record->symbol;
 }
 
 auto Substance::formula() const -> std::string
 {
-    return pimpl->formula;
+    return pimpl->record->formula;
 }
 
 auto Substance::reactionSymbol() const -> std::string
 {
-    return pimpl->reactionSymbol;
+    return pimpl->record->defining_reaction;
 }
 
 auto Substance::molarMass() const -> double
 {
-    return pimpl->molar_mass;
+    return compat::molarMass(*pimpl->record);
 }
 
 auto Substance::referenceT() const -> double
 {
-    return pimpl->reference_T;
+    return pimpl->record->reference_conditions.T;
 }
 
 auto Substance::referenceP() const -> double
 {
-    return pimpl->reference_P;
+    return pimpl->record->reference_conditions.P;
 }
 
 auto Substance::lowerT( ) const -> double
 {
-    return pimpl->lower_T;
+    return pimpl->record->applicability.t_min.value_or(0.0);
 }
 
 auto Substance::lowerP( ) const -> double
 {
-    return pimpl->lower_P;
+    return pimpl->record->applicability.p_min.value_or(0.0);
 }
 
 auto Substance::upperT( ) const -> double
 {
-    return pimpl->upper_T;
+    return pimpl->record->applicability.t_max.value_or(0.0);
 }
 
 auto Substance::upperP() const -> double
 {
-    return pimpl->upper_P;
+    return pimpl->record->applicability.p_max.value_or(0.0);
 }
 
 auto Substance::thermoProperties() const -> ThermoPropertiesSubstance
 {
-    return pimpl->thermo_prop;
+    return {};
 }
 
 auto Substance::thermoParameters() const -> ThermoParametersSubstance
 {
-    return pimpl->thermo_param;
+    return pimpl->parameters();
 }
 
 auto Substance::thermoReferenceProperties() const -> ThermoPropertiesSubstance
 {
-    return pimpl->thermo_ref_prop;
+    return compat::thermoReferenceProperties(*pimpl->record);
 }
 
 auto Substance::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
-    return pimpl->method_genEoS;
+    return pimpl->codes().general;
 }
 
 auto Substance::method_T() const -> MethodCorrT_Thrift::type
 {
-    return pimpl->method_T;
+    return pimpl->codes().temperature;
 }
 
 auto Substance::method_P() const -> MethodCorrP_Thrift::type
 {
-    return pimpl->method_P;
+    return pimpl->codes().pressure;
 }
 
 auto Substance::substanceClass() const -> SubstanceClass::type
 {
-    return pimpl->substance_class;
+    return toLegacy(pimpl->record->class_);
 }
 
 auto Substance::thermoCalculationType() const -> SubstanceThermoCalculationType::type
 {
-    return pimpl->thermo_calculation_type;
+    const auto& source = pimpl->record->preferred_property_source;
+    if (source == model::PropertySource::Reaction)
+        return SubstanceThermoCalculationType::type::REACDC;
+    if (source == model::PropertySource::Direct)
+        return SubstanceThermoCalculationType::type::DCOMP;
+    return compat::thermoCalculationType(*pimpl->record);
 }
 
 auto Substance::aggregateState() const -> AggregateState::type
 {
-    return pimpl->aggregate_state;
+    return toLegacy(pimpl->record->aggregate_state);
 }
 
 auto Substance::charge() const -> int
 {
-    return pimpl->charge;
+    return pimpl->record->charge.value_or(0);
+}
+
+auto Substance::record() const -> std::shared_ptr<const model::SubstanceRecord>
+{
+    return pimpl->record;
 }
 
 auto Substance::jsonString() const -> std::string
 {
-    return pimpl->jString;
+    if (!pimpl->jString.empty())
+        return pimpl->jString;
+    // an edited record: written from its fields, in the format it came from
+    return pimpl->record->file.format == model::DataFormat::V2 ? model::writeV2Substance(*pimpl->record) : model::writeLegacySubstance(*pimpl->record);
 }
 
 auto Substance::checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesSubstance &tps) -> void
 {
-    if (pimpl->upper_P<(P) || pimpl->upper_T<(T) ||
-        pimpl->lower_P>(P) || pimpl->lower_T>(T))
+    if (upperP()<(P) || upperT()<(T) ||
+        lowerP()>(P) || lowerT()>(T))
     {
         std::string message = modelName +": out of "
-                                    "T(" + std::to_string(pimpl->lower_T) + "-" + std::to_string(pimpl->upper_T) +" K) and "
-                                    "P(" + std::to_string(pimpl->lower_P) + "-" + std::to_string(pimpl->upper_P) +" Pa) bounds";
+                                    "T(" + std::to_string(lowerT()) + "-" + std::to_string(upperT()) +" K) and "
+                                    "P(" + std::to_string(lowerP()) + "-" + std::to_string(upperP()) +" Pa) bounds";
 
         setMessage(Reaktoro_::Status::calculated, message, tps );
     }
@@ -420,28 +487,6 @@ auto operator<<(std::ostream& stream, const ThermoParametersSubstance& data) -> 
        stream << "        solute_holland_powell98_coeff: " << data.solute_holland_powell98_coeff << "\n";
     }
     return stream;
-}
-
-auto lowerTemperatureBound(const Substance& subst, const std::string& model) -> double
-{
-    const auto& intervals = subst.thermoParameters().temperature_intervals;
-    // thermoParamSubst() pushes one entry per cp_ft_equation TPMethod, in TPMethods JSON order,
-    // and pushes an empty entry for one with no limitsTP - so an empty entry can be followed by
-    // a populated one from a later cp_ft_equation. Scan all of them rather than trusting front().
-    for (const auto& interval : intervals)
-        if (!interval.empty())
-            return interval.front();
-
-    // No cp_ft_equation method on this substance, so no T interval was ever recorded. Fall back
-    // to the substance's own reference temperature (Tst) rather than an arbitrary constant: the
-    // record's S298/CP298/etc (and so its whole standard-state description) are only actually
-    // valid AT that temperature, so it is the correct "no better information" choice - referenceT()
-    // already defaults to 298.15 K even when the source record left Tst unset.
-    double fallback = subst.referenceT();
-    thfun_logger->warn("{}: substance \"{}\" has no temperature intervals (they come only from a "
-                       "cp_ft_equation method); using its reference temperature {} K as the lower "
-                       "temperature bound.", model, subst.symbol(), fallback);
-    return fallback;
 }
 
 auto operator<<(std::ostream& stream, const Substance& subst) -> std::ostream&

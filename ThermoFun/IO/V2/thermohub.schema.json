@@ -1,0 +1,1170 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://thermohub.org/schema/thermohub-2.0.schema.json",
+ "title": "ThermoHub data format 2.0",
+ "description": "A file of thermodynamic data: records of elements, substances and reactions, with their methods, parameter sets and data sources. Values are in SI unless a unit is given. Written and read by ThermoFun. A file holds a document (with thermohub) or one record (with record_type).",
+ "oneOf": [
+  {
+   "$ref": "#/$defs/document"
+  },
+  {
+   "$ref": "#/$defs/single_record"
+  }
+ ],
+ "$defs": {
+  "uncertainty": {
+   "description": "A standard uncertainty (a number), or an object: standard; expanded with coverage_factor; or half_width with distribution uniform (u = a/sqrt(3)) or triangular (u = a/sqrt(6)).",
+   "oneOf": [
+    {
+     "type": "number",
+     "minimum": 0
+    },
+    {
+     "type": "object",
+     "properties": {
+      "standard": {
+       "type": "number",
+       "minimum": 0
+      },
+      "distribution": {
+       "const": "normal"
+      },
+      "kind": {
+       "enum": [
+        "primary",
+        "derived"
+       ]
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false,
+     "required": [
+      "standard"
+     ]
+    },
+    {
+     "type": "object",
+     "properties": {
+      "expanded": {
+       "type": "number",
+       "minimum": 0
+      },
+      "coverage_factor": {
+       "type": "number",
+       "exclusiveMinimum": 0
+      },
+      "distribution": {
+       "const": "normal"
+      },
+      "kind": {
+       "enum": [
+        "primary",
+        "derived"
+       ]
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false,
+     "required": [
+      "expanded",
+      "coverage_factor"
+     ]
+    },
+    {
+     "type": "object",
+     "properties": {
+      "half_width": {
+       "type": "number",
+       "minimum": 0
+      },
+      "distribution": {
+       "enum": [
+        "uniform",
+        "triangular"
+       ]
+      },
+      "kind": {
+       "enum": [
+        "primary",
+        "derived"
+       ]
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false,
+     "required": [
+      "half_width",
+      "distribution"
+     ]
+    }
+   ]
+  },
+  "quantity": {
+   "description": "A value: a number in the default unit of its field, a text \"value unit\", or an object.",
+   "oneOf": [
+    {
+     "type": "number"
+    },
+    {
+     "type": "string",
+     "pattern": "^\\s*[-+]?[0-9.]+([eE][-+]?[0-9]+)?\\s+\\S.*$"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "value": {
+       "type": "number"
+      },
+      "unit": {
+       "type": "string"
+      },
+      "uncertainty": {
+       "$ref": "#/$defs/uncertainty"
+      },
+      "quality": {
+       "type": "string"
+      },
+      "origin": {
+       "type": "string"
+      },
+      "calculation_path": {
+       "type": "string",
+       "description": "A note on how the value was made; no calculation reads it."
+      },
+      "source": {
+       "type": "string"
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false,
+     "required": [
+      "value"
+     ]
+    }
+   ]
+  },
+  "units": {
+   "type": "object",
+   "properties": {
+    "energy": {
+     "type": "string"
+    },
+    "pressure": {
+     "type": "string"
+    },
+    "temperature": {
+     "type": "string"
+    },
+    "length": {
+     "type": "string"
+    },
+    "mass": {
+     "type": "string"
+    },
+    "amount": {
+     "type": "string"
+    },
+    "volume": {
+     "type": "string"
+    },
+    "entropy": {
+     "type": "string"
+    },
+    "heat_capacity": {
+     "type": "string"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": {
+    "type": "string"
+   },
+   "description": "Default units of everything inside the level where it is."
+  },
+  "convention": {
+   "type": "object",
+   "properties": {
+    "energy_reference": {
+     "enum": [
+      "benson_helgeson",
+      "berman_brown",
+      "ser",
+      "assigned_enthalpy",
+      "gibbs_helmholtz_formation",
+      "dft_formation_0K"
+     ]
+    },
+    "standard_pressure": {
+     "enum": [
+      "1bar",
+      "1atm"
+     ]
+    },
+    "concentration_scale": {
+     "enum": [
+      "molality",
+      "mole_fraction",
+      "molarity"
+     ]
+    },
+    "water_reference": {
+     "enum": [
+      "geochemical",
+      "steam_tables"
+     ]
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "reference_conditions": {
+   "type": "object",
+   "properties": {
+    "T": {
+     "$ref": "#/$defs/quantity"
+    },
+    "P": {
+     "$ref": "#/$defs/quantity"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "applicability": {
+   "type": "object",
+   "properties": {
+    "t_min": {
+     "$ref": "#/$defs/quantity"
+    },
+    "t_max": {
+     "$ref": "#/$defs/quantity"
+    },
+    "p_min": {
+     "$ref": "#/$defs/quantity"
+    },
+    "p_max": {
+     "$ref": "#/$defs/quantity"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "covariances": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "paths": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "matrix": {
+      "type": "array",
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       }
+      }
+     }
+    },
+    "patternProperties": {
+     "^_": {}
+    },
+    "additionalProperties": false,
+    "required": [
+     "paths",
+     "matrix"
+    ]
+   }
+  },
+  "parameters": {
+   "type": "object",
+   "additionalProperties": {
+    "oneOf": [
+     {
+      "$ref": "#/$defs/quantity"
+     },
+     {
+      "type": "array"
+     }
+    ]
+   },
+   "description": "Parameters of a method, by name."
+  },
+  "method_application": {
+   "type": "object",
+   "properties": {
+    "method": {
+     "type": "string"
+    },
+    "parameters": {
+     "$ref": "#/$defs/parameters"
+    },
+    "parameter_set": {
+     "type": "string"
+    },
+    "segments": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "t_min": {
+        "$ref": "#/$defs/quantity"
+       },
+       "t_max": {
+        "$ref": "#/$defs/quantity"
+       },
+       "parameters": {
+        "$ref": "#/$defs/parameters"
+       }
+      },
+      "patternProperties": {
+       "^_": {}
+      },
+      "additionalProperties": false
+     }
+    },
+    "transitions": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "T": {
+        "$ref": "#/$defs/quantity"
+       },
+       "dS": {
+        "$ref": "#/$defs/quantity"
+       },
+       "dH": {
+        "$ref": "#/$defs/quantity"
+       },
+       "dV": {
+        "$ref": "#/$defs/quantity"
+       },
+       "dTdP": {
+        "$ref": "#/$defs/quantity"
+       }
+      },
+      "patternProperties": {
+       "^_": {}
+      },
+      "additionalProperties": false
+     }
+    },
+    "applicability": {
+     "$ref": "#/$defs/applicability"
+    },
+    "table": {
+     "type": "object"
+    },
+    "units": {
+     "$ref": "#/$defs/units"
+    },
+    "implementation": {
+     "type": "string"
+    },
+    "interpolation": {
+     "type": "string"
+    },
+    "order": {
+     "type": "integer"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false,
+   "required": [
+    "method"
+   ]
+  },
+  "methods_of_a_record": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/method_application"
+   }
+  },
+  "element": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "record_type": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "class": {
+     "type": "string"
+    },
+    "number": {
+     "type": "integer"
+    },
+    "isotope_mass": {
+     "type": "number"
+    },
+    "valence": {
+     "type": "integer"
+    },
+    "molar_mass": {
+     "$ref": "#/$defs/quantity"
+    },
+    "standard_entropy": {
+     "$ref": "#/$defs/quantity"
+    },
+    "heat_capacity": {
+     "$ref": "#/$defs/quantity"
+    },
+    "volume": {
+     "$ref": "#/$defs/quantity"
+    },
+    "reference_form": {
+     "type": "string"
+    },
+    "data_sources": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "sourcetdb": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
+    },
+    "structural": {
+     "type": "object"
+    },
+    "units": {
+     "$ref": "#/$defs/units"
+    },
+    "legacy_class": {
+     "type": "string"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "substance": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "record_type": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "formula": {
+     "type": "string"
+    },
+    "charge": {
+     "type": "integer"
+    },
+    "class": {
+     "type": "string"
+    },
+    "aggregate_state": {
+     "type": "string"
+    },
+    "sourcetdb": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
+    },
+    "molar_mass": {
+     "$ref": "#/$defs/quantity"
+    },
+    "convention": {
+     "$ref": "#/$defs/convention"
+    },
+    "reference_conditions": {
+     "$ref": "#/$defs/reference_conditions"
+    },
+    "standard_state_properties": {
+     "type": "object",
+     "properties": {
+      "G": {
+       "$ref": "#/$defs/quantity"
+      },
+      "H": {
+       "$ref": "#/$defs/quantity"
+      },
+      "S": {
+       "$ref": "#/$defs/quantity"
+      },
+      "Cp": {
+       "$ref": "#/$defs/quantity"
+      },
+      "V": {
+       "$ref": "#/$defs/quantity"
+      },
+      "A": {
+       "$ref": "#/$defs/quantity"
+      },
+      "U": {
+       "$ref": "#/$defs/quantity"
+      },
+      "Cv": {
+       "$ref": "#/$defs/quantity"
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false
+    },
+    "methods": {
+     "$ref": "#/$defs/methods_of_a_record"
+    },
+    "defining_reaction": {
+     "type": "string"
+    },
+    "preferred_property_source": {
+     "type": "string"
+    },
+    "applicability": {
+     "$ref": "#/$defs/applicability"
+    },
+    "data_source": {
+     "type": "string"
+    },
+    "data_sources": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "structural": {
+     "type": "object"
+    },
+    "deprecated": {
+     "type": "boolean"
+    },
+    "deprecated_in_favour_of": {
+     "type": "string"
+    },
+    "units": {
+     "$ref": "#/$defs/units"
+    },
+    "covariances": {
+     "$ref": "#/$defs/covariances"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false,
+   "required": [
+    "formula"
+   ]
+  },
+  "reaction": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "record_type": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "equation": {
+     "type": "string"
+    },
+    "stoichiometry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "number"
+     }
+    },
+    "reference_conditions": {
+     "$ref": "#/$defs/reference_conditions"
+    },
+    "reaction_properties": {
+     "type": "object",
+     "properties": {
+      "logK": {
+       "$ref": "#/$defs/quantity"
+      },
+      "dG": {
+       "$ref": "#/$defs/quantity"
+      },
+      "dH": {
+       "$ref": "#/$defs/quantity"
+      },
+      "dS": {
+       "$ref": "#/$defs/quantity"
+      },
+      "dCp": {
+       "$ref": "#/$defs/quantity"
+      },
+      "dV": {
+       "$ref": "#/$defs/quantity"
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false
+    },
+    "methods": {
+     "$ref": "#/$defs/methods_of_a_record"
+    },
+    "level": {
+     "type": "integer"
+    },
+    "data_source": {
+     "type": "string"
+    },
+    "data_sources": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "applicability": {
+     "$ref": "#/$defs/applicability"
+    },
+    "convention": {
+     "$ref": "#/$defs/convention"
+    },
+    "preferred_property_source": {
+     "type": "string"
+    },
+    "sourcetdb": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
+    },
+    "deprecated": {
+     "type": "boolean"
+    },
+    "units": {
+     "$ref": "#/$defs/units"
+    },
+    "covariances": {
+     "$ref": "#/$defs/covariances"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "method_definition": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "record_type": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "tier": {
+     "type": "integer"
+    },
+    "operates_on": {
+     "type": "string"
+    },
+    "applies_to_classes": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "contributes_to": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "parameter_definitions": {
+     "type": [
+      "object",
+      "array"
+     ]
+    },
+    "implementation_id": {
+     "type": "string"
+    },
+    "source": {
+     "type": [
+      "string",
+      "object"
+     ]
+    },
+    "expression": {
+     "type": [
+      "string",
+      "object"
+     ]
+    },
+    "generator": {
+     "type": "string"
+    },
+    "source_hash": {
+     "type": "string"
+    },
+    "tests": {
+     "type": "array"
+    },
+    "effects": {
+     "type": "object"
+    },
+    "citation": {
+     "type": "string"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "parameter_set": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "record_type": {
+     "type": "string"
+    },
+    "method": {
+     "type": "string"
+    },
+    "implementation": {
+     "type": "string"
+    },
+    "default": {
+     "type": "boolean"
+    },
+    "formula_units": {
+     "type": "object"
+    },
+    "description": {
+     "type": "string"
+    },
+    "parameters": {
+     "$ref": "#/$defs/parameters"
+    },
+    "auxiliary": {
+     "type": "object"
+    },
+    "reference": {
+     "type": "string"
+    },
+    "units": {
+     "$ref": "#/$defs/units"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false,
+   "required": [
+    "method",
+    "parameters"
+   ]
+  },
+  "data_source": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "record_type": {
+     "type": "string"
+    },
+    "title": {
+     "type": "string"
+    },
+    "authors": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
+    },
+    "year": {
+     "type": "integer"
+    },
+    "journal": {
+     "type": "string"
+    },
+    "doi": {
+     "type": "string"
+    },
+    "bibtex": {
+     "type": "string"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "thermodataset": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "version": {
+     "type": "string"
+    },
+    "status": {
+     "type": "string"
+    },
+    "reference_conditions": {
+     "$ref": "#/$defs/reference_conditions"
+    },
+    "sourcetdb": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
+    },
+    "solvent": {
+     "type": "string"
+    },
+    "data_source": {
+     "type": "string"
+    },
+    "defaults": {
+     "type": "object"
+    },
+    "conventions": {
+     "type": "object",
+     "properties": {
+      "water_triple_point_reference": {
+       "type": "string"
+      }
+     },
+     "patternProperties": {
+      "^_": {}
+     },
+     "additionalProperties": false
+    },
+    "convention": {
+     "$ref": "#/$defs/convention"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "document": {
+   "type": "object",
+   "required": [
+    "thermohub"
+   ],
+   "properties": {
+    "thermohub": {
+     "type": "string",
+     "pattern": "^2\\.",
+     "description": "The version of the format."
+    },
+    "generator": {
+     "type": "string"
+    },
+    "thermodataset": {
+     "$ref": "#/$defs/thermodataset"
+    },
+    "units": {
+     "$ref": "#/$defs/units"
+    },
+    "include": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
+    },
+    "elements": {
+     "oneOf": [
+      {
+       "type": "object",
+       "additionalProperties": {
+        "$ref": "#/$defs/element"
+       }
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/element"
+       }
+      }
+     ]
+    },
+    "substances": {
+     "oneOf": [
+      {
+       "type": "object",
+       "additionalProperties": {
+        "$ref": "#/$defs/substance"
+       }
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/substance"
+       }
+      }
+     ]
+    },
+    "reactions": {
+     "oneOf": [
+      {
+       "type": "object",
+       "additionalProperties": {
+        "$ref": "#/$defs/reaction"
+       }
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/reaction"
+       }
+      }
+     ]
+    },
+    "methods": {
+     "oneOf": [
+      {
+       "type": "object",
+       "additionalProperties": {
+        "$ref": "#/$defs/method_definition"
+       }
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/method_definition"
+       }
+      }
+     ]
+    },
+    "parameter_sets": {
+     "oneOf": [
+      {
+       "type": "object",
+       "additionalProperties": {
+        "$ref": "#/$defs/parameter_set"
+       }
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/parameter_set"
+       }
+      }
+     ]
+    },
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "object",
+       "additionalProperties": {
+        "$ref": "#/$defs/data_source"
+       }
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/data_source"
+       }
+      }
+     ]
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
+  "single_record": {
+   "description": "A file of one record: its record_type, and the record without thermohub.",
+   "oneOf": [
+    {
+     "allOf": [
+      {
+       "required": [
+        "record_type"
+       ],
+       "properties": {
+        "record_type": {
+         "const": "element"
+        }
+       }
+      },
+      {
+       "$ref": "#/$defs/element"
+      }
+     ]
+    },
+    {
+     "allOf": [
+      {
+       "required": [
+        "record_type"
+       ],
+       "properties": {
+        "record_type": {
+         "const": "substance"
+        }
+       }
+      },
+      {
+       "$ref": "#/$defs/substance"
+      }
+     ]
+    },
+    {
+     "allOf": [
+      {
+       "required": [
+        "record_type"
+       ],
+       "properties": {
+        "record_type": {
+         "const": "reaction"
+        }
+       }
+      },
+      {
+       "$ref": "#/$defs/reaction"
+      }
+     ]
+    },
+    {
+     "allOf": [
+      {
+       "required": [
+        "record_type"
+       ],
+       "properties": {
+        "record_type": {
+         "const": "method"
+        }
+       }
+      },
+      {
+       "$ref": "#/$defs/method_definition"
+      }
+     ]
+    },
+    {
+     "allOf": [
+      {
+       "required": [
+        "record_type"
+       ],
+       "properties": {
+        "record_type": {
+         "const": "parameter_set"
+        }
+       }
+      },
+      {
+       "$ref": "#/$defs/parameter_set"
+      }
+     ]
+    },
+    {
+     "allOf": [
+      {
+       "required": [
+        "record_type"
+       ],
+       "properties": {
+        "record_type": {
+         "const": "data_source"
+        }
+       }
+      },
+      {
+       "$ref": "#/$defs/data_source"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

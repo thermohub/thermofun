@@ -26,6 +26,7 @@
 namespace py = pybind11;
 
 // thermofun includes
+#include <ThermoFun/Common/OutsideRange.h>
 #include <ThermoFun/Common/ThermoScalar.hpp>
 namespace r_ = Reaktoro_;
 
@@ -39,6 +40,7 @@ auto exportStatus(py::module& m) -> void
         .value("calculated", r_::Status::calculated)
         .value("assigned", r_::Status::assigned)
         .value("initialized", r_::Status::initialized)
+        .value("outofbounds", r_::Status::outofbounds)
         ;
 }
 
@@ -53,6 +55,8 @@ void exportThermoScalar(py::module& m)
         .def_property("ddp", [](const r_::ThermoScalar& x) { return x.ddp(); }, [](r_::ThermoScalar& x, double v) { x.ddp = v; })
         .def_readwrite("err", &r_::ThermoScalar::err)
         .def_readwrite("sta", &r_::ThermoScalar::sta)
+        .def_property_readonly("outside_range", [](const r_::ThermoScalar& x) { return outsideRange(x); },
+                               "True if the value was calculated outside the range of its model; sta[1] says which range")
         // arithmetic with the propagation of the derivatives, the errors and the statuses (as in C++)
         .def("__add__", [](const r_::ThermoScalar& l, const r_::ThermoScalar& r) { return r_::ThermoScalar(l + r); }, py::is_operator())
         .def("__add__", [](const r_::ThermoScalar& l, double r) { return r_::ThermoScalar(l + r); }, py::is_operator())

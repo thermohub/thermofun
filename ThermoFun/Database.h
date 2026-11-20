@@ -5,6 +5,9 @@
 #define DATABASE_H
 
 // C++ includes
+#include <ThermoFun/Common/Diagnostics.h>
+#include <ThermoFun/Model/Records.h>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,8 +33,45 @@ using ReactionsMap  = std::map<std::string, Reaction>;
 struct DatabaseConventions {
     // e.g. "NEA_HGK", "NEA_IAPWS" (determines the correct properties of water from EoS to geochemical conventions, e.g. G0 -237140 in NEA_HGK or -237181 in HKF_HGK_1974 supcrt datasets
     std::string water_triple_point_reference = "HKF_HGK_1974";
+
+    bool operator==(const DatabaseConventions&) const = default;
 };
 
+/// See Database::elementEntropySources.
+struct ElementEntropySources
+{
+    std::vector<std::string> from_table, missing;
+};
+
+/// The problems of one v2 record, given as JSON text, without the rest of a database: from the reader and from validate.
+/// section: "elements", "substances" or "reactions". A reference to another record is not a problem here.
+auto checkRecord(const std::string& section, const std::string& symbol, const std::string& record) -> Diagnostics;
+
+/// What the legacy reader finds in a legacy file: the quirks and the keys that it does not read (the migration report). A load does not keep
+/// this, to stay fast. Empty for another file.
+auto legacyFileDiagnostics(const std::string& file) -> Diagnostics;
+
+/// Reads the object "conventions" of a database, given as a JSON string.
+auto readConventions(const std::string& data) -> DatabaseConventions;
+
+
+/// How many substances of each class and aggregate state a database holds. See Database::summary.
+struct DatabaseSummary
+{
+    struct Count
+    {
+        std::string substance_class;   ///< a word of `class`, see the allowed words of the format
+        std::string aggregate_state;   ///< a word of `aggregate_state`
+        std::size_t substances = 0;
+    };
+    std::string name;                  ///< the name of the dataset, empty if the file has none
+    std::size_t elements = 0, substances = 0, reactions = 0;
+    std::vector<Count> classes;        ///< sorted by class, then by aggregate state
+    std::size_t substances_with_methods = 0, substances_from_reaction = 0;
+
+    /// A table as text, for a person to read.
+    auto text() const -> std::string;
+};
 
 /**
  * @brief The Database class stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance
@@ -183,13 +223,16 @@ public:
     /// Return a reactions in the database
     auto getReaction(std::string symbol) const -> const Reaction&;
 
-    /// Reference to the element in the database
+    /// Reference to the element in the database.
+    /// The call counts as a change of the database (see revision): change the record before the next calculation.
     auto element(std::string symbol) -> Element&;
 
-    /// Reference to the substance in the database
+    /// Reference to the substance in the database.
+    /// The call counts as a change of the database (see revision): change the record before the next calculation.
     auto substance(std::string symbol) -> Substance&;
 
-    /// Reference to the reaction in the database
+    /// Reference to the reaction in the database.
+    /// The call counts as a change of the database (see revision): change the record before the next calculation.
     auto reaction(std::string symbol) -> Reaction&;
 
     /// Check if the database contains a given element
@@ -204,15 +247,19 @@ public:
     /// @param symbol The name of the reaction
     auto containsReaction(std::string symbol) const -> bool;
 
-    /// Pareses a given substance formula present in the database
+    /// Parses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
     auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
 
-    /// Pareses a given substance formula present in the database
+    /// Parses a given substance formula present in the database
     /// @param formula
     /// @return elemental entropy
     auto elementalEntropyFormula(std::string formula) const -> double;
+
+    /// The elements of a formula whose entropies are not in the records of this database: those that come from the element table of ChemicalFun,
+    /// and those that no source has.
+    auto elementEntropySources(const std::string& formula) const -> ElementEntropySources;
 
     /// Checks if charge exists in json, if not uses formula parser to calculate
     /// and set the substance charge
@@ -223,6 +270,67 @@ public:
     /// Settings for calculating and outputting properties of a database e.g., the water triple properties
     DatabaseConventions& conventions();
     const DatabaseConventions& conventions() const;
+
+    /// A number that changes with every change of the records: each call of a function that adds, sets or appends
+    /// records, or that returns a non-const reference to a record. Two databases never share a number, except a
+    /// copy and its original before either changes. A ThermoEngine uses it to clear its cached results.
+    auto revision() const -> std::uint64_t;
+
+    /// Data about the loaded dataset. Empty for a legacy file.
+    auto thermoDataSet() const -> const model::ThermoDataSetInfo&;
+
+    /// The Method records, parameter sets and data sources that the loaded files give.
+    auto methods() const -> const std::map<std::string, model::MethodDefinition>&;
+    auto parameterSets() const -> const std::map<std::string, model::MethodParameterSet>&;
+    auto dataSources() const -> const std::map<std::string, model::DataSource>&;
+
+    /// All records in the v2 format, as JSON or as YAML text.
+    /// @param readable true: a value from a single-precision source is written as the shortest decimal of that float
+    /// (for example -56.484); it reads back up to about 6e-8 relative from the value in memory. false: it reads back the same.
+    auto toJson(bool readable = true) const -> std::string;
+    auto toYaml(bool readable = true) const -> std::string;
+
+    /// All records as legacy JSON text. What the legacy format cannot hold is left out, with a warning in the log.
+    /// @param useOriginalText a record from a legacy file that nobody edited is written as its text
+    auto toLegacyJson(bool useOriginalText = true) const -> std::string;
+
+    /// What toLegacyJson leaves out.
+    auto legacyWriteProblems() const -> Diagnostics;
+
+    /// Writes all records to a file. V2: YAML if the name ends with .yaml or .yml, else JSON. Legacy: legacy JSON, from the fields of the records.
+    auto save(const std::string& path, model::DataFormat format = model::DataFormat::V2, bool readable = true) const -> void;
+
+    /// Writes all records as a dataset folder, the layout of a ThermoHub dataset: thermodataset.json (or .yaml) with the
+    /// dataset, the Method records, parameter sets and data sources, and one file for each record in elements/, substances/
+    /// and reactions/, named after its symbol. The folder reads back as a Database(folder).
+    /// @param yaml true: YAML files, false: JSON files
+    /// @param readable as for toJson
+    auto saveDataset(const std::string& folder, bool yaml = false, bool readable = true) const -> void;
+
+    /// The version of the v2 format that this ThermoFun writes, for example "2.0.0-draft.1": the value of the key `thermohub`.
+    static auto formatVersion() -> std::string;
+
+    /// The size of the database and its substances by class and aggregate state.
+    auto summary() const -> DatabaseSummary;
+
+    /// A value of a record, as JSON text. The path is a JSON pointer (RFC 6901): the section, the symbol of the record, then the keys
+    /// of the v2 format and the indices of lists, for example `/substances/Calcite/standard_state_properties/G`,
+    /// `/substances/Ca+2/methods/0/parameters/omega` or `/reactions/Calcite-dissolution/equation`. The path of a record alone
+    /// (`/substances/Calcite`) gives the whole record. A `/` in a symbol is written `~1` and a `~` is written `~0`.
+    /// @throws std::invalid_argument if the path is not a path of a record of this database
+    auto value(const std::string& path) const -> std::string;
+
+    /// Sets a value of a record: reads the record, changes the value at the path, and sets the record (see setSubstance). Keys that
+    /// the path needs and the record does not have are made. A path of a record alone replaces the record.
+    /// @param jsonValue the new value, as JSON text: `-1.5e6`, `"text"`, `{"value": 1, "uncertainty": 2}`, `[{"method": "ConstantCp"}]`
+    /// @throws std::invalid_argument if the path or the text is not valid
+    auto setValue(const std::string& path, const std::string& jsonValue) -> void;
+
+    /// All problems of the database, also those that a load does not refuse because a record can come from another file.
+    auto validate() const -> Diagnostics;
+
+    /// What the load of v2 files reported: the warnings and the notes.
+    auto loadDiagnostics() const -> const Diagnostics&;
 
 private:
     struct Impl;

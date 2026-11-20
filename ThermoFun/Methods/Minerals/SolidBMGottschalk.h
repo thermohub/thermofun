@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#ifndef SOLIDBMGOTTSCHALK
+#define SOLIDBMGOTTSCHALK
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Methods/Minerals/MineralInputs.h>
+
+
+namespace ThermoFun {
+
+
+/// Returns the correcected (dVdP) themrodynamic properties of a substance (mineral) uisng the using the Birch-Murnaghan EOS
+/// @ref Gottschalk M. (1997) Internally consistent thermodynamic data for rock-forming minerals in the system
+/// SiO2-TiO2-Al2O3-Fe2O3-CaO-MgO-FeO-K2O-Na2O-H2O-CO2. Eur. J. Mineral., 9, 175-223.
+/// @param t temparature (K)
+/// @param p pressure (bar)
+/// @param subst substance instance
+/// @param tps structure holding the thermodynamicp porperties of the substance (previously) corrected with other models
+auto thermoPropertiesMinBMGottschalk (real t, real p, const MineralInputs& subst, ThermoPropertiesSubstanceAD tps, bool* applied = nullptr) -> ThermoPropertiesSubstanceAD;
+
+}
+
+#endif // SOLIDBMGOTTSCHALK
+

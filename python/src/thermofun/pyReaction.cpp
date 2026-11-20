@@ -27,6 +27,7 @@
 namespace py = pybind11;
 
 // ThermoFun includes
+#include <ThermoFun/Model/Records.h>
 #include <ThermoFun/Reaction.h>
 #include <ThermoFun/ThermoProperties.h>
 #include <ThermoFun/ThermoParameters.h>
@@ -71,6 +72,7 @@ void exportReaction(py::module& m)
         .def("methodGenEOS", &Reaction::methodGenEOS,"Return the general EOS method code")
         .def("method_T", &Reaction::method_T,"Return the temperature correction method code")
         .def("method_P", &Reaction::method_P,"Return the pressure correction method code")
+        .def("record", [](const Reaction& x) { return *x.record(); }, "The record (a copy)")
         .def("jsonString", &Reaction::jsonString, "Return the record as a json string")
         .def("calc_logK_fT_coefficients", &Reaction::calc_logK_fT_coefficients, "Calculate the coefficients of logK as a function of T from the reference properties and the Cp coefficients")
         .def("thermo_ref_prop", &Reaction::thermo_ref_prop, "Return the reference properties of the reaction")

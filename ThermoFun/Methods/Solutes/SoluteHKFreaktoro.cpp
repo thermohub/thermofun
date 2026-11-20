@@ -1,0 +1,273 @@
+#include "Methods/Solutes/SoluteHKFreaktoro.h"
+#include "Common/Exception.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+{
+    // Get the HKF thermodynamic data of the species
+    const auto& hkf = subst.parameters;
+
+    if (hkf.size() == 0)
+    {
+        Exception exception;
+        exception.error << "Error in HKFreaktoro EOS";
+        exception.reason << "The HKF paramteres for "<< subst.symbol << " are not defined or are not correclty initialized.";
+        exception.line = __LINE__;
+        RaiseError(exception)
+    }
+//    if (hkf[0] == 0.0 || hkf[1] == 0.0 || hkf[2] == 0.0)
+//    {
+//        Exception exception;
+//        exception.error << "Error in HKFreaktoro EOS";
+//        exception.reason << "The HKF paramteres for "<< subst.symbol << " are not defined or are not correclty initialized.";
+//        exception.line = __LINE__;
+//        RaiseError(exception);
+//    }
+
+    // Auxiliary variables
+    const auto& constants = subst.constants;
+    const auto Tr   = constants.Tr;
+    const auto Pr   = constants.Pr;
+    const auto Zr   = constants.Zr;
+    const auto Yr   = constants.Yr;
+    const auto theta = constants.theta;
+    const auto psi  = constants.psi;
+    const auto Gf   = subst.G / cal_to_J;
+    const auto Hf   = subst.H / cal_to_J;
+    const auto Sr   = subst.S / cal_to_J;
+    const auto a1   = hkf[0];
+    const auto a2   = hkf[1];
+    const auto a3   = hkf[2];
+    const auto a4   = hkf[3];
+    const auto c1   = hkf[4];
+    const auto c2   = hkf[5];
+    const auto wr   = hkf[6];
+    const auto w    = aes.w;
+    const auto wT   = aes.wT;
+    const auto wP   = aes.wP*1e05; // from 1/Pa to 1/bar
+    const auto wTT  = aes.wTT;
+    const auto Z    = wes.bornZ;
+    const auto Y    = wes.bornY;
+    const auto Q    = wes.bornQ*1e05; // from 1/Pa to 1/bar
+    const auto X    = wes.bornX;
+
+    // Calculate the standard molal thermodynamic properties of the aqueous species
+    auto V = 0.4184004e2 * (a1 + a2/(psi + Pbar) +
+        (a3 + a4/(psi + Pbar))/(TK - theta) - w*Q - (Z + 1)*wP);
+
+    auto G = Gf - Sr*(TK - Tr) - c1*(TK*log(TK/Tr) - TK + Tr)
+        + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
+        - c2*((1.0/(TK - theta) - 1.0/(Tr - theta))*(theta - TK)/theta
+        - TK/(theta*theta)*log(Tr/TK * (TK - theta)/(Tr - theta)))
+        + 1.0/(TK - theta)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
+        - w*(Z + 1) + wr*(Zr + 1) + wr*Yr*(TK - Tr);
+
+    auto H = Hf + c1*(TK - Tr) - c2*(1.0/(TK - theta) - 1.0/(Tr - theta))
+        + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
+        + (2*TK - theta)/pow(TK - theta, 2)*(a3*(Pbar - Pr)
+        + a4*log((psi + Pbar)/(psi + Pr)))
+        - w*(Z + 1) + w*TK*Y + TK*(Z + 1)*wT + wr*(Zr + 1) - wr*Tr*Yr;
+
+    auto S = Sr + c1*log(TK/Tr) - c2/theta*(1.0/(TK - theta)
+        - 1.0/(Tr - theta) + log(Tr/TK * (TK - theta)/(Tr - theta))/theta)
+        + 1.0/pow(TK - theta, 2)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
+        + w*Y + (Z + 1)*wT - wr*Yr;
+
+    auto Cp = c1 + c2/pow(TK - theta, 2) - (2*TK/pow(TK - theta, 3))*(a3*(Pbar - Pr)
+        + a4*log((psi + Pbar)/(psi + Pr))) + w*TK*X + 2*TK*Y*wT + TK*(Z + 1)*wTT;
+
+    // Convert the thermodynamic properties of the gas to the standard units
+    V  *= 1e-01/**cal_to_J/bar_to_Pa*/;
+    G  *= cal_to_J;
+    H  *= cal_to_J;
+    S  *= cal_to_J;
+    Cp *= cal_to_J;
+
+    ThermoPropertiesSubstanceAD tps;
+    tps.volume           = V;
+    tps.gibbs_energy     = G;
+    tps.enthalpy         = H;
+    tps.entropy          = S;
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;           // V in J/bar (the term P V was in the wrong units before)
+    tps.helmholtz_energy = tps.internal_energy - TK*tps.entropy;
+    tps.heat_capacity_cp = Cp;
+    tps.heat_capacity_cv = tps.heat_capacity_cp; // approximate Cp = Cv for an aqueous solution
+
+    return tps;
+}
+
+
+auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> ElectroPropertiesSubstance
+{
+    // Get the HKF thermodynamic parameters of the aqueous species
+    const auto& hkf = species.parameters;
+
+    // The species electro instance to be calculated
+    ElectroPropertiesSubstance se;
+
+    // Check if the aqueous species is neutral or H+, and set its electrostatic data accordingly
+    if(species.charge == 0.0 || species.hydrogen_ion)
+    {
+        se.w   = hkf[6] /*hkf.wref*/;
+        se.wT  = 0.0;
+        se.wP  = 0.0;
+        se.wTT = 0.0;
+        se.wTP = 0.0;
+        se.wPP = 0.0;
+    }
+    else
+    {
+        const auto z = species.charge;
+        const auto wref = hkf[6] /*hkf.wref*/;
+        const auto eta = species.constants.eta;
+        const auto zeta = species.constants.zeta;
+
+        const auto reref = z*z/(wref/eta + z/zeta);
+        const auto re    = reref + std::abs(z) * g.g;
+
+        const auto X1 =  -eta * (std::abs(z*z*z)/(re*re) - z/pow(zeta + g.g, 2));
+        const auto X2 = 2*eta * (z*z*z*z/(re*re*re) - z/pow(zeta + g.g, 3));
+
+        se.re    = re;
+        se.reref = reref;
+        se.w     = eta * (z*z/re - z/(zeta + g.g));
+        se.wT    = X1 * g.gT;
+        se.wP    = X1 * g.gP;
+        se.wTT   = X1 * g.gTT + X2 * g.gT * g.gT;
+        se.wTP   = X1 * g.gTP + X2 * g.gT * g.gP;
+        se.wPP   = X1 * g.gPP + X2 * g.gP * g.gP;
+    }
+
+    return se;
+}
+
+
+// The lowest density of water (g/cm3) at which g is calculated from the density: the lower limit of HKF in SUPCRT92
+// (Shock et al. 1992). Below it g is held at its value at this density (owner, 2026-11-17).
+constexpr double kGDensityMin = 0.35;
+
+auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants& constants) -> FunctionG
+{
+    // The function G
+    FunctionG funcG;
+
+    // The temperature in units of celsius and pressure in units of bar
+    const auto TdegC = T - 273.15;
+    const auto Pbar  = P;
+
+    if (ps.density >= constants.Dmax * 1000)
+    {
+        thfun_logger->warn(" {} {}: water density higher than 1.4 g*cm-3, Dw = {} g*cm-3. Outside the applicability limits of the HKF model.",
+                           __FILE__, __LINE__, ps.density.val()/1000);
+    }
+
+    funcG.g   = 0.0;
+    funcG.gT  = 0.0;
+    funcG.gP  = 0.0;
+    funcG.gTT = 0.0;
+    funcG.gTP = 0.0;
+    funcG.gPP = 0.0;
+
+    // Check if the point (T,P) is inside region III or the shaded region in Fig. 6 of
+    // Shock and others (1992), on page 809. In this case, we assume the g function to be zero.
+    //if(ps.density > 1000.0 || ps.density < 350.0)
+    if(ps.density > 1000.0)
+        return funcG;
+
+    // Auxiliary references
+    auto& g   = funcG.g;
+    auto& gT  = funcG.gT;
+    auto& gP  = funcG.gP;
+    auto& gTT = funcG.gTT;
+    auto& gTP = funcG.gTP;
+    auto& gPP = funcG.gPP;
+
+    // Use equations (24)-(31) of Shock and others (1992) to compute `g` and its derivatives on region I
+    const auto ag1 = constants.ag1;
+    const auto ag2 = constants.ag2;
+    const auto ag3 = constants.ag3;
+
+    const auto bg1 = constants.bg1;
+    const auto bg2 = constants.bg2;
+    const auto bg3 = constants.bg3;
+
+    const auto ag = ag1 + ag2*TdegC + ag3*TdegC*TdegC;
+    const auto bg = bg1 + bg2*TdegC + bg3*TdegC*TdegC;
+
+    const auto agT = ag2 + 2*ag3*TdegC;
+    const auto bgT = bg2 + 2*bg3*TdegC;
+
+    const auto agTT = 2*ag3;
+    const auto bgTT = 2*bg3;
+
+    if (ps.density < kGDensityMin * 1000.0)
+    {
+        // Below the density range of HKF (SUPCRT92 refuses it): g at the lowest density of the range, a function of T
+        // only. Without this, g goes to ag (about -2 A) as the density goes to 0, the effective radius of an ion goes to 0
+        // or below, and its G to +-1e8 kJ/mol.
+        const auto r = kGDensityMin;
+        g   = ag * pow(1 - r, bg);
+        gT  = g * (agT/ag + bgT*log(1 - r));
+        gTT = g * (agTT/ag - pow(agT/ag, 2) + bgTT*log(1 - r)) + gT*gT/g;
+        // gP, gTP, gPP stay 0
+    }
+    else
+    {
+        const auto r =  ps.density/1000.0;
+
+        const auto alpha  = -ps.densityT/ps.density;
+        const auto beta   =  ps.densityP/ps.density;
+        const auto alphaT = -ps.densityTT/ps.density + alpha*alpha;
+        const auto alphaP = -ps.densityTP/ps.density - alpha*beta;
+        const auto betaP  =  ps.densityPP/ps.density - beta*beta;
+
+        g   =  ag * pow(1 - r, bg);
+        gT  =   g * (agT/ag + bgT*log(1 - r) + r*alpha*bg/(1 - r));
+        gP  =  -g * r*beta*bg/(1 - r);
+        gTT =   g * (agTT/ag - pow(agT/ag, 2) + bgTT*log(1 - r) + r*alpha*bg/(1 - r) * (2*bgT/bg + alphaT/alpha - alpha - r*alpha/(1 - r))) + gT*gT/g;
+        gTP =  gP * (bgT/bg - alpha - alphaP/beta - r*alpha/(1 - r)) + gP*gT/g;
+        gPP =  gP * (gP/g + beta + betaP/beta + r*beta/(1 - r));
+    }
+
+    // Region II of Shock and others (1992), Fig. 6 on page 809: 155-355 C and P <= 1000 bar, where the difference function f
+    // was fitted; the rule of SUPCRT92 (and of this code before 2017). Outside it f is not used: g jumps at 355 C below
+    // 1000 bar (by -0.008 A at 300 bar), but f grows as ((T - 155)/300)^16 and gives g of +5 to +800 A at 500-600 C.
+    // Open at 155 C and 1000 bar, where f and its derivatives are 0 (the derivatives divide by T - 155 and 1000 - P)
+    if (TdegC > 155.0 && TdegC <= 355.0 && Pbar < 1000.0)
+    {
+        // Use equations (32)-(44) of Shock and others (1992) to compute the function g and its partial derivatives on region II
+        const auto af1 = constants.af1; // unit: K
+        const auto af2 = constants.af2; // unit: A:bar^{-3}
+        const auto af3 = constants.af3; // unit: A:bar^{-4}
+
+        const auto auxT  = (TdegC - 155)/300;
+        const auto auxT1 = pow(auxT, 4.8);
+        const auto auxT2 = pow(auxT, 16);
+
+        const auto auxP  = 1000 - Pbar;
+        const auto auxP1 = pow(auxP, 3);
+        const auto auxP2 = pow(auxP, 4);
+
+        const auto ft   = auxT1 + af1*auxT2;
+        const auto ftT  = ( 4.80 * auxT1 +  16.0 * af1*auxT2)/(300 * auxT);
+        const auto ftTT = (18.24 * auxT1 + 240.0 * af1*auxT2)/pow(300 * auxT, 2);
+
+        const auto fp   =  af2*auxP1 + af3*auxP2;
+        const auto fpP  = -(3.0 * af2*auxP1 +  4.0 * af3*auxP2)/(auxP*1.e+5);       // convert derivative from bar to Pa
+        const auto fpPP =  (6.0 * af2*auxP1 + 12.0 * af3*auxP2)/pow(auxP*1.e+5, 2); // convert derivative from bar^2 to Pa^2
+
+        g   -= ft  * fp;
+        gT  -= fp  * ftT;
+        gP  -= ft  * fpP;
+        gTT -= fp  * ftTT;
+        gTP -= ftT * fpP;
+        gPP -= ft  * fpPP;
+    }
+
+    return funcG;
+}
+
+}

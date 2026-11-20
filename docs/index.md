@@ -1,63 +1,81 @@
 <!--
  SPDX-License-Identifier: LGPL-3.0-or-later
- Copyright (C) 2022-2026 ThermoFun contributors
-
- This file is part of ThermoFun, which is free software: you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published by the Free Software
- Foundation, either version 3 of the License, or (at your option) any later version.
- See the LICENSE file.
+ Copyright (C) 2026 ThermoFun contributors
 -->
 
-# [ThermoFun](https://thermohub.org/thermofun/thermofun/)
+# ThermoFun
 
-#### Details on the API functionality can be found by [searching](https://docs.hdoc.io/dmiron/thermofun/search.html) the documentation. The naming is the  same in C++ and Python.
-
-Using ThermoFun is as simple as loading a [database](https://github.com/thermohub/thermofun-jupyter/blob/master/how-to-use-a-database.ipynb) initializing a [ThermoEngine](https://github.com/thermohub/thermofun-jupyter/blob/master/how-to-calculate-properties-thermoengine.ipynb)/[ThermoBatch](https://github.com/thermohub/thermofun-jupyter/blob/master/how-to-do-batch-calculations.ipynb) and calling the function to [calculate the properties](https://github.com/thermohub/thermofun-jupyter/blob/master/how-to-calculate-properties-substance-reaction.ipynb) for given substance(s)/reaction(s) at given T-P condition(s).
+ThermoFun calculates the standard-state thermodynamic properties of substances and reactions, and the properties of water, at a temperature T and a pressure P. It reads them from a database of records. Each result has its derivatives by T and P, an uncertainty and a status.
 
 ```python
-  import thermofun as fun
-  database = fun.Database('aq17-thermofun.json')
-  engine = fun.ThermoEngine(database)
-  #                                        T(K)   P(Pa)  symbol
-  Ca_ion = engine.thermoPropertiesSubstance(473, 2000e5, 'Ca+2')
-  print(f'G0 {Ca_ion.gibbs_energy.val} J/mol')
-  #                                                     T(K)   P(Pa)  reaction equation
-  calcite_dissolution = engine.thermoPropertiesReaction(348.15, 1e5, 'Calcite = Ca+2 + CO3-2')
-  print(f'drS0 of (Cal = Ca+2 + CO3-2) is {calcite_dissolution.reaction_entropy.val}')
-  print(f'drG0 of (Cal = Ca+2 + CO3-2) is {calcite_dissolution.reaction_gibbs_energy.val}')
-  print(f'logK0 of (Cal = Ca+2 + CO3-2) is {calcite_dissolution.log_equilibrium_constant.val}')
+import thermofun as tf
+
+engine = tf.ThermoEngine("aq17-thermofun.json")
+
+# Gibbs energy of Ca+2 at 473.15 K and 2e8 Pa (T in K, P in Pa)
+G = engine.thermoPropertiesSubstance(473.15, 2e8, "Ca+2").gibbs_energy
+
+print("value      ", G.val, "J/mol")
+print("derivatives", G.ddt, "J/(mol K) by T,", G.ddp, "J/(mol Pa) by P")
+print("uncertainty", G.err, "J/mol")
+print("status     ", G.sta)
 ```
 
-In Python using the `help` function can provide hints on the usability.
+Install it with `conda install -c conda-forge thermofun`, or [install it from the source](how-to/install-from-source.md).
 
-```python
-help(fun.ThermoEngine)
+Databases are in `Resources/databases/` of the repository. The words of these pages are in the [glossary](glossary.md).
 
-Help on class ThermoEngine in module thermofun.PyThermoFun:
+## Tutorials: learn by doing
 
-class ThermoEngine(pybind11_builtins.pybind11_object)
- |  Contains methods for calculating the thermodynamic properties of the substances and reactions
- ...
+1. [Your first calculation](tutorials/01-first-calculation.md): a substance, a reaction and water, and what a result holds.
+2. [Load data](tutorials/02-load-data.md): read, choose, check and write records.
+3. [Change the models](tutorials/03-change-models.md): methods, how they combine, implementations, options and conventions.
+4. [Where the files are](tutorials/04-where-the-files-are.md)
+5. [Templates](tutorials/05-templates.md)
+6. [Output tables](tutorials/06-output-tables.md)
+7. [Batch calculations](tutorials/07-batch-calculations.md)
+8. [Fit parameters](tutorials/08-fit-parameters.md)
+
+Each tutorial is a notebook. It runs each time the site is built, so its results come from the current code. To run one in Jupyter, download it from its page as `.ipynb`, or use the copies in [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter), which also has workshops and longer examples with other codes.
+
+## How-to: steps for one job
+
+Calculate:
+
+- [Make tables](how-to/make-tables.md): from a YAML setup or a template, in C++ and Python.
+- [Choose water models](how-to/choose-water-models.md)
+- [Choose conventions](how-to/choose-conventions.md)
+- [Propagate uncertainties](how-to/propagate-uncertainties.md)
+- [See what each method gives](how-to/get-per-method-results.md)
+- [Use a method alone](how-to/use-a-method-alone.md)
+- [Fit parameters to measured data](how-to/fit-parameters.md) (under development)
+
+Data:
+
+- [Add data](how-to/add-data.md): the complete guide to substances, reactions, methods, units and datasets.
+- [Validate data](how-to/validate-data.md)
+- [Convert a legacy database](how-to/convert-legacy-database.md)
+
+Technical guides:
+
+- [Install from the source](how-to/install-from-source.md)
+- [Migrate from the old API](how-to/migrate-from-the-old-api.md)
+- [Add a method as data](how-to/add-a-method-as-data.md) and [in C++](how-to/add-a-cpp-method.md), for model authors
+
+## Reference: facts
+
+- [Methods](reference/methods/index.md), one page for each method, with their [parameters](reference/method-parameters.md) and [how they combine](reference/how-methods-combine.md).
+- Options: [options of the engine](reference/engine-preferences.md), [conventions](reference/conventions.md) and [batch options](reference/batch.md).
+- Formats: [the data model](reference/data-model.md), [the v2 format](reference/format-v2.md) with its [JSON Schema](reference/format-v2-schema.md), [allowed words](reference/vocabulary.md), [the legacy format](reference/legacy-format.md) and [how it differs](reference/legacy-and-v2.md).
+- [Diagnostics](reference/diagnostics.md): each code and how to correct it.
+- Results and units: [results](reference/results.md), [units](reference/units.md), [derivatives](reference/derivatives.md) and [uncertainties and rounding](reference/uncertainty.md).
+- API: [Python](reference/python-api.md) and [C++](https://docs.hdoc.io/dmiron/thermofun/search.html).
+
+```{toctree}
+:hidden:
+
+tutorials/index
+how-to/index
+reference/index
+glossary
 ```
-
-Try the ThermoFun examples in your browser:
-
-[![Launch ThermoFun tutorials](https://img.shields.io/badge/launch-ThermoFun%20tutorials-brightgreen?style=for-the-badge&logo=jupyter)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/)
-
-## The main ThermoFun classes
-
-* [Database](https://docs.hdoc.io/dmiron/thermofun/r820E4166D6856B34.html): The Database class stores maps of elements, substances and reactions. A database instance can be used to create a ThermoEngine instance which can be further used to calculate the standard thermodynamic properties of substances and reactions at T and P
-
-[![Launch example on initializing a database from file](https://img.shields.io/badge/launch-Database%20example-brightgreen?style=for-the-badge&logo=jupyter)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/tree/how-to-use-a-database.ipynb)
-
-* [ThermoEngine](https://docs.hdoc.io/dmiron/thermofun/r15CBE4920E8D3EF1.html): The main ThermoFun class for doing calculations. It calculates the thermodynamic properties of the substances from the database. It also calculates the electro-chemical and other physico-chemical properties of the solvent.
-
-[![Launch example on using ThermoEngine to calculate thermodynamic properties](https://img.shields.io/badge/launch-ThermoEngine%20example-brightgreen?style=for-the-badge&logo=jupyter)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/tree/how-to-calculate-properties-thermoengine.ipynb)
-
-* [ThermoBatch](https://docs.hdoc.io/dmiron/thermofun/r88DCC0D87A971DFF.html): The Batch class is useful for doing batch calculations for a given list of substances, reactions, properties, and temperature and pressure grid. Options to set the input and output properties units are available.
-
-[![Launch example on doing batch calculations, for a list of substances, T-P intervals](https://img.shields.io/badge/launch-ThermoBatch%20example-brightgreen?style=for-the-badge&logo=jupyter)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/tree/how-to-do-batch-calculations.ipynb)
-
-* [guide](GUIDE.md): basic usage and the options of the engine and the batch (preferences, conventions, units), the database records, derivatives, errors and rounding.
-* [python](python.md): the Python interface: classes, enumerations, models, utilities and what is not exposed.
-* [autodiff](autodiff.md): how the derivatives with respect to temperature and pressure are calculated (autodiff), the interface for other codes, the derivative fixes, the propagation of errors (uncertainties, NEA TDB rounding), the Python interface, and the known limitations.

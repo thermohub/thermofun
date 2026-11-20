@@ -1,0 +1,4 @@
+# Conditions: 25 degC and 1 bar. Settings only: use it with a template of tables.
+conditions:
+  T: {values: [25], unit: degC}
+  P: {values: [1], unit: bar}

@@ -1,0 +1,5 @@
+# Output: all digits in the units of the engine, and how it was made in a separate file. Settings only: use it with a template of tables.
+format: scientific
+digits: 12
+units: {G: J/mol, H: J/mol, U: J/mol, A: J/mol, dG: J/mol, dH: J/mol, S: J/K/mol, Cp: J/K/mol, dS: J/K/mol, dCp: J/K/mol}
+provenance: file
