@@ -14,6 +14,7 @@ Source: Johnson and Norton (1991).
 | Needs | nothing from outside its record |
 | Temperature segments | no |
 | Has code | yes |
+| Range of the model | T 273.15 to 1273.15 K, P up to 5000 bar (Johnson et al. (1992), SUPCRT92: 0 to 1000 degC, 1 to 5000 bar); outside of it a value is calculated with a note |
 | Legacy names | `water_diel_jnort91_reaktoro`, `water_diel_jnort91_gems` |
 | Other names | `JN91Reaktoro`, `JN91Gems` |
 

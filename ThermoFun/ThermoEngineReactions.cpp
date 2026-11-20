@@ -6,6 +6,7 @@
 #include <mutex>
 #include <set>
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Common/OutsideRange.h>
 
 namespace ThermoFun
 {
@@ -106,7 +107,11 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
     // from the reactants: a record without methods, unless the source says otherwise. "reaction" is for substances only.
     const auto record = reaction.record();
     if (reactionFromReactants(reaction))
-        return thermoPropertiesReactionFromReactants(T, P, reaction);
+    {
+        auto tpr = thermoPropertiesReactionFromReactants(T, P, reaction);
+        stampSource(tpr, "reactants");
+        return tpr;
+    }
 
     if (const auto bound = boundReaction(reaction))
     {
@@ -122,6 +127,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
         const auto shift = reactionShift(reaction, model::mergeConvention(record->convention.value_or(model::Convention{}), database.thermoDataSet().convention), true);
         if (!shift.identity())
             convert(tpr, shift, T, P, reaction.symbol());
+        stampSource(tpr, "methods");
         return tpr;
     }
     return {};

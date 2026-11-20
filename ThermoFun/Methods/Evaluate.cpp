@@ -85,7 +85,7 @@ auto evaluate(const SubstanceMethod& method, double T, double P, const Reference
     out.S = combine(wrtT.S, wrtP.S);
     out.Cp = combine(wrtT.Cp, wrtP.Cp);
     out.V = combine(wrtT.V, wrtP.V);
-    out.outside_range = wrtT.outside_range;
+    out.extrapolated = wrtT.outside_range;
     return out;
 }
 

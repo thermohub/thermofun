@@ -32,6 +32,29 @@ auto readApplicability(Context& c, const json& node, const UnitScope& scope, con
     return a;
 }
 
+// The region where a method is used among the methods of its kind (decision 0028): t_min, t_max, p_min, p_max
+auto readRegion(Context& c, const json& node, const UnitScope& scope, const std::string& record, const std::string& path) -> Region
+{
+    Region r;
+    if (!node.is_object())
+    {
+        report(c, Severity::Error, "V2-MTH-026", record, path, "A region is an object with t_min, t_max, p_min, p_max.");
+        return r;
+    }
+    for (const auto& item : node.items())
+        if (item.key() != "t_min" && item.key() != "t_max" && item.key() != "p_min" && item.key() != "p_max")
+            report(c, Severity::Warning, "V2-KEY-001", record, path + "/" + item.key(), "Unknown key in region: " + item.key());
+    auto get = [&](const char* key, const char* unit) -> std::optional<double> {
+        auto q = quantity(c, node, key, unit, scope, record, path);
+        return q ? std::optional<double>(q->value) : std::nullopt;
+    };
+    r.t_min = get("t_min", "K");
+    r.t_max = get("t_max", "K");
+    r.p_min = get("p_min", "Pa");
+    r.p_max = get("p_max", "Pa");
+    return r;
+}
+
 auto closest(const MethodSpec& spec, const std::string& name) -> std::string
 {
     // the declared name that differs least from the written name (the same first letter, the same length first)
@@ -158,7 +181,7 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
     if (!list.is_array())
         return out;
     static const std::set<std::string> known = {"method", "parameters", "parameter_set", "segments", "transitions", "applicability",
-                                                "table", "units", "implementation", "interpolation", "order"};
+                                                "region", "table", "units", "implementation", "interpolation", "order"};
     int index = 0;
     for (const auto& node : list)
     {
@@ -244,6 +267,8 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
             app.table = readTable(c, node["table"], scope, record, where + "/table");
         if (node.contains("applicability"))
             app.applicability = readApplicability(c, node["applicability"], scope, record, where + "/applicability");
+        if (node.contains("region"))
+            app.region = readRegion(c, node["region"], scope, record, where + "/region");
         out.push_back(app);
     }
     return out;

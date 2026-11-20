@@ -36,6 +36,14 @@ public:
 
     /// The pressure (Pa) at T (K) and density rho (kg/m3), if the model gives it directly (a Helmholtz model: P = rho^2 dA/drho).
     virtual auto pressureAtDensity(double /*T*/, double /*rho*/) const -> std::optional<double> { return std::nullopt; }
+
+    /// True if the method gives water at T (K) and P (Pa, not 0) in the state (0 liquid, 1 gas). A method used in a region
+    /// (decision 0028) answers false outside it; a record with several equations of state uses the first that covers the
+    /// point, in the order of the record.
+    virtual auto covers(double /*T*/, double /*P*/, int /*state*/) const -> bool { return true; }
+
+    /// True if the method gives the saturation at T (K): the meaning of P = 0.
+    virtual auto coversSaturation(double /*T*/) const -> bool { return true; }
 };
 
 /// A model of the dielectric constant of water, with the Born functions.
@@ -52,6 +60,9 @@ public:
 
     /// The electrochemical properties at T (K) and P (Pa), from the properties of the solvent at this T and P.
     virtual auto properties(double T, double P, const PropertiesSolvent& solvent, int state) const -> ElectroPropertiesSolvent = 0;
+
+    /// True if the method gives the dielectric constant at T (K) and P (Pa): false outside its region (decision 0028).
+    virtual auto covers(double /*T*/, double /*P*/) const -> bool { return true; }
 };
 
 } // namespace ThermoFun::model

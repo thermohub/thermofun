@@ -3,6 +3,7 @@
 
 // ThermoFun includes
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Common/OutsideRange.h>
 #include <algorithm>
 #include <stdexcept>
 #include <cctype>
@@ -137,6 +138,7 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
         pimpl->addSubstanceErrors(tps, T, P, pimpl->database.getSubstance(substance), pimpl->inputsOf(pimpl->recordsOfSubstance(substance)));
     volumeToSI(tps.volume);
     pimpl->roundResults(tps);
+    stampPressure(tps, P);
     return tps;
 }
 
@@ -144,14 +146,20 @@ auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string sol
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
-    return pimpl->cachedElectro(T, P, solvent, state);
+    auto out = pimpl->cachedElectro(T, P, solvent, state);
+    stampSource(out, "water");
+    stampPressure(out, P);
+    return out;
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
-    return pimpl->cachedSolvent(T, P, solvent, state);
+    auto out = pimpl->cachedSolvent(T, P, solvent, state);
+    stampSource(out, "water");
+    stampPressure(out, P);
+    return out;
 }
 
 auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substance& substance) const -> ThermoPropertiesSubstance
@@ -167,6 +175,7 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const Substanc
     }
     volumeToSI(tps.volume);
     pimpl->roundResults(tps);
+    stampPressure(tps, P);
     return tps;
 }
 
@@ -174,14 +183,20 @@ auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
-    return pimpl->electroPropertiesSolvent(T, P, solvent, state);
+    auto out = pimpl->electroPropertiesSolvent(T, P, solvent, state);
+    stampSource(out, "water");
+    stampPressure(out, P);
+    return out;
 }
 
 auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solvent, int state) const -> PropertiesSolvent
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
-    return pimpl->propertiesSolvent(T, P, solvent, state);
+    auto out = pimpl->propertiesSolvent(T, P, solvent, state);
+    stampSource(out, "water");
+    stampPressure(out, P);
+    return out;
 }
 
 // Reaction
@@ -194,6 +209,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
         pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(reaction), false, pimpl->inputsOf(pimpl->recordsOfReaction(reaction)));
     volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
+    stampPressure(tpr, P);
     return tpr;
 }
 
@@ -206,6 +222,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, st
         pimpl->addReactionErrors(tpr, T, P, pimpl->reactionOfSymbol(symbol), true, pimpl->inputsOf(pimpl->recordsOfReaction(symbol)));
     volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
+    stampPressure(tpr, P);
     return tpr;
 }
 
@@ -218,6 +235,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const Reaction&
         pimpl->addReactionErrors(tpr, T, P, reaction, false, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
     volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
+    stampPressure(tpr, P);
     return tpr;
 }
 
@@ -230,6 +248,7 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
         pimpl->addReactionErrors(tpr, T, P, reaction, true, pimpl->inputsOf(pimpl->recordsOfReactants(reaction), nullptr, &reaction));
     volumeToSI(tpr.reaction_volume);
     pimpl->roundResults(tpr);
+    stampPressure(tpr, P);
     return tpr;
 }
 

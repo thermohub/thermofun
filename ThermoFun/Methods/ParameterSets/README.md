@@ -30,7 +30,9 @@ Values are in the units of the formulas, as written in the paper, and are not co
 | SternerPitzer94 | K | MPa | kg/m3 | M in g/mol |
 | SverjenskyEtAl14 | degC | | g/cm3 | |
 | WaterHGK84, WaterIAPWS95 | K | | kg/m3 | |
+| WaterIAPWS95Gas | K | | kg/m3 | `n`, `d`, `t`: place 1 not used, places 2 to 8 are the 7 terms of Table 3.1 |
 | WaterHGK84-gems | K or degC | bar or MPa | | as in the code, by name: `visc_`, `cond_`, `born_` limits in degC and bar |
+| WaterLVS83 | K | MPa | kg/m3 | energies of the code in kJ/kg; region: `Tmin1`, `Tmin2`, `Tmax` in K, `Pbase1`, `Pbase2` in MPa, `PTmins`, `PTmaxs` in MPa/K |
 | WaterSaturation | K | Pa | kg/m3 | M in kg/mol |
 | WaterTriplePoint | | | | energy in cal/mol, S in cal/(mol K) |
 | WaterZhangDuan05 | K | Pa | | V in cm3/mol; `g1kb`: T in degC, G in cal/mol |

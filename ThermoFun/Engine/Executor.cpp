@@ -1,9 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <algorithm>
 #include "Executor.h"
 
 namespace ThermoFun::model {
+
+namespace {
+
+/// The notes of the properties of a result, each once.
+auto notesOf(const PropertiesInfo& info) -> Notes
+{
+    Notes out;
+    for (const auto* i : {&info.G, &info.H, &info.S, &info.Cp, &info.V})
+        for (const auto& note : i->notes)
+            addNote(out, note);
+    return out;
+}
+
+} // namespace
 
 namespace {
 
@@ -51,7 +66,7 @@ auto combine(const SubstanceState<TPReal>& wrtT, const SubstanceState<TPReal>& w
     out.S = one(wrtT.S, wrtP.S);
     out.Cp = one(wrtT.Cp, wrtP.Cp);
     out.V = one(wrtT.V, wrtP.V);
-    out.outside_range = wrtT.outside_range;
+    out.extrapolated = wrtT.outside_range;
     return out;
 }
 
@@ -91,9 +106,16 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
             convert(a, bound.to_canonical[i], wrtT);
             convert(b, bound.to_canonical[i], wrtP);
         }
+        const auto before = notesOf(result.info);
         method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, bound.reference.V.value_or(0.0) * 1e5, a.outside_range, options, solvent});
         if (steps)
-            steps->push_back({method->spec().id, combine(a, b), method->auxiliary(wrtT)});
+        {
+            Notes added;
+            for (const auto& note : notesOf(result.info))
+                if (std::find(before.begin(), before.end(), note) == before.end())
+                    added.push_back(note);
+            steps->push_back({method->spec().id, combine(a, b), method->auxiliary(wrtT), added});
+        }
     }
     result.values = combine(a, b);
     return result;

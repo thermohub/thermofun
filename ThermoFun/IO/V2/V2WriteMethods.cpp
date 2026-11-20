@@ -162,6 +162,15 @@ auto methodsJson(const std::vector<MethodApplication>& methods, OperatesOn opera
         }
         const json a = applicabilityJson(app.applicability, options);
         if (!a.empty()) out["applicability"] = a;
+        if (!app.region.empty())
+        {
+            json r = json::object();
+            if (app.region.t_min) r["t_min"] = limit(*app.region.t_min, options);
+            if (app.region.t_max) r["t_max"] = limit(*app.region.t_max, options);
+            if (app.region.p_min) r["p_min"] = limit(*app.region.p_min, options);
+            if (app.region.p_max) r["p_max"] = limit(*app.region.p_max, options);
+            out["region"] = r;
+        }
         addExtra(out, app.extra_json);
         list.push_back(out);
     }

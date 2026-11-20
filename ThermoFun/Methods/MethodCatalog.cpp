@@ -56,6 +56,13 @@ struct Spec
     }
     auto dielectric() -> Spec& { s.needs.dielectric = true; return *this; }
     auto piecewise() -> Spec& { s.piecewise = true; return *this; }
+    auto regional() -> Spec& { s.regional = true; return *this; }
+    /// The published range of the model (K, Pa; an empty optional is no limit), and where it is stated.
+    auto range(std::optional<double> tMin, std::optional<double> tMax, std::optional<double> pMin, std::optional<double> pMax, std::string source) -> Spec&
+    {
+        s.range = ModelRange{tMin, tMax, pMin, pMax, std::move(source)};
+        return *this;
+    }
     auto convention(EnergyReference reference) -> Spec& { s.native_convention = reference; return *this; }
     auto notImplemented() -> Spec& { s.implemented = false; return *this; }
     auto add(ParameterSpec p) -> Spec& { s.parameters.push_back(std::move(p)); return *this; }
@@ -432,11 +439,18 @@ auto substanceMethods() -> std::vector<MethodSpec>
         s.base().role(MethodRole::SolventProperties).add(state);
         return s;
     };
-    m.push_back(waterEoS(Spec("WaterHGK84", "Water, Haar-Gallagher-Kell", "Calculates the properties of water from the HGK equation of state.", "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983)")
+    m.push_back(waterEoS(Spec("WaterHGK84", "Water, Haar-Gallagher-Kell", "Calculates the properties of water from the HGK equation of state. Near the critical point the code of SUPCRT92 and GEMS used the equation of Levelt Sengers et al.: the method WaterLVS83, listed before this one in the record.", "Haar, Gallagher and Kell (1984)")
                              .alias({"WaterHGK", "WaterHGKGems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro", "gems"}).add(listed("A0", 18)).add(listed("A1", 5)).add(listed("yc", 4)).add(listed("ki", 36)).add(listed("li", 36)).add(listed("A3", 36)).add(listed("mi", 4)).add(listed("ni", 4)).add(listed("alpha", 4)).add(listed("beta", 4)).add(listed("ri", 4)).add(listed("ti", 4)).add(listed("A4", 4))
                              .add(saturation()).add(constants({{"referenceTemperature", "K"}, {"referenceDensity", "kg/m3"}, {"referenceHelmholtz", "J/kg"}, {"A20", "coefficient"}, {"z0", "coefficient"}}))
-                             .add(builtIn({"visc_Pmax", "visc_P2", "visc_T2", "visc_P3", "visc_T3", "visc_Tmax", "cond_Pmax", "cond_P2", "cond_T2", "cond_P3", "cond_T3", "cond_Tmax"})).add(builtIn({"surf_Ttripl", "surf_Tcrit", "surf_Tstar", "surf_Tcstar", "surf_v", "surf_B", "surf_stref", "born_TMAX", "born_PMAX", "trans_Tstar", "trans_Dstar", "trans_Pstar", "trans_ustar", "cond_C", "crit_T", "crit_P"})).add(builtIn({"ac_wm", "ac_gascon", "ac_tz", "ac_aa", "ac_uref", "ac_sref", "ac_zb", "ac_dzb", "ac_yb", "nc_nc", "el_g1", "el_g2", "el_gf", "el_b1", "el_b2", "el_b1t", "el_b2t", "el_b1tt", "el_b2tt", "hc_tcHGK", "hc_dcHGK", "hc_pcHGK", "hb_Ttop", "hb_Tbtm", "hb_Ptop", "hb_Pbtm", "hb_Dtop", "hb_Dbtm", "li_sDli1", "li_sPli1", "li_sDli37", "li_sPli37", "li_sDIB30", "li_Tli13", "li_Pli13", "li_Dli13", "li_TnIB30", "li_DnIB30", "tt_Utri", "tt_Stri", "tt_Htri", "tt_Atri", "tt_Gtri", "tt_Ttr", "tt_Ptripl", "tt_Dltrip", "tt_Dvtrip", "cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon"})).add(listed("nc_g", 40)).add(listed("nc_ii", 40)).add(listed("nc_jj", 40)).add(listed("bc_bp", 10)).add(listed("bc_bq", 10)).add(listed("ad_atz", 4)).add(listed("ad_adz", 4)).add(listed("ad_aat", 4)).add(listed("ad_aad", 4)).add(listed("co_a", 20)).add(listed("co_q", 20)).add(listed("co_x", 11)).add(listed("psat_a", 8)).add(listed("ideal_c", 18)).add(listed("visc_a", 4)).add(listed("visc_b", 42)).add(listed("cond_aL", 4)).add(listed("cond_au", 4)).add(listed("cond_bL", 30)).add(listed("cond_bu", 30))));
+                             .add(builtIn({"visc_Pmax", "visc_P2", "visc_T2", "visc_P3", "visc_T3", "visc_Tmax", "cond_Pmax", "cond_P2", "cond_T2", "cond_P3", "cond_T3", "cond_Tmax"})).add(builtIn({"surf_Ttripl", "surf_Tcrit", "surf_Tstar", "surf_Tcstar", "surf_v", "surf_B", "surf_stref", "born_TMAX", "born_PMAX", "trans_Tstar", "trans_Dstar", "trans_Pstar", "trans_ustar", "cond_C"})).add(builtIn({"ac_wm", "ac_gascon", "ac_tz", "ac_aa", "ac_uref", "ac_sref", "ac_zb", "ac_dzb", "ac_yb", "nc_nc", "el_g1", "el_g2", "el_gf", "el_b1", "el_b2", "el_b1t", "el_b2t", "el_b1tt", "el_b2tt", "hc_tcHGK", "hc_dcHGK", "hc_pcHGK", "hb_Ttop", "hb_Tbtm", "hb_Ptop", "hb_Pbtm", "hb_Dtop", "hb_Dbtm", "li_sDli1", "li_sPli1", "li_sDli37", "li_sPli37", "li_sDIB30", "li_Tli13", "li_Pli13", "li_Dli13", "li_TnIB30", "li_DnIB30", "tt_Utri", "tt_Stri", "tt_Htri", "tt_Atri", "tt_Gtri", "tt_Ttr", "tt_Ptripl", "tt_Dltrip", "tt_Dvtrip", "cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon"})).add(listed("nc_g", 40)).add(listed("nc_ii", 40)).add(listed("nc_jj", 40)).add(listed("bc_bp", 10)).add(listed("bc_bq", 10)).add(listed("ad_atz", 4)).add(listed("ad_adz", 4)).add(listed("ad_aat", 4)).add(listed("ad_aad", 4)).add(listed("psat_a", 8)).add(listed("ideal_c", 18)).add(listed("visc_a", 4)).add(listed("visc_b", 42)).add(listed("cond_aL", 4)).add(listed("cond_au", 4)).add(listed("cond_bL", 30)).add(listed("cond_bu", 30))));
+    m.push_back(waterEoS(Spec("WaterLVS83", "Water near the critical point, Levelt Sengers", "Calculates the properties of water near its critical point from the scaling equation of Levelt Sengers et al., in its region only (SUPCRT92: about 643 to 695 K, 200 to 420 kg/m3, and its saturation from 643 K to the critical point). Elsewhere the next equation of state of the record is used; it has no metastable states.", "Levelt Sengers J.M.H., Kamgar-Parsi B., Balfour F.W., Sengers J.V. (1983) J. Phys. Chem. Ref. Data 12, 1-28")
+                             .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("co_a", 20)).add(listed("co_q", 20))
+                             .add(builtIn({"cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon", "Ttr"}))
+                             .add(constants({{"Tmin1", "K"}, {"Tmin2", "K"}, {"Tmax", "K"}, {"Dmin", "kg/m3"}, {"Dmax", "kg/m3"}, {"Pbase1", "MPa"}, {"Pbase2", "MPa"}, {"PTmins", "MPa/K"}, {"PTmaxs", "MPa/K"}}))));
+    m.push_back(waterEoS(Spec("WaterIAPWS95Gas", "Water vapour, gas equation of IAPWS-95", "Calculates the properties of metastable water vapour (above the saturation pressure, below 10 MPa, up to 55 kg/m3) from the gas equation of Wagner and Pruss (2002), Eq. 3.2. IAPWS-95 is not reliable there away from the saturated vapour line; the authors advise this equation, as IAPWS-IF97 does. Used in this region only, for a vapour record (state gas); elsewhere the next equation of state of the record, for example WaterIAPWS95, is used, and it gives the saturation.", "Wagner and Pruss (2002) J. Phys. Chem. Ref. Data 31, 387-535, Sects. 3, 6.3.1 and 7.3.2.3")
+                             .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("d", 8)).add(listed("t", 8)).add(listed("n", 8))));
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
+                             .range(251.165, 1273.0, std::nullopt, 1.0e9, "Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa")
                              .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"}).add(saturation()).add(listed("no", 9)).add(listed("gammao", 5)).add(listed("c", 55)).add(listed("d", 55)).add(listed("t", 55)).add(listed("n", 57)).add(listed("alpha", 3)).add(listed("beta", 3)).add(listed("gamma", 3)).add(listed("epsilon", 3)).add(listed("a", 2)).add(listed("b", 2)).add(listed("A", 2)).add(listed("B", 2)).add(listed("C", 2)).add(listed("F", 2)).add(listed("E", 2))));
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
@@ -445,6 +459,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})
+                               // the lower bound of 1 bar is not checked: the saturation pressure below 100 degC is lower, and SUPCRT92 calculates there
+                               .range(273.15, 1273.15, std::nullopt, 5.0e8, "Johnson et al. (1992), SUPCRT92: 0 to 1000 degC, 1 to 5000 bar")
                                .add(numbered("a", 10, "coefficient of k_i(t)")).add(constants({{"Tr", "reference temperature, K"}, {"Dr", "reference density, kg/m3"}}))));
     m.push_back(dielectric(Spec("BradleyPitzer79", "Dielectric constant of Bradley and Pitzer", "Calculates the dielectric constant of water and the Born functions from T and P, with no density of water.", "Bradley and Pitzer (1979)")
                                .add(builtIn({"U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "Tmin", "Tmax", "Tlow", "Pmax_low", "Pmax"}))));
@@ -456,6 +472,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
                                                {"b1", "coefficient of t in u"}, {"b2", "coefficient of sqrt(t) in u"}, {"b3", "constant of u"}}))));
     m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166")
                                .alias({"Fernandez97Diel"})
+                               .range(238.0, 873.0, std::nullopt, 1.2e9, "Fernandez et al. (1997): 238 to 873 K, up to 1200 MPa")
                                .add(numbered("n", 12, "coefficient of g")).add(numbered("I", 11, "exponent of the density")).add(numbered("J", 11, "exponent of the temperature"))
                                .add(constants({{"Tc", "critical temperature, K"}, {"rhoc", "critical density, kg/m3"}, {"k", "constant of Boltzmann, SI"}, {"Na", "number of Avogadro, 1/mol"},
                                                {"alpha", "mean molecular polarizability, SI"}, {"epsilon0", "permittivity of vacuum, SI"}, {"mu", "dipole moment, SI"}, {"M", "molar mass, kg/mol"}}))));
@@ -571,7 +588,7 @@ MethodCatalog::MethodCatalog()
         {"TPTable", D::TP}, {"CpExtendedUNIQUAC", D::TP}, {"HKF88", D::TP}, {"AkinfievDiamond03", D::TP}, {"SoluteHP98", D::TP}, {"AndersonEtAl91", D::TP},
         {"LandauHP98", D::TP}, {"LandauHP11", D::TP}, {"MurnaghanHP98", D::TP}, {"TaitHP11", D::TP}, {"VolumeBerman88", D::TP}, {"VolumeDorogokupets88", D::TP}, {"BirchMurnaghan47", D::TP},
         {"PRSV86", D::TP}, {"SoaveRedlichKwong72", D::TP}, {"PengRobinson78", D::TP}, {"SternerPitzer94", D::TP}, {"CorkHP91", D::TP}, {"ChurakovGottschalk03", D::TP},
-        {"WaterHGK84", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
+        {"WaterHGK84", D::TP}, {"WaterLVS83", D::TP}, {"WaterIAPWS95Gas", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
         {"DolejsManning10", D::TP}, {"MarshallFranck81", D::TP}, {"RyzhenkoBryzgalin", D::TP}, {"ReactionVolumePolynomial", D::TP}};
     for (auto& spec : specs_)
         if (const auto it = depends.find(spec.id); it != depends.end())

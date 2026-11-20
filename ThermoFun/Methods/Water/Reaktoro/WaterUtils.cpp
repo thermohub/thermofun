@@ -29,8 +29,10 @@
 
 namespace ThermoFun {
 
+/// The density at T and P of the branch given by the state, or of the other branch if allowOther and the branch has none
+/// (beyond its spinodal); converged tells whether a stable root was found.
 template<typename HelmholtsModel>
-auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model) -> real
+auto solveWaterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model, bool allowOther, bool& converged) -> real
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
@@ -47,32 +49,64 @@ auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConsta
     else
         state = 2;
 
-    // Determine an adequate initial guess for (dimensionless) density based on the physical state of water
-    real D;
+    // Newton's method on the pressure-density equation from the guess D0. The root counts only if the pressure
+    // derivative is positive there (mechanically stable): past the spinodal of a branch the iteration wanders over the
+    // loop of the isotherm and either does not converge or stops on an unstable point.
+    auto newton = [&](real D, bool& converged) -> real
+    {
+        converged = false;
+        for(int i = 1; i <= max_iters; ++i)
+        {
+            WaterHelmholtzState h = model(T, D);
 
+            const auto f  = (D*D*h.helmholtzD - P)/s.Pcr;
+            const auto df = (2*D*h.helmholtzD + D*D*h.helmholtzDD)/s.Pcr;
+
+            D = (D.val() > f.val()/df.val()) ? D - f/df : P/(D*h.helmholtzD);
+
+            if(std::abs(f.val()) < tolerance)
+            {
+                // the residual and the slope are those of the density before this step: a stable root, and a step that stays near it
+                converged = df.val() > 0 && std::abs(f.val()/df.val()) < 0.01 * D.val();
+                return D;
+            }
+        }
+        return D;
+    };
+
+    // Determine an adequate initial guess for (dimensionless) density based on the physical state of water
     if ((solvent_state >=0) && (T.val() <= s.Tcr))
     state = solvent_state;
 
-    switch(state)
+    converged = false;
+    real D;
+
+    if (state == 2)
     {
-    case 0: D = waterSaturatedLiquidDensityWagnerPruss(T, s); break;
-    case 1: D = waterSaturatedVapourDensityWagnerPruss(T, s); break;
-    case 2: D = s.Dcr * 0.99; break; // some derivatives of the Helmholtz free energy do not exist in the critical point
+        // some derivatives of the Helmholtz free energy do not exist in the critical point
+        D = newton(s.Dcr * 0.99, converged);
+    }
+    else
+    {
+        // The root of the branch from its saturated density; if the branch has none at this P (beyond its spinodal),
+        // the root of the other branch, as for the HGK of GEMS.
+        const real own   = state == 0 ? waterSaturatedLiquidDensityWagnerPruss(T, s) : waterSaturatedVapourDensityWagnerPruss(T, s);
+        const real other = state == 0 ? waterSaturatedVapourDensityWagnerPruss(T, s) : waterSaturatedLiquidDensityWagnerPruss(T, s);
+        D = newton(own, converged);
+        if (!converged && allowOther)
+            D = newton(other, converged);
     }
 
-    // Apply the Newton's method to the pressure-density equation
-    for(int i = 1; i <= max_iters; ++i)
-    {
-        WaterHelmholtzState h = model(T, D);
+    return D;
+}
 
-        const auto f  = (D*D*h.helmholtzD - P)/s.Pcr;
-        const auto df = (2*D*h.helmholtzD + D*D*h.helmholtzDD)/s.Pcr;
-
-        D = (D.val() > f.val()/df.val()) ? D - f/df : P/(D*h.helmholtzD);
-
-        if(std::abs(f.val()) < tolerance)
-            return D;
-    }
+template<typename HelmholtsModel>
+auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model) -> real
+{
+    bool converged = false;
+    const real D = solveWaterDensity(T, P, solvent_state, s, model, true, converged);
+    if (converged)
+        return D;
 
     ThermoFun::Exception exception;
     exception.error << "Unable to calculate the density of water.";
@@ -92,6 +126,13 @@ auto waterDensityHGK(real T, real P, int state, const HGKConstants& constants) -
 auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> real
 {
     return waterDensity(T, P, state, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); });
+}
+
+auto waterDensityGasEquation(real T, real P, const WagnerPrussConstants& constants, double Dmax, bool& ok) -> real
+{
+    const real D = solveWaterDensity(T, P, 1, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); }, false, ok);
+    ok = ok && D.val() > 0 && D.val() <= Dmax;
+    return D;
 }
 
 auto waterSaturatedPressureWagnerPruss(real T, const WaterSaturationConstants& s) -> real

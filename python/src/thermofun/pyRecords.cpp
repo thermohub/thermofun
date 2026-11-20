@@ -50,6 +50,15 @@ void exportRecords(py::module& m)
         .def_readwrite("is_hard", &Applicability::is_hard)
         .def(py::self == py::self);
 
+    py::class_<Region>(m, "Region", "The region of T (K) and P (Pa) where a method is used among the methods of its kind (decision 0028)")
+        .def(py::init<>())
+        .def_readwrite("t_min", &Region::t_min)
+        .def_readwrite("t_max", &Region::t_max)
+        .def_readwrite("p_min", &Region::p_min)
+        .def_readwrite("p_max", &Region::p_max)
+        .def("holds", &Region::holds, py::arg("T"), py::arg("P"))
+        .def(py::self == py::self);
+
     py::class_<Segment>(m, "Segment", "A piece of a method that is piecewise in T")
         .def(py::init<>())
         .def_readwrite("t_min", &Segment::t_min)
@@ -74,6 +83,7 @@ void exportRecords(py::module& m)
         .def_readwrite("parameters", &MethodApplication::parameters)
         .def_readwrite("parameter_set", &MethodApplication::parameter_set)
         .def_readwrite("applicability", &MethodApplication::applicability)
+        .def_readwrite("region", &MethodApplication::region)
         .def_readwrite("segments", &MethodApplication::segments)
         .def_readwrite("transitions", &MethodApplication::transitions)
         .def_readwrite("table", &MethodApplication::table)

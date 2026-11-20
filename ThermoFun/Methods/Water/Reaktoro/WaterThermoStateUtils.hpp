@@ -45,6 +45,10 @@ auto waterThermoStateHGK(real T, real P, int state, const HGKConstants& constant
 /// @see WaterThermoState
 auto waterThermoStateWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> WaterThermoState;
 
+/// The thermodynamic state of the vapour from the gas equation of Wagner and Pruss (2002), Eq. 3.2, at the density D (kg/m3)
+/// found with waterDensityGasEquation; the constants as there
+auto waterThermoStateGasEquation(real T, real P, real D, const WagnerPrussConstants& constants) -> WaterThermoState;
+
 /// Calculate the thermodynamic state of water.
 /// This is a general method that uses the Helmholtz free energy state
 /// of water, as an instance of WaterHelmholtzState, to completely

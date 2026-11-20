@@ -125,6 +125,7 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `segments` | list of object |  |  |
 | `transitions` | list of object |  |  |
 | `applicability` | [applicability](#applicability) |  |  |
+| `region` | [region](#region) |  |  |
 | `table` | object |  |  |
 | `units` | [units](#units) |  |  |
 | `implementation` | string |  |  |
@@ -247,3 +248,12 @@ Type: mapping to [quantity](#quantity) or array
 ## methods_of_a_record
 
 Type: list of [method_application](#method_application)
+
+## region
+
+| Key | Type | Required | Note |
+|---|---|---|---|
+| `t_min` | [quantity](#quantity) |  |  |
+| `t_max` | [quantity](#quantity) |  |  |
+| `p_min` | [quantity](#quantity) |  |  |
+| `p_max` | [quantity](#quantity) |  |  |

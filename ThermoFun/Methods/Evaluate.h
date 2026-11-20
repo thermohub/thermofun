@@ -18,7 +18,7 @@ struct PropertyValue
 struct MethodResult
 {
     PropertyValue G, H, S, Cp, V;
-    bool outside_range = false;
+    bool extrapolated = false;  ///< the method used a value outside its range (decision 0029)
 };
 
 /// The reference values of a substance in plain numbers (SI).

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
+#include <ThermoFun/Common/OutsideRange.h>
 #include "Reaction.h"
 #include "Compat/SubstanceCompat.h"
 
@@ -331,7 +332,8 @@ auto Reaction::checkCalcMethodBounds(std::string modelName, double T, double P, 
                                     "T(" + std::to_string(lowerT()) + "-" + std::to_string(upperT()) +" K) and "
                                     "P(" + std::to_string(lowerP()) + "-" + std::to_string(upperP()) +" Pa) bounds";
 
-        setMessage(Reaktoro_::Status::calculated, message, tpr );
+        // a note on the result and on each calculated value, whose message says it as the methods do (decision 0029)
+        markOutsideRange(tpr, Note{Note::Kind::Range, Note::Severity::Soft, "", message, {}, {}});
     }
 }
 

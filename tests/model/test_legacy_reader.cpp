@@ -373,10 +373,12 @@ void testRules()
 
     // water vapour
     {
-        auto state = [](const SubstanceRecord& s) { return s.methods.at(0).parameters.at("state").value; };
+        auto state = [](const SubstanceRecord& s) { return s.methods.back().parameters.at("state").value; };
+        // the GEMS water is HGK with WaterLVS83 near the critical point (implied: not written back)
         const SubstanceRecord flag = readLegacySubstance(R"JSON({"symbol": "H2O(g)", "class_": {"1": "SC_GASFLUID"},
             "TPMethods": [{"method": {"2": "solute_hkf88_gems"}}, {"method": {"8": "fug_critical_param"}}]})JSON");
-        CHECK(flag.methods.size() == 1 && flag.methods[0].method == "WaterHGK84" && flag.methods[0].implementation == "gems" && state(flag) == 1.0);
+        CHECK(flag.methods.size() == 2 && flag.methods[0].method == "WaterLVS83" && flag.methods[0].implied &&
+              flag.methods[1].method == "WaterHGK84" && flag.methods[1].implementation == "gems" && state(flag) == 1.0);
         const SubstanceRecord eos = readLegacySubstance(R"JSON({"symbol": "H2O(g)", "class_": {"1": "SC_GASFLUID"},
             "TPMethods": [{"method": {"3": "solute_hkf88_reaktoro"}}, {"method": {"31": "water_eos_hgk84_reaktoro"}}]})JSON");
         CHECK(eos.methods.size() == 1 && eos.methods[0].method == "WaterHGK84" && state(eos) == 1.0);

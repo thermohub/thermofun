@@ -77,7 +77,7 @@ auto fluidInfo(PropertiesInfo& out, const InfoInputs& in, const FluidData& data)
     out.G.propagateFrom(G);
     out.H.propagateFrom(H);
     out.S.propagateFrom(S);
-    out.V = ValueInfo{ValueInfo::Status::Assigned, 0.0, ""};
+    out.V = ValueInfo{ValueInfo::Status::Assigned, 0.0, {}};
     const auto message = boundsMessage(data.row->name, data.record.applicability, in.T, in.P);
     if (!message.empty())
         setMessage(out, message);

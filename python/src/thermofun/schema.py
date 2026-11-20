@@ -79,6 +79,7 @@ def definitions():
                             "water_reference": {"enum": ["geochemical", "steam_tables"]}})
     d["reference_conditions"] = _obj({"T": QUANTITY, "P": QUANTITY})
     d["applicability"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
+    d["region"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
     d["covariances"] = {"type": "array", "items": _obj({"paths": STRINGS, "matrix": {"type": "array", "items": {"type": "array", "items": NUMBER}}},
                                                        ["paths", "matrix"])}
     d["parameters"] = _map({"oneOf": [QUANTITY, {"type": "array"}]}, "Parameters of a method, by name.")
@@ -86,7 +87,7 @@ def definitions():
         "method": STRING, "parameters": REF("parameters"), "parameter_set": STRING,
         "segments": {"type": "array", "items": _obj({"t_min": QUANTITY, "t_max": QUANTITY, "parameters": REF("parameters")})},
         "transitions": {"type": "array", "items": _obj({k: QUANTITY for k in ("T", "dS", "dH", "dV", "dTdP")})},
-        "applicability": REF("applicability"), "table": {"type": "object"}, "units": REF("units"), "implementation": STRING,
+        "applicability": REF("applicability"), "region": REF("region"), "table": {"type": "object"}, "units": REF("units"), "implementation": STRING,
         "interpolation": STRING, "order": INTEGER}, ["method"])
     d["methods_of_a_record"] = {"type": "array", "items": REF("method_application")}
     record = {"symbol": STRING, "record_type": STRING}

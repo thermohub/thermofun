@@ -234,6 +234,9 @@ def test_an_incomplete_parameter_uncertainty_is_not_reported_as_complete(data, t
     assert math.isnan(tps.gibbs_energy.err)
     assert "incomplete" in tps.gibbs_energy.sta[1]
     assert math.isfinite(tps.gibbs_energy.val)
+    # one note of the result says it, with the properties it is about (decision 0029)
+    notes = [n for n in tps.info.notes if n.kind == tf.Note.Kind.Uncertainty]
+    assert len(notes) == 1 and "G" in notes[0].properties and "incomplete" in notes[0].text
 
 
 def test_too_many_coefficients_are_rejected(data, tmp_path):
@@ -243,3 +246,13 @@ def test_too_many_coefficients_are_rejected(data, tmp_path):
     cal["TPMethods"][0]["m_heat_capacity_ft_coeffs"]["errors"] = [1.0] * 1001
     with pytest.raises(RuntimeError, match="Too many coefficient values"):
         make_engine(data, False, tmp_path)
+
+
+def test_info_says_whether_err_can_be_trusted(data, tmp_path):
+    """known: the uncertainty of the data; partial: one could not be propagated; unknown: none given (err 0 is not exact)."""
+    eng = make_engine(data, True, tmp_path)
+    tps = eng.thermoPropertiesSubstance(298.15, 1e5, "Cal")
+    assert tps.gibbs_energy.err > 0 and tps.gibbs_energy.info.error == tf.ErrorState.known
+    substance(data, "Cal")["sm_gibbs_energy"]["errors"] = [1e308]
+    eng = make_engine(data, True, tmp_path)
+    assert eng.thermoPropertiesSubstance(298.15, 1e5, "Cal").gibbs_energy.info.error == tf.ErrorState.partial

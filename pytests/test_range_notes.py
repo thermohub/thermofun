@@ -1,0 +1,208 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+
+# Range notes (decision 0029). A value outside the range of its model is calculated and marked; a value of a method inside its
+# own range that uses another outside it inherits the note, with the path.
+
+import pytest
+import thermofun as tf
+
+CAL = 4.184
+
+
+def engine(implementation):
+    water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181},
+             "methods": ([{"method": "WaterLVS83"}] if implementation == "gems" else [])
+             + [{"method": "WaterHGK84", "implementation": implementation}, {"method": "JohnsonNorton91", "implementation": implementation}]}
+    na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous",
+          "standard_state_properties": {"G": -62591 * CAL, "H": -57433 * CAL, "S": 13.96 * CAL},
+          "methods": [{"method": "HKF88", "implementation": implementation, "units": {"energy": "cal", "pressure": "bar"},
+                       "parameters": {"a1": 0.1839, "a2": -228.5, "a3": 3.256, "a4": -27260, "c1": 18.18, "c2": -29810, "omega": 33060}}]}
+    return tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water, "Na+": na}}))
+
+
+@pytest.mark.parametrize("T,P", [(1274.0, 5e8), (1273.15, 5.1e8)])
+def test_johnson_norton_gems_beyond_its_range_is_calculated_and_marked(T, P):
+    """SUPCRT92 and GEMS returned 0 for epsilon and the Born functions above 1000 degC or 5 kbar: Na+ jumped by 20 kJ/mol."""
+    gems, reaktoro = engine("gems"), engine("reaktoro")
+    eps = gems.electroPropertiesSolvent(T, P, "H2O@").epsilon
+    assert eps.val == pytest.approx(reaktoro.electroPropertiesSolvent(T, P, "H2O@").epsilon.val, rel=1e-3)
+    assert eps.info.validity == tf.Validity.extrapolated and "JohnsonNorton91" in eps.sta[1]
+    G = gems.thermoPropertiesSubstance(T, P, "Na+").gibbs_energy
+    assert G.val == pytest.approx(reaktoro.thermoPropertiesSubstance(T, P, "Na+").gibbs_energy.val, abs=50.0)
+
+
+def test_a_solute_inherits_the_note_of_the_water_with_the_path():
+    G = engine("gems").thermoPropertiesSubstance(1274.0, 5e8, "Na+").gibbs_energy
+    assert G.info.validity == tf.Validity.extrapolated
+    assert "via the water: JohnsonNorton91" in G.sta[1]
+
+
+def test_inside_the_range_there_is_no_note():
+    e = engine("gems")
+    assert e.electroPropertiesSolvent(1273.15, 5e8, "H2O@").epsilon.info.validity == tf.Validity.within
+    assert e.thermoPropertiesSubstance(1273.15, 5e8, "Na+").gibbs_energy.info.validity == tf.Validity.within
+
+
+def test_the_notes_are_data_with_the_method_and_the_path():
+    e = engine("gems")
+    water = e.electroPropertiesSolvent(1274.0, 5e8, "H2O@").info.notes
+    assert len(water) == 1 and water[0].method == "JohnsonNorton91" and water[0].via == []
+    assert water[0].severity == tf.Note.Severity.Soft and water[0].kind == tf.Note.Kind.Range
+    solute = e.thermoPropertiesSubstance(1274.0, 5e8, "Na+").info.notes
+    assert len(solute) == 1 and solute[0].method == "JohnsonNorton91" and solute[0].via == ["the water"]
+
+
+def test_the_status_message_is_made_from_the_notes():
+    r = engine("gems").thermoPropertiesSubstance(1274.0, 5e8, "Na+")
+    assert r.gibbs_energy.sta[1] == "".join(repr(n)[len("<Note "):-1] for n in r.info.notes)
+    assert str(r.info.notes[0]).startswith("Outside the range of the model: via the water: JohnsonNorton91: T = 1274 K, P = 5000 bar, outside its range")
+
+
+def test_inside_the_range_the_result_has_no_notes():
+    e = engine("gems")
+    assert e.thermoPropertiesSubstance(1273.15, 5e8, "Na+").info.notes == []
+    assert e.electroPropertiesSolvent(1273.15, 5e8, "H2O@").info.notes == []
+
+
+def engine_with_reactions():
+    """Na+ on the GEMS water; a reaction without methods (from its species), and a record defined by a reaction with Na+."""
+    import json
+    water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181},
+             "methods": [{"method": "WaterLVS83"}, {"method": "WaterHGK84", "implementation": "gems"}, {"method": "JohnsonNorton91", "implementation": "gems"}]}
+    na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous",
+          "standard_state_properties": {"G": -62591 * CAL, "H": -57433 * CAL, "S": 13.96 * CAL},
+          "methods": [{"method": "HKF88", "implementation": "gems", "units": {"energy": "cal", "pressure": "bar"},
+                       "parameters": {"a1": 0.1839, "a2": -228.5, "a3": 3.256, "a4": -27260, "c1": 18.18, "c2": -29810, "omega": 33060}}]}
+    b = {"formula": "Na+", "charge": 1, "class": "component", "aggregate_state": "crystal",
+         "standard_state_properties": {"G": -260000.0, "H": -240000.0, "S": 60.0, "Cp": 40.0, "V": 2e-5}, "methods": [{"method": "ConstantCp"}]}
+    z = {"formula": "Na+", "charge": 1, "class": "component", "aggregate_state": "crystal", "defining_reaction": "RZ"}
+    doc = {"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water, "Na+": na, "B": b, "Z": z},
+           "reactions": {"RB": {"equation": "B = Na+"},
+                         "RZ": {"equation": "Z = Na+", "reaction_properties": {"logK": 1.0}, "methods": [{"method": "LogKConstant"}]}}}
+    return tf.ThermoEngine(tf.Database(json.dumps(doc)))
+
+
+def test_a_reaction_from_its_species_gets_their_notes():
+    r = engine_with_reactions().thermoPropertiesReaction(1274.0, 5e8, "RB")
+    assert [(n.method, n.via) for n in r.info.notes if n.kind == tf.Note.Kind.Range] == [("JohnsonNorton91", ["Na+", "the water"])]
+    assert "via Na+: via the water: JohnsonNorton91" in r.log_equilibrium_constant.sta[1]
+    assert r.log_equilibrium_constant.info.validity == tf.Validity.extrapolated
+
+
+def test_a_record_defined_by_a_reaction_gets_the_notes_of_the_other_species():
+    z = engine_with_reactions().thermoPropertiesSubstance(1274.0, 5e8, "Z")
+    assert ("JohnsonNorton91", ["Na+", "the water"]) in [(n.method, n.via) for n in z.info.notes]
+    assert z.gibbs_energy.info.validity == tf.Validity.extrapolated
+
+
+def test_inside_the_range_reactions_and_derived_records_have_no_notes():
+    e = engine_with_reactions()
+    ranges = lambda notes: [n for n in notes if n.kind == tf.Note.Kind.Range]
+    assert ranges(e.thermoPropertiesReaction(1273.15, 5e8, "RB").info.notes) == []
+    assert ranges(e.thermoPropertiesSubstance(1273.15, 5e8, "Z").info.notes) == []
+
+
+def engine_with_a_record_that_has_only_G():
+    import json
+    b = {"formula": "Na", "class": "component", "aggregate_state": "crystal",
+         "standard_state_properties": {"G": -260000.0, "H": -240000.0, "S": 60.0, "Cp": 40.0, "V": 2e-5}, "methods": [{"method": "ConstantCp"}]}
+    c = {"formula": "Na", "class": "component", "aggregate_state": "crystal", "standard_state_properties": {"G": -250000.0},
+         "methods": [{"method": "ConstantProperties"}]}
+    doc = {"thermohub": "2.0.0-draft.1", "substances": {"B": b, "C": c}, "reactions": {"RC": {"equation": "C = B"}}}
+    return tf.ThermoEngine(tf.Database(json.dumps(doc)))
+
+
+def test_a_reaction_from_its_species_says_where_its_values_come_from_and_what_is_missing():
+    r = engine_with_a_record_that_has_only_G().thermoPropertiesReaction(298.15, 1e5, "RC")
+    source = [n for n in r.info.notes if n.kind == tf.Note.Kind.Source]
+    assert [n.text for n in source] == ["Calculated from the reaction components: RC"]
+    missing = [(n.text, n.properties) for n in r.info.notes if n.kind == tf.Note.Kind.Undefined]
+    assert ("H0 of component C", ["H"]) in missing and ("S0 of component C", ["S"]) in missing
+    assert not any("G" in props for _, props in missing)
+    # each property says what concerns it
+    assert r.reaction_gibbs_energy.sta[1] == "Calculated from the reaction components: RC; "
+    assert "H0 of component C not defined" in r.reaction_enthalpy.sta[1]
+    assert "H0 of component C" not in r.reaction_gibbs_energy.sta[1]
+
+
+def test_explain_gives_the_notes_of_each_method():
+    steps = engine("gems").explain(1274.0, 5e8, "Na+")
+    hkf = [s for s in steps if s["method"] == "HKF88"][0]
+    assert [n.method for n in hkf["notes"]] == ["JohnsonNorton91"] and hkf["notes"][0].via == ["the water"]
+    assert all("notes" not in s for s in engine("gems").explain(1273.15, 5e8, "Na+"))
+
+
+def test_the_legacy_bounds_check_makes_a_note():
+    na = engine("gems").thermoPropertiesSubstance(298.15, 1e5, "Na+")
+    db = tf.Database('{"thermohub": "2.0.0-draft.1", "substances": {"X": {"formula": "Na", "class": "component", "aggregate_state": "crystal", '
+                     '"standard_state_properties": {"G": 1.0}, "applicability": {"t_min": 273.15, "t_max": 300.0, "p_min": 0.0, "p_max": 1e6}, '
+                     '"methods": [{"method": "ConstantProperties"}]}}}')
+    checked = db.getSubstance("X").checkCalcMethodBounds("model", 400.0, 1e5, na)
+    assert any(n.text.startswith("model: out of T(") for n in checked.info.notes)
+    assert checked.gibbs_energy.info.validity == tf.Validity.extrapolated
+
+
+def water_engine(methods):
+    water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181}, "methods": methods}
+    return tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water}}))
+
+
+@pytest.mark.parametrize("implementation", ["gems", "reaktoro"])
+def test_johnson_norton_has_the_same_range_in_both_implementations(implementation):
+    """The range is data of the method (catalog), checked in one place: before, only the GEMS code marked it."""
+    notes = engine(implementation).electroPropertiesSolvent(1274.0, 5e8, "H2O@").info.notes
+    assert [n.method for n in notes] == ["JohnsonNorton91"]
+    assert "T 273.15 to 1273.15 K, P up to 5000 bar" in notes[0].text
+
+
+@pytest.mark.parametrize("T,P,outside", [(1300.0, 1e8, True), (1000.0, 1.1e9, True), (1000.0, 9e8, False)])
+def test_iapws95_is_marked_outside_its_range_of_validity(T, P, outside):
+    """Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa."""
+    water = water_engine([{"method": "WaterIAPWS95"}, {"method": "JohnsonNorton91"}])
+    notes = [n for n in water.propertiesSolvent(T, P, "H2O@").info.notes if n.method == "WaterIAPWS95"]
+    assert bool(notes) == outside
+    assert bool([n for n in water.thermoPropertiesSubstance(T, P, "H2O@").info.notes if n.method == "WaterIAPWS95"]) == outside
+
+
+def test_fernandez_is_marked_above_873_K():
+    water = water_engine([{"method": "WaterIAPWS95"}, {"method": "FernandezEtAl97"}])
+    assert [n.method for n in water.electroPropertiesSolvent(900.0, 1e8, "H2O@").info.notes] == ["FernandezEtAl97"]
+    assert water.electroPropertiesSolvent(800.0, 1e8, "H2O@").info.notes == []
+
+
+def test_bradley_pitzer_outside_its_range_is_a_note_not_a_log_line():
+    water = water_engine([{"method": "WaterHGK84"}, {"method": "BradleyPitzer79"}])
+    notes = water.electroPropertiesSolvent(300.0, 3e8, "H2O@").info.notes   # above 2000 bar below 343.15 K
+    assert [n.method for n in notes] == ["BradleyPitzer79"] and "up to 5000 bar (2000 bar below 343.15 K)" in notes[0].text
+    assert water.electroPropertiesSolvent(300.0, 1e8, "H2O@").info.notes == []
+
+
+def test_info_says_where_a_value_came_from_and_the_pressure_used():
+    e = engine_with_reactions()
+    T = 473.15
+    Psat = e.saturationPressure(T)
+    na = e.thermoPropertiesSubstance(T, 0.0, "Na+").gibbs_energy.info
+    assert na.source == "methods" and na.pressure == pytest.approx(Psat, rel=1e-12) and na.status == tf.Status.calculated
+    assert na.validity == tf.Validity.within and na.error == tf.ErrorState.unknown   # the test data give no uncertainties
+    assert e.thermoPropertiesSubstance(T, 1e7, "Z").gibbs_energy.info.source == "reaction"
+    assert e.thermoPropertiesReaction(T, 1e7, "RB").log_equilibrium_constant.info.source == "reactants"
+    assert e.thermoPropertiesReaction(T, 1e7, "RZ").log_equilibrium_constant.info.source == "methods"
+    water = e.propertiesSolvent(T, 0.0, "H2O@").density.info
+    assert water.source == "water" and water.pressure == pytest.approx(Psat, rel=1e-12)
+
+
+def test_a_value_without_data_is_undefined():
+    r = engine_with_a_record_that_has_only_G().thermoPropertiesReaction(298.15, 1e5, "RC")
+    assert r.reaction_enthalpy.info.validity == tf.Validity.undefined
+    assert [n.text for n in r.reaction_enthalpy.info.notes if n.kind == tf.Note.Kind.Undefined] == ["H0 of component C"]
+    assert r.reaction_gibbs_energy.info.validity == tf.Validity.within
+
+
+def test_arithmetic_keeps_the_range_notes():
+    e = engine("gems")
+    outside = e.thermoPropertiesSubstance(1274.0, 5e8, "Na+").gibbs_energy
+    inside = e.thermoPropertiesSubstance(1273.15, 5e8, "Na+").gibbs_energy
+    difference = outside - inside
+    assert difference.info.validity == tf.Validity.extrapolated
+    assert [n.method for n in difference.info.notes] == ["JohnsonNorton91"]

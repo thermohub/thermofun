@@ -37,7 +37,9 @@ A key that starts with `_` is ignored. A file with one record has `record_type`,
 
 ## A method in a record
 
-`method`, `implementation`, `parameters`, `parameter_set`, `segments`, `transitions`, `applicability`, `table`, `interpolation`, `order`, `units`.
+`method`, `implementation`, `parameters`, `parameter_set`, `segments`, `transitions`, `applicability`, `region`, `table`, `interpolation`, `order`, `units`.
+
+`applicability` says where a method is valid: outside it the value is calculated, with a warning. `region` (`t_min`, `t_max`, `p_min`, `p_max`, in K and Pa) says where a method is used: see [Methods by region](how-methods-combine.md#methods-by-region).
 
 ## A parameter set
 

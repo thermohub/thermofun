@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <algorithm>
 #include <ThermoFun/IO/Legacy/detail/LegacyReaderParts.h>
 
 namespace ThermoFun::model::legacyreader {
@@ -164,6 +165,24 @@ namespace ThermoFun::model {
 
 using namespace legacyreader;
 
+namespace {
+
+/// The water of GEMS (water_eos_hgk84_lvs83_gems) is HGK with the equation of Levelt Sengers et al. near the critical
+/// point: in a record these are two methods, WaterLVS83 in its region before WaterHGK84 (decision 0028)
+void addImpliedLVS83(SubstanceRecord& s)
+{
+    const auto hgk = std::find_if(s.methods.begin(), s.methods.end(), [](const MethodApplication& a) { return a.method == "WaterHGK84" && a.implementation == "gems"; });
+    if (hgk != s.methods.end() && std::none_of(s.methods.begin(), s.methods.end(), [](const MethodApplication& a) { return a.method == "WaterLVS83"; }))
+    {
+        MethodApplication lvs;
+        lvs.method = "WaterLVS83";
+        lvs.implied = true;
+        s.methods.insert(hgk, lvs);
+    }
+}
+
+} // namespace
+
 void checkReading(const Diagnostics& diagnostics)
 {
     for (const auto& d : diagnostics.errors())
@@ -227,6 +246,8 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
             s.standard_state_properties[slot.property] = *q;
 
     readSubstanceMethods(j, s, c);
+
+    addImpliedLVS83(s);
 
     s.data_sources = readSources(j);
     reportUnknownKeys(j, knownSubstanceKeys(), c);
@@ -374,6 +395,7 @@ void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, double exp
     record.structural.erase("kappa0");
     record.preferred_property_source.reset();
     readSubstanceMethods(j, record, c);
+    addImpliedLVS83(record);
 }
 
 void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, ReactionRecord& record, Diagnostics* diagnostics)

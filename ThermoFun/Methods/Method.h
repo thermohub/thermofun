@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include <ThermoFun/Common/Notes.h>
 #include <ThermoFun/Common/Real.hpp>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
@@ -46,7 +47,7 @@ struct ValueInfo
     enum class Status { NotDefined, Read, Calculated, Assigned };
     Status status = Status::NotDefined;
     double err = 0.0;
-    std::string message;
+    Notes notes;  ///< why the value can be doubted (decision 0029); the status message is made from them
 
     /// The status and the error of a value calculated from others: the errors add in quadrature, and it is not defined if one of them is not.
     template <typename... Values>

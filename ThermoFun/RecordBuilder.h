@@ -71,6 +71,7 @@ struct RecordMethod
     std::optional<std::vector<RecordSegment>> segments;
     std::string parameter_set;                     ///< empty: none
     std::optional<RecordValue> transitions, table, applicability;
+    std::optional<RecordValue> region;             ///< where it is used among the methods of its kind (decision 0028)
 };
 
 /// Builds an element, substance or reaction record.

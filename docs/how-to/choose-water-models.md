@@ -25,6 +25,29 @@ A water record has two methods: an equation of state and a dielectric model.
 
 1. Write the two methods in the record of water.
 2. Set `implementation` only to reproduce the results of another code. `WaterHGK84` and `JohnsonNorton91` have `reaktoro` and `gems`.
+3. To reproduce SUPCRT92 and GEMS, list `WaterLVS83` before `WaterHGK84` with `implementation: gems`. `WaterLVS83` is the equation of
+   Levelt Sengers et al. (1983) near the critical point, and it is used only in its region: about 643 to 695 K between two
+   isochores, and the saturation from 643 K to the critical point. `WaterHGK84` gives the water everywhere else. A record of
+   GEMS in the old format gets both methods when it is read.
+4. For a record of water vapour (`aggregate_state: gas`), list `WaterIAPWS95Gas` before `WaterIAPWS95`. `WaterIAPWS95Gas` is the gas
+   equation of Wagner and Pruss (2002). It is used only for the metastable vapour (above the saturation pressure, below
+   10 MPa, up to 55 kg/m3), where IAPWS-95 is not reliable away from the saturated vapour line and may have no vapour root.
+   Stable vapour, the saturation (`P = 0`) and a record of liquid water get `WaterIAPWS95`. Close to the saturated vapour
+   line the two agree to 4e-4 in the volume; farther away the gas equation is the one to trust only for small densities,
+   so give it a `region` to limit it.
+5. To use two dielectric models, or two equations of state, each in a region, give the first a `region`. See
+   [Methods by region](../reference/how-methods-combine.md#methods-by-region).
+
+```yaml
+H2O@:
+  formula: H2O@
+  class: water_solvent
+  aggregate_state: aqueous
+  methods:
+    - method: WaterLVS83
+    - {method: WaterHGK84, implementation: gems}
+    - {method: JohnsonNorton91, implementation: gems}
+```
 
 The dielectric model changes the volume and the heat capacity of a solute. Use the model that its coefficients were fitted with:
 

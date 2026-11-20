@@ -5,7 +5,7 @@
 
 # How-to guides
 
-Steps for one job. The guides are in three groups: using ThermoFun to calculate, working with data, and the technical guides for installing, upgrading and adding models.
+Steps for one job. The guides are in four groups: using ThermoFun to calculate, working with data, fitting parameters to measured data, and the technical guides for installing, upgrading and adding models.
 
 ## Calculate
 
@@ -15,13 +15,16 @@ Steps for one job. The guides are in three groups: using ThermoFun to calculate,
 - [Propagate uncertainties](propagate-uncertainties.md)
 - [See what each method gives](get-per-method-results.md)
 - [Use a method alone](use-a-method-alone.md)
-- [Fit parameters to measured data](fit-parameters.md) (under development)
 
 ## Data
 
 - [Add data](add-data.md): substances, reactions, methods, units and datasets.
 - [Validate data](validate-data.md)
 - [Convert a legacy database](convert-legacy-database.md)
+
+## Fitting
+
+- [Fit parameters to measured data](fit-parameters.md) (under development): name a parameter, its derivatives, a fit, constraints and a searched parameter, a fit from a template.
 
 ## Technical guides
 
@@ -41,7 +44,6 @@ choose-conventions
 propagate-uncertainties
 get-per-method-results
 use-a-method-alone
-fit-parameters
 ```
 
 ```{toctree}
@@ -52,6 +54,14 @@ fit-parameters
 add-data
 validate-data
 convert-legacy-database
+```
+
+```{toctree}
+:caption: Fitting
+:maxdepth: 1
+:hidden:
+
+fit-parameters
 ```
 
 ```{toctree}

@@ -1,6 +1,9 @@
 // ThermoFun includes
 #include "Common/Exception.h"
 #include "WaterHGK-JNgems.h"
+#include <cmath>
+#include <limits>
+#include "WaterTransportGems.h"
 
 #include <string>
 #include <type_traits>
@@ -15,137 +18,62 @@ namespace ThermoFun {
 auto WaterHGKgems::thermoPropertiesWaterHGKgems(int state) -> ThermoPropertiesSubstanceAD
 {
     ThermoPropertiesSubstanceAD wp;
+    const HGKPhase& ph = (state == 1) ? vap_ : liq_;  // the state of the record: 0 liquid, 1 vapour
 
-    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
+    wp.helmholtz_energy         = ph.w.Aw * cal_to_J;
+    wp.gibbs_energy             = ph.w.Gw * cal_to_J;
+    wp.entropy                  = ph.w.Sw * cal_to_J;
+    wp.internal_energy          = ph.w.Uw * cal_to_J;
+    wp.enthalpy                 = ph.w.Hw * cal_to_J;
+    wp.heat_capacity_cv         = ph.w.Cvw * cal_to_J;
+    wp.heat_capacity_cp         = ph.w.Cpw * cal_to_J;
+    wp.volume                   = 1/ph.d * gemsWaterMolarMass() * cm3_mol_to_J_bar;
+
+    if (saturated_)
     {
-        wp.helmholtz_energy         = wl.Aw * cal_to_J;
-        wp.gibbs_energy             = wl.Gw * cal_to_J;
-        wp.entropy                  = wl.Sw * cal_to_J;
-        wp.internal_energy          = wl.Uw * cal_to_J;
-        wp.enthalpy                 = wl.Hw * cal_to_J;
-        wp.heat_capacity_cv         = wl.Cvw * cal_to_J;
-        wp.heat_capacity_cp         = wl.Cpw * cal_to_J;
-
-        // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[1] * H2OMolarMass * cm3_mol_to_J_bar;
-    } else
-    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) ) // liquid properties at Psat or vapor properties not at Psat, also supercritical fluid
-    {
-        wp.helmholtz_energy         = wr.Aw * cal_to_J;
-        wp.gibbs_energy             = wr.Gw * cal_to_J;
-        wp.entropy                  = wr.Sw * cal_to_J;
-        wp.internal_energy          = wr.Uw * cal_to_J;
-        wp.enthalpy                 = wr.Hw * cal_to_J;
-        wp.heat_capacity_cv         = wr.Cvw * cal_to_J;
-        wp.heat_capacity_cp         = wr.Cpw * cal_to_J;
-
-        // Rho in g/cm3, waterMolarMass in g/mol
-        wp.volume                   = 1/aSta.Dens[0] * H2OMolarMass * cm3_mol_to_J_bar;
+        // The pressure derivatives at constant T of the phase (P in bar, V in J/bar): dG/dP = V, dS/dP = -V alpha,
+        // dH/dP = V (1 - alpha T), dV/dP = -V beta, dCp/dP = -T V (alpha^2 + dalpha/dT); U = H - PV, A = G - PV.
+        // The heat capacity Cv has no pressure derivative here (it stays 0).
+        const real V = wp.volume;
+        const real alpha = ph.w.Alphaw, beta = ph.w.Betaw, dal = ph.w.dAldT;
+        const real Pbar = P_sat_;
+        const real T = T_sat_;
+        const real dp = dP_pass_;
+        wp.gibbs_energy = wp.gibbs_energy + V * dp;
+        wp.entropy = wp.entropy - V * alpha * dp;
+        wp.enthalpy = wp.enthalpy + V * (1 - alpha * T) * dp;
+        wp.heat_capacity_cp = wp.heat_capacity_cp - T * V * (alpha * alpha + dal) * dp;
+        wp.internal_energy = wp.internal_energy + V * (Pbar * beta - alpha * T) * dp;
+        wp.helmholtz_energy = wp.helmholtz_energy + Pbar * V * beta * dp;
+        wp.volume = wp.volume - V * beta * dp;
     }
 
-return wp;
+    return wp;
 }
 
 auto WaterHGKgems::propertiesWaterHGKgems(int state) -> PropertiesSolventAD
 {
     PropertiesSolventAD wp;
-    real rho=0., alp=0., dal=0., bet=0., gam=0.;
+    const HGKPhase& ph = (state == 1) ? vap_ : liq_;  // the state of the record: 0 liquid, 1 vapour
 
-    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
-    {
-        wp.surface_tension   = wl.Surtenw.val();
-        wp.Alpha    = wl.Alphaw;
-        wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
-        wp.thermal_conductivity    = wl.Tcondw.val();
-        wp.Tdiff    = wl.Tdiffw.val();
-        wp.Prndtl   = wl.Prndtlw.val();
-        wp.dAldT    = wl.dAldT;
-        wp.Albe     = wl.Albew;
-        wp.speed_of_sound    = wl.Speedw.val();
-        wp.dynamic_viscosity     = wl.Viscw.val();
-        wp.Visck    = wl.Visckw.val();
+    wp.surface_tension   = ph.w.Surtenw.val();
+    wp.Alpha    = ph.w.Alphaw;
+    wp.Beta     = ph.w.Betaw / 1e05; // from bar-1 to Pa-1
+    wp.thermal_conductivity    = ph.w.Tcondw.val();
+    wp.Tdiff    = ph.w.Tdiffw.val();
+    wp.Prndtl   = ph.w.Prndtlw.val();
+    wp.dAldT    = ph.w.dAldT;
+    wp.Albe     = ph.w.Albew;
+    wp.speed_of_sound    = ph.w.Speedw.val();
+    wp.dynamic_viscosity     = ph.w.Viscw.val();
+    wp.Visck    = ph.w.Visckw.val();
+    wp.density  = ph.d * 1000; // in kg/m3
 
-        alp = wl.Alphaw;
-        dal = wl.dAldT;
-        bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
-        gam = wl.Gamw;
-
-        wp.density          = aSta.Dens[1] * 1000; // in kg/m3
-        rho = aSta.Dens[1] * 1000;
-    } else
-    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) )
-    {
-        wp.surface_tension   = wr.Surtenw.val();
-        wp.Alpha    = wr.Alphaw;
-        wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
-        wp.thermal_conductivity    = wr.Tcondw.val();
-        wp.Tdiff    = wr.Tdiffw.val();
-        wp.Prndtl   = wr.Prndtlw.val();
-        wp.dAldT    = wr.dAldT;
-        wp.Albe     = wr.Albew;
-        wp.speed_of_sound    = wr.Speedw.val();
-        wp.dynamic_viscosity     = wr.Viscw.val();
-        wp.Visck    = wr.Visckw.val();
-
-        alp = wr.Alphaw;
-        dal = wr.dAldT;
-        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
-        gam = wr.Gamw;
-
-        wp.density          = aSta.Dens[0] * 1000; // in kg/m3
-        rho = aSta.Dens[0] * 1000;
-    }
-
-//    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
-//    {
-//        wp.Surten   = wl.Surtenw;
-//        wp.Alpha    = wl.Alphaw;
-//        wp.Beta     = wl.Betaw / 1e05; // from bar-1 to Pa-1
-//        wp.Tcond    = wl.Tcondw;
-//        wp.Tdiff    = wl.Tdiffw.val();
-//        wp.Prndtl   = wl.Prndtlw.val();
-//        wp.dAldT    = wl.dAldT;
-//        wp.Albe     = wl.Albew;
-//        wp.Speed    = wl.Speedw;
-//        wp.Visc     = wl.Viscw;
-//        wp.Visck    = wl.Visckw.val();
-
-//        alp = wl.Alphaw;
-//        dal = wl.dAldT;
-//        bet = wl.Betaw / 1e05; // from bar-1 to Pa-1
-
-//    } else
-//    {
-//        wp.Surten   = wr.Surtenw;
-//        wp.Alpha    = wr.Alphaw;
-//        wp.Beta     = wr.Betaw / 1e05; // from bar-1 to Pa-1
-//        wp.Tcond    = wr.Tcondw;
-//        wp.Tdiff    = wr.Tdiffw.val();
-//        wp.Prndtl   = wr.Prndtlw.val();
-//        wp.dAldT    = wr.dAldT;
-//        wp.Albe     = wr.Albew;
-//        wp.Speed    = wr.Speedw;
-//        wp.Visc     = wr.Viscw;
-//        wp.Visck    = wr.Visckw.val();
-
-//        alp = wr.Alphaw;
-//        dal = wr.dAldT;
-//        bet = wr.Betaw / 1e05; // from bar-1 to Pa-1
-//    }
-
-//    wp.gibbsIdealGas    = id.gi;
-//    wp.entropyIdealGas  = id.si;
-//    wp.cpIdealGas       = id.cpi;
-
-//    if (aSpc.metastable && !aSpc.isat)
-//    {
-//        wp.density          = aSta.Dens[!aSpc.isat] * 1000; // in kg/m3
-//        rho = aSta.Dens[!aSpc.isat] * 1000;
-//    } else
-//    {
-//        wp.density          = aSta.Dens[aSpc.isat] * 1000; // in kg/m3
-//        rho = aSta.Dens[aSpc.isat] * 1000;
-//    }
+    const real rho = ph.d * 1000;
+    const real alp = ph.w.Alphaw;
+    const real dal = ph.w.dAldT;
+    const real bet = ph.w.Betaw / 1e05; // from bar-1 to Pa-1
+    const real gam = ph.w.Gamw;
 
     wp.densityT = - alp * rho;
     wp.densityTT = rho * ( pow(alp,2.) - dal );
@@ -176,71 +104,6 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(real T, real Pbars, real density
     return wp;
 }
 
-auto WaterHGKgems::electroPropertiesWaterJNgems(int state) -> ElectroPropertiesSolventAD
-{
-    ElectroPropertiesSolventAD wp;
-    real eps=0., xborn=0., yborn=0., qborn=0.;
-
-    if ( (aSpc.isat && (state == 1)) || (!aSpc.isat && (state == 0)) ) // vapor properties at Psat or liquid properties not at Psat, also supercritical fluid
-    {
-        wp.epsilon  = wl.Dielw;
-        wp.bornZ    = wl.ZBorn;
-        wp.bornY    = wl.YBorn;
-        wp.bornQ    = wl.QBorn / 1e05; // from bar-1 to Pa-1
-        wp.bornX    = wl.XBorn;
-
-        eps   = wl.Dielw;
-        xborn = wl.XBorn;
-        yborn = wl.YBorn;
-        qborn = wl.QBorn;
-    } else
-    if ((aSpc.isat && (state == 0))|| (!aSpc.isat && (state == 1)) )
-    {
-        wp.epsilon  = wr.Dielw;
-        wp.bornZ    = wr.ZBorn;
-        wp.bornY    = wr.YBorn;
-        wp.bornQ    = wr.QBorn / 1e05; // from bar-1 to Pa-1
-        wp.bornX    = wr.XBorn;
-
-        eps   = wr.Dielw;
-        xborn = wr.XBorn;
-        yborn = wr.YBorn;
-        qborn = wr.QBorn;
-    }
-
-//    if ((aSpc.isat && (state == 0)) || (aSpc.metastable && (state == 0)))
-//    {
-//        wp.epsilon  = wl.Dielw;
-//        wp.bornZ    = wl.ZBorn;
-//        wp.bornY    = wl.YBorn;
-//        wp.bornQ    = wl.QBorn / 1e05; // from bar-1 to Pa-1
-//        wp.bornX    = wl.XBorn;
-
-//        eps   = wl.Dielw;
-//        xborn = wl.XBorn;
-//        yborn = wl.YBorn;
-//        qborn = wl.QBorn;
-//    }
-//    else
-//    {
-//        wp.epsilon  = wr.Dielw;
-//        wp.bornZ    = wr.ZBorn;
-//        wp.bornY    = wr.YBorn;
-//        wp.bornQ    = wr.QBorn / 1e05; // from bar-1 to Pa-1
-//        wp.bornX    = wr.XBorn;
-
-//        eps   = wr.Dielw;
-//        xborn = wr.XBorn;
-//        yborn = wr.YBorn;
-//        qborn = wr.QBorn;
-//    }
-
-    wp.epsilonT  = yborn * pow(eps,2.);
-    wp.epsilonTT = (xborn + 2.*eps*pow(yborn,2.)) * pow(eps,2.);
-    wp.epsilonP  = qborn * pow(eps,2.);
-
-return wp;
-}
 
 
 /* HGKcon - Constant parameters for the H2O equation of state given by
@@ -271,19 +134,12 @@ struct WaterHGKgemsConstants
     LIQICE li{};
     TPOINT tt{};
     CRITS cr{};
-    COEFS co{};
     double psat_a[8] = {};
     double ideal_c[18] = {};
-    double visc_a[4] = {};
-    double visc_b[7][6] = {};
-    double cond_aL[4] = {};
-    double cond_au[4] = {};
-    double cond_bL[5][6] = {};
-    double cond_bu[6][5] = {};
+    WaterTransportGemsConstants transport;
     double jn_a[10] = {};
     double jn_Tr = 0.0;
-    double visc_Pmax = 0.0, visc_P2 = 0.0, visc_T2 = 0.0, visc_P3 = 0.0, visc_T3 = 0.0, visc_Tmax = 0.0, cond_Pmax = 0.0, cond_P2 = 0.0, cond_T2 = 0.0, cond_P3 = 0.0, cond_T3 = 0.0, cond_Tmax = 0.0;
-    double surf_Ttripl = 0.0, surf_Tcrit = 0.0, surf_Tstar = 0.0, surf_Tcstar = 0.0, surf_v = 0.0, surf_B = 0.0, surf_stref = 0.0, born_TMAX = 0.0, born_PMAX = 0.0, trans_Tstar = 0.0, trans_Dstar = 0.0, trans_Pstar = 0.0, trans_ustar = 0.0, cond_C = 0.0, crit_T = 0.0, crit_P = 0.0;
+    double born_TMAX = 0.0, born_PMAX = 0.0;
     double jn_Dr = 0.0;
 };
 
@@ -374,47 +230,13 @@ auto readConstants(const std::map<std::string, model::Quantity>& values, const s
     one(out.cr.Ucon, "cr_Ucon");
     one(out.cr.Scon, "cr_Scon");
     one(out.cr.dPcon, "cr_dPcon");
-    list(out.co.a, "co_a");
-    list(out.co.q, "co_q");
-    list(out.co.x, "co_x");
     list(out.psat_a, "psat_a");
     list(out.ideal_c, "ideal_c");
-    list(out.visc_a, "visc_a");
-    list(out.visc_b, "visc_b");
-    list(out.cond_aL, "cond_aL");
-    list(out.cond_au, "cond_au");
-    list(out.cond_bL, "cond_bL");
-    list(out.cond_bu, "cond_bu");
     for (std::size_t i = 0; i < 10; ++i)
         out.jn_a[i] = dielectric.at("a" + std::to_string(i + 1)).value;
-    one(out.surf_Ttripl, "surf_Ttripl");
-    one(out.surf_Tcrit, "surf_Tcrit");
-    one(out.surf_Tstar, "surf_Tstar");
-    one(out.surf_Tcstar, "surf_Tcstar");
-    one(out.surf_v, "surf_v");
-    one(out.surf_B, "surf_B");
-    one(out.surf_stref, "surf_stref");
     one(out.born_TMAX, "born_TMAX");
     one(out.born_PMAX, "born_PMAX");
-    one(out.trans_Tstar, "trans_Tstar");
-    one(out.trans_Dstar, "trans_Dstar");
-    one(out.trans_Pstar, "trans_Pstar");
-    one(out.trans_ustar, "trans_ustar");
-    one(out.cond_C, "cond_C");
-    one(out.crit_T, "crit_T");
-    one(out.crit_P, "crit_P");
-    one(out.visc_Pmax, "visc_Pmax");
-    one(out.visc_P2, "visc_P2");
-    one(out.visc_T2, "visc_T2");
-    one(out.visc_P3, "visc_P3");
-    one(out.visc_T3, "visc_T3");
-    one(out.visc_Tmax, "visc_Tmax");
-    one(out.cond_Pmax, "cond_Pmax");
-    one(out.cond_P2, "cond_P2");
-    one(out.cond_T2, "cond_T2");
-    one(out.cond_P3, "cond_P3");
-    one(out.cond_T3, "cond_T3");
-    one(out.cond_Tmax, "cond_Tmax");
+    out.transport = readWaterTransportGemsConstants(values);
     out.jn_Tr = dielectric.at("Tr").value;
     out.jn_Dr = dielectric.at("Dr").value;
     return out;
@@ -477,7 +299,6 @@ WaterHGKgems::WaterHGKgems(const WaterHGKgemsConstants& constants) : k_(&constan
     li_value = k.li;
     tt_value = k.tt;
     cr_value = k.cr;
-    co_value = k.co;
     ac = &ac_value;
     nc = &nc_value;
     el = &el_value;
@@ -489,7 +310,6 @@ WaterHGKgems::WaterHGKgems(const WaterHGKgemsConstants& constants) : k_(&constan
     li = &li_value;
     tt = &tt_value;
     cr = &cr_value;
-    co = &co_value;
 }
 
 auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties wtr) -> void
@@ -497,6 +317,8 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
     int eR;
     real tempy;
     real Tk = T + 273.15;
+    saturated_ = false;
+    const double dP_in = P[1];  // the derivative of the caller's P (autodiff), before P is changed below
 
     if( T < 0.01 && T >= 0.0 ) // Deg. C!
         T = 0.01;
@@ -511,19 +333,32 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
     aSpc.ih=4;
     aSpc.itripl=1; // 1 aparent molal properties convention; 0 steam tables convention
 
+    // One saturation pressure: that of the model, the pressure that the calculation at saturation gives (HGK, LVS near the
+    // critical point). The correlation PsHGK is only its first guess; it is up to 2e-5 lower, and a P between the two was vapour.
+    // The model value is needed only near PsHGK: there it decides the branch and the phase, elsewhere PsHGK decides the same.
     if (Tk <= 647.067e0)
         aSta.Psat = PsHGK(Tk)*10;
     else
         aSta.Psat = 0;
+    if (P != 0.0 && aSta.Psat > 0.0 && fabs(P - aSta.Psat) < 1e-3 * aSta.Psat)
+        aSta.Psat = modelSaturationPressure(T, wtr);
 
-    auto diff = fabs(fabs(P) - fabs(aSta.Psat));
-
-    if( (fabs( P ) == 0) || (diff < 1e-14) )
+    // P equal to Psat is the saturation branch too, to 1e-12 relative: a Psat that went to Pa and back (the engine writes it to
+    // P, then calls again with it) differs by a few ulp.
+    if( (fabs( P ) == 0) || (fabs(P - aSta.Psat) <= 1e-12 * fabs(aSta.Psat)) )
     { // set only T, for Psat
         aSpc.isat=1;
         aSpc.iopt=1;
         aSpc.metastable = 0;
+        // At saturation P is a function of T alone, so the derivative of P of the caller is lost here. It is kept apart: the
+        // properties of the phase at P + dP follow to first order from its own volume, expansivity and compressibility
+        // (thermoPropertiesWaterHGKgems).
+        saturated_ = true;
+        dP_pass_ = real(0.0);
+        dP_pass_[1] = dP_in;
+        T_sat_ = Tk;
         P = PsHGK(Tk)*10;
+        P_sat_ = P;
     }
     else
     { //set T and P
@@ -542,7 +377,9 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
 //    aSpc.isat = 1;
 //    aSpc.iopt = 1;
 
-    memset( &wl, 0, sizeof(WPROPS));
+    pcorr_cache.valid = false;
+    liq_ = HGKPhase{};
+    vap_ = HGKPhase{};
     memset( &wr, 0, sizeof(WPROPS));
     memset( &a2, 0, sizeof(ABC2));
     memset( &a1, 0, sizeof(ABC1));
@@ -567,47 +404,15 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
     valid(aSpc.it, aSpc.id, aSpc.ip, aSpc.ih, aSpc.itripl,
           aSpc.isat, aSpc.iopt, aSpc.useLVS, aSpc.epseqn,
           aSta.Temp, &aSta.Pres, &aSta.Dens[0], &eR);
-    // chack parametres in critical region eR=1
-    crtreg(aSpc.isat, aSpc.iopt, aSpc.it, &aSta.Temp, &aSta.Pres,
-           &aSta.Dens[0], &eR);
-    if( eR )
-    {
-        aSpc.icrit  = 1;
-        aSpc.useLVS = 1;
-    }
-    else
-    {
-        aSpc.icrit  = 0;
-        aSpc.useLVS = 0;
-    }
-
-    if ( aSpc.useLVS )
-    { // calculation of thermodynamic and transport water properties
-        // in the near critical region
-        ideal(aSta.Temp);   // bugfix for Akinfiev nonelectrolyte model (TW, 16.05.2008)
-        LVSeqn(aSpc.isat, aSpc.iopt, aSpc.itripl,
-               aSta.Temp, &aSta.Pres, &aSta.Dens[0], aSpc.epseqn);
-        aSta.Dens[0] /= 1.0e3;
-        if ( aSpc.isat == 1 )
-            aSta.Dens[1] /= 1.0e3;
-
-        WPROPS tw = wl;
-        memcpy(&wl, &wr, sizeof(WPROPS));
-        if (aSta.Temp <= cr->Tc) // only below critical T we have two phases
-            memcpy(&wr, &tw, sizeof(WPROPS));
-        else
-            aSta.Dens[1] = aSta.Dens[0];
-
-        //real temp = aSta.Dens[0];
-        //aSta.Dens[0] = aSta.Dens[1];
-        //aSta.Dens[1] = temp;
-    }
-    else
-    {
-        aSta.Dens[0] /= 1.0e3;
-        HGKeqn(aSpc.isat, aSpc.iopt, aSpc.itripl,
-               aSta.Temp, &aSta.Pres, &aSta.Dens[0], aSpc.epseqn);
-    }
+    // T to K, P to MPa (crtreg did it). The region near the critical point is the method WaterLVS83.
+    aSta.Temp = TdegK(aSpc.it, aSta.Temp);
+    if (aSpc.iopt == 2)
+        aSta.Pres /= un.fp;
+    aSpc.icrit  = 0;
+    aSpc.useLVS = 0;
+    aSta.Dens[0] /= 1.0e3;
+    HGKeqn(aSpc.isat, aSpc.iopt, aSpc.itripl,
+           aSta.Temp, &aSta.Pres, &aSta.Dens[0], aSpc.epseqn);
 
 //    prop_solvent = load(0);
 //    if (aSpc.isat == 1)
@@ -627,9 +432,29 @@ auto WaterHGKgems::calculateWaterHGKgems(real T, real &P, WaterTripleProperties 
         aSta.Dens[0] /= un.fd;
         aSta.Dens[1] /= un.fd;
     }
-//    P = aSta.Pres;
-//    aWp.init = true;
+    if (aSpc.isat == 1)
+    {
+        // HGK alone has no usable saturation in the last kelvin below its critical point (its liquid there lies on the
+        // spinodal); SUPCRT92 and GEMS use the equation of Levelt Sengers et al. from 643 K
+        if (!std::isfinite(aSta.Pres.val()))
+        {
+            Exception exception;
+            exception.error << "WaterHGK84 (gems): no saturation pressure at " << Tk.val() << " K.";
+            exception.reason << "Near the critical point the HGK equation has no usable saturation. List the method WaterLVS83 before WaterHGK84 in the record, as SUPCRT92 and GEMS do.";
+            exception.line = __LINE__;
+            RaiseError(exception);
+        }
+        P = aSta.Pres;  // the saturation pressure of the model
+    }
 
+}
+
+auto WaterHGKgems::modelSaturationPressure(real T, WaterTripleProperties wtr) const -> real
+{
+    WaterHGKgems saturation(*k_);
+    real P = 0.0;
+    saturation.calculateWaterHGKgems(T, P, wtr);
+    return P;
 }
 
 auto WaterHGKgems::unit(int it, int id, int ip, int ih, int itripl, WaterTripleProperties wtr) ->void
@@ -737,309 +562,6 @@ auto WaterHGKgems::valspc(int it, int id, int ip, int ih, int itripl,
         return(0);
     return(1);
 }
-
-//--------------------------------------------------------------------//
-/* Pfind - Return P(T,D) if OK and -1 - if error
-*          Calculated (dP/dD)T  when  invoked by Dfind
-*          (isat=0)  and  (dP/dT)D  when  invoked  by  SUB  TsLVS
-*          (isat=1).       */
-auto  WaterHGKgems::Pfind(int isat, real T, real DD) -> real
-{
-    real err=0.;
-    real  /* sd[2],*/ Pw0, Pw1, Pw2, Pw3,  am1, am2, am3,
-    p00, p20, p40, p01, p21, p41, aa, xk0, xk1, pw11, alpha,
-    alhi, besq, Tee, rho, rhodi=0., rho1=0., tt1, tt2, Pwmu,
-                                         dPw0, dPw1, dPw, Pfind, Uw, dPdTcd, dPwdTw, Cvcoex=0.;
-    /*  real amc */
-
-    Pw1  = co->a[4];
-    Pw2  = co->a[3];
-    Pw3  = co->a[1];
-    /* amc  = co->a[12]; */
-    am1  = co->a[13];
-    am2  = co->a[14];
-    am3  = co->a[15];
-    p00  = co->q[10];
-    p20  = co->q[11];
-    p40  = co->q[12];
-    p01  = co->q[17];
-    p21  = co->q[18];
-    p41  = co->q[19];
-    aa   = co->a[9];
-    xk0  = co->a[6];
-    xk1  = co->a[11];
-    pw11 = co->q[8];
-    alpha= co->q[9];
-    alhi = co->q[14];
-    besq = co->a[8];
-
-    dv.xk[0] = xk0;
-    dv.xk[1] = xk1;
-
-    if (fabs(T - cr->Tc) < to->FPTOL)
-        T = cr->Tc;
-    Tee     = (T - cr->Tc) / cr->Tc;
-    dv.Tw  = - cr->Tc / T;
-    dv.dTw = 1.0 + dv.Tw;
-    if ( !isat )
-    {                           /* when isat == 0 */
-        rho = DD / cr->rhoC;
-        conver(&rho, Tee, rho1, &rhodi, err);
-    }
-    else
-    {                           /* when isat == 1 */
-        par.th1 = -1.0;
-        a2.th  = par.th1;
-        par.r1  = dv.dTw / (1.0 - besq);
-        a2.r   = par.r1;
-
-        ss(par.r1, par.th1, dv.s, dv.sd);
-        rho = par.th1 * (xk0 * pow(par.r1, co->a[5]) +
-                         xk1 * pow(par.r1, co->q[15])) + co->a[0] * (dv.s[0] + dv.s[1]);
-        rho += 1.0 + pw11 * dv.dTw;
-        dv.amu = 0.0;
-        DD = rho * cr->rhoC;
-    }
-    tt1 = par.th1 * par.th1;
-    tt2 = tt1*tt1;
-    Pw0  = 1.0 + dv.dTw * (Pw1 + dv.dTw * (Pw2 + dv.dTw * Pw3));
-    if ( !isat )
-        Pwmu = dv.amu * rhodi;              /* when isat == 0 */
-    else
-        Pwmu = 0.0;                          /* when isat == 1 */
-    dv.p0th = p00 + p20 * tt1 + p40 * tt2;
-    dv.p1th = p01 + p21 * tt1 + p41 * tt2;
-    dPw0 = xk0 * dv.p0th * pow(par.r1,(2.0 - alpha));
-    dPw1 = xk1 * dv.p1th * pow(par.r1,(2.0 - alhi));
-    dPw  = aa * (dPw0 + dPw1);
-    dv.Pw   = Pw0 + Pwmu + dPw;
-    Pfind = dv.Pw * cr->Pcon * T;
-    if (fabs(par.th1) < 1.0)
-        sa.iphase = 1;
-    else
-    {
-        sa.iphase = 2;
-        dv.dP0dT = Pw1 + dv.dTw * (2.0 * Pw2 + 3.0 * Pw3 * dv.dTw);
-        dv.dM0dT = am1 + dv.dTw * (2.0 * am2 + 3.0 * am3 * dv.dTw);
-        Uw = dv.dP0dT - rho * dv.dM0dT + pw11 * dv.amu + dv.s[0] + dv.s[1];
-        dPdTcd = Uw + rho * dv.dM0dT;
-        dPwdTw = dv.Pw - dv.Tw * dPdTcd;
-        d2.dPdT   = cr->Pcon * dPwdTw;
-    }
-
-    aux(par.r1, par.th1, &dv.d2PdT2, &dv.d2PdMT, &dv.d2PdM2,
-        aa, dv.xk, dv.sd, Cvcoex);
-    if (sa.iphase == 1)
-        d2.dPdD = cr->dPcon * DD * T / dv.d2PdM2;
-    return(Pfind);
-}
-
-//--------------------------------------------------------------------//
-/*   /coefs/ a[19], q[19], x[10]   */
-auto  WaterHGKgems::aux(real r1, real th1, real *d2PdT2, real *d2PdMT,
-                   real *d2PdM2, real aa, real *xk, real *sd, real Cvcoex) -> void
-/* xk[2], sd[2] */
-{
-    int i= -1;
-    real  sS[2], w[2], y[2], z[2], coex[2], cc, beta, besq, delta, alpha,
-    s00, s20, s01, s21, deli, ww, yy, zz, gamma, tt1, ter, g, alhi,
-    beti, gami, a1, a2, a4, f1;
-
-    cc   = co->a[0];
-    beta = co->a[5];
-    besq = co->a[8];
-    delta= co->a[10];
-    alpha= co->q[9];
-    s00  = co->a[16];
-    s20  = co->a[17];
-    s01  = co->a[18];
-    s21  = co->a[19];
-
-    deli  = 0.0;
-    sS[0]   = s00 + s20 * th1 * th1;
-    sS[1]   = s01 + s21 * th1 * th1;
-    sd[0]  = 2.0 * th1 * s20;
-    sd[1]  = 2.0 * th1 * s21;
-    ww     = 0.0;
-    yy     = 0.0;
-    zz     = 0.0;
-    gamma  = beta * (delta - 1.0);
-    tt1    = th1 * th1;
-    ter    = 2.0 * beta * delta - 1.0;
-    g      = (1.0 + (besq * ter - 3.0) * tt1 - besq * (ter - 2.0) * tt1 * tt1);
-    Cvcoex = 0.0;
-
-    while ( ++i < 2 )
-    {
-        alhi    = alpha - deli;
-        beti    = beta + deli;
-        gami    = gamma - deli;
-        if ( r1 )
-        {
-            w[i]  = (1.0 - alhi) * (1.0 - 3.0 * tt1) * sS[i] -
-                    beta * delta * (1.0-tt1) * th1 * sd[i];
-            w[i]  = (w[i] * pow(r1, -alhi)) / g;
-            w[i]  = w[i] * xk[i];
-            ww    = ww + w[i];
-            y[i]  = beti * (1.0 - 3.0 * tt1) * th1 -
-                    beta * delta * (1.0 - tt1) * th1;
-            y[i]  = (y[i] * pow(r1, beti - 1.0)) * xk[i] / g;
-            yy    = yy + y[i];
-            z[i]  = 1.0-besq*(1.0-(2.0*beti))*tt1;
-            z[i]  = (z[i]*pow(r1,-gami)) * xk[i] / g;
-            zz    = zz + z[i];
-            a1 = (beta * (delta - 3.0) - 3.0 * deli - besq * alhi * gami) /
-                 (2.0 * besq * besq * (2.0 - alhi) * (1.0 - alhi) * alhi);
-            a2 = 1 + ((beta * (delta - 3.0) - 3.0 * deli - besq * alhi
-                       * ter) / (2.0 * besq * (1.0 - alhi) * alhi));
-            a2 = -a2;
-            a4 = 1.0 + ((ter - 2.0) / (2.0 * alhi));
-            f1 = a1 + a2 + a4;
-            coex[i] = ((2.0 - alhi) * (1.0 - alhi) * pow(r1, -alhi) * f1 * xk[i]);
-            Cvcoex  += coex[i];
-        }
-        deli    = 0.5;
-    }
-    *d2PdT2 = aa * ww;
-    *d2PdMT = yy + aa * cc * ww;
-    *d2PdM2 = zz / aa + 2.0 * cc * yy + cc * cc * aa * ww;
-}
-
-//--------------------------------------------------------------------//
-/* dFdMLVS - third derivative d3P/dM3 = d(d2P/dM2)/dM of the Levelt Sengers et al. (1983) critical-region equation
- *           at constant T, with the closed forms of aux() (F = d2P/dM2 = zz/a + 2c yy + c^2 a ww, M is the field of
- *           the revised and extended linear model).
- *
- * The parametric variables are X = r (1 - b^2 th^2) (temperature-like) and H = r^(beta delta) th (1 - th^2), with the
- * Jacobian J = r^(beta delta) g(th). The thermodynamic field is M = a H and the temperature variable is mixed with
- * the field, X = dT + c M, so that d/dM (at constant T) = (1/a) d/dH + c d/dX. With
- *    d r/dH = 2 b^2 r th/J,   d th/dH = (1 - b^2 th^2)/J,
- *    d r/dX = (1 - 3 th^2)/g, d th/dX = -beta delta th (1 - th^2)/(r g)
- * and the partial derivatives of F with respect to r (pure powers of r) and th (quotients of polynomials of th)
- *    dF/dM = (1/a)(F_r r_H + F_th th_H) + c (F_r r_X + F_th th_X).                                           */
-auto WaterHGKgems::dFdMLVS(real r1, real th1) -> real
-{
-    const real cc    = co->a[0];
-    const real beta  = co->a[5];
-    const real besq  = co->a[8];
-    const real delta = co->a[10];
-    const real alpha = co->q[9];
-    const real aa    = co->a[9];
-    const real s0[2] = { co->a[16], co->a[18] };
-    const real s2[2] = { co->a[17], co->a[19] };
-    const real xk[2] = { co->a[6],  co->a[11] };
-    const real bd    = beta * delta;
-    const real gamma = beta * (delta - 1.0);
-    const real ter   = 2.0 * bd - 1.0;
-    const real tt1   = th1 * th1;
-
-    const real g   = 1.0 + (besq * ter - 3.0) * tt1 - besq * (ter - 2.0) * tt1 * tt1;
-    const real gth = 2.0 * (besq * ter - 3.0) * th1 - 4.0 * besq * (ter - 2.0) * th1 * tt1;
-
-    real Fr = 0.0, Fth = 0.0;
-    for (int i = 0; i < 2; ++i)
-    {
-        const real deli = (i == 0) ? 0.0 : 0.5;
-        const real alhi = alpha - deli;
-        const real beti = beta + deli;
-        const real gami = gamma - deli;
-
-        const real s  = s0[i] + s2[i] * tt1;
-        const real sp = 2.0 * th1 * s2[i];
-
-        // numerators of w_i, y_i, z_i of aux() and their derivatives with respect to theta
-        const real Nw  = (1.0 - alhi) * (1.0 - 3.0 * tt1) * s - bd * (1.0 - tt1) * th1 * sp;
-        const real Nwt = (1.0 - alhi) * (-6.0 * th1 * s + (1.0 - 3.0 * tt1) * sp)
-                         - bd * ((1.0 - 3.0 * tt1) * sp + (1.0 - tt1) * th1 * 2.0 * s2[i]);
-        const real Ny  = (beti - bd) * th1 + (bd - 3.0 * beti) * th1 * tt1;
-        const real Nyt = (beti - bd) + 3.0 * (bd - 3.0 * beti) * tt1;
-        const real Nz  = 1.0 - besq * (1.0 - 2.0 * beti) * tt1;
-        const real Nzt = -2.0 * besq * (1.0 - 2.0 * beti) * th1;
-
-        const real w = Nw * pow(r1, -alhi)       * xk[i] / g;
-        const real y = Ny * pow(r1, beti - 1.0)  * xk[i] / g;
-        const real z = Nz * pow(r1, -gami)       * xk[i] / g;
-        const real wt = (Nwt - Nw * gth / g) * pow(r1, -alhi)      * xk[i] / g;
-        const real yt = (Nyt - Ny * gth / g) * pow(r1, beti - 1.0) * xk[i] / g;
-        const real zt = (Nzt - Nz * gth / g) * pow(r1, -gami)      * xk[i] / g;
-
-        Fr  += (-gami * z) / (aa * r1) + 2.0 * cc * (beti - 1.0) * y / r1 - cc * cc * aa * alhi * w / r1;
-        Fth += zt / aa + 2.0 * cc * yt + cc * cc * aa * wt;
-    }
-
-    const real rbd = pow(r1, bd);
-    const real rH  = 2.0 * besq * r1 * th1 / (rbd * g);
-    const real thH = (1.0 - besq * tt1) / (rbd * g);
-    const real rX  = (1.0 - 3.0 * tt1) / g;
-    const real thX = -bd * th1 * (1.0 - tt1) / (r1 * g);
-
-    return (Fr * rH + Fth * thH) / aa + cc * (Fr * rX + Fth * thX);
-}
-
-//--------------------------------------------------------------------//
-/* denLVS - Calculatin DH2O(T,P) or Dvap,Dliq(T,P) for equation
-*           of state Levelt Sengers, et al (1983)             */
-auto WaterHGKgems::denLVS(int isat, real T, real P) -> void
-{
-    int i=-1;
-    real  /*s[2], sd[2],*/ Pnext, Pdif, delD, Dmin, Dmax, pw11,
-    xk0, xk1, Tw, dTw, rho1, rho2;
-
-    /*  EQUIVALENCE (Dmin, x(4)), (Dmax, x(5)), (pw11, q(9)),
-        1            (xk0,  a(7)), (xk1,  a(12))  */
-
-    Dmin =  co->x[3];
-    Dmax =  co->x[4];
-    pw11 =  co->q[8];
-    xk0  =  co->a[6];
-    xk1  =  co->a[11];
-
-    if (isat == 0)
-    {
-        sa.DH2O = cr->rhoC;
-        while (++i < 20 )
-        {
-            Pnext = Pfind(isat, T, sa.DH2O);
-            Pdif  = Pnext - P;
-            if (sa.iphase == 2)
-            {
-                if (fabs(Pdif) <= 0.0e0)
-                    return;
-
-                if (Pdif < 0.0e0)
-                    sa.DH2O = Dmax;
-                else
-                    sa.DH2O = Dmin;
-            }
-            else
-            {
-                delD = -Pdif / d2.dPdD;
-                sa.DH2O +=  delD;
-                if (sa.DH2O < Dmin)
-                    sa.DH2O = Dmin;
-                if (sa.DH2O > Dmax)
-                    sa.DH2O = Dmax;
-                if (fabs(delD / sa.DH2O) < 1.0e-6)
-                    return;
-            }
-        }
-    }
-    else
-    {
-        Tw   = - cr->Tc / T;
-        dTw  = 1.0e0 + Tw;
-
-        ss(par.r1, par.th1, dv.s, dv.sd);
-        rho1 = 1.0e0 + pw11 * dTw + co->a[0] * (dv.s[0] + dv.s[1]);
-        rho2 = xk0 * pow(par.r1, co->a[5]) + xk1 * pow(par.r1, co->q[15]);
-        sa.Dvap = cr->rhoC * (rho1 - rho2);
-        sa.Dliq = cr->rhoC * (rho1 + rho2);
-    }
-}
-
-//--------------------------------------------------------------------//
-// Calculated equation P(T) see Washburn (1924): Monthly Weather Rev.,
-// v.52,   pp.488-490.
 auto WaterHGKgems::Psublm(real Temp) -> real
 {
     real TT, PmmHg, Psublm;
@@ -1055,11 +577,9 @@ auto WaterHGKgems::Psublm(real Temp) -> real
 //--------------------------------------------------------------------//
 int  WaterHGKgems::valTD(real T, real D, int /*isat*/, int epseqn)
 {
-    int istemp;
-    real TmnLVS, Tcrit, Ttripl, Dlimit, Tk, /* Ps, Dl, Dv, */
+    real Tcrit, Ttripl, Dlimit, Tk, /* Ps, Dl, Dv, */
     /*P,*/ PMPa, Dguess, Dsublm, dPdD;
 
-    TmnLVS= co->x[0];
     if ((T - to->FPTOL > hb->Ttop) || (T + to->FPTOL < hb->Tbtm) ||
             (D - to->FPTOL > hb->Dtop) || (D + to->FPTOL < hb->Dbtm))
         return(0);
@@ -1078,20 +598,8 @@ int  WaterHGKgems::valTD(real T, real D, int /*isat*/, int epseqn)
             if (T >= Ttripl)
             {
                 Tk = T + 273.15e0;
-                if (Tk < TmnLVS)
-                {
-                    a1.rt = ac->gascon * Tk;
-                    pcorr(0,Tk,&trp.Ps,&trp.Dl,&trp.Dv,epseqn);
-                }
-                else
-                {
-                    istemp = 1;
-                    sa.DH2O = 0.0e0;
-                    trp.P    = Pfind(istemp, Tk, sa.DH2O);
-                    denLVS(istemp, Tk, trp.P);
-                    trp.Dv = sa.Dvap / 1.0e3;
-                    trp.Dl = sa.Dliq / 1.0e3;
-                }
+                a1.rt = ac->gascon * Tk;
+                pcorr(0,Tk,&trp.Ps,&trp.Dl,&trp.Dv,epseqn);
                 if ((D >= trp.Dv) && (D <= trp.Dl))
                     aSpc.isat = 1; //isat = 1;
             }
@@ -1162,628 +670,6 @@ auto  WaterHGKgems::valTP(real T, real P) -> int
     }
     return(1);
 }
-
-
-//--------------------------------------------------------------------//
-// Check parametres of state H2O in critical region *eR=1 if yes, else *eR=0
-// T,P, D insert in users units, returned in degK, MPa, kg/m3.
-auto WaterHGKgems::crtreg(int isat, int iopt, int it, real *T, real *P,
-                     real *D, int *eR) -> void
-{
-    int isat1;
-    real Tmin1, Tmin2, Tmax, Dmin, Dmax, Pbase1,
-    Pbase2, PTmins, PTmaxs, Pstest, ddummy,/* crtreg,*/
-    Pmin, Pmax;
-    /*    EQUIVALENCE (Tmin1,  x(1)),  (Tmin2, x(2)),  (Tmax,  x(3)),
-       1            (Dmin,   x(4)),  (Dmax,  x(5)),
-       2            (Pbase1, x(6)),  (Pbase2,x(7)),
-       3            (PTmins, x(10)), (PTmaxs,x(11)) */
-    Tmin1=  co->x[0];
-    Tmin2= co->x[1];
-    Tmax=  co->x[2];
-    Dmin=  co->x[3];
-    Dmax=  co->x[4];
-    Pbase1= co->x[5];
-    Pbase2= co->x[6];
-    PTmins= co->x[9];
-    PTmaxs= co->x[10];
-
-    *T = TdegK(it, *T);     /* � ��ନ�㥬 T � degK */
-
-    if (isat == 0)
-    {
-        if (iopt == 1)
-        {
-            *D *= un.fd * 1.0e3;
-            if ( !( (*T >= Tmin1) && (*T <= Tmax) && (*D >= Dmin) && (*D <= Dmax) ))
-            {
-                *eR = 0;
-                return;
-            }
-        }
-        else
-        {
-            *P /= un.fp;
-            if ((*T < Tmin1) || (*T > Tmax))
-            {
-                *eR = 0;
-                return;
-            }
-            else
-            {
-                Pmin = Pbase1 + PTmins * (*T - Tmin1);
-                Pmax = Pbase2 + PTmaxs * (*T - Tmin2);
-                if ((*P >= Pmin) && (*P <= Pmax))
-                {
-                    *eR = 1;
-                    return;
-                }
-                else
-                {
-                    if ((*P >= Pmin) && (*T <= Tmin2))
-                    {
-                        isat1 = 1;
-                        ddummy = 0.0e0;
-                        Pstest = Pfind(isat1, *T, ddummy);
-                        if ( !(*P <= Pstest))
-                        {
-                            *eR = 0;
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        *eR = 0;
-                        return;
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if (iopt == 1)
-        {
-            if ( !(*T >= Tmin1))
-            {
-                *eR = 0;
-                return;
-            }
-        }
-        else
-        {
-            *P /= un.fp;
-            if ( !(*P >= Pbase1))
-            {
-                *eR = 0;
-                return;
-            }
-        }
-    }
-    *eR = 1;
-}
-
-//--------------------------------------------------------------------//
-// T - ���������
-auto WaterHGKgems::TsLVS(int isat, real Pres) -> real
-{
-    real TsLVS2, TsLVS, Dn, Pnext, dT;
-    int i = 0;
-    TsLVS2 = cr->Tc - 1.0e0;
-    Dn     = cr->rhoC;
-    do
-    {
-        Pnext = Pfind(isat, TsLVS2, Dn);
-        dT = (Pnext - Pres) / d2.dPdT;
-        TsLVS2 -= dT;
-        if (TsLVS2 > cr->Tc)
-            TsLVS2 = cr->Tc;
-    }
-    while( (++i > 20) || ( fabs(dT / TsLVS2) > 1.0e-8 ));
-    TsLVS = TsLVS2;
-    return(TsLVS);
-}
-
-//--------------------------------------------------------------------//
-// backup - save COMMON values Pfind during saturation check).
-auto WaterHGKgems::backup( struct STORE &sto ) -> void
-{
-    sto.isav1 = sa.iphase;
-    sto.sav2  = par.r1;
-    sto.sav3  = par.th1;
-    sto.sav4  = dv.amu;
-    sto.sav5  = dv.s[0];
-    sto.sav6  = dv.s[1];
-    sto.sav7  = dv.Pw;
-    sto.sav8  = dv.Tw;
-    sto.sav9  = dv.dTw;
-    sto.sav10 = dv.dM0dT;
-    sto.sav11 = dv.dP0dT;
-    sto.sav12 = dv.d2PdM2;
-    sto.sav13 = dv.d2PdMT;
-    sto.sav14 = dv.d2PdT2;
-    sto.sav15 = dv.p0th;
-    sto.sav16 = dv.p1th;
-    sto.sav17 = dv.xk[0];
-    sto.sav18 = dv.xk[1];
-    sto.sav19 = d2.dPdD;
-}
-
-//--------------------------------------------------------------------//
-// restor - Restore COMMON  values Pfind after saturation check.
-auto WaterHGKgems::restor( struct STORE sto ) -> void
-{
-    sa.iphase = sto.isav1;
-    par.r1     = sto.sav2;
-    par.th1    = sto.sav3;
-    dv.amu    = sto.sav4;
-    dv.s[0]   = sto.sav5;
-    dv.s[1]   = sto.sav6;
-    dv.Pw     = sto.sav7;
-    dv.Tw     = sto.sav8;
-    dv.dTw    = sto.sav9;
-    dv.dM0dT  = sto.sav10;
-    dv.dP0dT  = sto.sav11;
-    dv.d2PdM2 = sto.sav12;
-    dv.d2PdMT = sto.sav13;
-    dv.d2PdT2 = sto.sav14;
-    dv.p0th   = sto.sav15;
-    dv.p1th   = sto.sav16;
-    dv.xk[0]  = sto.sav17;
-    dv.xk[1]  = sto.sav18;
-    d2.dPdD   = sto.sav19;
-}
-
-//--------------------------------------------------------------------//
-/* LVSsat - if isat=1, calculated Psat(T) or Tsat(P) (iopt=1,2).
-*           if isat=0, check T-D or T-P (iopt=1,2) into TOL
-*           if yes    isat <- 1  and  T <- Tsat.                  */
-auto WaterHGKgems::LVSsat(int iopt, int isat, real *T, real *P, real *D)  -> void
-{
-    real   ERRTOL= 1.0e-12, TCTOL = 1.0e-2, Tsat;
-    struct STORE sto; /*  backup() or restor() */
-    if (isat == 1)
-    {
-        if (iopt == 1)
-            *P = Pfind(isat, *T, *D);
-        *T = TsLVS(isat, *P);
-    }
-    else
-    {
-        if (iopt == 1)
-            *P = Pfind(isat, *T, *D);
-        if ( !(*P-ERRTOL > cr->Pc))
-        {
-            backup( sto );
-            Tsat = TsLVS(isat, *P);
-            if (fabs(Tsat - *T) < TCTOL)
-            {
-                *T = Tsat;
-                aSpc.isat = isat = 1;
-            }
-            else
-                restor( sto );
-        }
-    }
-}
-
-//--------------------------------------------------------------------//
-//thmLVS - calculation thermodinamic and transport fitches in critical
-//       region H2O on equations of state Levelt Sengers, et al (1983).
-auto WaterHGKgems::thmLVS(int isat, real T, real r1, real th1)  -> void
-{
-    /* real  sd[2];*/
-    real pw1, pw11, pw2, pw3, amc, am1, am2, am3, aa, Hw, dPwdTw,
-    dPdTal,/* xk0, xk1,*/ d2P0dT, d2M0dT, dPdT2, rho, Uw, Cvcoex=0.,
-            CviTw2, Cvw, Cpw, Sw, Scond;
-    /* real alhi, besq, alpha; */
-
-    pw2  = co->a[3];
-    pw3  = co->a[1];
-    /*  besq = co->a[8]; */
-    amc  = co->a[12];
-    am1  = co->a[13];
-    am2  = co->a[14];
-    aa   = co->a[9];
-    dv.xk[0]  = co->a[6];
-    am3  = co->a[15];
-    dv.xk[1]  = co->a[11];
-    pw11 = co->q[8];
-    /*  alpha= co->q[9]; */
-    /* alhi = co->q[14]; */
-    pw1  = co->a[4];
-
-    d2P0dT = 2.0 * pw2 + 6.0 * pw3 * dv.dTw;
-    d2M0dT = 2.0 * am2 + 6.0 * am3 * dv.dTw;
-    dv.dP0dT  = pw1 + dv.dTw * (2.0 * pw2 + 3.0 * pw3 * dv.dTw);
-    dv.dM0dT  = am1 + dv.dTw * (2.0 * am2 + 3.0 * am3 * dv.dTw);
-    if (isat == 0)
-    {
-        rho = sa.DH2O / cr->rhoC;
-        Uw  = dv.dP0dT - rho * dv.dM0dT + pw11 * dv.amu +
-              dv.s[0] + dv.s[1];
-    }
-    else
-    {
-        rho  = th1 * ( dv.xk[0] * pow(r1,co->a[5]) + dv.xk[1] *
-                       pow(r1,co->q[15])) + co->a[0] * (dv.s[0] + dv.s[1]);
-        rho += 1.0 + pw11 * dv.dTw;
-        Uw   = dv.dP0dT - rho * dv.dM0dT + pw11 * dv.amu +
-               dv.s[0] + dv.s[1];
-        sa.DH2O = rho * cr->rhoC;
-        dPdT2    = dv.Pw - dv.Tw * (Uw + rho * dv.dM0dT);
-        th.heat = 1.0e3 * T * (cr->Pcon * dPdT2) * (1.0 / sa.Dvap -
-                  1.0 / sa.Dliq);
-
-        ss(r1, th1, dv.s, dv.sd);
-        aux(r1,th1, &dv.d2PdT2, &dv.d2PdMT, &dv.d2PdM2, aa,
-            dv.xk, dv.sd, Cvcoex);
-        if (r1 != 0.0)
-            d2.dPdD = cr->dPcon * sa.DH2O * T / dv.d2PdM2;
-    }
-    if (r1 != 0.0)
-    {
-        a1.dPdTcd = dv.dP0dT + pw11 * (dv.amu -rho / dv.d2PdM2) +
-                    dv.s[0] + dv.s[1] - dv.d2PdMT * rho / dv.d2PdM2;
-        dPwdTw = dv.Pw - dv.Tw * a1.dPdTcd;
-        dPdTal = cr->Pcon * dPwdTw;
-        CviTw2 = d2P0dT - rho * d2M0dT + dv.d2PdT2 -
-                 (pw11 + dv.d2PdMT) * (pw11 + dv.d2PdMT) / dv.d2PdM2;
-        Cvw    = CviTw2 * dv.Tw * dv.Tw;
-        Cpw    = Cvw + dv.d2PdM2 * dPwdTw * dPwdTw / (rho * rho);
-        th.betaw  = 1.0 / (sa.DH2O * d2.dPdD);
-        th.alphw  = th.betaw * dPdTal;
-        // Gamma = rho P_rhorho / P_rho = 1 - rho (dF/dM)/F^2 with F = d2P/dM2 (= d rho/dM) and rho reduced
-        th.gamw   = 1.0 - rho * dFdMLVS(r1, th1) / (dv.d2PdM2 * dv.d2PdM2);
-        th.Speed   = 1.0e3 * sqrt(Cpw / Cvw * d2.dPdD);
-    }
-    else
-    {
-        Cvw   = 1.0;
-        Cpw   = 1.0;
-        th.betaw = 1.0;
-        th.alphw = 1.0;
-        th.Speed = 0.0;
-        th.gamw  = 0.0;
-    }
-    Hw = dv.Pw - dv.Tw * Uw;
-    Sw = Hw - rho * (dv.amu + amc + dv.dTw *
-                     (am1 + dv.dTw * (am2 + dv.dTw * am3)));
-    Scond  = cr->Scon / sa.DH2O;
-    th.U      = Uw * cr->Ucon / sa.DH2O;
-    th.H      = Hw * Scond * T;
-    th.Entrop = Sw * Scond;
-    th.AE     = th.U - T * th.Entrop;
-    th.GE     = th.H - T * th.Entrop;
-    th.Cv     = Cvw * Scond;
-    th.Cp     = Cpw * Scond;
-}
-
-/* *************************************************************** */
-/*  dalLVS - Calc and return  (d(alpha)/dt)p(D,T,alpha) for equation
-*            of state Levelt Sengers et al. (1983).
-*            Comments:  D (kg/m**3),  T (degK),  P (MPa),
-*                         alpha (degK**-1).                        */
-auto WaterHGKgems::dalLVS(real D, real T, real P, real alpha) -> real
-{
-    int  i=-1;
-    real s[2], dsdT[2], sp[2], dspdT[2], k[2], calpha[2], cbeta[2],
-    cgamma[2], u[2], v[2], w[2], dudT[2], dvdT[2], dwdT[2];
-    real dalLVS, a, c, delta, bsq, P11, Delta1, P2, P3, s00, s01, s20,
-    s21, b1, b2, ar1, a01, ar2, a02, delT, q, amult, d0dT, drdT,
-    dqdT, dP0dTT, ddelMT, dPdTT, dPdMMT, dPdMTT, dPPTT, pterm;
-    /* real P1; */
-
-    a     = co->a[9];
-    c     = co->a[0];
-    delta = co->a[10];
-    bsq   = co->a[8];
-    P11   = co->q[8];
-    Delta1= co->q[13];
-    /* P1    = co->a[4]; */
-    P2    = co->a[3];
-    P3    = co->a[1];
-    s00   = co->a[16];
-    s01   = co->a[18];
-    s20   = co->a[17];
-    s21   = co->a[19];
-
-    if (a2.r == 0.0)
-    {
-        dalLVS = 1.0e6;
-        return(dalLVS);
-    }
-
-    k[0]      = co->a[6];
-    k[1]      = co->a[11];
-    calpha[0] = co->q[9];
-    calpha[1] = co->q[14];
-    cbeta[0]  = co->a[5];
-    cbeta[1]  = co->q[15];
-    cgamma[0] = cbeta[0] * (delta - 1.0);
-    cgamma[1] = cgamma[0] - Delta1;
-    delT      = (T - cr->Tc) / T;
-    s[0]      = s00 + s20 * pow(a2.th,2.);
-    s[1]      = s01 + s21 * pow(a2.th,2.);
-    sp[0]     = 2.0 * s20 * a2.th;
-    sp[1]     = 2.0 * s21 * a2.th;
-    /* ********************************************************************* */
-    /* Compute drdT and d0dT from solution of the linear system              */
-    /*                      ax = b                                           */
-    /* d(dPdM)/dT = -D/Dc*alpha - P11*Tc/pow(T,2) = ar1*drdT + a01*d0dT = b1 */
-    /* d(delT)/dT =           Tc/pow(T,2)         = ar2*drdT + a02*d0dT = b2 */
-    /* ********************************************************************* */
-
-    b1 = -D / cr->rhoC * alpha - P11 * cr->Tc / T / T;
-    b2 =  cr->Tc / pow(T,2.);
-
-    ar1 = 0.0;
-    a01 = 0.0;
-
-    while(++i < 2 )
-    {
-        ar1 = ar1 + k[i] * (cbeta[i] * a2.th * pow(a2.r,(cbeta[i]-1.0)) +
-                            a * c * (1.0 - calpha[i]) * pow(a2.r,-calpha[i]) * s[i]);
-        a01 = a01 + k[i] * (pow(a2.r,cbeta[i]) + a * c * sp[i] *
-                            pow(a2.r,(1.0-calpha[i])));
-    }
-    ar2 = 1.0 - bsq * pow(a2.th,2.) - a * c * cbeta[0] * delta *
-          (1.0 - pow(a2.th,2.)) * a2.th * pow(a2.r,(cbeta[0] * delta - 1.0));
-    a02 = 3.0 * a * c * pow(a2.th,2.) * pow(a2.r,cbeta[0] * delta) -
-          2.0 * bsq * a2.r * a2.th - a * c * pow(a2.r,cbeta[0] * delta);
-    /********************************************************************/
-    /* solve the linear system with simplistic GE w/ partial pivoting  */
-    /********************************************************************/
-    if (fabs(ar1) > fabs(ar2))
-    {
-        amult = -ar2 / ar1;
-        d0dT  = (b2 + amult * b1) / (a02 + amult * a01);
-        drdT  = (b1 - a01 * d0dT) / ar1;
-    }
-    else
-    {
-        amult = -ar1 / ar2;
-        d0dT  = (b1 + amult * b2) / (a01 + amult * a02);
-        drdT  = (b2 - a02 * d0dT) / ar2;
-    }
-    /********************************************************************/
-    /*   Compute theta polynomials and their tempertaure derivatives  */
-    dsdT[0]   = 2.0 * s20 * a2.th * d0dT;
-    dsdT[1]   = 2.0 * s21 * a2.th * d0dT;
-    dspdT[0]  = 2.0 * s20 * d0dT;
-    dspdT[1]  = 2.0 * s21 * d0dT;
-    q    = 1.0 + (bsq * (2.0 * cbeta[0] * delta - 1.0) - 3.0) *
-           pow(a2.th,2.) - bsq * (2.0 * cbeta[0] * delta - 3.0)
-           * pow(a2.th,4.);
-    dqdT = 2.0 * (bsq * (2.0 * cbeta[0] * delta - 1.0) - 3.0) *
-           a2.th * d0dT - 4.0 * bsq * (2.0 * cbeta[0] * delta -
-                                       3.0) * pow(a2.th,3.) * d0dT;
-    i=-1;
-    while(++i < 2)
-    {
-        u[i]    = (1.0 - bsq * (1.0 - 2.0 * cbeta[i]) * pow(a2.th,2.)) / q;
-        dudT[i] = (-2.0 * bsq * (1.0 - 2.0 * cbeta[i]) * a2.th * d0dT -
-                   u[i] * dqdT) / q;
-        v[i]    = ((cbeta[i] - cbeta[0] * delta) * a2.th +
-                   (cbeta[0] * delta - 3.0 * cbeta[i]) * pow(a2.th,3.)) / q;
-        dvdT[i] = ((cbeta[i] - cbeta[0] * delta) * d0dT +
-                   3.0 * (cbeta[0] * delta - 3.0 * cbeta[i]) *
-                   pow(a2.th,2.) * d0dT - v[i] * dqdT) / q;
-        w[i]    = ((1.0 - calpha[i]) * (1.0 - 3.0 * pow(a2.th,2.)) *
-                   s[i] - cbeta[0] * delta * (a2.th - pow(a2.th,3.)) *
-                   sp[i]) / q;
-        dwdT[i] = ((1.0 - calpha[i]) * ((1.0 - 3.0 * pow(a2.th,2.)) *
-                                        dsdT[i] - 6.0 * a2.th * s[i] * d0dT) - cbeta[0] *
-                   delta * ((a2.th - pow(a2.th,3.)) * dspdT[i] + sp[i] *
-                            (d0dT - 3.0 * pow(a2.th,2.) * d0dT)) - w[i] * dqdT) / q;
-    }
-    /***************************************************************/
-    /*   Compute dP0dTT, ddelMT, dPdTT, dPdMMT, dPdMTT, dPPTT      */
-
-    dP0dTT = cr->Tc / pow(T,2.) * (2.0* P2 + 6.0 * P3 * delT);
-    ddelMT = a * pow(a2.r,cbeta[0]*delta) * (cbeta[0]* delta *
-             a2.th / a2.r * (1.0 - pow(a2.th,2.)) * drdT +
-             (1.0 - 3.0 * pow(a2.th,2.)) * d0dT);
-    dPdTT  = 0.0;
-    dPdMMT = 0.0;
-    dPdMTT = 0.0;
-    i=-1;
-    while (++i < 2)
-    {
-        dPdTT  = dPdTT + a * k[i] * (pow(a2.r,(1.0 - calpha[i])) *
-                                     dsdT[i] + s[i] * (1.0 - calpha[i]) *
-                                     pow(a2.r,-calpha[i]) * drdT);
-        dPdMMT = dPdMMT + k[i] * ((pow(a2.r,(-cgamma[i])) * dudT[i] -
-                                   u[i] * cgamma[i] * pow(a2.r,(-1.0 - cgamma[i])) * drdT) /
-                                  a + 2.0 * c * (pow(a2.r,(cbeta[i] - 1.0)) * dvdT[i] +
-                                                 v[i] * (cbeta[i] - 1.0) * pow(a2.r,(cbeta[i] - 2.0)) * drdT)
-                                  + a * pow(c,2.) * (pow(a2.r,(-calpha[i])) * dwdT[i] -
-                                                     calpha[i] * w[i] * pow(a2.r,(-1.0 - calpha[i])) * drdT));
-        dPdMTT = dPdMTT + k[i] * (pow(a2.r,(cbeta[i] - 1.0)) * dvdT[i] +
-                                  v[i] * (cbeta[i] - 1.0) * pow(a2.r,(cbeta[i] - 2.0)) *
-                                  drdT + a * c * (pow(a2.r,(-calpha[i])) * dwdT[i] -
-                                                  calpha[i] * pow(a2.r,(-1.0 - calpha[i])) * drdT * w[i]));
-    }
-    dPPTT = dP0dTT + dPdTT + P11 * ddelMT - D / cr->rhoC * dPdMTT /
-            dv.d2PdM2 + (P11 + dv.d2PdMT) * (D / cr->rhoC * alpha /
-                                             dv.d2PdM2 + D / cr->rhoC * dPdMMT / pow(dv.d2PdM2,2.));
-    pterm = P / cr->Pc + a1.dPdTcd;
-
-    /*          compute (d(alpha)/dT)P              */
-    dalLVS  = cr->Tc * pow(cr->rhoC,2.) / pow(D,2.) / pow(T,2.) *
-              (-2.0 / T * dv.d2PdM2 * pterm + 2.0 * alpha *
-               dv.d2PdM2 * pterm + pterm * dPdMMT + dv.d2PdM2 * dPPTT);
-    return(dalLVS);
-}
-
-//--------------------------------------------------------------------//
-// translate parametrs into users units and load they into tprops.
-auto WaterHGKgems::dimLVS(int isat, int itripl, real theta, real T, real *Pbars,
-                     real *dL, real *dV, WPROPS *www, int epseqn) -> void
-{
-    real CpJKkg, betaPa, betab, dkgm3, pbars;
-    pbars = *Pbars * 1.0e1;
-    if (isat == 1)
-    {
-        *dV   = sa.Dvap;
-        *dL   = sa.Dliq;
-    }
-    www->Aw = th.AE * un.fh;
-    www->Gw  = th.GE * un.fh;
-    www->Sw  = th.Entrop * un.fh * un.ft;
-    www->Uw  = th.U * un.fh;
-    www->Hw  = th.H * un.fh;
-    www->Cvw = th.Cv * un.fh * un.ft;
-    www->Cpw = th.Cp * un.fh * un.ft;
-    www->Speedw = th.Speed * un.fs;
-    www->Betaw = th.betaw / un.fp;
-    www->Alphaw = th.alphw;
-    www->Gamw = th.gamw;
-    /**************************************************************/
-    a2.th = theta;
-    www->dAldT = dalLVS(sa.DH2O,T, pbars/1.0e1,www->Alphaw); /*!!!!!*/
-    /**************************************************************/
-    CpJKkg  = th.Cp * 1.0e3;
-    betaPa  = th.betaw / 1.0e6;
-    betab   = th.betaw / 1.0e1;
-
-    if (fabs(theta) != 1.0e0)
-    {
-        dkgm3 = sa.DH2O;
-        www->Surtenw = 0.0e0;
-    }
-    else
-    {
-        if (theta < 0.0e0)
-        {
-            dkgm3 = sa.Dvap;
-            www->Surtenw = 0.0e0;
-        }
-        else
-        {
-            dkgm3 = sa.Dliq;
-            www->Surtenw = surten(T) * un.fst;
-        }
-    }
-    Born92(T, pbars, dkgm3/1.0e3, betab, &www->Alphaw,
-           &www->dAldT, &www->Dielw, &www->ZBorn,
-           &www->QBorn, &www->YBorn, &www->XBorn, epseqn);
-    www->Viscw  = viscos(T, pbars, dkgm3, betaPa) * un.fvd;
-    www->Tcondw = thcond(T, pbars, dkgm3, www->Alphaw, betaPa) *
-                  un.fc * un.ft;
-    www->Tdiffw = www->Tcondw / un.fc / un.ft / (dkgm3 * CpJKkg) *
-                  un.fvk;
-    www->Prndtlw= www->Viscw / un.fvd * CpJKkg /
-                  (www->Tcondw / un.fc / un.ft);
-    www->Visckw = www->Viscw / un.fvd / dkgm3 * un.fvk;
-    www->Albew = www->Alphaw / www->Betaw;
-
-    if (itripl == 1)
-        triple(T, www);
-}
-
-//--------------------------------------------------------------------//
-//cpswap - load critical parametres A, G, U, H, S, Vs, Di,ZB
-//from wpliq to wprops and aprocsimaze values - Cv, Cp, alpha, beta, visc,
-//tcond, Prndtl, tdiff, visck, YB, QB, XB, daldT, st �� wprops � wpliq.
-auto WaterHGKgems::cpswap() -> void
-{
-    wr.Aw     = wl.Aw;
-    wr.Gw     = wl.Gw;
-    wr.Sw     = wl.Sw;
-    wr.Uw     = wl.Uw;
-    wr.Hw     = wl.Hw;
-    wr.Dielw  = wl.Dielw;
-    wr.ZBorn  = wl.ZBorn;
-    wr.Surtenw= wl.Surtenw;
-    wl.Cvw    = wr.Cvw;
-    wl.Cpw    = wr.Cpw;
-    wl.Alphaw = wr.Alphaw;
-    wl.Betaw  = wr.Betaw;
-    wl.YBorn  = wr.YBorn;
-    wl.QBorn  = wr.QBorn;
-    wl.XBorn  = wr.XBorn;
-    wl.Tcondw = wr.Tcondw;
-    wl.Tdiffw = wr.Tdiffw;
-    wl.Prndtlw= wr.Prndtlw;
-    wl.dAldT  = wr.dAldT;
-    wl.Albew  = wr.Albew;
-    wr.Speedw = 0.429352766443498e2 * un.fs;
-    wr.Viscw  = 1.0e6;
-    wr.Visckw = 1.0e6;
-    wl.Speedw = wr.Speedw;
-    wl.Viscw  = wr.Viscw;
-    wl.Visckw = wr.Visckw;
-}
-
-//--------------------------------------------------------------------//
-// Calculation thermodinamic and transport water fitches critical region H2O
-// ( 369.85 - 419.85  degC, 0.20-0.42 gm/cm3) see equat Levelt Sengers, et al
-// (1983): J.Phys. Chem. Ref. Data, V.12, No.1, pp.1-28.
-auto WaterHGKgems::LVSeqn(int isat, int iopt, int itripl, real TC,
-                     real *P, real *Dens0, int /*epseqn*/) -> void
-{
-    int  cpoint=0, ioptsv=0, sW=0;
-    real dL=0., dV=0., cdens=0.;
-
-    /* cpoint = 0; */
-    sa.DH2O = *Dens0;
-    do
-    {
-        LVSsat(iopt, isat, &TC, P, &sa.DH2O);
-        if ((isat != 0) || (iopt != 1))
-            denLVS(isat, TC, *P);
-        if ( !isat )
-            *Dens0 = sa.DH2O;
-        else
-        {
-            *Dens0 = sa.Dliq;
-            aSta.Dens[1] = sa.Dvap;
-        }
-        if ( !isat )
-        {
-            thmLVS(isat, TC, par.r1, par.th1);
-            dimLVS(isat, itripl, par.th1, TC, P, &dL, &dV, &wr, aSpc.epseqn);
-            /*   iRET = change(wpr, wr); */
-            if ( cpoint )
-            {
-                cpswap();
-                *Dens0 = cdens;
-                aSta.Dens[1] = cdens;
-                aSpc.isat = isat = 1;
-                aSpc.iopt = iopt = ioptsv;
-            }
-        }
-        else
-        {
-            par.th1 = -1.0e0;
-            thmLVS(isat, TC, par.r1, par.th1);
-            dimLVS(isat, itripl, par.th1, TC, P, &dL, &dV, &wr, aSpc.epseqn);
-            /*    iRET = change(wpr, wr);   */
-            par.th1 =  1.0e0;
-            thmLVS(isat, TC, par.r1, par.th1);
-            dimLVS(isat, itripl, par.th1, TC, P, &dL, &dV, &wl, aSpc.epseqn);
-            /*   iRET = change(wpl, wl); */
-            if (dL == dV)
-            {
-                cpoint = 1;
-                cdens  = dL;
-                TC =  k_->crit_T;
-                *P =  k_->crit_P;
-                ioptsv   = iopt;
-                aSpc.iopt = iopt = 2;
-                aSpc.isat = isat = 0;
-                sW=1;
-            }
-        }
-    }
-    while ( sW != 0 );
-}
-
-//--------------------------------------------------------------------//
-/* HGKsat - if isat=1, calculated Psat(T) or Tsat(P) (iopt=1,2).
-*           if isat=0, check T-D or T-P (iopt=1,2) into TOL
-*           if yes    isat <- 1  and  calc fitches                  */
 auto WaterHGKgems::HGKsat(int& isat, int iopt, int itripl, real Temp,
                      real *Pres, real *Dens, int epseqn) -> void
 {
@@ -1818,135 +704,61 @@ auto WaterHGKgems::HGKsat(int& isat, int iopt, int itripl, real Temp,
 }
 
 //--------------------------------------------------------------------//
-// Calc dependent state values
-auto WaterHGKgems::calcv3(int iopt, int itripl, real Temp, real *Pres,
-                     real *Dens, int epseqn) -> void
-{
-    real ps=0., dll=0., dvv=0., dguess;
-
-    if (iopt == 1)
-    {
-        resid(Temp, Dens);
-        base(Dens, Temp);
-        ideal(Temp);
-        *Pres  = a1.rt * *Dens * ac->zb + qq.q0;
-    }
-    else
-    {
-        if (Temp < ac->tz)
-        {
-            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
-        }
-        else
-        {
-            ps   = 2.0e4;
-            dll  = 0.0e0;
-        }
-        if (*Pres >  ps)
-            dguess = dll;
-        else
-        {
-            dguess = *Pres / Temp / 0.4e0;
-        }
-        denHGK(&aSta.Dens[0], Pres, dguess, Temp, &fct.dpdd);   /* Dens ???*/
-        ideal(Temp);
-    }
-}
-
-//--------------------------------------------------------------------//
-// Calc dependent state values
-auto WaterHGKgems::calcv2(int iopt, int itripl, real Temp, real *Pres,
-                     real *Dens, int epseqn) -> void
-{
-    real ps=0., dll=0., dvv=0., dguess;
-
-    if (iopt == 1)
-    {
-        resid(Temp, Dens);
-        base(Dens, Temp);
-        ideal(Temp);
-        *Pres  = a1.rt * *Dens * ac->zb + qq.q0;
-    }
-    else
-    {
-        if (Temp < ac->tz)
-        {
-            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
-        }
-        else
-        {
-            ps   = 2.0e4;
-            dll  = 0.0e0;
-        }
-
-        if (iopt == 3)
-        {
-            ps   = 2.0e4;
-            dll  = 0.0e0;
-        }
-//        if (*Pres >  ps)
-            dguess = dll;
-//        else
-//        {
-//            dguess = *Pres / Temp / 0.4e0;
-//        }
-        denHGK(&aSta.Dens[1], Pres, dguess, Temp, &fct.dpdd);   /* Dens ???*/
-        ideal(Temp);
-    }
-}
-
-//--------------------------------------------------------------------//
-// Calculation thermodinamic and transport H2O fitches for equation of
-// state Haar, Gallagher, & Kell (1984).
+// The properties of water at T and P by the equation of state of Haar, Gallagher and Kell (1984): the liquid and the vapour,
+// each at its own density. At saturation the densities of pcorr. Elsewhere the root of each branch from its saturated
+// density (the vapour from a nearly ideal gas), a metastable root if there is one, the other root beyond the spinodal of the
+// branch; above tz one fluid root.
 auto WaterHGKgems::HGKeqn(int isat, int iopt, int itripl, real Temp,
                      real *Pres, real *Dens0, int epseqn) -> void
 {
     a1.rt = ac->gascon * Temp;
-    HGKsat(isat, iopt, itripl, Temp, Pres, Dens0, epseqn);
-//    if (!aSpc.metastable)
-//    {
-//        if (isat == 0)
-//        {
-//            bb(Temp);
-//            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-//            thmHGK(Dens0, Temp);
-//            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-//        }
-//        else
-//        {
-//            memcpy(&wl, &wr, sizeof(WPROPS));
-//            dimHGK(2, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-//        }
-//    } else
+    bb(Temp);
+    real dl = 0.0, dv = 0.0;
+    if (isat == 1)
     {
-        bb(Temp);
-        calcv2(iopt, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-        thmHGK(&aSta.Dens[1], Temp);
-        dimHGK(isat, itripl, Temp, Pres, &aSta.Dens[1], epseqn);
-
-        memcpy(&wl, &wr, sizeof(WPROPS));
-
-        calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-        thmHGK(Dens0, Temp);
-        dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-
-        if ((aSta.Pres*10 > aSta.Psat) && (Temp < 0.647126e3) && (!aSpc.isat))
-        {
-            calcv2(3, itripl, Temp, Pres, &aSta.Dens[0], epseqn);
-            thmHGK(&aSta.Dens[0], Temp);
-            dimHGK(1, itripl, Temp, Pres, &aSta.Dens[0], epseqn);
-
-            real temp = aSta.Dens[0];
-            aSta.Dens[0] = aSta.Dens[1];
-            aSta.Dens[1] = temp;
-
-//            memcpy(&wl, &wr, sizeof(WPROPS));
-//            calcv3(iopt, itripl, Temp, Pres, Dens0, epseqn);
-//            thmHGK(Dens0, Temp);
-//            dimHGK(isat, itripl, Temp, Pres, Dens0, epseqn);
-        }
-
+        HGKsat(isat, iopt, itripl, Temp, Pres, Dens0, epseqn);
+        dl = aSta.Dens[0];
+        dv = aSta.Dens[1];
     }
+    else
+    {
+        real ps = 0.0, dll = 0.0, dvv = 0.0;
+        if (Temp < ac->tz)
+            pcorr(itripl, Temp, &ps, &dll, &dvv, epseqn);
+        const real gas = *Pres / Temp / 0.4e0;
+        dl = rootHGK(Pres, Temp, dll, gas);
+        dv = rootHGK(Pres, Temp, gas, dll);
+        aSta.Dens[0] = dl;
+        aSta.Dens[1] = dv;
+    }
+    liq_ = HGKPhase{phaseHGK(isat, itripl, Temp, Pres, dl, epseqn), dl};
+    vap_ = HGKPhase{phaseHGK(isat, itripl, Temp, Pres, dv, epseqn), dv};
+    vap_.w.Surtenw = real(0.0);  // surface tension is given for the saturated liquid only, as WaterLVS83 does
+}
+
+auto WaterHGKgems::rootHGK(real *p, real t, real guess, real other) -> real
+{
+    real d = 0.0;
+    if (denHGK(&d, p, guess, t, &fct.dpdd))
+        return d;
+    if (denHGK(&d, p, other, t, &fct.dpdd))
+        return d;
+    Exception exception;
+    exception.error << "Unable to calculate the density of water (HGK).";
+    exception.reason << "The density did not converge at temperature " << t.val() << " K and pressure " << p->val() << " bar.";
+    exception.line = __LINE__;
+    RaiseError(exception);
+    return d;
+}
+
+auto WaterHGKgems::phaseHGK(int isat, int itripl, real t, real *p, real d, int epseqn) -> WPROPS
+{
+    resid(t, &d);
+    base(&d, t);
+    ideal(t);
+    thmHGK(&d, t);
+    dimHGK(isat, itripl, t, p, &d, epseqn);
+    return wr;
 }
 
 //--------------------------------------------------------------------//
@@ -1971,261 +783,6 @@ auto WaterHGKgems::TdegUS(int it, real t) -> real
     }
     return(TdegUS);
 }
-
-//--------------------------------------------------------------------//
-// conver - Transform T,D to r,theta  and scaled equations.
-auto  WaterHGKgems::conver(real *rho,
-                      real Tee, real rho1s, real *rhodi, real error1) -> void
-{
-    int isig=0;
-    real error2;
-    real /*sd[2]*/ beta, delta, xk1, cc, besq, p11, aa, xk0,  betai,
-    Tstar, dtstin, rhoweg, rhodit, drho, rho1co, twofaz, hold,
-    y1, den1, den2, den12, tt, rho1s2, slope;
-
-    /* real alhi, alpha, deli, p1w, p2w, p4w, s00, s20; */
-    beta  =co->a[5];
-    delta =co->a[10];
-    xk1   =co->a[11];
-    cc    =co->a[0];
-    /* alhi  =co->q[14];
-       alpha =co->q[9];      */
-    besq  =co->a[8];
-    p11   =co->q[8];
-    /* deli  =co->q[13];     */
-    /* p1w =co->q[17];
-       p2w   =co->q[18];
-       p4w   =co->q[19];     */
-    aa    =co->a[9];
-    xk0   =co->a[6];
-    /* s00 =co->a[16];       */
-    /* s20 =co->a[17];       */
-    betai =co->q[15];
-
-    Tstar  = Tee + 1.0;
-    dtstin = 1.0 - (1.0 / Tstar);
-    par.r1     = dtstin;
-    if (dtstin <= 0.0)
-    {
-        par.r1  = dtstin / (1.0 - besq);
-        par.th1 = 1.0;
-    }
-    else
-        par.th1 = 0.0;
-
-    ss(par.r1, par.th1, dv.s, dv.sd);
-    *rhodi   = 1.0 + p11 * dtstin;
-    rhodit = *rhodi  + cc * dv.s[0] + cc * dv.s[1];
-    drho   = *rho - rhodit;
-    dv.amu    = 0.0;
-    if (dtstin <= 0.0)
-    {
-        rho1co = xk0 * pow(par.r1,beta) + xk1 * pow(par.r1,betai);
-        twofaz = rho1co;
-        if (fabs(drho) <= twofaz)
-        {
-            //rho1s   = (rho1co * drho / fabs(drho)) + cc * dv.s[0];
-            par.th1    = drho * fabs(drho);
-            // error1 = 1.0;
-            a2.r = par.r1;
-            a2.th = par.th1;
-            return;
-        }
-    }
-    if ( !drho )
-    {
-        par.th1   = 0.0;
-        par.r1    = dtstin;
-        //rho1s  = cc * dv.s[0];
-    }
-
-    /*   rule for first pass   */
-    y1   = dtstin;
-    den1 = *rho - rhodit;
-
-    rtheta(&par.r1, &par.th1, den1, y1);
-    tt       = par.th1 * par.th1;
-    dv.amu  = aa * pow(par.r1,(beta * delta)) * par.th1 * (1.0 - tt);
-    y1       = dtstin + cc * dv.amu;
-
-    ss(par.r1, par.th1, dv.s, dv.sd);
-    rhoweg = xk1 * pow(par.r1,betai) * par.th1 + cc * dv.s[1];
-    rho1s   = den1 + cc * dv.s[0] + rhoweg;
-    error1 = *rho - *rhodi  - rho1s ;
-    a2.r  = par.r1;
-    a2.th = par.th1;
-
-    if (fabs(error1) < 1.0e-5)
-        return;
-
-    /*   rule for second pass  */
-
-    den12 = *rho - *rhodi  - cc * dv.s[1] + rhoweg;
-    if (den12 == den1)
-        den12 = den1 - 1.0e-6;
-
-    rtheta(&par.r1,&par.th1,den12,y1);
-    tt      = par.th1 * par.th1;
-    dv.amu = aa * pow(par.r1,(beta * delta)) * par.th1 * (1.0 - tt);
-    y1      = dtstin + cc * dv.amu;
-
-    ss(par.r1, par.th1, dv.s, dv.sd);
-    rhoweg = xk1 * pow(par.r1,betai) * par.th1 + cc * dv.s[1];
-    rho1s2 = den12 + cc * dv.s[0] + rhoweg;
-    error2 = *rho - *rhodi  - rho1s2;
-    if (fabs(error2) <= 1.0e-5)
-    {
-        a2.r  = par.r1;
-        a2.th = par.th1;
-        //error1 = error2;
-        // rho1s   = rho1s2;
-        return;
-    }
-
-    /*    rule for nth pass   */
-
-    den2   = den12;
-    while( ++isig <= 10 )
-    {
-        slope  = (error2 - error1) / (den2 - den1);
-        hold   = den2;
-        den2   = den1 - (error1 / slope);
-
-        rtheta(&par.r1,&par.th1,den2,y1);
-        tt      = par.th1 * par.th1;
-        dv.amu = aa * pow(par.r1,(beta * delta)) * par.th1 * (1.0 - tt);
-        y1      = dtstin + cc * dv.amu;
-
-        ss(par.r1, par.th1, dv.s, dv.sd);
-        rhoweg = xk1 * pow(par.r1,betai) * par.th1 + cc * dv.s[1];
-        rho1s   = den2 + cc * dv.s[0] + rhoweg;
-        error1 = error2;
-        error2 = *rho - *rhodi  - rho1s ;
-        a2.r  = par.r1;
-        a2.th = par.th1;
-        if (fabs(error2) < 1.0e-6)
-            return;
-        den1 = hold;
-    }
-}
-
-//--------------------------------------------------------------------//
-//  ss - calc terms of the summation zat defined dPotl/dT and 1-th
-// proizvodnuyu theta (s)  square polynomial.
-auto WaterHGKgems::ss(real r, real th, real *s, real *sd) -> void/*  s[2], sd[2] */
-{
-    real  sx[2];
-    real alpha, beta, alhi, beti, s00, s20, s01, s21, tt;
-    /* real besq, delta, deli, gami, p00, p01;*/
-
-    alpha= co->q[9];
-    beta = co->a[5];
-    /* besq = co->a[8];  */
-    /* delta= co->a[10];
-    deli = co->q[13];    */
-    alhi = co->q[14];
-    beti = co->q[15];
-    /* gami = co->q[16];
-    p00  = co->q[10];    */
-    /* p01  = co->q[17]; */
-    s00  = co->a[16];
-    s20  = co->a[17];
-    s01  = co->a[18];
-    s21  = co->a[19];
-
-    tt    = th * th;
-    sx[0] = s00 + s20 * tt;
-    sd[0] = 2.0 * s20 * th;
-    sx[1] = s01 + s21 * tt;
-    sd[1] = 2.0 * s21 * th;
-    s[0]  = sx[0] * co->a[9] * co->a[6] * pow(r,(1.0 - alpha));
-    s[1]  = sx[1] * co->a[9] * co->a[11] * pow(r,(1.0 - alhi));
-
-    a1.dPdM  = pow(r,beta) * co->a[6] * th + co->a[0] * pow(r,(1.0-alpha)) *
-               co->a[9] * co->a[6] * sx[0] + pow(r,beti) * co->a[11] * th +
-               co->a[0] * pow(r,(1.0-alhi)) * co->a[9] * co->a[11] * sx[1];
-}
-
-//--------------------------------------------------------------------//
-// rtheta - Fits data for 1.0 < theta < 1.000001. Calc:
-//                        rho = em*theta*(r**beta)
-//                        Tee = r*(1.0-besq*theta*theta)
-//  Routine given by Moldover (1978): Jour. Res. NBS, v. 84, n. 4, p. 329 - 334.
-auto WaterHGKgems::rtheta(real *r, real *theta, real rho, real Tee) -> void
-{
-    int n=0;
-    real  beta, em, besq, absrho, bee, z, z2, z3, c, dz, tr, tmr;
-
-    beta = co->a[5];
-    em   = co->a[6];
-    besq = co->a[8];
-    if (em <= 0.0 || besq <= 1.0)
-        goto MET600;
-
-    absrho = fabs(rho);
-    if (absrho < 1.0e-12)
-        goto MET600;
-
-    bee = sqrt(besq);
-    if (fabs(Tee) < 1.0e-12)
-        goto  MET495;
-
-    if (Tee < 0.0)
-        z = 1.0-(1.0-bee) * Tee / (1.0 - besq) * pow(em / absrho,1.0 / beta);
-    else
-        z = pow(1.0 + Tee * pow(em / bee / absrho,1.0 / beta), - beta);
-
-    if (z > 1.00234 * bee)
-        goto MET496;
-
-    tr = fabs(Tee);
-    c  = -rho * bee / em / pow(tr,beta);
-    z  = z * rho / fabs(rho);
-    while ( ++n <= 16)
-    {
-        z2 = z * z;
-        z3 = 1.0 - z2;
-        tmr= fabs(z3);
-        dz = z3 * (z + c * pow(tmr,beta)) / (z3 + 2.0 * beta * z2);
-        z  = z - dz;
-        if (fabs(dz/z) < 1.0e-12)
-            goto MET498;
-    }
-
-MET601:
-    if (fabs(*theta) > 1.0001)
-        *theta /= fabs(*theta);
-    return;
-
-MET498:
-    *theta = z / bee;
-    *r     = Tee /(1.0 - z * z);
-    *r     = fabs(*r);
-    return;
-
-MET495:
-    *theta = rho / fabs(rho) / bee;
-    *r     = pow(rho / (em * (*theta)),1.0 / beta);
-    return;
-
-MET496:
-    *theta = rho / fabs(rho);
-    *r     = Tee / (1.0 - besq);
-    *r     = fabs(*r);
-    return;
-
-MET600:
-    if (fabs(Tee) < 1.0e-12)
-        goto MET601;
-
-    if (Tee < 0.0)
-        goto MET496;
-    *theta = 1.0e-12;
-    *r     = Tee;
-}
-
-//--------------------------------------------------------------------//
-//   TdPsdT - return  T * (dPsat / dT).
 auto WaterHGKgems::TdPsdT(real t_) -> real
 {
 //    int i=-1;
@@ -2379,7 +936,7 @@ auto WaterHGKgems::bb(real t) -> void
 //--------------------------------------------------------------------//
 //calc density (d in g/cm3) and dP/dD (dPdd) as f(p(MPa), t(degK))
 // from an initial density guess (dguess).
-auto WaterHGKgems::denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> void
+auto WaterHGKgems::denHGK(real *d, real *p, real dguess, real t, real *dpdd) -> bool
 {
     real pp, dp, dpdx, x;
     int  i= 0;
@@ -2400,54 +957,31 @@ FIRST:
         if (dguess < 0.2967e0)    *d *= 0.98e0;
     }
     while (i <= 10);
-    return;
+    return false;
 OTHER:
     {
         dpdx = *dpdd * 1.1e0;
         if (dpdx < 0.1e0)
             dpdx = 0.1e0;
+        if (fabs(1.0e0 - pp / *p) < 1.0e-6)
+            dpdx = *dpdd;  // near the root: a full Newton step
+        // Converged to 1e-12 in P or in density, whatever the guess (before: 1e-8, 1e-7 or 1e-6 in P by the guess, so the
+        // density and its derivatives depended on where the iteration started). A liquid at low P has a pressure that is a
+        // small difference of large terms (noise about 1e-7 of P): the density test ends it.
         dp   = fabs(1.0e0 - pp / *p);
-        if ((dp < 1.0e-8) || ((dguess > 0.3e0) && (dp < 1.0e-7)) ||
-                ((dguess > 0.7e0) && (dp < 1.0e-6)))
-            return;
         x = (*p - pp) / dpdx;
+        if (dp < 1.0e-12 || fabs(x) < 1.0e-12 * *d)
+            return true;
         if (fabs(x)  >  0.1e0)
             x *= 0.1e0 / fabs(x);
         *d += x;
         if (*d <= 0.0e0)
             *d = 1.0e-8;
-        if ( i <= 30 ) goto FIRST;
+        if ( i <= 100 ) goto FIRST;
     }
+    return false;
 }
 
-auto WaterHGKgems::surten(real Tsatur) -> real
-{
-    real Ttripl, Tcrit, Tstar, Tcstar, v, B, stref, FPTOL;
-    real sUrten, Tnorm;
-
-    Ttripl = k_->surf_Ttripl;
-    Tcrit  = k_->surf_Tcrit;
-    Tstar  = k_->surf_Tstar;
-    Tcstar = k_->surf_Tcstar;
-    v      =  k_->surf_v;
-    B      = k_->surf_B;
-    stref  = k_->surf_stref;
-    FPTOL  = 1.0e-10;
-
-    if ((Tsatur < Ttripl) || (Tsatur > Tcrit))
-    {
-        sUrten = 0.0e0;
-        return(sUrten);
-    }
-
-    if (Tsatur >= Tcrit - FPTOL)
-        Tnorm = 0.0e0;
-    else
-        Tnorm = (Tcstar - Tsatur / Tstar) / Tcstar;
-
-    sUrten = stref * pow(Tnorm,v) * (1.0e0 + B * Tnorm);
-    return(sUrten);
-}
 
 //--------------------------------------------------------------------//
 /* Born92 - calculated Z, Q, Y, X .
@@ -2473,13 +1007,10 @@ auto WaterHGKgems::Born92(real TK, real Pbars, real Dgcm3, real betab,
     *Q   = 0.0e0;
     *X   = 0.0e0;
     TdegC = TK - 273.15e0;
-    /*  The following line can be commented out to facilitate probably
-    *   unreliable, yet potentially useful, predictive calculations
-    *   at state conditions beyond the validity limits of the aqueous
-    *   species equation of state.                                   */
-
-    if ( (TdegC > TMAX + TOL) || (Pbars > PMAX + TOL) )
-        return;
+    // Beyond TMAX or PMAX (the range of Johnson and Norton 1991) SUPCRT92 and GEMS returned 0 for epsilon and the Born
+    // functions, which silently changed the solutes by tens of kJ/mol. The values are calculated there, and the caller
+    // (johnsonNorton91Gems) marks them as outside the range of the model (decision 0029).
+    (void)TMAX; (void)PMAX; (void)TOL; (void)TdegC;
     if (epseqn == 4)
     {
         /* d2edT2=0.; */
@@ -2493,133 +1024,11 @@ auto WaterHGKgems::Born92(real TK, real Pbars, real Dgcm3, real betab,
 // din. viscosity H2O in kg/m*s, if Pbars in validity region
 // specified  by the  initial if  statement Watson et al. (1980);
 //See  statement 3.1-2 and 4.1-5 in Tabl. 1,6,8 in Sengers and Kamgar-Parsi (1984).
-auto WaterHGKgems::viscos(real Tk, real Pbars, real Dkgm3, real betaPa) -> real
-{
-    const auto& a = k_->visc_a;
-    const auto& b = k_->visc_b;
-    real Tstar, Dstar, Pstar, ustar, TOL, vIscos, TdegC, sum,
-    T, D, u0, u1, u2, xt;
-    int i=-1, j=-1;
-
-    Tstar  = k_->trans_Tstar;
-    Dstar  = k_->trans_Dstar;
-    Pstar  = k_->trans_Pstar;
-    ustar  = k_->trans_ustar;
-    TOL    = 1.0e-2;
-    vIscos = 0.0e0;
-    TdegC  = Tk - 273.15e0;
-
-    if ((Pbars > k_->visc_Pmax + TOL) ||
-            ((Pbars > k_->visc_P2 + TOL) && (TdegC > k_->visc_T2 + TOL)) ||
-            ((Pbars > k_->visc_P3 + TOL) && (TdegC > k_->visc_T3 + TOL)) ||
-            (TdegC  >  k_->visc_Tmax + TOL))
-        return(vIscos);
-    T = Tk / Tstar;
-    D = Dkgm3 / Dstar;
-    sum = 0.0e0;
-    while(++i <= 3 )
-    {
-        sum += a[i] / pow(T,i);
-    }
-    u0 = ustar * sqrt(T) / sum;
-    sum = 0.0e0;
-    i=-1;
-    while (++i <= 5)
-    {
-        while (++j <= 6)
-        {
-            sum += b[j][i] * pow((1.0e0/T-1),i) * pow((D-1),j);
-        }
-    }
-    u1 = exp(D * sum);
-    if( (0.997e0 <= T) && (T <= 1.0082e0) &&
-            (0.755e0 <= D) && (D <= 1.2900e0) )
-    {
-        xt = Pstar / pow(Dstar,2.) * betaPa * pow(Dkgm3,2.);
-        if (xt < 22.0e0)
-            u2 = 1.0e0;
-        else
-            u2 = 0.922 * pow(xt,0.0263e0);
-    }
-    else
-        u2 = 1.0e0;
-    vIscos = u0 * u1 * u2;
-    return(vIscos);
-}
 
 //--------------------------------------------------------------------//
 // thermal conductivity H2O in J/m*deg*s (=W/m*deg),
 // specified by the initial IF statement equat Sengers et al. (1984);
 //See  statement 3.2.14 in Tabl.2-5 and I.5-6 from the above reference.
-auto WaterHGKgems::thcond(real Tk, real Pbars, real Dkgm3, real alph,
-                       real betaPa) -> real
-{
-    int i=-1, j=-1;
-    real TOL, Tstar, Dstar, Pstar, ustar, C, TdegC;
-    real thCOND, T, D, sum, L0, L1, L2, u0, u1, xt, dPdT;
-    const auto& aL = k_->cond_aL;
-    const auto& au = k_->cond_au;
-    const auto& bL = k_->cond_bL;
-    const auto& bu = k_->cond_bu;
-    TOL    = 1.0e-2;
-    Tstar  = k_->trans_Tstar;
-    Dstar  = k_->trans_Dstar;
-    Pstar  = k_->trans_Pstar;
-    ustar  = k_->trans_ustar;
-    C      = k_->cond_C;
-    thCOND = 0.0e0;
-    TdegC  = Tk - 273.15e0;
-
-    if ((Pbars > k_->cond_Pmax+TOL) ||
-            ((Pbars > k_->cond_P2+TOL) && (TdegC > k_->cond_T2+TOL)) ||
-            ((Pbars > k_->cond_P3+TOL) && (TdegC > k_->cond_T3+TOL)) ||
-            (TdegC  > k_->cond_Tmax+TOL))
-        return(thCOND);
-    T = Tk / Tstar;
-    D = Dkgm3 / Dstar;
-    sum = 0.0e0;
-    while (++i <= 3)
-    {
-        sum += aL[i] / pow(T,(double)i);
-    }
-    L0 = sqrt(T) / sum;
-    sum = 0.0e0;
-    i=-1;
-    while(++i <= 4)
-    {
-        while (++j <= 5)
-        {
-            sum += bL[i][j] * pow((1.0e0 / T-1),(double)i) * pow((D-1),(double)j);
-        }
-    }
-    L1 = exp(D*sum);
-    sum = 0.0e0;
-    i=-1;
-    while (++i <= 3)
-    {
-        sum += au[i] / pow(T,(double)i);
-    }
-    u0 = ustar * pow(T,0.5) / sum;
-    sum = 0.0e0;
-    i=-1;
-    j=-1;
-    while (++i <= 5)
-    {
-        while (++j <= 4)
-        {
-            sum += bu[i][j] * pow((1.0e0 / T-1),(double)i) *
-                   pow( (D - 1), (double)j );
-        }
-    }
-    u1   = exp(D * sum);
-    xt   = Pstar / pow(Dstar,2.) * betaPa * pow(Dkgm3,2.);
-    dPdT = Tstar / Pstar * alph/betaPa;
-    L2   = C / (u0 * u1) * pow((T / D),2.) * pow(dPdT,2.) *
-           pow(xt,0.4678e0) * pow(D,0.5) * exp(-18.66e0 *
-                                               pow((T - 1),2.) - pow((D - 1),4.));
-    thCOND = L0 * L1 + L2;
-    return(thCOND);
-}
 
 //--------------------------------------------------------------------//
 /* triple - translate values U, S, H, A, G zero triple point
@@ -2641,17 +1050,122 @@ auto WaterHGKgems::triple(real T, WPROPS  *wr) -> void
 auto WaterHGKgems::pcorr(int itripl, real t, real *p, real *dL,
                     real *dV, int epseqn) -> void
 {
+    // The same T in one calculation (calcv2, calcv3, HGKsat): the result of the first call
+    if (pcorr_cache.valid && pcorr_cache.t == t.val() && pcorr_cache.itripl == itripl)
+    {
+        *p = pcorr_cache.p;
+        *dL = pcorr_cache.dL;
+        *dV = pcorr_cache.dV;
+        trp.delg = pcorr_cache.delg;
+        return;
+    }
+    // Newton on Gl = Gv from the correlation PsHGK, to 1e-12 in P (before: to |delg| < 1e-4, about 1e-5 in P, and the
+    // densities were those of the pressure before the last step). dL and dV are those of the pressure returned.
     real dp;
     *p  = PsHGK(t);
     *dL= 0.0e0;
     *dV = 0.0e0;
-    do
+    // After convergence one more step gives the exact derivatives of P (implicit function), then the densities at that P.
+    for (int iter = 0; iter < 50; ++iter)
     {
         corr(itripl, t, p, dL, dV, &trp.delg, epseqn);
         dp   = trp.delg * ac->gascon * t / (1.0e0 / *dV - 1.0e0 / *dL);
         *p  += dp;
+        if (fabs(dp) <= 1e-12 * fabs(*p))
+            break;
     }
-    while ( fabs(trp.delg) > 1.0e-4 );
+    corr(itripl, t, p, dL, dV, &trp.delg, epseqn);
+    // Near the critical point of HGK (above about 646.6 K) the two density roots at a pressure merge and this iteration
+    // fails: then both conditions of coexistence are solved for the two densities
+    // A pair is accepted only if both densities converged and the two Gibbs energies are equal (|delg| < 1e-8, in RT)
+    if (!std::isfinite(p->val()) || !(dL->val() > dV->val() * (1.0 + 1e-6)) || !(p->val() > 0.0) || !corr_converged_ || !(std::fabs(trp.delg.val()) < 1e-8))
+        coexistenceHGK(t, p, dL, dV);
+    // coexistenceHGK can return early at an intermediate temperature after coexistenceNewton set a1.rt and bb for it
+    a1.rt = ac->gascon * t;
+    bb(t);
+    pcorr_cache = {true, itripl, t.val(), *p, *dL, *dV, trp.delg};
+}
+
+// P and G/RT of HGK at T (K) and density d (g/cm3), and dP/dd
+auto WaterHGKgems::stateHGK(real t, real d, real& P, real& dPdd, real& g) -> void
+{
+    resid(t, &d);
+    base(&d, t);
+    P = a1.rt * d * ba.pb + qq.q0;
+    dPdd = a1.rt * (ac->zb + ac->yb * ac->dzb) + qq.q5;
+    ideal(t);
+    thmHGK(&d, t);
+    g = fct.gd;
+}
+
+// The saturation of HGK from P(dL) = P(dV) and G(dL) = G(dV): Newton in both densities, from the scaling law near the
+// critical point of HGK (tcHGK, dcHGK), else by steps in T from 646.5 K, where the iteration of pcorr still works.
+// After convergence one step more, for the derivatives with respect to T.
+auto WaterHGKgems::coexistenceHGK(real t, real *p, real *dL, real *dV) -> void
+{
+    *p = *dL = *dV = std::numeric_limits<double>::quiet_NaN();
+    if (!(t.val() < hc->tcHGK.val()))
+        return;
+    const real dc = hc->dcHGK / 1.0e3;  // g/cm3
+    const real tau = (hc->tcHGK - t) / hc->tcHGK;
+    real dl = dc * (1.0 + 2.0 * pow(tau, 0.325));
+    real dv = dc * (1.0 - 2.0 * pow(tau, 0.325));
+    if (!coexistenceNewton(t, dl, dv))
+    {
+        // continuation in T from a temperature where the guess of the scaling law converges
+        double T0 = 646.5;
+        real d0l = dc * (1.0 + 2.0 * pow((hc->tcHGK - T0) / hc->tcHGK, 0.325)), d0v = dc * (1.0 - 2.0 * pow((hc->tcHGK - T0) / hc->tcHGK, 0.325));
+        if (t.val() <= T0 || !coexistenceNewton(real(T0), d0l, d0v))
+            return;
+        const int steps = 1 + static_cast<int>((t.val() - T0) / 0.01);
+        for (int i = 1; i < steps; ++i)
+        {
+            const real Ti = T0 + (t.val() - T0) * i / steps;
+            real l = d0l, v = d0v;
+            if (!coexistenceNewton(Ti, l, v))
+                return;
+            d0l = l.val();
+            d0v = v.val();
+        }
+        dl = d0l;
+        dv = d0v;
+        if (!coexistenceNewton(t, dl, dv))
+            return;
+    }
+    real Pl, Pv, dPl, dPv, gl, gv;
+    stateHGK(t, dl, Pl, dPl, gl);
+    stateHGK(t, dv, Pv, dPv, gv);
+    *p = Pl;
+    *dL = dl;
+    *dV = dv;
+    trp.delg = gl - gv;
+}
+
+// Newton for P(dl) = P(dv), G(dl) = G(dv) at T; false if it does not converge to two different densities
+auto WaterHGKgems::coexistenceNewton(real t, real& dl, real& dv) -> bool
+{
+    a1.rt = ac->gascon * t;
+    bb(t);
+    real Pl, Pv, dPl, dPv, gl, gv;
+    bool converged = false;
+    for (int iter = 0; iter < 100; ++iter)
+    {
+        stateHGK(t, dl, Pl, dPl, gl);
+        stateHGK(t, dv, Pv, dPv, gv);
+        const real F1 = Pl - Pv, F2 = gl - gv;
+        const real J11 = dPl, J12 = -dPv, J21 = dPl / (dl * a1.rt), J22 = -dPv / (dv * a1.rt);
+        const real det = J11 * J22 - J12 * J21;
+        const real sl = (F1 * J22 - F2 * J12) / det;
+        const real sv = (J11 * F2 - J21 * F1) / det;
+        dl -= sl;
+        dv -= sv;
+        if (!std::isfinite(dl.val()) || !std::isfinite(dv.val()) || !(dv.val() > 0.0))
+            return false;
+        if (converged)
+            break;
+        converged = fabs(sl.val()) <= 1e-9 * dl.val() && fabs(sv.val()) <= 1e-9 * dv.val();
+    }
+    return converged && dl.val() > dv.val() * (1.0 + 1e-6);
 }
 
 auto WaterHGKgems::resid(real t, real *d) -> void
@@ -2837,7 +1351,7 @@ auto WaterHGKgems::thmHGK(real *d, real t) -> void
 auto WaterHGKgems::dimHGK(int isat,
                      int itripl, real t, real *p, real *d, int epseqn) -> void
 {
-    real pbars, dkgm3, betaPa, betab, CpJKkg;
+    real pbars, dkgm3, betaPa, CpJKkg;
 
     wr.Aw   = fct.ad * a1.rt * un.fh;
     wr.Gw   = fct.gd * a1.rt * un.fh;
@@ -2847,7 +1361,7 @@ auto WaterHGKgems::dimHGK(int isat,
     wr.Cvw  = fct.cvd * ac->gascon * un.fh * un.ft;
     wr.Cpw  = fct.cpd * ac->gascon * un.fh * un.ft;
     wr.Speedw = sqrt(fabs(fct.cpd * fct.dpdd * 1.0e3 /
-                          fct.cvd)) * un.fs;
+                          fct.cvd));  // m/s
     wr.Betaw  = 1.0e0 / (*d * fct.dpdd * un.fp);
     wr.Alphaw = *d * fct.dvdt;
     wr.Gamw   = fct.gam;
@@ -2855,26 +1369,15 @@ auto WaterHGKgems::dimHGK(int isat,
     pbars = *p * 1.0e1;
     dkgm3 = *d * 1.0e3;
     betaPa = wr.Betaw * un.fp / 1.0e6;
-    betab  = wr.Betaw * un.fp / 1.0e1;
     CpJKkg = wr.Cpw / un.fh / un.ft * 1.0e3;
-    wr.Viscw  = viscos(t,pbars,dkgm3,betaPa) * un.fvd;
-    wr.Tcondw = thcond(t,pbars,dkgm3,wr.Alphaw,betaPa) * un.fc * un.ft;
-
-    if ((isat == 0) || (isat == 2))
-        wr.Surtenw = 0.0e0;
-    else
-        wr.Surtenw = surten(t) * un.fst;
-
-    Born92(t,pbars,dkgm3/1.0e3,betab,&wr.Alphaw,&wr.dAldT,
-           &wr.Dielw,&wr.ZBorn,&wr.QBorn,&wr.YBorn,&wr.XBorn,epseqn);
-    wr.Tdiffw = wr.Tcondw / un.fc / un.ft / (dkgm3 * CpJKkg) * un.fvk;
-    if ( wr.Tcondw )
-        wr.Prndtlw = wr.Viscw / un.fvd * CpJKkg /
-                     (wr.Tcondw / un.fc / un.ft);
-    else
-        wr.Prndtlw = 0.0e0;
-    wr.Visckw = wr.Viscw / un.fvd / dkgm3 * un.fvk;
-    wr.Albew  = wr.Alphaw / wr.Betaw;
+    // transport properties in SI (Pa s, W/(m K), N/m, m2/s)
+    wr.Viscw  = waterViscosityGems(k_->transport, t, pbars, dkgm3, betaPa);
+    wr.Tcondw = waterThermalConductivityGems(k_->transport, t, pbars, dkgm3, wr.Alphaw, betaPa);
+    wr.Surtenw = (isat == 1) ? waterSurfaceTensionGems(k_->transport, t) : real(0.0);
+    wr.Tdiffw = wr.Tcondw / (dkgm3 * CpJKkg);
+    wr.Prndtlw = (wr.Tcondw != 0.0) ? real(wr.Viscw * CpJKkg / wr.Tcondw) : real(0.0);
+    wr.Visckw = wr.Viscw / dkgm3;
+    wr.Albew  = wr.Alphaw / betaPa;  // Pa/K
 
     if (itripl == 1)
         triple(t, &wr);
@@ -2916,7 +1419,7 @@ auto  WaterHGKgems::corr(int itripl, real t, real *p, real *dL,
     dguess = *dL;
     if (*dL <= 0.0e0)
         dguess = 1.11e0 - 0.0004e0 * t;
-    denHGK(dL,p,dguess,t, &fct.dpdd);
+    corr_converged_ = denHGK(dL,p,dguess,t, &fct.dpdd);
     ideal(t);
     thmHGK(dL,t);
     dimHGK(1,itripl,t,p,dL,epseqn);
@@ -2924,7 +1427,7 @@ auto  WaterHGKgems::corr(int itripl, real t, real *p, real *dL,
     dguess = *dV;
     if (*dV <= 0.0e0)
         dguess = *p / a1.rt;
-    denHGK(dV,p,dguess,t,&fct.dpdd);
+    corr_converged_ = denHGK(dV,p,dguess,t,&fct.dpdd) && corr_converged_;
     if (*dV < 5.0e-7)
         *dV = 5.0e-7;
     ideal(t);

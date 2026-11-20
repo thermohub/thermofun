@@ -98,6 +98,9 @@ auto hkf88Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs&
     const double density = in.solvent->properties.density.val;
     if (density >= 1400 || density <= 600)
         setMessage(out, "HKF model: outside of 600-1400 kg/m3 density of pure H2O interval");
+    // the water equation and the dielectric model outside their range: the solute inherits their notes, with the path (decision 0029)
+    inheritNotes(out, in.solvent->properties.info.notes, "the water");
+    inheritNotes(out, wes.info.notes, "the water");
 }
 
 template <typename Scalar>

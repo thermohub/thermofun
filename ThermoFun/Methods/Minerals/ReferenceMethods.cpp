@@ -121,7 +121,7 @@ auto idealGas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) 
 auto idealGasInfo(PropertiesInfo& out, const InfoInputs& in) -> void
 {
     if (in.P > 0.0)
-        out.V = ValueInfo{ValueInfo::Status::Calculated, 0.0, ""};
+        out.V = ValueInfo{ValueInfo::Status::Calculated, 0.0, {}};
 }
 
 } // namespace

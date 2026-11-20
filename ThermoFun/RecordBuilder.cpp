@@ -175,6 +175,8 @@ auto RecordBuilder::method(const RecordMethod& m) -> RecordBuilder&
         entry["table"] = parse(*m.table);
     if (m.applicability)
         entry["applicability"] = parse(*m.applicability);
+    if (m.region)
+        entry["region"] = parse(*m.region);
     pimpl->methods.push_back(entry);
     return *this;
 }

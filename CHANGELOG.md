@@ -9,6 +9,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed, read before you update
 
+- **The GEMS water is two methods: `WaterLVS83` before `WaterHGK84` (implementation `gems`).** The equation of Levelt Sengers
+  et al. (1983), which the code used near the critical point, is now the method `WaterLVS83`, used only in its region
+  (decision 0028). `WaterHGK84` `gems` alone is the HGK equation everywhere. A GEMS record in the old format
+  (`water_eos_hgk84_lvs83_gems`) gets both methods when it is read, and is written back as before. A v2 record that lists
+  only `WaterHGK84` `gems` and calculates within about 4 K of the critical point should add `WaterLVS83` before it: HGK alone
+  has no usable saturation in the last kelvin below its critical point (an error says so).
+- **Units of the transport properties of the GEMS water: SI.** `speed_of_sound` in m/s (was cm/s), `dynamic_viscosity` in Pa s
+  (was g/(cm s)), `thermal_conductivity` in W/(m K) (was cal/(s cm K)), `surface_tension` in N/m (was dyn/cm),
+  `Tdiff` and `Visck` in m2/s, and `Albe` (alpha/beta) in Pa/K (was bar/K). The other water methods give 0 for the transport
+  properties (they were not initialised).
+
 - **HKF88: the g function as SUPCRT92, and held in steam.** The difference function f of Shock et al. (1992) is used only in
   its region, 155-355 °C and P below 1000 bar, as SUPCRT92 does. From 2017 ThermoFun used it also above 355 °C below 1000 bar,
   where it grows as ((T - 155)/300)^16: g was +0.35 Å at 450 °C and 500 bar, +800 Å at 600 °C and 300 bar, where it is
@@ -111,6 +122,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **`info` of each value** (decision 0029): `validity` (`within`, `extrapolated`, `undefined`), `status`, `error`
+  (`known`, `partial`, `unknown`: whether `err` can be trusted; `unknown` is `err` 0 because the data give none), `source` (`methods`, `reaction`, `reactants`, `reference`, `water`), `pressure` (the pressure
+  used: the saturation pressure at P = 0), and `notes`, the list of `Note` behind them (range, source, undefined,
+  uncertainty; with the method and `via`, the path of a note that comes from another record). The status message of each
+  value is made from its notes. A solute calculated on water that is outside the range of its model gets the note of the
+  water, a reaction those of its species. Results have `info` too, the notes of all their values. Replaces `outside_range`
+  (never released); the `MethodResult` of a method alone has `extrapolated`. Python: `tf.Note`, `tf.Validity`,
+  `tf.ErrorState`. See `docs/reference/results.md`, Info.
+- **Published ranges of models as data** (decision 0029): `JohnsonNorton91` (0 to 1000 degC, up to 5000 bar, both
+  implementations), `WaterIAPWS95` (251.165 to 1273 K, up to 1000 MPa) and `FernandezEtAl97` (238 to 873 K, up to 1200 MPa)
+  carry their range in the catalog, shown on their pages. One check, for every water equation and dielectric model, adds a
+  note outside of it; the solutes get it. `BradleyPitzer79` outside its range gives a note instead of a log line.
+- **`WaterIAPWS95Gas`**: the gas equation of Wagner and Pruss (2002), Eq. 3.2, for the metastable vapour of a vapour record
+  (above the saturation pressure, below 10 MPa, up to 55 kg/m3), where IAPWS-95 is not reliable. Listed before `WaterIAPWS95`
+  and used only in its region; stable vapour, the saturation and liquid water stay with `WaterIAPWS95`.
+
+- **`WaterLVS83`**: the equation of state of water near the critical point of Levelt Sengers et al. (1983), as in SUPCRT92, in
+  its region (about 643 to 695 K between the isochores 200 and 420 kg/m3, its saturation from 643 K). The first method used
+  in a region and combined with another method for the same properties (decision 0028): a record may list several equations
+  of state of water; at each T, P and state the first that covers the point is used, in the order of the record. In the
+  catalog a method used in a region is `regional`; such a method needs a base method after it (V2-MTH-012). It gives the
+  stable phase only (the equation has no metastable states); a liquid below the saturation pressure comes from the next
+  method. Tests: `pytests/test_water_lvs83.py`.
 - **Fit templates and tasks** (`thermofun.fitting`): a template (`thermofun/fit_templates/HKF88.yaml`) holds what a fit of one
   method needs (the parameters and their units, the searched one, the constraints of the method as switches, conventions,
   rules that warn, plausible ranges, presets); a task names the template, a record, a preset, given values and data (rows or
@@ -223,6 +257,46 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`JohnsonNorton91` `gems` above 1000 degC or 5 kbar** returned 0 for the dielectric constant and the Born functions, as
+  SUPCRT92 and GEMS did: the solutes changed by tens of kJ/mol there (Na+ G by 20 kJ/mol at 1274 K) without a word. They are
+  now calculated, and marked outside the range of the model; the solutes get the note.
+- **Pressure derivatives of the GEMS water at saturation** (P = 0 or P = Psat): they were 0. They are those of the phase at
+  constant T: dG/dP = V, dS/dP = -V alpha, dH/dP = V (1 - alpha T), dV/dP = -V beta, dCp/dP = -T V (alpha^2 + dalpha/dT).
+- **Water of reaktoro (HGK, IAPWS-95) beyond a spinodal**: the density failed ("Unable to calculate the density of water"),
+  for example the liquid at 350 C below about 130 bar. A branch with no stable root now gives the root of the other branch, as
+  the HGK of GEMS does.
+
+- **The molar volume of the GEMS water** (`WaterHGK84` `gems`, `WaterLVS83`) used 18.015268 g/mol while its energies imply
+  18.015534 g/mol (per gram times 4.305816, a rounded 18.0152/4.184, times 4.184): dG/dP was 1.5e-5 larger than V. V now
+  uses the molar mass of the energies (1.5e-5 larger), and dG/dP = V.
+- **`Albe` (alpha/beta, Pa/K) of the water methods `reaktoro` (HGK), `WaterIAPWS95` and `WaterZhangDuan05`** was 0; it is set.
+- **Water `WaterHGK84` `gems`, liquid and vapour kept apart:** each phase has its own root, from its saturated density, and
+  all its properties are calculated at that root; the state of the record picks the phase. Before, the vapour above the
+  saturation pressure (for example H2O gas at 25 °C and 1 bar) mixed the residual terms of the vapour root with the density of
+  the liquid: G was 112 J/mol too high and Cp 4.5 J/(mol K) too low at 25 °C and 1 bar; it now agrees with the `reaktoro`
+  HGK to 0.2 J/mol. Beyond the spinodal of a phase there is no root of that phase, and the other root is used (as
+  `reaktoro`); before, the iteration stopped between the roots, with a negative compressibility and heat capacity (the
+  liquid at 350 °C and 40 bar had 452 kg/m3; it now gets the vapour, 15.05 kg/m3).
+- **Water `gems` near the critical point (643 to 647 K):** off the saturation curve the liquid had density 0 and Na+ was
+  wrong by 130 kJ/mol, the vapour had no properties, and a P whose saturation temperature was within 0.01 K of T was taken
+  as saturated. The code swapped the two phases (`wl`, `wr`) after the LVS calculation; now each phase is kept apart, and
+  the density of LVS is found on the stable side of the coexistence curve to 1e-13 (before 1e-6, with its inversion to the
+  parametric variables to 1e-5).
+- **Viscosity and thermal conductivity of the GEMS water** summed only part of their double series (the inner index was not
+  reset): 0.555 instead of 0.890 mPa s at 25 °C. They now agree with IAPWS (0.890 mPa s, 0.607 W/(m K)).
+- **The saturation of `WaterHGK84` `gems` above 646.6 K** (HGK alone): its iteration returned 3e-5 MPa or NaN; it now solves
+  both conditions of coexistence, and stops with an error where HGK has no usable saturation.
+- **Water `WaterHGK84` implementation `gems` gave vapour at P = 0 at some T** (34 temperatures between 299 and 327.5 °C in
+  0.1 K steps, and 371.9 °C; an aqueous species off by 74–130 kJ/mol). It takes the saturation branch at P = 0 or P = Psat,
+  and tested Psat to 1e-14 bar: the engine writes Psat in Pa and calls the water again with it (for the dielectric constant), and
+  that value, back in bar, missed the test. The test is now relative (1e-12). P = `saturationPressure(T)` is liquid too.
+- **The water `WaterHGK84` implementation `gems` has one saturation pressure, that of its equation of state.** It wrote
+  back the correlation PsHGK (up to 7e-5 lower: 85.8315 against 85.8378 bar at 300 °C) and chose the phase by it, so a
+  P between the two gave vapour; the iteration for the saturation stopped at about 1e-5 in P. Now it converges to 1e-12,
+  `saturationPressure(T)` gives that value, and the branch and the phase are decided by it. Values at P = 0 change by
+  about 1e-7, their T derivatives by up to 1e-2 (they follow the saturation curve of the equation of state).
+  Its density is now converged to 1e-12 in P or in density whatever the starting guess (before 1e-8 to 1e-6 in P, by the
+  guess): values change by about 1e-9, Cp by up to 2e-5 near Psat.
 - **Golden comparison:** the entries of `MgCO3-bm` (BirchMurnaghan47) in `expected_changes.json` named the database by its
   path, so they matched nothing and `golden-diff` failed. An entry can now also name state points (`points`), and several
   entries of one record add up.

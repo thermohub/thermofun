@@ -34,6 +34,7 @@ struct MethodApplication
     std::map<std::string, Quantity> parameters;  ///< named parameters, SI values
     std::string parameter_set;                   ///< name of a parameter set, empty if none
     Applicability applicability;
+    Region region;                               ///< where it is used, among methods of its kind (decision 0028); empty: everywhere
     std::vector<Segment> segments;               ///< pieces of a method that is piecewise in T; empty for other methods
     /// Phase transitions in the range, each {T, dS, dH, dV, dTdP} (the rows of legacy m_phase_trans_props)
     std::vector<std::map<std::string, Quantity>> transitions;

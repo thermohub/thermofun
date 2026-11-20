@@ -264,6 +264,27 @@
    },
    "additionalProperties": false
   },
+  "region": {
+   "type": "object",
+   "properties": {
+    "t_min": {
+     "$ref": "#/$defs/quantity"
+    },
+    "t_max": {
+     "$ref": "#/$defs/quantity"
+    },
+    "p_min": {
+     "$ref": "#/$defs/quantity"
+    },
+    "p_max": {
+     "$ref": "#/$defs/quantity"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false
+  },
   "covariances": {
    "type": "array",
    "items": {
@@ -371,6 +392,9 @@
     },
     "applicability": {
      "$ref": "#/$defs/applicability"
+    },
+    "region": {
+     "$ref": "#/$defs/region"
     },
     "table": {
      "type": "object"
