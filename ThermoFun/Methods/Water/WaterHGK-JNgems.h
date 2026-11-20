@@ -17,8 +17,6 @@ namespace ThermoFun {
 struct WaterHGKgemsConstants;
 
 /// The constants from the values of the method of water and of the dielectric constant, both with all their names.
-/// The range of Johnson and Norton (1991) in the constants of the GEMS code: {TMAX degC, PMAX bar}
-auto johnsonNorton91Range(const WaterHGKgemsConstants& constants) -> std::pair<double, double>;
 auto makeWaterHGKgemsConstants(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>;
 
 class WaterHGKgems

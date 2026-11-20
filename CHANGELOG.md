@@ -127,6 +127,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   comes from another record). The status message of each value is made from them. A solute calculated on water that is
   outside the range of its model gets the note of the water (`via` `['the water']`). Python: `tf.Note`, `.notes`. See
   `docs/reference/results.md`, Notes.
+- **Published ranges of models as data** (decision 0029): `JohnsonNorton91` (0 to 1000 degC, up to 5000 bar, both
+  implementations), `WaterIAPWS95` (251.165 to 1273 K, up to 1000 MPa) and `FernandezEtAl97` (238 to 873 K, up to 1200 MPa)
+  carry their range in the catalog, shown on their pages. One check, for every water equation and dielectric model, adds a
+  note outside of it; the solutes get it. `BradleyPitzer79` outside its range gives a note instead of a log line.
 - **`WaterIAPWS95Gas`**: the gas equation of Wagner and Pruss (2002), Eq. 3.2, for the metastable vapour of a vapour record
   (above the saturation pressure, below 10 MPa, up to 55 kg/m3), where IAPWS-95 is not reliable. Listed before `WaterIAPWS95`
   and used only in its region; stable vapour, the saturation and liquid water stay with `WaterIAPWS95`.

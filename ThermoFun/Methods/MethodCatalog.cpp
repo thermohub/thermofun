@@ -57,6 +57,12 @@ struct Spec
     auto dielectric() -> Spec& { s.needs.dielectric = true; return *this; }
     auto piecewise() -> Spec& { s.piecewise = true; return *this; }
     auto regional() -> Spec& { s.regional = true; return *this; }
+    /// The published range of the model (K, Pa; an empty optional is no limit), and where it is stated.
+    auto range(std::optional<double> tMin, std::optional<double> tMax, std::optional<double> pMin, std::optional<double> pMax, std::string source) -> Spec&
+    {
+        s.range = ModelRange{tMin, tMax, pMin, pMax, std::move(source)};
+        return *this;
+    }
     auto convention(EnergyReference reference) -> Spec& { s.native_convention = reference; return *this; }
     auto notImplemented() -> Spec& { s.implemented = false; return *this; }
     auto add(ParameterSpec p) -> Spec& { s.parameters.push_back(std::move(p)); return *this; }
@@ -444,6 +450,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(waterEoS(Spec("WaterIAPWS95Gas", "Water vapour, gas equation of IAPWS-95", "Calculates the properties of metastable water vapour (above the saturation pressure, below 10 MPa, up to 55 kg/m3) from the gas equation of Wagner and Pruss (2002), Eq. 3.2. IAPWS-95 is not reliable there away from the saturated vapour line; the authors advise this equation, as IAPWS-IF97 does. Used in this region only, for a vapour record (state gas); elsewhere the next equation of state of the record, for example WaterIAPWS95, is used, and it gives the saturation.", "Wagner and Pruss (2002) J. Phys. Chem. Ref. Data 31, 387-535, Sects. 3, 6.3.1 and 7.3.2.3")
                              .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("d", 8)).add(listed("t", 8)).add(listed("n", 8))));
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
+                             .range(251.165, 1273.0, std::nullopt, 1.0e9, "Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa")
                              .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"}).add(saturation()).add(listed("no", 9)).add(listed("gammao", 5)).add(listed("c", 55)).add(listed("d", 55)).add(listed("t", 55)).add(listed("n", 57)).add(listed("alpha", 3)).add(listed("beta", 3)).add(listed("gamma", 3)).add(listed("epsilon", 3)).add(listed("a", 2)).add(listed("b", 2)).add(listed("A", 2)).add(listed("B", 2)).add(listed("C", 2)).add(listed("F", 2)).add(listed("E", 2))));
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
@@ -452,6 +459,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})
+                               // the lower bound of 1 bar is not checked: the saturation pressure below 100 degC is lower, and SUPCRT92 calculates there
+                               .range(273.15, 1273.15, std::nullopt, 5.0e8, "Johnson et al. (1992), SUPCRT92: 0 to 1000 degC, 1 to 5000 bar")
                                .add(numbered("a", 10, "coefficient of k_i(t)")).add(constants({{"Tr", "reference temperature, K"}, {"Dr", "reference density, kg/m3"}}))));
     m.push_back(dielectric(Spec("BradleyPitzer79", "Dielectric constant of Bradley and Pitzer", "Calculates the dielectric constant of water and the Born functions from T and P, with no density of water.", "Bradley and Pitzer (1979)")
                                .add(builtIn({"U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "Tmin", "Tmax", "Tlow", "Pmax_low", "Pmax"}))));
@@ -463,6 +472,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
                                                {"b1", "coefficient of t in u"}, {"b2", "coefficient of sqrt(t) in u"}, {"b3", "constant of u"}}))));
     m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166")
                                .alias({"Fernandez97Diel"})
+                               .range(238.0, 873.0, std::nullopt, 1.2e9, "Fernandez et al. (1997): 238 to 873 K, up to 1200 MPa")
                                .add(numbered("n", 12, "coefficient of g")).add(numbered("I", 11, "exponent of the density")).add(numbered("J", 11, "exponent of the temperature"))
                                .add(constants({{"Tc", "critical temperature, K"}, {"rhoc", "critical density, kg/m3"}, {"k", "constant of Boltzmann, SI"}, {"Na", "number of Avogadro, 1/mol"},
                                                {"alpha", "mean molecular polarizability, SI"}, {"epsilon0", "permittivity of vacuum, SI"}, {"mu", "dipole moment, SI"}, {"M", "molar mass, kg/mol"}}))));

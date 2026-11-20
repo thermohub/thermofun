@@ -233,20 +233,7 @@ auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const 
         WaterHGKgems water_hgk(constants);
         return water_hgk.electroPropertiesWaterJNgems(pass.T, pass.P / bar_to_Pa, pass(ps.density) / 1000.0, pass(ps.Beta) * bar_to_Pa, pass(ps.Alpha), pass(ps.dAldT));
     });
-    // the range of Johnson and Norton (1991): up to born_TMAX degC and born_PMAX bar
-    const auto [Tmax, Pmax] = johnsonNorton91Range(constants);
-    const double tol = 1.0e-3, TdegC = T - C_to_K, Pbar = P / bar_to_Pa;
-    if (TdegC > Tmax + tol || Pbar > Pmax + tol)
-    {
-        char text[200];
-        std::snprintf(text, sizeof(text), "T = %.6g degC, P = %.6g bar, above %.6g degC or %.6g bar", TdegC, Pbar, Tmax, Pmax);
-        const Note note{Note::Kind::Range, Note::Severity::Soft, "JohnsonNorton91", text, {}};
-        addNote(eps.notes, note);
-        for (auto* x : {&eps.epsilon, &eps.epsilonT, &eps.epsilonP, &eps.epsilonTT, &eps.epsilonTP, &eps.epsilonPP,
-                        &eps.bornZ, &eps.bornY, &eps.bornQ, &eps.bornN, &eps.bornU, &eps.bornX})
-            if (x->sta.first == Reaktoro_::Status::calculated)
-                x->sta.second += render(note);
-    }
+    // the range of the model is checked with the others, from the catalog (Engine/Solvent.cpp, decision 0029)
     return eps;
 }
 
@@ -483,11 +470,18 @@ auto bradleyPitzer79Method(std::vector<double> constants) -> std::shared_ptr<con
     return std::make_shared<const FunctionDielectricMethod>("BradleyPitzer79", "", [constants = std::move(constants)](double T, double P, const PropertiesSolvent&, int) {
         const double Tmin = constants[9], Tmax = constants[10], Tlow = constants[11], Pmax_low = constants[12], Pmax = constants[13];
         const double Pbar = P / bar_to_Pa;
-        if (T < Tmin || T > Tmax || Pbar > (T < Tlow ? Pmax_low : Pmax))
-            thfun_logger->warn("BradleyPitzer79: T = {} K, P = {} bar is outside the range of the model", T, Pbar);
-        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
             return electroPropertiesWaterBradleyPitzer79(pass, constants);
         });
+        // its range is in its constants, with a lower maximum pressure below Tlow (decision 0029)
+        if (T < Tmin || T > Tmax || Pbar > (T < Tlow ? Pmax_low : Pmax))
+        {
+            char text[200];
+            std::snprintf(text, sizeof(text), "T = %.6g K, P = %.6g bar, outside %.6g to %.6g K, up to %.6g bar (%.6g bar below %.6g K)", T, Pbar, Tmin, Tmax,
+                          Pmax, Pmax_low, Tlow);
+            markOutsideRange(eps, Note{Note::Kind::Range, Note::Severity::Soft, "BradleyPitzer79", text, {}, {}});
+        }
+        return eps;
     });
 }
 

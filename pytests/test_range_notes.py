@@ -56,7 +56,7 @@ def test_the_notes_are_data_with_the_method_and_the_path():
 def test_the_status_message_is_made_from_the_notes():
     r = engine("gems").thermoPropertiesSubstance(1274.0, 5e8, "Na+")
     assert r.gibbs_energy.sta[1] == "".join(repr(n)[len("<Note "):-1] for n in r.notes)
-    assert str(r.notes[0]).startswith("Outside the range of the model: via the water: JohnsonNorton91: T = 1000.85 degC")
+    assert str(r.notes[0]).startswith("Outside the range of the model: via the water: JohnsonNorton91: T = 1274 K, P = 5000 bar, outside its range")
 
 
 def test_inside_the_range_the_result_has_no_notes():
@@ -141,3 +141,38 @@ def test_the_legacy_bounds_check_makes_a_note():
     checked = db.getSubstance("X").checkCalcMethodBounds("model", 400.0, 1e5, na)
     assert any(n.text.startswith("model: out of T(") for n in checked.notes)
     assert checked.gibbs_energy.outside_range
+
+
+def water_engine(methods):
+    water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181}, "methods": methods}
+    return tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water}}))
+
+
+@pytest.mark.parametrize("implementation", ["gems", "reaktoro"])
+def test_johnson_norton_has_the_same_range_in_both_implementations(implementation):
+    """The range is data of the method (catalog), checked in one place: before, only the GEMS code marked it."""
+    notes = engine(implementation).electroPropertiesSolvent(1274.0, 5e8, "H2O@").notes
+    assert [n.method for n in notes] == ["JohnsonNorton91"]
+    assert "T 273.15 to 1273.15 K, P up to 5000 bar" in notes[0].text
+
+
+@pytest.mark.parametrize("T,P,outside", [(1300.0, 1e8, True), (1000.0, 1.1e9, True), (1000.0, 9e8, False)])
+def test_iapws95_is_marked_outside_its_range_of_validity(T, P, outside):
+    """Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa."""
+    water = water_engine([{"method": "WaterIAPWS95"}, {"method": "JohnsonNorton91"}])
+    notes = [n for n in water.propertiesSolvent(T, P, "H2O@").notes if n.method == "WaterIAPWS95"]
+    assert bool(notes) == outside
+    assert bool([n for n in water.thermoPropertiesSubstance(T, P, "H2O@").notes if n.method == "WaterIAPWS95"]) == outside
+
+
+def test_fernandez_is_marked_above_873_K():
+    water = water_engine([{"method": "WaterIAPWS95"}, {"method": "FernandezEtAl97"}])
+    assert [n.method for n in water.electroPropertiesSolvent(900.0, 1e8, "H2O@").notes] == ["FernandezEtAl97"]
+    assert water.electroPropertiesSolvent(800.0, 1e8, "H2O@").notes == []
+
+
+def test_bradley_pitzer_outside_its_range_is_a_note_not_a_log_line():
+    water = water_engine([{"method": "WaterHGK84"}, {"method": "BradleyPitzer79"}])
+    notes = water.electroPropertiesSolvent(300.0, 3e8, "H2O@").notes   # above 2000 bar below 343.15 K
+    assert [n.method for n in notes] == ["BradleyPitzer79"] and "up to 5000 bar (2000 bar below 343.15 K)" in notes[0].text
+    assert water.electroPropertiesSolvent(300.0, 1e8, "H2O@").notes == []

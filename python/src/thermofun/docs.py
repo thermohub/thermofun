@@ -23,6 +23,22 @@ DATA = "Resources/databases"
 EXAMPLES = "docs/reference/method-examples.yaml"
 
 
+
+def _range_text(r):
+    """The published range of a model, as on its page: outside of it a value is calculated with a note (decision 0029)."""
+    def bounds(low, high, factor, unit):
+        if low is not None and high is not None:
+            return "%s to %s %s" % (_number(low * factor), _number(high * factor), unit)
+        if high is not None:
+            return "up to %s %s" % (_number(high * factor), unit)
+        return "from %s %s" % (_number(low * factor), unit)
+    parts = []
+    if r["t_min"] is not None or r["t_max"] is not None:
+        parts.append("T " + bounds(r["t_min"], r["t_max"], 1.0, "K"))
+    if r["p_min"] is not None or r["p_max"] is not None:
+        parts.append("P " + bounds(r["p_min"], r["p_max"], 1e-5, "bar"))
+    return ", ".join(parts) + (" (%s)" % r["source"] if r["source"] else "") + "; outside of it a value is calculated with a note"
+
 def published_examples(path=EXAMPLES):
     """For each method id: the hand-written example of docs/reference/method-examples.yaml."""
     if not os.path.exists(path):
@@ -239,6 +255,8 @@ def method_page(spec, example, same=(), published=None, data=DATA):
               "| Needs | %s |" % needs,
               "| Temperature segments | %s |" % ("yes" if spec["piecewise"] else "no"),
               "| Has code | %s |" % ("yes" if spec["implemented"] else "no: the name is known, and the method does nothing")]
+    if spec.get("range"):
+        lines.append("| Range of the model | %s |" % _range_text(spec["range"]))
     if spec["native_convention"]:
         lines.append("| Convention of its results | %s |" % spec["native_convention"])
     if spec["legacy_names"]:

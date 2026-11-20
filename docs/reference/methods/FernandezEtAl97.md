@@ -14,6 +14,7 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 | Needs | nothing from outside its record |
 | Temperature segments | no |
 | Has code | yes |
+| Range of the model | T 238 to 873 K, P up to 12000 bar (Fernandez et al. (1997): 238 to 873 K, up to 1200 MPa); outside of it a value is calculated with a note |
 | Legacy names | `water_diel_fern97` |
 | Other names | `Fernandez97Diel` |
 

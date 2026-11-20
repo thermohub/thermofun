@@ -50,6 +50,8 @@ Output:
 ```text
 True
 Outside the range of the model: HKF model: outside of 600-1400 kg/m3 density of pure H2O interval
+Outside the range of the model: via the water: WaterIAPWS95: T = 1373.15 K, P = 1000 bar, outside its range: T 251.165 to 1273 K, P up to 10000 bar (Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa)
+Outside the range of the model: via the water: JohnsonNorton91: T = 1373.15 K, P = 1000 bar, outside its range: T 273.15 to 1273.15 K, P up to 5000 bar (Johnson et al. (1992), SUPCRT92: 0 to 1000 degC, 1 to 5000 bar)
 ```
 
 `engine.explain(T, P, symbol)` gives the notes that each method added, under `notes` of its step.

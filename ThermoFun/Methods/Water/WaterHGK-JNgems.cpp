@@ -254,11 +254,6 @@ TOLERS  to_ = { /* TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL */
 
      /* x[11] */
 
-auto johnsonNorton91Range(const WaterHGKgemsConstants& constants) -> std::pair<double, double>
-{
-    return {constants.born_TMAX, constants.born_PMAX};
-}
-
 auto WaterHGKgems::errorHKFH2OValidity(std::string type, real P, real T, std::string name, int line) -> void
 {
     Exception exception;

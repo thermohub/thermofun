@@ -150,6 +150,18 @@ void exportMethods(py::module& parent)
             row["piecewise"] = spec.piecewise; row["implemented"] = spec.implemented;
             row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
             row["implementations"] = spec.implementations;
+            if (!spec.range.empty())
+            {
+                py::dict range;  // K and Pa; None is no limit (decision 0029)
+                range["t_min"] = spec.range.t_min ? py::object(py::float_(*spec.range.t_min)) : py::object(py::none());
+                range["t_max"] = spec.range.t_max ? py::object(py::float_(*spec.range.t_max)) : py::object(py::none());
+                range["p_min"] = spec.range.p_min ? py::object(py::float_(*spec.range.p_min)) : py::object(py::none());
+                range["p_max"] = spec.range.p_max ? py::object(py::float_(*spec.range.p_max)) : py::object(py::none());
+                range["source"] = spec.range.source;
+                row["range"] = range;
+            }
+            else
+                row["range"] = py::none();
             {
                 py::list outputs;
                 for (const auto& o : spec.auxiliary_outputs)

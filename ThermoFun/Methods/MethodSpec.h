@@ -92,6 +92,20 @@ struct AuxiliaryOutputSpec
 };
 
 /// All that ThermoFun knows about one built-in method, without its code and without any legacy name.
+/// The range in which a model was published or tested (decision 0029): outside of it the value is calculated, with a note.
+/// A bound that is not given is no limit. K and Pa.
+struct ModelRange
+{
+    std::optional<double> t_min, t_max, p_min, p_max;
+    std::string source;  ///< where the range is stated
+
+    auto empty() const -> bool { return !t_min && !t_max && !p_min && !p_max; }
+    auto holds(double T, double P) const -> bool
+    {
+        return (!t_min || T >= *t_min) && (!t_max || T <= *t_max) && (!p_min || P >= *p_min) && (!p_max || P <= *p_max);
+    }
+};
+
 struct MethodSpec
 {
     std::string id;                              ///< for example "HKF88"
@@ -111,6 +125,7 @@ struct MethodSpec
     std::optional<EnergyReference> native_convention; ///< empty: that of the reference values
     bool piecewise = false;                      ///< the parameters come in temperature segments
     bool regional = false;                       ///< used only in its own region (decision 0028): the next base method of the record elsewhere
+    ModelRange range;                            ///< the published range of the model: a note outside of it (decision 0029)
     bool implemented = true;                     ///< false: the id is known, but there is no code
     std::vector<ParameterSpec> parameters;
     std::vector<AuxiliaryOutputSpec> auxiliary_outputs;

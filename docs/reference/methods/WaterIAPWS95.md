@@ -14,6 +14,7 @@ Source: Wagner and Pruss (2002).
 | Needs | nothing from outside its record |
 | Temperature segments | no |
 | Has code | yes |
+| Range of the model | T 251.165 to 1273 K, P up to 10000 bar (Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa); outside of it a value is calculated with a note |
 | Legacy names | `water_eos_iapws95_gems`, `water_eos_iapws95_reaktoro` |
 | Other names | `WaterWP95`, `WaterIAPWS95Gems` |
 

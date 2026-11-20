@@ -48,13 +48,16 @@ Calculate:
 - [Propagate uncertainties](how-to/propagate-uncertainties.md)
 - [See what each method gives](how-to/get-per-method-results.md)
 - [Use a method alone](how-to/use-a-method-alone.md)
-- [Fit parameters to measured data](how-to/fit-parameters.md) (under development)
 
 Data:
 
 - [Add data](how-to/add-data.md): the complete guide to substances, reactions, methods, units and datasets.
 - [Validate data](how-to/validate-data.md)
 - [Convert a legacy database](how-to/convert-legacy-database.md)
+
+Fitting:
+
+- [Fit parameters to measured data](how-to/fit-parameters.md) (under development)
 
 Technical guides:
 
