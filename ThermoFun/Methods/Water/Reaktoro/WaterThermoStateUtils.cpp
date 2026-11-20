@@ -44,6 +44,11 @@ auto waterThermoStateWagnerPruss(real T, real P, int state, const WagnerPrussCon
     return waterThermoState(T, P, D, whs);
 }
 
+auto waterThermoStateGasEquation(real T, real P, real D, const WagnerPrussConstants& constants) -> WaterThermoState
+{
+    return waterThermoState(T, P, D, waterHelmholtzStateWagnerPruss(T, D, constants));
+}
+
 auto waterThermoState(real T, real P, real D, const WaterHelmholtzState& wh) -> WaterThermoState
 {
 	WaterThermoState wt;

@@ -28,6 +28,9 @@ auto waterHGK84GemsProperties(double T, double& P, int state, const std::string&
 /// parameters by name; transport: the constants of viscosity, conductivity and surface tension (GEMS water parameter set).
 auto waterLVS83Method(const std::map<std::string, Quantity>& values, const std::map<std::string, Quantity>& transport) -> std::shared_ptr<const SolventMethod>;
 
+/// WaterIAPWS95Gas: the gas equation of Wagner and Pruss (2002), used in its region (metastable vapour below 10 MPa)
+auto waterIAPWS95GasMethod(const MethodApplication& application) -> std::shared_ptr<const SolventMethod>;
+
 /// WaterIAPWS95, implementation reaktoro
 auto waterIAPWS95ReaktoroMethod(const MethodApplication& application) -> std::shared_ptr<const SolventMethod>;
 

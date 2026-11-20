@@ -441,6 +441,8 @@ auto substanceMethods() -> std::vector<MethodSpec>
                              .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("co_a", 20)).add(listed("co_q", 20))
                              .add(builtIn({"cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon", "Ttr"}))
                              .add(constants({{"Tmin1", "K"}, {"Tmin2", "K"}, {"Tmax", "K"}, {"Dmin", "kg/m3"}, {"Dmax", "kg/m3"}, {"Pbase1", "MPa"}, {"Pbase2", "MPa"}, {"PTmins", "MPa/K"}, {"PTmaxs", "MPa/K"}}))));
+    m.push_back(waterEoS(Spec("WaterIAPWS95Gas", "Water vapour, gas equation of IAPWS-95", "Calculates the properties of metastable water vapour (above the saturation pressure, below 10 MPa, up to 55 kg/m3) from the gas equation of Wagner and Pruss (2002), Eq. 3.2. IAPWS-95 is not reliable there away from the saturated vapour line; the authors advise this equation, as IAPWS-IF97 does. Used in this region only, for a vapour record (state gas); elsewhere the next equation of state of the record, for example WaterIAPWS95, is used, and it gives the saturation.", "Wagner and Pruss (2002) J. Phys. Chem. Ref. Data 31, 387-535, Sects. 3, 6.3.1 and 7.3.2.3")
+                             .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("d", 8)).add(listed("t", 8)).add(listed("n", 8))));
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
                              .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"}).add(saturation()).add(listed("no", 9)).add(listed("gammao", 5)).add(listed("c", 55)).add(listed("d", 55)).add(listed("t", 55)).add(listed("n", 57)).add(listed("alpha", 3)).add(listed("beta", 3)).add(listed("gamma", 3)).add(listed("epsilon", 3)).add(listed("a", 2)).add(listed("b", 2)).add(listed("A", 2)).add(listed("B", 2)).add(listed("C", 2)).add(listed("F", 2)).add(listed("E", 2))));
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
@@ -576,7 +578,7 @@ MethodCatalog::MethodCatalog()
         {"TPTable", D::TP}, {"CpExtendedUNIQUAC", D::TP}, {"HKF88", D::TP}, {"AkinfievDiamond03", D::TP}, {"SoluteHP98", D::TP}, {"AndersonEtAl91", D::TP},
         {"LandauHP98", D::TP}, {"LandauHP11", D::TP}, {"MurnaghanHP98", D::TP}, {"TaitHP11", D::TP}, {"VolumeBerman88", D::TP}, {"VolumeDorogokupets88", D::TP}, {"BirchMurnaghan47", D::TP},
         {"PRSV86", D::TP}, {"SoaveRedlichKwong72", D::TP}, {"PengRobinson78", D::TP}, {"SternerPitzer94", D::TP}, {"CorkHP91", D::TP}, {"ChurakovGottschalk03", D::TP},
-        {"WaterHGK84", D::TP}, {"WaterLVS83", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
+        {"WaterHGK84", D::TP}, {"WaterLVS83", D::TP}, {"WaterIAPWS95Gas", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
         {"DolejsManning10", D::TP}, {"MarshallFranck81", D::TP}, {"RyzhenkoBryzgalin", D::TP}, {"ReactionVolumePolynomial", D::TP}};
     for (auto& spec : specs_)
         if (const auto it = depends.find(spec.id); it != depends.end())

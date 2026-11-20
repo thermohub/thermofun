@@ -283,6 +283,7 @@ MethodRegistry::MethodRegistry()
     });
     // the transport properties of the GEMS water code are in its HGK parameter set
     solvent("WaterLVS83", "", [](A a) { return waterLVS83Method(a.parameters, builtinConstants("WaterHGK84", "gems")->parameters); });
+    solvent("WaterIAPWS95Gas", "", [](A a) { return waterIAPWS95GasMethod(a); });
     solvent("WaterIAPWS95", "", iapws);
     solvent("WaterIAPWS95", "reaktoro", iapws);
     solvent("WaterZhangDuan05", "", [](A a) {

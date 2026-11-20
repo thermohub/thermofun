@@ -29,8 +29,10 @@
 
 namespace ThermoFun {
 
+/// The density at T and P of the branch given by the state, or of the other branch if allowOther and the branch has none
+/// (beyond its spinodal); converged tells whether a stable root was found.
 template<typename HelmholtsModel>
-auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model) -> real
+auto solveWaterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model, bool allowOther, bool& converged) -> real
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
@@ -75,7 +77,7 @@ auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConsta
     if ((solvent_state >=0) && (T.val() <= s.Tcr))
     state = solvent_state;
 
-    bool converged = false;
+    converged = false;
     real D;
 
     if (state == 2)
@@ -90,10 +92,18 @@ auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConsta
         const real own   = state == 0 ? waterSaturatedLiquidDensityWagnerPruss(T, s) : waterSaturatedVapourDensityWagnerPruss(T, s);
         const real other = state == 0 ? waterSaturatedVapourDensityWagnerPruss(T, s) : waterSaturatedLiquidDensityWagnerPruss(T, s);
         D = newton(own, converged);
-        if (!converged)
+        if (!converged && allowOther)
             D = newton(other, converged);
     }
 
+    return D;
+}
+
+template<typename HelmholtsModel>
+auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model) -> real
+{
+    bool converged = false;
+    const real D = solveWaterDensity(T, P, solvent_state, s, model, true, converged);
     if (converged)
         return D;
 
@@ -115,6 +125,13 @@ auto waterDensityHGK(real T, real P, int state, const HGKConstants& constants) -
 auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> real
 {
     return waterDensity(T, P, state, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); });
+}
+
+auto waterDensityGasEquation(real T, real P, const WagnerPrussConstants& constants, double Dmax, bool& ok) -> real
+{
+    const real D = solveWaterDensity(T, P, 1, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); }, false, ok);
+    ok = ok && D.val() > 0 && D.val() <= Dmax;
+    return D;
 }
 
 auto waterSaturatedPressureWagnerPruss(real T, const WaterSaturationConstants& s) -> real

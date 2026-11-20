@@ -1,0 +1,32 @@
+thermohub: 2.0.0-draft.1
+parameter_sets:
+  WaterIAPWS95Gas_constants_v1:
+    method: WaterIAPWS95Gas
+    formula_units: {T: K, rho: kg/m3}
+    description: "Gas equation of Wagner and Pruss (2002), Eq. 3.2 and Table 3.1: the Helmholtz function of water for the vapour up to 55 kg/m3 (about 0.17 times the critical density), made from the ideal-gas part of IAPWS-95 and 7 residual terms n delta^d tau^t. The numbers n, d, t are place N of the arrays, as in WaterIAPWS95.yaml: place 1 is not used, places 2 to 8 are the terms 1 to 7 of Table 3.1. The ideal-gas part, the critical point and the saturation come from WaterIAPWS95.yaml and WaterSaturation.yaml."
+    reference: "Wagner W., Pruss A. (2002) J. Phys. Chem. Ref. Data 31, 387-535, Sect. 3"
+    parameters:
+      d_1: 0
+      d_2: 1
+      d_3: 1
+      d_4: 1
+      d_5: 1
+      d_6: 2
+      d_7: 2
+      d_8: 4
+      t_1: 0
+      t_2: 0.25
+      t_3: 1.25
+      t_4: 3.5
+      t_5: 12
+      t_6: 1.5
+      t_7: 13.5
+      t_8: 8.75
+      n_1: 0
+      n_2: 0.4748659259
+      n_3: -1.124370553
+      n_4: -0.8118627401
+      n_5: -0.0006213018501
+      n_6: 0.1924430993
+      n_7: -0.08322867662
+      n_8: 1.39105223
